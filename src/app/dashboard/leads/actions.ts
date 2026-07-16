@@ -1280,7 +1280,9 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
   }
 }
 
-export type ImportLeadsCsvResult =
+// Local return-type annotation only — "use server" files must export async
+// functions, not `export type` aliases (see use-server-export-type-cleanup).
+type ImportLeadsCsvResult =
   | {
       success: true;
       imported: number;

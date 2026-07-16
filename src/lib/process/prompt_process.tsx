@@ -81,7 +81,7 @@ export const AGENT_PROTOCOL = [
   // --- Testing & verification ---
   "For database-touching changes, `npm run build`/`lint` is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done. Run `npm test` (Vitest) alongside build/lint too — it has caught real breakage build+lint missed. Every payment-critical orchestration module (checkout/commerce-checkout/webhook/billing-portal/bootstrap-prices routes, every dashboard server action, stripe-sync, deploy handoff) has direct unit or route-level coverage — follow the nearest existing sibling test file as the template for a new one rather than relying on an indirect smoke test. Vitest cases that call getClientVoiceGenerator / getMarketingGenerator (or any factory that prefers a live LLM when ANTHROPIC_API_KEY is set) must clear/restore that key around the call — generators.test.ts already does this in afterEach; faq-pack.test.ts must match (see client-voice-factory-test-env-isolation). Scheduled agents and CI often inject the real secret, and an unisolated .generate() hits the live Messages API mid-suite.",
   "A `\"server-only\"` lib file cannot be Vitest-tested directly, and its exports must not be re-exported through a barrel that a `\"use client\"` file imports — both break at import/test time. Prefer the pattern in src/lib/commerce/stripe-sync.ts: take the third-party client (Stripe, etc.) as a parameter behind a minimal structural interface, so the logic itself needs no `\"server-only\"` guard and stays unit-testable with a fake client; keep the real client construction + env-var gating only in the server action/route that calls it.",
-  "`\"use server\"` files may export ONLY async functions — a `export type` re-export (even one that looks inert) throws `ReferenceError` at module evaluation under Turbopack's server-action transform and 500s every action in that file. Import types from their source module on the client instead.",
+  "`\"use server\"` files may export ONLY async functions — a `export type` re-export (even one that looks inert) throws `ReferenceError` at module evaluation under Turbopack's server-action transform and 500s every action in that file. Import types from their source module on the client instead. Inline `export type` aliases used only as local return annotations must also drop the `export` keyword (use-server-export-type-cleanup) — they are not a re-export, but they still violate the async-fn-only surface and can become a Turbopack footgun as the transform evolves.",
   "A server action with multiple `return { success: true/false, ... }` statements and no explicit return-type annotation only gets real discriminated-union narrowing on `if (res.success)` when every `success` literal is written `as const` (see markCommerceOrderPaidOutAction) — otherwise TS widens each to `boolean`, `if (res.success)` narrows nothing, and a field only present on the success branch (e.g. a returned id/slug) type-checks as possibly-undefined even though it's always present at runtime, silently defeating the type system's ability to catch a caller that forgets to use it. The same rule applies to send helpers that return `{ success }` shapes (sendEmail / sendOperatorDailyDigest). After any merge that touches `src/app/dashboard/**/actions.ts` or `src/lib/email/resend.ts`, grep for bare `success: true` / `success: false` without `as const` before claiming done — a large fold can silently reintroduce pre-fix literals (see server-action-as-const-success-restore after PR #231). React client components have no test harness in this repo (no @testing-library/react) — extract event-handler logic that touches local list/array state into a pure function beside the component's existing pure-helper module (e.g. src/lib/leads/notes.ts) rather than leaving it untested inline; this is how leads-client-optimistic-state-desync got direct Vitest coverage without adding a new test stack.",
 
   "stripe-core-publishable-key-false-requirement done: assessStripeCoreEnvReadiness no longer requires NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY — grepped the repo for loadStripe / @stripe/stripe-js and found zero call sites; both checkout flows redirect to a server-created Stripe Checkout Session URL, so the publishable key is never read. The old requirement made StripeCoreEnvBanner show a false alarm even when the two secrets that actually matter (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET) were both live. Updated launch-checklist/architecture/.env.example to match.",
@@ -100,7 +100,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR (e.g. opencode/dev-work-auth-gated-field-caps → assign-vercel-project-id-field-length-cap; opencode/dev-work-use-server-export-cleanup is a small type-only hygiene fold if still ahead of main), (2) close auth-gated twins of an already-shipped public opaque-id / size parser before inventing a clean-audit (auth-gated-stripe-sessionId-field-length-cap reused parseCheckoutSessionId after public billing-portal + success-page; Assign-project reused the vercelProjectId helper pattern; auth-gated-inquiryId-field-length-cap added parseInquiryId for app-owned inq_* keys), (3) a fresh security or injection-surface audit (auth cookie attributes / session TTL already clean 2026-07-16; public write/page size routes — contact notify↔persist + CSV/addLead create-path field caps + contact-form-require-known-lead + marketing-generate-content-types-size-cap + checkout-customer-email-field-length-cap + billing-portal-sessionId-field-length-cap + unsubscribe-email-field-length-cap + commerce-checkout-slug-skuId-field-length-cap + contact-form-slug-path-length-cap + billing-portal-returnUrl-field-length-cap + unsubscribe-token-field-length-cap + checkout-success-sessionId-field-length-cap + login-password-field-length-cap + login-next-path-field-length-cap + preview-page-slug-path-length-cap + checkout-slug-prefill-field-length-cap + proxy-host-lookup-field-length-cap + proxy-login-redirect-next-bound + preview-open-openedAt-field-length-cap + operator-session-token-field-length-cap + assign-vercel-project-id-field-length-cap + auth-gated-stripe-sessionId-field-length-cap + auth-gated-inquiryId-field-length-cap + auth-gated-lead-slug-field-length-cap + csv-import-text-length-cap + csv-import-dataSource-field-length-cap done; handoffId/packId/orderId are slug-keyed not client-submitted; next prefers dated clean-audit on an undated axis, remaining auth-gated free-text residuals (e.g. inquiry reply body if uncapped), or the use-server export-type hygiene fold), (4) a Convex/SQLite multi-instance parity or idempotency regression, (5) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.) After an API path hard-reject lands, always check its sold SSR/page GET twin AND the Host→preview twin before declaring the slug-size axis closed — contact/preview-open capped path length left /preview/[slug] and /checkout?slug= uncapped; those page twins then left spoofed Host labels uncapped on proxy.ts.",  "POST /api/marketing/generate must hard-reject contentTypes.length above MAX_MARKETING_CONTENT_TYPES_PER_REQUEST (MONTHLY_MARKETING_PACK_TYPES.length — sold pack ceiling) and leadId above MAX_MARKETING_GENERATE_LEAD_ID_LENGTH, and soft-cap business context via normalizeMarketingGenerateBusiness (create-fields MAX_* + services slice) before stub/LLM generate. Membership-only contentTypes validation is not a size bound — generators map 1:1 over the array (marketing-generate-content-types-size-cap). Rate limits blunt request count, not per-request Anthropic token burn.",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR (e.g. opencode/dev-work-auth-gated-field-caps → assign-vercel-project-id-field-length-cap; opencode/dev-work-use-server-export-cleanup → use-server-export-type-cleanup done), (2) close auth-gated twins of an already-shipped public opaque-id / size parser before inventing a clean-audit (auth-gated-stripe-sessionId-field-length-cap reused parseCheckoutSessionId after public billing-portal + success-page; Assign-project reused the vercelProjectId helper pattern; auth-gated-inquiryId-field-length-cap added parseInquiryId for app-owned inq_* keys), (3) a fresh security or injection-surface audit (auth cookie attributes / session TTL already clean 2026-07-16; public write/page size routes — contact notify↔persist + CSV/addLead create-path field caps + contact-form-require-known-lead + marketing-generate-content-types-size-cap + checkout-customer-email-field-length-cap + billing-portal-sessionId-field-length-cap + unsubscribe-email-field-length-cap + commerce-checkout-slug-skuId-field-length-cap + contact-form-slug-path-length-cap + billing-portal-returnUrl-field-length-cap + unsubscribe-token-field-length-cap + checkout-success-sessionId-field-length-cap + login-password-field-length-cap + login-next-path-field-length-cap + preview-page-slug-path-length-cap + checkout-slug-prefill-field-length-cap + proxy-host-lookup-field-length-cap + proxy-login-redirect-next-bound + preview-open-openedAt-field-length-cap + operator-session-token-field-length-cap + assign-vercel-project-id-field-length-cap + auth-gated-stripe-sessionId-field-length-cap + auth-gated-inquiryId-field-length-cap + auth-gated-lead-slug-field-length-cap + csv-import-text-length-cap + csv-import-dataSource-field-length-cap + use-server-export-type-cleanup done; handoffId/packId/orderId are slug-keyed not client-submitted; auth-gated free-text soft-caps already closed for inquiry reply / operator notes / commerce SKU fields / create-path + dataSource — next prefers a dated clean-audit on an undated axis such as Convex API map / marker-after-unchecked-await / public marketing OUTPUT indexing), (4) a Convex/SQLite multi-instance parity or idempotency regression, (5) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.) After an API path hard-reject lands, always check its sold SSR/page GET twin AND the Host→preview twin before declaring the slug-size axis closed — contact/preview-open capped path length left /preview/[slug] and /checkout?slug= uncapped; those page twins then left spoofed Host labels uncapped on proxy.ts.",  "POST /api/marketing/generate must hard-reject contentTypes.length above MAX_MARKETING_CONTENT_TYPES_PER_REQUEST (MONTHLY_MARKETING_PACK_TYPES.length — sold pack ceiling) and leadId above MAX_MARKETING_GENERATE_LEAD_ID_LENGTH, and soft-cap business context via normalizeMarketingGenerateBusiness (create-fields MAX_* + services slice) before stub/LLM generate. Membership-only contentTypes validation is not a size bound — generators map 1:1 over the array (marketing-generate-content-types-size-cap). Rate limits blunt request count, not per-request Anthropic token burn.",
   "POST /api/contact/[slug] must resolve a known lead before persist or skipSuppression notify: CRM getLeadBySlug OR curated DEMO_LEADS (demo-catalog getLeadBySlug), else 404 `{ ok: false, reason: \"unknown_lead\" }`. Slug-inferred preview pages (resolvePreviewLead) still render for any token, but inventable slugs must not create orphan inquiries (businessName=slug) or email brand.supportEmail under skipSuppression — rate limits blunt volume, not inventable-slug support spam (contact-form-require-known-lead). Mirror preview-open's unknown_lead soft-reject intent; contact fails closed before durable write.",
   "POST /api/contact/[slug] (and GET) must hard-reject path slugs that fail isPublicLeadSlugPathLengthOk (MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH=120, shared with preview-open AND the sold SSR `/preview/[slug]` page via loadPreviewPageLead) before CRM/demo lookup — charset-only `/^[a-z0-9-]+$/i` is not a size bound. A multi-KB valid-charset token still burns getLeadBySlug and was echoed on 404/success/GET JSON (contact-form-slug-path-length-cap); the page twin minted a synthetic lead via resolvePreviewLead and still rendered JSON-LD (preview-page-slug-path-length-cap). Soft-cap/truncate would change the lookup key; API routes fail closed with 400; the page notFound()s.",
   "sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims and orchestration module test-coverage gaps are BOTH now 2x-confirmed clean (claude/upbeat-dijkstra-3duvyp PR #188, then re-checked independently after 9 more merged PRs) — don't offer either as a fresh rotation target again until real product surface area changes; re-check only if a specific new claim lands in /docs/product-bundles or a new orchestration module ships without its sibling test file.",
@@ -2259,6 +2259,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 4 — Data ingestion",
     owner: "cursor/prompt-process-evolution-8cf6",
+  },
+  {
+    id: "use-server-export-type-cleanup",
+    summary:
+      "Empty-backlog after PR #310 (csv-import-dataSource-field-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI opencode/dev-work-use-server-export-cleanup has a complete type-only hygiene body (drop inline `export type` aliases from \"use server\" files) with no open PR — fold per AGENT_PROTOCOL before inventing a clean-audit. src/app/dashboard/actions.ts + leads/actions.ts still export BootstrapStripePricesActionResult / ImportLeadsCsvResult as `export type` (local return annotations only).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-5d8e",
   },
 
 ];
@@ -4779,6 +4787,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Soft-cap Lead.dataSource on importLeadsCsvAction + addLeadAction via shared normalizeLeadDataSource / MAX_LEAD_DATA_SOURCE_LENGTH (64) before upsert — rather than hard-reject (would strand legitimate custom batch labels), leave the compliance tag uncapped after csvText + per-cell caps closed, invent an optional aggregate, or jump straight to a dated clean-audit while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "Empty-backlog after PR #308/#309 (auth-gated lead-slug + CSV body size). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged (password-trim already on main; use-server export-type cleanup is type-only hygiene deferred). AGENT_PROTOCOL named residual auth-gated free-text after opaque-id + body-size close — dataSource was the live Places-gated lead-volume residual still unbounded. Soft-cap fits free-text tags; opaque keys stay hard-reject. Process improvement: after bulk csvText hard-reject lands, scan residual optional batch metadata tags on the same create-path before inventing a clean-audit. Next empty-backlog: dated clean-audit / inquiry-reply body soft-cap if uncapped / use-server export-type fold. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Drop inline `export type` aliases from \"use server\" files (BootstrapStripePricesActionResult / ImportLeadsCsvResult → non-exported `type`) by folding stuck opencode/dev-work-use-server-export-cleanup — rather than leave a Turbopack async-fn-only surface violation, invent an optional aggregate, or jump to a dated clean-audit while free NEXT_STEPS stay operator/legal-gated.",
+    rationale:
+      "Empty-backlog after PR #310 (dataSource soft-cap). Free NEXT_STEPS stayed operator/legal-gated. AGENT_PROTOCOL named the stuck use-server export-type hygiene fold next; both aliases are local return annotations with zero external importers. Complementary free-text audit confirmed inquiry reply (MAX=4000), operator notes (MAX=2000), commerce SKU name/description, and create-path + dataSource caps already closed — no further soft-cap residual on those sinks. Process improvement: after opaque-id + CSV body + dataSource close, prefer folding a named stuck CLI hygiene body before inventing a 3rd re-audit; also re-verify ITERATIONS[].decisions ownership via object-parse (tsx import) and tighten +1 drift on recent slices. Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await / public marketing OUTPUT indexing. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 
 ];
@@ -9395,11 +9410,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes beacon openedAt length fall-back beside requireConvex",
       "AGENT_PROTOCOL — preview-open openedAt length rule; empty-backlog rotation marks this axis done; next prefers dated clean-audit / Convex parity / Assign-project id length",
       "NEXT_STEPS: preview-open-openedAt-field-length-cap done",
-      "BUSINESS_DECISIONS — fall back over-long preview-open openedAt over inventing an optional aggregate (slice 349)",
+      "BUSINESS_DECISIONS — fall back over-long preview-open openedAt over inventing an optional aggregate (slice 350)",
       "Verified: npm test (1474 passed, +6 over main@proxy-login's 1468) + lint",
       "Folded onto cursor/prompt-process-evolution-2662 — complementary session-token length; both ITERATIONS kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(349, 350),
+    decisions: BUSINESS_DECISIONS.slice(350, 351),
   },
   {
     date: "2026-07-16",
@@ -9413,10 +9428,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes session cookie length hard-reject beside password + proxy next=",
       "AGENT_PROTOCOL — operator session token length rule; empty-backlog rotation marks openedAt + session-token done",
       "NEXT_STEPS: operator-session-token-field-length-cap done; preview-open-openedAt-field-length-cap done (67b2 / #302)",
-      "BUSINESS_DECISIONS — session cookie hard-reject over inventing an optional aggregate (slice 350)",
+      "BUSINESS_DECISIONS — session cookie hard-reject over inventing an optional aggregate (slice 351)",
       "Verified: npm test (1477 passed = main@#302's 1474 + 3 session-token regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(350, 351),
+    decisions: BUSINESS_DECISIONS.slice(351, 352),
   },
   {
     date: "2026-07-16",
@@ -9432,10 +9447,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Assign-project id length hard-reject beside custom-domain normalize",
       "AGENT_PROTOCOL — auth-gated Assign-project id length rule; empty-backlog rotation marks this axis done; stuck-CLI fold example named",
       "NEXT_STEPS: assign-vercel-project-id-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject Assign-project vercelProjectId over inventing an optional aggregate (slice 351)",
+      "BUSINESS_DECISIONS — hard-reject Assign-project vercelProjectId over inventing an optional aggregate (slice 352)",
       "Verified: npm test (1486 passed = main@#303's 1477 + 6 helper + 2 action over-long/exact-max + 1 suite bookkeeping) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(351, 352),
+    decisions: BUSINESS_DECISIONS.slice(352, 353),
   },
   {
     date: "2026-07-16",
@@ -9451,10 +9466,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes commerceOrders createdAt ordering beside dual-backend contract",
       "AGENT_PROTOCOL — dual-backend ordering names commerceOrders; empty-backlog rotation marks Convex commerceOrders residual done",
       "NEXT_STEPS: commerce-orders-convex-createdAt-ordering-parity done; assign-vercel-project-id-field-length-cap done (1ba2 / #304)",
-      "BUSINESS_DECISIONS — commerceOrders createdAt sort over inventing an optional aggregate (slice 352)",
+      "BUSINESS_DECISIONS — commerceOrders createdAt sort over inventing an optional aggregate (slice 353)",
       "Verified: npm test (1489 passed = main@#304's 1486 + 3 newest-first regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(352, 353),
+    decisions: BUSINESS_DECISIONS.slice(353, 354),
   },
   {
     date: "2026-07-16",
@@ -9469,11 +9484,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes auth-gated sessionId hard-reject beside Mark paid out",
       "AGENT_PROTOCOL — auth-gated stripeSessionId rule; empty-backlog rotation prefers auth-gated twins of shipped parsers",
       "NEXT_STEPS: auth-gated-stripe-sessionId-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject auth-gated stripeSessionId over inventing an optional aggregate (slice 353)",
+      "BUSINESS_DECISIONS — hard-reject auth-gated stripeSessionId over inventing an optional aggregate (slice 354)",
       "Verified: npm test (1493 passed = main@#305's 1489 + 4 over-long/exact-max regressions) + lint",
       "Sibling c954 complementary inquiryId length — folded both ITERATIONS on c954 merge",
     ],
-    decisions: BUSINESS_DECISIONS.slice(353, 354),
+    decisions: BUSINESS_DECISIONS.slice(354, 355),
   },
   {
     date: "2026-07-16",
@@ -9490,10 +9505,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes inquiryId length hard-reject beside Assign-project id",
       "AGENT_PROTOCOL — auth-gated inquiryId length rule; empty-backlog rotation marks inquiryId + stripeSessionId done; next prefers handoffId/packId/orderId or dated clean-audit",
       "NEXT_STEPS: auth-gated-inquiryId-field-length-cap done; auth-gated-stripe-sessionId-field-length-cap done (28bd / #306)",
-      "BUSINESS_DECISIONS — hard-reject inquiryId over inventing an optional aggregate (slice 354)",
+      "BUSINESS_DECISIONS — hard-reject inquiryId over inventing an optional aggregate (slice 355)",
       "Verified: npm test (1501 passed = main@#306's 1493 + 4 helper + 4 action over-long/exact-max) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(354, 355),
+    decisions: BUSINESS_DECISIONS.slice(355, 356),
   },
   {
     date: "2026-07-16",
@@ -9509,10 +9524,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — csv-import-text-length-cap rule; empty-backlog rotation marks handoffId/packId/orderId as slug-keyed + CSV body done; next prefers dated clean-audit",
       "merge: origin/main (PR #308 auth-gated lead-slug length) — keep sibling ITERATION; complementary CSV body axis",
       "NEXT_STEPS: csv-import-text-length-cap done; auth-gated-lead-slug-field-length-cap done (f30c / #308)",
-      "BUSINESS_DECISIONS — hard-reject CSV body size over inventing an optional aggregate (slice 356)",
+      "BUSINESS_DECISIONS — hard-reject CSV body size over inventing an optional aggregate (slice 357)",
       "Verified: npm test (1515 passed = main@#308's 1509 + 4 helper + 2 action over-long/exact-max) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(356, 357),
+    decisions: BUSINESS_DECISIONS.slice(357, 358),
   },
 
 
@@ -9532,10 +9547,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes auth-gated lead-slug hard-reject beside inquiryId / Assign-project",
       "AGENT_PROTOCOL — auth-gated lead-slug lookup rule; empty-backlog rotation marks slug residual done",
       "NEXT_STEPS: auth-gated-lead-slug-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject auth-gated lead slug over inventing an optional aggregate (slice 355)",
+      "BUSINESS_DECISIONS — hard-reject auth-gated lead slug over inventing an optional aggregate (slice 356)",
       "Verified: npm test (1509 passed = main@#307's 1501 + 4 helper + 2 mark-handoff over-long/exact-max + 1 follow-up + 1 stage over-long) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(355, 356),
+    decisions: BUSINESS_DECISIONS.slice(356, 357),
   },
   {
     date: "2026-07-16",
@@ -9553,10 +9568,28 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes dataSource soft-cap beside csvText hard-reject",
       "AGENT_PROTOCOL — csv-import-dataSource-field-length-cap rule; empty-backlog rotation marks dataSource done; next prefers dated clean-audit / inquiry-reply body / use-server export-type fold",
       "NEXT_STEPS: csv-import-dataSource-field-length-cap done",
-      "BUSINESS_DECISIONS — soft-cap dataSource tag over inventing an optional aggregate (slice 357)",
+      "BUSINESS_DECISIONS — soft-cap dataSource tag over inventing an optional aggregate (slice 358)",
       "Verified: npm test (1522 passed = main@#309's 1515 + 4 helper + 1 csv-import + 1 add-lead + 1 import-csv soft-cap) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(357, 358),
+    decisions: BUSINESS_DECISIONS.slice(358, 359),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/business-process-evolution-5d8e",
+    summary:
+      "Empty-backlog after PR #310 (csv-import-dataSource-field-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI opencode/dev-work-use-server-export-cleanup had a complete type-only hygiene body with no open PR — folded per AGENT_PROTOCOL before inventing a clean-audit. Dropped inline `export type` aliases from dashboard \"use server\" files (local return annotations only). Complementary free-text audit confirmed inquiry reply / operator notes / commerce SKU / create-path + dataSource already capped. Tightened +1 ITERATIONS decision-slice drift on the openedAt→dataSource chain via object-parse; process rotation now prefers a dated clean-audit on Convex API map / marker-after-unchecked-await / public marketing OUTPUT indexing.",
+    shipped: [
+      "fold: origin/opencode/dev-work-use-server-export-cleanup — drop inline export type aliases from \"use server\" files (no open PR)",
+      "src/app/dashboard/actions.ts — BootstrapStripePricesActionResult export type → type (local return annotation)",
+      "src/app/dashboard/leads/actions.ts — ImportLeadsCsvResult export type → type (local return annotation)",
+      "Clean free-text audit: normalizeInquiryReply / normalizeOperatorNotes / normalizeCommerceItems / create-path + dataSource already capped — no new soft-cap residual",
+      "Process: re-verified ITERATIONS[].decisions ownership via tsx import; tightened +1 drift on 67b2→8cf6 slices so each owns its absolute BUSINESS_DECISIONS index",
+      "AGENT_PROTOCOL — inline export type aliases must drop export; empty-backlog rotation marks use-server hygiene + free-text soft-caps done",
+      "NEXT_STEPS: use-server-export-type-cleanup done",
+      "BUSINESS_DECISIONS — fold use-server export-type hygiene over inventing an optional aggregate (slice 359)",
+      "Verified: npm test (1522 passed, unchanged — type-only hygiene) + lint",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(359, 360),
   },
 ];
 

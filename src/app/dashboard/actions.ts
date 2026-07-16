@@ -6,7 +6,10 @@ import { assessStripeBootstrapGate } from "@/lib/pricing/bootstrap-gate";
 import { bootstrapStripePrices } from "@/lib/pricing/bootstrap-stripe-prices";
 import type { BootstrapPriceResult } from "@/lib/pricing/bootstrap-stripe-prices";
 
-export type BootstrapStripePricesActionResult =
+// Local return-type annotation only — "use server" files must export async
+// functions, not `export type` aliases (Turbopack registers every top-level
+// export as a server-action reference).
+type BootstrapStripePricesActionResult =
   | {
       success: true;
       results: BootstrapPriceResult[];
