@@ -9743,7 +9743,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — followthrough rule after shipping indexed list* helpers",
       "NEXT_STEPS: slug-scoped-listOrders-followthrough done; stub + commerce-barrel done (a070 / #314)",
       "BUSINESS_DECISIONS — wire listOrdersByLeadSlug on auth-gated slug twins (slice 364)",
-      "Verified: npm test + lint (count recorded after full suite)",
+      "Verified: npm test (1543 passed, unchanged vs main@#314 — eligibility mocks retargeted; no net new cases) + lint",
     ],
     decisions: BUSINESS_DECISIONS.slice(364, 365),
   },
