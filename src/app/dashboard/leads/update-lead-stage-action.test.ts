@@ -144,6 +144,19 @@ describe("updateLeadStageAction", () => {
     expect(sendOutreachEmail).not.toHaveBeenCalled();
   });
 
+  it("hard-rejects over-long slug before getLeadBySlug", async () => {
+    const { MAX_LEAD_SLUG_LENGTH } = await import("@/lib/leads/slug");
+    const { updateLeadStageAction } = await import("./actions");
+    const over = "a".repeat(MAX_LEAD_SLUG_LENGTH + 1);
+    const res = await updateLeadStageAction(over, "discovery_call");
+    expect(res).toEqual({
+      success: false,
+      error: "Slug is too long",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(updateLeadStage).not.toHaveBeenCalled();
+  });
+
   it("moves a non-outreach stage with LEAD_STAGE_CONVEX_PRIMARY and revalidates", async () => {
     const { updateLeadStageAction } = await import("./actions");
     const res = await updateLeadStageAction("demo-cafe", "discovery_call");

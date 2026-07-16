@@ -12,7 +12,10 @@
  * persists.
  */
 
-import { MAX_LEAD_SLUG_LENGTH } from "@/lib/leads/slug";
+import {
+  MAX_LEAD_SLUG_LENGTH,
+  parseLeadSlugLookup,
+} from "@/lib/leads/slug";
 
 export { MAX_LEAD_SLUG_LENGTH as MAX_COMMERCE_CHECKOUT_SLUG_LENGTH };
 
@@ -44,7 +47,12 @@ function parseBoundedTrimmedString(
 export function parseCommerceCheckoutSlug(
   raw: unknown,
 ): ParseCommerceCheckoutFieldResult {
-  return parseBoundedTrimmedString(raw, MAX_LEAD_SLUG_LENGTH);
+  // Shared with auth-gated dashboard slug lookups (parseLeadSlugLookup).
+  const parsed = parseLeadSlugLookup(raw);
+  if (!parsed.ok) {
+    return { ok: false, reason: parsed.reason };
+  }
+  return { ok: true, value: parsed.slug };
 }
 
 /** Trim + hard-reject over MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH (never truncate). */

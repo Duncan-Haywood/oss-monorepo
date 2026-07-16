@@ -149,6 +149,18 @@ describe("sendFollowUpAction", () => {
     expect(getLeadBySlug).not.toHaveBeenCalled();
   });
 
+  it("hard-rejects over-long slug before getLeadBySlug", async () => {
+    const { MAX_LEAD_SLUG_LENGTH } = await import("@/lib/leads/slug");
+    const { sendFollowUpAction } = await import("./actions");
+    const over = "a".repeat(MAX_LEAD_SLUG_LENGTH + 1);
+    const res = await sendFollowUpAction(over);
+    expect(res).toEqual({
+      success: false,
+      error: "Slug is too long",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+  });
+
   it("rejects when the lead is missing", async () => {
     getLeadBySlug.mockResolvedValue(null);
     const { sendFollowUpAction } = await import("./actions");

@@ -276,7 +276,15 @@ export default function ArchitectureDocPage() {
         <code>parseInquiryId</code> (
         <code>src/lib/inquiries/inquiry-id.ts</code>) before Convex/SQLite or
         Resend — opaque app-owned <code>inq_*</code> keys must not be soft-capped
-        (same auth-gated id class as Assign-project). Until{" "}
+        (same auth-gated id class as Assign-project). Slug-keyed dashboard
+        actions (Mark live, Assign project/domain, stage/notes/snooze, follow-up,
+        packs, commerce catalog, Billing portal, …) hard-reject{" "}
+        <code>slug</code> longer than{" "}
+        <code>MAX_LEAD_SLUG_LENGTH</code> (63) via{" "}
+        <code>parseLeadSlugLookup</code> (
+        <code>src/lib/leads/slug.ts</code>) before Convex/SQLite / Stripe /
+        Resend — CRM lookup keys match create-path DNS max (commerce Buy now
+        reuses the same helper); soft-cap would change the opaque key. Until{" "}
         <code>NEXT_PUBLIC_CONVEX_URL</code> is a non-placeholder deployment URL, the same
         dashboards show a pink multi-instance persistence banner via{" "}
         <code>assessConvexUrlEnvReadiness</code> (

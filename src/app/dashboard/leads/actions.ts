@@ -57,7 +57,7 @@ import {
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import { normalizeLeadCreateFields } from "@/lib/leads/create-fields";
 import { normalizeOperatorNotes } from "@/lib/leads/notes";
-import { sanitizeLeadSlug } from "@/lib/leads/slug";
+import { parseLeadSlugLookup, sanitizeLeadSlug } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl, leadPreviewPath } from "@/lib/leads/slug-path";
 import {
   isSnoozePresetId,
@@ -141,9 +141,17 @@ export async function markHandoffLiveAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
     let handoff;
     try {
       handoff = await markHandoffLive(slug);
@@ -178,9 +186,17 @@ export async function assignVercelProjectAction(slug: string, vercelProjectId: s
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
     // Hard-reject over-long opaque project ids before Domains API / Convex
     // write — auth is not a payload-size throttle; soft-cap would change the key.
     const parsed = parseVercelProjectId(vercelProjectId);
@@ -220,9 +236,17 @@ export async function assignCustomDomainAction(slug: string, customDomain: strin
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
     // Bare hostname only — URL/port/path pastes must not land in the
     // handoff row (Host→preview + Vercel Domains API both expect Host form).
     // custom-domain-host-normalize (sibling continuous-work) + collision
@@ -438,6 +462,17 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
 
     // Every sibling write action in this file (notes, snooze, cold
     // disposition, catalogs, marketing/voice packs, payouts) checks the
@@ -521,9 +556,17 @@ export async function updateLeadNotesAction(slug: string, notes: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
     const normalized = normalizeOperatorNotes(notes);
     if (!normalized.ok) {
@@ -572,9 +615,17 @@ export async function snoozeLeadAction(
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
     const existing = await getLeadBySlug(slug);
     if (!existing) {
@@ -642,9 +693,17 @@ export async function disposeColdLeadAction(
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
     if (!isColdLeadDisposition(disposition)) {
       return { success: false as const, error: "Invalid cold-lead disposition" };
     }
@@ -766,9 +825,17 @@ export async function sendFollowUpAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
     const lead = await getLeadBySlug(slug);
     if (!lead) {
@@ -1339,11 +1406,19 @@ export async function sendStarterUpsellAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug?.trim()) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
-    const lead = await getLeadBySlug(slug.trim());
+    const lead = await getLeadBySlug(slug);
     if (!lead) {
       return { success: false as const, error: "Lead not found" };
     }
@@ -1415,9 +1490,17 @@ export async function openBillingPortalAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug?.trim()) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
     const secretKey = process.env.STRIPE_SECRET_KEY;
     if (!secretKey) {
@@ -1546,9 +1629,17 @@ export async function generateMarketingPackAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
     const lead = await getLeadBySlug(slug);
     if (!lead) {
@@ -1626,11 +1717,19 @@ export async function sendMarketingPackToClientAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug?.trim()) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
-    const lead = await getLeadBySlug(slug.trim());
+    const lead = await getLeadBySlug(slug);
     if (!lead) {
       return { success: false as const, error: "Lead not found" };
     }
@@ -1709,9 +1808,17 @@ export async function saveCommerceCatalogAction(
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
     const lead = await getLeadBySlug(slug);
     if (!lead) {
@@ -1778,9 +1885,17 @@ export async function getCommerceCatalogAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
     const catalog = await getCommerceCatalog(slug);
     return { success: true as const, catalog };
   } catch (error) {
@@ -1805,9 +1920,17 @@ export async function syncCommerceCatalogToStripeAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
     const secretKey = process.env.STRIPE_SECRET_KEY;
     if (!secretKey) {
@@ -1896,9 +2019,17 @@ export async function archiveOrphanCommerceStripeProductsAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
     const secretKey = process.env.STRIPE_SECRET_KEY;
     if (!secretKey) {
@@ -1955,9 +2086,17 @@ export async function generateClientVoicePackAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
     const lead = await getLeadBySlug(slug);
     if (!lead) {
@@ -2024,11 +2163,19 @@ export async function sendClientVoicePackToClientAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!slug?.trim()) {
-      return { success: false as const, error: "Slug is required" };
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
     }
+    slug = parsedSlug.slug;
 
-    const lead = await getLeadBySlug(slug.trim());
+    const lead = await getLeadBySlug(slug);
     if (!lead) {
       return { success: false as const, error: "Lead not found" };
     }

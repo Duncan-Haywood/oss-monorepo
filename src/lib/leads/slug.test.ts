@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { MAX_LEAD_SLUG_LENGTH, sanitizeLeadSlug } from "./slug";
+import {
+  MAX_LEAD_SLUG_LENGTH,
+  parseLeadSlugLookup,
+  sanitizeLeadSlug,
+} from "./slug";
 import { leadSlugAsDnsLabel } from "./slug-path";
 
 describe("sanitizeLeadSlug", () => {
@@ -53,3 +57,52 @@ describe("sanitizeLeadSlug", () => {
     expect(sanitizeLeadSlug("organic-abc123")).toBe("organic-abc123");
   });
 });
+
+describe("parseLeadSlugLookup", () => {
+  it("rejects non-string / empty / whitespace as missing", () => {
+    expect(parseLeadSlugLookup(undefined)).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+    expect(parseLeadSlugLookup(null)).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+    expect(parseLeadSlugLookup(42)).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+    expect(parseLeadSlugLookup("")).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+    expect(parseLeadSlugLookup("   ")).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+  });
+
+  it("trims and accepts a genuine CRM slug", () => {
+    expect(parseLeadSlugLookup("  demo-cafe  ")).toEqual({
+      ok: true,
+      slug: "demo-cafe",
+    });
+  });
+
+  it("hard-rejects over MAX_LEAD_SLUG_LENGTH (no soft-cap)", () => {
+    const over = "a".repeat(MAX_LEAD_SLUG_LENGTH + 1);
+    expect(parseLeadSlugLookup(over)).toEqual({
+      ok: false,
+      reason: "too_long",
+    });
+  });
+
+  it("accepts exactly MAX_LEAD_SLUG_LENGTH", () => {
+    const exact = "b".repeat(MAX_LEAD_SLUG_LENGTH);
+    expect(parseLeadSlugLookup(exact)).toEqual({
+      ok: true,
+      slug: exact,
+    });
+  });
+});
+
