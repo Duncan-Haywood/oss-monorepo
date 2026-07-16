@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   encodeLeadSlugPathSegment,
+  isPublicLeadSlugPathLengthOk,
   leadContactAbsoluteUrl,
   leadContactApiPath,
   leadPreviewAbsoluteUrl,
   leadPreviewPath,
   leadSlugAsDnsLabel,
+  MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH,
 } from "./slug-path";
 
 describe("encodeLeadSlugPathSegment", () => {
@@ -69,5 +71,21 @@ describe("leadSlugAsDnsLabel", () => {
     const label = leadSlugAsDnsLabel(overlong);
     expect(label.length).toBeLessThanOrEqual(63);
     expect(label).not.toMatch(/^-|-$/);
+  });
+});
+
+describe("isPublicLeadSlugPathLengthOk", () => {
+  it("rejects empty and over-max path slugs", () => {
+    expect(isPublicLeadSlugPathLengthOk("")).toBe(false);
+    expect(
+      isPublicLeadSlugPathLengthOk("a".repeat(MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH + 1)),
+    ).toBe(false);
+  });
+
+  it("accepts exact-max and typical create-path slugs", () => {
+    expect(
+      isPublicLeadSlugPathLengthOk("a".repeat(MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH)),
+    ).toBe(true);
+    expect(isPublicLeadSlugPathLengthOk("demo-cafe")).toBe(true);
   });
 });

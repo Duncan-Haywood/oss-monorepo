@@ -9,6 +9,7 @@ import {
   shouldSendContactNotify,
 } from "@/lib/inquiries/contact-persist";
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
+import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
@@ -23,6 +24,10 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * must not create orphan inquiries or skipSuppression-notify support
  * (contact-form-require-known-lead). Preview-open soft-rejects unknown_lead
  * the same way; contact returns 404 before persist/notify.
+ *
+ * Path slug must also pass isPublicLeadSlugPathLengthOk (shared with
+ * preview-open) before CRM/demo lookup — charset-only validation is not a
+ * size bound (contact-form-slug-path-length-cap).
  *
  * Notify is best-effort AFTER durable persist: sendEmail never throws on
  * suppression/Resend failure (resolves `{ success: false }`), so the route
@@ -79,9 +84,15 @@ async function parseBody(request: Request): Promise<Record<string, unknown>> {
   return {};
 }
 
+function isValidContactSlug(slug: string): boolean {
+  return (
+    isPublicLeadSlugPathLengthOk(slug) && /^[a-z0-9-]+$/i.test(slug)
+  );
+}
+
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  if (!slug || !/^[a-z0-9-]+$/i.test(slug)) {
+  if (!slug || !isValidContactSlug(slug)) {
     return NextResponse.json({ error: "Invalid slug" }, { status: 400 });
   }
 
@@ -230,6 +241,9 @@ export async function POST(request: Request, context: RouteContext) {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
+  if (!slug || !isValidContactSlug(slug)) {
+    return NextResponse.json({ error: "Invalid slug" }, { status: 400 });
+  }
   return NextResponse.json({
     slug,
     method: "POST",

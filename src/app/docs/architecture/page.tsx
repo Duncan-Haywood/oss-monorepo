@@ -403,7 +403,10 @@ export default function ArchitectureDocPage() {
         <strong>known-lead gate</strong>: CRM <code>getLeadBySlug</code> or curated{" "}
         <code>DEMO_LEADS</code> before persist/notify — inventable/slug-inferred tokens return{" "}
         <code>404 unknown_lead</code> so skipSuppression cannot spam{" "}
-        <code>brand.supportEmail</code>) beyond{" "}
+        <code>brand.supportEmail</code>; path slug length hard-rejects over{" "}
+        <code>MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH</code> (120, shared with preview-open via{" "}
+        <code>isPublicLeadSlugPathLengthOk</code>) before CRM/demo lookup — charset-only
+        validation is not a size bound) beyond{" "}
         <code>contact-persist.test.ts</code> helpers, and{" "}
         <code>src/app/api/unsubscribe/route.test.ts</code> locks the CAN-SPAM suppress twin
         (missing-email 400, over-long email 400 before HMAC,{" "}
