@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_SAFE_NEXT_PATH,
   isSafeNextPath,
+  MAX_SAFE_NEXT_PATH_LENGTH,
   safeNextPath,
 } from "./safe-next-path";
 
@@ -83,6 +84,20 @@ describe("isSafeNextPath", () => {
   it("still accepts a harmless single-dot segment under a non-login path", () => {
     expect(isSafeNextPath("/dashboard/./leads")).toBe(true);
   });
+
+  it("rejects paths longer than MAX_SAFE_NEXT_PATH_LENGTH", () => {
+    const over =
+      "/dashboard/" + "a".repeat(MAX_SAFE_NEXT_PATH_LENGTH - "/dashboard/".length + 1);
+    expect(over.length).toBe(MAX_SAFE_NEXT_PATH_LENGTH + 1);
+    expect(isSafeNextPath(over)).toBe(false);
+  });
+
+  it("accepts a dashboard path at exactly MAX_SAFE_NEXT_PATH_LENGTH", () => {
+    const exact =
+      "/dashboard/" + "b".repeat(MAX_SAFE_NEXT_PATH_LENGTH - "/dashboard/".length);
+    expect(exact.length).toBe(MAX_SAFE_NEXT_PATH_LENGTH);
+    expect(isSafeNextPath(exact)).toBe(true);
+  });
 });
 
 describe("safeNextPath", () => {
@@ -102,6 +117,12 @@ describe("safeNextPath", () => {
     expect(safeNextPath("//evil.example")).toBe(DEFAULT_SAFE_NEXT_PATH);
     expect(safeNextPath("/\\evil.example")).toBe(DEFAULT_SAFE_NEXT_PATH);
     expect(safeNextPath("https://evil.example")).toBe(DEFAULT_SAFE_NEXT_PATH);
+  });
+
+  it("falls back for over-long next paths (optional redirect length policy)", () => {
+    const over =
+      "/dashboard/" + "c".repeat(MAX_SAFE_NEXT_PATH_LENGTH - "/dashboard/".length + 1);
+    expect(safeNextPath(over)).toBe(DEFAULT_SAFE_NEXT_PATH);
   });
 
   it("honors a custom fallback", () => {

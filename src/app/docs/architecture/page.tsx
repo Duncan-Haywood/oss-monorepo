@@ -95,7 +95,11 @@ export default function ArchitectureDocPage() {
         the secret or a pasted login field cannot lock the operator out — and hard-reject
         form passwords longer than <code>MAX_OPERATOR_PASSWORD_LENGTH</code> (256) before{" "}
         <code>Buffer.from</code> / timing-safe compare (rate limits blunt attempt count, not
-        per-attempt payload size; soft-cap would change the secret) —{" "}
+        per-attempt payload size; soft-cap would change the secret) — and{" "}
+        <code>safeNextPath</code> falls back to <code>/dashboard</code> when the client-supplied{" "}
+        <code>next</code> path exceeds <code>MAX_SAFE_NEXT_PATH_LENGTH</code> (2048; same optional
+        redirect length policy as billing-portal <code>returnUrl</code> — soft-cap would change
+        the destination; hard-reject would strand login) —{" "}
         <code>src/proxy.ts</code> dashboardAuthGate also verifies via exported{" "}
         <code>getPassword()</code> (never raw <code>process.env</code>) so a secret-manager
         paste cannot accept login then infinite-redirect at the Host gate — and{" "}

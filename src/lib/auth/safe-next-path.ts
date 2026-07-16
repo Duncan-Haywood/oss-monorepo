@@ -3,16 +3,23 @@
  *
  * Only same-app operator dashboard paths are allowed. Protocol-relative
  * (`//evil.example`), backslash host tricks (`/\evil`), absolute URLs,
- * control characters (CRLF), and the login page itself (self-redirect loop)
- * fall back to `/dashboard`.
+ * control characters (CRLF), over-length paths, and the login page itself
+ * (self-redirect loop) fall back to `/dashboard`.
  *
  * Pure — no cookies / Next APIs — so Vitest can cover every branch without
  * mocking server actions. Used by both loginOperatorAction and the login
  * page's already-authenticated redirect (the page previously used a weaker
  * `startsWith("/")` check that accepted `//evil.example`).
+ *
+ * Length policy matches optional redirect fields (billing-portal returnUrl):
+ * over-MAX falls back — soft-cap would change the destination; hard-reject
+ * would strand login. Legitimate dashboard paths sit far below the ceiling.
  */
 
 export const DEFAULT_SAFE_NEXT_PATH = "/dashboard";
+
+/** Max length for a client-supplied login `next` path (chars after trim). */
+export const MAX_SAFE_NEXT_PATH_LENGTH = 2048;
 
 /**
  * Decode the pathname (strip query/hash first), collapse no-op `.` segments,
@@ -55,6 +62,9 @@ function normalizePathnameForSafety(path: string): string | null {
  */
 export function isSafeNextPath(path: string): boolean {
   if (!path.startsWith("/")) return false;
+  // Over-length — optional redirect fall-back (same class as returnUrl).
+  // Check before other work so a multi-KB probe never burns decode/normalize.
+  if (path.length > MAX_SAFE_NEXT_PATH_LENGTH) return false;
   // Protocol-relative absolute URL (//host/...) — open redirect.
   if (path.startsWith("//")) return false;
   // Backslash host tricks (/\evil, /\\evil) some browsers normalize oddly.
