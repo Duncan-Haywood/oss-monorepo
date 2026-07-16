@@ -545,7 +545,13 @@ export default function ArchitectureDocPage() {
         public and keyed only by a client-supplied <code>sessionId</code>, it is rate-limited by
         client IP via <code>checkRateLimit</code> (same helper as contact / checkout / commerce
         checkout / unsubscribe / preview-open) so scripted <code>sessionId</code> probing cannot
-        burn Stripe API quota unbounded. Because a completed <code>sessionId</code> is not truly
+        burn Stripe API quota unbounded. The route also hard-rejects{" "}
+        <code>sessionId</code> longer than{" "}
+        <code>MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH</code> (
+        <code>parseCheckoutSessionId</code> in <code>src/lib/billing/checkout-session-id.ts</code>)
+        before any Stripe call — rate limits blunt request count, not payload size, and soft-capping
+        an opaque id would only waste a retrieve on a guaranteed miss. Because a completed{" "}
+        <code>sessionId</code> is not truly
         secret either (it leaks via redirect URLs, the <code>Referer</code> header, and browser
         history), an explicit body <code>returnUrl</code> is only honored when its origin matches
         the derived <code>appUrl</code> (<code>isSameOriginReturnUrl</code>) — otherwise the route
