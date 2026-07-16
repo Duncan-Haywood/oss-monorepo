@@ -556,7 +556,13 @@ export default function ArchitectureDocPage() {
         <code>MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH</code> (
         <code>parseCheckoutSessionId</code> in <code>src/lib/billing/checkout-session-id.ts</code>)
         before any Stripe call — rate limits blunt request count, not payload size, and soft-capping
-        an opaque id would only waste a retrieve on a guaranteed miss. Because a completed{" "}
+        an opaque id would only waste a retrieve on a guaranteed miss. The same{" "}
+        <code>parseCheckoutSessionId</code> gate also protects{" "}
+        <code>GET /checkout/success?session_id=</code> (
+        <code>loadCheckoutSuccessSession</code> in <code>src/lib/checkout/success-session.ts</code>) —
+        billing-portal alone left the post-payment confirmation page as an uncapped twin that
+        still called <code>stripe.checkout.sessions.retrieve</code> on multi-KB query garbage;
+        over-long / missing ids render the unconfirmed UI without touching Stripe. Because a completed{" "}
         <code>sessionId</code> is not truly
         secret either (it leaks via redirect URLs, the <code>Referer</code> header, and browser
         history), an explicit body <code>returnUrl</code> is only honored when it is same-origin
