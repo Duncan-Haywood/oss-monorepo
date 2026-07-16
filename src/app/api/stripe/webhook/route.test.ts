@@ -218,8 +218,14 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(200);
       expect(json).toEqual({ received: true });
       expect(markCheckoutSessionComplete).toHaveBeenCalledWith("cs_test_1", { requireConvex: true });
-      expect(recordLeadPayment).toHaveBeenCalledTimes(1);
-      expect(insertDeployHandoff).toHaveBeenCalledTimes(1);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({ slug: "demo-cafe", tier: "growth" }),
+        { requireConvex: true },
+      );
+      expect(insertDeployHandoff).toHaveBeenCalledWith(
+        expect.objectContaining({ leadSlug: "demo-cafe", tier: "growth" }),
+        { requireConvex: true },
+      );
       expect(sendReceiptEmail).toHaveBeenCalledWith(
         "owner@demo-cafe.test",
         "Demo Cafe",
@@ -295,6 +301,35 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(200);
       expect(markCheckoutSessionComplete).toHaveBeenCalledTimes(1);
       expect(recordLeadPayment).not.toHaveBeenCalled();
+    });
+
+    it("does not record payment when tier is truthy but unknown (mirrors checkout getBundle gate)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "enterprise" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalledTimes(1);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
+      expect(sendReceiptEmail).not.toHaveBeenCalled();
+    });
+
+    it("does not record payment when tier is wrong-cased (getBundle is case-sensitive)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "Growth" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
     });
 
     it("returns 500 (checkout_session_mark_complete) so Stripe retries when marking the session complete fails", async () => {

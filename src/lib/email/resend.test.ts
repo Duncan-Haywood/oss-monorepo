@@ -76,6 +76,25 @@ describe("resend.ts — businessName HTML escaping", () => {
     expect(sentHtml).toContain(ESCAPED_NAME);
     expect(sentHtml).not.toContain("<Truck>");
   });
+
+  it("escapes free-text tier in sendReceiptEmail and prefers catalog display name", async () => {
+    const { sendReceiptEmail } = await import("./resend");
+    // Unknown tiers fall back to UPPERCASE then escapeHtmlForEmail.
+    await sendReceiptEmail(
+      "owner@example.com",
+      "Demo Cafe",
+      `<img src=x onerror=alert(1)>`,
+      500,
+    );
+    expect(sentHtml).toContain("&lt;IMG SRC=X ONERROR=ALERT(1)&gt;");
+    expect(sentHtml).not.toContain("<img");
+    expect(sentHtml).not.toContain("<IMG");
+
+    sentHtml = "";
+    await sendReceiptEmail("owner@example.com", "Demo Cafe", "growth", 500);
+    expect(sentHtml).toContain("<strong>Growth</strong>");
+    expect(sentHtml).not.toContain("<strong>GROWTH</strong>");
+  });
 });
 
 describe("resend.ts — brand.* HTML escaping", () => {

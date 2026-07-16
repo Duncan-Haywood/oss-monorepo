@@ -455,7 +455,12 @@ export default function ArchitectureDocPage() {
         twin of the webhook orchestration suite).{" "}
         <code>POST /api/stripe/webhook</code> verifies signatures, marks the lead paid, records the
         order, sends a receipt email when Resend is configured, and enqueues a production deploy
-        handoff (DNS + contact form). The <code>orders</code> insert is idempotent on{" "}
+        handoff (DNS + contact form). Bundle fulfillment requires both{" "}
+        <code>metadata.slug</code> and a <code>getBundle(metadata.tier)</code>-known tier (same enum
+        gate as checkout create) — a truthy but unknown/wrong-cased tier skips payment/handoff/receipt
+        like a missing field (session is still marked complete; do not 5xx forever). Receipt HTML
+        escapes the tier label via <code>escapeHtmlForEmail</code> and prefers the catalog display
+        name. The <code>orders</code> insert is idempotent on{" "}
         <code>stripeSessionId</code> (UNIQUE index in SQLite, existing-row check in Convex) — a
         redelivered <code>checkout.session.completed</code> (Stripe retries on timeout) is detected
         and receipt/DNS emails are recovered only when deploy-handoff notes lack a sent-marker for

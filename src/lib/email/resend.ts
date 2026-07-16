@@ -19,6 +19,7 @@ import {
   commerceBuyNowClientReceiptSubject,
   formatCommerceBuyNowClientReceiptHtml,
 } from "../commerce/client-receipt";
+import { getBundle } from "../pricing/bundles";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -521,10 +522,15 @@ export async function sendCommerceBuyNowClientReceipt(params: {
  * cold-outreach unsubscribe cannot block go-live fulfillment.
  */
 export async function sendReceiptEmail(to: string, businessName: string, tier: string, amount: number) {
+  // Prefer catalog display name (Growth) over raw id UPPERCASE; always escape —
+  // webhook now enum-gates tier, but callers/tests may still pass free text
+  // (bundle-webhook-tier-enum-guard).
+  const tierLabel = getBundle(tier)?.name ?? tier.toUpperCase();
+  const safeTier = escapeHtmlForEmail(tierLabel);
   const subject = `Your receipt for ${businessName} - ${brand.name}`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Thank you for your order!</h2>
-    <p style="margin-bottom: 16px;">We have received your payment for the <strong>${tier.toUpperCase()}</strong> setup plan for <strong>${escapeHtmlForEmail(businessName)}</strong>.</p>
+    <p style="margin-bottom: 16px;">We have received your payment for the <strong>${safeTier}</strong> setup plan for <strong>${escapeHtmlForEmail(businessName)}</strong>.</p>
     <p style="margin-bottom: 16px;">Total paid: <strong>$${amount.toFixed(2)}</strong></p>
     <p style="margin-bottom: 24px;">Our team is already beginning to configure your final custom domain and publish your site. We will reach out within 24 hours with your dashboard access credentials.</p>
     <p style="margin-bottom: 8px;">Warmly,</p>
