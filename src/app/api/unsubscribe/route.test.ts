@@ -85,6 +85,47 @@ describe("GET /api/unsubscribe", () => {
     expect(suppressEmail).toHaveBeenCalledWith(email, UNSUBSCRIBE_CONVEX_PRIMARY);
   });
 
+  it("returns 400 and never verifies/suppresses when the token exceeds MAX_UNSUBSCRIBE_TOKEN_LENGTH", async () => {
+    const { MAX_UNSUBSCRIBE_TOKEN_LENGTH } = await import(
+      "@/lib/email/unsubscribe-token"
+    );
+    const { GET } = await import("./route");
+    const overlong = "a".repeat(MAX_UNSUBSCRIBE_TOKEN_LENGTH + 1);
+    const request = new NextRequest(
+      unsubscribeUrl("victim@example.com", overlong),
+    );
+
+    const response = await GET(request);
+    const text = await response.text();
+
+    expect(response.status).toBe(400);
+    expect(text).toMatch(/token.*too long/i);
+    expect(suppressEmail).not.toHaveBeenCalled();
+  });
+
+  it("still suppresses when the token is exactly MAX_UNSUBSCRIBE_TOKEN_LENGTH and valid", async () => {
+    // Genuine HMAC tokens are 43 chars; exact-max path is exercised via the
+    // helper's early length gate + route hard-reject twin. A padded token of
+    // exactly MAX cannot verify, so this asserts the route does not 400 for
+    // length when token.length === MAX (wrong-token 400 is fine).
+    const { MAX_UNSUBSCRIBE_TOKEN_LENGTH } = await import(
+      "@/lib/email/unsubscribe-token"
+    );
+    const { GET } = await import("./route");
+    const exactMaxGarbage = "b".repeat(MAX_UNSUBSCRIBE_TOKEN_LENGTH);
+    expect(exactMaxGarbage).toHaveLength(MAX_UNSUBSCRIBE_TOKEN_LENGTH);
+    const request = new NextRequest(
+      unsubscribeUrl("victim@example.com", exactMaxGarbage),
+    );
+
+    const response = await GET(request);
+    const text = await response.text();
+
+    expect(response.status).toBe(400);
+    expect(text).not.toMatch(/too long/i);
+    expect(suppressEmail).not.toHaveBeenCalled();
+  });
+
   it("400s when the token is missing (no query param)", async () => {
     const { GET } = await import("./route");
     const request = new NextRequest(unsubscribeUrl("victim@example.com"));

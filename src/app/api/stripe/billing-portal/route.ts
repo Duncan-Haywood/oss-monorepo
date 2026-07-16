@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { parseCheckoutSessionId } from "@/lib/billing/checkout-session-id";
 import { createBillingPortalForCheckoutSession } from "@/lib/billing/create-portal-session";
+import { isAcceptableBillingPortalReturnUrl } from "@/lib/billing/return-url";
 import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
@@ -19,24 +20,6 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 interface BillingPortalBody {
   sessionId?: string;
   returnUrl?: string;
-}
-
-/**
- * A client-supplied returnUrl is only honored when it is same-origin with
- * the app — otherwise it is silently replaced with the derived default.
- * Without this, an attacker with any valid completed Checkout Session id
- * (not truly secret — appears in redirect URLs, referrer headers, browser
- * history) could get Stripe to mint a real billing.stripe.com portal URL
- * whose "Return to [merchant]" link points anywhere they choose, using the
- * merchant's trusted Stripe relationship as an open-redirect gateway.
- * Mirrors safeNextPath in src/lib/auth/safe-next-path.ts (login page + action).
- */
-function isSameOriginReturnUrl(candidate: string, appUrl: string): boolean {
-  try {
-    return new URL(candidate).origin === new URL(appUrl).origin;
-  } catch {
-    return false;
-  }
 }
 
 export async function POST(request: Request) {
@@ -85,8 +68,10 @@ export async function POST(request: Request) {
   const appUrl = resolveStripeRedirectAppUrl();
   const defaultReturnUrl = `${appUrl}/checkout/success?session_id=${encodeURIComponent(sessionId)}`;
   const trimmedReturnUrl = body.returnUrl?.trim();
+  // Same-origin + finite length (see isAcceptableBillingPortalReturnUrl) —
+  // over-long / cross-origin / malformed all fall back to the derived default.
   const returnUrl =
-    trimmedReturnUrl && isSameOriginReturnUrl(trimmedReturnUrl, appUrl)
+    trimmedReturnUrl && isAcceptableBillingPortalReturnUrl(trimmedReturnUrl, appUrl)
       ? trimmedReturnUrl
       : defaultReturnUrl;
 
