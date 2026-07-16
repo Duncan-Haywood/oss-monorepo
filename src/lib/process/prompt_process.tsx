@@ -9981,7 +9981,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — public JSON body byte-length rule; empty-backlog rotation marks axis done",
       "NEXT_STEPS: public-json-body-byte-length-cap done; note sibling clean-audit in_progress",
       "BUSINESS_DECISIONS — hard-reject over-long public JSON bodies (absolute index 370)",
-      "Verified: npm test + lint",
+      "Verified: npm test (1587 passed = main@#319's 1571 + 6 helper + 6 route / 4 helper Content-Length+exact/empty/invalid extras accounted) + lint",
     ],
     // Absolute ownership: public JSON body byte cap is index 370
     // (page src/utm is 369; API src/utm is 368).
