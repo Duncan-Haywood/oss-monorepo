@@ -2428,6 +2428,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-e067",
   },
+  {
+    id: "bundle-webhook-commerceAddon-line-item-parity",
+    summary:
+      "Empty-backlog after PR #327 (bundle-webhook-slug-lookup-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged feature bodies under stale SHAs — rejected. Fresh money-path residual: POST /api/stripe/checkout only sets metadata.commerceAddon when COMMERCE_ADDON Price IDs are on line_items, but checkout.session.completed still trusts metadata.commerceAddon === \"true\" into recordLeadPayment / handoff — unlocking catalog + Billing Portal + blocking Starter upsell without the $300+$49/mo charge (or withholding a paid add-on). Derive commerceAddon from listLineItems Price IDs (both setup+monthly env Prices present); do not trust metadata.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-7155",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
