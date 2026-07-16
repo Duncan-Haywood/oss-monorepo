@@ -2100,6 +2100,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Production deploy",
     owner: "cursor/business-process-evolution-58d9",
   },
+  {
+    id: "billing-portal-returnUrl-field-length-cap",
+    summary:
+      "Empty-backlog after PR #292 (contact path-length) + PR #291 (commerce slug/skuId). POST /api/stripe/billing-portal same-origin-guards returnUrl but does not bound length — a rate-limited public caller can POST multi-KB same-origin returnUrl into stripe.billingPortal.sessions.create. Hard-reject or ignore-over-max before Stripe.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-98c1",
+  },
+  {
+    id: "unsubscribe-token-field-length-cap",
+    summary:
+      "Empty-backlog after PR #292 (contact path-length) + PR #291 (commerce slug/skuId). Sibling prompt-process-evolution-98c1 claimed billing-portal-returnUrl-field-length-cap — pivot. GET /api/unsubscribe hard-rejects over-long email but still accepts uncapped token query params before HMAC verify — a rate-limited public caller can force multi-KB Buffer.from work. Hard-reject over MAX_UNSUBSCRIBE_TOKEN_LENGTH before verify (HMAC-SHA256 base64url is 43 chars; soft-cap/truncate would break every genuine footer link).",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-42a4",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
