@@ -2082,6 +2082,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-8fb7",
   },
+  {
+    id: "commerce-checkout-slug-skuId-field-length-cap",
+    summary:
+      "Empty-backlog after PR #290 (unsubscribe-email-field-length-cap) + PR #289 (billing-portal sessionId). Free NEXT_STEPS stayed operator/legal-gated. Known public-write size axis (checkout email / billing-portal sessionId / unsubscribe email / marketing contentTypes) closed; residual: POST /api/commerce/checkout still trims slug+skuId but does not bound length before getCommerceCatalog, Stripe metadata/cancel_url, and recordCheckoutSessionCreated. Bundle checkout already sanitizes slug via sanitizeLeadSlug (≤63); catalog save already soft-caps sku id at 64. Hard-reject over MAX_LEAD_SLUG_LENGTH / MAX_SKU_ID_LENGTH before catalog lookup — soft-cap/truncate would miss the sold SKU while still burning DB + Stripe quota.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-92f3",
+  },
+  {
+    id: "contact-form-slug-path-length-cap",
+    summary:
+      "Empty-backlog after PR #290. Sibling prompt-process-evolution-92f3 claimed commerce-checkout-slug-skuId-field-length-cap — pivot. POST /api/contact/[slug] validates charset ([a-z0-9-]+) but not length; preview-open already hard-rejects slug.length > 120. A multi-KB valid-charset path param still reaches getLeadBySlug and is echoed on 404/success JSON. Hard-reject over MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH (shared with preview-open) before CRM/demo lookup.",
+    status: "in_progress",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-58d9",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
