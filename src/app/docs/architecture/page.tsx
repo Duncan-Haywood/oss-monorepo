@@ -403,7 +403,10 @@ export default function ArchitectureDocPage() {
         <strong>known-lead gate</strong>: CRM <code>getLeadBySlug</code> or curated{" "}
         <code>DEMO_LEADS</code> before persist/notify — inventable/slug-inferred tokens return{" "}
         <code>404 unknown_lead</code> so skipSuppression cannot spam{" "}
-        <code>brand.supportEmail</code>) beyond{" "}
+        <code>brand.supportEmail</code>; path slug length hard-rejects over{" "}
+        <code>MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH</code> (120, shared with preview-open via{" "}
+        <code>isPublicLeadSlugPathLengthOk</code>) before CRM/demo lookup — charset-only
+        validation is not a size bound) beyond{" "}
         <code>contact-persist.test.ts</code> helpers, and{" "}
         <code>src/app/api/unsubscribe/route.test.ts</code> locks the CAN-SPAM suppress twin
         (missing-email 400, over-long email 400 before HMAC,{" "}
@@ -960,11 +963,15 @@ source). The same digest also lists email-critical leads with no usable address 
         error surfaces.{" "}
         <code>/preview/[slug]</code> shows Buy now for synced SKUs — <code>POST /api/commerce/checkout</code>{" "}
         resolves the Stripe Price server-side from the stored catalog (never trusts a
-        client-submitted price) and creates a one-time Checkout Session. Route-level Vitest
+        client-submitted price) and creates a one-time Checkout Session. Opaque{" "}
+        <code>slug</code> / <code>skuId</code> body fields are hard-rejected over{" "}
+        <code>MAX_LEAD_SLUG_LENGTH</code> (63) and the catalog-save SKU id ceiling (64)
+        via <code>parseCommerceCheckoutSlug</code> / <code>parseCommerceCheckoutSkuId</code>{" "}
+        before any DB or Stripe work — soft-cap would look up the wrong row. Route-level Vitest
         coverage in <code>src/app/api/commerce/checkout/route.test.ts</code> locks that
-        server-resolved price invariant, unsynced-SKU 501s, <code>kind=commerce_sku</code>{" "}
-        tracking, and requireConvex fail-closed session create (Buy now twin of the bundle
-        checkout suite). Unsynced items keep the
+        server-resolved price invariant, over-long slug/skuId 400s, unsynced-SKU 501s,{" "}
+        <code>kind=commerce_sku</code> tracking, and requireConvex fail-closed session create
+        (Buy now twin of the bundle checkout suite). Unsynced items keep the
         &quot;Request order&quot; → contact form → inquiry inbox stub. A completed Buy now
         Checkout Session also writes a <code>commerceOrders</code> ledger row (
         <code>src/lib/commerce/orders.ts</code>, SQLite + Convex, idempotent on Stripe session id)

@@ -100,8 +100,9 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR, (2) a fresh security or injection-surface audit (auth cookie attributes / session TTL already clean 2026-07-16; public write routes — contact notify↔persist + CSV/addLead create-path field caps + contact-form-require-known-lead + marketing-generate-content-types-size-cap + checkout-customer-email-field-length-cap + billing-portal-sessionId-field-length-cap + unsubscribe-email-field-length-cap done; then residual public body sizes / Convex parity), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",  "POST /api/marketing/generate must hard-reject contentTypes.length above MAX_MARKETING_CONTENT_TYPES_PER_REQUEST (MONTHLY_MARKETING_PACK_TYPES.length — sold pack ceiling) and leadId above MAX_MARKETING_GENERATE_LEAD_ID_LENGTH, and soft-cap business context via normalizeMarketingGenerateBusiness (create-fields MAX_* + services slice) before stub/LLM generate. Membership-only contentTypes validation is not a size bound — generators map 1:1 over the array (marketing-generate-content-types-size-cap). Rate limits blunt request count, not per-request Anthropic token burn.",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR, (2) a fresh security or injection-surface audit (auth cookie attributes / session TTL already clean 2026-07-16; public write routes — contact notify↔persist + CSV/addLead create-path field caps + contact-form-require-known-lead + marketing-generate-content-types-size-cap + checkout-customer-email-field-length-cap + billing-portal-sessionId-field-length-cap + unsubscribe-email-field-length-cap + commerce-checkout-slug-skuId-field-length-cap + contact-form-slug-path-length-cap done; then residual public body sizes (billing-portal returnUrl length / unsubscribe token length) / Convex parity), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",  "POST /api/marketing/generate must hard-reject contentTypes.length above MAX_MARKETING_CONTENT_TYPES_PER_REQUEST (MONTHLY_MARKETING_PACK_TYPES.length — sold pack ceiling) and leadId above MAX_MARKETING_GENERATE_LEAD_ID_LENGTH, and soft-cap business context via normalizeMarketingGenerateBusiness (create-fields MAX_* + services slice) before stub/LLM generate. Membership-only contentTypes validation is not a size bound — generators map 1:1 over the array (marketing-generate-content-types-size-cap). Rate limits blunt request count, not per-request Anthropic token burn.",
   "POST /api/contact/[slug] must resolve a known lead before persist or skipSuppression notify: CRM getLeadBySlug OR curated DEMO_LEADS (demo-catalog getLeadBySlug), else 404 `{ ok: false, reason: \"unknown_lead\" }`. Slug-inferred preview pages (resolvePreviewLead) still render for any token, but inventable slugs must not create orphan inquiries (businessName=slug) or email brand.supportEmail under skipSuppression — rate limits blunt volume, not inventable-slug support spam (contact-form-require-known-lead). Mirror preview-open's unknown_lead soft-reject intent; contact fails closed before durable write.",
+  "POST /api/contact/[slug] (and GET) must hard-reject path slugs that fail isPublicLeadSlugPathLengthOk (MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH=120, shared with preview-open) before CRM/demo lookup — charset-only `/^[a-z0-9-]+$/i` is not a size bound. A multi-KB valid-charset token still burns getLeadBySlug and was echoed on 404/success/GET JSON (contact-form-slug-path-length-cap). Soft-cap/truncate would change the lookup key; fail closed with 400.",
   "sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims and orchestration module test-coverage gaps are BOTH now 2x-confirmed clean (claude/upbeat-dijkstra-3duvyp PR #188, then re-checked independently after 9 more merged PRs) — don't offer either as a fresh rotation target again until real product surface area changes; re-check only if a specific new claim lands in /docs/product-bundles or a new orchestration module ships without its sibling test file.",
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
@@ -116,6 +117,7 @@ export const AGENT_PROTOCOL = [
   "Public Stripe money create routes (POST /api/stripe/checkout + POST /api/commerce/checkout) must soft-cap optional customerEmail via shared normalizeCheckoutCustomerEmail (MAX_CONTACT_EMAIL_LENGTH) before stripe.checkout.sessions.create and recordCheckoutSessionCreated — rate limits blunt request count, not payload size. An uncapped body.customerEmail reaches Stripe and checkout_sessions (abandoned-recovery + dashboard). Align with contact-form / create-path email policy; blank/whitespace → undefined so hosted Checkout still collects email.",
   "Opaque public ids (Stripe Checkout sessionId on POST /api/stripe/billing-portal, similar retrieve keys) must hard-reject over a finite max (parseCheckoutSessionId / MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH) before any third-party call — never soft-cap/truncate. Truncation turns a probe into a guaranteed Stripe miss that still burns quota; emails and free-text fields soft-cap, opaque ids fail closed with 400.",
   "GET /api/unsubscribe must hard-reject email query params longer than MAX_CONTACT_EMAIL_LENGTH before HMAC verify and suppressEmail — rate limits blunt request count, not per-request payload/HMAC work or suppressions-row size. Soft-cap is wrong here: footer tokens are signed over the full address, so truncation would fail verify on every genuine over-long link; opaque-id hard-reject (same class as billing-portal sessionId) is the fit. Legitimate footer emails already sit inside contact/create-path caps.",
+  "POST /api/commerce/checkout must hard-reject body.slug over MAX_LEAD_SLUG_LENGTH and body.skuId over MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH (catalog-save ceiling 64) via parseCommerceCheckoutSlug / parseCommerceCheckoutSkuId before getCommerceCatalog or Stripe session create — never soft-cap opaque lookup keys (truncation looks up the wrong row and can still burn quota). Bundle checkout already sanitizes+caps slug via sanitizeLeadSlug; Buy now was the residual uncapped twin after customerEmail soft-cap (commerce-checkout-slug-skuId-field-length-cap).",
 ] as const;
 
 /**
@@ -2081,6 +2083,22 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-8fb7",
+  },
+  {
+    id: "commerce-checkout-slug-skuId-field-length-cap",
+    summary:
+      "Empty-backlog after PR #290 (unsubscribe-email-field-length-cap) + PR #289 (billing-portal sessionId). Free NEXT_STEPS stayed operator/legal-gated. Public POST /api/commerce/checkout soft-caps customerEmail but still accepts uncapped body.slug + body.skuId before getCommerceCatalog / Stripe metadata / checkout_sessions / cancel_url — bundle checkout already sanitizes+caps slug via sanitizeLeadSlug; commerce Buy now does not. Hard-reject slug over MAX_LEAD_SLUG_LENGTH and skuId over catalog save ceiling (64) before any DB/Stripe work (opaque lookup keys — never soft-cap).",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-92f3",
+  },
+  {
+    id: "contact-form-slug-path-length-cap",
+    summary:
+      "Empty-backlog after PR #290. Sibling prompt-process-evolution-92f3 claimed commerce-checkout-slug-skuId-field-length-cap — pivot. POST /api/contact/[slug] validates charset ([a-z0-9-]+) but not length; preview-open already hard-rejects slug.length > 120. A multi-KB valid-charset path param still reaches getLeadBySlug and is echoed on 404/success JSON. Hard-reject over MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH (shared with preview-open) before CRM/demo lookup.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-58d9",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -4457,6 +4475,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Hard-reject GET /api/unsubscribe email query params longer than MAX_CONTACT_EMAIL_LENGTH before HMAC verify and suppressEmail — rather than soft-cap (would break signed footer tokens) or leave uncapped public CAN-SPAM writes burning crypto and growing the suppressions table.",
     rationale:
       "Empty-backlog after PR #288 (checkout customerEmail soft-cap). Sibling prompt-process-evolution-a938 claimed billing-portal-sessionId-field-length-cap (opaque-id hard-reject, merged PR #289) — complementary pivot to the remaining public-write size hole on unsubscribe. Rate limits blunt request count only; a multi-KB email query still reaches verifyUnsubscribeToken + suppressEmail. Soft-cap is wrong for signed links: footer tokens bind the full address. Aligning the ceiling with contact/create-path MAX_CONTACT_EMAIL_LENGTH keeps one email-length policy. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Hard-reject uncapped body.slug / body.skuId on POST /api/commerce/checkout via parseCommerceCheckoutSlug (MAX_LEAD_SLUG_LENGTH) and parseCommerceCheckoutSkuId (catalog-save ceiling 64) before getCommerceCatalog or Stripe — rather than soft-cap opaque lookup keys or invent an optional aggregate while free NEXT_STEPS stay operator/legal-gated.",
+    rationale:
+      "Empty-backlog after PR #290 (unsubscribe email hard-reject) + PR #289 (billing-portal sessionId). Free NEXT_STEPS stayed operator/legal-gated. Bundle checkout already sanitizes+caps slug via sanitizeLeadSlug; commerce Buy now still forwarded unbounded slug/skuId into catalog lookup, Stripe metadata, checkout_sessions, and cancel_url after customerEmail soft-cap. Soft-cap is wrong for opaque keys: truncation looks up the wrong row and can still burn quota. Aligning slug with create-path DNS max and skuId with normalizeCommerceItems' 64-char save slice closes the residual public money-route size hole. Same-window sibling 58d9 owns contact path-length. Next residual public body sizes: billing-portal returnUrl length / unsubscribe token length. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Hard-reject public lead slug path params over MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH (120) via shared isPublicLeadSlugPathLengthOk on POST/GET /api/contact/[slug] (and preview-open) before CRM/demo lookup — charset-only validation is not a size bound; soft-cap would change the lookup key.",
+    rationale:
+      "Empty-backlog after PR #290 (unsubscribe email hard-reject). Sibling prompt-process-evolution-92f3 claimed commerce-checkout-slug-skuId-field-length-cap first — pivoted per AGENT_PROTOCOL. Contact already required [a-z0-9-]+ and known-lead, but a multi-KB valid-charset path still reached getLeadBySlug and was echoed on 404/success/GET JSON while preview-open already capped at 120. Sharing one path-length helper closes the residual public size hole without competing with the sibling's Buy now money-route caps. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
 
 ];
@@ -8846,7 +8878,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — hard-reject over-long billing-portal sessionId over inventing an optional aggregate (slice 336)",
       "Verified: npm test (1408 passed, +5 parseCheckoutSessionId + route too_long regressions on top of main@#288's 1403) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(336, 337),
+    decisions: BUSINESS_DECISIONS.slice(337, 338),
   },
   {
     date: "2026-07-16",
@@ -8862,7 +8894,43 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — unsubscribe email hard-reject over soft-cap / inventing an optional aggregate (slice 337)",
       "Verified: npm test (1410 passed after fold of #289's 1408 + our +2) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(337, 338),
+    decisions: BUSINESS_DECISIONS.slice(338, 339),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/prompt-process-evolution-92f3",
+    summary:
+      "Empty-backlog after PR #290 (unsubscribe-email-field-length-cap) + PR #289 (billing-portal sessionId). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-58d9 claimed contact-form-slug-path-length-cap (complementary public-write size hole on contact path slug) in the same window — both axes kept. Scanned stuck CLI remotes (already-merged marketing/digest/slug/login bodies). Public-write audit of POST /api/commerce/checkout found slug/skuId still uncapped after customerEmail soft-cap while bundle checkout already sanitizes+caps slug. Hard-reject via parseCommerceCheckoutSlug / parseCommerceCheckoutSkuId before DB/Stripe; Vitest + architecture note; rotation points at billing-portal returnUrl / unsubscribe token length next.",
+    shipped: [
+      "src/lib/commerce/checkout-fields.ts (+ .test.ts) — parseCommerceCheckoutSlug / parseCommerceCheckoutSkuId + MAX_* ceilings",
+      "src/lib/commerce/index.ts — re-export checkout field parsers",
+      "src/app/api/commerce/checkout/route.ts — hard-reject over-long slug/skuId before getCommerceCatalog / Stripe",
+      "src/app/api/commerce/checkout/route.test.ts — +1 regression (over-long slug + skuId 400, no catalog/Stripe)",
+      "Docs: architecture.tsx notes Buy now slug/skuId hard-reject beside server-resolved price",
+      "AGENT_PROTOCOL — commerce checkout opaque slug/skuId hard-reject rule; empty-backlog rotation marks this axis done; next residual public body sizes (billing-portal returnUrl / unsubscribe token)",
+      "NEXT_STEPS: commerce-checkout-slug-skuId-field-length-cap done",
+      "BUSINESS_DECISIONS — hard-reject commerce checkout slug/skuId over inventing an optional aggregate (slice 339)",
+      "Verified: npm test (1417 passed, +7 checkout-fields + route too_long regressions on top of main@#290's 1410) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(339, 340),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/business-process-evolution-58d9",
+    summary:
+      "Empty-backlog after PR #290 (unsubscribe-email-field-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-92f3 claimed commerce-checkout-slug-skuId-field-length-cap (Buy now money-route lookup keys) — pivoted per AGENT_PROTOCOL. Public-write residual: POST/GET /api/contact/[slug] charset-validated but uncapped path length while preview-open already rejected >120. Shipped shared MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH + isPublicLeadSlugPathLengthOk; wired contact + preview-open; Vitest + architecture note.",
+    shipped: [
+      "src/lib/leads/slug-path.ts — MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH=120 + isPublicLeadSlugPathLengthOk",
+      "src/app/api/contact/[slug]/route.ts — POST/GET hard-reject over-long path slugs before CRM/demo lookup",
+      "src/app/api/preview/[slug]/open/route.ts — use shared helper (was magic 120)",
+      "Vitest — slug-path length helper + contact POST/GET over-long + exact-max regressions",
+      "Docs: architecture.tsx notes contact path-length hard-reject beside known-lead gate",
+      "AGENT_PROTOCOL — contact path-length rule; empty-backlog rotation marks this axis done; notes sibling owns commerce slug/skuId",
+      "NEXT_STEPS: contact-form-slug-path-length-cap done; commerce-checkout-slug-skuId-field-length-cap done (92f3 fold)",
+      "BUSINESS_DECISIONS — contact path-length hard-reject over inventing an optional aggregate (slice 340)",
+      "Folded onto cursor/prompt-process-evolution-92f3 — both complementary ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(340, 341),
   },
 ];
 

@@ -5,6 +5,7 @@ import {
   shouldRecordPreviewOpen,
 } from "@/lib/leads/preview-open";
 import { PREVIEW_OPEN_CONVEX_PRIMARY } from "@/lib/leads/preview-open-persist";
+import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
@@ -22,10 +23,13 @@ type RouteContext = { params: Promise<{ slug: string }> };
  * src/lib/security/rate-limit.ts) to blunt beacon-flooding abuse; the
  * existing debounce (shouldPersistPreviewOpen) already limits legitimate
  * writes per lead, so this only guards against a scripted burst.
+ *
+ * Path slug length is hard-capped via isPublicLeadSlugPathLengthOk (shared
+ * with POST /api/contact/[slug]) before CRM lookup.
  */
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  if (!slug || slug.length > 120) {
+  if (!slug || !isPublicLeadSlugPathLengthOk(slug)) {
     return NextResponse.json({ ok: false, error: "Invalid slug" }, { status: 400 });
   }
 

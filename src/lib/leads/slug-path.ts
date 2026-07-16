@@ -19,6 +19,21 @@
 
 import { sanitizeLeadSlug } from "./slug";
 
+/**
+ * Public dynamic-route slug path params (`/api/contact/[slug]`,
+ * `/api/preview/[slug]/open`) must hard-reject over this length before any
+ * CRM/demo lookup. Create-path minting caps at MAX_LEAD_SLUG_LENGTH (63), but
+ * legacy / pre-sanitize rows and percent-decoded path tokens can be longer —
+ * 120 matches the historical preview-open bound and still blocks multi-KB
+ * path abuse. Soft-cap/truncate would change the lookup key.
+ */
+export const MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH = 120;
+
+/** True when a public path slug is non-empty and within the path-length cap. */
+export function isPublicLeadSlugPathLengthOk(slug: string): boolean {
+  return slug.length > 0 && slug.length <= MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH;
+}
+
 /** Encode a lead slug for use as a single URL path segment. */
 export function encodeLeadSlugPathSegment(slug: string): string {
   return encodeURIComponent(slug);

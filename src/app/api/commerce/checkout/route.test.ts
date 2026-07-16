@@ -125,6 +125,35 @@ describe("POST /api/commerce/checkout", () => {
     expect(missingSlug.status).toBe(400);
   });
 
+  it("returns 400 when slug or skuId is over the hard length ceiling", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    const { POST } = await import("./route");
+    const { MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH, MAX_COMMERCE_CHECKOUT_SLUG_LENGTH } =
+      await import("@/lib/commerce/checkout-fields");
+
+    const overSlug = await POST(
+      commerceRequest({
+        slug: "a".repeat(MAX_COMMERCE_CHECKOUT_SLUG_LENGTH + 1),
+        skuId: "sku_latte",
+      }),
+    );
+    expect(overSlug.status).toBe(400);
+    expect(await overSlug.json()).toEqual({ error: "slug is too long" });
+    expect(getCommerceCatalog).not.toHaveBeenCalled();
+    expect(sessionsCreate).not.toHaveBeenCalled();
+
+    const overSku = await POST(
+      commerceRequest({
+        slug: "demo-cafe",
+        skuId: "s".repeat(MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH + 1),
+      }),
+    );
+    expect(overSku.status).toBe(400);
+    expect(await overSku.json()).toEqual({ error: "skuId is too long" });
+    expect(getCommerceCatalog).not.toHaveBeenCalled();
+    expect(sessionsCreate).not.toHaveBeenCalled();
+  });
+
   it("returns 404 when the catalog item is unknown", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
     const { POST } = await import("./route");

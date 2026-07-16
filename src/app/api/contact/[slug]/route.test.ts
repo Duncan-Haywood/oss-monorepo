@@ -484,6 +484,61 @@ describe("POST /api/contact/[slug]", () => {
     // The 21st request never persisted an inquiry.
     expect(insertClientInquiry).toHaveBeenCalledTimes(20);
   });
+
+  it("returns 400 and skips CRM lookup for over-long path slugs", async () => {
+    const { MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH } = await import(
+      "@/lib/leads/slug-path"
+    );
+    const { POST } = await import("./route");
+    const tooLong = "a".repeat(MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH + 1);
+    const response = await POST(
+      new Request(`http://localhost/api/contact/${tooLong}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "Should not persist",
+        }),
+      }),
+      { params: Promise.resolve({ slug: tooLong }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.error).toMatch(/invalid slug/i);
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(insertClientInquiry).not.toHaveBeenCalled();
+    expect(sentEmail).not.toHaveBeenCalled();
+  });
+
+  it("accepts path slugs at the public length ceiling", async () => {
+    const { MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH } = await import(
+      "@/lib/leads/slug-path"
+    );
+    const exact = "a".repeat(MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH);
+    getLeadBySlug.mockResolvedValue({
+      ...KNOWN_LEAD,
+      slug: exact,
+      businessName: "Exact Max Cafe",
+    });
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request(`http://localhost/api/contact/${exact}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "At the ceiling",
+        }),
+      }),
+      { params: Promise.resolve({ slug: exact }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(getLeadBySlug).toHaveBeenCalledWith(exact);
+  });
 });
 
 describe("GET /api/contact/[slug]", () => {
@@ -505,5 +560,22 @@ describe("GET /api/contact/[slug]", () => {
       method: "POST",
       fields: expect.arrayContaining(["name", "email", "phone", "message"]),
     });
+  });
+
+  it("returns 400 for over-long path slugs instead of echoing them", async () => {
+    const { MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH } = await import(
+      "@/lib/leads/slug-path"
+    );
+    const { GET } = await import("./route");
+    const tooLong = "b".repeat(MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH + 1);
+    const response = await GET(
+      new Request(`http://localhost/api/contact/${tooLong}`),
+      { params: Promise.resolve({ slug: tooLong }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.error).toMatch(/invalid slug/i);
+    expect(JSON.stringify(json)).not.toContain(tooLong);
   });
 });

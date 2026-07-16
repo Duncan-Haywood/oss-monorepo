@@ -9,6 +9,14 @@ export {
 } from "./types";
 
 export {
+  MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH,
+  MAX_COMMERCE_CHECKOUT_SLUG_LENGTH,
+  parseCommerceCheckoutSkuId,
+  parseCommerceCheckoutSlug,
+  type ParseCommerceCheckoutFieldResult,
+} from "./checkout-fields";
+
+export {
   catalogHasUnsyncedSku,
   commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
