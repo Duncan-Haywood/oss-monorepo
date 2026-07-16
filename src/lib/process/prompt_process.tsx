@@ -9371,7 +9371,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — dual-backend ordering names commerceOrders; empty-backlog rotation marks Convex commerceOrders residual done",
       "NEXT_STEPS: commerce-orders-convex-createdAt-ordering-parity done; assign-vercel-project-id-field-length-cap done (1ba2 / #304)",
       "BUSINESS_DECISIONS — commerceOrders createdAt sort over inventing an optional aggregate (slice 352)",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (1489 passed = main@#304's 1486 + 3 newest-first regressions) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(352, 353),
   },
