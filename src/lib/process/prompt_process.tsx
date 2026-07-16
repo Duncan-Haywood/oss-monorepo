@@ -2198,6 +2198,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-2662",
   },
+  {
+    id: "assign-vercel-project-id-field-length-cap",
+    summary:
+      "Empty-backlog after PR #303 (operator-session-token + preview-open openedAt). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI opencode/dev-work-auth-gated-field-caps has a complete feature body (parseVercelProjectId + assignVercelProjectAction bound) with no open PR — fold per AGENT_PROTOCOL before inventing a clean-audit. Auth-gated Assign project still trims vercelProjectId but never length-bounds it before assignVercelProjectAndProvision / Domains API.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-1ba2",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
