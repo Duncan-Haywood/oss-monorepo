@@ -94,6 +94,23 @@ describe("POST /api/stripe/checkout", () => {
     expect(await res.json()).toEqual({ error: "Invalid JSON body" });
   });
 
+  it("returns 400 when the raw JSON body exceeds MAX_PUBLIC_JSON_BODY_BYTES", async () => {
+    setBundlePriceEnv();
+    const { MAX_PUBLIC_JSON_BODY_BYTES } = await import(
+      "@/lib/security/json-body"
+    );
+    const { POST } = await import("./route");
+    const huge = JSON.stringify({
+      tier: "starter",
+      slug: "demo-cafe",
+      pad: "p".repeat(MAX_PUBLIC_JSON_BODY_BYTES),
+    });
+    const res = await POST(checkoutRequest(huge));
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Request body is too large" });
+    expect(sessionsCreate).not.toHaveBeenCalled();
+  });
+
   it("returns 400 for an unknown tier", async () => {
     setBundlePriceEnv();
     const { POST } = await import("./route");

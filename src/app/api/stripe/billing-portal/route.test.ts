@@ -88,6 +88,22 @@ describe("POST /api/stripe/billing-portal", () => {
     expect(sessionsRetrieve).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when the raw JSON body exceeds MAX_PUBLIC_JSON_BODY_BYTES", async () => {
+    const { MAX_PUBLIC_JSON_BODY_BYTES } = await import(
+      "@/lib/security/json-body"
+    );
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    const { POST } = await import("./route");
+    const huge = JSON.stringify({
+      sessionId: "cs_test_abc",
+      pad: "p".repeat(MAX_PUBLIC_JSON_BODY_BYTES),
+    });
+    const res = await POST(portalRequest(huge));
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Request body is too large" });
+    expect(sessionsRetrieve).not.toHaveBeenCalled();
+  });
+
   it("returns 400 when sessionId is missing", async () => {
     const { POST } = await import("./route");
     const res = await POST(portalRequest({}));

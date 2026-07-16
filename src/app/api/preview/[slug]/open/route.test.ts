@@ -123,6 +123,31 @@ describe("POST /api/preview/[slug]/open — requireConvex", () => {
     expect(Number.isNaN(Date.parse(persistedOpenedAt))).toBe(false);
   });
 
+  it("returns 400 when the raw JSON body exceeds MAX_PUBLIC_JSON_BODY_BYTES", async () => {
+    const { MAX_PUBLIC_JSON_BODY_BYTES } = await import(
+      "@/lib/security/json-body"
+    );
+    const { POST } = await import("./route");
+    const huge = JSON.stringify({
+      openedAt: new Date().toISOString(),
+      pad: "p".repeat(MAX_PUBLIC_JSON_BODY_BYTES),
+    });
+    const response = await POST(
+      new Request("http://localhost/api/preview/demo-cafe/open?src=outreach", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: huge,
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.ok).toBe(false);
+    expect(json.reason).toBe("body_too_large");
+    expect(recordLeadPreviewOpen).not.toHaveBeenCalled();
+  });
+
   it("treats over-long src as missing (not_attributed when stage does not qualify)", async () => {
     getLeadBySlug.mockResolvedValue({
       slug: "demo-cafe",

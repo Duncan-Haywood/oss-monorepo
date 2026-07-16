@@ -112,6 +112,23 @@ describe("POST /api/commerce/checkout", () => {
     expect(await res.json()).toEqual({ error: "Invalid JSON body" });
   });
 
+  it("returns 400 when the raw JSON body exceeds MAX_PUBLIC_JSON_BODY_BYTES", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    const { MAX_PUBLIC_JSON_BODY_BYTES } = await import(
+      "@/lib/security/json-body"
+    );
+    const { POST } = await import("./route");
+    const huge = JSON.stringify({
+      slug: "demo-cafe",
+      skuId: "sku_latte",
+      pad: "p".repeat(MAX_PUBLIC_JSON_BODY_BYTES),
+    });
+    const res = await POST(commerceRequest(huge));
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Request body is too large" });
+    expect(sessionsCreate).not.toHaveBeenCalled();
+  });
+
   it("returns 400 when slug or skuId is missing", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
     const { POST } = await import("./route");

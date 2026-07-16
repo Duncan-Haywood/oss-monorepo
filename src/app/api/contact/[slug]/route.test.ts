@@ -541,6 +541,48 @@ describe("POST /api/contact/[slug]", () => {
   });
 });
 
+describe("POST /api/contact/[slug] body size", () => {
+  beforeEach(() => {
+    getLeadBySlug.mockReset();
+    insertClientInquiry.mockReset();
+    sentEmail.mockClear();
+    getLeadBySlug.mockResolvedValue({ ...KNOWN_LEAD });
+    insertClientInquiry.mockResolvedValue({ id: "inq_test_1" });
+  });
+
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it("returns 400 when the raw JSON body exceeds MAX_PUBLIC_JSON_BODY_BYTES before CRM", async () => {
+    const { MAX_PUBLIC_JSON_BODY_BYTES } = await import(
+      "@/lib/security/json-body"
+    );
+    const { POST } = await import("./route");
+    const huge = JSON.stringify({
+      email: "visitor@example.com",
+      message: "hi",
+      pad: "p".repeat(MAX_PUBLIC_JSON_BODY_BYTES),
+    });
+    const response = await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: huge,
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.ok).toBe(false);
+    expect(json.error).toMatch(/too large/i);
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(insertClientInquiry).not.toHaveBeenCalled();
+    expect(sentEmail).not.toHaveBeenCalled();
+  });
+});
+
 describe("GET /api/contact/[slug]", () => {
   afterEach(() => {
     vi.resetModules();

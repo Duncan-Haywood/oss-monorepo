@@ -10,6 +10,10 @@ import {
 } from "@/lib/inquiries/contact-persist";
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
+import {
+  contentLengthExceedsLimit,
+  readJsonBodyWithByteLimit,
+} from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
@@ -61,27 +65,42 @@ function readString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-async function parseBody(request: Request): Promise<Record<string, unknown>> {
+type ParseBodyResult =
+  | { ok: true; value: Record<string, unknown> }
+  | { ok: false; reason: "too_large" };
+
+async function parseBody(request: Request): Promise<ParseBodyResult> {
+  if (contentLengthExceedsLimit(request)) {
+    return { ok: false, reason: "too_large" };
+  }
   const contentType = request.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
-    const json: unknown = await request.json();
-    if (json && typeof json === "object" && !Array.isArray(json)) {
-      return json as Record<string, unknown>;
+    const parsed = await readJsonBodyWithByteLimit<unknown>(request);
+    if (!parsed.ok) {
+      if (parsed.reason === "too_large") {
+        return { ok: false, reason: "too_large" };
+      }
+      return { ok: true, value: {} };
     }
-    return {};
+    if (parsed.value && typeof parsed.value === "object" && !Array.isArray(parsed.value)) {
+      return { ok: true, value: parsed.value as Record<string, unknown> };
+    }
+    return { ok: true, value: {} };
   }
   if (
     contentType.includes("application/x-www-form-urlencoded") ||
     contentType.includes("multipart/form-data")
   ) {
+    // Content-Length pre-check above; formData still needed for multipart
+    // boundary parsing (no safe byte-bounded twin without reimplementing).
     const form = await request.formData();
     const out: Record<string, unknown> = {};
     form.forEach((value, key) => {
       out[key] = typeof value === "string" ? value : value.name;
     });
-    return out;
+    return { ok: true, value: out };
   }
-  return {};
+  return { ok: true, value: {} };
 }
 
 function isValidContactSlug(slug: string): boolean {
@@ -105,6 +124,17 @@ export async function POST(request: Request, context: RouteContext) {
     );
   }
 
+  // Bound raw body before CRM/demo lookup — field soft-caps alone still
+  // allocate unbounded request.json()/formData() (public-json-body-byte-length-cap).
+  const parsed = await parseBody(request);
+  if (!parsed.ok) {
+    return NextResponse.json(
+      { ok: false, error: "Request body is too large" },
+      { status: 400 },
+    );
+  }
+  const body = parsed.value;
+
   const dbLead = await getLeadBySlug(slug);
   // Curated DEMO_LEADS showcases may not yet be in the DB on a fresh instance;
   // slug-inferred previews (resolvePreviewLead) are NOT accepted — they would
@@ -116,8 +146,6 @@ export async function POST(request: Request, context: RouteContext) {
       { status: 404 },
     );
   }
-
-  const body = await parseBody(request);
   // Soft-cap once — persist and notify must share the same bounded strings
   // (contact-form-notify-field-length-caps). Rate limit alone is not a size bound.
   const fields = normalizeContactFormFields({
