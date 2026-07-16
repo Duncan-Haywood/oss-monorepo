@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   MAX_PUBLIC_JSON_BODY_BYTES,
+  MAX_PUBLIC_REQUEST_BODY_BYTES,
   contentLengthExceedsLimit,
+  readFormBodyWithByteLimit,
   readJsonBodyWithByteLimit,
 } from "./json-body";
 
@@ -100,5 +102,76 @@ describe("readJsonBodyWithByteLimit", () => {
     const req = jsonRequest("{not-json");
     const result = await readJsonBodyWithByteLimit(req);
     expect(result).toEqual({ ok: false, reason: "invalid_json" });
+  });
+});
+
+function formRequest(
+  body: string,
+  headers: Record<string, string> = {},
+): Request {
+  return new Request("http://localhost/api/test", {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+      ...headers,
+    },
+    body,
+  });
+}
+
+describe("readFormBodyWithByteLimit", () => {
+  it("shares the JSON whole-body ceiling", () => {
+    expect(MAX_PUBLIC_REQUEST_BODY_BYTES).toBe(MAX_PUBLIC_JSON_BODY_BYTES);
+  });
+
+  it("parses a small urlencoded body", async () => {
+    const req = formRequest("name=Pat&email=visitor%40example.com");
+    const result = await readFormBodyWithByteLimit(req);
+    expect(result).toEqual({
+      ok: true,
+      value: { name: "Pat", email: "visitor@example.com" },
+    });
+  });
+
+  it("rejects when Content-Length exceeds the max before reading", async () => {
+    const req = formRequest("name=Pat", {
+      "content-length": String(MAX_PUBLIC_REQUEST_BODY_BYTES + 50),
+    });
+    const result = await readFormBodyWithByteLimit(req);
+    expect(result).toEqual({ ok: false, reason: "too_large" });
+  });
+
+  it("rejects when the consumed body exceeds the max without Content-Length", async () => {
+    const huge = `message=${"m".repeat(MAX_PUBLIC_REQUEST_BODY_BYTES)}`;
+    expect(new TextEncoder().encode(huge).byteLength).toBeGreaterThan(
+      MAX_PUBLIC_REQUEST_BODY_BYTES,
+    );
+    const req = formRequest(huge);
+    const result = await readFormBodyWithByteLimit(req);
+    expect(result).toEqual({ ok: false, reason: "too_large" });
+  });
+
+  it("accepts a body exactly at the max", async () => {
+    const prefix = "message=";
+    const fill = MAX_PUBLIC_REQUEST_BODY_BYTES - prefix.length;
+    expect(fill).toBeGreaterThan(0);
+    const exact = `${prefix}${"c".repeat(fill)}`;
+    expect(new TextEncoder().encode(exact).byteLength).toBe(
+      MAX_PUBLIC_REQUEST_BODY_BYTES,
+    );
+    const req = formRequest(exact, {
+      "content-length": String(MAX_PUBLIC_REQUEST_BODY_BYTES),
+    });
+    const result = await readFormBodyWithByteLimit(req);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(String(result.value.message)).toHaveLength(fill);
+    }
+  });
+
+  it("returns empty object for empty form body", async () => {
+    const req = formRequest("");
+    const result = await readFormBodyWithByteLimit(req);
+    expect(result).toEqual({ ok: true, value: {} });
   });
 });

@@ -581,6 +581,31 @@ describe("POST /api/contact/[slug] body size", () => {
     expect(insertClientInquiry).not.toHaveBeenCalled();
     expect(sentEmail).not.toHaveBeenCalled();
   });
+
+  it("returns 400 when form-urlencoded body exceeds the shared byte ceiling before CRM", async () => {
+    const { MAX_PUBLIC_REQUEST_BODY_BYTES } = await import(
+      "@/lib/security/json-body"
+    );
+    const { POST } = await import("./route");
+    // No Content-Length — arrayBuffer bound must still reject (FormData twin).
+    const huge = `email=visitor%40example.com&message=${"m".repeat(MAX_PUBLIC_REQUEST_BODY_BYTES)}`;
+    const response = await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: huge,
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.ok).toBe(false);
+    expect(json.error).toMatch(/too large/i);
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(insertClientInquiry).not.toHaveBeenCalled();
+    expect(sentEmail).not.toHaveBeenCalled();
+  });
 });
 
 describe("GET /api/contact/[slug]", () => {
