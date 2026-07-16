@@ -332,6 +332,48 @@ describe("POST /api/stripe/webhook", () => {
       expect(insertDeployHandoff).not.toHaveBeenCalled();
     });
 
+    it("does not record payment when slug is over MAX_LEAD_SLUG_LENGTH (create-path twin)", async () => {
+      const { MAX_LEAD_SLUG_LENGTH } = await import("@/lib/leads/slug");
+      const overLongSlug = "a".repeat(MAX_LEAD_SLUG_LENGTH + 1);
+      const session = checkoutSession({
+        metadata: { slug: overLongSlug, tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalledTimes(1);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
+      expect(sendReceiptEmail).not.toHaveBeenCalled();
+    });
+
+    it("trims bundle slug before recordLeadPayment (same as create-path lookup)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "  demo-cafe  ", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({ slug: "demo-cafe", tier: "growth" }),
+        { requireConvex: true },
+      );
+    });
+
     it("returns 500 (checkout_session_mark_complete) so Stripe retries when marking the session complete fails", async () => {
       const session = checkoutSession({ metadata: { slug: "demo-cafe", tier: "growth" } });
       constructEvent.mockReturnValue(completedEvent(session));
