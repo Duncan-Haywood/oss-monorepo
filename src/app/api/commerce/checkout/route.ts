@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import {
+  parseCommerceCheckoutSkuId,
+  parseCommerceCheckoutSlug,
+} from "@/lib/commerce/checkout-fields";
 import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
@@ -58,11 +62,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const slug = typeof body.slug === "string" ? body.slug.trim() : "";
-  const skuId = typeof body.skuId === "string" ? body.skuId.trim() : "";
-  if (!slug || !skuId) {
+  // Opaque lookup keys — hard-reject over-length before DB/Stripe (never
+  // soft-cap; truncation looks up the wrong row and can still burn quota).
+  const parsedSlug = parseCommerceCheckoutSlug(body.slug);
+  if (!parsedSlug.ok) {
+    if (parsedSlug.reason === "too_long") {
+      return NextResponse.json({ error: "slug is too long" }, { status: 400 });
+    }
     return NextResponse.json({ error: "slug and skuId are required" }, { status: 400 });
   }
+  const parsedSkuId = parseCommerceCheckoutSkuId(body.skuId);
+  if (!parsedSkuId.ok) {
+    if (parsedSkuId.reason === "too_long") {
+      return NextResponse.json({ error: "skuId is too long" }, { status: 400 });
+    }
+    return NextResponse.json({ error: "slug and skuId are required" }, { status: 400 });
+  }
+  const slug = parsedSlug.value;
+  const skuId = parsedSkuId.value;
 
   const catalog = await getCommerceCatalog(slug);
   const item = catalog?.items.find((sku) => sku.id === skuId);
