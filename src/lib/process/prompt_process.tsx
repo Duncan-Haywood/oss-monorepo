@@ -2171,6 +2171,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-e309",
   },
+  {
+    id: "proxy-login-redirect-next-bound",
+    summary:
+      "Empty-backlog after PR #300 (proxy-host-lookup). Free NEXT_STEPS stayed operator/legal-gated. Residual twin of login-next-path-field-length-cap: src/proxy.ts dashboardAuthGate still sets login?next= to the raw request pathname (and clones the full nextUrl search) before safeNextPath runs on the login page — a multi-KB /dashboard/... probe mints an over-long Location header even though the login page would later fall back. Bound via safeNextPath before redirect; drop inherited query params on the login URL.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-e309",
+  },
+
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
