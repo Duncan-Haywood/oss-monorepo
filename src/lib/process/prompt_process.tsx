@@ -2100,6 +2100,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Production deploy",
     owner: "cursor/business-process-evolution-58d9",
   },
+  {
+    id: "billing-portal-returnUrl-field-length-cap",
+    summary:
+      "Empty-backlog after PR #291/#292 (commerce slug/skuId + contact path length). Free NEXT_STEPS stayed operator/legal-gated. AGENT_PROTOCOL residual public body sizes named billing-portal returnUrl length next. POST /api/stripe/billing-portal already same-origin-guards returnUrl but does not bound length — a rate-limited public caller can POST a multi-KB same-origin URL into stripe.billingPortal.sessions.create. Treat over-MAX like cross-origin/malformed (fall back to derived default) before Stripe; hard-reject would strand legitimate portal opens over an optional field.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-98c1",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
