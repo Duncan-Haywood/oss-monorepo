@@ -103,6 +103,20 @@ describe("POST /api/stripe/billing-portal", () => {
     expect(sessionsRetrieve).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when sessionId exceeds MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH (no Stripe call)", async () => {
+    const { MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH } = await import(
+      "@/lib/billing/checkout-session-id"
+    );
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    const { POST } = await import("./route");
+    const over = `cs_test_${"a".repeat(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH)}`;
+    const res = await POST(portalRequest({ sessionId: over }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/sessionId is too long/);
+    expect(sessionsRetrieve).not.toHaveBeenCalled();
+  });
+
   it("returns 501 when STRIPE_SECRET_KEY is missing", async () => {
     const { POST } = await import("./route");
     const res = await POST(portalRequest({ sessionId: "cs_test_1" }));
