@@ -1,48 +1,19 @@
 import Link from "next/link";
-import Stripe from "stripe";
 import { ManageBillingButton } from "./manage-billing-button";
-import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
+import { loadCheckoutSuccessSession } from "@/lib/checkout/success-session";
 
 type CheckoutSuccessPageProps = {
   searchParams: Promise<{ session_id?: string }>;
 };
 
-type ConfirmedCheckout = {
-  confirmed: true;
-  sessionId: string;
-  showBillingPortal: boolean;
-};
-
-type UnconfirmedCheckout = {
-  confirmed: false;
-};
-
-async function loadCheckout(
-  sessionId?: string,
-): Promise<ConfirmedCheckout | UnconfirmedCheckout> {
-  if (!sessionId || !process.env.STRIPE_SECRET_KEY) {
-    return { confirmed: false };
-  }
-  try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    if (session.status !== "complete") {
-      return { confirmed: false };
-    }
-    const tier = session.metadata?.tier ?? "";
-    const commerceAddon = session.metadata?.commerceAddon === "true";
-    const showBillingPortal =
-      session.mode === "subscription" ||
-      orderEligibleForBillingPortal({ tier, commerceAddon });
-    return { confirmed: true, sessionId, showBillingPortal };
-  } catch {
-    return { confirmed: false };
-  }
-}
-
 export default async function CheckoutSuccessPage({ searchParams }: CheckoutSuccessPageProps) {
   const { session_id } = await searchParams;
-  const checkout = await loadCheckout(session_id);
+  // Opaque session_id — hard-reject over MAX via parseCheckoutSessionId inside
+  // loadCheckoutSuccessSession before stripe.checkout.sessions.retrieve
+  // (checkout-success-sessionId-field-length-cap; twin of billing-portal).
+  const checkout = await loadCheckoutSuccessSession(session_id, {
+    secretKey: process.env.STRIPE_SECRET_KEY,
+  });
 
   if (!checkout.confirmed) {
     return (

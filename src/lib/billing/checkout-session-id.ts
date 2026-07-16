@@ -1,10 +1,11 @@
 /**
- * Bounds for client-supplied Stripe Checkout Session ids on public routes.
+ * Bounds for client-supplied Stripe Checkout Session ids on public surfaces.
  *
  * Soft-cap is wrong here: truncating an opaque id guarantees a Stripe miss
  * and still burns a retrieve call. Hard-reject over-length before any SDK
- * call so rate-limited public callers cannot POST multi-KB garbage into
- * checkout.sessions.retrieve (or the default return_url query string).
+ * call so public callers cannot force multi-KB garbage into
+ * checkout.sessions.retrieve (POST /api/stripe/billing-portal body.sessionId
+ * and GET /checkout/success?session_id= share this helper).
  *
  * 255 matches Stripe's common object-id ceiling; real cs_test_/cs_live_
  * ids are far shorter.
