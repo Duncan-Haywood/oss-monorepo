@@ -71,6 +71,40 @@ const CATEGORIES = new Set<BusinessCategory>(["restaurant", "salon", "trades", "
 const TIERS = new Set(["starter", "growth", "complete"] as const);
 const MAX_ROWS = 100;
 
+/**
+ * Auth-gated CSV import still needs a finite payload ceiling —
+ * requireOperatorAuth is not a payload-size throttle. MAX_ROWS (100) alone is
+ * not enough: splitCsvIntoLines runs over the full string before the row-count
+ * gate, so a multi-MB body with few rows still burns parse work. Soft-cap /
+ * truncate would cut mid-row and mint corrupt leads — hard-reject instead.
+ *
+ * 512 KiB comfortably fits 100 capped rows (create-path MAX_* per cell) while
+ * blocking multi-MB probes on importLeadsCsvAction.
+ */
+export const MAX_CSV_IMPORT_TEXT_LENGTH = 512_000;
+
+export type ParseCsvImportTextResult =
+  | { ok: true; csvText: string }
+  | { ok: false; reason: "missing" | "too_long" };
+
+/**
+ * Bound operator-submitted CSV text before parseLeadsCsv.
+ * Over MAX → too_long (never truncate); empty/whitespace → missing.
+ */
+export function parseCsvImportText(raw: unknown): ParseCsvImportTextResult {
+  if (typeof raw !== "string") {
+    return { ok: false, reason: "missing" };
+  }
+  // Length-check before trim/split — auth is not a payload-size throttle.
+  if (raw.length > MAX_CSV_IMPORT_TEXT_LENGTH) {
+    return { ok: false, reason: "too_long" };
+  }
+  if (!raw.trim()) {
+    return { ok: false, reason: "missing" };
+  }
+  return { ok: true, csvText: raw };
+}
+
 function softCap(value: string, max: number): string {
   return softCapLeadField(value, max);
 }
