@@ -4481,7 +4481,7 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "Hard-reject uncapped body.slug / body.skuId on POST /api/commerce/checkout via parseCommerceCheckoutSlug (MAX_LEAD_SLUG_LENGTH) and parseCommerceCheckoutSkuId (catalog-save ceiling 64) before getCommerceCatalog or Stripe — rather than soft-cap opaque lookup keys or invent an optional aggregate while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
-      "Empty-backlog after PR #290 (unsubscribe email hard-reject) + PR #289 (billing-portal sessionId). Free NEXT_STEPS stayed operator/legal-gated. Bundle checkout already sanitizes+caps slug via sanitizeLeadSlug; commerce Buy now still forwarded unbounded slug/skuId into catalog lookup, Stripe metadata, checkout_sessions, and cancel_url after customerEmail soft-cap. Soft-cap is wrong for opaque keys: truncation looks up the wrong row and can still burn quota. Aligning slug with create-path DNS max and skuId with normalizeCommerceItems' 64-char save slice closes the residual public money-route size hole. Complementary same-window: business-process-evolution-58d9 contact path-length (slice 339). Next residual public body sizes: billing-portal returnUrl length / unsubscribe token length. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+      "Empty-backlog after PR #290 (unsubscribe email hard-reject) + PR #289 (billing-portal sessionId). Free NEXT_STEPS stayed operator/legal-gated. Bundle checkout already sanitizes+caps slug via sanitizeLeadSlug; commerce Buy now still forwarded unbounded slug/skuId into catalog lookup, Stripe metadata, checkout_sessions, and cancel_url after customerEmail soft-cap. Soft-cap is wrong for opaque keys: truncation looks up the wrong row and can still burn quota. Aligning slug with create-path DNS max and skuId with normalizeCommerceItems' 64-char save slice closes the residual public money-route size hole. Complementary same-window: business-process-evolution-58d9 contact path-length. Next residual public body sizes: billing-portal returnUrl length / unsubscribe token length. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
   {
     date: "2026-07-16",
@@ -8878,7 +8878,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — hard-reject over-long billing-portal sessionId over inventing an optional aggregate (slice 336)",
       "Verified: npm test (1408 passed, +5 parseCheckoutSessionId + route too_long regressions on top of main@#288's 1403) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(336, 337),
+    decisions: BUSINESS_DECISIONS.slice(337, 338),
   },
   {
     date: "2026-07-16",
@@ -8900,7 +8900,7 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-16",
     branch: "cursor/prompt-process-evolution-92f3",
     summary:
-      "Empty-backlog after PR #290 (unsubscribe-email-field-length-cap) + PR #289 (billing-portal sessionId). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-58d9 running same window — claimed commerce-checkout-slug-skuId immediately and pushed. Scanned stuck CLI remotes (already-merged marketing/digest/slug/login bodies). Public-write audit of POST /api/commerce/checkout found slug/skuId still uncapped after customerEmail soft-cap while bundle checkout already sanitizes+caps slug. Hard-reject via parseCommerceCheckoutSlug / parseCommerceCheckoutSkuId before DB/Stripe; Vitest + architecture note; rotation points at billing-portal returnUrl / unsubscribe token length next. Folded onto 58d9 with complementary contact path-length ITERATION kept.",
+      "Empty-backlog after PR #290 (unsubscribe-email-field-length-cap) + PR #289 (billing-portal sessionId). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-58d9 claimed contact-form-slug-path-length-cap (complementary public-write size hole on contact path slug) in the same window — both axes kept. Scanned stuck CLI remotes (already-merged marketing/digest/slug/login bodies). Public-write audit of POST /api/commerce/checkout found slug/skuId still uncapped after customerEmail soft-cap while bundle checkout already sanitizes+caps slug. Hard-reject via parseCommerceCheckoutSlug / parseCommerceCheckoutSkuId before DB/Stripe; Vitest + architecture note; rotation points at billing-portal returnUrl / unsubscribe token length next. Dual-fold with 58d9 PR #292 / this #291 — both ITERATIONS kept.",
     shipped: [
       "src/lib/commerce/checkout-fields.ts (+ .test.ts) — parseCommerceCheckoutSlug / parseCommerceCheckoutSkuId + MAX_* ceilings",
       "src/lib/commerce/index.ts — re-export checkout field parsers",
@@ -8910,7 +8910,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — commerce checkout opaque slug/skuId hard-reject rule; empty-backlog rotation marks this axis done; next residual public body sizes (billing-portal returnUrl / unsubscribe token)",
       "NEXT_STEPS: commerce-checkout-slug-skuId-field-length-cap done",
       "BUSINESS_DECISIONS — hard-reject commerce checkout slug/skuId over inventing an optional aggregate (slice 338)",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (1417 passed, +7 checkout-fields + route too_long regressions on top of main@#290's 1410) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(338, 339),
   },
@@ -8927,9 +8927,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Vitest — slug-path length helper + contact POST/GET over-long + exact-max regressions",
       "Docs: architecture.tsx notes contact path-length hard-reject beside known-lead gate",
       "AGENT_PROTOCOL — contact path-length rule; empty-backlog rotation marks commerce + contact path axes done",
-      "NEXT_STEPS: contact-form-slug-path-length-cap done; commerce-checkout-slug-skuId-field-length-cap done (92f3)",
+      "NEXT_STEPS: contact-form-slug-path-length-cap done; commerce-checkout-slug-skuId-field-length-cap done (92f3 / PR #291)",
       "BUSINESS_DECISIONS — contact path-length hard-reject over inventing an optional aggregate (slice 339)",
-      "Verified: npm test (1422 passed) + lint after fold of 92f3",
+      "Verified: npm test (1422 passed) + lint; folded with 92f3 on main via #291",
+      "Folded onto cursor/prompt-process-evolution-92f3 — both complementary ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(339, 340),
   },
