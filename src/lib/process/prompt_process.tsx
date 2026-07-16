@@ -9494,7 +9494,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: origin/main (PR #308 auth-gated lead-slug length) — keep sibling ITERATION; complementary CSV body axis",
       "NEXT_STEPS: csv-import-text-length-cap done; auth-gated-lead-slug-field-length-cap done (f30c / #308)",
       "BUSINESS_DECISIONS — hard-reject CSV body size over inventing an optional aggregate (slice 356)",
-      "Verified: npm test after #308 fold + lint (counts recorded after re-run)",
+      "Verified: npm test (1515 passed = main@#308's 1509 + 4 helper + 2 action over-long/exact-max) + lint",
     ],
     decisions: BUSINESS_DECISIONS.slice(356, 357),
   },
