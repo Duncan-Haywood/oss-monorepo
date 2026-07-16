@@ -2331,6 +2331,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-18d9",
   },
+  {
+    id: "commerce-catalog-skuId-field-length-cap",
+    summary:
+      "Empty-backlog after PR #316/#317 (JSON-LD indexable + pack deliver/read soft-caps). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged (preview-index, convex order parity, snooze, optimistic-state). Public Buy now hard-rejects skuId over 64, but auth-gated normalizeCommerceItems still trim+slice(0,64) — truncating distinct operator-supplied SKU ids can collide preserveCommerceStripeIds / Sync-to-Stripe Product keys. Hard-reject over MAX_COMMERCE_SKU_ID_LENGTH (never truncate opaque ids).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-a3a8",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
