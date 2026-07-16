@@ -2118,6 +2118,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-42a4",
   },
+  {
+    id: "checkout-success-sessionId-field-length-cap",
+    summary:
+      "Empty-backlog after PR #293 (billing-portal returnUrl + unsubscribe token). Free NEXT_STEPS stayed operator/legal-gated. Public-write residual twin of billing-portal-sessionId-field-length-cap: GET /checkout/success?session_id= still passes uncapped query session_id into stripe.checkout.sessions.retrieve before confirming payment. Hard-reject via shared parseCheckoutSessionId (MAX=255) before any Stripe call — same opaque-id class as POST /api/stripe/billing-portal.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-191d",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
