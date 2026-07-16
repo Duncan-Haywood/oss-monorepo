@@ -58,6 +58,36 @@ export const list = query({
   },
 });
 
+/**
+ * Slug-scoped twin of `list` for public preview commerce eligibility.
+ * Uses by_leadSlug so cold outreach previews never burn a full-ledger collect.
+ * Newest-first by createdAt — matches SQLite WHERE + ORDER BY createdAt DESC.
+ */
+export const listByLeadSlug = query({
+  args: { leadSlug: v.string() },
+  returns: v.array(
+    v.object({
+      _id: v.id("orders"),
+      _creationTime: v.number(),
+      leadSlug: v.string(),
+      stripeSessionId: v.string(),
+      stripeCustomerId: v.optional(v.string()),
+      customerEmail: v.string(),
+      tier: v.string(),
+      commerceAddon: v.boolean(),
+      amountTotal: v.number(),
+      createdAt: v.number(),
+    }),
+  ),
+  handler: async (ctx, args) => {
+    const rows = await ctx.db
+      .query("orders")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    return rows.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
 export const getByStripeSessionId = query({
   args: { stripeSessionId: v.string() },
   returns: v.union(

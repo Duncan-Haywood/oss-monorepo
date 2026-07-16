@@ -32,6 +32,11 @@ export {
 } from "./catalog";
 
 export {
+  loadPreviewCommerceItems,
+  type PreviewCommerceDeps,
+} from "./preview-commerce";
+
+export {
   archiveCommerceStripeProducts,
   archiveOrphanCommerceStripeProducts,
   commerceSkuStripeKey,

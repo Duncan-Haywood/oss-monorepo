@@ -205,7 +205,13 @@ export default function ArchitectureDocPage() {
         Category templates (restaurant, salon, trades, generic) render at{" "}
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
-        <code>serene-salon</code>, <code>mountain-plumbing</code>. Path slug length is
+        <code>serene-salon</code>, <code>mountain-plumbing</code>. Commerce catalog
+        items load via <code>loadPreviewCommerceItems</code> — stage-gated on{" "}
+        <code>leadStageEligibleForCommerceCatalog</code> (paid/live only) and
+        slug-scoped via <code>listOrdersByLeadSlug</code> (
+        <code>orders.by_leadSlug</code> / SQLite <code>WHERE l.slug = ?</code>),
+        never a full-ledger <code>listOrders()</code> collect on cold outreach
+        previews. Path slug length is
         hard-capped via <code>loadPreviewPageLead</code> (
         <code>isPublicLeadSlugPathLengthOk</code> /{" "}
         <code>MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH</code>=120 — same gate as contact +

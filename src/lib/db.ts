@@ -375,6 +375,7 @@ const api: any = {
   },
   orders: {
     list: "orders:list",
+    listByLeadSlug: "orders:listByLeadSlug",
   },
   checkoutSessions: {
     create: "checkoutSessions:create",
@@ -927,6 +928,29 @@ export async function countLeadsByStage(): Promise<Record<LeadPipelineStage, num
  * latestEligibleOrder cannot regress if a future caller bypasses that query
  * shape or the Convex sort is accidentally removed.
  */
+function mapConvexOrderRow(row: {
+  _id: string;
+  leadSlug: string;
+  stripeSessionId: string;
+  stripeCustomerId?: string;
+  tier: string;
+  commerceAddon: boolean;
+  amountTotal: number;
+  createdAt: number;
+}): OrderRecord {
+  return {
+    id: row._id,
+    leadSlug: row.leadSlug,
+    stripeSessionId: row.stripeSessionId,
+    stripeCustomerId: row.stripeCustomerId,
+    tier: row.tier,
+    commerceAddon: row.commerceAddon,
+    amountPaid: row.amountTotal,
+    status: "paid",
+    createdAt: new Date(row.createdAt).toISOString(),
+  };
+}
+
 export async function listOrders(): Promise<OrderRecord[]> {
   if (convexClient) {
     try {
@@ -940,19 +964,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
         amountTotal: number;
         createdAt: number;
       }>;
-      return sortOrdersNewestFirst(
-        rows.map((row) => ({
-          id: row._id,
-          leadSlug: row.leadSlug,
-          stripeSessionId: row.stripeSessionId,
-          stripeCustomerId: row.stripeCustomerId,
-          tier: row.tier,
-          commerceAddon: row.commerceAddon,
-          amountPaid: row.amountTotal,
-          status: "paid",
-          createdAt: new Date(row.createdAt).toISOString(),
-        })),
-      );
+      return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
       console.warn("Failed to fetch orders from Convex, falling back to SQLite", e);
     }
@@ -973,6 +985,57 @@ export async function listOrders(): Promise<OrderRecord[]> {
     mapSqliteOrderRow({
       ...row,
       leadSlug: row.leadSlug || "unknown",
+    }),
+  );
+}
+
+/**
+ * Slug-scoped orders for public preview commerce eligibility.
+ * Prefer over listOrders() on /preview/[slug] — cold outreach must not collect
+ * the full ledger. Newest-first on both backends (matches listOrders).
+ */
+export async function listOrdersByLeadSlug(
+  leadSlug: string,
+): Promise<OrderRecord[]> {
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(api.orders.listByLeadSlug, {
+        leadSlug,
+      })) as Array<{
+        _id: string;
+        leadSlug: string;
+        stripeSessionId: string;
+        stripeCustomerId?: string;
+        tier: string;
+        commerceAddon: boolean;
+        amountTotal: number;
+        createdAt: number;
+      }>;
+      return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
+    } catch (e) {
+      console.warn(
+        `Failed to fetch orders for ${leadSlug} from Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
+              o.amountPaid, o.status, o.createdAt
+       FROM orders o
+       LEFT JOIN leads l ON l.id = o.leadId
+       WHERE l.slug = ?
+       ORDER BY o.createdAt DESC`,
+    )
+    .all(leadSlug) as unknown as SqliteOrderJoinRow[];
+
+  return rows.map((row) =>
+    mapSqliteOrderRow({
+      ...row,
+      leadSlug: row.leadSlug || leadSlug,
     }),
   );
 }

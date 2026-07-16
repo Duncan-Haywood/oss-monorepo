@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CategoryPreview } from "@/components/preview/category-preview";
 import { PreviewOpenBeacon } from "@/components/preview/preview-open-beacon";
-import { getCommerceCatalog, listOrders } from "@/lib/db";
-import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
+import { loadPreviewCommerceItems } from "@/lib/commerce/preview-commerce";
 import { isCuratedDemoLeadSlug } from "@/lib/leads/demo-catalog";
 import { loadPreviewPageLead } from "@/lib/leads/preview-page-lead";
 import {
@@ -61,10 +60,9 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   const trackByStage =
     lead.stage === "outreach_sent" || lead.stage === "discovery_call";
 
-  const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
-  const showCommerce = leadEligibleForCommerceCatalog(lead, orders);
-  const catalog = showCommerce ? await getCommerceCatalog(slug) : null;
-  const commerceItems = catalog?.items ?? [];
+  // Stage-gate + slug-scoped orders — never listOrders() the full ledger on
+  // public cold-outreach previews (preview-page-uncapped-listOrders).
+  const commerceItems = await loadPreviewCommerceItems(lead, slug);
 
   return (
     <>
