@@ -2403,6 +2403,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-ffdb",
   },
+  {
+    id: "commerce-webhook-amount-catalog-parity",
+    summary:
+      "Empty-backlog after PR #324 (commerce-webhook-sku-catalog-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual: Buy now create resolves Price from catalog stripePriceId (never trusts client amount), but checkout.session.completed still ledgered session.amount_total for any catalog-known skuId — a Dashboard-minted session with a valid skuId and a different Stripe Price could skew Commerce payouts totals and client receipt amounts. Require session.amount_total (integer cents) === catalogItem.priceCents before insertCommerceOrder / inquiry / client receipt; mismatch/missing skips like unknown skuId.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-c135",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
