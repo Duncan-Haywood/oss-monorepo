@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { suppressEmail } from "@/lib/db";
 import { UNSUBSCRIBE_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
 import { verifyUnsubscribeToken } from "@/lib/email/unsubscribe-token";
+import { MAX_CONTACT_EMAIL_LENGTH } from "@/lib/inquiries/contact-fields";
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
@@ -12,7 +13,10 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * harvested footer link or a script hammering HMAC + suppressEmail
  * cannot unboundedly mutate the global suppression list that gates
  * every automated send. Check the limiter BEFORE token verify so
- * garbage traffic does not burn HMAC work either.
+ * garbage traffic does not burn HMAC work either. Hard-reject email
+ * query params longer than MAX_CONTACT_EMAIL_LENGTH before verify —
+ * rate limits blunt request count, not per-request payload / HMAC /
+ * suppressions-row size; soft-cap would break signed footer tokens.
  */
 export async function GET(request: NextRequest) {
   const clientIp = clientIpFromHeaders(request.headers);
@@ -30,6 +34,10 @@ export async function GET(request: NextRequest) {
 
   if (!email) {
     return new NextResponse("Missing email parameter", { status: 400 });
+  }
+
+  if (email.length > MAX_CONTACT_EMAIL_LENGTH) {
+    return new NextResponse("Email parameter is too long", { status: 400 });
   }
 
   if (!verifyUnsubscribeToken(email, token)) {
