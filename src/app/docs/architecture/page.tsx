@@ -154,7 +154,15 @@ export default function ArchitectureDocPage() {
         <code>src/lib/db.ts</code> imports <code>&quot;server-only&quot;</code>, so it cannot be
         imported directly by Vitest (mirrors the <code>stripe-sync.ts</code> testability pattern:
         every existing test mocks <code>@/lib/db</code> wholesale rather than exercising its real
-        Convex/SQLite fallback). Every SQLite row-mapping/JSON-parsing helper in <code>db.ts</code>{" "}
+        Convex/SQLite fallback). The static Convex API map (<code>const api</code> in{" "}
+        <code>db.ts</code>) is still locked without importing that module:{" "}
+        <code>src/lib/db/convex-api-map-audit.ts</code> diffs every public{" "}
+        <code>query</code>/<code>mutation</code> export under <code>convex/*.ts</code> against the
+        map and fails when a live function is unregistered (a missing registration throws at call
+        time, gets swallowed by the Convex→SQLite fallback, and splits writes across instances).
+        Only the deliberate dead orphans <code>orders.createOrder</code> /{" "}
+        <code>orders.getByStripeSessionId</code> (superseded by <code>leads.markLeadPaid</code>)
+        stay allowlisted. Every SQLite row-mapping/JSON-parsing helper in <code>db.ts</code>{" "}
         is pulled out into a sibling <code>sqlite-row-mapping.ts</code> (no{" "}
         <code>server-only</code> import) with direct Vitest coverage, so that logic actually runs
         under test instead of being permanently hidden behind the module mock:{" "}

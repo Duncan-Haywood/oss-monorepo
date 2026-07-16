@@ -144,6 +144,7 @@ export const AGENT_PROTOCOL = [
   "After robots/sitemap consent gating ships, also gate LocalBusiness JSON-LD on the same isLeadPreviewIndexable predicate (preview-jsonld-indexable-only / leadPreviewJsonLdIfIndexable) before declaring the public marketing OUTPUT axis closed. Next empty-backlog prefers a dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold hot-path residual — reject workNextCount and dead orders.createOrder / getByStripeSessionId API-map orphans (order writes go through leads.markLeadPaid).",
   "After a public opaque-id hard-reject ships (e.g. Buy now skuId), immediately audit the auth-gated write twin that mints/persists the same key — catalog save was still slice(0,64) after checkout hard-rejected (commerce-catalog-skuId-field-length-cap). Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold residual — reject invent-optional-aggregate.",
   "After preview-open body.openedAt falls back on over-length, also bound residual optional attribution query params (src / utm_source) via resolvePreviewOpenAttrParam before shouldRecordPreviewOpen — over-long → missing (preview-open-src-utm-field-length-cap). After the API route bounds those query params, also bound them on GET /preview/[slug] before PreviewOpenBeacon (and inside the beacon path builder) — trackByStage still re-emits uncapped searchParams onto the beacon fetch URL otherwise (preview-page-src-utm-field-length-cap). Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold residual — reject invent-optional-aggregate.",
+  "After a dated clean pass on Convex API map + durable-marker-after-unchecked-await, lock the map with Vitest (src/lib/db/convex-api-map-audit.ts — scans convex/*.ts public query/mutation exports vs the static `const api` map in db.ts, allowlisting only deliberate orphans orders.createOrder / orders.getByStripeSessionId) rather than re-prose the same axes on the next empty-backlog run. A missing registration is a silent multi-instance split-brain; a failing test catches it before merge. Next empty-backlog after clean-audit-2026-07-16-convex-map-marker-await: prefer (1) a stuck CLI remote with a complete sold/security body and no open PR, (2) the next sold hot-path residual / public whole-body JSON byte bounds, (3) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — not a 3rd identical map/marker prose audit. Reject invent-optional-aggregate / workNextCount / registering the deliberate orders.* orphans.",
   "Public JSON POST routes (stripe/commerce checkout, billing-portal, contact, preview-open, and auth-gated marketing/generate when OPERATOR_DASHBOARD_PASSWORD may be unset) must hard-reject raw bodies over MAX_PUBLIC_JSON_BODY_BYTES (32_768) via readJsonBodyWithByteLimit / contentLengthExceedsLimit (src/lib/security/json-body.ts) before JSON.parse or formData — field-level caps alone still allocate unbounded request.json(). Soft-cap is wrong (would change parsed fields); fail closed with 400. Empty body stays allowed on preview-open (invalid_json → server now). Skip Stripe webhook (signed request.text()). After per-field size sinks close, prefer whole-body byte bounds before inventing another dated clean-audit (public-json-body-byte-length-cap).",
 ] as const;
 
@@ -2360,20 +2361,20 @@ export const NEXT_STEPS: NextStep[] = [
     owner: "cursor/prompt-process-evolution-2607",
   },
   {
+    id: "clean-audit-2026-07-16-convex-map-marker-await",
+    summary:
+      "Empty-backlog after PR #319 (preview-page-src-utm-field-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged. Fresh audit of Convex API map + durable-marker-after-unchecked-await + public optional query/body + auth-gated free-text + SSR page twins + pack deliver/read soft-caps came back clean. Document the dated clean pass and lock the Convex API map with a durable Vitest so a missing registration cannot silently split-brain again.",
+    status: "done",
+    phase: "Phase 0 — Process",
+    owner: "cursor/prompt-process-evolution-6ba0",
+  },
+  {
     id: "public-json-body-byte-length-cap",
     summary:
       "Empty-backlog after PR #319 (preview-page-src-utm). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-6ba0 claimed clean-audit-2026-07-16-convex-map-marker-await — complementary pivot. Field-level caps close after request.json()/formData() allocate; public money + contact + preview-open (+ auth-gated marketing/generate when password unset) still parse unbounded raw bodies under the rate limit. Hard-reject over MAX_PUBLIC_JSON_BODY_BYTES before JSON.parse; Content-Length pre-check + arrayBuffer byteLength. Skip Stripe webhook (signed raw text).",
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-44bd",
-  },
-  {
-    id: "clean-audit-2026-07-16-convex-map-marker-await",
-    summary:
-      "Empty-backlog after PR #319. Free NEXT_STEPS stayed operator/legal-gated. Dated re-audit of Convex API map + durable-marker-after-unchecked-await (sibling complementary to public-json-body-byte-length-cap). Reject invent-optional-aggregate / dead orders.createOrder map orphans.",
-    status: "in_progress",
-    phase: "Phase 1 — Website foundation",
-    owner: "cursor/prompt-process-evolution-6ba0",
   },
 
 ];
@@ -4975,9 +4976,16 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-16",
     decision:
+      "Lock the static Convex API map with Vitest (convex-api-map-audit) after a dated clean pass on map completeness + marker-after-unchecked-await — rather than re-prose the same clean axes, invent an optional aggregate, or register the deliberate dead orders.createOrder / orders.getByStripeSessionId orphans.",
+    rationale:
+      "Empty-backlog after PR #319 (preview-page-src-utm). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged. Fresh audit confirmed Convex API map, send-success markers, public optional query/body caps, auth-gated free-text soft-caps, SSR page twins, and pack deliver/read soft-caps all clean. A missing map registration is a silent multi-instance split-brain (call throws → SQLite fallback while list* reads Convex-first); a durable Vitest that diffs convex/*.ts public exports vs db.ts `const api` catches that class before merge. Process improvement: after documenting a clean map/marker pass, ship the regression test instead of a third identical prose audit. Next empty-backlog: stuck CLI fold / sold residual / escapeHtml·webhook·uncapped axes not dated this week. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
       "Hard-reject public (and open-demo auth-gated) JSON POST bodies over MAX_PUBLIC_JSON_BODY_BYTES (32_768) via readJsonBodyWithByteLimit / contentLengthExceedsLimit before JSON.parse or formData — rather than leave field-level caps as the only size gate after unbounded request.json() allocation, invent an optional aggregate, or skip to a 3rd identical Convex/marker clean-audit while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
-      "Empty-backlog after PR #319 (preview-page-src-utm). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-6ba0 claimed complementary clean-audit-2026-07-16-convex-map-marker-await — both axes kept. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate (workNextCount) / dead orders.createOrder map orphans — rejected. Fresh public-write residual: per-field caps (openedAt, src/utm, sessionId, contact MAX_CONTACT_*, etc.) still run after request.json() has decoded the full body; rate limits blunt request count, not multi-MB parse work. Process improvement: after per-field size sinks close, prefer whole-body byte bounds on public money/contact/beacon (+ marketing/generate when password unset) before inventing another dated clean-audit; skip Stripe webhook (signed raw text). Next empty-backlog: sibling clean-audit fold / residual auth-gated FormData twins / stuck CLI fold. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Empty-backlog after PR #319 (preview-page-src-utm). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-6ba0 claimed complementary clean-audit-2026-07-16-convex-map-marker-await (merged PR #320) — both axes kept. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate (workNextCount) / dead orders.createOrder map orphans — rejected. Fresh public-write residual: per-field caps (openedAt, src/utm, sessionId, contact MAX_CONTACT_*, etc.) still run after request.json() has decoded the full body; rate limits blunt request count, not multi-MB parse work. Process improvement: after per-field size sinks close, prefer whole-body byte bounds on public money/contact/beacon (+ marketing/generate when password unset) before inventing another dated clean-audit; skip Stripe webhook (signed raw text). Next empty-backlog: residual auth-gated FormData twins / stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 
 ];
@@ -9966,10 +9974,27 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-16",
+    branch: "cursor/prompt-process-evolution-6ba0",
+    summary:
+      "Empty-backlog after PR #319 (preview-page-src-utm-field-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged (use-server, password-trim, vercel-id, digest-age already on main under different SHAs). Fresh audit of Convex API map + durable-marker-after-unchecked-await + public optional query/body + auth-gated free-text + SSR page twins + pack deliver/read soft-caps came back clean. Shipped durable Vitest (convex-api-map-audit) that diffs convex/*.ts public query/mutation exports vs db.ts static `const api` map (allowlisting only deliberate orders.createOrder / getByStripeSessionId orphans) so a missing registration cannot silently split-brain again. Process now prefers that lock over a 3rd identical map/marker prose audit.",
+    shipped: [
+      "src/lib/db/convex-api-map-audit.ts — listPublicConvexExports / listRegisteredConvexApiPaths / auditConvexApiMap + DELIBERATE_CONVEX_API_ORPHANS",
+      "src/lib/db/convex-api-map-audit.test.ts — unit + repo-level map completeness regressions (7 tests)",
+      "Docs: architecture.tsx notes durable Convex API map Vitest beside server-only db testability",
+      "AGENT_PROTOCOL — after dated map/marker clean pass, lock with Vitest; rotate off identical prose audits",
+      "NEXT_STEPS: clean-audit-2026-07-16-convex-map-marker-await done",
+      "BUSINESS_DECISIONS — lock Convex API map with Vitest after clean pass (absolute index 370)",
+      "Verified: npm test (1578 passed = main@#319's 1571 + 7 convex-api-map-audit regressions) + lint",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(370, 371),
+  },
+  {
+    date: "2026-07-16",
     branch: "cursor/business-process-evolution-44bd",
     summary:
-      "Empty-backlog after PR #319 (preview-page-src-utm). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-6ba0 claimed complementary clean-audit-2026-07-16-convex-map-marker-await — pivoted to public whole-body JSON byte bounds. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate (workNextCount) / dead orders.createOrder orphans — rejected. Fresh public-write residual: field-level caps still ran after unbounded request.json()/formData(). Shipped readJsonBodyWithByteLimit (MAX=32_768) on stripe/commerce checkout, billing-portal, contact, preview-open, marketing/generate; Vitest + architecture note; process now prefers whole-body byte bounds after per-field sinks close.",
+      "Empty-backlog after PR #319 (preview-page-src-utm). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-6ba0 claimed complementary clean-audit-2026-07-16-convex-map-marker-await (merged PR #320) — pivoted to public whole-body JSON byte bounds; both axes kept via merge. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate (workNextCount) / dead orders.createOrder orphans — rejected. Fresh public-write residual: field-level caps still ran after unbounded request.json()/formData(). Shipped readJsonBodyWithByteLimit (MAX=32_768) on stripe/commerce checkout, billing-portal, contact, preview-open, marketing/generate; Vitest + architecture note; process now prefers whole-body byte bounds after per-field sinks close.",
     shipped: [
+      "merge: origin/main (PR #320 Convex API map Vitest lock) — keep sibling ITERATION; complementary public JSON body byte cap",
       "src/lib/security/json-body.ts — MAX_PUBLIC_JSON_BODY_BYTES=32768 + contentLengthExceedsLimit + readJsonBodyWithByteLimit",
       "src/lib/security/json-body.test.ts — helper regressions (Content-Length / byteLength / exact-max / empty / invalid)",
       "src/app/api/stripe/checkout/route.ts + commerce/checkout + billing-portal — hard-reject over-long JSON before Stripe",
@@ -9979,13 +10004,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Route tests — +1 over-long body regression each (checkout / commerce / portal / contact / preview-open / marketing)",
       "Docs: architecture.tsx notes whole-body byte bound beside field-level caps",
       "AGENT_PROTOCOL — public JSON body byte-length rule; empty-backlog rotation marks axis done",
-      "NEXT_STEPS: public-json-body-byte-length-cap done; note sibling clean-audit in_progress",
-      "BUSINESS_DECISIONS — hard-reject over-long public JSON bodies (absolute index 370)",
-      "Verified: npm test (1587 passed = main@#319's 1571 + 6 helper + 6 route / 4 helper Content-Length+exact/empty/invalid extras accounted) + lint",
+      "NEXT_STEPS: public-json-body-byte-length-cap done; clean-audit-2026-07-16-convex-map-marker-await done (6ba0 / #320)",
+      "BUSINESS_DECISIONS — hard-reject over-long public JSON bodies (absolute index 371; sibling map Vitest owns 370)",
+      "Verified: npm test + lint after fold",
     ],
-    // Absolute ownership: public JSON body byte cap is index 370
-    // (page src/utm is 369; API src/utm is 368).
-    decisions: BUSINESS_DECISIONS.slice(370, 371),
+    // Absolute ownership after #320 fold: sibling map Vitest = 370; public JSON body = 371.
+    decisions: BUSINESS_DECISIONS.slice(371, 372),
   },
 ];
 
