@@ -216,6 +216,36 @@ describe("POST /api/commerce/checkout", () => {
     );
   });
 
+  it("soft-caps over-long customerEmail before Stripe + session tracking", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const { MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH } = await import(
+      "@/lib/checkout/customer-email"
+    );
+    const overlong = `${"b".repeat(MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH + 30)}@shop.test`;
+    const { POST } = await import("./route");
+    const res = await POST(
+      commerceRequest({
+        slug: "demo-cafe",
+        skuId: "sku_latte",
+        customerEmail: overlong,
+      }),
+    );
+    expect(res.status).toBe(200);
+    const capped = overlong.slice(0, MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH);
+    const [params] = sessionsCreate.mock.calls[0] as [
+      { customer_email?: string },
+    ];
+    expect(params.customer_email).toBe(capped);
+    expect(recordCheckoutSessionCreated).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerEmail: capped,
+        kind: "commerce_sku",
+      }),
+      CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+    );
+  });
+
   it("trims slug and skuId before catalog lookup", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
     const { POST } = await import("./route");

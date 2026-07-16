@@ -190,6 +190,69 @@ describe("POST /api/stripe/checkout", () => {
     );
   });
 
+  it("soft-caps over-long customerEmail before Stripe + session tracking", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_email_cap",
+      url: "https://checkout.stripe.com/email-cap",
+    });
+    const { MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH } = await import(
+      "@/lib/checkout/customer-email"
+    );
+    const overlong = `${"a".repeat(MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH + 50)}@x.com`;
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        slug: "demo-cafe",
+        customerEmail: `  ${overlong}  `,
+      }),
+    );
+    expect(res.status).toBe(200);
+    const capped = overlong.trim().slice(0, MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      customer_email?: string;
+    };
+    expect(createArgs.customer_email).toBe(capped);
+    expect(createArgs.customer_email).toHaveLength(
+      MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH,
+    );
+    expect(recordCheckoutSessionCreated).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerEmail: capped,
+        kind: "bundle",
+      }),
+      CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+    );
+  });
+
+  it("omits blank customerEmail rather than sending whitespace to Stripe", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_blank_email",
+      url: "https://checkout.stripe.com/blank-email",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        slug: "demo-cafe",
+        customerEmail: "   ",
+      }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      customer_email?: string;
+    };
+    expect(createArgs.customer_email).toBeUndefined();
+    expect(recordCheckoutSessionCreated).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerEmail: undefined,
+      }),
+      CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+    );
+  });
+
   it("creates a Growth subscription session with setup + monthly line items", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({

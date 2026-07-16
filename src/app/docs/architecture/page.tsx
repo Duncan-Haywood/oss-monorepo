@@ -455,7 +455,11 @@ export default function ArchitectureDocPage() {
         <code>CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY</code>) when Convex is configured — a
         Convex failure returns <code>502</code> instead of handing the buyer a Checkout URL
         after a SQLite-only write that Convex-first abandoned-recovery queues would never see.
-        Mark-complete on the webhook already used the same fail-closed policy. Homepage /
+        Both create routes soft-cap optional <code>customerEmail</code> via shared{" "}
+        <code>normalizeCheckoutCustomerEmail</code> (
+        <code>MAX_CONTACT_EMAIL_LENGTH</code>) before Stripe session create and session
+        tracking — rate limits blunt request count, not payload size. Mark-complete on the
+        webhook already used the same fail-closed policy. Homepage /
         pricing CTAs that omit a lead slug mint a stable{" "}
         <code>organic-*</code> attribution slug at session create (
         <code>resolveBundleCheckoutLeadSlug</code>) so webhook fulfillment, payment stubs, and

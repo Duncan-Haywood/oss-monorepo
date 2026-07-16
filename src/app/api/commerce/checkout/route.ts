@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
@@ -78,12 +79,14 @@ export async function POST(request: Request) {
   // resolveStripeRedirectAppUrl (Host spoof → post-payment phishing).
   const appUrl = resolveStripeRedirectAppUrl();
   const stripe = new Stripe(secretKey);
+  // Soft-cap before Stripe + persist — rate limits blunt count, not size.
+  const customerEmail = normalizeCheckoutCustomerEmail(body.customerEmail);
 
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: item.stripePriceId, quantity: 1 }],
-      customer_email: body.customerEmail,
+      customer_email: customerEmail,
       success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${leadPreviewAbsoluteUrl(appUrl, slug)}#catalog`,
       metadata: { slug, skuId, kind: "commerce_sku" },
@@ -106,7 +109,7 @@ export async function POST(request: Request) {
           stripeSessionId: session.id,
           tier: "",
           commerceAddon: false,
-          customerEmail: body.customerEmail,
+          customerEmail,
           kind: "commerce_sku",
           skuId,
         },
