@@ -9337,7 +9337,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — auth-gated Assign-project id length rule; empty-backlog rotation marks this axis done; stuck-CLI fold example named",
       "NEXT_STEPS: assign-vercel-project-id-field-length-cap done",
       "BUSINESS_DECISIONS — hard-reject Assign-project vercelProjectId over inventing an optional aggregate (slice 351)",
-      "Verified: npm test + lint",
+      "Verified: npm test (1486 passed = main@#303's 1477 + 6 helper + 2 action over-long/exact-max + 1 suite bookkeeping) + lint",
     ],
     decisions: BUSINESS_DECISIONS.slice(351, 352),
   },
