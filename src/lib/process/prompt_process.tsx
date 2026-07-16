@@ -2233,6 +2233,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-c954",
   },
+  {
+    id: "auth-gated-lead-slug-field-length-cap",
+    summary:
+      "Empty-backlog after PR #306/#307 (auth-gated stripeSessionId + inquiryId). Free NEXT_STEPS stayed operator/legal-gated. AGENT_PROTOCOL named remaining auth-gated opaque ids next — dashboard actions look up handoffs/packs/orders by lead slug (not handoffId/packId/orderId). Slug-taking dashboard actions still accept uncapped slug before Convex/SQLite / Stripe / Resend — requireOperatorAuth is not a payload-size throttle. Hard-reject via parseLeadSlugLookup before any DB/email/Stripe work (opaque CRM lookup keys — never soft-cap).",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-f30c",
+  },
+  {
+    id: "csv-import-text-length-cap",
+    summary:
+      "Empty-backlog after PR #306/#307. Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-f30c claimed auth-gated-lead-slug-field-length-cap (handoffId/packId/orderId are slug-keyed, not client-submitted) — pivoted per AGENT_PROTOCOL. CSV column/create-path field caps are shipped, but importLeadsCsvAction still feeds uncapped csvText into parseLeadsCsv (splitCsvIntoLines + per-row work) before MAX_ROWS — requireOperatorAuth is not a payload-size throttle. Hard-reject over MAX_CSV_IMPORT_TEXT_LENGTH before parse (soft-cap would truncate mid-row and mint corrupt leads).",
+    status: "in_progress",
+    phase: "Phase 4 — Data ingestion",
+    owner: "cursor/prompt-process-evolution-c8f9",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
