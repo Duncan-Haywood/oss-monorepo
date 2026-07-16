@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MAX_LEAD_DATA_SOURCE_LENGTH } from "./create-fields";
 import {
   CSV_LEAD_TEMPLATE,
   existingLeadSlugConflictMessage,
@@ -169,6 +170,15 @@ describe("parseLeadsCsv", () => {
     const result = parseLeadsCsv(csv, { dataSource: "manual_entry", defaultStage: "site_built" });
     expect(result.leads[0]?.dataSource).toBe("manual_entry");
     expect(result.leads[0]?.stage).toBe("site_built");
+  });
+
+  it("soft-caps an over-long dataSource tag before tagging leads", () => {
+    const long = "batch-".repeat(20);
+    const result = parseLeadsCsv("businessName\nAcme", { dataSource: long });
+    expect(result.leads[0]?.dataSource).toHaveLength(MAX_LEAD_DATA_SOURCE_LENGTH);
+    expect(result.leads[0]?.dataSource).toBe(
+      long.slice(0, MAX_LEAD_DATA_SOURCE_LENGTH),
+    );
   });
 
   it("rejects more than the max row count", () => {

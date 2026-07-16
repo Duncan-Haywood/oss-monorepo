@@ -55,7 +55,10 @@ import {
   partitionLeadsByExistingSlugs,
 } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
-import { normalizeLeadCreateFields } from "@/lib/leads/create-fields";
+import {
+  normalizeLeadCreateFields,
+  normalizeLeadDataSource,
+} from "@/lib/leads/create-fields";
 import { normalizeOperatorNotes } from "@/lib/leads/notes";
 import { parseLeadSlugLookup, sanitizeLeadSlug } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl, leadPreviewPath } from "@/lib/leads/slug-path";
@@ -1197,7 +1200,8 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
       ...leadData,
       ...capped.fields,
       stage,
-      dataSource: leadData.dataSource ?? "manual_entry",
+      // Soft-cap compliance tag (same MAX as CSV import) — not an opaque key.
+      dataSource: normalizeLeadDataSource(leadData.dataSource, "manual_entry"),
     };
 
     // Shared create-path sanitize — strip edge dashes so CRM slug matches

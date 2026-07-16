@@ -18,6 +18,7 @@ import {
   MAX_SERVICES,
   MAX_STATE_LENGTH,
   MAX_TAGLINE_LENGTH,
+  normalizeLeadDataSource,
   softCapLeadField,
 } from "./create-fields";
 
@@ -264,7 +265,7 @@ export function parseLeadsCsv(
   csvText: string,
   options?: { dataSource?: string; defaultStage?: LeadPipelineStage },
 ): CsvImportResult {
-  const dataSource = options?.dataSource?.trim() || "csv_import";
+  const dataSource = normalizeLeadDataSource(options?.dataSource, "csv_import");
   const defaultStage = options?.defaultStage ?? "discovered";
   const errors: CsvImportRowError[] = [];
   const leads: Lead[] = [];

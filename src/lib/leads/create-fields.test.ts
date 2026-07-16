@@ -5,6 +5,7 @@ import {
   MAX_CITY_LENGTH,
   MAX_DESCRIPTION_LENGTH,
   MAX_HOURS_SEGMENT_LENGTH,
+  MAX_LEAD_DATA_SOURCE_LENGTH,
   MAX_LEAD_EMAIL_LENGTH,
   MAX_LEAD_PHONE_LENGTH,
   MAX_SERVICE_ITEM_LENGTH,
@@ -12,6 +13,7 @@ import {
   MAX_STATE_LENGTH,
   MAX_TAGLINE_LENGTH,
   normalizeLeadCreateFields,
+  normalizeLeadDataSource,
 } from "./create-fields";
 
 const base = {
@@ -104,5 +106,36 @@ describe("normalizeLeadCreateFields", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.fields.services).toEqual(["Custom digital setup"]);
+  });
+});
+
+describe("normalizeLeadDataSource", () => {
+  it("trims a normal tag and preserves built-ins under the max", () => {
+    expect(normalizeLeadDataSource("  csv_import  ", "manual_entry")).toBe(
+      "csv_import",
+    );
+    expect(normalizeLeadDataSource("manual_entry", "csv_import")).toBe(
+      "manual_entry",
+    );
+  });
+
+  it("falls back when missing, blank, or non-string", () => {
+    expect(normalizeLeadDataSource(undefined, "csv_import")).toBe("csv_import");
+    expect(normalizeLeadDataSource("   ", "manual_entry")).toBe("manual_entry");
+    expect(normalizeLeadDataSource(123, "csv_import")).toBe("csv_import");
+  });
+
+  it("soft-caps over-long tags without hard-rejecting", () => {
+    const long = "x".repeat(MAX_LEAD_DATA_SOURCE_LENGTH + 40);
+    const capped = normalizeLeadDataSource(long, "csv_import");
+    expect(capped).toHaveLength(MAX_LEAD_DATA_SOURCE_LENGTH);
+    expect(capped).toBe("x".repeat(MAX_LEAD_DATA_SOURCE_LENGTH));
+  });
+
+  it("soft-caps an over-long fallback too", () => {
+    const longFallback = "f".repeat(MAX_LEAD_DATA_SOURCE_LENGTH + 10);
+    expect(normalizeLeadDataSource("", longFallback)).toHaveLength(
+      MAX_LEAD_DATA_SOURCE_LENGTH,
+    );
   });
 });

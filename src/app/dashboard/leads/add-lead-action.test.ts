@@ -263,6 +263,28 @@ describe("addLeadAction", () => {
     expect(sendOutreachEmail).not.toHaveBeenCalled();
   });
 
+  it("soft-caps an over-long dataSource before upsert", async () => {
+    const { MAX_LEAD_DATA_SOURCE_LENGTH } = await import(
+      "@/lib/leads/create-fields"
+    );
+    const long = "x".repeat(MAX_LEAD_DATA_SOURCE_LENGTH + 25);
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "soft-cap-source",
+      dataSource: long,
+    });
+
+    expect(res).toEqual({ success: true, slug: "soft-cap-source" });
+    expect(upsertLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "soft-cap-source",
+        dataSource: "x".repeat(MAX_LEAD_DATA_SOURCE_LENGTH),
+      }),
+      { requireConvex: true },
+    );
+  });
+
   it("rejects an existing slug without calling upsertLead", async () => {
     getLeadBySlug.mockResolvedValue({
       ...baseLeadInput,

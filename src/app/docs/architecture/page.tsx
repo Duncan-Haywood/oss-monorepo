@@ -45,7 +45,10 @@ export default function ArchitectureDocPage() {
         via <code>parseCsvImportText</code> before <code>parseLeadsCsv</code> /{" "}
         <code>splitCsvIntoLines</code> — auth is not a payload-size throttle, and soft-cap would
         truncate mid-row (MAX_ROWS=100 alone is not enough: line-splitting runs over the full
-        string first). Optional <code>hours</code> cells use the same{" "}
+        string first). The optional batch <code>dataSource</code> tag is soft-capped via shared{" "}
+        <code>normalizeLeadDataSource</code> / <code>MAX_LEAD_DATA_SOURCE_LENGTH</code> (64) —
+        compliance free text, not an opaque lookup key — on both CSV import and{" "}
+        <strong>Add lead</strong> before upsert. Optional <code>hours</code> cells use the same{" "}
         <code>weekday · weekend</code> encoding as SQLite persistence (
         <code>parseLeadHours</code> splits on the <em>first</em> middot only so a weekend value
         that itself contains <code>·</code> survives round-trip). Line splitting goes through{" "}
