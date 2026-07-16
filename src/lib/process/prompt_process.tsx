@@ -2022,6 +2022,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-037c (folded onto cursor/business-process-evolution-f926)",
   },
+  {
+    id: "csv-import-remaining-field-length-caps",
+    summary:
+      "Empty-backlog after PR #284 (proxy getPassword parity). CSV import (PR #230) already hard-rejects over-long businessName and soft-caps description + services count, but city/state/address/phone/email/tagline, each service token, and hours weekday/weekend still accept unbounded strings that land in CRM → public preview / JSON-LD / outreach. Soft-cap remaining columns (align phone/email with MAX_CONTACT_*), keep visitor/operator UX (no row skip on long optional fields), and add Vitest. Live lead-volume unlock while Places stays counsel-gated.",
+    status: "in_progress",
+    phase: "Phase 4 — Data ingestion",
+    owner: "cursor/prompt-process-evolution-037c",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
