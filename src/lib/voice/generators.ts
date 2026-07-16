@@ -1,3 +1,10 @@
+import {
+  MAX_PACK_VARIANT_CTA_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+  softCapOptionalPackField,
+  softCapPackBody,
+  softCapPackField,
+} from "@/lib/packs/variant-fields";
 import type {
   ClientVoiceBusinessContext,
   ClientVoiceGenerator,
@@ -213,20 +220,19 @@ function parseVariantsJson(
       throw new Error(`Variant ${index} is not an object`);
     }
     const row = item as Record<string, unknown>;
-    const body = typeof row.body === "string" ? row.body.trim() : "";
-    if (!body) {
+    const bodyRaw = typeof row.body === "string" ? row.body.trim() : "";
+    if (!bodyRaw) {
       throw new Error(`Variant ${index} missing body`);
     }
-    const title =
-      typeof row.title === "string" && row.title.trim()
-        ? row.title.trim()
-        : expectedTypes[index]!;
     const expected = expectedTypes[index]!;
+    const title =
+      softCapOptionalPackField(row.title, MAX_PACK_VARIANT_TITLE_LENGTH) ??
+      softCapPackField(expected, MAX_PACK_VARIANT_TITLE_LENGTH);
     return {
       scriptType: expected,
       title,
-      body,
-      cta: typeof row.cta === "string" ? row.cta : undefined,
+      body: softCapPackBody(bodyRaw),
+      cta: softCapOptionalPackField(row.cta, MAX_PACK_VARIANT_CTA_LENGTH),
     };
   });
 }

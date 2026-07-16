@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  MAX_PACK_HASHTAG_LENGTH,
+  MAX_PACK_VARIANT_BODY_LENGTH,
+  MAX_PACK_VARIANT_CTA_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+} from "@/lib/packs/variant-fields";
+import {
   AnthropicMarketingGenerator,
   createDefaultMarketingGenerator,
   getMarketingGenerator,
@@ -184,6 +190,46 @@ describe("AnthropicMarketingGenerator", () => {
       "x-api-key": "sk-test",
       "anthropic-version": "2023-06-01",
     });
+  });
+
+  it("soft-caps over-long title/body/cta/hashtag strings from the model", async () => {
+    const longTitle = "T".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 20);
+    const longBody = "B".repeat(MAX_PACK_VARIANT_BODY_LENGTH + 20);
+    const longCta = "C".repeat(MAX_PACK_VARIANT_CTA_LENGTH + 20);
+    const longTag = "#".repeat(MAX_PACK_HASHTAG_LENGTH + 20);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify([
+                {
+                  contentType: "gbp_post",
+                  title: longTitle,
+                  body: longBody,
+                  cta: longCta,
+                  hashtags: [longTag, "#ok"],
+                },
+                { contentType: "instagram_caption", body: "short two" },
+                { contentType: "email_campaign", body: "short three" },
+              ]),
+            },
+          ],
+        }),
+      })),
+    );
+
+    const result = await new AnthropicMarketingGenerator("sk-test").generate(
+      request(),
+    );
+    expect(result.variants[0]?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(result.variants[0]?.body).toHaveLength(MAX_PACK_VARIANT_BODY_LENGTH);
+    expect(result.variants[0]?.cta).toHaveLength(MAX_PACK_VARIANT_CTA_LENGTH);
+    expect(result.variants[0]?.hashtags?.[0]).toHaveLength(MAX_PACK_HASHTAG_LENGTH);
+    expect(result.variants[0]?.hashtags?.[1]).toBe("#ok");
   });
 
   it("sets social_email packageTier for non-optimize automation", async () => {

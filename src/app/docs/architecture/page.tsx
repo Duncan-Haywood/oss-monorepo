@@ -950,7 +950,11 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>src/app/dashboard/leads/generate-marketing-pack-action.test.ts</code> locks auth,
         eligibility, <code>MARKETING_PACK_CONVEX_PRIMARY</code> persist, stub-vs-anthropic labeling,
         and <code>ConvexPrimaryWriteError</code> fail-closed — generators / monthly-pack / route
-        suites alone do not cover that glue. When Convex is configured, Generate pack passes{" "}
+        suites alone do not cover that glue. LLM <code>parseVariantsJson</code> soft-caps title /
+        body / cta / per-hashtag length via shared{" "}
+        <code>src/lib/packs/variant-fields.ts</code> before upsert (sold OUTPUT sink; hashtags
+        still slice count to 8) — soft-cap so a long model response ships a truncated pack rather
+        than failing generate. When Convex is configured, Generate pack passes{" "}
         <code>requireConvex</code> (<code>MARKETING_PACK_CONVEX_PRIMARY</code>) so a mutation
         failure surfaces a retry instead of leaving packs-due / Email pack blind on other
         instances. <code>sendMarketingPackToClientAction</code> emails the
@@ -972,7 +976,8 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>StubClientVoiceGenerator</code> or <code>AnthropicClientVoiceGenerator</code> when{" "}
         <code>ANTHROPIC_API_KEY</code> is set (direct Vitest coverage in{" "}
         <code>src/lib/voice/generators.test.ts</code> for stub edge branches + Anthropic blank-key /
-        HTTP / parse / length-mismatch fallbacks and title fallback). Lead→request shaping (
+        HTTP / parse / length-mismatch fallbacks, title fallback, and title/body/cta soft-caps via
+        shared <code>src/lib/packs/variant-fields.ts</code>). Lead→request shaping (
         <code>clientVoiceBusinessContextFromLead</code> /{" "}
         <code>clientVoicePackRequestForLead</code>) has direct edge coverage in{" "}
         <code>src/lib/voice/build-request.test.ts</code> (empty services →{" "}

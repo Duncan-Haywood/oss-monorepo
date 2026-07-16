@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  MAX_PACK_VARIANT_BODY_LENGTH,
+  MAX_PACK_VARIANT_CTA_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+} from "@/lib/packs/variant-fields";
+import {
   AnthropicClientVoiceGenerator,
   createDefaultClientVoiceGenerator,
   getClientVoiceGenerator,
@@ -179,6 +184,42 @@ describe("AnthropicClientVoiceGenerator", () => {
       "x-api-key": "sk-test",
       "anthropic-version": "2023-06-01",
     });
+  });
+
+  it("soft-caps over-long title/body/cta from the model", async () => {
+    const longTitle = "T".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 20);
+    const longBody = "B".repeat(MAX_PACK_VARIANT_BODY_LENGTH + 20);
+    const longCta = "C".repeat(MAX_PACK_VARIANT_CTA_LENGTH + 20);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify([
+                {
+                  scriptType: "wrong",
+                  title: longTitle,
+                  body: longBody,
+                  cta: longCta,
+                },
+                { scriptType: "wrong", body: "hours body" },
+                { scriptType: "wrong", title: "Book", body: "booking body" },
+              ]),
+            },
+          ],
+        }),
+      })),
+    );
+
+    const result = await new AnthropicClientVoiceGenerator("sk-test").generate(
+      request(),
+    );
+    expect(result.variants[0]?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(result.variants[0]?.body).toHaveLength(MAX_PACK_VARIANT_BODY_LENGTH);
+    expect(result.variants[0]?.cta).toHaveLength(MAX_PACK_VARIANT_CTA_LENGTH);
   });
 
   it("falls back when model returns the wrong variant count", async () => {
