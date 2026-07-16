@@ -209,6 +209,20 @@ describe("saveCommerceCatalogAction", () => {
     expect(upsertCommerceCatalog).not.toHaveBeenCalled();
   });
 
+  it("hard-rejects over-long opaque SKU ids before persist (never truncates)", async () => {
+    const { MAX_COMMERCE_SKU_ID_LENGTH } = await import("@/lib/commerce/types");
+    const overId = "s".repeat(MAX_COMMERCE_SKU_ID_LENGTH + 1);
+    const { saveCommerceCatalogAction } = await import("./actions");
+    const res = await saveCommerceCatalogAction("demo-cafe", [
+      { id: overId, name: "Latte", priceCents: 450 },
+    ]);
+    expect(res).toEqual({
+      success: false,
+      error: `SKU 1 id must be ≤${MAX_COMMERCE_SKU_ID_LENGTH} characters`,
+    });
+    expect(upsertCommerceCatalog).not.toHaveBeenCalled();
+  });
+
   it("persists with COMMERCE_CATALOG_CONVEX_PRIMARY and revalidates", async () => {
     const { saveCommerceCatalogAction } = await import("./actions");
     const res = await saveCommerceCatalogAction("demo-cafe", draftItems);

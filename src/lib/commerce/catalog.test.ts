@@ -10,7 +10,7 @@ import {
   normalizeCommerceItems,
   preserveCommerceStripeIds,
 } from "./catalog";
-import { MAX_COMMERCE_SKUS } from "./types";
+import { MAX_COMMERCE_SKU_ID_LENGTH, MAX_COMMERCE_SKUS } from "./types";
 
 describe("leadEligibleForCommerceCatalog", () => {
   it("requires paid/live stage and a commerceAddon order", () => {
@@ -283,6 +283,40 @@ describe("normalizeCommerceItems", () => {
     expect(
       normalizeCommerceItems([{ name: "X", priceCents: -1 }]).ok,
     ).toBe(false);
+  });
+
+  it("hard-rejects over-long opaque SKU ids (never truncates)", () => {
+    const exact = "s".repeat(MAX_COMMERCE_SKU_ID_LENGTH);
+    const exactOk = normalizeCommerceItems([
+      { id: exact, name: "Exact", priceCents: 100 },
+    ]);
+    expect(exactOk.ok).toBe(true);
+    if (exactOk.ok) {
+      expect(exactOk.items[0]?.id).toBe(exact);
+    }
+
+    const over = "s".repeat(MAX_COMMERCE_SKU_ID_LENGTH + 1);
+    const overResult = normalizeCommerceItems([
+      { id: over, name: "Over", priceCents: 100 },
+    ]);
+    expect(overResult.ok).toBe(false);
+    if (!overResult.ok) {
+      expect(overResult.error).toMatch(/id must be ≤64/);
+      expect(overResult.error).not.toContain(over.slice(0, 20));
+    }
+  });
+
+  it("mints a new id when blank/missing (under the opaque ceiling)", () => {
+    const result = normalizeCommerceItems([
+      { id: "   ", name: "Minted", priceCents: 200 },
+    ]);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.items[0]?.id.startsWith("sku_")).toBe(true);
+      expect(result.items[0]!.id.length).toBeLessThanOrEqual(
+        MAX_COMMERCE_SKU_ID_LENGTH,
+      );
+    }
   });
 });
 

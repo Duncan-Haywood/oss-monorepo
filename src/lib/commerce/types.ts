@@ -6,6 +6,13 @@
 /** Sold promise: catalog ≤50 SKUs. */
 export const MAX_COMMERCE_SKUS = 50;
 
+/**
+ * Opaque SKU id ceiling shared by auth-gated catalog save and public Buy now.
+ * Soft-cap/truncate is wrong: preserveCommerceStripeIds + Stripe Product
+ * metadata key by exact id — truncating distinct over-long ids can collide.
+ */
+export const MAX_COMMERCE_SKU_ID_LENGTH = 64;
+
 /** Soft caps for operator-entered fields. */
 export const MAX_SKU_NAME_LENGTH = 80;
 export const MAX_SKU_DESCRIPTION_LENGTH = 280;

@@ -122,7 +122,8 @@ export const AGENT_PROTOCOL = [
   "verifyOperatorSessionToken must hard-reject Cookie values longer than MAX_OPERATOR_SESSION_TOKEN_LENGTH (128; genuine createOperatorSessionToken values are ~66 chars) before HMAC / Buffer.from — auth cookie attributes/TTL audits do not cover value size. Soft-cap/truncate would change the opaque token (same class as unsubscribe-token-field-length-cap). src/proxy.ts dashboardAuthGate verifies on every /dashboard/* with no rate limit, so this bound is load-bearing even though login is 5/60s-throttled (operator-session-token-field-length-cap).",
   "GET /api/unsubscribe must hard-reject email query params longer than MAX_CONTACT_EMAIL_LENGTH before HMAC verify and suppressEmail — rate limits blunt request count, not per-request payload/HMAC work or suppressions-row size. Soft-cap is wrong here: footer tokens are signed over the full address, so truncation would fail verify on every genuine over-long link; opaque-id hard-reject (same class as billing-portal sessionId) is the fit. Legitimate footer emails already sit inside contact/create-path caps.",
   "GET /api/unsubscribe must also hard-reject token query params longer than MAX_UNSUBSCRIBE_TOKEN_LENGTH (128; HMAC-SHA256 base64url is 43 chars) before verifyUnsubscribeToken / Buffer.from — rate limits blunt request count, not per-request payload size. Soft-cap/truncate would break every genuine footer link (opaque signed token, same class as billing-portal sessionId). Route returns 400 \"Token parameter is too long\"; verifyUnsubscribeToken also early-returns false over max as defense-in-depth (unsubscribe-token-field-length-cap).",
-  "POST /api/commerce/checkout must hard-reject body.slug over MAX_LEAD_SLUG_LENGTH and body.skuId over MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH (catalog-save ceiling 64) via parseCommerceCheckoutSlug / parseCommerceCheckoutSkuId before getCommerceCatalog or Stripe session create — never soft-cap opaque lookup keys (truncation looks up the wrong row and can still burn quota). Bundle checkout already sanitizes+caps slug via sanitizeLeadSlug; Buy now was the residual uncapped twin after customerEmail soft-cap (commerce-checkout-slug-skuId-field-length-cap).",
+  "POST /api/commerce/checkout must hard-reject body.slug over MAX_LEAD_SLUG_LENGTH and body.skuId over MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH (shared MAX_COMMERCE_SKU_ID_LENGTH=64) via parseCommerceCheckoutSlug / parseCommerceCheckoutSkuId before getCommerceCatalog or Stripe session create — never soft-cap opaque lookup keys (truncation looks up the wrong row and can still burn quota). Bundle checkout already sanitizes+caps slug via sanitizeLeadSlug; Buy now was the residual uncapped twin after customerEmail soft-cap (commerce-checkout-slug-skuId-field-length-cap). After the public Buy now skuId hard-reject ships, also hard-reject the auth-gated catalog-save twin (normalizeCommerceItems) — see commerce-catalog-skuId-field-length-cap.",
+  "normalizeCommerceItems (saveCommerceCatalogAction) must hard-reject operator-supplied SKU ids longer than MAX_COMMERCE_SKU_ID_LENGTH (64) — never trim+slice. Soft-cap/truncate changes the opaque key that preserveCommerceStripeIds + Stripe Product metadata use, so two distinct over-long ids sharing a 64-char prefix can collide and attach the wrong stripeProductId/stripePriceId or disable the wrong Buy now row. Blank/missing id still mints newCommerceSkuId(). Public Buy now already hard-rejects the same ceiling; catalog save was the residual auth-gated twin (commerce-catalog-skuId-field-length-cap).",
   "POST /api/stripe/billing-portal must bound optional body.returnUrl via isAcceptableBillingPortalReturnUrl (same-origin AND ≤ MAX_BILLING_PORTAL_RETURN_URL_LENGTH) before stripe.billingPortal.sessions.create — over-long / cross-origin / malformed all fall back to the derived default (never soft-cap a redirect destination; never 400 the portal open over an optional field). Opaque sessionId still hard-rejects separately (billing-portal-returnUrl-field-length-cap).",
   "GET /checkout/success must hard-reject over-long session_id query params via shared parseCheckoutSessionId before stripe.checkout.sessions.retrieve — the page is the residual twin of billing-portal-sessionId-field-length-cap (same opaque id, same Stripe retrieve). Over-long / missing → unconfirmed UI (never call retrieve); do not soft-cap. Extract loadCheckoutSuccessSession (src/lib/checkout/success-session.ts) so Vitest can assert retrieve is never invoked (checkout-success-sessionId-field-length-cap).",
   "Optional /checkout?slug= prefill must bound query slug length via resolveCheckoutPrefillSlug / loadCheckoutPrefillLead (shared isPublicLeadSlugPathLengthOk / MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH=120) before getLeadBySlug — over-long / empty → treat as missing (un-prefilling checkout). Soft-cap would change the lookup key; hard-reject 400 would strand a buyer mid-purchase (optional attribution field, same fall-back class as billing-portal returnUrl / login next=). Contact/preview-open/preview page hard-reject the path twin; checkout is the residual optional query twin (checkout-slug-prefill-field-length-cap).",
@@ -141,6 +142,7 @@ export const AGENT_PROTOCOL = [
   "After shipping listOrdersByLeadSlug for public /preview, immediately wire the auth-gated / sold slug-keyed twins that still full-ledger listOrders().filter(slug): createBillingPortalForLead (Manage billing) + per-lead dashboard eligibility (sendStarterUpsellAction, generateMarketingPackAction, sendMarketingPackToClientAction, saveCommerceCatalogAction, generateClientVoicePackAction, sendClientVoicePackToClientAction). Keep full listOrders() only for digest + dashboard ledger aggregates. Do not leave a new indexed helper used by one SSR path while operator money paths keep the O(n) collect (slug-scoped-listOrders-followthrough).",
   "After generate-time pack soft-caps (parseVariantsJson + stubVariant) close, also soft-cap at Email pack / Email voice pack HTML format AND on pack read/parse (SQLite parsePackVariants / parseClientVoiceVariants + Convex-primary softCapMarketingPack / softCapClientVoicePack via softCapPackVariantFields) — pre-cap persisted rows and Convex reads that bypass sqlite parsers must not emit uncapped LLM OUTPUT under skipSuppression (marketing-voice-pack-deliver-variant-field-length-cap). After closing a sold OUTPUT soft-cap at generate, always check the deliver/read twin before declaring the axis done.",
   "After robots/sitemap consent gating ships, also gate LocalBusiness JSON-LD on the same isLeadPreviewIndexable predicate (preview-jsonld-indexable-only / leadPreviewJsonLdIfIndexable) before declaring the public marketing OUTPUT axis closed. Next empty-backlog prefers a dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold hot-path residual — reject workNextCount and dead orders.createOrder / getByStripeSessionId API-map orphans (order writes go through leads.markLeadPaid).",
+  "After a public opaque-id hard-reject ships (e.g. Buy now skuId), immediately audit the auth-gated write twin that mints/persists the same key — catalog save was still slice(0,64) after checkout hard-rejected (commerce-catalog-skuId-field-length-cap). Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold residual — reject invent-optional-aggregate.",
 ] as const;
 
 /**
@@ -2330,6 +2332,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-18d9",
+  },
+  {
+    id: "commerce-catalog-skuId-field-length-cap",
+    summary:
+      "Empty-backlog after PR #316/#317 (JSON-LD indexable + pack deliver/read soft-caps). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged (preview-index, convex order parity, snooze, optimistic-state). Public Buy now hard-rejects skuId over 64, but auth-gated normalizeCommerceItems still trim+slice(0,64) — truncating distinct operator-supplied SKU ids can collide preserveCommerceStripeIds / Sync-to-Stripe Product keys. Hard-reject over MAX_COMMERCE_SKU_ID_LENGTH (never truncate opaque ids).",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-a3a8",
   },
 
 ];
@@ -4906,6 +4916,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Emit LocalBusiness JSON-LD on /preview/[slug] only when isLeadPreviewIndexable is true (via leadPreviewJsonLdIfIndexable) — rather than keep structured data on every cold-prospect noindex preview, invent an optional digest aggregate (workNextCount), register dead Convex orders.createOrder / getByStripeSessionId API-map orphans, or jump to a 3rd clean-audit of already-green Convex/marker-await axes while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "Empty-backlog after PR #315 (slug-scoped-listOrders-followthrough). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate (opencode workNextCount — rejected) / dead Convex map orphans (rejected — order writes go through leads.markLeadPaid). Fresh public marketing OUTPUT audit found sitemap + robots already share isLeadPreviewIndexable, but the page still always embedded LocalBusiness JSON-LD — crawlers that parse structured data still saw cold-prospected business fields under robots=noindex. Process improvement: after robots/sitemap consent gating ships, always check the JSON-LD twin before declaring the public marketing OUTPUT axis closed. Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold hot-path residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Hard-reject operator-supplied Commerce SKU ids longer than MAX_COMMERCE_SKU_ID_LENGTH (64) in normalizeCommerceItems / saveCommerceCatalogAction — rather than keep trim+slice(0,64) after public Buy now already hard-rejects the same ceiling, invent an optional aggregate, or jump to a 3rd clean-audit of already-green Convex/marker-await axes while free NEXT_STEPS stay operator/legal-gated.",
+    rationale:
+      "Empty-backlog after PR #316/#317 (JSON-LD indexable + pack deliver/read soft-caps). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged (preview-index, convex order parity, snooze, optimistic-state). Fresh sold-capability audit found auth-gated catalog save still truncated opaque SKU ids while POST /api/commerce/checkout hard-rejected — truncating distinct over-long ids can collide preserveCommerceStripeIds / Sync-to-Stripe Product keys. Process improvement: after a public opaque-id hard-reject ships, immediately audit the auth-gated write twin that mints/persists the same key. Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 
 ];
@@ -9830,6 +9847,25 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1546 passed = main@#315's 1543 + 3 leadPreviewJsonLdIfIndexable regressions) + lint",
     ],
     decisions: BUSINESS_DECISIONS.slice(365, 366),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/prompt-process-evolution-a3a8",
+    summary:
+      "Empty-backlog after PR #316/#317 (JSON-LD indexable + pack deliver/read soft-caps). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged (preview-index, convex order parity, snooze, optimistic-state). Fresh sold-capability audit found public Buy now hard-rejects skuId over 64, but auth-gated normalizeCommerceItems still trim+slice(0,64) — truncating distinct operator-supplied SKU ids can collide preserveCommerceStripeIds / Sync-to-Stripe. Shipped shared MAX_COMMERCE_SKU_ID_LENGTH + hard-reject on catalog save; Vitest + architecture note; process now requires auditing the auth-gated write twin after a public opaque-id hard-reject.",
+    shipped: [
+      "src/lib/commerce/types.ts — MAX_COMMERCE_SKU_ID_LENGTH=64 (shared opaque ceiling)",
+      "src/lib/commerce/catalog.ts — normalizeCommerceItems hard-rejects over-long ids (never slice)",
+      "src/lib/commerce/checkout-fields.ts — MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH aliases shared constant",
+      "src/lib/commerce/catalog.test.ts — +2 hard-reject / mint-under-ceiling regressions",
+      "src/app/dashboard/leads/save-commerce-catalog-action.test.ts — +1 action-level over-long id gate",
+      "Docs: architecture.tsx notes Save catalog + Buy now share opaque SKU id hard-reject",
+      "AGENT_PROTOCOL — public opaque-id hard-reject → audit auth-gated write twin",
+      "NEXT_STEPS: commerce-catalog-skuId-field-length-cap done",
+      "BUSINESS_DECISIONS — hard-reject over-long catalog SKU ids (slice 366)",
+      "Verified: npm test (1558 passed = main@#317's 1555 + 2 catalog normalize + 1 save-action regressions) + lint",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(366, 367),
   },
 ];
 

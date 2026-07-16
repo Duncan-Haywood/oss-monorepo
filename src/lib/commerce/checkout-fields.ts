@@ -7,20 +7,21 @@
  * metadata. Hard-reject over-length before getCommerceCatalog / Stripe.
  *
  * Slug ceiling matches create-path MAX_LEAD_SLUG_LENGTH (RFC 1035 DNS
- * label max). SKU id ceiling matches normalizeCommerceItems' save slice
- * (64) so public Buy now cannot probe with ids the operator UI never
- * persists.
+ * label max). SKU id ceiling matches auth-gated catalog save
+ * (MAX_COMMERCE_SKU_ID_LENGTH) so public Buy now cannot probe with ids
+ * the operator UI never persists.
  */
 
 import {
   MAX_LEAD_SLUG_LENGTH,
   parseLeadSlugLookup,
 } from "@/lib/leads/slug";
+import { MAX_COMMERCE_SKU_ID_LENGTH } from "./types";
 
 export { MAX_LEAD_SLUG_LENGTH as MAX_COMMERCE_CHECKOUT_SLUG_LENGTH };
 
-/** Matches normalizeCommerceItems id trim+slice(0, 64) on catalog save. */
-export const MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH = 64;
+/** Same ceiling as normalizeCommerceItems (auth-gated catalog save). */
+export const MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH = MAX_COMMERCE_SKU_ID_LENGTH;
 
 export type ParseCommerceCheckoutFieldResult =
   | { ok: true; value: string }
