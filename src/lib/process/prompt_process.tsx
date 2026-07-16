@@ -2065,6 +2065,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-827f",
   },
+  {
+    id: "billing-portal-sessionId-field-length-cap",
+    summary:
+      "Empty-backlog after PR #288 (checkout-customer-email-field-length-cap) + PR #287 (marketing-generate size). AGENT_PROTOCOL empty-backlog rotation named billing-portal sessionId length next. POST /api/stripe/billing-portal trims sessionId but does not bound length — a rate-limited public caller can POST multi-KB garbage into stripe.checkout.sessions.retrieve (and the default return_url query). Hard-reject over MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH before Stripe; soft-cap is wrong for opaque ids (truncation wastes a Stripe call on a guaranteed miss).",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-a938",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
