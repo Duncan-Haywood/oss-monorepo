@@ -2198,6 +2198,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-2662",
   },
+  {
+    id: "commerce-orders-convex-createdAt-ordering-parity",
+    summary:
+      "Empty-backlog after PR #302/#303 (preview-open openedAt + operator-session-token). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-1ba2 claimed assign-vercel-project-id-field-length-cap — pivoted per AGENT_PROTOCOL. Convex parity residual after convex-query-ordering-parity (leads/checkoutSessions/inquiries): commerceOrders.list + listUnpaid still .order(\"desc\") on _creationTime while SQLite ORDER BY createdAt DESC — payout panel / digest row order can diverge when app createdAt ≠ insert clock. Sort by app createdAt ISO descending (collect + sort + slice for list limit) to match SQLite.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-0c78",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
