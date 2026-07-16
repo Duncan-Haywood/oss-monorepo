@@ -228,6 +228,47 @@ describe("parseLeadsCsv", () => {
     const result = parseLeadsCsv(csv);
     expect(result.leads[0]?.description).toHaveLength(2000);
   });
+
+  it("soft-caps city/state/address/phone/email/tagline without skipping the row", () => {
+    const csv = [
+      "businessName,city,state,address,phone,email,tagline",
+      [
+        "Acme",
+        "C".repeat(150),
+        "S".repeat(60),
+        "A".repeat(400),
+        "1".repeat(80),
+        `${"e".repeat(350)}@example.com`,
+        "T".repeat(250),
+      ].join(","),
+    ].join("\n");
+    const result = parseLeadsCsv(csv);
+    expect(result.errors).toEqual([]);
+    expect(result.leads).toHaveLength(1);
+    const lead = result.leads[0]!;
+    expect(lead.city).toHaveLength(100);
+    expect(lead.state).toHaveLength(40);
+    expect(lead.address).toHaveLength(300);
+    expect(lead.phone).toHaveLength(40);
+    expect(lead.email).toHaveLength(320);
+    expect(lead.tagline).toHaveLength(200);
+  });
+
+  it("soft-caps each service token and hours weekday/weekend segments", () => {
+    const longService = "S".repeat(150);
+    const longWeekday = "W".repeat(150);
+    const longWeekend = "E".repeat(150);
+    const csv = [
+      "businessName,services,hours",
+      `Acme,${longService};Keep,${longWeekday} · ${longWeekend}`,
+    ].join("\n");
+    const result = parseLeadsCsv(csv);
+    expect(result.errors).toEqual([]);
+    expect(result.leads[0]?.services[0]).toHaveLength(100);
+    expect(result.leads[0]?.services[1]).toBe("Keep");
+    expect(result.leads[0]?.hours.weekday).toHaveLength(120);
+    expect(result.leads[0]?.hours.weekend).toHaveLength(120);
+  });
 });
 
 describe("partitionLeadsByExistingSlugs", () => {

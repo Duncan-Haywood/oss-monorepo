@@ -45,8 +45,11 @@ export default function ArchitectureDocPage() {
         <code>parseLeadHours</code> splits on the <em>first</em> middot only so a weekend value
         that itself contains <code>·</code> survives round-trip). Line splitting goes through{" "}
         <code>splitCsvIntoLines</code> (RFC 4180 quoted fields may embed newlines) rather than a
-        raw <code>.split(&quot;\n&quot;)</code>. Field caps: businessName ≤ 200 chars, description ≤
-        2000 chars (truncated), services ≤ 100 entries. Re-imports and manual add-lead treat slug
+        raw <code>.split(&quot;\n&quot;)</code>. Field caps: businessName ≤ 200 chars (hard
+        reject), description ≤ 2000 chars (soft truncate), services ≤ 100 entries with each
+        token ≤ 100 chars, plus soft caps on city/state/address/tagline, hours weekday/weekend
+        segments, and phone/email aligned with <code>MAX_CONTACT_*</code> so CRM ingest cannot
+        diverge by path. Re-imports and manual add-lead treat slug
         collisions as create-path conflicts: existing leads are skipped (CSV) or rejected (add form)
         so pipeline fields (stage / outreach / notes / snooze) are never silently reset via{" "}
         <code>upsertLead</code>. When Convex is configured, Add lead and CSV import pass{" "}
