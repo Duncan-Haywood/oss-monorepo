@@ -158,6 +158,38 @@ describe("importLeadsCsvAction", () => {
     expect(upsertLead).not.toHaveBeenCalled();
   });
 
+  it("hard-rejects over-long csvText before parse / getLeads / upsert", async () => {
+    const { MAX_CSV_IMPORT_TEXT_LENGTH } = await import(
+      "@/lib/leads/csv-import",
+    );
+    const over = "x".repeat(MAX_CSV_IMPORT_TEXT_LENGTH + 1);
+    expect(over.length).toBeGreaterThan(MAX_CSV_IMPORT_TEXT_LENGTH);
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({ csvText: over });
+    expect(res).toEqual({
+      success: false,
+      error: "CSV text is too long",
+    });
+    expect(getLeads).not.toHaveBeenCalled();
+    expect(upsertLead).not.toHaveBeenCalled();
+  });
+
+  it("accepts exactly MAX_CSV_IMPORT_TEXT_LENGTH when the CSV still parses", async () => {
+    const { MAX_CSV_IMPORT_TEXT_LENGTH } = await import(
+      "@/lib/leads/csv-import",
+    );
+    // Pad a valid one-row CSV up to exact max with trailing spaces (ignored by
+    // the parser) so length-gate accepts and upsert still runs.
+    const base = csvFor(salonRow);
+    const pad = " ".repeat(MAX_CSV_IMPORT_TEXT_LENGTH - base.length);
+    const exact = base + pad;
+    expect(exact.length).toBe(MAX_CSV_IMPORT_TEXT_LENGTH);
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({ csvText: exact });
+    expect(res.success).toBe(true);
+    expect(upsertLead).toHaveBeenCalledOnce();
+  });
+
   it("returns parse failure when CSV has no valid leads", async () => {
     const { importLeadsCsvAction } = await import("./actions");
     const res = await importLeadsCsvAction({

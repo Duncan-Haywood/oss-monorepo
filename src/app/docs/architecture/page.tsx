@@ -40,7 +40,12 @@ export default function ArchitectureDocPage() {
       <p>
         Operator CSV bulk import on <code>/dashboard/leads</code> (see{" "}
         <code>src/lib/leads/csv-import.ts</code>) tags each lead with a <code>dataSource</code> for
-        compliance. Optional <code>hours</code> cells use the same{" "}
+        compliance. <code>importLeadsCsvAction</code> hard-rejects{" "}
+        <code>csvText</code> longer than <code>MAX_CSV_IMPORT_TEXT_LENGTH</code> (512&nbsp;000)
+        via <code>parseCsvImportText</code> before <code>parseLeadsCsv</code> /{" "}
+        <code>splitCsvIntoLines</code> — auth is not a payload-size throttle, and soft-cap would
+        truncate mid-row (MAX_ROWS=100 alone is not enough: line-splitting runs over the full
+        string first). Optional <code>hours</code> cells use the same{" "}
         <code>weekday · weekend</code> encoding as SQLite persistence (
         <code>parseLeadHours</code> splits on the <em>first</em> middot only so a weekend value
         that itself contains <code>·</code> survives round-trip). Line splitting goes through{" "}

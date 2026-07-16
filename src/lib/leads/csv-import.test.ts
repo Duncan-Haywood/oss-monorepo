@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   CSV_LEAD_TEMPLATE,
   existingLeadSlugConflictMessage,
+  MAX_CSV_IMPORT_TEXT_LENGTH,
+  parseCsvImportText,
   parseCsvLine,
   parseLeadsCsv,
   partitionLeadsByExistingSlugs,
@@ -297,5 +299,52 @@ describe("existingLeadSlugConflictMessage", () => {
   it("names the colliding slug and says pipeline state is preserved", () => {
     expect(existingLeadSlugConflictMessage("blue-river-salon")).toMatch(/blue-river-salon/);
     expect(existingLeadSlugConflictMessage("blue-river-salon")).toMatch(/pipeline state/);
+  });
+});
+
+describe("parseCsvImportText", () => {
+  it("rejects non-string / empty / whitespace as missing", () => {
+    expect(parseCsvImportText(undefined)).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+    expect(parseCsvImportText(null)).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+    expect(parseCsvImportText(42)).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+    expect(parseCsvImportText("")).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+    expect(parseCsvImportText("   \n\t")).toEqual({
+      ok: false,
+      reason: "missing",
+    });
+  });
+
+  it("hard-rejects over MAX_CSV_IMPORT_TEXT_LENGTH (no soft-cap)", () => {
+    const over = "x".repeat(MAX_CSV_IMPORT_TEXT_LENGTH + 1);
+    expect(over.length).toBeGreaterThan(MAX_CSV_IMPORT_TEXT_LENGTH);
+    expect(parseCsvImportText(over)).toEqual({
+      ok: false,
+      reason: "too_long",
+    });
+  });
+
+  it("accepts exactly MAX_CSV_IMPORT_TEXT_LENGTH and returns the raw text", () => {
+    const exact = "y".repeat(MAX_CSV_IMPORT_TEXT_LENGTH);
+    expect(parseCsvImportText(exact)).toEqual({
+      ok: true,
+      csvText: exact,
+    });
+  });
+
+  it("preserves leading/trailing whitespace on ok payloads (parseLeadsCsv owns trim)", () => {
+    const csv = "  businessName\nDemo Cafe  ";
+    expect(parseCsvImportText(csv)).toEqual({ ok: true, csvText: csv });
   });
 });

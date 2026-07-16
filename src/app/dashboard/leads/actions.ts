@@ -50,6 +50,7 @@ import { CLIENT_VOICE_PACK_CONVEX_PRIMARY } from "@/lib/voice/pack-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import {
   existingLeadSlugConflictMessage,
+  parseCsvImportText,
   parseLeadsCsv,
   partitionLeadsByExistingSlugs,
 } from "@/lib/leads/csv-import";
@@ -1302,11 +1303,20 @@ export async function importLeadsCsvAction(input: {
       return { success: false as const, error: auth.error };
     }
 
-    if (!input.csvText || input.csvText.trim().length === 0) {
-      return { success: false as const, error: "CSV text is empty" };
+    // Hard-reject over-long CSV payloads before splitCsvIntoLines / upsert —
+    // auth is not a payload-size throttle; soft-cap would truncate mid-row.
+    const parsedText = parseCsvImportText(input.csvText);
+    if (!parsedText.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedText.reason === "too_long"
+            ? "CSV text is too long"
+            : "CSV text is empty",
+      };
     }
 
-    const parsed = parseLeadsCsv(input.csvText, {
+    const parsed = parseLeadsCsv(parsedText.csvText, {
       dataSource: input.dataSource,
       defaultStage: input.defaultStage,
     });
