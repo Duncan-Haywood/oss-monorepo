@@ -257,6 +257,29 @@ describe("POST /api/stripe/billing-portal", () => {
     });
   });
 
+  it("ignores an over-long same-origin returnUrl and falls back to the derived default", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
+    billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+
+    const { MAX_BILLING_PORTAL_RETURN_URL_LENGTH } = await import(
+      "@/lib/billing/return-url"
+    );
+    const over = `https://app.example.com/${"a".repeat(MAX_BILLING_PORTAL_RETURN_URL_LENGTH)}`;
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      portalRequest({ sessionId: "cs_test_1", returnUrl: over }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(billingPortalCreate).toHaveBeenCalledWith({
+      customer: "cus_1",
+      return_url: "https://app.example.com/checkout/success?session_id=cs_test_1",
+    });
+  });
+
   it("passes through a 400 when the checkout session is not complete", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
     sessionsRetrieve.mockResolvedValue({ status: "open", customer: "cus_1" });
