@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DeployHandoff } from "@/lib/deploy/types";
+import { MAX_VERCEL_PROJECT_ID_LENGTH } from "@/lib/deploy/vercel-project-id";
 
 /**
  * Action-level orchestration for assignVercelProjectAction — the operator
@@ -8,7 +9,8 @@ import type { DeployHandoff } from "@/lib/deploy/types";
  *
  * handoff-persist / handoff helper suites cover the requireConvex constant
  * and the field writes. This suite locks the dashboard action glue:
- * requireOperatorAuth, empty slug, trim / clear project id, no-handoff null,
+ * requireOperatorAuth, empty slug, trim / clear project id, over-long
+ * hard-reject (parseVercelProjectId), no-handoff null,
  * ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate,
  * and Error / non-Error throws.
  */
@@ -154,6 +156,34 @@ describe("assignVercelProjectAction", () => {
     const res = await assignVercelProjectAction("demo-cafe", "   ");
     expect(res).toEqual({ success: true, handoff: clearedHandoff });
     expect(assignVercelProjectAndProvision).toHaveBeenCalledWith("demo-cafe", null);
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("hard-rejects an over-long project id before provisioning", async () => {
+    const { assignVercelProjectAction } = await import("./actions");
+    const over = "a".repeat(MAX_VERCEL_PROJECT_ID_LENGTH + 1);
+    const res = await assignVercelProjectAction("demo-cafe", over);
+    expect(res).toEqual({
+      success: false,
+      error: "Vercel project ID is too long",
+    });
+    expect(assignVercelProjectAndProvision).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("accepts a project id at the max length", async () => {
+    const exact = "a".repeat(MAX_VERCEL_PROJECT_ID_LENGTH);
+    assignVercelProjectAndProvision.mockResolvedValue({
+      ...assignedHandoff,
+      vercelProjectId: exact,
+    });
+    const { assignVercelProjectAction } = await import("./actions");
+    const res = await assignVercelProjectAction("demo-cafe", exact);
+    expect(res).toEqual({
+      success: true,
+      handoff: { ...assignedHandoff, vercelProjectId: exact },
+    });
+    expect(assignVercelProjectAndProvision).toHaveBeenCalledWith("demo-cafe", exact);
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
