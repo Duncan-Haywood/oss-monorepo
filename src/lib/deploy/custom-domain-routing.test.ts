@@ -64,6 +64,14 @@ describe("isPlausibleCustomDomainHost", () => {
     expect(isPlausibleCustomDomainHost("-bad.com")).toBe(false);
     expect(isPlausibleCustomDomainHost("bad..com")).toBe(false);
   });
+
+  it("rejects hosts longer than 253 chars (DNS absolute max)", () => {
+    // Read-path twin for spoofed Host → getLeadSlugByCustomDomain
+    // (proxy-host-lookup-field-length-cap).
+    const over = `${"x".repeat(250)}.example.com`;
+    expect(over.length).toBeGreaterThan(253);
+    expect(isPlausibleCustomDomainHost(over)).toBe(false);
+  });
 });
 
 describe("parseOperatorCustomDomain", () => {
@@ -176,5 +184,17 @@ describe("extractPreviewSubdomainSlug", () => {
 
   it("returns null for an empty host", () => {
     expect(extractPreviewSubdomainSlug("", root)).toBeNull();
+  });
+
+  it("returns null for over-long preview-subdomain labels before CRM lookup", () => {
+    // Spoofed Host is not DNS-bounded — multi-KB labels must not reach getLeadBySlug
+    // (proxy-host-lookup-field-length-cap; shared MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH).
+    const over = `${"a".repeat(121)}.${root}`;
+    expect(extractPreviewSubdomainSlug(over, root)).toBeNull();
+  });
+
+  it("accepts a label at the public lead-slug path-length ceiling", () => {
+    const exact = `${"b".repeat(120)}.${root}`;
+    expect(extractPreviewSubdomainSlug(exact, root)).toBe("b".repeat(120));
   });
 });

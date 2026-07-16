@@ -8,6 +8,7 @@ import {
 import {
   extractPreviewSubdomainSlug,
   isPlatformHost,
+  isPlausibleCustomDomainHost,
   normalizeRequestHost,
 } from "@/lib/deploy/custom-domain-routing";
 import { productionRootDomain } from "@/lib/deploy/handoff";
@@ -63,6 +64,9 @@ export async function proxy(request: NextRequest) {
   if (pathname === "/") {
     const host = normalizeRequestHost(request.headers.get("host"));
     const root = productionRootDomain();
+    // Length gates live in extractPreviewSubdomainSlug (public slug ceiling)
+    // and getLeadSlugByCustomDomain (isPlausibleCustomDomainHost) so over-long
+    // spoofed Host never burns CRM/Convex (proxy-host-lookup-field-length-cap).
     const previewSlug = extractPreviewSubdomainSlug(host, root);
     if (previewSlug) {
       const lead = await getLeadBySlug(previewSlug);
@@ -71,7 +75,9 @@ export async function proxy(request: NextRequest) {
         // legacy free-form slug somehow resolves (see slug-path.ts).
         return NextResponse.rewrite(new URL(leadPreviewPath(previewSlug), request.url));
       }
-    } else if (!isPlatformHost(host, root)) {
+    } else if (!isPlatformHost(host, root) && isPlausibleCustomDomainHost(host)) {
+      // Plausible-host gate before DB (length ≤253 + label shape) — twin of
+      // Save domain write validation; getLeadSlugByCustomDomain also checks.
       const slug = await getLeadSlugByCustomDomain(host);
       if (slug) {
         return NextResponse.rewrite(new URL(leadPreviewPath(slug), request.url));

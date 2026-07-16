@@ -125,7 +125,10 @@ export default function ArchitectureDocPage() {
         <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
         Orchestration Vitest in <code>src/proxy.test.ts</code> locks auth redirect/allow,
         preview-subdomain-before-platform-host ordering, unrecognized-subdomain{" "}
-        <code>next()</code> (no demo-catalog fallthrough), and never Host-diverting{" "}
+        <code>next()</code> (no demo-catalog fallthrough), over-long Host labels never
+        calling <code>getLeadBySlug</code> / <code>getLeadSlugByCustomDomain</code>{" "}
+        (<code>isPublicLeadSlugPathLengthOk</code> + <code>isPlausibleCustomDomainHost</code> —
+        spoofed Host is not DNS-bounded), and never Host-diverting{" "}
         <code>/api/*</code> or <code>/dashboard/*</code> — helper suites alone are not enough.
         Google Places API and other licensed sources remain future work after legal review. No UI
         scraping.

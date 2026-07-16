@@ -31,7 +31,11 @@ import {
 } from "./leads/sqlite-row-mapping";
 import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "./orders/sqlite-row-mapping";
 import { preferAdvancedHandoffStatus } from "./deploy/handoff-preserve";
-import { customDomainHostAliases, normalizeOperatorCustomDomainHost } from "./deploy/custom-domain-routing";
+import {
+  customDomainHostAliases,
+  isPlausibleCustomDomainHost,
+  normalizeOperatorCustomDomainHost,
+} from "./deploy/custom-domain-routing";
 import { mapDeployHandoffRow, type SqliteDeployHandoffRow } from "./deploy/sqlite-row-mapping";
 import { mapClientInquiryRow, type SqliteClientInquiryRow } from "./inquiries/sqlite-row-mapping";
 import { mapCheckoutSessionRow, type SqliteCheckoutSessionRow } from "./checkout/sqlite-row-mapping";
@@ -1317,6 +1321,10 @@ export async function getLeadSlugByCustomDomain(customDomain: string): Promise<s
   // Same bare-host normalize as write path so a mis-pasted lookup still matches.
   const normalized = normalizeOperatorCustomDomainHost(customDomain);
   if (!normalized) return null;
+  // Read-path twin of Save domain: reject over-long / implausible hosts before
+  // Convex/SQLite work (proxy-host-lookup-field-length-cap). Spoofed Host is
+  // not DNS-bounded; write path already uses isPlausibleCustomDomainHost.
+  if (!isPlausibleCustomDomainHost(normalized)) return null;
 
   const aliases = customDomainHostAliases(normalized);
 

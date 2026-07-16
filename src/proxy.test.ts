@@ -131,6 +131,37 @@ describe("src/proxy.ts orchestration", () => {
     expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
   });
 
+  it("skips getLeadBySlug for over-long preview-subdomain Host labels", async () => {
+    // Length gate in extractPreviewSubdomainSlug — spoofed Host must not burn CRM.
+    const overHost = `${"a".repeat(121)}.${ROOT}`;
+    const { proxy } = await import("./proxy");
+    const response = await proxy(
+      request(`http://${overHost}/`, {
+        headers: { host: overHost },
+      }),
+    );
+    expect(isNext(response)).toBe(true);
+    expect(rewriteTarget(response)).toBeNull();
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
+  });
+
+  it("skips getLeadSlugByCustomDomain for over-long custom-domain Host headers", async () => {
+    // isPlausibleCustomDomainHost rejects length > 253 before CRM lookup.
+    const overHost = `${"x".repeat(250)}.example.com`;
+    expect(overHost.length).toBeGreaterThan(253);
+    const { proxy } = await import("./proxy");
+    const response = await proxy(
+      request(`http://${overHost}/`, {
+        headers: { host: overHost },
+      }),
+    );
+    expect(isNext(response)).toBe(true);
+    expect(rewriteTarget(response)).toBeNull();
+    expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+  });
+
   it("rewrites / on a client custom domain to /preview/[slug] when mapped", async () => {
     getLeadSlugByCustomDomain.mockResolvedValue("joes-plumbing");
     const { proxy } = await import("./proxy");

@@ -1,8 +1,11 @@
 /**
  * Pure host-matching helpers for proxy.ts custom-domain routing (Starter
- * "Preview subdomain → custom domain handoff" promise). Kept dependency-free
- * so it's Vitest-testable without proxy.ts's Node-runtime request plumbing.
+ * "Preview subdomain → custom domain handoff" promise). Vitest-testable
+ * without proxy.ts's Node-runtime request plumbing (depends only on
+ * isPublicLeadSlugPathLengthOk for Host→preview slug length).
  */
+
+import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
 
 /** Strip port + trailing dot, lowercase. Empty/missing header → "". */
 export function normalizeRequestHost(hostHeader: string | null | undefined): string {
@@ -184,7 +187,12 @@ const RESERVED_PREVIEW_SUBDOMAIN_LABELS = new Set(["www"]);
  * host (`{slug}.{productionRootDomain}`, the `suggestedHost` every deploy
  * handoff already generates — see src/lib/deploy/handoff.ts), or null when
  * `host` is the bare root domain, has more than one subdomain label, is a
- * reserved label, or isn't under `productionRootDomain` at all.
+ * reserved label, isn't under `productionRootDomain`, or the label fails
+ * isPublicLeadSlugPathLengthOk (proxy-host-lookup-field-length-cap).
+ *
+ * Spoofed Host headers are not DNS-bounded — a multi-KB `{label}.{root}` still
+ * reached getLeadBySlug before this gate. Soft-cap would change the lookup key;
+ * treat over-long like unrecognized (null → marketing homepage fall-through).
  *
  * Callers must still confirm the returned label resolves to a real lead
  * (getLeadBySlug) before rewriting — an unrecognized label (typo, a reserved
@@ -201,6 +209,10 @@ export function extractPreviewSubdomainSlug(
 
   const label = host.slice(0, host.length - root.length - 1);
   if (!label || label.includes(".") || RESERVED_PREVIEW_SUBDOMAIN_LABELS.has(label)) {
+    return null;
+  }
+  // Shared public lead-slug ceiling (path/query twins already gate this).
+  if (!isPublicLeadSlugPathLengthOk(label)) {
     return null;
   }
   return label;

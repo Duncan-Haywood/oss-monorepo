@@ -26,10 +26,14 @@ import { sanitizeLeadSlug } from "./slug";
  * lookup. Optional `/checkout?slug=` prefill uses the same ceiling via
  * resolveCheckoutPrefillSlug / loadCheckoutPrefillLead but falls back to
  * missing (un-prefilling checkout) instead of 400/notFound — hard-reject would
- * strand a buyer. Create-path minting caps at MAX_LEAD_SLUG_LENGTH (63), but
- * legacy / pre-sanitize rows and percent-decoded path/query tokens can be
- * longer — 120 matches the historical preview-open bound and still blocks
- * multi-KB abuse. Soft-cap/truncate would change the lookup key.
+ * strand a buyer. Host→preview preview-subdomain labels
+ * (`extractPreviewSubdomainSlug`) use the same ceiling and fall through to the
+ * marketing homepage when over-long (spoofed Host is not DNS-bounded —
+ * proxy-host-lookup-field-length-cap). Create-path minting caps at
+ * MAX_LEAD_SLUG_LENGTH (63), but legacy / pre-sanitize rows and percent-decoded
+ * path/query/Host tokens can be longer — 120 matches the historical
+ * preview-open bound and still blocks multi-KB abuse. Soft-cap/truncate would
+ * change the lookup key.
  */
 export const MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH = 120;
 
