@@ -147,9 +147,10 @@ export const AGENT_PROTOCOL = [
   "After a dated clean pass on Convex API map + durable-marker-after-unchecked-await, lock the map with Vitest (src/lib/db/convex-api-map-audit.ts — scans convex/*.ts public query/mutation exports vs the static `const api` map in db.ts, allowlisting only deliberate orphans orders.createOrder / orders.getByStripeSessionId) rather than re-prose the same axes on the next empty-backlog run. A missing registration is a silent multi-instance split-brain; a failing test catches it before merge. Next empty-backlog after clean-audit-2026-07-16-convex-map-marker-await: prefer (1) a stuck CLI remote with a complete sold/security body and no open PR, (2) the next sold hot-path residual / public whole-body JSON byte bounds, (3) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — not a 3rd identical map/marker prose audit. Reject invent-optional-aggregate / workNextCount / registering the deliberate orders.* orphans.",
   "Public JSON POST routes (stripe/commerce checkout, billing-portal, contact, preview-open, and auth-gated marketing/generate when OPERATOR_DASHBOARD_PASSWORD may be unset) must hard-reject raw bodies over MAX_PUBLIC_JSON_BODY_BYTES (32_768) via readJsonBodyWithByteLimit / contentLengthExceedsLimit (src/lib/security/json-body.ts) before JSON.parse — field-level caps alone still allocate unbounded request.json(). Soft-cap is wrong (would change parsed fields); fail closed with 400. Empty body stays allowed on preview-open (invalid_json → server now). Skip Stripe webhook (signed request.text()). After per-field size sinks close, prefer whole-body byte bounds before inventing another dated clean-audit (public-json-body-byte-length-cap).",
   "Public form-urlencoded / multipart POST twins (POST /api/contact/[slug]) must share the same whole-body ceiling via readFormBodyWithByteLimit / MAX_PUBLIC_REQUEST_BODY_BYTES — Content-Length pre-check alone is not enough when the header is missing or understated (request.formData() still allocates). Bound with arrayBuffer byteLength, rebuild a Request, then parse FormData. Soft-cap is wrong; fail closed with 400. Login server-action FormData stays field-capped (password/next) because Next parses the multipart body before the action runs. After a public JSON whole-body bound ships, immediately close the FormData twin before inventing another dated clean-audit (public-formdata-body-byte-length-cap).",
-  "After checkout create enum-gates a Stripe metadata field (getBundle(tier), kind=commerce_sku catalog membership, etc.), the webhook consumer must enforce the same gate before durable fulfillment writes — create-path validation alone does not cover Dashboard-minted or tampered Checkout Sessions. Bundle getBundle + parseLeadSlugLookup + Commerce catalog membership + amount↔priceCents + parseCommerceCheckoutSlug gates are shipped; next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) next sold residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit.",
+  "After checkout create enum-gates a Stripe metadata field (getBundle(tier), kind=commerce_sku catalog membership, etc.), the webhook consumer must enforce the same gate before durable fulfillment writes — create-path validation alone does not cover Dashboard-minted or tampered Checkout Sessions. Bundle getBundle + parseLeadSlugLookup + amount↔expectedBundleCheckoutAmountCents + Commerce catalog membership + amount↔priceCents + parseCommerceCheckoutSlug gates are shipped; next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) next sold residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit.",
   "Commerce Buy now checkout create hard-rejects over-long slug via parseCommerceCheckoutSlug, 404s when metadata.skuId is not in the lead catalog, and resolves Price from catalog.stripePriceId (never trusts a client amount); the commerce_sku webhook branch must mirror that slug length gate, catalog membership gate (plus parseCommerceCheckoutSkuId length), AND require session.amount_total (integer cents) === catalogItem.priceCents before insertCommerceOrder / inquiry / client receipt — a truthy slug/skuId alone is not enough (unknown ids must not fall back to \"Catalog item\"; a mismatched amount must not skew payouts / client receipts; an over-long slug must not burn getLeadBySlug / getCommerceCatalog). Unknown/over-long slug/skuId or amount mismatch skips like missing skuId (session already marked complete; do not 5xx forever).",
   "Bundle checkout create sanitizes+caps slug via resolveBundleCheckoutLeadSlug / sanitizeLeadSlug (MAX_LEAD_SLUG_LENGTH=63); the bundle checkout.session.completed branch must mirror that ceiling via parseLeadSlugLookup before recordLeadPayment / handoff / receipt — a truthy metadata.slug alone is not enough (Dashboard-minted multi-KB slugs must not mint oversized paid stub leads). Over-long/missing skips like unknown tier (session already marked complete; do not 5xx forever). After shipping a Commerce webhook slug length gate, immediately audit the bundle webhook slug twin before inventing another dated clean-audit (bundle-webhook-slug-lookup-gate).",
+  "Bundle checkout create charges only catalog Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON); the bundle checkout.session.completed branch must require session.amount_total (integer cents) === expectedBundleCheckoutAmountCents(bundle, commerceAddon) before recordLeadPayment / handoff / receipt — a getBundle-known tier alone is not enough (Dashboard-minted sessions with a different Price must not skew revenueTotalUsd / receipt amounts). Mismatch/missing/non-integer skips like unknown tier (session already marked complete; do not 5xx forever). After shipping Commerce amount↔priceCents parity, immediately audit the bundle amount↔catalog twin (bundle-webhook-amount-catalog-parity).",
 ] as const;
 
 /**
@@ -2427,6 +2428,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-e067",
+  },
+  {
+    id: "bundle-webhook-amount-catalog-parity",
+    summary:
+      "Empty-backlog after PR #327 (bundle-webhook-slug-lookup-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged under different SHAs — rejected. Fresh money-path residual twin of commerce-webhook-amount-catalog-parity: POST /api/stripe/checkout charges only catalog Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON), but checkout.session.completed still recorded session.amount_total for any getBundle-known tier — a Dashboard-minted session with tier=growth and a $1 Price could skew revenueTotalUsd and receipt amounts. Require session.amount_total (integer cents) === expectedBundleCheckoutAmountCents(bundle, commerceAddon) before recordLeadPayment / handoff / receipt; mismatch/missing skips like unknown tier.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-5a8c",
   },
 
 ];
@@ -5080,6 +5089,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Require parseLeadSlugLookup on checkout.session.completed bundle fulfillment before recordLeadPayment / handoff / receipt — rather than accept any truthy metadata.slug, invent an optional aggregate, or leave Commerce webhook's slug length gate as the only money-path twin while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "Empty-backlog after PR #326 (commerce-webhook-slug-lookup-gate). Dual-claimed that todo with 2ecd (earlier remote claim owned; they shipped #326) — pivoted to the bundle twin. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual: POST /api/stripe/checkout sanitizes+caps slug via resolveBundleCheckoutLeadSlug / sanitizeLeadSlug (MAX_LEAD_SLUG_LENGTH=63), but the bundle webhook still treated any truthy metadata.slug as the CRM key — a Dashboard-minted multi-KB slug could mint an oversized paid stub lead and burn fulfillment emails. Over-long/missing now skips like unknown tier (session already marked complete; do not 5xx forever). Process improvement: after a Commerce webhook slug length gate ships, immediately audit the bundle webhook slug twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Require checkout.session.completed bundle amount_total (integer cents) === expectedBundleCheckoutAmountCents(bundle, commerceAddon) before recordLeadPayment / handoff / receipt — rather than trust any Stripe amount once tier is getBundle-known, invent an optional aggregate, or leave Commerce webhook's amount↔priceCents gate as the only money-path Price twin while free NEXT_STEPS stay operator/legal-gated.",
+    rationale:
+      "Empty-backlog after PR #327 (bundle-webhook-slug-lookup-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged under different SHAs — rejected. Fresh money-path residual twin of commerce-webhook-amount-catalog-parity: POST /api/stripe/checkout charges only catalog Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON), but the bundle webhook still recorded session.amount_total for any getBundle-known tier — a Dashboard-minted session with tier=growth and a different Price could skew revenueTotalUsd and skipSuppression receipt amounts. Amount mismatch / missing / non-integer now skips like unknown tier (session already marked complete; do not 5xx forever). Operator Stripe Price edits that drift from BUNDLES USD can skip ledger for a legitimate paid session — reconcile from Stripe; wrong revenue bookkeeping is worse. Process improvement: after Commerce amount↔priceCents ships, immediately audit the bundle amount↔catalog twin. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 
 ];
@@ -9983,10 +9999,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — deliver/read twin rule after generate soft-caps; empty-backlog rotation updated",
       "Process: tightened ITERATIONS decision-slice drift (349–364 ownership clean)",
       "NEXT_STEPS: marketing-voice-pack-deliver-variant-field-length-cap done; preview-jsonld-indexable-only done (18d9 / #316)",
-      "BUSINESS_DECISIONS — soft-cap pack deliver/read twin (slice 364); sibling JSON-LD gate (slice 365)",
+      "BUSINESS_DECISIONS — soft-cap pack deliver/read twin (absolute index 364); sibling JSON-LD gate (365)",
       "Verified: npm test (1552 passed on feature body vs main@#315's 1543; +3 JSON-LD from #316 → 1555 after merge) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(365, 366),
+    // Object-parse: pack deliver/read owns BD[364]; JSON-LD=365.
+    decisions: BUSINESS_DECISIONS.slice(364, 365),
   },
   {
     date: "2026-07-16",
@@ -10000,10 +10017,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx — sitemap + robots + JSON-LD share isLeadPreviewIndexable",
       "AGENT_PROTOCOL — JSON-LD must share indexable predicate; reject workNextCount + dead orders.* API-map orphans",
       "NEXT_STEPS: preview-jsonld-indexable-only done",
-      "BUSINESS_DECISIONS — gate preview JSON-LD on indexable consent (slice 365)",
+      "BUSINESS_DECISIONS — gate preview JSON-LD on indexable consent (absolute index 365)",
       "Verified: npm test (1546 passed = main@#315's 1543 + 3 leadPreviewJsonLdIfIndexable regressions) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(366, 367),
+    // Object-parse: JSON-LD indexable owns BD[365]; pack deliver=364.
+    decisions: BUSINESS_DECISIONS.slice(365, 366),
   },
   {
     date: "2026-07-16",
@@ -10022,9 +10040,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — hard-reject over-long catalog SKU ids (absolute index 366)",
       "Verified: npm test (1558 passed = main@#317's 1555 + 2 catalog normalize + 1 save-action regressions) + lint",
     ],
-    // Restored absolute ownership: catalog SKU hard-reject is index 366
-    // (prior fold incorrectly claimed 367, leaving 366 uncovered).
-    decisions: BUSINESS_DECISIONS.slice(367, 368),
+    // Object-parse: catalog SKU hard-reject owns BD[366]; JSON-LD=365; API src-utm=367.
+    decisions: BUSINESS_DECISIONS.slice(366, 367),
   },
   {
     date: "2026-07-16",
@@ -10042,9 +10059,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — bound preview-open src/utm_source over inventing an optional aggregate (absolute index 367)",
       "Verified: npm test (1564 passed = main@a3a8's 1558 + 3 attr-param helper + 3 route regressions) + lint",
     ],
-    // Restored absolute ownership: API src/utm bound is index 367
-    // (prior fold claimed slice(368,369) past BUSINESS_DECISIONS.length).
-    decisions: BUSINESS_DECISIONS.slice(368, 369),
+    // Object-parse: API src/utm owns BD[367] (page twin=368).
+    decisions: BUSINESS_DECISIONS.slice(367, 368),
   },
   {
     date: "2026-07-16",
@@ -10058,13 +10074,14 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/leads/preview-open.test.ts — +7 page-twin / beacon path regressions",
       "Docs: architecture.tsx notes SSR page + beacon path bound beside API route",
       "AGENT_PROTOCOL — after API query-param bounds, audit SSR page twin that forwards into client beacon/fetch",
-      "Process: restored absolute BD ownership off-by-one cascade (commerce slug/skuId 339 → page src-utm 369) via decision-text match; page owns BD[369]",
+      "Process: restored absolute BD ownership off-by-one cascade via decision-text match; page owns BD[368]",
       "AGENT_PROTOCOL — when tightening ITERATIONS slices, verify by decision text / indexOf, never trust prior slice comments",
       "NEXT_STEPS: preview-page-src-utm-field-length-cap done",
-      "BUSINESS_DECISIONS — bound preview page src/utm over inventing an optional aggregate / clean-audit skip (absolute index 369)",
-      "Verified: npm test (1571 passed on feature body) + slice ownership clean for BD[339]–BD[369]",
+      "BUSINESS_DECISIONS — bound preview page src/utm over inventing an optional aggregate / clean-audit skip (absolute index 368)",
+      "Verified: npm test (1571 passed on feature body) + slice ownership clean",
     ],
-    decisions: BUSINESS_DECISIONS.slice(369, 370),
+    // Object-parse: page src/utm owns BD[368]; API src-utm=367.
+    decisions: BUSINESS_DECISIONS.slice(368, 369),
   },
   {
     date: "2026-07-16",
@@ -10077,11 +10094,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes durable Convex API map Vitest beside server-only db testability",
       "AGENT_PROTOCOL — after dated map/marker clean pass, lock with Vitest; rotate off identical prose audits",
       "NEXT_STEPS: clean-audit-2026-07-16-convex-map-marker-await done",
-      "BUSINESS_DECISIONS — lock Convex API map with Vitest after clean pass (absolute index 370; object-parse)",
+      "BUSINESS_DECISIONS — lock Convex API map with Vitest after clean pass (absolute index 369; object-parse)",
       "Verified: npm test (1578 passed = main@#319's 1571 + 7 convex-api-map-audit regressions) + lint",
     ],
-    // Object-parse: map Vitest owns BD[370] (page src-utm=369).
-    decisions: BUSINESS_DECISIONS.slice(370, 371),
+    // Object-parse: map Vitest owns BD[369] (page src-utm=368).
+    decisions: BUSINESS_DECISIONS.slice(369, 370),
   },
   {
     date: "2026-07-16",
@@ -10103,8 +10120,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — hard-reject over-long public JSON bodies (absolute index 371; sibling map Vitest owns 370)",
       "Verified: npm test (1594 passed = main@#320's 1578 + 16 body-byte-limit regressions) + lint after fold",
     ],
-    // Object-parse: map Vitest = 370; public JSON body = 371.
-    decisions: BUSINESS_DECISIONS.slice(371, 372),
+    // Object-parse: map Vitest = 369; public JSON body = 370.
+    decisions: BUSINESS_DECISIONS.slice(370, 371),
   },
   {
     date: "2026-07-16",
@@ -10123,8 +10140,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: tightened #320/#321/#322 ITERATIONS decision slices via object-parse (map=370, JSON=371, FormData=372)",
       "Verified: npm test (1601 passed = main@#321's 1594 + 7 FormData body-byte regressions) + lint",
     ],
-    // Object-parse: FormData owns BD[372]; JSON=371; map Vitest=370.
-    decisions: BUSINESS_DECISIONS.slice(372, 373),
+    // Object-parse: FormData owns BD[371]; JSON=370; map Vitest=369.
+    decisions: BUSINESS_DECISIONS.slice(371, 372),
   },
   {
     date: "2026-07-16",
@@ -10144,8 +10161,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: tightened map/JSON/FormData ITERATIONS slices via object-parse (370/371/372) before appending ours",
       "Verified: npm test (1604 passed = main@#322's 1601 + 3 tier-enum/receipt-escape regressions) + lint after fold",
     ],
-    // Object-parse: tier enum owns BD[373]; FormData=372; JSON=371; map=370.
-    decisions: BUSINESS_DECISIONS.slice(373, 374),
+    // Object-parse: tier enum owns BD[372]; FormData=371; JSON=370; map=369.
+    decisions: BUSINESS_DECISIONS.slice(372, 373),
   },
   {
     date: "2026-07-16",
@@ -10161,8 +10178,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — require catalog membership on commerce_sku webhook (absolute index 374)",
       "Verified: npm test (1607 passed = main@#323's 1604 + 3 commerce catalog-gate regressions) + lint",
     ],
-    // Object-parse: commerce catalog gate owns BD[374]; tier enum=373.
-    decisions: BUSINESS_DECISIONS.slice(374, 375),
+    // Object-parse: commerce catalog gate owns BD[373]; tier enum=372.
+    decisions: BUSINESS_DECISIONS.slice(373, 374),
   },
   {
     date: "2026-07-16",
@@ -10179,8 +10196,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — require amount↔priceCents on commerce_sku webhook (absolute index 375)",
       "Verified: npm test (1609 passed = main@#324's 1607 + 2 amount mismatch/null regressions) + lint",
     ],
-    // Object-parse: amount parity owns BD[375]; catalog membership=374.
-    decisions: BUSINESS_DECISIONS.slice(375, 376),
+    // Object-parse: commerce amount parity owns BD[374]; catalog membership=373.
+    decisions: BUSINESS_DECISIONS.slice(374, 375),
   },
   {
     date: "2026-07-16",
@@ -10196,8 +10213,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — require parseCommerceCheckoutSlug on commerce_sku webhook (absolute index 376)",
       "Verified: npm test (1611 passed = main@#325's 1609 + 2 slug-gate regressions) + lint",
     ],
-    // Object-parse: slug lookup owns BD[376]; amount parity=375.
-    decisions: BUSINESS_DECISIONS.slice(376, 377),
+    // Object-parse: commerce slug lookup owns BD[375]; commerce amount=374.
+    decisions: BUSINESS_DECISIONS.slice(375, 376),
   },
   {
     date: "2026-07-16",
@@ -10214,7 +10231,27 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — require parseLeadSlugLookup on bundle webhook (absolute index 377)",
       "Verified: npm test (1613 passed = main@#326's 1611 + 2 bundle slug-gate regressions) + lint",
     ],
-    // Object-parse: bundle slug lookup owns BD[377]; commerce slug=376.
+    // Object-parse: bundle slug lookup owns BD[376]; commerce slug=375.
+    decisions: BUSINESS_DECISIONS.slice(376, 377),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/prompt-process-evolution-5a8c",
+    summary:
+      "Empty-backlog after PR #327 (bundle-webhook-slug-lookup-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged under different SHAs — rejected. Fresh money-path residual twin of commerce-webhook-amount-catalog-parity: POST /api/stripe/checkout charges only catalog Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON), but checkout.session.completed still recorded session.amount_total for any getBundle-known tier. Shipped expectedBundleCheckoutAmountCents + amount_total === expectedCents gate before recordLeadPayment / handoff / receipt (mismatch/missing skips like unknown tier); Vitest + architecture note; process now requires auditing the bundle amount twin after Commerce amount↔priceCents.",
+    shipped: [
+      "src/lib/pricing/bundles.ts — expectedBundleCheckoutAmountCents(bundle, commerceAddon)",
+      "src/lib/pricing/bundles.test.ts — locks starter/growth/complete (+ commerce addon) cents",
+      "src/app/api/stripe/webhook/route.ts — require amount_total === expectedCents before bundle fulfillment",
+      "src/app/api/stripe/webhook/route.test.ts — growth fixtures use 59900¢; +2 amount mismatch / null regressions",
+      "Docs: architecture.tsx notes bundle webhook amount↔catalog cents beside tier/slug gates",
+      "AGENT_PROTOCOL — bundle webhook must mirror create-path catalog Price amounts; after Commerce amount parity, audit bundle twin",
+      "NEXT_STEPS: bundle-webhook-amount-catalog-parity done",
+      "BUSINESS_DECISIONS — require amount↔expectedBundleCheckoutAmountCents on bundle webhook (absolute index 377)",
+      "Verified: npm test (1616 passed = main@#327's 1613 + 3 amount-parity regressions) + lint",
+      "Process: tightened ITERATIONS decision slices ba14→e067 via object-parse (API src-utm=367 … bundle slug=376) before appending ours",
+    ],
+    // Object-parse: bundle amount parity owns BD[377]; bundle slug=376.
     decisions: BUSINESS_DECISIONS.slice(377, 378),
   },
 ];

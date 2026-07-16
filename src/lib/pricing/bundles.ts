@@ -55,3 +55,25 @@ export const COMMERCE_ADDON = {
 export function getBundle(id: string): BundleDefinition | undefined {
   return BUNDLES.find((bundle) => bundle.id === id);
 }
+
+/**
+ * Expected Checkout Session `amount_total` (integer cents) for a bundle
+ * purchase — setup + first recurring month when present, plus optional
+ * Commerce add-on setup+month. Mirrors POST /api/stripe/checkout line_items
+ * (Price IDs from env that bootstrap from these USD amounts). The webhook
+ * must require session.amount_total === this before recordLeadPayment.
+ */
+export function expectedBundleCheckoutAmountCents(
+  bundle: BundleDefinition,
+  commerceAddon: boolean,
+): number {
+  let cents = Math.round(bundle.setupPriceUsd * 100);
+  if (bundle.monthlyPriceUsd != null) {
+    cents += Math.round(bundle.monthlyPriceUsd * 100);
+  }
+  if (commerceAddon) {
+    cents += Math.round(COMMERCE_ADDON.setupPriceUsd * 100);
+    cents += Math.round(COMMERCE_ADDON.monthlyPriceUsd * 100);
+  }
+  return cents;
+}
