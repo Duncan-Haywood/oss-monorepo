@@ -10006,7 +10006,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — public JSON body byte-length rule; empty-backlog rotation marks axis done",
       "NEXT_STEPS: public-json-body-byte-length-cap done; clean-audit-2026-07-16-convex-map-marker-await done (6ba0 / #320)",
       "BUSINESS_DECISIONS — hard-reject over-long public JSON bodies (absolute index 371; sibling map Vitest owns 370)",
-      "Verified: npm test + lint after fold",
+      "Verified: npm test (1594 passed = main@#320's 1578 + 16 body-byte-limit regressions) + lint after fold",
     ],
     // Absolute ownership after #320 fold: sibling map Vitest = 370; public JSON body = 371.
     decisions: BUSINESS_DECISIONS.slice(371, 372),
