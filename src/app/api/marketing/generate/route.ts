@@ -12,6 +12,7 @@ import type {
   GenerateMarketingRequest,
   MarketingContentType,
 } from "@/lib/marketing/types";
+import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 const VALID_CONTENT_TYPES: MarketingContentType[] = [
@@ -59,6 +60,9 @@ function isBusinessContext(value: unknown): value is BusinessContext {
  * generators map 1:1 over the array into stub variants / Anthropic prompt
  * length (marketing-generate-content-types-size-cap). Business context is
  * soft-capped via normalizeMarketingGenerateBusiness before generate.
+ * Raw JSON body is hard-capped via readJsonBodyWithByteLimit before those
+ * field parsers — auth is not a payload-size throttle when the password is
+ * unset (public-json-body-byte-length-cap).
  */
 export async function POST(request: Request) {
   const auth = await requireOperatorAuth();
@@ -75,12 +79,14 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
+  const parsedBody = await readJsonBodyWithByteLimit<unknown>(request);
+  if (!parsedBody.ok) {
+    if (parsedBody.reason === "too_large") {
+      return NextResponse.json({ error: "Request body is too large" }, { status: 400 });
+    }
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
+  const body = parsedBody.value;
 
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "Request body required" }, { status: 400 });

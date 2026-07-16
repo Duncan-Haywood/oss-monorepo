@@ -9,6 +9,7 @@ import {
 import { PREVIEW_OPEN_CONVEX_PRIMARY } from "@/lib/leads/preview-open-persist";
 import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
+import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -27,11 +28,15 @@ type RouteContext = { params: Promise<{ slug: string }> };
  * writes per lead, so this only guards against a scripted burst.
  *
  * Path slug length is hard-capped via isPublicLeadSlugPathLengthOk (shared
- * with POST /api/contact/[slug]) before CRM lookup. Optional body.openedAt is
- * length-bounded via resolvePreviewOpenedAt (over-long → server now) so
- * Date.parse never sees multi-KB probes. Optional `src` / `utm_source` query
- * params are length-bounded via resolvePreviewOpenAttrParam (over-long →
- * missing) so attribution matching never sees multi-KB probes.
+ * with POST /api/contact/[slug]) before CRM lookup. Raw JSON body is
+ * hard-capped via readJsonBodyWithByteLimit (over-long → 400) before field
+ * parsers run — field caps alone still allocate unbounded request.json().
+ * Optional body.openedAt is length-bounded via resolvePreviewOpenedAt
+ * (over-long → server now) so Date.parse never sees multi-KB probes.
+ * Optional `src` / `utm_source` query params are length-bounded via
+ * resolvePreviewOpenAttrParam (over-long → missing) so attribution matching
+ * never sees multi-KB probes. Empty / invalid JSON body is fine (beacon
+ * falls back to server now).
  */
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
@@ -50,11 +55,17 @@ export async function POST(request: Request, context: RouteContext) {
 
   const url = new URL(request.url);
   let openedAt = new Date().toISOString();
-  try {
-    const body = (await request.json()) as { openedAt?: unknown };
-    openedAt = resolvePreviewOpenedAt(body?.openedAt, openedAt);
-  } catch {
-    // empty body is fine
+  const parsedBody = await readJsonBodyWithByteLimit<{ openedAt?: unknown }>(request);
+  if (!parsedBody.ok) {
+    if (parsedBody.reason === "too_large") {
+      return NextResponse.json(
+        { ok: false, recorded: false, reason: "body_too_large", error: "Request body is too large" },
+        { status: 400 },
+      );
+    }
+    // empty / invalid JSON body is fine — keep server now
+  } else {
+    openedAt = resolvePreviewOpenedAt(parsedBody.value?.openedAt, openedAt);
   }
 
   const lead = await getLeadBySlug(slug);

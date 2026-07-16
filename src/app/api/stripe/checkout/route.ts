@@ -7,6 +7,7 @@ import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 import { recordCheckoutSessionCreated } from "@/lib/db";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
+import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
@@ -50,12 +51,14 @@ export async function POST(request: Request) {
     return notConfigured("Set STRIPE_SECRET_KEY, then configure per-tier Stripe Price IDs (see .env.example).");
   }
 
-  let body: CheckoutRequestBody;
-  try {
-    body = await request.json();
-  } catch {
+  const parsedBody = await readJsonBodyWithByteLimit<CheckoutRequestBody>(request);
+  if (!parsedBody.ok) {
+    if (parsedBody.reason === "too_large") {
+      return NextResponse.json({ error: "Request body is too large" }, { status: 400 });
+    }
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
+  const body = parsedBody.value;
 
   const bundle = getBundle(body.tier ?? "");
   if (!bundle) {

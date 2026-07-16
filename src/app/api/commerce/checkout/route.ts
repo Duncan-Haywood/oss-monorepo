@@ -10,6 +10,7 @@ import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
+import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
@@ -55,12 +56,16 @@ export async function POST(request: Request) {
     return notConfigured("Set STRIPE_SECRET_KEY to enable Commerce checkout.");
   }
 
-  let body: CommerceCheckoutRequestBody;
-  try {
-    body = await request.json();
-  } catch {
+  const parsedBody = await readJsonBodyWithByteLimit<CommerceCheckoutRequestBody>(
+    request,
+  );
+  if (!parsedBody.ok) {
+    if (parsedBody.reason === "too_large") {
+      return NextResponse.json({ error: "Request body is too large" }, { status: 400 });
+    }
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
+  const body = parsedBody.value;
 
   // Opaque lookup keys — hard-reject over-length before DB/Stripe (never
   // soft-cap; truncation looks up the wrong row and can still burn quota).

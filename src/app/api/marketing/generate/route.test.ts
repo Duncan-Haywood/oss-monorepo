@@ -121,6 +121,21 @@ describe("POST /api/marketing/generate", () => {
     expect(generate).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when the raw JSON body exceeds MAX_PUBLIC_JSON_BODY_BYTES", async () => {
+    const { MAX_PUBLIC_JSON_BODY_BYTES } = await import(
+      "@/lib/security/json-body"
+    );
+    const { POST } = await import("./route");
+    const huge = JSON.stringify({
+      ...validBody,
+      pad: "p".repeat(MAX_PUBLIC_JSON_BODY_BYTES),
+    });
+    const res = await POST(generateRequest(huge));
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Request body is too large" });
+    expect(generate).not.toHaveBeenCalled();
+  });
+
   it("returns 400 when the body is not an object", async () => {
     const { POST } = await import("./route");
     const res = await POST(generateRequest("null"));
