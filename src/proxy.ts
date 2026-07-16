@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
   OPERATOR_SESSION_COOKIE,
-  isOperatorAuthConfigured,
+  getPassword,
   verifyOperatorSessionToken,
 } from "@/lib/auth/operator";
 import {
@@ -19,11 +19,10 @@ function dashboardAuthGate(request: NextRequest, pathname: string): NextResponse
     return NextResponse.next();
   }
 
-  if (!isOperatorAuthConfigured()) {
-    return NextResponse.next();
-  }
-
-  const password = process.env.OPERATOR_DASHBOARD_PASSWORD;
+  // Trimmed secret only — login signs with getPassword(); raw env would
+  // reject a valid cookie when OPERATOR_DASHBOARD_PASSWORD has surrounding
+  // whitespace (operator-auth-proxy-password-trim / sibling 037c dual-claim).
+  const password = getPassword();
   if (!password) {
     return NextResponse.next();
   }

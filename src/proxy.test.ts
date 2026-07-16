@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import {
   OPERATOR_SESSION_COOKIE,
   createOperatorSessionToken,
+  tryCreateSessionFromPassword,
 } from "@/lib/auth/operator";
 
 const getLeadBySlug = vi.fn();
@@ -69,6 +70,28 @@ describe("src/proxy.ts orchestration", () => {
         headers: { cookie: `${OPERATOR_SESSION_COOKIE}=${token}` },
       }),
     );
+    expect(isNext(response)).toBe(true);
+  });
+
+  it("allows /dashboard when env password has surrounding whitespace (getPassword parity)", async () => {
+    // Login signs with trimmed getPassword(); proxy must verify with the same
+    // key — raw process.env would reject this cookie and loop to login.
+    process.env.OPERATOR_DASHBOARD_PASSWORD = `  ${PASSWORD}  `;
+    const token = tryCreateSessionFromPassword(PASSWORD);
+    expect(token).not.toBeNull();
+    const { proxy } = await import("./proxy");
+    const response = await proxy(
+      request("http://localhost/dashboard/leads", {
+        headers: { cookie: `${OPERATOR_SESSION_COOKIE}=${token!}` },
+      }),
+    );
+    expect(isNext(response)).toBe(true);
+  });
+
+  it("treats whitespace-only OPERATOR_DASHBOARD_PASSWORD as open demo at the proxy gate", async () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = "   ";
+    const { proxy } = await import("./proxy");
+    const response = await proxy(request("http://localhost/dashboard"));
     expect(isNext(response)).toBe(true);
   });
 

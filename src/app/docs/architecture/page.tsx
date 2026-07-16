@@ -87,8 +87,12 @@ export default function ArchitectureDocPage() {
         (open demo when unset or whitespace-only after trim, reject missing/invalid/expired,
         accept valid session) — <code>getPassword</code> /{" "}
         <code>tryCreateSessionFromPassword</code> trim env + form input so a trailing space in
-        the secret or a pasted login field cannot lock the operator out — and{" "}
-        <code>proxy.test.ts</code> Host gate. Until the password is a non-placeholder secret,{" "}
+        the secret or a pasted login field cannot lock the operator out —{" "}
+        <code>src/proxy.ts</code> dashboardAuthGate also verifies via exported{" "}
+        <code>getPassword()</code> (never raw <code>process.env</code>) so a secret-manager
+        paste cannot accept login then infinite-redirect at the Host gate — and{" "}
+        <code>proxy.test.ts</code> Host gate + trim-parity cases. Until the password is a
+        non-placeholder secret,{" "}
         <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
         banner via <code>assessOperatorAuthEnvReadiness</code> — distinct from Stripe / Resend /

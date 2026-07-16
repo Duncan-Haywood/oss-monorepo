@@ -100,7 +100,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR (create-path-slug-dns-label-max-length folded on business-process-evolution-9b1b; operator-password-trim folded on business-process-evolution-f844), (2) a fresh security or injection-surface audit (auth cookie hardening, public write routes — including notify↔persist field-length parity after contact-form-notify-field-length-caps; operator-password trim is done), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR (create-path-slug-dns-label-max-length folded on business-process-evolution-9b1b; operator-password-trim folded on business-process-evolution-f844; operator-auth-proxy-password-trim / proxy-operator-session-getpassword-parity dual on f926+037c), (2) a fresh security or injection-surface audit (auth cookie attributes / session TTL, public write routes — including notify↔persist field-length parity after contact-form-notify-field-length-caps; operator-password trim + proxy getPassword parity are done), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",
   "sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims and orchestration module test-coverage gaps are BOTH now 2x-confirmed clean (claude/upbeat-dijkstra-3duvyp PR #188, then re-checked independently after 9 more merged PRs) — don't offer either as a fresh rotation target again until real product surface area changes; re-check only if a specific new claim lands in /docs/product-bundles or a new orchestration module ships without its sibling test file.",
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
@@ -111,6 +111,7 @@ export const AGENT_PROTOCOL = [
   "Operator Save domain input must be normalized to a bare hostname before persistence (parseOperatorCustomDomain / normalizeOperatorCustomDomainHost in custom-domain-routing.ts) — strip scheme/path/query/hash/port/trailing FQDN dot, reject localhost/single-label/platform-owned hosts, and re-normalize on updateDeployHandoffCustomDomain + getLeadSlugByCustomDomain so a pasted https://client.com/ still equals normalizeRequestHost(Host) and Vercel Domains API name. Never store trim+lowercase alone (custom-domain-host-normalize). assignCustomDomainAction must also reject when getLeadSlugByCustomDomain returns a different lead — Host→preview first-match would silently serve the wrong client (custom-domain-normalize-and-unique).",
   "Custom-domain Host→preview must treat www↔apex as the same sold domain: customDomainHostAliases(host) returns [exact, www-twin] (or [www, apex]); getLeadSlugByCustomDomain tries each alias (exact first); assignCustomDomainAction uniqueness rejects when any alias is owned by another lead; tryProvisionVercelDomain POSTs both aliases when customDomain is set (ignore 409). Keep storing the operator's chosen bare host — do not invent a second normalizer that strips www on write. suggestedHost platform subdomains are not aliased.",
   "OPERATOR_DASHBOARD_PASSWORD must be trimmed on both read and compare: getPassword() / isOperatorAuthConfigured() treat whitespace-only as unset (open demo), and tryCreateSessionFromPassword trims the form-submitted password before passwordsMatch — assessOperatorAuthEnvReadiness already trimmed for the banner, but the live auth path did not, so a trailing space in the env secret or a pasted login field silently locked the operator out while the readiness banner looked fine. Never compare raw env/form strings for this secret (operator-password-trim).",
+  "src/proxy.ts dashboardAuthGate must verify OPERATOR_SESSION_COOKIE with the same trimmed getPassword() key that createOperatorSessionToken / requireOperatorAuth use — never raw process.env.OPERATOR_DASHBOARD_PASSWORD. After operator-password-trim, a padded env secret signs sessions with the trimmed value; raw-env verify in the proxy rejects them and infinite-redirects /dashboard/* to login while server actions would accept the cookie (operator-auth-proxy-password-trim / proxy-operator-session-getpassword-parity). Banner + action + proxy are one auth surface; trim any one without the others and the twins drift. Keep path=/ on the session cookie: auth-gated /api twins (bootstrap-prices, marketing/generate) need it.",
 ] as const;
 
 /**
@@ -2004,6 +2005,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner:
       "cursor/business-process-evolution-f844 (folded from opencode/dev-work-password-trim + opencode/continuous-work-152029)",
+  },
+  {
+    id: "operator-auth-proxy-password-trim",
+    summary:
+      "Empty-backlog after PR #280 (operator-password-trim) + PR #281 (contact-form-notify-field-length-caps). Banner/path twin drift residual: getPassword / tryCreateSessionFromPassword / requireOperatorAuth trim OPERATOR_DASHBOARD_PASSWORD, but src/proxy.ts dashboardAuthGate still passes the raw process.env value into verifyOperatorSessionToken. Login signs the session with the trimmed secret; the proxy then verifies with the untrimmed env string — a trailing space in the deployment secret (common secret-manager paste) accepts login at the action layer then infinite-redirects /dashboard/* → /dashboard/login at the Host gate. Export getPassword and verify sessions through the same trimmed secret the cookie was signed with. Same-window dual with proxy-operator-session-getpassword-parity (037c); earlier claim f926 owns implementation.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-f926 (+ dual cursor/prompt-process-evolution-037c)",
+  },
+  {
+    id: "proxy-operator-session-getpassword-parity",
+    summary:
+      "Auth-cookie audit after PR #280 (operator-password-trim): login / requireOperatorAuth sign and verify with trimmed getPassword(), but src/proxy.ts dashboardAuthGate still passes raw process.env.OPERATOR_DASHBOARD_PASSWORD into verifyOperatorSessionToken. Surrounding whitespace in the env secret (the exact case #280 fixed for login) makes a freshly issued session cookie verify on server actions and fail in the proxy gate — infinite redirect to /dashboard/login and a locked-out operator. Export getPassword and use it as the sole verify key in the proxy gate; add a regression that sets a padded env and asserts a tryCreateSessionFromPassword cookie is accepted. Same-window dual with operator-auth-proxy-password-trim (f926 claimed 8s earlier) — folded onto f926; keep both ITERATIONS, one implementation.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-037c (folded onto cursor/business-process-evolution-f926)",
   },
 ];
 
@@ -4310,7 +4327,7 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "Cap create-path lead slugs at MAX_LEAD_SLUG_LENGTH=63 (RFC 1035 DNS label max) inside shared sanitizeLeadSlug — truncate then re-strip trailing dashes — and reuse that sanitizer from leadSlugAsDnsLabel + CSV slugifyBusinessName / collision suffixes, rather than mint over-length CRM slugs that cannot be valid suggestedHost labels.",
     rationale:
-      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window (complementary axis — owns slice 326). Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (and digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folding that Starter Host→preview identity fix beats inventing an optional aggregate — edge-dash strip (#247) alone still left >63 labels invalid for DNS. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window (complementary axis — owns slice 327). Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (and digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folding that Starter Host→preview identity fix beats inventing an optional aggregate — edge-dash strip (#247) alone still left >63 labels invalid for DNS. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
   {
     date: "2026-07-15",
@@ -4325,6 +4342,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Trim OPERATOR_DASHBOARD_PASSWORD on both env read (getPassword / isOperatorAuthConfigured) and form submit (tryCreateSessionFromPassword) — whitespace-only env is unset/open-demo; surrounding spaces on either side must not lock the operator out of a paid CRM after a paste or secret-manager quirk.",
     rationale:
       "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length). Free NEXT_STEPS stayed operator/legal-gated. Pipeline-health→digest age axis is closed; AGENT_PROTOCOL next prefers stuck CLI security folds then fresh auth-surface audits. Scanned remotes and found opencode/dev-work-password-trim (complete env+form trim + Vitest) and opencode/continuous-work-152029 (env-only half) with no open PR (Actions token blocked). assessOperatorAuthEnvReadiness already trimmed for the banner, so the dashboard could look 'ready' while login compared untrimmed strings — a silent operator lockout blocks outreach and fulfillment at the exact moment revenue work starts. Folding that auth hygiene beats inventing an optional aggregate. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Verify operator sessions in src/proxy.ts dashboardAuthGate with exported getPassword() (trimmed), never raw process.env.OPERATOR_DASHBOARD_PASSWORD — so login-signed cookies survive a secret-manager trailing space instead of infinite-redirecting /dashboard/* → login. Keep session cookie path=/ for auth-gated /api twins.",
+    rationale:
+      "Empty-backlog after PR #280 (operator-password-trim) + PR #281 (contact-form field caps). Free NEXT_STEPS stayed operator/legal-gated. Same-window dual: business-process-evolution-f926 claimed operator-auth-proxy-password-trim 8s before prompt-process-evolution-037c claimed proxy-operator-session-getpassword-parity — both shipped the same getPassword proxy verify; folded onto f926 with both ITERATIONS kept (no second implementation). PR #280 trimmed login/action paths but the Host gate still HMAC-verified with the raw env string, so login succeeds then every /dashboard navigation bounces to login. Cookie Path narrowing would break bootstrap-prices / marketing/generate auth twins — trim-key parity is the fix. Next empty-backlog rotation: auth cookie attributes / session TTL, public write routes, or Convex parity. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
 
 ];
@@ -8433,7 +8457,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: digest-age-mirror-oldest-abandoned-cold (folded done on 1ce7)",
       "PR handoff: Actions token blocked — folded onto cursor/prompt-process-evolution-1ce7",
     ],
-    decisions: BUSINESS_DECISIONS.slice(326, 327),
+    decisions: BUSINESS_DECISIONS.slice(327, 328),
   },
   {
     date: "2026-07-15",
@@ -8447,10 +8471,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes the two remaining age mirrors now digest-mirrored",
       "AGENT_PROTOCOL — pipeline-health/digest wiring axis closed for known aggregates; next empty-backlog rotation prefers stuck CLI folds / security / Convex parity over inventing optional digests",
       "NEXT_STEPS: digest-age-mirror-oldest-abandoned-cold done (owner 1ce7)",
-      "BUSINESS_DECISIONS — documented why folding these age mirrors beats inventing an optional aggregate (slice 326)",
+      "BUSINESS_DECISIONS — documented why folding these age mirrors beats inventing an optional aggregate (slice 327)",
       "Verified: npm test (1352 passed, +6 digest age-mirror regressions vs 1346 on main) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(326, 327),
+    decisions: BUSINESS_DECISIONS.slice(327, 328),
   },
   {
     date: "2026-07-15",
@@ -8466,7 +8490,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: create-path-slug-dns-label-max-length (folded done on 9b1b)",
       "PR handoff: Actions token blocked — issue #257; folded onto cursor/business-process-evolution-9b1b",
     ],
-    decisions: BUSINESS_DECISIONS.slice(327, 328),
+    decisions: BUSINESS_DECISIONS.slice(328, 329),
   },
   {
     date: "2026-07-15",
@@ -8479,7 +8503,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: create-path-slug-dns-label-max-length (folded done on 9b1b)",
       "PR handoff: Actions token blocked — issue #255; folded onto cursor/business-process-evolution-9b1b",
     ],
-    decisions: BUSINESS_DECISIONS.slice(327, 328),
+    decisions: BUSINESS_DECISIONS.slice(328, 329),
   },
   {
     date: "2026-07-15",
@@ -8492,15 +8516,15 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: create-path-slug-dns-label-max-length (folded done on 9b1b)",
       "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-9b1b",
     ],
-    decisions: BUSINESS_DECISIONS.slice(327, 328),
+    decisions: BUSINESS_DECISIONS.slice(328, 329),
   },
   {
     date: "2026-07-15",
     branch: "cursor/business-process-evolution-9b1b",
     summary:
-      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window — complementary axis, owns slice 326. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (plus digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Merged origin/main mid-PR; kept both digest-mirror + DNS-cap ITERATIONS.",
+      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window — complementary axis, owns slice 327. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (plus digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Merged origin/main mid-PR; kept both digest-mirror + DNS-cap ITERATIONS.",
     shipped: [
-      "merge: origin/main (PR #278 digest age-mirror) — 1ce7 owns digest NEXT_STEPS / slice 326; both complementary ITERATIONS kept",
+      "merge: origin/main (PR #278 digest age-mirror) — 1ce7 owns digest NEXT_STEPS / slice 327; both complementary ITERATIONS kept",
       "Fold: stuck CLI remotes feature files (slug.ts / slug-path.ts / csv-import.ts + tests + architecture docs) — kept grok continuous/dev + opencode ITERATIONS above",
       "src/lib/leads/slug.ts — MAX_LEAD_SLUG_LENGTH=63; sanitizeLeadSlug truncates then re-strips trailing dashes",
       "src/lib/leads/slug-path.ts — leadSlugAsDnsLabel reuses sanitizeLeadSlug so Host→preview identity matches create-path storage including the 63-cap",
@@ -8509,10 +8533,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes 63-cap beside edge-dash strip",
       "AGENT_PROTOCOL — create-path slug rule names MAX_LEAD_SLUG_LENGTH=63 + leadSlugAsDnsLabel reuse; digest age-mirror axis closed on main",
       "NEXT_STEPS: create-path-slug-dns-label-max-length done",
-      "BUSINESS_DECISIONS — documented why folding this DNS label cap beats inventing an optional aggregate (slice 327)",
+      "BUSINESS_DECISIONS — documented why folding this DNS label cap beats inventing an optional aggregate (slice 328)",
       "Verified after merge: npm test (1357 passed, +5 DNS max-length regressions on top of PR #278's 1352) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(327, 328),
+    decisions: BUSINESS_DECISIONS.slice(328, 329),
   },
   {
     date: "2026-07-15",
@@ -8520,7 +8544,7 @@ export const ITERATIONS: ProcessIteration[] = [
     summary:
       "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-f844 claimed operator-password-trim (folding opencode password-trim remotes; later merged as PR #280) — pivoted per AGENT_PROTOCOL. Scanned stuck CLI remotes (password-trim owned; other remotes were already-merged as-const/skip/slug/digest bodies behind main). Fresh sold-capability audit of Starter contact CRM found notify↔persist field-length divergence: insertClientInquiry sliced message to 5000 while POST /api/contact/[slug] emailed uncapped request fields under skipSuppression. Soft-capped once via shared normalizeContactFormFields; defense-in-depth inside insertClientInquiry; route + unit tests; tightened prior over-generous decision slices to absolute indices. Merged origin/main (PR #280) before open; kept both contact-field-cap + password-trim ITERATIONS.",
     shipped: [
-      "merge: origin/main (PR #280 operator-password-trim) — f844 owns password-trim NEXT_STEPS / slice 329; both complementary ITERATIONS kept",
+      "merge: origin/main (PR #280 operator-password-trim) — f844 owns password-trim NEXT_STEPS / slice 330; both complementary ITERATIONS kept",
       "src/lib/inquiries/contact-fields.ts — MAX_CONTACT_* + normalizeContactFormFields",
       "src/lib/inquiries/contact-fields.test.ts — soft-cap regressions",
       "src/app/api/contact/[slug]/route.ts — cap once before persist + notify",
@@ -8529,11 +8553,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes soft-cap notify↔persist parity",
       "AGENT_PROTOCOL — sold contact-form notify↔persist field-length rule; empty-backlog rotation notes password-trim done + this axis",
       "NEXT_STEPS: contact-form-notify-field-length-caps done",
-      "BUSINESS_DECISIONS — soft-cap-once over uncapped notify (slice 328)",
-      "Tightened create-path DNS ITERATIONS decisions slices 328,329 → 327,328 and digest-age-mirror ITERATIONS 327,328 → 326,327 (absolute indices)",
+      "BUSINESS_DECISIONS — soft-cap-once over uncapped notify (slice 329)",
+      "Tightened create-path DNS ITERATIONS decisions slices → 328,329 and digest-age-mirror ITERATIONS → 327,328 (absolute indices)",
       "Verified after merge with PR #280: npm test (1373 passed = 1357 main@#279 +10 password-trim +6 contact field-cap) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(328, 329),
+    decisions: BUSINESS_DECISIONS.slice(329, 330),
   },
   {
     date: "2026-07-15",
@@ -8545,7 +8569,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: operator-password-trim (folded done on f844)",
       "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-f844",
     ],
-    decisions: BUSINESS_DECISIONS.slice(329, 330),
+    decisions: BUSINESS_DECISIONS.slice(330, 331),
   },
   {
     date: "2026-07-15",
@@ -8558,7 +8582,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: operator-password-trim (folded done on f844)",
       "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-f844",
     ],
-    decisions: BUSINESS_DECISIONS.slice(329, 330),
+    decisions: BUSINESS_DECISIONS.slice(330, 331),
   },
   {
     date: "2026-07-15",
@@ -8572,10 +8596,46 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx + launch-checklist note env+form trim beside login rate-limit",
       "AGENT_PROTOCOL — operator-password trim rule + empty-backlog rotation marks trim done; next prefers auth cookie / public write routes",
       "NEXT_STEPS: operator-password-trim done",
-      "BUSINESS_DECISIONS — documented why folding this auth hygiene beats inventing an optional aggregate (slice 329)",
+      "BUSINESS_DECISIONS — documented why folding this auth hygiene beats inventing an optional aggregate (slice 330)",
       "Verified: npm test (1367 passed, +10 trim regressions on top of PR #279's 1357) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(329, 330),
+    decisions: BUSINESS_DECISIONS.slice(330, 331),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/business-process-evolution-f926",
+    summary:
+      "Empty-backlog after PR #280 (operator-password-trim) + PR #281 (contact-form-notify-field-length-caps). Free NEXT_STEPS stayed operator/legal-gated. Claimed operator-auth-proxy-password-trim 8s before sibling prompt-process-evolution-037c claimed proxy-operator-session-getpassword-parity — merged sibling and kept both ITERATIONS / NEXT_STEPS with one implementation. Fresh auth-surface audit of the PR #280 trim found banner + login/action paths trimmed, but src/proxy.ts dashboardAuthGate still passed raw process.env into verifyOperatorSessionToken — a trailing-space secret accepts login then infinite-redirects at the Host gate. Tightened +1-drifted absolute decision slices from digest-age through password-trim.",
+    shipped: [
+      "merge: origin/cursor/prompt-process-evolution-037c — dual-claim fold; both ITERATIONS kept; f926 owns implementation",
+      "src/lib/auth/operator.ts — export getPassword(); isOperatorAuthConfigured delegates to it",
+      "src/proxy.ts — dashboardAuthGate verifies with getPassword() (trimmed), never raw env",
+      "src/proxy.test.ts — padded-env via tryCreateSessionFromPassword + whitespace-only open-demo regressions",
+      "Docs: architecture.tsx + launch-checklist note proxy trim parity with login signing",
+      "AGENT_PROTOCOL — proxy must use getPassword(); empty-backlog rotation marks proxy trim done; next prefers auth cookie attributes / session TTL / public write routes",
+      "NEXT_STEPS: operator-auth-proxy-password-trim done",
+      "BUSINESS_DECISIONS — documented why proxy trim parity beats inventing an optional aggregate (slice 331)",
+      "Tightened digest-age / DNS / contact / password-trim ITERATIONS decisions to absolute indices 327–330",
+      "Verified: npm test (1377 passed, +4 trim-parity regressions vs 1373 on main) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(331, 332),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/prompt-process-evolution-037c",
+    summary:
+      "Empty-backlog after PR #281 (contact-form-notify-field-length-caps) + PR #280 (operator-password-trim). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes for an auth-cookie fix body (none — password-trim remotes already folded). Auth-cookie hardening audit found proxy.ts dashboardAuthGate still verified OPERATOR_SESSION_COOKIE against raw process.env.OPERATOR_DASHBOARD_PASSWORD while login/requireOperatorAuth use trimmed getPassword() — padded env secrets issue a valid cookie that the proxy rejects (infinite redirect to login). Shipped getPassword export + proxy parity + regression; documented path=/ must stay for /api auth twins.",
+    shipped: [
+      "src/lib/auth/operator.ts — export getPassword(); document as sole sign/verify key",
+      "src/proxy.ts — dashboardAuthGate uses getPassword() instead of raw env",
+      "src/proxy.test.ts — padded-env + tryCreateSessionFromPassword cookie accepted",
+      "AGENT_PROTOCOL — proxy getPassword parity rule; path=/ retained for /api auth twins",
+      "NEXT_STEPS: proxy-operator-session-getpassword-parity done",
+      "BUSINESS_DECISIONS — proxy/login verify-key parity over cookie Path narrowing (slice 331; shared with f926 dual)",
+      "Folded onto cursor/business-process-evolution-f926 (earlier claim + fuller test coverage); both ITERATIONS kept",
+      "Verified on 037c: npm test (1374 passed, +1 padded-env proxy regression on top of main@#281's 1373) + lint",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(331, 332),
   },
 ];
 

@@ -19,7 +19,9 @@ vi.mock("next/headers", () => ({
 import {
   OPERATOR_SESSION_COOKIE,
   createOperatorSessionToken,
+  getPassword,
   isOperatorAuthenticated,
+  isOperatorAuthConfigured,
   passwordsMatch,
   requireOperatorAuth,
   tryCreateSessionFromPassword,
@@ -96,6 +98,24 @@ describe("passwordsMatch", () => {
 
   it("returns false without throwing on different-length inputs", () => {
     expect(passwordsMatch("short", "a-much-longer-password")).toBe(false);
+  });
+});
+
+describe("getPassword / isOperatorAuthConfigured", () => {
+  afterEach(() => {
+    restorePasswordEnv();
+  });
+
+  it("returns trimmed password and reports configured", () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = `  ${PASSWORD}  `;
+    expect(getPassword()).toBe(PASSWORD);
+    expect(isOperatorAuthConfigured()).toBe(true);
+  });
+
+  it("treats whitespace-only as unset", () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = "   ";
+    expect(getPassword()).toBeNull();
+    expect(isOperatorAuthConfigured()).toBe(false);
   });
 });
 

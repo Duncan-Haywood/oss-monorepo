@@ -15,11 +15,16 @@ const SESSION_TTL_MS = 1000 * 60 * 60 * 12; // 12 hours
 const SESSION_SUBJECT = "operator";
 
 export function isOperatorAuthConfigured(): boolean {
-  const password = process.env.OPERATOR_DASHBOARD_PASSWORD;
-  return Boolean(password && password.trim().length > 0);
+  return getPassword() !== null;
 }
 
-function getPassword(): string | null {
+/**
+ * Trimmed OPERATOR_DASHBOARD_PASSWORD, or null when unset / whitespace-only.
+ * Every verify/sign path (login action, requireOperatorAuth, proxy gate) must
+ * use this — never raw process.env — so a secret-manager trailing space cannot
+ * desync cookie signing from Host-gate verification.
+ */
+export function getPassword(): string | null {
   const raw = process.env.OPERATOR_DASHBOARD_PASSWORD;
   if (!raw || raw.length === 0) {
     return null;
