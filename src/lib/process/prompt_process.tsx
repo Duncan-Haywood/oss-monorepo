@@ -62,7 +62,7 @@ export const AGENT_PROTOCOL = [
   // --- Money / ledger integrity ---
   "Commerce Buy now pass-through revenue (commerceOrders ledger) must never be written into the `orders` table or summed into revenueTotalUsd — that table/metric is Local Site Studio's own bundle revenue, and several eligibility predicates (orderEligibleForBillingPortal, leadEligibleForStarterUpsell, leadEligibleForCommerceCatalog) read any commerceAddon=true `orders` row as an active Commerce subscription. Keep pass-through revenue in commerceOrders with its own pipeline-health field (commerceOrdersRevenueUsd) — never conflate the two flows even though both come from Stripe webhooks.",
   "Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId (Stripe redelivers checkout.session.completed on retry/timeout). The insert/record helper must return `{ alreadyRecorded }` and the webhook must skip non-idempotent side effects (operator inquiry, client receipt, deploy handoff email) on redelivery — never Promise.all a ledger insert with a side effect that should only run once. `alreadyRecorded` gates side effects only, never idempotent fulfillment writes: enqueueProductionHandoff is safe to call again and must still run on redelivery if the first delivery recorded the order but failed before handoff. On redelivery, actively recover any side effect still missing its durable marker (see planCommerceWebhookSideEffects / planBundleWebhookSideEffects) rather than treating alreadyRecorded as a blanket early-break — a failure to write that recovery marker must return 5xx so Stripe keeps retrying; a failure in the best-effort send itself does not.",
-  "src/app/api/stripe/webhook/route.ts's checkout.session.completed handler only records a bundle payment when session.metadata has BOTH slug AND tier — any new one-off Checkout Session type (e.g. commerce_sku Buy now) must branch on its own metadata marker (e.g. metadata.kind) BEFORE that slug/tier check and `break`, or it silently falls into the else/console.warn branch with no operator notification.",
+  "src/app/api/stripe/webhook/route.ts's checkout.session.completed handler only records a bundle payment when session.metadata has BOTH slug AND a getBundle(tier)-known tier — any new one-off Checkout Session type (e.g. commerce_sku Buy now) must branch on its own metadata marker (e.g. metadata.kind) BEFORE that slug/tier check and `break`, or it silently falls into the else/console.warn branch with no operator notification. Truthy metadata.tier alone is not enough: checkout create already rejects unknown tiers via getBundle, and the webhook must mirror that enum gate before recordLeadPayment / handoff / receipt (unknown/wrong-cased tiers skip like missing slug/tier — session already marked complete; do not 5xx forever). Receipt HTML must escapeHtmlForEmail the tier label too (prefer getBundle(tier).name) — businessName escaping alone is not enough (bundle-webhook-tier-enum-guard).",
   "Stripe Product/Price sync (or any per-item Stripe object creation) must be idempotent via a stable metadata key (see commerceSkuStripeKey) and must never resolve a charge amount from client input — always look up the Price id server-side from persisted state. Any Stripe `list()` lookup used for idempotency-by-metadata-key must paginate via has_more/starting_after (use listAllPages, src/lib/stripe/list-all-pages.ts) — a single 100-item page silently misses matches past page 1 once an account holds more objects than that. A collection/catalog sync should create/update current items only, never auto-archive/delete a third-party object for removed items (orphan archive is operator-triggered only, and sets active=false — never delete).",
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizing input — never persist a normalized draft that drops stripeProductId/stripePriceId, and never trust client-submitted Stripe ids. enqueueProductionHandoff must call preserveDeployHandoffOperatorFields against the existing handoff before rebuilding for a new stripeSessionId — a Starter→Growth upsell or re-purchase must not wipe operator-set customDomain/vercelProjectId/progressed status/notes (Convex upsert replace and SQLite ON CONFLICT both clear omitted optionals by default).",
   "Any action that reads a whole-row record, then performs a real, materially long async operation (a sequential per-item external API loop, e.g. syncCommerceCatalogToStripe) before writing that record back via an unconditional full-row upsert (no version/CAS check) has a TOCTOU lost-update window — a concurrent write from a second tab or a follow-up edit during that window gets silently discarded. Re-read the record immediately before the final write and merge in only the fields the long operation actually produced (see syncCommerceCatalogToStripeAction's preserveCommerceStripeIds(freshItems, synced) — the same merge helper saveCommerceCatalogAction uses, with previous/base roles swapped) rather than writing the pre-operation snapshot verbatim. This is a distinct bug class from the money-separation/webhook-idempotency rules above — it's about ordinary operator concurrency on non-webhook writes, not Stripe redelivery. The same window exists when the 'write' at the end is a third-party API mutation rather than a DB row — archiveOrphanCommerceStripeProductsAction's listOrphanCommerceStripeProducts (paginates every active Stripe Product on the account) computes its orphan set from one stale catalog snapshot, then sequentially archives every match; re-read the catalog between the list and the actual mutation step and drop any candidate that reappeared (see orphan-archive-lost-update-guard, archiveCommerceStripeProducts split out for this). Deploy handoff assign/enqueue paths have the same window: tryProvisionVercelDomain is a real Vercel Domains API fetch, then insertDeployHandoff upserts the whole row — re-read + mergeProvisionOntoFreshHandoff before that final write so a concurrent Mark live / Save domain / Assign project survives (see handoff-provision-lost-update-guard). A related status-regression class: updateDeployHandoffStatus always patches status + notes; the bundle webhook's receipt/DNS sent-marker path passes a pre-Resend handoff.status snapshot, so a concurrent Mark live during Resend can be overwritten back to awaiting_dns — fix inside the write (preferAdvancedHandoffStatus never-downgrade on Convex + SQLite, handoff-email-marker-status-no-downgrade), not only by re-reading at the call site (still racy). Before adding a new 'diff current vs desired external state, then mutate' action, check whether the diff snapshot and the mutation step can drift apart during a real (not one-tick) window.",
@@ -145,7 +145,9 @@ export const AGENT_PROTOCOL = [
   "After a public opaque-id hard-reject ships (e.g. Buy now skuId), immediately audit the auth-gated write twin that mints/persists the same key — catalog save was still slice(0,64) after checkout hard-rejected (commerce-catalog-skuId-field-length-cap). Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold residual — reject invent-optional-aggregate.",
   "After preview-open body.openedAt falls back on over-length, also bound residual optional attribution query params (src / utm_source) via resolvePreviewOpenAttrParam before shouldRecordPreviewOpen — over-long → missing (preview-open-src-utm-field-length-cap). After the API route bounds those query params, also bound them on GET /preview/[slug] before PreviewOpenBeacon (and inside the beacon path builder) — trackByStage still re-emits uncapped searchParams onto the beacon fetch URL otherwise (preview-page-src-utm-field-length-cap). Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold residual — reject invent-optional-aggregate.",
   "After a dated clean pass on Convex API map + durable-marker-after-unchecked-await, lock the map with Vitest (src/lib/db/convex-api-map-audit.ts — scans convex/*.ts public query/mutation exports vs the static `const api` map in db.ts, allowlisting only deliberate orphans orders.createOrder / orders.getByStripeSessionId) rather than re-prose the same axes on the next empty-backlog run. A missing registration is a silent multi-instance split-brain; a failing test catches it before merge. Next empty-backlog after clean-audit-2026-07-16-convex-map-marker-await: prefer (1) a stuck CLI remote with a complete sold/security body and no open PR, (2) the next sold hot-path residual / public whole-body JSON byte bounds, (3) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — not a 3rd identical map/marker prose audit. Reject invent-optional-aggregate / workNextCount / registering the deliberate orders.* orphans.",
-  "Public JSON POST routes (stripe/commerce checkout, billing-portal, contact, preview-open, and auth-gated marketing/generate when OPERATOR_DASHBOARD_PASSWORD may be unset) must hard-reject raw bodies over MAX_PUBLIC_JSON_BODY_BYTES (32_768) via readJsonBodyWithByteLimit / contentLengthExceedsLimit (src/lib/security/json-body.ts) before JSON.parse or formData — field-level caps alone still allocate unbounded request.json(). Soft-cap is wrong (would change parsed fields); fail closed with 400. Empty body stays allowed on preview-open (invalid_json → server now). Skip Stripe webhook (signed request.text()). After per-field size sinks close, prefer whole-body byte bounds before inventing another dated clean-audit (public-json-body-byte-length-cap).",
+  "Public JSON POST routes (stripe/commerce checkout, billing-portal, contact, preview-open, and auth-gated marketing/generate when OPERATOR_DASHBOARD_PASSWORD may be unset) must hard-reject raw bodies over MAX_PUBLIC_JSON_BODY_BYTES (32_768) via readJsonBodyWithByteLimit / contentLengthExceedsLimit (src/lib/security/json-body.ts) before JSON.parse — field-level caps alone still allocate unbounded request.json(). Soft-cap is wrong (would change parsed fields); fail closed with 400. Empty body stays allowed on preview-open (invalid_json → server now). Skip Stripe webhook (signed request.text()). After per-field size sinks close, prefer whole-body byte bounds before inventing another dated clean-audit (public-json-body-byte-length-cap).",
+  "Public form-urlencoded / multipart POST twins (POST /api/contact/[slug]) must share the same whole-body ceiling via readFormBodyWithByteLimit / MAX_PUBLIC_REQUEST_BODY_BYTES — Content-Length pre-check alone is not enough when the header is missing or understated (request.formData() still allocates). Bound with arrayBuffer byteLength, rebuild a Request, then parse FormData. Soft-cap is wrong; fail closed with 400. Login server-action FormData stays field-capped (password/next) because Next parses the multipart body before the action runs. After a public JSON whole-body bound ships, immediately close the FormData twin before inventing another dated clean-audit (public-formdata-body-byte-length-cap).",
+  "After checkout create enum-gates a Stripe metadata field (getBundle(tier), kind=commerce_sku, etc.), the webhook consumer must enforce the same gate before durable fulfillment writes — create-path validation alone does not cover Dashboard-minted or tampered Checkout Sessions. Next empty-backlog after bundle-webhook-tier-enum-guard + public-formdata-body-byte-length-cap: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) next sold residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit.",
 ] as const;
 
 /**
@@ -2379,7 +2381,7 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "public-formdata-body-byte-length-cap",
     summary:
-      "Empty-backlog after PR #321 (public-json-body-byte-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Public JSON routes now arrayBuffer-bound, but POST /api/contact/[slug] form-urlencoded/multipart still only Content-Length-prechecks then unbounded request.formData() when Content-Length is missing or understated. Complete the FormData twin with the same MAX_PUBLIC_JSON_BODY_BYTES ceiling (arrayBuffer + rebuild → formData).",
+      "Empty-backlog after PR #321 (public-json-body-byte-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate / already-merged — rejected. Public JSON routes now arrayBuffer-bound, but POST /api/contact/[slug] form-urlencoded/multipart still only Content-Length-prechecks then unbounded request.formData() when Content-Length is missing or understated. Complete the FormData twin with the same MAX_PUBLIC_JSON_BODY_BYTES ceiling (arrayBuffer + rebuild → formData).",
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-15d6",
@@ -2388,7 +2390,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "bundle-webhook-tier-enum-guard",
     summary:
       "Empty-backlog after PR #321; sibling prompt-process-evolution-15d6 claimed/shipped public-formdata-body-byte-length-cap (PR #322). Free NEXT_STEPS stayed operator/legal-gated. Bundle checkout create rejects unknown tiers via getBundle, but checkout.session.completed still treats any truthy metadata.tier as valid — records payment/handoff and interpolates raw tier into receipt HTML (escapeHtmlForEmail on businessName only). Require getBundle(tier) before recordLeadPayment / handoff (skip like missing slug/tier); escape tier in sendReceiptEmail.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-7508",
   },
@@ -5002,6 +5004,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Hard-reject public (and open-demo auth-gated) JSON POST bodies over MAX_PUBLIC_JSON_BODY_BYTES (32_768) via readJsonBodyWithByteLimit / contentLengthExceedsLimit before JSON.parse or formData — rather than leave field-level caps as the only size gate after unbounded request.json() allocation, invent an optional aggregate, or skip to a 3rd identical Convex/marker clean-audit while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "Empty-backlog after PR #319 (preview-page-src-utm). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-6ba0 claimed complementary clean-audit-2026-07-16-convex-map-marker-await (merged PR #320) — both axes kept. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate (workNextCount) / dead orders.createOrder map orphans — rejected. Fresh public-write residual: per-field caps (openedAt, src/utm, sessionId, contact MAX_CONTACT_*, etc.) still run after request.json() has decoded the full body; rate limits blunt request count, not multi-MB parse work. Process improvement: after per-field size sinks close, prefer whole-body byte bounds on public money/contact/beacon (+ marketing/generate when password unset) before inventing another dated clean-audit; skip Stripe webhook (signed raw text). Next empty-backlog: residual auth-gated FormData twins / stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Hard-reject public contact form-urlencoded/multipart bodies over MAX_PUBLIC_REQUEST_BODY_BYTES (same 32_768 ceiling as JSON) via readFormBodyWithByteLimit (arrayBuffer + rebuild → formData) — rather than leave Content-Length-only pre-checks as the FormData gate after public-json-body-byte-length-cap, invent an optional aggregate, or skip to a 3rd identical Convex/marker clean-audit while free NEXT_STEPS stay operator/legal-gated.",
+    rationale:
+      "Empty-backlog after PR #321 (public-json-body-byte-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate / already-merged — rejected. Fresh public-write residual twin: contact JSON path arrayBuffer-bounds, but form-urlencoded/multipart still called unbounded request.formData() when Content-Length was missing or understated. Login server-action FormData stays field-capped (password/next) because Next parses multipart before the action runs. Process improvement: after a public JSON whole-body bound ships, immediately close the FormData twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Require getBundle(tier) on checkout.session.completed before recordLeadPayment / deploy handoff / receipt, and escapeHtmlForEmail the receipt tier label (prefer catalog display name) — rather than treat any truthy metadata.tier as a valid Local Site Studio bundle, invent an optional aggregate, or leave receipt tier unescaped while businessName is escaped.",
+    rationale:
+      "Empty-backlog after PR #322 (public-formdata-body-byte-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Sibling FormData twin closed; stuck CLI remotes were clean-audit-only / invent-optional-aggregate / already-merged — rejected. Fresh money-path residual: POST /api/stripe/checkout already rejects unknown tiers via getBundle, but the webhook only checked truthy slug+tier — a Dashboard-minted or tampered Checkout Session with tier=enterprise (or wrong-cased Growth) would still mark payment, enqueue handoff, and render raw tier into skipSuppression receipt HTML. Unknown tier skips like missing slug/tier (session already marked complete; do not 5xx forever). Process improvement: after checkout create enum-gates a metadata field, audit the webhook consumer for the same gate before inventing another dated clean-audit. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 
 ];
@@ -9999,9 +10015,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes durable Convex API map Vitest beside server-only db testability",
       "AGENT_PROTOCOL — after dated map/marker clean pass, lock with Vitest; rotate off identical prose audits",
       "NEXT_STEPS: clean-audit-2026-07-16-convex-map-marker-await done",
-      "BUSINESS_DECISIONS — lock Convex API map with Vitest after clean pass (absolute index 370)",
+      "BUSINESS_DECISIONS — lock Convex API map with Vitest after clean pass (absolute index 370; object-parse)",
       "Verified: npm test (1578 passed = main@#319's 1571 + 7 convex-api-map-audit regressions) + lint",
     ],
+    // Object-parse: map Vitest owns BD[370] (page src-utm=369).
     decisions: BUSINESS_DECISIONS.slice(370, 371),
   },
   {
@@ -10024,8 +10041,49 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — hard-reject over-long public JSON bodies (absolute index 371; sibling map Vitest owns 370)",
       "Verified: npm test (1594 passed = main@#320's 1578 + 16 body-byte-limit regressions) + lint after fold",
     ],
-    // Absolute ownership after #320 fold: sibling map Vitest = 370; public JSON body = 371.
+    // Object-parse: map Vitest = 370; public JSON body = 371.
     decisions: BUSINESS_DECISIONS.slice(371, 372),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/prompt-process-evolution-15d6",
+    summary:
+      "Empty-backlog after PR #321 (public-json-body-byte-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate / already-merged — rejected. Fresh public-write residual twin: contact JSON path arrayBuffer-bounds, but form-urlencoded/multipart still only Content-Length-prechecked then unbounded request.formData() when the header was missing or understated. Shipped readFormBodyWithByteLimit (shared MAX_PUBLIC_REQUEST_BODY_BYTES) on contact; Vitest + architecture note; process now requires closing the FormData twin after a public JSON whole-body bound.",
+    shipped: [
+      "src/lib/security/json-body.ts — readFormBodyWithByteLimit + MAX_PUBLIC_REQUEST_BODY_BYTES alias + shared readBoundedArrayBuffer",
+      "src/lib/security/json-body.test.ts — FormData helper regressions (Content-Length / missing-CL byteLength / exact-max / empty)",
+      "src/app/api/contact/[slug]/route.ts — form-urlencoded/multipart via readFormBodyWithByteLimit before CRM lookup",
+      "src/app/api/contact/[slug]/route.test.ts — +1 over-long form-urlencoded body regression (no Content-Length)",
+      "Docs: architecture.tsx notes FormData twin beside JSON whole-body bound",
+      "AGENT_PROTOCOL — public FormData body byte-length rule; empty-backlog rotation marks twin done",
+      "NEXT_STEPS: public-formdata-body-byte-length-cap done",
+      "BUSINESS_DECISIONS — hard-reject over-long public FormData bodies (absolute index 372)",
+      "Process: tightened #320/#321/#322 ITERATIONS decision slices via object-parse (map=370, JSON=371, FormData=372)",
+      "Verified: npm test (1601 passed = main@#321's 1594 + 7 FormData body-byte regressions) + lint",
+    ],
+    // Object-parse: FormData owns BD[372]; JSON=371; map Vitest=370.
+    decisions: BUSINESS_DECISIONS.slice(372, 373),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/business-process-evolution-7508",
+    summary:
+      "Empty-backlog after PR #321; sibling prompt-process-evolution-15d6 shipped public-formdata-body-byte-length-cap (merged PR #322). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / invent-optional-aggregate / already-merged — rejected. Fresh money-path residual: POST /api/stripe/checkout rejects unknown tiers via getBundle, but checkout.session.completed treated any truthy metadata.tier as valid — recorded payment/handoff and interpolated raw tier into receipt HTML (businessName escaped only). Shipped getBundle gate before recordLeadPayment / handoff (skip like missing slug/tier; no forever-5xx), escapeHtmlForEmail + catalog display name in sendReceiptEmail; Vitest + architecture note; process now requires webhook enum parity with checkout create.",
+    shipped: [
+      "merge: origin/main (PR #322 public FormData body bound) — keep sibling ITERATION; complementary bundle webhook tier enum guard",
+      "src/app/api/stripe/webhook/route.ts — getBundle(tier) before recordLeadPayment / handoff / receipt; unknown tier warns + skips",
+      "src/app/api/stripe/webhook/route.test.ts — +2 unknown/wrong-case tier regressions; known-tier asserts canonical id on payment+handoff",
+      "src/lib/email/resend.ts — escapeHtmlForEmail on receipt tier; prefer getBundle(tier).name display",
+      "src/lib/email/resend.test.ts — free-text tier escape + Growth display-name regressions",
+      "Docs: architecture.tsx notes webhook tier enum gate beside checkout create",
+      "AGENT_PROTOCOL — bundle webhook must mirror getBundle before fulfillment writes",
+      "NEXT_STEPS: bundle-webhook-tier-enum-guard done; public-formdata-body-byte-length-cap done (15d6 / #322)",
+      "BUSINESS_DECISIONS — require getBundle(tier) on bundle webhook + escape receipt tier (absolute index 373)",
+      "Process: tightened map/JSON/FormData ITERATIONS slices via object-parse (370/371/372) before appending ours",
+      "Verified: npm test (1604 passed = main@#322's 1601 + 3 tier-enum/receipt-escape regressions) + lint after fold",
+    ],
+    // Object-parse: tier enum owns BD[373]; FormData=372; JSON=371; map=370.
+    decisions: BUSINESS_DECISIONS.slice(373, 374),
   },
 ];
 

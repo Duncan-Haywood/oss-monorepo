@@ -4,6 +4,7 @@ import { markCheckoutSessionComplete, recordLeadPayment } from "@/lib/db";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfillment";
+import { getBundle } from "@/lib/pricing/bundles";
 
 /**
  * Stripe webhook receiver — verifies the signature, then acknowledges the
@@ -21,6 +22,12 @@ import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfil
  * never throw on suppression/Resend failure (they resolve { success: false }) —
  * the sent-marker must only be written when result.success is true, or a
  * suppressed/failed send is marked "sent" and never recovers on redelivery.
+ *
+ * Bundle checkout create already rejects unknown tiers via getBundle; this
+ * handler must mirror that enum gate before recordLeadPayment / handoff /
+ * receipt — a truthy metadata.tier string alone is not enough (Dashboard-
+ * minted or tampered Checkout Sessions). Unknown tier skips like missing
+ * slug/tier (session already marked complete; do not 5xx forever).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -291,7 +298,12 @@ export async function POST(request: Request) {
         return NextResponse.json(failure.body, { status: failure.status });
       }
 
-      if (slug && tier) {
+      // Mirror POST /api/stripe/checkout's getBundle gate — truthy tier is
+      // not enough; unknown values must not pollute orders/handoffs/receipts
+      // (bundle-webhook-tier-enum-guard).
+      const bundle = typeof tier === "string" ? getBundle(tier) : undefined;
+      if (slug && bundle) {
+        const knownTier = bundle.id;
         let alreadyRecorded: boolean;
         let handoff: Awaited<
           ReturnType<typeof import("@/lib/deploy/handoff").enqueueProductionHandoff>
@@ -303,7 +315,7 @@ export async function POST(request: Request) {
               slug,
               stripeSessionId: session.id,
               customerEmail,
-              tier,
+              tier: knownTier,
               commerceAddon,
               amountTotal,
               stripeCustomerId,
@@ -323,7 +335,7 @@ export async function POST(request: Request) {
             {
               leadSlug: slug,
               businessName,
-              tier,
+              tier: knownTier,
               commerceAddon,
               stripeSessionId: session.id,
               customerEmail,
@@ -386,7 +398,12 @@ export async function POST(request: Request) {
 
           if (sideEffects.runReceiptEmail && customerEmail) {
             try {
-              const sent = await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
+              const sent = await sendReceiptEmail(
+                customerEmail,
+                businessName,
+                knownTier,
+                amountTotal,
+              );
               if (sent.success) {
                 try {
                   const updated = await updateDeployHandoffStatus(
@@ -464,6 +481,12 @@ export async function POST(request: Request) {
         } catch (emailError) {
           console.error(`Failed to send receipt/DNS emails for ${slug}:`, emailError);
         }
+      } else if (slug && tier) {
+        console.warn(
+          "webhook: unknown bundle tier in session metadata",
+          session.id,
+          tier,
+        );
       } else {
         console.warn("webhook: missing slug or tier in session metadata", session.id);
       }

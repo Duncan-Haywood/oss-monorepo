@@ -11,7 +11,7 @@ import {
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
 import {
-  contentLengthExceedsLimit,
+  readFormBodyWithByteLimit,
   readJsonBodyWithByteLimit,
 } from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
@@ -57,6 +57,11 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  *
  * Rate limited per client IP (best-effort, per-instance — see
  * src/lib/security/rate-limit.ts) to blunt scripted contact-form spam.
+ *
+ * Raw JSON and form-urlencoded/multipart bodies share
+ * MAX_PUBLIC_REQUEST_BODY_BYTES via readJsonBodyWithByteLimit /
+ * readFormBodyWithByteLimit — Content-Length alone is not enough when the
+ * header is missing or understated (public-formdata-body-byte-length-cap).
  */
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -70,9 +75,6 @@ type ParseBodyResult =
   | { ok: false; reason: "too_large" };
 
 async function parseBody(request: Request): Promise<ParseBodyResult> {
-  if (contentLengthExceedsLimit(request)) {
-    return { ok: false, reason: "too_large" };
-  }
   const contentType = request.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
     const parsed = await readJsonBodyWithByteLimit<unknown>(request);
@@ -91,14 +93,14 @@ async function parseBody(request: Request): Promise<ParseBodyResult> {
     contentType.includes("application/x-www-form-urlencoded") ||
     contentType.includes("multipart/form-data")
   ) {
-    // Content-Length pre-check above; formData still needed for multipart
-    // boundary parsing (no safe byte-bounded twin without reimplementing).
-    const form = await request.formData();
-    const out: Record<string, unknown> = {};
-    form.forEach((value, key) => {
-      out[key] = typeof value === "string" ? value : value.name;
-    });
-    return { ok: true, value: out };
+    const parsed = await readFormBodyWithByteLimit(request);
+    if (!parsed.ok) {
+      if (parsed.reason === "too_large") {
+        return { ok: false, reason: "too_large" };
+      }
+      return { ok: true, value: {} };
+    }
+    return { ok: true, value: parsed.value };
   }
   return { ok: true, value: {} };
 }
@@ -125,7 +127,8 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   // Bound raw body before CRM/demo lookup — field soft-caps alone still
-  // allocate unbounded request.json()/formData() (public-json-body-byte-length-cap).
+  // allocate unbounded request.json()/formData() (public-json-body +
+  // public-formdata body byte caps).
   const parsed = await parseBody(request);
   if (!parsed.ok) {
     return NextResponse.json(
