@@ -2180,6 +2180,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-e309",
   },
+  {
+    id: "operator-session-token-field-length-cap",
+    summary:
+      "Empty-backlog after proxy-login-redirect-next-bound on main. Free NEXT_STEPS stayed operator/legal-gated. Auth cookie attributes/TTL already clean; residual opaque-token size hole: verifyOperatorSessionToken still runs HMAC + Buffer.from on uncapped Cookie values, and src/proxy.ts dashboardAuthGate calls it on every /dashboard/* with no rate limit (unlike login 5/60s). Hard-reject over MAX_OPERATOR_SESSION_TOKEN_LENGTH before crypto (genuine tokens ~66 chars; soft-cap would change the opaque token).",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-2662",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
