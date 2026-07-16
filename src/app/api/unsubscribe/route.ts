@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { suppressEmail } from "@/lib/db";
 import { UNSUBSCRIBE_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
-import { verifyUnsubscribeToken } from "@/lib/email/unsubscribe-token";
+import {
+  MAX_UNSUBSCRIBE_TOKEN_LENGTH,
+  verifyUnsubscribeToken,
+} from "@/lib/email/unsubscribe-token";
 import { MAX_CONTACT_EMAIL_LENGTH } from "@/lib/inquiries/contact-fields";
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
@@ -17,6 +20,9 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * query params longer than MAX_CONTACT_EMAIL_LENGTH before verify —
  * rate limits blunt request count, not per-request payload / HMAC /
  * suppressions-row size; soft-cap would break signed footer tokens.
+ * Hard-reject token query params longer than MAX_UNSUBSCRIBE_TOKEN_LENGTH
+ * before verify too — genuine HMAC-SHA256 base64url tokens are 43 chars;
+ * truncation would break every footer link (opaque signed token).
  */
 export async function GET(request: NextRequest) {
   const clientIp = clientIpFromHeaders(request.headers);
@@ -38,6 +44,10 @@ export async function GET(request: NextRequest) {
 
   if (email.length > MAX_CONTACT_EMAIL_LENGTH) {
     return new NextResponse("Email parameter is too long", { status: 400 });
+  }
+
+  if (token !== null && token.length > MAX_UNSUBSCRIBE_TOKEN_LENGTH) {
+    return new NextResponse("Token parameter is too long", { status: 400 });
   }
 
   if (!verifyUnsubscribeToken(email, token)) {

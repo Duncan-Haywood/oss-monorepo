@@ -314,9 +314,12 @@ export default function ArchitectureDocPage() {
         exceed so a harvested footer link or a script hammering HMAC +{" "}
         <code>suppressEmail</code> cannot unboundedly mutate the global suppression list. The
         route also hard-rejects <code>email</code> query params longer than{" "}
-        <code>MAX_CONTACT_EMAIL_LENGTH</code> before HMAC verify — rate limits blunt request
-        count, not per-request payload / crypto work / suppressions-row size; soft-cap would
-        break signed footer tokens (truncation ≠ the address the token was minted for). The
+        <code>MAX_CONTACT_EMAIL_LENGTH</code> and <code>token</code> query params longer than{" "}
+        <code>MAX_UNSUBSCRIBE_TOKEN_LENGTH</code> (HMAC-SHA256 base64url is 43 chars; ceiling
+        128) before HMAC verify — rate limits blunt request count, not per-request payload /
+        crypto work / suppressions-row size; soft-cap would break signed footer tokens
+        (truncation ≠ the address the token was minted for, and truncating an opaque token
+        fails every genuine link). The
         suppression
         list (SQLite + Convex <code>suppressions</code>) follows the same Convex-first,
         SQLite-fallback pattern as every other table for operator reads — but the public

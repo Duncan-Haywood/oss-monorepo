@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { signUnsubscribeToken, verifyUnsubscribeToken } from "./unsubscribe-token";
+import {
+  MAX_UNSUBSCRIBE_TOKEN_LENGTH,
+  signUnsubscribeToken,
+  verifyUnsubscribeToken,
+} from "./unsubscribe-token";
 
 describe("unsubscribe-token", () => {
   const originalResendKey = process.env.RESEND_API_KEY;
@@ -19,6 +23,12 @@ describe("unsubscribe-token", () => {
   it("round-trips: a token signed for an address verifies for that address", () => {
     const token = signUnsubscribeToken("owner@example.com");
     expect(verifyUnsubscribeToken("owner@example.com", token)).toBe(true);
+  });
+
+  it("produces a base64url HMAC digest well under MAX_UNSUBSCRIBE_TOKEN_LENGTH", () => {
+    const token = signUnsubscribeToken("owner@example.com");
+    expect(token.length).toBe(43);
+    expect(token.length).toBeLessThanOrEqual(MAX_UNSUBSCRIBE_TOKEN_LENGTH);
   });
 
   it("is case- and whitespace-insensitive on the signed address (matches sendEmail's normalizedTo)", () => {
@@ -47,6 +57,19 @@ describe("unsubscribe-token", () => {
 
   it("rejects a token of the wrong length without throwing", () => {
     expect(verifyUnsubscribeToken("owner@example.com", "short")).toBe(false);
+  });
+
+  it("hard-rejects tokens longer than MAX_UNSUBSCRIBE_TOKEN_LENGTH (no soft-cap)", () => {
+    const over = "x".repeat(MAX_UNSUBSCRIBE_TOKEN_LENGTH + 1);
+    expect(over.length).toBeGreaterThan(MAX_UNSUBSCRIBE_TOKEN_LENGTH);
+    expect(verifyUnsubscribeToken("owner@example.com", over)).toBe(false);
+  });
+
+  it("still evaluates tokens at exactly MAX_UNSUBSCRIBE_TOKEN_LENGTH (no early length reject)", () => {
+    const exact = "y".repeat(MAX_UNSUBSCRIBE_TOKEN_LENGTH);
+    expect(exact).toHaveLength(MAX_UNSUBSCRIBE_TOKEN_LENGTH);
+    // Wrong digest → false, but must not trip the over-max gate
+    expect(verifyUnsubscribeToken("owner@example.com", exact)).toBe(false);
   });
 
   it("changes the token when the signing secret changes (RESEND_API_KEY rotation)", () => {
