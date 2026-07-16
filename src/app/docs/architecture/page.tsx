@@ -248,10 +248,13 @@ export default function ArchitectureDocPage() {
         <code>discovered</code>/<code>outreach_sent</code>/etc. that never engaged) are excluded
         from the sitemap AND emit <code>robots: noindex,nofollow</code> from{" "}
         <code>generateMetadata</code>, so we never invite Google to index a third party&apos;s
-        AI-generated demo under our domain without consent. Both surfaces share one predicate —{" "}
+        AI-generated demo under our domain without consent. Three surfaces share one predicate —{" "}
         <code>isLeadPreviewIndexable</code> (<code>src/lib/seo.ts</code>) keyed on{" "}
         <code>isCuratedDemoLeadSlug</code> (<code>src/lib/leads/demo-catalog.ts</code>) — so the
-        sitemap and the page-level robots directive cannot drift. <code>/robots.txt</code> allows
+        sitemap, the page-level robots directive, and LocalBusiness JSON-LD emission cannot drift.
+        Cold-prospected / closed previews omit the JSON-LD block entirely via{" "}
+        <code>leadPreviewJsonLdIfIndexable</code> (robots=noindex alone is not enough — crawlers
+        still parse structured data). <code>/robots.txt</code> allows
         crawling except <code>/dashboard</code> and <code>/api</code>. Canonical origin comes from{" "}
         <code>NEXT_PUBLIC_APP_URL</code> (see{" "}
         <code>src/lib/seo.ts</code>) — set it in production so canonical/OG URLs and the sitemap

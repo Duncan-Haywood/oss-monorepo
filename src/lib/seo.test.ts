@@ -5,6 +5,7 @@ import {
   leadLocalBusinessJsonLd,
   leadMetaDescription,
   leadMetaTitle,
+  leadPreviewJsonLdIfIndexable,
   previewUrl,
   safeJsonLdScript,
   siteUrl,
@@ -208,6 +209,36 @@ describe("isLeadPreviewIndexable", () => {
       expect(
         isLeadPreviewIndexable(baseLead({ stage }), { isCuratedDemo: false }),
       ).toBe(false);
+    }
+  });
+});
+
+describe("leadPreviewJsonLdIfIndexable", () => {
+  it("emits LocalBusiness JSON-LD for paid/live customers", () => {
+    const lead = baseLead({ stage: "paid" });
+    expect(leadPreviewJsonLdIfIndexable(lead, { isCuratedDemo: false })).toEqual(
+      leadLocalBusinessJsonLd(lead),
+    );
+  });
+
+  it("emits JSON-LD for curated demo showcases even at prospect stages", () => {
+    const lead = baseLead({ stage: "site_built" });
+    expect(leadPreviewJsonLdIfIndexable(lead, { isCuratedDemo: true })).toEqual(
+      leadLocalBusinessJsonLd(lead),
+    );
+  });
+
+  it("returns null for cold-prospected / closed leads (noindex twin)", () => {
+    for (const stage of [
+      "discovered",
+      "site_built",
+      "outreach_sent",
+      "discovery_call",
+      "closed",
+    ] as const) {
+      expect(
+        leadPreviewJsonLdIfIndexable(baseLead({ stage }), { isCuratedDemo: false }),
+      ).toBeNull();
     }
   });
 });

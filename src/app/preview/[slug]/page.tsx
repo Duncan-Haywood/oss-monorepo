@@ -7,9 +7,9 @@ import { isCuratedDemoLeadSlug } from "@/lib/leads/demo-catalog";
 import { loadPreviewPageLead } from "@/lib/leads/preview-page-lead";
 import {
   isLeadPreviewIndexable,
-  leadLocalBusinessJsonLd,
   leadMetaDescription,
   leadMetaTitle,
+  leadPreviewJsonLdIfIndexable,
   previewUrl,
   safeJsonLdScript,
 } from "@/lib/seo";
@@ -54,7 +54,11 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   const query = await searchParams;
   const lead = await loadPreviewPageLead(slug);
   if (!lead) notFound();
-  const jsonLd = leadLocalBusinessJsonLd(lead);
+  // Same consent predicate as sitemap + robots — never emit LocalBusiness
+  // JSON-LD on a noindex cold-prospect preview (preview-jsonld-indexable-only).
+  const jsonLd = leadPreviewJsonLdIfIndexable(lead, {
+    isCuratedDemo: isCuratedDemoLeadSlug(slug),
+  });
   const src = firstParam(query.src);
   const utmSource = firstParam(query.utm_source);
   const trackByStage =
@@ -66,10 +70,12 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLdScript(jsonLd) }}
-      />
+      {jsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLdScript(jsonLd) }}
+        />
+      ) : null}
       <PreviewOpenBeacon
         slug={slug}
         src={src}

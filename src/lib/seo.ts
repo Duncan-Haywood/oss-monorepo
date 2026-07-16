@@ -36,9 +36,10 @@ export function previewUrl(slug: string): string {
  * Everyone else (discovered / site_built / outreach_sent / discovery_call /
  * closed, and slug-inferred previews) stays noindex and out of the sitemap.
  *
- * Shared by src/app/sitemap.ts and the /preview/[slug] generateMetadata robots
- * directive so the two surfaces cannot drift (a sitemap entry for a noindex
- * page sends Google contradictory signals).
+ * Shared by src/app/sitemap.ts, the /preview/[slug] generateMetadata robots
+ * directive, AND LocalBusiness JSON-LD emission so the three surfaces cannot
+ * drift (a sitemap entry for a noindex page — or JSON-LD on a noindex page —
+ * sends crawlers contradictory / over-eager structured-data signals).
  */
 export function isLeadPreviewIndexable(
   lead: Pick<Lead, "stage">,
@@ -80,6 +81,19 @@ export function leadLocalBusinessJsonLd(lead: Lead): Record<string, unknown> {
       addressRegion: lead.state,
     },
   };
+}
+
+/**
+ * LocalBusiness JSON-LD only when the preview is publicly indexable.
+ * Cold-prospected / closed leads stay noindex AND must not emit structured
+ * data that crawlers still parse under robots=noindex (preview-jsonld-indexable-only).
+ */
+export function leadPreviewJsonLdIfIndexable(
+  lead: Lead,
+  opts: { isCuratedDemo: boolean },
+): Record<string, unknown> | null {
+  if (!isLeadPreviewIndexable(lead, opts)) return null;
+  return leadLocalBusinessJsonLd(lead);
 }
 
 /**
