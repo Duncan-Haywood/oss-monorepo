@@ -556,11 +556,17 @@ export default function ArchitectureDocPage() {
         an opaque id would only waste a retrieve on a guaranteed miss. Because a completed{" "}
         <code>sessionId</code> is not truly
         secret either (it leaks via redirect URLs, the <code>Referer</code> header, and browser
-        history), an explicit body <code>returnUrl</code> is only honored when its origin matches
-        the derived <code>appUrl</code> (<code>isSameOriginReturnUrl</code>) — otherwise the route
-        falls back to the derived default rather than handing Stripe an attacker-controlled{" "}
+        history), an explicit body <code>returnUrl</code> is only honored when it is same-origin
+        with the derived <code>appUrl</code> <em>and</em> within{" "}
+        <code>MAX_BILLING_PORTAL_RETURN_URL_LENGTH</code> (
+        <code>isAcceptableBillingPortalReturnUrl</code> in{" "}
+        <code>src/lib/billing/return-url.ts</code>) — otherwise the route falls back to the
+        derived default rather than handing Stripe an attacker-controlled or multi-KB{" "}
         <code>return_url</code>, which would otherwise let a genuine{" "}
-        <code>billing.stripe.com</code> URL redirect to a phishing page on exit. That comparison
+        <code>billing.stripe.com</code> URL redirect to a phishing page on exit (or burn Stripe
+        quota on an unbounded optional body field). Over-length gets the same fall-back as
+        cross-origin/malformed — hard-reject would strand a legitimate portal open over an
+        optional field; soft-cap would change the redirect destination. That comparison
         origin itself must never come from <code>request.url</code> / Host: when{" "}
         <code>NEXT_PUBLIC_APP_URL</code> was unset, the old{" "}
         <code>new URL(request.url).origin</code> fallback let a Host-spoofed request make{" "}
