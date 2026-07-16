@@ -12,6 +12,7 @@ import {
   getLeadBySlug,
   getLeads,
   listOrders,
+  listOrdersByLeadSlug,
   recordLeadOutreach,
   listOpenCheckoutSessions,
   listUnrepliedInquiries,
@@ -1429,8 +1430,7 @@ export async function sendStarterUpsellAction(slug: string) {
       return { success: false as const, error: "Lead not found" };
     }
 
-    const allOrders = await listOrders();
-    const ordersForLead = allOrders.filter((o) => o.leadSlug === lead.slug);
+    const ordersForLead = await listOrdersByLeadSlug(lead.slug);
     if (
       !leadEligibleForStarterUpsell({
         stage: lead.stage,
@@ -1652,7 +1652,7 @@ export async function generateMarketingPackAction(slug: string) {
       return { success: false as const, error: "Lead not found" };
     }
 
-    const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
+    const orders = await listOrdersByLeadSlug(slug);
     if (!leadEligibleForMarketingPack(lead, orders)) {
       return {
         success: false as const,
@@ -1740,7 +1740,7 @@ export async function sendMarketingPackToClientAction(slug: string) {
       return { success: false as const, error: "Lead not found" };
     }
 
-    const orders = (await listOrders()).filter((o) => o.leadSlug === lead.slug);
+    const orders = await listOrdersByLeadSlug(lead.slug);
     if (!leadEligibleForMarketingPackDelivery(lead, orders)) {
       return {
         success: false as const,
@@ -1831,7 +1831,7 @@ export async function saveCommerceCatalogAction(
       return { success: false as const, error: "Lead not found" };
     }
 
-    const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
+    const orders = await listOrdersByLeadSlug(slug);
     if (!leadEligibleForCommerceCatalog(lead, orders)) {
       return {
         success: false as const,
@@ -2109,7 +2109,7 @@ export async function generateClientVoicePackAction(slug: string) {
       return { success: false as const, error: "Lead not found" };
     }
 
-    const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
+    const orders = await listOrdersByLeadSlug(slug);
     if (!leadEligibleForClientVoicePack(lead, orders)) {
       return {
         success: false as const,
@@ -2186,7 +2186,7 @@ export async function sendClientVoicePackToClientAction(slug: string) {
       return { success: false as const, error: "Lead not found" };
     }
 
-    const orders = (await listOrders()).filter((o) => o.leadSlug === lead.slug);
+    const orders = await listOrdersByLeadSlug(lead.slug);
     if (!leadEligibleForClientVoicePackDelivery(lead, orders)) {
       return {
         success: false as const,

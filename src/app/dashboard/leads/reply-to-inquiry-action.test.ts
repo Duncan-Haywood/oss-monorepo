@@ -46,6 +46,7 @@ vi.mock("@/lib/db", () => ({
     recordClientInquiryReply(...args),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),

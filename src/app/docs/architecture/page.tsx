@@ -211,7 +211,11 @@ export default function ArchitectureDocPage() {
         slug-scoped via <code>listOrdersByLeadSlug</code> (
         <code>orders.by_leadSlug</code> / SQLite <code>WHERE l.slug = ?</code>),
         never a full-ledger <code>listOrders()</code> collect on cold outreach
-        previews. Path slug length is
+        previews. The same slug-scoped helper backs Manage billing (
+        <code>createBillingPortalForLead</code>) and per-lead dashboard
+        eligibility (Starter upsell, marketing/voice packs, commerce catalog);
+        full-ledger <code>listOrders()</code> stays on digest + dashboard
+        aggregate surfaces only. Path slug length is
         hard-capped via <code>loadPreviewPageLead</code> (
         <code>isPublicLeadSlugPathLengthOk</code> /{" "}
         <code>MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH</code>=120 — same gate as contact +

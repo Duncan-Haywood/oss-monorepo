@@ -27,7 +27,7 @@ vi.mock("next/headers", () => ({
 }));
 
 const getLeadBySlug = vi.fn();
-const listOrders = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -40,7 +40,8 @@ vi.mock("@/lib/db", () => ({
   getClientInquiryById: vi.fn(),
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
-  listOrders: (...args: unknown[]) => listOrders(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+  listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -112,7 +113,7 @@ describe("sendStarterUpsellAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
-    listOrders.mockReset().mockResolvedValue([starterOrder]);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([starterOrder]);
     sendStarterUpsellEmail.mockReset().mockResolvedValue({
       success: true,
       id: "email_1",
@@ -188,7 +189,7 @@ describe("sendStarterUpsellAction", () => {
   });
 
   it("rejects when Growth/Complete already exists (billing-portal eligible)", async () => {
-    listOrders.mockResolvedValue([
+    listOrdersByLeadSlug.mockResolvedValue([
       starterOrder,
       {
         ...starterOrder,
@@ -292,18 +293,11 @@ describe("sendStarterUpsellAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("filters orders to the requested lead slug before eligibility", async () => {
-    listOrders.mockResolvedValue([
-      {
-        ...starterOrder,
-        leadSlug: "other-cafe",
-        tier: "growth",
-        amountPaid: 599,
-      },
-      starterOrder,
-    ]);
+  it("loads orders via listOrdersByLeadSlug for the requested slug", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([starterOrder]);
     const { sendStarterUpsellAction } = await import("./actions");
     const res = await sendStarterUpsellAction("demo-cafe");
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
     expect(res).toEqual({
       success: true,
       targetTier: "growth",

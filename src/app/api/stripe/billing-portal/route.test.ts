@@ -38,7 +38,8 @@ vi.mock("stripe", () => ({
 // createBillingPortalForCheckoutSession, matching the other route suites'
 // "mock Stripe SDK and @/lib/db" pattern.
 vi.mock("@/lib/db", () => ({
-  listOrders: vi.fn().mockResolvedValue([]),
+  listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn().mockResolvedValue([]),
 }));
 
 function portalRequest(body: unknown, url = "http://localhost/api/stripe/billing-portal") {

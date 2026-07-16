@@ -1,4 +1,4 @@
-import { listOrders } from "@/lib/db";
+import { listOrdersByLeadSlug } from "@/lib/db";
 import type { OrderRecord } from "@/lib/orders/types";
 import {
   latestEligibleOrder,
@@ -67,7 +67,8 @@ export async function createBillingPortalForLead(
     return { ok: false, error: "Lead slug is required", status: 400 };
   }
 
-  const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
+  // Slug-scoped — never full-ledger listOrders() for a single Manage-billing click.
+  const orders = await listOrdersByLeadSlug(slug);
   const order = latestEligibleOrder(orders);
   if (!order) {
     return {

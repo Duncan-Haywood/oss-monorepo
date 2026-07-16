@@ -26,7 +26,7 @@ vi.mock("next/headers", () => ({
 }));
 
 const getLeadBySlug = vi.fn();
-const listOrders = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const upsertMarketingPack = vi.fn();
 
 vi.mock("@/lib/db", () => ({
@@ -40,7 +40,8 @@ vi.mock("@/lib/db", () => ({
   getClientInquiryById: vi.fn(),
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
-  listOrders: (...args: unknown[]) => listOrders(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+  listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -132,7 +133,7 @@ describe("generateMarketingPackAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
-    listOrders.mockReset().mockResolvedValue([growthOrder]);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([growthOrder]);
     upsertMarketingPack.mockReset().mockImplementation(async (input) => ({
       id: "pack_1",
       ...input,
@@ -187,7 +188,7 @@ describe("generateMarketingPackAction", () => {
   });
 
   it("rejects Starter-only / unpaid leads (eligibility)", async () => {
-    listOrders.mockResolvedValue([
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...growthOrder, tier: "starter", amountPaid: 500 },
     ]);
     const { generateMarketingPackAction } = await import("./actions");
@@ -296,13 +297,13 @@ describe("generateMarketingPackAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("filters orders to the requested lead slug before eligibility", async () => {
-    listOrders.mockResolvedValue([
-      { ...growthOrder, leadSlug: "other-cafe", tier: "complete" },
+  it("loads orders via listOrdersByLeadSlug (ineligible starter does not pass)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...growthOrder, leadSlug: "demo-cafe", tier: "starter" },
     ]);
     const { generateMarketingPackAction } = await import("./actions");
     const res = await generateMarketingPackAction("demo-cafe");
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
     expect(res).toEqual({
       success: false,
       error:
