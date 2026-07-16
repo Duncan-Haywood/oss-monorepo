@@ -313,6 +313,10 @@ export default function ArchitectureDocPage() {
         <em>before</em> token verify, returning <code>429</code> + <code>Retry-After</code> on
         exceed so a harvested footer link or a script hammering HMAC +{" "}
         <code>suppressEmail</code> cannot unboundedly mutate the global suppression list. The
+        route also hard-rejects <code>email</code> query params longer than{" "}
+        <code>MAX_CONTACT_EMAIL_LENGTH</code> before HMAC verify — rate limits blunt request
+        count, not per-request payload / crypto work / suppressions-row size; soft-cap would
+        break signed footer tokens (truncation ≠ the address the token was minted for). The
         suppression
         list (SQLite + Convex <code>suppressions</code>) follows the same Convex-first,
         SQLite-fallback pattern as every other table for operator reads — but the public
@@ -402,7 +406,8 @@ export default function ArchitectureDocPage() {
         <code>brand.supportEmail</code>) beyond{" "}
         <code>contact-persist.test.ts</code> helpers, and{" "}
         <code>src/app/api/unsubscribe/route.test.ts</code> locks the CAN-SPAM suppress twin
-        (missing-email 400, <code>UNSUBSCRIBE_CONVEX_PRIMARY</code> pass-through, the
+        (missing-email 400, over-long email 400 before HMAC,{" "}
+        <code>UNSUBSCRIBE_CONVEX_PRIMARY</code> pass-through, the
         <code>ConvexPrimaryWriteError</code>-vs-generic-error <code>500</code> branches, and
         the client-IP rate-limit <code>429</code>) — same
         pattern as preview-open and the Stripe route suites. Matches the same idempotency

@@ -51,6 +51,40 @@ describe("GET /api/unsubscribe", () => {
     expect(suppressEmail).not.toHaveBeenCalled();
   });
 
+  it("returns 400 and never verifies/suppresses when the email param exceeds MAX_CONTACT_EMAIL_LENGTH", async () => {
+    const { MAX_CONTACT_EMAIL_LENGTH } = await import(
+      "@/lib/inquiries/contact-fields"
+    );
+    const { GET } = await import("./route");
+    const overlong = `${"a".repeat(MAX_CONTACT_EMAIL_LENGTH + 1)}@x.test`;
+    const token = signUnsubscribeToken(overlong);
+    const request = new NextRequest(unsubscribeUrl(overlong, token));
+
+    const response = await GET(request);
+    const text = await response.text();
+
+    expect(response.status).toBe(400);
+    expect(text).toMatch(/too long/i);
+    expect(suppressEmail).not.toHaveBeenCalled();
+  });
+
+  it("still suppresses when the email is exactly MAX_CONTACT_EMAIL_LENGTH", async () => {
+    const { MAX_CONTACT_EMAIL_LENGTH } = await import(
+      "@/lib/inquiries/contact-fields"
+    );
+    const { GET } = await import("./route");
+    const local = "a".repeat(MAX_CONTACT_EMAIL_LENGTH - "@x.test".length);
+    const email = `${local}@x.test`;
+    expect(email).toHaveLength(MAX_CONTACT_EMAIL_LENGTH);
+    const token = signUnsubscribeToken(email);
+    const request = new NextRequest(unsubscribeUrl(email, token));
+
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    expect(suppressEmail).toHaveBeenCalledWith(email, UNSUBSCRIBE_CONVEX_PRIMARY);
+  });
+
   it("400s when the token is missing (no query param)", async () => {
     const { GET } = await import("./route");
     const request = new NextRequest(unsubscribeUrl("victim@example.com"));
