@@ -92,7 +92,10 @@ export default function ArchitectureDocPage() {
         (open demo when unset or whitespace-only after trim, reject missing/invalid/expired,
         accept valid session) — <code>getPassword</code> /{" "}
         <code>tryCreateSessionFromPassword</code> trim env + form input so a trailing space in
-        the secret or a pasted login field cannot lock the operator out —{" "}
+        the secret or a pasted login field cannot lock the operator out — and hard-reject
+        form passwords longer than <code>MAX_OPERATOR_PASSWORD_LENGTH</code> (256) before{" "}
+        <code>Buffer.from</code> / timing-safe compare (rate limits blunt attempt count, not
+        per-attempt payload size; soft-cap would change the secret) —{" "}
         <code>src/proxy.ts</code> dashboardAuthGate also verifies via exported{" "}
         <code>getPassword()</code> (never raw <code>process.env</code>) so a secret-manager
         paste cannot accept login then infinite-redirect at the Host gate — and{" "}

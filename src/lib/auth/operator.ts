@@ -14,6 +14,17 @@ export const OPERATOR_SESSION_COOKIE = "lss_operator_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 12; // 12 hours
 const SESSION_SUBJECT = "operator";
 
+/**
+ * Hard ceiling for client-supplied login passwords.
+ *
+ * Soft-cap is wrong (would change the secret). Rate limits blunt attempt
+ * count (5/60s) but not per-attempt payload size — without this bound,
+ * passwordsMatch allocates Buffer.from(provided) before the length-mismatch
+ * short-circuit, so a public caller can force multi-MB allocations per try.
+ * Legitimate operator secrets sit far below 256.
+ */
+export const MAX_OPERATOR_PASSWORD_LENGTH = 256;
+
 export function isOperatorAuthConfigured(): boolean {
   return getPassword() !== null;
 }
@@ -91,6 +102,10 @@ export function verifyOperatorSessionToken(
 }
 
 export function passwordsMatch(provided: string, expected: string): boolean {
+  // Bound before Buffer.from — rate limits blunt count, not payload size.
+  if (provided.length > MAX_OPERATOR_PASSWORD_LENGTH) {
+    return false;
+  }
   const a = Buffer.from(provided);
   const b = Buffer.from(expected);
   if (a.length !== b.length) {
@@ -157,6 +172,11 @@ export async function requireOperatorAuth(): Promise<
 export function tryCreateSessionFromPassword(providedPassword: string): string | null {
   const expected = getPassword();
   if (!expected) {
+    return null;
+  }
+  // Reject over-long raw input before trim allocates a second giant string.
+  // Soft-cap would change the secret; treat as wrong password (null token).
+  if (providedPassword.length > MAX_OPERATOR_PASSWORD_LENGTH) {
     return null;
   }
   if (!passwordsMatch(providedPassword.trim(), expected)) {

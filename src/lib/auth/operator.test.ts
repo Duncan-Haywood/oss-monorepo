@@ -17,6 +17,7 @@ vi.mock("next/headers", () => ({
 }));
 
 import {
+  MAX_OPERATOR_PASSWORD_LENGTH,
   OPERATOR_SESSION_COOKIE,
   createOperatorSessionToken,
   getPassword,
@@ -99,6 +100,17 @@ describe("passwordsMatch", () => {
   it("returns false without throwing on different-length inputs", () => {
     expect(passwordsMatch("short", "a-much-longer-password")).toBe(false);
   });
+
+  it("returns false for passwords longer than MAX_OPERATOR_PASSWORD_LENGTH (no Buffer compare)", () => {
+    const over = "x".repeat(MAX_OPERATOR_PASSWORD_LENGTH + 1);
+    expect(passwordsMatch(over, PASSWORD)).toBe(false);
+  });
+
+  it("still compares an exact-max-length password", () => {
+    const exact = "y".repeat(MAX_OPERATOR_PASSWORD_LENGTH);
+    expect(passwordsMatch(exact, exact)).toBe(true);
+    expect(passwordsMatch(exact, `${exact.slice(0, -1)}z`)).toBe(false);
+  });
 });
 
 describe("getPassword / isOperatorAuthConfigured", () => {
@@ -166,6 +178,17 @@ describe("tryCreateSessionFromPassword", () => {
 
   it("returns null for a whitespace-only provided password", () => {
     expect(tryCreateSessionFromPassword("   ")).toBeNull();
+  });
+
+  it("returns null for an over-long provided password before compare", () => {
+    const over = "z".repeat(MAX_OPERATOR_PASSWORD_LENGTH + 1);
+    expect(tryCreateSessionFromPassword(over)).toBeNull();
+  });
+
+  it("accepts an exact-max-length correct password", () => {
+    const exact = "p".repeat(MAX_OPERATOR_PASSWORD_LENGTH);
+    process.env.OPERATOR_DASHBOARD_PASSWORD = exact;
+    expect(tryCreateSessionFromPassword(exact)).not.toBeNull();
   });
 });
 
