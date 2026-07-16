@@ -10212,7 +10212,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — bundle webhook must mirror create-path MAX_LEAD_SLUG_LENGTH; after Commerce slug gate, audit bundle twin",
       "NEXT_STEPS: bundle-webhook-slug-lookup-gate done; commerce-webhook-slug-lookup-gate done (2ecd / #326)",
       "BUSINESS_DECISIONS — require parseLeadSlugLookup on bundle webhook (absolute index 377)",
-      "Verified: npm test (expected main@#326's 1611 + 2 bundle slug-gate regressions) + lint",
+      "Verified: npm test (1613 passed = main@#326's 1611 + 2 bundle slug-gate regressions) + lint",
     ],
     // Object-parse: bundle slug lookup owns BD[377]; commerce slug=376.
     decisions: BUSINESS_DECISIONS.slice(377, 378),
