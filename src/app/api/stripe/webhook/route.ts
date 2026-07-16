@@ -8,6 +8,11 @@ import {
 } from "@/lib/commerce/checkout-fields";
 import { parseLeadSlugLookup } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
+import {
+  commerceAddonPriceIdsFromEnv,
+  priceIdsFromStripeLineItems,
+  resolveCommerceAddonFromLineItems,
+} from "@/lib/payments/commerce-addon-line-items";
 import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfillment";
 import { getBundle } from "@/lib/pricing/bundles";
 
@@ -29,13 +34,17 @@ import { getBundle } from "@/lib/pricing/bundles";
  * suppressed/failed send is marked "sent" and never recovers on redelivery.
  *
  * Bundle checkout create already sanitizes+caps slug via
- * resolveBundleCheckoutLeadSlug / sanitizeLeadSlug (MAX_LEAD_SLUG_LENGTH)
- * and rejects unknown tiers via getBundle; this handler must mirror both
- * gates before recordLeadPayment / handoff / receipt — a truthy
- * metadata.slug / metadata.tier alone is not enough (Dashboard-minted or
- * tampered Checkout Sessions). Over-long slug (parseLeadSlugLookup) or
- * unknown tier skips like missing slug/tier (session already marked
- * complete; do not 5xx forever).
+ * resolveBundleCheckoutLeadSlug / sanitizeLeadSlug (MAX_LEAD_SLUG_LENGTH),
+ * rejects unknown tiers via getBundle, and only sets metadata.commerceAddon
+ * when both COMMERCE_ADDON Price IDs are on line_items; this handler must
+ * mirror all three gates before recordLeadPayment / handoff / receipt — a
+ * truthy metadata.slug / metadata.tier / metadata.commerceAddon alone is
+ * not enough (Dashboard-minted or tampered Checkout Sessions). Over-long
+ * slug (parseLeadSlugLookup) or unknown tier skips like missing slug/tier
+ * (session already marked complete; do not 5xx forever). commerceAddon is
+ * derived from listLineItems Price IDs (both setup+monthly env Prices
+ * present) — never from metadata — so a forged "true" cannot unlock
+ * catalog / Billing Portal without the $300+$49/mo charge.
  *
  * Commerce Buy now create already hard-rejects over-long slug via
  * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog, and
@@ -97,7 +106,7 @@ export async function POST(request: Request) {
       const session = event.data.object as Stripe.Checkout.Session;
       const rawSlug = session.metadata?.slug;
       const tier = session.metadata?.tier;
-      const commerceAddon = session.metadata?.commerceAddon === "true";
+      const metadataCommerceAddon = session.metadata?.commerceAddon === "true";
       const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
       const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
       const stripeCustomerId = stripeCustomerIdFromUnknown(session.customer) ?? undefined;
@@ -368,6 +377,34 @@ export async function POST(request: Request) {
       const bundle = typeof tier === "string" ? getBundle(tier) : undefined;
       if (slug && bundle) {
         const knownTier = bundle.id;
+
+        // Mirror create-path commerceAddon: only true when both COMMERCE_ADDON
+        // Price IDs are on the session line_items. Never trust metadata.
+        let commerceAddon = false;
+        try {
+          const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+            limit: 100,
+          });
+          const resolved = resolveCommerceAddonFromLineItems({
+            metadataCommerceAddon,
+            lineItemPriceIds: priceIdsFromStripeLineItems(lineItems.data),
+            commercePrices: commerceAddonPriceIdsFromEnv(),
+          });
+          commerceAddon = resolved.commerceAddon;
+          if (resolved.metadataMismatch) {
+            console.warn(
+              `webhook: bundle session ${session.id} commerceAddon metadata=${metadataCommerceAddon} lineItems=${commerceAddon} — using line items`,
+            );
+          }
+        } catch (lineItemError) {
+          console.error(
+            `Failed to list line items for commerceAddon parity on ${session.id}`,
+            lineItemError,
+          );
+          const failure = webhookFulfillmentFailureResponse("bundle_commerce_addon_line_items");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+
         let alreadyRecorded: boolean;
         let handoff: Awaited<
           ReturnType<typeof import("@/lib/deploy/handoff").enqueueProductionHandoff>

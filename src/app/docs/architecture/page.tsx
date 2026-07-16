@@ -458,10 +458,14 @@ export default function ArchitectureDocPage() {
         handoff (DNS + contact form). Bundle fulfillment requires both a{" "}
         <code>parseLeadSlugLookup</code>-valid <code>metadata.slug</code> (create-path{" "}
         <code>MAX_LEAD_SLUG_LENGTH</code> ceiling — same hard-reject class as Commerce{" "}
-        <code>parseCommerceCheckoutSlug</code>) and a <code>getBundle(metadata.tier)</code>-known
-        tier (same enum gate as checkout create) — a truthy but over-long slug or
-        unknown/wrong-cased tier skips payment/handoff/receipt like a missing field (session is
-        still marked complete; do not 5xx forever). Receipt HTML escapes the tier label via{" "}
+        <code>parseCommerceCheckoutSlug</code>), a <code>getBundle(metadata.tier)</code>-known
+        tier (same enum gate as checkout create), and a{" "}
+        <code>commerceAddon</code> flag derived from Checkout <code>listLineItems</code> Price
+        IDs (both <code>COMMERCE_ADDON</code> setup + monthly env Prices present — never from{" "}
+        <code>metadata.commerceAddon</code>) — a truthy but over-long slug, unknown/wrong-cased
+        tier, or forged Commerce flag skips or corrects entitlement before payment/handoff/receipt
+        (session is still marked complete for slug/tier skips; do not 5xx forever; line-item list
+        failures return 500 so Stripe retries). Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}
         <code>orders</code> insert is idempotent on{" "}
         <code>stripeSessionId</code> (UNIQUE index in SQLite, existing-row check in Convex) — a

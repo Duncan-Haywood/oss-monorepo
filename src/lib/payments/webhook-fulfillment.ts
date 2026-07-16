@@ -12,6 +12,12 @@ export type WebhookFulfillmentStep =
   /** Marking a checkout_sessions row complete — required so abandoned-checkout due queues stop targeting a paid session. */
   | "checkout_session_mark_complete"
   /**
+   * Listing Checkout Session line items to derive commerceAddon (create-path
+   * Price ID parity) — required so Stripe retries rather than recording a
+   * forged metadata.commerceAddon entitlement without the add-on Prices.
+   */
+  | "bundle_commerce_addon_line_items"
+  /**
    * Durable handoff-note marker after a successful bundle buyer receipt / DNS
    * email — required so Stripe retries rather than leaving recovery unable to
    * see that the email already went out (duplicate risk on every redelivery).
