@@ -2411,6 +2411,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-c135",
   },
+  {
+    id: "commerce-webhook-slug-lookup-gate",
+    summary:
+      "Empty-backlog after PR #325 (commerce-webhook-amount-catalog-parity). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual twin of Buy now create: POST /api/commerce/checkout hard-rejects over-long slug via parseCommerceCheckoutSlug, but checkout.session.completed commerce_sku still treated any truthy metadata.slug as the CRM lookup key — a Dashboard-minted or tampered session with a multi-KB slug could burn getLeadBySlug / getCommerceCatalog and write oversized leadSlug ledger rows. Require parseCommerceCheckoutSlug before catalog/ledger/side effects; missing/over-long skips like missing slug.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-e067",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
