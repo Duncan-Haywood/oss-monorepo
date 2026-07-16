@@ -9554,7 +9554,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — csv-import-dataSource-field-length-cap rule; empty-backlog rotation marks dataSource done; next prefers dated clean-audit / inquiry-reply body / use-server export-type fold",
       "NEXT_STEPS: csv-import-dataSource-field-length-cap done",
       "BUSINESS_DECISIONS — soft-cap dataSource tag over inventing an optional aggregate (slice 357)",
-      "Verified: npm test + lint (counts filled after suite run)",
+      "Verified: npm test (1522 passed = main@#309's 1515 + 4 helper + 1 csv-import + 1 add-lead + 1 import-csv soft-cap) + lint",
     ],
     decisions: BUSINESS_DECISIONS.slice(357, 358),
   },
