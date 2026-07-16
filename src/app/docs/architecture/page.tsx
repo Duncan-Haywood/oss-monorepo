@@ -480,7 +480,11 @@ export default function ArchitectureDocPage() {
         other instances cannot see. Optional beacon <code>body.openedAt</code> is bounded via{" "}
         <code>resolvePreviewOpenedAt</code> / <code>MAX_PREVIEW_OPENED_AT_LENGTH</code> (64) —
         over-long / unparseable values fall back to server now so <code>Date.parse</code> never
-        sees multi-KB probes (path slug length stays a hard-reject twin). Route-level Vitest in{" "}
+        sees multi-KB probes. Optional attribution query params <code>src</code> /{" "}
+        <code>utm_source</code> are bounded via <code>resolvePreviewOpenAttrParam</code> /{" "}
+        <code>MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH</code> (32) — over-long values are treated as
+        missing so <code>shouldRecordPreviewOpen</code> never sees multi-KB probes (path slug
+        length stays a hard-reject twin). Route-level Vitest in{" "}
         <code>src/app/api/contact/[slug]/route.test.ts</code> locks contact-form orchestration
         (<code>CONTACT_FORM_CONVEX_PRIMARY</code> pass-through, persist-required 503, notify only
         after a durable inquiry row, <code>notifySent</code> from inspecting{" "}

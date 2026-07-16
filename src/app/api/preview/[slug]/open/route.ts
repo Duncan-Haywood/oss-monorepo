@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getLeadBySlug, recordLeadPreviewOpen } from "@/lib/db";
 import {
+  resolvePreviewOpenAttrParam,
   resolvePreviewOpenedAt,
   shouldPersistPreviewOpen,
   shouldRecordPreviewOpen,
@@ -28,7 +29,9 @@ type RouteContext = { params: Promise<{ slug: string }> };
  * Path slug length is hard-capped via isPublicLeadSlugPathLengthOk (shared
  * with POST /api/contact/[slug]) before CRM lookup. Optional body.openedAt is
  * length-bounded via resolvePreviewOpenedAt (over-long → server now) so
- * Date.parse never sees multi-KB probes.
+ * Date.parse never sees multi-KB probes. Optional `src` / `utm_source` query
+ * params are length-bounded via resolvePreviewOpenAttrParam (over-long →
+ * missing) so attribution matching never sees multi-KB probes.
  */
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
@@ -59,8 +62,8 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ ok: true, recorded: false, reason: "unknown_lead" });
   }
 
-  const src = url.searchParams.get("src");
-  const utmSource = url.searchParams.get("utm_source");
+  const src = resolvePreviewOpenAttrParam(url.searchParams.get("src"));
+  const utmSource = resolvePreviewOpenAttrParam(url.searchParams.get("utm_source"));
   if (!shouldRecordPreviewOpen({ src, utmSource, stage: lead.stage })) {
     return NextResponse.json({ ok: true, recorded: false, reason: "not_attributed" });
   }

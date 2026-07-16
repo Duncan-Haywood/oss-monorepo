@@ -122,4 +122,82 @@ describe("POST /api/preview/[slug]/open — requireConvex", () => {
     expect(persistedOpenedAt).not.toBe(overLong);
     expect(Number.isNaN(Date.parse(persistedOpenedAt))).toBe(false);
   });
+
+  it("treats over-long src as missing (not_attributed when stage does not qualify)", async () => {
+    getLeadBySlug.mockResolvedValue({
+      slug: "demo-cafe",
+      stage: "discovered",
+      lastPreviewOpenAt: undefined,
+    });
+    const { POST } = await import("./route");
+    const overLongSrc = `outreach${"x".repeat(40)}`;
+    const response = await POST(
+      new Request(
+        `http://localhost/api/preview/demo-cafe/open?src=${encodeURIComponent(overLongSrc)}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: "{}",
+        },
+      ),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json).toEqual({ ok: true, recorded: false, reason: "not_attributed" });
+    expect(recordLeadPreviewOpen).not.toHaveBeenCalled();
+  });
+
+  it("treats over-long utm_source as missing (not_attributed when stage does not qualify)", async () => {
+    getLeadBySlug.mockResolvedValue({
+      slug: "demo-cafe",
+      stage: "discovered",
+      lastPreviewOpenAt: undefined,
+    });
+    const { POST } = await import("./route");
+    const overLongUtm = `email${"y".repeat(40)}`;
+    const response = await POST(
+      new Request(
+        `http://localhost/api/preview/demo-cafe/open?utm_source=${encodeURIComponent(overLongUtm)}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: "{}",
+        },
+      ),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json).toEqual({ ok: true, recorded: false, reason: "not_attributed" });
+    expect(recordLeadPreviewOpen).not.toHaveBeenCalled();
+  });
+
+  it("still records when over-long src but in-pipeline stage qualifies", async () => {
+    getLeadBySlug.mockResolvedValue({
+      slug: "demo-cafe",
+      stage: "outreach_sent",
+      lastPreviewOpenAt: undefined,
+    });
+    const { POST } = await import("./route");
+    const overLongSrc = `outreach${"z".repeat(40)}`;
+    const response = await POST(
+      new Request(
+        `http://localhost/api/preview/demo-cafe/open?src=${encodeURIComponent(overLongSrc)}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: "{}",
+        },
+      ),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json).toEqual({ ok: true, recorded: true });
+    expect(recordLeadPreviewOpen).toHaveBeenCalledTimes(1);
+  });
 });

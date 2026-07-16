@@ -14,6 +14,29 @@ export const OUTREACH_PREVIEW_SRC = "outreach";
  */
 export const MAX_PREVIEW_OPENED_AT_LENGTH = 64;
 
+/**
+ * Optional attribution query params (`src` / `utm_source`) ceiling. Genuine
+ * values are short tokens (`outreach`, `email`, `resend`). Over-long probes are
+ * treated as missing — soft-cap would invent a truncated attribution token;
+ * hard-reject 400 would strand a fire-and-forget beacon
+ * (preview-open-src-utm-field-length-cap).
+ */
+export const MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH = 32;
+
+/**
+ * Resolve optional preview-open attribution query params before
+ * shouldRecordPreviewOpen. Missing / empty / over-MAX → null (fall-back).
+ */
+export function resolvePreviewOpenAttrParam(
+  raw: string | null | undefined,
+): string | null {
+  if (typeof raw !== "string") return null;
+  if (raw.length === 0 || raw.length > MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH) {
+    return null;
+  }
+  return raw;
+}
+
 /** Append ?src=outreach (or merge) so preview opens attribute to email. */
 export function previewUrlWithOutreachTracking(basePreviewUrl: string): string {
   try {

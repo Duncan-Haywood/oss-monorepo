@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH,
   MAX_PREVIEW_OPENED_AT_LENGTH,
   OUTREACH_PREVIEW_SRC,
   previewUrlWithOutreachTracking,
+  resolvePreviewOpenAttrParam,
   resolvePreviewOpenedAt,
   shouldPersistPreviewOpen,
   shouldRecordPreviewOpen,
@@ -55,6 +57,27 @@ describe("shouldPersistPreviewOpen", () => {
   it("debounces recent opens", () => {
     expect(shouldPersistPreviewOpen("2026-07-12T11:45:00.000Z", now)).toBe(false);
     expect(shouldPersistPreviewOpen("2026-07-12T11:00:00.000Z", now)).toBe(true);
+  });
+});
+
+describe("resolvePreviewOpenAttrParam", () => {
+  it("returns null for missing / empty / non-string", () => {
+    expect(resolvePreviewOpenAttrParam(undefined)).toBeNull();
+    expect(resolvePreviewOpenAttrParam(null)).toBeNull();
+    expect(resolvePreviewOpenAttrParam("")).toBeNull();
+  });
+
+  it("returns null for over-long probes (fall-back, never soft-cap)", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(resolvePreviewOpenAttrParam(overLong)).toBeNull();
+  });
+
+  it("accepts genuine short attribution tokens at exact max", () => {
+    expect(resolvePreviewOpenAttrParam("outreach")).toBe("outreach");
+    expect(resolvePreviewOpenAttrParam("email")).toBe("email");
+    expect(resolvePreviewOpenAttrParam("resend")).toBe("resend");
+    const exact = "x".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH);
+    expect(resolvePreviewOpenAttrParam(exact)).toBe(exact);
   });
 });
 
