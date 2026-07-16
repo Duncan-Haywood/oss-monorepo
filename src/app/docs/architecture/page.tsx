@@ -1156,12 +1156,16 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>&#123; success: true &#125;</code>; marker-write failures return HTTP 500 (
         <code>commerce_client_receipt_sent_marker</code>). Inquiry write failures after a durable
         ledger write return HTTP 500 (<code>commerce_order_inquiry</code>) so Stripe redelivers.
-        Sessions missing <code>metadata.skuId</code> skip
-        ledger and side effects entirely (warn + break) — the alreadyRecorded gate cannot run
-        without a SKU. Pipeline health surfaces the
-        total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)
-        — unpaid/owed only (rows with <code>paidOutAt</code> are excluded, matching the payout
-        panel + digest). This money sits in the platform&apos;s own Stripe account with no automated payout path to
+        Sessions missing <code>metadata.skuId</code>, with an over-long{" "}
+        <code>skuId</code> (<code>parseCommerceCheckoutSkuId</code> / create-path ceiling), or
+        whose <code>skuId</code> is not in the lead&apos;s commerce catalog skip ledger and side
+        effects entirely (warn + break) — Buy now create already 404s unknown catalog items; the
+        webhook must not fall back to a generic &quot;Catalog item&quot; name and still write
+        fulfillment. The alreadyRecorded gate cannot run without a known SKU. Pipeline health
+        surfaces the total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales
+        (pass-through)&quot;) — unpaid/owed only (rows with <code>paidOutAt</code> are excluded,
+        matching the payout panel + digest). This money sits in the platform&apos;s own Stripe
+        account with no automated payout path to
         the client yet (see <code>commerce-payouts-stripe-connect</code>). Operators reconcile
         manual payouts from the <strong>Commerce payouts (manual)</strong> panel on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, which groups{" "}

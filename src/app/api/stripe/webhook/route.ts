@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { markCheckoutSessionComplete, recordLeadPayment } from "@/lib/db";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
+import { parseCommerceCheckoutSkuId } from "@/lib/commerce/checkout-fields";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfillment";
 import { getBundle } from "@/lib/pricing/bundles";
@@ -28,6 +29,13 @@ import { getBundle } from "@/lib/pricing/bundles";
  * receipt — a truthy metadata.tier string alone is not enough (Dashboard-
  * minted or tampered Checkout Sessions). Unknown tier skips like missing
  * slug/tier (session already marked complete; do not 5xx forever).
+ *
+ * Commerce Buy now create already 404s when skuId is not in the lead catalog;
+ * the commerce_sku branch must mirror that membership gate (plus
+ * parseCommerceCheckoutSkuId length) before insertCommerceOrder / inquiry /
+ * client receipt — a truthy skuId alone is not enough (unknown ids must not
+ * fall back to "Catalog item"). Unknown/over-long skuId skips like missing
+ * skuId (session already marked complete; do not 5xx forever).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -97,6 +105,20 @@ export async function POST(request: Request) {
           return NextResponse.json(failure.body, { status: failure.status });
         }
         if (orderSlug) {
+          // Mirror POST /api/commerce/checkout: hard-reject over-long skuId and
+          // require catalog membership before ledger/side effects (unknown ids
+          // must not fall back to "Catalog item").
+          const parsedSkuId = parseCommerceCheckoutSkuId(skuId);
+          if (!parsedSkuId.ok) {
+            console.warn(
+              `webhook: commerce_sku session ${session.id} for ${orderSlug} ${
+                parsedSkuId.reason === "too_long" ? "over-long" : "missing"
+              } skuId — skipping ledger/inquiry/client receipt`,
+            );
+            break;
+          }
+          const knownSkuId = parsedSkuId.value;
+
           try {
             const {
               getLeadBySlug,
@@ -116,27 +138,27 @@ export async function POST(request: Request) {
               getLeadBySlug(orderSlug),
               getCommerceCatalog(orderSlug),
             ]);
-            const skuName = catalog?.items.find((item) => item.id === skuId)?.name ?? "Catalog item";
+            const catalogItem = catalog?.items.find((item) => item.id === knownSkuId);
+            if (!catalogItem) {
+              console.warn(
+                `webhook: commerce_sku session ${session.id} for ${orderSlug} unknown skuId ${knownSkuId} — skipping ledger/inquiry/client receipt`,
+              );
+              break;
+            }
+            const skuName = catalogItem.name;
             const businessName = lead?.businessName || orderSlug;
 
             // Ledger first — commerceOrders is idempotent on stripeSessionId.
             // Inquiry + client receipt are NOT; recover them on Stripe
             // redelivery when missing (session id in inquiry message / receipt
-            // sent-marker). skuId is required for the ledger gate — without it
-            // we must not fire non-idempotent side effects on every Stripe retry.
-            if (!skuId) {
-              console.warn(
-                `webhook: commerce_sku session ${session.id} for ${orderSlug} missing skuId — skipping inquiry/client receipt`,
-              );
-              break;
-            }
+            // sent-marker).
 
             let alreadyRecorded: boolean;
             try {
               ({ alreadyRecorded } = await insertCommerceOrder(
                 {
                   leadSlug: orderSlug,
-                  skuId,
+                  skuId: knownSkuId,
                   skuName,
                   amountPaidUsd: amountTotal,
                   stripeSessionId: session.id,
@@ -202,7 +224,7 @@ export async function POST(request: Request) {
                       skuName,
                       amountTotalUsd: amountTotal,
                       stripeSessionId: session.id,
-                      skuId,
+                      skuId: knownSkuId,
                     }),
                     source: "commerce_checkout",
                   },

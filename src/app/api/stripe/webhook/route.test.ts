@@ -571,8 +571,64 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      expect(getCommerceCatalog).not.toHaveBeenCalled();
       expect(insertCommerceOrder).not.toHaveBeenCalled();
       expect(insertClientInquiry).not.toHaveBeenCalled();
+    });
+
+    it("skips ledger/notify when skuId is over MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH (create-path twin)", async () => {
+      const { MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH } = await import(
+        "@/lib/commerce/checkout-fields"
+      );
+      const overLongSkuId = "s".repeat(MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH + 1);
+      constructEvent.mockReturnValue(
+        completedEvent(
+          commerceSession({
+            metadata: { kind: "commerce_sku", slug: "demo-cafe", skuId: overLongSkuId },
+          }),
+        ),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getCommerceCatalog).not.toHaveBeenCalled();
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+    });
+
+    it("skips ledger/notify when skuId is not in the lead catalog (mirrors Buy now create 404)", async () => {
+      constructEvent.mockReturnValue(
+        completedEvent(
+          commerceSession({
+            metadata: { kind: "commerce_sku", slug: "demo-cafe", skuId: "sku_unknown" },
+          }),
+        ),
+      );
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getCommerceCatalog).toHaveBeenCalledWith("demo-cafe");
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+    });
+
+    it("skips ledger/notify when the lead has no commerce catalog (no Catalog item fallback)", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue(null);
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     });
 
     it("warns and stops when slug metadata is missing from a commerce_sku session", async () => {
