@@ -2517,6 +2517,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-cc45",
   },
+  {
+    id: "webhook-async-payment-failed-reopen-checkout-session",
+    summary:
+      "Empty-backlog after PR #337 (portal payment_status paid + BD ownership polish). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual after webhook-checkout-payment-status-paid-gate: unpaid completed correctly markCheckoutSessionComplete (stop abandoned recovery while ACH clears), but checkout.session.async_payment_failed is never handled — failed async ACH leaves the local checkout_sessions row status=complete forever, so Finish-checkout / Buy now recovery never runs and retry revenue is permanently lost. Reopen via markCheckoutSessionOpen (Convex + SQLite, requireConvex) on async_payment_failed; do not fulfill; 5xx on write failure so Stripe retries.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-fd10",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
