@@ -2878,6 +2878,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "codex/dev-work-webhook-email-retry",
   },
+  {
+    id: "email-subject-control-character-sanitization",
+    summary:
+      "Security audit: strip CR/LF and other control characters from outbound email subjects before handing them to the provider, so client-controlled business and SKU names cannot create malformed or deceptive subject lines.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "codex/dev-work-email-subject-control",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
