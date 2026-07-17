@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import {
+  clearOrdersRecurringCanceledByCustomer,
   markCheckoutSessionComplete,
   markCheckoutSessionOpen,
   markCompleteOpenBundleCheckoutSessionsForLead,
@@ -10,6 +11,7 @@ import {
 } from "@/lib/db";
 import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
+import { stripeSubscriptionGrantsRecurringEntitlement } from "@/lib/orders/recurring";
 import {
   parseCommerceCheckoutSkuId,
   parseCommerceCheckoutSlug,
@@ -101,6 +103,12 @@ import {
  * Commerce subscribers lose marketing/voice/catalog entitlement while keeping
  * stage=paid|live + Billing Portal. Write failures return 5xx
  * (orders_recurring_canceled).
+ *
+ * customer.subscription.created|updated with status active|trialing must
+ * clearOrdersRecurringCanceledByCustomer so Billing Portal / Checkout
+ * resubscribers regain packs/catalog. Non-active statuses and missing customer
+ * skip (no 5xx). Write failures return 5xx (orders_recurring_reactivated).
+ * past_due / unpaid stay canceled until payment recovers (separate residual).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -866,6 +874,41 @@ export async function POST(request: Request) {
           e,
         );
         const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      break;
+    }
+    case "customer.subscription.created":
+    case "customer.subscription.updated": {
+      // Twin of subscription.deleted: Billing Portal / Checkout resubscribe
+      // mints an active Subscription for a customer whose CRM orders still
+      // carry recurringCanceledAt — clear so packs/catalog resume. Skip
+      // past_due/unpaid/canceled/incomplete (no 5xx).
+      const subscription = event.data.object as Stripe.Subscription;
+      if (!stripeSubscriptionGrantsRecurringEntitlement(subscription.status)) {
+        break;
+      }
+      const customerId = stripeCustomerIdFromUnknown(subscription.customer);
+      if (!customerId) {
+        console.warn(
+          `webhook: ${event.type} ${subscription.id} missing customer — skipping CRM reactivate`,
+        );
+        break;
+      }
+      try {
+        const updated = await clearOrdersRecurringCanceledByCustomer(
+          customerId,
+          WEBHOOK_CONVEX_PRIMARY,
+        );
+        console.warn(
+          `webhook: ${event.type} ${subscription.id} customer=${customerId} status=${subscription.status} cleared recurringCanceledAt on ${updated} order(s)`,
+        );
+      } catch (e) {
+        console.error(
+          `Failed to clear recurring canceled for customer ${customerId} after ${event.type} ${subscription.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");
         return NextResponse.json(failure.body, { status: failure.status });
       }
       break;

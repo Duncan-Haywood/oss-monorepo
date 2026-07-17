@@ -3,6 +3,7 @@ import {
   orderHadRecurringEntitlement,
   orderHasActiveRecurringEntitlement,
   orderRecurringIsCanceled,
+  stripeSubscriptionGrantsRecurringEntitlement,
 } from "./recurring";
 
 describe("orderHadRecurringEntitlement", () => {
@@ -49,5 +50,18 @@ describe("orderHasActiveRecurringEntitlement", () => {
         recurringCanceledAt: undefined,
       }),
     ).toBe(false);
+  });
+});
+
+describe("stripeSubscriptionGrantsRecurringEntitlement", () => {
+  it("accepts active and trialing only", () => {
+    expect(stripeSubscriptionGrantsRecurringEntitlement("active")).toBe(true);
+    expect(stripeSubscriptionGrantsRecurringEntitlement("trialing")).toBe(true);
+    expect(stripeSubscriptionGrantsRecurringEntitlement("past_due")).toBe(false);
+    expect(stripeSubscriptionGrantsRecurringEntitlement("unpaid")).toBe(false);
+    expect(stripeSubscriptionGrantsRecurringEntitlement("canceled")).toBe(false);
+    expect(stripeSubscriptionGrantsRecurringEntitlement("incomplete")).toBe(false);
+    expect(stripeSubscriptionGrantsRecurringEntitlement(null)).toBe(false);
+    expect(stripeSubscriptionGrantsRecurringEntitlement(undefined)).toBe(false);
   });
 });

@@ -395,6 +395,7 @@ const api: any = {
     list: "orders:list",
     listByLeadSlug: "orders:listByLeadSlug",
     markRecurringCanceledByCustomer: "orders:markRecurringCanceledByCustomer",
+    clearRecurringCanceledByCustomer: "orders:clearRecurringCanceledByCustomer",
   },
   checkoutSessions: {
     create: "checkoutSessions:create",
@@ -1140,6 +1141,77 @@ export async function markOrdersRecurringCanceledByCustomer(
       continue;
     }
     const result = patch.run(at, row.id);
+    if (result.changes > 0) updatedCount += 1;
+  }
+  return updatedCount;
+}
+
+/**
+ * Clear recurringCanceledAt on Growth/Complete/Commerce orders for a Stripe
+ * Customer after subscription.created|updated reaches active|trialing.
+ * Idempotent — rows without a cancel timestamp are left unchanged.
+ * requireConvex on the webhook path (WEBHOOK_CONVEX_PRIMARY).
+ */
+export async function clearOrdersRecurringCanceledByCustomer(
+  stripeCustomerId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  const customerId = stripeCustomerId.trim();
+  if (!customerId) return 0;
+
+  if (convexClient) {
+    try {
+      const result = (await convexClient.mutation(
+        api.orders.clearRecurringCanceledByCustomer,
+        { stripeCustomerId: customerId },
+      )) as { updatedCount: number };
+      return result.updatedCount;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "clearOrdersRecurringCanceledByCustomer",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to clear recurring canceled for customer ${customerId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT id, tier, commerceAddon, recurringCanceledAt
+       FROM orders
+       WHERE stripeCustomerId = ?`,
+    )
+    .all(customerId) as Array<{
+    id: string;
+    tier: string;
+    commerceAddon: number;
+    recurringCanceledAt: number | null;
+  }>;
+
+  let updatedCount = 0;
+  const clear = db.prepare(
+    `UPDATE orders SET recurringCanceledAt = NULL WHERE id = ? AND recurringCanceledAt IS NOT NULL AND recurringCanceledAt > 0`,
+  );
+  for (const row of rows) {
+    const hadRecurring =
+      row.commerceAddon === 1 || row.tier === "growth" || row.tier === "complete";
+    if (!hadRecurring) continue;
+    if (
+      !(
+        typeof row.recurringCanceledAt === "number" &&
+        Number.isFinite(row.recurringCanceledAt) &&
+        row.recurringCanceledAt > 0
+      )
+    ) {
+      continue;
+    }
+    const result = clear.run(row.id);
     if (result.changes > 0) updatedCount += 1;
   }
   return updatedCount;

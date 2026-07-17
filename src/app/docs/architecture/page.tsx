@@ -513,9 +513,15 @@ export default function ArchitectureDocPage() {
         <code>markOrdersRecurringCanceledByCustomer</code> sets{" "}
         <code>orders.recurringCanceledAt</code> for Growth/Complete/Commerce rows
         matching <code>stripeCustomerId</code> (idempotent; write failures return{" "}
-        <code>500</code> / <code>orders_recurring_canceled</code>). Marketing packs,
-        client voice packs, and commerce catalogs require an uncanceled recurring
-        order; <code>stage=paid|live</code> and Billing Portal eligibility stay so
+        <code>500</code> / <code>orders_recurring_canceled</code>). When they
+        resubscribe, <code>customer.subscription.created</code> /{" "}
+        <code>updated</code> with status <code>active</code>|<code>trialing</code>{" "}
+        calls <code>clearOrdersRecurringCanceledByCustomer</code> so packs/catalog
+        resume (write failures return <code>500</code> /{" "}
+        <code>orders_recurring_reactivated</code>; <code>past_due</code>/
+        <code>unpaid</code> do not clear). Marketing packs, client voice packs, and
+        commerce catalogs require an uncanceled recurring order;{" "}
+        <code>stage=paid|live</code> and Billing Portal eligibility stay so
         invoices/resubscribe and Starter-upsell mutual exclusion remain correct.{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}

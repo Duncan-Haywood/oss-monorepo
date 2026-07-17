@@ -140,3 +140,54 @@ export const markRecurringCanceledByCustomer = mutation({
     return { updatedCount };
   },
 });
+
+/**
+ * Clear recurringCanceledAt on Growth/Complete/Commerce orders for a Stripe
+ * Customer after subscription.created|updated reaches active|trialing.
+ * Uses replace (not patch) so the optional field is omitted — matches SQLite
+ * NULL overwrite. Idempotent: rows without a cancel timestamp are skipped.
+ */
+export const clearRecurringCanceledByCustomer = mutation({
+  args: {
+    stripeCustomerId: v.string(),
+  },
+  returns: v.object({ updatedCount: v.number() }),
+  handler: async (ctx, args) => {
+    const customerId = args.stripeCustomerId.trim();
+    if (!customerId) {
+      return { updatedCount: 0 };
+    }
+
+    const rows = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeCustomerId", (q) => q.eq("stripeCustomerId", customerId))
+      .collect();
+
+    let updatedCount = 0;
+    for (const row of rows) {
+      if (!orderHadRecurringEntitlement(row)) continue;
+      if (
+        !(
+          typeof row.recurringCanceledAt === "number" &&
+          Number.isFinite(row.recurringCanceledAt) &&
+          row.recurringCanceledAt > 0
+        )
+      ) {
+        continue;
+      }
+      // replace so omitted optionals clear — patch(undefined) would leave the field.
+      await ctx.db.replace(row._id, {
+        leadSlug: row.leadSlug,
+        stripeSessionId: row.stripeSessionId,
+        stripeCustomerId: row.stripeCustomerId,
+        customerEmail: row.customerEmail,
+        tier: row.tier,
+        commerceAddon: row.commerceAddon,
+        amountTotal: row.amountTotal,
+        createdAt: row.createdAt,
+      });
+      updatedCount += 1;
+    }
+    return { updatedCount };
+  },
+});

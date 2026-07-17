@@ -37,6 +37,12 @@ export type WebhookFulfillmentStep =
    */
   | "orders_recurring_canceled"
   /**
+   * Clearing Growth/Complete/Commerce orders.recurringCanceledAt after
+   * customer.subscription.created|updated reaches active|trialing — required so
+   * Stripe retries rather than leaving resubscribers without packs/catalog.
+   */
+  | "orders_recurring_reactivated"
+  /**
    * Listing Checkout Session line items to derive commerceAddon + verify
    * bundle catalog Price IDs (create-path Price ID parity) — required so
    * Stripe retries rather than recording a forged metadata.commerceAddon

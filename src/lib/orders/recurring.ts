@@ -3,7 +3,8 @@
  * customer.subscription.deleted marks orders.recurringCanceledAt; sold
  * monthly capabilities must ignore canceled rows while Billing Portal and
  * Starter-upsell mutual exclusion still treat historical recurring purchases
- * as non-Starter.
+ * as non-Starter. customer.subscription.created|updated with status
+ * active|trialing clears recurringCanceledAt so resubscribers regain packs.
  */
 
 /** True when the order ever carried a Growth/Complete/Commerce recurring Price. */
@@ -34,4 +35,16 @@ export function orderHasActiveRecurringEntitlement(order: {
   recurringCanceledAt?: number | null;
 }): boolean {
   return orderHadRecurringEntitlement(order) && !orderRecurringIsCanceled(order);
+}
+
+/**
+ * Stripe Subscription statuses that restore CRM recurring entitlement after a
+ * prior customer.subscription.deleted. past_due / unpaid stay canceled in CRM
+ * until payment recovers to active|trialing (invoice.payment_failed pause is a
+ * separate residual — do not clear on those statuses).
+ */
+export function stripeSubscriptionGrantsRecurringEntitlement(
+  status: string | null | undefined,
+): boolean {
+  return status === "active" || status === "trialing";
 }

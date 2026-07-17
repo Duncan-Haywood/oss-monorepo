@@ -32,6 +32,7 @@ const markCheckoutSessionOpen = vi.fn();
 const markCompleteOpenBundleCheckoutSessionsForLead = vi.fn();
 const markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer = vi.fn();
 const markOrdersRecurringCanceledByCustomer = vi.fn();
+const clearOrdersRecurringCanceledByCustomer = vi.fn();
 const recordLeadPayment = vi.fn();
 const getLeadBySlug = vi.fn();
 const getCommerceCatalog = vi.fn();
@@ -57,6 +58,8 @@ vi.mock("@/lib/db", () => ({
     markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(...args),
   markOrdersRecurringCanceledByCustomer: (...args: unknown[]) =>
     markOrdersRecurringCanceledByCustomer(...args),
+  clearOrdersRecurringCanceledByCustomer: (...args: unknown[]) =>
+    clearOrdersRecurringCanceledByCustomer(...args),
   recordLeadPayment: (...args: unknown[]) => recordLeadPayment(...args),
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
@@ -189,6 +192,7 @@ describe("POST /api/stripe/webhook", () => {
       .mockReset()
       .mockResolvedValue(0);
     markOrdersRecurringCanceledByCustomer.mockReset().mockResolvedValue(1);
+    clearOrdersRecurringCanceledByCustomer.mockReset().mockResolvedValue(1);
     recordLeadPayment.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
@@ -261,6 +265,7 @@ describe("POST /api/stripe/webhook", () => {
     expect(json).toEqual({ received: true });
     expect(markCheckoutSessionComplete).not.toHaveBeenCalled();
     expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
   });
 
   describe("customer.subscription.deleted CRM sync", () => {
@@ -314,6 +319,97 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_canceled");
+      expect(json.received).toBe(false);
+    });
+  });
+
+  describe("customer.subscription.created|updated CRM reactivate", () => {
+    it("clears recurringCanceledAt on created+active", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.created",
+        data: {
+          object: {
+            id: "sub_new_1",
+            customer: "cus_resub_1",
+            status: "active",
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith("cus_resub_1", {
+        requireConvex: true,
+      });
+      expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("clears recurringCanceledAt on updated+trialing", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_trial_1",
+            customer: "cus_trial_1",
+            status: "trialing",
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith("cus_trial_1", {
+        requireConvex: true,
+      });
+    });
+
+    it("skips past_due without CRM write", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_past_due",
+            customer: "cus_past_due",
+            status: "past_due",
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+      expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("skips when customer is missing (no 5xx)", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.created",
+        data: { object: { id: "sub_no_cus", customer: null, status: "active" } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 orders_recurring_reactivated when CRM write fails", async () => {
+      clearOrdersRecurringCanceledByCustomer.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: { id: "sub_fail_clear", customer: "cus_fail_clear", status: "active" },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("orders_recurring_reactivated");
       expect(json.received).toBe(false);
     });
   });
