@@ -107,7 +107,7 @@ jobs:
           codex exec \
             --model gpt-5.6-luna \
             --sandbox danger-full-access \
-            --ask-for-approval never \
+            -c 'approval_policy="never"' \
             -c 'cli_auth_credentials_store="file"' \
             "$PROMPT"
 
