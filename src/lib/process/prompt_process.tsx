@@ -2512,7 +2512,7 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "billing-portal-session-payment-status-paid-gate",
     summary:
-      "Empty-backlog after PR #335 (webhook-checkout-payment-status-paid-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged (convex order parity #222, preview-index #217/#316, as-const #235) — rejected. Fresh money-path residual twin: createBillingPortalForCheckoutSession still opens Manage billing on status===complete without requiring payment_status===paid — async ACH/bank sessions that are complete+unpaid can open Billing Portal while /checkout/success stays unconfirmed and webhook has not fulfilled. Require isStripeCheckoutSessionPaid after complete; fail closed 400 when unpaid. Same-minute dual claim with billing-portal-checkout-payment-status-paid-gate (9f34) — feature body folded onto 9f34; keep both NEXT_STEPS.",
+      "Empty-backlog after PR #335 (webhook-checkout-payment-status-paid-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged (convex order parity #222, preview-index #217/#316, as-const #235) — rejected. Fresh money-path residual twin: createBillingPortalForCheckoutSession still opens Manage billing on status===complete without requiring payment_status===paid — async ACH/bank sessions that are complete+unpaid can open Billing Portal while /checkout/success stays unconfirmed and webhook has not fulfilled. Require isStripeCheckoutSessionPaid after complete; fail closed 400 when unpaid. Same-minute dual claim with billing-portal-checkout-payment-status-paid-gate (9f34) — feature body folded onto 9f34 / #336; keep both NEXT_STEPS. cc45 follow-up: object-parse BD slice cascade polish (e23f3b8 + Host→amount).",
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-cc45",
@@ -5230,7 +5230,7 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "createBillingPortalForCheckoutSession (public POST /api/stripe/billing-portal) must require session.payment_status === \"paid\" (isStripeCheckoutSessionPaid) after status===complete — same gate as webhook fulfillment and loadCheckoutSuccessSession. Complete+unpaid async ACH must 400 before eligibility / listLineItems / portal create so a client-supplied session_id cannot open Manage billing before funds clear.",
     rationale:
-      "Empty-backlog after PR #335 (webhook-checkout-payment-status-paid-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: webhook + success SSR already required paid, but the public billing-portal Session twin still opened on status===complete alone — hiding the CTA on /checkout/success is not enough when the API accepts a pasted session_id. Process improvement: after webhook + success SSR share a Session gate, immediately close the public billing-portal Session twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped / next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Empty-backlog after PR #335 (webhook-checkout-payment-status-paid-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: webhook + success SSR already required paid, but the public billing-portal Session twin still opened on status===complete alone — hiding the CTA on /checkout/success is not enough when the API accepts a pasted session_id. Process improvement: after webhook + success SSR share a Session gate, immediately close the public billing-portal Session twin before inventing another dated clean-audit; same-window dual claim with cc45 folded onto 9f34 / #336. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped / next sold residual — and keep ITERATIONS[].decisions ownership unique via object-parse (e23f3b8 cascade). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -9650,10 +9650,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Buy now slug/skuId hard-reject beside server-resolved price",
       "AGENT_PROTOCOL — commerce checkout opaque slug/skuId hard-reject rule; empty-backlog rotation marks this axis done; next residual public body sizes (billing-portal returnUrl / unsubscribe token)",
       "NEXT_STEPS: commerce-checkout-slug-skuId-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject commerce checkout slug/skuId over inventing an optional aggregate (slice 339)",
+      "BUSINESS_DECISIONS — hard-reject commerce checkout slug/skuId over inventing an optional aggregate (absolute index 338)",
       "Verified: npm test (1417 passed, +7 checkout-fields + route too_long regressions on top of main@#290's 1410) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(339, 340),
+    // Object-parse by decision text: commerce checkout slug/skuId owns BD[338].
+    decisions: BUSINESS_DECISIONS.slice(338, 339),
   },
   {
     date: "2026-07-16",
@@ -9669,11 +9670,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes contact path-length hard-reject beside known-lead gate",
       "AGENT_PROTOCOL — contact path-length rule; empty-backlog rotation marks commerce + contact path axes done",
       "NEXT_STEPS: contact-form-slug-path-length-cap done; commerce-checkout-slug-skuId-field-length-cap done (92f3 / PR #291)",
-      "BUSINESS_DECISIONS — contact path-length hard-reject over inventing an optional aggregate (slice 340)",
+      "BUSINESS_DECISIONS — contact path-length hard-reject over inventing an optional aggregate (absolute index 339)",
       "Verified: npm test (1422 passed) + lint; folded with 92f3 on main via #291",
       "Folded onto cursor/prompt-process-evolution-92f3 — both complementary ITERATIONS kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(340, 341),
+    // Object-parse by decision text: contact path-length hard-reject owns BD[339].
+    decisions: BUSINESS_DECISIONS.slice(339, 340),
   },
   {
     date: "2026-07-16",
@@ -9687,10 +9689,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes returnUrl length bound beside same-origin / sessionId hard-reject",
       "AGENT_PROTOCOL — optional redirect fall-back-on-over-length rule; empty-backlog rotation marks returnUrl size done",
       "NEXT_STEPS: billing-portal-returnUrl-field-length-cap done",
-      "BUSINESS_DECISIONS — fall back over-long billing-portal returnUrl over inventing an optional aggregate (slice 341)",
+      "BUSINESS_DECISIONS — fall back over-long billing-portal returnUrl over inventing an optional aggregate (absolute index 340)",
       "Folded onto cursor/business-process-evolution-42a4 — both complementary ITERATIONS kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(341, 342),
+    // Object-parse by decision text: billing-portal returnUrl length owns BD[340].
+    decisions: BUSINESS_DECISIONS.slice(340, 341),
   },
   {
     date: "2026-07-16",
@@ -9705,10 +9708,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes unsubscribe token length hard-reject beside email length + rate-limit",
       "AGENT_PROTOCOL — unsubscribe token hard-reject rule; empty-backlog rotation marks returnUrl + token axes done",
       "NEXT_STEPS: unsubscribe-token-field-length-cap done; billing-portal-returnUrl-field-length-cap done (98c1)",
-      "BUSINESS_DECISIONS — unsubscribe token hard-reject over inventing an optional aggregate (slice 342)",
+      "BUSINESS_DECISIONS — unsubscribe token hard-reject over inventing an optional aggregate (absolute index 341)",
       "Verified: npm test (1433 passed) + lint; folded with 98c1 returnUrl length bound",
     ],
-    decisions: BUSINESS_DECISIONS.slice(342, 343),
+    // Object-parse by decision text: unsubscribe token hard-reject owns BD[341].
+    decisions: BUSINESS_DECISIONS.slice(341, 342),
   },
   {
     date: "2026-07-16",
@@ -9723,11 +9727,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes /checkout/success session_id hard-reject twin",
       "AGENT_PROTOCOL — opaque-id rule covers success query; empty-backlog rotation marks checkout-success-sessionId done; dedicated success-page rule",
       "NEXT_STEPS: checkout-success-sessionId-field-length-cap done",
-      "BUSINESS_DECISIONS — success-page session_id hard-reject over inventing an optional aggregate (slice 343)",
+      "BUSINESS_DECISIONS — success-page session_id hard-reject over inventing an optional aggregate (absolute index 342)",
       "Verified: npm test + lint",
       "Folded onto cursor/prompt-process-evolution-0eec — complementary login-password length cap; both ITERATIONS kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(343, 344),
+    // Object-parse by decision text: checkout-success session_id owns BD[342].
+    decisions: BUSINESS_DECISIONS.slice(342, 343),
   },
   {
     date: "2026-07-16",
@@ -9741,10 +9746,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes login password length hard-reject beside trim + rate-limit",
       "AGENT_PROTOCOL — login password hard-reject rule; opaque-id rule folded with sibling success-page wording; empty-backlog rotation marks checkout-success + login-password done; next residual login next-path length",
       "NEXT_STEPS: login-password-field-length-cap done; checkout-success-sessionId-field-length-cap done (191d)",
-      "BUSINESS_DECISIONS — login password hard-reject over inventing an optional aggregate (slice 344)",
+      "BUSINESS_DECISIONS — login password hard-reject over inventing an optional aggregate (absolute index 343)",
       "Verified: npm test (1446 passed; main@#293 1433 + sibling 191d success-session regressions + our +4 password length) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(344, 345),
+    // Object-parse by decision text: login password hard-reject owns BD[343].
+    decisions: BUSINESS_DECISIONS.slice(343, 344),
   },
   {
     date: "2026-07-16",
@@ -9757,10 +9763,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes login next= length fall-back beside password hard-reject + rate-limit",
       "AGENT_PROTOCOL — login next-path length rule; empty-backlog rotation marks public-write body-size sweep closed for known login/money/contact/unsubscribe sinks",
       "NEXT_STEPS: login-next-path-field-length-cap done (owns over later f0c6 dual-claim)",
-      "BUSINESS_DECISIONS — fall back over-long login next= over inventing an optional aggregate (slice 345)",
+      "BUSINESS_DECISIONS — fall back over-long login next= over inventing an optional aggregate (absolute index 344)",
       "Verified: npm test (1449 passed, +3 over main@#295's 1446) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(345, 346),
+    // Object-parse by decision text: login next= path length owns BD[344].
+    decisions: BUSINESS_DECISIONS.slice(344, 345),
   },
   {
     date: "2026-07-16",
@@ -9776,10 +9783,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes preview page path-length twin",
       "AGENT_PROTOCOL — path-length rule covers SSR page; empty-backlog rotation marks preview-page done; page-GET-twin reminder",
       "NEXT_STEPS: preview-page-slug-path-length-cap done",
-      "BUSINESS_DECISIONS — preview page slug hard-reject over inventing an optional aggregate (slice 346)",
+      "BUSINESS_DECISIONS — preview page slug hard-reject over inventing an optional aggregate (absolute index 345)",
       "Verified: npm test + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(346, 347),
+    // Object-parse by decision text: preview page slug hard-reject owns BD[345].
+    decisions: BUSINESS_DECISIONS.slice(345, 346),
   },
   {
     date: "2026-07-16",
@@ -9793,10 +9801,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes checkout prefill length fall-back beside session tracking",
       "AGENT_PROTOCOL — optional checkout slug prefill fall-back rule; empty-backlog rotation marks this axis done; next residual page GET twins / Convex parity / clean-audit",
       "NEXT_STEPS: checkout-slug-prefill-field-length-cap done",
-      "BUSINESS_DECISIONS — checkout slug prefill fall-back over inventing an optional aggregate (slice 347)",
+      "BUSINESS_DECISIONS — checkout slug prefill fall-back over inventing an optional aggregate (absolute index 346)",
       "Verified: npm test + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(347, 348),
+    // Object-parse by decision text: checkout slug prefill owns BD[346].
+    decisions: BUSINESS_DECISIONS.slice(346, 347),
   },
   {
     date: "2026-07-16",
@@ -9812,10 +9821,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Host lookup length gates",
       "AGENT_PROTOCOL — Host→preview length rule; empty-backlog rotation marks path/query/Host slug size axis closed for known sinks",
       "NEXT_STEPS: proxy-host-lookup-field-length-cap done",
-      "BUSINESS_DECISIONS — Host lookup fall-through over inventing an optional aggregate (slice 347)",
+      "BUSINESS_DECISIONS — Host lookup fall-through over inventing an optional aggregate (absolute index 347)",
       "Verified: npm test (1466 passed) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(348, 349),
+    // Object-parse by decision text: Host→preview lookup gate owns BD[347].
+    decisions: BUSINESS_DECISIONS.slice(347, 348),
   },
   {
     date: "2026-07-16",
@@ -9828,10 +9838,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes proxy must bound next= before minting Location",
       "AGENT_PROTOCOL — proxy login-redirect next= bound rule; empty-backlog rotation marks proxy-login-redirect done",
       "NEXT_STEPS: proxy-login-redirect-next-bound done",
-      "BUSINESS_DECISIONS — proxy login redirect next= fall-back over inventing an optional aggregate (slice 348)",
+      "BUSINESS_DECISIONS — proxy login redirect next= fall-back over inventing an optional aggregate (absolute index 348)",
       "Verified: npm test (1468 passed, +2 over main@#300's 1466) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(349, 350),
+    // Object-parse by decision text: proxy login redirect next= owns BD[348].
+    decisions: BUSINESS_DECISIONS.slice(348, 349),
   },
   {
     date: "2026-07-16",
@@ -9846,12 +9857,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes beacon openedAt length fall-back beside requireConvex",
       "AGENT_PROTOCOL — preview-open openedAt length rule; empty-backlog rotation marks this axis done; next prefers dated clean-audit / Convex parity / Assign-project id length",
       "NEXT_STEPS: preview-open-openedAt-field-length-cap done",
-      "BUSINESS_DECISIONS — fall back over-long preview-open openedAt over inventing an optional aggregate (slice 349)",
+      "BUSINESS_DECISIONS — fall back over-long preview-open openedAt over inventing an optional aggregate (absolute index 349)",
       "Verified: npm test (1474 passed, +6 over main@proxy-login's 1468) + lint",
       "Folded onto cursor/prompt-process-evolution-2662 — complementary session-token length; both ITERATIONS kept",
     ],
-    // Tightened: preview-open openedAt is absolute index 349.
-    decisions: BUSINESS_DECISIONS.slice(350, 351),
+    // Object-parse by decision text: preview-open openedAt owns BD[349].
+    decisions: BUSINESS_DECISIONS.slice(349, 350),
   },
   {
     date: "2026-07-16",
@@ -9865,11 +9876,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes session cookie length hard-reject beside password + proxy next=",
       "AGENT_PROTOCOL — operator session token length rule; empty-backlog rotation marks openedAt + session-token done",
       "NEXT_STEPS: operator-session-token-field-length-cap done; preview-open-openedAt-field-length-cap done (67b2 / #302)",
-      "BUSINESS_DECISIONS — session cookie hard-reject over inventing an optional aggregate (slice 350)",
+      "BUSINESS_DECISIONS — session cookie hard-reject over inventing an optional aggregate (absolute index 350)",
       "Verified: npm test (1477 passed = main@#302's 1474 + 3 session-token regressions) + lint + build",
     ],
-    // Tightened: operator session token is absolute index 350.
-    decisions: BUSINESS_DECISIONS.slice(351, 352),
+    // Object-parse by decision text: operator session token owns BD[350].
+    decisions: BUSINESS_DECISIONS.slice(350, 351),
   },
   {
     date: "2026-07-16",
@@ -9885,11 +9896,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Assign-project id length hard-reject beside custom-domain normalize",
       "AGENT_PROTOCOL — auth-gated Assign-project id length rule; empty-backlog rotation marks this axis done; stuck-CLI fold example named",
       "NEXT_STEPS: assign-vercel-project-id-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject Assign-project vercelProjectId over inventing an optional aggregate (slice 351)",
+      "BUSINESS_DECISIONS — hard-reject Assign-project vercelProjectId over inventing an optional aggregate (absolute index 351)",
       "Verified: npm test (1486 passed = main@#303's 1477 + 6 helper + 2 action over-long/exact-max + 1 suite bookkeeping) + lint",
     ],
-    // Tightened: Assign-project vercelProjectId is absolute index 351.
-    decisions: BUSINESS_DECISIONS.slice(352, 353),
+    // Object-parse by decision text: Assign-project vercelProjectId owns BD[351].
+    decisions: BUSINESS_DECISIONS.slice(351, 352),
   },
   {
     date: "2026-07-16",
@@ -9905,10 +9916,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes commerceOrders createdAt ordering beside dual-backend contract",
       "AGENT_PROTOCOL — dual-backend ordering names commerceOrders; empty-backlog rotation marks Convex commerceOrders residual done",
       "NEXT_STEPS: commerce-orders-convex-createdAt-ordering-parity done; assign-vercel-project-id-field-length-cap done (1ba2 / #304)",
-      "BUSINESS_DECISIONS — commerceOrders createdAt sort over inventing an optional aggregate (slice 352)",
+      "BUSINESS_DECISIONS — commerceOrders createdAt sort over inventing an optional aggregate (absolute index 352)",
       "Verified: npm test (1489 passed = main@#304's 1486 + 3 newest-first regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(353, 354),
+    // Object-parse by decision text: commerceOrders createdAt sort owns BD[352].
+    decisions: BUSINESS_DECISIONS.slice(352, 353),
   },
   {
     date: "2026-07-16",
@@ -9923,12 +9935,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes auth-gated sessionId hard-reject beside Mark paid out",
       "AGENT_PROTOCOL — auth-gated stripeSessionId rule; empty-backlog rotation prefers auth-gated twins of shipped parsers",
       "NEXT_STEPS: auth-gated-stripe-sessionId-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject auth-gated stripeSessionId over inventing an optional aggregate (slice 353)",
+      "BUSINESS_DECISIONS — hard-reject auth-gated stripeSessionId over inventing an optional aggregate (absolute index 353)",
       "Verified: npm test (1493 passed = main@#305's 1489 + 4 over-long/exact-max regressions) + lint",
       "Sibling c954 complementary inquiryId length — folded both ITERATIONS on c954 merge",
     ],
-    // Tightened: auth-gated stripeSessionId is absolute index 353 (was claiming inquiryId at 354).
-    decisions: BUSINESS_DECISIONS.slice(354, 355),
+    // Object-parse by decision text: auth-gated stripeSessionId owns BD[353].
+    decisions: BUSINESS_DECISIONS.slice(353, 354),
   },
   {
     date: "2026-07-16",
@@ -9945,11 +9957,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes inquiryId length hard-reject beside Assign-project id",
       "AGENT_PROTOCOL — auth-gated inquiryId length rule; empty-backlog rotation marks inquiryId + stripeSessionId done; next prefers handoffId/packId/orderId or dated clean-audit",
       "NEXT_STEPS: auth-gated-inquiryId-field-length-cap done; auth-gated-stripe-sessionId-field-length-cap done (28bd / #306)",
-      "BUSINESS_DECISIONS — hard-reject inquiryId over inventing an optional aggregate (slice 354)",
+      "BUSINESS_DECISIONS — hard-reject inquiryId over inventing an optional aggregate (absolute index 354)",
       "Verified: npm test (1501 passed = main@#306's 1493 + 4 helper + 4 action over-long/exact-max) + lint",
     ],
-    // Tightened: inquiryId is absolute index 354 (was slice(355,356) claiming lead-slug).
-    decisions: BUSINESS_DECISIONS.slice(355, 356),
+    // Object-parse by decision text: inquiryId hard-reject owns BD[354].
+    decisions: BUSINESS_DECISIONS.slice(354, 355),
   },
   {
     date: "2026-07-16",
@@ -9965,11 +9977,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — csv-import-text-length-cap rule; empty-backlog rotation marks handoffId/packId/orderId as slug-keyed + CSV body done; next prefers dated clean-audit",
       "merge: origin/main (PR #308 auth-gated lead-slug length) — keep sibling ITERATION; complementary CSV body axis",
       "NEXT_STEPS: csv-import-text-length-cap done; auth-gated-lead-slug-field-length-cap done (f30c / #308)",
-      "BUSINESS_DECISIONS — hard-reject CSV body size over inventing an optional aggregate (slice 356)",
+      "BUSINESS_DECISIONS — hard-reject CSV body size over inventing an optional aggregate (absolute index 356)",
       "Verified: npm test (1515 passed = main@#308's 1509 + 4 helper + 2 action over-long/exact-max) + lint",
     ],
-    // Tightened: csvText hard-reject is absolute index 356 (was overlapping dataSource at 357).
-    decisions: BUSINESS_DECISIONS.slice(357, 358),
+    // Object-parse by decision text: csvText hard-reject owns BD[356].
+    decisions: BUSINESS_DECISIONS.slice(356, 357),
   },
 
 
@@ -9989,11 +10001,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes auth-gated lead-slug hard-reject beside inquiryId / Assign-project",
       "AGENT_PROTOCOL — auth-gated lead-slug lookup rule; empty-backlog rotation marks slug residual done",
       "NEXT_STEPS: auth-gated-lead-slug-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject auth-gated lead slug over inventing an optional aggregate (slice 355)",
+      "BUSINESS_DECISIONS — hard-reject auth-gated lead slug over inventing an optional aggregate (absolute index 355)",
       "Verified: npm test (1509 passed = main@#307's 1501 + 4 helper + 2 mark-handoff over-long/exact-max + 1 follow-up + 1 stage over-long) + lint",
     ],
-    // Tightened: lead-slug hard-reject is absolute index 355 (was claiming csvText at 356).
-    decisions: BUSINESS_DECISIONS.slice(356, 357),
+    // Object-parse by decision text: auth-gated lead-slug hard-reject owns BD[355].
+    decisions: BUSINESS_DECISIONS.slice(355, 356),
   },
   {
     date: "2026-07-16",
@@ -10011,10 +10023,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes dataSource soft-cap beside csvText hard-reject",
       "AGENT_PROTOCOL — csv-import-dataSource-field-length-cap rule; empty-backlog rotation marks dataSource done; next prefers dated clean-audit / inquiry-reply body / use-server export-type fold",
       "NEXT_STEPS: csv-import-dataSource-field-length-cap done",
-      "BUSINESS_DECISIONS — soft-cap dataSource tag over inventing an optional aggregate (slice 357)",
+      "BUSINESS_DECISIONS — soft-cap dataSource tag over inventing an optional aggregate (absolute index 357)",
       "Verified: npm test (1522 passed = main@#309's 1515 + 4 helper + 1 csv-import + 1 add-lead + 1 import-csv soft-cap) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(358, 359),
+    // Object-parse by decision text: dataSource soft-cap owns BD[357].
+    decisions: BUSINESS_DECISIONS.slice(357, 358),
   },
   {
     date: "2026-07-16",
@@ -10029,11 +10042,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: re-verified ITERATIONS[].decisions ownership via tsx import; tightened +1 drift on 67b2→8cf6 slices so each owns its absolute BUSINESS_DECISIONS index",
       "AGENT_PROTOCOL — inline export type aliases must drop export; empty-backlog rotation marks use-server hygiene + free-text soft-caps done",
       "NEXT_STEPS: use-server-export-type-cleanup done",
-      "BUSINESS_DECISIONS — fold use-server export-type hygiene over inventing an optional aggregate (slice 358)",
+      "BUSINESS_DECISIONS — fold use-server export-type hygiene over inventing an optional aggregate (absolute index 358)",
       "Verified: npm test (1522 passed, unchanged — type-only hygiene) + lint",
     ],
-    // Tightened from slice(359,360): use-server export-type cleanup is absolute index 358.
-    decisions: BUSINESS_DECISIONS.slice(359, 360),
+    // Object-parse by decision text: use-server export-type cleanup owns BD[358].
+    decisions: BUSINESS_DECISIONS.slice(358, 359),
   },
   {
     date: "2026-07-16",
@@ -10049,10 +10062,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes pack variant soft-caps beside marketing/voice generate",
       "AGENT_PROTOCOL — LLM pack variant soft-cap rule; empty-backlog rotation marks INPUT free-text + pack OUTPUT done; next prefers sibling listOrders fold / dated clean-audit",
       "NEXT_STEPS: marketing-voice-pack-variant-field-length-cap done",
-      "BUSINESS_DECISIONS — soft-cap LLM pack variants over inventing an optional aggregate (slice 359)",
+      "BUSINESS_DECISIONS — soft-cap LLM pack variants over inventing an optional aggregate (absolute index 359)",
       "Verified: npm test (1533 passed = main@#311's 1522 + 9 variant-fields helper + 1 marketing soft-cap + 1 voice soft-cap) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(360, 361),
+    // Object-parse by decision text: LLM pack variant soft-cap owns BD[359].
+    decisions: BUSINESS_DECISIONS.slice(359, 360),
   },
   {
     date: "2026-07-16",
@@ -10068,11 +10082,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes preview commerce stage-gate + slug-scoped orders",
       "AGENT_PROTOCOL — preview must not full-ledger listOrders; dual-backend ordering names orders.listByLeadSlug",
       "NEXT_STEPS: preview-page-uncapped-listOrders done; marketing-voice-pack-variant-field-length-cap done (e626 / #312)",
-      "BUSINESS_DECISIONS — stage-gate + slug-scope preview orders over inventing an optional aggregate (slice 360)",
+      "BUSINESS_DECISIONS — stage-gate + slug-scope preview orders over inventing an optional aggregate (absolute index 360)",
       "Verified: npm test (1541 passed = main@#312's 1533 + 8 preview-commerce stage/slug-scope regressions) + lint",
     ],
-    // Tightened from slice(361,362): preview listOrders stage-gate is absolute index 360.
-    decisions: BUSINESS_DECISIONS.slice(361, 362),
+    // Object-parse by decision text: preview listOrders stage-gate owns BD[360].
+    decisions: BUSINESS_DECISIONS.slice(360, 361),
   },
   {
     date: "2026-07-16",
@@ -10088,12 +10102,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes stub + Anthropic soft-caps on marketing/voice OUTPUT",
       "AGENT_PROTOCOL — stub/fallback twin rule; commerce barrel must not re-export db-touching preview helper",
       "NEXT_STEPS: marketing-voice-pack-stub-variant-field-length-cap + commerce-barrel-preview-commerce-server-only done",
-      "BUSINESS_DECISIONS — soft-cap stub pack variants (slice 361) + drop commerce barrel re-export (slice 362)",
+      "BUSINESS_DECISIONS — soft-cap stub pack variants (absolute index 361) + drop commerce barrel re-export (absolute index 362)",
       "Verified: npm test (1543 passed = main@#313's 1541 + 1 marketing stub soft-cap + 1 voice services.join soft-cap) + lint + build",
     ],
-    // Tightened from slice(362,364): absolute indices are stub=361 + barrel=362
-    // (followthrough is 363 — owned by 338b). Prior upper bound 364 was empty/drift.
-    decisions: BUSINESS_DECISIONS.slice(362, 364),
+    // Object-parse by decision text: stub=361 + barrel=362 (followthrough=363 owned by 338b).
+    decisions: BUSINESS_DECISIONS.slice(361, 363),
   },
   {
     date: "2026-07-16",
@@ -10109,11 +10122,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Manage billing + dashboard eligibility slug-scope",
       "AGENT_PROTOCOL — followthrough rule after shipping indexed list* helpers",
       "NEXT_STEPS: slug-scoped-listOrders-followthrough done; stub + commerce-barrel done (a070 / #314)",
-      "BUSINESS_DECISIONS — wire listOrdersByLeadSlug on auth-gated slug twins (slice 363)",
+      "BUSINESS_DECISIONS — wire listOrdersByLeadSlug on auth-gated slug twins (absolute index 363)",
       "Verified: npm test (1543 passed, unchanged vs main@#314 — eligibility mocks retargeted; no net new cases) + lint",
     ],
-    // Tightened from empty slice(364,365): followthrough decision is absolute index 363.
-    decisions: BUSINESS_DECISIONS.slice(364, 365),
+    // Object-parse by decision text: listOrdersByLeadSlug followthrough owns BD[363].
+    decisions: BUSINESS_DECISIONS.slice(363, 364),
   },
   {
     date: "2026-07-16",
@@ -10136,8 +10149,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — soft-cap pack deliver/read twin (absolute index 364); sibling JSON-LD gate (365)",
       "Verified: npm test (1552 passed on feature body vs main@#315's 1543; +3 JSON-LD from #316 → 1555 after merge) + lint",
     ],
-    // Object-parse: pack deliver/read owns BD[364]; JSON-LD=365.
-    decisions: BUSINESS_DECISIONS.slice(365, 366),
+    // Object-parse by decision text: pack deliver/read owns BD[364]; JSON-LD=365.
+    decisions: BUSINESS_DECISIONS.slice(364, 365),
   },
   {
     date: "2026-07-16",
@@ -10154,8 +10167,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — gate preview JSON-LD on indexable consent (absolute index 365)",
       "Verified: npm test (1546 passed = main@#315's 1543 + 3 leadPreviewJsonLdIfIndexable regressions) + lint",
     ],
-    // Object-parse: JSON-LD indexable owns BD[365]; pack deliver=364.
-    decisions: BUSINESS_DECISIONS.slice(366, 367),
+    // Object-parse by decision text: JSON-LD indexable owns BD[365]; pack deliver=364.
+    decisions: BUSINESS_DECISIONS.slice(365, 366),
   },
   {
     date: "2026-07-16",
@@ -10174,8 +10187,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — hard-reject over-long catalog SKU ids (absolute index 366)",
       "Verified: npm test (1558 passed = main@#317's 1555 + 2 catalog normalize + 1 save-action regressions) + lint",
     ],
-    // Object-parse: catalog SKU hard-reject owns BD[366]; JSON-LD=365; API src-utm=367.
-    decisions: BUSINESS_DECISIONS.slice(367, 368),
+    // Object-parse by decision text: catalog SKU hard-reject owns BD[366]; JSON-LD=365; API src-utm=367.
+    decisions: BUSINESS_DECISIONS.slice(366, 367),
   },
   {
     date: "2026-07-16",
@@ -10193,8 +10206,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — bound preview-open src/utm_source over inventing an optional aggregate (absolute index 367)",
       "Verified: npm test (1564 passed = main@a3a8's 1558 + 3 attr-param helper + 3 route regressions) + lint",
     ],
-    // Object-parse: API src/utm owns BD[367] (page twin=368).
-    decisions: BUSINESS_DECISIONS.slice(368, 369),
+    // Object-parse by decision text: API src/utm owns BD[367]; page twin=368.
+    decisions: BUSINESS_DECISIONS.slice(367, 368),
   },
   {
     date: "2026-07-16",
@@ -10214,8 +10227,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — bound preview page src/utm over inventing an optional aggregate / clean-audit skip (absolute index 368)",
       "Verified: npm test (1571 passed on feature body) + slice ownership clean",
     ],
-    // Object-parse: page src/utm owns BD[368]; API src-utm=367.
-    decisions: BUSINESS_DECISIONS.slice(369, 370),
+    // Object-parse by decision text: page src/utm owns BD[368]; API src-utm=367.
+    decisions: BUSINESS_DECISIONS.slice(368, 369),
   },
   {
     date: "2026-07-16",
@@ -10231,8 +10244,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — lock Convex API map with Vitest after clean pass (absolute index 369; object-parse)",
       "Verified: npm test (1578 passed = main@#319's 1571 + 7 convex-api-map-audit regressions) + lint",
     ],
-    // Object-parse: map Vitest owns BD[369] (page src-utm=368).
-    decisions: BUSINESS_DECISIONS.slice(370, 371),
+    // Object-parse by decision text: map Vitest owns BD[369]; page src-utm=368.
+    decisions: BUSINESS_DECISIONS.slice(369, 370),
   },
   {
     date: "2026-07-16",
@@ -10251,11 +10264,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes whole-body byte bound beside field-level caps",
       "AGENT_PROTOCOL — public JSON body byte-length rule; empty-backlog rotation marks axis done",
       "NEXT_STEPS: public-json-body-byte-length-cap done; clean-audit-2026-07-16-convex-map-marker-await done (6ba0 / #320)",
-      "BUSINESS_DECISIONS — hard-reject over-long public JSON bodies (absolute index 371; sibling map Vitest owns 370)",
+      "BUSINESS_DECISIONS — hard-reject over-long public JSON bodies (absolute index 370; sibling map Vitest owns 369)",
       "Verified: npm test (1594 passed = main@#320's 1578 + 16 body-byte-limit regressions) + lint after fold",
     ],
-    // Object-parse: public JSON body owns BD[371]; map Vitest=370.
-    decisions: BUSINESS_DECISIONS.slice(371, 372),
+    // Object-parse by decision text: public JSON body owns BD[370]; map Vitest=369.
+    decisions: BUSINESS_DECISIONS.slice(370, 371),
   },
   {
     date: "2026-07-16",
@@ -10270,12 +10283,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes FormData twin beside JSON whole-body bound",
       "AGENT_PROTOCOL — public FormData body byte-length rule; empty-backlog rotation marks twin done",
       "NEXT_STEPS: public-formdata-body-byte-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject over-long public FormData bodies (absolute index 372)",
+      "BUSINESS_DECISIONS — hard-reject over-long public FormData bodies (absolute index 371)",
       "Process: tightened #320/#321/#322 ITERATIONS decision slices via object-parse (map=370, JSON=371, FormData=372)",
       "Verified: npm test (1601 passed = main@#321's 1594 + 7 FormData body-byte regressions) + lint",
     ],
-    // Object-parse: FormData owns BD[372]; JSON=371; map Vitest=370.
-    decisions: BUSINESS_DECISIONS.slice(372, 373),
+    // Object-parse by decision text: FormData owns BD[371]; JSON=370; map Vitest=369.
+    decisions: BUSINESS_DECISIONS.slice(371, 372),
   },
   {
     date: "2026-07-16",
@@ -10291,12 +10304,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes webhook tier enum gate beside checkout create",
       "AGENT_PROTOCOL — bundle webhook must mirror getBundle before fulfillment writes",
       "NEXT_STEPS: bundle-webhook-tier-enum-guard done; public-formdata-body-byte-length-cap done (15d6 / #322)",
-      "BUSINESS_DECISIONS — require getBundle(tier) on bundle webhook + escape receipt tier (absolute index 373)",
+      "BUSINESS_DECISIONS — require getBundle(tier) on bundle webhook + escape receipt tier (absolute index 372)",
       "Process: tightened map/JSON/FormData ITERATIONS slices via object-parse (370/371/372) before appending ours",
       "Verified: npm test (1604 passed = main@#322's 1601 + 3 tier-enum/receipt-escape regressions) + lint after fold",
     ],
-    // Object-parse: tier enum owns BD[373]; FormData=372; JSON=371; map=370.
-    decisions: BUSINESS_DECISIONS.slice(373, 374),
+    // Object-parse by decision text: tier enum owns BD[372]; FormData=371; JSON=370; map=369.
+    decisions: BUSINESS_DECISIONS.slice(372, 373),
   },
   {
     date: "2026-07-16",
@@ -10312,8 +10325,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — require catalog membership on commerce_sku webhook (absolute index 373)",
       "Verified: npm test (1607 passed = main@#323's 1604 + 3 commerce catalog-gate regressions) + lint",
     ],
-    // Object-parse: commerce catalog gate owns BD[374]; tier enum=373.
-    decisions: BUSINESS_DECISIONS.slice(374, 375),
+    // Object-parse by decision text: commerce catalog gate owns BD[373]; tier enum=372.
+    decisions: BUSINESS_DECISIONS.slice(373, 374),
   },
   {
     date: "2026-07-16",
@@ -10327,11 +10340,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Commerce webhook amount↔catalog priceCents beside catalog membership",
       "AGENT_PROTOCOL — Commerce webhook must mirror Buy now create Price (amount_total === priceCents)",
       "NEXT_STEPS: commerce-webhook-amount-catalog-parity done; commerce-webhook-sku-catalog-gate done (ffdb / #324)",
-      "BUSINESS_DECISIONS — require amount↔priceCents on commerce_sku webhook (absolute index 375)",
+      "BUSINESS_DECISIONS — require amount↔priceCents on commerce_sku webhook (absolute index 374)",
       "Verified: npm test (1609 passed = main@#324's 1607 + 2 amount mismatch/null regressions) + lint",
     ],
-    // Object-parse: commerce amount parity owns BD[375]; catalog membership=374.
-    decisions: BUSINESS_DECISIONS.slice(375, 376),
+    // Object-parse by decision text: commerce amount parity owns BD[374]; catalog membership=373.
+    decisions: BUSINESS_DECISIONS.slice(374, 375),
   },
   {
     date: "2026-07-16",
@@ -10506,7 +10519,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: commerce-webhook-price-id-line-item-parity + bundle-webhook-price-id-line-item-parity done",
       "BUSINESS_DECISIONS — require create-path Price IDs on listLineItems (absolute index 383)",
       "Process: tightened deb8 ITERATION decision slice via object-parse (currency=382) before appending ours",
-      "Verified: npm test + lint",
+      "Verified: npm test (1661 passed) + lint",
     ],
     // Object-parse by decision text: Price ID line-item parity owns BD[383]; currency=382; success-page=381.
     decisions: BUSINESS_DECISIONS.slice(383, 384),
@@ -10552,6 +10565,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1669 passed) + lint after fold with cc45",
     ],
     // Object-parse by decision text: billing-portal payment_status owns BD[385]; webhook/SSR paid=384.
+    decisions: BUSINESS_DECISIONS.slice(385, 386),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/business-process-evolution-cc45",
+    summary:
+      "After #336 folded the billing-portal payment_status paid gate (9f34 feature + cc45 claim), free NEXT_STEPS stayed operator/legal-gated. This process-only pass folds leftover e23f3b8 BD slice tighten and object-parse remaps ITERATIONS[].decisions ownership from commerce checkout slug/skuId through commerce amount so each absolute BUSINESS_DECISIONS index has a single owner (catalog=373, amount=374, tier=372, Host=347, …). No product code change — prevents future +1 drift from dual-claiming decision rows.",
+    shipped: [
+      "merge: origin/main (PR #336 billing-portal payment_status paid) — keep 9f34 ITERATION; complementary process polish",
+      "src/lib/process/prompt_process.tsx — object-parse BD ownership cascade (92f3→c135 / e23f3b8) so ITERATIONS[].decisions match decision text",
+      "NEXT_STEPS: billing-portal-session-payment-status-paid-gate done (feature on 9f34 / #336)",
+      "Process improvement: after appending BUSINESS_DECISIONS, verify unique ownership with object-parse across the recent cascade — comments alone rubber-stamp +1 drift",
+      "Verified: npm test (1669 passed on main@#336) + lint; ownership unique for BD[338]–BD[385]",
+    ],
+    // Process-only polish; portal paid gate decision owned by 9f34 at BD[385].
     decisions: BUSINESS_DECISIONS.slice(385, 386),
   },
 ];
