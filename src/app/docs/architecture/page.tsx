@@ -464,16 +464,24 @@ export default function ArchitectureDocPage() {
         <code>COMMERCE_ADDON</code> setup + monthly env Prices present — never from{" "}
         <code>metadata.commerceAddon</code>), <code>session.currency</code>{" "}
         <code>usd</code> (<code>isStripeCheckoutCurrencyUsd</code> — create path
-        charges only USD catalog Prices), and <code>session.amount_total</code>{" "}
+        charges only USD catalog Prices), <code>session.payment_status</code>{" "}
+        <code>paid</code> (<code>isStripeCheckoutSessionPaid</code> — async ACH/
+        bank methods fire <code>checkout.session.completed</code> while unpaid;
+        ledger waits for paid on that event or{" "}
+        <code>checkout.session.async_payment_succeeded</code>), and{" "}
+        <code>session.amount_total</code>{" "}
         (integer cents) equal to{" "}
         <code>expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon)</code>{" "}
         (setup + first month from <code>BUNDLES</code>, plus optional{" "}
         <code>COMMERCE_ADDON</code> — twin of Commerce catalog <code>priceCents</code>{" "}
         parity) — a truthy but over-long slug, unknown/wrong-cased tier, forged Commerce
-        flag, non-USD currency, or mismatched Stripe amount skips or corrects before
-        payment/handoff/receipt (session is still marked complete for
-        slug/tier/currency/amount skips; do not 5xx forever; line-item list failures
-        return 500 so Stripe retries). Receipt HTML escapes the tier label via{" "}
+        flag, non-USD currency, unpaid async status, or mismatched Stripe amount skips
+        or corrects before payment/handoff/receipt (session is still marked complete for
+        unpaid completed + slug/tier/currency/amount skips so abandoned-recovery does
+        not nudge; do not 5xx forever; line-item list failures
+        return 500 so Stripe retries).{" "}
+        <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
+        /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}
         <code>orders</code> insert is idempotent on{" "}
         <code>stripeSessionId</code> (UNIQUE index in SQLite, existing-row check in Convex) — a

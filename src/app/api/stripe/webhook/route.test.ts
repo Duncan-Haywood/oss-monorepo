@@ -89,6 +89,8 @@ function checkoutSession(overrides: Record<string, unknown> = {}) {
     amount_total: GROWTH_CHECKOUT_AMOUNT_CENTS,
     // Create path always charges USD Prices — webhook currency gate requires this.
     currency: "usd",
+    // Card settles immediately; unpaid async completed must not fulfill.
+    payment_status: "paid",
     customer: null,
     ...overrides,
   };
@@ -96,6 +98,13 @@ function checkoutSession(overrides: Record<string, unknown> = {}) {
 
 function completedEvent(session: Record<string, unknown>) {
   return { type: "checkout.session.completed", data: { object: session } };
+}
+
+function asyncPaymentSucceededEvent(session: Record<string, unknown>) {
+  return {
+    type: "checkout.session.async_payment_succeeded",
+    data: { object: session },
+  };
 }
 
 function webhookRequest(signature: string | null = "sig_test") {
@@ -206,6 +215,80 @@ describe("POST /api/stripe/webhook", () => {
     expect(response.status).toBe(200);
     expect(json).toEqual({ received: true });
     expect(markCheckoutSessionComplete).not.toHaveBeenCalled();
+  });
+
+  describe("payment_status paid gate (async ACH)", () => {
+    it("completed+unpaid: marks session complete but skips bundle ledger/handoff/receipt", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+        payment_status: "unpaid",
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalledWith("cs_test_1", {
+        requireConvex: true,
+      });
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
+      expect(sendReceiptEmail).not.toHaveBeenCalled();
+      expect(sendEmail).not.toHaveBeenCalled();
+    });
+
+    it("completed+unpaid: marks session complete but skips commerce ledger/inquiry/receipt", async () => {
+      const session = checkoutSession({
+        metadata: {
+          kind: "commerce_sku",
+          slug: "demo-cafe",
+          skuId: "sku_latte",
+        },
+        amount_total: 2500,
+        payment_status: "unpaid",
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      getCommerceCatalog.mockResolvedValue({
+        items: [{ id: "sku_latte", name: "Latte", priceCents: 2500 }],
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalledWith("cs_test_1", {
+        requireConvex: true,
+      });
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+    });
+
+    it("async_payment_succeeded+paid: fulfills bundle ledger after prior unpaid completed", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+        payment_status: "paid",
+      });
+      constructEvent.mockReturnValue(asyncPaymentSucceededEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({ slug: "demo-cafe", tier: "growth" }),
+        { requireConvex: true },
+      );
+      expect(sendReceiptEmail).toHaveBeenCalled();
+    });
   });
 
   describe("bundle checkout (Starter/Growth/Complete)", () => {
