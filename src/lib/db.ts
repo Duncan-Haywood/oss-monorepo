@@ -388,6 +388,7 @@ const api: any = {
   checkoutSessions: {
     create: "checkoutSessions:create",
     markComplete: "checkoutSessions:markComplete",
+    markOpen: "checkoutSessions:markOpen",
     recordRecoverySent: "checkoutSessions:recordRecoverySent",
     listOpen: "checkoutSessions:listOpen",
   },
@@ -1839,6 +1840,41 @@ export async function markCheckoutSessionComplete(
 
   const db = getSqliteDb();
   db.prepare("UPDATE checkout_sessions SET status = 'complete' WHERE stripeSessionId = ?").run(
+    stripeSessionId,
+  );
+}
+
+/**
+ * Re-opens a checkout session after checkout.session.async_payment_failed.
+ * Unpaid completed marks the row complete (stop abandoned-recovery while ACH
+ * clears); a failed async payment must reopen so Finish-checkout / Buy now
+ * recovery can nudge a retry (recovery emails link to /checkout?slug= or
+ * preview#catalog — not the terminal Stripe Session). Pass
+ * { requireConvex: true } (the webhook does) so a Convex failure does not
+ * silently leave the session "complete" only in instance-local SQLite while
+ * Convex-first readers never see it as open again.
+ */
+export async function markCheckoutSessionOpen(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.checkoutSessions.markOpen, { stripeSessionId });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCheckoutSessionOpen", e);
+      }
+      console.warn(
+        `Failed to reopen checkout session ${stripeSessionId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare("UPDATE checkout_sessions SET status = 'open' WHERE stripeSessionId = ?").run(
     stripeSessionId,
   );
 }

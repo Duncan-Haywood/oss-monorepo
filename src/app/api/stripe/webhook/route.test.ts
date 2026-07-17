@@ -28,6 +28,7 @@ vi.mock("stripe", () => ({
 }));
 
 const markCheckoutSessionComplete = vi.fn();
+const markCheckoutSessionOpen = vi.fn();
 const recordLeadPayment = vi.fn();
 const getLeadBySlug = vi.fn();
 const getCommerceCatalog = vi.fn();
@@ -46,6 +47,7 @@ const updateLeadStage = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   markCheckoutSessionComplete: (...args: unknown[]) => markCheckoutSessionComplete(...args),
+  markCheckoutSessionOpen: (...args: unknown[]) => markCheckoutSessionOpen(...args),
   recordLeadPayment: (...args: unknown[]) => recordLeadPayment(...args),
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
@@ -125,6 +127,13 @@ function asyncPaymentSucceededEvent(session: Record<string, unknown>) {
   };
 }
 
+function asyncPaymentFailedEvent(session: Record<string, unknown>) {
+  return {
+    type: "checkout.session.async_payment_failed",
+    data: { object: session },
+  };
+}
+
 function webhookRequest(signature: string | null = "sig_test") {
   const headers: Record<string, string> = {};
   if (signature !== null) headers["stripe-signature"] = signature;
@@ -165,6 +174,7 @@ describe("POST /api/stripe/webhook", () => {
     // Bundle webhook requires setup+monthly env Prices ∈ listLineItems.
     listLineItems.mockReset().mockResolvedValue(growthLineItems());
     markCheckoutSessionComplete.mockReset().mockResolvedValue(undefined);
+    markCheckoutSessionOpen.mockReset().mockResolvedValue(undefined);
     recordLeadPayment.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
@@ -309,6 +319,43 @@ describe("POST /api/stripe/webhook", () => {
         { requireConvex: true },
       );
       expect(sendReceiptEmail).toHaveBeenCalled();
+    });
+
+    it("async_payment_failed: reopens checkout session for abandoned-recovery (no fulfillment)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+        payment_status: "unpaid",
+      });
+      constructEvent.mockReturnValue(asyncPaymentFailedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionOpen).toHaveBeenCalledWith("cs_test_1", {
+        requireConvex: true,
+      });
+      expect(markCheckoutSessionComplete).not.toHaveBeenCalled();
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(sendReceiptEmail).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 (checkout_session_mark_open) when async_payment_failed reopen fails", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        payment_status: "unpaid",
+      });
+      constructEvent.mockReturnValue(asyncPaymentFailedEvent(session));
+      markCheckoutSessionOpen.mockRejectedValueOnce(new Error("convex down"));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("checkout_session_mark_open");
+      expect(json.received).toBe(false);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
     });
   });
 

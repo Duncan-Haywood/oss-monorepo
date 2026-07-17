@@ -12,6 +12,12 @@ export type WebhookFulfillmentStep =
   /** Marking a checkout_sessions row complete — required so abandoned-checkout due queues stop targeting a paid session. */
   | "checkout_session_mark_complete"
   /**
+   * Re-opening a checkout_sessions row after async_payment_failed — required so
+   * Stripe retries rather than leaving a failed ACH cart stuck status=complete
+   * (Finish-checkout / Buy now recovery permanently skipped).
+   */
+  | "checkout_session_mark_open"
+  /**
    * Listing Checkout Session line items to derive commerceAddon + verify
    * bundle catalog Price IDs (create-path Price ID parity) — required so
    * Stripe retries rather than recording a forged metadata.commerceAddon
