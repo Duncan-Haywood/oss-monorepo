@@ -160,7 +160,8 @@ export const AGENT_PROTOCOL = [
   "After a paid commerce_sku Checkout Session durable insertCommerceOrder, also markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer (Convex markCompleteOpenCommerceForLeadSkuCustomer + SQLite, requireConvex) for that leadSlug+skuId+normalized customerEmail so earlier abandoned open Buy now carts cannot keep digest / pipeline-health / Send Buy now recovery nudging the same shopper. Skip when customerEmail is missing — never close by leadSlug+skuId alone (multi-shopper). Orphan cleanup write failures return 5xx (checkout_session_orphan_commerce_cleanup). Register checkoutSessions.markCompleteOpenCommerceForLeadSkuCustomer on the static Convex API map in the same commit. After bundle orphan-open cleanup (+ after-fulfillment gate #342) ships, immediately audit this commerce twin before inventing another dated clean-audit (commerce-paid-orphan-open-checkout-session-cleanup).",
   "customer.subscription.deleted must markOrdersRecurringCanceledByCustomer (Convex markRecurringCanceledByCustomer + SQLite, requireConvex / WEBHOOK_CONVEX_PRIMARY) by stripeCustomerId so canceled Growth/Complete/Commerce subscribers lose sold monthly entitlement (marketing packs / voice packs / commerce catalog). Persist orders.recurringCanceledAt (unix ms; idempotent — already-set rows stay). Gate leadEligibleForMarketingPack / leadEligibleForClientVoicePack / leadEligibleForCommerceCatalog on !recurringCanceledAt. Keep stage=paid|live and orderEligibleForBillingPortal (Billing Portal invoices/resubscribe; Starter upsell must stay mutually exclusive with historical recurring purchases). Missing customer skips (no 5xx); write failures return 5xx (orders_recurring_canceled). Register orders.markRecurringCanceledByCustomer + by_stripeCustomerId index on the static Convex API map in the same commit. After commerce orphan-open cleanup (#343) ships, prefer this CRM sync before inventing another dated clean-audit (customer-subscription-deleted-crm-sync).",
   "customer.subscription.created|updated with status active|trialing must clearOrdersRecurringCanceledByCustomer (Convex clearRecurringCanceledByCustomer + SQLite, requireConvex / WEBHOOK_CONVEX_PRIMARY) by stripeCustomerId so Billing Portal / Checkout resubscribers regain marketing/voice/catalog entitlement after a prior subscription.deleted. Use replace (not patch) on Convex so the optional field is omitted — matches SQLite NULL. Idempotent — rows without recurringCanceledAt stay. Non-active statuses (past_due/unpaid/canceled/incomplete) and missing customer skip (no 5xx). Write failures return 5xx (orders_recurring_reactivated). Register orders.clearRecurringCanceledByCustomer on the static Convex API map in the same commit. After subscription.deleted CRM sync (#344) ships, immediately close this reactivate twin before inventing another dated clean-audit (customer-subscription-reactivated-crm-sync).",
-  "customer.subscription.updated with status past_due|unpaid and invoice.payment_failed for subscription invoices must markOrdersRecurringCanceledByCustomer (Convex markRecurringCanceledByCustomer + SQLite, requireConvex / WEBHOOK_CONVEX_PRIMARY) by stripeCustomerId so failed renewals pause marketing/voice/catalog entitlement before subscription.deleted. Reuse orders.recurringCanceledAt (idempotent). One-time invoices (no subscription) skip. Keep stage=paid|live + orderEligibleForBillingPortal. active|trialing clear twin restores after recovery. Write failures return 5xx (orders_recurring_canceled). After subscription reactivate CRM clear (#345) ships, immediately close this pause twin before inventing another dated clean-audit (invoice-payment-failed-past-due-crm-pause). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#345 money gates.",] as const;
+  "customer.subscription.updated with status past_due|unpaid and invoice.payment_failed for subscription invoices must markOrdersRecurringCanceledByCustomer (Convex markRecurringCanceledByCustomer + SQLite, requireConvex / WEBHOOK_CONVEX_PRIMARY) by stripeCustomerId so failed renewals pause marketing/voice/catalog entitlement before subscription.deleted. Reuse orders.recurringCanceledAt (idempotent). One-time invoices (no subscription) skip. Keep stage=paid|live + orderEligibleForBillingPortal. active|trialing clear twin restores after recovery. Write failures return 5xx (orders_recurring_canceled). After subscription reactivate CRM clear (#345) ships, immediately close this pause twin before inventing another dated clean-audit (invoice-payment-failed-past-due-crm-pause).",
+  "customer.subscription.created|updated with pause_collection set must markOrdersRecurringCanceledByCustomer (requireConvex / WEBHOOK_CONVEX_PRIMARY) before the active|trialing clear path — Stripe keeps status=active|trialing while collection is paused, so grants-first logic would wrongly restore/keep packs for a non-paying subscriber. Use stripeSubscriptionHasPauseCollection (truthy object). When pause_collection clears and status grants, existing clear restores. Keep stage=paid|live + Billing Portal. Write failures return 5xx (orders_recurring_canceled). After past_due/unpaid + invoice.payment_failed pause ships, immediately close this pause_collection twin before inventing another dated clean-audit (subscription-pause-collection-crm-pause). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#346 money gates (incl. past_due/#346 + pause_collection).",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2605,6 +2606,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-8b08",
+  },
+  {
+    id: "subscription-pause-collection-crm-pause",
+    summary:
+      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Sibling prompt-process-evolution-8b08 claimed invoice-payment-failed-past-due-crm-pause — complementary pivot. Fresh residual: Stripe pause_collection keeps status=active|trialing while collection is paused, so the #345 clear path (and 8b08 grants-first branch) restores/keeps marketing/voice/catalog entitlement for non-paying paused subscribers. On customer.subscription.created|updated when pause_collection is set, markOrdersRecurringCanceledByCustomer before the active|trialing clear; when pause_collection clears and status grants, existing clear restores. Keep stage=paid|live + Billing Portal. past_due|unpaid|invoice.payment_failed stays on 8b08.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-13bc",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5382,7 +5391,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "customer.subscription.updated with status past_due|unpaid and invoice.payment_failed for subscription invoices must markOrdersRecurringCanceledByCustomer (Convex markRecurringCanceledByCustomer + SQLite, requireConvex) by stripeCustomerId, reusing orders.recurringCanceledAt so failed renewals pause marketing/voice/catalog before subscription.deleted. One-time invoices skip. Keep stage=paid|live + Billing Portal. active|trialing clear restores after recovery. Write failures return 5xx (orders_recurring_canceled).",
     rationale:
-      "Empty-backlog after PR #345 (subscription reactivate CRM clear). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh twin: cancel + reactivate CRM sync shipped, but past_due/unpaid renewals never paused packs — failed card renewals kept fulfilling monthly entitlement until hard cancel. Process improvement: after active|trialing clear ships, immediately close the past_due/unpaid + invoice.payment_failed pause twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Empty-backlog after PR #345 (subscription reactivate CRM clear). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh twin: cancel + reactivate CRM sync shipped, but past_due/unpaid renewals never paused packs — failed card renewals kept fulfilling monthly entitlement until hard cancel. Process improvement: after active|trialing clear ships, immediately close the past_due/unpaid + invoice.payment_failed pause twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped / pause_collection twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "customer.subscription.created|updated with pause_collection set must markOrdersRecurringCanceledByCustomer (requireConvex) before the active|trialing clear — Stripe keeps status=active|trialing while collection is paused, so grants-first would keep packs for non-paying paused subscribers. When pause_collection clears and status grants, existing clear restores. Keep stage=paid|live + Billing Portal.",
+    rationale:
+      "Empty-backlog after PR #345 + sibling 8b08 past_due/invoice.payment_failed pause. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: pause_collection leaves status=active while invoices are not collected, so the grants clear path kept marketing/voice/catalog for paused non-payers. Process improvement: after past_due/unpaid pause ships, immediately close the pause_collection twin (status-active hole) before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -10771,10 +10787,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes subscription catalog-recurring beside payment-mode commerceAddon",
       "AGENT_PROTOCOL — after payment-mode commerceAddon line-item parity, close subscription catalog-recurring twin",
       "NEXT_STEPS: subscription-mode-billing-portal-catalog-recurring-price-gate + webhook-async-payment-failed-reopen-recovery done",
-      "BUSINESS_DECISIONS — require catalog recurring Price on subscription portal/success (absolute index 387)",
+      "BUSINESS_DECISIONS — require catalog recurring Price on subscription portal/success (absolute index 388)",
     ],
-    // Object-parse by decision text: subscription catalog recurring owns BD[387]; async_failed reopen=386.
-    decisions: BUSINESS_DECISIONS.slice(387, 388),
+    // Object-parse by decision text: subscription catalog recurring owns BD[388]; async_failed reopen=387.
+    decisions: BUSINESS_DECISIONS.slice(388, 389),
   },
   {
     date: "2026-07-17",
@@ -10787,11 +10803,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes lead Manage billing reuses Session entitlement",
       "AGENT_PROTOCOL — after Session catalog-recurring, close lead Manage-billing twin",
       "NEXT_STEPS: billing-portal-lead-catalog-recurring-price-gate done",
-      "BUSINESS_DECISIONS — require Session re-proof on createBillingPortalForLead (absolute index 388)",
+      "BUSINESS_DECISIONS — require Session re-proof on createBillingPortalForLead (absolute index 389)",
       "Verified: npm test (1679 passed — lead-path regressions replaced CRM-only portal cases 1:1 vs main@#339) + lint",
     ],
-    // Object-parse by decision text: lead Manage billing Session re-proof owns BD[388]; subscription catalog=387.
-    decisions: BUSINESS_DECISIONS.slice(388, 389),
+    // Object-parse by decision text: lead Manage billing Session re-proof owns BD[389]; subscription catalog=388.
+    decisions: BUSINESS_DECISIONS.slice(389, 390),
   },
   {
     date: "2026-07-17",
@@ -10809,12 +10825,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes orphan open bundle cleanup beside async_payment_failed reopen",
       "AGENT_PROTOCOL — after paid Session markComplete, close orphan open bundle siblings; next prefers stuck CLI / escapeHtml·webhook·uncapped / next sold residual",
       "NEXT_STEPS: bundle-paid-orphan-open-checkout-session-cleanup done; billing-portal-lead-catalog-recurring-price-gate done (bd71 / #340)",
-      "BUSINESS_DECISIONS — require orphan open bundle cleanup after paid bundle Session (absolute index 389)",
-      "Process: object-parse by decision text (lead portal=388, subscription catalog=387) before appending ours",
+      "BUSINESS_DECISIONS — require orphan open bundle cleanup after paid bundle Session (absolute index 390)",
+      "Process: object-parse by decision text (lead portal=389, subscription catalog=388) before appending ours",
       "Verified: npm test (1685 passed pre-fold; re-run after #340 merge) + lint",
     ],
-    // Object-parse by decision text: orphan open bundle cleanup owns BD[389]; lead portal=388.
-    decisions: BUSINESS_DECISIONS.slice(389, 390),
+    // Object-parse by decision text: orphan open bundle cleanup owns BD[390]; lead portal=389.
+    decisions: BUSINESS_DECISIONS.slice(390, 391),
   },
   {
     date: "2026-07-17",
@@ -10827,12 +10843,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes cleanup gated behind durable fulfillment (not slug parse alone)",
       "AGENT_PROTOCOL — after orphan-open cleanup ships, immediately gate it behind catalog + durable payment",
       "NEXT_STEPS: bundle-orphan-cleanup-after-catalog-fulfillment done",
-      "BUSINESS_DECISIONS — require orphan cleanup after durable recordLeadPayment (absolute index 390)",
-      "Process: object-parse by decision text (orphan cleanup=389, lead portal=388) before appending ours",
+      "BUSINESS_DECISIONS — require orphan cleanup after durable recordLeadPayment (absolute index 391)",
+      "Process: object-parse by decision text (orphan cleanup=390, lead portal=389) before appending ours",
       "Verified: npm test (1688 passed = main@#341's 1685 + 3 skip-path keep-recovery regressions) + lint",
     ],
-    // Object-parse by decision text: cleanup-after-fulfillment owns BD[390]; orphan cleanup=389.
-    decisions: BUSINESS_DECISIONS.slice(390, 391),
+    // Object-parse by decision text: cleanup-after-fulfillment owns BD[391]; orphan cleanup=390.
+    decisions: BUSINESS_DECISIONS.slice(391, 392),
   },
   {
     date: "2026-07-17",
@@ -10850,12 +10866,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes commerce orphan cleanup beside bundle twin",
       "AGENT_PROTOCOL — after-fulfillment orphan cleanup ordering; commerce twin after bundle orphan-open",
       "NEXT_STEPS: commerce-paid-orphan-open-checkout-session-cleanup done; bundle-orphan-cleanup-after-catalog-fulfillment done (0c15 / #342)",
-      "BUSINESS_DECISIONS — require commerce orphan open cleanup after paid Buy now ledger (absolute index 391)",
-      "Process: object-parse by decision text (after-fulfillment=390, bundle orphan=389) before appending ours; claim pushed before feature body",
+      "BUSINESS_DECISIONS — require commerce orphan open cleanup after paid Buy now ledger (absolute index 392)",
+      "Process: object-parse by decision text (after-fulfillment=391, bundle orphan=390) before appending ours; claim pushed before feature body",
       "Verified: npm test (1697 passed after #342 fold = sibling 1688 + commerce orphan regressions) + lint",
     ],
-    // Object-parse by decision text: commerce orphan open cleanup owns BD[391]; after-fulfillment=390.
-    decisions: BUSINESS_DECISIONS.slice(391, 392),
+    // Object-parse by decision text: commerce orphan open cleanup owns BD[392]; after-fulfillment=391.
+    decisions: BUSINESS_DECISIONS.slice(392, 393),
   },
   {
     date: "2026-07-17",
@@ -10874,12 +10890,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes subscription.deleted CRM sync beside Billing Portal cancel",
       "AGENT_PROTOCOL — after commerce orphan cleanup, sync subscription.deleted into recurringCanceledAt",
       "NEXT_STEPS: customer-subscription-deleted-crm-sync done",
-      "BUSINESS_DECISIONS — require subscription.deleted CRM sync (absolute index 392)",
-      "Process: object-parse by decision text (commerce orphan=391, after-fulfillment=390) before appending ours; claim pushed before feature body",
+      "BUSINESS_DECISIONS — require subscription.deleted CRM sync (absolute index 393)",
+      "Process: object-parse by decision text (commerce orphan=392, after-fulfillment=391) before appending ours; claim pushed before feature body",
       "Verified: npm test (1708 passed) + lint",
     ],
-    // Object-parse by decision text: subscription.deleted CRM sync owns BD[392]; commerce orphan=391.
-    decisions: BUSINESS_DECISIONS.slice(392, 393),
+    // Object-parse by decision text: subscription.deleted CRM sync owns BD[393]; commerce orphan=392.
+    decisions: BUSINESS_DECISIONS.slice(393, 394),
   },
   {
     date: "2026-07-17",
@@ -10896,18 +10912,18 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes resubscribe clear beside subscription.deleted CRM sync",
       "AGENT_PROTOCOL — after subscription.deleted CRM sync, immediately clear on active|trialing",
       "NEXT_STEPS: customer-subscription-reactivated-crm-sync done",
-      "BUSINESS_DECISIONS — require subscription reactivate CRM clear (absolute index 393)",
-      "Process: object-parse by decision text (subscription.deleted=392) before appending ours; claim pushed before feature body; patched agent-hooks secret-name filter for CLOUD_AGENT_INJECTED_SECRET_NAMES labels",
+      "BUSINESS_DECISIONS — require subscription reactivate CRM clear (absolute index 394)",
+      "Process: object-parse by decision text (subscription.deleted=393) before appending ours; claim pushed before feature body; patched agent-hooks secret-name filter for CLOUD_AGENT_INJECTED_SECRET_NAMES labels",
       "Verified: npm test (1715 passed) + lint",
     ],
-    // Object-parse by decision text: subscription reactivate CRM clear owns BD[393]; deleted sync=392.
-    decisions: BUSINESS_DECISIONS.slice(393, 394),
+    // Object-parse by decision text: subscription reactivate CRM clear owns BD[394]; deleted sync=393.
+    decisions: BUSINESS_DECISIONS.slice(394, 395),
   },
   {
     date: "2026-07-17",
     branch: "cursor/prompt-process-evolution-8b08",
     summary:
-      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh twin residual: active|trialing clear restored packs after cancel, but past_due|unpaid renewals and invoice.payment_failed never paused CRM — failed card renewals kept marketing/voice/catalog until hard cancel. Shipped pause via markOrdersRecurringCanceledByCustomer on subscription.updated past_due|unpaid + invoice.payment_failed (subscription invoices only); helpers + Vitest + architecture note; process now requires pause twin immediately after reactivate clear.",
+      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh twin residual: active|trialing clear restored packs after cancel, but past_due|unpaid renewals and invoice.payment_failed never paused CRM — failed card renewals kept marketing/voice/catalog until hard cancel. Shipped pause via markOrdersRecurringCanceledByCustomer on subscription.updated past_due|unpaid + invoice.payment_failed (subscription invoices only); helpers + Vitest + architecture note; process now requires pause twin immediately after reactivate clear. Merged to main as PR #346 — this ITERATION kept when folding onto business-process-evolution-13bc.",
     shipped: [
       "src/lib/orders/recurring.ts (+ test) — stripeSubscriptionPausesRecurringEntitlement + invoicePaymentFailedPausesRecurringEntitlement",
       "src/app/api/stripe/webhook/route.ts — past_due|unpaid + invoice.payment_failed → CRM pause (orders_recurring_canceled 5xx)",
@@ -10915,12 +10931,32 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes past_due/unpaid + invoice.payment_failed pause beside cancel/reactivate",
       "AGENT_PROTOCOL — after subscription reactivate clear, immediately pause on past_due/unpaid + invoice.payment_failed",
       "NEXT_STEPS: invoice-payment-failed-past-due-crm-pause done",
-      "BUSINESS_DECISIONS — require past_due/unpaid + invoice.payment_failed CRM pause (absolute index 394)",
-      "Process: object-parse by decision text (reactivate clear=393) before appending ours; claim pushed before feature body; patched agent-hooks secret-name filter for CLOUD_AGENT_INJECTED_SECRET_NAMES labels",
-      "Verified: npm test (1724 passed) + lint",
+      "BUSINESS_DECISIONS — require past_due/unpaid + invoice.payment_failed CRM pause (absolute index 395)",
+      "Process: object-parse by decision text (reactivate clear=394) before appending ours; claim pushed before feature body; patched agent-hooks secret-name filter for CLOUD_AGENT_INJECTED_SECRET_NAMES labels",
+      "Verified: npm test (1724 passed) + lint; later main merge as PR #346",
     ],
-    // Object-parse by decision text: past_due/invoice pause owns BD[394]; reactivate clear=393.
-    decisions: BUSINESS_DECISIONS.slice(394, 395),
+    // Object-parse by decision text: past_due/invoice pause owns BD[395]; reactivate clear=394.
+    decisions: BUSINESS_DECISIONS.slice(395, 396),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/business-process-evolution-13bc",
+    summary:
+      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Sibling prompt-process-evolution-8b08 claimed + shipped invoice-payment-failed-past-due-crm-pause (PR #346) — complementary pivot; folded their feature body then merged origin/main. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: Stripe pause_collection keeps status=active|trialing while collection is paused, so the grants-first clear path restored/kept packs for non-paying paused subscribers. Shipped stripeSubscriptionHasPauseCollection + webhook pause before clear; Vitest + architecture note; process now requires pause_collection twin immediately after past_due pause.",
+    shipped: [
+      "merge: sibling prompt-process-evolution-8b08 past_due/invoice.payment_failed CRM pause — keep both NEXT_STEPS/ITERATIONS",
+      "merge: origin/main after PR #346 — resolve process conflicts; restore 8b08+13bc ITERATIONS",
+      "src/lib/orders/recurring.ts (+ test) — stripeSubscriptionHasPauseCollection",
+      "src/app/api/stripe/webhook/route.ts — pause_collection → CRM pause before active|trialing clear",
+      "Vitest: webhook active+pause_collection / trialing+pause_collection regressions (no clear)",
+      "Docs: architecture.tsx notes pause_collection beside past_due/invoice pause",
+      "AGENT_PROTOCOL — after past_due pause, immediately close pause_collection twin (status-active hole)",
+      "NEXT_STEPS: subscription-pause-collection-crm-pause done; invoice-payment-failed-past-due-crm-pause done (8b08/#346)",
+      "BUSINESS_DECISIONS — require pause_collection CRM pause (absolute index 396)",
+      "Process: object-parse by decision text (past_due pause=395) before appending ours; claim pushed before feature body; same-minute coop fold of 8b08; remapped BD slices after main merge",
+      "Verified: npm test (1728 passed = sibling 1724 + 2 pause_collection helper + 2 webhook regressions) + lint",
+    ],
+    // Object-parse by decision text: pause_collection CRM pause owns BD[396]; past_due/invoice=395.
+    decisions: BUSINESS_DECISIONS.slice(396, 397),
   },
 ];
-

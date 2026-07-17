@@ -345,6 +345,56 @@ describe("POST /api/stripe/webhook", () => {
       expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
     });
 
+    it("pauses CRM on active+pause_collection (does not clear)", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_paused_1",
+            customer: "cus_paused_1",
+            status: "active",
+            pause_collection: { behavior: "void" },
+            current_period_start: 1_720_000_300,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_paused_1",
+        1_720_000_300_000,
+        { requireConvex: true },
+      );
+    });
+
+    it("pauses CRM on trialing+pause_collection", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_paused_trial",
+            customer: "cus_paused_trial",
+            status: "trialing",
+            pause_collection: { behavior: "keep_as_draft" },
+            current_period_start: 1_720_000_400,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_paused_trial",
+        1_720_000_400_000,
+        { requireConvex: true },
+      );
+    });
+
     it("clears recurringCanceledAt on updated+trialing", async () => {
       constructEvent.mockReturnValue({
         type: "customer.subscription.updated",
