@@ -500,6 +500,13 @@ export default function ArchitectureDocPage() {
         wrong catalog Prices, non-USD, amount mismatch) must leave sibling open carts
         in recovery; cleanup write failures return{" "}
         <code>500</code> (<code>checkout_session_orphan_bundle_cleanup</code>).
+        Paid <code>commerce_sku</code> fulfillment mirrors that with{" "}
+        <code>markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer</code>{" "}
+        scoped by <code>leadSlug</code> + <code>skuId</code> + normalized{" "}
+        <code>customerEmail</code> (skip when email is missing — never close by
+        lead+sku alone) and runs only after a durable{" "}
+        <code>insertCommerceOrder</code>; cleanup write failures return{" "}
+        <code>500</code> (<code>checkout_session_orphan_commerce_cleanup</code>).
         Starter→Growth upsell after pay mints a new Checkout Session.{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}

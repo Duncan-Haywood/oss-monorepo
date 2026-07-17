@@ -156,7 +156,8 @@ export const AGENT_PROTOCOL = [
   "createBillingPortalForCheckoutSession + loadCheckoutSuccessSession must prove a create-path catalog recurring Price ID (Growth/Complete/Commerce monthly via catalogRecurringPriceIdsFromEnv + sessionLineItemsIncludeCatalogRecurringPrice) on listLineItems when mode===subscription before checkoutSessionEligibleForBillingPortal (catalogRecurringProven) / showBillingPortal — mode alone is not enough (Dashboard-minted subscription with a foreign Price). Portal list failures return 502; success SSR list failures fail closed to hide the CTA. Payment-mode commerceAddon derive stays unchanged. After async_payment_failed reopen ships, immediately close this subscription-mode catalog-recurring twin before inventing another dated clean-audit (subscription-mode-billing-portal-catalog-recurring-price-gate).",
   "createBillingPortalForLead (operator Manage billing) must not open a portal from CRM orderEligibleForBillingPortal (tier/commerceAddon) + stored stripeCustomerId alone — after #339 hardened the public Session path, the lead path must require stripeSessionId and reuse createBillingPortalForCheckoutSession (payment_status paid + catalog recurring / Commerce Prices on listLineItems; Session customer preferred). A stale/forged CRM row must not mint Manage billing while the Session path would 400. After shipping subscription-mode catalog-recurring on Session portal/success, immediately close this lead twin before inventing another dated clean-audit (billing-portal-lead-catalog-recurring-price-gate).",
   "After a paid bundle checkout.session.completed / async_payment_succeeded marks the paid stripeSessionId complete, also markCompleteOpenBundleCheckoutSessionsForLead (Convex markCompleteOpenBundleForLead + SQLite, requireConvex) for that leadSlug so earlier abandoned open *bundle* checkout_sessions cannot keep Finish-checkout / digest / pipeline-health nudging an already-paid customer. Never close commerce_sku siblings (end-customer multi-shopper carts). Do not blanket-skip stage===paid on recovery (Starter→Growth upsell abandon after pay mints a new Session). Orphan cleanup write failures return 5xx (checkout_session_orphan_bundle_cleanup). Register checkoutSessions.markCompleteOpenBundleForLead on the static Convex API map in the same commit. After subscription-mode catalog-recurring portal gate + lead Manage-billing Session re-proof ship, prefer this orphan-open cleanup before inventing another dated clean-audit (bundle-paid-orphan-open-checkout-session-cleanup).",
-  "markCompleteOpenBundleCheckoutSessionsForLead must run only after durable recordLeadPayment (+ handoff enqueue) succeeds — never immediately after parseLeadSlugLookup / Session markComplete. A paid Session that later skips fulfillment (unknown tier, wrong catalog Prices, non-USD currency, amount≠catalog) must leave sibling open bundle carts in Finish-checkout / digest recovery; closing them on slug-parse alone permanently drops retry revenue without recording payment (bundle-orphan-cleanup-after-catalog-fulfillment). alreadyRecorded Stripe retries still run cleanup (idempotent) if the first delivery crashed before that step. Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) next sold residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#341 money gates.",] as const;
+  "markCompleteOpenBundleCheckoutSessionsForLead must run only after durable recordLeadPayment (+ handoff enqueue) succeeds — never immediately after parseLeadSlugLookup / Session markComplete. A paid Session that later skips fulfillment (unknown tier, wrong catalog Prices, non-USD currency, amount≠catalog) must leave sibling open bundle carts in Finish-checkout / digest recovery; closing them on slug-parse alone permanently drops retry revenue without recording payment (bundle-orphan-cleanup-after-catalog-fulfillment / #342). alreadyRecorded Stripe retries still run cleanup (idempotent) if the first delivery crashed before that step. Commerce orphan cleanup follows the same after-ledger rule (after insertCommerceOrder).",
+  "After a paid commerce_sku Checkout Session durable insertCommerceOrder, also markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer (Convex markCompleteOpenCommerceForLeadSkuCustomer + SQLite, requireConvex) for that leadSlug+skuId+normalized customerEmail so earlier abandoned open Buy now carts cannot keep digest / pipeline-health / Send Buy now recovery nudging the same shopper. Skip when customerEmail is missing — never close by leadSlug+skuId alone (multi-shopper). Orphan cleanup write failures return 5xx (checkout_session_orphan_commerce_cleanup). Register checkoutSessions.markCompleteOpenCommerceForLeadSkuCustomer on the static Convex API map in the same commit. After bundle orphan-open cleanup (+ after-fulfillment gate #342) ships, immediately audit this commerce twin before inventing another dated clean-audit (commerce-paid-orphan-open-checkout-session-cleanup). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) customer.subscription.deleted → CRM sync (larger) — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#342 money gates.",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2569,6 +2570,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-0c15",
+  },
+  {
+    id: "commerce-paid-orphan-open-checkout-session-cleanup",
+    summary:
+      "Empty-backlog after PR #341 (bundle-paid-orphan-open-checkout-session-cleanup). Sibling business-process-evolution-0c15 claimed/shipped bundle-orphan-cleanup-after-catalog-fulfillment (#342) — complementary pivot. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes already-merged — rejected. Fresh sold residual twin: paid commerce_sku fulfillment only markComplete's the paid stripeSessionId, so earlier abandoned open Buy now carts for the same leadSlug+skuId+customerEmail stay in digest / pipeline-health / Send Buy now recovery. On paid commerce ledger write, markComplete matching open commerce_sku siblings scoped by leadSlug+skuId+normalized customerEmail (skip when email missing — never close by lead+sku alone; multi-shopper). Run only after insertCommerceOrder succeeds (mirror #342 after-fulfillment ordering).",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-ff47",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5319,6 +5328,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "markCompleteOpenBundleCheckoutSessionsForLead must run only after durable recordLeadPayment (+ handoff enqueue) succeeds on the paid bundle webhook path — never immediately after parseLeadSlugLookup or Session markComplete. A paid Session that later skips fulfillment (unknown tier, wrong catalog Prices, non-USD, amount≠catalog) must leave sibling open bundle carts in Finish-checkout / digest recovery.",
     rationale:
       "Empty-backlog after PR #341 (bundle-paid-orphan-open-checkout-session-cleanup). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual twin: #341 closed orphan carts, but the webhook called cleanup as soon as the slug parsed — before catalog Price / currency / amount gates and before recordLeadPayment. A Dashboard-minted or mismatched paid Session could ACK 200 after closing recovery carts without ever writing payment/handoff. Process improvement: after shipping orphan-open cleanup, immediately gate it behind durable fulfillment (same pass as amount/tier skip regressions). Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped / next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "After a paid commerce_sku Checkout Session durable insertCommerceOrder, markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer (Convex markCompleteOpenCommerceForLeadSkuCustomer + SQLite, requireConvex) must close other open commerce_sku checkout_sessions for the same leadSlug+skuId+normalized customerEmail so Buy now recovery / digest / pipeline-health cannot nudge the same shopper after pay. Skip when customerEmail is missing — never close by leadSlug+skuId alone (multi-shopper). Run only after ledger write succeeds. Orphan cleanup write failures return 5xx (checkout_session_orphan_commerce_cleanup).",
+    rationale:
+      "Empty-backlog after PR #341/#342 (bundle orphan open-cart cleanup + after-fulfillment gate). Sibling business-process-evolution-0c15 shipped #342 same window — complementary pivot; fold both ITERATIONS. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes already-merged — rejected. Fresh residual: commerce_sku only markComplete'd the paid stripeSessionId, leaving earlier abandoned Buy now carts live. Process improvement: after bundle orphan-open cleanup (+ after-fulfillment gate), immediately audit the commerce twin with the same after-ledger ordering. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped / customer.subscription.deleted CRM sync. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -10769,6 +10785,29 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     // Object-parse by decision text: cleanup-after-fulfillment owns BD[390]; orphan cleanup=389.
     decisions: BUSINESS_DECISIONS.slice(390, 391),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/prompt-process-evolution-ff47",
+    summary:
+      "Empty-backlog after PR #341 (bundle-paid-orphan-open-checkout-session-cleanup). Sibling business-process-evolution-0c15 shipped bundle-orphan-cleanup-after-catalog-fulfillment (#342) same window — complementary pivot; folded both ITERATIONS. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes already-merged — rejected. Fresh sold residual: paid commerce_sku only markComplete'd the paid stripeSessionId, so earlier abandoned Buy now carts for the same shopper+SKU stayed in digest / Send Buy now recovery. Shipped markCompleteOpenCommerceForLeadSkuCustomer scoped by leadSlug+skuId+normalized customerEmail (skip blank email); webhook calls it only after insertCommerceOrder; Vitest + architecture note; process now requires commerce twin after bundle orphan cleanup and after-fulfillment ordering for both.",
+    shipped: [
+      "merge: origin/main (PR #342 bundle orphan cleanup after durable fulfillment) — keep sibling ITERATION; complementary commerce twin",
+      "convex/checkoutSessions.ts — markCompleteOpenCommerceForLeadSkuCustomer (by_leadSlug; lead+sku+email; skip blank email)",
+      "src/lib/db.ts — markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer + static API map registration",
+      "src/lib/checkout/abandoned-recovery.ts — openCommerceCheckoutSessionsToClose + normalizeCheckoutCustomerEmailForMatch",
+      "src/lib/payments/webhook-fulfillment.ts — checkout_session_orphan_commerce_cleanup 5xx step",
+      "src/app/api/stripe/webhook/route.ts — close orphan open commerce carts after durable insertCommerceOrder",
+      "Vitest: abandoned-recovery + webhook + fulfillment step regressions (after-ledger ordering, blank-email skip, amount-gate skip)",
+      "Docs: architecture.tsx notes commerce orphan cleanup beside bundle twin",
+      "AGENT_PROTOCOL — after-fulfillment orphan cleanup ordering; commerce twin after bundle orphan-open",
+      "NEXT_STEPS: commerce-paid-orphan-open-checkout-session-cleanup done; bundle-orphan-cleanup-after-catalog-fulfillment done (0c15 / #342)",
+      "BUSINESS_DECISIONS — require commerce orphan open cleanup after paid Buy now ledger (absolute index 391)",
+      "Process: object-parse by decision text (after-fulfillment=390, bundle orphan=389) before appending ours; claim pushed before feature body",
+      "Verified: npm test (1697 passed after #342 fold = sibling 1688 + commerce orphan regressions) + lint",
+    ],
+    // Object-parse by decision text: commerce orphan open cleanup owns BD[391]; after-fulfillment=390.
+    decisions: BUSINESS_DECISIONS.slice(391, 392),
   },
 ];
 

@@ -390,6 +390,8 @@ const api: any = {
     markComplete: "checkoutSessions:markComplete",
     markOpen: "checkoutSessions:markOpen",
     markCompleteOpenBundleForLead: "checkoutSessions:markCompleteOpenBundleForLead",
+    markCompleteOpenCommerceForLeadSkuCustomer:
+      "checkoutSessions:markCompleteOpenCommerceForLeadSkuCustomer",
     recordRecoverySent: "checkoutSessions:recordRecoverySent",
     listOpen: "checkoutSessions:listOpen",
   },
@@ -1921,6 +1923,72 @@ export async function markCompleteOpenBundleCheckoutSessionsForLead(
          AND (kind IS NULL OR kind = '' OR kind = 'bundle')`,
     )
     .run(leadSlug, exceptStripeSessionId);
+  return Number(result.changes ?? 0);
+}
+
+/**
+ * After a paid commerce_sku Checkout Session, mark other open commerce_sku
+ * rows for the same leadSlug + skuId + customerEmail complete so Buy now
+ * recovery / digest / pipeline-health cannot nudge the same shopper after
+ * they pay. Never closes when customerEmail is blank (multi-shopper). Email
+ * match is trim + lowercase on both sides. Pass { requireConvex: true } (the
+ * webhook does) so a Convex failure does not silently leave orphans open
+ * only in Convex while this instance's SQLite looks clean.
+ */
+export async function markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(
+  leadSlug: string,
+  skuId: string,
+  customerEmail: string,
+  exceptStripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  const email = customerEmail.trim().toLowerCase();
+  const normalizedSkuId = skuId.trim();
+  if (!email || !normalizedSkuId || !leadSlug.trim() || !exceptStripeSessionId.trim()) {
+    return 0;
+  }
+
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(
+        api.checkoutSessions.markCompleteOpenCommerceForLeadSkuCustomer,
+        {
+          leadSlug,
+          skuId: normalizedSkuId,
+          customerEmail: email,
+          exceptStripeSessionId,
+        },
+      )) as number;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to close orphan open commerce checkout sessions for ${leadSlug}/${normalizedSkuId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  // SQLite LOWER(TRIM(...)) mirrors Convex trim+lowercase; skip blank emails.
+  const result = db
+    .prepare(
+      `UPDATE checkout_sessions
+       SET status = 'complete'
+       WHERE leadSlug = ?
+         AND status = 'open'
+         AND stripeSessionId != ?
+         AND kind = 'commerce_sku'
+         AND skuId = ?
+         AND customerEmail IS NOT NULL
+         AND TRIM(customerEmail) != ''
+         AND LOWER(TRIM(customerEmail)) = ?`,
+    )
+    .run(leadSlug, exceptStripeSessionId, normalizedSkuId, email);
   return Number(result.changes ?? 0);
 }
 

@@ -30,6 +30,7 @@ vi.mock("stripe", () => ({
 const markCheckoutSessionComplete = vi.fn();
 const markCheckoutSessionOpen = vi.fn();
 const markCompleteOpenBundleCheckoutSessionsForLead = vi.fn();
+const markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer = vi.fn();
 const recordLeadPayment = vi.fn();
 const getLeadBySlug = vi.fn();
 const getCommerceCatalog = vi.fn();
@@ -51,6 +52,8 @@ vi.mock("@/lib/db", () => ({
   markCheckoutSessionOpen: (...args: unknown[]) => markCheckoutSessionOpen(...args),
   markCompleteOpenBundleCheckoutSessionsForLead: (...args: unknown[]) =>
     markCompleteOpenBundleCheckoutSessionsForLead(...args),
+  markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer: (...args: unknown[]) =>
+    markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(...args),
   recordLeadPayment: (...args: unknown[]) => recordLeadPayment(...args),
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
@@ -179,6 +182,9 @@ describe("POST /api/stripe/webhook", () => {
     markCheckoutSessionComplete.mockReset().mockResolvedValue(undefined);
     markCheckoutSessionOpen.mockReset().mockResolvedValue(undefined);
     markCompleteOpenBundleCheckoutSessionsForLead.mockReset().mockResolvedValue(0);
+    markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer
+      .mockReset()
+      .mockResolvedValue(0);
     recordLeadPayment.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
@@ -398,7 +404,7 @@ describe("POST /api/stripe/webhook", () => {
       );
     });
 
-    it("commerce_sku paid: does not close sibling bundle/open carts for the lead", async () => {
+    it("commerce_sku paid: does not close sibling bundle carts for the lead", async () => {
       const session = checkoutSession({
         metadata: {
           kind: "commerce_sku",
@@ -406,6 +412,7 @@ describe("POST /api/stripe/webhook", () => {
           skuId: "sku_latte",
         },
         amount_total: 2500,
+        customer_details: { email: "shopper@example.com" },
       });
       constructEvent.mockReturnValue(completedEvent(session));
       listLineItems.mockResolvedValue(commerceSkuLineItems());
@@ -506,6 +513,107 @@ describe("POST /api/stripe/webhook", () => {
       // Payment already durable — Stripe retry recovers cleanup + emails.
       expect(recordLeadPayment).toHaveBeenCalled();
       expect(sendReceiptEmail).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("orphan open commerce_sku checkout_sessions cleanup", () => {
+    function paidCommerceSession(overrides: Record<string, unknown> = {}) {
+      return checkoutSession({
+        metadata: {
+          kind: "commerce_sku",
+          slug: "demo-cafe",
+          skuId: "sku_latte",
+        },
+        amount_total: 2500,
+        customer_details: { email: "shopper@example.com" },
+        ...overrides,
+      });
+    }
+
+    beforeEach(() => {
+      listLineItems.mockResolvedValue(commerceSkuLineItems());
+      getLeadBySlug.mockResolvedValue({
+        slug: "demo-cafe",
+        businessName: "Demo Cafe",
+        email: "owner@demo-cafe.test",
+      });
+      getCommerceCatalog.mockResolvedValue({
+        items: [
+          {
+            id: "sku_latte",
+            name: "Latte",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
+      });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      sendCommerceBuyNowClientReceipt.mockResolvedValue({ success: true });
+    });
+
+    it("paid commerce: closes matching open carts after ledger write", async () => {
+      constructEvent.mockReturnValue(completedEvent(paidCommerceSession()));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).toHaveBeenCalled();
+      expect(markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer).toHaveBeenCalledWith(
+        "demo-cafe",
+        "sku_latte",
+        "shopper@example.com",
+        "cs_test_1",
+        { requireConvex: true },
+      );
+      // After durable ledger — not before (amount/catalog gates must pass first).
+      expect(insertCommerceOrder.mock.invocationCallOrder[0]).toBeLessThan(
+        markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer.mock.invocationCallOrder[0]!,
+      );
+    });
+
+    it("skips commerce orphan cleanup when shopper email is missing", async () => {
+      constructEvent.mockReturnValue(
+        completedEvent(
+          paidCommerceSession({
+            customer_details: { email: null },
+            customer_email: null,
+          }),
+        ),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).toHaveBeenCalled();
+      expect(markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer).not.toHaveBeenCalled();
+    });
+
+    it("does not close commerce orphans when catalog amount gate skips ledger", async () => {
+      constructEvent.mockReturnValue(
+        completedEvent(paidCommerceSession({ amount_total: 9999 })),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 (checkout_session_orphan_commerce_cleanup) when orphan cleanup fails after ledger", async () => {
+      constructEvent.mockReturnValue(completedEvent(paidCommerceSession()));
+      markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer.mockRejectedValueOnce(
+        new Error("convex down"),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("checkout_session_orphan_commerce_cleanup");
+      expect(json.received).toBe(false);
+      expect(insertCommerceOrder).toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
     });
   });
 

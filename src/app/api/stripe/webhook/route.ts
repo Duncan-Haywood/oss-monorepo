@@ -4,8 +4,10 @@ import {
   markCheckoutSessionComplete,
   markCheckoutSessionOpen,
   markCompleteOpenBundleCheckoutSessionsForLead,
+  markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer,
   recordLeadPayment,
 } from "@/lib/db";
+import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import {
   parseCommerceCheckoutSkuId,
@@ -324,6 +326,33 @@ export async function POST(request: Request) {
             );
             const failure = webhookFulfillmentFailureResponse("commerce_order_ledger");
             return NextResponse.json(failure.body, { status: failure.status });
+          }
+
+          // Close earlier abandoned open Buy now carts for this shopper + SKU
+          // so digest / Send Buy now recovery cannot nudge after pay. Scope by
+          // leadSlug+skuId+customerEmail only — never lead+sku alone (multi-
+          // shopper). Skip when email is missing. Run only after durable
+          // ledger write (mirror bundle after-fulfillment ordering).
+          const shopperEmail = normalizeCheckoutCustomerEmailForMatch(customerEmail);
+          if (shopperEmail) {
+            try {
+              await markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(
+                orderSlug,
+                knownSkuId,
+                shopperEmail,
+                session.id,
+                WEBHOOK_CONVEX_PRIMARY,
+              );
+            } catch (e) {
+              console.error(
+                `Failed to close orphan open commerce checkout sessions for ${orderSlug}/${knownSkuId} after ${session.id}`,
+                e,
+              );
+              const failure = webhookFulfillmentFailureResponse(
+                "checkout_session_orphan_commerce_cleanup",
+              );
+              return NextResponse.json(failure.body, { status: failure.status });
+            }
           }
 
           // alreadyRecorded must NOT early-break: if the first delivery

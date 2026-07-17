@@ -71,6 +71,45 @@ export function openBundleCheckoutSessionsToClose(
   );
 }
 
+/**
+ * Normalize checkout customerEmail for orphan-cart matching (trim + lower).
+ * Empty / whitespace-only → "" (caller must skip cleanup when blank).
+ */
+export function normalizeCheckoutCustomerEmailForMatch(email: string | undefined | null): string {
+  return (email ?? "").trim().toLowerCase();
+}
+
+/**
+ * Open commerce_sku checkout_sessions for the same lead + SKU + shopper email
+ * that should be closed after a later Buy now Session pays. Excludes the paid
+ * stripeSessionId. Never matches when customerEmail is blank on either side
+ * (multi-shopper carts must not close by leadSlug+skuId alone).
+ * Used by markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer + Vitest.
+ */
+export function openCommerceCheckoutSessionsToClose(
+  sessions: readonly CheckoutSessionRecord[],
+  opts: {
+    leadSlug: string;
+    skuId: string;
+    customerEmail: string;
+    exceptStripeSessionId: string;
+  },
+): CheckoutSessionRecord[] {
+  const leadSlug = opts.leadSlug.trim();
+  const skuId = opts.skuId.trim();
+  const email = normalizeCheckoutCustomerEmailForMatch(opts.customerEmail);
+  const exceptId = opts.exceptStripeSessionId.trim();
+  if (!leadSlug || !skuId || !email || !exceptId) return [];
+  return sessions.filter((session) => {
+    if (session.leadSlug !== leadSlug) return false;
+    if (session.status !== "open") return false;
+    if (session.stripeSessionId === exceptId) return false;
+    if (!isCommerceSkuCheckoutSession(session)) return false;
+    if ((session.skuId ?? "").trim() !== skuId) return false;
+    return normalizeCheckoutCustomerEmailForMatch(session.customerEmail) === email;
+  });
+}
+
 /** Bundle (Local Site Studio plan) abandoned sessions due for recovery, oldest first. */
 export function listAbandonedCheckoutsDue(
   sessions: CheckoutSessionRecord[],

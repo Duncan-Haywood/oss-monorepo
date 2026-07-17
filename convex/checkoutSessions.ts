@@ -90,6 +90,44 @@ export const markCompleteOpenBundleForLead = mutation({
   },
 });
 
+/**
+ * After a paid commerce_sku Checkout Session, mark other open commerce_sku
+ * rows for the same leadSlug + skuId + customerEmail complete so Buy now
+ * recovery / digest cannot nudge the same shopper after they pay. Never
+ * closes when customerEmail is blank (multi-shopper carts). Email match is
+ * trim + lowercase. Returns how many sibling rows were closed.
+ */
+export const markCompleteOpenCommerceForLeadSkuCustomer = mutation({
+  args: {
+    leadSlug: v.string(),
+    skuId: v.string(),
+    customerEmail: v.string(),
+    exceptStripeSessionId: v.string(),
+  },
+  returns: v.number(),
+  handler: async (ctx, args) => {
+    const email = args.customerEmail.trim().toLowerCase();
+    const skuId = args.skuId.trim();
+    if (!email || !skuId) return 0;
+    const rows = await ctx.db
+      .query("checkoutSessions")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    let closed = 0;
+    for (const row of rows) {
+      if (row.status !== "open") continue;
+      if (row.stripeSessionId === args.exceptStripeSessionId) continue;
+      if (row.kind !== "commerce_sku") continue;
+      if ((row.skuId ?? "").trim() !== skuId) continue;
+      const rowEmail = (row.customerEmail ?? "").trim().toLowerCase();
+      if (!rowEmail || rowEmail !== email) continue;
+      await ctx.db.patch(row._id, { status: "complete" });
+      closed += 1;
+    }
+    return closed;
+  },
+});
+
 export const recordRecoverySent = mutation({
   args: { stripeSessionId: v.string(), sentAt: v.string() },
   returns: v.null(),

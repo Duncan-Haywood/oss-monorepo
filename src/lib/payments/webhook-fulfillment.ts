@@ -18,6 +18,13 @@ export type WebhookFulfillmentStep =
    */
   | "checkout_session_orphan_bundle_cleanup"
   /**
+   * Closing other open commerce_sku checkout_sessions for the same
+   * leadSlug+skuId+customerEmail after a paid Buy now Session — required so
+   * Stripe retries rather than leaving orphan abandoned carts that digest /
+   * Send Buy now recovery still nudge after pay.
+   */
+  | "checkout_session_orphan_commerce_cleanup"
+  /**
    * Re-opening a checkout_sessions row after async_payment_failed — required so
    * Stripe retries rather than leaving a failed ACH cart stuck status=complete
    * (Finish-checkout / Buy now recovery permanently skipped).
