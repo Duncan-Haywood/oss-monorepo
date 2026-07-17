@@ -11361,12 +11361,17 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: object-parse by decision text (order-arg type parity=404, bestMarketingOrderTier=403) before appending ours; claim pushed before feature body",
       "Verified: npm test (1768 passed = main@#355's 1766 + 2 soft-cap regressions) + lint; later main merge as PR #356",
     ],
-    // Object-parse by decision text: lead→request soft-cap owns BD[405]; order-arg type parity=404.
-    // Corrected 2026-07-17 (claude/nice-euler-0x1k8a): this slice was off by one — BD[404] is
-    // actually the order-arg type parity decision, not lead→request soft-cap. Every following
-    // iteration through business-process-evolution-516f trusted this comment instead of
-    // re-object-parsing and compounded the same +1 error; all have been corrected together.
-    decisions: BUSINESS_DECISIONS.slice(405, 406),
+    // Object-parse by decision text: lead→request soft-cap owns BD[404] ("businessContextFromLead
+    // and clientVoiceBusinessContextFromLead must soft-cap..."); order-arg type parity=403.
+    // Re-corrected 2026-07-17 (claude/upbeat-dijkstra-hpts79): claude/nice-euler-0x1k8a's prior
+    // "correction" (shifting this to slice(405,406)) was itself the off-by-one bug it claimed to
+    // fix — direct index-by-content verification of the full BUSINESS_DECISIONS array (matching
+    // each entry's literal decision text to its actual array position, per AGENT_PROTOCOL's
+    // "never trust a prior slice comment" rule) confirms BD[404] is this soft-cap decision and
+    // BD[403] is the order-arg type parity one. Restored the original (correct) indices here and
+    // on every entry that cascaded from nice-euler-0x1k8a's mistaken shift (b43f, 3a51, 516f, and
+    // nice-euler-0x1k8a's own final entry).
+    decisions: BUSINESS_DECISIONS.slice(404, 405),
   },
   {
     date: "2026-07-17",
@@ -11387,9 +11392,9 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: coop fold of sibling 3811; claim pushed before feature body; object-parse by decision text (build-request soft-cap=405) before appending ours",
       "Verified: npm test (1773 passed = main@#355's 1766 + sibling 2 build-request soft-cap + 5 action entitlement) + lint",
     ],
-    // Object-parse by decision text: action entitlement Vitest owns BD[406]; build-request soft-cap=405.
-    // Corrected 2026-07-17 (claude/nice-euler-0x1k8a) — see cascade note on the 3811 entry above.
-    decisions: BUSINESS_DECISIONS.slice(406, 407),
+    // Object-parse by decision text: action entitlement Vitest owns BD[405]; build-request soft-cap=404.
+    // Re-corrected 2026-07-17 (claude/upbeat-dijkstra-hpts79) — see cascade note on the 3811 entry above.
+    decisions: BUSINESS_DECISIONS.slice(405, 406),
   },
   {
     date: "2026-07-17",
@@ -11409,9 +11414,9 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: sibling business-process-evolution-516f subscription-items CRM sync feature body — keep both NEXT_STEPS/ITERATIONS",
       "Verified: npm test (1791 passed = main@#357's 1773 + 6 hours-join + sibling subscription-items suite) + lint after fold",
     ],
-    // Object-parse by decision text: hours-join soft-cap owns BD[407]; action entitlement Vitest=406.
-    // Corrected 2026-07-17 (claude/nice-euler-0x1k8a) — see cascade note on the 3811 entry above.
-    decisions: BUSINESS_DECISIONS.slice(407, 408),
+    // Object-parse by decision text: hours-join soft-cap owns BD[406]; action entitlement Vitest=405.
+    // Re-corrected 2026-07-17 (claude/upbeat-dijkstra-hpts79) — see cascade note on the 3811 entry above.
+    decisions: BUSINESS_DECISIONS.slice(406, 407),
   },
   {
     date: "2026-07-17",
@@ -11430,9 +11435,9 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: folded onto prompt-process-evolution-3a51; object-parse by decision text (hours-join=407) before appending ours",
       "Verified: npm test (1791 passed) + lint on fold branch",
     ],
-    // Object-parse by decision text: subscription-items sync owns BD[408]; hours-join soft-cap=407.
-    // Corrected 2026-07-17 (claude/nice-euler-0x1k8a) — see cascade note on the 3811 entry above.
-    decisions: BUSINESS_DECISIONS.slice(408, 409),
+    // Object-parse by decision text: subscription-items sync owns BD[407]; hours-join soft-cap=406.
+    // Re-corrected 2026-07-17 (claude/upbeat-dijkstra-hpts79) — see cascade note on the 3811 entry above.
+    decisions: BUSINESS_DECISIONS.slice(407, 408),
   },
   {
     date: "2026-07-17",
@@ -11462,10 +11467,35 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: verified via `git stash` that both pre-existing build type errors predate this branch (present on origin/main @ 9b3fcdd/#357) before fixing them",
       "Verified: npm test (1815 passed = main@#358's 1811 + 4 stripeSubscriptionPausedAtMs) + lint + build (tsc clean, all 31 routes generated) + npm run dev sanity check on /dashboard, /dashboard/leads, /preview/demo-cafe (200s, no console errors, new Refund clawback needed card renders)",
     ],
-    // Object-parse by decision text: refund/clawback tracking = BD[409], Stripe SDK shape migration = BD[410]
-    // (subscription-items sync = BD[408]). Also fixed a pre-existing off-by-one slice cascade
-    // (introduced by business-process-evolution-3811, compounded through 516f) in the four
-    // iterations above — every one of them was pointing one index too low.
-    decisions: BUSINESS_DECISIONS.slice(409, 411),
+    // Object-parse by decision text: refund/clawback tracking = BD[408] ("Stripe charge.refunded
+    // (full or partial) must resolve..."), Stripe SDK shape migration = BD[409] ("Stripe SDK 22.3.1
+    // (API versions 2025-03-31 and later) removed Subscription.current_period_start..."); (subscription-
+    // items sync = BD[407]).
+    // Re-corrected 2026-07-17 (claude/upbeat-dijkstra-hpts79): this entry's own "cascade fix" comment
+    // (claiming 3811 through this entry were each pointing one index too low, and shifting them all
+    // up by one) was itself wrong and introduced a real off-by-one — BUSINESS_DECISIONS has exactly
+    // 410 entries (indices 0-409) at this point in history, so slice(409, 411) both skips this
+    // entry's own first decision (BD[408]) and reads past the end of the array for a nonexistent
+    // BD[410]. Verified by object-parsing the full array (matching each entry's literal decision
+    // text to its actual position) rather than trusting any prior slice comment, per AGENT_PROTOCOL's
+    // explicit warning that a same-window fold can leave an off-by-one cascade that comments then
+    // rubber-stamp — restored the original (correct) indices on this entry and the four it cascaded
+    // through (3811, b43f, 3a51, 516f).
+    decisions: BUSINESS_DECISIONS.slice(408, 410),
+  },
+  {
+    date: "2026-07-17",
+    branch: "claude/upbeat-dijkstra-hpts79",
+    summary:
+      "Empty-backlog after PR #357. Free NEXT_STEPS stayed fully operator/legal-gated (4 items, all gated). Stuck-branch scan of every remote committed within the last day found nothing genuinely unshipped — every cursor/opencode commit ahead of main was either docs-only bookkeeping already superseded, or a feature body already merged and referenced done in AGENT_PROTOCOL/NEXT_STEPS. A fresh direct-code audit (Convex/SQLite behavioral parity for the 5 newest recurring-entitlement mutations beyond the static API-map check; durable-marker-after-unchecked-await re-check on the #348-#357 action/webhook surface; escapeHtmlForEmail spot-check on every resend.ts template) came back clean on all three axes. While auditing, main moved twice from concurrent siblings: PR #358 (hours-join soft-cap + subscription-items CRM sync) and then PR #360 (claude/nice-euler-0x1k8a — Commerce refund/clawback tracking, plus a drive-by fix for a real `npm run build` break: Stripe SDK 22.3.1 moved Subscription.current_period_start to SubscriptionItem). Independently confirmed the build break was still live on main@#358 and began folding #358 into #360 to fix a second reintroduced instance of it — but the nice-euler-0x1k8a session completed and pushed the identical fold+fix moments earlier, and its PR #360 merged to main before this branch could push, making this branch's parallel resolution redundant (per AGENT_PROTOCOL's fold rule: do not open a duplicate PR for identical work). Verifying main@#360 as the new baseline surfaced a real, separate, live bug: claude/nice-euler-0x1k8a's own merge-conflict resolution had 'corrected' five ITERATIONS entries' BUSINESS_DECISIONS.slice() indices (3811, b43f, 3a51, 516f, and its own final entry) based on a claimed off-by-one that was itself wrong — its own final entry's slice(409, 411) read past the end of a 410-entry array. Verified by object-parsing BUSINESS_DECISIONS.length and every entry's actual array position against its literal decision text (not by trusting any slice comment, including one that itself claims to be a correction), then restored the original, evidence-confirmed indices on all five entries.",
+    shipped: [
+      "No product code change — this run's own fold attempt was superseded by claude/nice-euler-0x1k8a's own concurrent fold + merge (PR #360), which is functionally identical to what this branch had independently prepared (same stripeSubscriptionPausedAtMs drive-by fix for #358's reintroduced second current_period_start read, same test count 1833)",
+      "Fixed a real off-by-one bug left on main by PR #360's own merge-conflict resolution: BUSINESS_DECISIONS.slice() on 5 ITERATIONS entries (business-process-evolution-3811, prompt-process-evolution-b43f, prompt-process-evolution-3a51, business-process-evolution-516f, claude/nice-euler-0x1k8a) pointed one index too high after nice-euler-0x1k8a's cascade 'correction'; restored to the verified-correct indices 404/405/406/407/408-410",
+      "AGENT_PROTOCOL — added a testing-section bullet: npm test never runs a full tsc typecheck, so a Stripe SDK type-shape drift can silently break npm run build with zero Vitest signal for one or more iterations; when folding a build-break fix alongside a concurrently-merged sibling touching the same file, re-grep the merged result for the same raw broken pattern before declaring green (a sibling can reintroduce a second instance in a code path the original fix never saw)",
+      "Verified on main@#360 (final state, after this run's own doc-only fix): npm run build (clean) + npm run lint (clean) + npm test (1833 passed, unchanged — this run shipped no code, only corrected ITERATIONS bookkeeping)",
+    ],
+    // No new BUSINESS_DECISIONS — this iteration is a bookkeeping correction (BD slice indices)
+    // and a clean audit + fold-race outcome, not a new product/business decision.
+    decisions: [],
   },
 ];
