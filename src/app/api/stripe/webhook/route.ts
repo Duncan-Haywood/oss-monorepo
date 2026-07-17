@@ -480,29 +480,11 @@ export async function POST(request: Request) {
       const parsedSlug = parseLeadSlugLookup(rawSlug);
       const slug = parsedSlug.ok ? parsedSlug.slug : undefined;
       const bundle = typeof tier === "string" ? getBundle(tier) : undefined;
-      // Close earlier abandoned open *bundle* carts for this lead so
-      // Finish-checkout / digest cannot nudge after a later Session pays.
-      // Never commerce_sku (multi-shopper). Run only when slug parses — an
-      // over-long/missing slug skips fulfillment below and must not close
-      // unrelated leads. Starter→Growth after pay mints a new Session.
-      if (slug) {
-        try {
-          await markCompleteOpenBundleCheckoutSessionsForLead(
-            slug,
-            session.id,
-            WEBHOOK_CONVEX_PRIMARY,
-          );
-        } catch (e) {
-          console.error(
-            `Failed to close orphan open bundle checkout sessions for ${slug} after ${session.id}`,
-            e,
-          );
-          const failure = webhookFulfillmentFailureResponse(
-            "checkout_session_orphan_bundle_cleanup",
-          );
-          return NextResponse.json(failure.body, { status: failure.status });
-        }
-      }
+      // Orphan open bundle cleanup runs ONLY after catalog gates + durable
+      // recordLeadPayment (+ handoff enqueue) succeed below — never on slug
+      // parse alone. A paid Session that later skips (unknown tier / wrong
+      // Prices / non-USD / amount mismatch) must leave sibling open carts in
+      // Finish-checkout / digest recovery (bundle-orphan-cleanup-after-catalog-fulfillment).
       if (slug && bundle) {
         const knownTier = bundle.id;
 
@@ -621,6 +603,29 @@ export async function POST(request: Request) {
         } catch (dbError) {
           console.error(`Failed to record lead payment or enqueue handoff for ${slug}:`, dbError);
           const failure = webhookFulfillmentFailureResponse("bundle_payment_or_handoff");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+
+        // Close earlier abandoned open *bundle* carts for this lead so
+        // Finish-checkout / digest cannot nudge after a later Session pays.
+        // Never commerce_sku (multi-shopper). Only after durable payment —
+        // skip paths above must not kill recovery. Starter→Growth after pay
+        // mints a new Session. alreadyRecorded retries still run cleanup
+        // (idempotent) if the first delivery crashed before this step.
+        try {
+          await markCompleteOpenBundleCheckoutSessionsForLead(
+            slug,
+            session.id,
+            WEBHOOK_CONVEX_PRIMARY,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to close orphan open bundle checkout sessions for ${slug} after ${session.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse(
+            "checkout_session_orphan_bundle_cleanup",
+          );
           return NextResponse.json(failure.body, { status: failure.status });
         }
 

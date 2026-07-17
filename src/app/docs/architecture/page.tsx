@@ -489,13 +489,16 @@ export default function ArchitectureDocPage() {
         leaving status=<code>complete</code> forever after a failed ACH would
         permanently drop that revenue (recovery emails mint a new Checkout Session;
         the Stripe Session is terminal). Reopen write failures return{" "}
-        <code>500</code> (<code>checkout_session_mark_open</code>). After a paid
-        bundle Session is marked complete,{" "}
+        <code>500</code> (<code>checkout_session_mark_open</code>). After durable
+        bundle <code>recordLeadPayment</code> (+ handoff enqueue) succeeds — not
+        merely after slug parse or Session markComplete —{" "}
         <code>markCompleteOpenBundleCheckoutSessionsForLead</code> also closes other
         open <em>bundle</em> rows for that <code>leadSlug</code> (never{" "}
         <code>commerce_sku</code> multi-shopper carts) so Finish-checkout / digest /
         pipeline-health cannot nudge an already-paid customer after an earlier
-        abandoned Session; cleanup write failures return{" "}
+        abandoned Session. A paid Session that later skips fulfillment (unknown tier,
+        wrong catalog Prices, non-USD, amount mismatch) must leave sibling open carts
+        in recovery; cleanup write failures return{" "}
         <code>500</code> (<code>checkout_session_orphan_bundle_cleanup</code>).
         Starter→Growth upsell after pay mints a new Checkout Session.{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so

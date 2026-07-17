@@ -365,7 +365,7 @@ describe("POST /api/stripe/webhook", () => {
   });
 
   describe("orphan open bundle checkout_sessions cleanup", () => {
-    it("paid bundle: closes other open bundle sessions for the lead after markComplete", async () => {
+    it("paid bundle: closes other open bundle sessions after durable recordLeadPayment", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },
         customer_details: { email: "owner@demo-cafe.test" },
@@ -386,12 +386,16 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCheckoutSessionComplete).toHaveBeenCalledWith("cs_test_1", {
         requireConvex: true,
       });
+      expect(recordLeadPayment).toHaveBeenCalled();
       expect(markCompleteOpenBundleCheckoutSessionsForLead).toHaveBeenCalledWith(
         "demo-cafe",
         "cs_test_1",
         { requireConvex: true },
       );
-      expect(recordLeadPayment).toHaveBeenCalled();
+      // Cleanup must follow durable payment — not run on slug parse alone.
+      expect(markCompleteOpenBundleCheckoutSessionsForLead.mock.invocationCallOrder[0]).toBeGreaterThan(
+        recordLeadPayment.mock.invocationCallOrder[0]!,
+      );
     });
 
     it("commerce_sku paid: does not close sibling bundle/open carts for the lead", async () => {
@@ -430,12 +434,65 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCompleteOpenBundleCheckoutSessionsForLead).not.toHaveBeenCalled();
     });
 
-    it("returns 500 (checkout_session_orphan_bundle_cleanup) when orphan cleanup fails", async () => {
+    it("skips orphan cleanup when amount_total mismatches catalog (keep recovery carts)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        amount_total: 999,
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalledTimes(1);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(markCompleteOpenBundleCheckoutSessionsForLead).not.toHaveBeenCalled();
+    });
+
+    it("skips orphan cleanup when tier is unknown (keep recovery carts)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "enterprise" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(markCompleteOpenBundleCheckoutSessionsForLead).not.toHaveBeenCalled();
+    });
+
+    it("skips orphan cleanup when currency is not usd (keep recovery carts)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        currency: "eur",
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(markCompleteOpenBundleCheckoutSessionsForLead).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 (checkout_session_orphan_bundle_cleanup) when orphan cleanup fails after payment", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },
         customer_details: { email: "owner@demo-cafe.test" },
       });
       constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
       markCompleteOpenBundleCheckoutSessionsForLead.mockRejectedValueOnce(
         new Error("convex down"),
       );
@@ -446,7 +503,9 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("checkout_session_orphan_bundle_cleanup");
       expect(json.received).toBe(false);
-      expect(recordLeadPayment).not.toHaveBeenCalled();
+      // Payment already durable — Stripe retry recovers cleanup + emails.
+      expect(recordLeadPayment).toHaveBeenCalled();
+      expect(sendReceiptEmail).not.toHaveBeenCalled();
     });
   });
 
