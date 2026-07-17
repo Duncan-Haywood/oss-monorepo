@@ -11034,7 +11034,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: sibling business-process-evolution-4b2e paused MRR pipeline/digest — keep both NEXT_STEPS/ITERATIONS",
       "BUSINESS_DECISIONS — require Buy now create + Sync entitlement gates (absolute index 397)",
       "Process: coop with sibling 4b2e digest claim; claim pushed before feature body; patched agent-hooks secret-name filter; remapped BD slices after fold (digest=396, create/sync=397)",
-      "Verified: npm test + lint",
+      "Verified: npm test (1739 passed) + lint after sibling fold",
     ],
     // Object-parse by decision text: Buy now create/sync entitlement owns BD[397]; paused digest=396.
     decisions: BUSINESS_DECISIONS.slice(397, 398),
