@@ -39,19 +39,24 @@ import {
 import {
   listMarketingPacksDue,
   marketingMonthKey,
+  oldestMarketingPacksDueAgeHours,
 } from "../marketing/monthly-pack";
 import {
   listStarterUpsellCandidates,
   resolveUpsellTargetTier,
   type UpsellTargetTier,
 } from "../billing/starter-upsell";
-import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "../commerce/catalog";
+import {
+  listCommerceCatalogsMissing,
+  listCommerceCatalogsUnsynced,
+  oldestCommerceCatalogCandidateAgeHours,
+} from "../commerce/catalog";
 import {
   commerceOrderNeedsClawback,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
 } from "../commerce/orders";
-import { listClientVoicePacksDue } from "../voice/faq-pack";
+import { listClientVoicePacksDue, oldestClientVoicePacksDueAgeHours } from "../voice/faq-pack";
 import {
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
@@ -70,6 +75,8 @@ const CLIENT_VOICE_PACKS_LIMIT = 5;
 const COMMERCE_PAYOUTS_LIMIT = 5;
 const COMMERCE_REFUND_CLAWBACK_LIMIT = 5;
 const COMMERCE_DISPUTE_CLAWBACK_LIMIT = 5;
+const BUNDLE_ORDERS_REFUNDED_LIMIT = 5;
+const BUNDLE_ORDERS_DISPUTED_LIMIT = 5;
 const OPEN_HANDOFFS_LIMIT = 5;
 const PAID_NOT_LIVE_LIMIT = 5;
 const LEADS_MISSING_EMAIL_LIMIT = 5;
@@ -176,6 +183,34 @@ export interface DigestCommerceOrderDisputeClawback {
   disputedAt: string;
 }
 
+/**
+ * A bundle (Starter/Growth/Complete/Commerce-addon) order Stripe refunded
+ * (charge.refunded, full or partial) — see bundle-order-refund-tracking.
+ * Visibility only: unlike Commerce Buy now clawback tracking, this ledger has
+ * no manual-payout double-loss risk, so this is not an action-required
+ * clawback, just operator awareness that revenueTotalUsd already excludes it.
+ */
+export interface DigestBundleOrderRefund {
+  slug: string;
+  businessName: string;
+  tier: string;
+  amountPaidUsd: number;
+  refundedAt: string;
+}
+
+/**
+ * A bundle order Stripe disputed (charge.dispute.created, or dispute.closed
+ * lost) — see bundle-order-dispute-tracking. Visibility only; cleared on
+ * dispute.closed won / warning_closed.
+ */
+export interface DigestBundleOrderDispute {
+  slug: string;
+  businessName: string;
+  tier: string;
+  amountPaidUsd: number;
+  disputedAt: string;
+}
+
 /** Paid production handoff not yet Mark live (same predicate as openHandoffCount). */
 export interface DigestOpenHandoff {
   slug: string;
@@ -235,14 +270,22 @@ export interface DailyDigest {
   unrepliedInquiriesCount: number;
   marketingPacksDue: DigestMarketingPackDue[];
   marketingPacksDueCount: number;
+  /** Age in whole hours since the oldest due lead's pack first became due this month; null when none. */
+  oldestMarketingPacksDueAgeHours: number | null;
   starterUpsellCandidates: DigestStarterUpsellLead[];
   starterUpsellCandidatesCount: number;
   commerceCatalogsMissing: DigestCommerceCatalogMissing[];
   commerceCatalogsMissingCount: number;
+  /** Age in whole hours since the oldest missing-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsMissingAgeHours: number | null;
   commerceCatalogsUnsynced: DigestCommerceCatalogUnsynced[];
   commerceCatalogsUnsyncedCount: number;
+  /** Age in whole hours since the oldest unsynced-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsUnsyncedAgeHours: number | null;
   clientVoicePacksDue: DigestClientVoicePackDue[];
   clientVoicePacksDueCount: number;
+  /** Age in whole hours since the oldest voice-pack-due lead's qualifying order; null when none. */
+  oldestClientVoicePacksDueAgeHours: number | null;
   /** Per-lead pass-through Buy now totals still owed until Connect (action section). */
   commercePayoutsOwed: DigestCommercePayoutOwed[];
   /** True count before the COMMERCE_PAYOUTS_LIMIT slice — use for the section header. */
@@ -255,12 +298,39 @@ export interface DailyDigest {
   commerceOrdersRefundClawbackCount: number;
   /** Sum of amountPaidUsd across commerceOrdersRefundClawbackCount orders — already computed pre-slice. */
   commerceOrdersRefundClawbackTotalUsd: number;
+  /** Age in whole hours of the oldest refund-clawback order (by refundedAt); null when none. */
+  oldestCommerceOrdersRefundClawbackAgeHours: number | null;
   /** Commerce orders disputed after payout — clawback owed from the client (action section). */
   commerceOrdersDisputeClawback: DigestCommerceOrderDisputeClawback[];
   /** True count before the COMMERCE_DISPUTE_CLAWBACK_LIMIT slice — use for the section header. */
   commerceOrdersDisputeClawbackCount: number;
   /** Sum of amountPaidUsd across commerceOrdersDisputeClawbackCount orders — already computed pre-slice. */
   commerceOrdersDisputeClawbackTotalUsd: number;
+  /** Age in whole hours of the oldest dispute-clawback order (by disputedAt); null when none. */
+  oldestCommerceOrdersDisputeClawbackAgeHours: number | null;
+  /**
+   * Bundle (Starter/Growth/Complete/Commerce-addon) orders Stripe refunded —
+   * visibility footnote, not an action section (no clawback owed on this
+   * ledger; see bundle-order-refund-tracking).
+   */
+  bundleOrdersRefunded: DigestBundleOrderRefund[];
+  /** True count before the BUNDLE_ORDERS_REFUNDED_LIMIT slice — use for the section header. */
+  bundleOrdersRefundedCount: number;
+  /** Sum of amountPaidUsd across bundleOrdersRefundedCount orders — already computed pre-slice. */
+  bundleOrdersRefundedTotalUsd: number;
+  /** Age in whole hours of the oldest refunded bundle order (by refundedAt); null when none. */
+  oldestBundleOrdersRefundedAgeHours: number | null;
+  /**
+   * Bundle orders Stripe disputed — visibility footnote (see
+   * bundle-order-dispute-tracking). Cleared on dispute.closed won.
+   */
+  bundleOrdersDisputed: DigestBundleOrderDispute[];
+  /** True count before the BUNDLE_ORDERS_DISPUTED_LIMIT slice — use for the section header. */
+  bundleOrdersDisputedCount: number;
+  /** Sum of amountPaidUsd across bundleOrdersDisputedCount orders — already computed pre-slice. */
+  bundleOrdersDisputedTotalUsd: number;
+  /** Age in whole hours of the oldest disputed bundle order (by disputedAt); null when none. */
+  oldestBundleOrdersDisputedAgeHours: number | null;
   /**
    * Paid sites still awaiting DNS / Mark live — same status !== "live" filter as
    * pipeline-health openHandoffCount (action section).
@@ -333,6 +403,14 @@ export interface BuildDailyDigestInput {
     commerceAddon: boolean;
     recurringCanceledAt?: number | null;
     stripeCustomerId?: string | null;
+    /** ISO timestamp. Marketing/catalog/voice-pack oldest-age sections read this. */
+    createdAt?: string;
+    /** USD dollars. Bundle refunded/disputed sections read this. */
+    amountPaid?: number;
+    /** ISO timestamp when charge.refunded flagged this order — see bundle-order-refund-tracking. */
+    refundedAt?: string;
+    /** ISO timestamp when charge.dispute.created flagged this order — see bundle-order-dispute-tracking. */
+    disputedAt?: string;
   }>;
   marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
   commerceCatalogs?: ReadonlyArray<{
@@ -543,6 +621,28 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       businessName: lead.businessName,
     }));
 
+  const oldestMarketingPacksDueAgeHoursValue = oldestMarketingPacksDueAgeHours(
+    marketingPacksDueAll,
+    orders,
+    yearMonth,
+    nowMs,
+  );
+  const oldestCommerceCatalogsMissingAgeHoursValue = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsMissingAll,
+    orders,
+    nowMs,
+  );
+  const oldestCommerceCatalogsUnsyncedAgeHoursValue = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsUnsyncedAll,
+    orders,
+    nowMs,
+  );
+  const oldestClientVoicePacksDueAgeHoursValue = oldestClientVoicePacksDueAgeHours(
+    clientVoicePacksDueAll,
+    orders,
+    nowMs,
+  );
+
   const commercePayoutSummaries = summarizeCommerceOrdersByLead(commerceOrders).filter(
     (summary) => summary.unpaidCount > 0,
   );
@@ -581,6 +681,16 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         amountPaidUsd: order.amountPaidUsd,
         refundedAt: order.refundedAt ?? "",
       }));
+  const oldestCommerceOrdersRefundClawbackAgeHours: number | null = (() => {
+    let oldestMs = Infinity;
+    for (const order of commerceOrdersRefundClawbackAll) {
+      if (!order.refundedAt) continue;
+      const parsed = Date.parse(order.refundedAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
 
   // Dispute-after-payout clawback — distinct feed from commerceOrders above,
   // which drops any row once paidOutAt is set (see
@@ -603,6 +713,75 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         amountPaidUsd: order.amountPaidUsd,
         disputedAt: order.disputedAt ?? "",
       }));
+  const oldestCommerceOrdersDisputeClawbackAgeHours: number | null = (() => {
+    let oldestMs = Infinity;
+    for (const order of commerceOrdersDisputeClawbackAll) {
+      if (!order.disputedAt) continue;
+      const parsed = Date.parse(order.disputedAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
+
+  // Bundle order refunds — visibility footnote, not a clawback action (no
+  // payout-panel double-loss risk on this ledger; see
+  // bundle-order-refund-tracking).
+  const bundleOrdersRefundedAll = orders.filter(
+    (order): order is typeof order & { refundedAt: string } => Boolean(order.refundedAt),
+  );
+  const bundleOrdersRefundedCount = bundleOrdersRefundedAll.length;
+  const bundleOrdersRefundedTotalUsd = bundleOrdersRefundedAll.reduce(
+    (sum, order) => sum + (typeof order.amountPaid === "number" ? order.amountPaid : 0),
+    0,
+  );
+  const bundleOrdersRefunded: DigestBundleOrderRefund[] = bundleOrdersRefundedAll
+    .slice(0, BUNDLE_ORDERS_REFUNDED_LIMIT)
+    .map((order) => ({
+      slug: order.leadSlug,
+      businessName: leadsBySlug.get(order.leadSlug)?.businessName ?? order.leadSlug,
+      tier: order.tier,
+      amountPaidUsd: typeof order.amountPaid === "number" ? order.amountPaid : 0,
+      refundedAt: order.refundedAt,
+    }));
+  const oldestBundleOrdersRefundedAgeHours: number | null = (() => {
+    let oldestMs = Infinity;
+    for (const order of bundleOrdersRefundedAll) {
+      const parsed = Date.parse(order.refundedAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
+
+  // Bundle order disputes — same visibility footnote shape
+  // (bundle-order-dispute-tracking).
+  const bundleOrdersDisputedAll = orders.filter(
+    (order): order is typeof order & { disputedAt: string } => Boolean(order.disputedAt),
+  );
+  const bundleOrdersDisputedCount = bundleOrdersDisputedAll.length;
+  const bundleOrdersDisputedTotalUsd = bundleOrdersDisputedAll.reduce(
+    (sum, order) => sum + (typeof order.amountPaid === "number" ? order.amountPaid : 0),
+    0,
+  );
+  const bundleOrdersDisputed: DigestBundleOrderDispute[] = bundleOrdersDisputedAll
+    .slice(0, BUNDLE_ORDERS_DISPUTED_LIMIT)
+    .map((order) => ({
+      slug: order.leadSlug,
+      businessName: leadsBySlug.get(order.leadSlug)?.businessName ?? order.leadSlug,
+      tier: order.tier,
+      amountPaidUsd: typeof order.amountPaid === "number" ? order.amountPaid : 0,
+      disputedAt: order.disputedAt,
+    }));
+  const oldestBundleOrdersDisputedAgeHours: number | null = (() => {
+    let oldestMs = Infinity;
+    for (const order of bundleOrdersDisputedAll) {
+      const parsed = Date.parse(order.disputedAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
 
   // Same status !== "live" predicate as pipeline-health openHandoffCount.
   const openHandoffsAll = handoffs
@@ -707,6 +886,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commercePayoutsOwed.length === 0 &&
     commerceOrdersRefundClawback.length === 0 &&
     commerceOrdersDisputeClawback.length === 0 &&
+    bundleOrdersRefunded.length === 0 &&
+    bundleOrdersDisputed.length === 0 &&
     openHandoffs.length === 0 &&
     paidNotLive.length === 0 &&
     leadsMissingEmail.length === 0 &&
@@ -725,23 +906,37 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     unrepliedInquiriesCount,
     marketingPacksDue,
     marketingPacksDueCount,
+    oldestMarketingPacksDueAgeHours: oldestMarketingPacksDueAgeHoursValue,
     starterUpsellCandidates,
     starterUpsellCandidatesCount,
     commerceCatalogsMissing,
     commerceCatalogsMissingCount,
+    oldestCommerceCatalogsMissingAgeHours: oldestCommerceCatalogsMissingAgeHoursValue,
     commerceCatalogsUnsynced,
     commerceCatalogsUnsyncedCount,
+    oldestCommerceCatalogsUnsyncedAgeHours: oldestCommerceCatalogsUnsyncedAgeHoursValue,
     clientVoicePacksDue,
     clientVoicePacksDueCount,
+    oldestClientVoicePacksDueAgeHours: oldestClientVoicePacksDueAgeHoursValue,
     commercePayoutsOwed,
     commercePayoutsOwedCount,
     commercePayoutsOwedTotalUsd,
     commerceOrdersRefundClawback,
     commerceOrdersRefundClawbackCount,
     commerceOrdersRefundClawbackTotalUsd,
+    oldestCommerceOrdersRefundClawbackAgeHours,
     commerceOrdersDisputeClawback,
     commerceOrdersDisputeClawbackCount,
     commerceOrdersDisputeClawbackTotalUsd,
+    oldestCommerceOrdersDisputeClawbackAgeHours,
+    bundleOrdersRefunded,
+    bundleOrdersRefundedCount,
+    bundleOrdersRefundedTotalUsd,
+    oldestBundleOrdersRefundedAgeHours,
+    bundleOrdersDisputed,
+    bundleOrdersDisputedCount,
+    bundleOrdersDisputedTotalUsd,
+    oldestBundleOrdersDisputedAgeHours,
     openHandoffs,
     openHandoffsCount,
     paidNotLive,
@@ -886,7 +1081,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   );
   const clawbackTitle =
     digest.commerceOrdersRefundClawbackCount > 0
-      ? `Refund clawback needed ($${digest.commerceOrdersRefundClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersRefundClawbackCount} order${digest.commerceOrdersRefundClawbackCount === 1 ? "" : "s"})`
+      ? `Refund clawback needed ($${digest.commerceOrdersRefundClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersRefundClawbackCount} order${digest.commerceOrdersRefundClawbackCount === 1 ? "" : "s"}${digest.oldestCommerceOrdersRefundClawbackAgeHours !== null ? ` · oldest ${digest.oldestCommerceOrdersRefundClawbackAgeHours}h` : ""})`
       : "Refund clawback needed (0)";
 
   const disputeClawbackRows = digest.commerceOrdersDisputeClawback.map(
@@ -895,8 +1090,26 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   );
   const disputeClawbackTitle =
     digest.commerceOrdersDisputeClawbackCount > 0
-      ? `Dispute clawback needed ($${digest.commerceOrdersDisputeClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersDisputeClawbackCount} order${digest.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"})`
+      ? `Dispute clawback needed ($${digest.commerceOrdersDisputeClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersDisputeClawbackCount} order${digest.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"}${digest.oldestCommerceOrdersDisputeClawbackAgeHours !== null ? ` · oldest ${digest.oldestCommerceOrdersDisputeClawbackAgeHours}h` : ""})`
       : "Dispute clawback needed (0)";
+
+  const bundleRefundRows = digest.bundleOrdersRefunded.map(
+    (row) =>
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} (${escapeHtmlForEmail(row.tier)}) refunded by Stripe — already excluded from revenue, no action needed`,
+  );
+  const bundleRefundTitle =
+    digest.bundleOrdersRefundedCount > 0
+      ? `Bundle revenue refunded ($${digest.bundleOrdersRefundedTotalUsd.toFixed(2)} · ${digest.bundleOrdersRefundedCount} order${digest.bundleOrdersRefundedCount === 1 ? "" : "s"}${digest.oldestBundleOrdersRefundedAgeHours !== null ? ` · oldest ${digest.oldestBundleOrdersRefundedAgeHours}h` : ""})`
+      : "Bundle revenue refunded (0)";
+
+  const bundleDisputeRows = digest.bundleOrdersDisputed.map(
+    (row) =>
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} (${escapeHtmlForEmail(row.tier)}) disputed by Stripe — already excluded from revenue, no action needed`,
+  );
+  const bundleDisputeTitle =
+    digest.bundleOrdersDisputedCount > 0
+      ? `Bundle revenue disputed ($${digest.bundleOrdersDisputedTotalUsd.toFixed(2)} · ${digest.bundleOrdersDisputedCount} order${digest.bundleOrdersDisputedCount === 1 ? "" : "s"}${digest.oldestBundleOrdersDisputedAgeHours !== null ? ` · oldest ${digest.oldestBundleOrdersDisputedAgeHours}h` : ""})`
+      : "Bundle revenue disputed (0)";
 
   const handoffRows = digest.openHandoffs.map(
     (handoff) =>
@@ -937,19 +1150,21 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       inquiryRows,
       "Inbox clear.",
     )}
-    ${section(`Marketing packs due (${digest.marketingPacksDueCount})`, packRows, "All Growth/Complete packs generated this month.")}
+    ${section(`Marketing packs due (${digest.marketingPacksDueCount}${digest.oldestMarketingPacksDueAgeHours !== null ? ` · oldest ${digest.oldestMarketingPacksDueAgeHours}h` : ""})`, packRows, "All Growth/Complete packs generated this month.")}
     ${section(
       `MRR paused / canceled (${digest.recurringEntitlementPausedCount}${digest.oldestRecurringEntitlementPausedAgeHours !== null ? ` · oldest ${digest.oldestRecurringEntitlementPausedAgeHours}h` : ""})`,
       recurringPausedRows,
       "No paused or canceled Growth/Complete/Commerce subscribers need recovery.",
     )}
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
-    ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
-    ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
-    ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount})`, voicePackRows, "All Complete voice FAQ packs generated.")}
+    ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount}${digest.oldestCommerceCatalogsMissingAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsMissingAgeHours}h` : ""})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
+    ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount}${digest.oldestCommerceCatalogsUnsyncedAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsUnsyncedAgeHours}h` : ""})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
+    ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount}${digest.oldestClientVoicePacksDueAgeHours !== null ? ` · oldest ${digest.oldestClientVoicePacksDueAgeHours}h` : ""})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
     ${section(clawbackTitle, clawbackRows, "No Commerce payouts have been refunded after the fact.")}
     ${section(disputeClawbackTitle, disputeClawbackRows, "No Commerce payouts have been disputed after the fact.")}
+    ${section(bundleRefundTitle, bundleRefundRows, "No bundle orders refunded.")}
+    ${section(bundleDisputeTitle, bundleDisputeRows, "No bundle orders disputed.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
     ${section(`Paid, not yet live (${digest.paidNotLiveCount})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}

@@ -28,6 +28,7 @@ export {
   listCommerceCatalogsUnsynced,
   newCommerceSkuId,
   normalizeCommerceItems,
+  oldestCommerceCatalogCandidateAgeHours,
   preserveCommerceStripeIds,
   type NormalizeCommerceItemsResult,
 } from "./catalog";
@@ -51,9 +52,11 @@ export {
 
 export {
   commerceOrderNeedsClawback,
+  commerceOrdersByLeadSummaryNeedsAttention,
   isCommerceOrderDisputed,
   isCommerceOrderPaidOut,
   isCommerceOrderRefunded,
+  mergeCommerceOrdersForReview,
   newCommerceOrderId,
   sortCommerceOrdersNewestFirst,
   sumCommerceOrdersRevenueUsd,

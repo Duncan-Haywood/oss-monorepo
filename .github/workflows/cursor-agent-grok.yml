@@ -1,5 +1,6 @@
 # Run Cursor Agent CLI pinned to Grok 4.5 (manual dispatch).
-# Auth: CURSOR_API_KEY from the Cursor dashboard (not GROK_AUTH_JSON — that is for the Grok Build CLI).
+# Auth: CURSOR_CLI_CONFIG subscription OAuth (~/.cursor/cli-config.json from `agent login`),
+# same secret as cursor-scheduled.yml. Not GROK_AUTH_JSON — that is for the Grok Build CLI.
 name: Cursor Agent (Grok 4.5)
 
 on:
@@ -40,18 +41,32 @@ jobs:
           curl https://cursor.com/install -fsS | bash
           echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
 
+      - name: Restore Cursor OAuth cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cursor/cli-config.json
+            ~/.cursor/auth.json
+          key: cursor-oauth-auth-${{ github.run_id }}-grok
+          restore-keys: |
+            cursor-oauth-auth-
+
+      - name: Seed Cursor OAuth config
+        env:
+          CURSOR_CLI_CONFIG: ${{ secrets.CURSOR_CLI_CONFIG }}
+        run: |
+          chmod +x .github/scripts/restore-oauth-auth.sh
+          mkdir -p "$HOME/.cursor"
+          .github/scripts/restore-oauth-auth.sh "$HOME/.cursor/cli-config.json" CURSOR_CLI_CONFIG
+
       - name: Run Cursor Agent
         env:
-          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           AGENT_PROMPT: ${{ inputs.prompt }}
           AGENT_FORCE: ${{ inputs.force }}
           AGENT_MODE: ${{ inputs.mode }}
         run: |
           set -euo pipefail
-          if [ -z "${CURSOR_API_KEY:-}" ]; then
-            echo "::error::Missing secret CURSOR_API_KEY. Create an API key in the Cursor dashboard and add it as a repo secret."
-            exit 1
-          fi
+          unset CURSOR_API_KEY || true
 
           args=(-p --trust --model cursor-grok-4.5-high --output-format text)
           if [ "$AGENT_FORCE" = "true" ]; then
@@ -62,3 +77,12 @@ jobs:
           fi
 
           agent "${args[@]}" "$AGENT_PROMPT"
+
+      - name: Persist refreshed OAuth auth
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cursor/cli-config.json
+            ~/.cursor/auth.json
+          key: cursor-oauth-auth-${{ github.run_id }}-grok

@@ -1097,8 +1097,23 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>listCommerceCatalogsMissing</code> / <code>listClientVoicePacksDue</code>
         — fed by uncapped <code>listMarketingPacksForMonth</code> /{" "}
         <code>listCommerceCatalogs</code> / <code>listClientVoicePacks</code>, not a newest-N
-        page that would invent false Generate debt or hide Sync-to-Stripe debt). A lead that
-        exhausts all 3 outreach
+        page that would invent false Generate debt or hide Sync-to-Stripe debt). Marketing packs
+        due, Commerce catalogs missing, Commerce Sync to Stripe due, and Complete voice packs due
+        each also carry an oldest-age staleness signal (<code>oldestMarketingPacksDueAgeHours</code>{" "}
+        / <code>oldestCommerceCatalogCandidateAgeHours</code> / <code>
+          oldestClientVoicePacksDueAgeHours
+        </code>
+        , same &quot;oldest Xh&quot; hint pattern as every other due-queue) on both{" "}
+        <code>PipelineHealth</code> and the daily digest — anchored to the qualifying order&apos;s{" "}
+        <code>createdAt</code> for the two non-month-keyed queues (catalogs, voice packs), or to
+        the later of the current UTC month&apos;s start and that order&apos;s{" "}
+        <code>createdAt</code> for marketing packs specifically (
+        <code>marketingMonthStartMs</code>) — a long-time Growth/Complete subscriber&apos;s age
+        resets with the calendar month the pack itself is scoped to, instead of showing an
+        ever-growing, non-actionable age tied to their original signup date. Starter → MRR
+        upsell already had this staleness signal on pipeline-health/dashboard from launch but
+        not yet on the digest email — a smaller follow-up gap left open for a future iteration.
+        A lead that exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is
         surfaced instead as a &quot;Cold&quot; badge on the leads table and a pipeline-health
@@ -1429,9 +1444,47 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>warning_closed</code> clears <code>disputedAt</code> via{" "}
         <code>clearCommerceOrderDisputed</code> (Convex replace omit + SQLite NULL) so Mark paid
         out and owed totals reopen after Stripe reinstates funds; status <code>lost</code> keeps
-        or ensures <code>disputedAt</code> (created may have been missed). Bundle
-        (Starter/Growth/Complete) order refunds/disputes are not handled here — that ledger has no
-        manual-payout double-loss risk today.
+        or ensures <code>disputedAt</code> (created may have been missed).
+      </p>
+
+      <p>
+        Bundle (Starter/Growth/Complete/Commerce-addon) order refunds and disputes have no
+        manual-payout double-loss risk — that revenue is never disbursed to a client — but a
+        refunded or disputed charge still needs to stop counting as revenue and stay visible to
+        the operator. On <code>charge.refunded</code> / <code>charge.dispute.created</code>, when
+        the resolved Checkout Session backs no <code>commerceOrders</code> row, the webhook
+        checks whether it backs a bundle <code>orders</code> row instead (via{" "}
+        <code>getOrderByStripeSessionId</code>) and marks <code>orders.refundedAt</code> /{" "}
+        <code>orders.disputedAt</code> (idempotent; <code>markOrderRefunded</code> /{" "}
+        <code>markOrderDisputed</code>). <code>PipelineHealth.revenueTotalUsd</code> excludes any
+        order with either flag set, and the dashboard&apos;s{" "}
+        <strong>Bundle revenue refunded</strong> / <strong>Bundle revenue disputed</strong> cards
+        plus matching daily-digest sections surface the count/total for awareness — unlike the
+        Commerce clawback cards above, there is no Mark-paid-out reject or claw-back action here,
+        since nothing was ever paid out to a third party.{" "}
+        <code>charge.dispute.closed</code> with status <code>won</code> /{" "}
+        <code>warning_closed</code> clears <code>orders.disputedAt</code> via{" "}
+        <code>clearOrderDisputed</code> (Convex replace omit + SQLite NULL) so revenue reopens
+        after Stripe reinstates funds; status <code>lost</code> keeps or ensures{" "}
+        <code>disputedAt</code>.
+      </p>
+
+      <p>
+        The <strong>Commerce payouts (manual)</strong> panel itself is the row-level surface for
+        clawback: it merges <code>listUnpaidCommerceOrders</code> with{" "}
+        <code>listCommerceOrdersRefunded</code> / <code>listCommerceOrdersDisputed</code> (
+        <code>mergeCommerceOrdersForReview</code>, deduped by <code>id</code> — an order refunded
+        but never paid out satisfies both the &quot;unpaid&quot; and &quot;refunded&quot; feeds,
+        so a raw concat would double-count it) before grouping by lead, and keeps a lead&apos;s
+        summary visible when it has a clawback-needed order even if{" "}
+        <code>unpaidCount</code> is 0 (<code>commerceOrdersByLeadSummaryNeedsAttention</code>).
+        Until this fix, a clawback-needed order (paid out, then refunded/disputed) never reached
+        the panel&apos;s data at all — <code>listUnpaidCommerceOrders</code> excludes every{" "}
+        <code>paidOutAt</code> row by definition — so the panel&apos;s own per-order text
+        (&quot;Refunded/Disputed after payout — claw back from client&quot;) was dead code, and
+        the live dashboard had zero row-level clawback detail beyond the aggregate
+        pipeline-health count/$ card and the daily-digest email (see
+        commerce-payouts-panel-clawback-visibility).
       </p>
 
       <h2>Tech stack</h2>

@@ -1,7 +1,7 @@
 name: Cursor Agent scheduled agents
 
-# Cursor Agent CLI. Prefer OAuth cli-config from `agent login`
-# (CURSOR_CLI_CONFIG → ~/.cursor/cli-config.json). Fall back to CURSOR_API_KEY.
+# Cursor Agent CLI, subscription OAuth only — no CURSOR_API_KEY fallback.
+# Required CI secret: CURSOR_CLI_CONFIG (~/.cursor/cli-config.json from `agent login`).
 # Runs both repo prompts hourly (stagger :40).
 
 on:
@@ -77,21 +77,13 @@ jobs:
           restore-keys: |
             cursor-oauth-auth-
 
-      - name: Seed Cursor auth (OAuth config and/or API key)
+      - name: Seed Cursor OAuth config
         env:
           CURSOR_CLI_CONFIG: ${{ secrets.CURSOR_CLI_CONFIG }}
-          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
         run: |
           chmod +x .github/scripts/restore-oauth-auth.sh
           mkdir -p "$HOME/.cursor"
-          if [ -n "${CURSOR_CLI_CONFIG:-}" ]; then
-            .github/scripts/restore-oauth-auth.sh "$HOME/.cursor/cli-config.json" CURSOR_CLI_CONFIG
-          elif [ -n "${CURSOR_API_KEY:-}" ]; then
-            echo "Using CURSOR_API_KEY (no CURSOR_CLI_CONFIG OAuth seed)."
-          else
-            echo "::error::Set CURSOR_CLI_CONFIG (from ~/.cursor/cli-config.json after agent login) or CURSOR_API_KEY."
-            exit 1
-          fi
+          .github/scripts/restore-oauth-auth.sh "$HOME/.cursor/cli-config.json" CURSOR_CLI_CONFIG
 
       - name: Prepare prompt
         run: |
@@ -106,13 +98,13 @@ jobs:
           git config user.name "cursor-scheduled[bot]"
           git config user.email "cursor-scheduled[bot]@users.noreply.github.com"
 
-      - name: Run Cursor Agent (headless)
+      - name: Run Cursor Agent (headless, OAuth)
         env:
-          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODEL_INPUT: ${{ github.event.inputs.model || '' }}
         run: |
           set -euo pipefail
+          unset CURSOR_API_KEY || true
           command -v agent || command -v cursor-agent
           AGENT_BIN="$(command -v agent || command -v cursor-agent)"
           PROMPT="$(cat "$PROMPT_FILE")"

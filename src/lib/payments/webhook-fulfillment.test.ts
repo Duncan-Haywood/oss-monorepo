@@ -166,4 +166,28 @@ describe("webhookFulfillmentFailureResponse", () => {
     expect(result.body.step).toBe("commerce_order_dispute_clear");
     expect(result.body.error).toMatch(/retry/i);
   });
+
+  it("returns 500 with received:false for bundle order refund failures", () => {
+    const result = webhookFulfillmentFailureResponse("bundle_order_refund");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("bundle_order_refund");
+    expect(result.body.error).toMatch(/retry/i);
+  });
+
+  it("returns 500 with received:false for bundle order dispute failures", () => {
+    const result = webhookFulfillmentFailureResponse("bundle_order_dispute");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("bundle_order_dispute");
+    expect(result.body.error).toMatch(/retry/i);
+  });
+
+  it("returns 500 with received:false for bundle order dispute clear failures", () => {
+    const result = webhookFulfillmentFailureResponse("bundle_order_dispute_clear");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("bundle_order_dispute_clear");
+    expect(result.body.error).toMatch(/retry/i);
+  });
 });

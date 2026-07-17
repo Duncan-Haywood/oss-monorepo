@@ -72,13 +72,17 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceCheckoutRecoveriesDue).toHaveLength(0);
     expect(digest.unrepliedInquiries).toHaveLength(0);
     expect(digest.marketingPacksDue).toHaveLength(0);
+    expect(digest.oldestMarketingPacksDueAgeHours).toBeNull();
     expect(digest.recurringEntitlementPaused).toHaveLength(0);
     expect(digest.recurringEntitlementPausedCount).toBe(0);
     expect(digest.oldestRecurringEntitlementPausedAgeHours).toBeNull();
     expect(digest.starterUpsellCandidates).toHaveLength(0);
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
+    expect(digest.oldestCommerceCatalogsMissingAgeHours).toBeNull();
     expect(digest.commerceCatalogsUnsynced).toHaveLength(0);
+    expect(digest.oldestCommerceCatalogsUnsyncedAgeHours).toBeNull();
     expect(digest.clientVoicePacksDue).toHaveLength(0);
+    expect(digest.oldestClientVoicePacksDueAgeHours).toBeNull();
     expect(digest.commercePayoutsOwed).toHaveLength(0);
     expect(digest.openHandoffs).toHaveLength(0);
     expect(digest.paidNotLive).toHaveLength(0);
@@ -472,7 +476,14 @@ describe("buildDailyDigest", () => {
       inquiries: [],
       openCheckoutSessions: [],
       orders: [
-        { leadSlug: "needs-pack", tier: "growth", commerceAddon: false },
+        {
+          leadSlug: "needs-pack",
+          tier: "growth",
+          commerceAddon: false,
+          // Well before this month started — due-since anchors to month
+          // start, not this order's createdAt (see marketingMonthStartMs).
+          createdAt: new Date(Date.UTC(2026, 0, 1)).toISOString(),
+        },
         { leadSlug: "has-pack", tier: "complete", commerceAddon: false },
       ],
       marketingPacksThisMonth: [{ leadSlug: "has-pack", yearMonth: "2026-07" }],
@@ -481,7 +492,16 @@ describe("buildDailyDigest", () => {
     expect(digest.marketingPacksDue).toHaveLength(1);
     expect(digest.marketingPacksDue[0]?.businessName).toBe("Needs Pack Cafe");
     expect(digest.marketingPacksDue[0]?.yearMonth).toBe("2026-07");
+    const monthStartMs = Date.UTC(2026, 6, 1);
+    expect(digest.oldestMarketingPacksDueAgeHours).toBe(
+      Math.floor((NOW - monthStartMs) / (60 * 60 * 1000)),
+    );
     expect(digest.isEmpty).toBe(false);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain(
+      `Marketing packs due (1 · oldest ${digest.oldestMarketingPacksDueAgeHours}h)`,
+    );
   });
 
   it("lists paid/live MRR customers with paused recurring entitlement for Billing Portal chase", () => {
@@ -566,7 +586,12 @@ describe("buildDailyDigest", () => {
       inquiries: [],
       openCheckoutSessions: [],
       orders: [
-        { leadSlug: "needs-catalog", tier: "starter", commerceAddon: true },
+        {
+          leadSlug: "needs-catalog",
+          tier: "starter",
+          commerceAddon: true,
+          createdAt: new Date(NOW - 8 * 60 * 60 * 1000).toISOString(),
+        },
         { leadSlug: "has-catalog", tier: "growth", commerceAddon: true },
       ],
       commerceCatalogs: [{ leadSlug: "has-catalog" }],
@@ -574,6 +599,7 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.commerceCatalogsMissing).toHaveLength(1);
     expect(digest.commerceCatalogsMissing[0]?.businessName).toBe("Needs Catalog Retail");
+    expect(digest.oldestCommerceCatalogsMissingAgeHours).toBe(8);
     expect(digest.isEmpty).toBe(false);
   });
 
@@ -593,7 +619,12 @@ describe("buildDailyDigest", () => {
       inquiries: [],
       openCheckoutSessions: [],
       orders: [
-        { leadSlug: "unsynced-shop", tier: "starter", commerceAddon: true },
+        {
+          leadSlug: "unsynced-shop",
+          tier: "starter",
+          commerceAddon: true,
+          createdAt: new Date(NOW - 12 * 60 * 60 * 1000).toISOString(),
+        },
         { leadSlug: "synced-shop", tier: "growth", commerceAddon: true },
       ],
       commerceCatalogs: [
@@ -611,6 +642,7 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
     expect(digest.commerceCatalogsUnsynced).toHaveLength(1);
     expect(digest.commerceCatalogsUnsynced[0]?.businessName).toBe("Unsynced Boutique");
+    expect(digest.oldestCommerceCatalogsUnsyncedAgeHours).toBe(12);
     expect(digest.isEmpty).toBe(false);
   });
 
@@ -630,7 +662,12 @@ describe("buildDailyDigest", () => {
       inquiries: [],
       openCheckoutSessions: [],
       orders: [
-        { leadSlug: "needs-voice", tier: "complete", commerceAddon: false },
+        {
+          leadSlug: "needs-voice",
+          tier: "complete",
+          commerceAddon: false,
+          createdAt: new Date(NOW - 6 * 60 * 60 * 1000).toISOString(),
+        },
         { leadSlug: "has-voice", tier: "complete", commerceAddon: false },
       ],
       clientVoicePacks: [{ leadSlug: "has-voice" }],
@@ -638,6 +675,7 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.clientVoicePacksDue).toHaveLength(1);
     expect(digest.clientVoicePacksDue[0]?.businessName).toBe("Needs Voice Spa");
+    expect(digest.oldestClientVoicePacksDueAgeHours).toBe(6);
     expect(digest.isEmpty).toBe(false);
   });
 
@@ -811,6 +849,48 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceOrdersRefundClawback).toHaveLength(0);
     expect(digest.commerceOrdersRefundClawbackCount).toBe(0);
     expect(digest.commerceOrdersRefundClawbackTotalUsd).toBe(0);
+    expect(digest.oldestCommerceOrdersRefundClawbackAgeHours).toBeNull();
+  });
+
+  it("computes oldestCommerceOrdersRefundClawbackAgeHours from the oldest refund-clawback order", () => {
+    const cafe = baseLead({
+      slug: "clawback-cafe",
+      businessName: "Clawback Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersRefunded: [
+        {
+          id: "co_recent",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_muffin",
+          skuName: "Muffin",
+          amountPaidUsd: 5,
+          stripeSessionId: "cs_recent",
+          createdAt: "2026-07-05T00:00:00.000Z",
+          paidOutAt: "2026-07-05T01:00:00.000Z",
+          refundedAt: "2026-07-05T10:00:00.000Z",
+        },
+        {
+          id: "co_old",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_old",
+          createdAt: "2026-06-30T00:00:00.000Z",
+          paidOutAt: "2026-06-30T01:00:00.000Z",
+          refundedAt: "2026-06-30T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    // Oldest refundedAt is 2026-06-30T00:00, ~300h before NOW.
+    expect(digest.oldestCommerceOrdersRefundClawbackAgeHours).toBeGreaterThanOrEqual(280);
+    expect(digest.oldestCommerceOrdersRefundClawbackAgeHours).toBeLessThanOrEqual(312);
   });
 
   it("surfaces dispute-after-payout as a clawback owed from the client", () => {
@@ -871,6 +951,212 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceOrdersDisputeClawback).toHaveLength(0);
     expect(digest.commerceOrdersDisputeClawbackCount).toBe(0);
     expect(digest.commerceOrdersDisputeClawbackTotalUsd).toBe(0);
+    expect(digest.oldestCommerceOrdersDisputeClawbackAgeHours).toBeNull();
+  });
+
+  it("computes oldestCommerceOrdersDisputeClawbackAgeHours from the oldest dispute-clawback order", () => {
+    const cafe = baseLead({
+      slug: "clawback-cafe",
+      businessName: "Clawback Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersDisputed: [
+        {
+          id: "co_recent",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_muffin",
+          skuName: "Muffin",
+          amountPaidUsd: 5,
+          stripeSessionId: "cs_recent",
+          createdAt: "2026-07-05T00:00:00.000Z",
+          paidOutAt: "2026-07-05T01:00:00.000Z",
+          disputedAt: "2026-07-05T10:00:00.000Z",
+        },
+        {
+          id: "co_old",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_old",
+          createdAt: "2026-06-30T00:00:00.000Z",
+          paidOutAt: "2026-06-30T01:00:00.000Z",
+          disputedAt: "2026-06-30T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    // Oldest disputedAt is 2026-06-30T00:00, ~300h before NOW.
+    expect(digest.oldestCommerceOrdersDisputeClawbackAgeHours).toBeGreaterThanOrEqual(280);
+    expect(digest.oldestCommerceOrdersDisputeClawbackAgeHours).toBeLessThanOrEqual(312);
+  });
+
+  it("surfaces refunded bundle orders as a visibility footnote, not a clawback", () => {
+    const cafe = baseLead({
+      slug: "refund-cafe",
+      businessName: "Refund Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "refund-cafe",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          refundedAt: "2026-07-13T09:00:00.000Z",
+        },
+        {
+          // Never refunded — excluded.
+          leadSlug: "refund-cafe",
+          tier: "starter",
+          commerceAddon: false,
+          amountPaid: 100,
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.bundleOrdersRefunded).toHaveLength(1);
+    expect(digest.bundleOrdersRefunded[0]).toMatchObject({
+      slug: "refund-cafe",
+      businessName: "Refund Cafe",
+      tier: "growth",
+      amountPaidUsd: 300,
+      refundedAt: "2026-07-13T09:00:00.000Z",
+    });
+    expect(digest.bundleOrdersRefundedCount).toBe(1);
+    expect(digest.bundleOrdersRefundedTotalUsd).toBe(300);
+    expect(digest.isEmpty).toBe(false);
+  });
+
+  it("defaults bundle order refund fields to zero when no orders refunded", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.bundleOrdersRefunded).toHaveLength(0);
+    expect(digest.bundleOrdersRefundedCount).toBe(0);
+    expect(digest.bundleOrdersRefundedTotalUsd).toBe(0);
+    expect(digest.oldestBundleOrdersRefundedAgeHours).toBeNull();
+  });
+
+  it("computes oldestBundleOrdersRefundedAgeHours from the oldest refunded bundle order", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({ slug: "refund-cafe-1", businessName: "Refund Cafe 1", stage: "live" }),
+        baseLead({ slug: "refund-cafe-2", businessName: "Refund Cafe 2", stage: "live" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "refund-cafe-1",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          refundedAt: "2026-07-05T00:00:00.000Z",
+        },
+        {
+          leadSlug: "refund-cafe-2",
+          tier: "starter",
+          commerceAddon: false,
+          amountPaid: 100,
+          refundedAt: "2026-06-30T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    // Oldest refundedAt is 2026-06-30T00:00, ~300h before NOW.
+    expect(digest.oldestBundleOrdersRefundedAgeHours).toBeGreaterThanOrEqual(280);
+    expect(digest.oldestBundleOrdersRefundedAgeHours).toBeLessThanOrEqual(312);
+  });
+
+  it("lists disputed bundle orders with pre-slice count and total", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "dispute-cafe",
+          businessName: "Dispute Cafe",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "dispute-cafe",
+          tier: "complete",
+          commerceAddon: false,
+          amountPaid: 500,
+          disputedAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.bundleOrdersDisputed).toHaveLength(1);
+    expect(digest.bundleOrdersDisputed[0]).toMatchObject({
+      slug: "dispute-cafe",
+      businessName: "Dispute Cafe",
+      tier: "complete",
+      amountPaidUsd: 500,
+      disputedAt: "2026-07-13T09:00:00.000Z",
+    });
+    expect(digest.bundleOrdersDisputedCount).toBe(1);
+    expect(digest.bundleOrdersDisputedTotalUsd).toBe(500);
+    expect(digest.isEmpty).toBe(false);
+  });
+
+  it("defaults bundle order dispute fields to zero when no orders disputed", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.bundleOrdersDisputed).toHaveLength(0);
+    expect(digest.bundleOrdersDisputedCount).toBe(0);
+    expect(digest.bundleOrdersDisputedTotalUsd).toBe(0);
+    expect(digest.oldestBundleOrdersDisputedAgeHours).toBeNull();
+  });
+
+  it("computes oldestBundleOrdersDisputedAgeHours from the oldest disputed bundle order", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({ slug: "dispute-cafe-1", businessName: "Dispute Cafe 1", stage: "live" }),
+        baseLead({ slug: "dispute-cafe-2", businessName: "Dispute Cafe 2", stage: "live" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "dispute-cafe-1",
+          tier: "complete",
+          commerceAddon: false,
+          amountPaid: 500,
+          disputedAt: "2026-07-05T00:00:00.000Z",
+        },
+        {
+          leadSlug: "dispute-cafe-2",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          disputedAt: "2026-06-30T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    // Oldest disputedAt is 2026-06-30T00:00, ~300h before NOW.
+    expect(digest.oldestBundleOrdersDisputedAgeHours).toBeGreaterThanOrEqual(280);
+    expect(digest.oldestBundleOrdersDisputedAgeHours).toBeLessThanOrEqual(312);
   });
 
   it("lists open production handoffs (status !== live) oldest-first and skips live", () => {
@@ -1349,6 +1635,64 @@ describe("renderDailyDigestHtml", () => {
     expect(html).not.toContain("Clawback <Shop>");
   });
 
+  it("renders Bundle revenue refunded section and escapes business names", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "refund-shop",
+          businessName: "Refund <Shop>",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "refund-shop",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          refundedAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Bundle revenue refunded");
+    expect(html).toContain("$300.00");
+    expect(html).toContain("Refund &lt;Shop&gt;");
+    expect(html).not.toContain("Refund <Shop>");
+  });
+
+  it("renders Bundle revenue disputed section and escapes business names", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "dispute-shop",
+          businessName: "Dispute <Shop>",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "dispute-shop",
+          tier: "complete",
+          commerceAddon: false,
+          amountPaid: 500,
+          disputedAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Bundle revenue disputed");
+    expect(html).toContain("$500.00");
+    expect(html).toContain("Dispute &lt;Shop&gt;");
+    expect(html).not.toContain("Dispute <Shop>");
+  });
+
   it("renders production handoffs open with escaped host and status", () => {
     const digest = buildDailyDigest({
       leads: [
@@ -1530,6 +1874,64 @@ describe("renderDailyDigestHtml", () => {
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).toContain("Follow-ups due (1 · oldest");
     expect(html).toContain("h)");
+  });
+
+  it("shows oldest age in the refund/dispute clawback and bundle refund/dispute section headers", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({ slug: "clawback-cafe", businessName: "Clawback Cafe", stage: "live" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersRefunded: [
+        {
+          id: "co_refund",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_refund",
+          createdAt: "2026-07-05T00:00:00.000Z",
+          paidOutAt: "2026-07-05T01:00:00.000Z",
+          refundedAt: "2026-07-05T10:00:00.000Z",
+        },
+      ],
+      commerceOrdersDisputed: [
+        {
+          id: "co_dispute",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_muffin",
+          skuName: "Muffin",
+          amountPaidUsd: 5,
+          stripeSessionId: "cs_dispute",
+          createdAt: "2026-07-05T00:00:00.000Z",
+          paidOutAt: "2026-07-05T01:00:00.000Z",
+          disputedAt: "2026-07-05T10:00:00.000Z",
+        },
+      ],
+      orders: [
+        {
+          leadSlug: "clawback-cafe",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          refundedAt: "2026-07-05T00:00:00.000Z",
+        },
+        {
+          leadSlug: "clawback-cafe",
+          tier: "complete",
+          commerceAddon: false,
+          amountPaid: 500,
+          disputedAt: "2026-07-05T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Refund clawback needed ($12.50 · 1 order · oldest");
+    expect(html).toContain("Dispute clawback needed ($5.00 · 1 order · oldest");
+    expect(html).toContain("Bundle revenue refunded ($300.00 · 1 order · oldest");
+    expect(html).toContain("Bundle revenue disputed ($500.00 · 1 order · oldest");
   });
 
   it("shows a closed lead footnote when there are closed leads and nothing else is urgent", () => {

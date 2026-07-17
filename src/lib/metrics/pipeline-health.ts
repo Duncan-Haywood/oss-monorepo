@@ -17,7 +17,12 @@
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
-import type { OrderRecord } from "@/lib/orders/types";
+import {
+  isOrderDisputed,
+  isOrderRefunded,
+  orderCountsTowardRevenue,
+  type OrderRecord,
+} from "@/lib/orders/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import {
   isAbandonedCheckout,
@@ -26,13 +31,18 @@ import {
   isRecoveryDue,
   leadSlugsEligibleForCommerceAbandonedRecovery,
 } from "@/lib/checkout/abandoned-recovery";
-import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "@/lib/commerce/catalog";
-import { listClientVoicePacksDue } from "@/lib/voice/faq-pack";
+import {
+  listCommerceCatalogsMissing,
+  listCommerceCatalogsUnsynced,
+  oldestCommerceCatalogCandidateAgeHours,
+} from "@/lib/commerce/catalog";
+import { listClientVoicePacksDue, oldestClientVoicePacksDueAgeHours } from "@/lib/voice/faq-pack";
 import { isColdLead, isFollowUpDue } from "@/lib/email/outreach-followups";
 import { isLeadSnoozed } from "@/lib/leads/snooze";
 import {
   listMarketingPacksDue,
   marketingMonthKey,
+  oldestMarketingPacksDueAgeHours,
 } from "@/lib/marketing/monthly-pack";
 import {
   commerceOrderNeedsClawback,
@@ -45,6 +55,10 @@ import {
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
 } from "@/lib/orders/recurring";
+import {
+  listStarterUpsellCandidates,
+  oldestStarterUpsellCandidateAgeHours,
+} from "@/lib/billing/starter-upsell";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -59,9 +73,39 @@ export interface MissingEmailLead {
 }
 
 export interface PipelineHealth {
-  /** Sum of paid order amounts (USD dollars, as stored by the webhook). */
+  /**
+   * Sum of paid order amounts (USD dollars, as stored by the webhook),
+   * excluding orders Stripe has since refunded or disputed (see
+   * bundleOrdersRefundedCount / bundleOrdersDisputedCount —
+   * bundle-order-refund-tracking / bundle-order-dispute-tracking) — a
+   * refunded or disputed bundle purchase is not revenue.
+   */
   revenueTotalUsd: number;
   orderCount: number;
+  /**
+   * Count of bundle (Starter/Growth/Complete/Commerce-addon) orders Stripe
+   * has refunded (charge.refunded, full or partial) — already excluded from
+   * revenueTotalUsd above. Surfaced for operator awareness only: unlike
+   * Commerce Buy now clawback tracking, this ledger has no manual-payout
+   * double-loss risk, so there is no Mark-paid-out reject or clawback UI
+   * here (see bundle-order-refund-tracking).
+   */
+  bundleOrdersRefundedCount: number;
+  /** Sum of amountPaid across bundleOrdersRefundedCount orders (USD dollars). */
+  bundleOrdersRefundedUsd: number;
+  /** Age in whole hours of the oldest bundle order refund; null when none. */
+  oldestBundleOrdersRefundedAgeHours: number | null;
+  /**
+   * Count of bundle orders Stripe has disputed (charge.dispute.created, or
+   * dispute.closed lost) — already excluded from revenueTotalUsd. Visibility
+   * only; cleared on dispute.closed won / warning_closed. See
+   * bundle-order-dispute-tracking.
+   */
+  bundleOrdersDisputedCount: number;
+  /** Sum of amountPaid across bundleOrdersDisputedCount orders (USD dollars). */
+  bundleOrdersDisputedUsd: number;
+  /** Age in whole hours of the oldest open/lost bundle dispute; null when none. */
+  oldestBundleOrdersDisputedAgeHours: number | null;
   leadCount: number;
   stageCounts: Record<LeadPipelineStage, number>;
   /** Ordered for display (funnel top → bottom). */
@@ -122,20 +166,32 @@ export interface PipelineHealth {
   /** UTC YYYY-MM key used for the packs-due count (from nowMs). */
   marketingPacksDueMonth: string;
   /**
+   * Age in whole hours since the current month's pack first became due for
+   * the oldest due lead (later of month start and their qualifying order's
+   * createdAt); null when none due. See oldestMarketingPacksDueAgeHours.
+   */
+  oldestMarketingPacksDueAgeHours: number | null;
+  /**
    * Paid/live commerceAddon leads missing any catalog row.
    * Commerce fulfillment debt — not a second priority queue.
    */
   commerceCatalogsMissingCount: number;
+  /** Age in whole hours since the oldest missing-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsMissingAgeHours: number | null;
   /**
    * Paid/live commerceAddon leads with a saved catalog that still has ≥1 SKU
    * without stripePriceId (Sync to Stripe still due). Distinct from missing.
    */
   commerceCatalogsUnsyncedCount: number;
+  /** Age in whole hours since the oldest unsynced-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsUnsyncedAgeHours: number | null;
   /**
    * Paid/live Complete leads missing a client voice FAQ pack.
    * Fulfillment debt for the sold phone promise — not a second priority queue.
    */
   clientVoicePacksDueCount: number;
+  /** Age in whole hours since the oldest voice-pack-due lead's qualifying order; null when none. */
+  oldestClientVoicePacksDueAgeHours: number | null;
   /**
    * USD still owed to Commerce clients from Buy now orders (excludes rows with
    * paidOutAt OR refundedAt — a refunded end-customer sale owes the client
@@ -180,6 +236,16 @@ export interface PipelineHealth {
   recurringEntitlementPausedCount: number;
   /** Age in whole hours of the oldest recurring entitlement pause; null when none. */
   oldestRecurringEntitlementPausedAgeHours: number | null;
+  /**
+   * Paid/live Starter-only leads with a usable email and no Growth/Complete/
+   * Commerce order yet — the MRR upsell nudge queue (see
+   * paid-starter-upsell-nudge). Already shipped in the digest email and its
+   * own dashboard panel; folded into pipeline-health too so it gets the same
+   * always-on summary-card + staleness signal as every other due queue.
+   */
+  starterUpsellCandidatesCount: number;
+  /** Age in whole hours since the oldest qualifying Starter order; null when none. */
+  oldestStarterUpsellCandidateAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -316,8 +382,12 @@ export function computePipelineHealth(input: {
     count: stageCounts[stage],
   }));
 
+  // A refunded or disputed bundle order is not revenue — exclude it the same
+  // way commerce Buy now excludes refunded/disputed orders from its owed
+  // total (see bundle-order-refund-tracking / bundle-order-dispute-tracking).
   let revenueTotalUsd = 0;
   for (const order of input.orders) {
+    if (!orderCountsTowardRevenue(order)) continue;
     if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
       revenueTotalUsd += order.amountPaid;
     }
@@ -454,6 +524,27 @@ export function computePipelineHealth(input: {
     input.orders,
     input.clientVoicePacks ?? [],
   );
+  const oldestMarketingPacksDueHours = oldestMarketingPacksDueAgeHours(
+    marketingPacksDue,
+    input.orders,
+    marketingPacksDueMonth,
+    nowMs,
+  );
+  const oldestCommerceCatalogsMissingHours = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsMissing,
+    input.orders,
+    nowMs,
+  );
+  const oldestCommerceCatalogsUnsyncedHours = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsUnsynced,
+    input.orders,
+    nowMs,
+  );
+  const oldestClientVoicePacksDueHours = oldestClientVoicePacksDueAgeHours(
+    clientVoicePacksDue,
+    input.orders,
+    nowMs,
+  );
 
   const commerceOrders = input.commerceOrders ?? [];
   // A refunded or disputed order owes the client nothing — exclude it from
@@ -509,6 +600,48 @@ export function computePipelineHealth(input: {
     }
   }
 
+  // Bundle order refunds — visibility only (no payout-panel double-loss risk
+  // on this ledger, unlike Commerce Buy now; see bundle-order-refund-tracking).
+  const bundleOrdersRefunded = input.orders.filter(isOrderRefunded);
+  let bundleOrdersRefundedUsd = 0;
+  let oldestBundleOrdersRefundedAgeHours: number | null = null;
+  for (const order of bundleOrdersRefunded) {
+    if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
+      bundleOrdersRefundedUsd += order.amountPaid;
+    }
+    if (!order.refundedAt) continue;
+    const refundedAtMs = Date.parse(order.refundedAt);
+    if (Number.isNaN(refundedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - refundedAtMs) / HOUR_MS);
+    if (
+      oldestBundleOrdersRefundedAgeHours === null ||
+      ageHours > oldestBundleOrdersRefundedAgeHours
+    ) {
+      oldestBundleOrdersRefundedAgeHours = Math.max(0, ageHours);
+    }
+  }
+
+  // Bundle order disputes — same visibility-only shape as refunds
+  // (bundle-order-dispute-tracking). Cleared on dispute.closed won.
+  const bundleOrdersDisputed = input.orders.filter(isOrderDisputed);
+  let bundleOrdersDisputedUsd = 0;
+  let oldestBundleOrdersDisputedAgeHours: number | null = null;
+  for (const order of bundleOrdersDisputed) {
+    if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
+      bundleOrdersDisputedUsd += order.amountPaid;
+    }
+    if (!order.disputedAt) continue;
+    const disputedAtMs = Date.parse(order.disputedAt);
+    if (Number.isNaN(disputedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - disputedAtMs) / HOUR_MS);
+    if (
+      oldestBundleOrdersDisputedAgeHours === null ||
+      ageHours > oldestBundleOrdersDisputedAgeHours
+    ) {
+      oldestBundleOrdersDisputedAgeHours = Math.max(0, ageHours);
+    }
+  }
+
   const recurringEntitlementPaused = listRecurringEntitlementPaused(
     input.leads,
     input.orders,
@@ -519,9 +652,22 @@ export function computePipelineHealth(input: {
     nowMs,
   );
 
+  const starterUpsellCandidates = listStarterUpsellCandidates(input.leads, input.orders);
+  const oldestStarterUpsellAgeHours = oldestStarterUpsellCandidateAgeHours(
+    starterUpsellCandidates,
+    input.orders,
+    nowMs,
+  );
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
+    bundleOrdersRefundedCount: bundleOrdersRefunded.length,
+    bundleOrdersRefundedUsd,
+    oldestBundleOrdersRefundedAgeHours,
+    bundleOrdersDisputedCount: bundleOrdersDisputed.length,
+    bundleOrdersDisputedUsd,
+    oldestBundleOrdersDisputedAgeHours,
     leadCount: input.leads.length,
     stageCounts,
     stageFunnel,
@@ -546,9 +692,13 @@ export function computePipelineHealth(input: {
     closedLeadCount: stageCounts.closed,
     marketingPacksDueCount: marketingPacksDue.length,
     marketingPacksDueMonth,
+    oldestMarketingPacksDueAgeHours: oldestMarketingPacksDueHours,
     commerceCatalogsMissingCount: commerceCatalogsMissing.length,
+    oldestCommerceCatalogsMissingAgeHours: oldestCommerceCatalogsMissingHours,
     commerceCatalogsUnsyncedCount: commerceCatalogsUnsynced.length,
+    oldestCommerceCatalogsUnsyncedAgeHours: oldestCommerceCatalogsUnsyncedHours,
     clientVoicePacksDueCount: clientVoicePacksDue.length,
+    oldestClientVoicePacksDueAgeHours: oldestClientVoicePacksDueHours,
     commerceOrdersRevenueUsd,
     commerceOrdersCount: unpaidCommerceOrders.length,
     commerceOrdersRefundClawbackCount: commerceOrdersRefundClawback.length,
@@ -559,6 +709,8 @@ export function computePipelineHealth(input: {
     oldestCommerceOrdersDisputeClawbackAgeHours,
     recurringEntitlementPausedCount,
     oldestRecurringEntitlementPausedAgeHours: oldestRecurringPausedAgeHours,
+    starterUpsellCandidatesCount: starterUpsellCandidates.length,
+    oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellAgeHours,
   };
 }
 

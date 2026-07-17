@@ -125,7 +125,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.marketingPacksDueCount)}
           hint={
             health.marketingPacksDueCount > 0
-              ? `${health.marketingPacksDueMonth} Growth/Complete fulfillment`
+              ? `${health.marketingPacksDueMonth} Growth/Complete fulfillment${
+                  health.oldestMarketingPacksDueAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestMarketingPacksDueAgeHours)}`
+                    : ""
+                }`
               : `${health.marketingPacksDueMonth} packs complete`
           }
           attention={health.marketingPacksDueCount > 0}
@@ -143,11 +147,27 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.recurringEntitlementPausedCount > 0}
         />
         <MetricCard
+          label="Starter → MRR upsell"
+          value={String(health.starterUpsellCandidatesCount)}
+          hint={
+            health.starterUpsellCandidatesCount > 0
+              ? health.oldestStarterUpsellCandidateAgeHours !== null
+                ? `Oldest since ${formatAbandonedAgeHours(health.oldestStarterUpsellCandidateAgeHours)} — send Growth/Complete nudge`
+                : "Send Growth/Complete upsell nudge"
+              : "No Starter-only paid leads to upsell"
+          }
+          attention={health.starterUpsellCandidatesCount > 0}
+        />
+        <MetricCard
           label="Commerce catalogs missing"
           value={String(health.commerceCatalogsMissingCount)}
           hint={
             health.commerceCatalogsMissingCount > 0
-              ? "Paid Commerce add-on fulfillment"
+              ? `Paid Commerce add-on fulfillment${
+                  health.oldestCommerceCatalogsMissingAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceCatalogsMissingAgeHours)}`
+                    : ""
+                }`
               : "All Commerce catalogs created"
           }
           attention={health.commerceCatalogsMissingCount > 0}
@@ -157,7 +177,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.commerceCatalogsUnsyncedCount)}
           hint={
             health.commerceCatalogsUnsyncedCount > 0
-              ? "Saved catalogs still need Buy now"
+              ? `Saved catalogs still need Buy now${
+                  health.oldestCommerceCatalogsUnsyncedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceCatalogsUnsyncedAgeHours)}`
+                    : ""
+                }`
               : "Saved catalogs synced for Buy now"
           }
           attention={health.commerceCatalogsUnsyncedCount > 0}
@@ -167,7 +191,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.clientVoicePacksDueCount)}
           hint={
             health.clientVoicePacksDueCount > 0
-              ? "Complete phone fulfillment"
+              ? `Complete phone fulfillment${
+                  health.oldestClientVoicePacksDueAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestClientVoicePacksDueAgeHours)}`
+                    : ""
+                }`
               : "Complete voice packs ready"
           }
           attention={health.clientVoicePacksDueCount > 0}
@@ -209,6 +237,34 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
               : "No payouts disputed after the fact"
           }
           attention={health.commerceOrdersDisputeClawbackCount > 0}
+        />
+        <MetricCard
+          label="Bundle revenue refunded"
+          value={formatUsd(health.bundleOrdersRefundedUsd)}
+          hint={
+            health.bundleOrdersRefundedCount > 0
+              ? `${health.bundleOrdersRefundedCount} Starter/Growth/Complete order${health.bundleOrdersRefundedCount === 1 ? "" : "s"} refunded by Stripe — already excluded from Recorded revenue${
+                  health.oldestBundleOrdersRefundedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersRefundedAgeHours)}`
+                    : ""
+                }`
+              : "No bundle orders refunded"
+          }
+          attention={health.bundleOrdersRefundedCount > 0}
+        />
+        <MetricCard
+          label="Bundle revenue disputed"
+          value={formatUsd(health.bundleOrdersDisputedUsd)}
+          hint={
+            health.bundleOrdersDisputedCount > 0
+              ? `${health.bundleOrdersDisputedCount} Starter/Growth/Complete order${health.bundleOrdersDisputedCount === 1 ? "" : "s"} disputed by Stripe — already excluded from Recorded revenue${
+                  health.oldestBundleOrdersDisputedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersDisputedAgeHours)}`
+                    : ""
+                }`
+              : "No bundle orders disputed"
+          }
+          attention={health.bundleOrdersDisputedCount > 0}
         />
       </div>
 

@@ -40,6 +40,7 @@ import type { CommerceCatalog, CommerceSku } from "@/lib/commerce/types";
 import type { CommerceOrderRecord } from "@/lib/commerce/orders";
 import {
   MAX_COMMERCE_SKUS,
+  commerceOrdersByLeadSummaryNeedsAttention,
   formatPriceUsd,
   leadEligibleForCommerceCatalog,
   listCommerceCatalogsMissing,
@@ -916,7 +917,7 @@ export function LeadsClient({
     commerceCatalogs,
   );
   const commercePayoutsByLead = summarizeCommerceOrdersByLead(commerceOrders).filter(
-    (summary) => summary.unpaidCount > 0,
+    commerceOrdersByLeadSummaryNeedsAttention,
   );
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
 
@@ -1174,8 +1175,9 @@ export function LeadsClient({
           <p className="mt-1 text-xs text-zinc-600">
             Pass-through Buy now money collected on the platform Stripe account — every unpaid
             order owed to each Commerce client until Stripe Connect ships (not just the newest
-            page). Use these per-lead totals to reconcile manual payouts; this is not Local Site
-            Studio revenue.
+            page), plus any order refunded or disputed after you already paid the client out
+            (claw that back). Use these per-lead totals to reconcile manual payouts; this is not
+            Local Site Studio revenue.
           </p>
           <ul className="mt-4 space-y-3">
             {commercePayoutsByLead.map((summary) => (

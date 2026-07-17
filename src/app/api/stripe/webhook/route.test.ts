@@ -48,8 +48,12 @@ const insertCommerceOrder = vi.fn();
 const listCommerceCheckoutInquiriesBySlug = vi.fn();
 const listOrdersByLeadSlug = vi.fn();
 const getCommerceOrderByStripeSessionId = vi.fn();
+const getOrderByStripeSessionId = vi.fn();
 const markCommerceOrderClientReceiptSent = vi.fn();
 const markCommerceOrderRefunded = vi.fn();
+const markOrderRefunded = vi.fn();
+const markOrderDisputed = vi.fn();
+const clearOrderDisputed = vi.fn();
 const markCommerceOrderDisputed = vi.fn();
 const clearCommerceOrderDisputed = vi.fn();
 const getDeployHandoffBySlug = vi.fn();
@@ -91,9 +95,13 @@ vi.mock("@/lib/db", () => ({
   listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
   getCommerceOrderByStripeSessionId: (...args: unknown[]) =>
     getCommerceOrderByStripeSessionId(...args),
+  getOrderByStripeSessionId: (...args: unknown[]) => getOrderByStripeSessionId(...args),
   markCommerceOrderClientReceiptSent: (...args: unknown[]) =>
     markCommerceOrderClientReceiptSent(...args),
   markCommerceOrderRefunded: (...args: unknown[]) => markCommerceOrderRefunded(...args),
+  markOrderRefunded: (...args: unknown[]) => markOrderRefunded(...args),
+  markOrderDisputed: (...args: unknown[]) => markOrderDisputed(...args),
+  clearOrderDisputed: (...args: unknown[]) => clearOrderDisputed(...args),
   markCommerceOrderDisputed: (...args: unknown[]) => markCommerceOrderDisputed(...args),
   clearCommerceOrderDisputed: (...args: unknown[]) => clearCommerceOrderDisputed(...args),
   getDeployHandoffBySlug: (...args: unknown[]) => getDeployHandoffBySlug(...args),
@@ -246,8 +254,12 @@ describe("POST /api/stripe/webhook", () => {
     listCommerceCheckoutInquiriesBySlug.mockReset().mockResolvedValue([]);
     listOrdersByLeadSlug.mockReset().mockResolvedValue(activeCommerceOrders);
     getCommerceOrderByStripeSessionId.mockReset().mockResolvedValue(null);
+    getOrderByStripeSessionId.mockReset().mockResolvedValue(null);
     markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(undefined);
     markCommerceOrderRefunded.mockReset().mockResolvedValue(undefined);
+    markOrderRefunded.mockReset().mockResolvedValue(undefined);
+    markOrderDisputed.mockReset().mockResolvedValue(undefined);
+    clearOrderDisputed.mockReset().mockResolvedValue(undefined);
     markCommerceOrderDisputed.mockReset().mockResolvedValue(undefined);
     clearCommerceOrderDisputed.mockReset().mockResolvedValue(undefined);
     listCheckoutSessions.mockReset().mockResolvedValue({ data: [] });
@@ -1078,15 +1090,89 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
     });
 
-    it("skips when the Session does not back a ledgered commerce order (e.g. a bundle purchase)", async () => {
-      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+    it("skips when the Session backs neither a commerce order nor a bundle order", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_unknown_1" }] });
       getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce(null);
       constructEvent.mockReturnValue(refundedChargeEvent());
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      expect(getOrderByStripeSessionId).toHaveBeenCalledWith("cs_unknown_1");
       expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
+      expect(markOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("marks the bundle order refunded when the Session backs no commerce order but a bundle order", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(refundedChargeEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getOrderByStripeSessionId).toHaveBeenCalledWith("cs_bundle_1");
+      expect(markOrderRefunded).toHaveBeenCalledWith("cs_bundle_1", expect.any(String), {
+        requireConvex: true,
+      });
+      expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("is idempotent — does not re-mark a bundle order already flagged refunded", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        refundedAt: "2026-07-10T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(refundedChargeEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 bundle_order_refund when the bundle refund mark write fails", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      markOrderRefunded.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue(refundedChargeEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_order_refund");
+      expect(json.received).toBe(false);
     });
 
     it("is idempotent — does not re-mark an order already flagged refunded", async () => {
@@ -1210,15 +1296,88 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCommerceOrderDisputed).not.toHaveBeenCalled();
     });
 
-    it("skips when the Session does not back a ledgered commerce order (e.g. a bundle purchase)", async () => {
+    it("marks the bundle order disputed when the Session backs no commerce order but a bundle order", async () => {
       listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
       getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(disputeCreatedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getOrderByStripeSessionId).toHaveBeenCalledWith("cs_bundle_1");
+      expect(markOrderDisputed).toHaveBeenCalledWith("cs_bundle_1", expect.any(String), {
+        requireConvex: true,
+      });
+      expect(markCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("skips when the Session backs neither a commerce order nor a bundle order", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_unknown_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce(null);
       constructEvent.mockReturnValue(disputeCreatedEvent());
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(markCommerceOrderDisputed).not.toHaveBeenCalled();
+      expect(markOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("is idempotent — does not re-mark a bundle order already flagged disputed", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        disputedAt: "2026-07-10T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(disputeCreatedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 bundle_order_dispute when the bundle dispute mark write fails", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      markOrderDisputed.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue(disputeCreatedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_order_dispute");
+      expect(json.received).toBe(false);
     });
 
     it("is idempotent — does not re-mark an order already flagged disputed", async () => {
@@ -1423,15 +1582,89 @@ describe("POST /api/stripe/webhook", () => {
       expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
     });
 
-    it("skips when the Session is not a ledgered commerce order", async () => {
+    it("clears bundle disputedAt when status is won and Session backs a bundle order", async () => {
       listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
       getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        disputedAt: "2026-07-10T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrderDisputed).toHaveBeenCalledWith("cs_bundle_1", { requireConvex: true });
+      expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("marks bundle disputedAt when status is lost and created was missed", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "lost" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrderDisputed).toHaveBeenCalledWith("cs_bundle_1", expect.any(String), {
+        requireConvex: true,
+      });
+      expect(markCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("skips when the Session backs neither a commerce order nor a bundle order", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_unknown_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce(null);
       constructEvent.mockReturnValue(disputeClosedEvent());
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+      expect(clearOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 bundle_order_dispute_clear when the bundle clear write fails", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        disputedAt: "2026-07-10T00:00:00.000Z",
+      });
+      clearOrderDisputed.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_order_dispute_clear");
+      expect(json.received).toBe(false);
     });
 
     it("returns 500 commerce_order_dispute_closed_session_lookup when Session list fails", async () => {

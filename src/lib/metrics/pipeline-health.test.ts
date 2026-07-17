@@ -106,13 +106,25 @@ describe("computePipelineHealth", () => {
     expect(health.revenueTotalUsd).toBe(0);
     expect(health.leadCount).toBe(0);
     expect(health.orderCount).toBe(0);
+    expect(health.bundleOrdersRefundedCount).toBe(0);
+    expect(health.bundleOrdersRefundedUsd).toBe(0);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBeNull();
+    expect(health.bundleOrdersDisputedCount).toBe(0);
+    expect(health.bundleOrdersDisputedUsd).toBe(0);
+    expect(health.oldestBundleOrdersDisputedAgeHours).toBeNull();
     expect(health.marketingPacksDueCount).toBe(0);
     expect(health.marketingPacksDueMonth).toBe("1970-01");
+    expect(health.oldestMarketingPacksDueAgeHours).toBeNull();
     expect(health.commerceCatalogsMissingCount).toBe(0);
+    expect(health.oldestCommerceCatalogsMissingAgeHours).toBeNull();
     expect(health.commerceCatalogsUnsyncedCount).toBe(0);
+    expect(health.oldestCommerceCatalogsUnsyncedAgeHours).toBeNull();
     expect(health.clientVoicePacksDueCount).toBe(0);
+    expect(health.oldestClientVoicePacksDueAgeHours).toBeNull();
     expect(health.recurringEntitlementPausedCount).toBe(0);
     expect(health.oldestRecurringEntitlementPausedAgeHours).toBeNull();
+    expect(health.starterUpsellCandidatesCount).toBe(0);
+    expect(health.oldestStarterUpsellCandidateAgeHours).toBeNull();
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
@@ -134,6 +146,85 @@ describe("computePipelineHealth", () => {
     });
     expect(health.revenueTotalUsd).toBe(750);
     expect(health.orderCount).toBe(3);
+  });
+
+  it("excludes refunded bundle orders from revenueTotalUsd but keeps orderCount", () => {
+    const refunded = { ...makeOrder(300), refundedAt: "2026-07-01T00:00:00.000Z" };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500), refunded],
+      handoffs: [],
+      inquiries: [],
+      nowMs: Date.parse("2026-07-03T00:00:00.000Z"),
+    });
+    expect(health.revenueTotalUsd).toBe(500);
+    expect(health.orderCount).toBe(2);
+    expect(health.bundleOrdersRefundedCount).toBe(1);
+    expect(health.bundleOrdersRefundedUsd).toBe(300);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBe(48);
+  });
+
+  it("returns zero bundle refund stats and null age when nothing is refunded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500)],
+      handoffs: [],
+      inquiries: [],
+    });
+    expect(health.bundleOrdersRefundedCount).toBe(0);
+    expect(health.bundleOrdersRefundedUsd).toBe(0);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBeNull();
+  });
+
+  it("reports the oldest refundedAt among multiple refunded bundle orders", () => {
+    const older = {
+      ...makeOrder(100),
+      id: "order_older",
+      refundedAt: "2026-06-01T00:00:00.000Z",
+    };
+    const newer = {
+      ...makeOrder(200),
+      id: "order_newer",
+      refundedAt: "2026-07-01T00:00:00.000Z",
+    };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [newer, older],
+      handoffs: [],
+      inquiries: [],
+      nowMs: Date.parse("2026-07-02T00:00:00.000Z"),
+    });
+    expect(health.bundleOrdersRefundedCount).toBe(2);
+    expect(health.bundleOrdersRefundedUsd).toBe(300);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBeGreaterThan(700);
+  });
+
+  it("excludes disputed bundle orders from revenueTotalUsd but keeps orderCount", () => {
+    const disputed = { ...makeOrder(300), disputedAt: "2026-07-01T00:00:00.000Z" };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500), disputed],
+      handoffs: [],
+      inquiries: [],
+      nowMs: Date.parse("2026-07-03T00:00:00.000Z"),
+    });
+    expect(health.revenueTotalUsd).toBe(500);
+    expect(health.orderCount).toBe(2);
+    expect(health.bundleOrdersDisputedCount).toBe(1);
+    expect(health.bundleOrdersDisputedUsd).toBe(300);
+    expect(health.oldestBundleOrdersDisputedAgeHours).toBe(48);
+  });
+
+  it("returns zero bundle dispute stats and null age when nothing is disputed", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500)],
+      handoffs: [],
+      inquiries: [],
+    });
+    expect(health.bundleOrdersDisputedCount).toBe(0);
+    expect(health.bundleOrdersDisputedUsd).toBe(0);
+    expect(health.oldestBundleOrdersDisputedAgeHours).toBeNull();
   });
 
   it("counts leads per stage", () => {
@@ -548,6 +639,33 @@ describe("computePipelineHealth", () => {
     expect(health.marketingPacksDueMonth).toBe("2026-07");
   });
 
+  it("anchors oldestMarketingPacksDueAgeHours to month start, not the subscriber's original order", () => {
+    const longTimeSubscriber = makeLead("paid", { slug: "long-time" });
+    const health = computePipelineHealth({
+      leads: [longTimeSubscriber],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "o1",
+          leadSlug: "long-time",
+          tier: "growth",
+          // Subscribed months before July — due-since is still 2026-07-01, not
+          // this order's createdAt, so tenure doesn't inflate the age forever.
+          createdAt: new Date(Date.UTC(2026, 0, 1)).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    const expectedMonthStartMs = Date.UTC(2026, 6, 1);
+    expect(health.marketingPacksDueCount).toBe(1);
+    expect(health.oldestMarketingPacksDueAgeHours).toBe(
+      Math.floor((NOW - expectedMonthStartMs) / HOUR_MS),
+    );
+  });
+
   it("counts paid/live leads with paused recurring entitlement (not marketing packs due)", () => {
     const paused = makeLead("paid", { slug: "paused-mrr" });
     const active = makeLead("live", { slug: "active-mrr" });
@@ -581,6 +699,46 @@ describe("computePipelineHealth", () => {
     expect(health.oldestRecurringEntitlementPausedAgeHours).toBe(5);
   });
 
+  it("counts paid/live Starter-only leads ready for a Growth/Complete upsell nudge", () => {
+    const upsellCandidate = makeLead("paid", { slug: "starter-upsell", email: "owner@example.com" });
+    const olderCandidate = makeLead("live", { slug: "starter-upsell-older", email: "owner2@example.com" });
+    const alreadyRecurring = makeLead("live", { slug: "already-growth", email: "owner3@example.com" });
+    const noEmail = makeLead("paid", { slug: "starter-no-email", email: undefined });
+    const olderCreatedAt = NOW - 10 * HOUR_MS;
+    const health = computePipelineHealth({
+      leads: [upsellCandidate, olderCandidate, alreadyRecurring, noEmail],
+      orders: [
+        {
+          ...makeOrder(500),
+          id: "o1",
+          leadSlug: "starter-upsell",
+          tier: "starter",
+          createdAt: new Date(NOW - 4 * HOUR_MS).toISOString(),
+        },
+        {
+          ...makeOrder(500),
+          id: "o2",
+          leadSlug: "starter-upsell-older",
+          tier: "starter",
+          createdAt: new Date(olderCreatedAt).toISOString(),
+        },
+        { ...makeOrder(599), id: "o3", leadSlug: "already-growth", tier: "growth" },
+        {
+          ...makeOrder(500),
+          id: "o4",
+          leadSlug: "starter-no-email",
+          tier: "starter",
+          createdAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.starterUpsellCandidatesCount).toBe(2);
+    expect(health.oldestStarterUpsellCandidateAgeHours).toBe(10);
+  });
+
   it("counts paid/live commerceAddon leads missing a catalog", () => {
     const needsCatalog = makeLead("paid", { slug: "needs-catalog" });
     const hasCatalog = makeLead("live", { slug: "has-catalog" });
@@ -594,6 +752,7 @@ describe("computePipelineHealth", () => {
           leadSlug: "needs-catalog",
           tier: "starter",
           commerceAddon: true,
+          createdAt: new Date(NOW - 8 * HOUR_MS).toISOString(),
         },
         {
           ...makeOrder(849),
@@ -616,6 +775,7 @@ describe("computePipelineHealth", () => {
       nowMs: NOW,
     });
     expect(health.commerceCatalogsMissingCount).toBe(1);
+    expect(health.oldestCommerceCatalogsMissingAgeHours).toBe(8);
   });
 
   it("counts saved Commerce catalogs that still need Sync to Stripe", () => {
@@ -630,6 +790,7 @@ describe("computePipelineHealth", () => {
           leadSlug: "unsynced-shop",
           tier: "starter",
           commerceAddon: true,
+          createdAt: new Date(NOW - 12 * HOUR_MS).toISOString(),
         },
         {
           ...makeOrder(849),
@@ -655,6 +816,7 @@ describe("computePipelineHealth", () => {
     });
     expect(health.commerceCatalogsMissingCount).toBe(0);
     expect(health.commerceCatalogsUnsyncedCount).toBe(1);
+    expect(health.oldestCommerceCatalogsUnsyncedAgeHours).toBe(12);
   });
 
   it("counts Complete leads missing a client voice FAQ pack", () => {
@@ -664,7 +826,13 @@ describe("computePipelineHealth", () => {
     const health = computePipelineHealth({
       leads: [needsVoice, hasVoice, growthOnly],
       orders: [
-        { ...makeOrder(699), id: "o1", leadSlug: "needs-voice", tier: "complete" },
+        {
+          ...makeOrder(699),
+          id: "o1",
+          leadSlug: "needs-voice",
+          tier: "complete",
+          createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+        },
         { ...makeOrder(699), id: "o2", leadSlug: "has-voice", tier: "complete" },
         { ...makeOrder(599), id: "o3", leadSlug: "growth-only", tier: "growth" },
       ],
@@ -674,6 +842,7 @@ describe("computePipelineHealth", () => {
       nowMs: NOW,
     });
     expect(health.clientVoicePacksDueCount).toBe(1);
+    expect(health.oldestClientVoicePacksDueAgeHours).toBe(6);
   });
 
   it("sums commerce Buy now order revenue separately from revenueTotalUsd", () => {

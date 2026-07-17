@@ -261,6 +261,12 @@ function getSqliteDb(): DatabaseSync {
   if (!orderCols.includes("recurringCanceledAt")) {
     sqliteDb.exec("ALTER TABLE orders ADD COLUMN recurringCanceledAt INTEGER");
   }
+  if (!orderCols.includes("refundedAt")) {
+    sqliteDb.exec("ALTER TABLE orders ADD COLUMN refundedAt TEXT");
+  }
+  if (!orderCols.includes("disputedAt")) {
+    sqliteDb.exec("ALTER TABLE orders ADD COLUMN disputedAt TEXT");
+  }
   // Stripe redelivers checkout.session.completed on retry/timeout; unlike
   // checkout_sessions/commerce_orders, `orders` had no uniqueness guard, so a
   // retry double-counted revenueTotalUsd and resent receipt/handoff emails.
@@ -400,9 +406,13 @@ const api: any = {
   orders: {
     list: "orders:list",
     listByLeadSlug: "orders:listByLeadSlug",
+    getByStripeSessionId: "orders:getByStripeSessionId",
     markRecurringCanceledByCustomer: "orders:markRecurringCanceledByCustomer",
     clearRecurringCanceledByCustomer: "orders:clearRecurringCanceledByCustomer",
     syncRecurringEntitlementByCustomer: "orders:syncRecurringEntitlementByCustomer",
+    markRefunded: "orders:markRefunded",
+    markDisputed: "orders:markDisputed",
+    clearDisputed: "orders:clearDisputed",
   },
   checkoutSessions: {
     create: "checkoutSessions:create",
@@ -974,6 +984,8 @@ function mapConvexOrderRow(row: {
   recurringCanceledAt?: number;
   amountTotal: number;
   createdAt: number;
+  refundedAt?: string;
+  disputedAt?: string;
 }): OrderRecord {
   return {
     id: row._id,
@@ -991,6 +1003,8 @@ function mapConvexOrderRow(row: {
     amountPaid: row.amountTotal,
     status: "paid",
     createdAt: new Date(row.createdAt).toISOString(),
+    refundedAt: row.refundedAt || undefined,
+    disputedAt: row.disputedAt || undefined,
   };
 }
 
@@ -1007,6 +1021,8 @@ export async function listOrders(): Promise<OrderRecord[]> {
         recurringCanceledAt?: number;
         amountTotal: number;
         createdAt: number;
+        refundedAt?: string;
+        disputedAt?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -1018,7 +1034,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt
+              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt, o.refundedAt, o.disputedAt
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        ORDER BY o.createdAt DESC`,
@@ -1057,6 +1073,8 @@ export async function listOrdersByLeadSlug(
         recurringCanceledAt?: number;
         amountTotal: number;
         createdAt: number;
+        refundedAt?: string;
+        disputedAt?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -1071,7 +1089,7 @@ export async function listOrdersByLeadSlug(
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt
+              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt, o.refundedAt, o.disputedAt
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE l.slug = ?
@@ -1085,6 +1103,164 @@ export async function listOrdersByLeadSlug(
       leadSlug: row.leadSlug || leadSlug,
     }),
   );
+}
+
+/**
+ * Single bundle order lookup by stripeSessionId (unique) — used by the
+ * charge.refunded webhook handler to correlate a refunded charge back to a
+ * bundle (Starter/Growth/Complete/Commerce-addon) order, mirroring
+ * getCommerceOrderByStripeSessionId. See bundle-order-refund-tracking.
+ */
+export async function getOrderByStripeSessionId(
+  stripeSessionId: string,
+): Promise<OrderRecord | null> {
+  if (convexClient) {
+    try {
+      const row = (await convexClient.query(api.orders.getByStripeSessionId, {
+        stripeSessionId,
+      })) as {
+        _id: string;
+        leadSlug: string;
+        stripeSessionId: string;
+        stripeCustomerId?: string;
+        tier: string;
+        commerceAddon: boolean;
+        recurringCanceledAt?: number;
+        amountTotal: number;
+        createdAt: number;
+        refundedAt?: string;
+        disputedAt?: string;
+      } | null;
+      return row ? mapConvexOrderRow(row) : null;
+    } catch (e) {
+      console.warn(
+        `Failed to get order ${stripeSessionId} from Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const row = db
+    .prepare(
+      `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
+              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt, o.refundedAt, o.disputedAt
+       FROM orders o
+       LEFT JOIN leads l ON l.id = o.leadId
+       WHERE o.stripeSessionId = ?`,
+    )
+    .get(stripeSessionId) as unknown as SqliteOrderJoinRow | undefined;
+  return row
+    ? mapSqliteOrderRow({ ...row, leadSlug: row.leadSlug || "unknown" })
+    : null;
+}
+
+/**
+ * Flags a bundle order as refunded by Stripe (charge.refunded). Keyed on
+ * stripeSessionId (unique), mirrors markCommerceOrderRefunded. Idempotent on
+ * Convex (see convex/orders.ts markRefunded); the SQLite fallback's WHERE
+ * clause is naturally idempotent (redelivery just re-sets the same value).
+ *
+ * Pass { requireConvex: true } from the Stripe webhook so a Convex mutation
+ * failure surfaces (5xx → Stripe retry) instead of SQLite-only success while
+ * Convex-first getOrderByStripeSessionId still looks unmarked.
+ */
+export async function markOrderRefunded(
+  stripeSessionId: string,
+  refundedAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.markRefunded, {
+        stripeSessionId,
+        refundedAt,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markOrderRefunded", e);
+      }
+      console.warn(
+        `Failed to mark order ${stripeSessionId} refunded on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE orders SET refundedAt = ? WHERE stripeSessionId = ? AND (refundedAt IS NULL OR refundedAt = '')",
+  ).run(refundedAt, stripeSessionId);
+}
+
+/**
+ * Flags a bundle order as disputed by Stripe (charge.dispute.created, or
+ * charge.dispute.closed lost when created was missed). Keyed on
+ * stripeSessionId — mirrors markCommerceOrderDisputed. Idempotent.
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY).
+ * See bundle-order-dispute-tracking.
+ */
+export async function markOrderDisputed(
+  stripeSessionId: string,
+  disputedAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.markDisputed, {
+        stripeSessionId,
+        disputedAt,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markOrderDisputed", e);
+      }
+      console.warn(
+        `Failed to mark order ${stripeSessionId} disputed on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE orders SET disputedAt = ? WHERE stripeSessionId = ? AND (disputedAt IS NULL OR disputedAt = '')",
+  ).run(disputedAt, stripeSessionId);
+}
+
+/**
+ * Clears orders.disputedAt after charge.dispute.closed with status won /
+ * warning_closed. Keyed on stripeSessionId — mirrors clearCommerceOrderDisputed.
+ * Idempotent. Pass { requireConvex: true } from the webhook.
+ * See bundle-order-dispute-tracking.
+ */
+export async function clearOrderDisputed(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.clearDisputed, {
+        stripeSessionId,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("clearOrderDisputed", e);
+      }
+      console.warn(
+        `Failed to clear order ${stripeSessionId} disputed on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE orders SET disputedAt = NULL WHERE stripeSessionId = ? AND disputedAt IS NOT NULL AND disputedAt != ''",
+  ).run(stripeSessionId);
 }
 
 /**
