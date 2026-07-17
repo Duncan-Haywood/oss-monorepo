@@ -89,13 +89,21 @@ const HOUR_MS = 60 * 60 * 1000;
  * when there are no candidates or none of their orders parse. Pass nowMs
  * from the caller — never Date.now() inside list/age helpers (see
  * oldestStarterUpsellCandidateAgeHours for the same pattern).
+ *
+ * Must gate on orderGrantsSoldCapabilityEntitlement (not a raw
+ * recurringCanceledAt check) — see refund-dispute-oldest-age-parity: an
+ * older refunded/disputed Complete order must never pull the reported age
+ * earlier than the entitlement that actually grants the voice pack.
  */
 export function oldestClientVoicePacksDueAgeHours(
   candidates: ReadonlyArray<{ slug: string }>,
   orders: ReadonlyArray<{
     leadSlug: string;
     tier: string;
+    commerceAddon?: boolean;
     recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
     createdAt?: string;
   }>,
   nowMs: number,
@@ -106,9 +114,10 @@ export function oldestClientVoicePacksDueAgeHours(
     if (!candidateSlugs.has(order.leadSlug)) continue;
     if (!isCompleteBundleTier(order.tier)) continue;
     if (
-      typeof order.recurringCanceledAt === "number" &&
-      Number.isFinite(order.recurringCanceledAt) &&
-      order.recurringCanceledAt > 0
+      !orderGrantsSoldCapabilityEntitlement({
+        ...order,
+        commerceAddon: Boolean(order.commerceAddon),
+      })
     ) {
       continue;
     }

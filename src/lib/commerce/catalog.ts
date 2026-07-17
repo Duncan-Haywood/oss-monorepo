@@ -80,13 +80,21 @@ const HOUR_MS = 60 * 60 * 1000;
  * or none of their orders parse. Pass nowMs from the caller — never
  * Date.now() inside list/age helpers (see oldestStarterUpsellCandidateAgeHours
  * for the same pattern).
+ *
+ * Must gate on orderGrantsSoldCapabilityEntitlement (not a raw
+ * recurringCanceledAt check) — see refund-dispute-oldest-age-parity: an
+ * older refunded/disputed commerceAddon order must never pull the reported
+ * age earlier than the entitlement that actually grants the catalog.
  */
 export function oldestCommerceCatalogCandidateAgeHours(
   candidates: ReadonlyArray<{ slug: string }>,
   orders: ReadonlyArray<{
     leadSlug: string;
+    tier?: string;
     commerceAddon: boolean;
     recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
     createdAt?: string;
   }>,
   nowMs: number,
@@ -97,9 +105,7 @@ export function oldestCommerceCatalogCandidateAgeHours(
     if (!candidateSlugs.has(order.leadSlug)) continue;
     if (!order.commerceAddon) continue;
     if (
-      typeof order.recurringCanceledAt === "number" &&
-      Number.isFinite(order.recurringCanceledAt) &&
-      order.recurringCanceledAt > 0
+      !orderGrantsSoldCapabilityEntitlement({ ...order, tier: order.tier ?? "" })
     ) {
       continue;
     }

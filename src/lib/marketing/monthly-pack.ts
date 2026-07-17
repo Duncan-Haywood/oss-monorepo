@@ -143,13 +143,23 @@ export function listMarketingPacksDue<
  * (unlike oldestStarterUpsellCandidateAgeHours, whose candidates are
  * evaluated once, not month-keyed). Pass nowMs from the caller — never
  * Date.now() inside list/age helpers.
+ *
+ * Must gate on orderGrantsSoldCapabilityEntitlement (not a raw
+ * recurringCanceledAt check) — see refund-dispute-oldest-age-parity: a lead
+ * can carry an older refunded/disputed Growth/Complete order alongside a
+ * newer active one, and that refunded order's createdAt must never pull the
+ * reported "due since" earlier than the entitlement that actually grants
+ * the pack.
  */
 export function oldestMarketingPacksDueAgeHours(
   candidates: ReadonlyArray<{ slug: string }>,
   orders: ReadonlyArray<{
     leadSlug: string;
     tier: string;
+    commerceAddon?: boolean;
     recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
     createdAt?: string;
   }>,
   yearMonth: string,
@@ -162,9 +172,10 @@ export function oldestMarketingPacksDueAgeHours(
     if (!candidateSlugs.has(order.leadSlug)) continue;
     if (!isMarketingBundleTier(order.tier)) continue;
     if (
-      typeof order.recurringCanceledAt === "number" &&
-      Number.isFinite(order.recurringCanceledAt) &&
-      order.recurringCanceledAt > 0
+      !orderGrantsSoldCapabilityEntitlement({
+        ...order,
+        commerceAddon: Boolean(order.commerceAddon),
+      })
     ) {
       continue;
     }

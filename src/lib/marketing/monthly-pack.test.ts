@@ -284,6 +284,33 @@ describe("oldestMarketingPacksDueAgeHours", () => {
     ];
     expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, monthStartMs)).toBe(0);
   });
+
+  it("ignores an older refunded/disputed order — only the active entitlement anchors the age", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        // Older order refunded mid-cycle: recurringCanceledAt not set (a
+        // refund does not always cancel the Subscription), so a raw
+        // recurringCanceledAt check alone would wrongly anchor here.
+        leadSlug: "alpha",
+        tier: "growth",
+        createdAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+        refundedAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "alpha",
+        tier: "complete",
+        createdAt: new Date(monthStartMs + 6 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        createdAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+        disputedAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, NOW)).toBe(4);
+  });
 });
 
 describe("MONTHLY_MARKETING_PACK_TYPES", () => {

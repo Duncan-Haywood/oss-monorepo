@@ -304,6 +304,32 @@ describe("oldestCommerceCatalogCandidateAgeHours", () => {
     ];
     expect(oldestCommerceCatalogCandidateAgeHours(candidates, orders, NOW)).toBe(0);
   });
+
+  it("ignores an older refunded/disputed commerceAddon order — only the active entitlement anchors the age", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        // Older order refunded mid-cycle without a recurringCanceledAt —
+        // a raw recurringCanceledAt check alone would wrongly anchor here.
+        leadSlug: "alpha",
+        commerceAddon: true,
+        createdAt: new Date(NOW - 999 * HOUR_MS).toISOString(),
+        refundedAt: new Date(NOW - 999 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "alpha",
+        commerceAddon: true,
+        createdAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+        disputedAt: new Date(NOW - 900 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "alpha",
+        commerceAddon: true,
+        createdAt: new Date(NOW - 4 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestCommerceCatalogCandidateAgeHours(candidates, orders, NOW)).toBe(4);
+  });
 });
 
 describe("preserveCommerceStripeIds", () => {

@@ -1529,6 +1529,27 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>recurringCanceledAt</code> gating already behaved for cancellations.
       </p>
 
+      <p>
+        <strong>refund-dispute-oldest-age-parity</strong> closed a residual gap
+        refund-dispute-entitlement-gate left behind: the three &quot;oldest Xh&quot; staleness
+        helpers on the same due-queues —{" "}
+        <code>oldestMarketingPacksDueAgeHours</code>, <code>oldestCommerceCatalogCandidateAgeHours</code>,
+        and <code>oldestClientVoicePacksDueAgeHours</code> — were shipped by due-queue-oldest-age-parity
+        before <code>orderGrantsSoldCapabilityEntitlement</code> existed, so each still filtered orders
+        with its own raw <code>recurringCanceledAt</code> check rather than the shared combinator. A lead
+        with an older Growth/Complete/Commerce order that was refunded or disputed mid-cycle (without
+        necessarily setting <code>recurringCanceledAt</code>) alongside a newer, still-entitled order
+        would have that stale order&apos;s earlier <code>createdAt</code> pulled into the{" "}
+        <code>min()</code> &quot;due since&quot; scan, inflating the reported age on the
+        PipelineHealthPanel MetricCard hint and the daily-digest email beyond what the (correctly-gated)
+        eligibility check actually owes.{" "}
+        <code>oldestStarterUpsellCandidateAgeHours</code> was already immune — it reuses{" "}
+        <code>isStarterOnlyOrder</code> rather than reimplementing the check — confirming this was an
+        oversight specific to the three due-queue-oldest-age-parity helpers. All three now gate on{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code>, matching their sibling eligibility predicates
+        exactly.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
