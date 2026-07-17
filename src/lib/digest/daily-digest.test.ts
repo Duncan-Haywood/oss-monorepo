@@ -72,6 +72,9 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceCheckoutRecoveriesDue).toHaveLength(0);
     expect(digest.unrepliedInquiries).toHaveLength(0);
     expect(digest.marketingPacksDue).toHaveLength(0);
+    expect(digest.recurringEntitlementPaused).toHaveLength(0);
+    expect(digest.recurringEntitlementPausedCount).toBe(0);
+    expect(digest.oldestRecurringEntitlementPausedAgeHours).toBeNull();
     expect(digest.starterUpsellCandidates).toHaveLength(0);
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
     expect(digest.commerceCatalogsUnsynced).toHaveLength(0);
@@ -450,6 +453,53 @@ describe("buildDailyDigest", () => {
     expect(digest.marketingPacksDue[0]?.businessName).toBe("Needs Pack Cafe");
     expect(digest.marketingPacksDue[0]?.yearMonth).toBe("2026-07");
     expect(digest.isEmpty).toBe(false);
+  });
+
+  it("lists paid/live MRR customers with paused recurring entitlement for Billing Portal chase", () => {
+    const paused = baseLead({
+      slug: "paused-mrr",
+      businessName: "Paused Growth Co",
+      stage: "paid",
+    });
+    const active = baseLead({
+      slug: "active-mrr",
+      businessName: "Active Complete Co",
+      stage: "live",
+    });
+    const pausedAt = NOW - 3 * 60 * 60 * 1000;
+    const digest = buildDailyDigest({
+      leads: [paused, active],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "paused-mrr",
+          tier: "growth",
+          commerceAddon: false,
+          recurringCanceledAt: pausedAt,
+          stripeCustomerId: "cus_paused",
+        },
+        {
+          leadSlug: "active-mrr",
+          tier: "complete",
+          commerceAddon: false,
+        },
+      ],
+      marketingPacksThisMonth: [{ leadSlug: "active-mrr", yearMonth: "2026-07" }],
+      nowMs: NOW,
+    });
+    expect(digest.recurringEntitlementPausedCount).toBe(1);
+    expect(digest.recurringEntitlementPaused).toHaveLength(1);
+    expect(digest.recurringEntitlementPaused[0]?.businessName).toBe("Paused Growth Co");
+    expect(digest.recurringEntitlementPaused[0]?.hasStripeCustomerId).toBe(true);
+    expect(digest.oldestRecurringEntitlementPausedAgeHours).toBe(3);
+    expect(digest.marketingPacksDue).toHaveLength(0);
+    expect(digest.isEmpty).toBe(false);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("MRR paused / canceled (1 · oldest 3h)");
+    expect(html).toContain("Paused Growth Co");
+    expect(html).toContain("Manage billing / Billing Portal");
   });
 
   it("lists Starter → MRR upsell candidates", () => {

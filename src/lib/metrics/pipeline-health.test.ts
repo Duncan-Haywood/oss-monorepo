@@ -110,6 +110,8 @@ describe("computePipelineHealth", () => {
     expect(health.commerceCatalogsMissingCount).toBe(0);
     expect(health.commerceCatalogsUnsyncedCount).toBe(0);
     expect(health.clientVoicePacksDueCount).toBe(0);
+    expect(health.recurringEntitlementPausedCount).toBe(0);
+    expect(health.oldestRecurringEntitlementPausedAgeHours).toBeNull();
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
@@ -498,6 +500,39 @@ describe("computePipelineHealth", () => {
     });
     expect(health.marketingPacksDueCount).toBe(1);
     expect(health.marketingPacksDueMonth).toBe("2026-07");
+  });
+
+  it("counts paid/live leads with paused recurring entitlement (not marketing packs due)", () => {
+    const paused = makeLead("paid", { slug: "paused-mrr" });
+    const active = makeLead("live", { slug: "active-mrr" });
+    const pausedAt = NOW - 5 * 60 * 60 * 1000;
+    const health = computePipelineHealth({
+      leads: [paused, active],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "o1",
+          leadSlug: "paused-mrr",
+          tier: "growth",
+          recurringCanceledAt: pausedAt,
+          stripeCustomerId: "cus_paused",
+        },
+        {
+          ...makeOrder(699),
+          id: "o2",
+          leadSlug: "active-mrr",
+          tier: "complete",
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    // Paused lead drops out of packs-due; active Complete still needs a pack.
+    expect(health.marketingPacksDueCount).toBe(1);
+    expect(health.recurringEntitlementPausedCount).toBe(1);
+    expect(health.oldestRecurringEntitlementPausedAgeHours).toBe(5);
   });
 
   it("counts paid/live commerceAddon leads missing a catalog", () => {

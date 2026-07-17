@@ -11,7 +11,8 @@
  * + open-handoffs-in-digest
  * + paid-not-live-in-digest
  * + digest-section-counts-uncapped
- * + leads-missing-email-in-digest).
+ * + leads-missing-email-in-digest
+ * + recurring-entitlement-paused-pipeline-digest).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -48,6 +49,11 @@ import {
   type CommerceOrderRecord,
 } from "../commerce/orders";
 import { listClientVoicePacksDue } from "../voice/faq-pack";
+import {
+  listRecurringEntitlementPaused,
+  oldestRecurringEntitlementPausedAgeHours,
+  type RecurringEntitlementPausedStage,
+} from "../orders/recurring";
 
 const WORK_NEXT_LIMIT = 5;
 const FOLLOW_UPS_LIMIT = 5;
@@ -62,6 +68,7 @@ const COMMERCE_PAYOUTS_LIMIT = 5;
 const OPEN_HANDOFFS_LIMIT = 5;
 const PAID_NOT_LIVE_LIMIT = 5;
 const LEADS_MISSING_EMAIL_LIMIT = 5;
+const RECURRING_ENTITLEMENT_PAUSED_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -168,6 +175,18 @@ export interface DigestLeadMissingEmail {
   stage: LeadPipelineStage;
 }
 
+/**
+ * Paid/live Growth/Complete/Commerce lead with recurringCanceledAt and no
+ * still-active recurring order — same predicate as pipeline-health
+ * recurringEntitlementPausedCount. Chase Billing Portal / Manage billing.
+ */
+export interface DigestRecurringEntitlementPaused {
+  slug: string;
+  businessName: string;
+  stage: RecurringEntitlementPausedStage;
+  hasStripeCustomerId: boolean;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
@@ -239,6 +258,15 @@ export interface DailyDigest {
   snoozedLeadCount: number;
   /** Whole hours until the soonest snooze expires; null when none snoozed. */
   soonestSnoozeRemainingHours: number | null;
+  /**
+   * Paid/live MRR customers with paused/canceled recurring entitlement — same
+   * predicate as pipeline-health recurringEntitlementPausedCount (action section).
+   */
+  recurringEntitlementPaused: DigestRecurringEntitlementPaused[];
+  /** True count before the RECURRING_ENTITLEMENT_PAUSED_LIMIT slice. */
+  recurringEntitlementPausedCount: number;
+  /** Age in whole hours of the oldest recurring entitlement pause; null when none. */
+  oldestRecurringEntitlementPausedAgeHours: number | null;
   /** True when none of the above sections have anything for the operator to act on. */
   isEmpty: boolean;
 }
@@ -253,7 +281,13 @@ export interface BuildDailyDigestInput {
    */
   inquiries: ClientInquiry[];
   openCheckoutSessions: CheckoutSessionRecord[];
-  orders?: Array<{ leadSlug: string; tier: string; commerceAddon: boolean }>;
+  orders?: Array<{
+    leadSlug: string;
+    tier: string;
+    commerceAddon: boolean;
+    recurringCanceledAt?: number | null;
+    stripeCustomerId?: string | null;
+  }>;
   marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
   commerceCatalogs?: ReadonlyArray<{
     leadSlug: string;
@@ -533,6 +567,20 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     }
   }
 
+  const recurringEntitlementPausedAll = listRecurringEntitlementPaused(leads, orders);
+  const recurringEntitlementPausedCount = recurringEntitlementPausedAll.length;
+  const oldestRecurringEntitlementPausedAgeHoursValue =
+    oldestRecurringEntitlementPausedAgeHours(recurringEntitlementPausedAll, nowMs);
+  const recurringEntitlementPaused: DigestRecurringEntitlementPaused[] =
+    recurringEntitlementPausedAll
+      .slice(0, RECURRING_ENTITLEMENT_PAUSED_LIMIT)
+      .map((lead) => ({
+        slug: lead.slug,
+        businessName: lead.businessName,
+        stage: lead.stage,
+        hasStripeCustomerId: lead.hasStripeCustomerId,
+      }));
+
   const isEmpty =
     workNext.length === 0 &&
     followUpsDue.length === 0 &&
@@ -547,7 +595,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commercePayoutsOwed.length === 0 &&
     openHandoffs.length === 0 &&
     paidNotLive.length === 0 &&
-    leadsMissingEmail.length === 0;
+    leadsMissingEmail.length === 0 &&
+    recurringEntitlementPaused.length === 0;
 
   return {
     generatedAtMs: nowMs,
@@ -588,6 +637,10 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     closedLeadCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
+    recurringEntitlementPaused,
+    recurringEntitlementPausedCount,
+    oldestRecurringEntitlementPausedAgeHours:
+      oldestRecurringEntitlementPausedAgeHoursValue,
     isEmpty,
   };
 }
@@ -640,7 +693,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   if (digest.isEmpty) {
     return `
       <h2 style="margin:0 0 16px 0;color:#09090b;">Nothing urgent today</h2>
-      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, Buy now carts, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, Complete voice packs, Commerce payouts owed, and production handoffs are all clear.</p>
+      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, Buy now carts, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, Complete voice packs, Commerce payouts owed, production handoffs, and paused/canceled MRR recoveries are all clear.</p>
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
       ${closedLeadFootnote(digest)}
@@ -721,6 +774,13 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — no email · ${escapeHtmlForEmail(lead.stage)}`,
   );
 
+  const recurringPausedRows = digest.recurringEntitlementPaused.map((lead) => {
+    const billingHint = lead.hasStripeCustomerId
+      ? " · Manage billing / Billing Portal"
+      : " · no Stripe customer on file";
+    return `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — ${escapeHtmlForEmail(lead.stage)} MRR paused/canceled${billingHint}`;
+  });
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -740,6 +800,11 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       "Inbox clear.",
     )}
     ${section(`Marketing packs due (${digest.marketingPacksDueCount})`, packRows, "All Growth/Complete packs generated this month.")}
+    ${section(
+      `MRR paused / canceled (${digest.recurringEntitlementPausedCount}${digest.oldestRecurringEntitlementPausedAgeHours !== null ? ` · oldest ${digest.oldestRecurringEntitlementPausedAgeHours}h` : ""})`,
+      recurringPausedRows,
+      "No paused or canceled Growth/Complete/Commerce subscribers need recovery.",
+    )}
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
