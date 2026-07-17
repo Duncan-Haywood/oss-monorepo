@@ -2615,6 +2615,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-13bc",
   },
+  {
+    id: "commerce-buy-now-create-path-entitlement-gate",
+    summary:
+      "Empty-backlog after PR #347 (subscription-pause-collection-crm-pause). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual after #344–#347 CRM entitlement triad: preview + saveCommerceCatalogAction gate on leadEligibleForCommerceCatalog (!recurringCanceledAt), but POST /api/commerce/checkout still mints Buy now Sessions from catalog+stripePriceId alone — canceled/paused Commerce subscribers keep a create-path for end-customer carts. Before stripe.checkout.sessions.create: getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog; 403 when ineligible (404 when lead missing). syncCommerceCatalogToStripeAction twin claimed in same run.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-716e",
+  },
+  {
+    id: "commerce-sync-recurring-entitlement-gate",
+    summary:
+      "Auth-gated twin of commerce-buy-now-create-path-entitlement-gate: syncCommerceCatalogToStripeAction loads lead + catalog but skips leadEligibleForCommerceCatalog, so an operator can re-sync Stripe Prices after CRM pause/cancel and keep Buy now Price ids live while create-path is closed. Gate with the same predicate (listOrdersByLeadSlug) before syncCommerceCatalogToStripe; return success:false when ineligible.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-716e",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
