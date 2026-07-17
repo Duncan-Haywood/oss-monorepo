@@ -166,7 +166,8 @@ export const AGENT_PROTOCOL = [
   "After CRM entitlement pause/cancel gates preview + saveCommerceCatalogAction on leadEligibleForCommerceCatalog (!recurringCanceledAt), immediately close create-path + Sync-to-Stripe twins that still trust catalog+stripePriceId alone — POST /api/commerce/checkout must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before stripe.checkout.sessions.create (403 when ineligible; 404 when lead missing); syncCommerceCatalogToStripeAction must use the same predicate before syncCommerceCatalogToStripe (success:false). Hiding Buy now on preview while leaving the mint/sync APIs open is the same sold-capability hole class as Session portal gates without the lead twin. After create/sync entitlement ships (#348), immediately close the commerce_sku webhook twin (commerce-webhook-recurring-entitlement-gate) — checkout.session.completed must require the same predicate before insertCommerceOrder / inquiry / client receipt; missing lead or ineligible skips like unknown sku (session already markComplete; no 5xx forever). Dashboard-minted or pre-pause Sessions must not ledger pass-through Commerce revenue after CRM pause.",
   "invoice.paid must restore CRM recurring entitlement as the twin of invoice.payment_failed pause (#346): for subscription invoices, subscriptions.retrieve then clearOrdersRecurringCanceledByCustomer only when stripeSubscriptionShouldRestoreRecurringEntitlement (grants + !pause_collection). Blind clear would reopen the #347 pause_collection hole. One-time invoices skip. Retrieve failures return 5xx (subscription_retrieve); clear failures return 5xx (orders_recurring_reactivated). After Buy now create/sync entitlement + paused digest + commerce webhook entitlement ship, prefer this invoice restore asymmetry before inventing another dated clean-audit (invoice-paid-recurring-entitlement-restore).",
   "invoice.payment_failed must re-retrieve the Subscription before markOrdersRecurringCanceledByCustomer — membership alone is not enough after invoice.paid / subscription.updated clear. Mark only when stripeSubscriptionShouldPauseRecurringEntitlement (past_due|unpaid or pause_collection); skip when already grants. Stale/out-of-order failed after recovery must not re-pause packs. Retrieve failures return 5xx (subscription_retrieve). Ship with invoice.paid restore in the same pass when possible (invoice-payment-failed-stale-repause-guard).",
-  "After CRM entitlement pause/cancel gates Buy now create/sync/webhook on leadEligibleForCommerceCatalog, immediately close the abandoned-recovery twin — sendCommerceCheckoutRecoveryAction must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before mark/send (success:false when missing lead or ineligible); listCommerceAbandonedCheckoutsDue / digest / pipeline-health must filter via leadSlugsEligibleForCommerceAbandonedRecovery so paused/canceled Commerce carts do not surface as recovery debt while create-path 403s and the webhook skips (commerce-abandoned-recovery-entitlement-gate). After an entitlement filter ships as an optional helper arg (omit → allow-all), immediately require it at the type level so a future caller cannot reopen the hole (commerce-abandoned-recovery-require-entitlement-set). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#352 money gates.",] as const;
+  "After CRM entitlement pause/cancel gates Buy now create/sync/webhook on leadEligibleForCommerceCatalog, immediately close the abandoned-recovery twin — sendCommerceCheckoutRecoveryAction must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before mark/send (success:false when missing lead or ineligible); listCommerceAbandonedCheckoutsDue / digest / pipeline-health must filter via leadSlugsEligibleForCommerceAbandonedRecovery so paused/canceled Commerce carts do not surface as recovery debt while create-path 403s and the webhook skips (commerce-abandoned-recovery-entitlement-gate). After an entitlement filter ships as an optional helper arg (omit → allow-all), immediately require it at the type level so a future caller cannot reopen the hole (commerce-abandoned-recovery-require-entitlement-set).",
+  "After leadEligibleForMarketingPack gates generate/send on !recurringCanceledAt, also gate bestMarketingOrderTier on the same predicate — prefer Complete among *active* Growth/Complete rows only. A paused/canceled Complete + still-active Growth must not mint full_marketing / generate_schedule_optimize (outer eligibility can still pass via Growth). Same class as create-path entitlement without the inner sold-tier residual (best-marketing-order-tier-active-entitlement). After an outer eligibility gate ships, immediately audit inner tier/package selectors before inventing another dated clean-audit. Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#353 money gates.",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2683,6 +2684,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-d772",
+  },
+  {
+    id: "best-marketing-order-tier-active-entitlement",
+    summary:
+      "Empty-backlog after PR #353 (commerce-abandoned-recovery-require-entitlement-set). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: leadEligibleForMarketingPack gates generate on !recurringCanceledAt, but bestMarketingOrderTier still prefers any Complete row (including paused/canceled) over an active Growth — downgraded/canceled Complete + still-active Growth wrongly mints full_marketing / generate_schedule_optimize. Prefer Complete among active-entitlement Growth/Complete rows only.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-6b9c",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5510,6 +5519,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "listCommerceAbandonedCheckoutsDue.eligibleLeadSlugs must be required at the type level (empty Set fails closed) — never optional with omit→allow-all. Callers build the set via leadSlugsEligibleForCommerceAbandonedRecovery. After an entitlement filter ships as an optional helper arg, immediately require it so a future digest/dashboard caller cannot reopen paused-Commerce recovery debt.",
     rationale:
       "Empty-backlog after PR #352 (commerce-abandoned-recovery-entitlement-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Dated clean-audit on escapeHtmlForEmail / webhook alreadyRecorded side-effect recovery / uncapped debt lists + marketing/voice pack entitlement twins + archiveOrphan (intentional cleanup) came back clean. Fresh residual: #352 left eligibleLeadSlugs optional, so TypeScript still allowed omit→allow-all — the same class of silent reopen as create-path without the webhook twin. Process improvement: after shipping an entitlement filter helper, require the filter arg at the type level before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped axes not dated this week. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "bestMarketingOrderTier must ignore paused/canceled Growth/Complete rows (recurringCanceledAt set) when choosing package tier — prefer Complete among *active* entitlement rows only, matching leadEligibleForMarketingPack. A canceled Complete + still-active Growth must yield growth (social_email), not full_marketing.",
+    rationale:
+      "Empty-backlog after PR #353 (require entitlement set on Buy now recovery due helper). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual twin: #344–#347 gated outer pack eligibility on !recurringCanceledAt, but bestMarketingOrderTier still trusted tier alone — downgraded/canceled Complete outranked active Growth and over-delivered Complete scope. Process improvement: after an outer eligibility gate ships, immediately audit inner tier/package selectors before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -11189,5 +11205,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     // Object-parse by decision text: require-entitlement-set owns BD[401]; abandoned-recovery gate=400.
     decisions: BUSINESS_DECISIONS.slice(401, 402),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/business-process-evolution-6b9c",
+    summary:
+      "Empty-backlog after PR #353 (commerce-abandoned-recovery-require-entitlement-set). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Concurrent sibling prompt-process-evolution-203f had no remote claim yet. Fresh residual: leadEligibleForMarketingPack gates generate on !recurringCanceledAt, but bestMarketingOrderTier still preferred any Complete (including paused/canceled) over active Growth — over-delivered full_marketing. Shipped active-entitlement filter on bestMarketingOrderTier; Vitest + architecture note; process now requires inner tier selectors after outer eligibility gates.",
+    shipped: [
+      "src/lib/marketing/monthly-pack.ts — bestMarketingOrderTier skips recurringCanceledAt rows",
+      "src/lib/marketing/monthly-pack.test.ts — canceled Complete + active Growth → growth; all-paused → null",
+      "Docs: architecture.tsx notes bestMarketingOrderTier shares !recurringCanceledAt with leadEligibleForMarketingPack",
+      "AGENT_PROTOCOL — after outer pack eligibility, immediately audit inner tier/package selectors",
+      "NEXT_STEPS: best-marketing-order-tier-active-entitlement done",
+      "BUSINESS_DECISIONS — require active-entitlement bestMarketingOrderTier (absolute index 402)",
+      "Process: object-parse by decision text (require-entitlement-set=401) before appending ours; claim pushed before feature body",
+      "Verified: npm test (1763 passed = main@#353's 1762 + 1 active-tier regression) + lint",
+    ],
+    // Object-parse by decision text: best-marketing-order-tier owns BD[402]; require-entitlement-set=401.
+    decisions: BUSINESS_DECISIONS.slice(402, 403),
   },
 ];

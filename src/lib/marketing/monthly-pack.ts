@@ -114,12 +114,23 @@ export function listMarketingPacksDue<
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
-/** Prefer Complete over Growth when both exist (newest-first lists still work). */
+/**
+ * Prefer Complete over Growth among *active* marketing entitlement rows.
+ * Paused/canceled Complete must not outrank an still-active Growth after
+ * recurringCanceledAt CRM sync — same predicate as leadEligibleForMarketingPack.
+ */
 export function bestMarketingOrderTier(
-  orders: ReadonlyArray<{ tier: string }>,
+  orders: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
 ): "growth" | "complete" | null {
   let best: "growth" | "complete" | null = null;
   for (const order of orders) {
+    if (
+      typeof order.recurringCanceledAt === "number" &&
+      Number.isFinite(order.recurringCanceledAt) &&
+      order.recurringCanceledAt > 0
+    ) {
+      continue;
+    }
     if (order.tier === "complete") return "complete";
     if (order.tier === "growth") best = "growth";
   }

@@ -535,6 +535,11 @@ export default function ArchitectureDocPage() {
         reopen the pause hole; one-time invoices skip; retrieve failures return{" "}
         <code>500</code> / <code>subscription_retrieve</code>). Marketing packs, client voice
         packs, and commerce catalogs require an uncanceled recurring order;{" "}
+        <code>bestMarketingOrderTier</code> also ignores paused/canceled Complete
+        rows when picking Growth vs Complete package tier (same{" "}
+        <code>!recurringCanceledAt</code> predicate as{" "}
+        <code>leadEligibleForMarketingPack</code> — a canceled Complete must not
+        outrank an still-active Growth).{" "}
         <code>stage=paid|live</code> and Billing Portal eligibility stay so
         invoices/resubscribe and Starter-upsell mutual exclusion remain correct.
         Paused/canceled MRR customers (paid|live with{" "}

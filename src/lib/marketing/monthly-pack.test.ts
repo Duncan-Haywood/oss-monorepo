@@ -88,6 +88,27 @@ describe("eligibility", () => {
     expect(bestMarketingOrderTier([{ tier: "starter" }, { tier: "growth" }])).toBe("growth");
     expect(bestMarketingOrderTier([{ tier: "starter" }])).toBeNull();
   });
+
+  it("bestMarketingOrderTier ignores paused/canceled Complete over active Growth", () => {
+    expect(
+      bestMarketingOrderTier([
+        { tier: "complete", recurringCanceledAt: 1_720_000_000_000 },
+        { tier: "growth" },
+      ]),
+    ).toBe("growth");
+    expect(
+      bestMarketingOrderTier([
+        { tier: "complete", recurringCanceledAt: 1_720_000_000_000 },
+        { tier: "growth", recurringCanceledAt: 1_720_000_000_000 },
+      ]),
+    ).toBeNull();
+    expect(
+      bestMarketingOrderTier([
+        { tier: "growth", recurringCanceledAt: 1_720_000_000_000 },
+        { tier: "complete" },
+      ]),
+    ).toBe("complete");
+  });
 });
 
 describe("listMarketingPacksDue", () => {
