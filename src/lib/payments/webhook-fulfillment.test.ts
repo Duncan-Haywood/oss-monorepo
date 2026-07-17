@@ -130,4 +130,22 @@ describe("webhookFulfillmentFailureResponse", () => {
     expect(result.body.step).toBe("commerce_order_refund");
     expect(result.body.error).toMatch(/retry/i);
   });
+
+  it("returns 500 with received:false for dispute Checkout Session lookup failures", () => {
+    const result = webhookFulfillmentFailureResponse(
+      "commerce_order_dispute_session_lookup",
+    );
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("commerce_order_dispute_session_lookup");
+    expect(result.body.error).toMatch(/retry/i);
+  });
+
+  it("returns 500 with received:false for commerce order dispute mark failures", () => {
+    const result = webhookFulfillmentFailureResponse("commerce_order_dispute");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("commerce_order_dispute");
+    expect(result.body.error).toMatch(/retry/i);
+  });
 });

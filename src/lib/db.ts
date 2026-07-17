@@ -325,6 +325,9 @@ function getSqliteDb(): DatabaseSync {
   if (!commerceOrderCols.includes("refundedAt")) {
     sqliteDb.exec("ALTER TABLE commerce_orders ADD COLUMN refundedAt TEXT");
   }
+  if (!commerceOrderCols.includes("disputedAt")) {
+    sqliteDb.exec("ALTER TABLE commerce_orders ADD COLUMN disputedAt TEXT");
+  }
 
   // Seed SQLite database if empty
   const countStmt = sqliteDb.prepare("SELECT COUNT(*) as count FROM leads");
@@ -431,10 +434,12 @@ const api: any = {
     list: "commerceOrders:list",
     listUnpaid: "commerceOrders:listUnpaid",
     listRefunded: "commerceOrders:listRefunded",
+    listDisputed: "commerceOrders:listDisputed",
     getByStripeSessionId: "commerceOrders:getByStripeSessionId",
     markPaidOut: "commerceOrders:markPaidOut",
     markClientReceiptSent: "commerceOrders:markClientReceiptSent",
     markRefunded: "commerceOrders:markRefunded",
+    markDisputed: "commerceOrders:markDisputed",
   },
   suppressions: {
     isSuppressed: "suppressions:isSuppressed",
@@ -2691,6 +2696,40 @@ export async function listCommerceOrdersRefunded(): Promise<CommerceOrderRecord[
   return rows.map(mapCommerceOrderRow);
 }
 
+/**
+ * Every disputed commerce order, regardless of paidOutAt — same rationale as
+ * listCommerceOrdersRefunded: listUnpaidCommerceOrders drops a row once
+ * paidOutAt is set, so a dispute landing AFTER payout (clawback owed from the
+ * client) would otherwise be invisible to pipeline-health/digest. Uncapped
+ * for the same reason (see commerce-order-dispute-clawback-tracking).
+ */
+export async function listCommerceOrdersDisputed(): Promise<CommerceOrderRecord[]> {
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(
+        api.commerceOrders.listDisputed,
+        {},
+      )) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
+    } catch (e) {
+      console.warn(
+        "Failed to list disputed commerce orders from Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT * FROM commerce_orders
+       WHERE disputedAt IS NOT NULL AND disputedAt != ''
+       ORDER BY createdAt DESC`,
+    )
+    .all() as unknown as SqliteCommerceOrderRow[];
+  return rows.map(mapCommerceOrderRow);
+}
+
 /** Single commerce order by Stripe Checkout Session id (Mark paid out lookup). */
 export async function getCommerceOrderByStripeSessionId(
   stripeSessionId: string,
@@ -2832,6 +2871,47 @@ export async function markCommerceOrderRefunded(
   db.prepare(
     "UPDATE commerce_orders SET refundedAt = ? WHERE stripeSessionId = ? AND (refundedAt IS NULL OR refundedAt = '')",
   ).run(refundedAt, stripeSessionId);
+}
+
+/**
+ * Marks a commerce order disputed — called from the Stripe webhook's
+ * charge.dispute.created handler after it resolves the order's Checkout
+ * Session. Keyed on stripeSessionId (unique, always present), matching
+ * markCommerceOrderRefunded. Idempotent: a redelivered/duplicate dispute
+ * event re-applying the same mark is a no-op.
+ *
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY) so a
+ * Convex mutation failure surfaces (5xx → Stripe retry) instead of SQLite-only
+ * success while Convex-first owed/clawback readers on other instances still
+ * show the order as owed and never flag the clawback.
+ */
+export async function markCommerceOrderDisputed(
+  stripeSessionId: string,
+  disputedAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.markDisputed, {
+        stripeSessionId,
+        disputedAt,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCommerceOrderDisputed", e);
+      }
+      console.warn(
+        `Failed to mark commerce order ${stripeSessionId} disputed on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE commerce_orders SET disputedAt = ? WHERE stripeSessionId = ? AND (disputedAt IS NULL OR disputedAt = '')",
+  ).run(disputedAt, stripeSessionId);
 }
 
 // --- Client voice FAQ packs (Complete receptionist scripts) ---

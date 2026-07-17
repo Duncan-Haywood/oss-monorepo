@@ -51,6 +51,7 @@ export {
 
 export {
   commerceOrderNeedsClawback,
+  isCommerceOrderDisputed,
   isCommerceOrderPaidOut,
   isCommerceOrderRefunded,
   newCommerceOrderId,

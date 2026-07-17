@@ -36,6 +36,7 @@ import {
 } from "@/lib/marketing/monthly-pack";
 import {
   commerceOrderNeedsClawback,
+  isCommerceOrderDisputed,
   isCommerceOrderPaidOut,
   isCommerceOrderRefunded,
   sumCommerceOrdersRevenueUsd,
@@ -159,6 +160,19 @@ export interface PipelineHealth {
   /** Age in whole hours since the oldest refund-after-payout was flagged; null when none. */
   oldestCommerceOrdersRefundClawbackAgeHours: number | null;
   /**
+   * Count of Commerce Buy now orders disputed (charged back) by Stripe AFTER
+   * the operator already marked them paid out to the client — same clawback
+   * exposure as commerceOrdersRefundClawbackCount, on the dispute axis (see
+   * commerce-order-dispute-clawback-tracking). Zero risk otherwise: a dispute
+   * on an order never paid out simply drops out of commerceOrdersRevenueUsd
+   * above with nothing further to do.
+   */
+  commerceOrdersDisputeClawbackCount: number;
+  /** Sum of amountPaidUsd across commerceOrdersDisputeClawbackCount orders. */
+  commerceOrdersDisputeClawbackUsd: number;
+  /** Age in whole hours since the oldest dispute-after-payout was flagged; null when none. */
+  oldestCommerceOrdersDisputeClawbackAgeHours: number | null;
+  /**
    * Paid/live Growth/Complete/Commerce leads with recurringCanceledAt and no
    * still-active recurring order — MRR recovery debt (Billing Portal chase).
    * Distinct from marketingPacksDue (those drop out when entitlement pauses).
@@ -257,11 +271,12 @@ export function computePipelineHealth(input: {
   }>;
   /** Existing client voice FAQ packs (one row per Complete lead). */
   clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
-  /** Recorded Commerce Buy now orders (optional) — unpaid owed uses paidOutAt/refundedAt. */
+  /** Recorded Commerce Buy now orders (optional) — unpaid owed uses paidOutAt/refundedAt/disputedAt. */
   commerceOrders?: ReadonlyArray<{
     amountPaidUsd: number;
     paidOutAt?: string;
     refundedAt?: string;
+    disputedAt?: string;
   }>;
   /**
    * Every refunded Commerce Buy now order regardless of paidOutAt (optional) —
@@ -274,6 +289,17 @@ export function computePipelineHealth(input: {
     amountPaidUsd: number;
     paidOutAt?: string;
     refundedAt?: string;
+  }>;
+  /**
+   * Every disputed Commerce Buy now order regardless of paidOutAt (optional) —
+   * pass listCommerceOrdersDisputed() (uncapped). Same rationale as
+   * commerceOrdersRefunded, on the dispute axis (see
+   * commerce-order-dispute-clawback-tracking).
+   */
+  commerceOrdersDisputed?: ReadonlyArray<{
+    amountPaidUsd: number;
+    paidOutAt?: string;
+    disputedAt?: string;
   }>;
   nowMs?: number;
 }): PipelineHealth {
@@ -430,10 +456,14 @@ export function computePipelineHealth(input: {
   );
 
   const commerceOrders = input.commerceOrders ?? [];
-  // A refunded order owes the client nothing — exclude it from "owed" the
-  // same way a paid-out order is excluded (see commerce-order-refund-clawback-tracking).
+  // A refunded or disputed order owes the client nothing — exclude it from
+  // "owed" the same way a paid-out order is excluded (see
+  // commerce-order-refund-clawback-tracking, commerce-order-dispute-clawback-tracking).
   const unpaidCommerceOrders = commerceOrders.filter(
-    (order) => !isCommerceOrderPaidOut(order) && !isCommerceOrderRefunded(order),
+    (order) =>
+      !isCommerceOrderPaidOut(order) &&
+      !isCommerceOrderRefunded(order) &&
+      !isCommerceOrderDisputed(order),
   );
   const commerceOrdersRevenueUsd = sumCommerceOrdersRevenueUsd(unpaidCommerceOrders);
 
@@ -455,6 +485,27 @@ export function computePipelineHealth(input: {
       ageHours > oldestCommerceOrdersRefundClawbackAgeHours
     ) {
       oldestCommerceOrdersRefundClawbackAgeHours = Math.max(0, ageHours);
+    }
+  }
+
+  const commerceOrdersDisputed = input.commerceOrdersDisputed ?? [];
+  const commerceOrdersDisputeClawback = commerceOrdersDisputed.filter(
+    commerceOrderNeedsClawback,
+  );
+  const commerceOrdersDisputeClawbackUsd = sumCommerceOrdersRevenueUsd(
+    commerceOrdersDisputeClawback,
+  );
+  let oldestCommerceOrdersDisputeClawbackAgeHours: number | null = null;
+  for (const order of commerceOrdersDisputeClawback) {
+    if (!order.disputedAt) continue;
+    const disputedAtMs = Date.parse(order.disputedAt);
+    if (Number.isNaN(disputedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - disputedAtMs) / HOUR_MS);
+    if (
+      oldestCommerceOrdersDisputeClawbackAgeHours === null ||
+      ageHours > oldestCommerceOrdersDisputeClawbackAgeHours
+    ) {
+      oldestCommerceOrdersDisputeClawbackAgeHours = Math.max(0, ageHours);
     }
   }
 
@@ -503,6 +554,9 @@ export function computePipelineHealth(input: {
     commerceOrdersRefundClawbackCount: commerceOrdersRefundClawback.length,
     commerceOrdersRefundClawbackUsd,
     oldestCommerceOrdersRefundClawbackAgeHours,
+    commerceOrdersDisputeClawbackCount: commerceOrdersDisputeClawback.length,
+    commerceOrdersDisputeClawbackUsd,
+    oldestCommerceOrdersDisputeClawbackAgeHours,
     recurringEntitlementPausedCount,
     oldestRecurringEntitlementPausedAgeHours: oldestRecurringPausedAgeHours,
   };

@@ -176,6 +176,16 @@ export default defineSchema({
      * client out of pocket and must claw that amount back.
      */
     refundedAt: v.optional(v.string()),
+    /**
+     * Set once the Stripe webhook's charge.dispute.created handler resolves
+     * this order's Checkout Session — Stripe debits the disputed amount from
+     * the platform the moment a dispute opens (see
+     * commerce-order-dispute-clawback-tracking), same payout-safety exposure
+     * as refundedAt. If paidOutAt was already set before the dispute landed,
+     * the operator already paid the client out of pocket and must claw that
+     * amount back.
+     */
+    disputedAt: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"]),

@@ -5,6 +5,7 @@ import {
   getCommerceOrderByStripeSessionId,
   markCheckoutSessionComplete,
   markCheckoutSessionOpen,
+  markCommerceOrderDisputed,
   markCommerceOrderRefunded,
   markCompleteOpenBundleCheckoutSessionsForLead,
   markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer,
@@ -162,6 +163,23 @@ import {
  * AGENT_PROTOCOL). Session-lookup / mark-refunded failures return 5xx
  * (commerce_order_refund_session_lookup / commerce_order_refund) so Stripe
  * retries rather than silently leaving a refund untracked.
+ *
+ * charge.dispute.created (a chargeback) is the natural follow-up to
+ * charge.refunded — Stripe debits the disputed amount from the platform the
+ * moment a dispute opens, before any resolution, so it is the same
+ * payout-safety exposure. It mirrors the refund handler exactly: resolve the
+ * Checkout Session via stripe.checkout.sessions.list({ payment_intent })
+ * (Dispute.payment_intent), mark commerceOrders.disputedAt when it backs a
+ * ledgered order (idempotent), and markCommerceOrderPaidOutAction rejects
+ * paying out a disputed order. Clawback-after-payout surfaces via
+ * listCommerceOrdersDisputed (uncapped). No payment_intent, no matching
+ * Session, or no ledgered commerce order all skip (bundle order disputes are
+ * not handled here — same scope note as refunds). Session-lookup /
+ * mark-disputed failures return 5xx (commerce_order_dispute_session_lookup /
+ * commerce_order_dispute) so Stripe retries. Dispute *resolution*
+ * (charge.dispute.closed — won/lost) is not handled here, same as refund
+ * reversal is not handled — a future iteration can add that twin if needed
+ * (commerce-order-dispute-clawback-tracking).
  */
 
 /** Webhook revenue path: fail closed when Convex is configured but unreachable. */
@@ -1289,6 +1307,73 @@ export async function POST(request: Request) {
           e,
         );
         const failure = webhookFulfillmentFailureResponse("commerce_order_refund");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      break;
+    }
+    case "charge.dispute.created": {
+      // A disputed (charged back) commerce_sku Buy now charge owes the client
+      // nothing — Stripe has already debited the amount from the platform
+      // pending review. Mirrors charge.refunded exactly (see doc comment
+      // above and commerce-order-dispute-clawback-tracking).
+      const dispute = event.data.object as Stripe.Dispute;
+      const paymentIntentId = chargePaymentIntentId(dispute);
+      if (!paymentIntentId) {
+        console.warn(
+          `webhook: charge.dispute.created ${dispute.id} has no payment_intent — cannot correlate to a Checkout Session, skipping`,
+        );
+        break;
+      }
+      let disputeSessions: Stripe.ApiList<Stripe.Checkout.Session>;
+      try {
+        disputeSessions = await stripe.checkout.sessions.list({
+          payment_intent: paymentIntentId,
+          limit: 1,
+        });
+      } catch (e) {
+        console.error(
+          `Failed to list Checkout Sessions for disputed charge ${dispute.charge} (payment_intent=${paymentIntentId})`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse(
+          "commerce_order_dispute_session_lookup",
+        );
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      const disputeSession = disputeSessions.data[0];
+      if (!disputeSession) {
+        console.warn(
+          `webhook: charge.dispute.created ${dispute.id} payment_intent=${paymentIntentId} matched no Checkout Session — not one of our commerce orders, skipping`,
+        );
+        break;
+      }
+      const disputedCommerceOrder = await getCommerceOrderByStripeSessionId(
+        disputeSession.id,
+      );
+      if (!disputedCommerceOrder) {
+        // Not a commerce_sku Buy now order (e.g. a bundle purchase) — no
+        // payout-safety ledger to flag. See AGENT_PROTOCOL note above.
+        break;
+      }
+      if (disputedCommerceOrder.disputedAt) {
+        // Already flagged (Stripe redelivery) — idempotent no-op.
+        break;
+      }
+      try {
+        await markCommerceOrderDisputed(
+          disputeSession.id,
+          new Date().toISOString(),
+          WEBHOOK_CONVEX_PRIMARY,
+        );
+        console.warn(
+          `webhook: charge.dispute.created ${dispute.id} flagged commerce order for session ${disputeSession.id} (leadSlug=${disputedCommerceOrder.leadSlug}, skuId=${disputedCommerceOrder.skuId}, paidOut=${Boolean(disputedCommerceOrder.paidOutAt)})`,
+        );
+      } catch (e) {
+        console.error(
+          `Failed to mark commerce order disputed for session ${disputeSession.id} after charge.dispute.created ${dispute.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("commerce_order_dispute");
         return NextResponse.json(failure.body, { status: failure.status });
       }
       break;

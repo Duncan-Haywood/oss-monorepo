@@ -37,6 +37,7 @@ const listCommerceCatalogs = vi.fn();
 const listClientVoicePacks = vi.fn();
 const listUnpaidCommerceOrders = vi.fn();
 const listCommerceOrdersRefunded = vi.fn();
+const listCommerceOrdersDisputed = vi.fn();
 const listClientInquiries = vi.fn();
 const listCommerceOrders = vi.fn();
 const listDeployHandoffs = vi.fn();
@@ -76,6 +77,8 @@ vi.mock("@/lib/db", () => ({
     listUnpaidCommerceOrders(...args),
   listCommerceOrdersRefunded: (...args: unknown[]) =>
     listCommerceOrdersRefunded(...args),
+  listCommerceOrdersDisputed: (...args: unknown[]) =>
+    listCommerceOrdersDisputed(...args),
   listCommerceOrders: (...args: unknown[]) => listCommerceOrders(...args),
   listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
 }));
@@ -122,6 +125,7 @@ describe("sendDailyDigestAction", () => {
     listClientVoicePacks.mockReset().mockResolvedValue([]);
     listUnpaidCommerceOrders.mockReset().mockResolvedValue([]);
     listCommerceOrdersRefunded.mockReset().mockResolvedValue([]);
+    listCommerceOrdersDisputed.mockReset().mockResolvedValue([]);
     listDeployHandoffs.mockReset().mockResolvedValue([]);
     listClientInquiries.mockReset();
     listCommerceOrders.mockReset();

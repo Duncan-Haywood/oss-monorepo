@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   commerceOrderNeedsClawback,
+  isCommerceOrderDisputed,
   isCommerceOrderPaidOut,
   isCommerceOrderRefunded,
   newCommerceOrderId,
@@ -24,6 +25,7 @@ function order(
     createdAt: partial.createdAt,
     paidOutAt: partial.paidOutAt,
     refundedAt: partial.refundedAt,
+    disputedAt: partial.disputedAt,
   };
 }
 
@@ -241,6 +243,32 @@ describe("summarizeCommerceOrdersByLead excludes refunded orders from owed total
   });
 });
 
+describe("summarizeCommerceOrdersByLead excludes disputed orders from owed totals", () => {
+  it("drops a disputed, never-paid-out order from unpaidTotalUsd/unpaidCount", () => {
+    const summaries = summarizeCommerceOrdersByLead([
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 40,
+        createdAt: "2026-07-12T09:00:00.000Z",
+        disputedAt: "2026-07-13T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 10,
+        createdAt: "2026-07-12T10:00:00.000Z",
+      }),
+    ]);
+    expect(summaries).toHaveLength(1);
+    expect(summaries[0]).toMatchObject({
+      leadSlug: "cafe",
+      orderCount: 2,
+      totalUsd: 50,
+      unpaidTotalUsd: 10,
+      unpaidCount: 1,
+    });
+  });
+});
+
 describe("isCommerceOrderPaidOut", () => {
   it("is false when paidOutAt is unset", () => {
     expect(isCommerceOrderPaidOut({ paidOutAt: undefined })).toBe(false);
@@ -266,6 +294,20 @@ describe("isCommerceOrderRefunded", () => {
 
   it("is true once refundedAt is set", () => {
     expect(isCommerceOrderRefunded({ refundedAt: "2026-07-17T10:00:00.000Z" })).toBe(true);
+  });
+});
+
+describe("isCommerceOrderDisputed", () => {
+  it("is false when disputedAt is unset", () => {
+    expect(isCommerceOrderDisputed({ disputedAt: undefined })).toBe(false);
+  });
+
+  it("is false when disputedAt is an empty string (SQLite/Convex parity)", () => {
+    expect(isCommerceOrderDisputed({ disputedAt: "" })).toBe(false);
+  });
+
+  it("is true once disputedAt is set", () => {
+    expect(isCommerceOrderDisputed({ disputedAt: "2026-07-17T10:00:00.000Z" })).toBe(true);
   });
 });
 
@@ -297,8 +339,38 @@ describe("commerceOrderNeedsClawback", () => {
     ).toBe(true);
   });
 
+  it("is false when paid out but not disputed", () => {
+    expect(
+      commerceOrderNeedsClawback({
+        paidOutAt: "2026-07-10T10:00:00.000Z",
+        disputedAt: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it("is true once an order is both paid out and disputed, regardless of order", () => {
+    expect(
+      commerceOrderNeedsClawback({
+        paidOutAt: "2026-07-10T10:00:00.000Z",
+        disputedAt: "2026-07-17T10:00:00.000Z",
+      }),
+    ).toBe(true);
+  });
+
+  it("is true when paid out and BOTH refunded and disputed", () => {
+    expect(
+      commerceOrderNeedsClawback({
+        paidOutAt: "2026-07-10T10:00:00.000Z",
+        refundedAt: "2026-07-16T10:00:00.000Z",
+        disputedAt: "2026-07-17T10:00:00.000Z",
+      }),
+    ).toBe(true);
+  });
+
   it("treats empty-string fields as unset (SQLite/Convex parity)", () => {
-    expect(commerceOrderNeedsClawback({ paidOutAt: "", refundedAt: "" })).toBe(false);
+    expect(
+      commerceOrderNeedsClawback({ paidOutAt: "", refundedAt: "", disputedAt: "" }),
+    ).toBe(false);
   });
 });
 
