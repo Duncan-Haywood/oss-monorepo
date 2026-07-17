@@ -2597,6 +2597,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-9a1a",
   },
+  {
+    id: "invoice-payment-failed-past-due-crm-pause",
+    summary:
+      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh twin residual: active|trialing clear restores packs, but customer.subscription.updated past_due|unpaid and invoice.payment_failed never set recurringCanceledAt — failed renewals keep marketing/voice/catalog entitlement until subscription.deleted. On past_due|unpaid subscription.updated (and invoice.payment_failed for subscription invoices), markOrdersRecurringCanceledByCustomer (requireConvex). Keep stage=paid|live + Billing Portal. active|trialing clear twin already restores after recovery.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-8b08",
+  },
+  {
+    id: "subscription-pause-collection-crm-pause",
+    summary:
+      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Sibling prompt-process-evolution-8b08 claimed invoice-payment-failed-past-due-crm-pause — complementary pivot. Fresh residual: Stripe pause_collection keeps status=active|trialing while collection is paused, so the #345 clear path restores/keeps marketing/voice/catalog entitlement for non-paying paused subscribers. On customer.subscription.created|updated when pause_collection is set, markOrdersRecurringCanceledByCustomer before the active|trialing clear; when pause_collection clears and status grants, existing clear restores. Keep stage=paid|live + Billing Portal. past_due|unpaid|invoice.payment_failed stays on 8b08.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-13bc",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
