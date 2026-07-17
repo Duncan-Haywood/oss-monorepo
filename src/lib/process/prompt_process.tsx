@@ -2461,6 +2461,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-0329",
   },
+  {
+    id: "commerce-webhook-currency-usd-gate",
+    summary:
+      "Empty-backlog after PR #331 (billing-portal-session-payment-mode-tier-metadata-trust). Sibling prompt-process-evolution-1924 claimed success-page-commerceAddon-line-item-parity. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual: Buy now create charges only USD Stripe Prices (stripe-sync currency:\"usd\"), and amount_total===catalogItem.priceCents already gates cents, but checkout.session.completed still ledgers amount_total/100 as USD dollars without requiring session.currency===\"usd\". A Dashboard-minted session in another currency with a coincidentally equal minor-unit amount would skew commerceOrdersRevenueUsd and client receipts. Require currency usd (case-insensitive) before amount parity + ledger; mismatch/missing skips like amount mismatch.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-deb8",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
