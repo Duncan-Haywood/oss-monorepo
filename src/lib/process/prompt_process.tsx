@@ -2641,6 +2641,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-716e",
   },
+  {
+    id: "invoice-paid-recurring-entitlement-restore",
+    summary:
+      "Empty-backlog after PR #348/#349 (Buy now create/sync entitlement + paused MRR digest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh CRM restore asymmetry: #346 pauses packs on invoice.payment_failed so entitlement does not lag delayed subscription.updated past_due, but invoice.paid is a no-op — restore still waits only on customer.subscription.created|updated active|trialing. When invoice.paid wins the race (or the clear event is delayed/lost), a paying customer stays recurringCanceledAt-paused (Generate/Email pack, voice, Buy now withheld). On invoice.paid for subscription invoices: subscriptions.retrieve; clearOrdersRecurringCanceledByCustomer only when stripeSubscriptionGrantsRecurringEntitlement && !stripeSubscriptionHasPauseCollection (blind clear would reopen #347 pause_collection). One-time invoices skip. Write failures return 5xx (orders_recurring_reactivated). Same-run follow-up: invoice.payment_failed must re-retrieve Subscription and mark only when status pauses or pause_collection (stale failed after recovery must not re-pause).",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-f273",
+  },
+  {
+    id: "invoice-payment-failed-stale-repause-guard",
+    summary:
+      "Twin of invoice-paid-recurring-entitlement-restore: after clear on recovery, a late/out-of-order invoice.payment_failed currently markOrdersRecurringCanceledByCustomer unconditionally (subscription membership only) — no further subscription.updated leaves packs stuck paused despite payment. Before mark on payment_failed, subscriptions.retrieve; mark only when stripeSubscriptionPausesRecurringEntitlement(status) || stripeSubscriptionHasPauseCollection; skip when grants and not paused. Retrieve failures return 5xx so Stripe retries (do not soft-skip pause).",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-f273",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
