@@ -558,6 +558,7 @@ export async function POST(request: Request) {
           if (sideEffects.runClientReceipt) {
             const clientEmail = lead?.email?.trim();
             if (clientEmail) {
+              let clientReceiptSendFailed = false;
               try {
                 const { sendCommerceBuyNowClientReceipt } = await import(
                   "@/lib/email/resend"
@@ -592,15 +593,23 @@ export async function POST(request: Request) {
                     return NextResponse.json(failure.body, { status: failure.status });
                   }
                 } else {
+                  clientReceiptSendFailed = true;
                   console.error(
                     `Commerce client receipt not sent for ${orderSlug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
                   );
                 }
               } catch (emailError) {
+                clientReceiptSendFailed = true;
                 console.error(
                   `Failed to email commerce client receipt for ${orderSlug}`,
                   emailError,
                 );
+              }
+              if (clientReceiptSendFailed) {
+                const failure = webhookFulfillmentFailureResponse(
+                  "commerce_client_receipt_send",
+                );
+                return NextResponse.json(failure.body, { status: failure.status });
               }
             }
           }
@@ -821,16 +830,17 @@ export async function POST(request: Request) {
           console.log(`Payment successfully recorded for lead ${slug}`);
         }
 
-        // Receipt / DNS emails — best-effort send; durable note marker after
-        // each successful send so redelivery can skip only what already went out.
-        // Marker write failure returns 5xx so Stripe retries (accept one possible
-        // duplicate rather than unbounded re-sends with no marker).
+        // Receipt / DNS emails — durable note marker after each successful send
+        // so redelivery can skip only what already went out. Send and marker
+        // failures return 5xx so Stripe retries (accept one possible duplicate
+        // rather than permanently losing a paid notification).
         try {
           const { sendReceiptEmail, sendEmail } = await import("@/lib/email/resend");
           const { formatDnsInstructionsForEmail } = await import("@/lib/deploy/handoff");
           const { brand } = await import("@/lib/brand");
           const { escapeHtmlForEmail } = await import("@/lib/inquiries/reply");
 
+          let emailSendFailed = false;
           if (sideEffects.runReceiptEmail && customerEmail) {
             try {
               const sent = await sendReceiptEmail(
@@ -860,11 +870,13 @@ export async function POST(request: Request) {
                   return NextResponse.json(failure.body, { status: failure.status });
                 }
               } else {
+                emailSendFailed = true;
                 console.error(
                   `Receipt email not sent for ${slug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
                 );
               }
             } catch (emailError) {
+              emailSendFailed = true;
               console.error(`Failed to send receipt email for ${slug}:`, emailError);
             }
           }
@@ -905,13 +917,19 @@ export async function POST(request: Request) {
                   return NextResponse.json(failure.body, { status: failure.status });
                 }
               } else {
+                emailSendFailed = true;
                 console.error(
                   `DNS handoff email not sent for ${slug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
                 );
               }
             } catch (emailError) {
+              emailSendFailed = true;
               console.error(`Failed to send DNS handoff email for ${slug}:`, emailError);
             }
+          }
+          if (emailSendFailed) {
+            const failure = webhookFulfillmentFailureResponse("bundle_email_send");
+            return NextResponse.json(failure.body, { status: failure.status });
           }
         } catch (emailError) {
           console.error(`Failed to send receipt/DNS emails for ${slug}:`, emailError);

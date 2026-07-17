@@ -613,7 +613,9 @@ export default function ArchitectureDocPage() {
         <code>await</code> not rejecting would mark a suppressed or failed send &ldquo;sent&rdquo;
         forever and permanently defeat the redelivery-recovery path above. After each successful
         buyer email, the webhook appends a durable handoff note embedding the session id;
-        marker-write failures return <code>500</code> so Stripe retries. If required fulfillment
+        marker-write failures or transactional email send failures return <code>500</code> so
+        Stripe retries the missing email while the existing per-email marker keeps successful
+        sibling sends from duplicating. If required fulfillment
         writes fail (
         <code>recordLeadPayment</code> / handoff enqueue, or commerce{" "}
         <code>insertCommerceOrder</code>), the webhook returns <code>500</code> so Stripe retries —

@@ -2471,7 +2471,7 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendEmail).not.toHaveBeenCalled();
     });
 
-    it("still attempts the DNS handoff email when the best-effort buyer receipt send itself throws", async () => {
+    it("returns 500 after attempting the DNS handoff email when the buyer receipt send throws", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },
         customer_details: { email: "owner@demo-cafe.test" },
@@ -2484,7 +2484,9 @@ describe("POST /api/stripe/webhook", () => {
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
-      expect(response.status).toBe(200);
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_email_send");
       expect(sendEmail).toHaveBeenCalledTimes(1);
     });
 
@@ -2506,7 +2508,9 @@ describe("POST /api/stripe/webhook", () => {
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
-      expect(response.status).toBe(200);
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_email_send");
       expect(sendReceiptEmail).toHaveBeenCalledTimes(1);
       // Only the DNS handoff marker is written — the suppressed receipt never gets one.
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
@@ -2536,7 +2540,9 @@ describe("POST /api/stripe/webhook", () => {
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
-      expect(response.status).toBe(200);
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_email_send");
       expect(sendEmail).toHaveBeenCalledTimes(1);
       // Only the receipt marker is written — the failed DNS email never gets one.
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
@@ -3125,7 +3131,7 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     });
 
-    it("stays best-effort (200) and leaves the receipt marker unwritten when sendCommerceBuyNowClientReceipt throws", async () => {
+    it("returns 500 and leaves the receipt marker unwritten when sendCommerceBuyNowClientReceipt throws", async () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue(eligibleCommerceLead);
       getCommerceCatalog.mockResolvedValue({
@@ -3147,7 +3153,9 @@ describe("POST /api/stripe/webhook", () => {
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
-      expect(response.status).toBe(200);
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_client_receipt_send");
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
       expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
     });
@@ -3177,7 +3185,9 @@ describe("POST /api/stripe/webhook", () => {
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
-      expect(response.status).toBe(200);
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_client_receipt_send");
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
       expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
       expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();

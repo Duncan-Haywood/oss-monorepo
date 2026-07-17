@@ -1,7 +1,8 @@
 /**
  * Stripe webhook fulfillment policy.
- * Required ledger / handoff writes must fail the HTTP response (5xx) so Stripe
- * redelivers. Email / notify side effects stay best-effort after durable writes.
+ * Required ledger / handoff writes and transactional email delivery must fail
+ * the HTTP response (5xx) so Stripe redelivers. Email / notify side effects
+ * still run after durable writes, with independent markers for recovery.
  */
 
 export type WebhookFulfillmentStep =
@@ -72,11 +73,21 @@ export type WebhookFulfillmentStep =
    */
   | "bundle_email_sent_marker"
   /**
+   * Sending a bundle buyer receipt or DNS handoff email — required so Stripe
+   * redelivers after a transient Resend failure when its marker is absent.
+   */
+  | "bundle_email_send"
+  /**
    * Durable commerceOrders.clientReceiptEmailSentAt marker after a successful
    * sendCommerceBuyNowClientReceipt — required so Stripe retries rather than
    * leaving recovery unable to see that the client order notification went out.
    */
   | "commerce_client_receipt_sent_marker"
+  /**
+   * Sending the Commerce client receipt — required so Stripe redelivers after
+   * a transient Resend failure when its marker is absent.
+   */
+  | "commerce_client_receipt_send"
   /**
    * Looking up the Checkout Session behind a refunded charge (via
    * stripe.checkout.sessions.list({ payment_intent })) on charge.refunded —

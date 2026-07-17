@@ -70,7 +70,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Money / ledger integrity ---
   "Commerce Buy now pass-through revenue (commerceOrders ledger) must never be written into the `orders` table or summed into revenueTotalUsd — that table/metric is Local Site Studio's own bundle revenue, and several eligibility predicates (orderEligibleForBillingPortal, leadEligibleForStarterUpsell, leadEligibleForCommerceCatalog) read any commerceAddon=true `orders` row as an active Commerce subscription. Keep pass-through revenue in commerceOrders with its own pipeline-health field (commerceOrdersRevenueUsd) — never conflate the two flows even though both come from Stripe webhooks.",
-  "Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId (Stripe redelivers checkout.session.completed on retry/timeout). The insert/record helper must return `{ alreadyRecorded }` and the webhook must skip non-idempotent side effects (operator inquiry, client receipt, deploy handoff email) on redelivery — never Promise.all a ledger insert with a side effect that should only run once. `alreadyRecorded` gates side effects only, never idempotent fulfillment writes: enqueueProductionHandoff is safe to call again and must still run on redelivery if the first delivery recorded the order but failed before handoff. On redelivery, actively recover any side effect still missing its durable marker (see planCommerceWebhookSideEffects / planBundleWebhookSideEffects) rather than treating alreadyRecorded as a blanket early-break — a failure to write that recovery marker must return 5xx so Stripe keeps retrying; a failure in the best-effort send itself does not.",
+  "Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId (Stripe redelivers checkout.session.completed on retry/timeout). The insert/record helper must return `{ alreadyRecorded }` and the webhook must skip non-idempotent side effects (operator inquiry, client receipt, deploy handoff email) on redelivery — never Promise.all a ledger insert with a side effect that should only run once. `alreadyRecorded` gates side effects only, never idempotent fulfillment writes: enqueueProductionHandoff is safe to call again and must still run on redelivery if the first delivery recorded the order but failed before handoff. On redelivery, actively recover any side effect still missing its durable marker (see planCommerceWebhookSideEffects / planBundleWebhookSideEffects) rather than treating alreadyRecorded as a blanket early-break — a failure to write that recovery marker must return 5xx so Stripe keeps retrying. Transactional bundle receipt/DNS and Commerce client receipt sends are part of this same retryable contract as of webhook-email-send-failure-retry (2026-07-17): a resolved `{ success: false }` or thrown send error also returns 5xx (after attempting any sibling independent-marker email) rather than being acknowledged as best-effort, because Stripe does not reliably redeliver an already-acknowledged event and there is no other recovery path for a purely-failed send. Non-transactional notify side effects without their own independent recovery marker (operator inquiry alerts, daily digest) stay best-effort.",
   "src/app/api/stripe/webhook/route.ts's checkout.session.completed handler only records a bundle payment when session.metadata has BOTH slug AND a getBundle(tier)-known tier — any new one-off Checkout Session type (e.g. commerce_sku Buy now) must branch on its own metadata marker (e.g. metadata.kind) BEFORE that slug/tier check and `break`, or it silently falls into the else/console.warn branch with no operator notification. Truthy metadata.tier alone is not enough: checkout create already rejects unknown tiers via getBundle, and the webhook must mirror that enum gate before recordLeadPayment / handoff / receipt (unknown/wrong-cased tiers skip like missing slug/tier — session already marked complete; do not 5xx forever). Receipt HTML must escapeHtmlForEmail the tier label too (prefer getBundle(tier).name) — businessName escaping alone is not enough (bundle-webhook-tier-enum-guard).",
   "Stripe Product/Price sync (or any per-item Stripe object creation) must be idempotent via a stable metadata key (see commerceSkuStripeKey) and must never resolve a charge amount from client input — always look up the Price id server-side from persisted state. Any Stripe `list()` lookup used for idempotency-by-metadata-key must paginate via has_more/starting_after (use listAllPages, src/lib/stripe/list-all-pages.ts) — a single 100-item page silently misses matches past page 1 once an account holds more objects than that. A collection/catalog sync should create/update current items only, never auto-archive/delete a third-party object for removed items (orphan archive is operator-triggered only, and sets active=false — never delete).",
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizing input — never persist a normalized draft that drops stripeProductId/stripePriceId, and never trust client-submitted Stripe ids. enqueueProductionHandoff must call preserveDeployHandoffOperatorFields against the existing handoff before rebuilding for a new stripeSessionId — a Starter→Growth upsell or re-purchase must not wipe operator-set customDomain/vercelProjectId/progressed status/notes (Convex upsert replace and SQLite ON CONFLICT both clear omitted optionals by default).",
@@ -2869,6 +2869,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "codex/dev-work-rate-limit-bounds",
+  },
+  {
+    id: "webhook-email-send-failure-retry",
+    summary:
+      "Stripe checkout webhooks must return 5xx when a transactional receipt, DNS handoff, or Commerce client receipt send fails, so Stripe redelivery can exercise the existing per-email recovery markers instead of acknowledging a permanently lost paid notification.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "codex/dev-work-webhook-email-retry",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5861,6 +5869,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "The shared in-memory rate limiter must purge expired fixed-window buckets on each request and cap active client keys at MAX_RATE_LIMIT_BUCKETS, evicting the oldest key at capacity. This preserves best-effort per-instance throttling without allowing rotating forwarded IPs to grow process memory without bound; eviction may weaken throttling for churned identifiers, but bounded availability is the safer trade-off for this dependency-free limiter.",
     rationale:
       "A fresh empty-backlog security audit found the shared limiter retained every client key forever and had no active-state ceiling. Public routes derive keys from forwarded IPs, so rotating identifiers could create unbounded Map entries. The fix keeps the existing route coverage and semantics while making state bounded, with direct tests for expiry cleanup and oldest-key eviction.",
+  },
+  {
+    id: "webhook-email-send-failure-retry",
+    date: "2026-07-17",
+    decision:
+      "Stripe checkout webhook transactional email sends are part of the retryable fulfillment contract: if a bundle buyer receipt, bundle DNS handoff, or Commerce client receipt resolves success:false or throws, leave its independent sent-marker unwritten and return the structured 500 response after attempting sibling emails. A successful sibling marker may remain, so Stripe redelivery retries only the missing email.",
+    rationale:
+      "The existing recovery planners correctly treated missing markers as redelivery work, but the webhook acknowledged send failures with 200 after merely logging them. Stripe does not reliably redeliver an acknowledged event, so a transient Resend failure could permanently lose a paid receipt, go-live instructions, or Commerce client notification. The route now tracks send failures separately from marker-write failures, continues the other independent bundle email when appropriate, and returns 500 with a dedicated fulfillment step. Route tests cover rejected sends and resolved success:false for all three transactional surfaces; the architecture doc records the retry contract.",
   },
 ];
 
@@ -12028,5 +12044,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified (fresh, this session, after npm ci): npm test (1963 passed, matches PR #377's reported count) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated, Node v22.22.2) + npm run dev sanity check — curled /, /dashboard, /preview/demo-cafe, /docs/architecture (all 200), then stopped the dev server and confirmed port 3000 was free",
     ],
     decisions: [],
+  },
+  {
+    date: "2026-07-17",
+    branch: "codex/dev-work-webhook-email-retry",
+    summary:
+      "Empty-backlog after PR #378 (rate-limiter-bucket-bounds). The four remaining NEXT_STEPS stayed fully operator/legal-gated, and the recent remote scan found no newer complete feature body to fold. A fresh sold-capability webhook audit found that bundle receipt/DNS and Commerce client receipt failures were logged as best-effort while the route still acknowledged checkout.session.completed with 200. That defeated the existing per-email marker recovery planners: Stripe does not reliably redeliver an acknowledged event, so a transient Resend failure could permanently lose a paid buyer receipt, DNS instructions, or Commerce client order notification. Shipped retryable transactional email delivery: preserve independent marker semantics, attempt sibling bundle email even if the first send throws/fails, then return 500 with a dedicated fulfillment step so Stripe redelivers missing markers.",
+    shipped: [
+      "src/app/api/stripe/webhook/route.ts — track resolved send failures and thrown send errors for bundle receipt/DNS and Commerce client receipt; return webhookFulfillmentFailureResponse(...), while successful sibling markers remain durable and failed markers stay absent",
+      "src/lib/payments/webhook-fulfillment.ts (+ test) — add bundle_email_send and commerce_client_receipt_send retry steps; update policy comments to include transactional delivery",
+      "src/app/api/stripe/webhook/route.test.ts — update existing redelivery-marker tests to assert 500 + step and preserve independent sibling-send/marker assertions",
+      "src/app/docs/architecture/page.tsx — document that transactional email send and marker failures both cause Stripe retry",
+      "NEXT_STEPS: webhook-email-send-failure-retry done",
+      "BUSINESS_DECISIONS — webhook-email-send-failure-retry (id-based entry)",
+      "Process: claimed and pushed the in_progress item before the feature body; appended the done status, decision, and iteration after implementation",
+      "Verified: focused webhook/fulfillment suite (154 passed), full npm test (passed), npm run lint (clean), and npm run build under Node v22.22.2 (TypeScript clean, all 31 routes generated). Node 20 cannot load the repo's node:sqlite dependency, so the first build attempt was rerun with the available Node 22 runtime.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "webhook-email-send-failure-retry",
+    ),
   },
 ];
