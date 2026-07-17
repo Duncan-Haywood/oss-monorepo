@@ -1434,6 +1434,24 @@ source). The same digest also lists email-critical leads with no usable address 
         manual-payout double-loss risk today.
       </p>
 
+      <p>
+        The <strong>Commerce payouts (manual)</strong> panel itself is the row-level surface for
+        clawback: it merges <code>listUnpaidCommerceOrders</code> with{" "}
+        <code>listCommerceOrdersRefunded</code> / <code>listCommerceOrdersDisputed</code> (
+        <code>mergeCommerceOrdersForReview</code>, deduped by <code>id</code> — an order refunded
+        but never paid out satisfies both the &quot;unpaid&quot; and &quot;refunded&quot; feeds,
+        so a raw concat would double-count it) before grouping by lead, and keeps a lead&apos;s
+        summary visible when it has a clawback-needed order even if{" "}
+        <code>unpaidCount</code> is 0 (<code>commerceOrdersByLeadSummaryNeedsAttention</code>).
+        Until this fix, a clawback-needed order (paid out, then refunded/disputed) never reached
+        the panel&apos;s data at all — <code>listUnpaidCommerceOrders</code> excludes every{" "}
+        <code>paidOutAt</code> row by definition — so the panel&apos;s own per-order text
+        (&quot;Refunded/Disputed after payout — claw back from client&quot;) was dead code, and
+        the live dashboard had zero row-level clawback detail beyond the aggregate
+        pipeline-health count/$ card and the daily-digest email (see
+        commerce-payouts-panel-clawback-visibility).
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   commerceOrderNeedsClawback,
+  commerceOrdersByLeadSummaryNeedsAttention,
   isCommerceOrderDisputed,
   isCommerceOrderPaidOut,
   isCommerceOrderRefunded,
+  mergeCommerceOrdersForReview,
   newCommerceOrderId,
   sortCommerceOrdersNewestFirst,
   sumCommerceOrdersRevenueUsd,
@@ -410,5 +412,96 @@ describe("owed totals need unpaid completeness", () => {
         (row) => row.leadSlug === "old-client",
       ),
     ).toBeUndefined();
+  });
+});
+
+describe("mergeCommerceOrdersForReview", () => {
+  it("dedupes an order present in more than one source list by id", () => {
+    const refundedNeverPaid = order({
+      id: "corder_1",
+      leadSlug: "cafe",
+      amountPaidUsd: 20,
+      createdAt: "2026-07-01T00:00:00.000Z",
+      refundedAt: "2026-07-02T00:00:00.000Z",
+    });
+    // Same order appears in both the "unpaid" feed (paidOutAt unset) and the
+    // "refunded" feed (refundedAt set) — a raw concat would double-count it.
+    const merged = mergeCommerceOrdersForReview([refundedNeverPaid], [refundedNeverPaid], []);
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.id).toBe("corder_1");
+  });
+
+  it("unions distinct orders across sources and sorts newest-first", () => {
+    const unpaid = order({
+      id: "corder_unpaid",
+      leadSlug: "cafe",
+      amountPaidUsd: 10,
+      createdAt: "2026-07-01T00:00:00.000Z",
+    });
+    const clawback = order({
+      id: "corder_clawback",
+      leadSlug: "salon",
+      amountPaidUsd: 30,
+      createdAt: "2026-07-03T00:00:00.000Z",
+      paidOutAt: "2026-07-04T00:00:00.000Z",
+      disputedAt: "2026-07-05T00:00:00.000Z",
+    });
+    const merged = mergeCommerceOrdersForReview([unpaid], [], [clawback]);
+    expect(merged.map((o) => o.id)).toEqual(["corder_clawback", "corder_unpaid"]);
+  });
+
+  it("returns an empty array when every source is empty", () => {
+    expect(mergeCommerceOrdersForReview([], [], [])).toEqual([]);
+  });
+
+  it("last source wins when the same id appears with different field values", () => {
+    const stale = order({
+      id: "corder_1",
+      leadSlug: "cafe",
+      amountPaidUsd: 20,
+      createdAt: "2026-07-01T00:00:00.000Z",
+    });
+    const fresh = { ...stale, disputedAt: "2026-07-02T00:00:00.000Z" };
+    const merged = mergeCommerceOrdersForReview([stale], [fresh]);
+    expect(merged).toEqual([fresh]);
+  });
+});
+
+describe("commerceOrdersByLeadSummaryNeedsAttention", () => {
+  it("is true when unpaidCount is positive", () => {
+    expect(
+      commerceOrdersByLeadSummaryNeedsAttention({ unpaidCount: 1, orders: [] }),
+    ).toBe(true);
+  });
+
+  it("is false when unpaidCount is zero and no order needs clawback", () => {
+    const paidClean = order({
+      leadSlug: "cafe",
+      amountPaidUsd: 20,
+      createdAt: "2026-07-01T00:00:00.000Z",
+      paidOutAt: "2026-07-02T00:00:00.000Z",
+    });
+    expect(
+      commerceOrdersByLeadSummaryNeedsAttention({
+        unpaidCount: 0,
+        orders: [paidClean],
+      }),
+    ).toBe(false);
+  });
+
+  it("is true when unpaidCount is zero but a clawback-needed order is present (the bug this fixes)", () => {
+    const clawback = order({
+      leadSlug: "cafe",
+      amountPaidUsd: 20,
+      createdAt: "2026-07-01T00:00:00.000Z",
+      paidOutAt: "2026-07-02T00:00:00.000Z",
+      refundedAt: "2026-07-03T00:00:00.000Z",
+    });
+    expect(
+      commerceOrdersByLeadSummaryNeedsAttention({
+        unpaidCount: 0,
+        orders: [clawback],
+      }),
+    ).toBe(true);
   });
 });
