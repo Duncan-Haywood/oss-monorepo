@@ -2744,6 +2744,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/nice-euler-0x1k8a",
   },
+  {
+    id: "commerce-order-dispute-clawback-tracking",
+    summary:
+      "Natural follow-up flagged by commerce-order-refund-clawback-tracking: charge.dispute.created (a Stripe chargeback) is still entirely unhandled — Stripe debits the disputed amount from the platform the moment a dispute opens, same payout-safety exposure as a refund. Claiming to mirror the refund clawback shape (commerceOrders.disputedAt, exclude from owed total, reject Mark paid out, dedicated clawback feed) for the dispute axis.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-x13feb",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
