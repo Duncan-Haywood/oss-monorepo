@@ -168,7 +168,9 @@ export const AGENT_PROTOCOL = [
   "invoice.payment_failed must re-retrieve the Subscription before markOrdersRecurringCanceledByCustomer — membership alone is not enough after invoice.paid / subscription.updated clear. Mark only when stripeSubscriptionShouldPauseRecurringEntitlement (past_due|unpaid or pause_collection); skip when already grants. Stale/out-of-order failed after recovery must not re-pause packs. Retrieve failures return 5xx (subscription_retrieve). Ship with invoice.paid restore in the same pass when possible (invoice-payment-failed-stale-repause-guard).",
   "After CRM entitlement pause/cancel gates Buy now create/sync/webhook on leadEligibleForCommerceCatalog, immediately close the abandoned-recovery twin — sendCommerceCheckoutRecoveryAction must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before mark/send (success:false when missing lead or ineligible); listCommerceAbandonedCheckoutsDue / digest / pipeline-health must filter via leadSlugsEligibleForCommerceAbandonedRecovery so paused/canceled Commerce carts do not surface as recovery debt while create-path 403s and the webhook skips (commerce-abandoned-recovery-entitlement-gate). After an entitlement filter ships as an optional helper arg (omit → allow-all), immediately require it at the type level so a future caller cannot reopen the hole (commerce-abandoned-recovery-require-entitlement-set). After that type-level require, also audit wrapper helpers that call the same predicates (leadEligibleForMarketingPackDelivery / leadEligibleForClientVoicePackDelivery / listCommerceCatalogsUnsynced) — their orders args must include recurringCanceledAt? too, or structural omit silently reopens pause-blind call sites (entitlement-order-arg-recurring-canceled-type-parity).",
   "After leadEligibleForMarketingPack gates generate/send on !recurringCanceledAt, also gate bestMarketingOrderTier on the same predicate — prefer Complete among *active* Growth/Complete rows only. A paused/canceled Complete + still-active Growth must not mint full_marketing / generate_schedule_optimize (outer eligibility can still pass via Growth). Same class as create-path entitlement without the inner sold-tier residual (best-marketing-order-tier-active-entitlement). After an outer eligibility gate ships, immediately audit inner tier/package selectors before inventing another dated clean-audit.",
-  "After POST /api/marketing/generate soft-caps business via normalizeMarketingGenerateBusiness, also soft-cap businessContextFromLead + clientVoiceBusinessContextFromLead (operator Generate pack / Generate voice → Anthropic/stub) with the same create-fields MAX_* policy — public generate size policy alone leaves the sold dashboard lead→request builders uncapped on pre-cap CRM / Convex-hydrated rows (marketing-voice-build-request-business-context-soft-cap). Soft-cap (not hard-reject) so one oversize cell still ships a truncated pack. After lib/type-level entitlement gates ship, immediately lock the dashboard action glue with paused Vitest (generate/send marketing+voice + save catalog) so a future orchestration regression cannot fulfill after CRM pause (marketing-voice-commerce-action-entitlement-regression). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#355 money/entitlement gates + action entitlement Vitest.",] as const;
+  "After POST /api/marketing/generate soft-caps business via normalizeMarketingGenerateBusiness, also soft-cap businessContextFromLead + clientVoiceBusinessContextFromLead (operator Generate pack / Generate voice → Anthropic/stub) with the same create-fields MAX_* policy — public generate size policy alone leaves the sold dashboard lead→request builders uncapped on pre-cap CRM / Convex-hydrated rows (marketing-voice-build-request-business-context-soft-cap). Soft-cap (not hard-reject) so one oversize cell still ships a truncated pack. After lib/type-level entitlement gates ship, immediately lock the dashboard action glue with paused Vitest (generate/send marketing+voice + save catalog) so a future orchestration regression cannot fulfill after CRM pause (marketing-voice-commerce-action-entitlement-regression).",
+  "After lead→request soft-cap joins CRM weekday/weekend into one BusinessContext.hours string, do not re-truncate that join at MAX_HOURS_SEGMENT_LENGTH — soft-cap each segment via formatPackBusinessHours and ceiling the joined string at MAX_PACK_BUSINESS_HOURS_LENGTH (2×segment + Weekdays/Weekends prefixes). A create-path-max lead otherwise loses weekend hours in Growth/Complete pack + Complete voice prompts (marketing-voice-pack-hours-join-soft-cap). After joining multi-field CRM values into one generate field, immediately audit the joined ceiling vs per-field create-path max before inventing another dated clean-audit.",
+  "customer.subscription.created|updated and invoice.paid must not only clear/mark recurringCanceledAt — on grants restore they must deriveLiveRecurringEntitlementFromPriceIds from subscription.items vs create-path catalog monthly Prices, require hasCatalogRecurring before clear, then syncOrdersRecurringEntitlementByCustomer (tier + commerceAddon). Active foreign-Price subscriptions must pause (not clear). Billing Portal / Dashboard plan changes otherwise leave CRM unlocking Complete voice / Commerce catalog / full_marketing after downgrade (subscription-items-crm-entitlement-sync). After CRM pause/restore twins ship, immediately sync live Subscription items onto orders.tier/commerceAddon before inventing another dated clean-audit. Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#357 money/entitlement gates + hours-join + subscription-items sync.",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2717,6 +2719,22 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-b43f",
+  },
+  {
+    id: "marketing-voice-pack-hours-join-soft-cap",
+    summary:
+      "Empty-backlog after PR #356/#357 (lead→request soft-cap + action entitlement Vitest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: #356 soft-caps joined Weekdays/Weekends hours via normalizeMarketingGenerateBusiness at MAX_HOURS_SEGMENT_LENGTH (120) — a valid create-path lead with two max segments joins to ~260 chars and truncates to 120, wiping weekend hours from Growth/Complete pack + Complete voice prompts. Soft-cap each CRM segment before join and raise the joined hours ceiling to MAX_PACK_BUSINESS_HOURS_LENGTH.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-3a51",
+  },
+  {
+    id: "subscription-items-crm-entitlement-sync",
+    summary:
+      "Empty-backlog after PR #356/#357 (lead→request soft-cap + action-level paused entitlement Vitest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual: customer.subscription.created|updated / invoice.paid only clear/mark recurringCanceledAt by stripeCustomerId — they never re-derive orders.tier / commerceAddon from live Subscription items vs catalog Price IDs. Billing Portal / Dashboard plan changes (Complete→Growth, remove Commerce monthly) leave CRM unlocking Complete voice / Commerce catalog / full_marketing while Stripe no longer charges those Prices. On grants restore: require a create-path catalog recurring Price on subscription.items; sync tier+commerceAddon onto recurring-entitlement orders; active foreign-Price subscriptions must pause (not clear).",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-516f",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5572,6 +5590,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Dashboard actions that gate sold monthly fulfillment on leadEligibleForMarketingPack / leadEligibleForMarketingPackDelivery / leadEligibleForClientVoicePack / leadEligibleForClientVoicePackDelivery / leadEligibleForCommerceCatalog must have action-level Vitest proving recurringCanceledAt orders fail closed before LLM generate, pack persist, client email, or catalog upsert — lib predicate coverage alone does not lock the orchestration glue. Mirror commerce sync/recovery entitlement action tests.",
     rationale:
       "Empty-backlog after PR #355 (wrapper order-arg type parity). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-3811 shipped lead→request soft-caps — complementary pivot; folded here. Fresh residual: #344–#355 closed predicates/types/create/sync/webhook/recovery, but Generate/Email pack + voice + Save catalog action suites still lacked paused-MRR cases — a glue regression could fulfill after CRM pause while TypeScript stays green. Process improvement: after type-level entitlement require + lib Vitest, immediately lock the dashboard action twins before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "Joined CRM Weekdays/Weekends hours for pack/voice generate must soft-cap each create-path segment via formatPackBusinessHours and ceiling the joined string at MAX_PACK_BUSINESS_HOURS_LENGTH — never re-truncate BusinessContext.hours at MAX_HOURS_SEGMENT_LENGTH after the join. A valid two-max-segment lead otherwise loses weekend hours in Growth/Complete Anthropic/stub prompts and Complete hours_faq / after_hours scripts.",
+    rationale:
+      "Empty-backlog after PR #356/#357 (lead→request soft-cap + action entitlement Vitest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Sibling business-process-evolution-516f claimed subscription-items-crm-entitlement-sync — complementary pivot (CRM sync axis); no overlap. Fresh residual of #356: normalizeMarketingGenerateBusiness applied the single-segment hours ceiling to a joined weekday+weekend string, and Vitest locked the wipe. Process improvement: after joining multi-field CRM values into one generate field, immediately audit the joined ceiling vs per-field create-path max before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "On customer.subscription.created|updated and invoice.paid grants restore, derive live CRM entitlement from subscription.items Price IDs vs create-path catalog monthly Prices (deriveLiveRecurringEntitlementFromPriceIds): require hasCatalogRecurring before clearOrdersRecurringCanceledByCustomer, then syncOrdersRecurringEntitlementByCustomer (tier + commerceAddon). Active foreign-Price subscriptions must mark pause (not clear). Historical checkout.session ledger alone must not keep unlocking Complete voice / Commerce catalog / full_marketing after Billing Portal downgrade.",
+    rationale:
+      "Empty-backlog after PR #356/#357. Free NEXT_STEPS stayed operator/legal-gated. Concurrent sibling prompt-process-evolution-3a51 claimed/shipped marketing-voice-pack-hours-join-soft-cap — complementary pivot (pack hours); folded here. Fresh money-path residual: #344–#351 restore/pause only toggled recurringCanceledAt by stripeCustomerId — Complet→Growth or Commerce removal left CRM over-entitled. Process improvement: after CRM pause/restore twins, immediately sync live Subscription items onto orders.tier/commerceAddon before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 
 ];
@@ -11332,5 +11364,46 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     // Object-parse by decision text: action entitlement Vitest owns BD[405]; build-request soft-cap=404.
     decisions: BUSINESS_DECISIONS.slice(405, 406),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/prompt-process-evolution-3a51",
+    summary:
+      "Empty-backlog after PR #356/#357 (lead→request soft-cap + action entitlement Vitest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Sibling business-process-evolution-516f claimed subscription-items-crm-entitlement-sync — complementary pivot (CRM sync axis); no overlap. Fresh residual of #356: normalizeMarketingGenerateBusiness truncated joined Weekdays/Weekends hours at MAX_HOURS_SEGMENT_LENGTH, wiping weekend hours from Growth/Complete pack + Complete voice prompts. Soft-capped each CRM segment via formatPackBusinessHours and raised joined ceiling to MAX_PACK_BUSINESS_HOURS_LENGTH; Vitest + architecture note; process now requires joined-ceiling audit after multi-field CRM→generate joins.",
+    shipped: [
+      "src/lib/marketing/generate-limits.ts — formatPackBusinessHours + MAX_PACK_BUSINESS_HOURS_LENGTH; normalize hours ceiling",
+      "src/lib/marketing/build-request.ts — businessContextFromLead uses formatPackBusinessHours",
+      "src/lib/voice/build-request.ts — clientVoiceBusinessContextFromLead uses formatPackBusinessHours",
+      "Vitest: generate-limits + marketing/voice build-request weekend-retention regressions",
+      "Docs: architecture.tsx notes joined hours ceiling beside lead→request soft-cap",
+      "AGENT_PROTOCOL — after joining multi-field CRM values into one generate field, audit joined ceiling vs per-field max",
+      "NEXT_STEPS: marketing-voice-pack-hours-join-soft-cap done",
+      "BUSINESS_DECISIONS — require formatPackBusinessHours + MAX_PACK_BUSINESS_HOURS_LENGTH (absolute index 406)",
+      "Process: coop note of sibling 516f subscription-items claim; claim pushed before feature body; object-parse by decision text (action entitlement=405) before appending ours",
+      "merge: sibling business-process-evolution-516f subscription-items CRM sync feature body — keep both NEXT_STEPS/ITERATIONS",
+      "Verified: npm test (1791 passed = main@#357's 1773 + 6 hours-join + sibling subscription-items suite) + lint after fold",
+    ],
+    // Object-parse by decision text: hours-join soft-cap owns BD[406]; action entitlement Vitest=405.
+    decisions: BUSINESS_DECISIONS.slice(406, 407),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/business-process-evolution-516f",
+    summary:
+      "Empty-backlog after PR #356/#357 (lead→request soft-cap + action entitlement Vitest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Concurrent sibling prompt-process-evolution-3a51 claimed marketing-voice-pack-hours-join-soft-cap — complementary pivot; folded onto 3a51. Fresh money-path residual: subscription.created|updated / invoice.paid only toggled recurringCanceledAt — Billing Portal plan changes left CRM unlocking Complete voice / Commerce catalog / full_marketing after downgrade. Shipped deriveLiveRecurringEntitlementFromPriceIds + syncOrdersRecurringEntitlementByCustomer on grants restore; foreign-Price active subscriptions pause; Vitest + Convex API map registration.",
+    shipped: [
+      "src/lib/orders/subscription-entitlement.ts (+ test) — deriveLiveRecurringEntitlementFromPriceIds / syncedRecurringOrderFields / priceIdsFromStripeSubscriptionItems",
+      "src/lib/db.ts + convex/orders.ts — syncOrdersRecurringEntitlementByCustomer (Convex syncRecurringEntitlementByCustomer + SQLite) on static API map",
+      "src/app/api/stripe/webhook/route.ts — subscription.created|updated + invoice.paid require catalog recurring before clear; sync tier/commerceAddon; foreign-Price pause",
+      "Docs: architecture.tsx notes subscription-items CRM sync beside invoice.paid restore",
+      "Vitest: subscription-entitlement + webhook regressions for downgrade / Commerce-only / foreign-Price pause",
+      "AGENT_PROTOCOL — after CRM pause/restore, sync live Subscription items onto orders.tier/commerceAddon",
+      "NEXT_STEPS: subscription-items-crm-entitlement-sync done; marketing-voice-pack-hours-join-soft-cap done (3a51)",
+      "BUSINESS_DECISIONS — require subscription-items CRM sync on grants restore (absolute index 407)",
+      "Process: folded onto prompt-process-evolution-3a51; object-parse by decision text (hours-join=406) before appending ours",
+      "Verified: npm test (1791 passed) + lint on fold branch",
+    ],
+    // Object-parse by decision text: subscription-items sync owns BD[407]; hours-join soft-cap=406.
+    decisions: BUSINESS_DECISIONS.slice(407, 408),
   },
 ];

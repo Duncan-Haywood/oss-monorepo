@@ -533,7 +533,15 @@ export default function ArchitectureDocPage() {
         <code>invoice.payment_failed</code>: retrieve the Subscription and clear
         only when grants + no <code>pause_collection</code> (blind clear would
         reopen the pause hole; one-time invoices skip; retrieve failures return{" "}
-        <code>500</code> / <code>subscription_retrieve</code>). Marketing packs, client voice
+        <code>500</code> / <code>subscription_retrieve</code>). On grants restore,{" "}
+        <code>subscription.created</code>|<code>updated</code> and{" "}
+        <code>invoice.paid</code> also derive live entitlement from{" "}
+        <code>subscription.items</code> vs create-path catalog monthly Prices (
+        <code>deriveLiveRecurringEntitlementFromPriceIds</code>): require{" "}
+        <code>hasCatalogRecurring</code> before clear, then{" "}
+        <code>syncOrdersRecurringEntitlementByCustomer</code> (tier +{" "}
+        <code>commerceAddon</code>); active foreign-Price subscriptions pause
+        instead of clearing. Marketing packs, client voice
         packs, and commerce catalogs require an uncanceled recurring order;{" "}
         <code>bestMarketingOrderTier</code> also ignores paused/canceled Complete
         rows when picking Growth vs Complete package tier (same{" "}
@@ -1147,7 +1155,10 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>src/app/api/marketing/generate/route.test.ts</code>) — prefer the
         dashboard pack action for persisted fulfillment.{" "}
         <code>businessContextFromLead</code> shares that soft-cap so operator Generate pack
-        cannot bypass the public generate size policy on pre-cap CRM rows. Action-level Vitest in{" "}
+        cannot bypass the public generate size policy on pre-cap CRM rows. Joined CRM hours use{" "}
+        <code>formatPackBusinessHours</code> (per-segment create-path soft-cap) +{" "}
+        <code>MAX_PACK_BUSINESS_HOURS_LENGTH</code> so two max weekday/weekend segments do not
+        truncate away weekend hours. Action-level Vitest in{" "}
         <code>src/app/dashboard/leads/generate-marketing-pack-action.test.ts</code> locks auth,
         eligibility, <code>MARKETING_PACK_CONVEX_PRIMARY</code> persist, stub-vs-anthropic labeling,
         and <code>ConvexPrimaryWriteError</code> fail-closed — generators / monthly-pack / route
@@ -1196,7 +1207,8 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>clientVoicePackRequestForLead</code>) has direct edge coverage in{" "}
         <code>src/lib/voice/build-request.test.ts</code> (empty services →{" "}
         <code>our services</code>, hours/state omission, soft-cap via shared{" "}
-        <code>normalizeMarketingGenerateBusiness</code>). Eligibility: paid/live + Complete
+        <code>normalizeMarketingGenerateBusiness</code> +{" "}
+        <code>formatPackBusinessHours</code> weekend retention). Eligibility: paid/live + Complete
         order;
         one row per lead (SQLite + Convex <code>clientVoicePacks</code>) — regenerating replaces.
         Action-level Vitest in{" "}

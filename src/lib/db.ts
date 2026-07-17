@@ -396,6 +396,7 @@ const api: any = {
     listByLeadSlug: "orders:listByLeadSlug",
     markRecurringCanceledByCustomer: "orders:markRecurringCanceledByCustomer",
     clearRecurringCanceledByCustomer: "orders:clearRecurringCanceledByCustomer",
+    syncRecurringEntitlementByCustomer: "orders:syncRecurringEntitlementByCustomer",
   },
   checkoutSessions: {
     create: "checkoutSessions:create",
@@ -1212,6 +1213,84 @@ export async function clearOrdersRecurringCanceledByCustomer(
       continue;
     }
     const result = clear.run(row.id);
+    if (result.changes > 0) updatedCount += 1;
+  }
+  return updatedCount;
+}
+
+/**
+ * Sync tier + commerceAddon on Growth/Complete/Commerce orders for a Stripe
+ * Customer from the live Subscription catalog monthly Prices. Idempotent —
+ * matching rows are skipped. requireConvex on the webhook path
+ * (WEBHOOK_CONVEX_PRIMARY). Does not touch recurringCanceledAt.
+ */
+export async function syncOrdersRecurringEntitlementByCustomer(
+  stripeCustomerId: string,
+  entitlement: {
+    tier: "starter" | "growth" | "complete";
+    commerceAddon: boolean;
+  },
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  const customerId = stripeCustomerId.trim();
+  if (!customerId) return 0;
+  const hadRecurringTarget =
+    entitlement.commerceAddon ||
+    entitlement.tier === "growth" ||
+    entitlement.tier === "complete";
+  if (!hadRecurringTarget) return 0;
+
+  if (convexClient) {
+    try {
+      const result = (await convexClient.mutation(
+        api.orders.syncRecurringEntitlementByCustomer,
+        {
+          stripeCustomerId: customerId,
+          tier: entitlement.tier,
+          commerceAddon: entitlement.commerceAddon,
+        },
+      )) as { updatedCount: number };
+      return result.updatedCount;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "syncOrdersRecurringEntitlementByCustomer",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to sync recurring entitlement for customer ${customerId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT id, tier, commerceAddon
+       FROM orders
+       WHERE stripeCustomerId = ?`,
+    )
+    .all(customerId) as Array<{
+    id: string;
+    tier: string;
+    commerceAddon: number;
+  }>;
+
+  let updatedCount = 0;
+  const patch = db.prepare(
+    `UPDATE orders SET tier = ?, commerceAddon = ? WHERE id = ?`,
+  );
+  for (const row of rows) {
+    const hadRecurring =
+      row.commerceAddon === 1 || row.tier === "growth" || row.tier === "complete";
+    if (!hadRecurring) continue;
+    const nextAddon = entitlement.commerceAddon ? 1 : 0;
+    if (row.tier === entitlement.tier && row.commerceAddon === nextAddon) {
+      continue;
+    }
+    const result = patch.run(entitlement.tier, nextAddon, row.id);
     if (result.changes > 0) updatedCount += 1;
   }
   return updatedCount;

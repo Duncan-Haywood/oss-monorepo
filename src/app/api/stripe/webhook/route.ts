@@ -8,6 +8,7 @@ import {
   markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer,
   markOrdersRecurringCanceledByCustomer,
   recordLeadPayment,
+  syncOrdersRecurringEntitlementByCustomer,
 } from "@/lib/db";
 import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
@@ -21,6 +22,11 @@ import {
   stripeSubscriptionShouldPauseRecurringEntitlement,
   stripeSubscriptionShouldRestoreRecurringEntitlement,
 } from "@/lib/orders/recurring";
+import {
+  deriveLiveRecurringEntitlementFromPriceIds,
+  priceIdsFromStripeSubscriptionItems,
+  syncedRecurringOrderFields,
+} from "@/lib/orders/subscription-entitlement";
 import {
   parseCommerceCheckoutSkuId,
   parseCommerceCheckoutSlug,
@@ -952,17 +958,56 @@ export async function POST(request: Request) {
         break;
       }
       if (grants) {
+        // Restore only when a create-path catalog recurring Price is on the
+        // Subscription — active foreign Prices must not clear pause or keep
+        // Complete/Commerce CRM unlock after a Billing Portal downgrade.
+        const itemPriceIds = priceIdsFromStripeSubscriptionItems(
+          subscription.items?.data ?? [],
+        );
+        const live = deriveLiveRecurringEntitlementFromPriceIds(itemPriceIds);
+        const synced = syncedRecurringOrderFields(live);
+        if (!synced) {
+          const pausedAt =
+            typeof subscription.current_period_start === "number" &&
+            Number.isFinite(subscription.current_period_start) &&
+            subscription.current_period_start > 0
+              ? subscription.current_period_start * 1000
+              : Date.now();
+          try {
+            const updated = await markOrdersRecurringCanceledByCustomer(
+              customerId,
+              pausedAt,
+              WEBHOOK_CONVEX_PRIMARY,
+            );
+            console.warn(
+              `webhook: ${event.type} ${subscription.id} customer=${customerId} status=${subscription.status} no catalog recurring Price on items — paused recurring entitlement on ${updated} order(s)`,
+            );
+          } catch (e) {
+            console.error(
+              `Failed to pause recurring entitlement for customer ${customerId} after ${event.type} ${subscription.id} (no catalog Price)`,
+              e,
+            );
+            const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
+            return NextResponse.json(failure.body, { status: failure.status });
+          }
+          break;
+        }
         try {
-          const updated = await clearOrdersRecurringCanceledByCustomer(
+          const cleared = await clearOrdersRecurringCanceledByCustomer(
             customerId,
             WEBHOOK_CONVEX_PRIMARY,
           );
+          const syncedCount = await syncOrdersRecurringEntitlementByCustomer(
+            customerId,
+            synced,
+            WEBHOOK_CONVEX_PRIMARY,
+          );
           console.warn(
-            `webhook: ${event.type} ${subscription.id} customer=${customerId} status=${subscription.status} cleared recurringCanceledAt on ${updated} order(s)`,
+            `webhook: ${event.type} ${subscription.id} customer=${customerId} status=${subscription.status} cleared recurringCanceledAt on ${cleared} order(s); synced tier=${synced.tier} commerceAddon=${synced.commerceAddon} on ${syncedCount} order(s)`,
           );
         } catch (e) {
           console.error(
-            `Failed to clear recurring canceled for customer ${customerId} after ${event.type} ${subscription.id}`,
+            `Failed to restore/sync recurring entitlement for customer ${customerId} after ${event.type} ${subscription.id}`,
             e,
           );
           const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");
@@ -1108,17 +1153,56 @@ export async function POST(request: Request) {
         );
         break;
       }
+      // Same catalog-Price gate + tier/commerceAddon sync as subscription.updated
+      // grants — invoice.paid must not restore Complete/Commerce CRM unlock when
+      // the live Subscription no longer carries those monthly Prices.
+      const itemPriceIds = priceIdsFromStripeSubscriptionItems(
+        subscription.items?.data ?? [],
+      );
+      const live = deriveLiveRecurringEntitlementFromPriceIds(itemPriceIds);
+      const synced = syncedRecurringOrderFields(live);
+      if (!synced) {
+        const pausedAt =
+          typeof invoice.created === "number" &&
+          Number.isFinite(invoice.created) &&
+          invoice.created > 0
+            ? invoice.created * 1000
+            : Date.now();
+        try {
+          const updated = await markOrdersRecurringCanceledByCustomer(
+            customerId,
+            pausedAt,
+            WEBHOOK_CONVEX_PRIMARY,
+          );
+          console.warn(
+            `webhook: invoice.paid ${invoice.id} customer=${customerId} subscription=${subscriptionId} status=${subscription.status} no catalog recurring Price on items — paused recurring entitlement on ${updated} order(s)`,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to pause recurring entitlement for customer ${customerId} after invoice.paid ${invoice.id} (no catalog Price)`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+        break;
+      }
       try {
-        const updated = await clearOrdersRecurringCanceledByCustomer(
+        const cleared = await clearOrdersRecurringCanceledByCustomer(
           customerId,
           WEBHOOK_CONVEX_PRIMARY,
         );
+        const syncedCount = await syncOrdersRecurringEntitlementByCustomer(
+          customerId,
+          synced,
+          WEBHOOK_CONVEX_PRIMARY,
+        );
         console.warn(
-          `webhook: invoice.paid ${invoice.id} customer=${customerId} subscription=${subscriptionId} status=${subscription.status} cleared recurringCanceledAt on ${updated} order(s)`,
+          `webhook: invoice.paid ${invoice.id} customer=${customerId} subscription=${subscriptionId} status=${subscription.status} cleared recurringCanceledAt on ${cleared} order(s); synced tier=${synced.tier} commerceAddon=${synced.commerceAddon} on ${syncedCount} order(s)`,
         );
       } catch (e) {
         console.error(
-          `Failed to clear recurring canceled for customer ${customerId} after invoice.paid ${invoice.id}`,
+          `Failed to restore/sync recurring entitlement for customer ${customerId} after invoice.paid ${invoice.id}`,
           e,
         );
         const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");

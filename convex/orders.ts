@@ -191,3 +191,54 @@ export const clearRecurringCanceledByCustomer = mutation({
     return { updatedCount };
   },
 });
+
+/**
+ * Sync tier + commerceAddon on Growth/Complete/Commerce orders for a Stripe
+ * Customer from the live Subscription's catalog monthly Prices. Idempotent —
+ * rows already matching the target are skipped. Does not touch
+ * recurringCanceledAt (clear/mark stay separate). amountTotal / stripeSessionId
+ * stay historical.
+ */
+export const syncRecurringEntitlementByCustomer = mutation({
+  args: {
+    stripeCustomerId: v.string(),
+    tier: v.union(
+      v.literal("starter"),
+      v.literal("growth"),
+      v.literal("complete"),
+    ),
+    commerceAddon: v.boolean(),
+  },
+  returns: v.object({ updatedCount: v.number() }),
+  handler: async (ctx, args) => {
+    const customerId = args.stripeCustomerId.trim();
+    if (!customerId) {
+      return { updatedCount: 0 };
+    }
+    // Target must itself be a recurring-entitlement shape — refuse no-op
+    // starter+false that would leave CRM with zero monthly unlock while still
+    // clearing pause (callers gate on hasCatalogRecurring first).
+    if (!orderHadRecurringEntitlement(args)) {
+      return { updatedCount: 0 };
+    }
+
+    const rows = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeCustomerId", (q) => q.eq("stripeCustomerId", customerId))
+      .collect();
+
+    let updatedCount = 0;
+    for (const row of rows) {
+      if (!orderHadRecurringEntitlement(row)) continue;
+      if (row.tier === args.tier && row.commerceAddon === args.commerceAddon) {
+        continue;
+      }
+      await ctx.db.patch(row._id, {
+        tier: args.tier,
+        commerceAddon: args.commerceAddon,
+      });
+      updatedCount += 1;
+    }
+    return { updatedCount };
+  },
+});

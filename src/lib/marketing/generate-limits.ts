@@ -31,12 +31,48 @@ export const MAX_MARKETING_GENERATE_LEAD_ID_LENGTH = 120;
 
 const MAX_WEBSITE_URL_LENGTH = 500;
 
+/** Prefixes used by formatPackBusinessHours — keep in sync with that join. */
+const PACK_HOURS_WEEKDAY_PREFIX = "Weekdays ";
+const PACK_HOURS_WEEKEND_JOIN = "; Weekends ";
+
+/**
+ * Joined Weekdays/Weekends hours ceiling for pack/voice generate.
+ * Create-path caps each CRM segment at MAX_HOURS_SEGMENT_LENGTH; joining both
+ * into one BusinessContext.hours string must not re-truncate at a single
+ * segment (that wiped weekend hours after #356).
+ */
+export const MAX_PACK_BUSINESS_HOURS_LENGTH =
+  PACK_HOURS_WEEKDAY_PREFIX.length +
+  MAX_HOURS_SEGMENT_LENGTH +
+  PACK_HOURS_WEEKEND_JOIN.length +
+  MAX_HOURS_SEGMENT_LENGTH;
+
 function softCapOptional(
   value: string | undefined,
   max: number,
 ): string | undefined {
   if (value === undefined) return undefined;
   return softCapLeadField(value, max);
+}
+
+/**
+ * Soft-cap each CRM hours segment, then join for pack/voice BusinessContext.
+ * Returns undefined when both weekday and weekend are empty.
+ */
+export function formatPackBusinessHours(hours: {
+  weekday: string;
+  weekend: string;
+}): string | undefined {
+  if (!hours.weekday && !hours.weekend) return undefined;
+  const weekday = softCapLeadField(
+    (hours.weekday || "by appointment").trim() || "by appointment",
+    MAX_HOURS_SEGMENT_LENGTH,
+  );
+  const weekend = softCapLeadField(
+    (hours.weekend || "by appointment").trim() || "by appointment",
+    MAX_HOURS_SEGMENT_LENGTH,
+  );
+  return `${PACK_HOURS_WEEKDAY_PREFIX}${weekday}${PACK_HOURS_WEEKEND_JOIN}${weekend}`;
 }
 
 /**
@@ -60,7 +96,7 @@ export function normalizeMarketingGenerateBusiness(
     city: softCapLeadField(business.city.trim(), MAX_CITY_LENGTH),
     state: softCapOptional(business.state?.trim(), MAX_STATE_LENGTH),
     phone: softCapOptional(business.phone?.trim(), MAX_LEAD_PHONE_LENGTH),
-    hours: softCapOptional(business.hours?.trim(), MAX_HOURS_SEGMENT_LENGTH),
+    hours: softCapOptional(business.hours?.trim(), MAX_PACK_BUSINESS_HOURS_LENGTH),
     services: services.length > 0 ? services : ["our services"],
     tagline: softCapOptional(business.tagline?.trim(), MAX_TAGLINE_LENGTH),
     websiteUrl: softCapOptional(business.websiteUrl?.trim(), MAX_WEBSITE_URL_LENGTH),

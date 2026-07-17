@@ -37,6 +37,7 @@ const markCompleteOpenBundleCheckoutSessionsForLead = vi.fn();
 const markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer = vi.fn();
 const markOrdersRecurringCanceledByCustomer = vi.fn();
 const clearOrdersRecurringCanceledByCustomer = vi.fn();
+const syncOrdersRecurringEntitlementByCustomer = vi.fn();
 const recordLeadPayment = vi.fn();
 const getLeadBySlug = vi.fn();
 const getCommerceCatalog = vi.fn();
@@ -73,6 +74,8 @@ vi.mock("@/lib/db", () => ({
     markOrdersRecurringCanceledByCustomer(...args),
   clearOrdersRecurringCanceledByCustomer: (...args: unknown[]) =>
     clearOrdersRecurringCanceledByCustomer(...args),
+  syncOrdersRecurringEntitlementByCustomer: (...args: unknown[]) =>
+    syncOrdersRecurringEntitlementByCustomer(...args),
   recordLeadPayment: (...args: unknown[]) => recordLeadPayment(...args),
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
@@ -112,6 +115,9 @@ const GROWTH_SETUP_PRICE_ID = "price_growth_setup";
 const GROWTH_MONTHLY_PRICE_ID = "price_growth_monthly";
 /** Commerce Buy now catalog Price — webhook requires it on listLineItems. */
 const COMMERCE_SKU_PRICE_ID = "price_commerce_sku_1";
+/** Complete / Commerce monthly — subscription-items CRM sync. */
+const COMPLETE_MONTHLY_PRICE_ID = "price_complete_monthly";
+const COMMERCE_MONTHLY_PRICE_ID = "price_commerce_monthly";
 
 function growthLineItems() {
   return {
@@ -119,6 +125,15 @@ function growthLineItems() {
       { price: { id: GROWTH_SETUP_PRICE_ID } },
       { price: { id: GROWTH_MONTHLY_PRICE_ID } },
     ],
+  };
+}
+
+/** Live Subscription items with a create-path catalog monthly Price. */
+function catalogSubscriptionItems(
+  ...priceIds: string[]
+): { data: Array<{ price: { id: string } }> } {
+  return {
+    data: priceIds.map((id) => ({ price: { id } })),
   };
 }
 
@@ -214,6 +229,7 @@ describe("POST /api/stripe/webhook", () => {
       .mockResolvedValue(0);
     markOrdersRecurringCanceledByCustomer.mockReset().mockResolvedValue(1);
     clearOrdersRecurringCanceledByCustomer.mockReset().mockResolvedValue(1);
+    syncOrdersRecurringEntitlementByCustomer.mockReset().mockResolvedValue(1);
     recordLeadPayment.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
@@ -238,6 +254,8 @@ describe("POST /api/stripe/webhook", () => {
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_123";
     process.env.STRIPE_PRICE_ID_GROWTH_SETUP = GROWTH_SETUP_PRICE_ID;
     process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = GROWTH_MONTHLY_PRICE_ID;
+    process.env.STRIPE_PRICE_ID_COMPLETE_MONTHLY = COMPLETE_MONTHLY_PRICE_ID;
+    process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = COMMERCE_MONTHLY_PRICE_ID;
     delete process.env.VERCEL_TOKEN;
     delete process.env.VERCEL_PROJECT_ID;
   });
@@ -347,7 +365,7 @@ describe("POST /api/stripe/webhook", () => {
   });
 
   describe("customer.subscription.created|updated CRM reactivate", () => {
-    it("clears recurringCanceledAt on created+active", async () => {
+    it("clears recurringCanceledAt and syncs tier on created+active with catalog Price", async () => {
       constructEvent.mockReturnValue({
         type: "customer.subscription.created",
         data: {
@@ -355,6 +373,7 @@ describe("POST /api/stripe/webhook", () => {
             id: "sub_new_1",
             customer: "cus_resub_1",
             status: "active",
+            items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
           },
         },
       });
@@ -365,7 +384,61 @@ describe("POST /api/stripe/webhook", () => {
       expect(clearOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith("cus_resub_1", {
         requireConvex: true,
       });
+      expect(syncOrdersRecurringEntitlementByCustomer).toHaveBeenCalledWith(
+        "cus_resub_1",
+        { tier: "growth", commerceAddon: false },
+        { requireConvex: true },
+      );
       expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("syncs Complete→Growth downgrade from subscription items", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_downgrade",
+            customer: "cus_downgrade",
+            status: "active",
+            items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(syncOrdersRecurringEntitlementByCustomer).toHaveBeenCalledWith(
+        "cus_downgrade",
+        { tier: "growth", commerceAddon: false },
+        { requireConvex: true },
+      );
+    });
+
+    it("pauses CRM when active Subscription has only a foreign Price", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_foreign",
+            customer: "cus_foreign",
+            status: "active",
+            current_period_start: 1_720_000_500,
+            items: catalogSubscriptionItems("price_foreign_monthly"),
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+      expect(syncOrdersRecurringEntitlementByCustomer).not.toHaveBeenCalled();
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_foreign",
+        1_720_000_500_000,
+        { requireConvex: true },
+      );
     });
 
     it("pauses CRM on active+pause_collection (does not clear)", async () => {
@@ -418,7 +491,7 @@ describe("POST /api/stripe/webhook", () => {
       );
     });
 
-    it("clears recurringCanceledAt on updated+trialing", async () => {
+    it("clears recurringCanceledAt on updated+trialing with catalog Price", async () => {
       constructEvent.mockReturnValue({
         type: "customer.subscription.updated",
         data: {
@@ -426,6 +499,10 @@ describe("POST /api/stripe/webhook", () => {
             id: "sub_trial_1",
             customer: "cus_trial_1",
             status: "trialing",
+            items: catalogSubscriptionItems(
+              COMPLETE_MONTHLY_PRICE_ID,
+              COMMERCE_MONTHLY_PRICE_ID,
+            ),
           },
         },
       });
@@ -436,6 +513,11 @@ describe("POST /api/stripe/webhook", () => {
       expect(clearOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith("cus_trial_1", {
         requireConvex: true,
       });
+      expect(syncOrdersRecurringEntitlementByCustomer).toHaveBeenCalledWith(
+        "cus_trial_1",
+        { tier: "complete", commerceAddon: true },
+        { requireConvex: true },
+      );
     });
 
     it("pauses CRM on updated+past_due (current_period_start → ms)", async () => {
@@ -522,7 +604,12 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue({
         type: "customer.subscription.updated",
         data: {
-          object: { id: "sub_fail_clear", customer: "cus_fail_clear", status: "active" },
+          object: {
+            id: "sub_fail_clear",
+            customer: "cus_fail_clear",
+            status: "active",
+            items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
+          },
         },
       });
       const { POST } = await import("./route");
@@ -739,12 +826,13 @@ describe("POST /api/stripe/webhook", () => {
   });
 
   describe("invoice.paid CRM restore", () => {
-    it("clears recurringCanceledAt when retrieve shows active", async () => {
+    it("clears recurringCanceledAt and syncs tier when retrieve shows active+catalog Price", async () => {
       retrieveSubscription.mockResolvedValueOnce({
         id: "sub_paid_1",
         customer: "cus_paid_1",
         status: "active",
         pause_collection: null,
+        items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
       });
       constructEvent.mockReturnValue({
         type: "invoice.paid",
@@ -764,7 +852,44 @@ describe("POST /api/stripe/webhook", () => {
       expect(clearOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith("cus_paid_1", {
         requireConvex: true,
       });
+      expect(syncOrdersRecurringEntitlementByCustomer).toHaveBeenCalledWith(
+        "cus_paid_1",
+        { tier: "growth", commerceAddon: false },
+        { requireConvex: true },
+      );
       expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("pauses when retrieve is active but items lack catalog Prices", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_paid_foreign",
+        customer: "cus_paid_foreign",
+        status: "active",
+        pause_collection: null,
+        items: catalogSubscriptionItems("price_foreign_monthly"),
+      });
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_paid_foreign",
+            customer: "cus_paid_foreign",
+            subscription: "sub_paid_foreign",
+            created: 1_720_000_600,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+      expect(syncOrdersRecurringEntitlementByCustomer).not.toHaveBeenCalled();
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_paid_foreign",
+        1_720_000_600_000,
+        { requireConvex: true },
+      );
     });
 
     it("skips restore when pause_collection is set (active status hole)", async () => {
@@ -837,6 +962,7 @@ describe("POST /api/stripe/webhook", () => {
         customer: "cus_paid_write_fail",
         status: "active",
         pause_collection: null,
+        items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
       });
       clearOrdersRecurringCanceledByCustomer.mockRejectedValueOnce(new Error("convex down"));
       constructEvent.mockReturnValue({
