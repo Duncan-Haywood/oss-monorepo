@@ -154,7 +154,8 @@ export const AGENT_PROTOCOL = [
   "Bundle checkout create only sets metadata.commerceAddon when both COMMERCE_ADDON Price IDs are on line_items; the bundle checkout.session.completed branch must derive commerceAddon from stripe.checkout.sessions.listLineItems Price IDs (both setup+monthly env Prices present via resolveCommerceAddonFromLineItems) before amount parity + recordLeadPayment / handoff — a truthy metadata.commerceAddon alone is not enough (forged true unlocks catalog + Billing Portal and blocks Starter upsell without the $300+$49/mo charge; forged false withholds a paid add-on). Missing Commerce Price env → fail closed false (create already 501s). listLineItems failures return 500 so Stripe retries (bundle-webhook-commerceAddon-line-item-parity). createBillingPortalForCheckoutSession and loadCheckoutSuccessSession must use the same line-item derive when mode !== subscription before eligibility / showBillingPortal (billing-portal-session-commerceAddon-line-item-parity + success-page-commerceAddon-line-item-parity); when mode===subscription they must prove a create-path catalog recurring Price instead (subscription-mode-billing-portal-catalog-recurring-price-gate). Portal list failures return 502 for customer retry; success SSR list failures fail closed to hide the CTA. Payment-mode Session paths must also ignore metadata.tier — use checkoutSessionEligibleForBillingPortal (proven catalogRecurring on subscription OR proven commerceAddon on payment; billing-portal-session-payment-mode-tier-metadata-trust). After webhook + success SSR require payment_status paid, immediately close the portal twin (createBillingPortalForCheckoutSession must call isStripeCheckoutSessionPaid after status===complete — billing-portal-session-payment-status-paid-gate).",
   "After unpaid checkout.session.completed marks the local checkout_sessions row complete (stop abandoned-recovery while ACH/bank clears), checkout.session.async_payment_failed must markCheckoutSessionOpen (Convex markOpen + SQLite, requireConvex / WEBHOOK_CONVEX_PRIMARY) so Finish-checkout / Buy now recovery can nudge a retry — leaving status=complete forever permanently drops that retry revenue. Do not fulfill on async_payment_failed; reopen write failures return 5xx (checkout_session_mark_open) so Stripe retries. Recovery emails mint a new Checkout Session (the Stripe Session is terminal). Register checkoutSessions.markOpen on the static Convex API map in the same commit. After shipping unpaid-completed→markComplete, immediately close this reopen twin before inventing another dated clean-audit (webhook-async-payment-failed-reopen-checkout-session). Same-minute dual claim: webhook-async-payment-failed-reopen-recovery (919a) folded onto fd10 / #338 — keep both NEXT_STEPS; single implementation.",
   "createBillingPortalForCheckoutSession + loadCheckoutSuccessSession must prove a create-path catalog recurring Price ID (Growth/Complete/Commerce monthly via catalogRecurringPriceIdsFromEnv + sessionLineItemsIncludeCatalogRecurringPrice) on listLineItems when mode===subscription before checkoutSessionEligibleForBillingPortal (catalogRecurringProven) / showBillingPortal — mode alone is not enough (Dashboard-minted subscription with a foreign Price). Portal list failures return 502; success SSR list failures fail closed to hide the CTA. Payment-mode commerceAddon derive stays unchanged. After async_payment_failed reopen ships, immediately close this subscription-mode catalog-recurring twin before inventing another dated clean-audit (subscription-mode-billing-portal-catalog-recurring-price-gate).",
-  "After a paid bundle checkout.session.completed / async_payment_succeeded marks the paid stripeSessionId complete, also markCompleteOpenBundleCheckoutSessionsForLead (Convex markCompleteOpenBundleForLead + SQLite, requireConvex) for that leadSlug so earlier abandoned open *bundle* checkout_sessions cannot keep Finish-checkout / digest / pipeline-health nudging an already-paid customer. Never close commerce_sku siblings (end-customer multi-shopper carts). Do not blanket-skip stage===paid on recovery (Starter→Growth upsell abandon after pay mints a new Session). Orphan cleanup write failures return 5xx (checkout_session_orphan_bundle_cleanup). Register checkoutSessions.markCompleteOpenBundleForLead on the static Convex API map in the same commit. After subscription-mode catalog-recurring portal gate ships, prefer this orphan-open cleanup before inventing another dated clean-audit (bundle-paid-orphan-open-checkout-session-cleanup). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) next sold residual / sibling billing-portal-lead-catalog-recurring fold — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#339 money gates.",] as const;
+  "createBillingPortalForLead (operator Manage billing) must not open a portal from CRM orderEligibleForBillingPortal (tier/commerceAddon) + stored stripeCustomerId alone — after #339 hardened the public Session path, the lead path must require stripeSessionId and reuse createBillingPortalForCheckoutSession (payment_status paid + catalog recurring / Commerce Prices on listLineItems; Session customer preferred). A stale/forged CRM row must not mint Manage billing while the Session path would 400. After shipping subscription-mode catalog-recurring on Session portal/success, immediately close this lead twin before inventing another dated clean-audit (billing-portal-lead-catalog-recurring-price-gate).",
+  "After a paid bundle checkout.session.completed / async_payment_succeeded marks the paid stripeSessionId complete, also markCompleteOpenBundleCheckoutSessionsForLead (Convex markCompleteOpenBundleForLead + SQLite, requireConvex) for that leadSlug so earlier abandoned open *bundle* checkout_sessions cannot keep Finish-checkout / digest / pipeline-health nudging an already-paid customer. Never close commerce_sku siblings (end-customer multi-shopper carts). Do not blanket-skip stage===paid on recovery (Starter→Growth upsell abandon after pay mints a new Session). Orphan cleanup write failures return 5xx (checkout_session_orphan_bundle_cleanup). Register checkoutSessions.markCompleteOpenBundleForLead on the static Convex API map in the same commit. After subscription-mode catalog-recurring portal gate + lead Manage-billing Session re-proof ship, prefer this orphan-open cleanup before inventing another dated clean-audit (bundle-paid-orphan-open-checkout-session-cleanup). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) next sold residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#340 money gates.",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2545,9 +2546,17 @@ export const NEXT_STEPS: NextStep[] = [
     owner: "cursor/prompt-process-evolution-919a",
   },
   {
+    id: "billing-portal-lead-catalog-recurring-price-gate",
+    summary:
+      "Empty-backlog after PR #339 (subscription-mode catalog recurring Price gate on Session portal + success SSR). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes (redirect-url / custom-domain / mark-live / handoff-marker / optimistic-state) already on main — rejected. Fresh money-path residual twin: createBillingPortalForLead (operator Manage billing) still trusts CRM orderEligibleForBillingPortal (tier/commerceAddon) + stored stripeCustomerId without re-proving payment_status paid + catalog recurring / Commerce Prices on the Checkout Session listLineItems. A stale/forged CRM row can mint a Billing Portal session while the public Session path would 400. Require stripeSessionId and reuse Session-path gates before portal create.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-bd71",
+  },
+  {
     id: "bundle-paid-orphan-open-checkout-session-cleanup",
     summary:
-      "Empty-backlog after PR #339 (subscription catalog recurring portal gate). Sibling prompt-process-evolution-bd71 claimed billing-portal-lead-catalog-recurring-price-gate — complementary pivot. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh sold residual: paid bundle checkout.session.completed / async_payment_succeeded only markComplete the paid stripeSessionId, so earlier abandoned open bundle checkout_sessions for the same leadSlug stay open and Finish-checkout / digest / pipeline-health can nudge an already-paid customer. On paid bundle fulfillment, markComplete other open bundle rows for that leadSlug (never commerce_sku siblings — multi-shopper carts). Starter→Growth upsell after pay mints a new Session.",
+      "Empty-backlog after PR #339 (subscription catalog recurring portal gate). Sibling prompt-process-evolution-bd71 claimed/shipped billing-portal-lead-catalog-recurring-price-gate (#340) — complementary pivot. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh sold residual: paid bundle checkout.session.completed / async_payment_succeeded only markComplete the paid stripeSessionId, so earlier abandoned open bundle checkout_sessions for the same leadSlug stay open and Finish-checkout / digest / pipeline-health can nudge an already-paid customer. On paid bundle fulfillment, markComplete other open bundle rows for that leadSlug (never commerce_sku siblings — multi-shopper carts). Starter→Growth upsell after pay mints a new Session.",
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-d5f3",
@@ -5284,9 +5293,16 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-17",
     decision:
+      "createBillingPortalForLead (operator Manage billing) must require stripeSessionId and reuse createBillingPortalForCheckoutSession (payment_status paid + catalog recurring / Commerce Prices on listLineItems; Session customer preferred) — CRM orderEligibleForBillingPortal (tier/commerceAddon) + stored stripeCustomerId alone must not mint a Billing Portal session.",
+    rationale:
+      "Empty-backlog after PR #339 (subscription-mode catalog recurring on Session portal + success SSR). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes (redirect-url / custom-domain / mark-live / handoff-marker / optimistic-state) already on main — rejected. Fresh residual: #339 closed the public Session path, but operator Manage billing still trusted CRM cache fields without re-proving Stripe entitlement — a stale/forged CRM row could open portal while the Session path would 400. Process improvement: after Session catalog-recurring ships, immediately close the lead Manage-billing twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped / next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
       "After a paid bundle Checkout Session is marked complete, markCompleteOpenBundleCheckoutSessionsForLead (Convex markCompleteOpenBundleForLead + SQLite, requireConvex) must also close other open bundle checkout_sessions for that leadSlug so Finish-checkout / digest / pipeline-health cannot nudge an already-paid customer. Never close commerce_sku siblings. Orphan cleanup write failures return 5xx (checkout_session_orphan_bundle_cleanup). Starter→Growth upsell after pay mints a new Session — do not blanket-skip stage===paid on recovery.",
     rationale:
-      "Empty-backlog after PR #339 (subscription catalog recurring portal gate). Sibling prompt-process-evolution-bd71 claimed billing-portal-lead-catalog-recurring-price-gate — complementary pivot. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: markComplete only flipped the paid stripeSessionId, leaving earlier abandoned open bundle carts live in recovery queues. Process improvement: after paid Session markComplete, immediately close orphan open bundle siblings for the lead; next empty-backlog prefers stuck CLI fold / escapeHtml·webhook·uncapped / sibling lead-portal catalog fold. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Empty-backlog after PR #339/#340 (subscription catalog recurring + lead Manage-billing Session re-proof). Sibling prompt-process-evolution-bd71 shipped #340 same window — complementary pivot; fold both ITERATIONS. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: markComplete only flipped the paid stripeSessionId, leaving earlier abandoned open bundle carts live in recovery queues. Process improvement: after paid Session markComplete, immediately close orphan open bundle siblings for the lead; next empty-backlog prefers stuck CLI fold / escapeHtml·webhook·uncapped / next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -10682,10 +10698,28 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-17",
+    branch: "cursor/prompt-process-evolution-bd71",
+    summary:
+      "Empty-backlog after PR #339 (subscription-mode catalog recurring Price gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were already-merged under prior NEXT_STEPS — rejected. Fresh money-path residual twin: createBillingPortalForLead still trusted CRM orderEligibleForBillingPortal + stored stripeCustomerId without Session re-proof. Shipped require stripeSessionId + reuse createBillingPortalForCheckoutSession; Vitest CRM-foreign-Price / unpaid / catalog-recurring / Session-customer regressions; architecture note; process now requires closing the lead Manage-billing twin after Session catalog-recurring.",
+    shipped: [
+      "src/lib/billing/create-portal-session.ts — createBillingPortalForLead requires stripeSessionId and reuses Session-path gates (no CRM-only portal)",
+      "src/lib/billing/create-portal-session.test.ts — lead-path foreign Price / unpaid / catalog recurring / Session customer / listLineItems-502 regressions",
+      "Docs: architecture.tsx notes lead Manage billing reuses Session entitlement",
+      "AGENT_PROTOCOL — after Session catalog-recurring, close lead Manage-billing twin",
+      "NEXT_STEPS: billing-portal-lead-catalog-recurring-price-gate done",
+      "BUSINESS_DECISIONS — require Session re-proof on createBillingPortalForLead (absolute index 388)",
+      "Verified: npm test (1679 passed — lead-path regressions replaced CRM-only portal cases 1:1 vs main@#339) + lint",
+    ],
+    // Object-parse by decision text: lead Manage billing Session re-proof owns BD[388]; subscription catalog=387.
+    decisions: BUSINESS_DECISIONS.slice(388, 389),
+  },
+  {
+    date: "2026-07-17",
     branch: "cursor/business-process-evolution-d5f3",
     summary:
-      "Empty-backlog after PR #339 (subscription catalog recurring portal gate). Sibling prompt-process-evolution-bd71 claimed billing-portal-lead-catalog-recurring-price-gate — complementary pivot. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh sold residual: paid bundle fulfillment only markComplete'd the paid stripeSessionId, so earlier abandoned open bundle checkout_sessions for the same leadSlug stayed in Finish-checkout / digest / pipeline-health. Shipped markCompleteOpenBundleForLead + db helper + webhook call (5xx on failure); never closes commerce_sku; Vitest + architecture note; process now requires orphan-open cleanup after paid Session markComplete.",
+      "Empty-backlog after PR #339 (subscription catalog recurring portal gate). Sibling prompt-process-evolution-bd71 shipped billing-portal-lead-catalog-recurring-price-gate (#340) same window — complementary pivot; folded both ITERATIONS. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh sold residual: paid bundle fulfillment only markComplete'd the paid stripeSessionId, so earlier abandoned open bundle checkout_sessions for the same leadSlug stayed in Finish-checkout / digest / pipeline-health. Shipped markCompleteOpenBundleForLead + db helper + webhook call (5xx on failure); never closes commerce_sku; Vitest + architecture note; process now requires orphan-open cleanup after paid Session markComplete.",
     shipped: [
+      "merge: origin/main (PR #340 lead Manage-billing Session re-proof) — keep sibling ITERATION; complementary orphan cart cleanup",
       "convex/checkoutSessions.ts — markCompleteOpenBundleForLead (by_leadSlug; skip commerce_sku)",
       "src/lib/db.ts — markCompleteOpenBundleCheckoutSessionsForLead + static API map registration",
       "src/lib/checkout/abandoned-recovery.ts — openBundleCheckoutSessionsToClose pure helper",
@@ -10693,14 +10727,14 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/api/stripe/webhook/route.ts — close orphan open bundle sessions after paid bundle markComplete",
       "Vitest: abandoned-recovery + webhook + fulfillment step regressions",
       "Docs: architecture.tsx notes orphan open bundle cleanup beside async_payment_failed reopen",
-      "AGENT_PROTOCOL — after paid Session markComplete, close orphan open bundle siblings; next prefers stuck CLI / escapeHtml·webhook·uncapped / sibling lead-portal fold",
-      "NEXT_STEPS: bundle-paid-orphan-open-checkout-session-cleanup done",
-      "BUSINESS_DECISIONS — require orphan open bundle cleanup after paid bundle Session (absolute index 388)",
-      "Process: object-parse by decision text (subscription catalog=387, async_failed=386) before appending ours",
-      "Verified: npm test (1685 passed) + lint",
+      "AGENT_PROTOCOL — after paid Session markComplete, close orphan open bundle siblings; next prefers stuck CLI / escapeHtml·webhook·uncapped / next sold residual",
+      "NEXT_STEPS: bundle-paid-orphan-open-checkout-session-cleanup done; billing-portal-lead-catalog-recurring-price-gate done (bd71 / #340)",
+      "BUSINESS_DECISIONS — require orphan open bundle cleanup after paid bundle Session (absolute index 389)",
+      "Process: object-parse by decision text (lead portal=388, subscription catalog=387) before appending ours",
+      "Verified: npm test (1685 passed pre-fold; re-run after #340 merge) + lint",
     ],
-    // Object-parse by decision text: orphan open bundle cleanup owns BD[388]; subscription catalog=387.
-    decisions: BUSINESS_DECISIONS.slice(388, 389),
+    // Object-parse by decision text: orphan open bundle cleanup owns BD[389]; lead portal=388.
+    decisions: BUSINESS_DECISIONS.slice(389, 390),
   },
 ];
 

@@ -718,14 +718,18 @@ export default function ArchitectureDocPage() {
         Growth/Complete (<code>hasRecurring</code> → subscription), so trusting tier would only
         help Dashboard-minted sessions; eligibility uses shared{" "}
         <code>checkoutSessionEligibleForBillingPortal</code> (
-        <code>catalogRecurringProven</code> for subscription). Orders store{" "}
-        <code>stripeCustomerId</code> when the webhook records payment; older orders fall back to
-        retrieving the Checkout Session.{" "}
+        <code>catalogRecurringProven</code> for subscription). The operator Manage billing path (
+        <code>createBillingPortalForLead</code>) uses CRM{" "}
+        <code>orderEligibleForBillingPortal</code> / <code>latestEligibleOrder</code> only as a
+        fast filter — it requires <code>stripeSessionId</code> and reuses{" "}
+        <code>createBillingPortalForCheckoutSession</code> so a stale or forged CRM{" "}
+        <code>tier</code> / <code>commerceAddon</code> / <code>stripeCustomerId</code> cannot mint
+        a portal while the Session path would 400 (Session customer preferred over stored CRM id).{" "}
         <code>listOrders</code> returns newest-first on both backends (
         <code>convex/orders.list</code> sorts by <code>createdAt</code> desc at the source,
         plus <code>sortOrdersNewestFirst</code> in <code>db.ts</code> as belt-and-suspenders)
-        so <code>latestEligibleOrder</code> opens Manage subscription against the newest eligible
-        row. When checkout completes for a slug with no CRM lead yet,{" "}
+        so <code>latestEligibleOrder</code> picks the newest CRM-eligible row before Session
+        re-proof. When checkout completes for a slug with no CRM lead yet,{" "}
         <code>recordLeadPayment</code> / Convex <code>markLeadPaid</code> insert a paid{" "}
         <code>payment_stub</code> lead (<code>buildPaymentStubLeadFields</code>) so revenue and
         paid-not-live stay aligned. Activate Customer Portal in the Stripe Dashboard before first

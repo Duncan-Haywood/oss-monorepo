@@ -1,5 +1,4 @@
 import { listOrdersByLeadSlug } from "@/lib/db";
-import type { OrderRecord } from "@/lib/orders/types";
 import {
   checkoutSessionEligibleForBillingPortal,
   latestEligibleOrder,
@@ -58,24 +57,15 @@ export interface StripeBillingPortalClient {
   };
 }
 
-async function resolveCustomerId(
-  stripe: StripeBillingPortalClient,
-  order: OrderRecord,
-): Promise<string | null> {
-  const stored = stripeCustomerIdFromUnknown(order.stripeCustomerId);
-  if (stored) return stored;
-  if (!order.stripeSessionId) return null;
-  try {
-    const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId);
-    return stripeCustomerIdFromUnknown(session.customer);
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Create a Stripe Billing Portal session for a paid lead with a recurring plan.
- * Resolves customer id from the stored order, falling back to the Checkout Session.
+ *
+ * CRM `tier` / `commerceAddon` is only a fast filter (latestEligibleOrder) —
+ * entitlement must re-prove the Checkout Session the same way as
+ * createBillingPortalForCheckoutSession (payment_status paid + catalog
+ * recurring / Commerce Prices on listLineItems). A stale or forged CRM row
+ * must not mint Manage billing while the public Session path would 400.
+ * Requires stripeSessionId; Session customer is preferred over stored CRM id.
  */
 export async function createBillingPortalForLead(
   stripe: StripeBillingPortalClient,
@@ -99,29 +89,18 @@ export async function createBillingPortalForLead(
     };
   }
 
-  const customerId = await resolveCustomerId(stripe, order);
-  if (!customerId) {
+  const sessionId = order.stripeSessionId?.trim() ?? "";
+  if (!sessionId) {
     return {
       ok: false,
       error:
-        "Could not resolve a Stripe Customer for this order. Re-check the Checkout Session in Stripe.",
+        "Could not resolve a Stripe Checkout Session for this order. Re-check the order in Stripe.",
       status: 404,
     };
   }
 
-  try {
-    const portal = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: returnUrl,
-    });
-    if (!portal.url) {
-      return { ok: false, error: "Stripe did not return a billing portal URL", status: 502 };
-    }
-    return { ok: true, url: portal.url };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown Stripe error";
-    return { ok: false, error: message, status: 502 };
-  }
+  // Reuse Session-path gates — never open portal from CRM fields alone.
+  return createBillingPortalForCheckoutSession(stripe, sessionId, returnUrl);
 }
 
 /**
