@@ -2807,8 +2807,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "digest-clawback-oldest-age",
     summary:
-      "pipeline-health.ts computes oldestCommerceOrdersRefundClawbackAgeHours / oldestCommerceOrdersDisputeClawbackAgeHours / oldestBundleOrdersRefundedAgeHours / oldestBundleOrdersDisputedAgeHours and the dashboard panel renders each as an 'oldest Xh/Xd' hint, but daily-digest.ts computes the matching row lists/totals for all four sections and never an oldest-age aggregate — an operator who only reads the digest email has no staleness signal for money that needs clawing back, while the always-on dashboard does.",
-    status: "in_progress",
+      "pipeline-health.ts computes oldestCommerceOrdersRefundClawbackAgeHours / oldestCommerceOrdersDisputeClawbackAgeHours / oldestBundleOrdersRefundedAgeHours / oldestBundleOrdersDisputedAgeHours and the dashboard panel renders each as an 'oldest Xh/Xd' hint, but daily-digest.ts computes the matching row lists/totals for all four sections and never an oldest-age aggregate — an operator who only reads the digest email has no staleness signal for money that needs clawing back, while the always-on dashboard does. Shipped: oldestCommerceOrdersRefundClawbackAgeHours / oldestCommerceOrdersDisputeClawbackAgeHours / oldestBundleOrdersRefundedAgeHours / oldestBundleOrdersDisputedAgeHours on DailyDigest (same min-refundedAt/disputedAt-scan pattern already used for oldestFollowUpDueAgeHours etc.), each section title in renderDailyDigestHtml now appends ' · oldest Xh' matching the dashboard hint text exactly.",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "claude/upbeat-dijkstra-yd6du5",
   },
@@ -5739,6 +5739,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Stripe charge.dispute.created must resolve the Checkout Session and, when it backs no commerceOrders row, check whether it backs a bundle `orders` row (getOrderByStripeSessionId) and mark orders.disputedAt (markOrderDisputed, idempotent — mirrors markCommerceOrderDisputed). charge.dispute.closed with status won/warning_closed must clearOrderDisputed (Convex replace omit + SQLite NULL); status lost must keep/ensure disputedAt. PipelineHealth.revenueTotalUsd must exclude any order with disputedAt set (orderCountsTowardRevenue = !refunded && !disputed). Surface count/total/oldest-age via a pipeline-health 'Bundle revenue disputed' card and a matching daily-digest section — visibility only, no Mark-paid-out reject / clawback UI (same rationale as bundle-order-refund-tracking).",
     rationale:
       "Empty-backlog after PR #368 (bundle-order-refund-tracking). Free NEXT_STEPS stayed operator/legal-gated (4 items). Cooperated by merging sibling #368 first rather than dual-building the refund twin. #368's AGENT_PROTOCOL note declared the whole refund/dispute/clawback axis closed, but charge.dispute.created/closed still explicitly skipped bundle orders — the same incomplete-axis class as shipping commerce refund (#360) without dispute.created (#362). Process improvement: after a ledger refund open flag ships, immediately close the dispute created+closed twin on that ledger before declaring the axis done or inventing another dated clean-audit. Stuck CLI remotes (convex-order-parity, preview-index, already-merged refund/clawback bodies) were rejected. Shipped created+closed together in one iteration so a won dispute cannot leave disputedAt set forever (false revenue exclusion). Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week — reject invent-optional-aggregate / workNextCount / re-do of #320–#368 money gates.",
+  },
+  {
+    id: "digest-clawback-oldest-age",
+    date: "2026-07-17",
+    decision:
+      "Every action-section title in renderDailyDigestHtml that pipeline-health also surfaces as a card with an 'oldest Xh/Xd' hint must show the matching oldest-age in its own header — the daily digest email is the one surface a single-operator business can act on without opening /dashboard/leads, so it must carry the same staleness signal the dashboard already does. Compute each oldest-age with the same min-timestamp-scan pattern already used for oldestFollowUpDueAgeHours / oldestAbandonedAgeHours (never Date.now() — always the caller-supplied nowMs), scanning the full pre-slice candidate list, not the LIMIT-sliced rows shown in the email body.",
+    rationale:
+      "Empty-backlog after PR #369 (bundle-order-dispute-tracking) merged with a two-way sibling claim race resolved in 19a4's favor (earlier claim commit + feature body already pushed; 67e8 was claim-only and pivoted per AGENT_PROTOCOL's same-minute-dual-claim rule). Scanned ~25 of the most recently-pushed remotes by actual committer date for stuck-but-complete work: everything with a nonzero diffstat against main was either already-superseded (claude/nice-euler-0x1k8a's refund/clawback work is a strict subset of what #360 already shipped), byte-identical to already-merged code (cursor/prompt-process-evolution-2607's preview soft-cap), or CI-workflow-only (matching the two already-open, unrelated #365/#366 PRs) — nothing to fold. Read pipeline-health.ts and daily-digest.ts side by side and found a real, narrow gap: all four refund/dispute-clawback sections (commerceOrdersRefundClawback, commerceOrdersDisputeClawback, bundleOrdersRefunded, bundleOrdersDisputed) already compute matching row lists/totals in both files, and pipeline-health.ts computes + the dashboard panel renders an oldest-age hint for all four, but daily-digest.ts never did — every other digest action section (follow-ups, abandoned checkouts, unreplied inquiries, cold leads, MRR paused) already has this pattern, so this was a genuine inconsistency, not a manufactured metric. Shipped the same min-timestamp-scan IIFE pattern already used elsewhere in the same file for all four sections, wired the ' · oldest Xh' suffix into each of the four section titles, and added dedicated multi-record tests (oldest-of-N selection, not just the single-record smoke tests the sections already had) plus a combined render test asserting all four headers. Next empty-backlog: re-scan stuck remotes for a genuine fold candidate first / an untested payment-critical orchestration module / a fresh security pass on a surface not touched in the last ~10 iterations — reject re-doing the money/entitlement/refund/dispute gates already covered #320–#369.",
   },
 ];
 
@@ -11752,5 +11760,19 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: merged sibling #368 first; claim commit pushed before feature body; created+closed shipped together; AGENT_PROTOCOL corrected to stop declaring the money axis closed after only the refund twin",
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "bundle-order-dispute-tracking"),
+  },
+  {
+    date: "2026-07-17",
+    branch: "claude/upbeat-dijkstra-yd6du5",
+    summary:
+      "Empty-backlog after PR #369 (bundle-order-dispute-tracking, merged after a two-way sibling claim race resolved to cursor/business-process-evolution-19a4). Free NEXT_STEPS stayed fully operator/legal-gated (4 items). Scanned ~25 of the most recently-pushed remotes by actual committer date for a stuck-but-complete fold candidate — nothing genuine turned up (already-superseded, byte-identical to merged code, or CI-workflow-only, same category as the two already-open #365/#366 PRs). Read pipeline-health.ts and daily-digest.ts side by side and found daily-digest.ts computes the same refund/dispute-clawback row lists as pipeline-health.ts but never the matching oldest-age aggregate pipeline-health computes and the dashboard renders — every other digest action section already has this pattern, so the operator-email surface had a real staleness-signal gap versus the always-on dashboard for money that needs clawing back from a client.",
+    shipped: [
+      "src/lib/digest/daily-digest.ts (+ test) — oldestCommerceOrdersRefundClawbackAgeHours, oldestCommerceOrdersDisputeClawbackAgeHours, oldestBundleOrdersRefundedAgeHours, oldestBundleOrdersDisputedAgeHours on DailyDigest, computed via the same min-timestamp-scan IIFE pattern already used for oldestFollowUpDueAgeHours/oldestAbandonedAgeHours (scans the full pre-slice candidate list, never Date.now()); renderDailyDigestHtml appends ' · oldest Xh' to all four section titles (Refund clawback needed, Dispute clawback needed, Bundle revenue refunded, Bundle revenue disputed) matching the dashboard hint text exactly",
+      "NEXT_STEPS: digest-clawback-oldest-age done",
+      "BUSINESS_DECISIONS — digest-clawback-oldest-age (id-based entry)",
+      "Process: claim commit pushed before feature body; new decision + this entry reference each other by id",
+      "Verified: npm test (1923 passed = main@#369's 1918 + 5 new: 4 multi-record oldest-age unit tests + 1 combined render test) + lint + build (tsc clean, all 31 routes generated) + npm run dev sanity check on /, /dashboard/leads, /docs/architecture (all 200s)",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "digest-clawback-oldest-age"),
   },
 ];
