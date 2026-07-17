@@ -55,6 +55,7 @@ function portalRequest(body: unknown, url = "http://localhost/api/stripe/billing
 function completeSubscriptionSession(overrides: Record<string, unknown> = {}) {
   return {
     status: "complete",
+    payment_status: "paid",
     mode: "subscription",
     metadata: {},
     customer: "cus_1",
@@ -309,6 +310,21 @@ describe("POST /api/stripe/billing-portal", () => {
 
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: "Checkout session is not complete" });
+    expect(billingPortalCreate).not.toHaveBeenCalled();
+  });
+
+  it("passes through a 400 when the session is complete but not paid (async ACH)", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    sessionsRetrieve.mockResolvedValue(
+      completeSubscriptionSession({ payment_status: "unpaid" }),
+    );
+
+    const { POST } = await import("./route");
+    const res = await POST(portalRequest({ sessionId: "cs_test_1" }));
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Checkout session is not paid" });
+    expect(sessionsListLineItems).not.toHaveBeenCalled();
     expect(billingPortalCreate).not.toHaveBeenCalled();
   });
 

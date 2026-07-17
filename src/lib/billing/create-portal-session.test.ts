@@ -221,6 +221,36 @@ describe("createBillingPortalForCheckoutSession", () => {
     }
   });
 
+  it("400s when the session is complete but not paid (async ACH)", async () => {
+    // Twin of webhook + success SSR payment_status gate — complete ≠ paid.
+    const create = vi.fn();
+    const listLineItems = vi.fn();
+    const stripe = fakeStripe({
+      checkout: {
+        sessions: {
+          retrieve: vi.fn().mockResolvedValue({
+            status: "complete",
+            payment_status: "unpaid",
+            mode: "subscription",
+            customer: "cus_1",
+          }),
+          listLineItems,
+        },
+      },
+      billingPortal: { sessions: { create } },
+    });
+
+    const result = await createBillingPortalForCheckoutSession(stripe, "cs_1", "https://app/return");
+
+    expect(listLineItems).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(400);
+      expect(result.error).toMatch(/not paid/);
+    }
+  });
+
   it("400s when the session is not a subscription", async () => {
     const listLineItems = vi.fn().mockResolvedValue({ data: [] });
     const stripe = fakeStripe({
@@ -228,6 +258,7 @@ describe("createBillingPortalForCheckoutSession", () => {
         sessions: {
           retrieve: vi.fn().mockResolvedValue({
             status: "complete",
+            payment_status: "paid",
             mode: "payment",
             customer: "cus_1",
             metadata: { tier: "starter", commerceAddon: "false" },
@@ -258,6 +289,7 @@ describe("createBillingPortalForCheckoutSession", () => {
         sessions: {
           retrieve: vi.fn().mockResolvedValue({
             status: "complete",
+            payment_status: "paid",
             mode: "payment",
             customer: "cus_1",
             metadata: { tier: "growth", commerceAddon: "false" },
@@ -297,6 +329,7 @@ describe("createBillingPortalForCheckoutSession", () => {
           sessions: {
             retrieve: vi.fn().mockResolvedValue({
               status: "complete",
+              payment_status: "paid",
               mode: "payment",
               customer: "cus_1",
               metadata: { tier: "starter", commerceAddon: "true" },
@@ -347,6 +380,7 @@ describe("createBillingPortalForCheckoutSession", () => {
           sessions: {
             retrieve: vi.fn().mockResolvedValue({
               status: "complete",
+              payment_status: "paid",
               // Unusual vs create-path (which would set subscription), but
               // line items still prove Commerce was charged.
               mode: "payment",
@@ -387,6 +421,7 @@ describe("createBillingPortalForCheckoutSession", () => {
         sessions: {
           retrieve: vi.fn().mockResolvedValue({
             status: "complete",
+            payment_status: "paid",
             mode: "payment",
             customer: "cus_1",
             metadata: { tier: "starter", commerceAddon: "true" },
@@ -419,6 +454,7 @@ describe("createBillingPortalForCheckoutSession", () => {
         sessions: {
           retrieve: vi.fn().mockResolvedValue({
             status: "complete",
+            payment_status: "paid",
             mode: "subscription",
             customer: "cus_from_cs",
           }),
@@ -445,6 +481,7 @@ describe("createBillingPortalForCheckoutSession", () => {
         sessions: {
           retrieve: vi.fn().mockResolvedValue({
             status: "complete",
+            payment_status: "paid",
             mode: "subscription",
             customer: "cus_from_cs",
           }),
@@ -472,6 +509,7 @@ describe("createBillingPortalForCheckoutSession", () => {
         sessions: {
           retrieve: vi.fn().mockResolvedValue({
             status: "complete",
+            payment_status: "paid",
             mode: "subscription",
             customer: null,
           }),
@@ -506,6 +544,7 @@ describe("createBillingPortalForCheckoutSession", () => {
         sessions: {
           retrieve: vi.fn().mockResolvedValue({
             status: "complete",
+            payment_status: "paid",
             mode: "subscription",
             customer: "cus_1",
           }),
@@ -527,6 +566,7 @@ describe("createBillingPortalForCheckoutSession", () => {
         sessions: {
           retrieve: vi.fn().mockResolvedValue({
             status: "complete",
+            payment_status: "paid",
             mode: "subscription",
             customer: "cus_1",
           }),
