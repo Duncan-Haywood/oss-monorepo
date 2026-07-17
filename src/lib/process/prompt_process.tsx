@@ -10697,6 +10697,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: bundle-paid-orphan-open-checkout-session-cleanup done",
       "BUSINESS_DECISIONS — require orphan open bundle cleanup after paid bundle Session (absolute index 388)",
       "Process: object-parse by decision text (subscription catalog=387, async_failed=386) before appending ours",
+      "Verified: npm test (1685 passed) + lint",
     ],
     // Object-parse by decision text: orphan open bundle cleanup owns BD[388]; subscription catalog=387.
     decisions: BUSINESS_DECISIONS.slice(388, 389),
