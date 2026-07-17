@@ -39,6 +39,27 @@ export const markComplete = mutation({
   },
 });
 
+/**
+ * Re-opens a checkout_sessions row after checkout.session.async_payment_failed.
+ * Unpaid completed marks the row complete (stop recovery while ACH clears);
+ * a failed async payment must reopen so Finish-checkout / Buy now recovery
+ * can nudge a retry. Safe no-op when no row matches.
+ */
+export const markOpen = mutation({
+  args: { stripeSessionId: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("checkoutSessions")
+      .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
+      .unique();
+    if (session) {
+      await ctx.db.patch(session._id, { status: "open" });
+    }
+    return null;
+  },
+});
+
 export const recordRecoverySent = mutation({
   args: { stripeSessionId: v.string(), sentAt: v.string() },
   returns: v.null(),

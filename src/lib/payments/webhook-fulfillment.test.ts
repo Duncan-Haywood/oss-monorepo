@@ -35,6 +35,14 @@ describe("webhookFulfillmentFailureResponse", () => {
     expect(result.body.error).toMatch(/retry/i);
   });
 
+  it("returns 500 with received:false for checkout-session mark-open failures", () => {
+    const result = webhookFulfillmentFailureResponse("checkout_session_mark_open");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("checkout_session_mark_open");
+    expect(result.body.error).toMatch(/retry/i);
+  });
+
   it("returns 500 with received:false for bundle commerceAddon line-item list failures", () => {
     const result = webhookFulfillmentFailureResponse("bundle_commerce_addon_line_items");
     expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);

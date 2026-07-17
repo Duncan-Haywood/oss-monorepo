@@ -483,6 +483,13 @@ export default function ArchitectureDocPage() {
         payment/handoff/receipt (session is still marked complete for unpaid completed
         + slug/tier/Price/currency/amount skips so abandoned-recovery does not nudge;
         do not 5xx forever; line-item list failures return 500 so Stripe retries).{" "}
+        <code>checkout.session.async_payment_failed</code> reopens the local{" "}
+        <code>checkout_sessions</code> row via <code>markCheckoutSessionOpen</code>{" "}
+        (requireConvex) so Finish-checkout / Buy now recovery can nudge a retry —
+        leaving status=<code>complete</code> forever after a failed ACH would
+        permanently drop that revenue (recovery emails mint a new Checkout Session;
+        the Stripe Session is terminal). Reopen write failures return{" "}
+        <code>500</code> (<code>checkout_session_mark_open</code>).{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}

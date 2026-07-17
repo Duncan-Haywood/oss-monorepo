@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { markCheckoutSessionComplete, recordLeadPayment } from "@/lib/db";
+import {
+  markCheckoutSessionComplete,
+  markCheckoutSessionOpen,
+  recordLeadPayment,
+} from "@/lib/db";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import {
   parseCommerceCheckoutSkuId,
@@ -84,6 +88,9 @@ import {
  * immediately, or checkout.session.async_payment_succeeded later). Unpaid
  * completed still markCheckoutSessionComplete so abandoned-recovery does
  * not nudge mid-clearing (webhook-checkout-payment-status-paid-gate).
+ * checkout.session.async_payment_failed must markCheckoutSessionOpen so a
+ * failed ACH cart re-enters Finish-checkout / Buy now recovery (recovery
+ * links mint a new Checkout Session — the Stripe Session is terminal).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -737,6 +744,27 @@ export async function POST(request: Request) {
       } else {
         console.warn("webhook: missing slug or tier in session metadata", session.id);
       }
+      break;
+    }
+    case "checkout.session.async_payment_failed": {
+      // Unpaid completed marked the local row complete (stop recovery while
+      // ACH cleared). A failed async payment must reopen so Finish-checkout /
+      // Buy now recovery can nudge a retry — leaving status=complete forever
+      // permanently drops that retry revenue.
+      const session = event.data.object as Stripe.Checkout.Session;
+      try {
+        await markCheckoutSessionOpen(session.id, WEBHOOK_CONVEX_PRIMARY);
+      } catch (e) {
+        console.error(
+          `Failed to reopen checkout session ${session.id} after async_payment_failed`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("checkout_session_mark_open");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      console.warn(
+        `webhook: session ${session.id} async_payment_failed — reopened for abandoned-recovery`,
+      );
       break;
     }
     default:
