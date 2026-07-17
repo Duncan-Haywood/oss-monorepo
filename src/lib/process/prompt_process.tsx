@@ -10906,12 +10906,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes subscription.deleted CRM sync beside Billing Portal cancel",
       "AGENT_PROTOCOL — after commerce orphan cleanup, sync subscription.deleted into recurringCanceledAt",
       "NEXT_STEPS: customer-subscription-deleted-crm-sync done",
-      "BUSINESS_DECISIONS — require subscription.deleted CRM sync (absolute index 393)",
-      "Process: object-parse by decision text (commerce orphan=392, after-fulfillment=391) before appending ours; claim pushed before feature body",
+      "BUSINESS_DECISIONS — require subscription.deleted CRM sync (absolute index 392)",
+      "Process: object-parse by decision text (commerce orphan=391, after-fulfillment=390) before appending ours; claim pushed before feature body",
       "Verified: npm test (1708 passed) + lint",
     ],
-    // Object-parse by decision text: subscription.deleted CRM sync owns BD[393]; commerce orphan=392.
-    decisions: BUSINESS_DECISIONS.slice(393, 394),
+    // Object-parse by decision text: subscription.deleted CRM sync owns BD[392]; commerce orphan=391.
+    decisions: BUSINESS_DECISIONS.slice(392, 393),
   },
   {
     date: "2026-07-17",
@@ -10928,12 +10928,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes resubscribe clear beside subscription.deleted CRM sync",
       "AGENT_PROTOCOL — after subscription.deleted CRM sync, immediately clear on active|trialing",
       "NEXT_STEPS: customer-subscription-reactivated-crm-sync done",
-      "BUSINESS_DECISIONS — require subscription reactivate CRM clear (absolute index 394)",
-      "Process: object-parse by decision text (subscription.deleted=393) before appending ours; claim pushed before feature body; patched agent-hooks secret-name filter for CLOUD_AGENT_INJECTED_SECRET_NAMES labels",
+      "BUSINESS_DECISIONS — require subscription reactivate CRM clear (absolute index 393)",
+      "Process: object-parse by decision text (subscription.deleted=392) before appending ours; claim pushed before feature body; patched agent-hooks secret-name filter for CLOUD_AGENT_INJECTED_SECRET_NAMES labels",
       "Verified: npm test (1715 passed) + lint",
     ],
-    // Object-parse by decision text: subscription reactivate CRM clear owns BD[394]; deleted sync=393.
-    decisions: BUSINESS_DECISIONS.slice(394, 395),
+    // Object-parse by decision text: subscription reactivate CRM clear owns BD[393]; deleted sync=392.
+    decisions: BUSINESS_DECISIONS.slice(393, 394),
   },
   {
     date: "2026-07-17",
@@ -10947,12 +10947,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes past_due/unpaid + invoice.payment_failed pause beside cancel/reactivate",
       "AGENT_PROTOCOL — after subscription reactivate clear, immediately pause on past_due/unpaid + invoice.payment_failed",
       "NEXT_STEPS: invoice-payment-failed-past-due-crm-pause done",
-      "BUSINESS_DECISIONS — require past_due/unpaid + invoice.payment_failed CRM pause (absolute index 395)",
-      "Process: object-parse by decision text (reactivate clear=394) before appending ours; claim pushed before feature body; patched agent-hooks secret-name filter for CLOUD_AGENT_INJECTED_SECRET_NAMES labels",
+      "BUSINESS_DECISIONS — require past_due/unpaid + invoice.payment_failed CRM pause (absolute index 394)",
+      "Process: object-parse by decision text (reactivate clear=393) before appending ours; claim pushed before feature body; patched agent-hooks secret-name filter for CLOUD_AGENT_INJECTED_SECRET_NAMES labels",
       "Verified: npm test (1724 passed) + lint; later main merge as PR #346",
     ],
-    // Object-parse by decision text: past_due/invoice pause owns BD[395]; reactivate clear=394.
-    decisions: BUSINESS_DECISIONS.slice(395, 396),
+    // Object-parse by decision text: past_due/invoice pause owns BD[394]; reactivate clear=393.
+    decisions: BUSINESS_DECISIONS.slice(394, 395),
   },
   {
     date: "2026-07-17",
@@ -10968,12 +10968,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes pause_collection beside past_due/invoice pause",
       "AGENT_PROTOCOL — after past_due pause, immediately close pause_collection twin (status-active hole)",
       "NEXT_STEPS: subscription-pause-collection-crm-pause done; invoice-payment-failed-past-due-crm-pause done (8b08/#346)",
-      "BUSINESS_DECISIONS — require pause_collection CRM pause (absolute index 396)",
-      "Process: object-parse by decision text (past_due pause=395) before appending ours; claim pushed before feature body; same-minute coop fold of 8b08; remapped BD slices after main merge",
+      "BUSINESS_DECISIONS — require pause_collection CRM pause (absolute index 395)",
+      "Process: object-parse by decision text (past_due pause=394) before appending ours; claim pushed before feature body; same-minute coop fold of 8b08; remapped BD slices after main merge",
       "Verified: npm test (1728 passed = sibling 1724 + 2 pause_collection helper + 2 webhook regressions) + lint",
     ],
-    // Object-parse by decision text: pause_collection CRM pause owns BD[396]; past_due/invoice=395.
-    decisions: BUSINESS_DECISIONS.slice(396, 397),
+    // Object-parse by decision text: pause_collection CRM pause owns BD[395]; past_due/invoice=394.
+    decisions: BUSINESS_DECISIONS.slice(395, 396),
   },
   {
     date: "2026-07-17",
@@ -10988,10 +10988,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes paused MRR recovery queue beside recurringCanceledAt",
       "AGENT_PROTOCOL — after #344–#347 CRM sync, immediately wire listRecurringEntitlementPaused into health/digest",
       "NEXT_STEPS: recurring-entitlement-paused-pipeline-digest done",
-      "BUSINESS_DECISIONS — require paused MRR pipeline/digest wiring (absolute index 397)",
-      "Process: object-parse by decision text (pause_collection=396) before appending ours; claim pushed before feature body",
+      "BUSINESS_DECISIONS — require paused MRR pipeline/digest wiring (absolute index 396)",
+      "Process: object-parse by decision text (pause_collection=395) before appending ours; claim pushed before feature body; tightened #344–#347 ITERATIONS BD slices after cascade",
     ],
-    // Object-parse by decision text: paused MRR pipeline/digest owns BD[397]; pause_collection=396.
-    decisions: BUSINESS_DECISIONS.slice(397, 398),
+    // Object-parse by decision text: paused MRR pipeline/digest owns BD[396]; pause_collection=395.
+    decisions: BUSINESS_DECISIONS.slice(396, 397),
   },
 ];
