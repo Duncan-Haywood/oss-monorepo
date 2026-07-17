@@ -135,6 +135,8 @@ export interface PipelineHealth {
   commerceAbandonedCheckoutCount: number;
   /** Commerce Buy now sessions due for an operator recovery nudge. */
   commerceRecoveryDueCount: number;
+  /** Age in whole hours of the oldest abandoned open Commerce Buy now session; null when none. */
+  oldestCommerceAbandonedAgeHours: number | null;
   /** Leads that exhausted Email 1-3 with no reply — see isColdLead. */
   coldLeadCount: number;
   /** Age in whole hours since the oldest cold lead's last outreach send; null when none. */
@@ -443,6 +445,19 @@ export function computePipelineHealth(input: {
     }
   }
 
+  let oldestCommerceAbandonedAgeHours: number | null = null;
+  for (const session of commerceAbandoned) {
+    const createdAtMs = Date.parse(session.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
+    if (
+      oldestCommerceAbandonedAgeHours === null ||
+      ageHours > oldestCommerceAbandonedAgeHours
+    ) {
+      oldestCommerceAbandonedAgeHours = Math.max(0, ageHours);
+    }
+  }
+
   let oldestUnrepliedInquiryAgeHours: number | null = null;
   for (const inquiry of unrepliedInquiries) {
     const createdAtMs = Date.parse(inquiry.createdAt);
@@ -683,6 +698,7 @@ export function computePipelineHealth(input: {
     oldestAbandonedAgeHours,
     commerceAbandonedCheckoutCount: commerceAbandoned.length,
     commerceRecoveryDueCount,
+    oldestCommerceAbandonedAgeHours,
     coldLeadCount: coldLeads.length,
     oldestColdLeadAgeHours,
     snoozedLeadCount: snoozedLeads.length,
