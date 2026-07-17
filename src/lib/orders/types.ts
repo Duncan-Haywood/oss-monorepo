@@ -28,11 +28,34 @@ export interface OrderRecord {
    * refunded. See isOrderRefunded / bundle-order-refund-tracking.
    */
   refundedAt?: string;
+  /**
+   * ISO timestamp when Stripe charge.dispute.created (or dispute.closed lost)
+   * resolved to this bundle order's Checkout Session. Cleared by
+   * charge.dispute.closed when status is won / warning_closed. See
+   * isOrderDisputed / bundle-order-dispute-tracking.
+   */
+  disputedAt?: string;
 }
 
 /** True when Stripe has refunded (fully or partially) this bundle order's charge. */
 export function isOrderRefunded(order: Pick<OrderRecord, "refundedAt">): boolean {
   return Boolean(order.refundedAt);
+}
+
+/** True when Stripe has an open or lost dispute on this bundle order's charge. */
+export function isOrderDisputed(order: Pick<OrderRecord, "disputedAt">): boolean {
+  return Boolean(order.disputedAt);
+}
+
+/**
+ * Bundle revenue that still counts toward pipeline-health revenueTotalUsd —
+ * excludes refunded and disputed orders (Stripe has returned or debited the
+ * funds). See bundle-order-refund-tracking / bundle-order-dispute-tracking.
+ */
+export function orderCountsTowardRevenue(
+  order: Pick<OrderRecord, "refundedAt" | "disputedAt">,
+): boolean {
+  return !isOrderRefunded(order) && !isOrderDisputed(order);
 }
 
 /**

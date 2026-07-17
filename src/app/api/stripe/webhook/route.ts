@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import {
   clearCommerceOrderDisputed,
+  clearOrderDisputed,
   clearOrdersRecurringCanceledByCustomer,
   getCommerceOrderByStripeSessionId,
   markCheckoutSessionComplete,
@@ -11,6 +12,7 @@ import {
   getOrderByStripeSessionId,
   markCompleteOpenBundleCheckoutSessionsForLead,
   markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer,
+  markOrderDisputed,
   markOrderRefunded,
   markOrdersRecurringCanceledByCustomer,
   recordLeadPayment,
@@ -186,20 +188,23 @@ import {
  * (Dispute.payment_intent), mark commerceOrders.disputedAt when it backs a
  * ledgered order (idempotent), and markCommerceOrderPaidOutAction rejects
  * paying out a disputed order. Clawback-after-payout surfaces via
- * listCommerceOrdersDisputed (uncapped). No payment_intent, no matching
- * Session, or no ledgered commerce order all skip (bundle order disputes are
- * not handled here — same scope note as refunds). Session-lookup /
- * mark-disputed failures return 5xx (commerce_order_dispute_session_lookup /
- * commerce_order_dispute) so Stripe retries.
+ * listCommerceOrdersDisputed (uncapped). When the Session backs no
+ * commerceOrders row, also check whether it backs a bundle `orders` row and
+ * mark orders.disputedAt (bundle-order-dispute-tracking — visibility +
+ * revenueTotalUsd exclusion only; no Mark-paid-out reject / clawback UI).
+ * No payment_intent or matching Session skips. Session-lookup / mark-disputed
+ * failures return 5xx (commerce_order_dispute_session_lookup /
+ * commerce_order_dispute / bundle_order_dispute) so Stripe retries.
  *
  * charge.dispute.closed is the resolution twin: when status is won or
- * warning_closed, clearCommerceOrderDisputed so Mark paid out and owed totals
- * reopen after Stripe reinstates (or never permanently withdrew) funds; when
- * status is lost, ensure disputedAt is set (created may have been missed).
- * Same Session correlation via payment_intent. Session-lookup / clear /
- * mark-disputed failures return 5xx (commerce_order_dispute_closed_session_lookup /
- * commerce_order_dispute_clear / commerce_order_dispute). Bundle order disputes
- * stay out of scope (commerce-order-dispute-closed-resolution).
+ * warning_closed, clearCommerceOrderDisputed / clearOrderDisputed so Mark paid
+ * out and owed totals (commerce) or revenueTotalUsd (bundle) reopen after
+ * Stripe reinstates (or never permanently withdrew) funds; when status is
+ * lost, ensure disputedAt is set on the matching ledger (created may have
+ * been missed). Same Session correlation via payment_intent. Session-lookup /
+ * clear / mark-disputed failures return 5xx
+ * (commerce_order_dispute_closed_session_lookup / commerce_order_dispute_clear /
+ * commerce_order_dispute / bundle_order_dispute_clear / bundle_order_dispute).
  */
 
 /** Webhook revenue path: fail closed when Convex is configured but unreachable. */
@@ -1396,8 +1401,36 @@ export async function POST(request: Request) {
         disputeSession.id,
       );
       if (!disputedCommerceOrder) {
-        // Not a commerce_sku Buy now order (e.g. a bundle purchase) — no
-        // payout-safety ledger to flag. See AGENT_PROTOCOL note above.
+        // Not a commerce_sku Buy now order — check whether it backs a bundle
+        // order instead (Starter/Growth/Complete/Commerce-addon revenue).
+        const disputedBundleOrder = await getOrderByStripeSessionId(disputeSession.id);
+        if (!disputedBundleOrder) {
+          console.warn(
+            `webhook: charge.dispute.created ${dispute.id} payment_intent=${paymentIntentId} Session ${disputeSession.id} matched no commerce or bundle order, skipping`,
+          );
+          break;
+        }
+        if (disputedBundleOrder.disputedAt) {
+          // Already flagged (Stripe redelivery) — idempotent no-op.
+          break;
+        }
+        try {
+          await markOrderDisputed(
+            disputeSession.id,
+            new Date().toISOString(),
+            WEBHOOK_CONVEX_PRIMARY,
+          );
+          console.warn(
+            `webhook: charge.dispute.created ${dispute.id} flagged bundle order for session ${disputeSession.id} (leadSlug=${disputedBundleOrder.leadSlug}, tier=${disputedBundleOrder.tier})`,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to mark bundle order disputed for session ${disputeSession.id} after charge.dispute.created ${dispute.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse("bundle_order_dispute");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
         break;
       }
       if (disputedCommerceOrder.disputedAt) {
@@ -1462,7 +1495,58 @@ export async function POST(request: Request) {
         closedDisputeSession.id,
       );
       if (!closedDisputeOrder) {
-        // Not a commerce_sku Buy now order — no payout-safety ledger to update.
+        // Not a commerce_sku Buy now order — check whether it backs a bundle
+        // order instead (bundle-order-dispute-tracking).
+        const closedDisputeBundleOrder = await getOrderByStripeSessionId(
+          closedDisputeSession.id,
+        );
+        if (!closedDisputeBundleOrder) {
+          console.warn(
+            `webhook: charge.dispute.closed ${closedDispute.id} payment_intent=${closedPaymentIntentId} Session ${closedDisputeSession.id} matched no commerce or bundle order, skipping`,
+          );
+          break;
+        }
+        if (disputeStatusClearsDisputeFlag(closedDispute.status)) {
+          if (!closedDisputeBundleOrder.disputedAt) {
+            break;
+          }
+          try {
+            await clearOrderDisputed(closedDisputeSession.id, WEBHOOK_CONVEX_PRIMARY);
+            console.warn(
+              `webhook: charge.dispute.closed ${closedDispute.id} status=${closedDispute.status} cleared bundle disputed flag for session ${closedDisputeSession.id} (leadSlug=${closedDisputeBundleOrder.leadSlug}, tier=${closedDisputeBundleOrder.tier})`,
+            );
+          } catch (e) {
+            console.error(
+              `Failed to clear bundle order disputed for session ${closedDisputeSession.id} after charge.dispute.closed ${closedDispute.id}`,
+              e,
+            );
+            const failure = webhookFulfillmentFailureResponse(
+              "bundle_order_dispute_clear",
+            );
+            return NextResponse.json(failure.body, { status: failure.status });
+          }
+          break;
+        }
+        if (closedDisputeBundleOrder.disputedAt) {
+          break;
+        }
+        try {
+          await markOrderDisputed(
+            closedDisputeSession.id,
+            new Date().toISOString(),
+            WEBHOOK_CONVEX_PRIMARY,
+          );
+          console.warn(
+            `webhook: charge.dispute.closed ${closedDispute.id} status=${closedDispute.status} flagged bundle order for session ${closedDisputeSession.id} (leadSlug=${closedDisputeBundleOrder.leadSlug}, tier=${closedDisputeBundleOrder.tier})`,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to mark bundle order disputed for session ${closedDisputeSession.id} after charge.dispute.closed ${closedDispute.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse("bundle_order_dispute");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
         break;
       }
       if (disputeStatusClearsDisputeFlag(closedDispute.status)) {

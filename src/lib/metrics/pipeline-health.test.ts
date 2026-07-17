@@ -109,6 +109,9 @@ describe("computePipelineHealth", () => {
     expect(health.bundleOrdersRefundedCount).toBe(0);
     expect(health.bundleOrdersRefundedUsd).toBe(0);
     expect(health.oldestBundleOrdersRefundedAgeHours).toBeNull();
+    expect(health.bundleOrdersDisputedCount).toBe(0);
+    expect(health.bundleOrdersDisputedUsd).toBe(0);
+    expect(health.oldestBundleOrdersDisputedAgeHours).toBeNull();
     expect(health.marketingPacksDueCount).toBe(0);
     expect(health.marketingPacksDueMonth).toBe("1970-01");
     expect(health.commerceCatalogsMissingCount).toBe(0);
@@ -188,6 +191,34 @@ describe("computePipelineHealth", () => {
     expect(health.bundleOrdersRefundedCount).toBe(2);
     expect(health.bundleOrdersRefundedUsd).toBe(300);
     expect(health.oldestBundleOrdersRefundedAgeHours).toBeGreaterThan(700);
+  });
+
+  it("excludes disputed bundle orders from revenueTotalUsd but keeps orderCount", () => {
+    const disputed = { ...makeOrder(300), disputedAt: "2026-07-01T00:00:00.000Z" };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500), disputed],
+      handoffs: [],
+      inquiries: [],
+      nowMs: Date.parse("2026-07-03T00:00:00.000Z"),
+    });
+    expect(health.revenueTotalUsd).toBe(500);
+    expect(health.orderCount).toBe(2);
+    expect(health.bundleOrdersDisputedCount).toBe(1);
+    expect(health.bundleOrdersDisputedUsd).toBe(300);
+    expect(health.oldestBundleOrdersDisputedAgeHours).toBe(48);
+  });
+
+  it("returns zero bundle dispute stats and null age when nothing is disputed", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500)],
+      handoffs: [],
+      inquiries: [],
+    });
+    expect(health.bundleOrdersDisputedCount).toBe(0);
+    expect(health.bundleOrdersDisputedUsd).toBe(0);
+    expect(health.oldestBundleOrdersDisputedAgeHours).toBeNull();
   });
 
   it("counts leads per stage", () => {

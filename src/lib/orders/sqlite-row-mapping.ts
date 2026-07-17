@@ -20,6 +20,7 @@ export interface SqliteOrderJoinRow {
   status: string;
   createdAt: string;
   refundedAt: string | null;
+  disputedAt: string | null;
 }
 
 /** Map a SQLite `orders` row back into the app-wide OrderRecord shape (fallback-read path). */
@@ -41,5 +42,6 @@ export function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
     status: row.status,
     createdAt: row.createdAt,
     refundedAt: row.refundedAt || undefined,
+    disputedAt: row.disputedAt || undefined,
   };
 }

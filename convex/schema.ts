@@ -58,6 +58,12 @@ export default defineSchema({
      * See bundle-order-refund-tracking.
      */
     refundedAt: v.optional(v.string()),
+    /**
+     * ISO timestamp when Stripe charge.dispute.created (or dispute.closed lost)
+     * resolved to this order's Checkout Session. Cleared on won / warning_closed.
+     * See bundle-order-dispute-tracking.
+     */
+    disputedAt: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"])

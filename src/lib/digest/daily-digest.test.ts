@@ -926,6 +926,53 @@ describe("buildDailyDigest", () => {
     expect(digest.bundleOrdersRefundedTotalUsd).toBe(0);
   });
 
+  it("lists disputed bundle orders with pre-slice count and total", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "dispute-cafe",
+          businessName: "Dispute Cafe",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "dispute-cafe",
+          tier: "complete",
+          commerceAddon: false,
+          amountPaid: 500,
+          disputedAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.bundleOrdersDisputed).toHaveLength(1);
+    expect(digest.bundleOrdersDisputed[0]).toMatchObject({
+      slug: "dispute-cafe",
+      businessName: "Dispute Cafe",
+      tier: "complete",
+      amountPaidUsd: 500,
+      disputedAt: "2026-07-13T09:00:00.000Z",
+    });
+    expect(digest.bundleOrdersDisputedCount).toBe(1);
+    expect(digest.bundleOrdersDisputedTotalUsd).toBe(500);
+    expect(digest.isEmpty).toBe(false);
+  });
+
+  it("defaults bundle order dispute fields to zero when no orders disputed", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.bundleOrdersDisputed).toHaveLength(0);
+    expect(digest.bundleOrdersDisputedCount).toBe(0);
+    expect(digest.bundleOrdersDisputedTotalUsd).toBe(0);
+  });
+
   it("lists open production handoffs (status !== live) oldest-first and skips live", () => {
     const cafe = baseLead({
       slug: "awaiting-cafe",
@@ -1429,6 +1476,35 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("$300.00");
     expect(html).toContain("Refund &lt;Shop&gt;");
     expect(html).not.toContain("Refund <Shop>");
+  });
+
+  it("renders Bundle revenue disputed section and escapes business names", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "dispute-shop",
+          businessName: "Dispute <Shop>",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "dispute-shop",
+          tier: "complete",
+          commerceAddon: false,
+          amountPaid: 500,
+          disputedAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Bundle revenue disputed");
+    expect(html).toContain("$500.00");
+    expect(html).toContain("Dispute &lt;Shop&gt;");
+    expect(html).not.toContain("Dispute <Shop>");
   });
 
   it("renders production handoffs open with escaped host and status", () => {

@@ -224,6 +224,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.bundleOrdersRefundedCount > 0}
         />
+        <MetricCard
+          label="Bundle revenue disputed"
+          value={formatUsd(health.bundleOrdersDisputedUsd)}
+          hint={
+            health.bundleOrdersDisputedCount > 0
+              ? `${health.bundleOrdersDisputedCount} Starter/Growth/Complete order${health.bundleOrdersDisputedCount === 1 ? "" : "s"} disputed by Stripe — already excluded from Recorded revenue${
+                  health.oldestBundleOrdersDisputedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersDisputedAgeHours)}`
+                    : ""
+                }`
+              : "No bundle orders disputed"
+          }
+          attention={health.bundleOrdersDisputedCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (
