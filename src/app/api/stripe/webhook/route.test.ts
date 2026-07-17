@@ -87,6 +87,8 @@ function checkoutSession(overrides: Record<string, unknown> = {}) {
     customer_details: { email: null },
     customer_email: null,
     amount_total: GROWTH_CHECKOUT_AMOUNT_CENTS,
+    // Create path always charges USD Prices — webhook currency gate requires this.
+    currency: "usd",
     customer: null,
     ...overrides,
   };
@@ -420,6 +422,24 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCheckoutSessionComplete).toHaveBeenCalledTimes(1);
       expect(recordLeadPayment).not.toHaveBeenCalled();
       expect(insertDeployHandoff).not.toHaveBeenCalled();
+    });
+
+    it("does not record payment when currency is not usd (create Price twin)", async () => {
+      // amount_total matches catalog cents but EUR minor units must not ledger as USD.
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        currency: "eur",
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalledTimes(1);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
+      expect(sendReceiptEmail).not.toHaveBeenCalled();
     });
 
     it("does not trust metadata.commerceAddon=true without Commerce Price line items", async () => {
@@ -847,6 +867,40 @@ describe("POST /api/stripe/webhook", () => {
     it("skips ledger/notify when amount_total is missing (null) despite catalog SKU match", async () => {
       constructEvent.mockReturnValue(
         completedEvent(commerceSession({ amount_total: null })),
+      );
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({
+        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+    });
+
+    it("skips ledger/notify when currency is not usd despite catalog amount match", async () => {
+      constructEvent.mockReturnValue(
+        completedEvent(commerceSession({ currency: "eur" })),
+      );
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({
+        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+    });
+
+    it("skips ledger/notify when currency is missing (null) despite catalog SKU match", async () => {
+      constructEvent.mockReturnValue(
+        completedEvent(commerceSession({ currency: null })),
       );
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({

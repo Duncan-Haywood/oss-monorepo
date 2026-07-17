@@ -8,6 +8,7 @@ import {
 } from "@/lib/commerce/checkout-fields";
 import { parseLeadSlugLookup } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
+import { isStripeCheckoutCurrencyUsd } from "@/lib/payments/checkout-currency";
 import {
   commerceAddonPriceIdsFromEnv,
   priceIdsFromStripeLineItems,
@@ -40,28 +41,31 @@ import {
  * resolveBundleCheckoutLeadSlug / sanitizeLeadSlug (MAX_LEAD_SLUG_LENGTH),
  * rejects unknown tiers via getBundle, only sets metadata.commerceAddon when
  * both COMMERCE_ADDON Price IDs are on line_items, and charges only catalog
- * Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON); this handler must
- * mirror slug/tier gates, derive commerceAddon from listLineItems Price IDs
- * (never metadata), AND require session.amount_total (integer cents) ===
- * expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon) before
- * recordLeadPayment / handoff / receipt — a truthy metadata.slug / tier /
- * commerceAddon alone is not enough (Dashboard-minted or tampered Checkout
- * Sessions). Over-long slug (parseLeadSlugLookup), unknown tier, or amount
- * mismatch skips like missing slug/tier (session already marked complete; do
- * not 5xx forever). listLineItems failures return 500 so Stripe retries.
+ * Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON) in USD; this
+ * handler must mirror slug/tier gates, derive commerceAddon from listLineItems
+ * Price IDs (never metadata), require session.currency === "usd"
+ * (isStripeCheckoutCurrencyUsd), AND require session.amount_total (integer
+ * cents) === expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon)
+ * before recordLeadPayment / handoff / receipt — a truthy metadata.slug /
+ * tier / commerceAddon alone is not enough (Dashboard-minted or tampered
+ * Checkout Sessions). Over-long slug (parseLeadSlugLookup), unknown tier,
+ * non-USD currency, or amount mismatch skips like missing slug/tier (session
+ * already marked complete; do not 5xx forever). listLineItems failures return
+ * 500 so Stripe retries.
  *
  * Commerce Buy now create already hard-rejects over-long slug via
  * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog, and
- * resolves Price from catalog.stripePriceId (never trusts a client amount);
- * the commerce_sku branch must mirror that slug length gate, catalog
- * membership gate (plus parseCommerceCheckoutSkuId length), AND require
- * session.amount_total (integer cents) === catalogItem.priceCents before
- * insertCommerceOrder / inquiry / client receipt — a truthy slug/skuId alone
- * is not enough (unknown ids must not fall back to "Catalog item"; a
- * mismatched amount must not skew payouts / client receipts; an over-long
- * slug must not burn getLeadBySlug / getCommerceCatalog). Unknown/over-long
- * slug/skuId or amount mismatch skips like missing skuId (session already
- * marked complete; do not 5xx forever).
+ * resolves Price from catalog.stripePriceId (never trusts a client amount;
+ * stripe-sync Prices are currency:"usd"); the commerce_sku branch must mirror
+ * that slug length gate, catalog membership gate (plus
+ * parseCommerceCheckoutSkuId length), require session.currency === "usd", AND
+ * require session.amount_total (integer cents) === catalogItem.priceCents
+ * before insertCommerceOrder / inquiry / client receipt — a truthy slug/skuId
+ * alone is not enough (unknown ids must not fall back to "Catalog item"; a
+ * mismatched currency/amount must not skew payouts / client receipts; an
+ * over-long slug must not burn getLeadBySlug / getCommerceCatalog).
+ * Unknown/over-long slug/skuId, non-USD currency, or amount mismatch skips
+ * like missing skuId (session already marked complete; do not 5xx forever).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -178,6 +182,18 @@ export async function POST(request: Request) {
           if (!catalogItem) {
             console.warn(
               `webhook: commerce_sku session ${session.id} for ${orderSlug} unknown skuId ${knownSkuId} — skipping ledger/inquiry/client receipt`,
+            );
+            break;
+          }
+          // Mirror Buy now create: stripe-sync Prices are currency:"usd", and
+          // amount_total is later divided by 100 into USD dollars. A
+          // Dashboard-minted session in another currency with a coincidentally
+          // equal minor-unit amount must not skew the Commerce ledger.
+          if (!isStripeCheckoutCurrencyUsd(session.currency)) {
+            console.warn(
+              `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} currency ${String(
+                session.currency,
+              )} !== usd — skipping ledger/inquiry/client receipt`,
             );
             break;
           }
@@ -409,6 +425,18 @@ export async function POST(request: Request) {
           );
           const failure = webhookFulfillmentFailureResponse("bundle_commerce_addon_line_items");
           return NextResponse.json(failure.body, { status: failure.status });
+        }
+
+        // Mirror bundle create: catalog Prices are USD; amount_total is later
+        // divided by 100 into USD dollars. Non-USD currency must not reach the
+        // ledger even when minor units match expectedBundleCheckoutAmountCents.
+        if (!isStripeCheckoutCurrencyUsd(session.currency)) {
+          console.warn(
+            `webhook: bundle session ${session.id} for ${slug} tier ${knownTier} currency ${String(
+              session.currency,
+            )} !== usd — skipping payment/handoff/receipt`,
+          );
+          break;
         }
 
         const expectedCents = expectedBundleCheckoutAmountCents(bundle, commerceAddon);
