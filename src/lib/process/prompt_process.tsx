@@ -12091,6 +12091,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/process/prompt_process.tsx — mark NEXT_STEPS email-subject-control-character-sanitization done and append the id-based business decision",
       "Process: pushed the in_progress claim commit before the feature body; no operator-gated item was changed",
       "Verified: focused resend suite (26 passed), full npm test (1967 passed across 153 files), npm run lint (clean), and npm run build under Node v22.23.1 (TypeScript clean, all 31 routes generated). Node 20 cannot load the repo's node:sqlite dependency, so the initial build was rerun with the available Node 22 runtime.",
+      "PR handoff: branch pushed, but both gh pr create and the REST pull-request endpoint were rejected with GitHub Actions token policy 'GitHub Actions is not permitted to create or approve pull requests' (HTTP 403).",
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "email-subject-control-character-sanitization",
