@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Lead } from "@/lib/leads/types";
 import type { CommerceSku } from "@/lib/commerce/types";
+import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
 import { getCategoryTheme } from "@/lib/previews/themes";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PreviewContactForm } from "./contact-form";
@@ -22,9 +23,12 @@ export function CategoryPreview({
   lead,
   commerceItems = [],
 }: CategoryPreviewProps) {
-  const theme = getCategoryTheme(lead.category);
-  const location = `${lead.city}, ${lead.state}`;
-  const showDemoBanner = isDemoPreview(lead);
+  // Soft-cap create-path free-text at read so pre-cap Convex/SQLite rows cannot
+  // emit unbounded HTML on the public preview (preview-lead-description-read-soft-cap).
+  const displayLead = softCapLeadForPublicSurface(lead);
+  const theme = getCategoryTheme(displayLead.category);
+  const location = `${displayLead.city}, ${displayLead.state}`;
+  const showDemoBanner = isDemoPreview(displayLead);
 
   return (
     <main className={theme.shellClass}>
@@ -32,7 +36,7 @@ export function CategoryPreview({
         <div className="mx-auto max-w-5xl px-6 pt-6">
           <PlaceholderBanner
             title={`${theme.label} preview`}
-            description={`This is a working Starter-style preview for ${lead.businessName}: contact form and map included. Claim it to connect your domain and go live.`}
+            description={`This is a working Starter-style preview for ${displayLead.businessName}: contact form and map included. Claim it to connect your domain and go live.`}
             docsHref="/docs/product-bundles"
           />
         </div>
@@ -43,14 +47,14 @@ export function CategoryPreview({
           {theme.heroEyebrow} · {location}
         </p>
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl sm:leading-tight">
-          {lead.businessName}
+          {displayLead.businessName}
         </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-8 text-zinc-700">{lead.tagline}</p>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">{lead.description}</p>
+        <p className="mt-5 max-w-2xl text-lg leading-8 text-zinc-700">{displayLead.tagline}</p>
+        <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">{displayLead.description}</p>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
           <Link
-            href={`/checkout?slug=${encodeURIComponent(lead.slug)}&tier=${lead.recommendedTier}`}
+            href={`/checkout?slug=${encodeURIComponent(displayLead.slug)}&tier=${displayLead.recommendedTier}`}
             className={`inline-flex h-12 items-center justify-center rounded-full px-8 font-medium transition-colors ${theme.ctaClass}`}
           >
             Claim this site — from $500
@@ -62,10 +66,10 @@ export function CategoryPreview({
             Try the contact form
           </a>
           <a
-            href={`tel:${lead.phone.replace(/\D/g, "")}`}
+            href={`tel:${displayLead.phone.replace(/\D/g, "")}`}
             className="text-sm font-medium text-zinc-700 underline-offset-4 hover:underline"
           >
-            Call {lead.phone}
+            Call {displayLead.phone}
           </a>
         </div>
       </section>
@@ -74,7 +78,7 @@ export function CategoryPreview({
         <div className={`rounded-2xl border p-6 backdrop-blur ${theme.panelClass}`}>
           <h2 className="text-lg font-semibold text-zinc-900">Services</h2>
           <ul className="mt-4 space-y-2 text-sm text-zinc-700">
-            {lead.services.map((service) => (
+            {displayLead.services.map((service) => (
               <li key={service} className="flex gap-2">
                 <span aria-hidden className={theme.accentTextClass}>
                   ·
@@ -89,20 +93,20 @@ export function CategoryPreview({
           <dl className="mt-4 space-y-3 text-sm text-zinc-700">
             <div>
               <dt className="font-medium text-zinc-900">Weekdays</dt>
-              <dd>{lead.hours.weekday}</dd>
+              <dd>{displayLead.hours.weekday}</dd>
             </div>
             <div>
               <dt className="font-medium text-zinc-900">Weekend</dt>
-              <dd>{lead.hours.weekend}</dd>
+              <dd>{displayLead.hours.weekend}</dd>
             </div>
             <div>
               <dt className="font-medium text-zinc-900">Phone</dt>
-              <dd>{lead.phone}</dd>
+              <dd>{displayLead.phone}</dd>
             </div>
             <div>
               <dt className="font-medium text-zinc-900">Area</dt>
               <dd>
-                {lead.address ? `${lead.address} · ` : null}
+                {displayLead.address ? `${displayLead.address} · ` : null}
                 {location}
               </dd>
             </div>
@@ -112,7 +116,7 @@ export function CategoryPreview({
 
       {commerceItems.length > 0 ? (
         <PreviewCommerceCatalog
-          slug={lead.slug}
+          slug={displayLead.slug}
           items={commerceItems}
           panelClass={theme.panelClass}
           accentTextClass={theme.accentTextClass}
@@ -122,23 +126,23 @@ export function CategoryPreview({
 
       <section className="mx-auto grid max-w-5xl gap-6 px-6 pb-10 lg:grid-cols-2">
         <PreviewContactForm
-          slug={lead.slug}
-          businessName={lead.businessName}
+          slug={displayLead.slug}
+          businessName={displayLead.businessName}
           panelClass={theme.panelClass}
           ctaClass={theme.ctaClass}
           accentTextClass={theme.accentTextClass}
         />
         <PreviewMapsEmbed
-          businessName={lead.businessName}
-          city={lead.city}
-          state={lead.state}
-          address={lead.address}
+          businessName={displayLead.businessName}
+          city={displayLead.city}
+          state={displayLead.state}
+          address={displayLead.address}
           panelClass={theme.panelClass}
           accentTextClass={theme.accentTextClass}
         />
       </section>
 
-      <TierUpsell lead={lead} />
+      <TierUpsell lead={displayLead} />
     </main>
   );
 }
