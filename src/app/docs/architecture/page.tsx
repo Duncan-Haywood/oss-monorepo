@@ -550,7 +550,12 @@ export default function ArchitectureDocPage() {
         (lead + <code>listOrdersByLeadSlug</code>) before minting Sessions or
         refreshing Stripe Prices — catalog row + <code>stripePriceId</code> alone
         is not enough (create-path returns <code>403</code>; sync returns{" "}
-        <code>success: false</code>).{" "}
+        <code>success: false</code>). The{" "}
+        <code>commerce_sku</code> webhook branch must use that same predicate
+        before <code>insertCommerceOrder</code> / inquiry / client receipt —
+        Dashboard-minted or pre-pause Sessions must not ledger pass-through
+        revenue after CRM pause (missing lead or ineligible skips like unknown
+        sku; session already <code>markComplete</code>).{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}
@@ -1288,10 +1293,11 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>usd</code> (<code>isStripeCheckoutCurrencyUsd</code> — Buy now Prices are synced
         as USD), or whose <code>amount_total</code> (integer cents) does not equal the catalog
         item&apos;s <code>priceCents</code> skip ledger and side effects entirely (warn + break)
-        — Buy now create already hard-rejects over-long slugs, 404s unknown catalog items, and
-        charges only the catalog <code>stripePriceId</code> in USD; the webhook must not burn{" "}
+        — Buy now create already hard-rejects over-long slugs, 404s unknown catalog items,
+        requires <code>leadEligibleForCommerceCatalog</code>, and charges only the catalog{" "}
+        <code>stripePriceId</code> in USD; the webhook must not burn{" "}
         <code>getLeadBySlug</code> / <code>getCommerceCatalog</code> on a multi-KB slug, fall
-        back to a generic &quot;Catalog item&quot; name, or trust a different Price / non-USD /
+        back to a generic &quot;Catalog item&quot; name, ledger after CRM pause/cancel, or trust a different Price / non-USD /
         mismatched Stripe amount and still write fulfillment. The alreadyRecorded gate cannot
         run without a bounded slug and a known SKU charged at the catalog USD Price. Pipeline health
         surfaces the total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales

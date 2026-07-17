@@ -80,21 +80,24 @@ import {
  * forever). listLineItems failures return 500 so Stripe retries.
  *
  * Commerce Buy now create already hard-rejects over-long slug via
- * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog, and
- * resolves Price from catalog.stripePriceId (never trusts a client amount;
- * stripe-sync Prices are currency:"usd"); the commerce_sku branch must mirror
- * that slug length gate, catalog membership gate (plus
- * parseCommerceCheckoutSkuId length), require catalog.stripePriceId on
- * listLineItems, require session.currency === "usd", AND require
- * session.amount_total (integer cents) === catalogItem.priceCents before
- * insertCommerceOrder / inquiry / client receipt — a truthy slug/skuId alone
- * is not enough (unknown ids must not fall back to "Catalog item"; a
- * mismatched Price/currency/amount must not skew payouts / client receipts;
- * an over-long slug must not burn getLeadBySlug / getCommerceCatalog).
- * Unknown/over-long slug/skuId, missing/unsynced stripePriceId, Price not on
- * line items, non-USD currency, or amount mismatch skips like missing skuId
- * (session already marked complete; do not 5xx forever). listLineItems
- * failures return 500 so Stripe retries.
+ * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog,
+ * requires leadEligibleForCommerceCatalog (getLeadBySlug +
+ * listOrdersByLeadSlug), and resolves Price from catalog.stripePriceId
+ * (never trusts a client amount; stripe-sync Prices are currency:"usd"); the
+ * commerce_sku branch must mirror that slug length gate, CRM entitlement
+ * gate, catalog membership gate (plus parseCommerceCheckoutSkuId length),
+ * require catalog.stripePriceId on listLineItems, require session.currency
+ * === "usd", AND require session.amount_total (integer cents) ===
+ * catalogItem.priceCents before insertCommerceOrder / inquiry / client
+ * receipt — a truthy slug/skuId alone is not enough (unknown ids must not
+ * fall back to "Catalog item"; a paused/canceled Commerce subscriber must
+ * not ledger pass-through revenue; a mismatched Price/currency/amount must
+ * not skew payouts / client receipts; an over-long slug must not burn
+ * getLeadBySlug / getCommerceCatalog). Unknown/over-long slug/skuId, missing
+ * lead, !leadEligibleForCommerceCatalog, missing/unsynced stripePriceId,
+ * Price not on line items, non-USD currency, or amount mismatch skips like
+ * missing skuId (session already marked complete; do not 5xx forever).
+ * listLineItems failures return 500 so Stripe retries.
  *
  * Async payment methods (ACH, bank transfer, etc.) fire
  * checkout.session.completed with payment_status !== "paid" while
@@ -255,9 +258,13 @@ export async function POST(request: Request) {
             insertClientInquiry,
             insertCommerceOrder,
             listCommerceCheckoutInquiriesBySlug,
+            listOrdersByLeadSlug,
             markCommerceOrderClientReceiptSent,
           } = await import("@/lib/db");
-          const { commerceOrderPaidInquiryMessage } = await import("@/lib/commerce/catalog");
+          const {
+            commerceOrderPaidInquiryMessage,
+            leadEligibleForCommerceCatalog,
+          } = await import("@/lib/commerce/catalog");
           const {
             hasCommerceClientReceiptSentMarker,
             planCommerceWebhookSideEffects,
@@ -266,6 +273,23 @@ export async function POST(request: Request) {
             getLeadBySlug(orderSlug),
             getCommerceCatalog(orderSlug),
           ]);
+          // Mirror POST /api/commerce/checkout entitlement: catalog+Price alone
+          // is not enough after CRM pause/cancel (#348 create/sync). Missing
+          // lead or !leadEligibleForCommerceCatalog → skip like unknown sku
+          // (session already markComplete; do not 5xx forever).
+          if (!lead) {
+            console.warn(
+              `webhook: commerce_sku session ${session.id} for ${orderSlug} missing lead — skipping ledger/inquiry/client receipt`,
+            );
+            break;
+          }
+          const orders = await listOrdersByLeadSlug(orderSlug);
+          if (!leadEligibleForCommerceCatalog(lead, orders)) {
+            console.warn(
+              `webhook: commerce_sku session ${session.id} for ${orderSlug} CRM entitlement paused/canceled — skipping ledger/inquiry/client receipt`,
+            );
+            break;
+          }
           const catalogItem = catalog?.items.find((item) => item.id === knownSkuId);
           if (!catalogItem) {
             console.warn(
@@ -333,7 +357,7 @@ export async function POST(request: Request) {
           }
           const amountPaidUsd = amountCents / 100;
           const skuName = catalogItem.name;
-          const businessName = lead?.businessName || orderSlug;
+          const businessName = lead.businessName || orderSlug;
 
           // Ledger first — commerceOrders is idempotent on stripeSessionId.
           // Inquiry + client receipt are NOT; recover them on Stripe
