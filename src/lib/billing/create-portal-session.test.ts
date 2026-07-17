@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OrderRecord } from "@/lib/orders/types";
 import {
   createBillingPortalForCheckoutSession,
@@ -63,6 +63,25 @@ beforeEach(() => {
 });
 
 describe("createBillingPortalForLead", () => {
+  const prevGrowth = process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+  const prevCommerceSetup = process.env.STRIPE_PRICE_ID_COMMERCE_SETUP;
+  const prevCommerceMonthly = process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;
+
+  beforeEach(() => {
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+    process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
+    process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
+  });
+
+  afterEach(() => {
+    if (prevGrowth === undefined) delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    else process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = prevGrowth;
+    if (prevCommerceSetup === undefined) delete process.env.STRIPE_PRICE_ID_COMMERCE_SETUP;
+    else process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = prevCommerceSetup;
+    if (prevCommerceMonthly === undefined) delete process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;
+    else process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = prevCommerceMonthly;
+  });
+
   it("rejects an empty slug without touching Stripe or the order store", async () => {
     const stripe = fakeStripe();
     const result = await createBillingPortalForLead(stripe, "   ", "https://app/return");
@@ -91,10 +110,12 @@ describe("createBillingPortalForLead", () => {
     if (!result.ok) expect(result.status).toBe(404);
   });
 
-  it("uses the order's stored stripeCustomerId without calling Stripe to resolve it", async () => {
-    listOrdersByLeadSlug.mockResolvedValue([baseOrder({ stripeCustomerId: "cus_stored" })]);
+  it("404s when the CRM-eligible order has no stripeSessionId (cannot re-prove)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      baseOrder({ stripeCustomerId: "cus_stored", stripeSessionId: "" }),
+    ]);
     const retrieve = vi.fn();
-    const create = vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+    const create = vi.fn();
     const stripe = fakeStripe({
       checkout: { sessions: { retrieve } },
       billingPortal: { sessions: { create } },
@@ -102,97 +123,213 @@ describe("createBillingPortalForLead", () => {
 
     const result = await createBillingPortalForLead(stripe, "demo-cafe", "https://app/return");
 
-    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
     expect(retrieve).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(404);
+      expect(result.error).toMatch(/Checkout Session/);
+    }
+  });
+
+  it("does not open portal from CRM tier alone when Session has a foreign recurring Price", async () => {
+    // Twin of #339 Session path — CRM growth + stored customer is not enough.
+    listOrdersByLeadSlug.mockResolvedValue([
+      baseOrder({ tier: "growth", stripeCustomerId: "cus_stored", stripeSessionId: "cs_foreign" }),
+    ]);
+    const create = vi.fn();
+    const listLineItems = vi.fn().mockResolvedValue({
+      data: [{ price: { id: "price_foreign_recurring" } }],
+    });
+    const stripe = fakeStripe({
+      checkout: {
+        sessions: {
+          retrieve: vi.fn().mockResolvedValue({
+            status: "complete",
+            payment_status: "paid",
+            mode: "subscription",
+            customer: "cus_from_session",
+          }),
+          listLineItems,
+        },
+      },
+      billingPortal: { sessions: { create } },
+    });
+
+    const result = await createBillingPortalForLead(stripe, "demo-cafe", "https://app/return");
+
+    expect(listLineItems).toHaveBeenCalledWith("cs_foreign", { limit: 100 });
+    expect(create).not.toHaveBeenCalled();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(400);
+      expect(result.error).toMatch(/subscription/);
+    }
+  });
+
+  it("opens portal when Session proves catalog recurring Price (prefers Session customer)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      baseOrder({
+        tier: "growth",
+        stripeCustomerId: "cus_stale_crm",
+        stripeSessionId: "cs_growth",
+      }),
+    ]);
+    const create = vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+    const listLineItems = vi.fn().mockResolvedValue({
+      data: [
+        { price: { id: "price_growth_setup" } },
+        { price: { id: "price_growth_monthly" } },
+      ],
+    });
+    const stripe = fakeStripe({
+      checkout: {
+        sessions: {
+          retrieve: vi.fn().mockResolvedValue({
+            status: "complete",
+            payment_status: "paid",
+            mode: "subscription",
+            customer: "cus_from_session",
+          }),
+          listLineItems,
+        },
+      },
+      billingPortal: { sessions: { create } },
+    });
+
+    const result = await createBillingPortalForLead(stripe, "demo-cafe", "https://app/return");
+
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+    expect(listLineItems).toHaveBeenCalledWith("cs_growth", { limit: 100 });
     expect(create).toHaveBeenCalledWith({
-      customer: "cus_stored",
+      customer: "cus_from_session",
       return_url: "https://app/return",
     });
     expect(result).toEqual({ ok: true, url: "https://billing.stripe.com/session/1" });
   });
 
-  it("falls back to retrieving the Checkout Session when no customer id is stored", async () => {
+  it("400s when the Checkout Session is complete but unpaid (async ACH)", async () => {
     listOrdersByLeadSlug.mockResolvedValue([
-      baseOrder({ stripeCustomerId: undefined, stripeSessionId: "cs_42" }),
+      baseOrder({ stripeCustomerId: "cus_stored", stripeSessionId: "cs_unpaid" }),
     ]);
-    const retrieve = vi.fn().mockResolvedValue({ customer: { id: "cus_from_session" } });
-    const stripe = fakeStripe({ checkout: { sessions: { retrieve } } });
+    const create = vi.fn();
+    const listLineItems = vi.fn();
+    const stripe = fakeStripe({
+      checkout: {
+        sessions: {
+          retrieve: vi.fn().mockResolvedValue({
+            status: "complete",
+            payment_status: "unpaid",
+            mode: "subscription",
+            customer: "cus_from_session",
+          }),
+          listLineItems,
+        },
+      },
+      billingPortal: { sessions: { create } },
+    });
 
     const result = await createBillingPortalForLead(stripe, "demo-cafe", "https://app/return");
 
-    expect(retrieve).toHaveBeenCalledWith("cs_42");
-    expect(result.ok).toBe(true);
-    if (result.ok) expect(result.url).toBe("https://billing.stripe.com/session/1");
-  });
-
-  it("404s when the Checkout Session retrieve throws and no customer id can be resolved", async () => {
-    listOrdersByLeadSlug.mockResolvedValue([baseOrder({ stripeCustomerId: undefined })]);
-    const retrieve = vi.fn().mockRejectedValue(new Error("Stripe unavailable"));
-    const stripe = fakeStripe({ checkout: { sessions: { retrieve } } });
-
-    const result = await createBillingPortalForLead(stripe, "demo-cafe", "https://app/return");
-
+    expect(listLineItems).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.status).toBe(404);
-      expect(result.error).toMatch(/Could not resolve a Stripe Customer/);
+      expect(result.status).toBe(400);
+      expect(result.error).toMatch(/not paid/);
     }
   });
 
-  it("404s when neither a stored customer id nor a stripeSessionId is available", async () => {
+  it("502s when listLineItems fails on the lead Session path", async () => {
     listOrdersByLeadSlug.mockResolvedValue([
-      baseOrder({ stripeCustomerId: undefined, stripeSessionId: "" }),
+      baseOrder({ stripeCustomerId: "cus_stored", stripeSessionId: "cs_1" }),
     ]);
-    const retrieve = vi.fn();
-    const stripe = fakeStripe({ checkout: { sessions: { retrieve } } });
+    const create = vi.fn();
+    const stripe = fakeStripe({
+      checkout: {
+        sessions: {
+          retrieve: vi.fn().mockResolvedValue({
+            status: "complete",
+            payment_status: "paid",
+            mode: "subscription",
+            customer: "cus_from_session",
+          }),
+          listLineItems: vi.fn().mockRejectedValue(new Error("stripe line items down")),
+        },
+      },
+      billingPortal: { sessions: { create } },
+    });
 
     const result = await createBillingPortalForLead(stripe, "demo-cafe", "https://app/return");
 
-    expect(retrieve).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.status).toBe(404);
+    if (!result.ok) {
+      expect(result.status).toBe(502);
+      expect(result.error).toMatch(/catalog recurring line items/);
+    }
   });
 
-  it("502s when Stripe does not return a portal url", async () => {
-    listOrdersByLeadSlug.mockResolvedValue([baseOrder({ stripeCustomerId: "cus_stored" })]);
+  it("502s when checkout.sessions.retrieve throws", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      baseOrder({ stripeCustomerId: undefined, stripeSessionId: "cs_1" }),
+    ]);
     const stripe = fakeStripe({
-      billingPortal: { sessions: { create: vi.fn().mockResolvedValue({ url: null }) } },
-    });
-
-    const result = await createBillingPortalForLead(stripe, "demo-cafe", "https://app/return");
-
-    expect(result).toEqual({
-      ok: false,
-      error: "Stripe did not return a billing portal URL",
-      status: 502,
-    });
-  });
-
-  it("502s when billingPortal.sessions.create throws", async () => {
-    listOrdersByLeadSlug.mockResolvedValue([baseOrder({ stripeCustomerId: "cus_stored" })]);
-    const stripe = fakeStripe({
-      billingPortal: {
-        sessions: { create: vi.fn().mockRejectedValue(new Error("card declined")) },
+      checkout: {
+        sessions: { retrieve: vi.fn().mockRejectedValue(new Error("Stripe unavailable")) },
       },
     });
 
     const result = await createBillingPortalForLead(stripe, "demo-cafe", "https://app/return");
 
-    expect(result).toEqual({ ok: false, error: "card declined", status: 502 });
+    expect(result).toEqual({ ok: false, error: "Stripe unavailable", status: 502 });
   });
 
-  it("prefers a Commerce add-on order over an ineligible Starter order", async () => {
+  it("prefers a Commerce add-on order and proves Commerce Prices on that Session", async () => {
     listOrdersByLeadSlug.mockResolvedValue([
-      baseOrder({ id: "o2", tier: "starter", commerceAddon: true, stripeCustomerId: "cus_commerce" }),
-      baseOrder({ id: "o1", tier: "starter", commerceAddon: false, stripeCustomerId: "cus_starter" }),
+      baseOrder({
+        id: "o2",
+        tier: "starter",
+        commerceAddon: true,
+        stripeCustomerId: "cus_commerce",
+        stripeSessionId: "cs_commerce",
+      }),
+      baseOrder({
+        id: "o1",
+        tier: "starter",
+        commerceAddon: false,
+        stripeCustomerId: "cus_starter",
+        stripeSessionId: "cs_starter",
+      }),
     ]);
     const create = vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
-    const stripe = fakeStripe({ billingPortal: { sessions: { create } } });
+    const listLineItems = vi.fn().mockResolvedValue({
+      data: [
+        { price: { id: "price_starter_setup" } },
+        { price: { id: "price_commerce_setup" } },
+        { price: { id: "price_commerce_monthly" } },
+      ],
+    });
+    const stripe = fakeStripe({
+      checkout: {
+        sessions: {
+          retrieve: vi.fn().mockResolvedValue({
+            status: "complete",
+            payment_status: "paid",
+            mode: "subscription",
+            customer: "cus_from_commerce_session",
+          }),
+          listLineItems,
+        },
+      },
+      billingPortal: { sessions: { create } },
+    });
 
     await createBillingPortalForLead(stripe, "demo-cafe", "https://app/return");
 
+    expect(listLineItems).toHaveBeenCalledWith("cs_commerce", { limit: 100 });
     expect(create).toHaveBeenCalledWith({
-      customer: "cus_commerce",
+      customer: "cus_from_commerce_session",
       return_url: "https://app/return",
     });
   });
