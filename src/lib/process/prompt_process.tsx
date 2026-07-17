@@ -147,11 +147,11 @@ export const AGENT_PROTOCOL = [
   "After a dated clean pass on Convex API map + durable-marker-after-unchecked-await, lock the map with Vitest (src/lib/db/convex-api-map-audit.ts — scans convex/*.ts public query/mutation exports vs the static `const api` map in db.ts, allowlisting only deliberate orphans orders.createOrder / orders.getByStripeSessionId) rather than re-prose the same axes on the next empty-backlog run. A missing registration is a silent multi-instance split-brain; a failing test catches it before merge. Next empty-backlog after clean-audit-2026-07-16-convex-map-marker-await: prefer (1) a stuck CLI remote with a complete sold/security body and no open PR, (2) the next sold hot-path residual / public whole-body JSON byte bounds, (3) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — not a 3rd identical map/marker prose audit. Reject invent-optional-aggregate / workNextCount / registering the deliberate orders.* orphans.",
   "Public JSON POST routes (stripe/commerce checkout, billing-portal, contact, preview-open, and auth-gated marketing/generate when OPERATOR_DASHBOARD_PASSWORD may be unset) must hard-reject raw bodies over MAX_PUBLIC_JSON_BODY_BYTES (32_768) via readJsonBodyWithByteLimit / contentLengthExceedsLimit (src/lib/security/json-body.ts) before JSON.parse — field-level caps alone still allocate unbounded request.json(). Soft-cap is wrong (would change parsed fields); fail closed with 400. Empty body stays allowed on preview-open (invalid_json → server now). Skip Stripe webhook (signed request.text()). After per-field size sinks close, prefer whole-body byte bounds before inventing another dated clean-audit (public-json-body-byte-length-cap).",
   "Public form-urlencoded / multipart POST twins (POST /api/contact/[slug]) must share the same whole-body ceiling via readFormBodyWithByteLimit / MAX_PUBLIC_REQUEST_BODY_BYTES — Content-Length pre-check alone is not enough when the header is missing or understated (request.formData() still allocates). Bound with arrayBuffer byteLength, rebuild a Request, then parse FormData. Soft-cap is wrong; fail closed with 400. Login server-action FormData stays field-capped (password/next) because Next parses the multipart body before the action runs. After a public JSON whole-body bound ships, immediately close the FormData twin before inventing another dated clean-audit (public-formdata-body-byte-length-cap).",
-  "After checkout create enum-gates a Stripe metadata field (getBundle(tier), kind=commerce_sku catalog membership, commerceAddon line_items, etc.), the webhook consumer must enforce the same gate before durable fulfillment writes — create-path validation alone does not cover Dashboard-minted or tampered Checkout Sessions. Bundle getBundle + parseLeadSlugLookup + commerceAddon↔line-item Price IDs + amount↔expectedBundleCheckoutAmountCents + Commerce catalog membership + amount↔priceCents + parseCommerceCheckoutSlug gates are shipped; billing-portal session path also derives commerceAddon from listLineItems when mode !== subscription (billing-portal-session-commerceAddon-line-item-parity) and ignores metadata.tier on payment mode via checkoutSessionEligibleForBillingPortal (billing-portal-session-payment-mode-tier-metadata-trust; success-page twin included). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) commerce-webhook-currency-usd-gate or success-page commerceAddon line-item SSR twin / next sold residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit.",
+  "After checkout create enum-gates a Stripe metadata field (getBundle(tier), kind=commerce_sku catalog membership, commerceAddon line_items, etc.), the webhook consumer must enforce the same gate before durable fulfillment writes — create-path validation alone does not cover Dashboard-minted or tampered Checkout Sessions. Bundle getBundle + parseLeadSlugLookup + commerceAddon↔line-item Price IDs + amount↔expectedBundleCheckoutAmountCents + Commerce catalog membership + amount↔priceCents + parseCommerceCheckoutSlug gates are shipped; billing-portal session path and loadCheckoutSuccessSession both derive commerceAddon from listLineItems when mode !== subscription (billing-portal-session-commerceAddon-line-item-parity + success-page-commerceAddon-line-item-parity) and ignore metadata.tier on payment mode via checkoutSessionEligibleForBillingPortal (billing-portal-session-payment-mode-tier-metadata-trust). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) commerce-webhook-currency-usd-gate / next sold residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit.",
   "Commerce Buy now checkout create hard-rejects over-long slug via parseCommerceCheckoutSlug, 404s when metadata.skuId is not in the lead catalog, and resolves Price from catalog.stripePriceId (never trusts a client amount); the commerce_sku webhook branch must mirror that slug length gate, catalog membership gate (plus parseCommerceCheckoutSkuId length), AND require session.amount_total (integer cents) === catalogItem.priceCents before insertCommerceOrder / inquiry / client receipt — a truthy slug/skuId alone is not enough (unknown ids must not fall back to \"Catalog item\"; a mismatched amount must not skew payouts / client receipts; an over-long slug must not burn getLeadBySlug / getCommerceCatalog). Unknown/over-long slug/skuId or amount mismatch skips like missing skuId (session already marked complete; do not 5xx forever).",
   "Bundle checkout create sanitizes+caps slug via resolveBundleCheckoutLeadSlug / sanitizeLeadSlug (MAX_LEAD_SLUG_LENGTH=63); the bundle checkout.session.completed branch must mirror that ceiling via parseLeadSlugLookup before recordLeadPayment / handoff / receipt — a truthy metadata.slug alone is not enough (Dashboard-minted multi-KB slugs must not mint oversized paid stub leads). Over-long/missing skips like unknown tier (session already marked complete; do not 5xx forever). After shipping a Commerce webhook slug length gate, immediately audit the bundle webhook slug twin before inventing another dated clean-audit (bundle-webhook-slug-lookup-gate).",
   "Bundle checkout create charges only catalog Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON); the bundle checkout.session.completed branch must require session.amount_total (integer cents) === expectedBundleCheckoutAmountCents(bundle, commerceAddon) before recordLeadPayment / handoff / receipt — a getBundle-known tier alone is not enough (Dashboard-minted sessions with a different Price must not skew revenueTotalUsd / receipt amounts). Mismatch/missing/non-integer skips like unknown tier (session already marked complete; do not 5xx forever). After shipping Commerce amount↔priceCents parity, immediately audit the bundle amount↔catalog twin (bundle-webhook-amount-catalog-parity). Derive commerceAddon from listLineItems before this amount check so metadata cannot inflate/deflate expectedCents.",
-  "Bundle checkout create only sets metadata.commerceAddon when both COMMERCE_ADDON Price IDs are on line_items; the bundle checkout.session.completed branch must derive commerceAddon from stripe.checkout.sessions.listLineItems Price IDs (both setup+monthly env Prices present via resolveCommerceAddonFromLineItems) before amount parity + recordLeadPayment / handoff — a truthy metadata.commerceAddon alone is not enough (forged true unlocks catalog + Billing Portal and blocks Starter upsell without the $300+$49/mo charge; forged false withholds a paid add-on). Missing Commerce Price env → fail closed false (create already 501s). listLineItems failures return 500 so Stripe retries (bundle-webhook-commerceAddon-line-item-parity). createBillingPortalForCheckoutSession must use the same line-item derive when mode !== subscription before eligibility (billing-portal-session-commerceAddon-line-item-parity); list failures return 502 for customer retry. Payment-mode Session paths must also ignore metadata.tier — use checkoutSessionEligibleForBillingPortal (subscription OR proven commerceAddon only; billing-portal-session-payment-mode-tier-metadata-trust) on both the portal API and loadCheckoutSuccessSession twin.",] as const;
+  "Bundle checkout create only sets metadata.commerceAddon when both COMMERCE_ADDON Price IDs are on line_items; the bundle checkout.session.completed branch must derive commerceAddon from stripe.checkout.sessions.listLineItems Price IDs (both setup+monthly env Prices present via resolveCommerceAddonFromLineItems) before amount parity + recordLeadPayment / handoff — a truthy metadata.commerceAddon alone is not enough (forged true unlocks catalog + Billing Portal and blocks Starter upsell without the $300+$49/mo charge; forged false withholds a paid add-on). Missing Commerce Price env → fail closed false (create already 501s). listLineItems failures return 500 so Stripe retries (bundle-webhook-commerceAddon-line-item-parity). createBillingPortalForCheckoutSession and loadCheckoutSuccessSession must use the same line-item derive when mode !== subscription before eligibility / showBillingPortal (billing-portal-session-commerceAddon-line-item-parity + success-page-commerceAddon-line-item-parity); portal list failures return 502 for customer retry; success SSR list failures fail closed to hide the CTA. Payment-mode Session paths must also ignore metadata.tier — use checkoutSessionEligibleForBillingPortal (subscription OR proven commerceAddon only; billing-portal-session-payment-mode-tier-metadata-trust).",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2460,6 +2460,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-0329",
+  },
+  {
+    id: "success-page-commerceAddon-line-item-parity",
+    summary:
+      "Empty-backlog after PR #331 (billing-portal-session-payment-mode-tier-metadata-trust). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual twin: loadCheckoutSuccessSession still uses metadata.commerceAddon === \"true\" as the soft SSR hint for showBillingPortal on payment mode, while createBillingPortalForCheckoutSession already derives commerceAddon from listLineItems. A Dashboard-minted payment-mode Starter session with forged commerceAddon metadata can surface Manage billing on /checkout/success even though the portal API would 400. Derive commerceAddon from listLineItems Price IDs (reuse resolveCommerceAddonFromLineItems) before checkoutSessionEligibleForBillingPortal; do not trust metadata.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-1924",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5140,6 +5148,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Checkout-Session Billing Portal eligibility (createBillingPortalForCheckoutSession + loadCheckoutSuccessSession) must use checkoutSessionEligibleForBillingPortal — subscription mode OR proven commerceAddon only — never metadata.tier on payment mode. Create path never emits payment+growth/complete (hasRecurring); trusting tier only helped Dashboard-minted/tampered sessions open Manage billing / show the success CTA without a recurring Price.",
     rationale:
       "Empty-backlog after PR #329; sibling d518 shipped billing-portal-session-commerceAddon-line-item-parity (folded). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh complementary residual: payment-mode path still called orderEligibleForBillingPortal({ tier, commerceAddon }), so forged metadata.tier=growth|complete opened portal (and surfaced Manage subscription on /checkout/success) even with commerceAddon=false and no Commerce Prices. Process improvement: after hardening one Session metadata flag (commerceAddon↔line items), immediately audit the sibling metadata.tier trust on the same payment-mode branch — and mirror the helper on the success SSR twin. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped / commerce-webhook-currency-usd-gate / success-page commerceAddon line-item SSR twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "loadCheckoutSuccessSession must derive commerceAddon from Checkout listLineItems Price IDs (reuse resolveCommerceAddonFromLineItems) when mode !== subscription before checkoutSessionEligibleForBillingPortal / showBillingPortal — never trust metadata.commerceAddon as an SSR soft hint. Missing Commerce Price env fails closed to false; listLineItems failures hide the Manage billing CTA (buyer can refresh; portal API returns 502 on the same failure).",
+    rationale:
+      "Empty-backlog after PR #331 (billing-portal-session-payment-mode-tier-metadata-trust). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual twin: portal API already line-item-gates commerceAddon, but /checkout/success still surfaced Manage billing from forged metadata.commerceAddon on payment mode — UI/API entitlement drift. mode === subscription skips the round-trip (same as portal). Process improvement: after hardening a Session entitlement flag on the API path, immediately close the SSR twin that decides whether to show the CTA — soft hints that disagree with the API are false affordances. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped / commerce-webhook-currency-usd-gate. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -10222,7 +10237,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1607 passed = main@#323's 1604 + 3 commerce catalog-gate regressions) + lint",
     ],
     // Object-parse: commerce catalog gate owns BD[374]; tier enum=373.
-    decisions: BUSINESS_DECISIONS.slice(373, 374),
+    decisions: BUSINESS_DECISIONS.slice(374, 375),
   },
   {
     date: "2026-07-16",
@@ -10236,11 +10251,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Commerce webhook amount↔catalog priceCents beside catalog membership",
       "AGENT_PROTOCOL — Commerce webhook must mirror Buy now create Price (amount_total === priceCents)",
       "NEXT_STEPS: commerce-webhook-amount-catalog-parity done; commerce-webhook-sku-catalog-gate done (ffdb / #324)",
-      "BUSINESS_DECISIONS — require amount↔priceCents on commerce_sku webhook (absolute index 374)",
+      "BUSINESS_DECISIONS — require amount↔priceCents on commerce_sku webhook (absolute index 375)",
       "Verified: npm test (1609 passed = main@#324's 1607 + 2 amount mismatch/null regressions) + lint",
     ],
     // Object-parse: commerce amount parity owns BD[375]; catalog membership=374.
-    decisions: BUSINESS_DECISIONS.slice(374, 375),
+    decisions: BUSINESS_DECISIONS.slice(375, 376),
   },
   {
     date: "2026-07-16",
@@ -10253,11 +10268,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Commerce webhook slug length gate beside skuId/catalog/amount",
       "AGENT_PROTOCOL — Commerce webhook must mirror Buy now create slug hard-reject before fulfillment writes",
       "NEXT_STEPS: commerce-webhook-slug-lookup-gate done",
-      "BUSINESS_DECISIONS — require parseCommerceCheckoutSlug on commerce_sku webhook (absolute index 375)",
+      "BUSINESS_DECISIONS — require parseCommerceCheckoutSlug on commerce_sku webhook (absolute index 376)",
       "Verified: npm test (1611 passed = main@#325's 1609 + 2 slug-gate regressions) + lint",
     ],
     // Object-parse: commerce slug lookup owns BD[376]; commerce amount=375.
-    decisions: BUSINESS_DECISIONS.slice(375, 376),
+    decisions: BUSINESS_DECISIONS.slice(376, 377),
   },
   {
     date: "2026-07-16",
@@ -10271,11 +10286,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes bundle webhook slug length gate beside getBundle tier enum",
       "AGENT_PROTOCOL — bundle webhook must mirror create-path MAX_LEAD_SLUG_LENGTH; after Commerce slug gate, audit bundle twin",
       "NEXT_STEPS: bundle-webhook-slug-lookup-gate done; commerce-webhook-slug-lookup-gate done (2ecd / #326)",
-      "BUSINESS_DECISIONS — require parseLeadSlugLookup on bundle webhook (absolute index 376)",
+      "BUSINESS_DECISIONS — require parseLeadSlugLookup on bundle webhook (absolute index 377)",
       "Verified: npm test (1613 passed = main@#326's 1611 + 2 bundle slug-gate regressions) + lint",
     ],
     // Object-parse: bundle slug lookup owns BD[377]; commerce slug=376.
-    decisions: BUSINESS_DECISIONS.slice(376, 377),
+    decisions: BUSINESS_DECISIONS.slice(377, 378),
   },
   {
     date: "2026-07-16",
@@ -10290,12 +10305,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes bundle webhook amount↔catalog cents beside tier/slug gates",
       "AGENT_PROTOCOL — bundle webhook must mirror create-path catalog Price amounts; after Commerce amount parity, audit bundle twin",
       "NEXT_STEPS: bundle-webhook-amount-catalog-parity done",
-      "BUSINESS_DECISIONS — require amount↔expectedBundleCheckoutAmountCents on bundle webhook (absolute index 377)",
+      "BUSINESS_DECISIONS — require amount↔expectedBundleCheckoutAmountCents on bundle webhook (absolute index 378)",
       "Verified: npm test (1616 passed = main@#327's 1613 + 3 amount-parity regressions) + lint",
-      "Process: tightened ITERATIONS decision slices ba14→e067 via object-parse (API src-utm=367 … bundle slug=376) before appending ours",
+      "Process: tightened ITERATIONS decision slices ba14→e067 via object-parse (API src-utm=367 … bundle slug=377) before appending ours",
     ],
     // Object-parse: bundle amount parity owns BD[378]; bundle slug=377.
-    decisions: BUSINESS_DECISIONS.slice(377, 378),
+    decisions: BUSINESS_DECISIONS.slice(378, 379),
   },
   {
     date: "2026-07-16",
@@ -10312,11 +10327,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes commerceAddon↔line-item Price parity beside amount/slug/tier gates",
       "AGENT_PROTOCOL — bundle webhook must derive commerceAddon from line items before amount parity; audit billing-portal metadata twin next",
       "NEXT_STEPS: bundle-webhook-commerceAddon-line-item-parity done; bundle-webhook-amount-catalog-parity done (5a8c / #328)",
-      "BUSINESS_DECISIONS — require listLineItems commerceAddon parity on bundle webhook (absolute index 378; amount parity owns 377)",
+      "BUSINESS_DECISIONS — require listLineItems commerceAddon parity on bundle webhook (absolute index 379; amount parity owns 378)",
       "Verified: npm test + lint after fold",
     ],
-    // Object-parse: webhook commerceAddon line-item parity owns BD[378]; amount parity=377; bundle slug=376.
-    decisions: BUSINESS_DECISIONS.slice(378, 379),  },
+    // Object-parse: webhook commerceAddon line-item parity owns BD[379]; amount parity=378; bundle slug=377.
+    decisions: BUSINESS_DECISIONS.slice(379, 380),
+  },
   {
     date: "2026-07-17",
     branch: "cursor/business-process-evolution-d518",
@@ -10329,12 +10345,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes billing-portal commerceAddon↔line-item Price parity beside webhook gate",
       "AGENT_PROTOCOL — portal session path must mirror webhook commerceAddon line-item derive; next prefers currency gate / stuck CLI / escapeHtml·webhook·uncapped",
       "NEXT_STEPS: billing-portal-session-commerceAddon-line-item-parity done",
-      "BUSINESS_DECISIONS — require listLineItems commerceAddon parity on billing-portal session path (absolute index 379; webhook line-item parity owns 378)",
-      "Process: tightened ITERATIONS decision slices via object-parse (webhook line-item=378) before appending ours",
+      "BUSINESS_DECISIONS — require listLineItems commerceAddon parity on billing-portal session path (absolute index 380; webhook line-item parity owns 379)",
+      "Process: tightened ITERATIONS decision slices via object-parse (webhook line-item=379) before appending ours",
       "Verified: npm test + lint",
     ],
-    // Object-parse: portal commerceAddon line-item parity owns BD[379]; webhook line-item=378.
-    decisions: BUSINESS_DECISIONS.slice(379, 380),
+    // Object-parse: portal commerceAddon line-item parity owns BD[380]; webhook line-item=379.
+    decisions: BUSINESS_DECISIONS.slice(380, 381),
   },
   {
     date: "2026-07-17",
@@ -10352,12 +10368,30 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes payment-mode tier ignore beside commerceAddon line-item derive",
       "AGENT_PROTOCOL — payment-mode Session path must ignore metadata.tier; audit after commerceAddon line-item parity",
       "NEXT_STEPS: billing-portal-session-payment-mode-tier-metadata-trust done; billing-portal-session-commerceAddon-line-item-parity done (d518)",
-      "BUSINESS_DECISIONS — ignore payment-mode metadata.tier for Session portal eligibility (absolute index 380)",
-      "Process: tightened 7155/d518 ITERATIONS decision slices via object-parse (webhook line-item=378, portal=379) before appending ours",
+      "BUSINESS_DECISIONS — ignore payment-mode metadata.tier for Session portal eligibility (absolute index 381)",
+      "Process: tightened 7155/d518 ITERATIONS decision slices via object-parse (webhook line-item=379, portal=380) before appending ours",
       "Verified: npm test (1639 passed) + lint after fold",
     ],
-    // Object-parse: payment-mode tier trust owns BD[380]; portal commerceAddon line-items=379.
-    decisions: BUSINESS_DECISIONS.slice(380, 381),
+    // Object-parse: payment-mode tier trust owns BD[381]; portal commerceAddon line-items=380.
+    decisions: BUSINESS_DECISIONS.slice(381, 382),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/prompt-process-evolution-1924",
+    summary:
+      "Empty-backlog after PR #331 (billing-portal-session-payment-mode-tier-metadata-trust). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual twin: loadCheckoutSuccessSession still used metadata.commerceAddon as a soft SSR hint for showBillingPortal on payment mode, while createBillingPortalForCheckoutSession already derived commerceAddon from listLineItems. Shipped listLineItems Price ID parity (reuse resolveCommerceAddonFromLineItems) before checkoutSessionEligibleForBillingPortal; subscription mode skips the round-trip; list failures fail closed to hide the CTA; Vitest + architecture note; process now requires closing SSR twins when an API path hardens Session entitlement flags.",
+    shipped: [
+      "src/lib/checkout/success-session.ts — derive commerceAddon from listLineItems when mode !== subscription; injectable listLineItems for tests",
+      "src/lib/checkout/success-session.test.ts — +3 forged-metadata / line-items-true / listLineItems-fail-closed / subscription-skips-list regressions",
+      "Docs: architecture.tsx notes success-page commerceAddon↔line-item Price parity beside portal API gate",
+      "AGENT_PROTOCOL — success SSR must mirror portal listLineItems commerceAddon derive; next prefers currency gate / stuck CLI / escapeHtml·webhook·uncapped",
+      "NEXT_STEPS: success-page-commerceAddon-line-item-parity done",
+      "BUSINESS_DECISIONS — require listLineItems commerceAddon parity on checkout success SSR (absolute index 382; portal line-item=380; tier trust=381)",
+      "Process: tightened ffdb→0329 ITERATIONS decision slices via object-parse (catalog=374 … tier trust=381) before appending ours",
+      "Verified: npm test + lint",
+    ],
+    // Object-parse: success-page commerceAddon line-item parity owns BD[382]; tier trust=381; portal=380.
+    decisions: BUSINESS_DECISIONS.slice(382, 383),
   },
 ];
 
