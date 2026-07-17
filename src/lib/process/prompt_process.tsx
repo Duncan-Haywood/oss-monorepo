@@ -2878,6 +2878,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "codex/dev-work-webhook-email-retry",
   },
+  {
+    id: "bundle-email-unexpected-error-retry",
+    summary:
+      "The bundle webhook's outer receipt/DNS email catch must return 5xx on unexpected formatter/import errors instead of acknowledging Stripe with both sent-markers absent; preserve Stripe redelivery recovery for every transactional email failure.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "codex/continuous-work-bundle-email-unexpected-error",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
