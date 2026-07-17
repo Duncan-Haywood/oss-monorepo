@@ -2761,6 +2761,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-f01f",
   },
+  {
+    id: "commerce-payouts-panel-clawback-visibility",
+    summary:
+      "Found while auditing the fresh dispute-closed-resolution merge: the live /dashboard/leads 'Commerce payouts (manual)' panel's own per-order UI already renders 'Refunded after payout — claw back from client' / 'Disputed after payout — claw back from client' text, but that branch is dead code — its data source is listUnpaidCommerceOrders() (paidOutAt IS NULL only), so a clawback-needed order (paidOutAt set, then refunded/disputed) never reaches the client at all, and even if it did, commercePayoutsByLead's `.filter(unpaidCount > 0)` would hide any lead whose only orders are clawback-needed (unpaidCount is 0 for those). Today clawback-needed orders are visible ONLY via the aggregate pipeline-health count/$ card (no lead names) and the daily-digest EMAIL (batch, not always-on) — the always-on dashboard has zero row-level detail. Shipped: merge unpaid + refunded + disputed commerce orders (deduped by id) into the panel's data source, and widen the per-lead filter to keep any lead with a clawback-needed order even when unpaidCount is 0.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-cd2ftu",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
