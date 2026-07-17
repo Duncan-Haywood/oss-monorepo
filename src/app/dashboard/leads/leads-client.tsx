@@ -80,6 +80,7 @@ import {
 } from "@/lib/leads/cold-archive";
 import {
   ABANDONED_AFTER_HOURS,
+  leadSlugsEligibleForCommerceAbandonedRecovery,
   listAbandonedCheckoutsDue,
   listCommerceAbandonedCheckoutsDue,
 } from "@/lib/checkout/abandoned-recovery";
@@ -906,6 +907,7 @@ export function LeadsClient({
   const commerceAbandonedCheckoutsDue = listCommerceAbandonedCheckoutsDue(
     checkoutSessions,
     nowMs,
+    leadSlugsEligibleForCommerceAbandonedRecovery(leads, orders),
   );
   const starterUpsellCandidates = listStarterUpsellCandidates(leads, orders);
   const commerceCatalogsMissing = listCommerceCatalogsMissing(

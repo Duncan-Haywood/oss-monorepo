@@ -26,6 +26,7 @@ import { rankLeadsForOutreach, type LeadQualityBand } from "../leads/quality-sco
 import { listFollowUpsDue, listColdLeads } from "../email/outreach-followups";
 import { escapeHtmlForEmail } from "../inquiries/reply";
 import {
+  leadSlugsEligibleForCommerceAbandonedRecovery,
   listAbandonedCheckoutsDue,
   listCommerceAbandonedCheckoutsDue,
 } from "../checkout/abandoned-recovery";
@@ -383,9 +384,14 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       tier: session.tier,
     }));
 
+  const commerceRecoveryEligibleSlugs = leadSlugsEligibleForCommerceAbandonedRecovery(
+    leads,
+    orders,
+  );
   const commerceCheckoutRecoveriesDueAll = listCommerceAbandonedCheckoutsDue(
     openCheckoutSessions,
     nowMs,
+    commerceRecoveryEligibleSlugs,
   );
   const commerceCheckoutRecoveriesDueCount = commerceCheckoutRecoveriesDueAll.length;
   const commerceCheckoutRecoveriesDue: DigestCommerceCheckoutRecovery[] =

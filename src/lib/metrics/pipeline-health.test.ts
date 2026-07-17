@@ -15,6 +15,7 @@ import { ABANDONED_AFTER_HOURS } from "../checkout/abandoned-recovery";
 
 const NOW = Date.parse("2026-07-12T12:00:00.000Z");
 const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 function makeSession(
   overrides: Partial<CheckoutSessionRecord> = {},
@@ -335,8 +336,19 @@ describe("computePipelineHealth", () => {
     });
 
     const health = computePipelineHealth({
-      leads: [],
-      orders: [],
+      leads: [makeLead("paid", { slug: "cart-lead" })],
+      orders: [
+        {
+          id: "ord_1",
+          leadSlug: "cart-lead",
+          tier: "starter",
+          amountPaid: 800,
+          stripeSessionId: "cs_paid",
+          commerceAddon: true,
+          status: "paid",
+          createdAt: new Date(NOW - 10 * DAY_MS).toISOString(),
+        },
+      ],
       handoffs: [],
       inquiries: [],
       openCheckoutSessions: [bundleDue, commerceDue, commerceFresh],
@@ -347,6 +359,40 @@ describe("computePipelineHealth", () => {
     expect(health.recoveryDueCount).toBe(1);
     expect(health.commerceAbandonedCheckoutCount).toBe(1);
     expect(health.commerceRecoveryDueCount).toBe(1);
+  });
+
+  it("omits commerce abandoned carts when recurring entitlement is paused", () => {
+    const commerceDue = makeSession({
+      stripeSessionId: "cs_commerce_paused",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+    });
+
+    const health = computePipelineHealth({
+      leads: [makeLead("paid", { slug: "cart-lead" })],
+      orders: [
+        {
+          id: "ord_paused",
+          leadSlug: "cart-lead",
+          tier: "starter",
+          amountPaid: 800,
+          stripeSessionId: "cs_paid",
+          commerceAddon: true,
+          recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
+          status: "paid",
+          createdAt: new Date(NOW - 10 * DAY_MS).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      openCheckoutSessions: [commerceDue],
+      nowMs: NOW,
+    });
+
+    expect(health.commerceAbandonedCheckoutCount).toBe(0);
+    expect(health.commerceRecoveryDueCount).toBe(0);
   });
 
   it("defaults cold lead metrics to zero without cold leads", () => {

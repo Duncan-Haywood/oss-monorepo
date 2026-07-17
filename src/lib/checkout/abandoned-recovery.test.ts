@@ -7,6 +7,7 @@ import {
   isBundleCheckoutSession,
   isCommerceSkuCheckoutSession,
   isRecoveryDue,
+  leadSlugsEligibleForCommerceAbandonedRecovery,
   listAbandonedCheckoutsDue,
   listCommerceAbandonedCheckoutsDue,
   normalizeCheckoutCustomerEmailForMatch,
@@ -167,6 +168,52 @@ describe("listCommerceAbandonedCheckoutsDue", () => {
       NOW,
     );
     expect(due.map((s) => s.stripeSessionId)).toEqual(["c1", "c2"]);
+  });
+
+  it("filters out carts for leadSlugs not in the entitlement set", () => {
+    const eligible = makeSession({
+      stripeSessionId: "c_ok",
+      leadSlug: "live-shop",
+      kind: "commerce_sku",
+      skuId: "sku_a",
+      tier: "",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const paused = makeSession({
+      stripeSessionId: "c_paused",
+      leadSlug: "paused-shop",
+      kind: "commerce_sku",
+      skuId: "sku_b",
+      tier: "",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const due = listCommerceAbandonedCheckoutsDue(
+      [eligible, paused],
+      NOW,
+      new Set(["live-shop"]),
+    );
+    expect(due.map((s) => s.stripeSessionId)).toEqual(["c_ok"]);
+  });
+});
+
+describe("leadSlugsEligibleForCommerceAbandonedRecovery", () => {
+  it("includes paid commerceAddon leads and excludes paused recurring", () => {
+    const eligible = leadSlugsEligibleForCommerceAbandonedRecovery(
+      [
+        { slug: "live-shop", stage: "live" },
+        { slug: "paused-shop", stage: "paid" },
+        { slug: "outreach", stage: "outreach_sent" },
+      ],
+      [
+        { leadSlug: "live-shop", commerceAddon: true },
+        {
+          leadSlug: "paused-shop",
+          commerceAddon: true,
+          recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
+        },
+      ],
+    );
+    expect([...eligible].sort()).toEqual(["live-shop"]);
   });
 });
 

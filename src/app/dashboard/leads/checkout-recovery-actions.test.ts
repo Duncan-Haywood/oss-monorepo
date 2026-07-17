@@ -26,12 +26,14 @@ vi.mock("next/headers", () => ({
 
 const listOpenCheckoutSessions = vi.fn();
 const getLeadBySlug = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const recordCheckoutRecoverySent = vi.fn();
 const getCommerceCatalog = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: (...args: unknown[]) => listOpenCheckoutSessions(...args),
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
   recordCheckoutRecoverySent: (...args: unknown[]) =>
     recordCheckoutRecoverySent(...args),
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
@@ -42,7 +44,6 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
-  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -278,7 +279,11 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
       slug: "demo-cafe",
       businessName: "Demo Cafe",
       email: "lead@example.com",
+      stage: "paid",
     });
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([
+      { leadSlug: "demo-cafe", commerceAddon: true },
+    ]);
     getCommerceCatalog.mockReset().mockResolvedValue({
       leadSlug: "demo-cafe",
       items: [{ id: "sku_latte", name: "Latte" }],
@@ -342,6 +347,38 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
         "No customer email on this Buy now session — recovery needs the shopper's email",
     });
     expect(recordCheckoutRecoverySent).not.toHaveBeenCalled();
+  });
+
+  it("rejects when lead is missing", async () => {
+    getLeadBySlug.mockResolvedValue(null);
+    const { sendCommerceCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCommerceCheckoutRecoveryAction("cs_test_commerce");
+    expect(res).toEqual({
+      success: false,
+      error: "Lead not found for this Buy now session",
+    });
+    expect(listOrdersByLeadSlug).not.toHaveBeenCalled();
+    expect(recordCheckoutRecoverySent).not.toHaveBeenCalled();
+    expect(sendCommerceAbandonedRecovery).not.toHaveBeenCalled();
+  });
+
+  it("rejects when Commerce recurring entitlement is paused", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      {
+        leadSlug: "demo-cafe",
+        commerceAddon: true,
+        recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
+      },
+    ]);
+    const { sendCommerceCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCommerceCheckoutRecoveryAction("cs_test_commerce");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Commerce catalogs require a paid/live lead with a Commerce add-on order",
+    });
+    expect(recordCheckoutRecoverySent).not.toHaveBeenCalled();
+    expect(sendCommerceAbandonedRecovery).not.toHaveBeenCalled();
   });
 
   it("marks before Resend with SKU name from catalog", async () => {

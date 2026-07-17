@@ -556,6 +556,12 @@ export default function ArchitectureDocPage() {
         Dashboard-minted or pre-pause Sessions must not ledger pass-through
         revenue after CRM pause (missing lead or ineligible skips like unknown
         sku; session already <code>markComplete</code>).{" "}
+        <code>sendCommerceCheckoutRecoveryAction</code> and the Buy now due
+        queues (<code>listCommerceAbandonedCheckoutsDue</code> / digest /
+        pipeline-health via <code>leadSlugsEligibleForCommerceAbandonedRecovery</code>)
+        must use that same predicate — open carts for paused/canceled Commerce
+        leads must not surface as recovery debt while create-path returns{" "}
+        <code>403</code> and the webhook skips.{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}

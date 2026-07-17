@@ -190,7 +190,7 @@ describe("buildDailyDigest", () => {
 
   it("lists abandoned commerce Buy now separately from bundle recoveries", () => {
     const digest = buildDailyDigest({
-      leads: [baseLead()],
+      leads: [baseLead({ stage: "paid" })],
       inquiries: [],
       openCheckoutSessions: [
         baseCheckoutSession(),
@@ -201,12 +201,41 @@ describe("buildDailyDigest", () => {
           tier: "",
         }),
       ],
+      orders: [
+        { leadSlug: "test-lead", tier: "starter", commerceAddon: true },
+      ],
       nowMs: NOW,
     });
     expect(digest.checkoutRecoveriesDue).toHaveLength(1);
     expect(digest.commerceCheckoutRecoveriesDue).toHaveLength(1);
     expect(digest.commerceCheckoutRecoveriesDue[0].skuId).toBe("sku_latte");
     expect(digest.isEmpty).toBe(false);
+  });
+
+  it("omits commerce Buy now recovery when recurring entitlement is paused", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [
+        baseCheckoutSession({
+          stripeSessionId: "cs_commerce",
+          kind: "commerce_sku",
+          skuId: "sku_latte",
+          tier: "",
+        }),
+      ],
+      orders: [
+        {
+          leadSlug: "test-lead",
+          tier: "starter",
+          commerceAddon: true,
+          recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commerceCheckoutRecoveriesDue).toHaveLength(0);
+    expect(digest.commerceCheckoutRecoveriesDueCount).toBe(0);
   });
 
   it("does not list a checkout session under the abandoned threshold", () => {

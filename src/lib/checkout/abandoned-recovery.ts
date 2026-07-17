@@ -7,6 +7,8 @@
  * recovery emails or Work next cart boosts — see checkoutSessionKind.
  */
 
+import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
+import type { LeadPipelineStage } from "@/lib/leads/types";
 import type { CheckoutSessionKind, CheckoutSessionRecord } from "./types";
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -122,16 +124,62 @@ export function listAbandonedCheckoutsDue(
 }
 
 /**
+ * Lead slugs that may receive Commerce Buy now abandoned-cart recovery.
+ * Reuses leadEligibleForCommerceCatalog so paused/canceled Commerce
+ * subscribers (recurringCanceledAt) drop out of due queues the same way
+ * create/sync/webhook already fail closed (#348–#350).
+ */
+export function leadSlugsEligibleForCommerceAbandonedRecovery(
+  leads: ReadonlyArray<{ slug: string; stage: LeadPipelineStage }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    commerceAddon: boolean;
+    recurringCanceledAt?: number | null;
+  }>,
+): Set<string> {
+  const ordersBySlug = new Map<
+    string,
+    Array<{
+      commerceAddon: boolean;
+      recurringCanceledAt?: number | null;
+    }>
+  >();
+  for (const order of orders) {
+    const list = ordersBySlug.get(order.leadSlug);
+    if (list) {
+      list.push(order);
+    } else {
+      ordersBySlug.set(order.leadSlug, [order]);
+    }
+  }
+  const eligible = new Set<string>();
+  for (const lead of leads) {
+    if (leadEligibleForCommerceCatalog(lead, ordersBySlug.get(lead.slug) ?? [])) {
+      eligible.add(lead.slug);
+    }
+  }
+  return eligible;
+}
+
+/**
  * Commerce Buy now abandoned sessions due for recovery, oldest first.
  * Separate from listAbandonedCheckoutsDue — recovery links to preview#catalog,
  * not /checkout?tier=.
+ *
+ * When `eligibleLeadSlugs` is provided, only sessions for currently entitled
+ * Commerce leads are returned — paused/canceled MRR must not surface as
+ * recovery debt while create-path 403s and the webhook skips.
  */
 export function listCommerceAbandonedCheckoutsDue(
   sessions: CheckoutSessionRecord[],
   nowMs: number,
+  eligibleLeadSlugs?: ReadonlySet<string>,
 ): CheckoutSessionRecord[] {
   return sessions
     .filter(isCommerceSkuCheckoutSession)
     .filter((session) => isRecoveryDue(session, nowMs))
+    .filter((session) =>
+      eligibleLeadSlugs ? eligibleLeadSlugs.has(session.leadSlug) : true,
+    )
     .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
 }

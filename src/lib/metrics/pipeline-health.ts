@@ -24,6 +24,7 @@ import {
   isBundleCheckoutSession,
   isCommerceSkuCheckoutSession,
   isRecoveryDue,
+  leadSlugsEligibleForCommerceAbandonedRecovery,
 } from "@/lib/checkout/abandoned-recovery";
 import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "@/lib/commerce/catalog";
 import { listClientVoicePacksDue } from "@/lib/voice/faq-pack";
@@ -284,7 +285,17 @@ export function computePipelineHealth(input: {
   const nowMs = input.nowMs ?? 0;
   const sessions = input.openCheckoutSessions ?? [];
   const bundleSessions = sessions.filter(isBundleCheckoutSession);
-  const commerceSessions = sessions.filter(isCommerceSkuCheckoutSession);
+  const commerceRecoveryEligibleSlugs = leadSlugsEligibleForCommerceAbandonedRecovery(
+    input.leads,
+    input.orders,
+  );
+  // Drop carts for paused/canceled Commerce leads — same predicate as
+  // sendCommerceCheckoutRecoveryAction / digest due queue (#348–#350 twins).
+  const commerceSessions = sessions.filter(
+    (session) =>
+      isCommerceSkuCheckoutSession(session) &&
+      commerceRecoveryEligibleSlugs.has(session.leadSlug),
+  );
   const abandoned = bundleSessions.filter((session) => isAbandonedCheckout(session, nowMs));
   const recoveryDueCount = abandoned.filter((session) => isRecoveryDue(session, nowMs)).length;
   const commerceAbandoned = commerceSessions.filter((session) =>

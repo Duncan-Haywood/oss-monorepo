@@ -1053,10 +1053,29 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
     }
 
     const lead = await getLeadBySlug(session.leadSlug);
+    if (!lead) {
+      return {
+        success: false as const,
+        error: "Lead not found for this Buy now session",
+      };
+    }
+
+    // Twin of Buy now create (#348) + sync + commerce_sku webhook (#350): do
+    // not nudge end-customer carts after CRM pause/cancel while entitlement
+    // is off (create-path 403s; webhook skips ledger).
+    const orders = await listOrdersByLeadSlug(session.leadSlug);
+    if (!leadEligibleForCommerceCatalog(lead, orders)) {
+      return {
+        success: false as const,
+        error:
+          "Commerce catalogs require a paid/live lead with a Commerce add-on order",
+      };
+    }
+
     const catalog = await getCommerceCatalog(session.leadSlug);
     const skuName =
       catalog?.items.find((item) => item.id === session.skuId)?.name ?? session.skuId ?? "item";
-    const businessName = lead?.businessName || session.leadSlug;
+    const businessName = lead.businessName || session.leadSlug;
 
     try {
       await recordCheckoutRecoverySent(
