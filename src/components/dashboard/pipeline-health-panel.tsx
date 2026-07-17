@@ -143,6 +143,18 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.recurringEntitlementPausedCount > 0}
         />
         <MetricCard
+          label="Starter → MRR upsell"
+          value={String(health.starterUpsellCandidatesCount)}
+          hint={
+            health.starterUpsellCandidatesCount > 0
+              ? health.oldestStarterUpsellCandidateAgeHours !== null
+                ? `Oldest since ${formatAbandonedAgeHours(health.oldestStarterUpsellCandidateAgeHours)} — send Growth/Complete nudge`
+                : "Send Growth/Complete upsell nudge"
+              : "No Starter-only paid leads to upsell"
+          }
+          attention={health.starterUpsellCandidatesCount > 0}
+        />
+        <MetricCard
           label="Commerce catalogs missing"
           value={String(health.commerceCatalogsMissingCount)}
           hint={

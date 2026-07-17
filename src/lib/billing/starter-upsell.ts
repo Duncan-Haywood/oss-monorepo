@@ -76,3 +76,36 @@ export function listStarterUpsellCandidates<
     )
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
+
+/**
+ * Age in whole hours since the oldest qualifying Starter-only order among
+ * `candidates` was created; null when there are no candidates or none of
+ * their orders parse. Pass nowMs from the caller — never Date.now() inside
+ * list/age helpers (keeps tests deterministic, see
+ * oldestRecurringEntitlementPausedAgeHours for the same pattern).
+ */
+export function oldestStarterUpsellCandidateAgeHours(
+  candidates: ReadonlyArray<{ slug: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    commerceAddon: boolean;
+    createdAt: string;
+  }>,
+  nowMs: number,
+): number | null {
+  const candidateSlugs = new Set(candidates.map((candidate) => candidate.slug));
+  let oldestCreatedAtMs: number | null = null;
+  for (const order of orders) {
+    if (!candidateSlugs.has(order.leadSlug)) continue;
+    if (!isStarterOnlyOrder(order)) continue;
+    const createdAtMs = Date.parse(order.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    if (oldestCreatedAtMs === null || createdAtMs < oldestCreatedAtMs) {
+      oldestCreatedAtMs = createdAtMs;
+    }
+  }
+  if (oldestCreatedAtMs === null) return null;
+  if (nowMs < oldestCreatedAtMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / (60 * 60 * 1000)));
+}
