@@ -18,6 +18,23 @@ describe("isStarterOnlyOrder", () => {
     expect(isStarterOnlyOrder({ tier: "growth", commerceAddon: false })).toBe(false);
     expect(isStarterOnlyOrder({ tier: "complete", commerceAddon: false })).toBe(false);
   });
+
+  it("rejects a Starter order that was refunded or disputed", () => {
+    expect(
+      isStarterOnlyOrder({
+        tier: "starter",
+        commerceAddon: false,
+        refundedAt: "2026-07-01T00:00:00.000Z",
+      }),
+    ).toBe(false);
+    expect(
+      isStarterOnlyOrder({
+        tier: "starter",
+        commerceAddon: false,
+        disputedAt: "2026-07-01T00:00:00.000Z",
+      }),
+    ).toBe(false);
+  });
 });
 
 describe("leadEligibleForStarterUpsell", () => {
@@ -77,6 +94,27 @@ describe("leadEligibleForStarterUpsell", () => {
         stage: "live",
         email: "owner@example.com",
         ordersForLead: [{ tier: "starter", commerceAddon: true }],
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects a lead whose only Starter order was refunded or disputed", () => {
+    expect(
+      leadEligibleForStarterUpsell({
+        stage: "paid",
+        email: "owner@example.com",
+        ordersForLead: [
+          { tier: "starter", commerceAddon: false, refundedAt: "2026-07-01T00:00:00.000Z" },
+        ],
+      }),
+    ).toBe(false);
+    expect(
+      leadEligibleForStarterUpsell({
+        stage: "paid",
+        email: "owner@example.com",
+        ordersForLead: [
+          { tier: "starter", commerceAddon: false, disputedAt: "2026-07-01T00:00:00.000Z" },
+        ],
       }),
     ).toBe(false);
   });

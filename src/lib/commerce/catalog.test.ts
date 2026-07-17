@@ -51,6 +51,25 @@ describe("leadEligibleForCommerceCatalog", () => {
       ]),
     ).toBe(true);
   });
+
+  it("rejects commerceAddon orders that were refunded or disputed", () => {
+    expect(
+      leadEligibleForCommerceCatalog({ stage: "paid" }, [
+        { commerceAddon: true, refundedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForCommerceCatalog({ stage: "paid" }, [
+        { commerceAddon: true, disputedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForCommerceCatalog({ stage: "paid" }, [
+        { commerceAddon: true, refundedAt: "2026-07-01T00:00:00.000Z" },
+        { commerceAddon: true },
+      ]),
+    ).toBe(true);
+  });
 });
 
 describe("listCommerceCatalogsMissing", () => {

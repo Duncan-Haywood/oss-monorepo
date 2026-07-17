@@ -4,6 +4,7 @@
  */
 
 import type { LeadPipelineStage } from "@/lib/leads/types";
+import { orderGrantsSoldCapabilityEntitlement } from "@/lib/orders/recurring";
 import {
   MAX_COMMERCE_SKU_ID_LENGTH,
   MAX_COMMERCE_SKUS,
@@ -22,25 +23,26 @@ export function leadStageEligibleForCommerceCatalog(
 }
 
 /**
- * Eligible when the lead is paid/live AND has at least one order with commerceAddon.
- * Tier alone (Starter/Growth/Complete) does not unlock the catalog — Commerce is the add-on.
+ * Eligible when the lead is paid/live AND has at least one order with commerceAddon
+ * that still grants active entitlement (active recurring, never refunded/disputed —
+ * see orderGrantsSoldCapabilityEntitlement). Tier alone (Starter/Growth/Complete)
+ * does not unlock the catalog — Commerce is the add-on.
  */
 export function leadEligibleForCommerceCatalog(
   lead: { stage: LeadPipelineStage },
   orders: ReadonlyArray<{
+    tier?: string;
     commerceAddon: boolean;
     recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
   }>,
 ): boolean {
   if (!leadStageEligibleForCommerceCatalog(lead.stage)) return false;
   return orders.some(
     (o) =>
       o.commerceAddon &&
-      !(
-        typeof o.recurringCanceledAt === "number" &&
-        Number.isFinite(o.recurringCanceledAt) &&
-        o.recurringCanceledAt > 0
-      ),
+      orderGrantsSoldCapabilityEntitlement({ ...o, tier: o.tier ?? "" }),
   );
 }
 

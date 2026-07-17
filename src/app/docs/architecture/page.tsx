@@ -1505,6 +1505,30 @@ source). The same digest also lists email-critical leads with no usable address 
         commerce-payouts-panel-clawback-visibility).
       </p>
 
+      <p>
+        <code>orders.refundedAt</code> / <code>disputedAt</code> (above) only ever fed{" "}
+        <em>revenue reporting</em> — <code>PipelineHealth.revenueTotalUsd</code> and the payout
+        clawback surfaces — until <strong>refund-dispute-entitlement-gate</strong>. The four sold
+        recurring-capability gates (<code>leadEligibleForMarketingPack</code>,{" "}
+        <code>leadEligibleForClientVoicePack</code>, <code>leadEligibleForCommerceCatalog</code>,
+        and <code>isStarterOnlyOrder</code> for the Starter → MRR upsell nudge) never checked
+        either flag, only <code>recurringCanceledAt</code> — a Stripe refund or dispute does not
+        always cancel the underlying Subscription (a single charge can be returned/disputed while
+        the Subscription itself stays <code>active</code>), so a client who got their money back
+        kept full service delivery indefinitely: the operator dashboard still offered{" "}
+        <strong>Generate pack</strong> / <strong>Email pack</strong> / <strong>Sync to Stripe</strong>{" "}
+        for that lead, <code>POST /api/commerce/checkout</code> and the commerce webhook still let
+        their catalog sell to end customers, and a refunded Starter customer could still receive
+        an upsell pitch to upgrade to a paid recurring plan. Shipped{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code> (src/lib/orders/recurring.ts) — active
+        recurring entitlement AND never refunded/disputed — and wired it into all three pack/catalog
+        eligibility predicates (<code>bestMarketingOrderTier</code> too, so tier selection also
+        skips a refunded/disputed order) plus <code>isStarterOnlyOrder</code>. Fulfillment
+        already-in-flight (a pack row already generated/emailed before the refund) is untouched —
+        this only gates <em>future</em> generate/deliver/sync/checkout/upsell actions, matching how{" "}
+        <code>recurringCanceledAt</code> gating already behaved for cancellations.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

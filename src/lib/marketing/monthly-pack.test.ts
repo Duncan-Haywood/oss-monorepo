@@ -79,6 +79,25 @@ describe("eligibility", () => {
     ).toBe(true);
   });
 
+  it("rejects Growth/Complete orders that were refunded or disputed", () => {
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "growth", refundedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "complete", disputedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "growth", refundedAt: "2026-07-01T00:00:00.000Z" },
+        { tier: "complete" },
+      ]),
+    ).toBe(true);
+  });
+
   it("isMarketingBundleTier", () => {
     expect(isMarketingBundleTier("growth")).toBe(true);
     expect(isMarketingBundleTier("complete")).toBe(true);
@@ -110,6 +129,20 @@ describe("eligibility", () => {
         { tier: "complete" },
       ]),
     ).toBe("complete");
+  });
+
+  it("bestMarketingOrderTier ignores refunded/disputed orders", () => {
+    expect(
+      bestMarketingOrderTier([
+        { tier: "complete", refundedAt: "2026-07-01T00:00:00.000Z" },
+        { tier: "growth" },
+      ]),
+    ).toBe("growth");
+    expect(
+      bestMarketingOrderTier([
+        { tier: "complete", disputedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBeNull();
   });
 });
 

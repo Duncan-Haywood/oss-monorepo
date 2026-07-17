@@ -4,6 +4,7 @@
  */
 
 import type { LeadPipelineStage } from "@/lib/leads/types";
+import { orderGrantsSoldCapabilityEntitlement } from "@/lib/orders/recurring";
 import type { ClientVoiceScriptType } from "./types";
 
 /** Paid Complete unlocks the client AI phone product promise. */
@@ -18,22 +19,26 @@ export function leadStageEligibleForClientVoicePack(
 }
 
 /**
- * Eligible when the lead is paid/live AND has at least one Complete order.
- * Growth alone does not unlock client voice (phone is Complete-only).
+ * Eligible when the lead is paid/live AND has at least one Complete order that
+ * still grants active entitlement (active recurring, never refunded/disputed —
+ * see orderGrantsSoldCapabilityEntitlement). Growth alone does not unlock
+ * client voice (phone is Complete-only).
  */
 export function leadEligibleForClientVoicePack(
   lead: { stage: LeadPipelineStage },
-  orders: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
+  orders: ReadonlyArray<{
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
 ): boolean {
   if (!leadStageEligibleForClientVoicePack(lead.stage)) return false;
   return orders.some(
     (o) =>
       isCompleteBundleTier(o.tier) &&
-      !(
-        typeof o.recurringCanceledAt === "number" &&
-        Number.isFinite(o.recurringCanceledAt) &&
-        o.recurringCanceledAt > 0
-      ),
+      orderGrantsSoldCapabilityEntitlement({ ...o, commerceAddon: Boolean(o.commerceAddon) }),
   );
 }
 

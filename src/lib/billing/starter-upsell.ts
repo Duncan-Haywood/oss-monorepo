@@ -6,15 +6,30 @@
  * Billing and Upsell buttons never both appear for the same lead/order set.
  */
 
+import { isOrderDisputed, isOrderRefunded } from "@/lib/orders/types";
 import { orderEligibleForBillingPortal } from "./portal";
 
 export type UpsellTargetTier = "growth" | "complete";
 
+/**
+ * True for a live Starter-only purchase — excludes Growth/Complete/Commerce
+ * orders AND a Starter order Stripe has refunded or disputed. A refunded
+ * customer no longer has a live one-time purchase to upsell off of; nudging
+ * them toward a paid recurring upgrade is a real customer-relations misfire,
+ * not just a wasted send (see starter-upsell-refund-dispute-exclusion).
+ */
 export function isStarterOnlyOrder(order: {
   tier: string;
   commerceAddon: boolean;
+  refundedAt?: string;
+  disputedAt?: string;
 }): boolean {
-  return order.tier === "starter" && !order.commerceAddon;
+  return (
+    order.tier === "starter" &&
+    !order.commerceAddon &&
+    !isOrderRefunded(order) &&
+    !isOrderDisputed(order)
+  );
 }
 
 /**
@@ -24,7 +39,12 @@ export function isStarterOnlyOrder(order: {
 export function leadEligibleForStarterUpsell(params: {
   stage: string;
   email?: string | null;
-  ordersForLead: Array<{ tier: string; commerceAddon: boolean }>;
+  ordersForLead: Array<{
+    tier: string;
+    commerceAddon: boolean;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>;
 }): boolean {
   if (params.stage !== "paid" && params.stage !== "live") return false;
   if (!params.email?.trim()) return false;
