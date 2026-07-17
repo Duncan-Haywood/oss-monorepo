@@ -4,6 +4,7 @@
  */
 
 import type { LeadPipelineStage } from "@/lib/leads/types";
+import { orderGrantsSoldCapabilityEntitlement } from "@/lib/orders/recurring";
 import type { MarketingContentType, MarketingPackageTier } from "./types";
 
 /** Calendar month key in UTC (YYYY-MM) — packs are one per lead per month. */
@@ -50,22 +51,26 @@ export function leadStageEligibleForMarketingPack(stage: LeadPipelineStage): boo
 }
 
 /**
- * Eligible when the lead is paid/live AND has at least one Growth/Complete order.
- * Starter + Commerce alone does not unlock the marketing engine (Commerce is checkout add-on).
+ * Eligible when the lead is paid/live AND has at least one Growth/Complete order
+ * that still grants active entitlement (active recurring, never refunded/disputed
+ * — see orderGrantsSoldCapabilityEntitlement). Starter + Commerce alone does not
+ * unlock the marketing engine (Commerce is checkout add-on).
  */
 export function leadEligibleForMarketingPack(
   lead: { stage: LeadPipelineStage },
-  orders: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
+  orders: ReadonlyArray<{
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
 ): boolean {
   if (!leadStageEligibleForMarketingPack(lead.stage)) return false;
   return orders.some(
     (o) =>
       isMarketingBundleTier(o.tier) &&
-      !(
-        typeof o.recurringCanceledAt === "number" &&
-        Number.isFinite(o.recurringCanceledAt) &&
-        o.recurringCanceledAt > 0
-      ),
+      orderGrantsSoldCapabilityEntitlement({ ...o, commerceAddon: Boolean(o.commerceAddon) }),
   );
 }
 
@@ -182,14 +187,21 @@ export function oldestMarketingPacksDueAgeHours(
  * recurringCanceledAt CRM sync — same predicate as leadEligibleForMarketingPack.
  */
 export function bestMarketingOrderTier(
-  orders: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
+  orders: ReadonlyArray<{
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
 ): "growth" | "complete" | null {
   let best: "growth" | "complete" | null = null;
   for (const order of orders) {
     if (
-      typeof order.recurringCanceledAt === "number" &&
-      Number.isFinite(order.recurringCanceledAt) &&
-      order.recurringCanceledAt > 0
+      !orderGrantsSoldCapabilityEntitlement({
+        ...order,
+        commerceAddon: Boolean(order.commerceAddon),
+      })
     ) {
       continue;
     }

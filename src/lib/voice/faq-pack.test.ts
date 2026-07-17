@@ -60,6 +60,25 @@ describe("eligibility", () => {
     ).toBe(false);
   });
 
+  it("rejects a Complete order that was refunded or disputed", () => {
+    expect(
+      leadEligibleForClientVoicePack(baseLead({ stage: "paid" }), [
+        { tier: "complete", refundedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForClientVoicePack(baseLead({ stage: "paid" }), [
+        { tier: "complete", disputedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForClientVoicePack(baseLead({ stage: "paid" }), [
+        { tier: "complete", refundedAt: "2026-07-01T00:00:00.000Z" },
+        { tier: "complete" },
+      ]),
+    ).toBe(true);
+  });
+
   it("isCompleteBundleTier", () => {
     expect(isCompleteBundleTier("complete")).toBe(true);
     expect(isCompleteBundleTier("growth")).toBe(false);

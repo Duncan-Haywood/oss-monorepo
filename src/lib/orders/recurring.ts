@@ -14,6 +14,8 @@
  * Subscription also pauses — status alone would wrongly clear.
  */
 
+import { isOrderDisputed, isOrderRefunded } from "./types";
+
 /** True when the order ever carried a Growth/Complete/Commerce recurring Price. */
 export function orderHadRecurringEntitlement(order: {
   tier: string;
@@ -42,6 +44,31 @@ export function orderHasActiveRecurringEntitlement(order: {
   recurringCanceledAt?: number | null;
 }): boolean {
   return orderHadRecurringEntitlement(order) && !orderRecurringIsCanceled(order);
+}
+
+/**
+ * Full gate for sold monthly capability delivery (marketing packs / voice
+ * packs / commerce catalog + Buy now checkout): active recurring entitlement
+ * AND the charge itself was never refunded or disputed. A Stripe refund or
+ * dispute does not always set recurringCanceledAt (the underlying
+ * Subscription can still be active while a single charge was returned), so
+ * orderHasActiveRecurringEntitlement alone is not enough to gate fulfillment
+ * — see refund-dispute-entitlement-gate. Money-back-received customers must
+ * stop receiving paid deliverables even if their subscription row looks
+ * otherwise active.
+ */
+export function orderGrantsSoldCapabilityEntitlement(order: {
+  tier: string;
+  commerceAddon: boolean;
+  recurringCanceledAt?: number | null;
+  refundedAt?: string;
+  disputedAt?: string;
+}): boolean {
+  return (
+    orderHasActiveRecurringEntitlement(order) &&
+    !isOrderRefunded(order) &&
+    !isOrderDisputed(order)
+  );
 }
 
 /**

@@ -4,6 +4,7 @@ import {
   invoicePaymentFailedPausesRecurringEntitlement,
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
+  orderGrantsSoldCapabilityEntitlement,
   orderHadRecurringEntitlement,
   orderHasActiveRecurringEntitlement,
   orderRecurringIsCanceled,
@@ -58,6 +59,44 @@ describe("orderHasActiveRecurringEntitlement", () => {
         tier: "starter",
         commerceAddon: false,
         recurringCanceledAt: undefined,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("orderGrantsSoldCapabilityEntitlement", () => {
+  it("accepts an active order with no refund/dispute", () => {
+    expect(
+      orderGrantsSoldCapabilityEntitlement({ tier: "growth", commerceAddon: false }),
+    ).toBe(true);
+  });
+
+  it("rejects a refunded order even when the subscription itself is still active", () => {
+    expect(
+      orderGrantsSoldCapabilityEntitlement({
+        tier: "growth",
+        commerceAddon: false,
+        refundedAt: "2026-07-01T00:00:00.000Z",
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects a disputed order even when the subscription itself is still active", () => {
+    expect(
+      orderGrantsSoldCapabilityEntitlement({
+        tier: "complete",
+        commerceAddon: false,
+        disputedAt: "2026-07-01T00:00:00.000Z",
+      }),
+    ).toBe(false);
+  });
+
+  it("still rejects a recurring-canceled order regardless of refund/dispute", () => {
+    expect(
+      orderGrantsSoldCapabilityEntitlement({
+        tier: "growth",
+        commerceAddon: false,
+        recurringCanceledAt: 1_720_000_000_000,
       }),
     ).toBe(false);
   });
