@@ -2,11 +2,17 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
 import {
   parseCommerceCheckoutSkuId,
   parseCommerceCheckoutSlug,
 } from "@/lib/commerce/checkout-fields";
-import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
+import {
+  getCommerceCatalog,
+  getLeadBySlug,
+  listOrdersByLeadSlug,
+  recordCheckoutSessionCreated,
+} from "@/lib/db";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
@@ -20,6 +26,11 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * The price is always resolved server-side from the persisted catalog, never
  * trusted from the request body, so a tampered client payload cannot buy a
  * SKU below its stored price.
+ *
+ * Entitlement must match preview + saveCommerceCatalogAction: paid/live with
+ * an uncanceled commerceAddon order (leadEligibleForCommerceCatalog). CRM
+ * pause/cancel (#344–#347) hides Buy now on preview but must also fail closed
+ * on this create path — catalog+stripePriceId alone is not enough.
  *
  * Records kind=commerce_sku on checkout_sessions so abandoned Buy now carts
  * never enter the bundle recovery queue (wrong Finish-checkout email).
@@ -85,6 +96,20 @@ export async function POST(request: Request) {
   }
   const slug = parsedSlug.value;
   const skuId = parsedSkuId.value;
+
+  // Same predicate as loadPreviewCommerceItems / saveCommerceCatalogAction —
+  // never mint a Session after CRM pause/cancel while UI is hidden.
+  const lead = await getLeadBySlug(slug);
+  if (!lead) {
+    return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+  }
+  const orders = await listOrdersByLeadSlug(slug);
+  if (!leadEligibleForCommerceCatalog(lead, orders)) {
+    return NextResponse.json(
+      { error: "Commerce catalog not available for this lead" },
+      { status: 403 },
+    );
+  }
 
   const catalog = await getCommerceCatalog(slug);
   const item = catalog?.items.find((sku) => sku.id === skuId);

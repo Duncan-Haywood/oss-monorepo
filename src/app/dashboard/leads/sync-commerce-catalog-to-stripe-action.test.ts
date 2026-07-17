@@ -25,6 +25,7 @@ vi.mock("next/headers", () => ({
 }));
 
 const getLeadBySlug = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const getCommerceCatalog = vi.fn();
 const upsertCommerceCatalog = vi.fn();
 
@@ -40,7 +41,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
-  listOrdersByLeadSlug: vi.fn(),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -111,6 +112,18 @@ const eligibleLead = {
   dataSource: "manual_entry" as const,
 };
 
+const commerceOrder = {
+  id: "ord_commerce_1",
+  leadSlug: "demo-cafe",
+  stripeSessionId: "cs_test_commerce",
+  tier: "growth" as const,
+  amountPaid: 899,
+  currency: "usd",
+  customerEmail: "owner@demo-cafe.example",
+  commerceAddon: true,
+  createdAt: "2026-07-13T11:00:00.000Z",
+};
+
 const catalogItems = [
   {
     id: "sku_latte",
@@ -152,6 +165,7 @@ describe("syncCommerceCatalogToStripeAction", () => {
     revalidatePath.mockReset();
     stripeCtor.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([commerceOrder]);
     getCommerceCatalog.mockReset().mockResolvedValue(savedCatalog);
     upsertCommerceCatalog.mockReset().mockResolvedValue(updatedCatalog);
     syncCommerceCatalogToStripe.mockReset().mockResolvedValue(syncedItems);
@@ -206,6 +220,36 @@ describe("syncCommerceCatalogToStripeAction", () => {
     expect(res).toEqual({
       success: false,
       error: "Lead not found",
+    });
+    expect(syncCommerceCatalogToStripe).not.toHaveBeenCalled();
+  });
+
+  it("rejects when commerceAddon recurring entitlement is paused", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...commerceOrder, recurringCanceledAt: 1_720_000_000_000 },
+    ]);
+    const { syncCommerceCatalogToStripeAction } = await import("./actions");
+    const res = await syncCommerceCatalogToStripeAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Commerce catalogs require a paid/live lead with a Commerce add-on order",
+    });
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+    expect(getCommerceCatalog).not.toHaveBeenCalled();
+    expect(syncCommerceCatalogToStripe).not.toHaveBeenCalled();
+  });
+
+  it("rejects paid leads without a Commerce add-on order", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...commerceOrder, commerceAddon: false, amountPaid: 599 },
+    ]);
+    const { syncCommerceCatalogToStripeAction } = await import("./actions");
+    const res = await syncCommerceCatalogToStripeAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Commerce catalogs require a paid/live lead with a Commerce add-on order",
     });
     expect(syncCommerceCatalogToStripe).not.toHaveBeenCalled();
   });

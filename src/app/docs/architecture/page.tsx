@@ -529,6 +529,14 @@ export default function ArchitectureDocPage() {
         packs, and commerce catalogs require an uncanceled recurring order;{" "}
         <code>stage=paid|live</code> and Billing Portal eligibility stay so
         invoices/resubscribe and Starter-upsell mutual exclusion remain correct.{" "}
+        After CRM pause/cancel, preview + <code>saveCommerceCatalogAction</code>{" "}
+        already hide the catalog via <code>leadEligibleForCommerceCatalog</code>;{" "}
+        <code>POST /api/commerce/checkout</code> and{" "}
+        <code>syncCommerceCatalogToStripeAction</code> must use the same predicate
+        (lead + <code>listOrdersByLeadSlug</code>) before minting Sessions or
+        refreshing Stripe Prices — catalog row + <code>stripePriceId</code> alone
+        is not enough (create-path returns <code>403</code>; sync returns{" "}
+        <code>success: false</code>).{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}
