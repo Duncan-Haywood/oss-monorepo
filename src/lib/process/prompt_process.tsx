@@ -10953,7 +10953,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: subscription-pause-collection-crm-pause done; invoice-payment-failed-past-due-crm-pause done (8b08)",
       "BUSINESS_DECISIONS — require pause_collection CRM pause (absolute index 396)",
       "Process: object-parse by decision text (past_due pause=395) before appending ours; claim pushed before feature body; same-minute coop fold of 8b08; remapped BD slices 388–396 after append",
-      "Verified: npm test (see commit) + lint",
+      "Verified: npm test (1728 passed = sibling 1724 + 2 pause_collection helper + 2 webhook regressions) + lint",
     ],
     // Object-parse by decision text: pause_collection CRM pause owns BD[396]; past_due/invoice=395.
     decisions: BUSINESS_DECISIONS.slice(396, 397),
