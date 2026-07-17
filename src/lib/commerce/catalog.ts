@@ -27,10 +27,21 @@ export function leadStageEligibleForCommerceCatalog(
  */
 export function leadEligibleForCommerceCatalog(
   lead: { stage: LeadPipelineStage },
-  orders: ReadonlyArray<{ commerceAddon: boolean }>,
+  orders: ReadonlyArray<{
+    commerceAddon: boolean;
+    recurringCanceledAt?: number | null;
+  }>,
 ): boolean {
   if (!leadStageEligibleForCommerceCatalog(lead.stage)) return false;
-  return orders.some((o) => o.commerceAddon);
+  return orders.some(
+    (o) =>
+      o.commerceAddon &&
+      !(
+        typeof o.recurringCanceledAt === "number" &&
+        Number.isFinite(o.recurringCanceledAt) &&
+        o.recurringCanceledAt > 0
+      ),
+  );
 }
 
 /** Paid/live commerceAddon leads still missing any catalog row — slug-sorted. */
@@ -38,7 +49,11 @@ export function listCommerceCatalogsMissing<
   T extends { slug: string; stage: LeadPipelineStage },
 >(
   leads: T[],
-  orders: ReadonlyArray<{ leadSlug: string; commerceAddon: boolean }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    commerceAddon: boolean;
+    recurringCanceledAt?: number | null;
+  }>,
   catalogs: ReadonlyArray<{ leadSlug: string }>,
 ): T[] {
   const withCatalog = new Set(catalogs.map((c) => c.leadSlug));

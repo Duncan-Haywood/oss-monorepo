@@ -31,6 +31,7 @@ const markCheckoutSessionComplete = vi.fn();
 const markCheckoutSessionOpen = vi.fn();
 const markCompleteOpenBundleCheckoutSessionsForLead = vi.fn();
 const markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer = vi.fn();
+const markOrdersRecurringCanceledByCustomer = vi.fn();
 const recordLeadPayment = vi.fn();
 const getLeadBySlug = vi.fn();
 const getCommerceCatalog = vi.fn();
@@ -54,6 +55,8 @@ vi.mock("@/lib/db", () => ({
     markCompleteOpenBundleCheckoutSessionsForLead(...args),
   markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer: (...args: unknown[]) =>
     markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(...args),
+  markOrdersRecurringCanceledByCustomer: (...args: unknown[]) =>
+    markOrdersRecurringCanceledByCustomer(...args),
   recordLeadPayment: (...args: unknown[]) => recordLeadPayment(...args),
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
@@ -185,6 +188,7 @@ describe("POST /api/stripe/webhook", () => {
     markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer
       .mockReset()
       .mockResolvedValue(0);
+    markOrdersRecurringCanceledByCustomer.mockReset().mockResolvedValue(1);
     recordLeadPayment.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
@@ -248,7 +252,7 @@ describe("POST /api/stripe/webhook", () => {
   });
 
   it("acknowledges an unhandled event type without touching fulfillment", async () => {
-    constructEvent.mockReturnValue({ type: "customer.subscription.deleted", data: { object: {} } });
+    constructEvent.mockReturnValue({ type: "invoice.paid", data: { object: {} } });
     const { POST } = await import("./route");
 
     const response = await POST(webhookRequest());
@@ -256,6 +260,62 @@ describe("POST /api/stripe/webhook", () => {
     expect(response.status).toBe(200);
     expect(json).toEqual({ received: true });
     expect(markCheckoutSessionComplete).not.toHaveBeenCalled();
+    expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+  });
+
+  describe("customer.subscription.deleted CRM sync", () => {
+    it("marks recurringCanceledAt by stripeCustomerId (ended_at → ms)", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: {
+          object: {
+            id: "sub_test_1",
+            customer: "cus_test_1",
+            ended_at: 1_720_000_000,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_test_1",
+        1_720_000_000_000,
+        { requireConvex: true },
+      );
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(markCheckoutSessionComplete).not.toHaveBeenCalled();
+    });
+
+    it("skips when customer is missing (no 5xx)", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: { object: { id: "sub_no_cus", customer: null } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 orders_recurring_canceled when CRM write fails", async () => {
+      markOrdersRecurringCanceledByCustomer.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: {
+          object: { id: "sub_fail", customer: "cus_fail" },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("orders_recurring_canceled");
+      expect(json.received).toBe(false);
+    });
   });
 
   describe("payment_status paid gate (async ACH)", () => {

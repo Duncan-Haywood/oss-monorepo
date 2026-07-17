@@ -42,6 +42,11 @@ describe("eligibility", () => {
       leadEligibleForClientVoicePack(baseLead({ stage: "live" }), [{ tier: "complete" }]),
     ).toBe(true);
     expect(
+      leadEligibleForClientVoicePack(baseLead({ stage: "paid" }), [
+        { tier: "complete", recurringCanceledAt: 1_720_000_000_000 },
+      ]),
+    ).toBe(false);
+    expect(
       leadEligibleForClientVoicePack(baseLead({ stage: "paid" }), [{ tier: "growth" }]),
     ).toBe(false);
     expect(

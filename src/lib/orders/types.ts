@@ -11,6 +11,13 @@ export interface OrderRecord {
   stripeCustomerId?: string;
   tier: string;
   commerceAddon: boolean;
+  /**
+   * Unix ms when customer.subscription.deleted marked this recurring order
+   * canceled. Absent/undefined means the subscription is still active (or the
+   * order never had recurring Prices). Sold monthly entitlements must check
+   * orderHasActiveRecurringEntitlement — see src/lib/orders/recurring.ts.
+   */
+  recurringCanceledAt?: number;
   /** USD dollars (not cents). */
   amountPaid: number;
   status: string;

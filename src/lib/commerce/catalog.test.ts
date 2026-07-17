@@ -36,6 +36,20 @@ describe("leadEligibleForCommerceCatalog", () => {
       ]),
     ).toBe(false);
   });
+
+  it("rejects commerceAddon orders after recurringCanceledAt", () => {
+    expect(
+      leadEligibleForCommerceCatalog({ stage: "paid" }, [
+        { commerceAddon: true, recurringCanceledAt: 1_720_000_000_000 },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForCommerceCatalog({ stage: "paid" }, [
+        { commerceAddon: true, recurringCanceledAt: 1_720_000_000_000 },
+        { commerceAddon: true },
+      ]),
+    ).toBe(true);
+  });
 });
 
 describe("listCommerceCatalogsMissing", () => {

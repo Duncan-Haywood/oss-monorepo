@@ -258,6 +258,9 @@ function getSqliteDb(): DatabaseSync {
   if (!orderCols.includes("stripeCustomerId")) {
     sqliteDb.exec("ALTER TABLE orders ADD COLUMN stripeCustomerId TEXT");
   }
+  if (!orderCols.includes("recurringCanceledAt")) {
+    sqliteDb.exec("ALTER TABLE orders ADD COLUMN recurringCanceledAt INTEGER");
+  }
   // Stripe redelivers checkout.session.completed on retry/timeout; unlike
   // checkout_sessions/commerce_orders, `orders` had no uniqueness guard, so a
   // retry double-counted revenueTotalUsd and resent receipt/handoff emails.
@@ -273,6 +276,13 @@ function getSqliteDb(): DatabaseSync {
       "Failed to create unique index on orders.stripeSessionId — likely pre-existing duplicate rows from before this fix; new inserts still check-before-insert in application code",
       e,
     );
+  }
+  try {
+    sqliteDb.exec(
+      "CREATE INDEX IF NOT EXISTS idx_orders_stripe_customer_id ON orders(stripeCustomerId)",
+    );
+  } catch (e) {
+    console.error("Failed to create index on orders.stripeCustomerId", e);
   }
 
   const inquiryCols = (
@@ -384,6 +394,7 @@ const api: any = {
   orders: {
     list: "orders:list",
     listByLeadSlug: "orders:listByLeadSlug",
+    markRecurringCanceledByCustomer: "orders:markRecurringCanceledByCustomer",
   },
   checkoutSessions: {
     create: "checkoutSessions:create",
@@ -947,6 +958,7 @@ function mapConvexOrderRow(row: {
   stripeCustomerId?: string;
   tier: string;
   commerceAddon: boolean;
+  recurringCanceledAt?: number;
   amountTotal: number;
   createdAt: number;
 }): OrderRecord {
@@ -957,6 +969,12 @@ function mapConvexOrderRow(row: {
     stripeCustomerId: row.stripeCustomerId,
     tier: row.tier,
     commerceAddon: row.commerceAddon,
+    recurringCanceledAt:
+      typeof row.recurringCanceledAt === "number" &&
+      Number.isFinite(row.recurringCanceledAt) &&
+      row.recurringCanceledAt > 0
+        ? row.recurringCanceledAt
+        : undefined,
     amountPaid: row.amountTotal,
     status: "paid",
     createdAt: new Date(row.createdAt).toISOString(),
@@ -973,6 +991,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
         stripeCustomerId?: string;
         tier: string;
         commerceAddon: boolean;
+        recurringCanceledAt?: number;
         amountTotal: number;
         createdAt: number;
       }>;
@@ -986,7 +1005,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.amountPaid, o.status, o.createdAt
+              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        ORDER BY o.createdAt DESC`,
@@ -1022,6 +1041,7 @@ export async function listOrdersByLeadSlug(
         stripeCustomerId?: string;
         tier: string;
         commerceAddon: boolean;
+        recurringCanceledAt?: number;
         amountTotal: number;
         createdAt: number;
       }>;
@@ -1038,7 +1058,7 @@ export async function listOrdersByLeadSlug(
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.amountPaid, o.status, o.createdAt
+              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE l.slug = ?
@@ -1052,6 +1072,77 @@ export async function listOrdersByLeadSlug(
       leadSlug: row.leadSlug || leadSlug,
     }),
   );
+}
+
+/**
+ * Mark Growth/Complete/Commerce orders for a Stripe Customer as recurring-canceled
+ * after customer.subscription.deleted. Idempotent — already-canceled rows are
+ * left unchanged. requireConvex on the webhook path (WEBHOOK_CONVEX_PRIMARY).
+ */
+export async function markOrdersRecurringCanceledByCustomer(
+  stripeCustomerId: string,
+  canceledAt: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  const customerId = stripeCustomerId.trim();
+  if (!customerId) return 0;
+  const at =
+    Number.isFinite(canceledAt) && canceledAt > 0 ? canceledAt : Date.now();
+
+  if (convexClient) {
+    try {
+      const result = (await convexClient.mutation(
+        api.orders.markRecurringCanceledByCustomer,
+        { stripeCustomerId: customerId, canceledAt: at },
+      )) as { updatedCount: number };
+      return result.updatedCount;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "markOrdersRecurringCanceledByCustomer",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to mark recurring canceled for customer ${customerId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT id, tier, commerceAddon, recurringCanceledAt
+       FROM orders
+       WHERE stripeCustomerId = ?`,
+    )
+    .all(customerId) as Array<{
+    id: string;
+    tier: string;
+    commerceAddon: number;
+    recurringCanceledAt: number | null;
+  }>;
+
+  let updatedCount = 0;
+  const patch = db.prepare(
+    `UPDATE orders SET recurringCanceledAt = ? WHERE id = ? AND (recurringCanceledAt IS NULL OR recurringCanceledAt = 0)`,
+  );
+  for (const row of rows) {
+    const hadRecurring =
+      row.commerceAddon === 1 || row.tier === "growth" || row.tier === "complete";
+    if (!hadRecurring) continue;
+    if (
+      typeof row.recurringCanceledAt === "number" &&
+      Number.isFinite(row.recurringCanceledAt) &&
+      row.recurringCanceledAt > 0
+    ) {
+      continue;
+    }
+    const result = patch.run(at, row.id);
+    if (result.changes > 0) updatedCount += 1;
+  }
+  return updatedCount;
 }
 
 // --- Suppression List Functions ---

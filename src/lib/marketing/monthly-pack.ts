@@ -55,10 +55,18 @@ export function leadStageEligibleForMarketingPack(stage: LeadPipelineStage): boo
  */
 export function leadEligibleForMarketingPack(
   lead: { stage: LeadPipelineStage },
-  orders: ReadonlyArray<{ tier: string }>,
+  orders: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
 ): boolean {
   if (!leadStageEligibleForMarketingPack(lead.stage)) return false;
-  return orders.some((o) => isMarketingBundleTier(o.tier));
+  return orders.some(
+    (o) =>
+      isMarketingBundleTier(o.tier) &&
+      !(
+        typeof o.recurringCanceledAt === "number" &&
+        Number.isFinite(o.recurringCanceledAt) &&
+        o.recurringCanceledAt > 0
+      ),
+  );
 }
 
 /**
@@ -68,7 +76,7 @@ export function leadEligibleForMarketingPack(
  */
 export function leadNeedsMarketingPackForMonth(
   lead: { slug: string; stage: LeadPipelineStage },
-  ordersForLead: ReadonlyArray<{ tier: string }>,
+  ordersForLead: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
   packsThisMonth: ReadonlyArray<{ leadSlug: string; yearMonth: string }>,
   yearMonth: string,
 ): boolean {
@@ -86,7 +94,11 @@ export function listMarketingPacksDue<
   T extends { slug: string; stage: LeadPipelineStage },
 >(
   leads: T[],
-  orders: ReadonlyArray<{ leadSlug: string; tier: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    recurringCanceledAt?: number | null;
+  }>,
   packsThisMonth: ReadonlyArray<{ leadSlug: string; yearMonth: string }>,
   yearMonth: string,
 ): T[] {

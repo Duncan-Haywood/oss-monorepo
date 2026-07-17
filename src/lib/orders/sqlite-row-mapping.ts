@@ -15,6 +15,7 @@ export interface SqliteOrderJoinRow {
   stripeCustomerId: string | null;
   tier: string;
   commerceAddon: number;
+  recurringCanceledAt: number | null;
   amountPaid: number;
   status: string;
   createdAt: string;
@@ -29,6 +30,12 @@ export function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
     stripeCustomerId: row.stripeCustomerId || undefined,
     tier: row.tier,
     commerceAddon: row.commerceAddon === 1,
+    recurringCanceledAt:
+      typeof row.recurringCanceledAt === "number" &&
+      Number.isFinite(row.recurringCanceledAt) &&
+      row.recurringCanceledAt > 0
+        ? row.recurringCanceledAt
+        : undefined,
     amountPaid: row.amountPaid,
     status: row.status,
     createdAt: row.createdAt,

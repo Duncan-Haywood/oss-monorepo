@@ -63,6 +63,14 @@ describe("webhookFulfillmentFailureResponse", () => {
     expect(result.body.error).toMatch(/retry/i);
   });
 
+  it("returns 500 with received:false for subscription.deleted CRM sync failures", () => {
+    const result = webhookFulfillmentFailureResponse("orders_recurring_canceled");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("orders_recurring_canceled");
+    expect(result.body.error).toMatch(/retry/i);
+  });
+
   it("returns 500 with received:false for bundle commerceAddon line-item list failures", () => {
     const result = webhookFulfillmentFailureResponse("bundle_commerce_addon_line_items");
     expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);

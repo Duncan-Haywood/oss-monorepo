@@ -1,6 +1,28 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+const orderDocValidator = v.object({
+  _id: v.id("orders"),
+  _creationTime: v.number(),
+  leadSlug: v.string(),
+  stripeSessionId: v.string(),
+  stripeCustomerId: v.optional(v.string()),
+  customerEmail: v.string(),
+  tier: v.string(),
+  commerceAddon: v.boolean(),
+  recurringCanceledAt: v.optional(v.number()),
+  amountTotal: v.number(),
+  createdAt: v.number(),
+});
+
+function orderHadRecurringEntitlement(order: {
+  tier: string;
+  commerceAddon: boolean;
+}): boolean {
+  if (order.commerceAddon) return true;
+  return order.tier === "growth" || order.tier === "complete";
+}
+
 export const createOrder = mutation({
   args: {
     leadSlug: v.string(),
@@ -35,20 +57,7 @@ export const createOrder = mutation({
 
 export const list = query({
   args: {},
-  returns: v.array(
-    v.object({
-      _id: v.id("orders"),
-      _creationTime: v.number(),
-      leadSlug: v.string(),
-      stripeSessionId: v.string(),
-      stripeCustomerId: v.optional(v.string()),
-      customerEmail: v.string(),
-      tier: v.string(),
-      commerceAddon: v.boolean(),
-      amountTotal: v.number(),
-      createdAt: v.number(),
-    }),
-  ),
+  returns: v.array(orderDocValidator),
   handler: async (ctx) => {
     // Newest-first by createdAt — matches SQLite ORDER BY createdAt DESC and
     // db.ts sortOrdersNewestFirst. Do not rely on .collect() insertion order;
@@ -65,20 +74,7 @@ export const list = query({
  */
 export const listByLeadSlug = query({
   args: { leadSlug: v.string() },
-  returns: v.array(
-    v.object({
-      _id: v.id("orders"),
-      _creationTime: v.number(),
-      leadSlug: v.string(),
-      stripeSessionId: v.string(),
-      stripeCustomerId: v.optional(v.string()),
-      customerEmail: v.string(),
-      tier: v.string(),
-      commerceAddon: v.boolean(),
-      amountTotal: v.number(),
-      createdAt: v.number(),
-    }),
-  ),
+  returns: v.array(orderDocValidator),
   handler: async (ctx, args) => {
     const rows = await ctx.db
       .query("orders")
@@ -90,21 +86,7 @@ export const listByLeadSlug = query({
 
 export const getByStripeSessionId = query({
   args: { stripeSessionId: v.string() },
-  returns: v.union(
-    v.object({
-      _id: v.id("orders"),
-      _creationTime: v.number(),
-      leadSlug: v.string(),
-      stripeSessionId: v.string(),
-      stripeCustomerId: v.optional(v.string()),
-      customerEmail: v.string(),
-      tier: v.string(),
-      commerceAddon: v.boolean(),
-      amountTotal: v.number(),
-      createdAt: v.number(),
-    }),
-    v.null(),
-  ),
+  returns: v.union(orderDocValidator, v.null()),
   handler: async (ctx, args) => {
     return await ctx.db
       .query("orders")
@@ -112,5 +94,49 @@ export const getByStripeSessionId = query({
         q.eq("stripeSessionId", args.stripeSessionId)
       )
       .unique();
+  },
+});
+
+/**
+ * Mark Growth/Complete/Commerce orders for a Stripe Customer as recurring-canceled.
+ * Idempotent: rows that already have recurringCanceledAt are left unchanged.
+ * Returns how many rows were newly patched (0 is success — unknown customer or
+ * already synced).
+ */
+export const markRecurringCanceledByCustomer = mutation({
+  args: {
+    stripeCustomerId: v.string(),
+    canceledAt: v.number(),
+  },
+  returns: v.object({ updatedCount: v.number() }),
+  handler: async (ctx, args) => {
+    const customerId = args.stripeCustomerId.trim();
+    if (!customerId) {
+      return { updatedCount: 0 };
+    }
+    const canceledAt =
+      Number.isFinite(args.canceledAt) && args.canceledAt > 0
+        ? args.canceledAt
+        : Date.now();
+
+    const rows = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeCustomerId", (q) => q.eq("stripeCustomerId", customerId))
+      .collect();
+
+    let updatedCount = 0;
+    for (const row of rows) {
+      if (!orderHadRecurringEntitlement(row)) continue;
+      if (
+        typeof row.recurringCanceledAt === "number" &&
+        Number.isFinite(row.recurringCanceledAt) &&
+        row.recurringCanceledAt > 0
+      ) {
+        continue;
+      }
+      await ctx.db.patch(row._id, { recurringCanceledAt: canceledAt });
+      updatedCount += 1;
+    }
+    return { updatedCount };
   },
 });

@@ -63,6 +63,20 @@ describe("eligibility", () => {
     ).toBe(false);
   });
 
+  it("rejects Growth/Complete orders after recurringCanceledAt", () => {
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "growth", recurringCanceledAt: 1_720_000_000_000 },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "growth", recurringCanceledAt: 1_720_000_000_000 },
+        { tier: "complete" },
+      ]),
+    ).toBe(true);
+  });
+
   it("isMarketingBundleTier", () => {
     expect(isMarketingBundleTier("growth")).toBe(true);
     expect(isMarketingBundleTier("complete")).toBe(true);

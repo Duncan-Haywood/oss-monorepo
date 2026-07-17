@@ -157,7 +157,8 @@ export const AGENT_PROTOCOL = [
   "createBillingPortalForLead (operator Manage billing) must not open a portal from CRM orderEligibleForBillingPortal (tier/commerceAddon) + stored stripeCustomerId alone — after #339 hardened the public Session path, the lead path must require stripeSessionId and reuse createBillingPortalForCheckoutSession (payment_status paid + catalog recurring / Commerce Prices on listLineItems; Session customer preferred). A stale/forged CRM row must not mint Manage billing while the Session path would 400. After shipping subscription-mode catalog-recurring on Session portal/success, immediately close this lead twin before inventing another dated clean-audit (billing-portal-lead-catalog-recurring-price-gate).",
   "After a paid bundle checkout.session.completed / async_payment_succeeded marks the paid stripeSessionId complete, also markCompleteOpenBundleCheckoutSessionsForLead (Convex markCompleteOpenBundleForLead + SQLite, requireConvex) for that leadSlug so earlier abandoned open *bundle* checkout_sessions cannot keep Finish-checkout / digest / pipeline-health nudging an already-paid customer. Never close commerce_sku siblings (end-customer multi-shopper carts). Do not blanket-skip stage===paid on recovery (Starter→Growth upsell abandon after pay mints a new Session). Orphan cleanup write failures return 5xx (checkout_session_orphan_bundle_cleanup). Register checkoutSessions.markCompleteOpenBundleForLead on the static Convex API map in the same commit. After subscription-mode catalog-recurring portal gate + lead Manage-billing Session re-proof ship, prefer this orphan-open cleanup before inventing another dated clean-audit (bundle-paid-orphan-open-checkout-session-cleanup).",
   "markCompleteOpenBundleCheckoutSessionsForLead must run only after durable recordLeadPayment (+ handoff enqueue) succeeds — never immediately after parseLeadSlugLookup / Session markComplete. A paid Session that later skips fulfillment (unknown tier, wrong catalog Prices, non-USD currency, amount≠catalog) must leave sibling open bundle carts in Finish-checkout / digest recovery; closing them on slug-parse alone permanently drops retry revenue without recording payment (bundle-orphan-cleanup-after-catalog-fulfillment / #342). alreadyRecorded Stripe retries still run cleanup (idempotent) if the first delivery crashed before that step. Commerce orphan cleanup follows the same after-ledger rule (after insertCommerceOrder).",
-  "After a paid commerce_sku Checkout Session durable insertCommerceOrder, also markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer (Convex markCompleteOpenCommerceForLeadSkuCustomer + SQLite, requireConvex) for that leadSlug+skuId+normalized customerEmail so earlier abandoned open Buy now carts cannot keep digest / pipeline-health / Send Buy now recovery nudging the same shopper. Skip when customerEmail is missing — never close by leadSlug+skuId alone (multi-shopper). Orphan cleanup write failures return 5xx (checkout_session_orphan_commerce_cleanup). Register checkoutSessions.markCompleteOpenCommerceForLeadSkuCustomer on the static Convex API map in the same commit. After bundle orphan-open cleanup (+ after-fulfillment gate #342) ships, immediately audit this commerce twin before inventing another dated clean-audit (commerce-paid-orphan-open-checkout-session-cleanup). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) customer.subscription.deleted → CRM sync (larger) — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#342 money gates.",] as const;
+  "After a paid commerce_sku Checkout Session durable insertCommerceOrder, also markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer (Convex markCompleteOpenCommerceForLeadSkuCustomer + SQLite, requireConvex) for that leadSlug+skuId+normalized customerEmail so earlier abandoned open Buy now carts cannot keep digest / pipeline-health / Send Buy now recovery nudging the same shopper. Skip when customerEmail is missing — never close by leadSlug+skuId alone (multi-shopper). Orphan cleanup write failures return 5xx (checkout_session_orphan_commerce_cleanup). Register checkoutSessions.markCompleteOpenCommerceForLeadSkuCustomer on the static Convex API map in the same commit. After bundle orphan-open cleanup (+ after-fulfillment gate #342) ships, immediately audit this commerce twin before inventing another dated clean-audit (commerce-paid-orphan-open-checkout-session-cleanup).",
+  "customer.subscription.deleted must markOrdersRecurringCanceledByCustomer (Convex markRecurringCanceledByCustomer + SQLite, requireConvex / WEBHOOK_CONVEX_PRIMARY) by stripeCustomerId so canceled Growth/Complete/Commerce subscribers lose sold monthly entitlement (marketing packs / voice packs / commerce catalog). Persist orders.recurringCanceledAt (unix ms; idempotent — already-set rows stay). Gate leadEligibleForMarketingPack / leadEligibleForClientVoicePack / leadEligibleForCommerceCatalog on !recurringCanceledAt. Keep stage=paid|live and orderEligibleForBillingPortal (Billing Portal invoices/resubscribe; Starter upsell must stay mutually exclusive with historical recurring purchases). Missing customer skips (no 5xx); write failures return 5xx (orders_recurring_canceled). Register orders.markRecurringCanceledByCustomer + by_stripeCustomerId index on the static Convex API map in the same commit. After commerce orphan-open cleanup (#343) ships, prefer this CRM sync before inventing another dated clean-audit (customer-subscription-deleted-crm-sync). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) customer.subscription.updated / invoice.payment_failed residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#343 money gates.",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2578,6 +2579,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-ff47",
+  },
+  {
+    id: "customer-subscription-deleted-crm-sync",
+    summary:
+      "Empty-backlog after PR #343 (commerce-paid-orphan-open-checkout-session-cleanup). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual: customer.subscription.deleted is acknowledged but never syncs CRM — canceled Growth/Complete/Commerce subscribers keep marketing-pack / voice-pack / commerce-catalog entitlement forever. On deleted, mark matching orders.recurringCanceledAt by stripeCustomerId (requireConvex); gate sold recurring eligibility on !recurringCanceledAt. Keep stage=paid/live + Billing Portal (invoices/resubscribe). Do not unlock Starter upsell for prior Growth/Complete.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-a654",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5335,6 +5344,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "After a paid commerce_sku Checkout Session durable insertCommerceOrder, markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer (Convex markCompleteOpenCommerceForLeadSkuCustomer + SQLite, requireConvex) must close other open commerce_sku checkout_sessions for the same leadSlug+skuId+normalized customerEmail so Buy now recovery / digest / pipeline-health cannot nudge the same shopper after pay. Skip when customerEmail is missing — never close by leadSlug+skuId alone (multi-shopper). Run only after ledger write succeeds. Orphan cleanup write failures return 5xx (checkout_session_orphan_commerce_cleanup).",
     rationale:
       "Empty-backlog after PR #341/#342 (bundle orphan open-cart cleanup + after-fulfillment gate). Sibling business-process-evolution-0c15 shipped #342 same window — complementary pivot; fold both ITERATIONS. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes already-merged — rejected. Fresh residual: commerce_sku only markComplete'd the paid stripeSessionId, leaving earlier abandoned Buy now carts live. Process improvement: after bundle orphan-open cleanup (+ after-fulfillment gate), immediately audit the commerce twin with the same after-ledger ordering. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped / customer.subscription.deleted CRM sync. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "customer.subscription.deleted must markOrdersRecurringCanceledByCustomer (Convex markRecurringCanceledByCustomer + SQLite, requireConvex) by stripeCustomerId, setting orders.recurringCanceledAt (unix ms; idempotent). Sold monthly eligibility (leadEligibleForMarketingPack / leadEligibleForClientVoicePack / leadEligibleForCommerceCatalog) must ignore recurringCanceledAt rows. Keep stage=paid|live and orderEligibleForBillingPortal so Billing Portal + Starter-upsell mutual exclusion stay correct. Write failures return 5xx (orders_recurring_canceled).",
+    rationale:
+      "Empty-backlog after PR #343 (commerce orphan open-cart cleanup). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: Billing Portal cancel ends the Stripe Subscription, but CRM still treated Growth/Complete/Commerce orders as active forever — marketing packs, voice packs, and commerce catalogs kept fulfilling after churn. Process improvement: after orphan-open cleanup ships, immediately sync subscription.deleted into CRM entitlement before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped / subscription.updated·invoice.payment_failed residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -10808,6 +10824,30 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     // Object-parse by decision text: commerce orphan open cleanup owns BD[391]; after-fulfillment=390.
     decisions: BUSINESS_DECISIONS.slice(391, 392),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/business-process-evolution-a654",
+    summary:
+      "Empty-backlog after PR #343 (commerce-paid-orphan-open-checkout-session-cleanup). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Sibling prompt-process-evolution-9a1a had not claimed. Fresh money-path residual: customer.subscription.deleted was ACK'd without CRM sync, so canceled Growth/Complete/Commerce subscribers kept marketing/voice/catalog entitlement. Shipped orders.recurringCanceledAt + markRecurringCanceledByCustomer (by_stripeCustomerId) + webhook handler (5xx on write fail); gated pack/catalog eligibility on !recurringCanceledAt; kept Billing Portal + stage=paid|live; Vitest + architecture note.",
+    shipped: [
+      "convex/schema.ts — orders.recurringCanceledAt + by_stripeCustomerId index",
+      "convex/orders.ts — markRecurringCanceledByCustomer (idempotent; Growth/Complete/Commerce only)",
+      "src/lib/db.ts — markOrdersRecurringCanceledByCustomer + SQLite ALTER/index + API map registration",
+      "src/lib/orders/recurring.ts (+ test) — orderHasActiveRecurringEntitlement helpers",
+      "src/lib/marketing/monthly-pack.ts + voice/faq-pack.ts + commerce/catalog.ts — gate eligibility on !recurringCanceledAt",
+      "src/app/api/stripe/webhook/route.ts — customer.subscription.deleted → CRM sync (orders_recurring_canceled 5xx)",
+      "src/lib/payments/webhook-fulfillment.ts — orders_recurring_canceled step",
+      "Vitest: webhook + fulfillment + eligibility + recurring helper regressions",
+      "Docs: architecture.tsx notes subscription.deleted CRM sync beside Billing Portal cancel",
+      "AGENT_PROTOCOL — after commerce orphan cleanup, sync subscription.deleted into recurringCanceledAt",
+      "NEXT_STEPS: customer-subscription-deleted-crm-sync done",
+      "BUSINESS_DECISIONS — require subscription.deleted CRM sync (absolute index 392)",
+      "Process: object-parse by decision text (commerce orphan=391, after-fulfillment=390) before appending ours; claim pushed before feature body",
+      "Verified: npm test (1708 passed) + lint",
+    ],
+    // Object-parse by decision text: subscription.deleted CRM sync owns BD[392]; commerce orphan=391.
+    decisions: BUSINESS_DECISIONS.slice(392, 393),
   },
 ];
 

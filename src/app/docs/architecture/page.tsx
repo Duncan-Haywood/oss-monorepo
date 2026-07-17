@@ -508,6 +508,15 @@ export default function ArchitectureDocPage() {
         <code>insertCommerceOrder</code>; cleanup write failures return{" "}
         <code>500</code> (<code>checkout_session_orphan_commerce_cleanup</code>).
         Starter→Growth upsell after pay mints a new Checkout Session.{" "}
+        When a subscriber cancels via Billing Portal, Stripe fires{" "}
+        <code>customer.subscription.deleted</code> —{" "}
+        <code>markOrdersRecurringCanceledByCustomer</code> sets{" "}
+        <code>orders.recurringCanceledAt</code> for Growth/Complete/Commerce rows
+        matching <code>stripeCustomerId</code> (idempotent; write failures return{" "}
+        <code>500</code> / <code>orders_recurring_canceled</code>). Marketing packs,
+        client voice packs, and commerce catalogs require an uncanceled recurring
+        order; <code>stage=paid|live</code> and Billing Portal eligibility stay so
+        invoices/resubscribe and Starter-upsell mutual exclusion remain correct.{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}

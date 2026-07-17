@@ -45,11 +45,17 @@ export default defineSchema({
     customerEmail: v.string(),
     tier: v.string(),
     commerceAddon: v.boolean(),
+    /**
+     * Unix ms when customer.subscription.deleted canceled recurring entitlement.
+     * Optional — absent means still active (or never had recurring Prices).
+     */
+    recurringCanceledAt: v.optional(v.number()),
     amountTotal: v.number(),
     createdAt: v.number(),
   })
     .index("by_leadSlug", ["leadSlug"])
-    .index("by_stripeSessionId", ["stripeSessionId"]),
+    .index("by_stripeSessionId", ["stripeSessionId"])
+    .index("by_stripeCustomerId", ["stripeCustomerId"]),
 
   /** End-customer contact-form submissions (not outreach leads). */
   clientInquiries: defineTable({

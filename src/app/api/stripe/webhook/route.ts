@@ -5,6 +5,7 @@ import {
   markCheckoutSessionOpen,
   markCompleteOpenBundleCheckoutSessionsForLead,
   markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer,
+  markOrdersRecurringCanceledByCustomer,
   recordLeadPayment,
 } from "@/lib/db";
 import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
@@ -94,6 +95,12 @@ import {
  * checkout.session.async_payment_failed must markCheckoutSessionOpen so a
  * failed ACH cart re-enters Finish-checkout / Buy now recovery (recovery
  * links mint a new Checkout Session — the Stripe Session is terminal).
+ *
+ * customer.subscription.deleted must markOrdersRecurringCanceledByCustomer by
+ * stripeCustomerId (orders.recurringCanceledAt) so canceled Growth/Complete/
+ * Commerce subscribers lose marketing/voice/catalog entitlement while keeping
+ * stage=paid|live + Billing Portal. Write failures return 5xx
+ * (orders_recurring_canceled).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -823,6 +830,44 @@ export async function POST(request: Request) {
       console.warn(
         `webhook: session ${session.id} async_payment_failed — reopened for abandoned-recovery`,
       );
+      break;
+    }
+    case "customer.subscription.deleted": {
+      // Billing Portal cancel ends the Stripe Subscription. Without CRM sync,
+      // Growth/Complete/Commerce orders keep marketing-pack / voice-pack /
+      // commerce-catalog entitlement forever. Mark recurringCanceledAt by
+      // stripeCustomerId; keep stage=paid|live + Billing Portal.
+      const subscription = event.data.object as Stripe.Subscription;
+      const customerId = stripeCustomerIdFromUnknown(subscription.customer);
+      if (!customerId) {
+        console.warn(
+          `webhook: customer.subscription.deleted ${subscription.id} missing customer — skipping CRM sync`,
+        );
+        break;
+      }
+      const canceledAt =
+        typeof subscription.ended_at === "number" &&
+        Number.isFinite(subscription.ended_at) &&
+        subscription.ended_at > 0
+          ? subscription.ended_at * 1000
+          : Date.now();
+      try {
+        const updated = await markOrdersRecurringCanceledByCustomer(
+          customerId,
+          canceledAt,
+          WEBHOOK_CONVEX_PRIMARY,
+        );
+        console.warn(
+          `webhook: customer.subscription.deleted ${subscription.id} customer=${customerId} marked ${updated} order(s) recurring-canceled`,
+        );
+      } catch (e) {
+        console.error(
+          `Failed to mark recurring canceled for customer ${customerId} after subscription ${subscription.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
       break;
     }
     default:

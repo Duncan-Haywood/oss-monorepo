@@ -23,10 +23,18 @@ export function leadStageEligibleForClientVoicePack(
  */
 export function leadEligibleForClientVoicePack(
   lead: { stage: LeadPipelineStage },
-  orders: ReadonlyArray<{ tier: string }>,
+  orders: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
 ): boolean {
   if (!leadStageEligibleForClientVoicePack(lead.stage)) return false;
-  return orders.some((o) => isCompleteBundleTier(o.tier));
+  return orders.some(
+    (o) =>
+      isCompleteBundleTier(o.tier) &&
+      !(
+        typeof o.recurringCanceledAt === "number" &&
+        Number.isFinite(o.recurringCanceledAt) &&
+        o.recurringCanceledAt > 0
+      ),
+  );
 }
 
 /**
@@ -49,7 +57,11 @@ export function listClientVoicePacksDue<
   T extends { slug: string; stage: LeadPipelineStage },
 >(
   leads: T[],
-  orders: ReadonlyArray<{ leadSlug: string; tier: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    recurringCanceledAt?: number | null;
+  }>,
   existingPacks: ReadonlyArray<{ leadSlug: string }>,
 ): T[] {
   const havePack = new Set(existingPacks.map((p) => p.leadSlug));
