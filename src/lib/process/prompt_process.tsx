@@ -2501,6 +2501,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-9030",
   },
+  {
+    id: "billing-portal-checkout-payment-status-paid-gate",
+    summary:
+      "Empty-backlog after PR #335 (webhook-checkout-payment-status-paid-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual twin: createBillingPortalForCheckoutSession (public POST /api/stripe/billing-portal from /checkout/success) still opens Billing Portal when status===complete without requiring payment_status===paid — async ACH complete+unpaid can reach Manage billing via a client-supplied session_id even though success SSR hides the CTA. Require isStripeCheckoutSessionPaid before eligibility / portal create.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-9f34",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
