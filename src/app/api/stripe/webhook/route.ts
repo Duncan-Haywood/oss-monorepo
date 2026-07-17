@@ -933,6 +933,8 @@ export async function POST(request: Request) {
           }
         } catch (emailError) {
           console.error(`Failed to send receipt/DNS emails for ${slug}:`, emailError);
+          const failure = webhookFulfillmentFailureResponse("bundle_email_send");
+          return NextResponse.json(failure.body, { status: failure.status });
         }
       } else if (slug && tier) {
         console.warn(

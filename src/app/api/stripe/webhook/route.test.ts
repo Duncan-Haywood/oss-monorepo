@@ -2490,6 +2490,28 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendEmail).toHaveBeenCalledTimes(1);
     });
 
+    it("returns 500 when unexpected DNS email formatting fails, so Stripe retries missing markers", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      getDeployHandoffBySlug.mockResolvedValue(
+        existingHandoff({ dnsInstructions: null as never }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_email_send");
+      // The buyer receipt completed before the DNS formatter failed; its
+      // independent marker remains durable while DNS is retried.
+      expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
+    });
+
     it("does not mark the receipt sent when sendReceiptEmail resolves success:false (suppressed), so redelivery retries it", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },
