@@ -674,12 +674,15 @@ export default function ArchitectureDocPage() {
         <code>resolveCommerceAddonFromLineItems</code> helper as the bundle webhook — never from{" "}
         <code>metadata.commerceAddon</code> alone (a forged flag must not open Manage billing
         without the Commerce Prices on the charge; list failures return 502 so the buyer can
-        retry). Payment mode also ignores <code>metadata.tier</code> — create path never emits
-        payment + Growth/Complete (<code>hasRecurring</code> → subscription), so trusting tier
-        would only help Dashboard-minted sessions; eligibility uses shared{" "}
-        <code>checkoutSessionEligibleForBillingPortal</code> (also on{" "}
-        <code>loadCheckoutSuccessSession</code>). Orders store <code>stripeCustomerId</code> when
-        the webhook records payment;        older orders fall back to retrieving the Checkout Session.{" "}
+        retry). <code>loadCheckoutSuccessSession</code> uses the same line-item derive before
+        showing the Manage billing CTA (list failures fail closed to hide the button — UI must
+        not advertise a portal open the API would reject). Payment mode also ignores{" "}
+        <code>metadata.tier</code> — create path never emits payment + Growth/Complete (
+        <code>hasRecurring</code> → subscription), so trusting tier would only help
+        Dashboard-minted sessions; eligibility uses shared{" "}
+        <code>checkoutSessionEligibleForBillingPortal</code>. Orders store{" "}
+        <code>stripeCustomerId</code> when the webhook records payment; older orders fall back to
+        retrieving the Checkout Session.{" "}
         <code>listOrders</code> returns newest-first on both backends (
         <code>convex/orders.list</code> sorts by <code>createdAt</code> desc at the source,
         plus <code>sortOrdersNewestFirst</code> in <code>db.ts</code> as belt-and-suspenders)
