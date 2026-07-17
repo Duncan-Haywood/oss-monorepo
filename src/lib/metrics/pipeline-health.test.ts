@@ -119,6 +119,8 @@ describe("computePipelineHealth", () => {
     expect(health.clientVoicePacksDueCount).toBe(0);
     expect(health.recurringEntitlementPausedCount).toBe(0);
     expect(health.oldestRecurringEntitlementPausedAgeHours).toBeNull();
+    expect(health.starterUpsellCandidatesCount).toBe(0);
+    expect(health.oldestStarterUpsellCandidateAgeHours).toBeNull();
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
@@ -664,6 +666,46 @@ describe("computePipelineHealth", () => {
     expect(health.marketingPacksDueCount).toBe(1);
     expect(health.recurringEntitlementPausedCount).toBe(1);
     expect(health.oldestRecurringEntitlementPausedAgeHours).toBe(5);
+  });
+
+  it("counts paid/live Starter-only leads ready for a Growth/Complete upsell nudge", () => {
+    const upsellCandidate = makeLead("paid", { slug: "starter-upsell", email: "owner@example.com" });
+    const olderCandidate = makeLead("live", { slug: "starter-upsell-older", email: "owner2@example.com" });
+    const alreadyRecurring = makeLead("live", { slug: "already-growth", email: "owner3@example.com" });
+    const noEmail = makeLead("paid", { slug: "starter-no-email", email: undefined });
+    const olderCreatedAt = NOW - 10 * HOUR_MS;
+    const health = computePipelineHealth({
+      leads: [upsellCandidate, olderCandidate, alreadyRecurring, noEmail],
+      orders: [
+        {
+          ...makeOrder(500),
+          id: "o1",
+          leadSlug: "starter-upsell",
+          tier: "starter",
+          createdAt: new Date(NOW - 4 * HOUR_MS).toISOString(),
+        },
+        {
+          ...makeOrder(500),
+          id: "o2",
+          leadSlug: "starter-upsell-older",
+          tier: "starter",
+          createdAt: new Date(olderCreatedAt).toISOString(),
+        },
+        { ...makeOrder(599), id: "o3", leadSlug: "already-growth", tier: "growth" },
+        {
+          ...makeOrder(500),
+          id: "o4",
+          leadSlug: "starter-no-email",
+          tier: "starter",
+          createdAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.starterUpsellCandidatesCount).toBe(2);
+    expect(health.oldestStarterUpsellCandidateAgeHours).toBe(10);
   });
 
   it("counts paid/live commerceAddon leads missing a catalog", () => {

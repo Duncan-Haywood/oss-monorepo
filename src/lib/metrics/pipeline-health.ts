@@ -50,6 +50,10 @@ import {
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
 } from "@/lib/orders/recurring";
+import {
+  listStarterUpsellCandidates,
+  oldestStarterUpsellCandidateAgeHours,
+} from "@/lib/billing/starter-upsell";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -215,6 +219,16 @@ export interface PipelineHealth {
   recurringEntitlementPausedCount: number;
   /** Age in whole hours of the oldest recurring entitlement pause; null when none. */
   oldestRecurringEntitlementPausedAgeHours: number | null;
+  /**
+   * Paid/live Starter-only leads with a usable email and no Growth/Complete/
+   * Commerce order yet — the MRR upsell nudge queue (see
+   * paid-starter-upsell-nudge). Already shipped in the digest email and its
+   * own dashboard panel; folded into pipeline-health too so it gets the same
+   * always-on summary-card + staleness signal as every other due queue.
+   */
+  starterUpsellCandidatesCount: number;
+  /** Age in whole hours since the oldest qualifying Starter order; null when none. */
+  oldestStarterUpsellCandidateAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -600,6 +614,13 @@ export function computePipelineHealth(input: {
     nowMs,
   );
 
+  const starterUpsellCandidates = listStarterUpsellCandidates(input.leads, input.orders);
+  const oldestStarterUpsellAgeHours = oldestStarterUpsellCandidateAgeHours(
+    starterUpsellCandidates,
+    input.orders,
+    nowMs,
+  );
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -646,6 +667,8 @@ export function computePipelineHealth(input: {
     oldestCommerceOrdersDisputeClawbackAgeHours,
     recurringEntitlementPausedCount,
     oldestRecurringEntitlementPausedAgeHours: oldestRecurringPausedAgeHours,
+    starterUpsellCandidatesCount: starterUpsellCandidates.length,
+    oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellAgeHours,
   };
 }
 

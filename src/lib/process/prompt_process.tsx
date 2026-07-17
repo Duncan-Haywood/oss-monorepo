@@ -2812,6 +2812,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/upbeat-dijkstra-yd6du5",
   },
+  {
+    id: "starter-upsell-pipeline-health-metric",
+    summary:
+      "Empty-backlog after PR #370 (digest-clawback-oldest-age). paid-starter-upsell-nudge shipped listStarterUpsellCandidates, wired into daily-digest.ts (email section) and its own dashboard panel — but never into pipeline-health.ts, so the always-on dashboard summary-card grid at the top of /dashboard/leads (every other due-queue: marketing packs due, voice packs due, catalogs missing/unsynced, follow-ups due, recurring-entitlement-paused) had no 'Starter upsell due' card and no staleness signal, unlike every sibling MRR-conversion queue. Shipped: starterUpsellCandidatesCount + oldestStarterUpsellCandidateAgeHours on PipelineHealth (new oldestStarterUpsellCandidateAgeHours helper in src/lib/billing/starter-upsell.ts, same list+age-helper-pair pattern as oldestRecurringEntitlementPausedAgeHours) + a 'Starter → MRR upsell' MetricCard on the dashboard panel.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/nice-euler-ivhr57",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5747,6 +5755,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Every action-section title in renderDailyDigestHtml that pipeline-health also surfaces as a card with an 'oldest Xh/Xd' hint must show the matching oldest-age in its own header — the daily digest email is the one surface a single-operator business can act on without opening /dashboard/leads, so it must carry the same staleness signal the dashboard already does. Compute each oldest-age with the same min-timestamp-scan pattern already used for oldestFollowUpDueAgeHours / oldestAbandonedAgeHours (never Date.now() — always the caller-supplied nowMs), scanning the full pre-slice candidate list, not the LIMIT-sliced rows shown in the email body.",
     rationale:
       "Empty-backlog after PR #369 (bundle-order-dispute-tracking) merged with a two-way sibling claim race resolved in 19a4's favor (earlier claim commit + feature body already pushed; 67e8 was claim-only and pivoted per AGENT_PROTOCOL's same-minute-dual-claim rule). Scanned ~25 of the most recently-pushed remotes by actual committer date for stuck-but-complete work: everything with a nonzero diffstat against main was either already-superseded (claude/nice-euler-0x1k8a's refund/clawback work is a strict subset of what #360 already shipped), byte-identical to already-merged code (cursor/prompt-process-evolution-2607's preview soft-cap), or CI-workflow-only (matching the two already-open, unrelated #365/#366 PRs) — nothing to fold. Read pipeline-health.ts and daily-digest.ts side by side and found a real, narrow gap: all four refund/dispute-clawback sections (commerceOrdersRefundClawback, commerceOrdersDisputeClawback, bundleOrdersRefunded, bundleOrdersDisputed) already compute matching row lists/totals in both files, and pipeline-health.ts computes + the dashboard panel renders an oldest-age hint for all four, but daily-digest.ts never did — every other digest action section (follow-ups, abandoned checkouts, unreplied inquiries, cold leads, MRR paused) already has this pattern, so this was a genuine inconsistency, not a manufactured metric. Shipped the same min-timestamp-scan IIFE pattern already used elsewhere in the same file for all four sections, wired the ' · oldest Xh' suffix into each of the four section titles, and added dedicated multi-record tests (oldest-of-N selection, not just the single-record smoke tests the sections already had) plus a combined render test asserting all four headers. Next empty-backlog: re-scan stuck remotes for a genuine fold candidate first / an untested payment-critical orchestration module / a fresh security pass on a surface not touched in the last ~10 iterations — reject re-doing the money/entitlement/refund/dispute gates already covered #320–#369.",
+  },
+  {
+    id: "starter-upsell-pipeline-health-metric",
+    date: "2026-07-17",
+    decision:
+      "Every sold-capability due-queue with an operator-facing money/fulfillment signal (marketing packs due, voice packs due, catalogs missing/unsynced, follow-ups due, recurring-entitlement-paused, and now Starter→MRR upsell candidates) must be wired into pipeline-health.ts's always-on summary-card grid, not just the daily-digest email or a lower dashboard panel — an operator who only glances at the top of /dashboard/leads should see every stuck-money/fulfillment queue, not just the ones a prior iteration happened to fold in first. listStarterUpsellCandidates + a new oldestStarterUpsellCandidateAgeHours helper (same list+age-helper-pair shape as listRecurringEntitlementPaused/oldestRecurringEntitlementPausedAgeHours) is the reusable primitive; pipeline-health.ts and any future digest oldest-age follow-up should both call it rather than re-deriving order age inline.",
+    rationale:
+      "Empty-backlog after PR #370 (digest-clawback-oldest-age). Free NEXT_STEPS stayed fully operator/legal-gated (4 items: stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect) — none actionable without live secrets/OAuth/counsel. Fetched all remote branches and checked which had real commits ahead of origin/main; the genuinely live ones (claude/relaxed-archimedes-9r5fq6, claude/vigilant-goldberg-q3rsfe — CI/scheduled-agent workflow auth; cursor/prompt-process-evolution-0329 + cursor/business-process-evolution-d518 — billing-portal-session commerceAddon/payment-mode metadata parity) were infra/unrelated to a product-metrics surface, so no collision risk. Per AGENT_PROTOCOL's empty-backlog fallback ladder, tier 1 is 'wiring an already-shipped sold-capability helper missing from pipeline-health/digest/dashboard' — read every NEXT_STEPS entry end to end and found paid-starter-upsell-nudge (shipped listStarterUpsellCandidates, wired into daily-digest.ts and its own dashboard panel) was the one capability whose due-count never reached pipeline-health.ts, unlike every sibling due-queue in that exact file. Verified live: npm run dev + curl /dashboard/leads confirmed the new 'Starter → MRR upsell' card renders.",
   },
 ];
 
@@ -11774,5 +11790,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1923 passed = main@#369's 1918 + 5 new: 4 multi-record oldest-age unit tests + 1 combined render test) + lint + build (tsc clean, all 31 routes generated) + npm run dev sanity check on /, /dashboard/leads, /docs/architecture (all 200s)",
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "digest-clawback-oldest-age"),
+  },
+  {
+    date: "2026-07-17",
+    branch: "claude/nice-euler-ivhr57",
+    summary:
+      "Empty-backlog after PR #370 (digest-clawback-oldest-age). Free NEXT_STEPS stayed fully operator/legal-gated (4 items: stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Fetched every remote branch and filtered to ones with real commits ahead of origin/main; the live ones (claude/relaxed-archimedes-9r5fq6, claude/vigilant-goldberg-q3rsfe — CI/scheduled-agent workflow auth; cursor/prompt-process-evolution-0329 + cursor/business-process-evolution-d518 — billing-portal-session commerceAddon/payment-mode metadata parity) were unrelated infra, no collision risk. Per AGENT_PROTOCOL's empty-backlog fallback ladder (tier 1: wire an already-shipped sold-capability helper missing from pipeline-health/digest/dashboard), read every NEXT_STEPS entry end to end and found paid-starter-upsell-nudge was the one capability whose due-count never reached pipeline-health.ts's always-on summary-card grid — listStarterUpsellCandidates was wired into daily-digest.ts and its own dashboard panel, but every sibling due-queue (marketing packs due, voice packs due, catalogs missing/unsynced, follow-ups due, recurring-entitlement-paused) also gets a pipeline-health MetricCard + oldest-age staleness signal, which this one lacked.",
+    shipped: [
+      "src/lib/billing/starter-upsell.ts (+ test) — oldestStarterUpsellCandidateAgeHours (list+age-helper-pair pattern matching oldestRecurringEntitlementPausedAgeHours: filters orders to candidate slugs + isStarterOnlyOrder, min createdAt, hours-since via caller-supplied nowMs, clamps to 0 when nowMs precedes the order)",
+      "src/lib/metrics/pipeline-health.ts (+ test) — starterUpsellCandidatesCount + oldestStarterUpsellCandidateAgeHours fields on PipelineHealth, computed via listStarterUpsellCandidates + the new age helper",
+      "src/components/dashboard/pipeline-health-panel.tsx — new 'Starter → MRR upsell' MetricCard beside 'MRR paused / canceled', same hint/attention shape as every other due-queue card",
+      "NEXT_STEPS: starter-upsell-pipeline-health-metric done",
+      "BUSINESS_DECISIONS — starter-upsell-pipeline-health-metric (id-based entry)",
+      "Process: claim + feature body shipped together (no sibling concurrently building this file); new decision + this entry reference each other by id",
+      "Verified: npm test (1927 passed = main@#370's 1923 + 4 new: 3 oldestStarterUpsellCandidateAgeHours unit tests + 1 pipeline-health integration test) + lint (clean) + tsc --noEmit -p . (46 pre-existing unrelated errors, unchanged before/after — confirmed via git stash) + build (tsc clean under next build's own config, all 31 routes generated) + npm run dev sanity check on /dashboard/leads (curl confirmed the 'Starter → MRR upsell' card text renders in the HTML)",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "starter-upsell-pipeline-health-metric",
+    ),
   },
 ];
