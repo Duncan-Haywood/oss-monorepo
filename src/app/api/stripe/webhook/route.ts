@@ -14,6 +14,7 @@ import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import {
   invoicePaymentFailedPausesRecurringEntitlement,
   stripeSubscriptionGrantsRecurringEntitlement,
+  stripeSubscriptionHasPauseCollection,
   stripeSubscriptionPausesRecurringEntitlement,
 } from "@/lib/orders/recurring";
 import {
@@ -110,12 +111,13 @@ import {
  *
  * customer.subscription.created|updated with status active|trialing must
  * clearOrdersRecurringCanceledByCustomer so Billing Portal / Checkout
- * resubscribers regain packs/catalog. past_due|unpaid on the same events
- * (and invoice.payment_failed for subscription invoices) must
- * markOrdersRecurringCanceledByCustomer so failed renewals pause packs before
- * subscription.deleted. Other non-active statuses and missing customer skip
- * (no 5xx). Write failures return 5xx (orders_recurring_reactivated /
- * orders_recurring_canceled).
+ * resubscribers regain packs/catalog — unless pause_collection is set (status
+ * stays active while collection is paused; markOrdersRecurringCanceledByCustomer
+ * first). past_due|unpaid on the same events (and invoice.payment_failed for
+ * subscription invoices) must markOrdersRecurringCanceledByCustomer so failed
+ * renewals pause packs before subscription.deleted. Other non-active statuses
+ * and missing customer skip (no 5xx). Write failures return 5xx
+ * (orders_recurring_reactivated / orders_recurring_canceled).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -890,11 +892,20 @@ export async function POST(request: Request) {
       // Twin of subscription.deleted: Billing Portal / Checkout resubscribe
       // mints an active Subscription for a customer whose CRM orders still
       // carry recurringCanceledAt — clear so packs/catalog resume. past_due|
-      // unpaid pause packs (failed renewal before cancel). Skip
-      // canceled/incomplete (deleted handles cancel; incomplete is pre-pay).
+      // unpaid pause packs (failed renewal before cancel). pause_collection
+      // also pauses even when status stays active|trialing (must run before
+      // the grants clear). Skip canceled/incomplete (deleted handles cancel;
+      // incomplete is pre-pay).
       const subscription = event.data.object as Stripe.Subscription;
-      const grants = stripeSubscriptionGrantsRecurringEntitlement(subscription.status);
-      const pauses = stripeSubscriptionPausesRecurringEntitlement(subscription.status);
+      const collectionPaused = stripeSubscriptionHasPauseCollection(
+        subscription.pause_collection,
+      );
+      const grants =
+        !collectionPaused &&
+        stripeSubscriptionGrantsRecurringEntitlement(subscription.status);
+      const pauses =
+        collectionPaused ||
+        stripeSubscriptionPausesRecurringEntitlement(subscription.status);
       if (!grants && !pauses) {
         break;
       }
@@ -939,7 +950,9 @@ export async function POST(request: Request) {
           WEBHOOK_CONVEX_PRIMARY,
         );
         console.warn(
-          `webhook: ${event.type} ${subscription.id} customer=${customerId} status=${subscription.status} paused recurring entitlement on ${updated} order(s)`,
+          `webhook: ${event.type} ${subscription.id} customer=${customerId} status=${subscription.status}${
+            collectionPaused ? " pause_collection" : ""
+          } paused recurring entitlement on ${updated} order(s)`,
         );
       } catch (e) {
         console.error(

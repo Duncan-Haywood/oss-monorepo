@@ -5,6 +5,7 @@ import {
   orderHasActiveRecurringEntitlement,
   orderRecurringIsCanceled,
   stripeSubscriptionGrantsRecurringEntitlement,
+  stripeSubscriptionHasPauseCollection,
   stripeSubscriptionPausesRecurringEntitlement,
 } from "./recurring";
 
@@ -94,5 +95,20 @@ describe("invoicePaymentFailedPausesRecurringEntitlement", () => {
     expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: "" })).toBe(false);
     expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: "   " })).toBe(false);
     expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: {} })).toBe(false);
+  });
+});
+
+describe("stripeSubscriptionHasPauseCollection", () => {
+  it("treats a non-null object as paused (behavior void/keep_as_draft/mark_uncollectible)", () => {
+    expect(stripeSubscriptionHasPauseCollection({ behavior: "void" })).toBe(true);
+    expect(stripeSubscriptionHasPauseCollection({ behavior: "keep_as_draft" })).toBe(true);
+    expect(stripeSubscriptionHasPauseCollection({})).toBe(true);
+  });
+
+  it("rejects null/undefined/non-objects", () => {
+    expect(stripeSubscriptionHasPauseCollection(null)).toBe(false);
+    expect(stripeSubscriptionHasPauseCollection(undefined)).toBe(false);
+    expect(stripeSubscriptionHasPauseCollection("void")).toBe(false);
+    expect(stripeSubscriptionHasPauseCollection(0)).toBe(false);
   });
 });

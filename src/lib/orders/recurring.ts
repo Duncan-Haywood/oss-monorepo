@@ -7,7 +7,8 @@
  * active|trialing clears recurringCanceledAt so resubscribers regain packs.
  * past_due|unpaid subscription.updated and invoice.payment_failed (subscription
  * invoices) re-mark recurringCanceledAt so failed renewals pause packs until
- * payment recovers to active|trialing.
+ * payment recovers to active|trialing. pause_collection on an otherwise
+ * active|trialing Subscription also pauses — status alone would wrongly clear.
  */
 
 /** True when the order ever carried a Growth/Complete/Commerce recurring Price. */
@@ -42,8 +43,11 @@ export function orderHasActiveRecurringEntitlement(order: {
 
 /**
  * Stripe Subscription statuses that restore CRM recurring entitlement after a
- * prior customer.subscription.deleted or past_due/unpaid pause. past_due /
- * unpaid must not clear — they pause via stripeSubscriptionPausesRecurringEntitlement.
+ * prior customer.subscription.deleted or past_due/unpaid / pause_collection
+ * pause. past_due / unpaid must not clear — they pause via
+ * stripeSubscriptionPausesRecurringEntitlement. Callers must also reject
+ * pause_collection (stripeSubscriptionHasPauseCollection) before clearing —
+ * paused Subs keep status active|trialing.
  */
 export function stripeSubscriptionGrantsRecurringEntitlement(
   status: string | null | undefined,
@@ -56,11 +60,25 @@ export function stripeSubscriptionGrantsRecurringEntitlement(
  * customer still has a Subscription (failed renewal before cancel). Reuses
  * orders.recurringCanceledAt; active|trialing clear restores after recovery.
  * canceled/incomplete are handled by subscription.deleted / skip (not pause).
+ * pause_collection is a separate axis (status stays active) — see
+ * stripeSubscriptionHasPauseCollection.
  */
 export function stripeSubscriptionPausesRecurringEntitlement(
   status: string | null | undefined,
 ): boolean {
   return status === "past_due" || status === "unpaid";
+}
+
+/**
+ * True when Stripe pause_collection is set on a Subscription. Collection pause
+ * keeps status=active|trialing while invoices are not collected — CRM must
+ * pause packs/catalog (same recurringCanceledAt) before the grants clear path
+ * would restore entitlement for a non-paying subscriber.
+ */
+export function stripeSubscriptionHasPauseCollection(
+  pauseCollection: unknown,
+): boolean {
+  return pauseCollection != null && typeof pauseCollection === "object";
 }
 
 /**

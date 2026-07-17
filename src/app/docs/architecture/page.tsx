@@ -517,9 +517,12 @@ export default function ArchitectureDocPage() {
         pause the same field on <code>customer.subscription.updated</code> with
         status <code>past_due</code>|<code>unpaid</code> and on{" "}
         <code>invoice.payment_failed</code> for subscription invoices (one-time
-        invoices skip). When they resubscribe or recover,{" "}
-        <code>customer.subscription.created</code> / <code>updated</code> with
-        status <code>active</code>|<code>trialing</code> calls{" "}
+        invoices skip). Stripe <code>pause_collection</code> also pauses even when
+        status stays <code>active</code>|<code>trialing</code> (checked before the
+        grants clear). When they resubscribe, recover, or clear{" "}
+        <code>pause_collection</code>, <code>customer.subscription.created</code> /{" "}
+        <code>updated</code> with status <code>active</code>|<code>trialing</code>{" "}
+        and no <code>pause_collection</code> calls{" "}
         <code>clearOrdersRecurringCanceledByCustomer</code> so packs/catalog resume
         (write failures return <code>500</code> /{" "}
         <code>orders_recurring_reactivated</code>). Marketing packs, client voice
