@@ -104,14 +104,14 @@ jobs:
           set -euo pipefail
           PROMPT="$(cat "$PROMPT_FILE")"
           # GitHub-hosted runners are already isolated; agents need network for gh/npm.
-          # --ask-for-approval is a global flag: it must precede the `exec` subcommand,
-          # not follow it (codex exec has its own flag set and rejects it there).
-          codex \
-            --ask-for-approval never \
-            -c 'cli_auth_credentials_store="file"' \
-            exec \
+          # `--ask-for-approval` is no longer accepted by the current Codex CLI
+          # (`codex exec --help` doesn't list it); use the config-key override
+          # instead, verified against the CLI's own --help output.
+          codex exec \
             --model gpt-5.6-luna \
             --sandbox danger-full-access \
+            -c 'approval_policy="never"' \
+            -c 'cli_auth_credentials_store="file"' \
             "$PROMPT"
 
       - name: Persist refreshed OAuth auth
