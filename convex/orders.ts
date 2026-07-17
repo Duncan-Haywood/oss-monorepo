@@ -13,6 +13,7 @@ const orderDocValidator = v.object({
   recurringCanceledAt: v.optional(v.number()),
   amountTotal: v.number(),
   createdAt: v.number(),
+  refundedAt: v.optional(v.string()),
 });
 
 function orderHadRecurringEntitlement(order: {
@@ -176,6 +177,8 @@ export const clearRecurringCanceledByCustomer = mutation({
         continue;
       }
       // replace so omitted optionals clear — patch(undefined) would leave the field.
+      // Carry refundedAt forward untouched (this mutation only clears the
+      // recurring-cancel pause; a refunded order stays refunded on reactivate).
       await ctx.db.replace(row._id, {
         leadSlug: row.leadSlug,
         stripeSessionId: row.stripeSessionId,
@@ -185,6 +188,7 @@ export const clearRecurringCanceledByCustomer = mutation({
         commerceAddon: row.commerceAddon,
         amountTotal: row.amountTotal,
         createdAt: row.createdAt,
+        refundedAt: row.refundedAt,
       });
       updatedCount += 1;
     }
@@ -240,5 +244,32 @@ export const syncRecurringEntitlementByCustomer = mutation({
       updatedCount += 1;
     }
     return { updatedCount };
+  },
+});
+
+/**
+ * Flags a bundle order as refunded by Stripe (charge.refunded). Keyed on
+ * stripeSessionId (unique) — mirrors commerceOrders.markRefunded. Idempotent:
+ * a row that already has refundedAt is left unchanged (webhook redelivery).
+ * See bundle-order-refund-tracking.
+ */
+export const markRefunded = mutation({
+  args: {
+    stripeSessionId: v.string(),
+    refundedAt: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const row = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId)
+      )
+      .unique();
+    if (!row || row.refundedAt) {
+      return null;
+    }
+    await ctx.db.patch(row._id, { refundedAt: args.refundedAt });
+    return null;
   },
 });

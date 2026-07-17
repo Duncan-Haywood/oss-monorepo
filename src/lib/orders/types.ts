@@ -22,6 +22,17 @@ export interface OrderRecord {
   amountPaid: number;
   status: string;
   createdAt: string;
+  /**
+   * ISO timestamp when Stripe charge.refunded (full or partial) resolved to
+   * this bundle order's Checkout Session. Absent/undefined means never
+   * refunded. See isOrderRefunded / bundle-order-refund-tracking.
+   */
+  refundedAt?: string;
+}
+
+/** True when Stripe has refunded (fully or partially) this bundle order's charge. */
+export function isOrderRefunded(order: Pick<OrderRecord, "refundedAt">): boolean {
+  return Boolean(order.refundedAt);
 }
 
 /**

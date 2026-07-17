@@ -106,6 +106,9 @@ describe("computePipelineHealth", () => {
     expect(health.revenueTotalUsd).toBe(0);
     expect(health.leadCount).toBe(0);
     expect(health.orderCount).toBe(0);
+    expect(health.bundleOrdersRefundedCount).toBe(0);
+    expect(health.bundleOrdersRefundedUsd).toBe(0);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBeNull();
     expect(health.marketingPacksDueCount).toBe(0);
     expect(health.marketingPacksDueMonth).toBe("1970-01");
     expect(health.commerceCatalogsMissingCount).toBe(0);
@@ -134,6 +137,57 @@ describe("computePipelineHealth", () => {
     });
     expect(health.revenueTotalUsd).toBe(750);
     expect(health.orderCount).toBe(3);
+  });
+
+  it("excludes refunded bundle orders from revenueTotalUsd but keeps orderCount", () => {
+    const refunded = { ...makeOrder(300), refundedAt: "2026-07-01T00:00:00.000Z" };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500), refunded],
+      handoffs: [],
+      inquiries: [],
+      nowMs: Date.parse("2026-07-03T00:00:00.000Z"),
+    });
+    expect(health.revenueTotalUsd).toBe(500);
+    expect(health.orderCount).toBe(2);
+    expect(health.bundleOrdersRefundedCount).toBe(1);
+    expect(health.bundleOrdersRefundedUsd).toBe(300);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBe(48);
+  });
+
+  it("returns zero bundle refund stats and null age when nothing is refunded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500)],
+      handoffs: [],
+      inquiries: [],
+    });
+    expect(health.bundleOrdersRefundedCount).toBe(0);
+    expect(health.bundleOrdersRefundedUsd).toBe(0);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBeNull();
+  });
+
+  it("reports the oldest refundedAt among multiple refunded bundle orders", () => {
+    const older = {
+      ...makeOrder(100),
+      id: "order_older",
+      refundedAt: "2026-06-01T00:00:00.000Z",
+    };
+    const newer = {
+      ...makeOrder(200),
+      id: "order_newer",
+      refundedAt: "2026-07-01T00:00:00.000Z",
+    };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [newer, older],
+      handoffs: [],
+      inquiries: [],
+      nowMs: Date.parse("2026-07-02T00:00:00.000Z"),
+    });
+    expect(health.bundleOrdersRefundedCount).toBe(2);
+    expect(health.bundleOrdersRefundedUsd).toBe(300);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBeGreaterThan(700);
   });
 
   it("counts leads per stage", () => {

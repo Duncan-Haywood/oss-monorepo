@@ -122,7 +122,16 @@ export type WebhookFulfillmentStep =
    * leaving Mark paid out rejected and Dispute clawback needed counting a
    * false clawback after Stripe reinstated the funds.
    */
-  | "commerce_order_dispute_clear";
+  | "commerce_order_dispute_clear"
+  /**
+   * Marking orders.refundedAt (bundle Starter/Growth/Complete/Commerce-addon
+   * revenue) after charge.refunded resolves the order's Checkout Session —
+   * required so Stripe retries rather than leaving a refunded bundle order
+   * still counted in revenueTotalUsd with no operator visibility. See
+   * bundle-order-refund-tracking. Session lookup itself reuses
+   * commerce_order_refund_session_lookup (shared correlation call).
+   */
+  | "bundle_order_refund";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

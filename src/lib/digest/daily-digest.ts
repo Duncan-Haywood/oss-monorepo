@@ -70,6 +70,7 @@ const CLIENT_VOICE_PACKS_LIMIT = 5;
 const COMMERCE_PAYOUTS_LIMIT = 5;
 const COMMERCE_REFUND_CLAWBACK_LIMIT = 5;
 const COMMERCE_DISPUTE_CLAWBACK_LIMIT = 5;
+const BUNDLE_ORDERS_REFUNDED_LIMIT = 5;
 const OPEN_HANDOFFS_LIMIT = 5;
 const PAID_NOT_LIVE_LIMIT = 5;
 const LEADS_MISSING_EMAIL_LIMIT = 5;
@@ -176,6 +177,21 @@ export interface DigestCommerceOrderDisputeClawback {
   disputedAt: string;
 }
 
+/**
+ * A bundle (Starter/Growth/Complete/Commerce-addon) order Stripe refunded
+ * (charge.refunded, full or partial) — see bundle-order-refund-tracking.
+ * Visibility only: unlike Commerce Buy now clawback tracking, this ledger has
+ * no manual-payout double-loss risk, so this is not an action-required
+ * clawback, just operator awareness that revenueTotalUsd already excludes it.
+ */
+export interface DigestBundleOrderRefund {
+  slug: string;
+  businessName: string;
+  tier: string;
+  amountPaidUsd: number;
+  refundedAt: string;
+}
+
 /** Paid production handoff not yet Mark live (same predicate as openHandoffCount). */
 export interface DigestOpenHandoff {
   slug: string;
@@ -262,6 +278,16 @@ export interface DailyDigest {
   /** Sum of amountPaidUsd across commerceOrdersDisputeClawbackCount orders — already computed pre-slice. */
   commerceOrdersDisputeClawbackTotalUsd: number;
   /**
+   * Bundle (Starter/Growth/Complete/Commerce-addon) orders Stripe refunded —
+   * visibility footnote, not an action section (no clawback owed on this
+   * ledger; see bundle-order-refund-tracking).
+   */
+  bundleOrdersRefunded: DigestBundleOrderRefund[];
+  /** True count before the BUNDLE_ORDERS_REFUNDED_LIMIT slice — use for the section header. */
+  bundleOrdersRefundedCount: number;
+  /** Sum of amountPaidUsd across bundleOrdersRefundedCount orders — already computed pre-slice. */
+  bundleOrdersRefundedTotalUsd: number;
+  /**
    * Paid sites still awaiting DNS / Mark live — same status !== "live" filter as
    * pipeline-health openHandoffCount (action section).
    */
@@ -333,6 +359,10 @@ export interface BuildDailyDigestInput {
     commerceAddon: boolean;
     recurringCanceledAt?: number | null;
     stripeCustomerId?: string | null;
+    /** USD dollars. Only the bundle-revenue-refunded section reads this. */
+    amountPaid?: number;
+    /** ISO timestamp when charge.refunded flagged this order — see bundle-order-refund-tracking. */
+    refundedAt?: string;
   }>;
   marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
   commerceCatalogs?: ReadonlyArray<{
@@ -604,6 +634,27 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         disputedAt: order.disputedAt ?? "",
       }));
 
+  // Bundle order refunds — visibility footnote, not a clawback action (no
+  // payout-panel double-loss risk on this ledger; see
+  // bundle-order-refund-tracking).
+  const bundleOrdersRefundedAll = orders.filter(
+    (order): order is typeof order & { refundedAt: string } => Boolean(order.refundedAt),
+  );
+  const bundleOrdersRefundedCount = bundleOrdersRefundedAll.length;
+  const bundleOrdersRefundedTotalUsd = bundleOrdersRefundedAll.reduce(
+    (sum, order) => sum + (typeof order.amountPaid === "number" ? order.amountPaid : 0),
+    0,
+  );
+  const bundleOrdersRefunded: DigestBundleOrderRefund[] = bundleOrdersRefundedAll
+    .slice(0, BUNDLE_ORDERS_REFUNDED_LIMIT)
+    .map((order) => ({
+      slug: order.leadSlug,
+      businessName: leadsBySlug.get(order.leadSlug)?.businessName ?? order.leadSlug,
+      tier: order.tier,
+      amountPaidUsd: typeof order.amountPaid === "number" ? order.amountPaid : 0,
+      refundedAt: order.refundedAt,
+    }));
+
   // Same status !== "live" predicate as pipeline-health openHandoffCount.
   const openHandoffsAll = handoffs
     .filter((handoff) => handoff.status !== "live")
@@ -707,6 +758,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commercePayoutsOwed.length === 0 &&
     commerceOrdersRefundClawback.length === 0 &&
     commerceOrdersDisputeClawback.length === 0 &&
+    bundleOrdersRefunded.length === 0 &&
     openHandoffs.length === 0 &&
     paidNotLive.length === 0 &&
     leadsMissingEmail.length === 0 &&
@@ -742,6 +794,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceOrdersDisputeClawback,
     commerceOrdersDisputeClawbackCount,
     commerceOrdersDisputeClawbackTotalUsd,
+    bundleOrdersRefunded,
+    bundleOrdersRefundedCount,
+    bundleOrdersRefundedTotalUsd,
     openHandoffs,
     openHandoffsCount,
     paidNotLive,
@@ -898,6 +953,15 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ? `Dispute clawback needed ($${digest.commerceOrdersDisputeClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersDisputeClawbackCount} order${digest.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"})`
       : "Dispute clawback needed (0)";
 
+  const bundleRefundRows = digest.bundleOrdersRefunded.map(
+    (row) =>
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} (${escapeHtmlForEmail(row.tier)}) refunded by Stripe — already excluded from revenue, no action needed`,
+  );
+  const bundleRefundTitle =
+    digest.bundleOrdersRefundedCount > 0
+      ? `Bundle revenue refunded ($${digest.bundleOrdersRefundedTotalUsd.toFixed(2)} · ${digest.bundleOrdersRefundedCount} order${digest.bundleOrdersRefundedCount === 1 ? "" : "s"})`
+      : "Bundle revenue refunded (0)";
+
   const handoffRows = digest.openHandoffs.map(
     (handoff) =>
       `<strong>${escapeHtmlForEmail(handoff.businessName)}</strong> — ${escapeHtmlForEmail(handoff.status)} · ${escapeHtmlForEmail(handoff.host)} (${escapeHtmlForEmail(handoff.tier)})`,
@@ -950,6 +1014,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
     ${section(clawbackTitle, clawbackRows, "No Commerce payouts have been refunded after the fact.")}
     ${section(disputeClawbackTitle, disputeClawbackRows, "No Commerce payouts have been disputed after the fact.")}
+    ${section(bundleRefundTitle, bundleRefundRows, "No bundle orders refunded.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
     ${section(`Paid, not yet live (${digest.paidNotLiveCount})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}

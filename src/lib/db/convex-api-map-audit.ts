@@ -9,10 +9,7 @@
  */
 
 /** Deliberately unregistered — dead code superseded by leads.markLeadPaid. */
-export const DELIBERATE_CONVEX_API_ORPHANS = [
-  "orders:createOrder",
-  "orders:getByStripeSessionId",
-] as const;
+export const DELIBERATE_CONVEX_API_ORPHANS = ["orders:createOrder"] as const;
 
 export type ConvexApiMapAuditResult = {
   defined: string[];
