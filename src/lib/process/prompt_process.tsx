@@ -10424,7 +10424,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: commerce-webhook-currency-usd-gate done; success-page-commerceAddon-line-item-parity done (1924 / #332)",
       "BUSINESS_DECISIONS — require session.currency usd on commerce+bundle webhook (absolute index 381)",
       "Process: tightened 7155→1924 ITERATIONS decision slices via object-parse by decision text (webhook line-item=377 … success-page=380) before appending ours",
-      "Verified: npm test + lint after fold",
+      "Verified: npm test (1649 passed = main@#332's suite + 4 checkout-currency unit + 3 webhook currency regressions) + lint after fold",
     ],
     // Object-parse by decision text: currency usd gate owns BD[381]; success-page=380; payment-mode=379.
     decisions: BUSINESS_DECISIONS.slice(381, 382),
