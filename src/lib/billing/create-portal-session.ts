@@ -5,16 +5,26 @@ import {
   orderEligibleForBillingPortal,
   stripeCustomerIdFromUnknown,
 } from "@/lib/billing/portal";
+import {
+  commerceAddonPriceIdsFromEnv,
+  priceIdsFromStripeLineItems,
+  resolveCommerceAddonFromLineItems,
+} from "@/lib/payments/commerce-addon-line-items";
 
 export type BillingPortalResult =
   | { ok: true; url: string }
   | { ok: false; error: string; status: number };
 
 type MinimalStripeCheckoutSession = {
+  id?: string;
   customer: string | { id?: string } | null;
   status?: string | null;
   mode?: string | null;
   metadata?: Record<string, string> | null;
+};
+
+type MinimalStripeLineItem = {
+  price?: string | { id?: string | null } | null;
 };
 
 /**
@@ -29,6 +39,10 @@ export interface StripeBillingPortalClient {
   checkout: {
     sessions: {
       retrieve(id: string): Promise<MinimalStripeCheckoutSession>;
+      listLineItems(
+        id: string,
+        params?: { limit?: number },
+      ): Promise<{ data: MinimalStripeLineItem[] }>;
     };
   };
   billingPortal: {
@@ -106,6 +120,12 @@ export async function createBillingPortalForLead(
 
 /**
  * Customer self-serve path from /checkout/success — uses the completed Checkout Session.
+ *
+ * When mode !== subscription, Starter + Commerce eligibility must derive
+ * commerceAddon from listLineItems Price IDs (same helper as the bundle
+ * webhook) — never from metadata.commerceAddon alone. A Dashboard-minted
+ * payment-mode session with forged metadata could otherwise open Billing
+ * Portal without the Commerce Prices on the charge.
  */
 export async function createBillingPortalForCheckoutSession(
   stripe: StripeBillingPortalClient,
@@ -124,8 +144,40 @@ export async function createBillingPortalForCheckoutSession(
     }
 
     const tier = session.metadata?.tier ?? "";
-    const commerceAddon = session.metadata?.commerceAddon === "true";
     const modeIsSubscription = session.mode === "subscription";
+    let commerceAddon = false;
+
+    if (!modeIsSubscription) {
+      // Mirror webhook: only entitlement from charged Commerce Price IDs.
+      // listLineItems failures → 502 so the customer can retry (not a Stripe
+      // webhook redelivery path).
+      try {
+        const lineItems = await stripe.checkout.sessions.listLineItems(id, {
+          limit: 100,
+        });
+        const resolved = resolveCommerceAddonFromLineItems({
+          metadataCommerceAddon: session.metadata?.commerceAddon === "true",
+          lineItemPriceIds: priceIdsFromStripeLineItems(lineItems.data),
+          commercePrices: commerceAddonPriceIdsFromEnv(),
+        });
+        commerceAddon = resolved.commerceAddon;
+        if (resolved.metadataMismatch) {
+          console.warn(
+            `billing-portal: session ${id} commerceAddon metadata=${String(
+              session.metadata?.commerceAddon === "true",
+            )} lineItems=${String(commerceAddon)} — using line items`,
+          );
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unknown Stripe error";
+        return {
+          ok: false,
+          error: `Could not verify Commerce line items for billing portal: ${message}`,
+          status: 502,
+        };
+      }
+    }
+
     const eligible =
       modeIsSubscription ||
       orderEligibleForBillingPortal({ tier, commerceAddon });

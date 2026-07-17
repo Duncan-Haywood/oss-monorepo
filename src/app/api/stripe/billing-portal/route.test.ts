@@ -15,12 +15,14 @@ import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
  */
 
 const sessionsRetrieve = vi.fn();
+const sessionsListLineItems = vi.fn();
 const billingPortalCreate = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
     checkout = {
       sessions: {
         retrieve: (...args: unknown[]) => sessionsRetrieve(...args),
+        listLineItems: (...args: unknown[]) => sessionsListLineItems(...args),
       },
     };
     billingPortal = {
@@ -65,6 +67,7 @@ describe("POST /api/stripe/billing-portal", () => {
 
   beforeEach(() => {
     sessionsRetrieve.mockReset();
+    sessionsListLineItems.mockReset().mockResolvedValue({ data: [] });
     billingPortalCreate.mockReset();
     process.env = { ...originalEnv };
     delete process.env.STRIPE_SECRET_KEY;
@@ -318,6 +321,31 @@ describe("POST /api/stripe/billing-portal", () => {
     const { POST } = await import("./route");
     const res = await POST(portalRequest({ sessionId: "cs_test_1" }));
 
+    expect(sessionsListLineItems).toHaveBeenCalledWith("cs_test_1", { limit: 100 });
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/no recurring subscription/);
+  });
+
+  it("does not trust metadata.commerceAddon=true without Commerce Price line items", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
+    process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
+    sessionsRetrieve.mockResolvedValue(
+      completeSubscriptionSession({
+        mode: "payment",
+        metadata: { tier: "starter", commerceAddon: "true" },
+      }),
+    );
+    sessionsListLineItems.mockResolvedValue({
+      data: [{ price: { id: "price_starter_setup" } }],
+    });
+
+    const { POST } = await import("./route");
+    const res = await POST(portalRequest({ sessionId: "cs_forged" }));
+
+    expect(sessionsListLineItems).toHaveBeenCalledWith("cs_forged", { limit: 100 });
+    expect(billingPortalCreate).not.toHaveBeenCalled();
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toMatch(/no recurring subscription/);

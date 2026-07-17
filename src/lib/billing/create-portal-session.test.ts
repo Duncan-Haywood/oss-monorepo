@@ -28,10 +28,11 @@ function baseOrder(overrides: Partial<OrderRecord> = {}): OrderRecord {
 }
 
 function fakeStripe(overrides: Partial<StripeBillingPortalClient> = {}): StripeBillingPortalClient {
-  return {
+  const base: StripeBillingPortalClient = {
     checkout: {
       sessions: {
         retrieve: vi.fn().mockResolvedValue({ customer: "cus_fallback" }),
+        listLineItems: vi.fn().mockResolvedValue({ data: [] }),
       },
     },
     billingPortal: {
@@ -39,8 +40,22 @@ function fakeStripe(overrides: Partial<StripeBillingPortalClient> = {}): StripeB
         create: vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session/1" }),
       },
     },
+  };
+  if (!overrides.checkout) {
+    return { ...base, ...overrides };
+  }
+  // Deep-merge checkout.sessions so tests can override retrieve without
+  // dropping the default listLineItems stub.
+  return {
+    ...base,
     ...overrides,
-  } as StripeBillingPortalClient;
+    checkout: {
+      sessions: {
+        ...base.checkout.sessions,
+        ...overrides.checkout.sessions,
+      },
+    },
+  };
 }
 
 beforeEach(() => {
@@ -207,6 +222,7 @@ describe("createBillingPortalForCheckoutSession", () => {
   });
 
   it("400s when the session is not a subscription", async () => {
+    const listLineItems = vi.fn().mockResolvedValue({ data: [] });
     const stripe = fakeStripe({
       checkout: {
         sessions: {
@@ -214,18 +230,177 @@ describe("createBillingPortalForCheckoutSession", () => {
             status: "complete",
             mode: "payment",
             customer: "cus_1",
+            metadata: { tier: "starter", commerceAddon: "false" },
           }),
+          listLineItems,
         },
       },
     });
 
     const result = await createBillingPortalForCheckoutSession(stripe, "cs_1", "https://app/return");
 
+    expect(listLineItems).toHaveBeenCalledWith("cs_1", { limit: 100 });
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.status).toBe(400);
       expect(result.error).toMatch(/subscription/);
     }
+  });
+
+  it("does not trust metadata.commerceAddon=true without Commerce Price line items", async () => {
+    const prevSetup = process.env.STRIPE_PRICE_ID_COMMERCE_SETUP;
+    const prevMonthly = process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;
+    process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
+    process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
+    try {
+      const create = vi.fn();
+      const listLineItems = vi.fn().mockResolvedValue({
+        data: [{ price: { id: "price_starter_setup" } }],
+      });
+      const stripe = fakeStripe({
+        checkout: {
+          sessions: {
+            retrieve: vi.fn().mockResolvedValue({
+              status: "complete",
+              mode: "payment",
+              customer: "cus_1",
+              metadata: { tier: "starter", commerceAddon: "true" },
+            }),
+            listLineItems,
+          },
+        },
+        billingPortal: { sessions: { create } },
+      });
+
+      const result = await createBillingPortalForCheckoutSession(
+        stripe,
+        "cs_forged",
+        "https://app/return",
+      );
+
+      expect(listLineItems).toHaveBeenCalledWith("cs_forged", { limit: 100 });
+      expect(create).not.toHaveBeenCalled();
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.status).toBe(400);
+        expect(result.error).toMatch(/subscription/);
+      }
+    } finally {
+      if (prevSetup === undefined) delete process.env.STRIPE_PRICE_ID_COMMERCE_SETUP;
+      else process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = prevSetup;
+      if (prevMonthly === undefined) delete process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;
+      else process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = prevMonthly;
+    }
+  });
+
+  it("opens portal for payment-mode Starter when both Commerce Prices are on line items", async () => {
+    const prevSetup = process.env.STRIPE_PRICE_ID_COMMERCE_SETUP;
+    const prevMonthly = process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;
+    process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
+    process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
+    try {
+      const create = vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+      const listLineItems = vi.fn().mockResolvedValue({
+        data: [
+          { price: { id: "price_starter_setup" } },
+          { price: { id: "price_commerce_setup" } },
+          { price: { id: "price_commerce_monthly" } },
+        ],
+      });
+      const stripe = fakeStripe({
+        checkout: {
+          sessions: {
+            retrieve: vi.fn().mockResolvedValue({
+              status: "complete",
+              // Unusual vs create-path (which would set subscription), but
+              // line items still prove Commerce was charged.
+              mode: "payment",
+              customer: "cus_commerce",
+              metadata: { tier: "starter", commerceAddon: "false" },
+            }),
+            listLineItems,
+          },
+        },
+        billingPortal: { sessions: { create } },
+      });
+
+      const result = await createBillingPortalForCheckoutSession(
+        stripe,
+        "cs_commerce",
+        "https://app/return",
+      );
+
+      expect(listLineItems).toHaveBeenCalledWith("cs_commerce", { limit: 100 });
+      expect(create).toHaveBeenCalledWith({
+        customer: "cus_commerce",
+        return_url: "https://app/return",
+      });
+      expect(result).toEqual({ ok: true, url: "https://billing.stripe.com/session/1" });
+    } finally {
+      if (prevSetup === undefined) delete process.env.STRIPE_PRICE_ID_COMMERCE_SETUP;
+      else process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = prevSetup;
+      if (prevMonthly === undefined) delete process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;
+      else process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = prevMonthly;
+    }
+  });
+
+  it("502s when listLineItems fails on a payment-mode session", async () => {
+    const listLineItems = vi.fn().mockRejectedValue(new Error("stripe line items down"));
+    const create = vi.fn();
+    const stripe = fakeStripe({
+      checkout: {
+        sessions: {
+          retrieve: vi.fn().mockResolvedValue({
+            status: "complete",
+            mode: "payment",
+            customer: "cus_1",
+            metadata: { tier: "starter", commerceAddon: "true" },
+          }),
+          listLineItems,
+        },
+      },
+      billingPortal: { sessions: { create } },
+    });
+
+    const result = await createBillingPortalForCheckoutSession(
+      stripe,
+      "cs_1",
+      "https://app/return",
+    );
+
+    expect(create).not.toHaveBeenCalled();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(502);
+      expect(result.error).toMatch(/Commerce line items/);
+    }
+  });
+
+  it("skips listLineItems when mode is already subscription", async () => {
+    const listLineItems = vi.fn().mockResolvedValue({ data: [] });
+    const create = vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+    const stripe = fakeStripe({
+      checkout: {
+        sessions: {
+          retrieve: vi.fn().mockResolvedValue({
+            status: "complete",
+            mode: "subscription",
+            customer: "cus_from_cs",
+          }),
+          listLineItems,
+        },
+      },
+      billingPortal: { sessions: { create } },
+    });
+
+    const result = await createBillingPortalForCheckoutSession(
+      stripe,
+      "cs_sub_1",
+      "https://app/return",
+    );
+
+    expect(listLineItems).not.toHaveBeenCalled();
+    expect(result).toEqual({ ok: true, url: "https://billing.stripe.com/session/1" });
   });
 
   it("creates a portal session from a completed subscription Checkout Session", async () => {
