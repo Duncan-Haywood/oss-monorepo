@@ -163,7 +163,7 @@ export const AGENT_PROTOCOL = [
   "customer.subscription.updated with status past_due|unpaid and invoice.payment_failed for subscription invoices must markOrdersRecurringCanceledByCustomer (Convex markRecurringCanceledByCustomer + SQLite, requireConvex / WEBHOOK_CONVEX_PRIMARY) by stripeCustomerId so failed renewals pause marketing/voice/catalog entitlement before subscription.deleted. Reuse orders.recurringCanceledAt (idempotent). One-time invoices (no subscription) skip. Keep stage=paid|live + orderEligibleForBillingPortal. active|trialing clear twin restores after recovery. Write failures return 5xx (orders_recurring_canceled). After subscription reactivate CRM clear (#345) ships, immediately close this pause twin before inventing another dated clean-audit (invoice-payment-failed-past-due-crm-pause).",
   "customer.subscription.created|updated with pause_collection set must markOrdersRecurringCanceledByCustomer (requireConvex / WEBHOOK_CONVEX_PRIMARY) before the active|trialing clear path — Stripe keeps status=active|trialing while collection is paused, so grants-first logic would wrongly restore/keep packs for a non-paying subscriber. Use stripeSubscriptionHasPauseCollection (truthy object). When pause_collection clears and status grants, existing clear restores. Keep stage=paid|live + Billing Portal. Write failures return 5xx (orders_recurring_canceled). After past_due/unpaid + invoice.payment_failed pause ships, immediately close this pause_collection twin before inventing another dated clean-audit (subscription-pause-collection-crm-pause).",
   "After recurringCanceledAt CRM sync ships (#344–#347), immediately wire listRecurringEntitlementPaused (paid|live + had recurring + no active entitlement) into pipeline-health count/age + daily digest action section + dashboard metric — paused/canceled MRR customers otherwise silently drop out of marketingPacksDue / voice / catalog panels with no recovery queue. Reuse Manage billing / Billing Portal (do not invent a second scorer or outreach email). Cap digest display at 5; header count must use the pre-slice total. After pause_collection CRM pause ships, prefer this wiring residual before inventing another dated clean-audit (recurring-entitlement-paused-pipeline-digest).",
-  "After CRM entitlement pause/cancel gates preview + saveCommerceCatalogAction on leadEligibleForCommerceCatalog (!recurringCanceledAt), immediately close create-path + Sync-to-Stripe twins that still trust catalog+stripePriceId alone — POST /api/commerce/checkout must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before stripe.checkout.sessions.create (403 when ineligible; 404 when lead missing); syncCommerceCatalogToStripeAction must use the same predicate before syncCommerceCatalogToStripe (success:false). Hiding Buy now on preview while leaving the mint/sync APIs open is the same sold-capability hole class as Session portal gates without the lead twin. Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#347 money gates (incl. past_due/#346 + pause_collection/#347 + paused digest + Buy now create/sync entitlement).",] as const;
+  "After CRM entitlement pause/cancel gates preview + saveCommerceCatalogAction on leadEligibleForCommerceCatalog (!recurringCanceledAt), immediately close create-path + Sync-to-Stripe twins that still trust catalog+stripePriceId alone — POST /api/commerce/checkout must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before stripe.checkout.sessions.create (403 when ineligible; 404 when lead missing); syncCommerceCatalogToStripeAction must use the same predicate before syncCommerceCatalogToStripe (success:false). Hiding Buy now on preview while leaving the mint/sync APIs open is the same sold-capability hole class as Session portal gates without the lead twin. After create/sync entitlement ships (#348), immediately close the commerce_sku webhook twin (commerce-webhook-recurring-entitlement-gate) — checkout.session.completed must require the same predicate before insertCommerceOrder / inquiry / client receipt; missing lead or ineligible skips like unknown sku (session already markComplete; no 5xx forever). Dashboard-minted or pre-pause Sessions must not ledger pass-through Commerce revenue after CRM pause. Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) commerce abandoned-recovery entitlement residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit / re-do of #320–#349 money gates (incl. past_due/#346 + pause_collection/#347 + paused digest + Buy now create/sync + webhook entitlement).",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2640,6 +2640,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-716e",
+  },
+  {
+    id: "commerce-webhook-recurring-entitlement-gate",
+    summary:
+      "Empty-backlog after PR #348/#349 (Buy now create/sync entitlement + paused MRR digest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged (email-href #238, redirect-url #218) — rejected. Fresh residual twin: #348 gates mint + Sync on leadEligibleForCommerceCatalog, but checkout.session.completed commerce_sku still fulfills from catalog+Price alone — Dashboard-minted or pre-pause Sessions still insertCommerceOrder / inquiry / client receipt for paused/canceled Commerce subscribers. Before insertCommerceOrder: getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog; missing lead or ineligible → skip like unknown sku (session already markComplete; no 5xx forever).",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-19f7",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5439,6 +5447,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "POST /api/commerce/checkout and syncCommerceCatalogToStripeAction must require leadEligibleForCommerceCatalog (getLeadBySlug + listOrdersByLeadSlug) before minting Buy now Sessions or refreshing Stripe Prices — same predicate as preview + saveCommerceCatalogAction. Create-path returns 403 when ineligible (404 when lead missing); sync returns success:false. Catalog row + stripePriceId alone is not enough after CRM pause/cancel.",
     rationale:
       "Empty-backlog after PR #347 (pause_collection CRM pause). Sibling business-process-evolution-4b2e claimed recurring-entitlement-paused-pipeline-digest — complementary operator visibility; this branch closed the mint/sync hole. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: #344–#347 gated preview/save on !recurringCanceledAt, but Buy now create + Sync to Stripe still trusted persisted catalog Prices — canceled/paused Commerce subscribers kept an API create-path and operator re-sync. Process improvement: after CRM entitlement pause ships for a sold surface, immediately close create-path + Sync twins before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "checkout.session.completed / async_payment_succeeded commerce_sku fulfillment must require leadEligibleForCommerceCatalog (getLeadBySlug + listOrdersByLeadSlug) before insertCommerceOrder / inquiry / client receipt — same predicate as Buy now create (#348) + preview/save. Missing lead or ineligible skips like unknown sku (session already markComplete; no 5xx forever). Catalog row + stripePriceId + amount/currency/Price gates alone are not enough after CRM pause/cancel.",
+    rationale:
+      "Empty-backlog after PR #348/#349 (Buy now create/sync entitlement + paused MRR digest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged (email-href #238, redirect-url #218) — rejected. Fresh residual twin: #348 closed mint/sync, but the commerce_sku webhook still ledgers Dashboard-minted or pre-pause Sessions for paused/canceled Commerce subscribers — pass-through revenue + operator inquiry + client receipt after entitlement revoke. Process improvement: after create-path entitlement ships, immediately close the webhook twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped / commerce abandoned-recovery entitlement residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -11038,5 +11053,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     // Object-parse by decision text: Buy now create/sync entitlement owns BD[397]; paused digest=396.
     decisions: BUSINESS_DECISIONS.slice(397, 398),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/business-process-evolution-19f7",
+    summary:
+      "Empty-backlog after PR #348/#349 (Buy now create/sync entitlement + paused MRR digest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged (email-href #238, redirect-url #218) — rejected. Fresh residual twin: #348 gates mint + Sync on leadEligibleForCommerceCatalog, but checkout.session.completed commerce_sku still fulfilled from catalog+Price alone — Dashboard-minted or pre-pause Sessions still ledgers insertCommerceOrder / inquiry / client receipt for paused/canceled Commerce subscribers. Shipped same predicate before insertCommerceOrder; Vitest + architecture note; process now requires webhook twin immediately after create/sync entitlement.",
+    shipped: [
+      "src/app/api/stripe/webhook/route.ts — getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before commerce_sku ledger (missing lead / ineligible skip)",
+      "src/app/api/stripe/webhook/route.test.ts — +3 entitlement regressions (missing lead / paused recurring / no commerceAddon); fixtures default eligible",
+      "Docs: architecture.tsx notes commerce_sku webhook shares leadEligibleForCommerceCatalog with Buy now create/sync",
+      "AGENT_PROTOCOL — after create/sync entitlement (#348), immediately close commerce_sku webhook twin",
+      "NEXT_STEPS: commerce-webhook-recurring-entitlement-gate done",
+      "BUSINESS_DECISIONS — require commerce_sku webhook entitlement gate (absolute index 398)",
+      "Process: object-parse by decision text (create/sync=397) before appending ours; claim pushed before feature body; sibling prompt-process-evolution-f273 claimed invoice-paid restore + payment_failed stale-repause (complementary; no overlap)",
+      "Verified: npm test (1742 passed = prior 1739 + 3 webhook entitlement regressions) + lint",
+    ],
+    // Object-parse by decision text: commerce webhook entitlement owns BD[398]; create/sync=397.
+    decisions: BUSINESS_DECISIONS.slice(398, 399),
   },
 ];
