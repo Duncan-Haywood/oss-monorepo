@@ -10,6 +10,7 @@ import {
   priceIdsFromStripeLineItems,
   resolveCommerceAddonFromLineItems,
 } from "@/lib/payments/commerce-addon-line-items";
+import { isStripeCheckoutSessionPaid } from "@/lib/payments/checkout-payment-status";
 
 export type BillingPortalResult =
   | { ok: true; url: string }
@@ -19,6 +20,7 @@ type MinimalStripeCheckoutSession = {
   id?: string;
   customer: string | { id?: string } | null;
   status?: string | null;
+  payment_status?: string | null;
   mode?: string | null;
   metadata?: Record<string, string> | null;
 };
@@ -121,6 +123,10 @@ export async function createBillingPortalForLead(
 /**
  * Customer self-serve path from /checkout/success — uses the completed Checkout Session.
  *
+ * Requires payment_status === "paid" (same gate as webhook fulfillment +
+ * loadCheckoutSuccessSession) — async ACH can leave status=complete with
+ * payment_status unpaid; do not open Billing Portal before funds clear.
+ *
  * When mode !== subscription, Starter + Commerce eligibility must derive
  * commerceAddon from listLineItems Price IDs (same helper as the bundle
  * webhook) — never from metadata.commerceAddon alone. A Dashboard-minted
@@ -141,6 +147,10 @@ export async function createBillingPortalForCheckoutSession(
     const session = await stripe.checkout.sessions.retrieve(id);
     if (session.status !== "complete") {
       return { ok: false, error: "Checkout session is not complete", status: 400 };
+    }
+    // Mirror webhook + success SSR: complete ≠ paid for async methods.
+    if (!isStripeCheckoutSessionPaid(session.payment_status)) {
+      return { ok: false, error: "Checkout session is not paid", status: 400 };
     }
 
     const modeIsSubscription = session.mode === "subscription";

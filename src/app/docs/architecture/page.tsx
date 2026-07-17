@@ -681,8 +681,13 @@ export default function ArchitectureDocPage() {
         Growth/Complete/Commerce subscribers manage cards, invoices, and cancellation via Stripe
         Billing Portal: <code>POST /api/stripe/billing-portal</code> (post-checkout{" "}
         <code>sessionId</code>) and the operator <strong>Billing</strong> action on paid/live
-        leads. The session-id path (        <code>createBillingPortalForCheckoutSession</code>) treats{" "}
-        <code>mode === &quot;subscription&quot;</code> as eligible, but when mode is{" "}
+        leads. The session-id path (<code>createBillingPortalForCheckoutSession</code>) requires{" "}
+        <code>status === &quot;complete&quot;</code> and{" "}
+        <code>payment_status === &quot;paid&quot;</code> (
+        <code>isStripeCheckoutSessionPaid</code> — same gate as webhook fulfillment and{" "}
+        <code>loadCheckoutSuccessSession</code>; async ACH can leave complete+unpaid, and a
+        client-supplied <code>sessionId</code> must not open Manage billing before funds clear).
+        It treats <code>mode === &quot;subscription&quot;</code> as eligible, but when mode is{" "}
         <code>payment</code> it derives <code>commerceAddon</code> from Checkout{" "}
         <code>listLineItems</code> Price IDs via the same{" "}
         <code>resolveCommerceAddonFromLineItems</code> helper as the bundle webhook — never from{" "}

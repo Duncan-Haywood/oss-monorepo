@@ -7,7 +7,12 @@
  * funds are collected (payment_status === "paid"), either on the same
  * completed event (card) or on checkout.session.async_payment_succeeded.
  *
- * See webhook-checkout-payment-status-paid-gate.
+ * Also used by loadCheckoutSuccessSession and
+ * createBillingPortalForCheckoutSession so success UI + public Manage
+ * billing cannot confirm / open while unpaid.
+ *
+ * See webhook-checkout-payment-status-paid-gate +
+ * billing-portal-checkout-payment-status-paid-gate.
  */
 
 export function isStripeCheckoutSessionPaid(
