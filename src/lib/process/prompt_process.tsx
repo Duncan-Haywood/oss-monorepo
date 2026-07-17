@@ -2862,6 +2862,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/upbeat-dijkstra-gipcyc",
   },
+  {
+    id: "rate-limiter-bucket-bounds",
+    summary:
+      "Security audit of the shared public-write limiter: bound its process-local client bucket map by purging expired windows and evicting the oldest key at MAX_RATE_LIMIT_BUCKETS, so rotating forwarded IPs cannot grow memory without bound.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "codex/dev-work-rate-limit-bounds",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5845,6 +5853,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "oldestMarketingPacksDueAgeHours (src/lib/marketing/monthly-pack.ts), oldestCommerceCatalogCandidateAgeHours (src/lib/commerce/catalog.ts), and oldestClientVoicePacksDueAgeHours (src/lib/voice/faq-pack.ts) must gate their per-order 'is this order still owed' scan on orderGrantsSoldCapabilityEntitlement — the same combinator their sibling eligibility predicates (leadEligibleForMarketingPack, leadEligibleForCommerceCatalog, leadEligibleForClientVoicePack) already use — never a standalone recurringCanceledAt check reimplemented inline.",
     rationale:
       "Empty-backlog after PR #375 (refund-dispute-entitlement-gate). That iteration wired orderGrantsSoldCapabilityEntitlement into every eligibility predicate but did not touch the three sibling oldest-age helpers, which still scanned orders with their own older recurringCanceledAt-only inline filter (copy-pasted before orderGrantsSoldCapabilityEntitlement existed). A subagent-assisted audit confirmed the resulting drift is real, not cosmetic: a lead with an older Growth/Complete/commerceAddon order that Stripe refunded or disputed mid-cycle (which does not always set recurringCanceledAt — see orders/recurring.ts's docstring) alongside a newer, still-active qualifying order would have that refunded/disputed order's earlier createdAt fold into the min() 'due since' computation, inflating the reported 'oldest Xh' age on the PipelineHealthPanel MetricCard hint and the daily-digest email section beyond what the correctly-gated eligibility check actually owes. oldestStarterUpsellCandidateAgeHours (src/lib/billing/starter-upsell.ts) was already clean — it reuses isStarterOnlyOrder rather than reimplementing a raw check — confirming this was an oversight specific to the three helpers shipped by due-queue-oldest-age-parity (PR #371), before orderGrantsSoldCapabilityEntitlement existed. Verified: npm test (1961 passed = prior 1958 baseline + 3 new refund/dispute regression cases, one per helper) + lint (clean) + build (tsc clean, all 31 routes generated) + npm run dev sanity check on /dashboard/leads, /preview/demo-cafe, /docs/architecture (all 200).",
+  },
+  {
+    id: "rate-limiter-bucket-bounds",
+    date: "2026-07-17",
+    decision:
+      "The shared in-memory rate limiter must purge expired fixed-window buckets on each request and cap active client keys at MAX_RATE_LIMIT_BUCKETS, evicting the oldest key at capacity. This preserves best-effort per-instance throttling without allowing rotating forwarded IPs to grow process memory without bound; eviction may weaken throttling for churned identifiers, but bounded availability is the safer trade-off for this dependency-free limiter.",
+    rationale:
+      "A fresh empty-backlog security audit found the shared limiter retained every client key forever and had no active-state ceiling. Public routes derive keys from forwarded IPs, so rotating identifiers could create unbounded Map entries. The fix keeps the existing route coverage and semantics while making state bounded, with direct tests for expiry cleanup and oldest-key eviction.",
   },
 ];
 
@@ -11983,5 +11999,34 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1961 passed = prior 1958 baseline + 3 new: one refund/dispute regression test per helper, each with a stale refunded/disputed order alongside a newer active one to prove the older row no longer anchors the age) + lint (clean) + build (tsc clean, all 31 routes generated) + npm run dev sanity check — curled /dashboard/leads, /preview/demo-cafe, /docs/architecture (all 200)",
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "refund-dispute-oldest-age-parity"),
+  },
+  {
+    date: "2026-07-17",
+    branch: "codex/dev-work-rate-limit-bounds",
+    summary:
+      "Empty-backlog after PR #375 (refund-dispute-entitlement-gate). The four remaining NEXT_STEPS items stayed fully operator/legal-gated. A remote scan found codex/dev-work-rate-limit-cleanup with a complete, unmerged security body and no open PR, so I folded it instead of redoing the audit. The shared public rate limiter retained expired client-IP buckets forever and had no ceiling for rotating forwarded keys, allowing process memory growth. Shipped bounded expiry cleanup and oldest-key eviction.",
+    shipped: [
+      "src/lib/security/rate-limit.ts — purge expired buckets before each request and cap active keys at MAX_RATE_LIMIT_BUCKETS=10,000 by evicting the oldest key",
+      "src/lib/security/rate-limit.test.ts — cover expired-bucket cleanup and oldest-key eviction at the active-state ceiling",
+      "src/app/docs/architecture/page.tsx — document bounded limiter state beside the per-instance rate-limit caveat",
+      "NEXT_STEPS: rate-limiter-bucket-bounds done",
+      "BUSINESS_DECISIONS — rate-limiter-bucket-bounds (id-based entry)",
+      "Process: claim commit pushed before feature body; folded the complete remote security body without its unrelated cache-ignore commits",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "rate-limiter-bucket-bounds"),
+  },
+  {
+    date: "2026-07-17",
+    branch: "claude/nice-euler-mdquyc",
+    summary:
+      "Empty-backlog after PR #376 (refund-dispute-oldest-age-parity). Free NEXT_STEPS stayed fully operator/legal-gated (4 items: stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Per AGENT_PROTOCOL's fold-scan-first rule, fetched every remote and found only two branches pushed after main's tip: codex/continuous-work-clean-audit-20260717-luna (docs-only 'still clean' audit entry — reviewed, no code, nothing to fold) and codex/dev-work-rate-limit-bounds, which had a real, complete, tested security fix already open as draft PR #377 (base sha exactly matched this run's starting HEAD, so no rebase was needed). That branch's own ITERATIONS entry says it folded a second remote, codex/dev-work-rate-limit-cleanup, itself. Read the diff before trusting the PR description: src/lib/security/rate-limit.ts's shared in-memory limiter (keys every public write route by clientIp) kept every bucket forever with no eviction — a client rotating X-Forwarded-For values (trivially spoofable, no auth) could grow the process-local Map without bound, a real memory-exhaustion/availability risk on every long-lived Node instance. The fix purges expired fixed-window buckets on each check and caps active keys at MAX_RATE_LIMIT_BUCKETS=10,000 via oldest-key eviction (relies on Map insertion-order semantics, verified correct: delete+re-set on window rollover advances a key to the back, so keys().next() is always the true oldest). Fast-forward merged the branch (identical base, zero conflicts) rather than reinventing it, then independently re-ran every check locally instead of trusting the branch's self-reported numbers.",
+    shipped: [
+      "No new product code this iteration — folded codex/dev-work-rate-limit-bounds (already merged origin/codex/dev-work-rate-limit-cleanup per its own ITERATIONS entry) via a clean fast-forward merge: src/lib/security/rate-limit.ts (bounded bucket eviction), src/lib/security/rate-limit.test.ts (expiry + oldest-key-eviction coverage), src/app/docs/architecture/page.tsx (documents the bound), .gitignore + eslint.config.mjs (ignore the agent's local .codex-home/ tool cache)",
+      "NEXT_STEPS: rate-limiter-bucket-bounds already marked done by the folded commit — no change needed",
+      "No new BUSINESS_DECISIONS — the folded branch's own rate-limiter-bucket-bounds entry already covers this decision; nothing to supersede",
+      "Process: independently re-verified the folded branch's claims rather than trusting its self-reported PR numbers (npm ci was required first — node_modules was not preinstalled in this session); will close draft PR #377 as superseded once this branch's PR merges, since the two carry an identical diff",
+      "Verified (fresh, this session, after npm ci): npm test (1963 passed, matches PR #377's reported count) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated, Node v22.22.2) + npm run dev sanity check — curled /, /dashboard, /preview/demo-cafe, /docs/architecture (all 200), then stopped the dev server and confirmed port 3000 was free",
+    ],
+    decisions: [],
   },
 ];

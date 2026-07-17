@@ -44,6 +44,7 @@ export interface RateLimitResult {
 interface WindowState {
   count: number;
   windowStart: number;
+  windowMs: number;
 }
 
 /**
@@ -57,6 +58,29 @@ export const DEFAULT_RATE_LIMIT: RateLimitConfig = {
 };
 
 const buckets = new Map<string, WindowState>();
+
+/**
+ * Keep the dependency-free limiter bounded even when callers can rotate
+ * client identifiers (for example, spoofed forwarded IPs). This is a
+ * process-local safety valve, not a claim that the limiter is distributed.
+ */
+export const MAX_RATE_LIMIT_BUCKETS = 10_000;
+
+function evictExpiredBuckets(now: number): void {
+  for (const [key, state] of buckets) {
+    if (now - state.windowStart >= state.windowMs) {
+      buckets.delete(key);
+    }
+  }
+}
+
+function evictOldestBucketIfFull(): void {
+  while (buckets.size >= MAX_RATE_LIMIT_BUCKETS) {
+    const oldest = buckets.keys().next().value;
+    if (oldest === undefined) return;
+    buckets.delete(oldest);
+  }
+}
 
 /**
  * Fixed-window counter keyed by an arbitrary string (callers compose
@@ -74,10 +98,13 @@ export function checkRateLimit(
   config: RateLimitConfig = DEFAULT_RATE_LIMIT,
   now: number = Date.now(),
 ): RateLimitResult {
+  evictExpiredBuckets(now);
   const existing = buckets.get(key);
 
   if (!existing || now - existing.windowStart >= config.windowMs) {
-    buckets.set(key, { count: 1, windowStart: now });
+    if (existing) buckets.delete(key);
+    evictOldestBucketIfFull();
+    buckets.set(key, { count: 1, windowStart: now, windowMs: config.windowMs });
     return { allowed: true, remaining: Math.max(config.limit - 1, 0), retryAfterSeconds: 0 };
   }
 
@@ -120,4 +147,9 @@ export function clientIpFromHeaders(headers: Headers): string {
 /** Clears all in-memory limiter state. Test-only — never call from product code. */
 export function resetRateLimiterForTests(): void {
   buckets.clear();
+}
+
+/** Reports bucket count for bounded-state tests; never call from product code. */
+export function getRateLimiterBucketCountForTests(): number {
+  return buckets.size;
 }

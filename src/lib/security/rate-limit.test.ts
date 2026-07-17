@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   checkRateLimit,
   clientIpFromHeaders,
+  getRateLimiterBucketCountForTests,
+  MAX_RATE_LIMIT_BUCKETS,
   resetRateLimiterForTests,
 } from "./rate-limit";
 
@@ -95,6 +97,26 @@ describe("checkRateLimit", () => {
     resetRateLimiterForTests();
 
     expect(checkRateLimit(key, CONFIG, 0).allowed).toBe(true);
+  });
+
+  it("evicts expired buckets before admitting a new key", () => {
+    checkRateLimit("stale-key", CONFIG, 0);
+    checkRateLimit("fresh-key", CONFIG, 1_000);
+
+    // The stale bucket must not remain resident after a later request.
+    expect(getRateLimiterBucketCountForTests()).toBe(1);
+  });
+
+  it("caps active buckets by evicting the oldest key", () => {
+    checkRateLimit("oldest-key", CONFIG, 0);
+    for (let i = 0; i < MAX_RATE_LIMIT_BUCKETS - 1; i += 1) {
+      checkRateLimit(`active-key-${i}`, CONFIG, 0);
+    }
+
+    // Adding a new distinct key at capacity evicts oldest-key, so the old
+    // identifier starts a fresh window instead of growing the Map further.
+    checkRateLimit("new-key-at-capacity", CONFIG, 0);
+    expect(checkRateLimit("oldest-key", CONFIG, 0).allowed).toBe(true);
   });
 });
 

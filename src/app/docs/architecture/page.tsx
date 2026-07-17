@@ -403,7 +403,9 @@ export default function ArchitectureDocPage() {
         same public listings CSV import targets) cannot silently suppress it. The same route also
         rate-limits by client IP via <code>checkRateLimit</code> (
         <code>src/lib/security/rate-limit.ts</code>, key <code>unsubscribe:&lt;clientIp&gt;</code>,
-        same per-instance fixed-window helper as contact / checkout / preview-open){" "}
+        same per-instance fixed-window helper as contact / checkout / preview-open; the helper
+        purges expired buckets and caps active client keys at <code>MAX_RATE_LIMIT_BUCKETS</code>
+        so rotating forwarded IPs cannot grow the process map without bound){" "}
         <em>before</em> token verify, returning <code>429</code> + <code>Retry-After</code> on
         exceed so a harvested footer link or a script hammering HMAC +{" "}
         <code>suppressEmail</code> cannot unboundedly mutate the global suppression list. The
