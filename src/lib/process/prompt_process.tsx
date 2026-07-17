@@ -2894,6 +2894,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "codex/dev-work-email-subject-control",
   },
+  {
+    id: "process-doc-unbounded-history-pagination",
+    summary:
+      "The public /docs/process page rendered every ITERATIONS, BUSINESS_DECISIONS, and done NEXT_STEPS entry unconditionally — an append-only, ever-growing set (365 iterations / 428 decisions / 336 NEXT_STEPS as of this audit) with no display cap, so the page's SSR HTML grew without bound on every single agent PR (1.33MB before this fix). Capped the doc page to the most recent N of each (iterations/decisions) or done-only N (NEXT_STEPS), with a visible 'showing X of Y, full history in source/git' note — the underlying arrays and AGENT_PROTOCOL's append-only discipline are unchanged, only the live page's render is bounded.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-9vrw23",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5909,6 +5917,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Normalize every outbound email subject at the shared sendEmail boundary by replacing control characters with spaces, collapsing whitespace, trimming, and falling back to a safe generic subject when empty.",
     rationale:
       "Business names, SKU names, brand configuration, and other operator/client-controlled values feed provider-facing subjects. Central normalization keeps subjects single-line and printable across all send helpers, including mock mode and the operator digest, without depending on each template to remember the security rule.",
+  },
+  {
+    id: "process-doc-unbounded-history-pagination",
+    date: "2026-07-17",
+    decision:
+      "Cap the /docs/process page's rendered iteration history, business decisions, and done-backlog items to the most recent N each (25 / 50 / 20), instead of rendering every append-only entry ever recorded. The underlying arrays in prompt_process.tsx stay fully append-only and unmodified — this only bounds what one page renders.",
+    rationale:
+      "ITERATIONS and BUSINESS_DECISIONS are append-only by design (AGENT_PROTOCOL: 'never rewrite prior entries') and grow by one entry roughly every PR from dozens of concurrent agents. The doc page rendered all of them with no cap, so its SSR HTML had already reached 1.33MB (365 iterations, 428 decisions, 336 NEXT_STEPS, most 'done') and would keep growing forever — worse SSR/TTFB and browser parse time on a public page every iteration, not a one-time cost. A live operator/agent-facing page needs the recent, actionable picture; the full append-only audit trail already lives durably in prompt_process.tsx and git history, so nothing is lost by bounding the display.",
   },
 ];
 
@@ -12157,5 +12173,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1968 passed, 153 files) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated)",
     ],
     decisions: [],
+  },
+  {
+    date: "2026-07-17",
+    branch: "claude/nice-euler-9vrw23",
+    summary:
+      "Empty-backlog after PR #382 (marker-after-unchecked-await clean sweep, now the tip of main). The four NEXT_STEPS items remained operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Per AGENT_PROTOCOL's fold-scan-first rule, fetched all 330+ remote branches and diffed every recently-pushed one (small ahead-count, 2026-07-17 timestamp: nice-euler-*, upbeat-dijkstra-ftu6jk/gipcyc/b2msyu, codex/dev-work-*, codex/continuous-work-*, cursor/prompt-process-evolution-*, cursor/business-process-evolution-*) against main excluding the process log — every one was either empty (claim-only stub, already-superseded id) or a pure-deletion diff (an old fork diverged from a much earlier main, missing thousands of lines main has since added) — no stuck-but-complete fold candidate existed, consistent with the immediately preceding two iterations' findings. Checked tier-4 (untested orchestration modules): every route.ts has a sibling test, every dashboard action has a dedicated test file (25/25), and src/lib/db.ts's 3,244 lines of Convex/SQLite glue are deliberately untested directly (import \"server-only\", same accepted pattern as stripe-sync.ts — its pure logic is already extracted into tested sibling modules, and convex-api-map-audit.test.ts already guards its Convex table registration structurally) — that axis stayed clean, not a new gap. Rotated to an axis AGENT_PROTOCOL's audit-rotation list had never named: the public doc pages themselves as a growth/performance surface, distinct from the existing 'public marketing OUTPUT surfaces' (indexability/JSON-LD) axis. /docs/process (src/app/docs/process/page.tsx) renders every ITERATIONS/BUSINESS_DECISIONS/NEXT_STEPS entry with no cap; these are explicitly append-only per AGENT_PROTOCOL and grow roughly one entry per PR across dozens of concurrent agents. Confirmed via a real npm run build: the page's SSR HTML was already 1,330,327 bytes (365 iterations, 428 decisions, 336 NEXT_STEPS, 4 still todo) with no ceiling — a real, compounding page-weight regression on a page every agent (and any curious operator) loads, not a one-time cost.",
+    shipped: [
+      "src/app/docs/process/page.tsx — cap the Iteration history and Business decisions sections to the most recent 25 / 50 entries (newest first) and the Backlog table to all todo/in_progress items plus the most recent 20 done items, each with a visible 'showing X of Y — full history in source/git' note; underlying prompt_process.tsx arrays are untouched and stay fully append-only",
+      "src/lib/process/prompt_process.tsx: NEXT_STEPS process-doc-unbounded-history-pagination added directly as done (audit-discovered fix, same precedent as refund-dispute-entitlement-gate/rate-limiter-bucket-bounds — found and fixed within one iteration, no pre-existing todo)",
+      "BUSINESS_DECISIONS — process-doc-unbounded-history-pagination (id-based entry)",
+      "Process: no sibling concurrently touching src/app/docs/process/page.tsx (confirmed via the branch scan above); claim + feature body shipped together since this is an audit-discovered fix with zero collision risk, matching the established precedent for this class of finding",
+      "Verified: npm ci (node_modules was not preinstalled in this session) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated, Node v22.22.2) — confirmed the fix directly by measuring .next/server/app/docs/process.html before (1,330,327 bytes) and after (800,699 bytes, a ~40% reduction even with AGENT_PROTOCOL and the small todo/in_progress set left uncapped by design) and by grepping the rendered HTML for the 'Showing the N most recent of M' notes with the correct true totals (50 of 428 decisions, 25 of 365 iterations) — npm test (1968 passed, 153 files, unchanged from baseline — this is a presentation-only change with no logic under test) — npm run dev sanity check: curled /, /dashboard/leads, /preview/demo-cafe, /docs/process (all 200), then stopped the dev server and confirmed port 3000 was freed",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "process-doc-unbounded-history-pagination",
+    ),
   },
 ];
