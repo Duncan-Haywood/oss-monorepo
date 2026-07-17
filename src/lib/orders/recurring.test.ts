@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   invoicePaymentFailedPausesRecurringEntitlement,
+  listRecurringEntitlementPaused,
+  oldestRecurringEntitlementPausedAgeHours,
   orderHadRecurringEntitlement,
   orderHasActiveRecurringEntitlement,
   orderRecurringIsCanceled,
@@ -110,5 +112,92 @@ describe("stripeSubscriptionHasPauseCollection", () => {
     expect(stripeSubscriptionHasPauseCollection(undefined)).toBe(false);
     expect(stripeSubscriptionHasPauseCollection("void")).toBe(false);
     expect(stripeSubscriptionHasPauseCollection(0)).toBe(false);
+  });
+});
+
+describe("listRecurringEntitlementPaused", () => {
+  const pausedAt = 1_720_000_000_000;
+
+  it("lists paid|live leads with only canceled recurring orders (oldest first)", () => {
+    const paused = listRecurringEntitlementPaused(
+      [
+        { slug: "newer", businessName: "Newer Cafe", stage: "paid" },
+        { slug: "older", businessName: "Older Bakery", stage: "live" },
+        { slug: "outreach", businessName: "Cold", stage: "outreach_sent" },
+      ],
+      [
+        {
+          leadSlug: "newer",
+          tier: "growth",
+          commerceAddon: false,
+          recurringCanceledAt: pausedAt + 10_000,
+          stripeCustomerId: "cus_new",
+        },
+        {
+          leadSlug: "older",
+          tier: "complete",
+          commerceAddon: false,
+          recurringCanceledAt: pausedAt,
+          stripeCustomerId: "cus_old",
+        },
+        {
+          leadSlug: "outreach",
+          tier: "growth",
+          commerceAddon: false,
+          recurringCanceledAt: pausedAt,
+        },
+      ],
+    );
+    expect(paused.map((row) => row.slug)).toEqual(["older", "newer"]);
+    expect(paused[0]?.pausedAtMs).toBe(pausedAt);
+    expect(paused[0]?.hasStripeCustomerId).toBe(true);
+    expect(paused[1]?.stage).toBe("paid");
+  });
+
+  it("excludes leads that still have an active recurring order", () => {
+    const paused = listRecurringEntitlementPaused(
+      [{ slug: "mixed", businessName: "Mixed", stage: "paid" }],
+      [
+        {
+          leadSlug: "mixed",
+          tier: "starter",
+          commerceAddon: true,
+          recurringCanceledAt: pausedAt,
+        },
+        {
+          leadSlug: "mixed",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ],
+    );
+    expect(paused).toEqual([]);
+  });
+
+  it("excludes Starter-only and uncanceled recurring leads", () => {
+    expect(
+      listRecurringEntitlementPaused(
+        [{ slug: "starter", businessName: "Starter", stage: "paid" }],
+        [{ leadSlug: "starter", tier: "starter", commerceAddon: false }],
+      ),
+    ).toEqual([]);
+    expect(
+      listRecurringEntitlementPaused(
+        [{ slug: "active", businessName: "Active", stage: "live" }],
+        [{ leadSlug: "active", tier: "growth", commerceAddon: false }],
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("oldestRecurringEntitlementPausedAgeHours", () => {
+  it("returns null when empty and whole hours for the oldest pause", () => {
+    expect(oldestRecurringEntitlementPausedAgeHours([], 1_720_003_600_000)).toBeNull();
+    expect(
+      oldestRecurringEntitlementPausedAgeHours(
+        [{ pausedAtMs: 1_720_000_000_000 }],
+        1_720_003_600_000,
+      ),
+    ).toBe(1);
   });
 });

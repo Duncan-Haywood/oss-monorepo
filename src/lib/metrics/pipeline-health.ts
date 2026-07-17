@@ -10,7 +10,8 @@
  * + client-voice-packs-missing-visibility
  * + commerce-order-revenue-ledger
  * + commerce-abandoned-checkout-tracking
- * + commerce-pipeline-health-unpaid-owed).
+ * + commerce-pipeline-health-unpaid-owed
+ * + recurring-entitlement-paused-pipeline-digest).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -36,6 +37,10 @@ import {
   isCommerceOrderPaidOut,
   sumCommerceOrdersRevenueUsd,
 } from "@/lib/commerce/orders";
+import {
+  listRecurringEntitlementPaused,
+  oldestRecurringEntitlementPausedAgeHours,
+} from "@/lib/orders/recurring";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -136,6 +141,14 @@ export interface PipelineHealth {
   commerceOrdersRevenueUsd: number;
   /** Count of unpaid Commerce Buy now orders still owed to clients. */
   commerceOrdersCount: number;
+  /**
+   * Paid/live Growth/Complete/Commerce leads with recurringCanceledAt and no
+   * still-active recurring order — MRR recovery debt (Billing Portal chase).
+   * Distinct from marketingPacksDue (those drop out when entitlement pauses).
+   */
+  recurringEntitlementPausedCount: number;
+  /** Age in whole hours of the oldest recurring entitlement pause; null when none. */
+  oldestRecurringEntitlementPausedAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -379,6 +392,16 @@ export function computePipelineHealth(input: {
   );
   const commerceOrdersRevenueUsd = sumCommerceOrdersRevenueUsd(unpaidCommerceOrders);
 
+  const recurringEntitlementPaused = listRecurringEntitlementPaused(
+    input.leads,
+    input.orders,
+  );
+  const recurringEntitlementPausedCount = recurringEntitlementPaused.length;
+  const oldestRecurringPausedAgeHours = oldestRecurringEntitlementPausedAgeHours(
+    recurringEntitlementPaused,
+    nowMs,
+  );
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -411,6 +434,8 @@ export function computePipelineHealth(input: {
     clientVoicePacksDueCount: clientVoicePacksDue.length,
     commerceOrdersRevenueUsd,
     commerceOrdersCount: unpaidCommerceOrders.length,
+    recurringEntitlementPausedCount,
+    oldestRecurringEntitlementPausedAgeHours: oldestRecurringPausedAgeHours,
   };
 }
 

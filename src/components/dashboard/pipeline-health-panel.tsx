@@ -131,6 +131,18 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.marketingPacksDueCount > 0}
         />
         <MetricCard
+          label="MRR paused / canceled"
+          value={String(health.recurringEntitlementPausedCount)}
+          hint={
+            health.recurringEntitlementPausedCount > 0
+              ? health.oldestRecurringEntitlementPausedAgeHours !== null
+                ? `Oldest pause ${formatAbandonedAgeHours(health.oldestRecurringEntitlementPausedAgeHours)} — chase Billing Portal`
+                : "Chase Billing Portal / Manage billing"
+              : "Active Growth/Complete/Commerce entitlement"
+          }
+          attention={health.recurringEntitlementPausedCount > 0}
+        />
+        <MetricCard
           label="Commerce catalogs missing"
           value={String(health.commerceCatalogsMissingCount)}
           hint={
@@ -246,6 +258,23 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
             /dashboard/leads
           </Link>{" "}
           (sold monthly promise).
+        </p>
+      ) : null}
+
+      {health.recurringEntitlementPausedCount > 0 ? (
+        <p className="mt-3 text-xs text-rose-900">
+          {health.recurringEntitlementPausedCount} Growth/Complete/Commerce subscriber
+          {health.recurringEntitlementPausedCount === 1 ? "" : "s"} have paused or canceled
+          recurring entitlement
+          {health.oldestRecurringEntitlementPausedAgeHours !== null
+            ? ` (oldest ${formatAbandonedAgeHours(health.oldestRecurringEntitlementPausedAgeHours)})`
+            : ""}
+          — they drop out of packs/catalog panels; open{" "}
+          <strong>Manage billing</strong> on{" "}
+          <Link href="/dashboard/leads" className="underline underline-offset-2">
+            /dashboard/leads
+          </Link>{" "}
+          so they can update payment or resubscribe (MRR recovery).
         </p>
       ) : null}
 

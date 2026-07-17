@@ -1951,6 +1951,17 @@ export async function syncCommerceCatalogToStripeAction(slug: string) {
       return { success: false as const, error: "Lead not found" };
     }
 
+    // Twin of saveCommerceCatalogAction + Buy now create-path: do not mint /
+    // refresh Stripe Prices after CRM pause/cancel while entitlement is off.
+    const orders = await listOrdersByLeadSlug(slug);
+    if (!leadEligibleForCommerceCatalog(lead, orders)) {
+      return {
+        success: false as const,
+        error:
+          "Commerce catalogs require a paid/live lead with a Commerce add-on order",
+      };
+    }
+
     const catalog = await getCommerceCatalog(slug);
     if (!catalog || catalog.items.length === 0) {
       return {

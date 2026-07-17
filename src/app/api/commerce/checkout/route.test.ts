@@ -25,12 +25,29 @@ vi.mock("stripe", () => ({
 }));
 
 const getCommerceCatalog = vi.fn();
+const getLeadBySlug = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const recordCheckoutSessionCreated = vi.fn();
 vi.mock("@/lib/db", () => ({
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
+  getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
   recordCheckoutSessionCreated: (...args: unknown[]) =>
     recordCheckoutSessionCreated(...args),
 }));
+
+const eligibleLead = {
+  slug: "demo-cafe",
+  businessName: "Demo Cafe",
+  stage: "paid" as const,
+};
+
+const activeCommerceOrder = {
+  leadSlug: "demo-cafe",
+  commerceAddon: true,
+  tier: "growth",
+  amountPaid: 899,
+};
 
 function commerceRequest(body: unknown) {
   return new Request("http://localhost/api/commerce/checkout", {
@@ -71,11 +88,15 @@ describe("POST /api/commerce/checkout", () => {
     }
     sessionsCreate.mockReset();
     getCommerceCatalog.mockReset();
+    getLeadBySlug.mockReset();
+    listOrdersByLeadSlug.mockReset();
     recordCheckoutSessionCreated.mockReset();
     // Each `it` below issues its own POST(s) from the same synthetic (no
     // x-forwarded-for) client — reset the limiter so route-level tests don't
     // interfere with each other regardless of run order.
     resetRateLimiterForTests();
+    getLeadBySlug.mockResolvedValue(eligibleLead);
+    listOrdersByLeadSlug.mockResolvedValue([activeCommerceOrder]);
     getCommerceCatalog.mockResolvedValue(syncedCatalog);
     recordCheckoutSessionCreated.mockResolvedValue(undefined);
     sessionsCreate.mockResolvedValue({
@@ -171,6 +192,50 @@ describe("POST /api/commerce/checkout", () => {
     expect(sessionsCreate).not.toHaveBeenCalled();
   });
 
+  it("returns 404 when the lead is unknown", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    getLeadBySlug.mockResolvedValue(null);
+    const { POST } = await import("./route");
+    const res = await POST(
+      commerceRequest({ slug: "unknown-shop", skuId: "sku_latte" }),
+    );
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: "Lead not found" });
+    expect(getCommerceCatalog).not.toHaveBeenCalled();
+    expect(sessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 when commerceAddon recurring entitlement is paused", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...activeCommerceOrder, recurringCanceledAt: 1_720_000_000_000 },
+    ]);
+    const { POST } = await import("./route");
+    const res = await POST(
+      commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }),
+    );
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({
+      error: "Commerce catalog not available for this lead",
+    });
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+    expect(getCommerceCatalog).not.toHaveBeenCalled();
+    expect(sessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 when the lead has no Commerce add-on order", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...activeCommerceOrder, commerceAddon: false },
+    ]);
+    const { POST } = await import("./route");
+    const res = await POST(
+      commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }),
+    );
+    expect(res.status).toBe(403);
+    expect(sessionsCreate).not.toHaveBeenCalled();
+  });
+
   it("returns 404 when the catalog item is unknown", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
     const { POST } = await import("./route");
@@ -187,7 +252,7 @@ describe("POST /api/commerce/checkout", () => {
     getCommerceCatalog.mockResolvedValue(null);
     const { POST } = await import("./route");
     const res = await POST(
-      commerceRequest({ slug: "unknown-shop", skuId: "sku_latte" }),
+      commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }),
     );
     expect(res.status).toBe(404);
   });
