@@ -49,6 +49,28 @@ export function isRecoveryDue(session: CheckoutSessionRecord, nowMs: number): bo
   return nowMs - sentAtMs >= RECOVERY_COOLDOWN_DAYS * DAY_MS;
 }
 
+/**
+ * Open bundle checkout_sessions for a lead that should be closed after a
+ * later Session for that lead pays. Excludes the paid stripeSessionId and
+ * never includes commerce_sku rows (end-customer multi-shopper carts).
+ * Used by markCompleteOpenBundleCheckoutSessionsForLead + Vitest.
+ */
+export function openBundleCheckoutSessionsToClose(
+  sessions: readonly CheckoutSessionRecord[],
+  opts: { leadSlug: string; exceptStripeSessionId: string },
+): CheckoutSessionRecord[] {
+  const leadSlug = opts.leadSlug.trim();
+  const exceptId = opts.exceptStripeSessionId.trim();
+  if (!leadSlug || !exceptId) return [];
+  return sessions.filter(
+    (session) =>
+      session.leadSlug === leadSlug &&
+      session.status === "open" &&
+      session.stripeSessionId !== exceptId &&
+      isBundleCheckoutSession(session),
+  );
+}
+
 /** Bundle (Local Site Studio plan) abandoned sessions due for recovery, oldest first. */
 export function listAbandonedCheckoutsDue(
   sessions: CheckoutSessionRecord[],

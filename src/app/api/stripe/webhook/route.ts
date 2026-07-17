@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import {
   markCheckoutSessionComplete,
   markCheckoutSessionOpen,
+  markCompleteOpenBundleCheckoutSessionsForLead,
   recordLeadPayment,
 } from "@/lib/db";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
@@ -479,6 +480,29 @@ export async function POST(request: Request) {
       const parsedSlug = parseLeadSlugLookup(rawSlug);
       const slug = parsedSlug.ok ? parsedSlug.slug : undefined;
       const bundle = typeof tier === "string" ? getBundle(tier) : undefined;
+      // Close earlier abandoned open *bundle* carts for this lead so
+      // Finish-checkout / digest cannot nudge after a later Session pays.
+      // Never commerce_sku (multi-shopper). Run only when slug parses — an
+      // over-long/missing slug skips fulfillment below and must not close
+      // unrelated leads. Starter→Growth after pay mints a new Session.
+      if (slug) {
+        try {
+          await markCompleteOpenBundleCheckoutSessionsForLead(
+            slug,
+            session.id,
+            WEBHOOK_CONVEX_PRIMARY,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to close orphan open bundle checkout sessions for ${slug} after ${session.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse(
+            "checkout_session_orphan_bundle_cleanup",
+          );
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+      }
       if (slug && bundle) {
         const knownTier = bundle.id;
 
