@@ -307,4 +307,19 @@ describe("generateClientVoicePackAction", () => {
     });
     expect(generate).not.toHaveBeenCalled();
   });
+
+  it("rejects Complete orders after recurringCanceledAt (paused/canceled MRR)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...completeOrder, recurringCanceledAt: 1_720_000_000_000 },
+    ]);
+    const { generateClientVoicePackAction } = await import("./actions");
+    const res = await generateClientVoicePackAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Client voice FAQ packs require a paid/live lead with a Complete order",
+    });
+    expect(generate).not.toHaveBeenCalled();
+    expect(upsertClientVoicePack).not.toHaveBeenCalled();
+  });
 });

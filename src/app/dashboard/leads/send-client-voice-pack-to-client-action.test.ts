@@ -323,4 +323,19 @@ describe("sendClientVoicePackToClientAction", () => {
     });
     expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
   });
+
+  it("rejects Complete orders after recurringCanceledAt (paused/canceled MRR)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...completeOrder, recurringCanceledAt: 1_720_000_000_000 },
+    ]);
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Email voice pack requires a paid/live Complete lead with an email on file",
+    });
+    expect(getClientVoicePackByLeadSlug).not.toHaveBeenCalled();
+    expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
+  });
 });

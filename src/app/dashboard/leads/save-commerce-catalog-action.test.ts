@@ -372,4 +372,18 @@ describe("saveCommerceCatalogAction", () => {
     });
     expect(upsertCommerceCatalog).not.toHaveBeenCalled();
   });
+
+  it("rejects Commerce add-on orders after recurringCanceledAt (paused/canceled MRR)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...commerceOrder, recurringCanceledAt: 1_720_000_000_000 },
+    ]);
+    const { saveCommerceCatalogAction } = await import("./actions");
+    const res = await saveCommerceCatalogAction("demo-cafe", draftItems);
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Commerce catalogs require a paid/live lead with a Commerce add-on order",
+    });
+    expect(upsertCommerceCatalog).not.toHaveBeenCalled();
+  });
 });

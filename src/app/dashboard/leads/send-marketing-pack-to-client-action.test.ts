@@ -337,4 +337,19 @@ describe("sendMarketingPackToClientAction", () => {
     });
     expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
   });
+
+  it("rejects Growth orders after recurringCanceledAt (paused/canceled MRR)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...growthOrder, recurringCanceledAt: 1_720_000_000_000 },
+    ]);
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Email pack requires a paid/live Growth or Complete lead with an email on file",
+    });
+    expect(getMarketingPack).not.toHaveBeenCalled();
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
 });

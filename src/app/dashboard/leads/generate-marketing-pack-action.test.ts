@@ -311,4 +311,19 @@ describe("generateMarketingPackAction", () => {
     });
     expect(generate).not.toHaveBeenCalled();
   });
+
+  it("rejects Growth orders after recurringCanceledAt (paused/canceled MRR)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...growthOrder, recurringCanceledAt: 1_720_000_000_000 },
+    ]);
+    const { generateMarketingPackAction } = await import("./actions");
+    const res = await generateMarketingPackAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Marketing packs require a paid/live lead with a Growth or Complete order",
+    });
+    expect(generate).not.toHaveBeenCalled();
+    expect(upsertMarketingPack).not.toHaveBeenCalled();
+  });
 });

@@ -168,7 +168,7 @@ export const AGENT_PROTOCOL = [
   "invoice.payment_failed must re-retrieve the Subscription before markOrdersRecurringCanceledByCustomer — membership alone is not enough after invoice.paid / subscription.updated clear. Mark only when stripeSubscriptionShouldPauseRecurringEntitlement (past_due|unpaid or pause_collection); skip when already grants. Stale/out-of-order failed after recovery must not re-pause packs. Retrieve failures return 5xx (subscription_retrieve). Ship with invoice.paid restore in the same pass when possible (invoice-payment-failed-stale-repause-guard).",
   "After CRM entitlement pause/cancel gates Buy now create/sync/webhook on leadEligibleForCommerceCatalog, immediately close the abandoned-recovery twin — sendCommerceCheckoutRecoveryAction must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before mark/send (success:false when missing lead or ineligible); listCommerceAbandonedCheckoutsDue / digest / pipeline-health must filter via leadSlugsEligibleForCommerceAbandonedRecovery so paused/canceled Commerce carts do not surface as recovery debt while create-path 403s and the webhook skips (commerce-abandoned-recovery-entitlement-gate). After an entitlement filter ships as an optional helper arg (omit → allow-all), immediately require it at the type level so a future caller cannot reopen the hole (commerce-abandoned-recovery-require-entitlement-set). After that type-level require, also audit wrapper helpers that call the same predicates (leadEligibleForMarketingPackDelivery / leadEligibleForClientVoicePackDelivery / listCommerceCatalogsUnsynced) — their orders args must include recurringCanceledAt? too, or structural omit silently reopens pause-blind call sites (entitlement-order-arg-recurring-canceled-type-parity).",
   "After leadEligibleForMarketingPack gates generate/send on !recurringCanceledAt, also gate bestMarketingOrderTier on the same predicate — prefer Complete among *active* Growth/Complete rows only. A paused/canceled Complete + still-active Growth must not mint full_marketing / generate_schedule_optimize (outer eligibility can still pass via Growth). Same class as create-path entitlement without the inner sold-tier residual (best-marketing-order-tier-active-entitlement). After an outer eligibility gate ships, immediately audit inner tier/package selectors before inventing another dated clean-audit.",
-  "After POST /api/marketing/generate soft-caps business via normalizeMarketingGenerateBusiness, also soft-cap businessContextFromLead + clientVoiceBusinessContextFromLead (operator Generate pack / Generate voice → Anthropic/stub) with the same create-fields MAX_* policy — public generate size policy alone leaves the sold dashboard lead→request builders uncapped on pre-cap CRM / Convex-hydrated rows (marketing-voice-build-request-business-context-soft-cap). Soft-cap (not hard-reject) so one oversize cell still ships a truncated pack. Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#355 money/entitlement gates.",] as const;
+  "After POST /api/marketing/generate soft-caps business via normalizeMarketingGenerateBusiness, also soft-cap businessContextFromLead + clientVoiceBusinessContextFromLead (operator Generate pack / Generate voice → Anthropic/stub) with the same create-fields MAX_* policy — public generate size policy alone leaves the sold dashboard lead→request builders uncapped on pre-cap CRM / Convex-hydrated rows (marketing-voice-build-request-business-context-soft-cap). Soft-cap (not hard-reject) so one oversize cell still ships a truncated pack. After lib/type-level entitlement gates ship, immediately lock the dashboard action glue with paused Vitest (generate/send marketing+voice + save catalog) so a future orchestration regression cannot fulfill after CRM pause (marketing-voice-commerce-action-entitlement-regression). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#355 money/entitlement gates + action entitlement Vitest.",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2709,6 +2709,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-3811",
+  },
+  {
+    id: "marketing-voice-commerce-action-entitlement-regression",
+    summary:
+      "Empty-backlog after PR #355 (entitlement-order-arg-recurring-canceled-type-parity). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-3811 claimed marketing-voice-build-request-business-context-soft-cap — complementary pivot. Lib predicates + commerce sync/recovery already cover recurringCanceledAt, but generateMarketingPackAction / sendMarketingPackToClientAction / generateClientVoicePackAction / sendClientVoicePackToClientAction / saveCommerceCatalogAction lack action-level paused Vitest — a future glue regression could regenerate/email packs or save catalogs for paused MRR without TypeScript noticing. Add action-level regressions that assert generate/send/save do not call LLM/persist/email when orders carry recurringCanceledAt.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-b43f",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5558,6 +5566,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Empty-backlog after PR #354/#355 (bestMarketingOrderTier active entitlement + wrapper order-arg type parity). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual twin: marketing-generate-content-types-size-cap soft-caps the public route, but operator Generate pack / Generate voice build requests from raw Lead fields — CSV/create-path caps close most ingest, yet Convex-hydrated or pre-cap rows can still burn LLM tokens. Process improvement: after a public write soft-cap ships, immediately close the sold dashboard lead→request twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
+  {
+    date: "2026-07-17",
+    decision:
+      "Dashboard actions that gate sold monthly fulfillment on leadEligibleForMarketingPack / leadEligibleForMarketingPackDelivery / leadEligibleForClientVoicePack / leadEligibleForClientVoicePackDelivery / leadEligibleForCommerceCatalog must have action-level Vitest proving recurringCanceledAt orders fail closed before LLM generate, pack persist, client email, or catalog upsert — lib predicate coverage alone does not lock the orchestration glue. Mirror commerce sync/recovery entitlement action tests.",
+    rationale:
+      "Empty-backlog after PR #355 (wrapper order-arg type parity). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-3811 shipped lead→request soft-caps — complementary pivot; folded here. Fresh residual: #344–#355 closed predicates/types/create/sync/webhook/recovery, but Generate/Email pack + voice + Save catalog action suites still lacked paused-MRR cases — a glue regression could fulfill after CRM pause while TypeScript stays green. Process improvement: after type-level entitlement require + lib Vitest, immediately lock the dashboard action twins before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -11290,9 +11306,31 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: marketing-voice-build-request-business-context-soft-cap done",
       "BUSINESS_DECISIONS — require lead→request soft-cap (absolute index 404)",
       "Process: object-parse by decision text (order-arg type parity=403, bestMarketingOrderTier=402) before appending ours; claim pushed before feature body",
-      "Verified: npm test (1768 passed = main@#355's 1766 + 2 soft-cap regressions) + lint",
+      "Verified: npm test (1768 passed = main@#355's 1766 + 2 soft-cap regressions) + lint; later main merge as PR #356",
     ],
     // Object-parse by decision text: lead→request soft-cap owns BD[404]; order-arg type parity=403.
     decisions: BUSINESS_DECISIONS.slice(404, 405),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/prompt-process-evolution-b43f",
+    summary:
+      "Empty-backlog after PR #355 (entitlement-order-arg-recurring-canceled-type-parity). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Sibling business-process-evolution-3811 claimed/shipped marketing-voice-build-request-business-context-soft-cap — complementary pivot; folded here. Fresh residual: lib predicates + commerce sync/recovery already cover recurringCanceledAt, but Generate/Email marketing + voice + Save catalog action suites lacked paused Vitest. Shipped five action-level regressions; process now requires action-glue Vitest after type-level entitlement gates.",
+    shipped: [
+      "merge: sibling business-process-evolution-3811 lead→request soft-caps — keep both NEXT_STEPS/ITERATIONS",
+      "generate-marketing-pack-action.test.ts — +1 recurringCanceledAt reject (no LLM/persist)",
+      "send-marketing-pack-to-client-action.test.ts — +1 recurringCanceledAt reject (no pack load/email)",
+      "generate-client-voice-pack-action.test.ts — +1 recurringCanceledAt reject (no LLM/persist)",
+      "send-client-voice-pack-to-client-action.test.ts — +1 recurringCanceledAt reject (no pack load/email)",
+      "save-commerce-catalog-action.test.ts — +1 recurringCanceledAt reject (no upsert)",
+      "Docs: architecture.tsx notes action-level paused Vitest beside entitlement predicates",
+      "AGENT_PROTOCOL — after type-level entitlement, lock dashboard action glue with paused Vitest",
+      "NEXT_STEPS: marketing-voice-commerce-action-entitlement-regression done; marketing-voice-build-request-business-context-soft-cap done (3811)",
+      "BUSINESS_DECISIONS — require action-level paused entitlement Vitest (absolute index 405)",
+      "Process: coop fold of sibling 3811; claim pushed before feature body; object-parse by decision text (build-request soft-cap=404) before appending ours",
+      "Verified: npm test (1773 passed = main@#355's 1766 + sibling 2 build-request soft-cap + 5 action entitlement) + lint",
+    ],
+    // Object-parse by decision text: action entitlement Vitest owns BD[405]; build-request soft-cap=404.
+    decisions: BUSINESS_DECISIONS.slice(405, 406),
   },
 ];
