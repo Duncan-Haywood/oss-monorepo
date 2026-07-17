@@ -3,6 +3,7 @@
  * Starter sells "Basic SEO" (see landing page copy) — this is what backs it:
  * per-page metadata, canonical URLs, and LocalBusiness structured data.
  */
+import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 
@@ -58,27 +59,29 @@ const SCHEMA_TYPE_BY_CATEGORY: Record<BusinessCategory, string> = {
 };
 
 export function leadMetaTitle(lead: Lead): string {
-  return `${lead.businessName} — ${lead.city}, ${lead.state} | ${lead.tagline}`;
+  const capped = softCapLeadForPublicSurface(lead);
+  return `${capped.businessName} — ${capped.city}, ${capped.state} | ${capped.tagline}`;
 }
 
 export function leadMetaDescription(lead: Lead): string {
-  return lead.description;
+  return softCapLeadForPublicSurface(lead).description;
 }
 
 /** JSON-LD LocalBusiness object for a lead's preview site. Serialize with safeJsonLdScript. */
 export function leadLocalBusinessJsonLd(lead: Lead): Record<string, unknown> {
+  const capped = softCapLeadForPublicSurface(lead);
   return {
     "@context": "https://schema.org",
-    "@type": SCHEMA_TYPE_BY_CATEGORY[lead.category],
-    name: lead.businessName,
-    description: lead.description,
-    url: previewUrl(lead.slug),
-    telephone: lead.phone,
+    "@type": SCHEMA_TYPE_BY_CATEGORY[capped.category],
+    name: capped.businessName,
+    description: capped.description,
+    url: previewUrl(capped.slug),
+    telephone: capped.phone,
     address: {
       "@type": "PostalAddress",
-      streetAddress: lead.address,
-      addressLocality: lead.city,
-      addressRegion: lead.state,
+      streetAddress: capped.address,
+      addressLocality: capped.city,
+      addressRegion: capped.state,
     },
   };
 }

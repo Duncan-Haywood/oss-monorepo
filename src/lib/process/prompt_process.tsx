@@ -180,7 +180,8 @@ export const AGENT_PROTOCOL = [
   "After POST /api/marketing/generate soft-caps business via normalizeMarketingGenerateBusiness, also soft-cap businessContextFromLead + clientVoiceBusinessContextFromLead (operator Generate pack / Generate voice → Anthropic/stub) with the same create-fields MAX_* policy — public generate size policy alone leaves the sold dashboard lead→request builders uncapped on pre-cap CRM / Convex-hydrated rows (marketing-voice-build-request-business-context-soft-cap). Soft-cap (not hard-reject) so one oversize cell still ships a truncated pack. After lib/type-level entitlement gates ship, immediately lock the dashboard action glue with paused Vitest (generate/send marketing+voice + save catalog) so a future orchestration regression cannot fulfill after CRM pause (marketing-voice-commerce-action-entitlement-regression).",
   "After lead→request soft-cap joins CRM weekday/weekend into one BusinessContext.hours string, do not re-truncate that join at MAX_HOURS_SEGMENT_LENGTH — soft-cap each segment via formatPackBusinessHours and ceiling the joined string at MAX_PACK_BUSINESS_HOURS_LENGTH (2×segment + Weekdays/Weekends prefixes). A create-path-max lead otherwise loses weekend hours in Growth/Complete pack + Complete voice prompts (marketing-voice-pack-hours-join-soft-cap). After joining multi-field CRM values into one generate field, immediately audit the joined ceiling vs per-field create-path max before inventing another dated clean-audit.",
   "customer.subscription.created|updated and invoice.paid must not only clear/mark recurringCanceledAt — on grants restore they must deriveLiveRecurringEntitlementFromPriceIds from subscription.items vs create-path catalog monthly Prices, require hasCatalogRecurring before clear, then syncOrdersRecurringEntitlementByCustomer (tier + commerceAddon). Active foreign-Price subscriptions must pause (not clear). Billing Portal / Dashboard plan changes otherwise leave CRM unlocking Complete voice / Commerce catalog / full_marketing after downgrade (subscription-items-crm-entitlement-sync). After CRM pause/restore twins ship, immediately sync live Subscription items onto orders.tier/commerceAddon before inventing another dated clean-audit.",
-  "After charge.dispute.created marks commerceOrders.disputedAt (#362), immediately close charge.dispute.closed — won/warning_closed must clearCommerceOrderDisputed (Convex replace omit disputedAt + SQLite NULL, requireConvex) so Mark paid out and owed totals reopen after Stripe reinstates funds; lost must keep/ensure disputedAt (created may have been missed). Same Session correlation via payment_intent as created/refunded. Write failures return 5xx (commerce_order_dispute_clear / commerce_order_dispute). Next empty-backlog after this twin: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week / bundle-order refund twin (lower severity) — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#362 money/entitlement/refund/dispute-created gates.",] as const;
+  "After charge.dispute.created marks commerceOrders.disputedAt (#362), immediately close charge.dispute.closed — won/warning_closed must clearCommerceOrderDisputed (Convex replace omit disputedAt + SQLite NULL, requireConvex) so Mark paid out and owed totals reopen after Stripe reinstates funds; lost must keep/ensure disputedAt (created may have been missed). Same Session correlation via payment_intent as created/refunded. Write failures return 5xx (commerce_order_dispute_clear / commerce_order_dispute).",
+  "After create-path soft-caps lead free-text (CSV/Add lead MAX_*), also soft-cap at public preview read via softCapLeadForPublicSurface (src/lib/leads/public-fields.ts) before CategoryPreview HTML, leadMetaTitle/Description, and leadLocalBusinessJsonLd — pre-cap Convex/SQLite rows otherwise emit unbounded description/tagline/services into unauthenticated output (preview-lead-description-read-soft-cap). Soft-cap (never hard-reject) so one oversized cell still renders. After shipping a write-path soft-cap, immediately audit the public SSR/meta/JSON-LD read twin before inventing another dated clean-audit. Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week / bundle-order refund twin (lower severity) — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#363 money/entitlement/refund/dispute gates.",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2769,6 +2770,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-f01f",
+  },
+  {
+    id: "preview-lead-description-read-soft-cap",
+    summary:
+      "Create-path soft-caps lead.description (MAX_DESCRIPTION_LENGTH) on CSV/Add lead, but public /preview meta + JSON-LD + CategoryPreview still emit uncapped description (and sibling free-text fields) for pre-cap Convex/SQLite rows. Soft-cap at read via softCapLeadForPublicSurface so outreach HTML / search snippets / page HTML cannot grow unbounded from legacy rows.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-50d3",
   },
   {
     id: "commerce-payouts-panel-clawback-visibility",
@@ -5676,12 +5685,19 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Empty-backlog after PR #362 (commerce-order-dispute-clawback-tracking). Free NEXT_STEPS stayed operator/legal-gated (4 items). Stuck CLI/cursor remotes ahead of main were already-superseded docs-only or content already shipped — no genuine fold candidate. BD[410] + AGENT_PROTOCOL + /docs/architecture explicitly flagged charge.dispute.closed as the natural twin: without it, a dispute the operator later wins leaves disputedAt set forever, so Mark paid out stays rejected and Dispute clawback needed keeps counting a false clawback after Stripe reinstated the funds — the mirror of the false-owed bug dispute.created closed. Process improvement: after shipping a payout-safety open flag (dispute.created / refundedAt), immediately close the resolution/clear twin before inventing another dated clean-audit — same pattern as subscription.deleted → active clear (#344→#345) and invoice.payment_failed → invoice.paid restore. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / bundle-order refund twin (lower severity). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
   {
+    date: "2026-07-17",
+    decision:
+      "Public /preview HTML, leadMetaTitle/Description, and leadLocalBusinessJsonLd must soft-cap create-path free-text via softCapLeadForPublicSurface (src/lib/leads/public-fields.ts) at the same MAX_* ceilings as CSV/Add lead (description/tagline/businessName/city/state/address/phone/email/services/hours) — write-path caps alone leave pre-cap Convex/SQLite rows unbounded on unauthenticated output. Soft-cap (never hard-reject) so one oversized cell still renders a truncated page. Slug/stage/tier/provenance stay uncapped by this helper (opaque slug length is gated elsewhere).",
+    rationale:
+      "Empty-backlog after PR #363 (commerce-order-dispute-closed-resolution on business-process-evolution-f01f). Same-minute dual claim on dispute.closed: this branch (prompt-process-evolution-50d3) had started the twin but f01f merged first with a stronger lost-ensures-disputedAt path — folded onto main and pivoted rather than shipping a duplicate clear handler. Also fixed #362/#363 ITERATIONS BUSINESS_DECISIONS.slice off-by-ones (x13feb pointed at Stripe SDK BD[410]; f01f pointed at dispute.created BD[411]) by object-parsing decision text. Fresh residual from automation memory + AGENT_PROTOCOL: lead.description (and sibling free-text) still uncapped on public preview/meta/JSON-LD read. Process improvement: after a same-minute dual claim loses the merge race, immediately pivot to the next named residual rather than re-auditing the merged feature; also re-verify sibling ITERATIONS slices by decision text whenever a money-axis PR lands in the same window. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / bundle-order refund twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
     id: "commerce-payouts-panel-clawback-visibility",
     date: "2026-07-17",
     decision:
       "The live /dashboard/leads Commerce payouts (manual) panel must show every commerce order an operator needs to act on — not just unpaid ones. Merge listUnpaidCommerceOrders with listCommerceOrdersRefunded / listCommerceOrdersDisputed (mergeCommerceOrdersForReview, deduped by id — an order refunded but never paid out satisfies both the unpaid and refunded feeds) into the panel's data source, and keep a lead's per-lead summary visible whenever it has a clawback-needed order even if unpaidCount is 0 (commerceOrdersByLeadSummaryNeedsAttention). A clawback-needed order (paid out, then refunded/disputed) must never be visible ONLY in the aggregate pipeline-health count/$ card and the batch daily-digest email — the always-on dashboard is where an operator actually works day to day and needs row-level lead/amount detail to go recover the money.",
     rationale:
-      "Empty-backlog after PR #363 (commerce-order-dispute-closed-resolution). Free NEXT_STEPS stayed operator/legal-gated (4 items); commerce-order-dispute-closed-resolution was already double-claimed by two siblings moments before this run started (cursor/prompt-process-evolution-50d3 at 15:02:59, cursor/business-process-evolution-f01f at 15:02:35 — earlier claim wins per AGENT_PROTOCOL's same-minute-dual-claim rule) and merged before this run needed to pivot, so this run scanned the freshly-merged dispute-closed code plus the whole payout/clawback UI surface directly rather than re-running an already-2x-confirmed-clean audit axis. Found a genuine, real dashboard-completeness gap: the Commerce payouts panel's own per-order rendering already has UI text for 'Refunded/Disputed after payout — claw back from client' (written by the original refund/dispute-clawback authors, presumably anticipating this data would reach it), but it was dead code on both ends — listUnpaidCommerceOrders excludes every paidOutAt row so a clawback-needed order's data never reached the client, and the panel's own `.filter(unpaidCount > 0)` would have hidden that lead anyway even if the data had arrived. Verified live (not just build/lint/test): inserted a paid-out+refunded commerce_orders row directly into the dev SQLite DB, reloaded /dashboard/leads, and confirmed the previously-dead 'Refunded after payout — claw back from client' text now renders with the correct amount. Process improvement, unrelated but discovered while verifying BUSINESS_DECISIONS.length before this append: object-parsing the full array by decision text (not by trusting any slice comment) showed the ITERATIONS entries from best-marketing-order-tier-active-entitlement through commerce-order-dispute-closed-resolution carry an unresolved off-by-one drift that survived two prior 2026-07-17 correction attempts (nice-euler-0x1k8a's fix was itself wrong; claude/upbeat-dijkstra-hpts79's 'restoration' of that fix was also wrong) — see the new AGENT_PROTOCOL bullet. Rather than attempt a third historical rewrite (same risk class as the two failed ones), added `id` to BusinessDecision and switched to filter-by-id for this and all future entries, which makes the entire bug class structurally impossible going forward; the historical numeric range is left as-is and remains reconstructable via object-parse-by-text. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / bundle-order refund-clawback twin (lower severity, no payout-panel double-loss risk on that ledger today).",
+      "Empty-backlog after PR #363 (commerce-order-dispute-closed-resolution). Free NEXT_STEPS stayed operator/legal-gated (4 items); commerce-order-dispute-closed-resolution was already double-claimed by two siblings moments before this run started (cursor/prompt-process-evolution-50d3 at 15:02:59, cursor/business-process-evolution-f01f at 15:02:35 — earlier claim wins per AGENT_PROTOCOL's same-minute-dual-claim rule) and merged before this run needed to pivot, so this run scanned the freshly-merged dispute-closed code plus the whole payout/clawback UI surface directly rather than re-running an already-2x-confirmed-clean audit axis. Found a genuine, real dashboard-completeness gap: the Commerce payouts panel's own per-order rendering already has UI text for 'Refunded/Disputed after payout — claw back from client' (written by the original refund/dispute-clawback authors, presumably anticipating this data would reach it), but it was dead code on both ends — listUnpaidCommerceOrders excludes every paidOutAt row so a clawback-needed order's data never reached the client, and the panel's own `.filter(unpaidCount > 0)` would have hidden that lead anyway even if the data had arrived. Verified live (not just build/lint/test): inserted a paid-out+refunded commerce_orders row directly into the dev SQLite DB, reloaded /dashboard/leads, and confirmed the previously-dead 'Refunded after payout — claw back from client' text now renders with the correct amount. Process improvement, unrelated but discovered while verifying BUSINESS_DECISIONS.length before this append: object-parsing the full array by decision text (not by trusting any slice comment) showed the ITERATIONS entries from best-marketing-order-tier-active-entitlement through commerce-order-dispute-closed-resolution carry an unresolved off-by-one drift that survived two prior 2026-07-17 correction attempts (nice-euler-0x1k8a's fix was itself wrong; claude/upbeat-dijkstra-hpts79's 'restoration' of that fix was also wrong; this branch found the same class independently, and prompt-process-evolution-50d3 concurrently fixed the same two entries by object-parse, landing in the same PR #364 window) — see the new AGENT_PROTOCOL bullet. Rather than attempt another historical rewrite for the remaining drifted range (same risk class as the failed ones), added `id` to BusinessDecision and switched to filter-by-id for this and all future entries, which makes the entire bug class structurally impossible going forward; the still-drifted historical range is left as-is and remains reconstructable via object-parse-by-text. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / bundle-order refund-clawback twin (lower severity, no payout-panel double-loss risk on that ledger today).",
   },
 ];
 
@@ -11575,14 +11591,14 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/dashboard/leads/leads-client.tsx — Commerce payouts panel shows Disputed / Disputed after payout instead of Mark paid out button",
       "src/app/docs/architecture/page.tsx — new paragraph documenting both refund AND dispute clawback tracking (the refund half was previously undocumented despite prior ITERATIONS claims)",
       "NEXT_STEPS: commerce-order-dispute-clawback-tracking done",
-      "BUSINESS_DECISIONS — commerce dispute/clawback tracking (absolute index 410)",
-      "Process: claim commit pushed before feature body; verified BUSINESS_DECISIONS.length via object-parse (410 entries) rather than trusting the prior entry's slice comment before appending",
+      "BUSINESS_DECISIONS — commerce dispute/clawback tracking (absolute index 411)",
+      "Process: claim commit pushed before feature body; verified BUSINESS_DECISIONS.length via object-parse rather than trusting the prior entry's slice comment before appending",
       "Verified: npm test (1855 passed = main@#361's 1835 + 20 dispute-axis regressions) + lint + build (tsc clean, all 31 routes generated) + npm run dev sanity check on /dashboard, /dashboard/leads, /preview/demo-cafe (200s, no console errors, new Dispute clawback needed card renders)",
     ],
-    // Object-parse by decision text: dispute/clawback tracking = BD[410] ("Stripe charge.dispute.created
-    // (a chargeback) must resolve..."). Verified BUSINESS_DECISIONS.length === 410 before this append
-    // (indices 0-409 pre-existing), so this entry's own decision lands at index 410.
-    decisions: BUSINESS_DECISIONS.slice(410, 411),
+    // Object-parse by decision text (2026-07-17, prompt-process-evolution-50d3): dispute/clawback
+    // tracking = BD[411] ("Stripe charge.dispute.created..."). Prior slice(410, 411) wrongly
+    // pointed at Stripe SDK BD[410] — restored after matching decision text to indexOf.
+    decisions: BUSINESS_DECISIONS.slice(411, 412),
   },
   {
     date: "2026-07-17",
@@ -11599,11 +11615,33 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/docs/architecture/page.tsx — document dispute.closed resolution alongside created/refunded clawback",
       "AGENT_PROTOCOL — after dispute.created, immediately close dispute.closed before inventing another dated clean-audit",
       "NEXT_STEPS: commerce-order-dispute-closed-resolution done",
-      "BUSINESS_DECISIONS — commerce dispute.closed resolution (absolute index 411)",
-      "Process: claim commit pushed before feature body; verified BUSINESS_DECISIONS.length via object-parse (411 prior entries → append at 411) rather than trusting slice comments",
+      "BUSINESS_DECISIONS — commerce dispute.closed resolution (absolute index 412)",
+      "Process: claim commit pushed before feature body; verified BUSINESS_DECISIONS.length via object-parse rather than trusting slice comments",
       "Verified: npm test (1872 passed = main@#362's 1855 + 17 dispute.closed-axis regressions) + lint + build (tsc clean, all 31 routes generated)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(411, 412),
+    // Object-parse by decision text (2026-07-17, prompt-process-evolution-50d3): dispute.closed
+    // resolution = BD[412]. Prior slice(411, 412) wrongly pointed at dispute.created BD[411].
+    decisions: BUSINESS_DECISIONS.slice(412, 413),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/prompt-process-evolution-50d3",
+    summary:
+      "Empty-backlog after PR #363 (dispute.closed on f01f). Same-minute dual claim on commerce-order-dispute-closed-resolution — f01f merged first with lost-ensures-disputedAt; this branch folded onto main rather than shipping a duplicate clear handler. Fixed #362/#363 ITERATIONS BUSINESS_DECISIONS.slice off-by-ones (object-parse by decision text). Pivoted to the named public-preview residual: softCapLeadForPublicSurface on CategoryPreview + seo meta/JSON-LD so pre-cap lead.description (and sibling free-text) cannot emit unbounded HTML.",
+    shipped: [
+      "src/lib/leads/public-fields.ts (+ test) — softCapLeadDescription + softCapLeadForPublicSurface (create-path MAX_*)",
+      "src/lib/seo.ts (+ test) — leadMetaTitle/Description + leadLocalBusinessJsonLd soft-cap at read",
+      "src/components/preview/category-preview.tsx — displayLead via softCapLeadForPublicSurface",
+      "Docs: architecture.tsx notes public-preview read soft-cap beside JSON-LD consent gating",
+      "AGENT_PROTOCOL — after write-path soft-cap, audit public SSR/meta/JSON-LD read twin",
+      "NEXT_STEPS: preview-lead-description-read-soft-cap done",
+      "BUSINESS_DECISIONS — public preview/meta/JSON-LD read soft-cap (absolute index 413)",
+      "Process: fold race with f01f/#363 documented; fixed x13feb→BD[411] + f01f→BD[412] slices; claim pushed before feature body",
+      "Verified: npm test (1877 passed = main@#363's 1872 + 5 public-fields soft-cap) + lint + build (tsc clean, all 31 routes generated)",
+    ],
+    // Object-parse by decision text: public-preview read soft-cap = BD[413].
+    // BUSINESS_DECISIONS.length === 414 after append (indices 0-413).
+    decisions: BUSINESS_DECISIONS.slice(413, 414),
   },
   {
     date: "2026-07-17",
@@ -11626,5 +11664,4 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "commerce-payouts-panel-clawback-visibility",
     ),
   },
-
 ];

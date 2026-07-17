@@ -103,8 +103,10 @@ describe("leadMetaTitle / leadMetaDescription", () => {
     expect(leadMetaTitle(baseLead())).toBe("Pine Cafe — Boulder, CO | Fresh local plates");
   });
 
-  it("returns the lead description verbatim", () => {
+  it("returns the lead description (soft-capped at create-path max)", () => {
     expect(leadMetaDescription(baseLead())).toBe("Neighborhood cafe serving brunch and coffee.");
+    const oversized = "d".repeat(2500);
+    expect(leadMetaDescription(baseLead({ description: oversized }))).toHaveLength(2000);
   });
 });
 

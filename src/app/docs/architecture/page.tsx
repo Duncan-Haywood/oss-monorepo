@@ -262,8 +262,12 @@ export default function ArchitectureDocPage() {
         sitemap, the page-level robots directive, and LocalBusiness JSON-LD emission cannot drift.
         Cold-prospected / closed previews omit the JSON-LD block entirely via{" "}
         <code>leadPreviewJsonLdIfIndexable</code> (robots=noindex alone is not enough — crawlers
-        still parse structured data). <code>/robots.txt</code> allows
-        crawling except <code>/dashboard</code> and <code>/api</code>. Canonical origin comes from{" "}
+        still parse structured data). Public preview HTML, meta description, and JSON-LD also
+        soft-cap create-path free-text via <code>softCapLeadForPublicSurface</code> (
+        <code>src/lib/leads/public-fields.ts</code>) at the same MAX_* ceilings as CSV/Add lead —
+        pre-cap Convex/SQLite rows cannot emit unbounded description/tagline/services into
+        unauthenticated output. <code>/robots.txt</code> allows crawling except{" "}
+        <code>/dashboard</code> and <code>/api</code>. Canonical origin comes from{" "}
         <code>NEXT_PUBLIC_APP_URL</code> (see{" "}
         <code>src/lib/seo.ts</code>) — set it in production so canonical/OG URLs and the sitemap
         don&apos;t point at localhost. Until it is a non-localhost public origin,{" "}
