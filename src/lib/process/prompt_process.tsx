@@ -2477,6 +2477,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-deb8",
   },
+  {
+    id: "commerce-webhook-price-id-line-item-parity",
+    summary:
+      "Empty-backlog after PR #333 (commerce-webhook-currency-usd-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged (handoff-marker #226, use-server #311, vercel-id #304) — rejected. Fresh money-path residual: Buy now create charges catalog.stripePriceId, and amount+currency already gate cents/USD, but checkout.session.completed never requires that Price ID on session line_items — a Dashboard-minted session with matching amount_total+usd but a different Price can still ledger. Require catalog.stripePriceId ∈ listLineItems Price IDs before currency/amount + ledger; missing stripePriceId / mismatch skips like unknown skuId; listLineItems failures 5xx. Apply the bundle twin (setup + monthly env Prices) in the same pass.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-cd9c",
+  },
+  {
+    id: "bundle-webhook-price-id-line-item-parity",
+    summary:
+      "Empty-backlog after PR #333. Twin of commerce-webhook-price-id-line-item-parity: POST /api/stripe/checkout charges only BUNDLES setup (+ monthly) env Price IDs on line_items, but checkout.session.completed only used listLineItems for commerceAddon entitlement — not for verifying the bundle catalog Prices themselves. Require env setup (+ monthly when present) Price IDs ∈ listLineItems before currency/amount + recordLeadPayment; missing env / mismatch skips like unknown tier. Ship with commerce twin in the same pass.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-cd9c",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
