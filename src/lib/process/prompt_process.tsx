@@ -10827,10 +10827,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes subscription catalog-recurring beside payment-mode commerceAddon",
       "AGENT_PROTOCOL — after payment-mode commerceAddon line-item parity, close subscription catalog-recurring twin",
       "NEXT_STEPS: subscription-mode-billing-portal-catalog-recurring-price-gate + webhook-async-payment-failed-reopen-recovery done",
-      "BUSINESS_DECISIONS — require catalog recurring Price on subscription portal/success (absolute index 388)",
+      "BUSINESS_DECISIONS — require catalog recurring Price on subscription portal/success (absolute index 387)",
     ],
-    // Object-parse by decision text: subscription catalog recurring owns BD[388]; async_failed reopen=387.
-    decisions: BUSINESS_DECISIONS.slice(388, 389),
+    // Object-parse by decision text: subscription catalog recurring owns BD[387]; async_failed reopen=386.
+    decisions: BUSINESS_DECISIONS.slice(387, 388),
   },
   {
     date: "2026-07-17",
@@ -10843,11 +10843,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes lead Manage billing reuses Session entitlement",
       "AGENT_PROTOCOL — after Session catalog-recurring, close lead Manage-billing twin",
       "NEXT_STEPS: billing-portal-lead-catalog-recurring-price-gate done",
-      "BUSINESS_DECISIONS — require Session re-proof on createBillingPortalForLead (absolute index 389)",
+      "BUSINESS_DECISIONS — require Session re-proof on createBillingPortalForLead (absolute index 388)",
       "Verified: npm test (1679 passed — lead-path regressions replaced CRM-only portal cases 1:1 vs main@#339) + lint",
     ],
-    // Object-parse by decision text: lead Manage billing Session re-proof owns BD[389]; subscription catalog=388.
-    decisions: BUSINESS_DECISIONS.slice(389, 390),
+    // Object-parse by decision text: lead Manage billing Session re-proof owns BD[388]; subscription catalog=387.
+    decisions: BUSINESS_DECISIONS.slice(388, 389),
   },
   {
     date: "2026-07-17",
@@ -10865,12 +10865,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes orphan open bundle cleanup beside async_payment_failed reopen",
       "AGENT_PROTOCOL — after paid Session markComplete, close orphan open bundle siblings; next prefers stuck CLI / escapeHtml·webhook·uncapped / next sold residual",
       "NEXT_STEPS: bundle-paid-orphan-open-checkout-session-cleanup done; billing-portal-lead-catalog-recurring-price-gate done (bd71 / #340)",
-      "BUSINESS_DECISIONS — require orphan open bundle cleanup after paid bundle Session (absolute index 390)",
-      "Process: object-parse by decision text (lead portal=389, subscription catalog=388) before appending ours",
+      "BUSINESS_DECISIONS — require orphan open bundle cleanup after paid bundle Session (absolute index 389)",
+      "Process: object-parse by decision text (lead portal=388, subscription catalog=387) before appending ours",
       "Verified: npm test (1685 passed pre-fold; re-run after #340 merge) + lint",
     ],
-    // Object-parse by decision text: orphan open bundle cleanup owns BD[390]; lead portal=389.
-    decisions: BUSINESS_DECISIONS.slice(390, 391),
+    // Object-parse by decision text: orphan open bundle cleanup owns BD[389]; lead portal=388.
+    decisions: BUSINESS_DECISIONS.slice(389, 390),
   },
   {
     date: "2026-07-17",
@@ -10883,12 +10883,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes cleanup gated behind durable fulfillment (not slug parse alone)",
       "AGENT_PROTOCOL — after orphan-open cleanup ships, immediately gate it behind catalog + durable payment",
       "NEXT_STEPS: bundle-orphan-cleanup-after-catalog-fulfillment done",
-      "BUSINESS_DECISIONS — require orphan cleanup after durable recordLeadPayment (absolute index 391)",
-      "Process: object-parse by decision text (orphan cleanup=390, lead portal=389) before appending ours",
+      "BUSINESS_DECISIONS — require orphan cleanup after durable recordLeadPayment (absolute index 390)",
+      "Process: object-parse by decision text (orphan cleanup=389, lead portal=388) before appending ours",
       "Verified: npm test (1688 passed = main@#341's 1685 + 3 skip-path keep-recovery regressions) + lint",
     ],
-    // Object-parse by decision text: cleanup-after-fulfillment owns BD[391]; orphan cleanup=390.
-    decisions: BUSINESS_DECISIONS.slice(391, 392),
+    // Object-parse by decision text: cleanup-after-fulfillment owns BD[390]; orphan cleanup=389.
+    decisions: BUSINESS_DECISIONS.slice(390, 391),
   },
   {
     date: "2026-07-17",
@@ -10906,12 +10906,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes commerce orphan cleanup beside bundle twin",
       "AGENT_PROTOCOL — after-fulfillment orphan cleanup ordering; commerce twin after bundle orphan-open",
       "NEXT_STEPS: commerce-paid-orphan-open-checkout-session-cleanup done; bundle-orphan-cleanup-after-catalog-fulfillment done (0c15 / #342)",
-      "BUSINESS_DECISIONS — require commerce orphan open cleanup after paid Buy now ledger (absolute index 392)",
-      "Process: object-parse by decision text (after-fulfillment=391, bundle orphan=390) before appending ours; claim pushed before feature body",
+      "BUSINESS_DECISIONS — require commerce orphan open cleanup after paid Buy now ledger (absolute index 391)",
+      "Process: object-parse by decision text (after-fulfillment=390, bundle orphan=389) before appending ours; claim pushed before feature body",
       "Verified: npm test (1697 passed after #342 fold = sibling 1688 + commerce orphan regressions) + lint",
     ],
-    // Object-parse by decision text: commerce orphan open cleanup owns BD[392]; after-fulfillment=391.
-    decisions: BUSINESS_DECISIONS.slice(392, 393),
+    // Object-parse by decision text: commerce orphan open cleanup owns BD[391]; after-fulfillment=390.
+    decisions: BUSINESS_DECISIONS.slice(391, 392),
   },
   {
     date: "2026-07-17",
