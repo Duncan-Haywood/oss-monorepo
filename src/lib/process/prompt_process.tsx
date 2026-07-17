@@ -2477,6 +2477,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-deb8",
   },
+  {
+    id: "webhook-checkout-payment-status-paid-gate",
+    summary:
+      "Empty-backlog after PR #333 (commerce-webhook-currency-usd-gate). Free NEXT_STEPS stayed operator/legal-gated. Fresh money-path residual: checkout.session.completed fulfills ledger/handoff/receipt without requiring session.payment_status===\"paid\". Async methods (ACH/bank transfer) complete the Session with payment_status unpaid while amount_total/currency still match catalog — false sold capability (deploy handoff, commerce order, receipts) before money clears. Gate fulfillment on paid; markCheckoutSessionComplete still runs on unpaid completed (stop abandoned recovery); handle checkout.session.async_payment_succeeded with the same fulfillment. Twin: loadCheckoutSuccessSession must not show Payment received until paid.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-9030",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
