@@ -365,7 +365,7 @@ describe("POST /api/stripe/webhook", () => {
       });
     });
 
-    it("skips past_due without CRM write", async () => {
+    it("pauses CRM on updated+past_due (current_period_start → ms)", async () => {
       constructEvent.mockReturnValue({
         type: "customer.subscription.updated",
         data: {
@@ -373,6 +373,54 @@ describe("POST /api/stripe/webhook", () => {
             id: "sub_past_due",
             customer: "cus_past_due",
             status: "past_due",
+            current_period_start: 1_720_000_100,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_past_due",
+        1_720_000_100_000,
+        { requireConvex: true },
+      );
+    });
+
+    it("pauses CRM on updated+unpaid", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_unpaid",
+            customer: "cus_unpaid",
+            status: "unpaid",
+            current_period_start: 1_720_000_200,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_unpaid",
+        1_720_000_200_000,
+        { requireConvex: true },
+      );
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("skips incomplete without CRM write", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_incomplete",
+            customer: "cus_incomplete",
+            status: "incomplete",
           },
         },
       });
@@ -410,6 +458,112 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_reactivated");
+      expect(json.received).toBe(false);
+    });
+
+    it("returns 500 orders_recurring_canceled when past_due pause write fails", async () => {
+      markOrdersRecurringCanceledByCustomer.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_fail_pause",
+            customer: "cus_fail_pause",
+            status: "past_due",
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("orders_recurring_canceled");
+      expect(json.received).toBe(false);
+    });
+  });
+
+  describe("invoice.payment_failed CRM pause", () => {
+    it("pauses CRM for subscription invoices (created → ms)", async () => {
+      constructEvent.mockReturnValue({
+        type: "invoice.payment_failed",
+        data: {
+          object: {
+            id: "in_fail_1",
+            customer: "cus_inv_fail",
+            subscription: "sub_renew_1",
+            created: 1_720_000_300,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_inv_fail",
+        1_720_000_300_000,
+        { requireConvex: true },
+      );
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("skips one-time invoices without subscription", async () => {
+      constructEvent.mockReturnValue({
+        type: "invoice.payment_failed",
+        data: {
+          object: {
+            id: "in_once",
+            customer: "cus_once",
+            subscription: null,
+            created: 1_720_000_400,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("skips when customer is missing (no 5xx)", async () => {
+      constructEvent.mockReturnValue({
+        type: "invoice.payment_failed",
+        data: {
+          object: {
+            id: "in_no_cus",
+            customer: null,
+            subscription: "sub_renew_2",
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 orders_recurring_canceled when CRM write fails", async () => {
+      markOrdersRecurringCanceledByCustomer.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "invoice.payment_failed",
+        data: {
+          object: {
+            id: "in_fail_write",
+            customer: "cus_fail_inv",
+            subscription: "sub_fail_inv",
+            created: 1_720_000_500,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("orders_recurring_canceled");
       expect(json.received).toBe(false);
     });
   });
