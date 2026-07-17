@@ -2838,6 +2838,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/nice-euler-eojcaa",
   },
+  {
+    id: "commerce-abandoned-checkout-oldest-age-parity",
+    summary:
+      "Empty-backlog after PR #373 (starter-upsell-digest-oldest-age). Reading pipeline-health.ts / daily-digest.ts / pipeline-health-panel.tsx side by side (tier-1 empty-backlog fallback) found one due-queue whose oldest-age never made it anywhere: bundle abandoned checkouts have oldestAbandonedAgeHours on PipelineHealth, DailyDigest, AND the dashboard MetricCard hint, but the sibling Commerce Buy now abandoned-cart queue (commerceAbandonedCheckoutCount / commerceRecoveryDueCount, kind=commerce_sku) has no oldest-age field on PipelineHealth, no field on DailyDigest, and the dashboard 'Abandoned Buy now' section title has no ' · oldest Xh' suffix — the one remaining asymmetry in the fully-closed due-queue-oldest-age-parity axis (every other queue: unreplied inquiries, cold leads, follow-ups, recurring-entitlement-paused, refund/dispute clawback ×2, bundle refunded/disputed ×2, Starter upsell, marketing packs/catalogs/voice packs, already has one). In progress.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-czjurd",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
