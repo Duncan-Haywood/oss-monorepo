@@ -567,7 +567,35 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.starterUpsellCandidates).toHaveLength(1);
     expect(digest.starterUpsellCandidates[0]?.targetTier).toBe("complete");
+    expect(digest.oldestStarterUpsellCandidateAgeHours).toBeNull();
     expect(digest.isEmpty).toBe(false);
+  });
+
+  it("surfaces oldest-age staleness for the Starter → MRR upsell section", () => {
+    const starter = baseLead({
+      slug: "starter-paid",
+      businessName: "Starter Shop",
+      stage: "paid",
+      recommendedTier: "growth",
+    });
+    const digest = buildDailyDigest({
+      leads: [starter],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "starter-paid",
+          tier: "starter",
+          commerceAddon: false,
+          createdAt: new Date(NOW - 5 * 60 * 60 * 1000).toISOString(),
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.oldestStarterUpsellCandidateAgeHours).toBe(5);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Starter → MRR upsell (1 · oldest 5h)");
   });
 
   it("lists paid Commerce add-on leads missing a catalog", () => {

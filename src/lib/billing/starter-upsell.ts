@@ -83,6 +83,11 @@ export function listStarterUpsellCandidates<
  * their orders parse. Pass nowMs from the caller — never Date.now() inside
  * list/age helpers (keeps tests deterministic, see
  * oldestRecurringEntitlementPausedAgeHours for the same pattern).
+ *
+ * `createdAt` is optional (not required, unlike a raw OrderRecord) so this
+ * also accepts daily-digest.ts's lighter orders shape — same
+ * optional-and-skip-unparseable pattern as oldestMarketingPacksDueAgeHours /
+ * oldestCommerceCatalogCandidateAgeHours / oldestClientVoicePacksDueAgeHours.
  */
 export function oldestStarterUpsellCandidateAgeHours(
   candidates: ReadonlyArray<{ slug: string }>,
@@ -90,7 +95,7 @@ export function oldestStarterUpsellCandidateAgeHours(
     leadSlug: string;
     tier: string;
     commerceAddon: boolean;
-    createdAt: string;
+    createdAt?: string;
   }>,
   nowMs: number,
 ): number | null {
@@ -99,6 +104,7 @@ export function oldestStarterUpsellCandidateAgeHours(
   for (const order of orders) {
     if (!candidateSlugs.has(order.leadSlug)) continue;
     if (!isStarterOnlyOrder(order)) continue;
+    if (order.createdAt === undefined) continue;
     const createdAtMs = Date.parse(order.createdAt);
     if (Number.isNaN(createdAtMs)) continue;
     if (oldestCreatedAtMs === null || createdAtMs < oldestCreatedAtMs) {

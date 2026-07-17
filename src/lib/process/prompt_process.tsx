@@ -2830,6 +2830,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/upbeat-dijkstra-fofwgy",
   },
+  {
+    id: "starter-upsell-digest-oldest-age",
+    summary:
+      "due-queue-oldest-age-parity's own writeup flagged this as the remaining smaller gap: oldestStarterUpsellCandidateAgeHours shipped on PipelineHealth (starter-upsell-pipeline-health-metric) and renders on the dashboard MetricCard, but daily-digest.ts's Starter → MRR upsell section never got the same 'oldest Xh' treatment the other due-queue sections (marketing packs due, catalogs missing/unsynced, voice packs due, clawback sections) all have. Shipped: oldestStarterUpsellCandidateAgeHours widened to accept optional orders[].createdAt (reused as-is by both PipelineHealth and DailyDigest, no second helper), wired into DailyDigest + the Starter → MRR upsell section title's ' · oldest Xh' suffix.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/nice-euler-eojcaa",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5781,6 +5789,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Every fulfillment-debt due-queue that reaches an operator-facing summary card (pipeline-health + dashboard panel + daily digest) must carry an 'oldest Xh' staleness signal like every other due-queue in that same file — a bare count tells an operator nothing about whether the oldest offender is fresh or a week-old fulfillment miss. For a queue that resets on a fixed calendar cadence (marketing packs due — one row per lead per UTC month), the staleness anchor must be the later of the cadence boundary (month start) and the qualifying order's createdAt, never the raw order createdAt alone — otherwise a long-tenured subscriber's age grows unbounded across every month forever even though the pack itself gets regenerated on schedule, which is a false/non-actionable signal, not a true one. For a queue with no such cadence (catalogs missing/unsynced, voice packs due — one row per lead, replaced not month-keyed), the qualifying order's createdAt is the correct anchor directly, mirroring oldestStarterUpsellCandidateAgeHours's existing list+age-helper-pair shape.",
     rationale:
       "Empty-backlog after PR #371 (starter-upsell-pipeline-health-metric). Free NEXT_STEPS stayed fully operator/legal-gated (4 items). Fetched every remote branch; only the two already-open CI/scheduled-agent-auth PRs (#365/#366) and a few already-superseded single-digit-commit docs/bookkeeping branches had anything ahead of main — no fold candidate. Read PipelineHealth's full field list end to end (same tier-1 fallback that found starter-upsell-pipeline-health-metric) and found marketingPacksDue / commerceCatalogsMissing / commerceCatalogsUnsynced / clientVoicePacksDue were the last four due-queues with no oldest-age anywhere — every sibling queue (abandoned checkouts, unreplied inquiries, cold leads, follow-ups, recurring-entitlement-paused, refund/dispute clawback ×2, bundle refunded/disputed ×2, Starter upsell) already had one. Shipped oldestMarketingPacksDueAgeHours (src/lib/marketing/monthly-pack.ts, month-start-anchored via new marketingMonthStartMs) and oldestCommerceCatalogCandidateAgeHours (src/lib/commerce/catalog.ts, shared by both the missing and unsynced queues since they share leadEligibleForCommerceCatalog) and oldestClientVoicePacksDueAgeHours (src/lib/voice/faq-pack.ts) — each wired into PipelineHealth, DailyDigest (new optional orders[].createdAt field on BuildDailyDigestInput; existing digest test fixtures that omit it still type-check since the three helpers take createdAt as optional and skip unparseable/missing values, same defensive shape as the recurring-entitlement-paused pattern), and the matching MetricCard hint / digest section-title suffix. Deliberately left the Starter-upsell digest-email twin (pipeline-health/dashboard already had it from launch) as a smaller residual for a future iteration rather than scope-creeping this one. Verified: npm test (1942 passed) + lint + build (tsc clean, all 31 routes generated; confirmed the 31 pre-existing unrelated tsc --noEmit errors are unchanged via git stash) + npm run dev — inserted a real Growth-order SQLite row 9h old, confirmed 'oldest 9h' renders on the Marketing packs due card on /dashboard/leads, then cleaned up the test row.",
+  },
+  {
+    id: "starter-upsell-digest-oldest-age",
+    date: "2026-07-17",
+    decision:
+      "The last due-queue oldest-age gap flagged by due-queue-oldest-age-parity — Starter → MRR upsell had the staleness signal on pipeline-health/dashboard but not the digest email — is now closed the same way: oldestStarterUpsellCandidateAgeHours (src/lib/billing/starter-upsell.ts) is the single helper both PipelineHealth and DailyDigest call, widened to accept an optional (not required) orders[].createdAt so it works against both a real OrderRecord[] (pipeline-health.ts) and daily-digest.ts's lighter, test-fixture-friendly orders shape without a second near-duplicate scorer — same optional-and-skip-unparseable pattern the due-queue-oldest-age-parity helpers already established for marketing packs / catalogs / voice packs.",
+    rationale:
+      "First open PR from #365/#366 (CI/scheduled-agent-auth fixes, unrelated infra) merged and reconciled during this run's cooperation pass — the two PRs had conflicting fixes for the same codex-scheduled.yml approval-flag rejection; kept #365's config-key override since it was verified against the live codex exec --help output, folded that onto #365 and merged both, no product code involved. With NEXT_STEPS still fully operator/legal-gated (4 items, unchanged) and no other stuck-but-complete remote branch found (re-confirmed claude/nice-euler-0x1k8a's Buy now refund/payout-gate work and cursor/prompt-process-evolution-0329 + cursor/business-process-evolution-d518's billing-portal commerceAddon/payment-mode work are both strict subsets of what already shipped on main), went straight to the residual due-queue-oldest-age-parity itself flagged in its own writeup rather than re-scanning from scratch. Verified: npm test (1944 passed = prior 1942 baseline + 2 new: an oldestStarterUpsellCandidateAgeHours missing-createdAt unit test + a daily-digest oldest-age + rendered-HTML integration test) + lint (clean) + tsc --noEmit -p . (31 pre-existing unrelated errors, unchanged) + build (all 31 routes generated) + npm run dev — curled /dashboard/leads and /preview/demo-cafe, both 200.",
   },
 ];
 
@@ -11847,5 +11863,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1942 passed = main@#371's ~1931 + ~11 new: 5 marketingMonthStartMs/oldestMarketingPacksDueAgeHours unit tests + 4 oldestCommerceCatalogCandidateAgeHours unit tests + 3 oldestClientVoicePacksDueAgeHours unit tests + pipeline-health/daily-digest integration assertions folded into existing tests rather than new files) + lint (clean) + tsc --noEmit -p . (31 pre-existing unrelated errors — missing @types/node etc. — unchanged before/after, confirmed via git stash) + build (tsc clean under next build's own config, all 31 routes generated) + npm run dev sanity check — inserted a real paid Growth-tier order (createdAt 9h ago) for a demo lead into the dev SQLite DB, confirmed 'oldest 9h' renders on the Marketing packs due card on /dashboard/leads, then cleaned up the test row and reset the lead's stage",
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "due-queue-oldest-age-parity"),
+  },
+  {
+    date: "2026-07-17",
+    branch: "claude/nice-euler-eojcaa",
+    summary:
+      "Cooperation pass: reviewed/reconciled/merged the two already-open, unrelated CI/scheduled-agent-auth PRs (#365, #366) first — they conflicted on the same codex-scheduled.yml approval-flag line with two different diagnoses; kept #365's config-key override (verified against the live codex exec --help) over #366's flag-reposition guess, merged #366 first (broader: drops API-key fallbacks across all 6 workflows, migrates Gemini to Antigravity), then rebased #365 onto post-#366 main to keep its distinct restore-oauth-auth.sh secret-wins-over-stale-cache fix. Re-scanned remote branches for stuck-but-complete feature work per AGENT_PROTOCOL before claiming anything new (confirmed claude/nice-euler-0x1k8a and cursor/prompt-process-evolution-0329 / cursor/business-process-evolution-d518 are strict subsets of already-shipped main code) — none found, so picked up the residual gap due-queue-oldest-age-parity's own writeup flagged: the Starter → MRR upsell digest-email oldest-age twin.",
+    shipped: [
+      "Merged PR #366 (fix(ci): make all scheduled agent workflows subscription-only) then PR #365 (secret-wins-over-stale-cache + Codex CLI flag), reconciling their overlapping codex-scheduled.yml fix in favor of #365's more rigorously verified approach",
+      "src/lib/billing/starter-upsell.ts (+ test) — oldestStarterUpsellCandidateAgeHours's orders[].createdAt widened from required to optional (skip missing/unparseable, same pattern as the due-queue-oldest-age-parity helpers) so the one existing helper serves both pipeline-health.ts's real OrderRecord[] and daily-digest.ts's lighter orders shape — no second scorer",
+      "src/lib/digest/daily-digest.ts (+ test) — oldestStarterUpsellCandidateAgeHours field on DailyDigest, computed alongside the other four oldest-age values; ' · oldest Xh' suffix appended to the Starter → MRR upsell section title in renderDailyDigestHtml, matching every sibling due-queue section",
+      "src/app/docs/architecture/page.tsx — updated the due-queue-oldest-age-parity paragraph to record this gap as closed instead of an open follow-up",
+      "NEXT_STEPS: starter-upsell-digest-oldest-age done",
+      "BUSINESS_DECISIONS — starter-upsell-digest-oldest-age (id-based entry)",
+      "Verified: npm test (1944 passed = prior 1942 baseline + 2 new) + lint (clean) + tsc --noEmit -p . (31 pre-existing unrelated errors, unchanged) + build (all 31 routes generated) + npm run dev — curled /dashboard/leads and /preview/demo-cafe, both 200",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "starter-upsell-digest-oldest-age"),
   },
 ];

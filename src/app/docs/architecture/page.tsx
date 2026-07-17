@@ -1111,9 +1111,12 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>marketingMonthStartMs</code>) — a long-time Growth/Complete subscriber&apos;s age
         resets with the calendar month the pack itself is scoped to, instead of showing an
         ever-growing, non-actionable age tied to their original signup date. Starter → MRR
-        upsell already had this staleness signal on pipeline-health/dashboard from launch but
-        not yet on the digest email — a smaller follow-up gap left open for a future iteration.
-        A lead that exhausts all 3 outreach
+        upsell now carries the same &quot;oldest Xh&quot; hint on both the digest email and{" "}
+        <code>PipelineHealth</code>/dashboard (
+        <code>oldestStarterUpsellCandidateAgeHours</code>, widened to accept an optional{" "}
+        <code>createdAt</code> so it works against both a real <code>OrderRecord[]</code> and the
+        digest&apos;s lighter orders shape) — it had shipped on pipeline-health/dashboard first and
+        the digest email twin was closed as a follow-up. A lead that exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is
         surfaced instead as a &quot;Cold&quot; badge on the leads table and a pipeline-health

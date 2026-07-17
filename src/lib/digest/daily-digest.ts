@@ -43,6 +43,7 @@ import {
 } from "../marketing/monthly-pack";
 import {
   listStarterUpsellCandidates,
+  oldestStarterUpsellCandidateAgeHours,
   resolveUpsellTargetTier,
   type UpsellTargetTier,
 } from "../billing/starter-upsell";
@@ -274,6 +275,8 @@ export interface DailyDigest {
   oldestMarketingPacksDueAgeHours: number | null;
   starterUpsellCandidates: DigestStarterUpsellLead[];
   starterUpsellCandidatesCount: number;
+  /** Age in whole hours since the oldest candidate's qualifying Starter-only order; null when none. */
+  oldestStarterUpsellCandidateAgeHours: number | null;
   commerceCatalogsMissing: DigestCommerceCatalogMissing[];
   commerceCatalogsMissingCount: number;
   /** Age in whole hours since the oldest missing-catalog lead's qualifying order; null when none. */
@@ -642,6 +645,11 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     orders,
     nowMs,
   );
+  const oldestStarterUpsellCandidateAgeHoursValue = oldestStarterUpsellCandidateAgeHours(
+    starterUpsellCandidatesAll,
+    orders,
+    nowMs,
+  );
 
   const commercePayoutSummaries = summarizeCommerceOrdersByLead(commerceOrders).filter(
     (summary) => summary.unpaidCount > 0,
@@ -909,6 +917,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     oldestMarketingPacksDueAgeHours: oldestMarketingPacksDueAgeHoursValue,
     starterUpsellCandidates,
     starterUpsellCandidatesCount,
+    oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellCandidateAgeHoursValue,
     commerceCatalogsMissing,
     commerceCatalogsMissingCount,
     oldestCommerceCatalogsMissingAgeHours: oldestCommerceCatalogsMissingAgeHoursValue,
@@ -1156,7 +1165,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       recurringPausedRows,
       "No paused or canceled Growth/Complete/Commerce subscribers need recovery.",
     )}
-    ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
+    ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount}${digest.oldestStarterUpsellCandidateAgeHours !== null ? ` · oldest ${digest.oldestStarterUpsellCandidateAgeHours}h` : ""})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount}${digest.oldestCommerceCatalogsMissingAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsMissingAgeHours}h` : ""})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount}${digest.oldestCommerceCatalogsUnsyncedAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsUnsyncedAgeHours}h` : ""})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
     ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount}${digest.oldestClientVoicePacksDueAgeHours !== null ? ` · oldest ${digest.oldestClientVoicePacksDueAgeHours}h` : ""})`, voicePackRows, "All Complete voice FAQ packs generated.")}

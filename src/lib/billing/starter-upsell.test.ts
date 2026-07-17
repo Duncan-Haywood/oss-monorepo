@@ -176,4 +176,18 @@ describe("oldestStarterUpsellCandidateAgeHours", () => {
     ];
     expect(oldestStarterUpsellCandidateAgeHours(candidates, orders, NOW)).toBe(0);
   });
+
+  it("skips orders missing createdAt (daily-digest.ts's lighter orders shape) rather than throwing", () => {
+    const candidates = [{ slug: "alpha" }, { slug: "beta" }];
+    const orders = [
+      { leadSlug: "alpha", tier: "starter", commerceAddon: false },
+      {
+        leadSlug: "beta",
+        tier: "starter",
+        commerceAddon: false,
+        createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestStarterUpsellCandidateAgeHours(candidates, orders, NOW)).toBe(6);
+  });
 });
