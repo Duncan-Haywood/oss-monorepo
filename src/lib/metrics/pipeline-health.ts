@@ -17,7 +17,7 @@
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
-import type { OrderRecord } from "@/lib/orders/types";
+import { isOrderRefunded, type OrderRecord } from "@/lib/orders/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import {
   isAbandonedCheckout,
@@ -59,9 +59,27 @@ export interface MissingEmailLead {
 }
 
 export interface PipelineHealth {
-  /** Sum of paid order amounts (USD dollars, as stored by the webhook). */
+  /**
+   * Sum of paid order amounts (USD dollars, as stored by the webhook),
+   * excluding orders Stripe has since refunded (see bundleOrdersRefundedCount
+   * / bundle-order-refund-tracking) — a refunded bundle purchase is not
+   * revenue.
+   */
   revenueTotalUsd: number;
   orderCount: number;
+  /**
+   * Count of bundle (Starter/Growth/Complete/Commerce-addon) orders Stripe
+   * has refunded (charge.refunded, full or partial) — already excluded from
+   * revenueTotalUsd above. Surfaced for operator awareness only: unlike
+   * Commerce Buy now clawback tracking, this ledger has no manual-payout
+   * double-loss risk, so there is no Mark-paid-out reject or clawback UI
+   * here (see bundle-order-refund-tracking).
+   */
+  bundleOrdersRefundedCount: number;
+  /** Sum of amountPaid across bundleOrdersRefundedCount orders (USD dollars). */
+  bundleOrdersRefundedUsd: number;
+  /** Age in whole hours of the oldest bundle order refund; null when none. */
+  oldestBundleOrdersRefundedAgeHours: number | null;
   leadCount: number;
   stageCounts: Record<LeadPipelineStage, number>;
   /** Ordered for display (funnel top → bottom). */
@@ -316,8 +334,12 @@ export function computePipelineHealth(input: {
     count: stageCounts[stage],
   }));
 
+  // A refunded bundle order is not revenue — exclude it the same way commerce
+  // Buy now excludes refunded/disputed orders from its owed total (see
+  // bundle-order-refund-tracking).
   let revenueTotalUsd = 0;
   for (const order of input.orders) {
+    if (isOrderRefunded(order)) continue;
     if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
       revenueTotalUsd += order.amountPaid;
     }
@@ -509,6 +531,27 @@ export function computePipelineHealth(input: {
     }
   }
 
+  // Bundle order refunds — visibility only (no payout-panel double-loss risk
+  // on this ledger, unlike Commerce Buy now; see bundle-order-refund-tracking).
+  const bundleOrdersRefunded = input.orders.filter(isOrderRefunded);
+  let bundleOrdersRefundedUsd = 0;
+  let oldestBundleOrdersRefundedAgeHours: number | null = null;
+  for (const order of bundleOrdersRefunded) {
+    if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
+      bundleOrdersRefundedUsd += order.amountPaid;
+    }
+    if (!order.refundedAt) continue;
+    const refundedAtMs = Date.parse(order.refundedAt);
+    if (Number.isNaN(refundedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - refundedAtMs) / HOUR_MS);
+    if (
+      oldestBundleOrdersRefundedAgeHours === null ||
+      ageHours > oldestBundleOrdersRefundedAgeHours
+    ) {
+      oldestBundleOrdersRefundedAgeHours = Math.max(0, ageHours);
+    }
+  }
+
   const recurringEntitlementPaused = listRecurringEntitlementPaused(
     input.leads,
     input.orders,
@@ -522,6 +565,9 @@ export function computePipelineHealth(input: {
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
+    bundleOrdersRefundedCount: bundleOrdersRefunded.length,
+    bundleOrdersRefundedUsd,
+    oldestBundleOrdersRefundedAgeHours,
     leadCount: input.leads.length,
     stageCounts,
     stageFunnel,

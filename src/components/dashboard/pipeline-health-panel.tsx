@@ -210,6 +210,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.commerceOrdersDisputeClawbackCount > 0}
         />
+        <MetricCard
+          label="Bundle revenue refunded"
+          value={formatUsd(health.bundleOrdersRefundedUsd)}
+          hint={
+            health.bundleOrdersRefundedCount > 0
+              ? `${health.bundleOrdersRefundedCount} Starter/Growth/Complete order${health.bundleOrdersRefundedCount === 1 ? "" : "s"} refunded by Stripe — already excluded from Recorded revenue${
+                  health.oldestBundleOrdersRefundedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersRefundedAgeHours)}`
+                    : ""
+                }`
+              : "No bundle orders refunded"
+          }
+          attention={health.bundleOrdersRefundedCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (

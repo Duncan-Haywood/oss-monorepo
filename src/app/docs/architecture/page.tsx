@@ -1429,9 +1429,23 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>warning_closed</code> clears <code>disputedAt</code> via{" "}
         <code>clearCommerceOrderDisputed</code> (Convex replace omit + SQLite NULL) so Mark paid
         out and owed totals reopen after Stripe reinstates funds; status <code>lost</code> keeps
-        or ensures <code>disputedAt</code> (created may have been missed). Bundle
-        (Starter/Growth/Complete) order refunds/disputes are not handled here — that ledger has no
-        manual-payout double-loss risk today.
+        or ensures <code>disputedAt</code> (created may have been missed).
+      </p>
+
+      <p>
+        Bundle (Starter/Growth/Complete/Commerce-addon) order refunds have no manual-payout
+        double-loss risk — that revenue is never disbursed to a client — but a refunded charge
+        still needs to stop counting as revenue and stay visible to the operator. On{" "}
+        <code>charge.refunded</code>, when the resolved Checkout Session backs no{" "}
+        <code>commerceOrders</code> row, the webhook checks whether it backs a bundle{" "}
+        <code>orders</code> row instead (via <code>getOrderByStripeSessionId</code>) and marks{" "}
+        <code>orders.refundedAt</code> (idempotent; <code>markOrderRefunded</code>).{" "}
+        <code>PipelineHealth.revenueTotalUsd</code> excludes any order with{" "}
+        <code>refundedAt</code> set, and the dashboard&apos;s{" "}
+        <strong>Bundle revenue refunded</strong> card plus the daily-digest{" "}
+        <strong>Bundle revenue refunded</strong> section surface the count/total for awareness —
+        unlike the Commerce clawback cards above, there is no Mark-paid-out reject or claw-back
+        action here, since nothing was ever paid out to a third party.
       </p>
 
       <h2>Tech stack</h2>

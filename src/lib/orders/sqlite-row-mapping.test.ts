@@ -44,4 +44,38 @@ describe("mapSqliteOrderRow", () => {
     expect(mapped.stripeCustomerId).toBeUndefined();
     expect(mapped.commerceAddon).toBe(false);
   });
+
+  it("maps a refundedAt column value through to refundedAt", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      status: "paid",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: "2026-01-02T00:00:00.000Z",
+    };
+    expect(mapSqliteOrderRow(row).refundedAt).toBe("2026-01-02T00:00:00.000Z");
+  });
+
+  it("defaults a null refundedAt to undefined", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      status: "paid",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+    };
+    expect(mapSqliteOrderRow(row).refundedAt).toBeUndefined();
+  });
 });

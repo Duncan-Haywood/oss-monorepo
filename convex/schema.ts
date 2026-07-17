@@ -52,6 +52,12 @@ export default defineSchema({
     recurringCanceledAt: v.optional(v.number()),
     amountTotal: v.number(),
     createdAt: v.number(),
+    /**
+     * ISO timestamp when Stripe charge.refunded (full or partial) resolved to
+     * this order's Checkout Session. Optional — absent means never refunded.
+     * See bundle-order-refund-tracking.
+     */
+    refundedAt: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"])

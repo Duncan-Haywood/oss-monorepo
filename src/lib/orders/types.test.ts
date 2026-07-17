@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { sortOrdersNewestFirst } from "./types";
+import { isOrderRefunded, sortOrdersNewestFirst } from "./types";
+
+describe("isOrderRefunded", () => {
+  it("is false when refundedAt is absent", () => {
+    expect(isOrderRefunded({})).toBe(false);
+  });
+
+  it("is true when refundedAt is set", () => {
+    expect(isOrderRefunded({ refundedAt: "2026-01-01T00:00:00.000Z" })).toBe(true);
+  });
+});
 
 describe("sortOrdersNewestFirst", () => {
   it("orders by createdAt descending without mutating input", () => {

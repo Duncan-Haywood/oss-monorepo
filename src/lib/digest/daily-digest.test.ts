@@ -873,6 +873,59 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceOrdersDisputeClawbackTotalUsd).toBe(0);
   });
 
+  it("surfaces refunded bundle orders as a visibility footnote, not a clawback", () => {
+    const cafe = baseLead({
+      slug: "refund-cafe",
+      businessName: "Refund Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "refund-cafe",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          refundedAt: "2026-07-13T09:00:00.000Z",
+        },
+        {
+          // Never refunded — excluded.
+          leadSlug: "refund-cafe",
+          tier: "starter",
+          commerceAddon: false,
+          amountPaid: 100,
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.bundleOrdersRefunded).toHaveLength(1);
+    expect(digest.bundleOrdersRefunded[0]).toMatchObject({
+      slug: "refund-cafe",
+      businessName: "Refund Cafe",
+      tier: "growth",
+      amountPaidUsd: 300,
+      refundedAt: "2026-07-13T09:00:00.000Z",
+    });
+    expect(digest.bundleOrdersRefundedCount).toBe(1);
+    expect(digest.bundleOrdersRefundedTotalUsd).toBe(300);
+    expect(digest.isEmpty).toBe(false);
+  });
+
+  it("defaults bundle order refund fields to zero when no orders refunded", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.bundleOrdersRefunded).toHaveLength(0);
+    expect(digest.bundleOrdersRefundedCount).toBe(0);
+    expect(digest.bundleOrdersRefundedTotalUsd).toBe(0);
+  });
+
   it("lists open production handoffs (status !== live) oldest-first and skips live", () => {
     const cafe = baseLead({
       slug: "awaiting-cafe",
@@ -1347,6 +1400,35 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("$25.00 paid out");
     expect(html).toContain("Clawback &lt;Shop&gt;");
     expect(html).not.toContain("Clawback <Shop>");
+  });
+
+  it("renders Bundle revenue refunded section and escapes business names", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "refund-shop",
+          businessName: "Refund <Shop>",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "refund-shop",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          refundedAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Bundle revenue refunded");
+    expect(html).toContain("$300.00");
+    expect(html).toContain("Refund &lt;Shop&gt;");
+    expect(html).not.toContain("Refund <Shop>");
   });
 
   it("renders production handoffs open with escaped host and status", () => {
