@@ -12,7 +12,7 @@
 
 import Stripe from "stripe";
 import { parseCheckoutSessionId } from "@/lib/billing/checkout-session-id";
-import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
+import { checkoutSessionEligibleForBillingPortal } from "@/lib/billing/portal";
 
 export type ConfirmedCheckoutSuccess = {
   confirmed: true;
@@ -64,11 +64,13 @@ export async function loadCheckoutSuccessSession(
     if (session.status !== "complete") {
       return { confirmed: false };
     }
-    const tier = session.metadata?.tier ?? "";
-    const commerceAddon = session.metadata?.commerceAddon === "true";
-    const showBillingPortal =
-      session.mode === "subscription" ||
-      orderEligibleForBillingPortal({ tier, commerceAddon });
+    // Payment-mode Growth/Complete never come from create path — do not trust
+    // metadata.tier. commerceAddon metadata remains a soft SSR hint; the portal
+    // API derives commerceAddon from listLineItems before opening.
+    const showBillingPortal = checkoutSessionEligibleForBillingPortal({
+      mode: session.mode,
+      commerceAddon: session.metadata?.commerceAddon === "true",
+    });
     return { confirmed: true, sessionId, showBillingPortal };
   } catch {
     return { confirmed: false };

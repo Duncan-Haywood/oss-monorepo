@@ -94,6 +94,25 @@ describe("loadCheckoutSuccessSession", () => {
     });
   });
 
+  it("does not trust metadata.tier=growth on payment-mode success page", async () => {
+    // Create path never emits payment+growth — forged metadata must not surface
+    // Manage subscription (portal API also ignores tier on payment mode).
+    const retrieve = vi.fn().mockResolvedValue({
+      status: "complete",
+      mode: "payment",
+      metadata: { tier: "growth", commerceAddon: "false" },
+    });
+    const result = await loadCheckoutSuccessSession("cs_forged_tier", {
+      secretKey: "sk_test_x",
+      retrieve,
+    });
+    expect(result).toEqual({
+      confirmed: true,
+      sessionId: "cs_forged_tier",
+      showBillingPortal: false,
+    });
+  });
+
   it("returns unconfirmed when retrieve throws (invalid id / network)", async () => {
     const retrieve = vi.fn().mockRejectedValue(new Error("No such checkout.session"));
     const result = await loadCheckoutSuccessSession("cs_test_missing", {

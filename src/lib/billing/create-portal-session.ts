@@ -1,8 +1,8 @@
 import { listOrdersByLeadSlug } from "@/lib/db";
 import type { OrderRecord } from "@/lib/orders/types";
 import {
+  checkoutSessionEligibleForBillingPortal,
   latestEligibleOrder,
-  orderEligibleForBillingPortal,
   stripeCustomerIdFromUnknown,
 } from "@/lib/billing/portal";
 import {
@@ -143,14 +143,14 @@ export async function createBillingPortalForCheckoutSession(
       return { ok: false, error: "Checkout session is not complete", status: 400 };
     }
 
-    const tier = session.metadata?.tier ?? "";
     const modeIsSubscription = session.mode === "subscription";
     let commerceAddon = false;
 
     if (!modeIsSubscription) {
       // Mirror webhook: only entitlement from charged Commerce Price IDs.
       // listLineItems failures → 502 so the customer can retry (not a Stripe
-      // webhook redelivery path).
+      // webhook redelivery path). Never trust metadata.tier on payment mode —
+      // create path never emits payment+growth/complete (hasRecurring).
       try {
         const lineItems = await stripe.checkout.sessions.listLineItems(id, {
           limit: 100,
@@ -178,10 +178,10 @@ export async function createBillingPortalForCheckoutSession(
       }
     }
 
-    const eligible =
-      modeIsSubscription ||
-      orderEligibleForBillingPortal({ tier, commerceAddon });
-
+    const eligible = checkoutSessionEligibleForBillingPortal({
+      mode: session.mode,
+      commerceAddon,
+    });
     if (!eligible) {
       return {
         ok: false,

@@ -667,16 +667,19 @@ export default function ArchitectureDocPage() {
         Growth/Complete/Commerce subscribers manage cards, invoices, and cancellation via Stripe
         Billing Portal: <code>POST /api/stripe/billing-portal</code> (post-checkout{" "}
         <code>sessionId</code>) and the operator <strong>Billing</strong> action on paid/live
-        leads. The session-id path (
-        <code>createBillingPortalForCheckoutSession</code>) treats{" "}
+        leads. The session-id path (        <code>createBillingPortalForCheckoutSession</code>) treats{" "}
         <code>mode === &quot;subscription&quot;</code> as eligible, but when mode is{" "}
         <code>payment</code> it derives <code>commerceAddon</code> from Checkout{" "}
         <code>listLineItems</code> Price IDs via the same{" "}
         <code>resolveCommerceAddonFromLineItems</code> helper as the bundle webhook — never from{" "}
         <code>metadata.commerceAddon</code> alone (a forged flag must not open Manage billing
         without the Commerce Prices on the charge; list failures return 502 so the buyer can
-        retry). Orders store <code>stripeCustomerId</code> when the webhook records payment;
-        older orders fall back to retrieving the Checkout Session.{" "}
+        retry). Payment mode also ignores <code>metadata.tier</code> — create path never emits
+        payment + Growth/Complete (<code>hasRecurring</code> → subscription), so trusting tier
+        would only help Dashboard-minted sessions; eligibility uses shared{" "}
+        <code>checkoutSessionEligibleForBillingPortal</code> (also on{" "}
+        <code>loadCheckoutSuccessSession</code>). Orders store <code>stripeCustomerId</code> when
+        the webhook records payment;        older orders fall back to retrieving the Checkout Session.{" "}
         <code>listOrders</code> returns newest-first on both backends (
         <code>convex/orders.list</code> sorts by <code>createdAt</code> desc at the source,
         plus <code>sortOrdersNewestFirst</code> in <code>db.ts</code> as belt-and-suspenders)

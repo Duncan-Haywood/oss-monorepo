@@ -247,6 +247,41 @@ describe("createBillingPortalForCheckoutSession", () => {
     }
   });
 
+  it("does not trust metadata.tier=growth|complete on payment-mode sessions", async () => {
+    // Create path never emits payment+growth/complete (hasRecurring → subscription).
+    const create = vi.fn();
+    const listLineItems = vi.fn().mockResolvedValue({
+      data: [{ price: { id: "price_one_time" } }],
+    });
+    const stripe = fakeStripe({
+      checkout: {
+        sessions: {
+          retrieve: vi.fn().mockResolvedValue({
+            status: "complete",
+            mode: "payment",
+            customer: "cus_1",
+            metadata: { tier: "growth", commerceAddon: "false" },
+          }),
+          listLineItems,
+        },
+      },
+      billingPortal: { sessions: { create } },
+    });
+
+    const result = await createBillingPortalForCheckoutSession(
+      stripe,
+      "cs_forged_tier",
+      "https://app/return",
+    );
+
+    expect(listLineItems).toHaveBeenCalledWith("cs_forged_tier", { limit: 100 });
+    expect(create).not.toHaveBeenCalled();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(400);
+      expect(result.error).toMatch(/subscription/);
+    }
+  });
   it("does not trust metadata.commerceAddon=true without Commerce Price line items", async () => {
     const prevSetup = process.env.STRIPE_PRICE_ID_COMMERCE_SETUP;
     const prevMonthly = process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;

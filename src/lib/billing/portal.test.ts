@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  checkoutSessionEligibleForBillingPortal,
   latestEligibleOrder,
   orderEligibleForBillingPortal,
   stripeCustomerIdFromUnknown,
@@ -14,6 +15,42 @@ describe("orderEligibleForBillingPortal", () => {
   it("rejects Starter unless Commerce add-on is present", () => {
     expect(orderEligibleForBillingPortal({ tier: "starter", commerceAddon: false })).toBe(false);
     expect(orderEligibleForBillingPortal({ tier: "starter", commerceAddon: true })).toBe(true);
+  });
+});
+
+describe("checkoutSessionEligibleForBillingPortal", () => {
+  it("allows any subscription-mode session (Growth/Complete/Starter+Commerce create path)", () => {
+    expect(
+      checkoutSessionEligibleForBillingPortal({
+        mode: "subscription",
+        commerceAddon: false,
+      }),
+    ).toBe(true);
+    expect(
+      checkoutSessionEligibleForBillingPortal({
+        mode: "subscription",
+        commerceAddon: true,
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects payment-mode Growth/Complete metadata without proven commerceAddon", () => {
+    // Create path never emits payment+growth/complete — forged metadata only.
+    expect(
+      checkoutSessionEligibleForBillingPortal({
+        mode: "payment",
+        commerceAddon: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("allows payment-mode only when commerceAddon is proven", () => {
+    expect(
+      checkoutSessionEligibleForBillingPortal({
+        mode: "payment",
+        commerceAddon: true,
+      }),
+    ).toBe(true);
   });
 });
 

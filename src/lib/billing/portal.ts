@@ -13,6 +13,27 @@ export function orderEligibleForBillingPortal(order: {
 }
 
 /**
+ * Checkout-Session path eligibility for Billing Portal / success-page CTA.
+ *
+ * Create path always sets `mode: "subscription"` when Growth/Complete or
+ * Starter+Commerce Prices are on the Session (`hasRecurring`). Payment-mode
+ * sessions are Starter one-time only — trusting `metadata.tier ===
+ * "growth"|"complete"` here would only help Dashboard-minted / tampered
+ * Sessions open Manage billing without a recurring Price.
+ *
+ * Pass `commerceAddon` already proven (line-item Price IDs on the API path;
+ * metadata is acceptable only as a soft SSR hint until the success-page twin
+ * also lists line items). Never pass raw metadata.tier into this helper.
+ */
+export function checkoutSessionEligibleForBillingPortal(input: {
+  mode?: string | null;
+  commerceAddon: boolean;
+}): boolean {
+  if (input.mode === "subscription") return true;
+  return input.commerceAddon;
+}
+
+/**
  * Normalize Checkout Session / Customer references to a customer id string.
  * Stripe may return an expanded Customer object or a plain id.
  */
