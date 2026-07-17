@@ -2878,6 +2878,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "codex/dev-work-webhook-email-retry",
   },
+  {
+    id: "bundle-email-unexpected-error-retry",
+    summary:
+      "The bundle webhook's outer receipt/DNS email catch now returns 5xx on unexpected formatter/import errors instead of acknowledging Stripe with both sent-markers absent; transactional email recovery remains fail-closed for every failure shape.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "codex/continuous-work-bundle-email-unexpected-error",
+  },
+  {
+    id: "email-subject-control-character-sanitization",
+    summary:
+      "Security audit: strip CR/LF and other control characters from outbound email subjects before handing them to the provider, so client-controlled business and SKU names cannot create malformed or deceptive subject lines.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "codex/dev-work-email-subject-control",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5877,6 +5893,22 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Stripe checkout webhook transactional email sends are part of the retryable fulfillment contract: if a bundle buyer receipt, bundle DNS handoff, or Commerce client receipt resolves success:false or throws, leave its independent sent-marker unwritten and return the structured 500 response after attempting sibling emails. A successful sibling marker may remain, so Stripe redelivery retries only the missing email.",
     rationale:
       "The existing recovery planners correctly treated missing markers as redelivery work, but the webhook acknowledged send failures with 200 after merely logging them. Stripe does not reliably redeliver an acknowledged event, so a transient Resend failure could permanently lose a paid receipt, go-live instructions, or Commerce client notification. The route now tracks send failures separately from marker-write failures, continues the other independent bundle email when appropriate, and returns 500 with a dedicated fulfillment step. Route tests cover rejected sends and resolved success:false for all three transactional surfaces; the architecture doc records the retry contract.",
+  },
+  {
+    id: "bundle-email-unexpected-error-retry",
+    date: "2026-07-17",
+    decision:
+      "The bundle checkout webhook must return its structured 5xx fulfillment response when the receipt/DNS email orchestration catch sees an unexpected formatter or import error; logging and acknowledging 200 would leave missing durable sent-markers unrecoverable because Stripe may not redeliver an acknowledged event.",
+    rationale:
+      "A follow-up audit after webhook-email-send-failure-retry found that resolved send failures, thrown send failures, and marker-write failures already returned 5xx, but the outer catch around the dynamic email imports and formatting still only logged. Fail closed at this final boundary so every failure shape preserves the existing independent-marker redelivery contract.",
+  },
+  {
+    id: "email-subject-control-character-sanitization",
+    date: "2026-07-17",
+    decision:
+      "Normalize every outbound email subject at the shared sendEmail boundary by replacing control characters with spaces, collapsing whitespace, trimming, and falling back to a safe generic subject when empty.",
+    rationale:
+      "Business names, SKU names, brand configuration, and other operator/client-controlled values feed provider-facing subjects. Central normalization keeps subjects single-line and printable across all send helpers, including mock mode and the operator digest, without depending on each template to remember the security rule.",
   },
 ];
 
@@ -12062,6 +12094,40 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "webhook-email-send-failure-retry",
+    ),
+  },
+  {
+    date: "2026-07-17",
+    branch: "codex/continuous-work-bundle-email-unexpected-error",
+    summary:
+      "The four remaining NEXT_STEPS stayed fully operator/legal-gated. A fresh audit of the just-shipped transactional webhook retry path found one residual failure boundary: the bundle receipt/DNS email outer catch logged unexpected formatter/import errors and still acknowledged checkout.session.completed with 200, leaving both sent-markers absent without a guaranteed Stripe retry. Closed that boundary fail-closed while preserving independent sibling-marker semantics.",
+    shipped: [
+      "src/app/api/stripe/webhook/route.ts — return webhookFulfillmentFailureResponse(\"bundle_email_send\") from the outer receipt/DNS email catch instead of logging and acknowledging an unexpected error",
+      "src/app/api/stripe/webhook/route.test.ts — regression coverage confirms malformed DNS handoff formatting returns 500 with bundle_email_send while the independently successful buyer receipt marker remains durable",
+      "NEXT_STEPS: bundle-email-unexpected-error-retry done",
+      "BUSINESS_DECISIONS — bundle-email-unexpected-error-retry (id-based entry)",
+      "Process: claimed the audit-discovered item and pushed the in_progress claim commit before the feature body; no sibling had a competing body for this residual",
+      "Verified: focused webhook suite (131 passed), full npm test (1966 passed), npm run lint (clean), and npm run build (TypeScript clean, all 31 routes generated) under Node v22.23.1; Node 20's expected node:sqlite limitation was separately confirmed",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "bundle-email-unexpected-error-retry",
+    ),
+  },
+  {
+    date: "2026-07-17",
+    branch: "codex/dev-work-email-subject-control",
+    summary:
+      "Empty-backlog after PR #379 (webhook-email-send-failure-retry). The four remaining NEXT_STEPS stayed operator/legal-gated, and the remote fold scan found no newer complete unmerged feature body. A fresh email security audit found that client/operator-controlled business names, SKU names, and brand values flowed into provider-facing subjects without control-character normalization. HTML bodies were escaped, but CR/LF and other controls could produce malformed or deceptive subject lines depending on provider parsing. Shipped a shared sendEmail boundary sanitizer that replaces controls with spaces, collapses whitespace, trims, and falls back to 'Notification' when empty; operator digest subjects use the same normalization.",
+    shipped: [
+      "src/lib/email/resend.ts — add sanitizeEmailSubject and apply it to sendEmail provider payloads/mock logs and operator digest subjects",
+      "src/lib/email/resend.test.ts — cover direct CR/LF/control-character normalization and dynamic business-name subject sanitization",
+      "src/lib/process/prompt_process.tsx — mark NEXT_STEPS email-subject-control-character-sanitization done and append the id-based business decision",
+      "Process: pushed the in_progress claim commit before the feature body; no operator-gated item was changed",
+      "Verified: focused resend suite (26 passed), full npm test (1967 passed across 153 files), npm run lint (clean), and npm run build under Node v22.23.1 (TypeScript clean, all 31 routes generated). Node 20 cannot load the repo's node:sqlite dependency, so the initial build was rerun with the available Node 22 runtime.",
+      "PR handoff: branch pushed, but both gh pr create and the REST pull-request endpoint were rejected with GitHub Actions token policy 'GitHub Actions is not permitted to create or approve pull requests' (HTTP 403).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "email-subject-control-character-sanitization",
     ),
   },
 ];
