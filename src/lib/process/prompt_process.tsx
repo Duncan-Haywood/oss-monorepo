@@ -11079,7 +11079,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: invoice-paid-recurring-entitlement-restore + invoice-payment-failed-stale-repause-guard done",
       "BUSINESS_DECISIONS — require invoice.paid restore + payment_failed retrieve-before-mark (absolute index 398)",
       "Process: coop with sibling 19f7 commerce-webhook claim; claim pushed before feature body; patched agent-hooks secret-name filter",
-      "Verified: npm test + lint",
+      "Verified: npm test (1752 passed) + lint",
     ],
     // Object-parse by decision text: invoice.paid restore + payment_failed stale guard owns BD[398]; create/sync=397.
     decisions: BUSINESS_DECISIONS.slice(398, 399),
