@@ -1097,8 +1097,23 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>listCommerceCatalogsMissing</code> / <code>listClientVoicePacksDue</code>
         — fed by uncapped <code>listMarketingPacksForMonth</code> /{" "}
         <code>listCommerceCatalogs</code> / <code>listClientVoicePacks</code>, not a newest-N
-        page that would invent false Generate debt or hide Sync-to-Stripe debt). A lead that
-        exhausts all 3 outreach
+        page that would invent false Generate debt or hide Sync-to-Stripe debt). Marketing packs
+        due, Commerce catalogs missing, Commerce Sync to Stripe due, and Complete voice packs due
+        each also carry an oldest-age staleness signal (<code>oldestMarketingPacksDueAgeHours</code>{" "}
+        / <code>oldestCommerceCatalogCandidateAgeHours</code> / <code>
+          oldestClientVoicePacksDueAgeHours
+        </code>
+        , same &quot;oldest Xh&quot; hint pattern as every other due-queue) on both{" "}
+        <code>PipelineHealth</code> and the daily digest — anchored to the qualifying order&apos;s{" "}
+        <code>createdAt</code> for the two non-month-keyed queues (catalogs, voice packs), or to
+        the later of the current UTC month&apos;s start and that order&apos;s{" "}
+        <code>createdAt</code> for marketing packs specifically (
+        <code>marketingMonthStartMs</code>) — a long-time Growth/Complete subscriber&apos;s age
+        resets with the calendar month the pack itself is scoped to, instead of showing an
+        ever-growing, non-actionable age tied to their original signup date. Starter → MRR
+        upsell already had this staleness signal on pipeline-health/dashboard from launch but
+        not yet on the digest email — a smaller follow-up gap left open for a future iteration.
+        A lead that exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is
         surfaced instead as a &quot;Cold&quot; badge on the leads table and a pipeline-health

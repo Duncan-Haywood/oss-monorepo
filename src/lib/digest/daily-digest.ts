@@ -39,19 +39,24 @@ import {
 import {
   listMarketingPacksDue,
   marketingMonthKey,
+  oldestMarketingPacksDueAgeHours,
 } from "../marketing/monthly-pack";
 import {
   listStarterUpsellCandidates,
   resolveUpsellTargetTier,
   type UpsellTargetTier,
 } from "../billing/starter-upsell";
-import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "../commerce/catalog";
+import {
+  listCommerceCatalogsMissing,
+  listCommerceCatalogsUnsynced,
+  oldestCommerceCatalogCandidateAgeHours,
+} from "../commerce/catalog";
 import {
   commerceOrderNeedsClawback,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
 } from "../commerce/orders";
-import { listClientVoicePacksDue } from "../voice/faq-pack";
+import { listClientVoicePacksDue, oldestClientVoicePacksDueAgeHours } from "../voice/faq-pack";
 import {
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
@@ -265,14 +270,22 @@ export interface DailyDigest {
   unrepliedInquiriesCount: number;
   marketingPacksDue: DigestMarketingPackDue[];
   marketingPacksDueCount: number;
+  /** Age in whole hours since the oldest due lead's pack first became due this month; null when none. */
+  oldestMarketingPacksDueAgeHours: number | null;
   starterUpsellCandidates: DigestStarterUpsellLead[];
   starterUpsellCandidatesCount: number;
   commerceCatalogsMissing: DigestCommerceCatalogMissing[];
   commerceCatalogsMissingCount: number;
+  /** Age in whole hours since the oldest missing-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsMissingAgeHours: number | null;
   commerceCatalogsUnsynced: DigestCommerceCatalogUnsynced[];
   commerceCatalogsUnsyncedCount: number;
+  /** Age in whole hours since the oldest unsynced-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsUnsyncedAgeHours: number | null;
   clientVoicePacksDue: DigestClientVoicePackDue[];
   clientVoicePacksDueCount: number;
+  /** Age in whole hours since the oldest voice-pack-due lead's qualifying order; null when none. */
+  oldestClientVoicePacksDueAgeHours: number | null;
   /** Per-lead pass-through Buy now totals still owed until Connect (action section). */
   commercePayoutsOwed: DigestCommercePayoutOwed[];
   /** True count before the COMMERCE_PAYOUTS_LIMIT slice — use for the section header. */
@@ -390,6 +403,8 @@ export interface BuildDailyDigestInput {
     commerceAddon: boolean;
     recurringCanceledAt?: number | null;
     stripeCustomerId?: string | null;
+    /** ISO timestamp. Marketing/catalog/voice-pack oldest-age sections read this. */
+    createdAt?: string;
     /** USD dollars. Bundle refunded/disputed sections read this. */
     amountPaid?: number;
     /** ISO timestamp when charge.refunded flagged this order — see bundle-order-refund-tracking. */
@@ -605,6 +620,28 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       slug: lead.slug,
       businessName: lead.businessName,
     }));
+
+  const oldestMarketingPacksDueAgeHoursValue = oldestMarketingPacksDueAgeHours(
+    marketingPacksDueAll,
+    orders,
+    yearMonth,
+    nowMs,
+  );
+  const oldestCommerceCatalogsMissingAgeHoursValue = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsMissingAll,
+    orders,
+    nowMs,
+  );
+  const oldestCommerceCatalogsUnsyncedAgeHoursValue = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsUnsyncedAll,
+    orders,
+    nowMs,
+  );
+  const oldestClientVoicePacksDueAgeHoursValue = oldestClientVoicePacksDueAgeHours(
+    clientVoicePacksDueAll,
+    orders,
+    nowMs,
+  );
 
   const commercePayoutSummaries = summarizeCommerceOrdersByLead(commerceOrders).filter(
     (summary) => summary.unpaidCount > 0,
@@ -869,14 +906,18 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     unrepliedInquiriesCount,
     marketingPacksDue,
     marketingPacksDueCount,
+    oldestMarketingPacksDueAgeHours: oldestMarketingPacksDueAgeHoursValue,
     starterUpsellCandidates,
     starterUpsellCandidatesCount,
     commerceCatalogsMissing,
     commerceCatalogsMissingCount,
+    oldestCommerceCatalogsMissingAgeHours: oldestCommerceCatalogsMissingAgeHoursValue,
     commerceCatalogsUnsynced,
     commerceCatalogsUnsyncedCount,
+    oldestCommerceCatalogsUnsyncedAgeHours: oldestCommerceCatalogsUnsyncedAgeHoursValue,
     clientVoicePacksDue,
     clientVoicePacksDueCount,
+    oldestClientVoicePacksDueAgeHours: oldestClientVoicePacksDueAgeHoursValue,
     commercePayoutsOwed,
     commercePayoutsOwedCount,
     commercePayoutsOwedTotalUsd,
@@ -1109,16 +1150,16 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       inquiryRows,
       "Inbox clear.",
     )}
-    ${section(`Marketing packs due (${digest.marketingPacksDueCount})`, packRows, "All Growth/Complete packs generated this month.")}
+    ${section(`Marketing packs due (${digest.marketingPacksDueCount}${digest.oldestMarketingPacksDueAgeHours !== null ? ` · oldest ${digest.oldestMarketingPacksDueAgeHours}h` : ""})`, packRows, "All Growth/Complete packs generated this month.")}
     ${section(
       `MRR paused / canceled (${digest.recurringEntitlementPausedCount}${digest.oldestRecurringEntitlementPausedAgeHours !== null ? ` · oldest ${digest.oldestRecurringEntitlementPausedAgeHours}h` : ""})`,
       recurringPausedRows,
       "No paused or canceled Growth/Complete/Commerce subscribers need recovery.",
     )}
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
-    ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
-    ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
-    ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount})`, voicePackRows, "All Complete voice FAQ packs generated.")}
+    ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount}${digest.oldestCommerceCatalogsMissingAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsMissingAgeHours}h` : ""})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
+    ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount}${digest.oldestCommerceCatalogsUnsyncedAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsUnsyncedAgeHours}h` : ""})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
+    ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount}${digest.oldestClientVoicePacksDueAgeHours !== null ? ` · oldest ${digest.oldestClientVoicePacksDueAgeHours}h` : ""})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
     ${section(clawbackTitle, clawbackRows, "No Commerce payouts have been refunded after the fact.")}
     ${section(disputeClawbackTitle, disputeClawbackRows, "No Commerce payouts have been disputed after the fact.")}

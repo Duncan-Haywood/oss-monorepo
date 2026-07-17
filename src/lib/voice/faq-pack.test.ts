@@ -5,6 +5,7 @@ import {
   isCompleteBundleTier,
   leadEligibleForClientVoicePack,
   listClientVoicePacksDue,
+  oldestClientVoicePacksDueAgeHours,
   scriptTypeLabel,
 } from "./faq-pack";
 import { clientVoicePackRequestForLead } from "./build-request";
@@ -110,6 +111,63 @@ describe("listClientVoicePacksDue", () => {
         truncatedPacks,
       ).map((l) => l.slug),
     ).toEqual(["old-fulfilled"]);
+  });
+});
+
+describe("oldestClientVoicePacksDueAgeHours", () => {
+  const HOUR_MS = 60 * 60 * 1000;
+  const NOW = Date.parse("2026-07-17T12:00:00.000Z");
+
+  it("returns null for no candidates", () => {
+    expect(oldestClientVoicePacksDueAgeHours([], [], NOW)).toBeNull();
+  });
+
+  it("returns hours since the oldest candidate's Complete order, ignoring non-candidates", () => {
+    const candidates = [{ slug: "alpha" }, { slug: "beta" }];
+    const orders = [
+      {
+        leadSlug: "alpha",
+        tier: "complete",
+        createdAt: new Date(NOW - 4 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "beta",
+        tier: "complete",
+        createdAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+      },
+      // Not a candidate — must not affect the oldest-age scan.
+      {
+        leadSlug: "gamma",
+        tier: "complete",
+        createdAt: new Date(NOW - 999 * HOUR_MS).toISOString(),
+      },
+      // Candidate but Growth (not Complete) — must be ignored.
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        createdAt: new Date(NOW - 500 * HOUR_MS).toISOString(),
+      },
+      // Candidate but paused — must be ignored.
+      {
+        leadSlug: "beta",
+        tier: "complete",
+        recurringCanceledAt: NOW - 100 * HOUR_MS,
+        createdAt: new Date(NOW - 700 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestClientVoicePacksDueAgeHours(candidates, orders, NOW)).toBe(30);
+  });
+
+  it("clamps to 0 when nowMs is before the order's createdAt", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        leadSlug: "alpha",
+        tier: "complete",
+        createdAt: new Date(NOW + HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestClientVoicePacksDueAgeHours(candidates, orders, NOW)).toBe(0);
   });
 });
 

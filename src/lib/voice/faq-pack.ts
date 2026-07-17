@@ -76,6 +76,49 @@ export function listClientVoicePacksDue<
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * Age in whole hours since the oldest qualifying Complete order among
+ * `candidates` (as returned by listClientVoicePacksDue) was created; null
+ * when there are no candidates or none of their orders parse. Pass nowMs
+ * from the caller — never Date.now() inside list/age helpers (see
+ * oldestStarterUpsellCandidateAgeHours for the same pattern).
+ */
+export function oldestClientVoicePacksDueAgeHours(
+  candidates: ReadonlyArray<{ slug: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    recurringCanceledAt?: number | null;
+    createdAt?: string;
+  }>,
+  nowMs: number,
+): number | null {
+  const candidateSlugs = new Set(candidates.map((candidate) => candidate.slug));
+  let oldestCreatedAtMs: number | null = null;
+  for (const order of orders) {
+    if (!candidateSlugs.has(order.leadSlug)) continue;
+    if (!isCompleteBundleTier(order.tier)) continue;
+    if (
+      typeof order.recurringCanceledAt === "number" &&
+      Number.isFinite(order.recurringCanceledAt) &&
+      order.recurringCanceledAt > 0
+    ) {
+      continue;
+    }
+    if (typeof order.createdAt !== "string") continue;
+    const createdAtMs = Date.parse(order.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    if (oldestCreatedAtMs === null || createdAtMs < oldestCreatedAtMs) {
+      oldestCreatedAtMs = createdAtMs;
+    }
+  }
+  if (oldestCreatedAtMs === null) return null;
+  if (nowMs < oldestCreatedAtMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / HOUR_MS));
+}
+
 export function scriptTypeLabel(scriptType: ClientVoiceScriptType | string): string {
   switch (scriptType) {
     case "inbound_greeting":

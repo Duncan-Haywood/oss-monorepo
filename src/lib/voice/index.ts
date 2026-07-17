@@ -28,6 +28,7 @@ export {
   leadEligibleForClientVoicePack,
   leadStageEligibleForClientVoicePack,
   listClientVoicePacksDue,
+  oldestClientVoicePacksDueAgeHours,
   scriptTypeLabel,
 } from "./faq-pack";
 

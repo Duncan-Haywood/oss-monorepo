@@ -28,6 +28,7 @@ export {
   listCommerceCatalogsUnsynced,
   newCommerceSkuId,
   normalizeCommerceItems,
+  oldestCommerceCatalogCandidateAgeHours,
   preserveCommerceStripeIds,
   type NormalizeCommerceItemsResult,
 } from "./catalog";

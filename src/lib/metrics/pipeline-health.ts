@@ -31,13 +31,18 @@ import {
   isRecoveryDue,
   leadSlugsEligibleForCommerceAbandonedRecovery,
 } from "@/lib/checkout/abandoned-recovery";
-import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "@/lib/commerce/catalog";
-import { listClientVoicePacksDue } from "@/lib/voice/faq-pack";
+import {
+  listCommerceCatalogsMissing,
+  listCommerceCatalogsUnsynced,
+  oldestCommerceCatalogCandidateAgeHours,
+} from "@/lib/commerce/catalog";
+import { listClientVoicePacksDue, oldestClientVoicePacksDueAgeHours } from "@/lib/voice/faq-pack";
 import { isColdLead, isFollowUpDue } from "@/lib/email/outreach-followups";
 import { isLeadSnoozed } from "@/lib/leads/snooze";
 import {
   listMarketingPacksDue,
   marketingMonthKey,
+  oldestMarketingPacksDueAgeHours,
 } from "@/lib/marketing/monthly-pack";
 import {
   commerceOrderNeedsClawback,
@@ -161,20 +166,32 @@ export interface PipelineHealth {
   /** UTC YYYY-MM key used for the packs-due count (from nowMs). */
   marketingPacksDueMonth: string;
   /**
+   * Age in whole hours since the current month's pack first became due for
+   * the oldest due lead (later of month start and their qualifying order's
+   * createdAt); null when none due. See oldestMarketingPacksDueAgeHours.
+   */
+  oldestMarketingPacksDueAgeHours: number | null;
+  /**
    * Paid/live commerceAddon leads missing any catalog row.
    * Commerce fulfillment debt — not a second priority queue.
    */
   commerceCatalogsMissingCount: number;
+  /** Age in whole hours since the oldest missing-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsMissingAgeHours: number | null;
   /**
    * Paid/live commerceAddon leads with a saved catalog that still has ≥1 SKU
    * without stripePriceId (Sync to Stripe still due). Distinct from missing.
    */
   commerceCatalogsUnsyncedCount: number;
+  /** Age in whole hours since the oldest unsynced-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsUnsyncedAgeHours: number | null;
   /**
    * Paid/live Complete leads missing a client voice FAQ pack.
    * Fulfillment debt for the sold phone promise — not a second priority queue.
    */
   clientVoicePacksDueCount: number;
+  /** Age in whole hours since the oldest voice-pack-due lead's qualifying order; null when none. */
+  oldestClientVoicePacksDueAgeHours: number | null;
   /**
    * USD still owed to Commerce clients from Buy now orders (excludes rows with
    * paidOutAt OR refundedAt — a refunded end-customer sale owes the client
@@ -507,6 +524,27 @@ export function computePipelineHealth(input: {
     input.orders,
     input.clientVoicePacks ?? [],
   );
+  const oldestMarketingPacksDueHours = oldestMarketingPacksDueAgeHours(
+    marketingPacksDue,
+    input.orders,
+    marketingPacksDueMonth,
+    nowMs,
+  );
+  const oldestCommerceCatalogsMissingHours = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsMissing,
+    input.orders,
+    nowMs,
+  );
+  const oldestCommerceCatalogsUnsyncedHours = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsUnsynced,
+    input.orders,
+    nowMs,
+  );
+  const oldestClientVoicePacksDueHours = oldestClientVoicePacksDueAgeHours(
+    clientVoicePacksDue,
+    input.orders,
+    nowMs,
+  );
 
   const commerceOrders = input.commerceOrders ?? [];
   // A refunded or disputed order owes the client nothing — exclude it from
@@ -654,9 +692,13 @@ export function computePipelineHealth(input: {
     closedLeadCount: stageCounts.closed,
     marketingPacksDueCount: marketingPacksDue.length,
     marketingPacksDueMonth,
+    oldestMarketingPacksDueAgeHours: oldestMarketingPacksDueHours,
     commerceCatalogsMissingCount: commerceCatalogsMissing.length,
+    oldestCommerceCatalogsMissingAgeHours: oldestCommerceCatalogsMissingHours,
     commerceCatalogsUnsyncedCount: commerceCatalogsUnsynced.length,
+    oldestCommerceCatalogsUnsyncedAgeHours: oldestCommerceCatalogsUnsyncedHours,
     clientVoicePacksDueCount: clientVoicePacksDue.length,
+    oldestClientVoicePacksDueAgeHours: oldestClientVoicePacksDueHours,
     commerceOrdersRevenueUsd,
     commerceOrdersCount: unpaidCommerceOrders.length,
     commerceOrdersRefundClawbackCount: commerceOrdersRefundClawback.length,

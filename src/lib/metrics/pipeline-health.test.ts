@@ -114,9 +114,13 @@ describe("computePipelineHealth", () => {
     expect(health.oldestBundleOrdersDisputedAgeHours).toBeNull();
     expect(health.marketingPacksDueCount).toBe(0);
     expect(health.marketingPacksDueMonth).toBe("1970-01");
+    expect(health.oldestMarketingPacksDueAgeHours).toBeNull();
     expect(health.commerceCatalogsMissingCount).toBe(0);
+    expect(health.oldestCommerceCatalogsMissingAgeHours).toBeNull();
     expect(health.commerceCatalogsUnsyncedCount).toBe(0);
+    expect(health.oldestCommerceCatalogsUnsyncedAgeHours).toBeNull();
     expect(health.clientVoicePacksDueCount).toBe(0);
+    expect(health.oldestClientVoicePacksDueAgeHours).toBeNull();
     expect(health.recurringEntitlementPausedCount).toBe(0);
     expect(health.oldestRecurringEntitlementPausedAgeHours).toBeNull();
     expect(health.starterUpsellCandidatesCount).toBe(0);
@@ -635,6 +639,33 @@ describe("computePipelineHealth", () => {
     expect(health.marketingPacksDueMonth).toBe("2026-07");
   });
 
+  it("anchors oldestMarketingPacksDueAgeHours to month start, not the subscriber's original order", () => {
+    const longTimeSubscriber = makeLead("paid", { slug: "long-time" });
+    const health = computePipelineHealth({
+      leads: [longTimeSubscriber],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "o1",
+          leadSlug: "long-time",
+          tier: "growth",
+          // Subscribed months before July — due-since is still 2026-07-01, not
+          // this order's createdAt, so tenure doesn't inflate the age forever.
+          createdAt: new Date(Date.UTC(2026, 0, 1)).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    const expectedMonthStartMs = Date.UTC(2026, 6, 1);
+    expect(health.marketingPacksDueCount).toBe(1);
+    expect(health.oldestMarketingPacksDueAgeHours).toBe(
+      Math.floor((NOW - expectedMonthStartMs) / HOUR_MS),
+    );
+  });
+
   it("counts paid/live leads with paused recurring entitlement (not marketing packs due)", () => {
     const paused = makeLead("paid", { slug: "paused-mrr" });
     const active = makeLead("live", { slug: "active-mrr" });
@@ -721,6 +752,7 @@ describe("computePipelineHealth", () => {
           leadSlug: "needs-catalog",
           tier: "starter",
           commerceAddon: true,
+          createdAt: new Date(NOW - 8 * HOUR_MS).toISOString(),
         },
         {
           ...makeOrder(849),
@@ -743,6 +775,7 @@ describe("computePipelineHealth", () => {
       nowMs: NOW,
     });
     expect(health.commerceCatalogsMissingCount).toBe(1);
+    expect(health.oldestCommerceCatalogsMissingAgeHours).toBe(8);
   });
 
   it("counts saved Commerce catalogs that still need Sync to Stripe", () => {
@@ -757,6 +790,7 @@ describe("computePipelineHealth", () => {
           leadSlug: "unsynced-shop",
           tier: "starter",
           commerceAddon: true,
+          createdAt: new Date(NOW - 12 * HOUR_MS).toISOString(),
         },
         {
           ...makeOrder(849),
@@ -782,6 +816,7 @@ describe("computePipelineHealth", () => {
     });
     expect(health.commerceCatalogsMissingCount).toBe(0);
     expect(health.commerceCatalogsUnsyncedCount).toBe(1);
+    expect(health.oldestCommerceCatalogsUnsyncedAgeHours).toBe(12);
   });
 
   it("counts Complete leads missing a client voice FAQ pack", () => {
@@ -791,7 +826,13 @@ describe("computePipelineHealth", () => {
     const health = computePipelineHealth({
       leads: [needsVoice, hasVoice, growthOnly],
       orders: [
-        { ...makeOrder(699), id: "o1", leadSlug: "needs-voice", tier: "complete" },
+        {
+          ...makeOrder(699),
+          id: "o1",
+          leadSlug: "needs-voice",
+          tier: "complete",
+          createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+        },
         { ...makeOrder(699), id: "o2", leadSlug: "has-voice", tier: "complete" },
         { ...makeOrder(599), id: "o3", leadSlug: "growth-only", tier: "growth" },
       ],
@@ -801,6 +842,7 @@ describe("computePipelineHealth", () => {
       nowMs: NOW,
     });
     expect(health.clientVoicePacksDueCount).toBe(1);
+    expect(health.oldestClientVoicePacksDueAgeHours).toBe(6);
   });
 
   it("sums commerce Buy now order revenue separately from revenueTotalUsd", () => {
