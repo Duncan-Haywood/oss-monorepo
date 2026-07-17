@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { Lead } from "@/lib/leads/types";
+import {
+  MAX_BUSINESS_NAME_LENGTH,
+  MAX_CITY_LENGTH,
+  MAX_HOURS_SEGMENT_LENGTH,
+  MAX_SERVICE_ITEM_LENGTH,
+  MAX_SERVICES,
+  MAX_TAGLINE_LENGTH,
+} from "@/lib/leads/create-fields";
 import { CLIENT_VOICE_FAQ_SCRIPT_TYPES } from "./faq-pack";
 import {
   clientVoiceBusinessContextFromLead,
@@ -73,6 +81,30 @@ describe("clientVoiceBusinessContextFromLead", () => {
     expect(ctx.state).toBeUndefined();
     expect(ctx.phone).toBeUndefined();
     expect(ctx.tagline).toBeUndefined();
+  });
+
+  it("soft-caps oversize lead fields like normalizeMarketingGenerateBusiness", () => {
+    const ctx = clientVoiceBusinessContextFromLead(
+      baseLead({
+        businessName: "A".repeat(MAX_BUSINESS_NAME_LENGTH + 40),
+        city: "C".repeat(MAX_CITY_LENGTH + 10),
+        tagline: "T".repeat(MAX_TAGLINE_LENGTH + 10),
+        services: [
+          "S".repeat(MAX_SERVICE_ITEM_LENGTH + 5),
+          ...Array.from({ length: MAX_SERVICES + 3 }, (_, i) => `svc-${i}`),
+        ],
+        hours: {
+          weekday: "W".repeat(MAX_HOURS_SEGMENT_LENGTH),
+          weekend: "E".repeat(MAX_HOURS_SEGMENT_LENGTH),
+        },
+      }),
+    );
+    expect(ctx.businessName).toHaveLength(MAX_BUSINESS_NAME_LENGTH);
+    expect(ctx.city).toHaveLength(MAX_CITY_LENGTH);
+    expect(ctx.tagline).toHaveLength(MAX_TAGLINE_LENGTH);
+    expect(ctx.services).toHaveLength(MAX_SERVICES);
+    expect(ctx.services[0]).toHaveLength(MAX_SERVICE_ITEM_LENGTH);
+    expect(ctx.hours).toHaveLength(MAX_HOURS_SEGMENT_LENGTH);
   });
 });
 

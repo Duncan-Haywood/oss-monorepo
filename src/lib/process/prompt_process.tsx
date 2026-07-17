@@ -167,7 +167,8 @@ export const AGENT_PROTOCOL = [
   "invoice.paid must restore CRM recurring entitlement as the twin of invoice.payment_failed pause (#346): for subscription invoices, subscriptions.retrieve then clearOrdersRecurringCanceledByCustomer only when stripeSubscriptionShouldRestoreRecurringEntitlement (grants + !pause_collection). Blind clear would reopen the #347 pause_collection hole. One-time invoices skip. Retrieve failures return 5xx (subscription_retrieve); clear failures return 5xx (orders_recurring_reactivated). After Buy now create/sync entitlement + paused digest + commerce webhook entitlement ship, prefer this invoice restore asymmetry before inventing another dated clean-audit (invoice-paid-recurring-entitlement-restore).",
   "invoice.payment_failed must re-retrieve the Subscription before markOrdersRecurringCanceledByCustomer — membership alone is not enough after invoice.paid / subscription.updated clear. Mark only when stripeSubscriptionShouldPauseRecurringEntitlement (past_due|unpaid or pause_collection); skip when already grants. Stale/out-of-order failed after recovery must not re-pause packs. Retrieve failures return 5xx (subscription_retrieve). Ship with invoice.paid restore in the same pass when possible (invoice-payment-failed-stale-repause-guard).",
   "After CRM entitlement pause/cancel gates Buy now create/sync/webhook on leadEligibleForCommerceCatalog, immediately close the abandoned-recovery twin — sendCommerceCheckoutRecoveryAction must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before mark/send (success:false when missing lead or ineligible); listCommerceAbandonedCheckoutsDue / digest / pipeline-health must filter via leadSlugsEligibleForCommerceAbandonedRecovery so paused/canceled Commerce carts do not surface as recovery debt while create-path 403s and the webhook skips (commerce-abandoned-recovery-entitlement-gate). After an entitlement filter ships as an optional helper arg (omit → allow-all), immediately require it at the type level so a future caller cannot reopen the hole (commerce-abandoned-recovery-require-entitlement-set). After that type-level require, also audit wrapper helpers that call the same predicates (leadEligibleForMarketingPackDelivery / leadEligibleForClientVoicePackDelivery / listCommerceCatalogsUnsynced) — their orders args must include recurringCanceledAt? too, or structural omit silently reopens pause-blind call sites (entitlement-order-arg-recurring-canceled-type-parity).",
-  "After leadEligibleForMarketingPack gates generate/send on !recurringCanceledAt, also gate bestMarketingOrderTier on the same predicate — prefer Complete among *active* Growth/Complete rows only. A paused/canceled Complete + still-active Growth must not mint full_marketing / generate_schedule_optimize (outer eligibility can still pass via Growth). Same class as create-path entitlement without the inner sold-tier residual (best-marketing-order-tier-active-entitlement). After an outer eligibility gate ships, immediately audit inner tier/package selectors before inventing another dated clean-audit. Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#353 money gates.",] as const;
+  "After leadEligibleForMarketingPack gates generate/send on !recurringCanceledAt, also gate bestMarketingOrderTier on the same predicate — prefer Complete among *active* Growth/Complete rows only. A paused/canceled Complete + still-active Growth must not mint full_marketing / generate_schedule_optimize (outer eligibility can still pass via Growth). Same class as create-path entitlement without the inner sold-tier residual (best-marketing-order-tier-active-entitlement). After an outer eligibility gate ships, immediately audit inner tier/package selectors before inventing another dated clean-audit.",
+  "After POST /api/marketing/generate soft-caps business via normalizeMarketingGenerateBusiness, also soft-cap businessContextFromLead + clientVoiceBusinessContextFromLead (operator Generate pack / Generate voice → Anthropic/stub) with the same create-fields MAX_* policy — public generate size policy alone leaves the sold dashboard lead→request builders uncapped on pre-cap CRM / Convex-hydrated rows (marketing-voice-build-request-business-context-soft-cap). Soft-cap (not hard-reject) so one oversize cell still ships a truncated pack. Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#355 money/entitlement gates.",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2700,6 +2701,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-203f",
+  },
+  {
+    id: "marketing-voice-build-request-business-context-soft-cap",
+    summary:
+      "Empty-backlog after PR #354/#355 (bestMarketingOrderTier active entitlement + wrapper order-arg type parity). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual twin: POST /api/marketing/generate soft-caps business via normalizeMarketingGenerateBusiness, but businessContextFromLead / clientVoiceBusinessContextFromLead (operator Generate pack / Generate voice → Anthropic/stub) still pass raw lead fields — a pre-cap CRM row or Convex-hydrated oversize can burn LLM tokens and inflate pack variants. Soft-cap both lead→request builders with the same create-fields MAX_* policy before generate.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-3811",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5541,6 +5550,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Helpers that call sold recurring-entitlement predicates (leadEligibleForMarketingPackDelivery, leadEligibleForClientVoicePackDelivery, listCommerceCatalogsUnsynced) must type their orders args with recurringCanceledAt? — never {tier} / {commerceAddon} alone. Structural omit of the CRM pause field lets a future caller pass pause-blind rows while TypeScript stays green (same silent-reopen class as optional eligibleLeadSlugs omit→allow-all). Keep Billing Portal / Starter-upsell order types intentionally without the field (portal stays open; upsell stays mutually exclusive with historical recurring).",
     rationale:
       "Empty-backlog after PR #353 (commerce-abandoned-recovery-require-entitlement-set). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Sibling business-process-evolution-6b9c claimed/shipped best-marketing-order-tier-active-entitlement (#354) — complementary pivot (active-tier pick among Growth/Complete); folded here. Fresh residual twin of #353: deliver-pack + unsynced debt helpers still omitted recurringCanceledAt from order arg types even though callees check it. Process improvement: after requiring an entitlement filter arg at the type level, immediately audit wrapper helpers that call the same predicates for matching order-arg types. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "businessContextFromLead and clientVoiceBusinessContextFromLead must soft-cap via normalizeMarketingGenerateBusiness (create-fields MAX_* + services slice) before Anthropic/stub generate — same policy as POST /api/marketing/generate. Public generate soft-cap alone leaves the sold dashboard lead→request builders uncapped on pre-cap CRM rows. Soft-cap (not hard-reject) so one oversize cell still ships a truncated pack.",
+    rationale:
+      "Empty-backlog after PR #354/#355 (bestMarketingOrderTier active entitlement + wrapper order-arg type parity). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual twin: marketing-generate-content-types-size-cap soft-caps the public route, but operator Generate pack / Generate voice build requests from raw Lead fields — CSV/create-path caps close most ingest, yet Convex-hydrated or pre-cap rows can still burn LLM tokens. Process improvement: after a public write soft-cap ships, immediately close the sold dashboard lead→request twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -11259,5 +11275,24 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     // Object-parse by decision text: order-arg type parity owns BD[403]; bestMarketingOrderTier=402.
     decisions: BUSINESS_DECISIONS.slice(403, 404),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/business-process-evolution-3811",
+    summary:
+      "Empty-backlog after PR #354/#355 (bestMarketingOrderTier active entitlement + wrapper order-arg type parity). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Concurrent sibling prompt-process-evolution-b43f had not claimed yet. Fresh residual twin: POST /api/marketing/generate soft-caps business via normalizeMarketingGenerateBusiness, but businessContextFromLead / clientVoiceBusinessContextFromLead still passed raw lead fields into Anthropic/stub. Soft-capped both builders; Vitest + architecture note; process now requires lead→request soft-cap after public generate soft-cap.",
+    shipped: [
+      "src/lib/marketing/build-request.ts — businessContextFromLead → normalizeMarketingGenerateBusiness",
+      "src/lib/voice/build-request.ts — clientVoiceBusinessContextFromLead reuses same soft-cap (strip websiteUrl)",
+      "Vitest: +2 soft-cap regressions (marketing + voice build-request)",
+      "Docs: architecture.tsx notes lead→request soft-cap parity with public generate",
+      "AGENT_PROTOCOL — after public generate soft-cap, immediately close dashboard lead→request twin",
+      "NEXT_STEPS: marketing-voice-build-request-business-context-soft-cap done",
+      "BUSINESS_DECISIONS — require lead→request soft-cap (absolute index 404)",
+      "Process: object-parse by decision text (order-arg type parity=403, bestMarketingOrderTier=402) before appending ours; claim pushed before feature body",
+      "Verified: npm test (1768 passed = main@#355's 1766 + 2 soft-cap regressions) + lint",
+    ],
+    // Object-parse by decision text: lead→request soft-cap owns BD[404]; order-arg type parity=403.
+    decisions: BUSINESS_DECISIONS.slice(404, 405),
   },
 ];

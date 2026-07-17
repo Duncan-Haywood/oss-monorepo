@@ -1128,10 +1128,11 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>ANTHROPIC_API_KEY</code> is set (direct Vitest coverage in{" "}
         <code>generators.test.ts</code> for stub edge branches + Anthropic blank-key / HTTP /
         parse / length-mismatch fallbacks and <code>packageTier</code>;{" "}
-        <code>build-request.test.ts</code> for empty services/hours defaults and growth vs
-        complete <code>automationLevel</code>). Until the key is a non-placeholder secret,{" "}
-        <code>assessAnthropicEnvReadiness</code> surfaces a teal dashboard banner so operators
-        cannot mistake Stub* template packs for sold AI quality. Operators trigger{" "}
+        <code>build-request.test.ts</code> for empty services/hours defaults, growth vs
+        complete <code>automationLevel</code>, and soft-capped business context via{" "}
+        <code>normalizeMarketingGenerateBusiness</code>). Until the key is a non-placeholder
+        secret, <code>assessAnthropicEnvReadiness</code> surfaces a teal dashboard banner so
+        operators cannot mistake Stub* template packs for sold AI quality. Operators trigger{" "}
         <code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
@@ -1140,7 +1141,9 @@ source). The same digest also lists email-critical leads with no usable address 
         contentTypes ≤ monthly pack ceiling + soft-capped business context + stub-vs-LLM
         messaging covered by{" "}
         <code>src/app/api/marketing/generate/route.test.ts</code>) — prefer the
-        dashboard pack action for persisted fulfillment. Action-level Vitest in{" "}
+        dashboard pack action for persisted fulfillment.{" "}
+        <code>businessContextFromLead</code> shares that soft-cap so operator Generate pack
+        cannot bypass the public generate size policy on pre-cap CRM rows. Action-level Vitest in{" "}
         <code>src/app/dashboard/leads/generate-marketing-pack-action.test.ts</code> locks auth,
         eligibility, <code>MARKETING_PACK_CONVEX_PRIMARY</code> persist, stub-vs-anthropic labeling,
         and <code>ConvexPrimaryWriteError</code> fail-closed — generators / monthly-pack / route
@@ -1184,11 +1187,13 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>parseClientVoiceVariants</code> + Convex-primary{" "}
         <code>softCapClientVoicePack</code>) and at <strong>Email voice pack</strong> HTML format
         time so already-stored pre-cap rows cannot bypass generate soft-caps under{" "}
-        <code>skipSuppression</code>. Lead→request shaping (
+        <code>skipSuppression</code>.         Lead→request shaping (
         <code>clientVoiceBusinessContextFromLead</code> /{" "}
         <code>clientVoicePackRequestForLead</code>) has direct edge coverage in{" "}
         <code>src/lib/voice/build-request.test.ts</code> (empty services →{" "}
-        <code>our services</code>, hours/state omission). Eligibility: paid/live + Complete order;
+        <code>our services</code>, hours/state omission, soft-cap via shared{" "}
+        <code>normalizeMarketingGenerateBusiness</code>). Eligibility: paid/live + Complete
+        order;
         one row per lead (SQLite + Convex <code>clientVoicePacks</code>) — regenerating replaces.
         Action-level Vitest in{" "}
         <code>src/app/dashboard/leads/generate-client-voice-pack-action.test.ts</code> locks auth,

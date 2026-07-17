@@ -1,8 +1,13 @@
 /**
  * Build a GenerateMarketingRequest from a Lead for the monthly pack.
+ *
+ * Soft-cap business context with the same create-fields MAX_* policy as
+ * POST /api/marketing/generate (normalizeMarketingGenerateBusiness) so
+ * operator Generate pack cannot burn Anthropic tokens on pre-cap CRM rows.
  */
 
 import type { Lead } from "@/lib/leads/types";
+import { normalizeMarketingGenerateBusiness } from "./generate-limits";
 import {
   MONTHLY_MARKETING_PACK_TYPES,
   packageTierForOrderTier,
@@ -20,7 +25,7 @@ export function businessContextFromLead(lead: Lead): BusinessContext {
       ? `Weekdays ${lead.hours.weekday || "by appointment"}; Weekends ${lead.hours.weekend || "by appointment"}`
       : undefined;
 
-  return {
+  return normalizeMarketingGenerateBusiness({
     businessName: lead.businessName,
     category: lead.category,
     city: lead.city,
@@ -31,7 +36,7 @@ export function businessContextFromLead(lead: Lead): BusinessContext {
     tagline: lead.tagline || undefined,
     websiteUrl: undefined,
     tone: "friendly",
-  };
+  });
 }
 
 export function monthlyPackRequestForLead(
