@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  invoicePaymentFailedPausesRecurringEntitlement,
   orderHadRecurringEntitlement,
   orderHasActiveRecurringEntitlement,
   orderRecurringIsCanceled,
   stripeSubscriptionGrantsRecurringEntitlement,
+  stripeSubscriptionPausesRecurringEntitlement,
 } from "./recurring";
 
 describe("orderHadRecurringEntitlement", () => {
@@ -63,5 +65,34 @@ describe("stripeSubscriptionGrantsRecurringEntitlement", () => {
     expect(stripeSubscriptionGrantsRecurringEntitlement("incomplete")).toBe(false);
     expect(stripeSubscriptionGrantsRecurringEntitlement(null)).toBe(false);
     expect(stripeSubscriptionGrantsRecurringEntitlement(undefined)).toBe(false);
+  });
+});
+
+describe("stripeSubscriptionPausesRecurringEntitlement", () => {
+  it("accepts past_due and unpaid only", () => {
+    expect(stripeSubscriptionPausesRecurringEntitlement("past_due")).toBe(true);
+    expect(stripeSubscriptionPausesRecurringEntitlement("unpaid")).toBe(true);
+    expect(stripeSubscriptionPausesRecurringEntitlement("active")).toBe(false);
+    expect(stripeSubscriptionPausesRecurringEntitlement("trialing")).toBe(false);
+    expect(stripeSubscriptionPausesRecurringEntitlement("canceled")).toBe(false);
+    expect(stripeSubscriptionPausesRecurringEntitlement("incomplete")).toBe(false);
+    expect(stripeSubscriptionPausesRecurringEntitlement(null)).toBe(false);
+    expect(stripeSubscriptionPausesRecurringEntitlement(undefined)).toBe(false);
+  });
+});
+
+describe("invoicePaymentFailedPausesRecurringEntitlement", () => {
+  it("requires a non-empty subscription id (string or expanded)", () => {
+    expect(
+      invoicePaymentFailedPausesRecurringEntitlement({ subscription: "sub_renew_1" }),
+    ).toBe(true);
+    expect(
+      invoicePaymentFailedPausesRecurringEntitlement({ subscription: { id: "sub_exp_1" } }),
+    ).toBe(true);
+    expect(invoicePaymentFailedPausesRecurringEntitlement({})).toBe(false);
+    expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: null })).toBe(false);
+    expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: "" })).toBe(false);
+    expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: "   " })).toBe(false);
+    expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: {} })).toBe(false);
   });
 });

@@ -32,8 +32,10 @@ export type WebhookFulfillmentStep =
   | "checkout_session_mark_open"
   /**
    * Marking Growth/Complete/Commerce orders.recurringCanceledAt after
-   * customer.subscription.deleted — required so Stripe retries rather than
-   * leaving canceled subscribers with active marketing/voice/catalog entitlement.
+   * customer.subscription.deleted, past_due|unpaid subscription.updated, or
+   * invoice.payment_failed (subscription invoices) — required so Stripe retries
+   * rather than leaving canceled/past-due subscribers with active
+   * marketing/voice/catalog entitlement.
    */
   | "orders_recurring_canceled"
   /**
