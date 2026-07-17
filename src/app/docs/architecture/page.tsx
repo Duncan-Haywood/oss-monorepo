@@ -528,7 +528,13 @@ export default function ArchitectureDocPage() {
         <code>orders_recurring_reactivated</code>). Marketing packs, client voice
         packs, and commerce catalogs require an uncanceled recurring order;{" "}
         <code>stage=paid|live</code> and Billing Portal eligibility stay so
-        invoices/resubscribe and Starter-upsell mutual exclusion remain correct.{" "}
+        invoices/resubscribe and Starter-upsell mutual exclusion remain correct.
+        Paused/canceled MRR customers (paid|live with{" "}
+        <code>recurringCanceledAt</code> and no still-active recurring order)
+        surface on pipeline-health + the daily digest via{" "}
+        <code>listRecurringEntitlementPaused</code> so operators can chase{" "}
+        <strong>Manage billing</strong> / Billing Portal recovery — they otherwise
+        silently drop out of packs-due / catalog panels.{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}
