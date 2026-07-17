@@ -2461,6 +2461,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-0329",
   },
+  {
+    id: "success-page-commerceAddon-line-item-parity",
+    summary:
+      "Empty-backlog after PR #331 (billing-portal-session-payment-mode-tier-metadata-trust). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual twin: loadCheckoutSuccessSession still uses metadata.commerceAddon === \"true\" as the soft SSR hint for showBillingPortal on payment mode, while createBillingPortalForCheckoutSession already derives commerceAddon from listLineItems. A Dashboard-minted payment-mode Starter session with forged commerceAddon metadata can surface Manage billing on /checkout/success even though the portal API would 400. Derive commerceAddon from listLineItems Price IDs (reuse resolveCommerceAddonFromLineItems) before checkoutSessionEligibleForBillingPortal; do not trust metadata.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-1924",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
