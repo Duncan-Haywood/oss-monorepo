@@ -2615,6 +2615,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-13bc",
   },
+  {
+    id: "recurring-entitlement-paused-pipeline-digest",
+    summary:
+      "Empty-backlog after PR #347 (subscription-pause-collection-crm-pause). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh wiring residual: #344–#347 persist orders.recurringCanceledAt and gate packs/catalog, but paused/canceled MRR customers silently drop out of marketingPacksDue / voice / catalog panels with no recovery queue — operators cannot chase Billing Portal payment recovery. Wire listRecurringEntitlementPaused (paid|live + had recurring + no active entitlement) into pipeline-health count/age + daily digest action section + dashboard metric card; reuse Manage billing / Billing Portal (do not invent a second scorer).",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-4b2e",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
