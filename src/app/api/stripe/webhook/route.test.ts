@@ -51,6 +51,7 @@ const getCommerceOrderByStripeSessionId = vi.fn();
 const markCommerceOrderClientReceiptSent = vi.fn();
 const markCommerceOrderRefunded = vi.fn();
 const markCommerceOrderDisputed = vi.fn();
+const clearCommerceOrderDisputed = vi.fn();
 const getDeployHandoffBySlug = vi.fn();
 const insertDeployHandoff = vi.fn();
 const listDeployHandoffs = vi.fn();
@@ -94,6 +95,7 @@ vi.mock("@/lib/db", () => ({
     markCommerceOrderClientReceiptSent(...args),
   markCommerceOrderRefunded: (...args: unknown[]) => markCommerceOrderRefunded(...args),
   markCommerceOrderDisputed: (...args: unknown[]) => markCommerceOrderDisputed(...args),
+  clearCommerceOrderDisputed: (...args: unknown[]) => clearCommerceOrderDisputed(...args),
   getDeployHandoffBySlug: (...args: unknown[]) => getDeployHandoffBySlug(...args),
   insertDeployHandoff: (...args: unknown[]) => insertDeployHandoff(...args),
   listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
@@ -247,6 +249,7 @@ describe("POST /api/stripe/webhook", () => {
     markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(undefined);
     markCommerceOrderRefunded.mockReset().mockResolvedValue(undefined);
     markCommerceOrderDisputed.mockReset().mockResolvedValue(undefined);
+    clearCommerceOrderDisputed.mockReset().mockResolvedValue(undefined);
     listCheckoutSessions.mockReset().mockResolvedValue({ data: [] });
     getDeployHandoffBySlug.mockReset().mockResolvedValue(null);
     insertDeployHandoff.mockReset().mockResolvedValue(undefined);
@@ -1269,6 +1272,200 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_dispute");
+      expect(json.received).toBe(false);
+    });
+  });
+
+  describe("charge.dispute.closed commerce order resolution", () => {
+    function disputeClosedEvent(overrides: Record<string, unknown> = {}) {
+      return {
+        type: "charge.dispute.closed",
+        data: {
+          object: {
+            id: "dp_closed_1",
+            charge: "ch_disputed_1",
+            payment_intent: "pi_dispute_1",
+            amount: 5000,
+            status: "won",
+            ...overrides,
+          },
+        },
+      };
+    }
+
+    it("clears disputedAt when status is won", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        disputedAt: "2026-07-10T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearCommerceOrderDisputed).toHaveBeenCalledWith("cs_commerce_1", {
+        requireConvex: true,
+      });
+      expect(markCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("clears disputedAt when status is warning_closed", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        disputedAt: "2026-07-10T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "warning_closed" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearCommerceOrderDisputed).toHaveBeenCalledWith("cs_commerce_1", {
+        requireConvex: true,
+      });
+    });
+
+    it("is idempotent — does not re-clear when disputedAt is already unset (won)", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+      expect(markCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("keeps disputedAt and is a no-op mark when status is lost and already disputed", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        disputedAt: "2026-07-10T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "lost" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+      expect(markCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("marks disputedAt when status is lost and created was missed", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "lost" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+      expect(markCommerceOrderDisputed).toHaveBeenCalledWith(
+        "cs_commerce_1",
+        expect.any(String),
+        { requireConvex: true },
+      );
+    });
+
+    it("skips a closed dispute with no payment_intent", async () => {
+      constructEvent.mockReturnValue(disputeClosedEvent({ payment_intent: null }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(listCheckoutSessions).not.toHaveBeenCalled();
+      expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("skips when no Checkout Session matches", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+      constructEvent.mockReturnValue(disputeClosedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("skips when the Session is not a ledgered commerce order", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      constructEvent.mockReturnValue(disputeClosedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 commerce_order_dispute_closed_session_lookup when Session list fails", async () => {
+      listCheckoutSessions.mockRejectedValueOnce(new Error("stripe down"));
+      constructEvent.mockReturnValue(disputeClosedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_order_dispute_closed_session_lookup");
+      expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 commerce_order_dispute_clear when the clear write fails", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        disputedAt: "2026-07-10T00:00:00.000Z",
+      });
+      clearCommerceOrderDisputed.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_order_dispute_clear");
       expect(json.received).toBe(false);
     });
   });

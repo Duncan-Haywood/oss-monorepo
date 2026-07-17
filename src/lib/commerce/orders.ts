@@ -49,6 +49,8 @@ export interface CommerceOrderRecord {
    * exposure as a refund: it must drop out of the "owed" total, and if
    * paidOutAt was already set before the dispute landed, the operator already
    * paid the client out of pocket for money Stripe has since withdrawn.
+   * Cleared by charge.dispute.closed when status is won / warning_closed
+   * (commerce-order-dispute-closed-resolution); lost keeps/ensures this flag.
    */
   disputedAt?: string;
 }

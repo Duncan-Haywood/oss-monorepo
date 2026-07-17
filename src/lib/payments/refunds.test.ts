@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { chargeHasRefund, chargePaymentIntentId } from "./refunds";
+import {
+  chargeHasRefund,
+  chargePaymentIntentId,
+  disputeStatusClearsDisputeFlag,
+} from "./refunds";
 
 describe("chargeHasRefund", () => {
   it("is false when amount_refunded is 0", () => {
@@ -52,5 +56,32 @@ describe("chargePaymentIntentId", () => {
 
   it("returns null when the expanded object has no id", () => {
     expect(chargePaymentIntentId({ payment_intent: {} })).toBeNull();
+  });
+});
+
+describe("disputeStatusClearsDisputeFlag", () => {
+  it("is true for won (funds reinstated)", () => {
+    expect(disputeStatusClearsDisputeFlag("won")).toBe(true);
+  });
+
+  it("is true for warning_closed (inquiry closed without chargeback)", () => {
+    expect(disputeStatusClearsDisputeFlag("warning_closed")).toBe(true);
+  });
+
+  it("is false for lost (chargeback stands)", () => {
+    expect(disputeStatusClearsDisputeFlag("lost")).toBe(false);
+  });
+
+  it("is false for open/in-progress statuses", () => {
+    expect(disputeStatusClearsDisputeFlag("needs_response")).toBe(false);
+    expect(disputeStatusClearsDisputeFlag("under_review")).toBe(false);
+    expect(disputeStatusClearsDisputeFlag("warning_needs_response")).toBe(false);
+  });
+
+  it("is false for missing/unknown status", () => {
+    expect(disputeStatusClearsDisputeFlag(undefined)).toBe(false);
+    expect(disputeStatusClearsDisputeFlag(null)).toBe(false);
+    expect(disputeStatusClearsDisputeFlag("")).toBe(false);
+    expect(disputeStatusClearsDisputeFlag("charge_refunded")).toBe(false);
   });
 });

@@ -440,6 +440,7 @@ const api: any = {
     markClientReceiptSent: "commerceOrders:markClientReceiptSent",
     markRefunded: "commerceOrders:markRefunded",
     markDisputed: "commerceOrders:markDisputed",
+    clearDisputed: "commerceOrders:clearDisputed",
   },
   suppressions: {
     isSuppressed: "suppressions:isSuppressed",
@@ -2912,6 +2913,44 @@ export async function markCommerceOrderDisputed(
   db.prepare(
     "UPDATE commerce_orders SET disputedAt = ? WHERE stripeSessionId = ? AND (disputedAt IS NULL OR disputedAt = '')",
   ).run(disputedAt, stripeSessionId);
+}
+
+/**
+ * Clears commerceOrders.disputedAt — called from the Stripe webhook's
+ * charge.dispute.closed handler when status is won / warning_closed (funds
+ * reinstated or never permanently withdrawn). Keyed on stripeSessionId.
+ * Idempotent: a redelivered clear on an already-undisputed row is a no-op.
+ *
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY) so a
+ * Convex mutation failure surfaces (5xx → Stripe retry) instead of SQLite-only
+ * success while Convex-first owed/clawback readers on other instances still
+ * show the order as disputed forever.
+ */
+export async function clearCommerceOrderDisputed(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.clearDisputed, {
+        stripeSessionId,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("clearCommerceOrderDisputed", e);
+      }
+      console.warn(
+        `Failed to clear commerce order ${stripeSessionId} disputed on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE commerce_orders SET disputedAt = NULL WHERE stripeSessionId = ? AND disputedAt IS NOT NULL AND disputedAt != ''",
+  ).run(stripeSessionId);
 }
 
 // --- Client voice FAQ packs (Complete receptionist scripts) ---

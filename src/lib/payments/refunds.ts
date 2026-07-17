@@ -36,6 +36,9 @@ export function chargeHasRefund(charge: {
  * a bare id string or an expanded PaymentIntent object depending on the
  * webhook's expand config. Returns null when absent (charges not created via
  * a PaymentIntent, e.g. some legacy flows) so the caller can skip correlation.
+ *
+ * Also used for Stripe Dispute objects (same payment_intent shape) so
+ * charge.dispute.created / charge.dispute.closed can reuse Session correlation.
  */
 export function chargePaymentIntentId(charge: {
   payment_intent?: string | { id?: string | null } | null;
@@ -53,4 +56,18 @@ export function chargePaymentIntentId(charge: {
     return paymentIntent.id;
   }
   return null;
+}
+
+/**
+ * True when charge.dispute.closed should clear commerceOrders.disputedAt —
+ * Stripe reinstated (or never permanently withdrew) the funds.
+ *
+ * - `won` — operator won the chargeback; funds return to the platform.
+ * - `warning_closed` — early inquiry closed without becoming a full chargeback.
+ *
+ * `lost` (and any other closed status) keeps/ensures disputedAt — money is
+ * permanently gone, same payout-safety exposure as a refund.
+ */
+export function disputeStatusClearsDisputeFlag(status: unknown): boolean {
+  return status === "won" || status === "warning_closed";
 }

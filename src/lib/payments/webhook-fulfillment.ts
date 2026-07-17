@@ -107,7 +107,22 @@ export type WebhookFulfillmentStep =
    * leaving a disputed Buy now order still counted toward the "owed to
    * client" total, or an already-paid-out clawback silently unflagged.
    */
-  | "commerce_order_dispute";
+  | "commerce_order_dispute"
+  /**
+   * Looking up the Checkout Session behind a closed dispute (via
+   * stripe.checkout.sessions.list({ payment_intent })) on
+   * charge.dispute.closed — required so Stripe retries rather than silently
+   * leaving a won dispute still flagged disputedAt (false Mark-paid-out
+   * reject + false clawback debt) because the correlating lookup failed.
+   */
+  | "commerce_order_dispute_closed_session_lookup"
+  /**
+   * Clearing commerceOrders.disputedAt after charge.dispute.closed with
+   * status won / warning_closed — required so Stripe retries rather than
+   * leaving Mark paid out rejected and Dispute clawback needed counting a
+   * false clawback after Stripe reinstated the funds.
+   */
+  | "commerce_order_dispute_clear";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

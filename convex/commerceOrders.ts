@@ -280,3 +280,43 @@ export const listDisputed = query({
       .map(mapOrderRow);
   },
 });
+
+/**
+ * Clears commerceOrders.disputedAt after charge.dispute.closed with status
+ * won / warning_closed — Stripe reinstated (or never permanently withdrew)
+ * the funds, so Mark paid out and owed totals must reopen. Uses replace (not
+ * patch) so the optional field is omitted — matches SQLite NULL and the
+ * orders.clearRecurringCanceledByCustomer pattern. Idempotent: rows without
+ * disputedAt stay. Missing order is a no-op.
+ */
+export const clearDisputed = mutation({
+  args: { stripeSessionId: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (!order || !order.disputedAt) {
+      return null;
+    }
+    // replace so omitted optionals clear — patch(undefined) would leave the field.
+    await ctx.db.replace(order._id, {
+      orderId: order.orderId,
+      leadSlug: order.leadSlug,
+      skuId: order.skuId,
+      skuName: order.skuName,
+      amountPaidUsd: order.amountPaidUsd,
+      stripeSessionId: order.stripeSessionId,
+      createdAt: order.createdAt,
+      ...(order.paidOutAt ? { paidOutAt: order.paidOutAt } : {}),
+      ...(order.clientReceiptEmailSentAt
+        ? { clientReceiptEmailSentAt: order.clientReceiptEmailSentAt }
+        : {}),
+      ...(order.refundedAt ? { refundedAt: order.refundedAt } : {}),
+    });
+    return null;
+  },
+});

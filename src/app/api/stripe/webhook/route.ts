@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import {
+  clearCommerceOrderDisputed,
   clearOrdersRecurringCanceledByCustomer,
   getCommerceOrderByStripeSessionId,
   markCheckoutSessionComplete,
@@ -39,7 +40,11 @@ import { parseLeadSlugLookup } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { isStripeCheckoutCurrencyUsd } from "@/lib/payments/checkout-currency";
 import { isStripeCheckoutSessionPaid } from "@/lib/payments/checkout-payment-status";
-import { chargeHasRefund, chargePaymentIntentId } from "@/lib/payments/refunds";
+import {
+  chargeHasRefund,
+  chargePaymentIntentId,
+  disputeStatusClearsDisputeFlag,
+} from "@/lib/payments/refunds";
 import {
   bundleCatalogPriceIdsFromEnv,
   sessionLineItemsIncludePriceId,
@@ -176,10 +181,16 @@ import {
  * Session, or no ledgered commerce order all skip (bundle order disputes are
  * not handled here — same scope note as refunds). Session-lookup /
  * mark-disputed failures return 5xx (commerce_order_dispute_session_lookup /
- * commerce_order_dispute) so Stripe retries. Dispute *resolution*
- * (charge.dispute.closed — won/lost) is not handled here, same as refund
- * reversal is not handled — a future iteration can add that twin if needed
- * (commerce-order-dispute-clawback-tracking).
+ * commerce_order_dispute) so Stripe retries.
+ *
+ * charge.dispute.closed is the resolution twin: when status is won or
+ * warning_closed, clearCommerceOrderDisputed so Mark paid out and owed totals
+ * reopen after Stripe reinstates (or never permanently withdrew) funds; when
+ * status is lost, ensure disputedAt is set (created may have been missed).
+ * Same Session correlation via payment_intent. Session-lookup / clear /
+ * mark-disputed failures return 5xx (commerce_order_dispute_closed_session_lookup /
+ * commerce_order_dispute_clear / commerce_order_dispute). Bundle order disputes
+ * stay out of scope (commerce-order-dispute-closed-resolution).
  */
 
 /** Webhook revenue path: fail closed when Convex is configured but unreachable. */
@@ -1371,6 +1382,97 @@ export async function POST(request: Request) {
       } catch (e) {
         console.error(
           `Failed to mark commerce order disputed for session ${disputeSession.id} after charge.dispute.created ${dispute.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("commerce_order_dispute");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      break;
+    }
+    case "charge.dispute.closed": {
+      // Resolution twin of charge.dispute.created: won / warning_closed clears
+      // disputedAt (funds reinstated or inquiry closed); lost keeps/ensures it
+      // (commerce-order-dispute-closed-resolution).
+      const closedDispute = event.data.object as Stripe.Dispute;
+      const closedPaymentIntentId = chargePaymentIntentId(closedDispute);
+      if (!closedPaymentIntentId) {
+        console.warn(
+          `webhook: charge.dispute.closed ${closedDispute.id} has no payment_intent — cannot correlate to a Checkout Session, skipping`,
+        );
+        break;
+      }
+      let closedDisputeSessions: Stripe.ApiList<Stripe.Checkout.Session>;
+      try {
+        closedDisputeSessions = await stripe.checkout.sessions.list({
+          payment_intent: closedPaymentIntentId,
+          limit: 1,
+        });
+      } catch (e) {
+        console.error(
+          `Failed to list Checkout Sessions for closed dispute ${closedDispute.charge} (payment_intent=${closedPaymentIntentId})`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse(
+          "commerce_order_dispute_closed_session_lookup",
+        );
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      const closedDisputeSession = closedDisputeSessions.data[0];
+      if (!closedDisputeSession) {
+        console.warn(
+          `webhook: charge.dispute.closed ${closedDispute.id} payment_intent=${closedPaymentIntentId} matched no Checkout Session — not one of our commerce orders, skipping`,
+        );
+        break;
+      }
+      const closedDisputeOrder = await getCommerceOrderByStripeSessionId(
+        closedDisputeSession.id,
+      );
+      if (!closedDisputeOrder) {
+        // Not a commerce_sku Buy now order — no payout-safety ledger to update.
+        break;
+      }
+      if (disputeStatusClearsDisputeFlag(closedDispute.status)) {
+        if (!closedDisputeOrder.disputedAt) {
+          // Already clear (Stripe redelivery, or created never marked) — idempotent.
+          break;
+        }
+        try {
+          await clearCommerceOrderDisputed(
+            closedDisputeSession.id,
+            WEBHOOK_CONVEX_PRIMARY,
+          );
+          console.warn(
+            `webhook: charge.dispute.closed ${closedDispute.id} status=${closedDispute.status} cleared disputed flag for session ${closedDisputeSession.id} (leadSlug=${closedDisputeOrder.leadSlug}, skuId=${closedDisputeOrder.skuId})`,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to clear commerce order disputed for session ${closedDisputeSession.id} after charge.dispute.closed ${closedDispute.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse(
+            "commerce_order_dispute_clear",
+          );
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+        break;
+      }
+      // lost (or any non-clearing closed status): ensure disputedAt is set —
+      // created may have been missed (out-of-order delivery / prior handler gap).
+      if (closedDisputeOrder.disputedAt) {
+        break;
+      }
+      try {
+        await markCommerceOrderDisputed(
+          closedDisputeSession.id,
+          new Date().toISOString(),
+          WEBHOOK_CONVEX_PRIMARY,
+        );
+        console.warn(
+          `webhook: charge.dispute.closed ${closedDispute.id} status=${closedDispute.status} flagged commerce order for session ${closedDisputeSession.id} (leadSlug=${closedDisputeOrder.leadSlug}, skuId=${closedDisputeOrder.skuId}, paidOut=${Boolean(closedDisputeOrder.paidOutAt)})`,
+        );
+      } catch (e) {
+        console.error(
+          `Failed to mark commerce order disputed for session ${closedDisputeSession.id} after charge.dispute.closed ${closedDispute.id}`,
           e,
         );
         const failure = webhookFulfillmentFailureResponse("commerce_order_dispute");

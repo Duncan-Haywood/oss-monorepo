@@ -1420,11 +1420,14 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>listCommerceOrdersDisputed</code> (<code>listUnpaidCommerceOrders</code> drops any
         row once <code>paidOutAt</code> is set and cannot see this case on its own), feeding
         pipeline-health <strong>Refund clawback needed</strong> /{" "}
-        <strong>Dispute clawback needed</strong> cards and matching daily-digest sections. Bundle
+        <strong>Dispute clawback needed</strong> cards and matching daily-digest sections.{" "}
+        <code>charge.dispute.closed</code> is the resolution twin: status <code>won</code> or{" "}
+        <code>warning_closed</code> clears <code>disputedAt</code> via{" "}
+        <code>clearCommerceOrderDisputed</code> (Convex replace omit + SQLite NULL) so Mark paid
+        out and owed totals reopen after Stripe reinstates funds; status <code>lost</code> keeps
+        or ensures <code>disputedAt</code> (created may have been missed). Bundle
         (Starter/Growth/Complete) order refunds/disputes are not handled here — that ledger has no
-        manual-payout double-loss risk today. Dispute <em>resolution</em> (
-        <code>charge.dispute.closed</code> — won/lost) is not handled — a disputed order stays
-        flagged even if the dispute is later won back in the operator&apos;s favor.
+        manual-payout double-loss risk today.
       </p>
 
       <h2>Tech stack</h2>
