@@ -2543,6 +2543,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-919a",
   },
+  {
+    id: "bundle-paid-orphan-open-checkout-session-cleanup",
+    summary:
+      "Empty-backlog after PR #339 (subscription catalog recurring portal gate). Sibling prompt-process-evolution-bd71 claimed billing-portal-lead-catalog-recurring-price-gate — complementary pivot. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh sold residual: paid bundle checkout.session.completed / async_payment_succeeded only markComplete the paid stripeSessionId, so earlier abandoned open bundle checkout_sessions for the same leadSlug stay open and Finish-checkout / digest / pipeline-health can nudge an already-paid customer. On paid bundle fulfillment, markComplete other open bundle rows for that leadSlug (never commerce_sku siblings — multi-shopper carts). Starter→Growth upsell after pay mints a new Session.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-d5f3",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
