@@ -5,6 +5,9 @@
  * Starter-upsell mutual exclusion still treat historical recurring purchases
  * as non-Starter. customer.subscription.created|updated with status
  * active|trialing clears recurringCanceledAt so resubscribers regain packs.
+ * past_due|unpaid subscription.updated and invoice.payment_failed (subscription
+ * invoices) re-mark recurringCanceledAt so failed renewals pause packs until
+ * payment recovers to active|trialing.
  */
 
 /** True when the order ever carried a Growth/Complete/Commerce recurring Price. */
@@ -39,12 +42,41 @@ export function orderHasActiveRecurringEntitlement(order: {
 
 /**
  * Stripe Subscription statuses that restore CRM recurring entitlement after a
- * prior customer.subscription.deleted. past_due / unpaid stay canceled in CRM
- * until payment recovers to active|trialing (invoice.payment_failed pause is a
- * separate residual — do not clear on those statuses).
+ * prior customer.subscription.deleted or past_due/unpaid pause. past_due /
+ * unpaid must not clear — they pause via stripeSubscriptionPausesRecurringEntitlement.
  */
 export function stripeSubscriptionGrantsRecurringEntitlement(
   status: string | null | undefined,
 ): boolean {
   return status === "active" || status === "trialing";
+}
+
+/**
+ * Stripe Subscription statuses that pause CRM recurring entitlement while the
+ * customer still has a Subscription (failed renewal before cancel). Reuses
+ * orders.recurringCanceledAt; active|trialing clear restores after recovery.
+ * canceled/incomplete are handled by subscription.deleted / skip (not pause).
+ */
+export function stripeSubscriptionPausesRecurringEntitlement(
+  status: string | null | undefined,
+): boolean {
+  return status === "past_due" || status === "unpaid";
+}
+
+/**
+ * True when an invoice.payment_failed event is tied to a Subscription (not a
+ * one-time invoice). Only subscription renewals should pause packs/catalog.
+ */
+export function invoicePaymentFailedPausesRecurringEntitlement(invoice: {
+  subscription?: unknown;
+}): boolean {
+  const sub = invoice.subscription;
+  if (typeof sub === "string") {
+    return sub.trim().length > 0;
+  }
+  if (sub && typeof sub === "object" && "id" in sub) {
+    const id = (sub as { id: unknown }).id;
+    return typeof id === "string" && id.trim().length > 0;
+  }
+  return false;
 }
