@@ -2886,6 +2886,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "codex/continuous-work-bundle-email-unexpected-error",
   },
+  {
+    id: "email-subject-control-character-sanitization",
+    summary:
+      "Security audit: strip CR/LF and other control characters from outbound email subjects before handing them to the provider, so client-controlled business and SKU names cannot create malformed or deceptive subject lines.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "codex/dev-work-email-subject-control",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5893,6 +5901,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "The bundle checkout webhook must return its structured 5xx fulfillment response when the receipt/DNS email orchestration catch sees an unexpected formatter or import error; logging and acknowledging 200 would leave missing durable sent-markers unrecoverable because Stripe may not redeliver an acknowledged event.",
     rationale:
       "A follow-up audit after webhook-email-send-failure-retry found that resolved send failures, thrown send failures, and marker-write failures already returned 5xx, but the outer catch around the dynamic email imports and formatting still only logged. Fail closed at this final boundary so every failure shape preserves the existing independent-marker redelivery contract.",
+  },
+  {
+    id: "email-subject-control-character-sanitization",
+    date: "2026-07-17",
+    decision:
+      "Normalize every outbound email subject at the shared sendEmail boundary by replacing control characters with spaces, collapsing whitespace, trimming, and falling back to a safe generic subject when empty.",
+    rationale:
+      "Business names, SKU names, brand configuration, and other operator/client-controlled values feed provider-facing subjects. Central normalization keeps subjects single-line and printable across all send helpers, including mock mode and the operator digest, without depending on each template to remember the security rule.",
   },
 ];
 
@@ -12095,6 +12111,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "bundle-email-unexpected-error-retry",
+    ),
+  },
+  {
+    date: "2026-07-17",
+    branch: "codex/dev-work-email-subject-control",
+    summary:
+      "Empty-backlog after PR #379 (webhook-email-send-failure-retry). The four remaining NEXT_STEPS stayed operator/legal-gated, and the remote fold scan found no newer complete unmerged feature body. A fresh email security audit found that client/operator-controlled business names, SKU names, and brand values flowed into provider-facing subjects without control-character normalization. HTML bodies were escaped, but CR/LF and other controls could produce malformed or deceptive subject lines depending on provider parsing. Shipped a shared sendEmail boundary sanitizer that replaces controls with spaces, collapses whitespace, trims, and falls back to 'Notification' when empty; operator digest subjects use the same normalization.",
+    shipped: [
+      "src/lib/email/resend.ts — add sanitizeEmailSubject and apply it to sendEmail provider payloads/mock logs and operator digest subjects",
+      "src/lib/email/resend.test.ts — cover direct CR/LF/control-character normalization and dynamic business-name subject sanitization",
+      "src/lib/process/prompt_process.tsx — mark NEXT_STEPS email-subject-control-character-sanitization done and append the id-based business decision",
+      "Process: pushed the in_progress claim commit before the feature body; no operator-gated item was changed",
+      "Verified: focused resend suite (26 passed), full npm test (1967 passed across 153 files), npm run lint (clean), and npm run build under Node v22.23.1 (TypeScript clean, all 31 routes generated). Node 20 cannot load the repo's node:sqlite dependency, so the initial build was rerun with the available Node 22 runtime.",
+      "PR handoff: branch pushed, but both gh pr create and the REST pull-request endpoint were rejected with GitHub Actions token policy 'GitHub Actions is not permitted to create or approve pull requests' (HTTP 403).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "email-subject-control-character-sanitization",
     ),
   },
 ];
