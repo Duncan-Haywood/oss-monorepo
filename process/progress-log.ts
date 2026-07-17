@@ -498,4 +498,19 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): call recentlyConfirmedWithinHours(3) first. If true and nothing new, do the cheap check only and stop — do not push a branch just to restate this entry. If a genuine human-blocker resolution or new business-relevant finding shows up, that still always warrants a real progress-log entry regardless of the throttle window.",
     ],
   },
+  {
+    date: "2026-07-17",
+    agent: "claude/dazzling-allen-on504g",
+    summary:
+      "recentlyConfirmedWithinHours(3) was true (blockers last confirmed 51 minutes earlier by PR #39) and the cheap check found nothing new (leads-log.ts/listingAuditLog/loggedInterviewResults still empty, nextActionableTasks() still empty, PR #4 still the only open PR, still draft/unchanged) — so per prompt_process.tsx step 0a, no full re-verification pass or 'still blocked' branch was warranted on its own. Instead used the session to finish work the stale-branch-cleanup blocker's own text had flagged as incomplete: every prior session had only spot-checked 5 of the ~20 dazzling-allen-* branches for unique content, extrapolating to the other ~30+ non-main branches rather than actually checking them. Audited all 36 non-main branches this time, using a better method than the diff --stat one blockers.ts previously recommended (which false-positives on every stale branch since main has moved on): `git log origin/main..origin/<branch> --oneline` to list each branch's own unmerged commits, then cross-referenced every one of those commit subjects against `git log origin/main --oneline` by hand. Result: zero branches contain business value not already on main — every unique-looking commit subject turned out to match an already-merged main commit under near-identical wording (checklist-scaling/gate-sequencing/on-device-vs-cloud/capture-time/blocker-recheck variants all included), except cursor/fix-pages-access-4a7e, which is the already-tracked live PR #4. This closes the open question of whether any of the ~35 stale-looking branches might be hiding real unmerged work.",
+    changes: [
+      "process/blockers.ts: stale-branch-cleanup entry rewritten from 'spot-checked 5 of the ~20' to a full audit of all 36, with the corrected branch count (36, up 1) and the better diff methodology documented so a future session doesn't need to redo the exhaustive per-branch check unless the branch count itself changes. Bumped lastConfirmed/lastConfirmedAt/confirmedByCount on all 6 blockers (all independently re-verified true this session, not just carried forward).",
+      "No roadmap.ts or decisions-log.ts change — no task status flipped and no product/business decision made, just process rigor (closing a known gap in evidence quality for an existing blocker).",
+      "Verified: docs-site/ `npm run build` (imports prompt_process.tsx, which imports blockers.ts, so this type-checks the edits) passes clean; pipeline/ and research/ untouched, not rebuilt. Checked open PRs via the GitHub MCP server (list_pull_requests) — only #4 open, unrelated files, still draft/unchanged.",
+    ],
+    nextUp: [
+      "Human: same six items as every recent session remain the highest-leverage next steps — see blockers.ts (first concierge delivery, phase-1 interviews, Zillow listing audit, Cloudflare Access dashboard toggle + merge PR #4, confirm the Zelle/PayPal payment handle actually receives funds, and reconsider the cron cadence now that this has been true for over a month straight).",
+      "Agent (next session): the stale-branch audit is now exhaustive as of this session — no need to re-spot-check individual branches again unless `git ls-remote --heads origin`'s branch count changes from 36, in which case only the new branch(es) need the same commit-subject cross-reference, not the full set again.",
+    ],
+  },
 ];
