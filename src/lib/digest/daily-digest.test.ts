@@ -811,6 +811,48 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceOrdersRefundClawback).toHaveLength(0);
     expect(digest.commerceOrdersRefundClawbackCount).toBe(0);
     expect(digest.commerceOrdersRefundClawbackTotalUsd).toBe(0);
+    expect(digest.oldestCommerceOrdersRefundClawbackAgeHours).toBeNull();
+  });
+
+  it("computes oldestCommerceOrdersRefundClawbackAgeHours from the oldest refund-clawback order", () => {
+    const cafe = baseLead({
+      slug: "clawback-cafe",
+      businessName: "Clawback Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersRefunded: [
+        {
+          id: "co_recent",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_muffin",
+          skuName: "Muffin",
+          amountPaidUsd: 5,
+          stripeSessionId: "cs_recent",
+          createdAt: "2026-07-05T00:00:00.000Z",
+          paidOutAt: "2026-07-05T01:00:00.000Z",
+          refundedAt: "2026-07-05T10:00:00.000Z",
+        },
+        {
+          id: "co_old",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_old",
+          createdAt: "2026-06-30T00:00:00.000Z",
+          paidOutAt: "2026-06-30T01:00:00.000Z",
+          refundedAt: "2026-06-30T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    // Oldest refundedAt is 2026-06-30T00:00, ~300h before NOW.
+    expect(digest.oldestCommerceOrdersRefundClawbackAgeHours).toBeGreaterThanOrEqual(280);
+    expect(digest.oldestCommerceOrdersRefundClawbackAgeHours).toBeLessThanOrEqual(312);
   });
 
   it("surfaces dispute-after-payout as a clawback owed from the client", () => {
@@ -871,6 +913,48 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceOrdersDisputeClawback).toHaveLength(0);
     expect(digest.commerceOrdersDisputeClawbackCount).toBe(0);
     expect(digest.commerceOrdersDisputeClawbackTotalUsd).toBe(0);
+    expect(digest.oldestCommerceOrdersDisputeClawbackAgeHours).toBeNull();
+  });
+
+  it("computes oldestCommerceOrdersDisputeClawbackAgeHours from the oldest dispute-clawback order", () => {
+    const cafe = baseLead({
+      slug: "clawback-cafe",
+      businessName: "Clawback Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersDisputed: [
+        {
+          id: "co_recent",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_muffin",
+          skuName: "Muffin",
+          amountPaidUsd: 5,
+          stripeSessionId: "cs_recent",
+          createdAt: "2026-07-05T00:00:00.000Z",
+          paidOutAt: "2026-07-05T01:00:00.000Z",
+          disputedAt: "2026-07-05T10:00:00.000Z",
+        },
+        {
+          id: "co_old",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_old",
+          createdAt: "2026-06-30T00:00:00.000Z",
+          paidOutAt: "2026-06-30T01:00:00.000Z",
+          disputedAt: "2026-06-30T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    // Oldest disputedAt is 2026-06-30T00:00, ~300h before NOW.
+    expect(digest.oldestCommerceOrdersDisputeClawbackAgeHours).toBeGreaterThanOrEqual(280);
+    expect(digest.oldestCommerceOrdersDisputeClawbackAgeHours).toBeLessThanOrEqual(312);
   });
 
   it("surfaces refunded bundle orders as a visibility footnote, not a clawback", () => {
@@ -924,6 +1008,38 @@ describe("buildDailyDigest", () => {
     expect(digest.bundleOrdersRefunded).toHaveLength(0);
     expect(digest.bundleOrdersRefundedCount).toBe(0);
     expect(digest.bundleOrdersRefundedTotalUsd).toBe(0);
+    expect(digest.oldestBundleOrdersRefundedAgeHours).toBeNull();
+  });
+
+  it("computes oldestBundleOrdersRefundedAgeHours from the oldest refunded bundle order", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({ slug: "refund-cafe-1", businessName: "Refund Cafe 1", stage: "live" }),
+        baseLead({ slug: "refund-cafe-2", businessName: "Refund Cafe 2", stage: "live" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "refund-cafe-1",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          refundedAt: "2026-07-05T00:00:00.000Z",
+        },
+        {
+          leadSlug: "refund-cafe-2",
+          tier: "starter",
+          commerceAddon: false,
+          amountPaid: 100,
+          refundedAt: "2026-06-30T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    // Oldest refundedAt is 2026-06-30T00:00, ~300h before NOW.
+    expect(digest.oldestBundleOrdersRefundedAgeHours).toBeGreaterThanOrEqual(280);
+    expect(digest.oldestBundleOrdersRefundedAgeHours).toBeLessThanOrEqual(312);
   });
 
   it("lists disputed bundle orders with pre-slice count and total", () => {
@@ -971,6 +1087,38 @@ describe("buildDailyDigest", () => {
     expect(digest.bundleOrdersDisputed).toHaveLength(0);
     expect(digest.bundleOrdersDisputedCount).toBe(0);
     expect(digest.bundleOrdersDisputedTotalUsd).toBe(0);
+    expect(digest.oldestBundleOrdersDisputedAgeHours).toBeNull();
+  });
+
+  it("computes oldestBundleOrdersDisputedAgeHours from the oldest disputed bundle order", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({ slug: "dispute-cafe-1", businessName: "Dispute Cafe 1", stage: "live" }),
+        baseLead({ slug: "dispute-cafe-2", businessName: "Dispute Cafe 2", stage: "live" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "dispute-cafe-1",
+          tier: "complete",
+          commerceAddon: false,
+          amountPaid: 500,
+          disputedAt: "2026-07-05T00:00:00.000Z",
+        },
+        {
+          leadSlug: "dispute-cafe-2",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          disputedAt: "2026-06-30T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    // Oldest disputedAt is 2026-06-30T00:00, ~300h before NOW.
+    expect(digest.oldestBundleOrdersDisputedAgeHours).toBeGreaterThanOrEqual(280);
+    expect(digest.oldestBundleOrdersDisputedAgeHours).toBeLessThanOrEqual(312);
   });
 
   it("lists open production handoffs (status !== live) oldest-first and skips live", () => {
@@ -1688,6 +1836,64 @@ describe("renderDailyDigestHtml", () => {
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).toContain("Follow-ups due (1 · oldest");
     expect(html).toContain("h)");
+  });
+
+  it("shows oldest age in the refund/dispute clawback and bundle refund/dispute section headers", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({ slug: "clawback-cafe", businessName: "Clawback Cafe", stage: "live" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersRefunded: [
+        {
+          id: "co_refund",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_refund",
+          createdAt: "2026-07-05T00:00:00.000Z",
+          paidOutAt: "2026-07-05T01:00:00.000Z",
+          refundedAt: "2026-07-05T10:00:00.000Z",
+        },
+      ],
+      commerceOrdersDisputed: [
+        {
+          id: "co_dispute",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_muffin",
+          skuName: "Muffin",
+          amountPaidUsd: 5,
+          stripeSessionId: "cs_dispute",
+          createdAt: "2026-07-05T00:00:00.000Z",
+          paidOutAt: "2026-07-05T01:00:00.000Z",
+          disputedAt: "2026-07-05T10:00:00.000Z",
+        },
+      ],
+      orders: [
+        {
+          leadSlug: "clawback-cafe",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 300,
+          refundedAt: "2026-07-05T00:00:00.000Z",
+        },
+        {
+          leadSlug: "clawback-cafe",
+          tier: "complete",
+          commerceAddon: false,
+          amountPaid: 500,
+          disputedAt: "2026-07-05T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Refund clawback needed ($12.50 · 1 order · oldest");
+    expect(html).toContain("Dispute clawback needed ($5.00 · 1 order · oldest");
+    expect(html).toContain("Bundle revenue refunded ($300.00 · 1 order · oldest");
+    expect(html).toContain("Bundle revenue disputed ($500.00 · 1 order · oldest");
   });
 
   it("shows a closed lead footnote when there are closed leads and nothing else is urgent", () => {

@@ -285,12 +285,16 @@ export interface DailyDigest {
   commerceOrdersRefundClawbackCount: number;
   /** Sum of amountPaidUsd across commerceOrdersRefundClawbackCount orders — already computed pre-slice. */
   commerceOrdersRefundClawbackTotalUsd: number;
+  /** Age in whole hours of the oldest refund-clawback order (by refundedAt); null when none. */
+  oldestCommerceOrdersRefundClawbackAgeHours: number | null;
   /** Commerce orders disputed after payout — clawback owed from the client (action section). */
   commerceOrdersDisputeClawback: DigestCommerceOrderDisputeClawback[];
   /** True count before the COMMERCE_DISPUTE_CLAWBACK_LIMIT slice — use for the section header. */
   commerceOrdersDisputeClawbackCount: number;
   /** Sum of amountPaidUsd across commerceOrdersDisputeClawbackCount orders — already computed pre-slice. */
   commerceOrdersDisputeClawbackTotalUsd: number;
+  /** Age in whole hours of the oldest dispute-clawback order (by disputedAt); null when none. */
+  oldestCommerceOrdersDisputeClawbackAgeHours: number | null;
   /**
    * Bundle (Starter/Growth/Complete/Commerce-addon) orders Stripe refunded —
    * visibility footnote, not an action section (no clawback owed on this
@@ -301,6 +305,8 @@ export interface DailyDigest {
   bundleOrdersRefundedCount: number;
   /** Sum of amountPaidUsd across bundleOrdersRefundedCount orders — already computed pre-slice. */
   bundleOrdersRefundedTotalUsd: number;
+  /** Age in whole hours of the oldest refunded bundle order (by refundedAt); null when none. */
+  oldestBundleOrdersRefundedAgeHours: number | null;
   /**
    * Bundle orders Stripe disputed — visibility footnote (see
    * bundle-order-dispute-tracking). Cleared on dispute.closed won.
@@ -310,6 +316,8 @@ export interface DailyDigest {
   bundleOrdersDisputedCount: number;
   /** Sum of amountPaidUsd across bundleOrdersDisputedCount orders — already computed pre-slice. */
   bundleOrdersDisputedTotalUsd: number;
+  /** Age in whole hours of the oldest disputed bundle order (by disputedAt); null when none. */
+  oldestBundleOrdersDisputedAgeHours: number | null;
   /**
    * Paid sites still awaiting DNS / Mark live — same status !== "live" filter as
    * pipeline-health openHandoffCount (action section).
@@ -636,6 +644,16 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         amountPaidUsd: order.amountPaidUsd,
         refundedAt: order.refundedAt ?? "",
       }));
+  const oldestCommerceOrdersRefundClawbackAgeHours: number | null = (() => {
+    let oldestMs = Infinity;
+    for (const order of commerceOrdersRefundClawbackAll) {
+      if (!order.refundedAt) continue;
+      const parsed = Date.parse(order.refundedAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
 
   // Dispute-after-payout clawback — distinct feed from commerceOrders above,
   // which drops any row once paidOutAt is set (see
@@ -658,6 +676,16 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         amountPaidUsd: order.amountPaidUsd,
         disputedAt: order.disputedAt ?? "",
       }));
+  const oldestCommerceOrdersDisputeClawbackAgeHours: number | null = (() => {
+    let oldestMs = Infinity;
+    for (const order of commerceOrdersDisputeClawbackAll) {
+      if (!order.disputedAt) continue;
+      const parsed = Date.parse(order.disputedAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
 
   // Bundle order refunds — visibility footnote, not a clawback action (no
   // payout-panel double-loss risk on this ledger; see
@@ -679,6 +707,15 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       amountPaidUsd: typeof order.amountPaid === "number" ? order.amountPaid : 0,
       refundedAt: order.refundedAt,
     }));
+  const oldestBundleOrdersRefundedAgeHours: number | null = (() => {
+    let oldestMs = Infinity;
+    for (const order of bundleOrdersRefundedAll) {
+      const parsed = Date.parse(order.refundedAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
 
   // Bundle order disputes — same visibility footnote shape
   // (bundle-order-dispute-tracking).
@@ -699,6 +736,15 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       amountPaidUsd: typeof order.amountPaid === "number" ? order.amountPaid : 0,
       disputedAt: order.disputedAt,
     }));
+  const oldestBundleOrdersDisputedAgeHours: number | null = (() => {
+    let oldestMs = Infinity;
+    for (const order of bundleOrdersDisputedAll) {
+      const parsed = Date.parse(order.disputedAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
 
   // Same status !== "live" predicate as pipeline-health openHandoffCount.
   const openHandoffsAll = handoffs
@@ -837,15 +883,19 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceOrdersRefundClawback,
     commerceOrdersRefundClawbackCount,
     commerceOrdersRefundClawbackTotalUsd,
+    oldestCommerceOrdersRefundClawbackAgeHours,
     commerceOrdersDisputeClawback,
     commerceOrdersDisputeClawbackCount,
     commerceOrdersDisputeClawbackTotalUsd,
+    oldestCommerceOrdersDisputeClawbackAgeHours,
     bundleOrdersRefunded,
     bundleOrdersRefundedCount,
     bundleOrdersRefundedTotalUsd,
+    oldestBundleOrdersRefundedAgeHours,
     bundleOrdersDisputed,
     bundleOrdersDisputedCount,
     bundleOrdersDisputedTotalUsd,
+    oldestBundleOrdersDisputedAgeHours,
     openHandoffs,
     openHandoffsCount,
     paidNotLive,
@@ -990,7 +1040,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   );
   const clawbackTitle =
     digest.commerceOrdersRefundClawbackCount > 0
-      ? `Refund clawback needed ($${digest.commerceOrdersRefundClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersRefundClawbackCount} order${digest.commerceOrdersRefundClawbackCount === 1 ? "" : "s"})`
+      ? `Refund clawback needed ($${digest.commerceOrdersRefundClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersRefundClawbackCount} order${digest.commerceOrdersRefundClawbackCount === 1 ? "" : "s"}${digest.oldestCommerceOrdersRefundClawbackAgeHours !== null ? ` · oldest ${digest.oldestCommerceOrdersRefundClawbackAgeHours}h` : ""})`
       : "Refund clawback needed (0)";
 
   const disputeClawbackRows = digest.commerceOrdersDisputeClawback.map(
@@ -999,7 +1049,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   );
   const disputeClawbackTitle =
     digest.commerceOrdersDisputeClawbackCount > 0
-      ? `Dispute clawback needed ($${digest.commerceOrdersDisputeClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersDisputeClawbackCount} order${digest.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"})`
+      ? `Dispute clawback needed ($${digest.commerceOrdersDisputeClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersDisputeClawbackCount} order${digest.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"}${digest.oldestCommerceOrdersDisputeClawbackAgeHours !== null ? ` · oldest ${digest.oldestCommerceOrdersDisputeClawbackAgeHours}h` : ""})`
       : "Dispute clawback needed (0)";
 
   const bundleRefundRows = digest.bundleOrdersRefunded.map(
@@ -1008,7 +1058,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   );
   const bundleRefundTitle =
     digest.bundleOrdersRefundedCount > 0
-      ? `Bundle revenue refunded ($${digest.bundleOrdersRefundedTotalUsd.toFixed(2)} · ${digest.bundleOrdersRefundedCount} order${digest.bundleOrdersRefundedCount === 1 ? "" : "s"})`
+      ? `Bundle revenue refunded ($${digest.bundleOrdersRefundedTotalUsd.toFixed(2)} · ${digest.bundleOrdersRefundedCount} order${digest.bundleOrdersRefundedCount === 1 ? "" : "s"}${digest.oldestBundleOrdersRefundedAgeHours !== null ? ` · oldest ${digest.oldestBundleOrdersRefundedAgeHours}h` : ""})`
       : "Bundle revenue refunded (0)";
 
   const bundleDisputeRows = digest.bundleOrdersDisputed.map(
@@ -1017,7 +1067,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   );
   const bundleDisputeTitle =
     digest.bundleOrdersDisputedCount > 0
-      ? `Bundle revenue disputed ($${digest.bundleOrdersDisputedTotalUsd.toFixed(2)} · ${digest.bundleOrdersDisputedCount} order${digest.bundleOrdersDisputedCount === 1 ? "" : "s"})`
+      ? `Bundle revenue disputed ($${digest.bundleOrdersDisputedTotalUsd.toFixed(2)} · ${digest.bundleOrdersDisputedCount} order${digest.bundleOrdersDisputedCount === 1 ? "" : "s"}${digest.oldestBundleOrdersDisputedAgeHours !== null ? ` · oldest ${digest.oldestBundleOrdersDisputedAgeHours}h` : ""})`
       : "Bundle revenue disputed (0)";
 
   const handoffRows = digest.openHandoffs.map(
