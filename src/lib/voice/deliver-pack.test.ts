@@ -49,6 +49,24 @@ describe("leadEligibleForClientVoicePackDelivery", () => {
       ),
     ).toBe(false);
   });
+
+  it("rejects Complete orders after recurringCanceledAt", () => {
+    expect(
+      leadEligibleForClientVoicePackDelivery(
+        { stage: "paid", email: "a@example.com" },
+        [{ tier: "complete", recurringCanceledAt: 1_720_000_000_000 }],
+      ),
+    ).toBe(false);
+    expect(
+      leadEligibleForClientVoicePackDelivery(
+        { stage: "paid", email: "a@example.com" },
+        [
+          { tier: "complete", recurringCanceledAt: 1_720_000_000_000 },
+          { tier: "complete" },
+        ],
+      ),
+    ).toBe(true);
+  });
 });
 
 describe("clientVoicePackDeliverySubject", () => {

@@ -18,7 +18,7 @@ import type { MarketingContentVariant } from "./types";
  */
 export function leadEligibleForMarketingPackDelivery(
   lead: { stage: LeadPipelineStage; email?: string | null },
-  orders: ReadonlyArray<{ tier: string }>,
+  orders: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
 ): boolean {
   if (!leadEligibleForMarketingPack(lead, orders)) return false;
   return Boolean(lead.email && lead.email.trim().length > 0);

@@ -18,7 +18,7 @@ import type { ClientVoiceScriptVariant } from "./types";
  */
 export function leadEligibleForClientVoicePackDelivery(
   lead: { stage: LeadPipelineStage; email?: string | null },
-  orders: ReadonlyArray<{ tier: string }>,
+  orders: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
 ): boolean {
   if (!leadEligibleForClientVoicePack(lead, orders)) return false;
   return Boolean(lead.email && lead.email.trim().length > 0);

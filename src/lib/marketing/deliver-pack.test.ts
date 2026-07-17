@@ -49,6 +49,24 @@ describe("leadEligibleForMarketingPackDelivery", () => {
       ),
     ).toBe(false);
   });
+
+  it("rejects Growth/Complete orders after recurringCanceledAt", () => {
+    expect(
+      leadEligibleForMarketingPackDelivery(
+        { stage: "paid", email: "a@example.com" },
+        [{ tier: "growth", recurringCanceledAt: 1_720_000_000_000 }],
+      ),
+    ).toBe(false);
+    expect(
+      leadEligibleForMarketingPackDelivery(
+        { stage: "paid", email: "a@example.com" },
+        [
+          { tier: "complete", recurringCanceledAt: 1_720_000_000_000 },
+          { tier: "growth" },
+        ],
+      ),
+    ).toBe(true);
+  });
 });
 
 describe("marketingPackDeliverySubject", () => {

@@ -84,7 +84,11 @@ export function listCommerceCatalogsUnsynced<
   T extends { slug: string; stage: LeadPipelineStage },
 >(
   leads: T[],
-  orders: ReadonlyArray<{ leadSlug: string; commerceAddon: boolean }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    commerceAddon: boolean;
+    recurringCanceledAt?: number | null;
+  }>,
   catalogs: ReadonlyArray<{
     leadSlug: string;
     items: ReadonlyArray<{ stripePriceId?: string }>;

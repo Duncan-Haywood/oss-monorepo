@@ -154,6 +154,34 @@ describe("listCommerceCatalogsUnsynced", () => {
     ).toEqual(["partial", "unsynced"]);
   });
 
+  it("excludes unsynced catalogs when the only commerceAddon order is recurringCanceledAt", () => {
+    const leads = [
+      { slug: "paused-unsynced", stage: "paid" as const },
+      { slug: "active-unsynced", stage: "paid" as const },
+    ];
+    const orders = [
+      {
+        leadSlug: "paused-unsynced",
+        commerceAddon: true,
+        recurringCanceledAt: 1_720_000_000_000,
+      },
+      { leadSlug: "active-unsynced", commerceAddon: true },
+    ];
+    const catalogs = [
+      {
+        leadSlug: "paused-unsynced",
+        items: [{ id: "a", name: "A", priceCents: 100 }],
+      },
+      {
+        leadSlug: "active-unsynced",
+        items: [{ id: "b", name: "B", priceCents: 200 }],
+      },
+    ];
+    expect(
+      listCommerceCatalogsUnsynced(leads, orders, catalogs).map((l) => l.slug),
+    ).toEqual(["active-unsynced"]);
+  });
+
   it("truncating catalogs to newest N hides an older unsynced catalog (false all-synced)", () => {
     const unsyncedOld = { slug: "old-unsynced", stage: "paid" as const };
     const filler = Array.from({ length: 5 }, (_, i) => ({

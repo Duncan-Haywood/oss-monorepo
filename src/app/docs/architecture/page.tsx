@@ -570,7 +570,13 @@ export default function ArchitectureDocPage() {
         <code>listCommerceAbandonedCheckoutsDue</code>&apos;s{" "}
         <code>eligibleLeadSlugs</code> arg is required at the type level (empty
         set fails closed) so a future caller cannot omit the filter and reopen
-        allow-all recovery debt.{" "}
+        allow-all recovery debt. Helpers that call those entitlement predicates
+        (<code>leadEligibleForMarketingPackDelivery</code>,{" "}
+        <code>leadEligibleForClientVoicePackDelivery</code>,{" "}
+        <code>listCommerceCatalogsUnsynced</code>) must type their{" "}
+        <code>orders</code> args with <code>recurringCanceledAt?</code> too —
+        structural omit of the CRM pause field is the same silent-reopen class
+        as an optional entitlement Set.{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}
