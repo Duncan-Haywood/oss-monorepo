@@ -10923,7 +10923,7 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-17",
     branch: "cursor/prompt-process-evolution-8b08",
     summary:
-      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh twin residual: active|trialing clear restored packs after cancel, but past_due|unpaid renewals and invoice.payment_failed never paused CRM — failed card renewals kept marketing/voice/catalog until hard cancel. Shipped pause via markOrdersRecurringCanceledByCustomer on subscription.updated past_due|unpaid + invoice.payment_failed (subscription invoices only); helpers + Vitest + architecture note; process now requires pause twin immediately after reactivate clear.",
+      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh twin residual: active|trialing clear restored packs after cancel, but past_due|unpaid renewals and invoice.payment_failed never paused CRM — failed card renewals kept marketing/voice/catalog until hard cancel. Shipped pause via markOrdersRecurringCanceledByCustomer on subscription.updated past_due|unpaid + invoice.payment_failed (subscription invoices only); helpers + Vitest + architecture note; process now requires pause twin immediately after reactivate clear. Merged to main as PR #346 — this ITERATION kept when folding onto business-process-evolution-13bc.",
     shipped: [
       "src/lib/orders/recurring.ts (+ test) — stripeSubscriptionPausesRecurringEntitlement + invoicePaymentFailedPausesRecurringEntitlement",
       "src/app/api/stripe/webhook/route.ts — past_due|unpaid + invoice.payment_failed → CRM pause (orders_recurring_canceled 5xx)",
@@ -10933,7 +10933,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: invoice-payment-failed-past-due-crm-pause done",
       "BUSINESS_DECISIONS — require past_due/unpaid + invoice.payment_failed CRM pause (absolute index 395)",
       "Process: object-parse by decision text (reactivate clear=394) before appending ours; claim pushed before feature body; patched agent-hooks secret-name filter for CLOUD_AGENT_INJECTED_SECRET_NAMES labels",
-      "Verified: npm test (1724 passed) + lint",
+      "Verified: npm test (1724 passed) + lint; later main merge as PR #346",
     ],
     // Object-parse by decision text: past_due/invoice pause owns BD[395]; reactivate clear=394.
     decisions: BUSINESS_DECISIONS.slice(395, 396),
@@ -10942,21 +10942,21 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-17",
     branch: "cursor/business-process-evolution-13bc",
     summary:
-      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Sibling prompt-process-evolution-8b08 claimed + shipped invoice-payment-failed-past-due-crm-pause — complementary pivot; folded their feature body. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: Stripe pause_collection keeps status=active|trialing while collection is paused, so the grants-first clear path restored/kept packs for non-paying paused subscribers. Shipped stripeSubscriptionHasPauseCollection + webhook pause before clear; Vitest + architecture note; process now requires pause_collection twin immediately after past_due pause.",
+      "Empty-backlog after PR #345 (customer-subscription-reactivated-crm-sync). Sibling prompt-process-evolution-8b08 claimed + shipped invoice-payment-failed-past-due-crm-pause (PR #346) — complementary pivot; folded their feature body then merged origin/main. Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual: Stripe pause_collection keeps status=active|trialing while collection is paused, so the grants-first clear path restored/kept packs for non-paying paused subscribers. Shipped stripeSubscriptionHasPauseCollection + webhook pause before clear; Vitest + architecture note; process now requires pause_collection twin immediately after past_due pause.",
     shipped: [
       "merge: sibling prompt-process-evolution-8b08 past_due/invoice.payment_failed CRM pause — keep both NEXT_STEPS/ITERATIONS",
+      "merge: origin/main after PR #346 — resolve process conflicts; restore 8b08+13bc ITERATIONS",
       "src/lib/orders/recurring.ts (+ test) — stripeSubscriptionHasPauseCollection",
       "src/app/api/stripe/webhook/route.ts — pause_collection → CRM pause before active|trialing clear",
       "Vitest: webhook active+pause_collection / trialing+pause_collection regressions (no clear)",
       "Docs: architecture.tsx notes pause_collection beside past_due/invoice pause",
       "AGENT_PROTOCOL — after past_due pause, immediately close pause_collection twin (status-active hole)",
-      "NEXT_STEPS: subscription-pause-collection-crm-pause done; invoice-payment-failed-past-due-crm-pause done (8b08)",
+      "NEXT_STEPS: subscription-pause-collection-crm-pause done; invoice-payment-failed-past-due-crm-pause done (8b08/#346)",
       "BUSINESS_DECISIONS — require pause_collection CRM pause (absolute index 396)",
-      "Process: object-parse by decision text (past_due pause=395) before appending ours; claim pushed before feature body; same-minute coop fold of 8b08; remapped BD slices 388–396 after append",
+      "Process: object-parse by decision text (past_due pause=395) before appending ours; claim pushed before feature body; same-minute coop fold of 8b08; remapped BD slices after main merge",
       "Verified: npm test (1728 passed = sibling 1724 + 2 pause_collection helper + 2 webhook regressions) + lint",
     ],
     // Object-parse by decision text: pause_collection CRM pause owns BD[396]; past_due/invoice=395.
     decisions: BUSINESS_DECISIONS.slice(396, 397),
   },
 ];
-
