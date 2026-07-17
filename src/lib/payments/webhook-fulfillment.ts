@@ -131,7 +131,23 @@ export type WebhookFulfillmentStep =
    * bundle-order-refund-tracking. Session lookup itself reuses
    * commerce_order_refund_session_lookup (shared correlation call).
    */
-  | "bundle_order_refund";
+  | "bundle_order_refund"
+  /**
+   * Marking orders.disputedAt after charge.dispute.created (or dispute.closed
+   * lost) resolves a bundle order's Checkout Session — required so Stripe
+   * retries rather than leaving a disputed bundle order still counted in
+   * revenueTotalUsd. Session lookup reuses commerce_order_dispute_session_lookup
+   * / commerce_order_dispute_closed_session_lookup. See
+   * bundle-order-dispute-tracking.
+   */
+  | "bundle_order_dispute"
+  /**
+   * Clearing orders.disputedAt after charge.dispute.closed with status won /
+   * warning_closed — required so Stripe retries rather than leaving a won
+   * dispute still excluded from revenueTotalUsd forever. See
+   * bundle-order-dispute-tracking.
+   */
+  | "bundle_order_dispute_clear";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

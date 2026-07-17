@@ -71,6 +71,7 @@ const COMMERCE_PAYOUTS_LIMIT = 5;
 const COMMERCE_REFUND_CLAWBACK_LIMIT = 5;
 const COMMERCE_DISPUTE_CLAWBACK_LIMIT = 5;
 const BUNDLE_ORDERS_REFUNDED_LIMIT = 5;
+const BUNDLE_ORDERS_DISPUTED_LIMIT = 5;
 const OPEN_HANDOFFS_LIMIT = 5;
 const PAID_NOT_LIVE_LIMIT = 5;
 const LEADS_MISSING_EMAIL_LIMIT = 5;
@@ -192,6 +193,19 @@ export interface DigestBundleOrderRefund {
   refundedAt: string;
 }
 
+/**
+ * A bundle order Stripe disputed (charge.dispute.created, or dispute.closed
+ * lost) — see bundle-order-dispute-tracking. Visibility only; cleared on
+ * dispute.closed won / warning_closed.
+ */
+export interface DigestBundleOrderDispute {
+  slug: string;
+  businessName: string;
+  tier: string;
+  amountPaidUsd: number;
+  disputedAt: string;
+}
+
 /** Paid production handoff not yet Mark live (same predicate as openHandoffCount). */
 export interface DigestOpenHandoff {
   slug: string;
@@ -288,6 +302,15 @@ export interface DailyDigest {
   /** Sum of amountPaidUsd across bundleOrdersRefundedCount orders — already computed pre-slice. */
   bundleOrdersRefundedTotalUsd: number;
   /**
+   * Bundle orders Stripe disputed — visibility footnote (see
+   * bundle-order-dispute-tracking). Cleared on dispute.closed won.
+   */
+  bundleOrdersDisputed: DigestBundleOrderDispute[];
+  /** True count before the BUNDLE_ORDERS_DISPUTED_LIMIT slice — use for the section header. */
+  bundleOrdersDisputedCount: number;
+  /** Sum of amountPaidUsd across bundleOrdersDisputedCount orders — already computed pre-slice. */
+  bundleOrdersDisputedTotalUsd: number;
+  /**
    * Paid sites still awaiting DNS / Mark live — same status !== "live" filter as
    * pipeline-health openHandoffCount (action section).
    */
@@ -359,10 +382,12 @@ export interface BuildDailyDigestInput {
     commerceAddon: boolean;
     recurringCanceledAt?: number | null;
     stripeCustomerId?: string | null;
-    /** USD dollars. Only the bundle-revenue-refunded section reads this. */
+    /** USD dollars. Bundle refunded/disputed sections read this. */
     amountPaid?: number;
     /** ISO timestamp when charge.refunded flagged this order — see bundle-order-refund-tracking. */
     refundedAt?: string;
+    /** ISO timestamp when charge.dispute.created flagged this order — see bundle-order-dispute-tracking. */
+    disputedAt?: string;
   }>;
   marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
   commerceCatalogs?: ReadonlyArray<{
@@ -655,6 +680,26 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       refundedAt: order.refundedAt,
     }));
 
+  // Bundle order disputes — same visibility footnote shape
+  // (bundle-order-dispute-tracking).
+  const bundleOrdersDisputedAll = orders.filter(
+    (order): order is typeof order & { disputedAt: string } => Boolean(order.disputedAt),
+  );
+  const bundleOrdersDisputedCount = bundleOrdersDisputedAll.length;
+  const bundleOrdersDisputedTotalUsd = bundleOrdersDisputedAll.reduce(
+    (sum, order) => sum + (typeof order.amountPaid === "number" ? order.amountPaid : 0),
+    0,
+  );
+  const bundleOrdersDisputed: DigestBundleOrderDispute[] = bundleOrdersDisputedAll
+    .slice(0, BUNDLE_ORDERS_DISPUTED_LIMIT)
+    .map((order) => ({
+      slug: order.leadSlug,
+      businessName: leadsBySlug.get(order.leadSlug)?.businessName ?? order.leadSlug,
+      tier: order.tier,
+      amountPaidUsd: typeof order.amountPaid === "number" ? order.amountPaid : 0,
+      disputedAt: order.disputedAt,
+    }));
+
   // Same status !== "live" predicate as pipeline-health openHandoffCount.
   const openHandoffsAll = handoffs
     .filter((handoff) => handoff.status !== "live")
@@ -759,6 +804,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceOrdersRefundClawback.length === 0 &&
     commerceOrdersDisputeClawback.length === 0 &&
     bundleOrdersRefunded.length === 0 &&
+    bundleOrdersDisputed.length === 0 &&
     openHandoffs.length === 0 &&
     paidNotLive.length === 0 &&
     leadsMissingEmail.length === 0 &&
@@ -797,6 +843,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     bundleOrdersRefunded,
     bundleOrdersRefundedCount,
     bundleOrdersRefundedTotalUsd,
+    bundleOrdersDisputed,
+    bundleOrdersDisputedCount,
+    bundleOrdersDisputedTotalUsd,
     openHandoffs,
     openHandoffsCount,
     paidNotLive,
@@ -962,6 +1011,15 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ? `Bundle revenue refunded ($${digest.bundleOrdersRefundedTotalUsd.toFixed(2)} · ${digest.bundleOrdersRefundedCount} order${digest.bundleOrdersRefundedCount === 1 ? "" : "s"})`
       : "Bundle revenue refunded (0)";
 
+  const bundleDisputeRows = digest.bundleOrdersDisputed.map(
+    (row) =>
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} (${escapeHtmlForEmail(row.tier)}) disputed by Stripe — already excluded from revenue, no action needed`,
+  );
+  const bundleDisputeTitle =
+    digest.bundleOrdersDisputedCount > 0
+      ? `Bundle revenue disputed ($${digest.bundleOrdersDisputedTotalUsd.toFixed(2)} · ${digest.bundleOrdersDisputedCount} order${digest.bundleOrdersDisputedCount === 1 ? "" : "s"})`
+      : "Bundle revenue disputed (0)";
+
   const handoffRows = digest.openHandoffs.map(
     (handoff) =>
       `<strong>${escapeHtmlForEmail(handoff.businessName)}</strong> — ${escapeHtmlForEmail(handoff.status)} · ${escapeHtmlForEmail(handoff.host)} (${escapeHtmlForEmail(handoff.tier)})`,
@@ -1015,6 +1073,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(clawbackTitle, clawbackRows, "No Commerce payouts have been refunded after the fact.")}
     ${section(disputeClawbackTitle, disputeClawbackRows, "No Commerce payouts have been disputed after the fact.")}
     ${section(bundleRefundTitle, bundleRefundRows, "No bundle orders refunded.")}
+    ${section(bundleDisputeTitle, bundleDisputeRows, "No bundle orders disputed.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
     ${section(`Paid, not yet live (${digest.paidNotLiveCount})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}

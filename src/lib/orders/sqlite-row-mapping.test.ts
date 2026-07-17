@@ -10,9 +10,12 @@ describe("mapSqliteOrderRow", () => {
       stripeCustomerId: "cus_1",
       tier: "growth",
       commerceAddon: 1,
+      recurringCanceledAt: null,
       amountPaid: 99,
       status: "paid",
       createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
     };
     expect(mapSqliteOrderRow(row)).toEqual({
       id: "ord_1",
@@ -35,9 +38,12 @@ describe("mapSqliteOrderRow", () => {
       stripeCustomerId: null,
       tier: "starter",
       commerceAddon: 0,
+      recurringCanceledAt: null,
       amountPaid: 500,
       status: "paid",
       createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
     };
     const mapped = mapSqliteOrderRow(row);
     expect(mapped.stripeSessionId).toBe("");
@@ -58,6 +64,7 @@ describe("mapSqliteOrderRow", () => {
       status: "paid",
       createdAt: "2026-01-01T00:00:00.000Z",
       refundedAt: "2026-01-02T00:00:00.000Z",
+      disputedAt: null,
     };
     expect(mapSqliteOrderRow(row).refundedAt).toBe("2026-01-02T00:00:00.000Z");
   });
@@ -75,7 +82,44 @@ describe("mapSqliteOrderRow", () => {
       status: "paid",
       createdAt: "2026-01-01T00:00:00.000Z",
       refundedAt: null,
+      disputedAt: null,
     };
     expect(mapSqliteOrderRow(row).refundedAt).toBeUndefined();
+  });
+
+  it("maps a disputedAt column value through to disputedAt", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      status: "paid",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: "2026-01-03T00:00:00.000Z",
+    };
+    expect(mapSqliteOrderRow(row).disputedAt).toBe("2026-01-03T00:00:00.000Z");
+  });
+
+  it("defaults a null disputedAt to undefined", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      status: "paid",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+    };
+    expect(mapSqliteOrderRow(row).disputedAt).toBeUndefined();
   });
 });

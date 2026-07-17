@@ -17,7 +17,12 @@
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
-import { isOrderRefunded, type OrderRecord } from "@/lib/orders/types";
+import {
+  isOrderDisputed,
+  isOrderRefunded,
+  orderCountsTowardRevenue,
+  type OrderRecord,
+} from "@/lib/orders/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import {
   isAbandonedCheckout,
@@ -61,9 +66,10 @@ export interface MissingEmailLead {
 export interface PipelineHealth {
   /**
    * Sum of paid order amounts (USD dollars, as stored by the webhook),
-   * excluding orders Stripe has since refunded (see bundleOrdersRefundedCount
-   * / bundle-order-refund-tracking) — a refunded bundle purchase is not
-   * revenue.
+   * excluding orders Stripe has since refunded or disputed (see
+   * bundleOrdersRefundedCount / bundleOrdersDisputedCount —
+   * bundle-order-refund-tracking / bundle-order-dispute-tracking) — a
+   * refunded or disputed bundle purchase is not revenue.
    */
   revenueTotalUsd: number;
   orderCount: number;
@@ -80,6 +86,17 @@ export interface PipelineHealth {
   bundleOrdersRefundedUsd: number;
   /** Age in whole hours of the oldest bundle order refund; null when none. */
   oldestBundleOrdersRefundedAgeHours: number | null;
+  /**
+   * Count of bundle orders Stripe has disputed (charge.dispute.created, or
+   * dispute.closed lost) — already excluded from revenueTotalUsd. Visibility
+   * only; cleared on dispute.closed won / warning_closed. See
+   * bundle-order-dispute-tracking.
+   */
+  bundleOrdersDisputedCount: number;
+  /** Sum of amountPaid across bundleOrdersDisputedCount orders (USD dollars). */
+  bundleOrdersDisputedUsd: number;
+  /** Age in whole hours of the oldest open/lost bundle dispute; null when none. */
+  oldestBundleOrdersDisputedAgeHours: number | null;
   leadCount: number;
   stageCounts: Record<LeadPipelineStage, number>;
   /** Ordered for display (funnel top → bottom). */
@@ -334,12 +351,12 @@ export function computePipelineHealth(input: {
     count: stageCounts[stage],
   }));
 
-  // A refunded bundle order is not revenue — exclude it the same way commerce
-  // Buy now excludes refunded/disputed orders from its owed total (see
-  // bundle-order-refund-tracking).
+  // A refunded or disputed bundle order is not revenue — exclude it the same
+  // way commerce Buy now excludes refunded/disputed orders from its owed
+  // total (see bundle-order-refund-tracking / bundle-order-dispute-tracking).
   let revenueTotalUsd = 0;
   for (const order of input.orders) {
-    if (isOrderRefunded(order)) continue;
+    if (!orderCountsTowardRevenue(order)) continue;
     if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
       revenueTotalUsd += order.amountPaid;
     }
@@ -552,6 +569,27 @@ export function computePipelineHealth(input: {
     }
   }
 
+  // Bundle order disputes — same visibility-only shape as refunds
+  // (bundle-order-dispute-tracking). Cleared on dispute.closed won.
+  const bundleOrdersDisputed = input.orders.filter(isOrderDisputed);
+  let bundleOrdersDisputedUsd = 0;
+  let oldestBundleOrdersDisputedAgeHours: number | null = null;
+  for (const order of bundleOrdersDisputed) {
+    if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
+      bundleOrdersDisputedUsd += order.amountPaid;
+    }
+    if (!order.disputedAt) continue;
+    const disputedAtMs = Date.parse(order.disputedAt);
+    if (Number.isNaN(disputedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - disputedAtMs) / HOUR_MS);
+    if (
+      oldestBundleOrdersDisputedAgeHours === null ||
+      ageHours > oldestBundleOrdersDisputedAgeHours
+    ) {
+      oldestBundleOrdersDisputedAgeHours = Math.max(0, ageHours);
+    }
+  }
+
   const recurringEntitlementPaused = listRecurringEntitlementPaused(
     input.leads,
     input.orders,
@@ -568,6 +606,9 @@ export function computePipelineHealth(input: {
     bundleOrdersRefundedCount: bundleOrdersRefunded.length,
     bundleOrdersRefundedUsd,
     oldestBundleOrdersRefundedAgeHours,
+    bundleOrdersDisputedCount: bundleOrdersDisputed.length,
+    bundleOrdersDisputedUsd,
+    oldestBundleOrdersDisputedAgeHours,
     leadCount: input.leads.length,
     stageCounts,
     stageFunnel,
