@@ -15,6 +15,11 @@
  * checkoutSessionEligibleForBillingPortal (success-page-commerceAddon-line-
  * item-parity). listLineItems failures fail closed to hide the CTA (buyer
  * can refresh; portal API returns 502 on the same failure).
+ *
+ * status===complete alone is not enough: async payment methods complete the
+ * Session with payment_status unpaid. Mirror the webhook paid gate
+ * (webhook-checkout-payment-status-paid-gate) so /checkout/success does not
+ * show "Payment received" before funds clear.
  */
 
 import Stripe from "stripe";
@@ -25,6 +30,7 @@ import {
   priceIdsFromStripeLineItems,
   resolveCommerceAddonFromLineItems,
 } from "@/lib/payments/commerce-addon-line-items";
+import { isStripeCheckoutSessionPaid } from "@/lib/payments/checkout-payment-status";
 
 export type ConfirmedCheckoutSuccess = {
   confirmed: true;
@@ -42,7 +48,9 @@ export type CheckoutSuccessLoadResult =
 
 export type RetrieveCheckoutSession = (
   sessionId: string,
-) => Promise<Pick<Stripe.Checkout.Session, "status" | "mode" | "metadata">>;
+) => Promise<
+  Pick<Stripe.Checkout.Session, "status" | "mode" | "metadata" | "payment_status">
+>;
 
 export type ListCheckoutSessionLineItems = (
   sessionId: string,
@@ -86,6 +94,10 @@ export async function loadCheckoutSuccessSession(
   try {
     const session = await retrieve(sessionId);
     if (session.status !== "complete") {
+      return { confirmed: false };
+    }
+    // Twin of webhook paid gate — complete+unpaid must not confirm UI.
+    if (!isStripeCheckoutSessionPaid(session.payment_status)) {
       return { confirmed: false };
     }
 

@@ -9,6 +9,7 @@ import {
 import { parseLeadSlugLookup } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { isStripeCheckoutCurrencyUsd } from "@/lib/payments/checkout-currency";
+import { isStripeCheckoutSessionPaid } from "@/lib/payments/checkout-payment-status";
 import {
   bundleCatalogPriceIdsFromEnv,
   sessionLineItemsIncludePriceId,
@@ -76,6 +77,14 @@ import {
  * (session already marked complete; do not 5xx forever). listLineItems
  * failures return 500 so Stripe retries.
  *
+ * Async payment methods (ACH, bank transfer, etc.) fire
+ * checkout.session.completed with payment_status !== "paid" while
+ * amount_total/currency can still match catalog. Ledger / handoff / receipt
+ * must wait for payment_status === "paid" (same event when card settles
+ * immediately, or checkout.session.async_payment_succeeded later). Unpaid
+ * completed still markCheckoutSessionComplete so abandoned-recovery does
+ * not nudge mid-clearing (webhook-checkout-payment-status-paid-gate).
+ *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
  * (multi-instance split-brain). Dashboard paths keep the SQLite fallback.
@@ -119,8 +128,35 @@ export async function POST(request: Request) {
   }
 
   switch (event.type) {
-    case "checkout.session.completed": {
+    case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded": {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      // Async methods complete the Session before funds clear. amount_total /
+      // currency gates alone are not enough — unpaid completed can still match
+      // catalog cents. Do not ledger / handoff / receipt until paid.
+      if (!isStripeCheckoutSessionPaid(session.payment_status)) {
+        if (event.type === "checkout.session.completed") {
+          // Stop abandoned-recovery while ACH/bank transfer is pending.
+          try {
+            await markCheckoutSessionComplete(session.id, WEBHOOK_CONVEX_PRIMARY);
+          } catch (e) {
+            console.error(
+              `Failed to mark unpaid checkout session ${session.id} complete`,
+              e,
+            );
+            const failure = webhookFulfillmentFailureResponse("checkout_session_mark_complete");
+            return NextResponse.json(failure.body, { status: failure.status });
+          }
+        }
+        console.warn(
+          `webhook: session ${session.id} event=${event.type} payment_status=${String(
+            session.payment_status,
+          )} — skipping ledger/handoff/receipt until paid`,
+        );
+        break;
+      }
+
       const rawSlug = session.metadata?.slug;
       const tier = session.metadata?.tier;
       const metadataCommerceAddon = session.metadata?.commerceAddon === "true";

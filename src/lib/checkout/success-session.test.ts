@@ -84,6 +84,7 @@ describe("loadCheckoutSuccessSession", () => {
   it("returns confirmed + billing portal for a completed subscription session", async () => {
     const retrieve = vi.fn().mockResolvedValue({
       status: "complete",
+      payment_status: "paid",
       mode: "subscription",
       metadata: { tier: "growth", commerceAddon: "false" },
     });
@@ -102,9 +103,26 @@ describe("loadCheckoutSuccessSession", () => {
     expect(listLineItems).not.toHaveBeenCalled();
   });
 
+  it("returns unconfirmed when complete but payment_status is unpaid (async ACH)", async () => {
+    const retrieve = vi.fn().mockResolvedValue({
+      status: "complete",
+      payment_status: "unpaid",
+      mode: "payment",
+      metadata: { tier: "starter" },
+    });
+    const result = await loadCheckoutSuccessSession("cs_async_pending", {
+      secretKey: "sk_test_x",
+      retrieve,
+      listLineItems: emptyLineItems,
+    });
+    expect(result).toEqual({ confirmed: false });
+    expect(emptyLineItems).not.toHaveBeenCalled();
+  });
+
   it("returns confirmed without billing portal for a one-time Starter payment", async () => {
     const retrieve = vi.fn().mockResolvedValue({
       status: "complete",
+      payment_status: "paid",
       mode: "payment",
       metadata: { tier: "starter", commerceAddon: "false" },
     });
@@ -126,6 +144,7 @@ describe("loadCheckoutSuccessSession", () => {
     // Manage subscription (portal API also ignores tier on payment mode).
     const retrieve = vi.fn().mockResolvedValue({
       status: "complete",
+      payment_status: "paid",
       mode: "payment",
       metadata: { tier: "growth", commerceAddon: "false" },
     });
@@ -149,6 +168,7 @@ describe("loadCheckoutSuccessSession", () => {
     try {
       const retrieve = vi.fn().mockResolvedValue({
         status: "complete",
+        payment_status: "paid",
         mode: "payment",
         metadata: { tier: "starter", commerceAddon: "true" },
       });
@@ -182,6 +202,7 @@ describe("loadCheckoutSuccessSession", () => {
     try {
       const retrieve = vi.fn().mockResolvedValue({
         status: "complete",
+        payment_status: "paid",
         mode: "payment",
         // Metadata says false — line items still prove Commerce was charged.
         metadata: { tier: "starter", commerceAddon: "false" },
@@ -213,6 +234,7 @@ describe("loadCheckoutSuccessSession", () => {
   it("hides billing portal when listLineItems fails on payment mode (fail closed)", async () => {
     const retrieve = vi.fn().mockResolvedValue({
       status: "complete",
+      payment_status: "paid",
       mode: "payment",
       metadata: { tier: "starter", commerceAddon: "true" },
     });
@@ -245,6 +267,7 @@ describe("loadCheckoutSuccessSession", () => {
     const exact = "c".repeat(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH);
     const retrieve = vi.fn().mockResolvedValue({
       status: "complete",
+      payment_status: "paid",
       mode: "payment",
       metadata: { tier: "starter" },
     });
