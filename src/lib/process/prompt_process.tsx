@@ -10614,7 +10614,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — after unpaid-completed→markComplete, immediately reopen on async_payment_failed; next prefers stuck CLI / subscription-mode catalog Price portal / escapeHtml·webhook·uncapped",
       "NEXT_STEPS: webhook-async-payment-failed-reopen-checkout-session done",
       "BUSINESS_DECISIONS — require markCheckoutSessionOpen on async_payment_failed (absolute index 386)",
-      "Verified: npm test + lint",
+      "Verified: npm test (1672 passed = main@#337's 1669 + 2 webhook reopen + 1 fulfillment step) + lint",
     ],
     // Object-parse by decision text: async_payment_failed reopen owns BD[386]; portal paid=385.
     decisions: BUSINESS_DECISIONS.slice(386, 387),
