@@ -166,20 +166,18 @@ export function leadSlugsEligibleForCommerceAbandonedRecovery(
  * Separate from listAbandonedCheckoutsDue — recovery links to preview#catalog,
  * not /checkout?tier=.
  *
- * When `eligibleLeadSlugs` is provided, only sessions for currently entitled
- * Commerce leads are returned — paused/canceled MRR must not surface as
- * recovery debt while create-path 403s and the webhook skips.
+ * `eligibleLeadSlugs` is required (build via leadSlugsEligibleForCommerceAbandonedRecovery)
+ * — omit→allow-all would silently reopen paused/canceled Commerce recovery debt
+ * while create-path 403s and the webhook skips (#352 twin harden).
  */
 export function listCommerceAbandonedCheckoutsDue(
   sessions: CheckoutSessionRecord[],
   nowMs: number,
-  eligibleLeadSlugs?: ReadonlySet<string>,
+  eligibleLeadSlugs: ReadonlySet<string>,
 ): CheckoutSessionRecord[] {
   return sessions
     .filter(isCommerceSkuCheckoutSession)
     .filter((session) => isRecoveryDue(session, nowMs))
-    .filter((session) =>
-      eligibleLeadSlugs ? eligibleLeadSlugs.has(session.leadSlug) : true,
-    )
+    .filter((session) => eligibleLeadSlugs.has(session.leadSlug))
     .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
 }

@@ -166,6 +166,8 @@ describe("listCommerceAbandonedCheckoutsDue", () => {
     const due = listCommerceAbandonedCheckoutsDue(
       [commerceNewer, bundleDue, commerceFresh, commerceOlder],
       NOW,
+      // Default makeSession leadSlug — entitlement set is required (no omit→allow-all).
+      new Set(["blue-river-salon"]),
     );
     expect(due.map((s) => s.stripeSessionId)).toEqual(["c1", "c2"]);
   });
@@ -193,6 +195,18 @@ describe("listCommerceAbandonedCheckoutsDue", () => {
       new Set(["live-shop"]),
     );
     expect(due.map((s) => s.stripeSessionId)).toEqual(["c_ok"]);
+  });
+
+  it("returns no carts when the entitlement set is empty (fail closed)", () => {
+    const cart = makeSession({
+      stripeSessionId: "c_any",
+      leadSlug: "any-shop",
+      kind: "commerce_sku",
+      skuId: "sku_a",
+      tier: "",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    expect(listCommerceAbandonedCheckoutsDue([cart], NOW, new Set())).toEqual([]);
   });
 });
 

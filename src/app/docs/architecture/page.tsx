@@ -562,6 +562,10 @@ export default function ArchitectureDocPage() {
         must use that same predicate — open carts for paused/canceled Commerce
         leads must not surface as recovery debt while create-path returns{" "}
         <code>403</code> and the webhook skips.{" "}
+        <code>listCommerceAbandonedCheckoutsDue</code>&apos;s{" "}
+        <code>eligibleLeadSlugs</code> arg is required at the type level (empty
+        set fails closed) so a future caller cannot omit the filter and reopen
+        allow-all recovery debt.{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}

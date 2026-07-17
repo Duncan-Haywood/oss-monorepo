@@ -166,7 +166,7 @@ export const AGENT_PROTOCOL = [
   "After CRM entitlement pause/cancel gates preview + saveCommerceCatalogAction on leadEligibleForCommerceCatalog (!recurringCanceledAt), immediately close create-path + Sync-to-Stripe twins that still trust catalog+stripePriceId alone — POST /api/commerce/checkout must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before stripe.checkout.sessions.create (403 when ineligible; 404 when lead missing); syncCommerceCatalogToStripeAction must use the same predicate before syncCommerceCatalogToStripe (success:false). Hiding Buy now on preview while leaving the mint/sync APIs open is the same sold-capability hole class as Session portal gates without the lead twin. After create/sync entitlement ships (#348), immediately close the commerce_sku webhook twin (commerce-webhook-recurring-entitlement-gate) — checkout.session.completed must require the same predicate before insertCommerceOrder / inquiry / client receipt; missing lead or ineligible skips like unknown sku (session already markComplete; no 5xx forever). Dashboard-minted or pre-pause Sessions must not ledger pass-through Commerce revenue after CRM pause.",
   "invoice.paid must restore CRM recurring entitlement as the twin of invoice.payment_failed pause (#346): for subscription invoices, subscriptions.retrieve then clearOrdersRecurringCanceledByCustomer only when stripeSubscriptionShouldRestoreRecurringEntitlement (grants + !pause_collection). Blind clear would reopen the #347 pause_collection hole. One-time invoices skip. Retrieve failures return 5xx (subscription_retrieve); clear failures return 5xx (orders_recurring_reactivated). After Buy now create/sync entitlement + paused digest + commerce webhook entitlement ship, prefer this invoice restore asymmetry before inventing another dated clean-audit (invoice-paid-recurring-entitlement-restore).",
   "invoice.payment_failed must re-retrieve the Subscription before markOrdersRecurringCanceledByCustomer — membership alone is not enough after invoice.paid / subscription.updated clear. Mark only when stripeSubscriptionShouldPauseRecurringEntitlement (past_due|unpaid or pause_collection); skip when already grants. Stale/out-of-order failed after recovery must not re-pause packs. Retrieve failures return 5xx (subscription_retrieve). Ship with invoice.paid restore in the same pass when possible (invoice-payment-failed-stale-repause-guard).",
-  "After CRM entitlement pause/cancel gates Buy now create/sync/webhook on leadEligibleForCommerceCatalog, immediately close the abandoned-recovery twin — sendCommerceCheckoutRecoveryAction must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before mark/send (success:false when missing lead or ineligible); listCommerceAbandonedCheckoutsDue / digest / pipeline-health must filter via leadSlugsEligibleForCommerceAbandonedRecovery so paused/canceled Commerce carts do not surface as recovery debt while create-path 403s and the webhook skips (commerce-abandoned-recovery-entitlement-gate). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#351 money gates (incl. abandoned-recovery entitlement).",] as const;
+  "After CRM entitlement pause/cancel gates Buy now create/sync/webhook on leadEligibleForCommerceCatalog, immediately close the abandoned-recovery twin — sendCommerceCheckoutRecoveryAction must getLeadBySlug + listOrdersByLeadSlug + leadEligibleForCommerceCatalog before mark/send (success:false when missing lead or ineligible); listCommerceAbandonedCheckoutsDue / digest / pipeline-health must filter via leadSlugsEligibleForCommerceAbandonedRecovery so paused/canceled Commerce carts do not surface as recovery debt while create-path 403s and the webhook skips (commerce-abandoned-recovery-entitlement-gate). After an entitlement filter ships as an optional helper arg (omit → allow-all), immediately require it at the type level so a future caller cannot reopen the hole (commerce-abandoned-recovery-require-entitlement-set). Next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose / re-do of #320–#352 money gates.",] as const;
 
 /**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
@@ -2675,6 +2675,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-cbcb",
+  },
+  {
+    id: "commerce-abandoned-recovery-require-entitlement-set",
+    summary:
+      "Empty-backlog after PR #352 (commerce-abandoned-recovery-entitlement-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Sibling cbcb/#352 left listCommerceAbandonedCheckoutsDue.eligibleLeadSlugs optional (omit → allow-all), so a future digest/dashboard caller can silently reopen paused-Commerce recovery debt. Make eligibleLeadSlugs required at the type level; update call sites + Vitest. Dated clean-audit on escapeHtml / webhook idempotency / uncapped-list + pack entitlement twins came back clean.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-d772",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -5495,6 +5503,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "sendCommerceCheckoutRecoveryAction and Buy now due queues (listCommerceAbandonedCheckoutsDue / digest / pipeline-health via leadSlugsEligibleForCommerceAbandonedRecovery) must require leadEligibleForCommerceCatalog — same predicate as Buy now create/sync (#348) + commerce_sku webhook (#350). Missing lead or ineligible → success:false / omit from due queues; do not mark recoverySentAt or email shoppers while create-path 403s and the webhook skips.",
     rationale:
       "Empty-backlog after PR #350/#351 (commerce webhook entitlement + invoice.paid restore). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh residual twin: #348–#350 closed mint/sync/webhook, but abandoned Buy now recovery still nudged end-customer carts for paused/canceled Commerce subscribers — fake recovery debt + emails that cannot convert while entitlement is off. Process improvement: after CRM entitlement pause gates a sold create-path + webhook, immediately close the abandoned-recovery / due-queue twin before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "listCommerceAbandonedCheckoutsDue.eligibleLeadSlugs must be required at the type level (empty Set fails closed) — never optional with omit→allow-all. Callers build the set via leadSlugsEligibleForCommerceAbandonedRecovery. After an entitlement filter ships as an optional helper arg, immediately require it so a future digest/dashboard caller cannot reopen paused-Commerce recovery debt.",
+    rationale:
+      "Empty-backlog after PR #352 (commerce-abandoned-recovery-entitlement-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Dated clean-audit on escapeHtmlForEmail / webhook alreadyRecorded side-effect recovery / uncapped debt lists + marketing/voice pack entitlement twins + archiveOrphan (intentional cleanup) came back clean. Fresh residual: #352 left eligibleLeadSlugs optional, so TypeScript still allowed omit→allow-all — the same class of silent reopen as create-path without the webhook twin. Process improvement: after shipping an entitlement filter helper, require the filter arg at the type level before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped axes not dated this week. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -11155,5 +11170,24 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     // Object-parse by decision text: abandoned-recovery entitlement owns BD[400]; invoice restore=399.
     decisions: BUSINESS_DECISIONS.slice(400, 401),
+  },
+  {
+    date: "2026-07-17",
+    branch: "cursor/prompt-process-evolution-d772",
+    summary:
+      "Empty-backlog after PR #352 (commerce-abandoned-recovery-entitlement-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes invent-optional-aggregate / clean-audit-only / already-merged — rejected. Folded sibling cbcb/#352 onto this branch before claiming. Dated clean-audit (escapeHtml sinks, webhook alreadyRecorded side-effect recovery, uncapped debt lists, marketing/voice entitlement, archiveOrphan intentional) came back clean. Fresh residual: #352 left listCommerceAbandonedCheckoutsDue.eligibleLeadSlugs optional (omit→allow-all). Required the arg at the type level + empty-set fail-closed Vitest; process now requires type-level require after optional entitlement filters ship.",
+    shipped: [
+      "merge: origin/main after #352 abandoned-recovery entitlement — keep sibling cbcb ITERATION",
+      "src/lib/checkout/abandoned-recovery.ts — eligibleLeadSlugs required (no omit→allow-all)",
+      "src/lib/checkout/abandoned-recovery.test.ts — call sites pass set; +1 empty-set fail-closed case",
+      "Docs: architecture.tsx notes required entitlement set on Buy now recovery due helper",
+      "AGENT_PROTOCOL — after optional entitlement filter ships, immediately require it at the type level",
+      "NEXT_STEPS: commerce-abandoned-recovery-require-entitlement-set done; commerce-abandoned-recovery-entitlement-gate done (#352)",
+      "BUSINESS_DECISIONS — require type-level eligibleLeadSlugs (absolute index 401)",
+      "Process: coop fold of sibling cbcb/#352; claim pushed before feature body; clean-audit documented (no invent-optional-aggregate)",
+      "Verified: npm test (1762 passed = main@#352's 1761 + 1 empty-set fail-closed) + lint",
+    ],
+    // Object-parse by decision text: require-entitlement-set owns BD[401]; abandoned-recovery gate=400.
+    decisions: BUSINESS_DECISIONS.slice(401, 402),
   },
 ];
