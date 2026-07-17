@@ -43,6 +43,23 @@ export interface SendEmailParams {
   skipSuppression?: boolean;
 }
 
+/**
+ * Keep provider-facing subjects single-line and printable. Most subjects are
+ * built from operator/client-controlled names, so sanitize at the shared send
+ * boundary rather than relying on each template to remember the rule.
+ */
+export function sanitizeEmailSubject(subject: string): string {
+  const printable = Array.from(subject, (character) => {
+    const code = character.charCodeAt(0);
+    return code <= 31 || (code >= 127 && code <= 159) ? " " : character;
+  })
+    .join("")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return printable || "Notification";
+}
+
 export async function sendEmail({
   to,
   subject,
@@ -50,6 +67,7 @@ export async function sendEmail({
   leadSlug,
   skipSuppression = false,
 }: SendEmailParams) {
+  const safeSubject = sanitizeEmailSubject(subject);
   const normalizedTo = to.toLowerCase().trim();
 
   // 1. Check suppression list (marketing only — see skipSuppression)
@@ -97,7 +115,7 @@ export async function sendEmail({
   if (!resendApiKey || resendApiKey.startsWith("re_placeholder") || resendApiKey === "re_...") {
     console.log(`[Mock Email Sent]
 To: ${to}
-Subject: ${subject}
+Subject: ${safeSubject}
 Lead: ${leadSlug || "None"}
 Content Preview: ${html.substring(0, 150)}...
 CAN-SPAM Footer: Applied (${brand.postalAddress})
@@ -117,7 +135,7 @@ Unsubscribe URL: ${unsubscribeUrl}`);
         // EMAIL_FROM (brand.emailFrom) — never hardcode a platform domain.
         from: formatResendFromHeader(brand.name, brand.emailFrom),
         to: [to],
-        subject,
+        subject: safeSubject,
         html: fullHtml,
       }),
     });
@@ -343,7 +361,7 @@ export async function sendInquiryReply(params: {
  * Resend call / mock fallback as every other send helper here.
  */
 export async function sendOperatorDailyDigest(to: string, html: string) {
-  const subject = `${brand.name} — daily digest`;
+  const subject = sanitizeEmailSubject(`${brand.name} — daily digest`);
 
   if (!resendApiKey || resendApiKey.startsWith("re_placeholder") || resendApiKey === "re_...") {
     console.log(`[Mock Email Sent]

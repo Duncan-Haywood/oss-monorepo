@@ -19,15 +19,18 @@ const ESCAPED_ADDRESS = "123 Main St &amp; &lt;Apt&gt; 4";
 describe("resend.ts — businessName HTML escaping", () => {
   const originalKey = process.env.RESEND_API_KEY;
   let sentHtml: string;
+  let sentSubject: string;
 
   beforeEach(() => {
     process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
     sentHtml = "";
+    sentSubject = "";
     vi.stubGlobal(
       "fetch",
       vi.fn(async (_url: string, init: RequestInit) => {
         const body = JSON.parse(String(init.body));
         sentHtml = body.html;
+        sentSubject = body.subject;
         return {
           ok: true,
           json: async () => ({ id: "email_test" }),
@@ -47,6 +50,29 @@ describe("resend.ts — businessName HTML escaping", () => {
     await sendOutreachEmail("owner@example.com", UNSAFE_NAME, "demo-cafe");
     expect(sentHtml).toContain(ESCAPED_NAME);
     expect(sentHtml).not.toContain("<Truck>");
+  });
+
+  it("normalizes control characters in provider-facing subjects", async () => {
+    const { sendEmail, sanitizeEmailSubject } = await import("./resend");
+    expect(sanitizeEmailSubject("  Order\r\n\t\u0007 ready  ")).toBe("Order ready");
+
+    await sendEmail({
+      to: "owner@example.com",
+      subject: "Order\r\nX-Injected: yes",
+      html: "<p>Order</p>",
+    });
+
+    expect(sentSubject).toBe("Order X-Injected: yes");
+    expect(sentSubject).not.toContain("\r");
+    expect(sentSubject).not.toContain("\n");
+  });
+
+  it("normalizes dynamic business names in an outreach subject", async () => {
+    const { sendOutreachEmail } = await import("./resend");
+    await sendOutreachEmail("owner@example.com", "Cafe\r\nX-Injected: yes", "demo-cafe");
+    expect(sentSubject).toBe("Cafe X-Injected: yes — we built your website (free preview)");
+    expect(sentSubject).not.toContain("\r");
+    expect(sentSubject).not.toContain("\n");
   });
 
   it("escapes businessName in sendOutreachFollowUp2", async () => {

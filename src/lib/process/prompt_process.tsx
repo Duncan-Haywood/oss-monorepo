@@ -2882,7 +2882,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "email-subject-control-character-sanitization",
     summary:
       "Security audit: strip CR/LF and other control characters from outbound email subjects before handing them to the provider, so client-controlled business and SKU names cannot create malformed or deceptive subject lines.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "codex/dev-work-email-subject-control",
   },
@@ -5885,6 +5885,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Stripe checkout webhook transactional email sends are part of the retryable fulfillment contract: if a bundle buyer receipt, bundle DNS handoff, or Commerce client receipt resolves success:false or throws, leave its independent sent-marker unwritten and return the structured 500 response after attempting sibling emails. A successful sibling marker may remain, so Stripe redelivery retries only the missing email.",
     rationale:
       "The existing recovery planners correctly treated missing markers as redelivery work, but the webhook acknowledged send failures with 200 after merely logging them. Stripe does not reliably redeliver an acknowledged event, so a transient Resend failure could permanently lose a paid receipt, go-live instructions, or Commerce client notification. The route now tracks send failures separately from marker-write failures, continues the other independent bundle email when appropriate, and returns 500 with a dedicated fulfillment step. Route tests cover rejected sends and resolved success:false for all three transactional surfaces; the architecture doc records the retry contract.",
+  },
+  {
+    id: "email-subject-control-character-sanitization",
+    date: "2026-07-17",
+    decision:
+      "Normalize every outbound email subject at the shared sendEmail boundary by replacing control characters with spaces, collapsing whitespace, trimming, and falling back to a safe generic subject when empty.",
+    rationale:
+      "Business names, SKU names, brand configuration, and other operator/client-controlled values feed provider-facing subjects. Central normalization keeps subjects single-line and printable across all send helpers, including mock mode and the operator digest, without depending on each template to remember the security rule.",
   },
 ];
 
@@ -12070,6 +12078,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "webhook-email-send-failure-retry",
+    ),
+  },
+  {
+    date: "2026-07-17",
+    branch: "codex/dev-work-email-subject-control",
+    summary:
+      "Empty-backlog after PR #379 (webhook-email-send-failure-retry). The four remaining NEXT_STEPS stayed operator/legal-gated, and the remote fold scan found no newer complete unmerged feature body. A fresh email security audit found that client/operator-controlled business names, SKU names, and brand values flowed into provider-facing subjects without control-character normalization. HTML bodies were escaped, but CR/LF and other controls could produce malformed or deceptive subject lines depending on provider parsing. Shipped a shared sendEmail boundary sanitizer that replaces controls with spaces, collapses whitespace, trims, and falls back to 'Notification' when empty; operator digest subjects use the same normalization.",
+    shipped: [
+      "src/lib/email/resend.ts — add sanitizeEmailSubject and apply it to sendEmail provider payloads/mock logs and operator digest subjects",
+      "src/lib/email/resend.test.ts — cover direct CR/LF/control-character normalization and dynamic business-name subject sanitization",
+      "src/lib/process/prompt_process.tsx — mark NEXT_STEPS email-subject-control-character-sanitization done and append the id-based business decision",
+      "Process: pushed the in_progress claim commit before the feature body; no operator-gated item was changed",
+      "Verified: focused resend suite (26 passed), full npm test (1967 passed across 153 files), npm run lint (clean), and npm run build under Node v22.23.1 (TypeScript clean, all 31 routes generated). Node 20 cannot load the repo's node:sqlite dependency, so the initial build was rerun with the available Node 22 runtime.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "email-subject-control-character-sanitization",
     ),
   },
 ];
