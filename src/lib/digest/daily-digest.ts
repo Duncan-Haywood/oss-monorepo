@@ -12,7 +12,8 @@
  * + paid-not-live-in-digest
  * + digest-section-counts-uncapped
  * + leads-missing-email-in-digest
- * + recurring-entitlement-paused-pipeline-digest).
+ * + recurring-entitlement-paused-pipeline-digest
+ * + commerce-order-refund-clawback-tracking).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -46,6 +47,7 @@ import {
 } from "../billing/starter-upsell";
 import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "../commerce/catalog";
 import {
+  commerceOrderNeedsClawback,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
 } from "../commerce/orders";
@@ -66,6 +68,7 @@ const COMMERCE_CATALOGS_LIMIT = 5;
 const COMMERCE_UNSYNCED_LIMIT = 5;
 const CLIENT_VOICE_PACKS_LIMIT = 5;
 const COMMERCE_PAYOUTS_LIMIT = 5;
+const COMMERCE_REFUND_CLAWBACK_LIMIT = 5;
 const OPEN_HANDOFFS_LIMIT = 5;
 const PAID_NOT_LIVE_LIMIT = 5;
 const LEADS_MISSING_EMAIL_LIMIT = 5;
@@ -143,6 +146,21 @@ export interface DigestCommercePayoutOwed {
   totalUsd: number;
 }
 
+/**
+ * A commerce order Stripe refunded AFTER the operator already marked it paid
+ * out to the client — the operator is out that money and must claw it back
+ * (see commerce-order-refund-clawback-tracking). Distinct from
+ * commercePayoutsOwed: a refund on an order never paid out just drops out of
+ * that "owed" total with nothing further to do.
+ */
+export interface DigestCommerceOrderRefundClawback {
+  slug: string;
+  businessName: string;
+  skuName: string;
+  amountPaidUsd: number;
+  refundedAt: string;
+}
+
 /** Paid production handoff not yet Mark live (same predicate as openHandoffCount). */
 export interface DigestOpenHandoff {
   slug: string;
@@ -216,6 +234,12 @@ export interface DailyDigest {
   commercePayoutsOwedCount: number;
   /** Sum of commercePayoutsOwed totals (USD dollars) — already computed pre-slice, unaffected by the cap. */
   commercePayoutsOwedTotalUsd: number;
+  /** Commerce orders refunded after payout — clawback owed from the client (action section). */
+  commerceOrdersRefundClawback: DigestCommerceOrderRefundClawback[];
+  /** True count before the COMMERCE_REFUND_CLAWBACK_LIMIT slice — use for the section header. */
+  commerceOrdersRefundClawbackCount: number;
+  /** Sum of amountPaidUsd across commerceOrdersRefundClawbackCount orders — already computed pre-slice. */
+  commerceOrdersRefundClawbackTotalUsd: number;
   /**
    * Paid sites still awaiting DNS / Mark live — same status !== "live" filter as
    * pipeline-health openHandoffCount (action section).
@@ -298,6 +322,14 @@ export interface BuildDailyDigestInput {
   /** Pass-through Buy now ledger rows — reuse summarizeCommerceOrdersByLead. */
   commerceOrders?: ReadonlyArray<CommerceOrderRecord>;
   /**
+   * Every refunded Commerce Buy now order regardless of paidOutAt — pass
+   * listCommerceOrdersRefunded() (uncapped). `commerceOrders` above (fed from
+   * listUnpaidCommerceOrders) drops a row once paidOutAt is set, so the
+   * refund-after-payout clawback case needs this separate feed to be visible
+   * at all (see commerce-order-refund-clawback-tracking).
+   */
+  commerceOrdersRefunded?: ReadonlyArray<CommerceOrderRecord>;
+  /**
    * Production deploy handoffs — pass listDeployHandoffs() (uncapped). Live rows
    * are filtered out; open rows drive the Production handoffs open section.
    */
@@ -323,6 +355,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceCatalogs = [],
     clientVoicePacks = [],
     commerceOrders = [],
+    commerceOrdersRefunded = [],
     handoffs = [],
     nowMs,
   } = input;
@@ -498,6 +531,28 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       totalUsd: summary.unpaidTotalUsd,
     }));
 
+  // Refund-after-payout clawback — distinct feed from commerceOrders above,
+  // which drops any row once paidOutAt is set (see
+  // commerce-order-refund-clawback-tracking).
+  const commerceOrdersRefundClawbackAll = commerceOrdersRefunded.filter(
+    commerceOrderNeedsClawback,
+  );
+  const commerceOrdersRefundClawbackCount = commerceOrdersRefundClawbackAll.length;
+  const commerceOrdersRefundClawbackTotalUsd = commerceOrdersRefundClawbackAll.reduce(
+    (sum, order) => sum + order.amountPaidUsd,
+    0,
+  );
+  const commerceOrdersRefundClawback: DigestCommerceOrderRefundClawback[] =
+    commerceOrdersRefundClawbackAll
+      .slice(0, COMMERCE_REFUND_CLAWBACK_LIMIT)
+      .map((order) => ({
+        slug: order.leadSlug,
+        businessName: leadsBySlug.get(order.leadSlug)?.businessName ?? order.leadSlug,
+        skuName: order.skuName,
+        amountPaidUsd: order.amountPaidUsd,
+        refundedAt: order.refundedAt ?? "",
+      }));
+
   // Same status !== "live" predicate as pipeline-health openHandoffCount.
   const openHandoffsAll = handoffs
     .filter((handoff) => handoff.status !== "live")
@@ -599,6 +654,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceCatalogsUnsynced.length === 0 &&
     clientVoicePacksDue.length === 0 &&
     commercePayoutsOwed.length === 0 &&
+    commerceOrdersRefundClawback.length === 0 &&
     openHandoffs.length === 0 &&
     paidNotLive.length === 0 &&
     leadsMissingEmail.length === 0 &&
@@ -628,6 +684,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commercePayoutsOwed,
     commercePayoutsOwedCount,
     commercePayoutsOwedTotalUsd,
+    commerceOrdersRefundClawback,
+    commerceOrdersRefundClawbackCount,
+    commerceOrdersRefundClawbackTotalUsd,
     openHandoffs,
     openHandoffsCount,
     paidNotLive,
@@ -766,6 +825,15 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ? `Commerce payouts owed ($${digest.commercePayoutsOwedTotalUsd.toFixed(2)} · ${digest.commercePayoutsOwedCount} client${digest.commercePayoutsOwedCount === 1 ? "" : "s"})`
       : "Commerce payouts owed (0)";
 
+  const clawbackRows = digest.commerceOrdersRefundClawback.map(
+    (row) =>
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} paid out for ${escapeHtmlForEmail(row.skuName)}, then refunded by Stripe — claw back from client`,
+  );
+  const clawbackTitle =
+    digest.commerceOrdersRefundClawbackCount > 0
+      ? `Refund clawback needed ($${digest.commerceOrdersRefundClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersRefundClawbackCount} order${digest.commerceOrdersRefundClawbackCount === 1 ? "" : "s"})`
+      : "Refund clawback needed (0)";
+
   const handoffRows = digest.openHandoffs.map(
     (handoff) =>
       `<strong>${escapeHtmlForEmail(handoff.businessName)}</strong> — ${escapeHtmlForEmail(handoff.status)} · ${escapeHtmlForEmail(handoff.host)} (${escapeHtmlForEmail(handoff.tier)})`,
@@ -816,6 +884,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
     ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
+    ${section(clawbackTitle, clawbackRows, "No Commerce payouts have been refunded after the fact.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
     ${section(`Paid, not yet live (${digest.paidNotLiveCount})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}

@@ -322,6 +322,9 @@ function getSqliteDb(): DatabaseSync {
       "ALTER TABLE commerce_orders ADD COLUMN clientReceiptEmailSentAt TEXT",
     );
   }
+  if (!commerceOrderCols.includes("refundedAt")) {
+    sqliteDb.exec("ALTER TABLE commerce_orders ADD COLUMN refundedAt TEXT");
+  }
 
   // Seed SQLite database if empty
   const countStmt = sqliteDb.prepare("SELECT COUNT(*) as count FROM leads");
@@ -427,9 +430,11 @@ const api: any = {
     insert: "commerceOrders:insert",
     list: "commerceOrders:list",
     listUnpaid: "commerceOrders:listUnpaid",
+    listRefunded: "commerceOrders:listRefunded",
     getByStripeSessionId: "commerceOrders:getByStripeSessionId",
     markPaidOut: "commerceOrders:markPaidOut",
     markClientReceiptSent: "commerceOrders:markClientReceiptSent",
+    markRefunded: "commerceOrders:markRefunded",
   },
   suppressions: {
     isSuppressed: "suppressions:isSuppressed",
@@ -2651,6 +2656,41 @@ export async function listUnpaidCommerceOrders(): Promise<CommerceOrderRecord[]>
   return rows.map(mapCommerceOrderRow);
 }
 
+/**
+ * Every refunded commerce order, regardless of paidOutAt — listUnpaidCommerceOrders
+ * drops a row once paidOutAt is set, so a refund landing AFTER payout (clawback
+ * owed from the client) would otherwise be invisible to pipeline-health/digest.
+ * Uncapped for the same reason listUnpaidCommerceOrders is: this is a bounded
+ * operator ledger and completeness beats a truncated recent page (see
+ * commerce-order-refund-clawback-tracking).
+ */
+export async function listCommerceOrdersRefunded(): Promise<CommerceOrderRecord[]> {
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(
+        api.commerceOrders.listRefunded,
+        {},
+      )) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
+    } catch (e) {
+      console.warn(
+        "Failed to list refunded commerce orders from Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT * FROM commerce_orders
+       WHERE refundedAt IS NOT NULL AND refundedAt != ''
+       ORDER BY createdAt DESC`,
+    )
+    .all() as unknown as SqliteCommerceOrderRow[];
+  return rows.map(mapCommerceOrderRow);
+}
+
 /** Single commerce order by Stripe Checkout Session id (Mark paid out lookup). */
 export async function getCommerceOrderByStripeSessionId(
   stripeSessionId: string,
@@ -2752,6 +2792,46 @@ export async function markCommerceOrderClientReceiptSent(
   db.prepare(
     "UPDATE commerce_orders SET clientReceiptEmailSentAt = ? WHERE stripeSessionId = ?",
   ).run(clientReceiptEmailSentAt, stripeSessionId);
+}
+
+/**
+ * Marks a commerce order refunded — called from the Stripe webhook's
+ * charge.refunded handler after it resolves the order's Checkout Session.
+ * Keyed on stripeSessionId (unique, always present), matching markCommerceOrderPaidOut.
+ * Idempotent: a redelivered/duplicate refund event re-applying the same mark is a no-op.
+ *
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY) so a
+ * Convex mutation failure surfaces (5xx → Stripe retry) instead of SQLite-only
+ * success while Convex-first owed/clawback readers on other instances still
+ * show the order as owed and never flag the clawback.
+ */
+export async function markCommerceOrderRefunded(
+  stripeSessionId: string,
+  refundedAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.markRefunded, {
+        stripeSessionId,
+        refundedAt,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCommerceOrderRefunded", e);
+      }
+      console.warn(
+        `Failed to mark commerce order ${stripeSessionId} refunded on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE commerce_orders SET refundedAt = ? WHERE stripeSessionId = ? AND (refundedAt IS NULL OR refundedAt = '')",
+  ).run(refundedAt, stripeSessionId);
 }
 
 // --- Client voice FAQ packs (Complete receptionist scripts) ---

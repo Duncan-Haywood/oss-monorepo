@@ -17,12 +17,14 @@ import type { DeployHandoff } from "@/lib/deploy/types";
 const constructEvent = vi.fn();
 const listLineItems = vi.fn();
 const retrieveSubscription = vi.fn();
+const listCheckoutSessions = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
     webhooks = { constructEvent: (...args: unknown[]) => constructEvent(...args) };
     checkout = {
       sessions: {
         listLineItems: (...args: unknown[]) => listLineItems(...args),
+        list: (...args: unknown[]) => listCheckoutSessions(...args),
       },
     };
     subscriptions = {
@@ -47,6 +49,7 @@ const listCommerceCheckoutInquiriesBySlug = vi.fn();
 const listOrdersByLeadSlug = vi.fn();
 const getCommerceOrderByStripeSessionId = vi.fn();
 const markCommerceOrderClientReceiptSent = vi.fn();
+const markCommerceOrderRefunded = vi.fn();
 const getDeployHandoffBySlug = vi.fn();
 const insertDeployHandoff = vi.fn();
 const listDeployHandoffs = vi.fn();
@@ -88,6 +91,7 @@ vi.mock("@/lib/db", () => ({
     getCommerceOrderByStripeSessionId(...args),
   markCommerceOrderClientReceiptSent: (...args: unknown[]) =>
     markCommerceOrderClientReceiptSent(...args),
+  markCommerceOrderRefunded: (...args: unknown[]) => markCommerceOrderRefunded(...args),
   getDeployHandoffBySlug: (...args: unknown[]) => getDeployHandoffBySlug(...args),
   insertDeployHandoff: (...args: unknown[]) => insertDeployHandoff(...args),
   listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
@@ -239,6 +243,8 @@ describe("POST /api/stripe/webhook", () => {
     listOrdersByLeadSlug.mockReset().mockResolvedValue(activeCommerceOrders);
     getCommerceOrderByStripeSessionId.mockReset().mockResolvedValue(null);
     markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(undefined);
+    markCommerceOrderRefunded.mockReset().mockResolvedValue(undefined);
+    listCheckoutSessions.mockReset().mockResolvedValue({ data: [] });
     getDeployHandoffBySlug.mockReset().mockResolvedValue(null);
     insertDeployHandoff.mockReset().mockResolvedValue(undefined);
     listDeployHandoffs.mockReset().mockResolvedValue([]);
@@ -423,8 +429,14 @@ describe("POST /api/stripe/webhook", () => {
             id: "sub_foreign",
             customer: "cus_foreign",
             status: "active",
-            current_period_start: 1_720_000_500,
-            items: catalogSubscriptionItems("price_foreign_monthly"),
+            items: {
+              data: [
+                {
+                  price: { id: "price_foreign_monthly" },
+                  current_period_start: 1_720_000_500,
+                },
+              ],
+            },
           },
         },
       });
@@ -450,7 +462,7 @@ describe("POST /api/stripe/webhook", () => {
             customer: "cus_paused_1",
             status: "active",
             pause_collection: { behavior: "void" },
-            current_period_start: 1_720_000_300,
+            items: { data: [{ current_period_start: 1_720_000_300 }] },
           },
         },
       });
@@ -475,7 +487,7 @@ describe("POST /api/stripe/webhook", () => {
             customer: "cus_paused_trial",
             status: "trialing",
             pause_collection: { behavior: "keep_as_draft" },
-            current_period_start: 1_720_000_400,
+            items: { data: [{ current_period_start: 1_720_000_400 }] },
           },
         },
       });
@@ -528,7 +540,7 @@ describe("POST /api/stripe/webhook", () => {
             id: "sub_past_due",
             customer: "cus_past_due",
             status: "past_due",
-            current_period_start: 1_720_000_100,
+            items: { data: [{ current_period_start: 1_720_000_100 }] },
           },
         },
       });
@@ -552,7 +564,7 @@ describe("POST /api/stripe/webhook", () => {
             id: "sub_unpaid",
             customer: "cus_unpaid",
             status: "unpaid",
-            current_period_start: 1_720_000_200,
+            items: { data: [{ current_period_start: 1_720_000_200 }] },
           },
         },
       });
@@ -981,6 +993,147 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_reactivated");
+      expect(json.received).toBe(false);
+    });
+  });
+
+  describe("charge.refunded commerce order clawback tracking", () => {
+    function refundedChargeEvent(overrides: Record<string, unknown> = {}) {
+      return {
+        type: "charge.refunded",
+        data: {
+          object: {
+            id: "ch_refund_1",
+            payment_intent: "pi_refund_1",
+            amount: 5000,
+            amount_refunded: 5000,
+            ...overrides,
+          },
+        },
+      };
+    }
+
+    it("marks the commerce order refunded when the Session resolves to a ledgered order", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(refundedChargeEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(listCheckoutSessions).toHaveBeenCalledWith({
+        payment_intent: "pi_refund_1",
+        limit: 1,
+      });
+      expect(getCommerceOrderByStripeSessionId).toHaveBeenCalledWith("cs_commerce_1");
+      expect(markCommerceOrderRefunded).toHaveBeenCalledWith(
+        "cs_commerce_1",
+        expect.any(String),
+        { requireConvex: true },
+      );
+    });
+
+    it("skips a charge with no refunded amount", async () => {
+      constructEvent.mockReturnValue(refundedChargeEvent({ amount_refunded: 0 }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(listCheckoutSessions).not.toHaveBeenCalled();
+      expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("skips a charge with no payment_intent to correlate", async () => {
+      constructEvent.mockReturnValue(refundedChargeEvent({ payment_intent: null }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(listCheckoutSessions).not.toHaveBeenCalled();
+      expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("skips when no Checkout Session matches the payment_intent", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+      constructEvent.mockReturnValue(refundedChargeEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getCommerceOrderByStripeSessionId).not.toHaveBeenCalled();
+      expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("skips when the Session does not back a ledgered commerce order (e.g. a bundle purchase)", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      constructEvent.mockReturnValue(refundedChargeEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("is idempotent — does not re-mark an order already flagged refunded", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        refundedAt: "2026-07-10T00:00:00.000Z",
+      });
+      constructEvent.mockReturnValue(refundedChargeEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 commerce_order_refund_session_lookup when the Session list call fails", async () => {
+      listCheckoutSessions.mockRejectedValueOnce(new Error("stripe down"));
+      constructEvent.mockReturnValue(refundedChargeEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_order_refund_session_lookup");
+      expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 commerce_order_refund when the refund mark write fails", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      markCommerceOrderRefunded.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue(refundedChargeEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_order_refund");
       expect(json.received).toBe(false);
     });
   });

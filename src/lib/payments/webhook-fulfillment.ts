@@ -76,7 +76,22 @@ export type WebhookFulfillmentStep =
    * sendCommerceBuyNowClientReceipt — required so Stripe retries rather than
    * leaving recovery unable to see that the client order notification went out.
    */
-  | "commerce_client_receipt_sent_marker";
+  | "commerce_client_receipt_sent_marker"
+  /**
+   * Looking up the Checkout Session behind a refunded charge (via
+   * stripe.checkout.sessions.list({ payment_intent })) on charge.refunded —
+   * required so Stripe retries rather than silently leaving a refunded
+   * commerce order still counted as owed (or already-paid-out clawback
+   * debt invisible) because the correlating lookup failed transiently.
+   */
+  | "commerce_order_refund_session_lookup"
+  /**
+   * Marking commerceOrders.refundedAt after charge.refunded resolves the
+   * order's Checkout Session — required so Stripe retries rather than
+   * leaving a refunded Buy now order still counted toward the "owed to
+   * client" total, or an already-paid-out clawback silently unflagged.
+   */
+  | "commerce_order_refund";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

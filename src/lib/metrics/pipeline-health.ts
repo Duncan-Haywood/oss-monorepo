@@ -35,7 +35,9 @@ import {
   marketingMonthKey,
 } from "@/lib/marketing/monthly-pack";
 import {
+  commerceOrderNeedsClawback,
   isCommerceOrderPaidOut,
+  isCommerceOrderRefunded,
   sumCommerceOrdersRevenueUsd,
 } from "@/lib/commerce/orders";
 import {
@@ -135,13 +137,27 @@ export interface PipelineHealth {
   clientVoicePacksDueCount: number;
   /**
    * USD still owed to Commerce clients from Buy now orders (excludes rows with
-   * paidOutAt). Deliberately separate from revenueTotalUsd — this is NOT Local
+   * paidOutAt OR refundedAt — a refunded end-customer sale owes the client
+   * nothing). Deliberately separate from revenueTotalUsd — this is NOT Local
    * Site Studio's own revenue. Matches the Commerce payouts panel + digest
    * unpaid totals until Stripe Connect ships.
    */
   commerceOrdersRevenueUsd: number;
-  /** Count of unpaid Commerce Buy now orders still owed to clients. */
+  /** Count of unpaid, unrefunded Commerce Buy now orders still owed to clients. */
   commerceOrdersCount: number;
+  /**
+   * Count of Commerce Buy now orders refunded by Stripe AFTER the operator
+   * already marked them paid out to the client — the operator is out that
+   * money and must claw it back from the client (see
+   * commerce-order-refund-clawback-tracking). Zero risk otherwise: a refund
+   * on an order never paid out simply drops out of commerceOrdersRevenueUsd
+   * above with nothing further to do.
+   */
+  commerceOrdersRefundClawbackCount: number;
+  /** Sum of amountPaidUsd across commerceOrdersRefundClawbackCount orders. */
+  commerceOrdersRefundClawbackUsd: number;
+  /** Age in whole hours since the oldest refund-after-payout was flagged; null when none. */
+  oldestCommerceOrdersRefundClawbackAgeHours: number | null;
   /**
    * Paid/live Growth/Complete/Commerce leads with recurringCanceledAt and no
    * still-active recurring order — MRR recovery debt (Billing Portal chase).
@@ -241,8 +257,24 @@ export function computePipelineHealth(input: {
   }>;
   /** Existing client voice FAQ packs (one row per Complete lead). */
   clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
-  /** Recorded Commerce Buy now orders (optional) — unpaid owed uses paidOutAt. */
-  commerceOrders?: ReadonlyArray<{ amountPaidUsd: number; paidOutAt?: string }>;
+  /** Recorded Commerce Buy now orders (optional) — unpaid owed uses paidOutAt/refundedAt. */
+  commerceOrders?: ReadonlyArray<{
+    amountPaidUsd: number;
+    paidOutAt?: string;
+    refundedAt?: string;
+  }>;
+  /**
+   * Every refunded Commerce Buy now order regardless of paidOutAt (optional) —
+   * pass listCommerceOrdersRefunded() (uncapped). listUnpaidCommerceOrders /
+   * `commerceOrders` above drops a row once paidOutAt is set, so the
+   * refund-after-payout clawback case needs this separate, uncapped feed to
+   * be visible at all (see commerce-order-refund-clawback-tracking).
+   */
+  commerceOrdersRefunded?: ReadonlyArray<{
+    amountPaidUsd: number;
+    paidOutAt?: string;
+    refundedAt?: string;
+  }>;
   nowMs?: number;
 }): PipelineHealth {
   const stageCounts = emptyStageCounts();
@@ -398,10 +430,33 @@ export function computePipelineHealth(input: {
   );
 
   const commerceOrders = input.commerceOrders ?? [];
+  // A refunded order owes the client nothing — exclude it from "owed" the
+  // same way a paid-out order is excluded (see commerce-order-refund-clawback-tracking).
   const unpaidCommerceOrders = commerceOrders.filter(
-    (order) => !isCommerceOrderPaidOut(order),
+    (order) => !isCommerceOrderPaidOut(order) && !isCommerceOrderRefunded(order),
   );
   const commerceOrdersRevenueUsd = sumCommerceOrdersRevenueUsd(unpaidCommerceOrders);
+
+  const commerceOrdersRefunded = input.commerceOrdersRefunded ?? [];
+  const commerceOrdersRefundClawback = commerceOrdersRefunded.filter(
+    commerceOrderNeedsClawback,
+  );
+  const commerceOrdersRefundClawbackUsd = sumCommerceOrdersRevenueUsd(
+    commerceOrdersRefundClawback,
+  );
+  let oldestCommerceOrdersRefundClawbackAgeHours: number | null = null;
+  for (const order of commerceOrdersRefundClawback) {
+    if (!order.refundedAt) continue;
+    const refundedAtMs = Date.parse(order.refundedAt);
+    if (Number.isNaN(refundedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - refundedAtMs) / HOUR_MS);
+    if (
+      oldestCommerceOrdersRefundClawbackAgeHours === null ||
+      ageHours > oldestCommerceOrdersRefundClawbackAgeHours
+    ) {
+      oldestCommerceOrdersRefundClawbackAgeHours = Math.max(0, ageHours);
+    }
+  }
 
   const recurringEntitlementPaused = listRecurringEntitlementPaused(
     input.leads,
@@ -445,6 +500,9 @@ export function computePipelineHealth(input: {
     clientVoicePacksDueCount: clientVoicePacksDue.length,
     commerceOrdersRevenueUsd,
     commerceOrdersCount: unpaidCommerceOrders.length,
+    commerceOrdersRefundClawbackCount: commerceOrdersRefundClawback.length,
+    commerceOrdersRefundClawbackUsd,
+    oldestCommerceOrdersRefundClawbackAgeHours,
     recurringEntitlementPausedCount,
     oldestRecurringEntitlementPausedAgeHours: oldestRecurringPausedAgeHours,
   };

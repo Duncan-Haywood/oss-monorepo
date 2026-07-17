@@ -32,6 +32,7 @@ import {
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
   listUnpaidCommerceOrders,
+  listCommerceOrdersRefunded,
   listDeployHandoffs,
   getLeadSlugByCustomDomain,
 } from "@/lib/db";
@@ -1155,6 +1156,15 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
     if (order.paidOutAt) {
       return { success: false as const, error: "Order is already marked paid out" };
     }
+    if (order.refundedAt) {
+      // Stripe already returned this money to the shopper — paying the
+      // client out now would be a real out-of-pocket loss with no recovery
+      // path until Stripe Connect ships (commerce-order-refund-clawback-tracking).
+      return {
+        success: false as const,
+        error: "Order was refunded to the customer — nothing is owed to the client",
+      };
+    }
 
     const paidOutAt = new Date().toISOString();
     try {
@@ -1589,6 +1599,7 @@ export async function sendDailyDigestAction() {
       commerceCatalogs,
       clientVoicePacks,
       commerceOrders,
+      commerceOrdersRefunded,
       handoffs,
     ] = await Promise.all([
       getLeads(),
@@ -1599,6 +1610,7 @@ export async function sendDailyDigestAction() {
       listCommerceCatalogs(),
       listClientVoicePacks(),
       listUnpaidCommerceOrders(),
+      listCommerceOrdersRefunded(),
       listDeployHandoffs(),
     ]);
 
@@ -1614,6 +1626,7 @@ export async function sendDailyDigestAction() {
       commerceCatalogs,
       clientVoicePacks,
       commerceOrders,
+      commerceOrdersRefunded,
       handoffs,
       nowMs,
     });

@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import {
   clearOrdersRecurringCanceledByCustomer,
+  getCommerceOrderByStripeSessionId,
   markCheckoutSessionComplete,
   markCheckoutSessionOpen,
+  markCommerceOrderRefunded,
   markCompleteOpenBundleCheckoutSessionsForLead,
   markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer,
   markOrdersRecurringCanceledByCustomer,
@@ -18,6 +20,7 @@ import {
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
+  stripeSubscriptionPausedAtMs,
   stripeSubscriptionPausesRecurringEntitlement,
   stripeSubscriptionShouldPauseRecurringEntitlement,
   stripeSubscriptionShouldRestoreRecurringEntitlement,
@@ -35,6 +38,7 @@ import { parseLeadSlugLookup } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { isStripeCheckoutCurrencyUsd } from "@/lib/payments/checkout-currency";
 import { isStripeCheckoutSessionPaid } from "@/lib/payments/checkout-payment-status";
+import { chargeHasRefund, chargePaymentIntentId } from "@/lib/payments/refunds";
 import {
   bundleCatalogPriceIdsFromEnv,
   sessionLineItemsIncludePriceId,
@@ -140,6 +144,24 @@ import {
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
  * (multi-instance split-brain). Dashboard paths keep the SQLite fallback.
+ *
+ * charge.refunded (full or partial) must resolve the underlying Checkout
+ * Session via stripe.checkout.sessions.list({ payment_intent }) (charges
+ * carry no Session id directly) and, when that Session backs a commerceOrders
+ * row, mark commerceOrders.refundedAt — a refunded end-customer Buy now sale
+ * owes the client nothing, so it must stop counting toward the "owed to
+ * client" payout total (listUnpaidCommerceOrders / pipeline-health /
+ * Commerce payouts panel), and markCommerceOrderPaidOutAction must reject
+ * paying out an order once refundedAt is set. If paidOutAt was already set
+ * before the refund arrived, the operator paid the client out of pocket for
+ * money Stripe has since returned to the shopper — that is a clawback owed
+ * from the client, surfaced via listCommerceOrdersRefunded (uncapped;
+ * listUnpaidCommerceOrders drops any row once paidOutAt is set, so it cannot
+ * see this case). No payment_intent, no matching Session, or no ledgered
+ * commerce order all skip (bundle order refunds are not handled here — see
+ * AGENT_PROTOCOL). Session-lookup / mark-refunded failures return 5xx
+ * (commerce_order_refund_session_lookup / commerce_order_refund) so Stripe
+ * retries rather than silently leaving a refund untracked.
  */
 
 /** Webhook revenue path: fail closed when Convex is configured but unreachable. */
@@ -967,12 +989,7 @@ export async function POST(request: Request) {
         const live = deriveLiveRecurringEntitlementFromPriceIds(itemPriceIds);
         const synced = syncedRecurringOrderFields(live);
         if (!synced) {
-          const pausedAt =
-            typeof subscription.current_period_start === "number" &&
-            Number.isFinite(subscription.current_period_start) &&
-            subscription.current_period_start > 0
-              ? subscription.current_period_start * 1000
-              : Date.now();
+          const pausedAt = stripeSubscriptionPausedAtMs(subscription, Date.now());
           try {
             const updated = await markOrdersRecurringCanceledByCustomer(
               customerId,
@@ -1015,12 +1032,7 @@ export async function POST(request: Request) {
         }
         break;
       }
-      const pausedAt =
-        typeof subscription.current_period_start === "number" &&
-        Number.isFinite(subscription.current_period_start) &&
-        subscription.current_period_start > 0
-          ? subscription.current_period_start * 1000
-          : Date.now();
+      const pausedAt = stripeSubscriptionPausedAtMs(subscription, Date.now());
       try {
         const updated = await markOrdersRecurringCanceledByCustomer(
           customerId,
@@ -1206,6 +1218,77 @@ export async function POST(request: Request) {
           e,
         );
         const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      break;
+    }
+    case "charge.refunded": {
+      // A refunded (full or partial) commerce_sku Buy now charge owes the
+      // client nothing — this order must stop counting toward the "owed to
+      // client" payout total, and if the operator already marked it paid out
+      // before the refund landed, the app must flag it for clawback rather
+      // than silently losing that fact (commerce-order-refund-clawback-tracking).
+      // Bundle (Starter/Growth/Complete) order refunds are not handled here —
+      // that ledger has no manual-payout double-loss risk today; see AGENT_PROTOCOL.
+      const charge = event.data.object as Stripe.Charge;
+      if (!chargeHasRefund(charge)) {
+        break;
+      }
+      const paymentIntentId = chargePaymentIntentId(charge);
+      if (!paymentIntentId) {
+        console.warn(
+          `webhook: charge.refunded ${charge.id} has no payment_intent — cannot correlate to a Checkout Session, skipping`,
+        );
+        break;
+      }
+      let sessions: Stripe.ApiList<Stripe.Checkout.Session>;
+      try {
+        sessions = await stripe.checkout.sessions.list({
+          payment_intent: paymentIntentId,
+          limit: 1,
+        });
+      } catch (e) {
+        console.error(
+          `Failed to list Checkout Sessions for refunded charge ${charge.id} (payment_intent=${paymentIntentId})`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse(
+          "commerce_order_refund_session_lookup",
+        );
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      const session = sessions.data[0];
+      if (!session) {
+        console.warn(
+          `webhook: charge.refunded ${charge.id} payment_intent=${paymentIntentId} matched no Checkout Session — not one of our commerce orders, skipping`,
+        );
+        break;
+      }
+      const commerceOrder = await getCommerceOrderByStripeSessionId(session.id);
+      if (!commerceOrder) {
+        // Not a commerce_sku Buy now order (e.g. a bundle purchase) — no
+        // payout-safety ledger to flag. See AGENT_PROTOCOL note above.
+        break;
+      }
+      if (commerceOrder.refundedAt) {
+        // Already flagged (Stripe redelivery) — idempotent no-op.
+        break;
+      }
+      try {
+        await markCommerceOrderRefunded(
+          session.id,
+          new Date().toISOString(),
+          WEBHOOK_CONVEX_PRIMARY,
+        );
+        console.warn(
+          `webhook: charge.refunded ${charge.id} flagged commerce order for session ${session.id} (leadSlug=${commerceOrder.leadSlug}, skuId=${commerceOrder.skuId}, paidOut=${Boolean(commerceOrder.paidOutAt)})`,
+        );
+      } catch (e) {
+        console.error(
+          `Failed to mark commerce order refunded for session ${session.id} after charge.refunded ${charge.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("commerce_order_refund");
         return NextResponse.json(failure.body, { status: failure.status });
       }
       break;

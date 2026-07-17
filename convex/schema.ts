@@ -168,6 +168,14 @@ export default defineSchema({
      * redelivery recovers sendCommerceBuyNowClientReceipt while unset.
      */
     clientReceiptEmailSentAt: v.optional(v.string()),
+    /**
+     * Set once the Stripe webhook's charge.refunded handler resolves this
+     * order's Checkout Session — a refunded end-customer sale owes the client
+     * nothing (see commerce-order-refund-clawback-tracking). If paidOutAt was
+     * already set before the refund landed, the operator already paid the
+     * client out of pocket and must claw that amount back.
+     */
+    refundedAt: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"]),

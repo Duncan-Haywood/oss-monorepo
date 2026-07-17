@@ -11,6 +11,7 @@ const orderReturn = v.object({
   createdAt: v.string(),
   paidOutAt: v.optional(v.string()),
   clientReceiptEmailSentAt: v.optional(v.string()),
+  refundedAt: v.optional(v.string()),
 });
 
 function mapOrderRow(row: {
@@ -23,6 +24,7 @@ function mapOrderRow(row: {
   createdAt: string;
   paidOutAt?: string;
   clientReceiptEmailSentAt?: string;
+  refundedAt?: string;
 }) {
   return {
     id: row.orderId,
@@ -35,6 +37,8 @@ function mapOrderRow(row: {
     // Empty string must stay unpaid (matches SQLite listUnpaid + isCommerceOrderPaidOut).
     paidOutAt: row.paidOutAt || undefined,
     clientReceiptEmailSentAt: row.clientReceiptEmailSentAt || undefined,
+    // Empty string must stay unrefunded (same SQLite/Convex parity as paidOutAt).
+    refundedAt: row.refundedAt || undefined,
   };
 }
 
@@ -181,5 +185,50 @@ export const markClientReceiptSent = mutation({
       });
     }
     return null;
+  },
+});
+
+/**
+ * Marks a commerce order refunded — called from the Stripe webhook's
+ * charge.refunded handler once it resolves the order's Checkout Session.
+ * Keyed on stripeSessionId (unique, always present), matching markPaidOut.
+ * Idempotent: re-applying the same refundedAt on redelivery is a no-op patch.
+ * Missing order (charge belongs to a Session we never ledgered) is a no-op —
+ * the webhook route treats that as "not one of our commerce orders."
+ */
+export const markRefunded = mutation({
+  args: { stripeSessionId: v.string(), refundedAt: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (order && !order.refundedAt) {
+      await ctx.db.patch(order._id, { refundedAt: args.refundedAt });
+    }
+    return null;
+  },
+});
+
+/**
+ * Every refunded commerce order, regardless of paidOutAt — the payout-safety
+ * "owed" queries (listUnpaid) drop any row once paidOutAt is set, so a refund
+ * that lands AFTER payout (clawback owed from the client) would otherwise be
+ * invisible to every uncapped reader. Collect + filter (not a newest-N page):
+ * this is a bounded operator ledger and completeness beats a truncated recent
+ * page, same rationale as listUnpaid (see commerce-order-refund-clawback-tracking).
+ */
+export const listRefunded = query({
+  args: {},
+  returns: v.array(orderReturn),
+  handler: async (ctx) => {
+    const rows = await ctx.db.query("commerceOrders").collect();
+    return rows
+      .filter((row) => Boolean(row.refundedAt))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map(mapOrderRow);
   },
 });

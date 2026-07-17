@@ -1200,7 +1200,13 @@ export function LeadsClient({
                             {formatUsd(row.amountPaidUsd)} · {row.skuName} ·{" "}
                             {new Date(row.createdAt).toLocaleDateString()}
                           </span>
-                          {row.paidOutAt ? (
+                          {row.refundedAt ? (
+                            <span className="shrink-0 font-semibold text-red-700">
+                              {row.paidOutAt
+                                ? "Refunded after payout — claw back from client"
+                                : "Refunded — nothing owed"}
+                            </span>
+                          ) : row.paidOutAt ? (
                             <span className="shrink-0 text-teal-700">
                               Paid out {new Date(row.paidOutAt).toLocaleDateString()}
                             </span>

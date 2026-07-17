@@ -10,6 +10,7 @@ import {
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
+  stripeSubscriptionPausedAtMs,
   stripeSubscriptionPausesRecurringEntitlement,
   stripeSubscriptionShouldPauseRecurringEntitlement,
   stripeSubscriptionShouldRestoreRecurringEntitlement,
@@ -99,6 +100,47 @@ describe("stripeSubscriptionIdFromInvoice", () => {
     expect(stripeSubscriptionIdFromInvoice({ subscription: "" })).toBeNull();
     expect(stripeSubscriptionIdFromInvoice({ subscription: "   " })).toBeNull();
     expect(stripeSubscriptionIdFromInvoice({ subscription: {} })).toBeNull();
+  });
+});
+
+describe("stripeSubscriptionPausedAtMs", () => {
+  it("converts the first item's current_period_start (seconds) to ms", () => {
+    const nowMs = 1_800_000_000_000;
+    expect(
+      stripeSubscriptionPausedAtMs(
+        { items: { data: [{ current_period_start: 1_720_000_300 }] } },
+        nowMs,
+      ),
+    ).toBe(1_720_000_300_000);
+  });
+
+  it("falls back to nowMs when items are missing (Stripe Subscription no longer carries current_period_start directly)", () => {
+    const nowMs = 1_800_000_000_000;
+    expect(stripeSubscriptionPausedAtMs({}, nowMs)).toBe(nowMs);
+  });
+
+  it("falls back to nowMs when items.data is empty", () => {
+    const nowMs = 1_800_000_000_000;
+    expect(stripeSubscriptionPausedAtMs({ items: { data: [] } }, nowMs)).toBe(nowMs);
+  });
+
+  it("falls back to nowMs on a non-positive or non-finite current_period_start", () => {
+    const nowMs = 1_800_000_000_000;
+    expect(
+      stripeSubscriptionPausedAtMs({ items: { data: [{ current_period_start: 0 }] } }, nowMs),
+    ).toBe(nowMs);
+    expect(
+      stripeSubscriptionPausedAtMs(
+        { items: { data: [{ current_period_start: Number.NaN }] } },
+        nowMs,
+      ),
+    ).toBe(nowMs);
+    expect(
+      stripeSubscriptionPausedAtMs(
+        { items: { data: [{ current_period_start: "1720000300" as unknown }] } },
+        nowMs,
+      ),
+    ).toBe(nowMs);
   });
 });
 

@@ -182,6 +182,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.commerceOrdersCount > 0}
         />
+        <MetricCard
+          label="Refund clawback needed"
+          value={formatUsd(health.commerceOrdersRefundClawbackUsd)}
+          hint={
+            health.commerceOrdersRefundClawbackCount > 0
+              ? `${health.commerceOrdersRefundClawbackCount} Buy now order${health.commerceOrdersRefundClawbackCount === 1 ? "" : "s"} paid out to a client, then refunded by Stripe — claw back from client${
+                  health.oldestCommerceOrdersRefundClawbackAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersRefundClawbackAgeHours)}`
+                    : ""
+                }`
+              : "No payouts refunded after the fact"
+          }
+          attention={health.commerceOrdersRefundClawbackCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (

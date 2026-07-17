@@ -32,6 +32,15 @@ export interface CommerceOrderRecord {
    * notification only while this is unset (independent of inquiry presence).
    */
   clientReceiptEmailSentAt?: string;
+  /**
+   * Set once the Stripe webhook's charge.refunded handler resolved this order's
+   * Checkout Session (see commerce-order-refund-clawback-tracking). A refunded
+   * end-customer sale owes the client nothing — this order must drop out of
+   * the "owed" total, and if paidOutAt was already set before the refund
+   * landed, the operator already paid the client out of pocket for money
+   * Stripe has since returned to the shopper (clawback owed from the client).
+   */
+  refundedAt?: string;
 }
 
 export interface InsertCommerceOrderInput {
@@ -87,6 +96,26 @@ export function isCommerceOrderPaidOut(
   return Boolean(order.paidOutAt);
 }
 
+/** True once the Stripe charge behind this order has been refunded (full or partial). */
+export function isCommerceOrderRefunded(
+  order: Pick<CommerceOrderRecord, "refundedAt">,
+): boolean {
+  return Boolean(order.refundedAt);
+}
+
+/**
+ * True when a refunded order was already marked paid out to the client — the
+ * operator sent the client their cut before Stripe returned the money to the
+ * shopper, so that amount must be clawed back from the client rather than
+ * silently written off. This is the urgent case; a refund on an order that
+ * was never paid out just means $0 is owed (see excludeRefundedFromOwed).
+ */
+export function commerceOrderNeedsClawback(
+  order: Pick<CommerceOrderRecord, "paidOutAt" | "refundedAt">,
+): boolean {
+  return isCommerceOrderPaidOut(order) && isCommerceOrderRefunded(order);
+}
+
 /**
  * Per-lead rollup of pass-through Buy now orders for manual payout
  * reconciliation until Stripe Connect ships. Pure — no I/O.
@@ -100,7 +129,12 @@ export interface CommerceOrdersByLeadSummary {
   orderCount: number;
   /** Lifetime total of all recorded orders for this lead (paid out or not). */
   totalUsd: number;
-  /** Total still owed to the client — excludes orders with paidOutAt set. */
+  /**
+   * Total still owed to the client — excludes orders with paidOutAt set AND
+   * orders with refundedAt set. A refunded end-customer sale owes the client
+   * nothing, so it must not inflate this operator-facing "owed" total (see
+   * commerce-order-refund-clawback-tracking).
+   */
   unpaidTotalUsd: number;
   unpaidCount: number;
   latestCreatedAt: string;
@@ -128,7 +162,9 @@ export function summarizeCommerceOrdersByLead(
     );
     const latest = sorted[0];
     if (!latest) continue;
-    const unpaid = sorted.filter((order) => !isCommerceOrderPaidOut(order));
+    const unpaid = sorted.filter(
+      (order) => !isCommerceOrderPaidOut(order) && !isCommerceOrderRefunded(order),
+    );
     summaries.push({
       leadSlug,
       orderCount: sorted.length,

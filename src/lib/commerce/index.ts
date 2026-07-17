@@ -50,7 +50,9 @@ export {
 } from "./stripe-sync";
 
 export {
+  commerceOrderNeedsClawback,
   isCommerceOrderPaidOut,
+  isCommerceOrderRefunded,
   newCommerceOrderId,
   sortCommerceOrdersNewestFirst,
   sumCommerceOrdersRevenueUsd,

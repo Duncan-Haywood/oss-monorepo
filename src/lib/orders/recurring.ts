@@ -85,13 +85,24 @@ export function stripeSubscriptionHasPauseCollection(
 }
 
 /**
- * Extract a Stripe Subscription id from an Invoice.subscription field
- * (string or expanded object). Returns null for one-time invoices.
+ * Extract a Stripe Subscription id from an Invoice (string or expanded
+ * object). Checks the legacy top-level Invoice.subscription field first, then
+ * falls back to invoice.parent.subscription_details.subscription — Stripe API
+ * versions from 2025-03-31 onward removed the top-level field and nest it
+ * under `parent` instead (a webhook payload signed with an older API version
+ * can still send the legacy shape, so both are checked rather than switched
+ * outright). Returns null for one-time invoices.
  */
 export function stripeSubscriptionIdFromInvoice(invoice: {
   subscription?: unknown;
+  parent?: { subscription_details?: { subscription?: unknown } | null } | null;
 }): string | null {
-  const sub = invoice.subscription;
+  const fromLegacyField = subscriptionIdFromValue(invoice.subscription);
+  if (fromLegacyField) return fromLegacyField;
+  return subscriptionIdFromValue(invoice.parent?.subscription_details?.subscription);
+}
+
+function subscriptionIdFromValue(sub: unknown): string | null {
   if (typeof sub === "string") {
     const id = sub.trim();
     return id.length > 0 ? id : null;
@@ -107,12 +118,38 @@ export function stripeSubscriptionIdFromInvoice(invoice: {
 }
 
 /**
+ * Timestamp (ms) to record as orders.recurringCanceledAt when a Subscription
+ * pauses CRM entitlement. Stripe API versions from 2025-03-31 onward moved
+ * current_period_start/end from the Subscription itself to each
+ * SubscriptionItem (a Subscription can have multiple items with different
+ * billing cycles) — reading subscription.current_period_start directly no
+ * longer type-checks and is not populated at runtime either. Use the first
+ * item's current_period_start (every sold bundle/Commerce subscription has
+ * exactly one recurring Price/item); fall back to nowMs when absent/invalid
+ * rather than leaving pausedAt undefined.
+ */
+export function stripeSubscriptionPausedAtMs(
+  subscription: {
+    items?: { data?: ReadonlyArray<{ current_period_start?: unknown }> };
+  },
+  nowMs: number,
+): number {
+  const currentPeriodStart = subscription.items?.data?.[0]?.current_period_start;
+  return typeof currentPeriodStart === "number" &&
+    Number.isFinite(currentPeriodStart) &&
+    currentPeriodStart > 0
+    ? currentPeriodStart * 1000
+    : nowMs;
+}
+
+/**
  * True when an invoice.payment_failed / invoice.paid event is tied to a
  * Subscription (not a one-time invoice). Only subscription renewals should
  * pause or restore packs/catalog via the invoice twin of subscription.updated.
  */
 export function invoicePaymentFailedPausesRecurringEntitlement(invoice: {
   subscription?: unknown;
+  parent?: { subscription_details?: { subscription?: unknown } | null } | null;
 }): boolean {
   return stripeSubscriptionIdFromInvoice(invoice) != null;
 }
@@ -124,6 +161,7 @@ export function invoicePaymentFailedPausesRecurringEntitlement(invoice: {
  */
 export function invoicePaidMayRestoreRecurringEntitlement(invoice: {
   subscription?: unknown;
+  parent?: { subscription_details?: { subscription?: unknown } | null } | null;
 }): boolean {
   return stripeSubscriptionIdFromInvoice(invoice) != null;
 }

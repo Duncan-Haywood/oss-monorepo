@@ -179,6 +179,20 @@ describe("markCommerceOrderPaidOutAction", () => {
     expect(markCommerceOrderPaidOut).not.toHaveBeenCalled();
   });
 
+  it("rejects an order that has been refunded to the customer (clawback safety)", async () => {
+    getCommerceOrderByStripeSessionId.mockResolvedValue({
+      ...unpaidOrder,
+      refundedAt: "2026-07-14T09:00:00.000Z",
+    });
+    const { markCommerceOrderPaidOutAction } = await import("./actions");
+    const res = await markCommerceOrderPaidOutAction("cs_test_commerce_paid");
+    expect(res).toEqual({
+      success: false,
+      error: "Order was refunded to the customer — nothing is owed to the client",
+    });
+    expect(markCommerceOrderPaidOut).not.toHaveBeenCalled();
+  });
+
   it("persists paidOutAt with COMMERCE_PAID_OUT_CONVEX_PRIMARY and revalidates", async () => {
     const { markCommerceOrderPaidOutAction } = await import("./actions");
     const res = await markCommerceOrderPaidOutAction("cs_test_commerce_paid");

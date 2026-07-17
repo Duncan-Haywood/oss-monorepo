@@ -711,6 +711,58 @@ describe("computePipelineHealth", () => {
     expect(health.commerceOrdersCount).toBe(1);
   });
 
+  it("excludes refunded commerce orders from the owed pass-through card (never paid out)", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        { amountPaidUsd: 12.5, refundedAt: "2026-07-12T10:00:00.000Z" },
+        { amountPaidUsd: 7.25 },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRevenueUsd).toBe(7.25);
+    expect(health.commerceOrdersCount).toBe(1);
+    expect(health.commerceOrdersRefundClawbackCount).toBe(0);
+  });
+
+  it("surfaces refund-after-payout as a clawback owed from the client", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrdersRefunded: [
+        {
+          amountPaidUsd: 40,
+          paidOutAt: "2026-07-10T10:00:00.000Z",
+          refundedAt: "2026-07-14T10:00:00.000Z",
+        },
+        // Refunded but never paid out — zero clawback risk, excluded.
+        { amountPaidUsd: 15, refundedAt: "2026-07-15T10:00:00.000Z" },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRefundClawbackCount).toBe(1);
+    expect(health.commerceOrdersRefundClawbackUsd).toBe(40);
+    expect(health.oldestCommerceOrdersRefundClawbackAgeHours).not.toBeNull();
+  });
+
+  it("defaults clawback fields to zero/null when no refunds recorded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRefundClawbackCount).toBe(0);
+    expect(health.commerceOrdersRefundClawbackUsd).toBe(0);
+    expect(health.oldestCommerceOrdersRefundClawbackAgeHours).toBeNull();
+  });
+
   it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
     // Simulate listCommerceOrders(N)'s newest-first page: an old unpaid Buy now
     // row pushed off the page by newer paid-out traffic. Callers must feed

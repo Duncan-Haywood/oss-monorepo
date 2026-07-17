@@ -725,6 +725,94 @@ describe("buildDailyDigest", () => {
     expect(digest.commercePayoutsOwedTotalUsd).toBe(0);
   });
 
+  it("excludes refunded commerce orders from payouts owed (never paid out)", () => {
+    const cafe = baseLead({
+      slug: "refunded-cafe",
+      businessName: "Refunded Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrders: [
+        {
+          id: "co_1",
+          leadSlug: "refunded-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_1",
+          createdAt: "2026-07-12T10:00:00.000Z",
+          refundedAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commercePayoutsOwed).toHaveLength(0);
+    expect(digest.commercePayoutsOwedTotalUsd).toBe(0);
+  });
+
+  it("surfaces refund-after-payout as a clawback owed from the client", () => {
+    const cafe = baseLead({
+      slug: "clawback-cafe",
+      businessName: "Clawback Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersRefunded: [
+        {
+          id: "co_1",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_1",
+          createdAt: "2026-07-12T10:00:00.000Z",
+          paidOutAt: "2026-07-12T11:00:00.000Z",
+          refundedAt: "2026-07-13T09:00:00.000Z",
+        },
+        {
+          // Refunded but never paid out — zero clawback risk, excluded.
+          id: "co_2",
+          leadSlug: "clawback-cafe",
+          skuId: "sku_muffin",
+          skuName: "Muffin",
+          amountPaidUsd: 5,
+          stripeSessionId: "cs_2",
+          createdAt: "2026-07-12T10:00:00.000Z",
+          refundedAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commerceOrdersRefundClawback).toHaveLength(1);
+    expect(digest.commerceOrdersRefundClawback[0]).toMatchObject({
+      slug: "clawback-cafe",
+      businessName: "Clawback Cafe",
+      skuName: "Latte",
+      amountPaidUsd: 12.5,
+    });
+    expect(digest.commerceOrdersRefundClawbackCount).toBe(1);
+    expect(digest.commerceOrdersRefundClawbackTotalUsd).toBe(12.5);
+    expect(digest.isEmpty).toBe(false);
+  });
+
+  it("defaults refund clawback fields to zero when no refunds recorded", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.commerceOrdersRefundClawback).toHaveLength(0);
+    expect(digest.commerceOrdersRefundClawbackCount).toBe(0);
+    expect(digest.commerceOrdersRefundClawbackTotalUsd).toBe(0);
+  });
+
   it("lists open production handoffs (status !== live) oldest-first and skips live", () => {
     const cafe = baseLead({
       slug: "awaiting-cafe",
@@ -1133,6 +1221,39 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("$25.00 owed");
     expect(html).toContain("Owed &lt;Shop&gt;");
     expect(html).not.toContain("Owed <Shop>");
+  });
+
+  it("renders Refund clawback needed section and escapes business names", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "clawback-shop",
+          businessName: "Clawback <Shop>",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersRefunded: [
+        {
+          id: "co_clawback",
+          leadSlug: "clawback-shop",
+          skuId: "sku_1",
+          skuName: "Gift card",
+          amountPaidUsd: 25,
+          stripeSessionId: "cs_clawback",
+          createdAt: "2026-07-12T09:00:00.000Z",
+          paidOutAt: "2026-07-12T10:00:00.000Z",
+          refundedAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Refund clawback needed");
+    expect(html).toContain("$25.00 paid out");
+    expect(html).toContain("Clawback &lt;Shop&gt;");
+    expect(html).not.toContain("Clawback <Shop>");
   });
 
   it("renders production handoffs open with escaped host and status", () => {

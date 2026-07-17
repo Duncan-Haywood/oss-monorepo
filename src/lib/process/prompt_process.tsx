@@ -2736,6 +2736,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-516f",
   },
+  {
+    id: "commerce-order-refund-clawback-tracking",
+    summary:
+      "Empty-backlog after PR #357 (action-level paused MRR entitlement Vitest). Stripe charge.refunded/disputes were entirely unhandled — grep found zero references to refunds anywhere in the webhook despite an early BUSINESS_DECISIONS note that operators must 'reconcile Stripe for disputes/refunds' manually. Concretely, an operator could Mark paid out a Commerce Buy now order that Stripe had already refunded to the shopper, losing that money twice. Shipped: charge.refunded resolves the Checkout Session (stripe.checkout.sessions.list({payment_intent})), marks commerceOrders.refundedAt when it backs a ledgered order (idempotent), excludes refunded orders from the 'owed to client' total (pipeline-health commerceOrdersRevenueUsd, Commerce payouts panel, digest), rejects Mark paid out on a refunded order, and surfaces refund-after-payout as a distinct clawback (new uncapped listCommerceOrdersRefunded() feeding pipeline-health commerceOrdersRefundClawbackCount/Usd + a new digest 'Refund clawback needed' section) — listUnpaidCommerceOrders alone cannot see this case since it drops any row once paidOutAt is set. Bundle order refunds are a follow-up (lower severity: no payout-panel double-loss risk on that ledger today).",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-0x1k8a",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5605,7 +5613,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Empty-backlog after PR #356/#357. Free NEXT_STEPS stayed operator/legal-gated. Concurrent sibling prompt-process-evolution-3a51 claimed/shipped marketing-voice-pack-hours-join-soft-cap — complementary pivot (pack hours); folded here. Fresh money-path residual: #344–#351 restore/pause only toggled recurringCanceledAt by stripeCustomerId — Complet→Growth or Commerce removal left CRM over-entitled. Process improvement: after CRM pause/restore twins, immediately sync live Subscription items onto orders.tier/commerceAddon before inventing another dated clean-audit. Next empty-backlog: stuck CLI / escapeHtml·webhook·uncapped. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
-
+  {
+    date: "2026-07-17",
+    decision:
+      "Stripe charge.refunded (full or partial) must resolve the underlying Checkout Session via stripe.checkout.sessions.list({ payment_intent }) and, when it backs a commerceOrders row, mark commerceOrders.refundedAt (idempotent) — a refunded Buy now sale owes the client nothing, so it must drop out of the 'owed to client' payout total (listUnpaidCommerceOrders / pipeline-health commerceOrdersRevenueUsd / Commerce payouts panel / digest), and markCommerceOrderPaidOutAction must reject paying out a refunded order. When paidOutAt was already set before the refund arrived, that is a clawback owed from the client — surface it via a new uncapped listCommerceOrdersRefunded() feeding pipeline-health (commerceOrdersRefundClawbackCount/Usd + oldest age) and a new digest 'Refund clawback needed' section, since listUnpaidCommerceOrders drops any row once paidOutAt is set and cannot see this case on its own. Bundle order refunds are not handled here — that ledger has no manual-payout double-loss risk today (no payout action exists against it).",
+    rationale:
+      "Empty-backlog after PR #357 (action-level paused MRR entitlement Vitest). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-integrity gap found via direct code audit rather than branch archaeology: grepping the whole repo for 'refund' turned up nothing except a 2026-07-11 BUSINESS_DECISIONS note that operators must still reconcile Stripe for disputes/refunds manually — Stripe refunds/disputes were entirely unhandled by the webhook despite 341 prior iterations hardening subscription pause/cancel, webhook idempotency, and entitlement gates on this exact commerceOrders ledger. Concretely: an operator could click Mark paid out on a Commerce Buy now order that Stripe had already refunded to the end customer, losing that amount twice (once refunded to the shopper via Stripe, once paid to the client from the operator's own pocket) with zero record of the mistake. This is a real, previously invisible revenue-integrity / silent-financial-loss bug — the same severity class the money/ledger integrity rules in AGENT_PROTOCOL exist to prevent, just on an axis (refunds) no prior iteration had touched. Process improvement: after the entitlement-pause series (#344–#357) repeatedly confirmed webhook idempotency / escapeHtmlForEmail / uncapped-list axes clean, refund/dispute handling is a distinct, previously-undated axis worth a full pass before re-running the same clean audits a third time. Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / bundle-order refund twin (lower severity) / charge.dispute.created as the natural follow-up to charge.refunded. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "Stripe SDK 22.3.1 (API versions 2025-03-31 and later) removed Subscription.current_period_start/end (moved to each SubscriptionItem, since one Subscription can have multiple items with distinct billing cycles) and removed the top-level Invoice.subscription field (moved to invoice.parent.subscription_details.subscription). src/app/api/stripe/webhook/route.ts's subscription-pause pausedAt calculation and stripeSubscriptionIdFromInvoice both read the old flat fields, which silently broke `npm run build` (tsc) on main with zero test-suite signal since `npm test` never runs a full typecheck. Shipped stripeSubscriptionPausedAtMs (reads subscription.items.data[0].current_period_start, falls back to nowMs) and widened stripeSubscriptionIdFromInvoice to check both the legacy top-level field and the new nested parent.subscription_details.subscription path, since a webhook signed with an older pinned API version can still send the legacy shape.",
+    rationale:
+      "Discovered while verifying `npm run build` for the commerce-order-refund-clawback-tracking change above — this task's instructions require a clean build, not just clean tests, and `npm test` (Vitest) does not run tsc across route.ts. Confirmed via `git stash` against origin/main @ 9b3fcdd (PR #357) that both type errors pre-date this iteration and are not introduced by this branch — the build had been silently broken for at least one prior iteration's worth of history because recent agents ran lint + vitest but not a full production build before committing. Process improvement: `npm run build` must be run at least once per empty-backlog rotation, even when the change is unrelated to payments, since a Stripe SDK type-version drift can silently break the highest money-criticality file in the repo with zero Vitest signal. Next empty-backlog: same as above; also worth a one-time grep for other `stripe.` type usages that may have drifted with the same 2025-03-31+ API version migration before assuming this fix covers every case.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -11336,12 +11357,16 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes lead→request soft-cap parity with public generate",
       "AGENT_PROTOCOL — after public generate soft-cap, immediately close dashboard lead→request twin",
       "NEXT_STEPS: marketing-voice-build-request-business-context-soft-cap done",
-      "BUSINESS_DECISIONS — require lead→request soft-cap (absolute index 404)",
-      "Process: object-parse by decision text (order-arg type parity=403, bestMarketingOrderTier=402) before appending ours; claim pushed before feature body",
+      "BUSINESS_DECISIONS — require lead→request soft-cap (absolute index 405)",
+      "Process: object-parse by decision text (order-arg type parity=404, bestMarketingOrderTier=403) before appending ours; claim pushed before feature body",
       "Verified: npm test (1768 passed = main@#355's 1766 + 2 soft-cap regressions) + lint; later main merge as PR #356",
     ],
-    // Object-parse by decision text: lead→request soft-cap owns BD[404]; order-arg type parity=403.
-    decisions: BUSINESS_DECISIONS.slice(404, 405),
+    // Object-parse by decision text: lead→request soft-cap owns BD[405]; order-arg type parity=404.
+    // Corrected 2026-07-17 (claude/nice-euler-0x1k8a): this slice was off by one — BD[404] is
+    // actually the order-arg type parity decision, not lead→request soft-cap. Every following
+    // iteration through business-process-evolution-516f trusted this comment instead of
+    // re-object-parsing and compounded the same +1 error; all have been corrected together.
+    decisions: BUSINESS_DECISIONS.slice(405, 406),
   },
   {
     date: "2026-07-17",
@@ -11358,12 +11383,13 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes action-level paused Vitest beside entitlement predicates",
       "AGENT_PROTOCOL — after type-level entitlement, lock dashboard action glue with paused Vitest",
       "NEXT_STEPS: marketing-voice-commerce-action-entitlement-regression done; marketing-voice-build-request-business-context-soft-cap done (3811)",
-      "BUSINESS_DECISIONS — require action-level paused entitlement Vitest (absolute index 405)",
-      "Process: coop fold of sibling 3811; claim pushed before feature body; object-parse by decision text (build-request soft-cap=404) before appending ours",
+      "BUSINESS_DECISIONS — require action-level paused entitlement Vitest (absolute index 406)",
+      "Process: coop fold of sibling 3811; claim pushed before feature body; object-parse by decision text (build-request soft-cap=405) before appending ours",
       "Verified: npm test (1773 passed = main@#355's 1766 + sibling 2 build-request soft-cap + 5 action entitlement) + lint",
     ],
-    // Object-parse by decision text: action entitlement Vitest owns BD[405]; build-request soft-cap=404.
-    decisions: BUSINESS_DECISIONS.slice(405, 406),
+    // Object-parse by decision text: action entitlement Vitest owns BD[406]; build-request soft-cap=405.
+    // Corrected 2026-07-17 (claude/nice-euler-0x1k8a) — see cascade note on the 3811 entry above.
+    decisions: BUSINESS_DECISIONS.slice(406, 407),
   },
   {
     date: "2026-07-17",
@@ -11378,13 +11404,14 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes joined hours ceiling beside lead→request soft-cap",
       "AGENT_PROTOCOL — after joining multi-field CRM values into one generate field, audit joined ceiling vs per-field max",
       "NEXT_STEPS: marketing-voice-pack-hours-join-soft-cap done",
-      "BUSINESS_DECISIONS — require formatPackBusinessHours + MAX_PACK_BUSINESS_HOURS_LENGTH (absolute index 406)",
-      "Process: coop note of sibling 516f subscription-items claim; claim pushed before feature body; object-parse by decision text (action entitlement=405) before appending ours",
+      "BUSINESS_DECISIONS — require formatPackBusinessHours + MAX_PACK_BUSINESS_HOURS_LENGTH (absolute index 407)",
+      "Process: coop note of sibling 516f subscription-items claim; claim pushed before feature body; object-parse by decision text (action entitlement=406) before appending ours",
       "merge: sibling business-process-evolution-516f subscription-items CRM sync feature body — keep both NEXT_STEPS/ITERATIONS",
       "Verified: npm test (1791 passed = main@#357's 1773 + 6 hours-join + sibling subscription-items suite) + lint after fold",
     ],
-    // Object-parse by decision text: hours-join soft-cap owns BD[406]; action entitlement Vitest=405.
-    decisions: BUSINESS_DECISIONS.slice(406, 407),
+    // Object-parse by decision text: hours-join soft-cap owns BD[407]; action entitlement Vitest=406.
+    // Corrected 2026-07-17 (claude/nice-euler-0x1k8a) — see cascade note on the 3811 entry above.
+    decisions: BUSINESS_DECISIONS.slice(407, 408),
   },
   {
     date: "2026-07-17",
@@ -11399,11 +11426,46 @@ export const ITERATIONS: ProcessIteration[] = [
       "Vitest: subscription-entitlement + webhook regressions for downgrade / Commerce-only / foreign-Price pause",
       "AGENT_PROTOCOL — after CRM pause/restore, sync live Subscription items onto orders.tier/commerceAddon",
       "NEXT_STEPS: subscription-items-crm-entitlement-sync done; marketing-voice-pack-hours-join-soft-cap done (3a51)",
-      "BUSINESS_DECISIONS — require subscription-items CRM sync on grants restore (absolute index 407)",
-      "Process: folded onto prompt-process-evolution-3a51; object-parse by decision text (hours-join=406) before appending ours",
+      "BUSINESS_DECISIONS — require subscription-items CRM sync on grants restore (absolute index 408)",
+      "Process: folded onto prompt-process-evolution-3a51; object-parse by decision text (hours-join=407) before appending ours",
       "Verified: npm test (1791 passed) + lint on fold branch",
     ],
-    // Object-parse by decision text: subscription-items sync owns BD[407]; hours-join soft-cap=406.
-    decisions: BUSINESS_DECISIONS.slice(407, 408),
+    // Object-parse by decision text: subscription-items sync owns BD[408]; hours-join soft-cap=407.
+    // Corrected 2026-07-17 (claude/nice-euler-0x1k8a) — see cascade note on the 3811 entry above.
+    decisions: BUSINESS_DECISIONS.slice(408, 409),
+  },
+  {
+    date: "2026-07-17",
+    branch: "claude/nice-euler-0x1k8a",
+    summary:
+      "Empty-backlog after PR #357 (action-level paused MRR entitlement Vitest). Free NEXT_STEPS stayed operator/legal-gated. No concurrent sibling claim seen at start; merged sibling prompt-process-evolution-3a51 (hours-join soft-cap) + business-process-evolution-516f (subscription-items CRM sync) from origin/main onto this branch before pushing. Direct code audit (grep for 'refund' across the repo) found a genuine, previously undiscussed money-integrity gap: Stripe charge.refunded/disputes were entirely unhandled — an operator could Mark paid out a Commerce Buy now order Stripe had already refunded to the shopper, losing that money twice. Shipped commerce-order-refund-clawback-tracking end to end (webhook + ledger + payout-safety gate + pipeline-health + digest + payouts-panel UI), plus a drive-by fix for a pre-existing, unrelated `npm run build` break (Stripe SDK 22.3.1 moved Subscription.current_period_start to SubscriptionItem and Invoice.subscription to invoice.parent.subscription_details.subscription) discovered while verifying the build stayed green.",
+    shipped: [
+      "src/lib/commerce/orders.ts (+ test) — CommerceOrderRecord.refundedAt, isCommerceOrderRefunded, commerceOrderNeedsClawback; summarizeCommerceOrdersByLead excludes refunded orders from unpaidTotalUsd/unpaidCount",
+      "src/lib/commerce/index.ts — barrel exports for the two new helpers",
+      "src/lib/payments/refunds.ts (+ test) — chargeHasRefund, chargePaymentIntentId (pure Stripe charge.refunded helpers)",
+      "convex/schema.ts + convex/commerceOrders.ts — refundedAt column; markRefunded mutation; listRefunded query (uncapped, mirrors listUnpaid)",
+      "src/lib/commerce/sqlite-row-mapping.ts (+ test) — refundedAt column round-trip, empty-string→undefined parity",
+      "src/lib/db.ts — commerce_orders.refundedAt SQLite migration; markCommerceOrderRefunded (Convex-first, requireConvex); listCommerceOrdersRefunded (uncapped); static Convex API map registrations (commerceOrders.markRefunded, commerceOrders.listRefunded)",
+      "src/app/api/stripe/webhook/route.ts (+ test) — charge.refunded handler: resolve Checkout Session via stripe.checkout.sessions.list({payment_intent}), mark commerceOrders.refundedAt when it backs a ledgered order, idempotent, 5xx on Session-lookup/mark failure",
+      "src/lib/payments/webhook-fulfillment.ts (+ test) — commerce_order_refund_session_lookup + commerce_order_refund fulfillment steps",
+      "src/app/dashboard/leads/actions.ts (+ test) — markCommerceOrderPaidOutAction rejects a refunded order (clawback safety)",
+      "src/lib/metrics/pipeline-health.ts (+ test) — excludes refunded orders from commerceOrdersRevenueUsd/commerceOrdersCount; new commerceOrdersRefundClawbackCount/Usd + oldest age fields (fed by listCommerceOrdersRefunded)",
+      "src/lib/digest/daily-digest.ts (+ test) — new 'Refund clawback needed' section (count/total/rows), commercePayoutsOwed automatically benefits from the orders.ts fix",
+      "src/app/dashboard/page.tsx + src/app/dashboard/leads/page.tsx + src/app/dashboard/leads/actions.ts (sendDailyDigestAction) — wire listCommerceOrdersRefunded() into pipeline-health + digest",
+      "src/components/dashboard/pipeline-health-panel.tsx — new 'Refund clawback needed' metric card",
+      "src/app/dashboard/leads/leads-client.tsx — Commerce payouts panel shows Refunded / Refunded after payout instead of Mark paid out button",
+      "src/lib/orders/recurring.ts (+ test) — drive-by build fix: stripeSubscriptionPausedAtMs (reads subscription.items.data[0].current_period_start); stripeSubscriptionIdFromInvoice widened to also check invoice.parent.subscription_details.subscription",
+      "src/app/api/stripe/webhook/route.ts + route.test.ts — use stripeSubscriptionPausedAtMs; test fixtures nest current_period_start under items.data[]",
+      "merge: origin/main #358 (siblings 3a51 hours-join + 516f subscription-items sync) — kept both NEXT_STEPS/ITERATIONS/BUSINESS_DECISIONS entries",
+      "NEXT_STEPS: commerce-order-refund-clawback-tracking done",
+      "BUSINESS_DECISIONS — commerce refund/clawback tracking + Stripe SDK subscription/invoice shape migration build fix (indices recomputed below by decision text)",
+      "Process: verified via `git stash` that both pre-existing build type errors predate this branch (present on origin/main @ 9b3fcdd/#357) before fixing them",
+      "Verified: npm test (1815 passed = main@#358's 1811 + 4 stripeSubscriptionPausedAtMs) + lint + build (tsc clean, all 31 routes generated) + npm run dev sanity check on /dashboard, /dashboard/leads, /preview/demo-cafe (200s, no console errors, new Refund clawback needed card renders)",
+    ],
+    // Object-parse by decision text: refund/clawback tracking = BD[409], Stripe SDK shape migration = BD[410]
+    // (subscription-items sync = BD[408]). Also fixed a pre-existing off-by-one slice cascade
+    // (introduced by business-process-evolution-3811, compounded through 516f) in the four
+    // iterations above — every one of them was pointing one index too low.
+    decisions: BUSINESS_DECISIONS.slice(409, 411),
   },
 ];
