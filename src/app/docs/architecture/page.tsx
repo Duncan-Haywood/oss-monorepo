@@ -1154,6 +1154,21 @@ source). The same digest also lists email-critical leads with no usable address 
         disposition and outreach mark, and suppression / Resend failure after durable marks —
         so dashboard Re-engage/Close glue is not left to the cold-archive helper suite alone.
       </p>
+      <p>
+        Bundle abandoned checkouts (Local Site Studio plan carts) carry an{" "}
+        <code>oldestAbandonedAgeHours</code> staleness signal on <code>PipelineHealth</code>,
+        the daily digest, and the dashboard MetricCard hint — but the sibling Commerce Buy now
+        abandoned-cart queue (<code>kind=commerce_sku</code>) had no matching age signal
+        anywhere, the one residual gap left after{" "}
+        <code>due-queue-oldest-age-parity</code> closed every other due-queue.{" "}
+        <code>oldestCommerceAbandonedAgeHours</code> now scans{" "}
+        <code>listCommerceAbandonedCheckoutsDue</code>&apos;s output the same way{" "}
+        <code>oldestAbandonedAgeHours</code> scans the bundle twin — computed independently so a
+        stale bundle cart&apos;s age never leaks into the commerce-only field or vice versa —
+        and is wired into <code>PipelineHealth</code>, <code>DailyDigest</code> (
+        <code>Abandoned Buy now</code> section title), and the &quot;Buy now carts&quot;
+        MetricCard hint.
+      </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>
       <p>

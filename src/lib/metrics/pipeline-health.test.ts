@@ -368,6 +368,7 @@ describe("computePipelineHealth", () => {
     expect(health.abandonedCheckoutCount).toBe(0);
     expect(health.recoveryDueCount).toBe(0);
     expect(health.oldestAbandonedAgeHours).toBeNull();
+    expect(health.oldestCommerceAbandonedAgeHours).toBeNull();
   });
 
   it("counts abandoned and recovery-due sessions with oldest age", () => {
@@ -450,6 +451,52 @@ describe("computePipelineHealth", () => {
     expect(health.recoveryDueCount).toBe(1);
     expect(health.commerceAbandonedCheckoutCount).toBe(1);
     expect(health.commerceRecoveryDueCount).toBe(1);
+  });
+
+  it("computes oldest age for commerce Buy now abandoned carts, independent of bundle carts", () => {
+    const bundleOlder = makeSession({
+      stripeSessionId: "cs_bundle_old",
+      createdAt: new Date(NOW - 40 * HOUR_MS).toISOString(),
+    });
+    const commerceNewer = makeSession({
+      stripeSessionId: "cs_commerce_newer",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+    });
+    const commerceOlder = makeSession({
+      stripeSessionId: "cs_commerce_older",
+      kind: "commerce_sku",
+      skuId: "sku_tea",
+      tier: "",
+      createdAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+    });
+
+    const health = computePipelineHealth({
+      leads: [makeLead("paid", { slug: "cart-lead" })],
+      orders: [
+        {
+          id: "ord_1",
+          leadSlug: "cart-lead",
+          tier: "starter",
+          amountPaid: 800,
+          stripeSessionId: "cs_paid",
+          commerceAddon: true,
+          status: "paid",
+          createdAt: new Date(NOW - 10 * DAY_MS).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      openCheckoutSessions: [bundleOlder, commerceNewer, commerceOlder],
+      nowMs: NOW,
+    });
+
+    // Bundle oldest age (40h) must not leak into the commerce-only field.
+    expect(health.oldestAbandonedAgeHours).toBe(40);
+    expect(health.commerceAbandonedCheckoutCount).toBe(2);
+    expect(health.oldestCommerceAbandonedAgeHours).toBe(20);
   });
 
   it("omits commerce abandoned carts when recurring entitlement is paused", () => {

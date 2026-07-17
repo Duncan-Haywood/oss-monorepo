@@ -180,6 +180,40 @@ describe("buildDailyDigest", () => {
     expect(digest.oldestAbandonedAgeHours).toBeNull();
   });
 
+  it("computes oldestCommerceAbandonedAgeHours from the oldest abandoned Buy now cart, independent of bundle carts", () => {
+    const bundleSession = baseCheckoutSession({
+      createdAt: "2026-07-12T09:00:00.000Z", // ~3h before NOW
+    });
+    const commerceSession = baseCheckoutSession({
+      stripeSessionId: "cs_commerce",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      createdAt: "2026-07-10T00:00:00.000Z", // ~60h before NOW
+    });
+    const digest = buildDailyDigest({
+      leads: [baseLead({ stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [bundleSession, commerceSession],
+      orders: [{ leadSlug: "test-lead", tier: "starter", commerceAddon: true }],
+      nowMs: NOW,
+    });
+    expect(digest.commerceCheckoutRecoveriesDueCount).toBe(1);
+    // Bundle session's own ~3h age must not leak into the commerce-only field.
+    expect(digest.oldestCommerceAbandonedAgeHours).toBeGreaterThanOrEqual(59);
+    expect(digest.oldestCommerceAbandonedAgeHours).toBeLessThanOrEqual(61);
+  });
+
+  it("reports null oldestCommerceAbandonedAgeHours when there are no abandoned Buy now carts", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.oldestCommerceAbandonedAgeHours).toBeNull();
+  });
+
   it("lists an abandoned checkout session due for recovery", () => {
     const digest = buildDailyDigest({
       leads: [baseLead()],
@@ -1862,6 +1896,27 @@ describe("renderDailyDigestHtml", () => {
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).toContain("Abandoned checkouts (1 · oldest");
+    expect(html).toContain("h)");
+  });
+
+  it("shows oldestCommerceAbandonedAgeHours in the Abandoned Buy now header", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [
+        baseCheckoutSession({
+          stripeSessionId: "cs_commerce",
+          kind: "commerce_sku",
+          skuId: "sku_latte",
+          tier: "",
+          createdAt: "2026-07-10T00:00:00.000Z",
+        }),
+      ],
+      orders: [{ leadSlug: "test-lead", tier: "starter", commerceAddon: true }],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Abandoned Buy now (1 · oldest");
     expect(html).toContain("h)");
   });
 

@@ -60,7 +60,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.commerceAbandonedCheckoutCount)}
           hint={
             health.commerceRecoveryDueCount > 0
-              ? `${health.commerceRecoveryDueCount} recovery due`
+              ? `${health.commerceRecoveryDueCount} recovery due${
+                  health.oldestCommerceAbandonedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceAbandonedAgeHours)}`
+                    : ""
+                }`
               : "Commerce SKU checkouts past 2h"
           }
           attention={health.commerceAbandonedCheckoutCount > 0}

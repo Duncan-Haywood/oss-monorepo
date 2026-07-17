@@ -365,6 +365,8 @@ export interface DailyDigest {
   oldestFollowUpDueAgeHours: number | null;
   /** Age in whole hours of the oldest abandoned bundle checkout session; null when none. */
   oldestAbandonedAgeHours: number | null;
+  /** Age in whole hours of the oldest abandoned open Commerce Buy now session; null when none. */
+  oldestCommerceAbandonedAgeHours: number | null;
   /** Age in whole hours of the oldest cold lead (went cold after Email 3); null when none. */
   oldestColdLeadAgeHours: number | null;
   coldLeadCount: number;
@@ -537,6 +539,16 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceRecoveryEligibleSlugs,
   );
   const commerceCheckoutRecoveriesDueCount = commerceCheckoutRecoveriesDueAll.length;
+  const oldestCommerceAbandonedAgeHours: number | null = (() => {
+    if (commerceCheckoutRecoveriesDueAll.length === 0) return null;
+    let oldestMs = Infinity;
+    for (const session of commerceCheckoutRecoveriesDueAll) {
+      const parsed = Date.parse(session.createdAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
   const commerceCheckoutRecoveriesDue: DigestCommerceCheckoutRecovery[] =
     commerceCheckoutRecoveriesDueAll.slice(0, RECOVERIES_LIMIT).map((session) => ({
       stripeSessionId: session.stripeSessionId,
@@ -910,6 +922,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     checkoutRecoveriesDueCount,
     commerceCheckoutRecoveriesDue,
     commerceCheckoutRecoveriesDueCount,
+    oldestCommerceAbandonedAgeHours,
     unrepliedInquiries,
     unrepliedInquiriesCount,
     marketingPacksDue,
@@ -1153,7 +1166,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       "No follow-up emails due.",
     )}
     ${section(`Abandoned checkouts (${digest.checkoutRecoveriesDueCount}${digest.oldestAbandonedAgeHours !== null ? ` · oldest ${digest.oldestAbandonedAgeHours}h` : ""})`, recoveryRows, "No recovery nudges due.")}
-    ${section(`Abandoned Buy now (${digest.commerceCheckoutRecoveriesDueCount})`, commerceRecoveryRows, "No Commerce Buy now carts due for recovery.")}
+    ${section(`Abandoned Buy now (${digest.commerceCheckoutRecoveriesDueCount}${digest.oldestCommerceAbandonedAgeHours !== null ? ` · oldest ${digest.oldestCommerceAbandonedAgeHours}h` : ""})`, commerceRecoveryRows, "No Commerce Buy now carts due for recovery.")}
     ${section(
       `Unreplied inquiries (${digest.unrepliedInquiriesCount}${digest.newInquiryCount > 0 && digest.newInquiryCount !== digest.unrepliedInquiriesCount ? ` · ${digest.newInquiryCount} new` : ""}${digest.oldestUnrepliedInquiryAgeHours !== null ? ` · oldest ${digest.oldestUnrepliedInquiryAgeHours}h` : ""})`,
       inquiryRows,
