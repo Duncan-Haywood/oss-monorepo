@@ -2804,6 +2804,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-19a4",
   },
+  {
+    id: "digest-clawback-oldest-age",
+    summary:
+      "pipeline-health.ts computes oldestCommerceOrdersRefundClawbackAgeHours / oldestCommerceOrdersDisputeClawbackAgeHours / oldestBundleOrdersRefundedAgeHours / oldestBundleOrdersDisputedAgeHours and the dashboard panel renders each as an 'oldest Xh/Xd' hint, but daily-digest.ts computes the matching row lists/totals for all four sections and never an oldest-age aggregate — an operator who only reads the digest email has no staleness signal for money that needs clawing back, while the always-on dashboard does.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-yd6du5",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
