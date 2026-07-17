@@ -210,3 +210,44 @@ export function summarizeCommerceOrdersByLead(
     return a.leadSlug.localeCompare(b.leadSlug);
   });
 }
+
+/**
+ * Merge orders from multiple listing queries (e.g. listUnpaidCommerceOrders,
+ * listCommerceOrdersRefunded, listCommerceOrdersDisputed) into one deduplicated
+ * set, keyed on id. A UI that needs to show every order an operator must act
+ * on cannot just concat those feeds: an order refunded/disputed but never paid
+ * out satisfies BOTH "unpaid" (paidOutAt unset) and "refunded"/"disputed"
+ * queries and would otherwise be double-counted (see
+ * commerce-payouts-panel-clawback-visibility). Pure — no I/O.
+ */
+export function mergeCommerceOrdersForReview(
+  ...sources: ReadonlyArray<ReadonlyArray<CommerceOrderRecord>>
+): CommerceOrderRecord[] {
+  const byId = new Map<string, CommerceOrderRecord>();
+  for (const source of sources) {
+    for (const order of source) {
+      byId.set(order.id, order);
+    }
+  }
+  return sortCommerceOrdersNewestFirst([...byId.values()]);
+}
+
+/**
+ * True when a per-lead payout summary has something for the operator to act
+ * on — either money still owed (unpaidCount > 0) or a clawback-needed order
+ * (paid out, then refunded/disputed). A summary with zero unpaid orders but
+ * one clawback-needed order must not be hidden: that lead still needs the
+ * operator to physically recover money from the client, and hiding it was a
+ * real bug (see commerce-payouts-panel-clawback-visibility) — the panel's
+ * own per-order rendering already had UI text for this case
+ * ("Refunded/Disputed after payout — claw back from client") that could
+ * never actually be reached because the summary itself was filtered out
+ * first. Pure — no I/O.
+ */
+export function commerceOrdersByLeadSummaryNeedsAttention(
+  summary: Pick<CommerceOrdersByLeadSummary, "unpaidCount" | "orders">,
+): boolean {
+  return (
+    summary.unpaidCount > 0 || summary.orders.some(commerceOrderNeedsClawback)
+  );
+}

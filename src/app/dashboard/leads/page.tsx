@@ -12,6 +12,7 @@ import {
   listCommerceOrdersRefunded,
   listCommerceOrdersDisputed,
 } from "@/lib/db";
+import { mergeCommerceOrdersForReview } from "@/lib/commerce";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
@@ -68,6 +69,8 @@ async function loadLeadsPipelineHealth(): Promise<{
   marketingMonth: string;
   clientVoicePacks: Awaited<ReturnType<typeof listClientVoicePacks>>;
   commerceOrders: Awaited<ReturnType<typeof listUnpaidCommerceOrders>>;
+  commerceOrdersRefunded: Awaited<ReturnType<typeof listCommerceOrdersRefunded>>;
+  commerceOrdersDisputed: Awaited<ReturnType<typeof listCommerceOrdersDisputed>>;
 }> {
   const nowMs = Date.now();
   const marketingMonth = marketingMonthKey(nowMs);
@@ -109,6 +112,8 @@ async function loadLeadsPipelineHealth(): Promise<{
     marketingMonth,
     clientVoicePacks,
     commerceOrders,
+    commerceOrdersRefunded,
+    commerceOrdersDisputed,
     health: computePipelineHealth({
       leads,
       orders,
@@ -139,7 +144,20 @@ export default async function LeadsPage() {
     marketingMonth,
     clientVoicePacks,
     commerceOrders,
+    commerceOrdersRefunded,
+    commerceOrdersDisputed,
   } = await loadLeadsPipelineHealth();
+  // The Commerce payouts panel must also surface orders that were refunded/
+  // disputed AFTER already being marked paid out (clawback owed from the
+  // client) — listUnpaidCommerceOrders alone excludes every paidOutAt row, so
+  // that scenario was invisible on the live dashboard even though the panel's
+  // own per-order UI already had text for it (see
+  // commerce-payouts-panel-clawback-visibility).
+  const commerceOrdersForPayoutsPanel = mergeCommerceOrdersForReview(
+    commerceOrders,
+    commerceOrdersRefunded,
+    commerceOrdersDisputed,
+  );
   const isConvexActive = isConvexUrlConfigured(process.env.NEXT_PUBLIC_CONVEX_URL);
   const priceEnv = assessBundlePriceEnvReadiness();
   const coreEnv = assessStripeCoreEnvReadiness();
@@ -213,7 +231,7 @@ export default async function LeadsPage() {
           initialCommerceCatalogs={commerceCatalogs}
           marketingMonth={marketingMonth}
           initialClientVoicePacks={clientVoicePacks}
-          initialCommerceOrders={commerceOrders}
+          initialCommerceOrders={commerceOrdersForPayoutsPanel}
         />
       </div>
     </main>
