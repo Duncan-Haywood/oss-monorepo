@@ -2796,6 +2796,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/nice-euler-98urq3",
   },
+  {
+    id: "bundle-order-dispute-tracking",
+    summary:
+      "Natural twin of bundle-order-refund-tracking (#368): charge.dispute.created/closed still skipped bundle (Starter/Growth/Complete/Commerce-addon) orders entirely, so a disputed bundle purchase kept counting in revenueTotalUsd and never surfaced for operator awareness (same revenue-accuracy gap refunds just closed; no payout-panel double-loss risk). Ship orders.disputedAt + mark/clear + webhook fallback on created/closed (won/warning_closed clear; lost ensure), exclude disputed from revenueTotalUsd, and surface a Bundle revenue disputed card + digest section. Visibility only — no Mark-paid-out reject / clawback UI.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-19a4",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
