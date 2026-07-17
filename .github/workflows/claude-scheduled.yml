@@ -1,9 +1,8 @@
 name: Claude Code scheduled agents
 
-# Claude Code subscription OAuth (not ANTHROPIC_API_KEY).
-# Preferred CI secret: CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`
+# Claude Code subscription OAuth only — no ANTHROPIC_API_KEY fallback.
+# Required CI secret: CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`
 #   gh secret set CLAUDE_CODE_OAUTH_TOKEN
-# Fallback: ANTHROPIC_API_KEY (Console /login managed key).
 # Optional file seed (Linux layout): CLAUDE_CREDENTIALS_JSON → ~/.claude/.credentials.json
 #   On macOS, interactive login stores tokens in Keychain, so use setup-token for CI.
 # Do not pass --bare (it skips OAuth / CLAUDE_CODE_OAUTH_TOKEN).
@@ -86,22 +85,17 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           CLAUDE_CREDENTIALS_JSON: ${{ secrets.CLAUDE_CREDENTIALS_JSON }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           chmod +x .github/scripts/restore-oauth-auth.sh
           mkdir -p "$HOME/.claude"
           if [ -n "${CLAUDE_CREDENTIALS_JSON:-}" ]; then
             .github/scripts/restore-oauth-auth.sh "$HOME/.claude/.credentials.json" CLAUDE_CREDENTIALS_JSON
           fi
-          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ ! -s "$HOME/.claude/.credentials.json" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-            echo "::error::Set CLAUDE_CODE_OAUTH_TOKEN (from \`claude setup-token\`), CLAUDE_CREDENTIALS_JSON (Linux ~/.claude/.credentials.json), or ANTHROPIC_API_KEY."
+          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ ! -s "$HOME/.claude/.credentials.json" ]; then
+            echo "::error::Set CLAUDE_CODE_OAUTH_TOKEN (from \`claude setup-token\`) or CLAUDE_CREDENTIALS_JSON (Linux ~/.claude/.credentials.json). This workflow is subscription-only; it does not fall back to ANTHROPIC_API_KEY."
             exit 1
           fi
-          if [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
-            echo "CLAUDE_CODE_OAUTH_TOKEN is set for this job."
-          elif [ -n "${ANTHROPIC_API_KEY:-}" ]; then
-            echo "Using ANTHROPIC_API_KEY fallback (no CLAUDE_CODE_OAUTH_TOKEN)."
-          fi
+          echo "CLAUDE_CODE_OAUTH_TOKEN/credentials file present for this job."
 
       - name: Prepare prompt
         run: |
@@ -119,17 +113,12 @@ jobs:
       - name: Run Claude Code (headless, OAuth)
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODEL_INPUT: ${{ github.event.inputs.model || '' }}
         run: |
           set -euo pipefail
-          # Prefer subscription OAuth token when present; otherwise allow API key fallback.
-          if [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
-            unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN || true
-          else
-            unset ANTHROPIC_AUTH_TOKEN || true
-          fi
+          # Subscription OAuth only — never let a stray API key override it.
+          unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN || true
           PROMPT="$(cat "$PROMPT_FILE")"
           ARGS=(-p --dangerously-skip-permissions --permission-mode bypassPermissions)
           if [ -n "${MODEL_INPUT:-}" ]; then

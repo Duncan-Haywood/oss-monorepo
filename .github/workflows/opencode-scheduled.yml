@@ -1,7 +1,10 @@
 name: OpenCode scheduled agents
 
-# OpenCode OAuth via ~/.local/share/opencode/auth.json.
-# Seed OPENCODE_AUTH from a local `opencode auth login` session.
+# OpenCode via GitHub Copilot subscription (Pro/Pro+/Business/Enterprise) OAuth,
+# NOT OpenCode's own Zen gateway (opencode/* models bill metered credits, not a
+# subscription) and not a raw provider API key.
+# Seed OPENCODE_AUTH from ~/.local/share/opencode/auth.json after authenticating
+# to the "GitHub Copilot" provider in `opencode auth login` (device-code flow).
 # Runs both repo prompts hourly (stagger :20).
 
 on:
@@ -21,7 +24,7 @@ on:
       model:
         description: OpenCode provider/model id
         required: false
-        default: opencode/deepseek-v4-flash
+        default: github-copilot/gpt-5.5
 
 permissions:
   contents: write
@@ -94,16 +97,12 @@ jobs:
             echo "PROMPT_EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Run OpenCode (OAuth)
+      - name: Run OpenCode (GitHub Copilot subscription OAuth)
         uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # OAuth auth.json is primary; optional API keys are fallbacks only.
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
         with:
-          model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash' }}
+          model: ${{ github.event.inputs.model || 'github-copilot/gpt-5.5' }}
           prompt: ${{ steps.prompt.outputs.body }}
           use_github_token: true
 

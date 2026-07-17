@@ -21,6 +21,13 @@ export default function CliAgentsDocPage() {
         <code>NEXT_STEPS</code>).
       </p>
 
+      <p>
+        Every workflow authenticates via a subscription OAuth login, not a metered
+        pay-per-token API key. None of them fall back to an API key on OAuth
+        failure — a missing or expired subscription credential fails the job loudly
+        instead of silently billing metered usage.
+      </p>
+
       <h2>Workflows</h2>
       <table>
         <thead>
@@ -50,11 +57,11 @@ export default function CliAgentsDocPage() {
             <td>
               <code>gemini-scheduled.yml</code>
             </td>
-            <td>Gemini CLI</td>
             <td>
-              <code>gemini-3.5-flash</code>
+              Antigravity CLI (<code>agy</code>)
             </td>
-            <td>Google OAuth / GCA</td>
+            <td>CLI default</td>
+            <td>Google subscription OAuth</td>
             <td>
               <code>10 * * * *</code>
             </td>
@@ -65,9 +72,9 @@ export default function CliAgentsDocPage() {
             </td>
             <td>OpenCode CLI</td>
             <td>
-              <code>opencode/deepseek-v4-flash</code> (overrideable)
+              <code>github-copilot/gpt-5.5</code> (overrideable)
             </td>
-            <td>OpenCode OAuth</td>
+            <td>GitHub Copilot subscription OAuth</td>
             <td>
               <code>20 * * * *</code>
             </td>
@@ -89,7 +96,7 @@ export default function CliAgentsDocPage() {
             </td>
             <td>Cursor Agent CLI</td>
             <td>CLI default (overrideable)</td>
-            <td>OAuth cli-config and/or API key</td>
+            <td>Cursor subscription OAuth cli-config</td>
             <td>
               <code>40 * * * *</code>
             </td>
@@ -100,7 +107,7 @@ export default function CliAgentsDocPage() {
             </td>
             <td>Claude Code CLI</td>
             <td>CLI default (overrideable)</td>
-            <td>Claude.ai OAuth token</td>
+            <td>Claude.ai subscription OAuth token</td>
             <td>
               <code>50 * * * *</code>
             </td>
@@ -112,7 +119,29 @@ export default function CliAgentsDocPage() {
         Each prompt matrix cell also has a concurrency group so overlapping runs of the
         same agent+prompt queue instead of canceling mid-flight. A separate manual
         workflow, <code>cursor-agent-grok.yml</code>, runs Cursor Agent pinned to{" "}
-        <code>cursor-grok-4.5-high</code> via <code>workflow_dispatch</code> only.
+        <code>cursor-grok-4.5-high</code> via <code>workflow_dispatch</code> only, using the
+        same <code>CURSOR_CLI_CONFIG</code> subscription OAuth as{" "}
+        <code>cursor-scheduled.yml</code>.
+      </p>
+
+      <p>
+        <strong>Gemini / Antigravity note:</strong> Google discontinued individual OAuth
+        for the old Gemini CLI (Gemini Code Assist for individuals) on 2026-06-18 in
+        favor of the Antigravity CLI. The Antigravity project also has an open upstream
+        bug where file-based OAuth token restore in a fresh headless Linux container can
+        be write-only (<code>google-antigravity/antigravity-cli#479</code>) — if this
+        workflow starts failing auth right after a cache reset, re-run{" "}
+        <code>agy auth login</code> locally and reseed <code>ANTIGRAVITY_OAUTH_TOKEN</code>{" "}
+        rather than adding an API key.
+      </p>
+
+      <p>
+        <strong>OpenCode note:</strong> OpenCode&apos;s own <code>opencode/*</code> models
+        run through its Zen gateway, which bills prepaid metered credits — not a
+        subscription — and Anthropic no longer permits routing a Claude Pro/Max
+        subscription through third-party OAuth. The scheduled workflow instead
+        authenticates OpenCode against a GitHub Copilot subscription (Pro/Pro+/Business/
+        Enterprise) and defaults to a <code>github-copilot/*</code> model.
       </p>
 
       <h2>Required repository secrets</h2>
@@ -128,20 +157,20 @@ export default function CliAgentsDocPage() {
           <code>auth_mode: &quot;chatgpt&quot;</code>), not an API key.
         </li>
         <li>
-          <code>GEMINI_OAUTH_CREDS</code> — contents of{" "}
-          <code>~/.gemini/oauth_creds.json</code> after signing in with Google in Gemini CLI.
-          Workflows set <code>GOOGLE_GENAI_USE_GCA=true</code> and unset API keys so OAuth
-          wins.
-        </li>
-        <li>
-          <code>GEMINI_SETTINGS</code> (optional) — contents of{" "}
-          <code>~/.gemini/settings.json</code>. If omitted, the workflow writes a minimal
-          OAuth + <code>gemini-3.5-flash</code> settings file.
+          <code>ANTIGRAVITY_OAUTH_TOKEN</code> — contents of{" "}
+          <code>~/.gemini/antigravity-cli/antigravity-oauth-token</code> after{" "}
+          <code>agy auth login</code>. No API key fallback — the workflow unsets{" "}
+          <code>GEMINI_API_KEY</code>/<code>GOOGLE_API_KEY</code>/
+          <code>ANTIGRAVITY_API_KEY</code> before running.
         </li>
         <li>
           <code>OPENCODE_AUTH</code> — contents of{" "}
-          <code>~/.local/share/opencode/auth.json</code> after{" "}
-          <code>opencode auth login</code>.
+          <code>~/.local/share/opencode/auth.json</code> after authenticating to the
+          &quot;GitHub Copilot&quot; provider via <code>opencode auth login</code> (device-code
+          flow). No <code>OPENAI_API_KEY</code>/<code>ANTHROPIC_API_KEY</code>/
+          <code>GOOGLE_GENERATIVE_AI_API_KEY</code> fallback, and do not select an{" "}
+          <code>opencode/*</code> Zen model — those bill metered credits, not the
+          subscription.
         </li>
         <li>
           <code>GROK_AUTH_JSON</code> — contents of <code>~/.grok/auth.json</code> after{" "}
@@ -149,15 +178,15 @@ export default function CliAgentsDocPage() {
         </li>
         <li>
           <code>CURSOR_CLI_CONFIG</code> — contents of{" "}
-          <code>~/.cursor/cli-config.json</code> after <code>agent login</code> (preferred
-          OAuth path). Alternatively set <code>CURSOR_API_KEY</code> from Dashboard → API
-          Keys (official CI fallback).
+          <code>~/.cursor/cli-config.json</code> after <code>agent login</code>. Required —
+          no <code>CURSOR_API_KEY</code> fallback in either{" "}
+          <code>cursor-scheduled.yml</code> or <code>cursor-agent-grok.yml</code>.
         </li>
         <li>
           <code>CLAUDE_CODE_OAUTH_TOKEN</code> — long-lived OAuth token from{" "}
           <code>claude setup-token</code> (preferred CI path; macOS Keychain login is not
-          portable). Fallback: <code>ANTHROPIC_API_KEY</code>. Optionally also set{" "}
-          <code>CLAUDE_CREDENTIALS_JSON</code> to the contents of Linux{" "}
+          portable). Required — no <code>ANTHROPIC_API_KEY</code> fallback. Optionally also
+          set <code>CLAUDE_CREDENTIALS_JSON</code> to the contents of Linux{" "}
           <code>~/.claude/.credentials.json</code> for file+cache restore.
         </li>
       </ul>
@@ -169,12 +198,12 @@ export default function CliAgentsDocPage() {
 codex login
 gh secret set CODEX_AUTH_JSON < ~/.codex/auth.json
 
-# Gemini (Google OAuth)
-gemini  # complete browser/device login once
-gh secret set GEMINI_OAUTH_CREDS < ~/.gemini/oauth_creds.json
-gh secret set GEMINI_SETTINGS < ~/.gemini/settings.json
+# Antigravity (Google subscription OAuth; replaces the old Gemini CLI)
+agy auth login
+gh secret set ANTIGRAVITY_OAUTH_TOKEN < ~/.gemini/antigravity-cli/antigravity-oauth-token
 
-# OpenCode
+# OpenCode (GitHub Copilot subscription — pick "GitHub Copilot" at the prompt,
+# not a Zen/API-key provider)
 opencode auth login
 gh secret set OPENCODE_AUTH < ~/.local/share/opencode/auth.json
 
@@ -182,17 +211,15 @@ gh secret set OPENCODE_AUTH < ~/.local/share/opencode/auth.json
 grok login
 gh secret set GROK_AUTH_JSON < ~/.grok/auth.json
 
-# Cursor Agent
+# Cursor Agent (subscription OAuth; used by both cursor-scheduled.yml and
+# cursor-agent-grok.yml)
 agent login
 gh secret set CURSOR_CLI_CONFIG < ~/.cursor/cli-config.json
-# or: gh secret set CURSOR_API_KEY
 
 # Claude Code (subscription OAuth for CI)
 claude setup-token
 # copy the printed token, then:
 gh secret set CLAUDE_CODE_OAUTH_TOKEN
-# or API key fallback:
-# gh secret set ANTHROPIC_API_KEY
 # optional Linux file seed:
 # gh secret set CLAUDE_CREDENTIALS_JSON < ~/.claude/.credentials.json`}</code>
       </pre>
