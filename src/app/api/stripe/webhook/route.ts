@@ -11,6 +11,11 @@ import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { isStripeCheckoutCurrencyUsd } from "@/lib/payments/checkout-currency";
 import { isStripeCheckoutSessionPaid } from "@/lib/payments/checkout-payment-status";
 import {
+  bundleCatalogPriceIdsFromEnv,
+  sessionLineItemsIncludePriceId,
+  sessionLineItemsMatchBundleCatalogPrices,
+} from "@/lib/payments/checkout-price-line-items";
+import {
   commerceAddonPriceIdsFromEnv,
   priceIdsFromStripeLineItems,
   resolveCommerceAddonFromLineItems,
@@ -43,30 +48,34 @@ import {
  * rejects unknown tiers via getBundle, only sets metadata.commerceAddon when
  * both COMMERCE_ADDON Price IDs are on line_items, and charges only catalog
  * Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON) in USD; this
- * handler must mirror slug/tier gates, derive commerceAddon from listLineItems
- * Price IDs (never metadata), require session.currency === "usd"
+ * handler must mirror slug/tier gates, require BUNDLES setup (+ monthly) env
+ * Price IDs on listLineItems, derive commerceAddon from listLineItems Price
+ * IDs (never metadata), require session.currency === "usd"
  * (isStripeCheckoutCurrencyUsd), AND require session.amount_total (integer
  * cents) === expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon)
  * before recordLeadPayment / handoff / receipt — a truthy metadata.slug /
  * tier / commerceAddon alone is not enough (Dashboard-minted or tampered
  * Checkout Sessions). Over-long slug (parseLeadSlugLookup), unknown tier,
- * non-USD currency, or amount mismatch skips like missing slug/tier (session
- * already marked complete; do not 5xx forever). listLineItems failures return
- * 500 so Stripe retries.
+ * missing catalog Prices on line items, non-USD currency, or amount mismatch
+ * skips like missing slug/tier (session already marked complete; do not 5xx
+ * forever). listLineItems failures return 500 so Stripe retries.
  *
  * Commerce Buy now create already hard-rejects over-long slug via
  * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog, and
  * resolves Price from catalog.stripePriceId (never trusts a client amount;
  * stripe-sync Prices are currency:"usd"); the commerce_sku branch must mirror
  * that slug length gate, catalog membership gate (plus
- * parseCommerceCheckoutSkuId length), require session.currency === "usd", AND
- * require session.amount_total (integer cents) === catalogItem.priceCents
- * before insertCommerceOrder / inquiry / client receipt — a truthy slug/skuId
- * alone is not enough (unknown ids must not fall back to "Catalog item"; a
- * mismatched currency/amount must not skew payouts / client receipts; an
- * over-long slug must not burn getLeadBySlug / getCommerceCatalog).
- * Unknown/over-long slug/skuId, non-USD currency, or amount mismatch skips
- * like missing skuId (session already marked complete; do not 5xx forever).
+ * parseCommerceCheckoutSkuId length), require catalog.stripePriceId on
+ * listLineItems, require session.currency === "usd", AND require
+ * session.amount_total (integer cents) === catalogItem.priceCents before
+ * insertCommerceOrder / inquiry / client receipt — a truthy slug/skuId alone
+ * is not enough (unknown ids must not fall back to "Catalog item"; a
+ * mismatched Price/currency/amount must not skew payouts / client receipts;
+ * an over-long slug must not burn getLeadBySlug / getCommerceCatalog).
+ * Unknown/over-long slug/skuId, missing/unsynced stripePriceId, Price not on
+ * line items, non-USD currency, or amount mismatch skips like missing skuId
+ * (session already marked complete; do not 5xx forever). listLineItems
+ * failures return 500 so Stripe retries.
  *
  * Async payment methods (ACH, bank transfer, etc.) fire
  * checkout.session.completed with payment_status !== "paid" while
@@ -220,6 +229,35 @@ export async function POST(request: Request) {
               `webhook: commerce_sku session ${session.id} for ${orderSlug} unknown skuId ${knownSkuId} — skipping ledger/inquiry/client receipt`,
             );
             break;
+          }
+          // Mirror Buy now create: charges catalog.stripePriceId (501 when
+          // unsynced). Amount+currency gates alone do not prove which Price
+          // was on the Session — require the catalog Price id on line items.
+          const catalogPriceId = catalogItem.stripePriceId?.trim() ?? "";
+          if (!catalogPriceId) {
+            console.warn(
+              `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} missing catalog stripePriceId — skipping ledger/inquiry/client receipt`,
+            );
+            break;
+          }
+          try {
+            const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+              limit: 100,
+            });
+            const lineItemPriceIds = priceIdsFromStripeLineItems(lineItems.data);
+            if (!sessionLineItemsIncludePriceId(lineItemPriceIds, catalogPriceId)) {
+              console.warn(
+                `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} catalog Price ${catalogPriceId} not on line items — skipping ledger/inquiry/client receipt`,
+              );
+              break;
+            }
+          } catch (lineItemError) {
+            console.error(
+              `Failed to list line items for commerce_sku Price parity on ${session.id}`,
+              lineItemError,
+            );
+            const failure = webhookFulfillmentFailureResponse("commerce_sku_price_line_items");
+            return NextResponse.json(failure.body, { status: failure.status });
           }
           // Mirror Buy now create: stripe-sync Prices are currency:"usd", and
           // amount_total is later divided by 100 into USD dollars. A
@@ -424,28 +462,33 @@ export async function POST(request: Request) {
       }
 
       // Mirror POST /api/stripe/checkout: sanitizeLeadSlug caps at
-      // MAX_LEAD_SLUG_LENGTH, getBundle rejects unknown tiers, commerceAddon
-      // follows COMMERCE_ADDON Price IDs on line_items, and amounts match
-      // catalog USD. Truthy metadata.slug / tier / commerceAddon alone must
-      // not pollute CRM/handoffs or trust a mismatched Stripe amount
-      // (slug + tier + commerceAddon line-item + amount-catalog-parity).
+      // MAX_LEAD_SLUG_LENGTH, getBundle rejects unknown tiers, line_items must
+      // include BUNDLES setup (+ monthly) env Prices, commerceAddon follows
+      // COMMERCE_ADDON Price IDs on line_items, and amounts match catalog USD.
+      // Truthy metadata.slug / tier / commerceAddon alone must not pollute
+      // CRM/handoffs or trust a mismatched Stripe amount/Price
+      // (slug + tier + catalog Price line-item + commerceAddon line-item +
+      // amount-catalog-parity).
       const parsedSlug = parseLeadSlugLookup(rawSlug);
       const slug = parsedSlug.ok ? parsedSlug.slug : undefined;
       const bundle = typeof tier === "string" ? getBundle(tier) : undefined;
       if (slug && bundle) {
         const knownTier = bundle.id;
 
-        // Mirror create-path commerceAddon: only true when both COMMERCE_ADDON
-        // Price IDs are on the session line_items. Never trust metadata —
-        // amount parity below must use the derived flag too.
+        // Mirror create-path: require BUNDLES catalog Prices on line_items,
+        // and derive commerceAddon only when both COMMERCE_ADDON Price IDs are
+        // present. Never trust metadata — amount parity below must use the
+        // derived flag too.
         let commerceAddon = false;
+        let lineItemPriceIds: string[] = [];
         try {
           const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
             limit: 100,
           });
+          lineItemPriceIds = priceIdsFromStripeLineItems(lineItems.data);
           const resolved = resolveCommerceAddonFromLineItems({
             metadataCommerceAddon,
-            lineItemPriceIds: priceIdsFromStripeLineItems(lineItems.data),
+            lineItemPriceIds,
             commercePrices: commerceAddonPriceIdsFromEnv(),
           });
           commerceAddon = resolved.commerceAddon;
@@ -456,11 +499,22 @@ export async function POST(request: Request) {
           }
         } catch (lineItemError) {
           console.error(
-            `Failed to list line items for commerceAddon parity on ${session.id}`,
+            `Failed to list line items for catalog Price / commerceAddon parity on ${session.id}`,
             lineItemError,
           );
           const failure = webhookFulfillmentFailureResponse("bundle_commerce_addon_line_items");
           return NextResponse.json(failure.body, { status: failure.status });
+        }
+
+        const catalogPrices = bundleCatalogPriceIdsFromEnv(bundle);
+        if (
+          !catalogPrices ||
+          !sessionLineItemsMatchBundleCatalogPrices(lineItemPriceIds, catalogPrices)
+        ) {
+          console.warn(
+            `webhook: bundle session ${session.id} for ${slug} tier ${knownTier} catalog Price IDs not on line items — skipping payment/handoff/receipt`,
+          );
+          break;
         }
 
         // Mirror bundle create: catalog Prices are USD; amount_total is later

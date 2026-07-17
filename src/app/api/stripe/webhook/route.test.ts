@@ -79,6 +79,24 @@ vi.mock("@/lib/email/resend", () => ({
 
 /** Growth setup ($500) + first month ($99) — matches expectedBundleCheckoutAmountCents. */
 const GROWTH_CHECKOUT_AMOUNT_CENTS = 59_900;
+/** Create-path Growth Price IDs — webhook catalog Price line-item gate requires these. */
+const GROWTH_SETUP_PRICE_ID = "price_growth_setup";
+const GROWTH_MONTHLY_PRICE_ID = "price_growth_monthly";
+/** Commerce Buy now catalog Price — webhook requires it on listLineItems. */
+const COMMERCE_SKU_PRICE_ID = "price_commerce_sku_1";
+
+function growthLineItems() {
+  return {
+    data: [
+      { price: { id: GROWTH_SETUP_PRICE_ID } },
+      { price: { id: GROWTH_MONTHLY_PRICE_ID } },
+    ],
+  };
+}
+
+function commerceSkuLineItems(priceId: string = COMMERCE_SKU_PRICE_ID) {
+  return { data: [{ price: { id: priceId } }] };
+}
 
 function checkoutSession(overrides: Record<string, unknown> = {}) {
   return {
@@ -143,8 +161,9 @@ describe("POST /api/stripe/webhook", () => {
 
   beforeEach(() => {
     constructEvent.mockReset();
-    // Default: no Commerce add-on Prices on the session (commerceAddon=false).
-    listLineItems.mockReset().mockResolvedValue({ data: [] });
+    // Default: Growth catalog Prices on the session (commerceAddon=false).
+    // Bundle webhook requires setup+monthly env Prices ∈ listLineItems.
+    listLineItems.mockReset().mockResolvedValue(growthLineItems());
     markCheckoutSessionComplete.mockReset().mockResolvedValue(undefined);
     recordLeadPayment.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
@@ -167,6 +186,8 @@ describe("POST /api/stripe/webhook", () => {
 
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_123";
+    process.env.STRIPE_PRICE_ID_GROWTH_SETUP = GROWTH_SETUP_PRICE_ID;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = GROWTH_MONTHLY_PRICE_ID;
     delete process.env.VERCEL_TOKEN;
     delete process.env.VERCEL_PROJECT_ID;
   });
@@ -621,6 +642,40 @@ describe("POST /api/stripe/webhook", () => {
       expect(recordLeadPayment).not.toHaveBeenCalled();
     });
 
+    it("does not record payment when Growth catalog Prices are missing from line items (amount+currency match)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      // Wrong Price IDs with matching cents — must not ledger.
+      listLineItems.mockResolvedValue({
+        data: [{ price: { id: "price_other_setup" } }, { price: { id: "price_other_monthly" } }],
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
+      expect(sendReceiptEmail).not.toHaveBeenCalled();
+    });
+
+    it("does not record payment when Growth monthly Price env is missing (create twin 501)", async () => {
+      delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
+    });
+
     it("returns 500 (checkout_session_mark_complete) so Stripe retries when marking the session complete fails", async () => {
       const session = checkoutSession({ metadata: { slug: "demo-cafe", tier: "growth" } });
       constructEvent.mockReturnValue(completedEvent(session));
@@ -754,11 +809,23 @@ describe("POST /api/stripe/webhook", () => {
       });
     }
 
+    beforeEach(() => {
+      // Commerce path lists line items for catalog Price membership (not Growth).
+      listLineItems.mockResolvedValue(commerceSkuLineItems());
+    });
+
     it("first delivery: records the ledger and notifies the operator via inquiry + client receipt", async () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
       getCommerceOrderByStripeSessionId.mockResolvedValue({
@@ -769,6 +836,7 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      expect(listLineItems).toHaveBeenCalledWith("cs_test_1", { limit: 100 });
       expect(insertCommerceOrder).toHaveBeenCalledWith(
         expect.objectContaining({
           leadSlug: "demo-cafe",
@@ -795,7 +863,14 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: true });
       listCommerceCheckoutInquiriesBySlug.mockResolvedValue([
@@ -819,7 +894,14 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: true });
       listCommerceCheckoutInquiriesBySlug.mockResolvedValue([]);
@@ -840,7 +922,14 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: true });
       listCommerceCheckoutInquiriesBySlug.mockResolvedValue([
@@ -905,7 +994,14 @@ describe("POST /api/stripe/webhook", () => {
       );
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       const { POST } = await import("./route");
 
@@ -936,7 +1032,14 @@ describe("POST /api/stripe/webhook", () => {
       );
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       const { POST } = await import("./route");
 
@@ -953,7 +1056,14 @@ describe("POST /api/stripe/webhook", () => {
       );
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       const { POST } = await import("./route");
 
@@ -970,7 +1080,14 @@ describe("POST /api/stripe/webhook", () => {
       );
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       const { POST } = await import("./route");
 
@@ -987,7 +1104,14 @@ describe("POST /api/stripe/webhook", () => {
       );
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       const { POST } = await import("./route");
 
@@ -996,6 +1120,68 @@ describe("POST /api/stripe/webhook", () => {
       expect(insertCommerceOrder).not.toHaveBeenCalled();
       expect(insertClientInquiry).not.toHaveBeenCalled();
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+    });
+
+    it("skips ledger/notify when catalog Price is not on line items (amount+currency match)", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
+      });
+      listLineItems.mockResolvedValue(commerceSkuLineItems("price_other_sku"));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(listLineItems).toHaveBeenCalledWith("cs_test_1", { limit: 100 });
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+    });
+
+    it("skips ledger/notify when catalog stripePriceId is missing (Buy now create unsynced twin)", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({
+        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(listLineItems).not.toHaveBeenCalled();
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 (commerce_sku_price_line_items) when listLineItems fails", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
+      });
+      listLineItems.mockRejectedValue(new Error("stripe down"));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_sku_price_line_items");
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
     });
 
     it("warns and stops when slug metadata is missing from a commerce_sku session", async () => {
@@ -1044,7 +1230,14 @@ describe("POST /api/stripe/webhook", () => {
       );
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
       getCommerceOrderByStripeSessionId.mockResolvedValue({
@@ -1067,7 +1260,14 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
       getCommerceOrderByStripeSessionId.mockResolvedValue({
@@ -1087,7 +1287,14 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockRejectedValue(new Error("db down"));
       const { POST } = await import("./route");
@@ -1103,7 +1310,14 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
       getCommerceOrderByStripeSessionId.mockResolvedValue({
@@ -1124,7 +1338,14 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
       getCommerceOrderByStripeSessionId.mockResolvedValue({
@@ -1144,7 +1365,14 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
       getCommerceOrderByStripeSessionId.mockResolvedValue({
@@ -1168,7 +1396,14 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({
-        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
       });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
       getCommerceOrderByStripeSessionId.mockResolvedValue({

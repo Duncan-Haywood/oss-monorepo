@@ -459,8 +459,11 @@ export default function ArchitectureDocPage() {
         <code>parseLeadSlugLookup</code>-valid <code>metadata.slug</code> (create-path{" "}
         <code>MAX_LEAD_SLUG_LENGTH</code> ceiling — same hard-reject class as Commerce{" "}
         <code>parseCommerceCheckoutSlug</code>), a <code>getBundle(metadata.tier)</code>-known
-        tier (same enum gate as checkout create), a <code>commerceAddon</code> flag
-        derived from Checkout <code>listLineItems</code> Price IDs (both{" "}
+        tier (same enum gate as checkout create), <code>BUNDLES</code> setup (+ monthly)
+        env Price IDs on Checkout <code>listLineItems</code> (
+        <code>sessionLineItemsMatchBundleCatalogPrices</code> — amount+currency alone
+        do not prove which Price was charged), a <code>commerceAddon</code> flag
+        derived from the same line-item Price IDs (both{" "}
         <code>COMMERCE_ADDON</code> setup + monthly env Prices present — never from{" "}
         <code>metadata.commerceAddon</code>), <code>session.currency</code>{" "}
         <code>usd</code> (<code>isStripeCheckoutCurrencyUsd</code> — create path
@@ -474,12 +477,12 @@ export default function ArchitectureDocPage() {
         <code>expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon)</code>{" "}
         (setup + first month from <code>BUNDLES</code>, plus optional{" "}
         <code>COMMERCE_ADDON</code> — twin of Commerce catalog <code>priceCents</code>{" "}
-        parity) — a truthy but over-long slug, unknown/wrong-cased tier, forged Commerce
-        flag, non-USD currency, unpaid async status, or mismatched Stripe amount skips
-        or corrects before payment/handoff/receipt (session is still marked complete for
-        unpaid completed + slug/tier/currency/amount skips so abandoned-recovery does
-        not nudge; do not 5xx forever; line-item list failures
-        return 500 so Stripe retries).{" "}
+        parity) — a truthy but over-long slug, unknown/wrong-cased tier, missing
+        catalog Prices on line items, forged Commerce flag, non-USD currency, unpaid
+        async status, or mismatched Stripe amount skips or corrects before
+        payment/handoff/receipt (session is still marked complete for unpaid completed
+        + slug/tier/Price/currency/amount skips so abandoned-recovery does not nudge;
+        do not 5xx forever; line-item list failures return 500 so Stripe retries).{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}
@@ -1196,17 +1199,20 @@ source). The same digest also lists email-critical leads with no usable address 
         Sessions missing <code>metadata.slug</code> / <code>metadata.skuId</code>, with an
         over-long <code>slug</code> (<code>parseCommerceCheckoutSlug</code> / create-path
         ceiling) or over-long <code>skuId</code> (<code>parseCommerceCheckoutSkuId</code>), whose{" "}
-        <code>skuId</code> is not in the lead&apos;s commerce catalog, whose{" "}
-        <code>currency</code> is not <code>usd</code> (
-        <code>isStripeCheckoutCurrencyUsd</code> — Buy now Prices are synced as USD), or whose{" "}
-        <code>amount_total</code> (integer cents) does not equal the catalog item&apos;s{" "}
-        <code>priceCents</code> skip ledger and side effects entirely (warn + break) — Buy now
-        create already hard-rejects over-long slugs, 404s unknown catalog items, and charges
-        only the catalog <code>stripePriceId</code> in USD; the webhook must not burn{" "}
+        <code>skuId</code> is not in the lead&apos;s commerce catalog, whose catalog{" "}
+        <code>stripePriceId</code> is missing or not on Checkout{" "}
+        <code>listLineItems</code> (<code>sessionLineItemsIncludePriceId</code> — amount+currency
+        alone do not prove which Price was charged; list failures return 500{" "}
+        <code>commerce_sku_price_line_items</code>), whose <code>currency</code> is not{" "}
+        <code>usd</code> (<code>isStripeCheckoutCurrencyUsd</code> — Buy now Prices are synced
+        as USD), or whose <code>amount_total</code> (integer cents) does not equal the catalog
+        item&apos;s <code>priceCents</code> skip ledger and side effects entirely (warn + break)
+        — Buy now create already hard-rejects over-long slugs, 404s unknown catalog items, and
+        charges only the catalog <code>stripePriceId</code> in USD; the webhook must not burn{" "}
         <code>getLeadBySlug</code> / <code>getCommerceCatalog</code> on a multi-KB slug, fall
-        back to a generic &quot;Catalog item&quot; name, or trust a non-USD / mismatched Stripe
-        amount and still write fulfillment. The alreadyRecorded gate cannot run without a
-        bounded slug and a known SKU at the catalog USD price. Pipeline health
+        back to a generic &quot;Catalog item&quot; name, or trust a different Price / non-USD /
+        mismatched Stripe amount and still write fulfillment. The alreadyRecorded gate cannot
+        run without a bounded slug and a known SKU charged at the catalog USD Price. Pipeline health
         surfaces the total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales
         (pass-through)&quot;) — unpaid/owed only (rows with <code>paidOutAt</code> are excluded,
         matching the payout panel + digest). This money sits in the platform&apos;s own Stripe
