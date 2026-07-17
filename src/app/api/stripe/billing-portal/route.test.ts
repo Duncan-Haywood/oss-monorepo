@@ -68,12 +68,17 @@ describe("POST /api/stripe/billing-portal", () => {
 
   beforeEach(() => {
     sessionsRetrieve.mockReset();
-    sessionsListLineItems.mockReset().mockResolvedValue({ data: [] });
+    // Subscription-mode portal requires a create-path catalog recurring Price
+    // on listLineItems — default fixtures use Growth monthly.
+    sessionsListLineItems.mockReset().mockResolvedValue({
+      data: [{ price: { id: "price_growth_monthly" } }],
+    });
     billingPortalCreate.mockReset();
     process.env = { ...originalEnv };
     delete process.env.STRIPE_SECRET_KEY;
     delete process.env.NEXT_PUBLIC_APP_URL;
     delete process.env.VERCEL_URL;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
     // Each `it` below issues its own POST(s) from the same synthetic (no
     // x-forwarded-for) client — reset the limiter so route-level tests don't
     // interfere with each other regardless of run order.

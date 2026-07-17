@@ -446,9 +446,95 @@ describe("createBillingPortalForCheckoutSession", () => {
     }
   });
 
-  it("skips listLineItems when mode is already subscription", async () => {
-    const listLineItems = vi.fn().mockResolvedValue({ data: [] });
-    const create = vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+  it("requires catalog recurring Price on listLineItems for subscription mode", async () => {
+    const prevGrowth = process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+    try {
+      const listLineItems = vi.fn().mockResolvedValue({
+        data: [{ price: { id: "price_foreign_recurring" } }],
+      });
+      const create = vi.fn();
+      const stripe = fakeStripe({
+        checkout: {
+          sessions: {
+            retrieve: vi.fn().mockResolvedValue({
+              status: "complete",
+              payment_status: "paid",
+              mode: "subscription",
+              customer: "cus_from_cs",
+            }),
+            listLineItems,
+          },
+        },
+        billingPortal: { sessions: { create } },
+      });
+
+      const result = await createBillingPortalForCheckoutSession(
+        stripe,
+        "cs_sub_foreign",
+        "https://app/return",
+      );
+
+      expect(listLineItems).toHaveBeenCalledWith("cs_sub_foreign", { limit: 100 });
+      expect(create).not.toHaveBeenCalled();
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.status).toBe(400);
+        expect(result.error).toMatch(/subscription/);
+      }
+    } finally {
+      if (prevGrowth === undefined) delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+      else process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = prevGrowth;
+    }
+  });
+
+  it("creates a portal session from a completed subscription with catalog monthly Price", async () => {
+    const prevGrowth = process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+    try {
+      const create = vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+      const listLineItems = vi.fn().mockResolvedValue({
+        data: [
+          { price: { id: "price_growth_setup" } },
+          { price: { id: "price_growth_monthly" } },
+        ],
+      });
+      const stripe = fakeStripe({
+        checkout: {
+          sessions: {
+            retrieve: vi.fn().mockResolvedValue({
+              status: "complete",
+              payment_status: "paid",
+              mode: "subscription",
+              customer: "cus_from_cs",
+            }),
+            listLineItems,
+          },
+        },
+        billingPortal: { sessions: { create } },
+      });
+
+      const result = await createBillingPortalForCheckoutSession(
+        stripe,
+        "cs_sub_1",
+        "https://app/return",
+      );
+
+      expect(listLineItems).toHaveBeenCalledWith("cs_sub_1", { limit: 100 });
+      expect(create).toHaveBeenCalledWith({
+        customer: "cus_from_cs",
+        return_url: "https://app/return",
+      });
+      expect(result).toEqual({ ok: true, url: "https://billing.stripe.com/session/1" });
+    } finally {
+      if (prevGrowth === undefined) delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+      else process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = prevGrowth;
+    }
+  });
+
+  it("502s when listLineItems fails on a subscription-mode session", async () => {
+    const listLineItems = vi.fn().mockRejectedValue(new Error("stripe line items down"));
+    const create = vi.fn();
     const stripe = fakeStripe({
       checkout: {
         sessions: {
@@ -456,7 +542,7 @@ describe("createBillingPortalForCheckoutSession", () => {
             status: "complete",
             payment_status: "paid",
             mode: "subscription",
-            customer: "cus_from_cs",
+            customer: "cus_1",
           }),
           listLineItems,
         },
@@ -470,59 +556,44 @@ describe("createBillingPortalForCheckoutSession", () => {
       "https://app/return",
     );
 
-    expect(listLineItems).not.toHaveBeenCalled();
-    expect(result).toEqual({ ok: true, url: "https://billing.stripe.com/session/1" });
-  });
-
-  it("creates a portal session from a completed subscription Checkout Session", async () => {
-    const create = vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
-    const stripe = fakeStripe({
-      checkout: {
-        sessions: {
-          retrieve: vi.fn().mockResolvedValue({
-            status: "complete",
-            payment_status: "paid",
-            mode: "subscription",
-            customer: "cus_from_cs",
-          }),
-        },
-      },
-      billingPortal: { sessions: { create } },
-    });
-
-    const result = await createBillingPortalForCheckoutSession(
-      stripe,
-      "cs_sub_1",
-      "https://app/return",
-    );
-
-    expect(create).toHaveBeenCalledWith({
-      customer: "cus_from_cs",
-      return_url: "https://app/return",
-    });
-    expect(result).toEqual({ ok: true, url: "https://billing.stripe.com/session/1" });
+    expect(create).not.toHaveBeenCalled();
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(502);
+      expect(result.error).toMatch(/catalog recurring line items/);
+    }
   });
 
   it("404s when the completed session has no resolvable customer", async () => {
-    const stripe = fakeStripe({
-      checkout: {
-        sessions: {
-          retrieve: vi.fn().mockResolvedValue({
-            status: "complete",
-            payment_status: "paid",
-            mode: "subscription",
-            customer: null,
-          }),
+    const prevGrowth = process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+    try {
+      const stripe = fakeStripe({
+        checkout: {
+          sessions: {
+            retrieve: vi.fn().mockResolvedValue({
+              status: "complete",
+              payment_status: "paid",
+              mode: "subscription",
+              customer: null,
+            }),
+            listLineItems: vi.fn().mockResolvedValue({
+              data: [{ price: { id: "price_growth_monthly" } }],
+            }),
+          },
         },
-      },
-    });
+      });
 
-    const result = await createBillingPortalForCheckoutSession(stripe, "cs_1", "https://app/return");
+      const result = await createBillingPortalForCheckoutSession(stripe, "cs_1", "https://app/return");
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.status).toBe(404);
-      expect(result.error).toMatch(/customer/i);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.status).toBe(404);
+        expect(result.error).toMatch(/customer/i);
+      }
+    } finally {
+      if (prevGrowth === undefined) delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+      else process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = prevGrowth;
     }
   });
 
@@ -539,50 +610,70 @@ describe("createBillingPortalForCheckoutSession", () => {
   });
 
   it("502s when billingPortal.sessions.create throws", async () => {
-    const stripe = fakeStripe({
-      checkout: {
-        sessions: {
-          retrieve: vi.fn().mockResolvedValue({
-            status: "complete",
-            payment_status: "paid",
-            mode: "subscription",
-            customer: "cus_1",
-          }),
+    const prevGrowth = process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+    try {
+      const stripe = fakeStripe({
+        checkout: {
+          sessions: {
+            retrieve: vi.fn().mockResolvedValue({
+              status: "complete",
+              payment_status: "paid",
+              mode: "subscription",
+              customer: "cus_1",
+            }),
+            listLineItems: vi.fn().mockResolvedValue({
+              data: [{ price: { id: "price_growth_monthly" } }],
+            }),
+          },
         },
-      },
-      billingPortal: {
-        sessions: { create: vi.fn().mockRejectedValue(new Error("portal unavailable")) },
-      },
-    });
+        billingPortal: {
+          sessions: { create: vi.fn().mockRejectedValue(new Error("portal unavailable")) },
+        },
+      });
 
-    const result = await createBillingPortalForCheckoutSession(stripe, "cs_1", "https://app/return");
+      const result = await createBillingPortalForCheckoutSession(stripe, "cs_1", "https://app/return");
 
-    expect(result).toEqual({ ok: false, error: "portal unavailable", status: 502 });
+      expect(result).toEqual({ ok: false, error: "portal unavailable", status: 502 });
+    } finally {
+      if (prevGrowth === undefined) delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+      else process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = prevGrowth;
+    }
   });
 
   it("502s when Stripe returns a null portal url", async () => {
-    const stripe = fakeStripe({
-      checkout: {
-        sessions: {
-          retrieve: vi.fn().mockResolvedValue({
-            status: "complete",
-            payment_status: "paid",
-            mode: "subscription",
-            customer: "cus_1",
-          }),
+    const prevGrowth = process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+    try {
+      const stripe = fakeStripe({
+        checkout: {
+          sessions: {
+            retrieve: vi.fn().mockResolvedValue({
+              status: "complete",
+              payment_status: "paid",
+              mode: "subscription",
+              customer: "cus_1",
+            }),
+            listLineItems: vi.fn().mockResolvedValue({
+              data: [{ price: { id: "price_growth_monthly" } }],
+            }),
+          },
         },
-      },
-      billingPortal: {
-        sessions: { create: vi.fn().mockResolvedValue({ url: null }) },
-      },
-    });
+        billingPortal: {
+          sessions: { create: vi.fn().mockResolvedValue({ url: null }) },
+        },
+      });
 
-    const result = await createBillingPortalForCheckoutSession(stripe, "cs_1", "https://app/return");
+      const result = await createBillingPortalForCheckoutSession(stripe, "cs_1", "https://app/return");
 
-    expect(result).toEqual({
-      ok: false,
-      error: "Stripe did not return a billing portal URL",
-      status: 502,
-    });
+      expect(result).toEqual({
+        ok: false,
+        error: "Stripe did not return a billing portal URL",
+        status: 502,
+      });
+    } finally {
+      if (prevGrowth === undefined) delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+      else process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = prevGrowth;
+    }
   });
 });

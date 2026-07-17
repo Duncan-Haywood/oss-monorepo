@@ -11,6 +11,10 @@ import {
   resolveCommerceAddonFromLineItems,
 } from "@/lib/payments/commerce-addon-line-items";
 import { isStripeCheckoutSessionPaid } from "@/lib/payments/checkout-payment-status";
+import {
+  catalogRecurringPriceIdsFromEnv,
+  sessionLineItemsIncludeCatalogRecurringPrice,
+} from "@/lib/payments/checkout-price-line-items";
 
 export type BillingPortalResult =
   | { ok: true; url: string }
@@ -132,6 +136,11 @@ export async function createBillingPortalForLead(
  * webhook) — never from metadata.commerceAddon alone. A Dashboard-minted
  * payment-mode session with forged metadata could otherwise open Billing
  * Portal without the Commerce Prices on the charge.
+ *
+ * When mode === subscription, also require a create-path catalog recurring
+ * Price ID (Growth/Complete/Commerce monthly env) on listLineItems —
+ * mode alone is not enough (Dashboard-minted subscription with a foreign
+ * Price must not open Manage billing).
  */
 export async function createBillingPortalForCheckoutSession(
   stripe: StripeBillingPortalClient,
@@ -155,19 +164,28 @@ export async function createBillingPortalForCheckoutSession(
 
     const modeIsSubscription = session.mode === "subscription";
     let commerceAddon = false;
+    let catalogRecurringProven = false;
 
-    if (!modeIsSubscription) {
-      // Mirror webhook: only entitlement from charged Commerce Price IDs.
-      // listLineItems failures → 502 so the customer can retry (not a Stripe
-      // webhook redelivery path). Never trust metadata.tier on payment mode —
-      // create path never emits payment+growth/complete (hasRecurring).
-      try {
-        const lineItems = await stripe.checkout.sessions.listLineItems(id, {
-          limit: 100,
-        });
+    // Always list line items for entitlement — subscription mode needs catalog
+    // recurring Price proof; payment mode needs Commerce Price proof.
+    // listLineItems failures → 502 so the customer can retry.
+    try {
+      const lineItems = await stripe.checkout.sessions.listLineItems(id, {
+        limit: 100,
+      });
+      const lineItemPriceIds = priceIdsFromStripeLineItems(lineItems.data);
+
+      if (modeIsSubscription) {
+        catalogRecurringProven = sessionLineItemsIncludeCatalogRecurringPrice(
+          lineItemPriceIds,
+          catalogRecurringPriceIdsFromEnv(),
+        );
+      } else {
+        // Never trust metadata.tier on payment mode — create path never emits
+        // payment+growth/complete (hasRecurring).
         const resolved = resolveCommerceAddonFromLineItems({
           metadataCommerceAddon: session.metadata?.commerceAddon === "true",
-          lineItemPriceIds: priceIdsFromStripeLineItems(lineItems.data),
+          lineItemPriceIds,
           commercePrices: commerceAddonPriceIdsFromEnv(),
         });
         commerceAddon = resolved.commerceAddon;
@@ -178,19 +196,22 @@ export async function createBillingPortalForCheckoutSession(
             )} lineItems=${String(commerceAddon)} — using line items`,
           );
         }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown Stripe error";
-        return {
-          ok: false,
-          error: `Could not verify Commerce line items for billing portal: ${message}`,
-          status: 502,
-        };
       }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown Stripe error";
+      return {
+        ok: false,
+        error: modeIsSubscription
+          ? `Could not verify catalog recurring line items for billing portal: ${message}`
+          : `Could not verify Commerce line items for billing portal: ${message}`,
+        status: 502,
+      };
     }
 
     const eligible = checkoutSessionEligibleForBillingPortal({
       mode: session.mode,
       commerceAddon,
+      catalogRecurringProven,
     });
     if (!eligible) {
       return {

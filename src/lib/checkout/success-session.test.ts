@@ -81,26 +81,67 @@ describe("loadCheckoutSuccessSession", () => {
     expect(emptyLineItems).not.toHaveBeenCalled();
   });
 
-  it("returns confirmed + billing portal for a completed subscription session", async () => {
-    const retrieve = vi.fn().mockResolvedValue({
-      status: "complete",
-      payment_status: "paid",
-      mode: "subscription",
-      metadata: { tier: "growth", commerceAddon: "false" },
-    });
-    const listLineItems = vi.fn();
-    const result = await loadCheckoutSuccessSession("  cs_test_ok  ", {
-      secretKey: "sk_test_x",
-      retrieve,
-      listLineItems,
-    });
-    expect(result).toEqual({
-      confirmed: true,
-      sessionId: "cs_test_ok",
-      showBillingPortal: true,
-    });
-    // Subscription mode skips the line-item round-trip (portal API twin).
-    expect(listLineItems).not.toHaveBeenCalled();
+  it("returns confirmed + billing portal for a completed subscription with catalog monthly", async () => {
+    const prevGrowth = process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+    try {
+      const retrieve = vi.fn().mockResolvedValue({
+        status: "complete",
+        payment_status: "paid",
+        mode: "subscription",
+        metadata: { tier: "growth", commerceAddon: "false" },
+      });
+      const listLineItems = vi.fn().mockResolvedValue({
+        data: [
+          { price: { id: "price_growth_setup" } },
+          { price: { id: "price_growth_monthly" } },
+        ],
+      });
+      const result = await loadCheckoutSuccessSession("  cs_test_ok  ", {
+        secretKey: "sk_test_x",
+        retrieve,
+        listLineItems,
+      });
+      expect(result).toEqual({
+        confirmed: true,
+        sessionId: "cs_test_ok",
+        showBillingPortal: true,
+      });
+      // Subscription mode must prove catalog recurring Price (portal API twin).
+      expect(listLineItems).toHaveBeenCalledWith("cs_test_ok");
+    } finally {
+      if (prevGrowth === undefined) delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+      else process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = prevGrowth;
+    }
+  });
+
+  it("hides billing portal for subscription without catalog recurring Price", async () => {
+    const prevGrowth = process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+    try {
+      const retrieve = vi.fn().mockResolvedValue({
+        status: "complete",
+        payment_status: "paid",
+        mode: "subscription",
+        metadata: { tier: "growth" },
+      });
+      const listLineItems = vi.fn().mockResolvedValue({
+        data: [{ price: { id: "price_foreign_recurring" } }],
+      });
+      const result = await loadCheckoutSuccessSession("cs_foreign_sub", {
+        secretKey: "sk_test_x",
+        retrieve,
+        listLineItems,
+      });
+      expect(result).toEqual({
+        confirmed: true,
+        sessionId: "cs_foreign_sub",
+        showBillingPortal: false,
+      });
+    } finally {
+      if (prevGrowth === undefined) delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+      else process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = prevGrowth;
+    }
   });
 
   it("returns unconfirmed when complete but payment_status is unpaid (async ACH)", async () => {

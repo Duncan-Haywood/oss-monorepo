@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { getBundle } from "@/lib/pricing/bundles";
 import {
   bundleCatalogPriceIdsFromEnv,
+  catalogRecurringPriceIdsFromEnv,
+  sessionLineItemsIncludeCatalogRecurringPrice,
   sessionLineItemsIncludePriceId,
   sessionLineItemsMatchBundleCatalogPrices,
 } from "./checkout-price-line-items";
@@ -82,6 +84,56 @@ describe("sessionLineItemsMatchBundleCatalogPrices", () => {
         setupId: "price_growth_setup",
         monthlyId: "price_growth_monthly",
       }),
+    ).toBe(false);
+  });
+});
+
+describe("catalogRecurringPriceIdsFromEnv", () => {
+  const originalEnv = { ...process.env };
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  it("collects Growth/Complete/Commerce monthly Price ids when set", () => {
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = " price_growth_m ";
+    process.env.STRIPE_PRICE_ID_COMPLETE_MONTHLY = "price_complete_m";
+    process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_m";
+    delete process.env.STRIPE_PRICE_ID_STARTER_SETUP;
+    expect(catalogRecurringPriceIdsFromEnv()).toEqual([
+      "price_growth_m",
+      "price_complete_m",
+      "price_commerce_m",
+    ]);
+  });
+
+  it("returns empty when no recurring Price envs are configured", () => {
+    delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    delete process.env.STRIPE_PRICE_ID_COMPLETE_MONTHLY;
+    delete process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;
+    expect(catalogRecurringPriceIdsFromEnv()).toEqual([]);
+  });
+});
+
+describe("sessionLineItemsIncludeCatalogRecurringPrice", () => {
+  it("returns true when any catalog recurring Price is present", () => {
+    expect(
+      sessionLineItemsIncludeCatalogRecurringPrice(
+        ["price_setup", "price_growth_m"],
+        ["price_growth_m", "price_complete_m"],
+      ),
+    ).toBe(true);
+  });
+
+  it("fails closed when recurringPriceIds is empty or none match", () => {
+    expect(
+      sessionLineItemsIncludeCatalogRecurringPrice(["price_foreign"], []),
+    ).toBe(false);
+    expect(
+      sessionLineItemsIncludeCatalogRecurringPrice(
+        ["price_foreign"],
+        ["price_growth_m"],
+      ),
     ).toBe(false);
   });
 });

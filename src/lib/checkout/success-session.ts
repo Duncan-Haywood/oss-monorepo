@@ -10,11 +10,13 @@
  * still costs a retrieve.
  *
  * showBillingPortal must mirror createBillingPortalForCheckoutSession:
- * subscription mode is eligible without a line-item round-trip; payment mode
- * derives commerceAddon from listLineItems Price IDs (never metadata) before
+ * subscription mode requires a create-path catalog recurring Price on
+ * listLineItems (never mode alone); payment mode derives commerceAddon from
+ * listLineItems Price IDs (never metadata) before
  * checkoutSessionEligibleForBillingPortal (success-page-commerceAddon-line-
- * item-parity). listLineItems failures fail closed to hide the CTA (buyer
- * can refresh; portal API returns 502 on the same failure).
+ * item-parity + subscription-mode-billing-portal-catalog-recurring-price-gate).
+ * listLineItems failures fail closed to hide the CTA (buyer can refresh;
+ * portal API returns 502 on the same failure).
  *
  * status===complete alone is not enough: async payment methods complete the
  * Session with payment_status unpaid. Mirror the webhook paid gate
@@ -31,6 +33,10 @@ import {
   resolveCommerceAddonFromLineItems,
 } from "@/lib/payments/commerce-addon-line-items";
 import { isStripeCheckoutSessionPaid } from "@/lib/payments/checkout-payment-status";
+import {
+  catalogRecurringPriceIdsFromEnv,
+  sessionLineItemsIncludeCatalogRecurringPrice,
+} from "@/lib/payments/checkout-price-line-items";
 
 export type ConfirmedCheckoutSuccess = {
   confirmed: true;
@@ -103,16 +109,26 @@ export async function loadCheckoutSuccessSession(
 
     const modeIsSubscription = session.mode === "subscription";
     let commerceAddon = false;
+    let catalogRecurringProven = false;
 
-    if (!modeIsSubscription) {
-      // Mirror portal API / webhook: entitlement from charged Commerce Price
-      // IDs only. Never trust metadata.commerceAddon or metadata.tier on
-      // payment mode (create path never emits payment+growth/complete).
-      try {
-        const lineItems = await listLineItems(sessionId);
+    // Mirror portal API: always list line items for entitlement.
+    // Subscription → catalog recurring Price; payment → Commerce Prices.
+    // Fail closed on list errors (hide CTA; portal returns 502).
+    try {
+      const lineItems = await listLineItems(sessionId);
+      const lineItemPriceIds = priceIdsFromStripeLineItems(lineItems.data);
+
+      if (modeIsSubscription) {
+        catalogRecurringProven = sessionLineItemsIncludeCatalogRecurringPrice(
+          lineItemPriceIds,
+          catalogRecurringPriceIdsFromEnv(),
+        );
+      } else {
+        // Never trust metadata.commerceAddon or metadata.tier on payment mode
+        // (create path never emits payment+growth/complete).
         const resolved = resolveCommerceAddonFromLineItems({
           metadataCommerceAddon: session.metadata?.commerceAddon === "true",
-          lineItemPriceIds: priceIdsFromStripeLineItems(lineItems.data),
+          lineItemPriceIds,
           commercePrices: commerceAddonPriceIdsFromEnv(),
         });
         commerceAddon = resolved.commerceAddon;
@@ -123,16 +139,16 @@ export async function loadCheckoutSuccessSession(
             )} lineItems=${String(commerceAddon)} — using line items`,
           );
         }
-      } catch {
-        // Fail closed: hide Manage billing rather than surface a CTA the
-        // portal API would reject. Buyer can refresh; portal path returns 502.
-        commerceAddon = false;
       }
+    } catch {
+      commerceAddon = false;
+      catalogRecurringProven = false;
     }
 
     const showBillingPortal = checkoutSessionEligibleForBillingPortal({
       mode: session.mode,
       commerceAddon,
+      catalogRecurringProven,
     });
     return { confirmed: true, sessionId, showBillingPortal };
   } catch {

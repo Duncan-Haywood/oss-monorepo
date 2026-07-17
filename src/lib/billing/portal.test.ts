@@ -19,19 +19,37 @@ describe("orderEligibleForBillingPortal", () => {
 });
 
 describe("checkoutSessionEligibleForBillingPortal", () => {
-  it("allows any subscription-mode session (Growth/Complete/Starter+Commerce create path)", () => {
+  it("allows subscription-mode only when a catalog recurring Price is proven", () => {
     expect(
       checkoutSessionEligibleForBillingPortal({
         mode: "subscription",
         commerceAddon: false,
+        catalogRecurringProven: true,
       }),
     ).toBe(true);
     expect(
       checkoutSessionEligibleForBillingPortal({
         mode: "subscription",
         commerceAddon: true,
+        catalogRecurringProven: true,
       }),
     ).toBe(true);
+  });
+
+  it("rejects subscription-mode without catalogRecurringProven (Dashboard-minted Price)", () => {
+    expect(
+      checkoutSessionEligibleForBillingPortal({
+        mode: "subscription",
+        commerceAddon: false,
+      }),
+    ).toBe(false);
+    expect(
+      checkoutSessionEligibleForBillingPortal({
+        mode: "subscription",
+        commerceAddon: false,
+        catalogRecurringProven: false,
+      }),
+    ).toBe(false);
   });
 
   it("rejects payment-mode Growth/Complete metadata without proven commerceAddon", () => {

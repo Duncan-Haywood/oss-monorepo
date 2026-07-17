@@ -1,4 +1,4 @@
-import type { BundleDefinition } from "@/lib/pricing/bundles";
+import { BUNDLES, COMMERCE_ADDON, type BundleDefinition } from "@/lib/pricing/bundles";
 
 /**
  * Derive whether a Checkout Session actually charged the create-path catalog
@@ -9,6 +9,10 @@ import type { BundleDefinition } from "@/lib/pricing/bundles";
  * currency usd gates compare cents / ISO code but do not prove which Price was
  * on the Session. A Dashboard-minted session with matching minor units + usd
  * but a different Price must not reach the ledger.
+ *
+ * Billing Portal / checkout-success subscription mode similarly must prove a
+ * create-path *recurring* catalog Price is on listLineItems — mode===subscription
+ * alone is not enough (subscription-mode-billing-portal-catalog-recurring-price-gate).
  */
 
 /** True when `priceId` appears among the session's line-item Price ids. */
@@ -63,4 +67,38 @@ export function sessionLineItemsMatchBundleCatalogPrices(
   }
   if (catalogPrices.monthlyId === null) return true;
   return sessionLineItemsIncludePriceId(lineItemPriceIds, catalogPrices.monthlyId);
+}
+
+/**
+ * Create-path recurring (monthly) catalog Price IDs from env — Growth/Complete
+ * bundle monthlies plus Commerce add-on monthly. Empty when no recurring Price
+ * envs are configured (fail closed for subscription-mode portal eligibility).
+ */
+export function catalogRecurringPriceIdsFromEnv(
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
+  const ids: string[] = [];
+  for (const bundle of BUNDLES) {
+    if (!bundle.monthlyPriceIdEnv) continue;
+    const monthlyId = env[bundle.monthlyPriceIdEnv]?.trim() ?? "";
+    if (monthlyId) ids.push(monthlyId);
+  }
+  const commerceMonthly = env[COMMERCE_ADDON.monthlyPriceIdEnv]?.trim() ?? "";
+  if (commerceMonthly) ids.push(commerceMonthly);
+  return ids;
+}
+
+/**
+ * Pure: true when any create-path catalog recurring Price id appears among
+ * the session's line-item price ids. Empty `recurringPriceIds` fails closed.
+ */
+export function sessionLineItemsIncludeCatalogRecurringPrice(
+  lineItemPriceIds: ReadonlyArray<string | null | undefined>,
+  recurringPriceIds: ReadonlyArray<string>,
+): boolean {
+  if (recurringPriceIds.length === 0) return false;
+  for (const wanted of recurringPriceIds) {
+    if (sessionLineItemsIncludePriceId(lineItemPriceIds, wanted)) return true;
+  }
+  return false;
 }

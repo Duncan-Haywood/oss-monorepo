@@ -694,19 +694,23 @@ export default function ArchitectureDocPage() {
         <code>isStripeCheckoutSessionPaid</code> — same gate as webhook fulfillment and{" "}
         <code>loadCheckoutSuccessSession</code>; async ACH can leave complete+unpaid, and a
         client-supplied <code>sessionId</code> must not open Manage billing before funds clear).
-        It treats <code>mode === &quot;subscription&quot;</code> as eligible, but when mode is{" "}
-        <code>payment</code> it derives <code>commerceAddon</code> from Checkout{" "}
-        <code>listLineItems</code> Price IDs via the same{" "}
-        <code>resolveCommerceAddonFromLineItems</code> helper as the bundle webhook — never from{" "}
+        Subscription mode must also prove a create-path catalog recurring Price ID
+        (Growth/Complete/Commerce monthly env) on Checkout <code>listLineItems</code> via{" "}
+        <code>sessionLineItemsIncludeCatalogRecurringPrice</code> —{" "}
+        <code>mode === &quot;subscription&quot;</code> alone is not enough (a Dashboard-minted
+        subscription with a foreign Price must not open Manage billing; list failures return
+        502). When mode is <code>payment</code> it derives <code>commerceAddon</code> from the
+        same line items via <code>resolveCommerceAddonFromLineItems</code> — never from{" "}
         <code>metadata.commerceAddon</code> alone (a forged flag must not open Manage billing
-        without the Commerce Prices on the charge; list failures return 502 so the buyer can
-        retry). <code>loadCheckoutSuccessSession</code> uses the same line-item derive before
-        showing the Manage billing CTA (list failures fail closed to hide the button — UI must
-        not advertise a portal open the API would reject). Payment mode also ignores{" "}
-        <code>metadata.tier</code> — create path never emits payment + Growth/Complete (
-        <code>hasRecurring</code> → subscription), so trusting tier would only help
-        Dashboard-minted sessions; eligibility uses shared{" "}
-        <code>checkoutSessionEligibleForBillingPortal</code>. Orders store{" "}
+        without the Commerce Prices on the charge).{" "}
+        <code>loadCheckoutSuccessSession</code> uses the same subscription catalog-recurring +
+        payment commerceAddon derives before showing the Manage billing CTA (list failures fail
+        closed to hide the button — UI must not advertise a portal open the API would reject).
+        Payment mode also ignores <code>metadata.tier</code> — create path never emits payment +
+        Growth/Complete (<code>hasRecurring</code> → subscription), so trusting tier would only
+        help Dashboard-minted sessions; eligibility uses shared{" "}
+        <code>checkoutSessionEligibleForBillingPortal</code> (
+        <code>catalogRecurringProven</code> for subscription). Orders store{" "}
         <code>stripeCustomerId</code> when the webhook records payment; older orders fall back to
         retrieving the Checkout Session.{" "}
         <code>listOrders</code> returns newest-first on both backends (

@@ -28,8 +28,16 @@ export function orderEligibleForBillingPortal(order: {
 export function checkoutSessionEligibleForBillingPortal(input: {
   mode?: string | null;
   commerceAddon: boolean;
+  /**
+   * Subscription mode must prove a create-path catalog recurring Price is on
+   * listLineItems (Growth/Complete/Commerce monthly). mode===subscription alone
+   * is not enough — Dashboard-minted sessions can use any Price.
+   */
+  catalogRecurringProven?: boolean;
 }): boolean {
-  if (input.mode === "subscription") return true;
+  if (input.mode === "subscription") {
+    return input.catalogRecurringProven === true;
+  }
   return input.commerceAddon;
 }
 
