@@ -72,13 +72,17 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceCheckoutRecoveriesDue).toHaveLength(0);
     expect(digest.unrepliedInquiries).toHaveLength(0);
     expect(digest.marketingPacksDue).toHaveLength(0);
+    expect(digest.oldestMarketingPacksDueAgeHours).toBeNull();
     expect(digest.recurringEntitlementPaused).toHaveLength(0);
     expect(digest.recurringEntitlementPausedCount).toBe(0);
     expect(digest.oldestRecurringEntitlementPausedAgeHours).toBeNull();
     expect(digest.starterUpsellCandidates).toHaveLength(0);
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
+    expect(digest.oldestCommerceCatalogsMissingAgeHours).toBeNull();
     expect(digest.commerceCatalogsUnsynced).toHaveLength(0);
+    expect(digest.oldestCommerceCatalogsUnsyncedAgeHours).toBeNull();
     expect(digest.clientVoicePacksDue).toHaveLength(0);
+    expect(digest.oldestClientVoicePacksDueAgeHours).toBeNull();
     expect(digest.commercePayoutsOwed).toHaveLength(0);
     expect(digest.openHandoffs).toHaveLength(0);
     expect(digest.paidNotLive).toHaveLength(0);
@@ -472,7 +476,14 @@ describe("buildDailyDigest", () => {
       inquiries: [],
       openCheckoutSessions: [],
       orders: [
-        { leadSlug: "needs-pack", tier: "growth", commerceAddon: false },
+        {
+          leadSlug: "needs-pack",
+          tier: "growth",
+          commerceAddon: false,
+          // Well before this month started — due-since anchors to month
+          // start, not this order's createdAt (see marketingMonthStartMs).
+          createdAt: new Date(Date.UTC(2026, 0, 1)).toISOString(),
+        },
         { leadSlug: "has-pack", tier: "complete", commerceAddon: false },
       ],
       marketingPacksThisMonth: [{ leadSlug: "has-pack", yearMonth: "2026-07" }],
@@ -481,7 +492,16 @@ describe("buildDailyDigest", () => {
     expect(digest.marketingPacksDue).toHaveLength(1);
     expect(digest.marketingPacksDue[0]?.businessName).toBe("Needs Pack Cafe");
     expect(digest.marketingPacksDue[0]?.yearMonth).toBe("2026-07");
+    const monthStartMs = Date.UTC(2026, 6, 1);
+    expect(digest.oldestMarketingPacksDueAgeHours).toBe(
+      Math.floor((NOW - monthStartMs) / (60 * 60 * 1000)),
+    );
     expect(digest.isEmpty).toBe(false);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain(
+      `Marketing packs due (1 · oldest ${digest.oldestMarketingPacksDueAgeHours}h)`,
+    );
   });
 
   it("lists paid/live MRR customers with paused recurring entitlement for Billing Portal chase", () => {
@@ -566,7 +586,12 @@ describe("buildDailyDigest", () => {
       inquiries: [],
       openCheckoutSessions: [],
       orders: [
-        { leadSlug: "needs-catalog", tier: "starter", commerceAddon: true },
+        {
+          leadSlug: "needs-catalog",
+          tier: "starter",
+          commerceAddon: true,
+          createdAt: new Date(NOW - 8 * 60 * 60 * 1000).toISOString(),
+        },
         { leadSlug: "has-catalog", tier: "growth", commerceAddon: true },
       ],
       commerceCatalogs: [{ leadSlug: "has-catalog" }],
@@ -574,6 +599,7 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.commerceCatalogsMissing).toHaveLength(1);
     expect(digest.commerceCatalogsMissing[0]?.businessName).toBe("Needs Catalog Retail");
+    expect(digest.oldestCommerceCatalogsMissingAgeHours).toBe(8);
     expect(digest.isEmpty).toBe(false);
   });
 
@@ -593,7 +619,12 @@ describe("buildDailyDigest", () => {
       inquiries: [],
       openCheckoutSessions: [],
       orders: [
-        { leadSlug: "unsynced-shop", tier: "starter", commerceAddon: true },
+        {
+          leadSlug: "unsynced-shop",
+          tier: "starter",
+          commerceAddon: true,
+          createdAt: new Date(NOW - 12 * 60 * 60 * 1000).toISOString(),
+        },
         { leadSlug: "synced-shop", tier: "growth", commerceAddon: true },
       ],
       commerceCatalogs: [
@@ -611,6 +642,7 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
     expect(digest.commerceCatalogsUnsynced).toHaveLength(1);
     expect(digest.commerceCatalogsUnsynced[0]?.businessName).toBe("Unsynced Boutique");
+    expect(digest.oldestCommerceCatalogsUnsyncedAgeHours).toBe(12);
     expect(digest.isEmpty).toBe(false);
   });
 
@@ -630,7 +662,12 @@ describe("buildDailyDigest", () => {
       inquiries: [],
       openCheckoutSessions: [],
       orders: [
-        { leadSlug: "needs-voice", tier: "complete", commerceAddon: false },
+        {
+          leadSlug: "needs-voice",
+          tier: "complete",
+          commerceAddon: false,
+          createdAt: new Date(NOW - 6 * 60 * 60 * 1000).toISOString(),
+        },
         { leadSlug: "has-voice", tier: "complete", commerceAddon: false },
       ],
       clientVoicePacks: [{ leadSlug: "has-voice" }],
@@ -638,6 +675,7 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.clientVoicePacksDue).toHaveLength(1);
     expect(digest.clientVoicePacksDue[0]?.businessName).toBe("Needs Voice Spa");
+    expect(digest.oldestClientVoicePacksDueAgeHours).toBe(6);
     expect(digest.isEmpty).toBe(false);
   });
 

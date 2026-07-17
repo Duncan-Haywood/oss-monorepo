@@ -68,6 +68,51 @@ export function listCommerceCatalogsMissing<
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * Age in whole hours since the oldest qualifying commerceAddon order among
+ * `candidates` (as returned by listCommerceCatalogsMissing or
+ * listCommerceCatalogsUnsynced — both share leadEligibleForCommerceCatalog,
+ * so one helper covers both) was created; null when there are no candidates
+ * or none of their orders parse. Pass nowMs from the caller — never
+ * Date.now() inside list/age helpers (see oldestStarterUpsellCandidateAgeHours
+ * for the same pattern).
+ */
+export function oldestCommerceCatalogCandidateAgeHours(
+  candidates: ReadonlyArray<{ slug: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    commerceAddon: boolean;
+    recurringCanceledAt?: number | null;
+    createdAt?: string;
+  }>,
+  nowMs: number,
+): number | null {
+  const candidateSlugs = new Set(candidates.map((candidate) => candidate.slug));
+  let oldestCreatedAtMs: number | null = null;
+  for (const order of orders) {
+    if (!candidateSlugs.has(order.leadSlug)) continue;
+    if (!order.commerceAddon) continue;
+    if (
+      typeof order.recurringCanceledAt === "number" &&
+      Number.isFinite(order.recurringCanceledAt) &&
+      order.recurringCanceledAt > 0
+    ) {
+      continue;
+    }
+    if (typeof order.createdAt !== "string") continue;
+    const createdAtMs = Date.parse(order.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    if (oldestCreatedAtMs === null || createdAtMs < oldestCreatedAtMs) {
+      oldestCreatedAtMs = createdAtMs;
+    }
+  }
+  if (oldestCreatedAtMs === null) return null;
+  if (nowMs < oldestCreatedAtMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / HOUR_MS));
+}
+
 /** True when any SKU still lacks a Stripe Price (Buy now not available for that SKU). */
 export function catalogHasUnsyncedSku(
   catalog: Readonly<{ items: ReadonlyArray<{ stripePriceId?: string }> }>,

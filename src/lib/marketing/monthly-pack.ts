@@ -74,6 +74,19 @@ export function leadEligibleForMarketingPack(
  * Pass yearMonth from marketingMonthKey(nowMs) — never Date.now() inside callers that
  * must stay pure.
  */
+const HOUR_MS = 60 * 60 * 1000;
+
+/** UTC epoch ms for the first instant of a "YYYY-MM" month key. */
+export function marketingMonthStartMs(yearMonth: string): number {
+  const match = /^(\d{4})-(\d{2})$/.exec(yearMonth);
+  if (!match) {
+    throw new Error(`marketingMonthStartMs: invalid yearMonth "${yearMonth}"`);
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  return Date.UTC(year, month - 1, 1);
+}
+
 export function leadNeedsMarketingPackForMonth(
   lead: { slug: string; stage: LeadPipelineStage },
   ordersForLead: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
@@ -112,6 +125,55 @@ export function listMarketingPacksDue<
       ),
     )
     .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/**
+ * Age in whole hours since the current month's pack first became due for the
+ * oldest of `candidates` (as returned by listMarketingPacksDue); null when
+ * there are no candidates or none of their qualifying orders parse. "Due
+ * since" is the later of the month start and the qualifying order's
+ * createdAt — a lead who signed up mid-month isn't shown as having an
+ * 800-hour-old debt on day one of the following month, and a long-time
+ * subscriber's age resets with the calendar month like the pack itself does
+ * (unlike oldestStarterUpsellCandidateAgeHours, whose candidates are
+ * evaluated once, not month-keyed). Pass nowMs from the caller — never
+ * Date.now() inside list/age helpers.
+ */
+export function oldestMarketingPacksDueAgeHours(
+  candidates: ReadonlyArray<{ slug: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    recurringCanceledAt?: number | null;
+    createdAt?: string;
+  }>,
+  yearMonth: string,
+  nowMs: number,
+): number | null {
+  const candidateSlugs = new Set(candidates.map((candidate) => candidate.slug));
+  const monthStartMs = marketingMonthStartMs(yearMonth);
+  let oldestDueSinceMs: number | null = null;
+  for (const order of orders) {
+    if (!candidateSlugs.has(order.leadSlug)) continue;
+    if (!isMarketingBundleTier(order.tier)) continue;
+    if (
+      typeof order.recurringCanceledAt === "number" &&
+      Number.isFinite(order.recurringCanceledAt) &&
+      order.recurringCanceledAt > 0
+    ) {
+      continue;
+    }
+    if (typeof order.createdAt !== "string") continue;
+    const createdAtMs = Date.parse(order.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    const dueSinceMs = Math.max(monthStartMs, createdAtMs);
+    if (oldestDueSinceMs === null || dueSinceMs < oldestDueSinceMs) {
+      oldestDueSinceMs = dueSinceMs;
+    }
+  }
+  if (oldestDueSinceMs === null) return null;
+  if (nowMs < oldestDueSinceMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestDueSinceMs) / HOUR_MS));
 }
 
 /**

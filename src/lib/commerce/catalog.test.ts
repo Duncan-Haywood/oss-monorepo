@@ -8,6 +8,7 @@ import {
   listCommerceCatalogsMissing,
   listCommerceCatalogsUnsynced,
   normalizeCommerceItems,
+  oldestCommerceCatalogCandidateAgeHours,
   preserveCommerceStripeIds,
 } from "./catalog";
 import { MAX_COMMERCE_SKU_ID_LENGTH, MAX_COMMERCE_SKUS } from "./types";
@@ -220,6 +221,69 @@ describe("listCommerceCatalogsUnsynced", () => {
         truncatedCatalogs,
       ).map((l) => l.slug),
     ).toEqual([]);
+  });
+});
+
+describe("oldestCommerceCatalogCandidateAgeHours", () => {
+  const HOUR_MS = 60 * 60 * 1000;
+  const NOW = Date.parse("2026-07-17T12:00:00.000Z");
+
+  it("returns null for no candidates", () => {
+    expect(oldestCommerceCatalogCandidateAgeHours([], [], NOW)).toBeNull();
+  });
+
+  it("returns hours since the oldest candidate's commerceAddon order, ignoring non-candidates", () => {
+    const candidates = [{ slug: "alpha" }, { slug: "beta" }];
+    const orders = [
+      {
+        leadSlug: "alpha",
+        commerceAddon: true,
+        createdAt: new Date(NOW - 4 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "beta",
+        commerceAddon: true,
+        createdAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+      },
+      // Not a candidate — must not affect the oldest-age scan.
+      {
+        leadSlug: "gamma",
+        commerceAddon: true,
+        createdAt: new Date(NOW - 999 * HOUR_MS).toISOString(),
+      },
+      // Candidate but not a commerceAddon order — must be ignored.
+      {
+        leadSlug: "alpha",
+        commerceAddon: false,
+        createdAt: new Date(NOW - 500 * HOUR_MS).toISOString(),
+      },
+      // Candidate but paused — must be ignored.
+      {
+        leadSlug: "beta",
+        commerceAddon: true,
+        recurringCanceledAt: NOW - 100 * HOUR_MS,
+        createdAt: new Date(NOW - 700 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestCommerceCatalogCandidateAgeHours(candidates, orders, NOW)).toBe(30);
+  });
+
+  it("skips orders with a missing or unparseable createdAt", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [{ leadSlug: "alpha", commerceAddon: true, createdAt: "not-a-date" }];
+    expect(oldestCommerceCatalogCandidateAgeHours(candidates, orders, NOW)).toBeNull();
+  });
+
+  it("clamps to 0 when nowMs is before the order's createdAt", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        leadSlug: "alpha",
+        commerceAddon: true,
+        createdAt: new Date(NOW + HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestCommerceCatalogCandidateAgeHours(candidates, orders, NOW)).toBe(0);
   });
 });
 

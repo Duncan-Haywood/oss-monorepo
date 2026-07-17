@@ -8,7 +8,9 @@ import {
   leadNeedsMarketingPackForMonth,
   listMarketingPacksDue,
   marketingMonthKey,
+  marketingMonthStartMs,
   MONTHLY_MARKETING_PACK_TYPES,
+  oldestMarketingPacksDueAgeHours,
 } from "./monthly-pack";
 import { monthlyPackRequestForLead } from "./build-request";
 import {
@@ -172,6 +174,82 @@ describe("listMarketingPacksDue", () => {
         month,
       ).map((l) => l.slug),
     ).toEqual(["old-fulfilled"]);
+  });
+});
+
+describe("marketingMonthStartMs", () => {
+  it("returns the first UTC instant of the month", () => {
+    expect(marketingMonthStartMs("2026-07")).toBe(Date.UTC(2026, 6, 1, 0, 0, 0));
+    expect(marketingMonthStartMs("2026-01")).toBe(Date.UTC(2026, 0, 1, 0, 0, 0));
+  });
+
+  it("rejects a malformed yearMonth", () => {
+    expect(() => marketingMonthStartMs("2026-7")).toThrow(/invalid yearMonth/);
+    expect(() => marketingMonthStartMs("not-a-month")).toThrow(/invalid yearMonth/);
+  });
+});
+
+describe("oldestMarketingPacksDueAgeHours", () => {
+  const HOUR_MS = 60 * 60 * 1000;
+  const month = "2026-07";
+  const monthStartMs = Date.UTC(2026, 6, 1, 0, 0, 0);
+  const NOW = monthStartMs + 10 * HOUR_MS;
+
+  it("returns null for no candidates", () => {
+    expect(oldestMarketingPacksDueAgeHours([], [], month, NOW)).toBeNull();
+  });
+
+  it("anchors to month start for a long-time subscriber", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        // Subscribed long before this month — due-since is still month start,
+        // not their original signup, so the age doesn't grow unbounded forever.
+        createdAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, NOW)).toBe(10);
+  });
+
+  it("anchors to the order's createdAt for a mid-month signup", () => {
+    const candidates = [{ slug: "beta" }];
+    const orders = [
+      {
+        leadSlug: "beta",
+        tier: "complete",
+        createdAt: new Date(monthStartMs + 6 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, NOW)).toBe(4);
+  });
+
+  it("ignores non-candidates, paused entitlement, and unparseable orders", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      { leadSlug: "gamma", tier: "growth", createdAt: new Date(monthStartMs).toISOString() },
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        recurringCanceledAt: monthStartMs,
+        createdAt: new Date(monthStartMs).toISOString(),
+      },
+      { leadSlug: "alpha", tier: "growth", createdAt: "not-a-date" },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, NOW)).toBeNull();
+  });
+
+  it("clamps to 0 when nowMs is before the due-since instant", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        createdAt: new Date(monthStartMs + 2 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, monthStartMs)).toBe(0);
   });
 });
 

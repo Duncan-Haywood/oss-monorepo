@@ -125,7 +125,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.marketingPacksDueCount)}
           hint={
             health.marketingPacksDueCount > 0
-              ? `${health.marketingPacksDueMonth} Growth/Complete fulfillment`
+              ? `${health.marketingPacksDueMonth} Growth/Complete fulfillment${
+                  health.oldestMarketingPacksDueAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestMarketingPacksDueAgeHours)}`
+                    : ""
+                }`
               : `${health.marketingPacksDueMonth} packs complete`
           }
           attention={health.marketingPacksDueCount > 0}
@@ -159,7 +163,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.commerceCatalogsMissingCount)}
           hint={
             health.commerceCatalogsMissingCount > 0
-              ? "Paid Commerce add-on fulfillment"
+              ? `Paid Commerce add-on fulfillment${
+                  health.oldestCommerceCatalogsMissingAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceCatalogsMissingAgeHours)}`
+                    : ""
+                }`
               : "All Commerce catalogs created"
           }
           attention={health.commerceCatalogsMissingCount > 0}
@@ -169,7 +177,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.commerceCatalogsUnsyncedCount)}
           hint={
             health.commerceCatalogsUnsyncedCount > 0
-              ? "Saved catalogs still need Buy now"
+              ? `Saved catalogs still need Buy now${
+                  health.oldestCommerceCatalogsUnsyncedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceCatalogsUnsyncedAgeHours)}`
+                    : ""
+                }`
               : "Saved catalogs synced for Buy now"
           }
           attention={health.commerceCatalogsUnsyncedCount > 0}
@@ -179,7 +191,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.clientVoicePacksDueCount)}
           hint={
             health.clientVoicePacksDueCount > 0
-              ? "Complete phone fulfillment"
+              ? `Complete phone fulfillment${
+                  health.oldestClientVoicePacksDueAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestClientVoicePacksDueAgeHours)}`
+                    : ""
+                }`
               : "Complete voice packs ready"
           }
           attention={health.clientVoicePacksDueCount > 0}
