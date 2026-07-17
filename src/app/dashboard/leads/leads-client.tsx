@@ -1206,6 +1206,12 @@ export function LeadsClient({
                                 ? "Refunded after payout — claw back from client"
                                 : "Refunded — nothing owed"}
                             </span>
+                          ) : row.disputedAt ? (
+                            <span className="shrink-0 font-semibold text-red-700">
+                              {row.paidOutAt
+                                ? "Disputed after payout — claw back from client"
+                                : "Disputed — nothing owed"}
+                            </span>
                           ) : row.paidOutAt ? (
                             <span className="shrink-0 text-teal-700">
                               Paid out {new Date(row.paidOutAt).toLocaleDateString()}

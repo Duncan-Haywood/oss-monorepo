@@ -41,6 +41,16 @@ export interface CommerceOrderRecord {
    * Stripe has since returned to the shopper (clawback owed from the client).
    */
   refundedAt?: string;
+  /**
+   * Set once the Stripe webhook's charge.dispute.created handler resolved this
+   * order's Checkout Session (see commerce-order-dispute-clawback-tracking).
+   * Stripe debits the disputed amount from the platform the moment a dispute
+   * opens (before any resolution), so a disputed sale is the same payout-safety
+   * exposure as a refund: it must drop out of the "owed" total, and if
+   * paidOutAt was already set before the dispute landed, the operator already
+   * paid the client out of pocket for money Stripe has since withdrawn.
+   */
+  disputedAt?: string;
 }
 
 export interface InsertCommerceOrderInput {
@@ -103,17 +113,28 @@ export function isCommerceOrderRefunded(
   return Boolean(order.refundedAt);
 }
 
+/** True once the Stripe charge behind this order has an open dispute (chargeback). */
+export function isCommerceOrderDisputed(
+  order: Pick<CommerceOrderRecord, "disputedAt">,
+): boolean {
+  return Boolean(order.disputedAt);
+}
+
 /**
- * True when a refunded order was already marked paid out to the client — the
- * operator sent the client their cut before Stripe returned the money to the
- * shopper, so that amount must be clawed back from the client rather than
- * silently written off. This is the urgent case; a refund on an order that
- * was never paid out just means $0 is owed (see excludeRefundedFromOwed).
+ * True when a refunded OR disputed order was already marked paid out to the
+ * client — the operator sent the client their cut before Stripe took the
+ * money back (returned to the shopper on refund, withdrawn pending review on
+ * dispute), so that amount must be clawed back from the client rather than
+ * silently written off. This is the urgent case; a refund/dispute on an order
+ * that was never paid out just means $0 is owed (see excludeRefundedFromOwed).
  */
 export function commerceOrderNeedsClawback(
-  order: Pick<CommerceOrderRecord, "paidOutAt" | "refundedAt">,
+  order: Pick<CommerceOrderRecord, "paidOutAt" | "refundedAt" | "disputedAt">,
 ): boolean {
-  return isCommerceOrderPaidOut(order) && isCommerceOrderRefunded(order);
+  return (
+    isCommerceOrderPaidOut(order) &&
+    (isCommerceOrderRefunded(order) || isCommerceOrderDisputed(order))
+  );
 }
 
 /**
@@ -130,10 +151,11 @@ export interface CommerceOrdersByLeadSummary {
   /** Lifetime total of all recorded orders for this lead (paid out or not). */
   totalUsd: number;
   /**
-   * Total still owed to the client — excludes orders with paidOutAt set AND
-   * orders with refundedAt set. A refunded end-customer sale owes the client
-   * nothing, so it must not inflate this operator-facing "owed" total (see
-   * commerce-order-refund-clawback-tracking).
+   * Total still owed to the client — excludes orders with paidOutAt set, orders
+   * with refundedAt set, and orders with disputedAt set. A refunded or disputed
+   * end-customer sale owes the client nothing, so it must not inflate this
+   * operator-facing "owed" total (see commerce-order-refund-clawback-tracking,
+   * commerce-order-dispute-clawback-tracking).
    */
   unpaidTotalUsd: number;
   unpaidCount: number;
@@ -163,7 +185,10 @@ export function summarizeCommerceOrdersByLead(
     const latest = sorted[0];
     if (!latest) continue;
     const unpaid = sorted.filter(
-      (order) => !isCommerceOrderPaidOut(order) && !isCommerceOrderRefunded(order),
+      (order) =>
+        !isCommerceOrderPaidOut(order) &&
+        !isCommerceOrderRefunded(order) &&
+        !isCommerceOrderDisputed(order),
     );
     summaries.push({
       leadSlug,

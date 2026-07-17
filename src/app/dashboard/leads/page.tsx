@@ -10,6 +10,7 @@ import {
   listClientVoicePacks,
   listUnpaidCommerceOrders,
   listCommerceOrdersRefunded,
+  listCommerceOrdersDisputed,
 } from "@/lib/db";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
@@ -82,6 +83,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     clientVoicePacks,
     commerceOrders,
     commerceOrdersRefunded,
+    commerceOrdersDisputed,
   ] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
@@ -94,6 +96,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     listClientVoicePacks(),
     listUnpaidCommerceOrders(),
     listCommerceOrdersRefunded(),
+    listCommerceOrdersDisputed(),
   ]);
   return {
     leads,
@@ -117,6 +120,7 @@ async function loadLeadsPipelineHealth(): Promise<{
       clientVoicePacks,
       commerceOrders,
       commerceOrdersRefunded,
+      commerceOrdersDisputed,
       nowMs,
     }),
   };

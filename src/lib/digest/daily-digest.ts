@@ -69,6 +69,7 @@ const COMMERCE_UNSYNCED_LIMIT = 5;
 const CLIENT_VOICE_PACKS_LIMIT = 5;
 const COMMERCE_PAYOUTS_LIMIT = 5;
 const COMMERCE_REFUND_CLAWBACK_LIMIT = 5;
+const COMMERCE_DISPUTE_CLAWBACK_LIMIT = 5;
 const OPEN_HANDOFFS_LIMIT = 5;
 const PAID_NOT_LIVE_LIMIT = 5;
 const LEADS_MISSING_EMAIL_LIMIT = 5;
@@ -161,6 +162,20 @@ export interface DigestCommerceOrderRefundClawback {
   refundedAt: string;
 }
 
+/**
+ * A commerce order Stripe disputed (chargeback) AFTER the operator already
+ * marked it paid out to the client — the operator is out that money and must
+ * claw it back (see commerce-order-dispute-clawback-tracking). Same shape as
+ * DigestCommerceOrderRefundClawback, distinct feed/axis.
+ */
+export interface DigestCommerceOrderDisputeClawback {
+  slug: string;
+  businessName: string;
+  skuName: string;
+  amountPaidUsd: number;
+  disputedAt: string;
+}
+
 /** Paid production handoff not yet Mark live (same predicate as openHandoffCount). */
 export interface DigestOpenHandoff {
   slug: string;
@@ -240,6 +255,12 @@ export interface DailyDigest {
   commerceOrdersRefundClawbackCount: number;
   /** Sum of amountPaidUsd across commerceOrdersRefundClawbackCount orders — already computed pre-slice. */
   commerceOrdersRefundClawbackTotalUsd: number;
+  /** Commerce orders disputed after payout — clawback owed from the client (action section). */
+  commerceOrdersDisputeClawback: DigestCommerceOrderDisputeClawback[];
+  /** True count before the COMMERCE_DISPUTE_CLAWBACK_LIMIT slice — use for the section header. */
+  commerceOrdersDisputeClawbackCount: number;
+  /** Sum of amountPaidUsd across commerceOrdersDisputeClawbackCount orders — already computed pre-slice. */
+  commerceOrdersDisputeClawbackTotalUsd: number;
   /**
    * Paid sites still awaiting DNS / Mark live — same status !== "live" filter as
    * pipeline-health openHandoffCount (action section).
@@ -330,6 +351,13 @@ export interface BuildDailyDigestInput {
    */
   commerceOrdersRefunded?: ReadonlyArray<CommerceOrderRecord>;
   /**
+   * Every disputed Commerce Buy now order regardless of paidOutAt — pass
+   * listCommerceOrdersDisputed() (uncapped). Same rationale as
+   * commerceOrdersRefunded, on the dispute axis (see
+   * commerce-order-dispute-clawback-tracking).
+   */
+  commerceOrdersDisputed?: ReadonlyArray<CommerceOrderRecord>;
+  /**
    * Production deploy handoffs — pass listDeployHandoffs() (uncapped). Live rows
    * are filtered out; open rows drive the Production handoffs open section.
    */
@@ -356,6 +384,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     clientVoicePacks = [],
     commerceOrders = [],
     commerceOrdersRefunded = [],
+    commerceOrdersDisputed = [],
     handoffs = [],
     nowMs,
   } = input;
@@ -553,6 +582,28 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         refundedAt: order.refundedAt ?? "",
       }));
 
+  // Dispute-after-payout clawback — distinct feed from commerceOrders above,
+  // which drops any row once paidOutAt is set (see
+  // commerce-order-dispute-clawback-tracking).
+  const commerceOrdersDisputeClawbackAll = commerceOrdersDisputed.filter(
+    commerceOrderNeedsClawback,
+  );
+  const commerceOrdersDisputeClawbackCount = commerceOrdersDisputeClawbackAll.length;
+  const commerceOrdersDisputeClawbackTotalUsd = commerceOrdersDisputeClawbackAll.reduce(
+    (sum, order) => sum + order.amountPaidUsd,
+    0,
+  );
+  const commerceOrdersDisputeClawback: DigestCommerceOrderDisputeClawback[] =
+    commerceOrdersDisputeClawbackAll
+      .slice(0, COMMERCE_DISPUTE_CLAWBACK_LIMIT)
+      .map((order) => ({
+        slug: order.leadSlug,
+        businessName: leadsBySlug.get(order.leadSlug)?.businessName ?? order.leadSlug,
+        skuName: order.skuName,
+        amountPaidUsd: order.amountPaidUsd,
+        disputedAt: order.disputedAt ?? "",
+      }));
+
   // Same status !== "live" predicate as pipeline-health openHandoffCount.
   const openHandoffsAll = handoffs
     .filter((handoff) => handoff.status !== "live")
@@ -655,6 +706,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     clientVoicePacksDue.length === 0 &&
     commercePayoutsOwed.length === 0 &&
     commerceOrdersRefundClawback.length === 0 &&
+    commerceOrdersDisputeClawback.length === 0 &&
     openHandoffs.length === 0 &&
     paidNotLive.length === 0 &&
     leadsMissingEmail.length === 0 &&
@@ -687,6 +739,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceOrdersRefundClawback,
     commerceOrdersRefundClawbackCount,
     commerceOrdersRefundClawbackTotalUsd,
+    commerceOrdersDisputeClawback,
+    commerceOrdersDisputeClawbackCount,
+    commerceOrdersDisputeClawbackTotalUsd,
     openHandoffs,
     openHandoffsCount,
     paidNotLive,
@@ -834,6 +889,15 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ? `Refund clawback needed ($${digest.commerceOrdersRefundClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersRefundClawbackCount} order${digest.commerceOrdersRefundClawbackCount === 1 ? "" : "s"})`
       : "Refund clawback needed (0)";
 
+  const disputeClawbackRows = digest.commerceOrdersDisputeClawback.map(
+    (row) =>
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} paid out for ${escapeHtmlForEmail(row.skuName)}, then disputed by the shopper's bank — claw back from client`,
+  );
+  const disputeClawbackTitle =
+    digest.commerceOrdersDisputeClawbackCount > 0
+      ? `Dispute clawback needed ($${digest.commerceOrdersDisputeClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersDisputeClawbackCount} order${digest.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"})`
+      : "Dispute clawback needed (0)";
+
   const handoffRows = digest.openHandoffs.map(
     (handoff) =>
       `<strong>${escapeHtmlForEmail(handoff.businessName)}</strong> — ${escapeHtmlForEmail(handoff.status)} · ${escapeHtmlForEmail(handoff.host)} (${escapeHtmlForEmail(handoff.tier)})`,
@@ -885,6 +949,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
     ${section(clawbackTitle, clawbackRows, "No Commerce payouts have been refunded after the fact.")}
+    ${section(disputeClawbackTitle, disputeClawbackRows, "No Commerce payouts have been disputed after the fact.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
     ${section(`Paid, not yet live (${digest.paidNotLiveCount})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}

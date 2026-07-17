@@ -196,6 +196,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.commerceOrdersRefundClawbackCount > 0}
         />
+        <MetricCard
+          label="Dispute clawback needed"
+          value={formatUsd(health.commerceOrdersDisputeClawbackUsd)}
+          hint={
+            health.commerceOrdersDisputeClawbackCount > 0
+              ? `${health.commerceOrdersDisputeClawbackCount} Buy now order${health.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"} paid out to a client, then disputed by the shopper's bank — claw back from client${
+                  health.oldestCommerceOrdersDisputeClawbackAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersDisputeClawbackAgeHours)}`
+                    : ""
+                }`
+              : "No payouts disputed after the fact"
+          }
+          attention={health.commerceOrdersDisputeClawbackCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (

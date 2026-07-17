@@ -2744,6 +2744,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/nice-euler-0x1k8a",
   },
+  {
+    id: "commerce-order-dispute-clawback-tracking",
+    summary:
+      "Natural follow-up flagged by commerce-order-refund-clawback-tracking: charge.dispute.created (a Stripe chargeback) was entirely unhandled — Stripe debits the disputed amount from the platform the moment a dispute opens, same payout-safety exposure as a refund. Shipped: mirrors the refund clawback shape end to end (commerceOrders.disputedAt, exclude from owed total, reject Mark paid out, dedicated 'Dispute clawback needed' pipeline-health card + digest section, payouts-panel UI). Dispute resolution (charge.dispute.closed — won/lost) is a follow-up, not handled here.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-x13feb",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5626,6 +5634,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Stripe SDK 22.3.1 (API versions 2025-03-31 and later) removed Subscription.current_period_start/end (moved to each SubscriptionItem, since one Subscription can have multiple items with distinct billing cycles) and removed the top-level Invoice.subscription field (moved to invoice.parent.subscription_details.subscription). src/app/api/stripe/webhook/route.ts's subscription-pause pausedAt calculation and stripeSubscriptionIdFromInvoice both read the old flat fields, which silently broke `npm run build` (tsc) on main with zero test-suite signal since `npm test` never runs a full typecheck. Shipped stripeSubscriptionPausedAtMs (reads subscription.items.data[0].current_period_start, falls back to nowMs) and widened stripeSubscriptionIdFromInvoice to check both the legacy top-level field and the new nested parent.subscription_details.subscription path, since a webhook signed with an older pinned API version can still send the legacy shape.",
     rationale:
       "Discovered while verifying `npm run build` for the commerce-order-refund-clawback-tracking change above — this task's instructions require a clean build, not just clean tests, and `npm test` (Vitest) does not run tsc across route.ts. Confirmed via `git stash` against origin/main @ 9b3fcdd (PR #357) that both type errors pre-date this iteration and are not introduced by this branch — the build had been silently broken for at least one prior iteration's worth of history because recent agents ran lint + vitest but not a full production build before committing. Process improvement: `npm run build` must be run at least once per empty-backlog rotation, even when the change is unrelated to payments, since a Stripe SDK type-version drift can silently break the highest money-criticality file in the repo with zero Vitest signal. Next empty-backlog: same as above; also worth a one-time grep for other `stripe.` type usages that may have drifted with the same 2025-03-31+ API version migration before assuming this fix covers every case.",
+  },
+  {
+    date: "2026-07-17",
+    decision:
+      "Stripe charge.dispute.created (a chargeback) must resolve the underlying Checkout Session via stripe.checkout.sessions.list({ payment_intent }) — mirroring charge.refunded exactly — and, when it backs a commerceOrders row, mark commerceOrders.disputedAt (idempotent). Stripe debits the disputed amount from the platform the moment a dispute opens (before any resolution), so a disputed Buy now sale is the same payout-safety exposure as a refund: it must drop out of the 'owed to client' payout total (listUnpaidCommerceOrders / pipeline-health commerceOrdersRevenueUsd / Commerce payouts panel / digest), and markCommerceOrderPaidOutAction must reject paying out a disputed order. commerceOrderNeedsClawback now returns true when paid out AND (refunded OR disputed). When paidOutAt was already set before the dispute arrived, that is a clawback owed from the client — surfaced via a new uncapped listCommerceOrdersDisputed() feeding pipeline-health (commerceOrdersDisputeClawbackCount/Usd + oldest age) and a new digest 'Dispute clawback needed' section, since listUnpaidCommerceOrders drops any row once paidOutAt is set and cannot see this case on its own. Dispute resolution (charge.dispute.closed — won/lost) is not handled here, same scope limit as refund reversal not being handled. Bundle order disputes are not handled here — same rationale as bundle order refunds (no payout-panel double-loss risk on that ledger today).",
+    rationale:
+      "Empty-backlog after PR #361 (BUSINESS_DECISIONS slice off-by-one correction, no code change). Free NEXT_STEPS stayed operator/legal-gated (4 items, all gated: stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Scanned remote branches ahead of main for stuck CLI/cursor/grok/opencode work with a complete feature body and no open PR — every branch found with commits ahead of main was either already-superseded docs-only bookkeeping or content already shipped via a different path (billing-portal-session-payment-mode-tier-metadata-trust and siblings, already present in current AGENT_PROTOCOL text). No genuine fold candidate. Both the refund-clawback ITERATIONS entry and BD note explicitly flagged charge.dispute.created as the natural next step, since the original 'refund' grep audit found charge.refunded/disputes were BOTH entirely unhandled but only the refund half was shipped. Concretely: an operator could Mark paid out a Commerce Buy now order that a shopper's bank had already charged back via Stripe dispute, losing that money twice (once debited by Stripe pending review, once paid to the client from the operator's own pocket) with zero record of the mistake — same severity class as the refund gap, previously undiscussed on the dispute axis specifically. Also found and closed a real, previously-undocumented gap while auditing: this feature (and the original refund-clawback feature before it) had never actually been documented on /docs/architecture despite ITERATIONS entries repeatedly claiming 'Docs: architecture.tsx notes...' — added a combined refund+dispute clawback paragraph there. Process improvement: after shipping a payout-safety clawback axis (refund), immediately check whether its sibling Stripe event (dispute) was scoped out of the same audit rather than assuming the grep that found the gap covered both; also verify a claimed doc update actually landed in git history before trusting a prior ITERATIONS entry's shipped list. Next empty-backlog: charge.dispute.closed resolution (won/lost) as the dispute-axis follow-up, bundle-order refund/dispute twin (lower severity, no payout-panel double-loss risk on that ledger today), or a fresh escapeHtmlForEmail/webhook-idempotency/uncapped-list clean audit not dated this week. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -11497,5 +11512,35 @@ export const ITERATIONS: ProcessIteration[] = [
     // No new BUSINESS_DECISIONS — this iteration is a bookkeeping correction (BD slice indices)
     // and a clean audit + fold-race outcome, not a new product/business decision.
     decisions: [],
+  },
+  {
+    date: "2026-07-17",
+    branch: "claude/nice-euler-x13feb",
+    summary:
+      "Empty-backlog after PR #361 (BUSINESS_DECISIONS slice off-by-one correction, no code change). Free NEXT_STEPS stayed fully operator/legal-gated (4 items). Fetched every remote branch and diffed each against main — every branch with commits ahead of main was either already-superseded docs-only bookkeeping or content already shipped via a different path; no genuine fold candidate. Both the commerce-order-refund-clawback-tracking ITERATIONS entry and its BUSINESS_DECISIONS note explicitly flagged charge.dispute.created as the natural next step (the original 'refund' grep audit found charge.refunded/disputes were BOTH entirely unhandled, but only the refund half shipped). Shipped commerce-order-dispute-clawback-tracking end to end, mirroring the refund clawback shape exactly: commerceOrders.disputedAt, exclude disputed orders from the owed total, reject Mark paid out on a disputed order, commerceOrderNeedsClawback extended to (refunded OR disputed), dedicated uncapped listCommerceOrdersDisputed() feed, pipeline-health 'Dispute clawback needed' card, daily-digest 'Dispute clawback needed' section, and Commerce payouts panel UI. Also discovered and fixed a real, separate gap while auditing: despite ITERATIONS entries repeatedly claiming 'Docs: architecture.tsx notes...' for the refund-clawback feature, /docs/architecture never actually documented it — added a combined refund+dispute clawback paragraph there covering both axes.",
+    shipped: [
+      "src/lib/commerce/orders.ts (+ test) — CommerceOrderRecord.disputedAt, isCommerceOrderDisputed; commerceOrderNeedsClawback extended to (refunded OR disputed); summarizeCommerceOrdersByLead excludes disputed orders from unpaidTotalUsd/unpaidCount",
+      "src/lib/commerce/index.ts — barrel export for isCommerceOrderDisputed",
+      "convex/schema.ts + convex/commerceOrders.ts — disputedAt column; markDisputed mutation; listDisputed query (uncapped, mirrors listRefunded)",
+      "src/lib/commerce/sqlite-row-mapping.ts (+ test) — disputedAt column round-trip, empty-string→undefined parity",
+      "src/lib/db.ts — commerce_orders.disputedAt SQLite migration; markCommerceOrderDisputed (Convex-first, requireConvex); listCommerceOrdersDisputed (uncapped); static Convex API map registrations (commerceOrders.markDisputed, commerceOrders.listDisputed)",
+      "src/app/api/stripe/webhook/route.ts (+ test) — charge.dispute.created handler: resolve Checkout Session via stripe.checkout.sessions.list({payment_intent}) from Dispute.payment_intent, mark commerceOrders.disputedAt when it backs a ledgered order, idempotent, 5xx on Session-lookup/mark failure; dispute *resolution* (charge.dispute.closed) explicitly out of scope",
+      "src/lib/payments/webhook-fulfillment.ts (+ test) — commerce_order_dispute_session_lookup + commerce_order_dispute fulfillment steps",
+      "src/app/dashboard/leads/actions.ts (+ test) — markCommerceOrderPaidOutAction rejects a disputed order (clawback safety, mirrors refunded rejection)",
+      "src/lib/metrics/pipeline-health.ts (+ test) — excludes disputed orders from commerceOrdersRevenueUsd/commerceOrdersCount; new commerceOrdersDisputeClawbackCount/Usd + oldest age fields (fed by listCommerceOrdersDisputed)",
+      "src/lib/digest/daily-digest.ts (+ test) — new 'Dispute clawback needed' section (count/total/rows)",
+      "src/app/dashboard/page.tsx + src/app/dashboard/leads/page.tsx + src/app/dashboard/leads/actions.ts (sendDailyDigestAction) — wire listCommerceOrdersDisputed() into pipeline-health + digest",
+      "src/components/dashboard/pipeline-health-panel.tsx — new 'Dispute clawback needed' metric card",
+      "src/app/dashboard/leads/leads-client.tsx — Commerce payouts panel shows Disputed / Disputed after payout instead of Mark paid out button",
+      "src/app/docs/architecture/page.tsx — new paragraph documenting both refund AND dispute clawback tracking (the refund half was previously undocumented despite prior ITERATIONS claims)",
+      "NEXT_STEPS: commerce-order-dispute-clawback-tracking done",
+      "BUSINESS_DECISIONS — commerce dispute/clawback tracking (absolute index 410)",
+      "Process: claim commit pushed before feature body; verified BUSINESS_DECISIONS.length via object-parse (410 entries) rather than trusting the prior entry's slice comment before appending",
+      "Verified: npm test (1855 passed = main@#361's 1835 + 20 dispute-axis regressions) + lint + build (tsc clean, all 31 routes generated) + npm run dev sanity check on /dashboard, /dashboard/leads, /preview/demo-cafe (200s, no console errors, new Dispute clawback needed card renders)",
+    ],
+    // Object-parse by decision text: dispute/clawback tracking = BD[410] ("Stripe charge.dispute.created
+    // (a chargeback) must resolve..."). Verified BUSINESS_DECISIONS.length === 410 before this append
+    // (indices 0-409 pre-existing), so this entry's own decision lands at index 410.
+    decisions: BUSINESS_DECISIONS.slice(410, 411),
   },
 ];

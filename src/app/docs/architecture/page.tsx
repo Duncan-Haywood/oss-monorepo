@@ -1400,6 +1400,33 @@ source). The same digest also lists email-critical leads with no usable address 
         lead has no email or when the session was already ledgered.
       </p>
 
+      <p>
+        Until Stripe Connect ships, a refunded or disputed Commerce Buy now charge is a real
+        payout-safety exposure: the operator could <strong>Mark paid out</strong> an order Stripe
+        had already returned to the shopper (refund) or already debited from the platform pending
+        review (dispute), losing that money twice. <code>charge.refunded</code> and{" "}
+        <code>charge.dispute.created</code> both resolve the underlying Checkout Session via{" "}
+        <code>stripe.checkout.sessions.list({"{ payment_intent }"})</code> (charges/disputes carry
+        no Session id directly) and, when that Session backs a <code>commerceOrders</code> row,
+        mark <code>refundedAt</code> / <code>disputedAt</code> respectively (idempotent — Stripe
+        redelivery is a no-op). Either flag drops the order out of{" "}
+        <code>commerceOrdersRevenueUsd</code> / <code>summarizeCommerceOrdersByLead</code>&apos;s{" "}
+        <code>unpaidTotalUsd</code>, and <code>markCommerceOrderPaidOutAction</code> rejects paying
+        out an order once either is set. If <code>paidOutAt</code> was already set before the
+        refund/dispute landed, the operator paid the client out of pocket for money Stripe has
+        since taken back — that is a clawback owed from the client,{" "}
+        <code>commerceOrderNeedsClawback</code> (true when paid out AND (refunded OR disputed))
+        surfaced via two uncapped feeds, <code>listCommerceOrdersRefunded</code> /{" "}
+        <code>listCommerceOrdersDisputed</code> (<code>listUnpaidCommerceOrders</code> drops any
+        row once <code>paidOutAt</code> is set and cannot see this case on its own), feeding
+        pipeline-health <strong>Refund clawback needed</strong> /{" "}
+        <strong>Dispute clawback needed</strong> cards and matching daily-digest sections. Bundle
+        (Starter/Growth/Complete) order refunds/disputes are not handled here — that ledger has no
+        manual-payout double-loss risk today. Dispute <em>resolution</em> (
+        <code>charge.dispute.closed</code> — won/lost) is not handled — a disputed order stays
+        flagged even if the dispute is later won back in the operator&apos;s favor.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

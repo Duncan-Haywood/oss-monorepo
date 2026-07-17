@@ -763,6 +763,58 @@ describe("computePipelineHealth", () => {
     expect(health.oldestCommerceOrdersRefundClawbackAgeHours).toBeNull();
   });
 
+  it("excludes disputed commerce orders from the owed pass-through card (never paid out)", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        { amountPaidUsd: 12.5, disputedAt: "2026-07-12T10:00:00.000Z" },
+        { amountPaidUsd: 7.25 },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRevenueUsd).toBe(7.25);
+    expect(health.commerceOrdersCount).toBe(1);
+    expect(health.commerceOrdersDisputeClawbackCount).toBe(0);
+  });
+
+  it("surfaces dispute-after-payout as a clawback owed from the client", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrdersDisputed: [
+        {
+          amountPaidUsd: 40,
+          paidOutAt: "2026-07-10T10:00:00.000Z",
+          disputedAt: "2026-07-14T10:00:00.000Z",
+        },
+        // Disputed but never paid out — zero clawback risk, excluded.
+        { amountPaidUsd: 15, disputedAt: "2026-07-15T10:00:00.000Z" },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersDisputeClawbackCount).toBe(1);
+    expect(health.commerceOrdersDisputeClawbackUsd).toBe(40);
+    expect(health.oldestCommerceOrdersDisputeClawbackAgeHours).not.toBeNull();
+  });
+
+  it("defaults dispute clawback fields to zero/null when no disputes recorded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersDisputeClawbackCount).toBe(0);
+    expect(health.commerceOrdersDisputeClawbackUsd).toBe(0);
+    expect(health.oldestCommerceOrdersDisputeClawbackAgeHours).toBeNull();
+  });
+
   it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
     // Simulate listCommerceOrders(N)'s newest-first page: an old unpaid Buy now
     // row pushed off the page by newer paid-out traffic. Callers must feed

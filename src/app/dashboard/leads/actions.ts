@@ -33,6 +33,7 @@ import {
   listClientVoicePacks,
   listUnpaidCommerceOrders,
   listCommerceOrdersRefunded,
+  listCommerceOrdersDisputed,
   listDeployHandoffs,
   getLeadSlugByCustomDomain,
 } from "@/lib/db";
@@ -1165,6 +1166,14 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
         error: "Order was refunded to the customer — nothing is owed to the client",
       };
     }
+    if (order.disputedAt) {
+      // Stripe already withdrew this money pending dispute review — same
+      // payout-safety exposure as a refund (commerce-order-dispute-clawback-tracking).
+      return {
+        success: false as const,
+        error: "Order is disputed with Stripe — nothing is owed to the client",
+      };
+    }
 
     const paidOutAt = new Date().toISOString();
     try {
@@ -1600,6 +1609,7 @@ export async function sendDailyDigestAction() {
       clientVoicePacks,
       commerceOrders,
       commerceOrdersRefunded,
+      commerceOrdersDisputed,
       handoffs,
     ] = await Promise.all([
       getLeads(),
@@ -1611,6 +1621,7 @@ export async function sendDailyDigestAction() {
       listClientVoicePacks(),
       listUnpaidCommerceOrders(),
       listCommerceOrdersRefunded(),
+      listCommerceOrdersDisputed(),
       listDeployHandoffs(),
     ]);
 
@@ -1627,6 +1638,7 @@ export async function sendDailyDigestAction() {
       clientVoicePacks,
       commerceOrders,
       commerceOrdersRefunded,
+      commerceOrdersDisputed,
       handoffs,
       nowMs,
     });

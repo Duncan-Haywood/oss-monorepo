@@ -12,6 +12,7 @@ const orderReturn = v.object({
   paidOutAt: v.optional(v.string()),
   clientReceiptEmailSentAt: v.optional(v.string()),
   refundedAt: v.optional(v.string()),
+  disputedAt: v.optional(v.string()),
 });
 
 function mapOrderRow(row: {
@@ -25,6 +26,7 @@ function mapOrderRow(row: {
   paidOutAt?: string;
   clientReceiptEmailSentAt?: string;
   refundedAt?: string;
+  disputedAt?: string;
 }) {
   return {
     id: row.orderId,
@@ -39,6 +41,8 @@ function mapOrderRow(row: {
     clientReceiptEmailSentAt: row.clientReceiptEmailSentAt || undefined,
     // Empty string must stay unrefunded (same SQLite/Convex parity as paidOutAt).
     refundedAt: row.refundedAt || undefined,
+    // Empty string must stay undisputed (same SQLite/Convex parity as paidOutAt/refundedAt).
+    disputedAt: row.disputedAt || undefined,
   };
 }
 
@@ -228,6 +232,50 @@ export const listRefunded = query({
     const rows = await ctx.db.query("commerceOrders").collect();
     return rows
       .filter((row) => Boolean(row.refundedAt))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map(mapOrderRow);
+  },
+});
+
+/**
+ * Marks a commerce order disputed — called from the Stripe webhook's
+ * charge.dispute.created handler once it resolves the order's Checkout
+ * Session. Keyed on stripeSessionId (unique, always present), matching
+ * markRefunded. Idempotent: re-applying the same disputedAt on redelivery is
+ * a no-op patch. Missing order (charge belongs to a Session we never
+ * ledgered) is a no-op — the webhook route treats that as "not one of our
+ * commerce orders."
+ */
+export const markDisputed = mutation({
+  args: { stripeSessionId: v.string(), disputedAt: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (order && !order.disputedAt) {
+      await ctx.db.patch(order._id, { disputedAt: args.disputedAt });
+    }
+    return null;
+  },
+});
+
+/**
+ * Every disputed commerce order, regardless of paidOutAt — same rationale as
+ * listRefunded: listUnpaid drops any row once paidOutAt is set, so a dispute
+ * that lands AFTER payout (clawback owed from the client) would otherwise be
+ * invisible to every uncapped reader (see commerce-order-dispute-clawback-tracking).
+ */
+export const listDisputed = query({
+  args: {},
+  returns: v.array(orderReturn),
+  handler: async (ctx) => {
+    const rows = await ctx.db.query("commerceOrders").collect();
+    return rows
+      .filter((row) => Boolean(row.disputedAt))
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .map(mapOrderRow);
   },
