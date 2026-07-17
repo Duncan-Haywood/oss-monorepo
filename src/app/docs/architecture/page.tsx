@@ -517,7 +517,10 @@ export default function ArchitectureDocPage() {
         pause the same field on <code>customer.subscription.updated</code> with
         status <code>past_due</code>|<code>unpaid</code> and on{" "}
         <code>invoice.payment_failed</code> for subscription invoices (one-time
-        invoices skip). Stripe <code>pause_collection</code> also pauses even when
+        invoices skip — but only after <code>subscriptions.retrieve</code> still
+        shows pause-eligible status (<code>past_due</code>|<code>unpaid</code> or{" "}
+        <code>pause_collection</code>); a stale failed after recovery must not
+        re-pause. Stripe <code>pause_collection</code> also pauses even when
         status stays <code>active</code>|<code>trialing</code> (checked before the
         grants clear). When they resubscribe, recover, or clear{" "}
         <code>pause_collection</code>, <code>customer.subscription.created</code> /{" "}
@@ -525,7 +528,12 @@ export default function ArchitectureDocPage() {
         and no <code>pause_collection</code> calls{" "}
         <code>clearOrdersRecurringCanceledByCustomer</code> so packs/catalog resume
         (write failures return <code>500</code> /{" "}
-        <code>orders_recurring_reactivated</code>). Marketing packs, client voice
+        <code>orders_recurring_reactivated</code>).{" "}
+        <code>invoice.paid</code> is the restore twin of{" "}
+        <code>invoice.payment_failed</code>: retrieve the Subscription and clear
+        only when grants + no <code>pause_collection</code> (blind clear would
+        reopen the pause hole; one-time invoices skip; retrieve failures return{" "}
+        <code>500</code> / <code>subscription_retrieve</code>). Marketing packs, client voice
         packs, and commerce catalogs require an uncanceled recurring order;{" "}
         <code>stage=paid|live</code> and Billing Portal eligibility stay so
         invoices/resubscribe and Starter-upsell mutual exclusion remain correct.

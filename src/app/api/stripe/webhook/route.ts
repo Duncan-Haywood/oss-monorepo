@@ -12,10 +12,14 @@ import {
 import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import {
+  invoicePaidMayRestoreRecurringEntitlement,
   invoicePaymentFailedPausesRecurringEntitlement,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
+  stripeSubscriptionIdFromInvoice,
   stripeSubscriptionPausesRecurringEntitlement,
+  stripeSubscriptionShouldPauseRecurringEntitlement,
+  stripeSubscriptionShouldRestoreRecurringEntitlement,
 } from "@/lib/orders/recurring";
 import {
   parseCommerceCheckoutSkuId,
@@ -118,9 +122,14 @@ import {
  * stays active while collection is paused; markOrdersRecurringCanceledByCustomer
  * first). past_due|unpaid on the same events (and invoice.payment_failed for
  * subscription invoices) must markOrdersRecurringCanceledByCustomer so failed
- * renewals pause packs before subscription.deleted. Other non-active statuses
- * and missing customer skip (no 5xx). Write failures return 5xx
- * (orders_recurring_reactivated / orders_recurring_canceled).
+ * renewals pause packs before subscription.deleted. invoice.paid is the restore
+ * twin of invoice.payment_failed: subscriptions.retrieve then clear only when
+ * grants + !pause_collection (blind clear would reopen pause_collection).
+ * invoice.payment_failed must re-retrieve before mark so a stale failed after
+ * recovery cannot re-pause. Other non-active statuses and missing customer skip
+ * (no 5xx). Write failures return 5xx (orders_recurring_reactivated /
+ * orders_recurring_canceled). Subscription retrieve failures on invoice twins
+ * return 5xx (subscription_retrieve) so Stripe retries.
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -991,13 +1000,38 @@ export async function POST(request: Request) {
     case "invoice.payment_failed": {
       // Failed subscription renewal often races subscription.updated past_due.
       // Pause CRM packs/catalog on the invoice event too so entitlement does
-      // not lag if the subscription status webhook is delayed. One-time
+      // not lag if the subscription status webhook is delayed. Re-retrieve the
+      // Subscription before mark — a stale/out-of-order payment_failed after
+      // recovery must not re-pause when status already grants. One-time
       // invoices (no subscription) skip.
       const invoice = event.data.object as Stripe.Invoice;
       if (!invoicePaymentFailedPausesRecurringEntitlement(invoice)) {
         break;
       }
-      const customerId = stripeCustomerIdFromUnknown(invoice.customer);
+      const subscriptionId = stripeSubscriptionIdFromInvoice(invoice);
+      if (!subscriptionId) {
+        break;
+      }
+      let subscription: Stripe.Subscription;
+      try {
+        subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      } catch (e) {
+        console.error(
+          `Failed to retrieve subscription ${subscriptionId} for invoice.payment_failed ${invoice.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("subscription_retrieve");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      if (!stripeSubscriptionShouldPauseRecurringEntitlement(subscription)) {
+        console.warn(
+          `webhook: invoice.payment_failed ${invoice.id} subscription=${subscriptionId} status=${subscription.status} — skipping CRM pause (already grants or not pause-eligible)`,
+        );
+        break;
+      }
+      const customerId =
+        stripeCustomerIdFromUnknown(invoice.customer) ??
+        stripeCustomerIdFromUnknown(subscription.customer);
       if (!customerId) {
         console.warn(
           `webhook: invoice.payment_failed ${invoice.id} missing customer — skipping CRM pause`,
@@ -1017,7 +1051,7 @@ export async function POST(request: Request) {
           WEBHOOK_CONVEX_PRIMARY,
         );
         console.warn(
-          `webhook: invoice.payment_failed ${invoice.id} customer=${customerId} paused recurring entitlement on ${updated} order(s)`,
+          `webhook: invoice.payment_failed ${invoice.id} customer=${customerId} subscription=${subscriptionId} status=${subscription.status} paused recurring entitlement on ${updated} order(s)`,
         );
       } catch (e) {
         console.error(
@@ -1025,6 +1059,69 @@ export async function POST(request: Request) {
           e,
         );
         const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      break;
+    }
+    case "invoice.paid": {
+      // Restore twin of invoice.payment_failed: #346 pauses on failed so packs
+      // do not lag delayed subscription.updated past_due — invoice.paid must
+      // clear the same way when payment recovers, or a paying customer stays
+      // recurringCanceledAt-paused until a later subscription.updated. Retrieve
+      // first; clear only when grants + !pause_collection (blind clear would
+      // reopen the pause_collection hole). One-time invoices skip.
+      const invoice = event.data.object as Stripe.Invoice;
+      if (!invoicePaidMayRestoreRecurringEntitlement(invoice)) {
+        break;
+      }
+      const subscriptionId = stripeSubscriptionIdFromInvoice(invoice);
+      if (!subscriptionId) {
+        break;
+      }
+      let subscription: Stripe.Subscription;
+      try {
+        subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      } catch (e) {
+        console.error(
+          `Failed to retrieve subscription ${subscriptionId} for invoice.paid ${invoice.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("subscription_retrieve");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      if (!stripeSubscriptionShouldRestoreRecurringEntitlement(subscription)) {
+        console.warn(
+          `webhook: invoice.paid ${invoice.id} subscription=${subscriptionId} status=${subscription.status}${
+            stripeSubscriptionHasPauseCollection(subscription.pause_collection)
+              ? " pause_collection"
+              : ""
+          } — skipping CRM restore`,
+        );
+        break;
+      }
+      const customerId =
+        stripeCustomerIdFromUnknown(invoice.customer) ??
+        stripeCustomerIdFromUnknown(subscription.customer);
+      if (!customerId) {
+        console.warn(
+          `webhook: invoice.paid ${invoice.id} missing customer — skipping CRM restore`,
+        );
+        break;
+      }
+      try {
+        const updated = await clearOrdersRecurringCanceledByCustomer(
+          customerId,
+          WEBHOOK_CONVEX_PRIMARY,
+        );
+        console.warn(
+          `webhook: invoice.paid ${invoice.id} customer=${customerId} subscription=${subscriptionId} status=${subscription.status} cleared recurringCanceledAt on ${updated} order(s)`,
+        );
+      } catch (e) {
+        console.error(
+          `Failed to clear recurring canceled for customer ${customerId} after invoice.paid ${invoice.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");
         return NextResponse.json(failure.body, { status: failure.status });
       }
       break;

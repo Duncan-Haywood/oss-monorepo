@@ -7,8 +7,11 @@
  * active|trialing clears recurringCanceledAt so resubscribers regain packs.
  * past_due|unpaid subscription.updated and invoice.payment_failed (subscription
  * invoices) re-mark recurringCanceledAt so failed renewals pause packs until
- * payment recovers to active|trialing. pause_collection on an otherwise
- * active|trialing Subscription also pauses — status alone would wrongly clear.
+ * payment recovers to active|trialing. invoice.paid restores the same way after
+ * subscriptions.retrieve proves grants + no pause_collection (do not blind-clear).
+ * invoice.payment_failed must re-retrieve before mark so a stale failed after
+ * recovery cannot re-pause. pause_collection on an otherwise active|trialing
+ * Subscription also pauses — status alone would wrongly clear.
  */
 
 /** True when the order ever carried a Growth/Complete/Commerce recurring Price. */
@@ -82,21 +85,78 @@ export function stripeSubscriptionHasPauseCollection(
 }
 
 /**
- * True when an invoice.payment_failed event is tied to a Subscription (not a
- * one-time invoice). Only subscription renewals should pause packs/catalog.
+ * Extract a Stripe Subscription id from an Invoice.subscription field
+ * (string or expanded object). Returns null for one-time invoices.
+ */
+export function stripeSubscriptionIdFromInvoice(invoice: {
+  subscription?: unknown;
+}): string | null {
+  const sub = invoice.subscription;
+  if (typeof sub === "string") {
+    const id = sub.trim();
+    return id.length > 0 ? id : null;
+  }
+  if (sub && typeof sub === "object" && "id" in sub) {
+    const id = (sub as { id: unknown }).id;
+    if (typeof id === "string") {
+      const trimmed = id.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    }
+  }
+  return null;
+}
+
+/**
+ * True when an invoice.payment_failed / invoice.paid event is tied to a
+ * Subscription (not a one-time invoice). Only subscription renewals should
+ * pause or restore packs/catalog via the invoice twin of subscription.updated.
  */
 export function invoicePaymentFailedPausesRecurringEntitlement(invoice: {
   subscription?: unknown;
 }): boolean {
-  const sub = invoice.subscription;
-  if (typeof sub === "string") {
-    return sub.trim().length > 0;
+  return stripeSubscriptionIdFromInvoice(invoice) != null;
+}
+
+/**
+ * True when invoice.paid may attempt CRM restore — same subscription-membership
+ * gate as payment_failed. Callers must still subscriptions.retrieve and require
+ * grants + !pause_collection before clearOrdersRecurringCanceledByCustomer.
+ */
+export function invoicePaidMayRestoreRecurringEntitlement(invoice: {
+  subscription?: unknown;
+}): boolean {
+  return stripeSubscriptionIdFromInvoice(invoice) != null;
+}
+
+/**
+ * After subscriptions.retrieve, true when CRM should clear recurringCanceledAt
+ * (active|trialing and not pause_collection). Shared by subscription.updated
+ * grants path and invoice.paid restore.
+ */
+export function stripeSubscriptionShouldRestoreRecurringEntitlement(subscription: {
+  status?: string | null;
+  pause_collection?: unknown;
+}): boolean {
+  if (stripeSubscriptionHasPauseCollection(subscription.pause_collection)) {
+    return false;
   }
-  if (sub && typeof sub === "object" && "id" in sub) {
-    const id = (sub as { id: unknown }).id;
-    return typeof id === "string" && id.trim().length > 0;
+  return stripeSubscriptionGrantsRecurringEntitlement(subscription.status);
+}
+
+/**
+ * After subscriptions.retrieve on invoice.payment_failed, true when CRM should
+ * still pause. Skip when the Subscription already grants and is not
+ * pause_collection-paused — a stale/out-of-order failed must not re-pause
+ * after recovery.
+ */
+export function stripeSubscriptionShouldPauseRecurringEntitlement(subscription: {
+  status?: string | null;
+  pause_collection?: unknown;
+}): boolean {
+  if (stripeSubscriptionHasPauseCollection(subscription.pause_collection)) {
+    return true;
   }
-  return false;
+  return stripeSubscriptionPausesRecurringEntitlement(subscription.status);
 }
 
 export type RecurringEntitlementPausedStage = "paid" | "live";

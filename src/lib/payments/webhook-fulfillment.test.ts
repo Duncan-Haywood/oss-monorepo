@@ -79,6 +79,14 @@ describe("webhookFulfillmentFailureResponse", () => {
     expect(result.body.error).toMatch(/retry/i);
   });
 
+  it("returns 500 with received:false for subscription retrieve failures on invoice CRM twins", () => {
+    const result = webhookFulfillmentFailureResponse("subscription_retrieve");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("subscription_retrieve");
+    expect(result.body.error).toMatch(/retry/i);
+  });
+
   it("returns 500 with received:false for bundle commerceAddon line-item list failures", () => {
     const result = webhookFulfillmentFailureResponse("bundle_commerce_addon_line_items");
     expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
