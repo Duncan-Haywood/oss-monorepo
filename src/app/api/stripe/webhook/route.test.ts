@@ -29,6 +29,7 @@ vi.mock("stripe", () => ({
 
 const markCheckoutSessionComplete = vi.fn();
 const markCheckoutSessionOpen = vi.fn();
+const markCompleteOpenBundleCheckoutSessionsForLead = vi.fn();
 const recordLeadPayment = vi.fn();
 const getLeadBySlug = vi.fn();
 const getCommerceCatalog = vi.fn();
@@ -48,6 +49,8 @@ const updateLeadStage = vi.fn();
 vi.mock("@/lib/db", () => ({
   markCheckoutSessionComplete: (...args: unknown[]) => markCheckoutSessionComplete(...args),
   markCheckoutSessionOpen: (...args: unknown[]) => markCheckoutSessionOpen(...args),
+  markCompleteOpenBundleCheckoutSessionsForLead: (...args: unknown[]) =>
+    markCompleteOpenBundleCheckoutSessionsForLead(...args),
   recordLeadPayment: (...args: unknown[]) => recordLeadPayment(...args),
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
@@ -175,6 +178,7 @@ describe("POST /api/stripe/webhook", () => {
     listLineItems.mockReset().mockResolvedValue(growthLineItems());
     markCheckoutSessionComplete.mockReset().mockResolvedValue(undefined);
     markCheckoutSessionOpen.mockReset().mockResolvedValue(undefined);
+    markCompleteOpenBundleCheckoutSessionsForLead.mockReset().mockResolvedValue(0);
     recordLeadPayment.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
@@ -263,6 +267,7 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCheckoutSessionComplete).toHaveBeenCalledWith("cs_test_1", {
         requireConvex: true,
       });
+      expect(markCompleteOpenBundleCheckoutSessionsForLead).not.toHaveBeenCalled();
       expect(recordLeadPayment).not.toHaveBeenCalled();
       expect(insertDeployHandoff).not.toHaveBeenCalled();
       expect(sendReceiptEmail).not.toHaveBeenCalled();
@@ -354,6 +359,92 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("checkout_session_mark_open");
+      expect(json.received).toBe(false);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("orphan open bundle checkout_sessions cleanup", () => {
+    it("paid bundle: closes other open bundle sessions for the lead after markComplete", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalledWith("cs_test_1", {
+        requireConvex: true,
+      });
+      expect(markCompleteOpenBundleCheckoutSessionsForLead).toHaveBeenCalledWith(
+        "demo-cafe",
+        "cs_test_1",
+        { requireConvex: true },
+      );
+      expect(recordLeadPayment).toHaveBeenCalled();
+    });
+
+    it("commerce_sku paid: does not close sibling bundle/open carts for the lead", async () => {
+      const session = checkoutSession({
+        metadata: {
+          kind: "commerce_sku",
+          slug: "demo-cafe",
+          skuId: "sku_latte",
+        },
+        amount_total: 2500,
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      listLineItems.mockResolvedValue(commerceSkuLineItems());
+      getLeadBySlug.mockResolvedValue({
+        slug: "demo-cafe",
+        businessName: "Demo Cafe",
+        email: "owner@demo-cafe.test",
+      });
+      getCommerceCatalog.mockResolvedValue({
+        items: [
+          {
+            id: "sku_latte",
+            name: "Latte",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
+      });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      sendCommerceBuyNowClientReceipt.mockResolvedValue({ success: true });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalled();
+      expect(markCompleteOpenBundleCheckoutSessionsForLead).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 (checkout_session_orphan_bundle_cleanup) when orphan cleanup fails", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      markCompleteOpenBundleCheckoutSessionsForLead.mockRejectedValueOnce(
+        new Error("convex down"),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("checkout_session_orphan_bundle_cleanup");
       expect(json.received).toBe(false);
       expect(recordLeadPayment).not.toHaveBeenCalled();
     });

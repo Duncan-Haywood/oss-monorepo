@@ -12,6 +12,12 @@ export type WebhookFulfillmentStep =
   /** Marking a checkout_sessions row complete — required so abandoned-checkout due queues stop targeting a paid session. */
   | "checkout_session_mark_complete"
   /**
+   * Closing other open bundle checkout_sessions for the same lead after a paid
+   * bundle Session — required so Stripe retries rather than leaving orphan
+   * abandoned carts that Finish-checkout / digest still nudge after pay.
+   */
+  | "checkout_session_orphan_bundle_cleanup"
+  /**
    * Re-opening a checkout_sessions row after async_payment_failed — required so
    * Stripe retries rather than leaving a failed ACH cart stuck status=complete
    * (Finish-checkout / Buy now recovery permanently skipped).

@@ -9,6 +9,7 @@ import {
   isRecoveryDue,
   listAbandonedCheckoutsDue,
   listCommerceAbandonedCheckoutsDue,
+  openBundleCheckoutSessionsToClose,
 } from "./abandoned-recovery";
 import type { CheckoutSessionRecord } from "./types";
 
@@ -164,5 +165,57 @@ describe("listCommerceAbandonedCheckoutsDue", () => {
       NOW,
     );
     expect(due.map((s) => s.stripeSessionId)).toEqual(["c1", "c2"]);
+  });
+});
+
+describe("openBundleCheckoutSessionsToClose", () => {
+  it("closes other open bundle rows for the lead, keeps the paid session and commerce_sku", () => {
+    const paid = makeSession({ stripeSessionId: "cs_paid", status: "open" });
+    const orphan = makeSession({
+      stripeSessionId: "cs_orphan",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const legacy = makeSession({
+      stripeSessionId: "cs_legacy",
+      kind: undefined,
+    });
+    const otherLead = makeSession({
+      stripeSessionId: "cs_other",
+      leadSlug: "other-biz",
+    });
+    const commerce = makeSession({
+      stripeSessionId: "cs_sku",
+      kind: "commerce_sku",
+      skuId: "sku_1",
+      tier: "",
+    });
+    const alreadyComplete = makeSession({
+      stripeSessionId: "cs_done",
+      status: "complete",
+    });
+
+    const toClose = openBundleCheckoutSessionsToClose(
+      [paid, orphan, legacy, otherLead, commerce, alreadyComplete],
+      { leadSlug: "blue-river-salon", exceptStripeSessionId: "cs_paid" },
+    );
+    expect(toClose.map((s) => s.stripeSessionId).sort()).toEqual([
+      "cs_legacy",
+      "cs_orphan",
+    ]);
+  });
+
+  it("returns empty when leadSlug or except id is blank", () => {
+    expect(
+      openBundleCheckoutSessionsToClose([makeSession()], {
+        leadSlug: "  ",
+        exceptStripeSessionId: "cs_paid",
+      }),
+    ).toEqual([]);
+    expect(
+      openBundleCheckoutSessionsToClose([makeSession()], {
+        leadSlug: "blue-river-salon",
+        exceptStripeSessionId: "",
+      }),
+    ).toEqual([]);
   });
 });

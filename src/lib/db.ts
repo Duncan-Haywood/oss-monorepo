@@ -389,6 +389,7 @@ const api: any = {
     create: "checkoutSessions:create",
     markComplete: "checkoutSessions:markComplete",
     markOpen: "checkoutSessions:markOpen",
+    markCompleteOpenBundleForLead: "checkoutSessions:markCompleteOpenBundleForLead",
     recordRecoverySent: "checkoutSessions:recordRecoverySent",
     listOpen: "checkoutSessions:listOpen",
   },
@@ -1877,6 +1878,50 @@ export async function markCheckoutSessionOpen(
   db.prepare("UPDATE checkout_sessions SET status = 'open' WHERE stripeSessionId = ?").run(
     stripeSessionId,
   );
+}
+
+/**
+ * After a paid bundle Checkout Session, mark other open bundle rows for the
+ * same leadSlug complete so Finish-checkout / digest / pipeline-health cannot
+ * nudge an already-paid customer. Never touches commerce_sku (multi-shopper).
+ * Pass { requireConvex: true } (the webhook does) so a Convex failure does not
+ * silently leave orphans open only in Convex while this instance's SQLite
+ * looks clean.
+ */
+export async function markCompleteOpenBundleCheckoutSessionsForLead(
+  leadSlug: string,
+  exceptStripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.checkoutSessions.markCompleteOpenBundleForLead, {
+        leadSlug,
+        exceptStripeSessionId,
+      })) as number;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCompleteOpenBundleCheckoutSessionsForLead", e);
+      }
+      console.warn(
+        `Failed to close orphan open bundle checkout sessions for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const result = db
+    .prepare(
+      `UPDATE checkout_sessions
+       SET status = 'complete'
+       WHERE leadSlug = ?
+         AND status = 'open'
+         AND stripeSessionId != ?
+         AND (kind IS NULL OR kind = '' OR kind = 'bundle')`,
+    )
+    .run(leadSlug, exceptStripeSessionId);
+  return Number(result.changes ?? 0);
 }
 
 /** Records that an operator sent an abandoned-checkout recovery email for this session. */

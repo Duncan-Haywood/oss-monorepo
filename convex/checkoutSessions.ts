@@ -60,6 +60,36 @@ export const markOpen = mutation({
   },
 });
 
+/**
+ * After a paid bundle Checkout Session, mark other open *bundle* rows for the
+ * same leadSlug complete so Finish-checkout / digest / pipeline-health cannot
+ * nudge an already-paid customer. Never touches commerce_sku (multi-shopper).
+ * Returns how many sibling rows were closed.
+ */
+export const markCompleteOpenBundleForLead = mutation({
+  args: {
+    leadSlug: v.string(),
+    exceptStripeSessionId: v.string(),
+  },
+  returns: v.number(),
+  handler: async (ctx, args) => {
+    const rows = await ctx.db
+      .query("checkoutSessions")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    let closed = 0;
+    for (const row of rows) {
+      if (row.status !== "open") continue;
+      if (row.stripeSessionId === args.exceptStripeSessionId) continue;
+      // Missing kind = legacy bundle; only skip explicit commerce_sku.
+      if (row.kind === "commerce_sku") continue;
+      await ctx.db.patch(row._id, { status: "complete" });
+      closed += 1;
+    }
+    return closed;
+  },
+});
+
 export const recordRecoverySent = mutation({
   args: { stripeSessionId: v.string(), sentAt: v.string() },
   returns: v.null(),
