@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  invoicePaidMayRestoreRecurringEntitlement,
   invoicePaymentFailedPausesRecurringEntitlement,
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
@@ -8,7 +9,10 @@ import {
   orderRecurringIsCanceled,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
+  stripeSubscriptionIdFromInvoice,
   stripeSubscriptionPausesRecurringEntitlement,
+  stripeSubscriptionShouldPauseRecurringEntitlement,
+  stripeSubscriptionShouldRestoreRecurringEntitlement,
 } from "./recurring";
 
 describe("orderHadRecurringEntitlement", () => {
@@ -84,6 +88,20 @@ describe("stripeSubscriptionPausesRecurringEntitlement", () => {
   });
 });
 
+describe("stripeSubscriptionIdFromInvoice", () => {
+  it("extracts string or expanded object ids and rejects blanks", () => {
+    expect(stripeSubscriptionIdFromInvoice({ subscription: "sub_renew_1" })).toBe("sub_renew_1");
+    expect(stripeSubscriptionIdFromInvoice({ subscription: { id: "sub_exp_1" } })).toBe(
+      "sub_exp_1",
+    );
+    expect(stripeSubscriptionIdFromInvoice({})).toBeNull();
+    expect(stripeSubscriptionIdFromInvoice({ subscription: null })).toBeNull();
+    expect(stripeSubscriptionIdFromInvoice({ subscription: "" })).toBeNull();
+    expect(stripeSubscriptionIdFromInvoice({ subscription: "   " })).toBeNull();
+    expect(stripeSubscriptionIdFromInvoice({ subscription: {} })).toBeNull();
+  });
+});
+
 describe("invoicePaymentFailedPausesRecurringEntitlement", () => {
   it("requires a non-empty subscription id (string or expanded)", () => {
     expect(
@@ -97,6 +115,56 @@ describe("invoicePaymentFailedPausesRecurringEntitlement", () => {
     expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: "" })).toBe(false);
     expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: "   " })).toBe(false);
     expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: {} })).toBe(false);
+  });
+});
+
+describe("invoicePaidMayRestoreRecurringEntitlement", () => {
+  it("mirrors the subscription-membership gate used by payment_failed", () => {
+    expect(invoicePaidMayRestoreRecurringEntitlement({ subscription: "sub_paid_1" })).toBe(true);
+    expect(invoicePaidMayRestoreRecurringEntitlement({ subscription: null })).toBe(false);
+  });
+});
+
+describe("stripeSubscriptionShouldRestoreRecurringEntitlement", () => {
+  it("requires grants and rejects pause_collection", () => {
+    expect(
+      stripeSubscriptionShouldRestoreRecurringEntitlement({ status: "active" }),
+    ).toBe(true);
+    expect(
+      stripeSubscriptionShouldRestoreRecurringEntitlement({ status: "trialing" }),
+    ).toBe(true);
+    expect(
+      stripeSubscriptionShouldRestoreRecurringEntitlement({
+        status: "active",
+        pause_collection: { behavior: "void" },
+      }),
+    ).toBe(false);
+    expect(
+      stripeSubscriptionShouldRestoreRecurringEntitlement({ status: "past_due" }),
+    ).toBe(false);
+  });
+});
+
+describe("stripeSubscriptionShouldPauseRecurringEntitlement", () => {
+  it("pauses on past_due/unpaid or pause_collection; skips recovered grants", () => {
+    expect(
+      stripeSubscriptionShouldPauseRecurringEntitlement({ status: "past_due" }),
+    ).toBe(true);
+    expect(
+      stripeSubscriptionShouldPauseRecurringEntitlement({ status: "unpaid" }),
+    ).toBe(true);
+    expect(
+      stripeSubscriptionShouldPauseRecurringEntitlement({
+        status: "active",
+        pause_collection: { behavior: "void" },
+      }),
+    ).toBe(true);
+    expect(
+      stripeSubscriptionShouldPauseRecurringEntitlement({ status: "active" }),
+    ).toBe(false);
+    expect(
+      stripeSubscriptionShouldPauseRecurringEntitlement({ status: "trialing" }),
+    ).toBe(false);
   });
 });
 

@@ -16,6 +16,7 @@ import type { DeployHandoff } from "@/lib/deploy/types";
 
 const constructEvent = vi.fn();
 const listLineItems = vi.fn();
+const retrieveSubscription = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
     webhooks = { constructEvent: (...args: unknown[]) => constructEvent(...args) };
@@ -23,6 +24,9 @@ vi.mock("stripe", () => ({
       sessions: {
         listLineItems: (...args: unknown[]) => listLineItems(...args),
       },
+    };
+    subscriptions = {
+      retrieve: (...args: unknown[]) => retrieveSubscription(...args),
     };
   },
 }));
@@ -185,6 +189,13 @@ describe("POST /api/stripe/webhook", () => {
     // Default: Growth catalog Prices on the session (commerceAddon=false).
     // Bundle webhook requires setup+monthly env Prices ∈ listLineItems.
     listLineItems.mockReset().mockResolvedValue(growthLineItems());
+    // Invoice CRM twins retrieve Subscription before clear/mark.
+    retrieveSubscription.mockReset().mockResolvedValue({
+      id: "sub_default",
+      customer: "cus_default",
+      status: "past_due",
+      pause_collection: null,
+    });
     markCheckoutSessionComplete.mockReset().mockResolvedValue(undefined);
     markCheckoutSessionOpen.mockReset().mockResolvedValue(undefined);
     markCompleteOpenBundleCheckoutSessionsForLead.mockReset().mockResolvedValue(0);
@@ -256,7 +267,7 @@ describe("POST /api/stripe/webhook", () => {
   });
 
   it("acknowledges an unhandled event type without touching fulfillment", async () => {
-    constructEvent.mockReturnValue({ type: "invoice.paid", data: { object: {} } });
+    constructEvent.mockReturnValue({ type: "charge.succeeded", data: { object: {} } });
     const { POST } = await import("./route");
 
     const response = await POST(webhookRequest());
@@ -266,6 +277,7 @@ describe("POST /api/stripe/webhook", () => {
     expect(markCheckoutSessionComplete).not.toHaveBeenCalled();
     expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
     expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    expect(retrieveSubscription).not.toHaveBeenCalled();
   });
 
   describe("customer.subscription.deleted CRM sync", () => {
@@ -534,7 +546,13 @@ describe("POST /api/stripe/webhook", () => {
   });
 
   describe("invoice.payment_failed CRM pause", () => {
-    it("pauses CRM for subscription invoices (created → ms)", async () => {
+    it("pauses CRM for subscription invoices when retrieve shows past_due (created → ms)", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_renew_1",
+        customer: "cus_inv_fail",
+        status: "past_due",
+        pause_collection: null,
+      });
       constructEvent.mockReturnValue({
         type: "invoice.payment_failed",
         data: {
@@ -550,12 +568,68 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      expect(retrieveSubscription).toHaveBeenCalledWith("sub_renew_1");
       expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
         "cus_inv_fail",
         1_720_000_300_000,
         { requireConvex: true },
       );
       expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("skips pause when Subscription already grants (stale failed after recovery)", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_stale_fail",
+        customer: "cus_stale",
+        status: "active",
+        pause_collection: null,
+      });
+      constructEvent.mockReturnValue({
+        type: "invoice.payment_failed",
+        data: {
+          object: {
+            id: "in_stale",
+            customer: "cus_stale",
+            subscription: "sub_stale_fail",
+            created: 1_720_000_310,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(retrieveSubscription).toHaveBeenCalledWith("sub_stale_fail");
+      expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("still pauses when retrieve shows active+pause_collection", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_paused_coll",
+        customer: "cus_paused_coll",
+        status: "active",
+        pause_collection: { behavior: "void" },
+      });
+      constructEvent.mockReturnValue({
+        type: "invoice.payment_failed",
+        data: {
+          object: {
+            id: "in_paused_coll",
+            customer: "cus_paused_coll",
+            subscription: "sub_paused_coll",
+            created: 1_720_000_320,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_paused_coll",
+        1_720_000_320_000,
+        { requireConvex: true },
+      );
     });
 
     it("skips one-time invoices without subscription", async () => {
@@ -574,10 +648,17 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      expect(retrieveSubscription).not.toHaveBeenCalled();
       expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
     });
 
     it("skips when customer is missing (no 5xx)", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_renew_2",
+        customer: null,
+        status: "past_due",
+        pause_collection: null,
+      });
       constructEvent.mockReturnValue({
         type: "invoice.payment_failed",
         data: {
@@ -595,7 +676,35 @@ describe("POST /api/stripe/webhook", () => {
       expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
     });
 
+    it("returns 500 subscription_retrieve when Subscription retrieve fails", async () => {
+      retrieveSubscription.mockRejectedValueOnce(new Error("stripe down"));
+      constructEvent.mockReturnValue({
+        type: "invoice.payment_failed",
+        data: {
+          object: {
+            id: "in_retrieve_fail",
+            customer: "cus_retrieve_fail",
+            subscription: "sub_retrieve_fail",
+            created: 1_720_000_450,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("subscription_retrieve");
+      expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
     it("returns 500 orders_recurring_canceled when CRM write fails", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_fail_inv",
+        customer: "cus_fail_inv",
+        status: "past_due",
+        pause_collection: null,
+      });
       markOrdersRecurringCanceledByCustomer.mockRejectedValueOnce(new Error("convex down"));
       constructEvent.mockReturnValue({
         type: "invoice.payment_failed",
@@ -614,6 +723,127 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_canceled");
+      expect(json.received).toBe(false);
+    });
+  });
+
+  describe("invoice.paid CRM restore", () => {
+    it("clears recurringCanceledAt when retrieve shows active", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_paid_1",
+        customer: "cus_paid_1",
+        status: "active",
+        pause_collection: null,
+      });
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_paid_1",
+            customer: "cus_paid_1",
+            subscription: "sub_paid_1",
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(retrieveSubscription).toHaveBeenCalledWith("sub_paid_1");
+      expect(clearOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith("cus_paid_1", {
+        requireConvex: true,
+      });
+      expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("skips restore when pause_collection is set (active status hole)", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_paid_paused",
+        customer: "cus_paid_paused",
+        status: "active",
+        pause_collection: { behavior: "void" },
+      });
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_paid_paused",
+            customer: "cus_paid_paused",
+            subscription: "sub_paid_paused",
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("skips one-time invoices without subscription", async () => {
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_paid_once",
+            customer: "cus_paid_once",
+            subscription: null,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(retrieveSubscription).not.toHaveBeenCalled();
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 subscription_retrieve when Subscription retrieve fails", async () => {
+      retrieveSubscription.mockRejectedValueOnce(new Error("stripe down"));
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_paid_retrieve_fail",
+            customer: "cus_paid_retrieve",
+            subscription: "sub_paid_retrieve",
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("subscription_retrieve");
+      expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 orders_recurring_reactivated when CRM write fails", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_paid_write_fail",
+        customer: "cus_paid_write_fail",
+        status: "active",
+        pause_collection: null,
+      });
+      clearOrdersRecurringCanceledByCustomer.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_paid_write_fail",
+            customer: "cus_paid_write_fail",
+            subscription: "sub_paid_write_fail",
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("orders_recurring_reactivated");
       expect(json.received).toBe(false);
     });
   });
