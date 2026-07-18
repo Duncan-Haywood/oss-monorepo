@@ -532,8 +532,25 @@ export async function updateLeadStage(
     }
   }
 
-  // SQLite Fallback
+  // SQLite Fallback. Existence-check-then-throw here mirrors
+  // convex/leads.ts's updateStage (which throws `Lead with slug ${slug} not
+  // found`) and every sibling lead-mutation helper in this file
+  // (updateLeadNotes / updateLeadSnooze / applyColdLeadDisposition) — a bare
+  // `UPDATE ... WHERE slug = ?` on an unknown slug matches zero rows and
+  // never throws, so without this check the two backends silently diverged:
+  // Convex threw on an unknown slug while SQLite no-op'd and returned
+  // normally. Every current call site already pre-checks the lead exists
+  // (updateLeadStageAction via getLeadBySlug, markHandoffLive via its own
+  // handoff/lead chain) so this was not reachable through the UI today, but
+  // the two backends must still agree on what "success" means for any future
+  // caller (db-convex-sqlite-not-found-parity).
   const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
   const stmt = db.prepare("UPDATE leads SET status = ?, updatedAt = datetime('now') WHERE slug = ?");
   stmt.run(stage, slug);
 }
@@ -659,7 +676,17 @@ export async function recordLeadOutreach(
     }
   }
 
+  // Existence-check-then-throw mirrors convex/leads.ts's recordOutreach
+  // (throws `Lead with slug ${slug} not found`) and the sibling lead-mutation
+  // helpers in this file — see updateLeadStage above for the full rationale
+  // (db-convex-sqlite-not-found-parity).
   const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
   db.prepare(`
     UPDATE leads
     SET outreachStep = ?, lastOutreachAt = ?, updatedAt = datetime('now')
