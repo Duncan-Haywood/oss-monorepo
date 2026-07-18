@@ -51,7 +51,10 @@ function makeLead(stage: LeadPipelineStage, overrides: Partial<Lead> = {}): Lead
   };
 }
 
-function makeHandoff(status: DeployHandoff["status"]): DeployHandoff {
+function makeHandoff(
+  status: DeployHandoff["status"],
+  overrides: Partial<DeployHandoff> = {},
+): DeployHandoff {
   return {
     id: "h1",
     leadSlug: "lead-1",
@@ -68,6 +71,7 @@ function makeHandoff(status: DeployHandoff["status"]): DeployHandoff {
     notes: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    ...overrides,
   };
 }
 
@@ -264,6 +268,43 @@ describe("computePipelineHealth", () => {
     expect(health.openHandoffCount).toBe(2);
     expect(health.newInquiryCount).toBe(2);
     expect(health.unrepliedInquiryCount).toBe(3);
+  });
+
+  it("reports the oldest open handoff age (ignoring live rows) and null when none open", () => {
+    const withOpen = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [
+        makeHandoff("pending", {
+          id: "h_recent",
+          createdAt: new Date(NOW - 4 * HOUR_MS).toISOString(),
+        }),
+        makeHandoff("awaiting_dns", {
+          id: "h_old",
+          createdAt: new Date(NOW - 40 * HOUR_MS).toISOString(),
+        }),
+        // A live handoff that is older still must NOT anchor the age — it is
+        // no longer open fulfillment debt.
+        makeHandoff("live", {
+          id: "h_live_older",
+          createdAt: new Date(NOW - 500 * HOUR_MS).toISOString(),
+        }),
+      ],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(withOpen.openHandoffCount).toBe(2);
+    expect(withOpen.oldestOpenHandoffAgeHours).toBe(40);
+
+    const noneOpen = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [makeHandoff("live", { createdAt: new Date(NOW - 9 * HOUR_MS).toISOString() })],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(noneOpen.openHandoffCount).toBe(0);
+    expect(noneOpen.oldestOpenHandoffAgeHours).toBeNull();
   });
 
   it("counts unreplied inquiries (new+read) with oldest age; ignores replied/archived", () => {

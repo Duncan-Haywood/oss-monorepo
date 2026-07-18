@@ -30,7 +30,15 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <MetricCard
           label="Open deploy handoffs"
           value={String(health.openHandoffCount)}
-          hint={health.openHandoffCount > 0 ? "Paid sites awaiting DNS / Mark live" : "None pending"}
+          hint={
+            health.openHandoffCount > 0
+              ? `Paid sites awaiting DNS / Mark live${
+                  health.oldestOpenHandoffAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestOpenHandoffAgeHours)}`
+                    : ""
+                }`
+              : "None pending"
+          }
           attention={health.openHandoffCount > 0}
         />
         <MetricCard
