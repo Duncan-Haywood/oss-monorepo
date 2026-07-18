@@ -13,6 +13,7 @@ import {
   addLeadAction,
   importLeadsCsvAction,
   markHandoffLiveAction,
+  createDeployHandoffForLeadAction,
   updateInquiryStatusAction,
   replyToInquiryAction,
   sendFollowUpAction,
@@ -521,6 +522,17 @@ export function LeadsClient({
     });
   };
 
+  const handleCreateDeployHandoff = (slug: string) => {
+    startTransition(async () => {
+      const res = await createDeployHandoffForLeadAction(slug);
+      if (!res.success) {
+        alert(`Error creating deploy handoff: ${res.error}`);
+        return;
+      }
+      setHandoffs((prev) => [...prev, res.handoff]);
+    });
+  };
+
   const [vercelProjectInputs, setVercelProjectInputs] = useState<Record<string, string>>({});
 
   const handleAssignVercelProject = (slug: string) => {
@@ -901,6 +913,13 @@ export function LeadsClient({
     });
 
   const openHandoffs = handoffs.filter((h) => h.status !== "live");
+  const handoffSlugs = new Set(handoffs.map((h) => h.leadSlug));
+  // Same lead.stage === "paid" predicate as pipeline-health paidNotLiveCount
+  // and the daily digest's paidNotLive section — distinct from openHandoffs
+  // above, since a lead can be moved to stage=paid via the stage dropdown or
+  // CSV import with no deploy_handoffs row ever created (see
+  // paid-not-live-dashboard-panel-and-remedy).
+  const paidNotLive = leads.filter((lead) => lead.stage === "paid");
   const openInquiries = inquiries.filter((inq) => inq.status !== "archived");
   // Snapshot clock from mount — server re-checks cadence on send.
   const followUpsDue = listFollowUpsDue(leads, nowMs);
@@ -1809,6 +1828,62 @@ export function LeadsClient({
                 </li>
               );
             })}
+          </ul>
+        </section>
+      )}
+
+      {paidNotLive.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-red-200 bg-red-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Paid, not live
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({paidNotLive.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/production-deploy"
+              className="text-xs font-medium text-red-800 underline underline-offset-2"
+            >
+              Docs
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Leads at stage=Paid (stage dropdown or CSV import, not necessarily
+            a Stripe checkout). A row with no deploy handoff yet had no
+            fulfillment record at all until Create deploy handoff below — the
+            same DNS/Mark live flow the Stripe webhook already queues
+            automatically appears in Production deploy handoffs once created.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {paidNotLive.map((lead) => (
+              <li
+                key={lead.slug}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-100 bg-white px-4 py-3 text-sm"
+              >
+                <div>
+                  <p className="font-semibold text-zinc-900">
+                    {lead.businessName}{" "}
+                    <span className="font-normal text-zinc-500">({lead.slug})</span>
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-600">
+                    {handoffSlugs.has(lead.slug)
+                      ? "Has a deploy handoff — see Production deploy handoffs below."
+                      : "No deploy handoff on file."}
+                  </p>
+                </div>
+                {!handoffSlugs.has(lead.slug) && (
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => handleCreateDeployHandoff(lead.slug)}
+                    className="rounded-lg bg-red-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-800 disabled:opacity-60"
+                  >
+                    Create deploy handoff
+                  </button>
+                )}
+              </li>
+            ))}
           </ul>
         </section>
       )}

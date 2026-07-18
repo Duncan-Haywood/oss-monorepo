@@ -36,7 +36,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <MetricCard
           label="Paid, not live"
           value={String(health.paidNotLiveCount)}
-          hint="Leads stuck in paid stage"
+          hint={
+            health.paidNotLiveCount > 0
+              ? "See the Paid, not live panel on /dashboard/leads"
+              : "None pending"
+          }
           attention={health.paidNotLiveCount > 0}
         />
         <MetricCard

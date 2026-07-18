@@ -70,12 +70,15 @@ export default function ProductionDeployDocPage() {
           above the pipeline table. The same non-live handoffs also list under{" "}
           <strong>Production handoffs open</strong> in the operator daily digest (Send daily
           digest) so go-live debt is visible without opening the dashboard. A lead marked{" "}
-          <code>stage=paid</code> with no handoff row at all (e.g. a CSV-imported legacy client)
-          won&rsquo;t appear there — the digest&rsquo;s separate{" "}
-          <strong>Paid, not yet live</strong> section catches that case directly from lead stage.
-          Separately, email-critical leads with no usable address list under{" "}
-          <strong>Leads missing email</strong> in the same digest (Email 1 / follow-ups cannot
-          leave without one).
+          <code>stage=paid</code> with no handoff row at all (e.g. a CSV-imported legacy client, or
+          any lead promoted via the stage dropdown outside a Stripe checkout) shows in the{" "}
+          <strong>Paid, not live</strong> panel instead, with a <strong>Create deploy handoff</strong>{" "}
+          button that queues one from the lead&rsquo;s own recommended tier — it then behaves
+          exactly like a webhook-created handoff (DNS instructions, Vercel provisioning attempt,
+          Mark live). The daily digest&rsquo;s separate <strong>Paid, not yet live</strong> section
+          catches the same case by email. Separately, email-critical leads with no usable address
+          list under <strong>Leads missing email</strong> in the same digest (Email 1 / follow-ups
+          cannot leave without one).
         </li>
         <li>Add the listed DNS records (or finish Vercel domain verification).</li>
         <li>

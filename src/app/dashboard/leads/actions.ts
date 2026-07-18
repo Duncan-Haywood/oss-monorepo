@@ -36,6 +36,7 @@ import {
   listCommerceOrdersDisputed,
   listDeployHandoffs,
   getLeadSlugByCustomDomain,
+  getDeployHandoffBySlug,
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
@@ -84,8 +85,10 @@ import {
   markHandoffLive,
   assignVercelProjectAndProvision,
   assignCustomDomainAndProvision,
+  enqueueProductionHandoff,
   productionRootDomain,
 } from "@/lib/deploy/handoff";
+import { DEPLOY_HANDOFF_CONVEX_PRIMARY } from "@/lib/deploy/handoff-persist";
 import {
   customDomainAlreadyOwnedMessage,
   parseOperatorCustomDomain,
@@ -140,6 +143,81 @@ import {
   leadEligibleForClientVoicePack,
   leadEligibleForClientVoicePackDelivery,
 } from "@/lib/voice";
+
+/**
+ * Manual remedy for a lead promoted to stage="paid" (stage dropdown or CSV
+ * import) with no deploy_handoffs row — enqueueProductionHandoff is only
+ * ever called from the Stripe webhook otherwise, so a manually-marked-paid
+ * lead had no path to production handoff/DNS instructions at all (see
+ * paid-not-live-dashboard-panel-and-remedy). Idempotency guard here is a
+ * pre-check (getDeployHandoffBySlug), not enqueueProductionHandoff's own
+ * stripeSessionId match, since a manual call has no real Stripe session to
+ * match against.
+ */
+export async function createDeployHandoffForLeadAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+    if (lead.stage !== "paid") {
+      return { success: false as const, error: "Lead is not at the Paid stage" };
+    }
+    const existing = await getDeployHandoffBySlug(slug);
+    if (existing) {
+      return {
+        success: false as const,
+        error: "A deploy handoff already exists for this lead",
+      };
+    }
+    let handoff;
+    try {
+      handoff = await enqueueProductionHandoff(
+        {
+          leadSlug: slug,
+          businessName: lead.businessName,
+          tier: lead.recommendedTier,
+          commerceAddon: false,
+          stripeSessionId: `manual_${slug}_${Date.now()}`,
+          customerEmail: lead.email || "",
+        },
+        DEPLOY_HANDOFF_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record the new handoff in the shared store. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, handoff };
+  } catch (error) {
+    console.error("Error in createDeployHandoffForLeadAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
 
 export async function markHandoffLiveAction(slug: string) {
   try {
