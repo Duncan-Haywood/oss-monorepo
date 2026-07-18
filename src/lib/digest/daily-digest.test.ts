@@ -89,6 +89,45 @@ describe("buildDailyDigest", () => {
     expect(digest.leadsMissingEmail).toHaveLength(0);
     expect(digest.snoozedLeadCount).toBe(0);
     expect(digest.soonestSnoozeRemainingHours).toBeNull();
+    expect(digest.actionableItemCount).toBe(0);
+  });
+
+  it("actionableItemCount sums every section, not just workNext/followUpsDue/checkoutRecoveriesDue/unrepliedInquiries", () => {
+    // Regression for daily-digest-button-item-count-drift: the dashboard's
+    // Send daily digest button used to hand-sum only those 4 sections. A
+    // live lead missing only this month's marketing pack makes isEmpty
+    // false via marketingPacksDue alone, with every one of those 4 sections
+    // staying empty (a live lead is not workNext-actionable, has no
+    // outreach/checkout/inquiry activity, and — unlike stage="paid" — does
+    // not also trip paidNotLive) — exactly the case the old button logic
+    // silently reported as "nothing urgent today".
+    const needsPack = baseLead({
+      slug: "needs-pack",
+      businessName: "Needs Pack Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [needsPack],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "needs-pack",
+          tier: "growth",
+          commerceAddon: false,
+          createdAt: new Date(Date.UTC(2026, 0, 1)).toISOString(),
+        },
+      ],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    expect(digest.workNext).toHaveLength(0);
+    expect(digest.followUpsDue).toHaveLength(0);
+    expect(digest.checkoutRecoveriesDue).toHaveLength(0);
+    expect(digest.unrepliedInquiries).toHaveLength(0);
+    expect(digest.marketingPacksDue).toHaveLength(1);
+    expect(digest.isEmpty).toBe(false);
+    expect(digest.actionableItemCount).toBe(1);
   });
 
   it("surfaces a ready-to-outreach lead in workNext", () => {
