@@ -251,3 +251,25 @@ export function commerceOrdersByLeadSummaryNeedsAttention(
     summary.unpaidCount > 0 || summary.orders.some(commerceOrderNeedsClawback)
   );
 }
+
+/**
+ * Total order count actually rendered by the Commerce payouts (manual) panel
+ * — the sum of orderCount across only the per-lead summaries that passed
+ * commerceOrdersByLeadSummaryNeedsAttention, not every order in the merged
+ * review feed (mergeCommerceOrdersForReview) passed to
+ * summarizeCommerceOrdersByLead. Those two counts silently drifted apart
+ * (commerce-payouts-panel-order-count-drift): a Buy now order refunded (or
+ * disputed) before ever being marked paid out owes nothing and is correctly
+ * filtered out of the visible per-lead list, but it still arrived via
+ * listCommerceOrdersRefunded()/listCommerceOrdersDisputed() into the merged
+ * feed, so the panel's header count kept growing forever from ordinary,
+ * fully-resolved refunds/disputes while the list below showed only leads
+ * that actually need operator action — the same "header count from the
+ * pre-filter array" bug class the daily digest button already had (see
+ * daily-digest-button-item-count-drift). Pure — no I/O.
+ */
+export function sumCommerceOrdersByLeadOrderCount(
+  summaries: ReadonlyArray<Pick<CommerceOrdersByLeadSummary, "orderCount">>,
+): number {
+  return summaries.reduce((total, summary) => total + summary.orderCount, 0);
+}
