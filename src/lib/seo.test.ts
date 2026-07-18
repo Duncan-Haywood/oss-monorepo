@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { DOCS_PAGES } from "@/lib/docs/routes";
 import type { Lead } from "@/lib/leads/types";
 import {
+  docPageMetadata,
   homepageMetadata,
   isLeadPreviewIndexable,
   leadLocalBusinessJsonLd,
@@ -10,6 +12,7 @@ import {
   previewUrl,
   safeJsonLdScript,
   siteUrl,
+  staticPageMetadata,
 } from "./seo";
 
 function baseLead(overrides: Partial<Lead> = {}): Lead {
@@ -129,6 +132,74 @@ describe("homepageMetadata", () => {
     expect(metadata.title).toContain("Acme Sites");
     expect(metadata.description).toContain("Acme Sites");
     expect(metadata.openGraph).toMatchObject({ siteName: "Acme Sites" });
+  });
+});
+
+describe("staticPageMetadata", () => {
+  it("builds a self-referential canonical/openGraph.url from siteUrl + path", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const metadata = staticPageMetadata({
+      title: "Checkout — Acme",
+      description: "Complete your purchase.",
+      path: "/checkout",
+    });
+    expect(metadata.alternates).toEqual({ canonical: "https://app.example.com/checkout" });
+    expect(metadata.openGraph).toMatchObject({
+      title: "Checkout — Acme",
+      description: "Complete your purchase.",
+      url: "https://app.example.com/checkout",
+      type: "website",
+    });
+    expect(metadata.twitter).toMatchObject({
+      card: "summary",
+      title: "Checkout — Acme",
+      description: "Complete your purchase.",
+    });
+  });
+
+  it("never falls back to the bare site root for a non-empty path", () => {
+    const metadata = staticPageMetadata({
+      title: "T",
+      description: "D",
+      path: "/docs/legal",
+    });
+    expect(metadata.alternates).toEqual({
+      canonical: "http://localhost:3000/docs/legal",
+    });
+  });
+});
+
+describe("docPageMetadata", () => {
+  it("sources title/description/canonical from the matching DOCS_PAGES entry", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const metadata = docPageMetadata("/docs/architecture");
+    expect(metadata.title).toContain("Architecture");
+    expect(metadata.description).toBe(
+      "Automated funnel, voice agents, preview hosting, payments.",
+    );
+    expect(metadata.alternates).toEqual({
+      canonical: "https://app.example.com/docs/architecture",
+    });
+    expect(metadata.openGraph).toMatchObject({
+      url: "https://app.example.com/docs/architecture",
+    });
+  });
+
+  it("throws on an href with no DOCS_PAGES entry rather than silently reusing the homepage identity", () => {
+    expect(() => docPageMetadata("/docs/does-not-exist")).toThrow(
+      /no DOCS_PAGES entry/,
+    );
+  });
+
+  it("never falls back to the bare site root canonical for any docs page — a docs page's canonical must not point at the homepage (docs-canonical-self-reference-fix)", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    for (const doc of DOCS_PAGES) {
+      const metadata = docPageMetadata(doc.href);
+      expect(metadata.alternates).toEqual({
+        canonical: `https://app.example.com${doc.href}`,
+      });
+      expect(metadata.alternates).not.toEqual({ canonical: "https://app.example.com" });
+    }
   });
 });
 

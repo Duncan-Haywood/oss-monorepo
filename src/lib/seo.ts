@@ -5,6 +5,7 @@
  */
 import type { Metadata } from "next";
 import { brand } from "@/lib/brand";
+import { DOCS_PAGES } from "@/lib/docs/routes";
 import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
@@ -21,9 +22,30 @@ export function siteUrl(): string {
 }
 
 /**
- * Root layout metadata — the homepage, and every page that doesn't export
- * its own generateMetadata (/checkout, /docs/*, /privacy, /terms,
- * /dashboard/*; only /preview/[slug] overrides it). Extracted out of
+ * Metadata for any static (non-preview) page, self-referential by design:
+ * alternates.canonical / openGraph.url always point at the page's own path,
+ * never siteUrl() alone. Shared by homepageMetadata (path "") and
+ * docPageMetadata below.
+ */
+export function staticPageMetadata(opts: {
+  title: string;
+  description: string;
+  path: string;
+}): Metadata {
+  const { title, description } = opts;
+  const url = `${siteUrl()}${opts.path}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url, siteName: brand.name, type: "website" },
+    twitter: { card: "summary", title, description },
+  };
+}
+
+/**
+ * Root layout metadata — the homepage, and (until each ships its own
+ * generateMetadata) every page that doesn't export one. Extracted out of
  * src/app/layout.tsx so it's unit-testable: layout.tsx imports globals.css
  * and has no React test harness in this repo (same reason event-handler
  * logic gets extracted to a pure sibling module — see AGENT_PROTOCOL).
@@ -34,14 +56,33 @@ export function siteUrl(): string {
 export function homepageMetadata(): Metadata {
   const title = `${brand.name} — Pre-built websites for local businesses`;
   const description = `${brand.name} builds professional websites before you buy. Preview your site, pay $500, go live. Operated by ${brand.legalEntity} (${brand.legalLocation}).`;
-  const url = siteUrl();
-  return {
-    title,
-    description,
-    alternates: { canonical: url },
-    openGraph: { title, description, url, siteName: brand.name, type: "website" },
-    twitter: { card: "summary", title, description },
-  };
+  return staticPageMetadata({ title, description, path: "" });
+}
+
+/**
+ * Metadata for a /docs/[slug] sub-page, sourced from DOCS_PAGES — the same
+ * title/description already shared by the docs index and sitemap.xml (see
+ * sitemap-docs-route-sync). Every one of the 12 docs pages previously had no
+ * generateMetadata of its own, so it silently inherited homepageMetadata()
+ * from the root layout verbatim: not just a generic/duplicate <title>, but
+ * an actively wrong alternates.canonical pointing at "/" (the homepage) —
+ * telling crawlers every docs page is a duplicate of the homepage and should
+ * be dropped from the index in its favor. That directly undermines
+ * sitemap-docs-route-sync (PR #397), whose entire point was getting these
+ * pages indexed (docs-canonical-self-reference-fix). Throws on an unknown
+ * href so a typo'd path fails fast in dev/test instead of silently falling
+ * back to the homepage's identity again.
+ */
+export function docPageMetadata(href: string): Metadata {
+  const doc = DOCS_PAGES.find((page) => page.href === href);
+  if (!doc) {
+    throw new Error(`docPageMetadata: no DOCS_PAGES entry for "${href}"`);
+  }
+  return staticPageMetadata({
+    title: `${doc.title} — ${brand.name}`,
+    description: doc.description,
+    path: doc.href,
+  });
 }
 
 /** Absolute /preview URL — slug is encodeURIComponent'd (legacy-slug path safety). */

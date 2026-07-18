@@ -1,4 +1,8 @@
+import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
+import { docPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = docPageMetadata("/docs/cli-agents");
 
 export default function CliAgentsDocPage() {
   return (

@@ -1,5 +1,9 @@
+import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import { docPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = docPageMetadata("/docs/marketing-automation");
 
 export default function MarketingAutomationDocPage() {
   return (

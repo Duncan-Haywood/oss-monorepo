@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { brand, legalEntityLine, marketingFooterLine } from "@/lib/brand";
+import { staticPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = staticPageMetadata({
+  title: `Terms of Service — ${brand.name}`,
+  description: `Terms governing purchases of ${brand.name} website packages from ${brand.legalEntity}.`,
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

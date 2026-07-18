@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { brand, legalEntityLine, marketingFooterLine } from "@/lib/brand";
+import { staticPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = staticPageMetadata({
+  title: `Privacy Policy — ${brand.name}`,
+  description: `How ${brand.legalEntity} collects, uses, and protects data for ${brand.name}.`,
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

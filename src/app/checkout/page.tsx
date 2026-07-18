@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { loadCheckoutPrefillLead } from "@/lib/checkout/prefill-slug";
+import { brand } from "@/lib/brand";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import type { BundleTier } from "@/lib/pricing/bundles";
+import { staticPageMetadata } from "@/lib/seo";
 import { CheckoutForm, type CheckoutPrefill } from "./checkout-form";
+
+export const metadata: Metadata = staticPageMetadata({
+  title: `Checkout — ${brand.name}`,
+  description: `Complete your ${brand.name} purchase and go live in minutes.`,
+  path: "/checkout",
+});
 
 type CheckoutPageProps = {
   searchParams: Promise<{

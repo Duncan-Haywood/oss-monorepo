@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import {
   AGENT_PROTOCOL,
@@ -5,6 +6,9 @@ import {
   ITERATIONS,
   NEXT_STEPS,
 } from "@/lib/process/prompt_process";
+import { docPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = docPageMetadata("/docs/process");
 
 const statusLabel: Record<string, string> = {
   todo: "To do",

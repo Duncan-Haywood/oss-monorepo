@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { brand } from "@/lib/brand";
 import { DOCS_PAGES as docs } from "@/lib/docs/routes";
+import { staticPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = staticPageMetadata({
+  title: `Documentation — ${brand.name}`,
+  description: `Product, architecture, marketing, compliance, and legal documentation for ${brand.name}.`,
+  path: "/docs",
+});
 
 export default function DocsIndexPage() {
   return (
