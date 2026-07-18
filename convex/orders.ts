@@ -100,6 +100,26 @@ export const getByStripeSessionId = query({
 });
 
 /**
+ * Orders for a Stripe Customer — powers the invoice.payment_failed dunning
+ * notice (needs the order's leadSlug + stripeSessionId to look up the lead's
+ * email and build a /checkout/success Manage-billing link). Newest-first,
+ * matching list/listByLeadSlug.
+ */
+export const getByStripeCustomerId = query({
+  args: { stripeCustomerId: v.string() },
+  returns: v.array(orderDocValidator),
+  handler: async (ctx, args) => {
+    const rows = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeCustomerId", (q) =>
+        q.eq("stripeCustomerId", args.stripeCustomerId)
+      )
+      .collect();
+    return rows.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+/**
  * Mark Growth/Complete/Commerce orders for a Stripe Customer as recurring-canceled.
  * Idempotent: rows that already have recurringCanceledAt are left unchanged.
  * Returns how many rows were newly patched (0 is success — unknown customer or

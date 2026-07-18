@@ -444,6 +444,47 @@ export async function sendStarterUpsellEmail(params: {
 }
 
 /**
+ * Recurring-renewal payment-failed dunning notice — sent from the Stripe
+ * webhook's invoice.payment_failed handler (see recurring-payment-failed-
+ * dunning-notice). One send per failed billing attempt (Stripe fires a
+ * distinct invoice.payment_failed per Smart Retry attempt), not per
+ * subscription.updated status change, so a single failed renewal does not
+ * double-send. Passes skipSuppression: true — this is billing-critical like
+ * the receipt/DNS/Commerce-receipt sends, not cold marketing (a prior
+ * outreach unsubscribe must not hide a card-decline notice from a paying
+ * customer). manageBillingUrl reuses the original Checkout Session's
+ * /checkout/success page (stripeSessionId never expires server-side, unlike
+ * the Checkout Session's own 24h hosted `url`) so this needs no fresh Stripe
+ * Billing Portal API call from inside the webhook.
+ */
+export async function sendPaymentFailedNotice(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  stripeSessionId: string;
+}) {
+  const { to, businessName, slug, stripeSessionId } = params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const manageBillingUrl = `${baseUrl}/checkout/success?session_id=${encodeURIComponent(stripeSessionId)}`;
+  const safeBiz = escapeHtmlForEmail(businessName);
+  const safeBrand = escapeHtmlForEmail(brand.name);
+  const safeManageBillingUrl = escapeHtmlForEmail(manageBillingUrl);
+
+  const subject = `Action needed: your ${brand.name} payment did not go through`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">We couldn't process your latest payment</h2>
+    <p style="margin-bottom: 16px;">Your card on file for <strong>${safeBiz}</strong> was declined for this month's ${escapeHtmlForEmail(brand.name)} subscription. Your service stays paused until this is resolved.</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${safeManageBillingUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Update payment method</a>
+    </div>
+    <p style="margin-bottom: 8px;">Once your card is updated, Stripe will automatically retry the charge and your subscription resumes.</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
+}
+
+/**
  * Operator-triggered delivery of this month's marketing pack to the client
  * (Growth/Complete sold content handoff without Buffer/GBP OAuth).
  * Passes skipSuppression: true — this is paid feature delivery to lead.email,

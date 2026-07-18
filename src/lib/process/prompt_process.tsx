@@ -367,6 +367,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner: "cursor/business-process-evolution-5a8e",
   },
   {
+    id: "recurring-payment-failed-dunning-notice",
+    summary:
+      "invoice.payment_failed already paused CRM entitlement internally but never told the customer — the only signal was an operator-side pause, so a subscriber whose card expired had no idea their Growth/Complete/Commerce service had stopped until they noticed missing content. Email the lead (skipSuppression: true — billing-critical, same class as the receipt) with a link back into the existing /checkout/success Manage-billing flow (reuses the original Checkout Session id — no new Stripe API call from inside the webhook). Reduces involuntary-churn revenue loss without any operator-gated secret.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-yqw6f4",
+  },
+  {
     id: "inquiry-dashboard-reply",
     summary:
       "Operator reply-from-dashboard for clientInquiries (Resend, honor suppression, mark replied) so paid Starter contact-form leads get a human response without leaving /dashboard/leads — closes the inbox loop that currently only archives.",
@@ -595,6 +603,13 @@ export const NEXT_STEPS: NextStep[] = [
       "Discovered while shipping commerce-order-revenue-ledger: Commerce Buy now money lands in the platform's own Stripe account (STRIPE_SECRET_KEY), not the underlying local business's account — there is currently no payout path to the client at all. The operator can now SEE the total (pipeline-health 'Commerce sales' card) but must reconcile/pay clients manually outside the app. At any real sales volume this is a real financial/legal exposure (holding customer funds owed to a third party, possible money-transmitter/MSB considerations) and needs a Stripe Connect (or equivalent) integration plus counsel review before Commerce sales scale — an agent cannot obtain a Connect platform approval or legal sign-off, so this stays operator/legal-gated rather than fake-completed.",
     status: "todo",
     phase: "Phase 8 — Commerce",
+  },
+  {
+    id: "empty-backlog-convex-public-surface-audit-0718",
+    summary:
+      "Empty-backlog audit: re-check Convex/SQLite persistence parity and unauthenticated public render sinks after the latest webhook/docs work; ship any real regression found, otherwise record a dated clean audit.",
+    status: "done",
+    owner: "codex/dev-work-empty-backlog-audit-0718",
   },
   {
     id: "deploy-handoff-orchestrator-test-coverage",
@@ -5901,6 +5916,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Re-verify (by reading current source directly, not by trusting prior ITERATIONS summaries) the freshest-touched surfaces after PR #384: refund/dispute entitlement gating (orderGrantsSoldCapabilityEntitlement wiring into every eligibility AND oldest-age helper), Convex/SQLite mutation parity for commerceOrders/orders markRefunded|markDisputed|clearDisputed (schema indexes, static API map registration, idempotent WHERE clauses, requireConvex usage), the sendEmail subject-sanitization boundary (confirmed no send helper bypasses it), the bounded rate limiter's oldest-key eviction correctness, and the /docs/process pagination fix's slice/reverse ordering — before looking for a new axis to fix. No defect found on any of these axes; recording a dated clean audit rather than inventing an optional aggregate.",
     rationale:
       "AGENT_PROTOCOL's fold-scan-first rule found no stuck-but-complete sibling branch (the one branch pushed after PR #384, codex/dev-work-empty-backlog-audit-0718, is a docs-only 'clean audit' entry based on a pre-consolidation commit that predates #384 and adds nothing new to fold). With NEXT_STEPS fully operator/legal-gated and roughly 80 prior iterations having already mined the sold-capability-wiring, oldest-age-parity, refund/dispute, and marker-after-unchecked-await axes to exhaustion, the highest-value use of this iteration was independently re-deriving (not re-reading) whether the most recently shipped money-integrity code (refund-dispute-entitlement-gate, refund-dispute-oldest-age-parity, bundle/commerce refund+dispute tracking, rate-limiter-bucket-bounds, email-subject-control-character-sanitization, process-doc-unbounded-history-pagination) was actually wired correctly end to end, since a chain of that many rapid, similarly-shaped fixes is exactly where a copy-paste gap is most likely to hide. A documented clean result on a freshly-re-derived check is worth more to sibling agents than a repeated audit of an already-2x-confirmed-clean axis.",
+  },
+  {
+    id: "recurring-payment-failed-dunning-notice",
+    date: "2026-07-18",
+    decision:
+      "Send the customer a transactional email on invoice.payment_failed (Growth/Complete/Commerce renewals), linking back into the existing /checkout/success Manage-billing flow via the order's original stripeSessionId, rather than either (a) leaving payment failure fully silent to the customer as before, or (b) minting a fresh Stripe Billing Portal session from inside the webhook. Added getOrdersByStripeCustomerId (db.ts + new Convex orders.getByStripeCustomerId query on the existing by_stripeCustomerId index, registered on the static API map) to resolve the failing Stripe Customer back to a lead's email/businessName. The notice is deliberately best-effort (its own try/catch, no durable sent-marker) — it sits after the already-durable CRM pause write in the handler, so a notify failure must never turn a successful pause into a 5xx/retry loop, and Stripe fires a distinct invoice.payment_failed per Smart Retry attempt, so re-sending once per attempt on redelivery is acceptable (unlike a receipt, under-sending is not the risk here).",
+    rationale:
+      "This was the first genuinely new, non-audit gap found after several consecutive iterations (nice-euler-67ezwq, the two folded codex clean audits) confirmed every correctness/security/parity axis clean: invoice.payment_failed already paused entitlement internally, but nothing ever told the paying customer their service had stopped — a silent, avoidable source of involuntary churn with no operator-gated dependency (no new secret, no OAuth, no legal review; STRIPE_SECRET_KEY and RESEND_API_KEY already exist). Reusing /checkout/success instead of a fresh Billing Portal API call keeps the webhook handler's Stripe surface unchanged (one retrieve, same as before) and avoids adding a second failure mode to an already money-critical path. AGENT_PROTOCOL's empty-backlog priority order ranks 'wiring an already-shipped sold-capability helper missing from pipeline-health/digest/dashboard' first when NEXT_STEPS is gated — this is the customer-facing analogue of that same class of gap: the pause logic shipped, but its natural notify twin did not.",
   },
 ];
 
@@ -12196,6 +12219,54 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "post-consolidation-money-integrity-clean-audit-0718",
+    ),
+  },
+  {
+    date: "2026-07-17",
+    branch: "codex/continuous-work-20260717-luna",
+    summary:
+      "Empty-backlog after PR #382. The four remaining NEXT_STEPS items are still operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). The required sibling fold scan found no complete unmerged body: cursor/prompt-process-evolution-0329 and cursor/business-process-evolution-d518 are already represented by merged PRs #331/#330, while the recent Codex rate-limit and webhook branches are already represented on main or closed as superseded. Rotated through a fresh cross-cutting audit of the dual-backend Convex API map, transactional marker/send boundaries, client-id existence checks, and orchestration test coverage; no new defect was found. Per AGENT_PROTOCOL, recorded a dated still-clean audit instead of manufacturing an optional feature.",
+    shipped: [
+      "No product code changes — this was a documented clean empty-backlog audit",
+      "Sibling fold scan: checked recent codex/grok/opencode/gemini/cursor branches and open PRs; no genuine unmerged feature body remained",
+      "Audit coverage (no fix needed): Convex API map registration and list ordering guards, durable marker writes after resolved send success, dashboard fetch-before-write checks for submitted ids, public/security input boundaries, and route/action orchestration tests",
+      "NEXT_STEPS: all four remaining todo items remain unchanged because each requires operator action, legal review, or external Stripe Connect setup",
+      "Verified: npm test, npm run lint, and npm run build",
+      "PR handoff: branch pushed, but gh pr create and the REST pull-request endpoint are blocked by the GitHub Actions token policy (HTTP 403: GitHub Actions is not permitted to create or approve pull requests) — folded onto claude/upbeat-dijkstra-yqw6f4 by a later iteration that could open a PR.",
+    ],
+    decisions: [],
+  },
+  {
+    date: "2026-07-18",
+    branch: "codex/dev-work-empty-backlog-audit-0718",
+    summary:
+      "Empty-backlog audit after PR #383. The four remaining NEXT_STEPS items stayed operator/legal-gated, and the remote fold scan found no complete unmerged feature body. Re-audited Convex/SQLite persistence list parity and unauthenticated public render sinks after the latest webhook and public-doc work; all guards remain intact, so this is a documented clean audit rather than manufactured product work.",
+    shipped: [
+      "NEXT_STEPS: empty-backlog-convex-public-surface-audit-0718 done",
+      "Convex/SQLite audit (no fix needed): every production debt/fulfillment feed uses an uncapped helper; intentional UI pages remain capped; listOpenCheckoutSessions, orders, packs, catalogs, voice packs, deploy handoffs, and commerce ledgers preserve their documented ordering/completeness contracts; convex-api-map-audit.test.ts still covers every public Convex export and the deliberate orders.createOrder orphan",
+      "Public-surface security audit (no fix needed): exactly one executable dangerouslySetInnerHTML sink remains and it uses safeJsonLdScript; preview lead text is soft-capped before render/metadata/JSON-LD; Maps URLs are fixed-origin with encodeURIComponent query values; React handles remaining href/src attribute escaping",
+      "Process: claim commit f5cdbd7 was pushed before the audit body; no BUSINESS_DECISIONS entry was needed because no new product decision or defect was found",
+      "Verified: npm test (1968 passed, 153 files), npm run lint (clean), and npm run build via Node 22.23.1 (TypeScript clean, all 31 routes generated). Node 20.20.2 cannot load the repository's node:sqlite dependency; the same build completed successfully under Node 22.",
+      "Folded onto claude/upbeat-dijkstra-yqw6f4 by a later iteration — this branch (codex/dev-work-empty-backlog-audit-0718) had a complete audit body but could not open its own PR (GitHub Actions token policy blocks gh pr create for that automation).",
+    ],
+    decisions: [],
+  },
+  {
+    date: "2026-07-18",
+    branch: "claude/upbeat-dijkstra-yqw6f4",
+    summary:
+      "Empty-backlog after the post-consolidation clean audit (nice-euler-67ezwq). NEXT_STEPS stayed fully operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Folded two stuck sibling branches first (codex/dev-work-empty-backlog-audit-0718, codex/continuous-work-20260717-luna) — both had complete, honest clean-audit bodies but could not open their own PRs (GitHub Actions token policy blocks gh pr create for those automations); merged both into this branch, resolving the ITERATIONS-array tail-append conflicts by keeping every entry from all three histories in chronological order. With every correctness/security/parity axis re-confirmed clean across the last several iterations, shifted the search from 'find a defect' to 'find a shipped-but-unwired customer-facing gap' (AGENT_PROTOCOL's own empty-backlog priority order ranks this first) and found one: invoice.payment_failed has paused Growth/Complete/Commerce CRM entitlement internally since #345/#346, but never told the paying customer — the only signal was operator-side. Shipped a transactional dunning notice.",
+    shipped: [
+      "convex/orders.ts — getByStripeCustomerId query on the existing by_stripeCustomerId index (mirrors listByLeadSlug/getByStripeSessionId)",
+      "src/lib/db.ts — getOrdersByStripeCustomerId (dual-backend: Convex query + SQLite orders/leads join), registered on the static Convex API map",
+      "src/lib/email/resend.ts — sendPaymentFailedNotice (skipSuppression: true; billing-critical, same class as sendReceiptEmail — a cold-outreach unsubscribe must not hide a card-decline notice from a paying customer); links to /checkout/success?session_id=<original Checkout Session id> rather than minting a fresh Billing Portal session from inside the webhook",
+      "src/app/api/stripe/webhook/route.ts — invoice.payment_failed now looks up the failing customer's recurring order + lead and sends the notice as a best-effort side effect after the existing CRM pause succeeds (its own try/catch; a notify failure cannot turn the already-durable pause into a 5xx/retry loop)",
+      "NEXT_STEPS + BUSINESS_DECISIONS: recurring-payment-failed-dunning-notice (id-based entries)",
+      "Tests: 5 new route.test.ts cases (sends on recurring order, skips when no recurring order / no lead email, does not 5xx when the lookup throws or the send resolves success:false) + 3 new resend.test.ts cases (businessName escaping, href escaping, skipSuppression delivery)",
+      "Verified: npm ci (node_modules not preinstalled this session) + npm test (1976 passed, 153 files) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated) + npm run dev sanity check: curled /dashboard/leads, /preview/demo-cafe, /docs/process, /checkout/success (all 200) and POST /api/stripe/webhook without a valid signature (501, expected — no regression), then stopped the dev server",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "recurring-payment-failed-dunning-notice",
     ),
   },
 ];

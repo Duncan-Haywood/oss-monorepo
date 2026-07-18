@@ -23,6 +23,7 @@ import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import {
   invoicePaidMayRestoreRecurringEntitlement,
   invoicePaymentFailedPausesRecurringEntitlement,
+  orderHadRecurringEntitlement,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
@@ -1180,6 +1181,41 @@ export async function POST(request: Request) {
         );
         const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
         return NextResponse.json(failure.body, { status: failure.status });
+      }
+
+      // Customer-facing dunning notice — best-effort. The durable CRM pause
+      // above already succeeded, so a notify failure here must not turn it
+      // into a 5xx/retry loop (see recurring-payment-failed-dunning-notice);
+      // Stripe fires a new invoice.payment_failed per Smart Retry attempt, so
+      // this naturally sends once per attempt without its own dedup marker.
+      try {
+        const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
+        const orders = await getOrdersByStripeCustomerId(customerId);
+        const recurringOrder = orders.find((order) =>
+          orderHadRecurringEntitlement(order),
+        );
+        if (recurringOrder) {
+          const lead = await getLeadBySlug(recurringOrder.leadSlug);
+          if (lead?.email) {
+            const { sendPaymentFailedNotice } = await import("@/lib/email/resend");
+            const sent = await sendPaymentFailedNotice({
+              to: lead.email,
+              businessName: lead.businessName,
+              slug: recurringOrder.leadSlug,
+              stripeSessionId: recurringOrder.stripeSessionId,
+            });
+            if (!sent.success) {
+              console.warn(
+                `webhook: invoice.payment_failed ${invoice.id} payment-failed notice not sent for ${recurringOrder.leadSlug} (${sent.reason ?? sent.error ?? "unknown"})`,
+              );
+            }
+          }
+        }
+      } catch (e) {
+        console.error(
+          `Failed to send payment-failed notice for customer ${customerId} after invoice.payment_failed ${invoice.id}`,
+          e,
+        );
       }
       break;
     }

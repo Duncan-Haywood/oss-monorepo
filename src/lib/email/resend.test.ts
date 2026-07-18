@@ -197,6 +197,18 @@ describe("resend.ts — brand.* HTML escaping", () => {
     expect(sentHtml).not.toContain(`live on ${UNSAFE_BRAND} Starter`);
   });
 
+  it("escapes businessName in sendPaymentFailedNotice", async () => {
+    const { sendPaymentFailedNotice } = await import("./resend");
+    await sendPaymentFailedNotice({
+      to: "owner@example.com",
+      businessName: UNSAFE_NAME,
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_dunning",
+    });
+    expect(sentHtml).toContain(ESCAPED_NAME);
+    expect(sentHtml).not.toContain("<Truck>");
+  });
+
   it("escapes brand.name in sendReceiptEmail signature", async () => {
     const { sendReceiptEmail } = await import("./resend");
     await sendReceiptEmail("owner@example.com", "Demo Cafe", "starter", 500);
@@ -369,6 +381,18 @@ describe("resend.ts — href URL HTML escaping", () => {
     });
     expectHrefSafe();
   });
+
+  it("escapes manage-billing href in sendPaymentFailedNotice", async () => {
+    const { sendPaymentFailedNotice } = await import("./resend");
+    await sendPaymentFailedNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_dunning",
+    });
+    expectHrefSafe();
+    expect(sentHtml).toMatch(/href="[^"]*\/checkout\/success\?session_id=cs_test_dunning"/);
+  });
 });
 
 describe("resend.ts — transactional skipSuppression", () => {
@@ -425,6 +449,18 @@ describe("resend.ts — transactional skipSuppression", () => {
       expect(result.reason).toBe("suppressed");
     }
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("sendPaymentFailedNotice still delivers when marketing-suppressed", async () => {
+    const { sendPaymentFailedNotice } = await import("./resend");
+    const result = await sendPaymentFailedNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_dunning",
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
   });
 
   it("sendMarketingPackToClientEmail still delivers when marketing-suppressed", async () => {

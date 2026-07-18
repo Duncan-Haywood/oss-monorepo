@@ -49,6 +49,7 @@ const listCommerceCheckoutInquiriesBySlug = vi.fn();
 const listOrdersByLeadSlug = vi.fn();
 const getCommerceOrderByStripeSessionId = vi.fn();
 const getOrderByStripeSessionId = vi.fn();
+const getOrdersByStripeCustomerId = vi.fn();
 const markCommerceOrderClientReceiptSent = vi.fn();
 const markCommerceOrderRefunded = vi.fn();
 const markOrderRefunded = vi.fn();
@@ -96,6 +97,7 @@ vi.mock("@/lib/db", () => ({
   getCommerceOrderByStripeSessionId: (...args: unknown[]) =>
     getCommerceOrderByStripeSessionId(...args),
   getOrderByStripeSessionId: (...args: unknown[]) => getOrderByStripeSessionId(...args),
+  getOrdersByStripeCustomerId: (...args: unknown[]) => getOrdersByStripeCustomerId(...args),
   markCommerceOrderClientReceiptSent: (...args: unknown[]) =>
     markCommerceOrderClientReceiptSent(...args),
   markCommerceOrderRefunded: (...args: unknown[]) => markCommerceOrderRefunded(...args),
@@ -118,10 +120,12 @@ vi.mock("@/lib/db", () => ({
 const sendEmail = vi.fn();
 const sendReceiptEmail = vi.fn();
 const sendCommerceBuyNowClientReceipt = vi.fn();
+const sendPaymentFailedNotice = vi.fn();
 vi.mock("@/lib/email/resend", () => ({
   sendEmail: (...args: unknown[]) => sendEmail(...args),
   sendReceiptEmail: (...args: unknown[]) => sendReceiptEmail(...args),
   sendCommerceBuyNowClientReceipt: (...args: unknown[]) => sendCommerceBuyNowClientReceipt(...args),
+  sendPaymentFailedNotice: (...args: unknown[]) => sendPaymentFailedNotice(...args),
 }));
 
 /** Growth setup ($500) + first month ($99) — matches expectedBundleCheckoutAmountCents. */
@@ -255,6 +259,7 @@ describe("POST /api/stripe/webhook", () => {
     listOrdersByLeadSlug.mockReset().mockResolvedValue(activeCommerceOrders);
     getCommerceOrderByStripeSessionId.mockReset().mockResolvedValue(null);
     getOrderByStripeSessionId.mockReset().mockResolvedValue(null);
+    getOrdersByStripeCustomerId.mockReset().mockResolvedValue([]);
     markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(undefined);
     markCommerceOrderRefunded.mockReset().mockResolvedValue(undefined);
     markOrderRefunded.mockReset().mockResolvedValue(undefined);
@@ -273,6 +278,7 @@ describe("POST /api/stripe/webhook", () => {
     sendEmail.mockReset().mockResolvedValue({ success: true });
     sendReceiptEmail.mockReset().mockResolvedValue({ success: true });
     sendCommerceBuyNowClientReceipt.mockReset().mockResolvedValue({ success: true });
+    sendPaymentFailedNotice.mockReset().mockResolvedValue({ success: true });
 
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_123";
@@ -852,6 +858,113 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_canceled");
       expect(json.received).toBe(false);
+    });
+  });
+
+  describe("invoice.payment_failed dunning notice", () => {
+    function paymentFailedEvent(overrides: Record<string, unknown> = {}) {
+      return {
+        type: "invoice.payment_failed",
+        data: {
+          object: {
+            id: "in_notice_1",
+            customer: "cus_notice",
+            subscription: "sub_notice",
+            created: 1_720_000_600,
+            ...overrides,
+          },
+        },
+      };
+    }
+
+    beforeEach(() => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_notice",
+        customer: "cus_notice",
+        status: "past_due",
+        pause_collection: null,
+      });
+    });
+
+    it("emails the lead once a recurring order is found for the customer", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "demo-cafe",
+          stripeSessionId: "cs_notice_1",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "demo-cafe",
+        businessName: "Demo Cafe",
+        email: "owner@demo-cafe.test",
+      });
+      constructEvent.mockReturnValue(paymentFailedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_notice");
+      expect(sendPaymentFailedNotice).toHaveBeenCalledWith({
+        to: "owner@demo-cafe.test",
+        businessName: "Demo Cafe",
+        slug: "demo-cafe",
+        stripeSessionId: "cs_notice_1",
+      });
+    });
+
+    it("skips the notice when the customer has no recurring order", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        { leadSlug: "one-off", stripeSessionId: "cs_x", tier: "starter", commerceAddon: false },
+      ]);
+      constructEvent.mockReturnValue(paymentFailedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendPaymentFailedNotice).not.toHaveBeenCalled();
+    });
+
+    it("skips the notice when the lead has no email on file", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        { leadSlug: "demo-cafe", stripeSessionId: "cs_notice_2", tier: "growth", commerceAddon: false },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({ slug: "demo-cafe", businessName: "Demo Cafe" });
+      constructEvent.mockReturnValue(paymentFailedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendPaymentFailedNotice).not.toHaveBeenCalled();
+    });
+
+    it("does not 5xx when the notice lookup throws (pause already durable)", async () => {
+      getOrdersByStripeCustomerId.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue(paymentFailedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalled();
+      expect(sendPaymentFailedNotice).not.toHaveBeenCalled();
+    });
+
+    it("does not fail the webhook when the send itself resolves success:false", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        { leadSlug: "demo-cafe", stripeSessionId: "cs_notice_3", tier: "growth", commerceAddon: false },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "demo-cafe",
+        businessName: "Demo Cafe",
+        email: "owner@demo-cafe.test",
+      });
+      sendPaymentFailedNotice.mockResolvedValueOnce({ success: false, reason: "suppressed" });
+      constructEvent.mockReturnValue(paymentFailedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
     });
   });
 

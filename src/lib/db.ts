@@ -407,6 +407,7 @@ const api: any = {
     list: "orders:list",
     listByLeadSlug: "orders:listByLeadSlug",
     getByStripeSessionId: "orders:getByStripeSessionId",
+    getByStripeCustomerId: "orders:getByStripeCustomerId",
     markRecurringCanceledByCustomer: "orders:markRecurringCanceledByCustomer",
     clearRecurringCanceledByCustomer: "orders:clearRecurringCanceledByCustomer",
     syncRecurringEntitlementByCustomer: "orders:syncRecurringEntitlementByCustomer",
@@ -1153,6 +1154,65 @@ export async function getOrderByStripeSessionId(
   return row
     ? mapSqliteOrderRow({ ...row, leadSlug: row.leadSlug || "unknown" })
     : null;
+}
+
+/**
+ * Orders for a Stripe Customer — used by the invoice.payment_failed dunning
+ * notice to resolve the leadSlug + stripeSessionId to email from (the lead's
+ * email lives on the leads row, not orders). Newest-first, matching
+ * listOrders/listOrdersByLeadSlug. Not exhaustive across every historical
+ * order shape — a Customer only ever carries orders for one lead.
+ */
+export async function getOrdersByStripeCustomerId(
+  stripeCustomerId: string,
+): Promise<OrderRecord[]> {
+  const customerId = stripeCustomerId.trim();
+  if (!customerId) return [];
+
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(api.orders.getByStripeCustomerId, {
+        stripeCustomerId: customerId,
+      })) as Array<{
+        _id: string;
+        leadSlug: string;
+        stripeSessionId: string;
+        stripeCustomerId?: string;
+        tier: string;
+        commerceAddon: boolean;
+        recurringCanceledAt?: number;
+        amountTotal: number;
+        createdAt: number;
+        refundedAt?: string;
+        disputedAt?: string;
+      }>;
+      return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
+    } catch (e) {
+      console.warn(
+        `Failed to get orders for customer ${customerId} from Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
+              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt, o.refundedAt, o.disputedAt
+       FROM orders o
+       LEFT JOIN leads l ON l.id = o.leadId
+       WHERE o.stripeCustomerId = ?
+       ORDER BY o.createdAt DESC`,
+    )
+    .all(customerId) as unknown as SqliteOrderJoinRow[];
+
+  return rows.map((row) =>
+    mapSqliteOrderRow({
+      ...row,
+      leadSlug: row.leadSlug || "unknown",
+    }),
+  );
 }
 
 /**
