@@ -60,6 +60,7 @@ import {
   listStarterUpsellCandidates,
   resolveUpsellTargetTier,
 } from "@/lib/billing/starter-upsell";
+import { listRecurringEntitlementPaused } from "@/lib/orders/recurring";
 import { getBundle } from "@/lib/pricing/bundles";
 import {
   contentTypeLabel,
@@ -129,7 +130,7 @@ import {
   inquiryCanReceiveReply,
   inquiryShouldAutoMarkRead,
 } from "@/lib/inquiries/reply";
-import { formatUsd } from "@/lib/metrics/pipeline-health";
+import { formatAbandonedAgeHours, formatUsd } from "@/lib/metrics/pipeline-health";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
@@ -906,6 +907,7 @@ export function LeadsClient({
     leadSlugsEligibleForCommerceAbandonedRecovery(leads, orders),
   );
   const starterUpsellCandidates = listStarterUpsellCandidates(leads, orders);
+  const recurringEntitlementPaused = listRecurringEntitlementPaused(leads, orders);
   const commerceCatalogsMissing = listCommerceCatalogsMissing(
     leads,
     orders,
@@ -1019,6 +1021,69 @@ export function LeadsClient({
                     >
                       Send {bundle?.name ?? targetTier} upsell
                     </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {recurringEntitlementPaused.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              MRR paused / canceled
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({recurringEntitlementPaused.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/architecture#payments"
+              className="text-xs font-medium text-rose-800 underline underline-offset-2"
+            >
+              Payments
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Paid/live Growth/Complete/Commerce subscribers whose recurring entitlement is
+            currently paused or canceled (card decline, pause_collection, or Stripe
+            cancellation). Open Billing Portal to chase recovery.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {recurringEntitlementPaused.map((lead) => {
+              const pausedAgeHours = Math.max(
+                0,
+                Math.floor((nowMs - lead.pausedAtMs) / (60 * 60 * 1000)),
+              );
+              return (
+                <li
+                  key={lead.slug}
+                  className="rounded-xl border border-rose-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {lead.businessName}{" "}
+                        <span className="font-normal text-zinc-500">({lead.slug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {lead.stage} · paused {formatAbandonedAgeHours(pausedAgeHours)} ago
+                        {lead.hasStripeCustomerId
+                          ? null
+                          : " · no Stripe customer on file"}
+                      </p>
+                    </div>
+                    {lead.hasStripeCustomerId ? (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleOpenBillingPortal(lead.slug)}
+                        className="rounded-lg bg-rose-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-900 disabled:opacity-60"
+                      >
+                        Manage billing
+                      </button>
+                    ) : null}
                   </div>
                 </li>
               );
