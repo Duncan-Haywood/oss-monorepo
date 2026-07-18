@@ -761,6 +761,36 @@ describe("POST /api/stripe/webhook", () => {
       expect(getOrdersByStripeCustomerId).not.toHaveBeenCalled();
     });
 
+    it("redelivery of the same event: does not re-send once the pause write already applied", async () => {
+      // Stripe redelivers the identical event (same previous_attributes,
+      // still showing pause_collection as changed) when our first response
+      // was too slow/failed. markOrdersRecurringCanceledByCustomer is itself
+      // idempotent — a row already paused updates 0 orders on replay — so the
+      // notice must key off that, not off previous_attributes alone, or a
+      // pure webhook redelivery double-emails "your billing is now paused".
+      markOrdersRecurringCanceledByCustomer.mockResolvedValueOnce(0);
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_pause_notice_redelivery",
+            customer: "cus_pause_notice_redelivery",
+            status: "active",
+            pause_collection: { behavior: "void" },
+            items: { data: [{ current_period_start: 1_720_001_050 }] },
+          },
+          previous_attributes: { pause_collection: null },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalled();
+      expect(sendSubscriptionPausedNotice).not.toHaveBeenCalled();
+      expect(getOrdersByStripeCustomerId).not.toHaveBeenCalled();
+    });
+
     it("does not send for an ordinary past_due pause (no pause_collection) — invoice.payment_failed covers it", async () => {
       constructEvent.mockReturnValue({
         type: "customer.subscription.updated",
