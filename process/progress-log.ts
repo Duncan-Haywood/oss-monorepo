@@ -513,4 +513,21 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): the stale-branch audit is now exhaustive as of this session — no need to re-spot-check individual branches again unless `git ls-remote --heads origin`'s branch count changes from 36, in which case only the new branch(es) need the same commit-subject cross-reference, not the full set again.",
     ],
   },
+  {
+    date: "2026-07-18",
+    agent: "claude/dazzling-allen-imbgjx",
+    summary:
+      "Full blocker re-verification pass (recentlyConfirmedWithinHours(3) had just lapsed, ~4h since the last check) confirmed all 6 human blockers unchanged again — then used list_triggers to get hard evidence on the cron-cadence-too-frequent blocker's open question, and used that evidence to make the one part of it that's actually agent-actionable: widened the recheck-throttle window itself from 3 to 12 hours, since a 3-hour window on a confirmed-hourly cron was still generating a full-pass 'nothing changed' branch/commit/PR/CI run every 3-4 hours indefinitely.",
+    changes: [
+      "process/blockers.ts: bumped lastConfirmed/lastConfirmedAt/confirmedByCount on all 6 entries. Re-confirmed the CI runner outage is still ongoing (run 29651540404 at 16:13:42Z, PR #46's push, same runner_id-0/~3s pattern, now ~16h in) — checked its 3 job records directly via the GitHub MCP server rather than trusting the prior note. Re-counted branches (42 non-main now, up 1 from 41) and confirmed the one new branch, claude/dazzling-allen-rqcae1, is PR #46's own source branch with an empty diff against main — not unique work. Rewrote cron-cadence-too-frequent's text: list_triggers confirms this repo's agent prompt is bound to a literal hourly cron (`0 * * * *`), not just 'sub-daily', and notes this session's throttle-window widening as the agent-actionable slice of what that blocker was already arguing for.",
+      "prompt_process.tsx: step 0a's recentlyConfirmedWithinHours(3) call is now recentlyConfirmedWithinHours(12), with a doc note explaining why (hourly cron confirmed + over a month of zero blocker movement means 12h can't plausibly delay noticing a real resolution any more than a human would already notice it) and pointing at decisions-log.ts.",
+      "roadmap.ts: added p2-blocker-recheck-window-widen (phase 2), status done, as its own task distinct from the original p2-blocker-recheck-throttle so the historical 3-hour reasoning stays on record.",
+      "decisions-log.ts: new entry documenting the window-widen decision and rationale.",
+      "Verified: docs-site/ `npm run build` passes clean (imports prompt_process.tsx -> blockers.ts, so this type-checks all the edits above); pipeline/ and research/ untouched, not rebuilt. Checked open PRs via the GitHub MCP server — only #4 open, unrelated files, still draft/unchanged. Checked all 42 non-main branches via `git merge-base --is-ancestor` plus a manual diff check on the one new one; no new unmerged business value found beyond what's already tracked.",
+    ],
+    nextUp: [
+      "Human: same six items as every recent session remain the highest-leverage next steps — see blockers.ts (first concierge delivery, phase-1 interviews, Zillow listing audit, Cloudflare Access dashboard toggle + merge PR #4, confirm the Zelle/PayPal payment handle actually receives funds, and — now partially addressed at the code level, but the cron itself is still hourly — reconsider the actual cron schedule).",
+      "Agent (next session): with the window now 12h, expect a full pass to actually be due roughly twice a day rather than every 3-4 hours; if recentlyConfirmedWithinHours(12) returns true, do only the cheap check (empty logs? new merges? nextActionableTasks() still empty?) per step 0a and skip the branch/commit/PR entirely if nothing's different — that's now the common case, not the exception.",
+    ],
+  },
 ];

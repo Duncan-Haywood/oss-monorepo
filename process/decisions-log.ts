@@ -285,4 +285,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/blocker-throttle-0713",
     relatedTaskIds: ["p2-blocker-recheck-throttle"],
   },
+  {
+    date: "2026-07-18",
+    title: "Widen the blocker recheck-throttle window from 3 hours to 12 now that an hourly cron is confirmed",
+    decision:
+      "prompt_process.tsx's step 0a now calls recentlyConfirmedWithinHours(12) instead of (3) before doing a full from-scratch blocker re-verification pass, with a doc note explaining the change and pointing here.",
+    rationale:
+      "This session called list_triggers directly and confirmed this repo's own agent-process prompt ('real estate photo app Business development progress') is bound to a literal hourly cron (`0 * * * *`) — not just 'sub-daily' as blockers.ts's cron-cadence-too-frequent entry previously worded it. With a 3-hour window, an hourly cron still produces a full-pass 'confirmed, nothing changed' branch/commit/PR/CI run roughly every 3-4 hours, forever, since none of the 6 tracked human blockers have moved in over a month (first flagged 2026-06-13/2026-07-12/2026-07-13). The cron-cadence-too-frequent blocker already argued a twice-daily cadence would catch a resolved blocker just as fast in practice, but treated that as a human-only decision (changing the actual cron schedule). It missed that the window recentlyConfirmedWithinHours() checks against is itself agent-editable and doesn't require touching the cron at all — 12 hours matches that same twice-daily reasoning at the code level. This is not a full fix (a real cron-cadence change would cut the spend further, and stays a human decision per that blocker), but it directly reduces wasted branch/CI churn without any realistic risk of missing a human resolving a blocker later than they'd otherwise be noticed. Logged as its own roadmap task (p2-blocker-recheck-window-widen) rather than folded into p2-blocker-recheck-throttle, since that task's doneWhen (3-hour window, now superseded) is itself a useful historical record of why 3 was chosen first.",
+    madeBy: "claude/dazzling-allen-imbgjx",
+    relatedTaskIds: ["p2-blocker-recheck-window-widen", "p2-blocker-recheck-throttle"],
+  },
 ];

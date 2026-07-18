@@ -341,6 +341,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "process/blockers.ts gains lastConfirmedAt (real timestamp) on every entry and an exported recentlyConfirmedWithinHours(hours) helper; prompt_process.tsx's AGENT_PROCESS_INSTRUCTIONS step 0 tells a session to call it before doing a full re-verification pass and to skip the branch/commit/PR entirely if nothing changed and the window hasn't elapsed. See process/blockers.ts and decisions-log.ts.",
       },
+      {
+        id: "p2-blocker-recheck-window-widen",
+        title: "Widen the recheck-throttle window from 3h to 12h now that an hourly cron is confirmed",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "p2-blocker-recheck-throttle's 3-hour window stopped the worst churn (three same-day recheck branches) but, once list_triggers confirmed this repo's own agent session is bound to a literal hourly cron (`0 * * * *`), a 3-hour window still guaranteed a full-pass 'confirmed, nothing changed' branch/commit/PR/CI run every 3-4 hours indefinitely — exactly what the cron-cadence-too-frequent human blocker describes, except the fix for that specific piece doesn't require waiting on Duncan to touch the cron: the window itself is agent-editable. All 6 human blockers had been stable for over a month with zero hour-to-hour variance, so a wider window can't plausibly miss a resolution any later than a human would notice it anyway.",
+        doneWhen:
+          "prompt_process.tsx's step 0a calls recentlyConfirmedWithinHours(12) instead of (3), with a doc note explaining why and pointing at this decision. See process/blockers.ts's cron-cadence-too-frequent entry and decisions-log.ts.",
+      },
     ],
   },
   {

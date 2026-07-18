@@ -46,8 +46,8 @@ agent session should move that forward by a bounded, honest increment.
 
 Each session:
 0a. Before doing a full from-scratch re-verification pass, call
-   recentlyConfirmedWithinHours(3) from blockers.ts. If it returns true,
-   every blocker was already re-checked within the last 3 hours by some
+   recentlyConfirmedWithinHours(12) from blockers.ts. If it returns true,
+   every blocker was already re-checked within the last 12 hours by some
    other session — don't repeat that work. Instead do a *cheap* check only
    (leads-log.ts/listingAuditLog/loggedInterviewResults still empty? any
    new merged PRs since the last progress-log.ts entry, via git log
@@ -56,9 +56,20 @@ Each session:
    cron will hit this repo again regardless, and a "still blocked, nothing
    changed" branch adds a CI run and a stale ref for zero new information
    (see blockers.ts's 2026-07-13 doc comment — three near-duplicate
-   recheck branches in one day is what this guards against). If the 3-hour
-   window has elapsed, or the cheap check finds something new, proceed to
-   a full pass below.
+   recheck branches in one day is what this guards against). If the
+   12-hour window has elapsed, or the cheap check finds something new,
+   proceed to a full pass below.
+   (Widened from 3 to 12 hours on 2026-07-18: list_triggers confirmed
+   this repo's own agent session is bound to an hourly cron, and every
+   blocker had been unchanged for over a month at that point, so a 3-hour
+   window still produced a "confirmed, nothing changed" branch/commit/PR/CI
+   run roughly every 3-4 hours indefinitely. 12 hours matches the
+   twice-daily cadence blockers.ts's own cron-cadence-too-frequent entry
+   already argued would catch a resolved blocker just as fast in practice
+   — implemented at the code level instead of waiting on a human to change
+   the cron schedule, since none of the 6 blockers here resolve on
+   anything faster than a human choosing to do a real-world action. See
+   decisions-log.ts.)
 0b. Check blockers.ts — it's the single source of truth for what's
    blocked on a human right now (README.md and this file's dashboard both
    read from it, so it should never need updating in more than one place).
