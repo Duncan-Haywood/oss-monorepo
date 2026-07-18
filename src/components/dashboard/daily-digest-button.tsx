@@ -17,12 +17,13 @@ export function DailyDigestButton() {
         setStatus({ kind: "error", message: res.error });
         return;
       }
-      const itemCount =
-        res.digest.workNext.length +
-        res.digest.followUpsDue.length +
-        res.digest.checkoutRecoveriesDue.length +
-        res.digest.unrepliedInquiries.length;
-      setStatus({ kind: "success", itemCount, mock: res.mock });
+      // Use the digest's own true pre-slice total across every section
+      // (actionableItemCount, backed by the same isEmpty source of truth) —
+      // not a hand-summed subset. A prior version summed only 4 of the
+      // digest's ~19 sections, so a digest whose only actionable items were
+      // e.g. marketingPacksDue or commerceCatalogsMissing displayed "nothing
+      // urgent today" here while the email just sent listed real items.
+      setStatus({ kind: "success", itemCount: res.digest.actionableItemCount, mock: res.mock });
     });
   };
 

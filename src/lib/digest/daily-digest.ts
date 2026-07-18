@@ -388,6 +388,18 @@ export interface DailyDigest {
   recurringEntitlementPausedCount: number;
   /** Age in whole hours of the oldest recurring entitlement pause; null when none. */
   oldestRecurringEntitlementPausedAgeHours: number | null;
+  /**
+   * True pre-slice sum of every actionable section's count (the same fields
+   * isEmpty checks) — the single source of truth for "how many items does
+   * this digest carry." Callers that need a headline number (e.g. the
+   * dashboard's Send daily digest button) must read this instead of
+   * hand-summing a subset of sections: daily-digest-button-item-count-drift
+   * found the dashboard button hand-summing only 4 of 19 sections, so a
+   * digest whose only actionable items were e.g. marketingPacksDue or
+   * commerceCatalogsMissing silently displayed "nothing urgent today" while
+   * the email just sent listed real fulfillment/revenue debt.
+   */
+  actionableItemCount: number;
   /** True when none of the above sections have anything for the operator to act on. */
   isEmpty: boolean;
 }
@@ -892,29 +904,37 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         hasStripeCustomerId: lead.hasStripeCustomerId,
       }));
 
-  const isEmpty =
-    workNext.length === 0 &&
-    followUpsDue.length === 0 &&
-    checkoutRecoveriesDue.length === 0 &&
-    commerceCheckoutRecoveriesDue.length === 0 &&
-    unrepliedInquiries.length === 0 &&
-    marketingPacksDue.length === 0 &&
-    starterUpsellCandidates.length === 0 &&
-    commerceCatalogsMissing.length === 0 &&
-    commerceCatalogsUnsynced.length === 0 &&
-    clientVoicePacksDue.length === 0 &&
-    commercePayoutsOwed.length === 0 &&
-    commerceOrdersRefundClawback.length === 0 &&
-    commerceOrdersDisputeClawback.length === 0 &&
-    bundleOrdersRefunded.length === 0 &&
-    bundleOrdersDisputed.length === 0 &&
-    openHandoffs.length === 0 &&
-    paidNotLive.length === 0 &&
-    leadsMissingEmail.length === 0 &&
-    recurringEntitlementPaused.length === 0;
+  // Pre-slice true count per section (mirrors the *Count fields below, using
+  // workNext.length directly since it's a ranked top-N pick list rather than
+  // a due-queue with its own separate uncapped count). Single source of
+  // truth for both isEmpty and actionableItemCount so the two can never
+  // drift from each other, and so a caller that needs "how many items" never
+  // has to hand-duplicate this list (see actionableItemCount doc comment).
+  const actionableItemCount =
+    workNext.length +
+    followUpsDueCount +
+    checkoutRecoveriesDueCount +
+    commerceCheckoutRecoveriesDueCount +
+    unrepliedInquiriesCount +
+    marketingPacksDueCount +
+    starterUpsellCandidatesCount +
+    commerceCatalogsMissingCount +
+    commerceCatalogsUnsyncedCount +
+    clientVoicePacksDueCount +
+    commercePayoutsOwedCount +
+    commerceOrdersRefundClawbackCount +
+    commerceOrdersDisputeClawbackCount +
+    bundleOrdersRefundedCount +
+    bundleOrdersDisputedCount +
+    openHandoffsCount +
+    paidNotLiveCount +
+    leadsMissingEmailCount +
+    recurringEntitlementPausedCount;
+  const isEmpty = actionableItemCount === 0;
 
   return {
     generatedAtMs: nowMs,
+    actionableItemCount,
     workNext,
     followUpsDue,
     followUpsDueCount,
