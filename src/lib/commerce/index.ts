@@ -59,6 +59,7 @@ export {
   mergeCommerceOrdersForReview,
   newCommerceOrderId,
   sortCommerceOrdersNewestFirst,
+  sumCommerceOrdersByLeadOrderCount,
   sumCommerceOrdersRevenueUsd,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,

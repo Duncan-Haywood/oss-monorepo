@@ -45,6 +45,7 @@ import {
   leadEligibleForCommerceCatalog,
   listCommerceCatalogsMissing,
   newCommerceSkuId,
+  sumCommerceOrdersByLeadOrderCount,
   summarizeCommerceOrdersByLead,
 } from "@/lib/commerce";
 import type { ClientVoicePack } from "@/lib/voice/pack";
@@ -913,6 +914,7 @@ export function LeadsClient({
   const commercePayoutsByLead = summarizeCommerceOrdersByLead(commerceOrders).filter(
     commerceOrdersByLeadSummaryNeedsAttention,
   );
+  const commercePayoutsOrderCount = sumCommerceOrdersByLeadOrderCount(commercePayoutsByLead);
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
 
   return (
@@ -1156,7 +1158,7 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Commerce payouts (manual)
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({commerceOrders.length} order{commerceOrders.length === 1 ? "" : "s"})
+                ({commercePayoutsOrderCount} order{commercePayoutsOrderCount === 1 ? "" : "s"})
               </span>
             </h2>
             <Link

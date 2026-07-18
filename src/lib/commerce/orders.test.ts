@@ -8,6 +8,7 @@ import {
   mergeCommerceOrdersForReview,
   newCommerceOrderId,
   sortCommerceOrdersNewestFirst,
+  sumCommerceOrdersByLeadOrderCount,
   sumCommerceOrdersRevenueUsd,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
@@ -503,5 +504,52 @@ describe("commerceOrdersByLeadSummaryNeedsAttention", () => {
         orders: [clawback],
       }),
     ).toBe(true);
+  });
+});
+
+describe("sumCommerceOrdersByLeadOrderCount", () => {
+  it("returns 0 for an empty summary list", () => {
+    expect(sumCommerceOrdersByLeadOrderCount([])).toBe(0);
+  });
+
+  it("sums orderCount across every summary, not just unpaidCount", () => {
+    expect(
+      sumCommerceOrdersByLeadOrderCount([
+        { orderCount: 3 },
+        { orderCount: 2 },
+      ]),
+    ).toBe(5);
+  });
+
+  it("matches only the leads the payouts panel actually renders (the bug this fixes)", () => {
+    // A lead whose only order was refunded before ever being paid out owes
+    // nothing and correctly drops out of commerceOrdersByLeadSummaryNeedsAttention,
+    // but it still arrives in the merged review feed passed into
+    // summarizeCommerceOrdersByLead (mergeCommerceOrdersForReview includes every
+    // refunded/disputed order regardless of payout status) — so a naive
+    // "count every order in the merged feed" header would keep growing from
+    // this fully-resolved, nothing-owed order forever, while the visible list
+    // below never shows it. The panel must instead sum orderCount only across
+    // the summaries that survive the needsAttention filter.
+    const resolvedRefund = order({
+      leadSlug: "resolved-cafe",
+      amountPaidUsd: 15,
+      createdAt: "2026-07-01T00:00:00.000Z",
+      refundedAt: "2026-07-02T00:00:00.000Z",
+    });
+    const owedOrder = order({
+      leadSlug: "owed-cafe",
+      amountPaidUsd: 30,
+      createdAt: "2026-07-01T00:00:00.000Z",
+    });
+    const allSummaries = summarizeCommerceOrdersByLead([resolvedRefund, owedOrder]);
+    const rendered = allSummaries.filter(commerceOrdersByLeadSummaryNeedsAttention);
+
+    // Only owed-cafe's 1 order needs attention — resolved-cafe's refunded
+    // order must not inflate the header count even though it's in the input.
+    expect(sumCommerceOrdersByLeadOrderCount(rendered)).toBe(1);
+    // Sanity check: summing across every summary (the old, buggy behavior)
+    // would have counted both orders (2), not just the rendered one (1).
+    expect(sumCommerceOrdersByLeadOrderCount(allSummaries)).toBe(2);
   });
 });
