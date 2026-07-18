@@ -523,6 +523,78 @@ export async function sendPaymentRecoveredNotice(params: {
 }
 
 /**
+ * Subscription-pause notice — sent from the Stripe webhook's
+ * customer.subscription.updated handler specifically when Stripe
+ * pause_collection is set (billing paused with the Subscription otherwise
+ * left active/trialing — see subscription-pause-collection-notice). This is
+ * a distinct customer-facing event from a failed card charge: no invoice
+ * ever fails, so sendPaymentFailedNotice's "your payment did not go through"
+ * copy would misinform a customer whose card is fine but whose collection
+ * was paused (by the operator, a support agent, or the customer via Billing
+ * Portal). Passes skipSuppression: true — billing-critical, same class as
+ * the dunning notice, not cold marketing.
+ */
+export async function sendSubscriptionPausedNotice(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  stripeSessionId: string;
+}) {
+  const { to, businessName, slug, stripeSessionId } = params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const manageBillingUrl = `${baseUrl}/checkout/success?session_id=${encodeURIComponent(stripeSessionId)}`;
+  const safeBiz = escapeHtmlForEmail(businessName);
+  const safeBrand = escapeHtmlForEmail(brand.name);
+  const safeManageBillingUrl = escapeHtmlForEmail(manageBillingUrl);
+
+  const subject = `Your ${brand.name} subscription billing is paused`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your subscription is paused</h2>
+    <p style="margin-bottom: 16px;">Billing has been paused for <strong>${safeBiz}</strong>'s ${escapeHtmlForEmail(brand.name)} subscription — no further charges will be made while it stays paused. Your account is not being charged and your card was not declined.</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${safeManageBillingUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Manage billing</a>
+    </div>
+    <p style="margin-bottom: 8px;">If this wasn't expected, visit Manage billing above or reply to this email and we'll help sort it out.</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
+}
+
+/**
+ * Restore twin of sendSubscriptionPausedNotice — sent from
+ * customer.subscription.updated when Stripe pause_collection is cleared
+ * (billing resumes) after having been set (see
+ * subscription-pause-collection-notice). Passes skipSuppression: true, same
+ * class as sendPaymentRecoveredNotice.
+ */
+export async function sendSubscriptionResumedNotice(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  stripeSessionId: string;
+}) {
+  const { to, businessName, slug, stripeSessionId } = params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const manageBillingUrl = `${baseUrl}/checkout/success?session_id=${encodeURIComponent(stripeSessionId)}`;
+  const safeBiz = escapeHtmlForEmail(businessName);
+  const safeBrand = escapeHtmlForEmail(brand.name);
+  const safeManageBillingUrl = escapeHtmlForEmail(manageBillingUrl);
+
+  const subject = `Your ${brand.name} subscription billing has resumed`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Billing has resumed</h2>
+    <p style="margin-bottom: 16px;">Billing has resumed for <strong>${safeBiz}</strong>'s ${escapeHtmlForEmail(brand.name)} subscription — your service is active again.</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${safeManageBillingUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Manage billing</a>
+    </div>
+    <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
+}
+
+/**
  * Operator-triggered delivery of this month's marketing pack to the client
  * (Growth/Complete sold content handoff without Buffer/GBP OAuth).
  * Passes skipSuppression: true — this is paid feature delivery to lead.email,

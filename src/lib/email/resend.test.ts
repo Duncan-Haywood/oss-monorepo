@@ -221,6 +221,30 @@ describe("resend.ts — brand.* HTML escaping", () => {
     expect(sentHtml).not.toContain("<Truck>");
   });
 
+  it("escapes businessName in sendSubscriptionPausedNotice", async () => {
+    const { sendSubscriptionPausedNotice } = await import("./resend");
+    await sendSubscriptionPausedNotice({
+      to: "owner@example.com",
+      businessName: UNSAFE_NAME,
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_paused",
+    });
+    expect(sentHtml).toContain(ESCAPED_NAME);
+    expect(sentHtml).not.toContain("<Truck>");
+  });
+
+  it("escapes businessName in sendSubscriptionResumedNotice", async () => {
+    const { sendSubscriptionResumedNotice } = await import("./resend");
+    await sendSubscriptionResumedNotice({
+      to: "owner@example.com",
+      businessName: UNSAFE_NAME,
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_resumed",
+    });
+    expect(sentHtml).toContain(ESCAPED_NAME);
+    expect(sentHtml).not.toContain("<Truck>");
+  });
+
   it("escapes brand.name in sendReceiptEmail signature", async () => {
     const { sendReceiptEmail } = await import("./resend");
     await sendReceiptEmail("owner@example.com", "Demo Cafe", "starter", 500);
@@ -417,6 +441,30 @@ describe("resend.ts — href URL HTML escaping", () => {
     expectHrefSafe();
     expect(sentHtml).toMatch(/href="[^"]*\/checkout\/success\?session_id=cs_test_recovered"/);
   });
+
+  it("escapes manage-billing href in sendSubscriptionPausedNotice", async () => {
+    const { sendSubscriptionPausedNotice } = await import("./resend");
+    await sendSubscriptionPausedNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_paused",
+    });
+    expectHrefSafe();
+    expect(sentHtml).toMatch(/href="[^"]*\/checkout\/success\?session_id=cs_test_paused"/);
+  });
+
+  it("escapes manage-billing href in sendSubscriptionResumedNotice", async () => {
+    const { sendSubscriptionResumedNotice } = await import("./resend");
+    await sendSubscriptionResumedNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_resumed",
+    });
+    expectHrefSafe();
+    expect(sentHtml).toMatch(/href="[^"]*\/checkout\/success\?session_id=cs_test_resumed"/);
+  });
 });
 
 describe("resend.ts — transactional skipSuppression", () => {
@@ -494,6 +542,30 @@ describe("resend.ts — transactional skipSuppression", () => {
       businessName: "Demo Cafe",
       slug: "demo-cafe",
       stripeSessionId: "cs_test_recovered",
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sendSubscriptionPausedNotice still delivers when marketing-suppressed", async () => {
+    const { sendSubscriptionPausedNotice } = await import("./resend");
+    const result = await sendSubscriptionPausedNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_paused",
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sendSubscriptionResumedNotice still delivers when marketing-suppressed", async () => {
+    const { sendSubscriptionResumedNotice } = await import("./resend");
+    const result = await sendSubscriptionResumedNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_resumed",
     });
     expect(result.success).toBe(true);
     expect(fetchMock).toHaveBeenCalled();

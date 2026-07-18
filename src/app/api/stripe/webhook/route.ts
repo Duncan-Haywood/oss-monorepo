@@ -1025,6 +1025,21 @@ export async function POST(request: Request) {
       const collectionPaused = stripeSubscriptionHasPauseCollection(
         subscription.pause_collection,
       );
+      // pause_collection has no invoice twin at all (no charge is ever
+      // attempted), unlike past_due/unpaid which invoice.payment_failed's
+      // dunning notice already covers — see subscription-pause-collection-
+      // notice. Only notify when THIS event actually changed pause_collection
+      // (Stripe's previous_attributes only lists fields that changed), so an
+      // unrelated subscription.updated while already paused/unpaused does not
+      // re-send, and an ordinary past_due/unpaid pause/restore (already
+      // covered by the invoice.* notice pair) does not double-email.
+      const pauseCollectionJustChanged = Boolean(
+        event.data.previous_attributes &&
+          Object.prototype.hasOwnProperty.call(
+            event.data.previous_attributes,
+            "pause_collection",
+          ),
+      );
       const grants =
         !collectionPaused &&
         stripeSubscriptionGrantsRecurringEntitlement(subscription.status);
@@ -1073,8 +1088,9 @@ export async function POST(request: Request) {
           }
           break;
         }
+        let cleared = 0;
         try {
-          const cleared = await clearOrdersRecurringCanceledByCustomer(
+          cleared = await clearOrdersRecurringCanceledByCustomer(
             customerId,
             WEBHOOK_CONVEX_PRIMARY,
           );
@@ -1093,6 +1109,47 @@ export async function POST(request: Request) {
           );
           const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");
           return NextResponse.json(failure.body, { status: failure.status });
+        }
+
+        // Customer-facing resume notice — best-effort, only when this event
+        // actually cleared a prior pause (cleared > 0) AND that pause was
+        // specifically pause_collection (pauseCollectionJustChanged) — an
+        // ordinary past_due/unpaid recovery is already confirmed by
+        // sendPaymentRecoveredNotice from invoice.paid, and firing here too
+        // would double-email the same recovery (see subscription-pause-
+        // collection-notice). The durable clear/sync above already
+        // succeeded, so a notify failure here must not turn it into a
+        // 5xx/retry loop.
+        if (cleared > 0 && pauseCollectionJustChanged) {
+          try {
+            const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
+            const orders = await getOrdersByStripeCustomerId(customerId);
+            const recurringOrder = orders.find((order) =>
+              orderHadRecurringEntitlement(order),
+            );
+            if (recurringOrder) {
+              const lead = await getLeadBySlug(recurringOrder.leadSlug);
+              if (lead?.email) {
+                const { sendSubscriptionResumedNotice } = await import("@/lib/email/resend");
+                const sent = await sendSubscriptionResumedNotice({
+                  to: lead.email,
+                  businessName: lead.businessName,
+                  slug: recurringOrder.leadSlug,
+                  stripeSessionId: recurringOrder.stripeSessionId,
+                });
+                if (!sent.success) {
+                  console.warn(
+                    `webhook: ${event.type} ${subscription.id} subscription-resumed notice not sent for ${recurringOrder.leadSlug} (${sent.reason ?? sent.error ?? "unknown"})`,
+                  );
+                }
+              }
+            }
+          } catch (e) {
+            console.error(
+              `Failed to send subscription-resumed notice for customer ${customerId} after ${event.type} ${subscription.id}`,
+              e,
+            );
+          }
         }
         break;
       }
@@ -1115,6 +1172,47 @@ export async function POST(request: Request) {
         );
         const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
         return NextResponse.json(failure.body, { status: failure.status });
+      }
+
+      // Customer-facing pause notice — best-effort, only for the
+      // pause_collection axis (see subscription-pause-collection-notice): an
+      // ordinary past_due/unpaid pause is already covered by
+      // sendPaymentFailedNotice from invoice.payment_failed, so firing here
+      // too would double-email the same failed-renewal event. pause_collection
+      // has no invoice event at all — it is the one pause reason with zero
+      // existing customer signal. The durable pause write above already
+      // succeeded, so a notify failure here must not turn it into a 5xx/retry
+      // loop.
+      if (collectionPaused && pauseCollectionJustChanged) {
+        try {
+          const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
+          const orders = await getOrdersByStripeCustomerId(customerId);
+          const recurringOrder = orders.find((order) =>
+            orderHadRecurringEntitlement(order),
+          );
+          if (recurringOrder) {
+            const lead = await getLeadBySlug(recurringOrder.leadSlug);
+            if (lead?.email) {
+              const { sendSubscriptionPausedNotice } = await import("@/lib/email/resend");
+              const sent = await sendSubscriptionPausedNotice({
+                to: lead.email,
+                businessName: lead.businessName,
+                slug: recurringOrder.leadSlug,
+                stripeSessionId: recurringOrder.stripeSessionId,
+              });
+              if (!sent.success) {
+                console.warn(
+                  `webhook: ${event.type} ${subscription.id} subscription-paused notice not sent for ${recurringOrder.leadSlug} (${sent.reason ?? sent.error ?? "unknown"})`,
+                );
+              }
+            }
+          }
+        } catch (e) {
+          console.error(
+            `Failed to send subscription-paused notice for customer ${customerId} after ${event.type} ${subscription.id}`,
+            e,
+          );
+        }
       }
       break;
     }

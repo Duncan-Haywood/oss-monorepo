@@ -122,12 +122,16 @@ const sendReceiptEmail = vi.fn();
 const sendCommerceBuyNowClientReceipt = vi.fn();
 const sendPaymentFailedNotice = vi.fn();
 const sendPaymentRecoveredNotice = vi.fn();
+const sendSubscriptionPausedNotice = vi.fn();
+const sendSubscriptionResumedNotice = vi.fn();
 vi.mock("@/lib/email/resend", () => ({
   sendEmail: (...args: unknown[]) => sendEmail(...args),
   sendReceiptEmail: (...args: unknown[]) => sendReceiptEmail(...args),
   sendCommerceBuyNowClientReceipt: (...args: unknown[]) => sendCommerceBuyNowClientReceipt(...args),
   sendPaymentFailedNotice: (...args: unknown[]) => sendPaymentFailedNotice(...args),
   sendPaymentRecoveredNotice: (...args: unknown[]) => sendPaymentRecoveredNotice(...args),
+  sendSubscriptionPausedNotice: (...args: unknown[]) => sendSubscriptionPausedNotice(...args),
+  sendSubscriptionResumedNotice: (...args: unknown[]) => sendSubscriptionResumedNotice(...args),
 }));
 
 /** Growth setup ($500) + first month ($99) — matches expectedBundleCheckoutAmountCents. */
@@ -282,6 +286,8 @@ describe("POST /api/stripe/webhook", () => {
     sendCommerceBuyNowClientReceipt.mockReset().mockResolvedValue({ success: true });
     sendPaymentFailedNotice.mockReset().mockResolvedValue({ success: true });
     sendPaymentRecoveredNotice.mockReset().mockResolvedValue({ success: true });
+    sendSubscriptionPausedNotice.mockReset().mockResolvedValue({ success: true });
+    sendSubscriptionResumedNotice.mockReset().mockResolvedValue({ success: true });
 
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_123";
@@ -679,6 +685,251 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_canceled");
       expect(json.received).toBe(false);
+    });
+  });
+
+  describe("customer.subscription.updated pause_collection notice", () => {
+    it("emails a subscription-paused notice when pause_collection is newly set", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "demo-cafe",
+          stripeSessionId: "cs_paused_1",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "demo-cafe",
+        businessName: "Demo Cafe",
+        email: "owner@demo-cafe.test",
+      });
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_pause_notice_1",
+            customer: "cus_pause_notice_1",
+            status: "active",
+            pause_collection: { behavior: "void" },
+            items: { data: [{ current_period_start: 1_720_000_900 }] },
+          },
+          previous_attributes: { pause_collection: null },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_pause_notice_1");
+      expect(sendSubscriptionPausedNotice).toHaveBeenCalledWith({
+        to: "owner@demo-cafe.test",
+        businessName: "Demo Cafe",
+        slug: "demo-cafe",
+        stripeSessionId: "cs_paused_1",
+      });
+    });
+
+    it("does not re-send when pause_collection was already set (no previous_attributes change)", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_pause_notice_2",
+            customer: "cus_pause_notice_2",
+            status: "active",
+            pause_collection: { behavior: "void" },
+            items: { data: [{ current_period_start: 1_720_001_000 }] },
+          },
+          // pause_collection unchanged this event — Stripe omits it from
+          // previous_attributes when it did not change.
+          previous_attributes: { metadata: {} },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalled();
+      expect(sendSubscriptionPausedNotice).not.toHaveBeenCalled();
+      expect(getOrdersByStripeCustomerId).not.toHaveBeenCalled();
+    });
+
+    it("does not send for an ordinary past_due pause (no pause_collection) — invoice.payment_failed covers it", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_pause_notice_3",
+            customer: "cus_pause_notice_3",
+            status: "past_due",
+            items: { data: [{ current_period_start: 1_720_001_100 }] },
+          },
+          previous_attributes: { status: "active" },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalled();
+      expect(sendSubscriptionPausedNotice).not.toHaveBeenCalled();
+    });
+
+    it("does not 5xx when the notice lookup throws (pause already durable)", async () => {
+      getOrdersByStripeCustomerId.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_pause_notice_4",
+            customer: "cus_pause_notice_4",
+            status: "active",
+            pause_collection: { behavior: "void" },
+            items: { data: [{ current_period_start: 1_720_001_200 }] },
+          },
+          previous_attributes: { pause_collection: null },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendSubscriptionPausedNotice).not.toHaveBeenCalled();
+    });
+
+    it("emails a subscription-resumed notice when pause_collection is cleared and CRM was actually cleared", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "demo-cafe",
+          stripeSessionId: "cs_resumed_1",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "demo-cafe",
+        businessName: "Demo Cafe",
+        email: "owner@demo-cafe.test",
+      });
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_resume_notice_1",
+            customer: "cus_resume_notice_1",
+            status: "active",
+            pause_collection: null,
+            items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
+          },
+          previous_attributes: { pause_collection: { behavior: "void" } },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_resume_notice_1");
+      expect(sendSubscriptionResumedNotice).toHaveBeenCalledWith({
+        to: "owner@demo-cafe.test",
+        businessName: "Demo Cafe",
+        slug: "demo-cafe",
+        stripeSessionId: "cs_resumed_1",
+      });
+    });
+
+    it("does not send the resumed notice for an ordinary catalog-Price restore (no pause_collection change)", async () => {
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_resume_notice_2",
+            customer: "cus_resume_notice_2",
+            status: "active",
+            items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
+          },
+          previous_attributes: { status: "past_due" },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).toHaveBeenCalled();
+      expect(sendSubscriptionResumedNotice).not.toHaveBeenCalled();
+      expect(getOrdersByStripeCustomerId).not.toHaveBeenCalled();
+    });
+
+    it("does not send the resumed notice when nothing was actually cleared", async () => {
+      clearOrdersRecurringCanceledByCustomer.mockResolvedValueOnce(0);
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_resume_notice_3",
+            customer: "cus_resume_notice_3",
+            status: "active",
+            pause_collection: null,
+            items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
+          },
+          previous_attributes: { pause_collection: { behavior: "void" } },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendSubscriptionResumedNotice).not.toHaveBeenCalled();
+    });
+
+    it("does not 5xx when the resume notice lookup throws (restore already durable)", async () => {
+      getOrdersByStripeCustomerId.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_resume_notice_4",
+            customer: "cus_resume_notice_4",
+            status: "active",
+            pause_collection: null,
+            items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
+          },
+          previous_attributes: { pause_collection: { behavior: "void" } },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendSubscriptionResumedNotice).not.toHaveBeenCalled();
+    });
+
+    it("does not fail the webhook when the pause notice send resolves success:false", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        { leadSlug: "demo-cafe", stripeSessionId: "cs_paused_2", tier: "growth", commerceAddon: false },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "demo-cafe",
+        businessName: "Demo Cafe",
+        email: "owner@demo-cafe.test",
+      });
+      sendSubscriptionPausedNotice.mockResolvedValueOnce({ success: false, reason: "suppressed" });
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_pause_notice_5",
+            customer: "cus_pause_notice_5",
+            status: "active",
+            pause_collection: { behavior: "void" },
+            items: { data: [{ current_period_start: 1_720_001_300 }] },
+          },
+          previous_attributes: { pause_collection: null },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
     });
   });
 

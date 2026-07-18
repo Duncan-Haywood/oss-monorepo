@@ -552,8 +552,25 @@ export default function ArchitectureDocPage() {
         subscriber a spurious &quot;service resumed&quot; notice every billing
         cycle. Both reuse the original Checkout Session&apos;s{" "}
         <code>/checkout/success?session_id=</code> Manage-billing link rather
-        than minting a fresh Billing Portal session from inside the webhook.
-        On grants restore,{" "}
+        than minting a fresh Billing Portal session from inside the webhook.{" "}
+        <code>pause_collection</code> is a separate axis with no invoice event
+        at all (settable directly in the Stripe Dashboard, with no charge ever
+        attempted), so <code>customer.subscription.updated</code> sends its own{" "}
+        <code>sendSubscriptionPausedNotice</code> /{" "}
+        <code>sendSubscriptionResumedNotice</code> pair — deliberately separate
+        copy from <code>sendPaymentFailedNotice</code>/
+        <code>sendPaymentRecoveredNotice</code>, since &quot;your card was
+        declined&quot; would be false for a pause with no failed charge. Both
+        fire only when Stripe&apos;s own{" "}
+        <code>event.data.previous_attributes</code> contains a{" "}
+        <code>pause_collection</code> key for that specific event (Stripe only
+        lists fields that actually changed on a <code>*.updated</code> event),
+        combined with <code>collectionPaused</code> for the pause notice or{" "}
+        <code>cleared &gt; 0</code> for the resume notice — this stops both a
+        repeat notify on every later unrelated update while a pause persists
+        and a double-email of an ordinary <code>past_due</code>|
+        <code>unpaid</code> pause/restore already covered by the{" "}
+        <code>invoice.*</code> pair. On grants restore,{" "}
         <code>subscription.created</code>|<code>updated</code> and{" "}
         <code>invoice.paid</code> also derive live entitlement from{" "}
         <code>subscription.items</code> vs create-path catalog monthly Prices (
