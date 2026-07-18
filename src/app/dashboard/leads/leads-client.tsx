@@ -117,6 +117,7 @@ import {
   MAX_OPERATOR_NOTES_LENGTH,
   leadHasNotes,
   notesPromptMessage,
+  shouldAutoOpenNotesEditor,
   shouldPromptNotesAfterOutreachStep,
   shouldPromptNotesAfterStageChange,
   type NotesPromptReason,
@@ -297,7 +298,11 @@ export function LeadsClient({
       return;
     }
 
-    if (previousStage && shouldPromptNotesAfterStageChange(previousStage, newStage)) {
+    if (
+      previousStage &&
+      shouldPromptNotesAfterStageChange(previousStage, newStage) &&
+      shouldAutoOpenNotesEditor(notesEditSlug, slug)
+    ) {
       openNotesEditor(current, "discovery_call");
     }
   };
@@ -636,7 +641,8 @@ export function LeadsClient({
       );
       if (
         current &&
-        shouldPromptNotesAfterOutreachStep(previousStep, res.outreachStep)
+        shouldPromptNotesAfterOutreachStep(previousStep, res.outreachStep) &&
+        shouldAutoOpenNotesEditor(notesEditSlug, slug)
       ) {
         openNotesEditor(current, "email_3");
       }
