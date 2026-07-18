@@ -437,6 +437,31 @@ describe("computePipelineHealth", () => {
     expect(health.oldestPaidNotLiveAgeHours).toBe(80);
   });
 
+  it("does not let a refunded order's old createdAt anchor oldestPaidNotLiveAgeHours over a fresh later payment (paid-not-live-refund-dispute-age-guard)", () => {
+    const lead = makeLead("paid", { slug: "lead-a" });
+    const refundedOldOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "lead-a",
+      createdAt: new Date(NOW - 2160 * HOUR_MS).toISOString(),
+      refundedAt: new Date(NOW - 2000 * HOUR_MS).toISOString(),
+    };
+    const freshOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "lead-a",
+      createdAt: new Date(NOW - 2 * HOUR_MS).toISOString(),
+    };
+
+    const health = computePipelineHealth({
+      leads: [lead],
+      orders: [refundedOldOrder, freshOrder],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.oldestPaidNotLiveAgeHours).toBe(2);
+  });
+
   it("defaults abandoned checkout metrics to zero without sessions", () => {
     const health = computePipelineHealth({
       leads: [],
@@ -1267,5 +1292,33 @@ describe("oldestPaidNotLiveAgeHours", () => {
       { leadSlug: "lead-a", createdAt: new Date(NOW + 5 * HOUR_MS).toISOString() },
     ];
     expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBe(0);
+  });
+
+  it("ignores a refunded order's old createdAt in favor of a genuinely fresh later payment (paid-not-live-refund-dispute-age-guard)", () => {
+    const candidates = [{ slug: "lead-a" }];
+    const orders = [
+      {
+        leadSlug: "lead-a",
+        createdAt: new Date(NOW - 2160 * HOUR_MS).toISOString(), // 90 days ago
+        refundedAt: new Date(NOW - 2000 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "lead-a",
+        createdAt: new Date(NOW - 2 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBe(2);
+  });
+
+  it("ignores a disputed order the same way, and returns null when every matching order is refunded/disputed", () => {
+    const candidates = [{ slug: "lead-a" }];
+    const orders = [
+      {
+        leadSlug: "lead-a",
+        createdAt: new Date(NOW - 500 * HOUR_MS).toISOString(),
+        disputedAt: new Date(NOW - 100 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBeNull();
   });
 });
