@@ -347,17 +347,32 @@ const HOUR_MS = 60 * 60 * 1000;
  * order. The count (paidNotLiveCount) still includes every stage=paid lead
  * regardless — only the staleness signal is order-anchored.
  *
+ * Only orders that still count toward revenue (orderCountsTowardRevenue —
+ * excludes refunded/disputed) anchor the age: a refund/dispute never reverts
+ * `stage`, so a lead can carry an old refunded order alongside a genuinely
+ * fresh later payment, and the oldest-of-all-orders selection must not let
+ * the stale refunded row report a false decades-old staleness signal over
+ * the real, recent one (paid-not-live-refund-dispute-age-guard — same
+ * refund/dispute-aware filtering as oldestStarterUpsellCandidateAgeHours via
+ * isStarterOnlyOrder and the revenueTotalUsd loop earlier in this file).
+ *
  * Pass nowMs from the caller — never Date.now() inside list/age helpers.
  */
 export function oldestPaidNotLiveAgeHours(
   candidates: ReadonlyArray<{ slug: string }>,
-  orders: ReadonlyArray<{ leadSlug: string; createdAt?: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    createdAt?: string;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
   nowMs: number,
 ): number | null {
   const candidateSlugs = new Set(candidates.map((candidate) => candidate.slug));
   let oldestCreatedAtMs: number | null = null;
   for (const order of orders) {
     if (!candidateSlugs.has(order.leadSlug)) continue;
+    if (!orderCountsTowardRevenue(order)) continue;
     if (order.createdAt === undefined) continue;
     const createdAtMs = Date.parse(order.createdAt);
     if (Number.isNaN(createdAtMs)) continue;
