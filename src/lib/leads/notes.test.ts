@@ -4,6 +4,7 @@ import {
   leadHasNotes,
   normalizeOperatorNotes,
   notesPromptMessage,
+  shouldAutoOpenNotesEditor,
   shouldPromptNotesAfterOutreachStep,
   shouldPromptNotesAfterStageChange,
 } from "./notes";
@@ -73,5 +74,23 @@ describe("notesPromptMessage", () => {
     expect(notesPromptMessage("discovery_call", true)).toMatch(/update notes/i);
     expect(notesPromptMessage("email_3", false)).toMatch(/last touch/i);
     expect(notesPromptMessage("email_3", true)).toMatch(/final-touch/i);
+  });
+});
+
+describe("shouldAutoOpenNotesEditor", () => {
+  it("allows opening when no editor is currently open", () => {
+    expect(shouldAutoOpenNotesEditor(null, "lead-b")).toBe(true);
+  });
+
+  it("allows re-opening/refreshing the same lead's own editor", () => {
+    expect(shouldAutoOpenNotesEditor("lead-a", "lead-a")).toBe(true);
+  });
+
+  it("blocks stealing a DIFFERENT lead's open editor (clobber guard)", () => {
+    // Regression for notes-editor-cross-lead-clobber: an operator mid-draft
+    // on lead-a's notes must not have that draft silently discarded because
+    // an unrelated stage change / follow-up send on lead-b triggered the
+    // soft auto-open prompt.
+    expect(shouldAutoOpenNotesEditor("lead-a", "lead-b")).toBe(false);
   });
 });
