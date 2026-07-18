@@ -220,12 +220,28 @@ const WEBHOOK_CONVEX_PRIMARY = { requireConvex: true } as const;
 /**
  * Every other public write route (contact, checkout create, commerce
  * checkout create, billing portal, bootstrap-prices, unsubscribe) gates on
- * checkRateLimit before doing real work — this route was the one exception,
- * despite reading an unbounded request.text() body before signature
- * verification (stripe-webhook-rate-limit). Sized well above DEFAULT_RATE_LIMIT
- * (20/60s) so a legitimate high-volume merchant's event bursts never trip it;
- * a false-positive 429 is still safe here since Stripe retries failed
- * webhook deliveries with backoff.
+ * checkRateLimit before doing any real work; this route deliberately checks
+ * AFTER stripe.webhooks.constructEvent succeeds instead
+ * (stripe-webhook-rate-limit-post-verify). clientIpFromHeaders derives its
+ * key from x-forwarded-for/x-real-ip, which any direct caller can set to an
+ * arbitrary value — and Stripe publishes its webhook-sending IP ranges
+ * (stripe.com/docs/ips), so a pre-verification gate keyed on that header lets
+ * an attacker impersonate Stripe's IP, burn out the `stripe-webhook:<ip>`
+ * bucket with garbage POSTs that fail verification, and then have Stripe's
+ * own real redeliveries from that same IP land in the identical
+ * already-exhausted bucket and get 429'd before their (valid) signature is
+ * ever checked — turning "blunt volumetric abuse" into "deny real
+ * fulfillment on demand". Gating only on requests that already produced a
+ * cryptographically verified event closes that hole: an attacker without
+ * STRIPE_WEBHOOK_SECRET can never reach this check no matter what IP they
+ * claim, so the bucket a real Stripe IP lands in is never written to by
+ * anyone else. This does mean every request still pays one request.text() +
+ * constructEvent() before any throttling applies — unchanged from this
+ * route's pre-existing (documented, accepted) unbounded-body trade-off,
+ * since Stripe signs the raw payload and a byte ceiling isn't viable here.
+ * Sized well above DEFAULT_RATE_LIMIT (20/60s) so a legitimate high-volume
+ * merchant's event bursts never trip it; a false-positive 429 is still safe
+ * since Stripe retries failed webhook deliveries with backoff.
  */
 const STRIPE_WEBHOOK_RATE_LIMIT: RateLimitConfig = { limit: 120, windowMs: 60_000 };
 
@@ -247,15 +263,6 @@ export async function POST(request: Request) {
     return notConfigured("Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET (see .env.example).");
   }
 
-  const clientIp = clientIpFromHeaders(request.headers);
-  const rate = checkRateLimit(`stripe-webhook:${clientIp}`, STRIPE_WEBHOOK_RATE_LIMIT);
-  if (!rate.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests", message: "Please try again shortly." },
-      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
-    );
-  }
-
   const signature = request.headers.get("stripe-signature");
   if (!signature) {
     return NextResponse.json({ error: "Missing stripe-signature header" }, { status: 400 });
@@ -270,6 +277,18 @@ export async function POST(request: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown signature verification error";
     return NextResponse.json({ error: "Signature verification failed", message }, { status: 400 });
+  }
+
+  // Rate-limit only after signature verification succeeds (stripe-webhook-rate-limit-post-verify)
+  // — see STRIPE_WEBHOOK_RATE_LIMIT doc comment for why a pre-verification,
+  // IP-keyed gate is unsafe on this specific route.
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`stripe-webhook:${clientIp}`, STRIPE_WEBHOOK_RATE_LIMIT);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests", message: "Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
   }
 
   switch (event.type) {
