@@ -6,7 +6,7 @@ import {
   type StripeBillingPortalClient,
 } from "./create-portal-session";
 
-const listOrdersByLeadSlug = vi.fn<[string], Promise<OrderRecord[]>>();
+const listOrdersByLeadSlug = vi.fn<(slug: string) => Promise<OrderRecord[]>>();
 
 vi.mock("@/lib/db", () => ({
   listOrdersByLeadSlug: (...args: unknown[]) =>
@@ -27,7 +27,13 @@ function baseOrder(overrides: Partial<OrderRecord> = {}): OrderRecord {
   };
 }
 
-function fakeStripe(overrides: Partial<StripeBillingPortalClient> = {}): StripeBillingPortalClient {
+type FakeStripeOverrides = Partial<Omit<StripeBillingPortalClient, "checkout">> & {
+  checkout?: {
+    sessions?: Partial<StripeBillingPortalClient["checkout"]["sessions"]>;
+  };
+};
+
+function fakeStripe(overrides: FakeStripeOverrides = {}): StripeBillingPortalClient {
   const base: StripeBillingPortalClient = {
     checkout: {
       sessions: {
@@ -41,9 +47,6 @@ function fakeStripe(overrides: Partial<StripeBillingPortalClient> = {}): StripeB
       },
     },
   };
-  if (!overrides.checkout) {
-    return { ...base, ...overrides };
-  }
   // Deep-merge checkout.sessions so tests can override retrieve without
   // dropping the default listLineItems stub.
   return {
@@ -52,7 +55,7 @@ function fakeStripe(overrides: Partial<StripeBillingPortalClient> = {}): StripeB
     checkout: {
       sessions: {
         ...base.checkout.sessions,
-        ...overrides.checkout.sessions,
+        ...overrides.checkout?.sessions,
       },
     },
   };

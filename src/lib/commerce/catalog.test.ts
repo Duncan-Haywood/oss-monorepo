@@ -190,11 +190,11 @@ describe("listCommerceCatalogsUnsynced", () => {
     const catalogs = [
       {
         leadSlug: "paused-unsynced",
-        items: [{ id: "a", name: "A", priceCents: 100 }],
+        items: [{ id: "a", name: "A", priceCents: 100, stripePriceId: undefined }],
       },
       {
         leadSlug: "active-unsynced",
-        items: [{ id: "b", name: "B", priceCents: 200 }],
+        items: [{ id: "b", name: "B", priceCents: 200, stripePriceId: undefined }],
       },
     ];
     expect(
@@ -215,7 +215,7 @@ describe("listCommerceCatalogsUnsynced", () => {
     const fullCatalogs = [
       {
         leadSlug: "old-unsynced",
-        items: [{ id: "a", name: "A", priceCents: 100 }],
+        items: [{ id: "a", name: "A", priceCents: 100, stripePriceId: undefined }],
       },
       ...filler.map((l) => ({
         leadSlug: l.slug,

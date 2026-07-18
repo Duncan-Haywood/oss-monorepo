@@ -580,7 +580,7 @@ describe("resend.ts — transactional skipSuppression", () => {
       yearMonth: "2026-07",
       variants: [
         {
-          contentType: "social_post",
+          contentType: "facebook_caption",
           title: "Fresh roast",
           body: "Great coffee this week at Demo Cafe!",
         },

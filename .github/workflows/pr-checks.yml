@@ -1,0 +1,46 @@
+name: PR checks
+
+# The only automated quality gate on this repo — every other workflow here
+# is a scheduled agent run, not a build/test check. Every agent (Claude,
+# Codex, Cursor, Gemini, Grok, OpenCode) opens/merges its own PRs per
+# AGENT_PROTOCOL in src/lib/process/prompt_process.tsx, so this is what
+# catches drift (e.g. a test file's types silently rotting) before it lands
+# on main, not a human review pass.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build

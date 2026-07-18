@@ -17,7 +17,7 @@ function stubLead(slug: string): Lead {
     email: "",
     services: [],
     hours: { weekday: "", weekend: "" },
-    stage: "new",
+    stage: "discovered",
     recommendedTier: "starter",
     dataSource: "demo_catalog",
   };
