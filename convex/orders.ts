@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { orderHadRecurringEntitlement } from "../src/lib/orders/recurring";
 
 const orderDocValidator = v.object({
   _id: v.id("orders"),
@@ -16,14 +17,6 @@ const orderDocValidator = v.object({
   refundedAt: v.optional(v.string()),
   disputedAt: v.optional(v.string()),
 });
-
-function orderHadRecurringEntitlement(order: {
-  tier: string;
-  commerceAddon: boolean;
-}): boolean {
-  if (order.commerceAddon) return true;
-  return order.tier === "growth" || order.tier === "complete";
-}
 
 export const createOrder = mutation({
   args: {
