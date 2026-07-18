@@ -13,50 +13,67 @@ export default function MarketingAutomationDocPage() {
       ]}
     >
       <h2>Content types</h2>
+      <p>
+        Every monthly pack (<code>MONTHLY_MARKETING_PACK_TYPES</code> in{" "}
+        <code>src/lib/marketing/monthly-pack.ts</code>) is the same fixed 10-item set for both
+        Growth and Complete — 8 social/GBP posts + 2 emails, matching the sold promise below:
+      </p>
       <table>
         <thead>
           <tr>
             <th>Type</th>
             <th>Channel</th>
-            <th>Frequency</th>
+            <th>Included per monthly pack</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>GBP posts</td>
+            <td>GBP post</td>
             <td>Google Business Profile</td>
-            <td>2/mo</td>
+            <td>2</td>
           </tr>
           <tr>
-            <td>Social captions</td>
-            <td>Facebook / Instagram via Buffer</td>
-            <td>4/mo</td>
+            <td>Facebook caption</td>
+            <td>Facebook (manual post, or via Buffer once OAuth is configured)</td>
+            <td>3</td>
           </tr>
           <tr>
-            <td>Review request emails</td>
-            <td>Resend</td>
-            <td>1/mo</td>
+            <td>Instagram caption</td>
+            <td>Instagram (manual post, or via Buffer once OAuth is configured)</td>
+            <td>3</td>
           </tr>
           <tr>
-            <td>Seasonal promos</td>
-            <td>Social + email</td>
-            <td>Calendar triggers</td>
+            <td>Email campaign</td>
+            <td>Resend (Email pack)</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>Review-request email</td>
+            <td>Resend (Email pack)</td>
+            <td>1</td>
           </tr>
         </tbody>
       </table>
+      <p>
+        Three additional content types (<code>local_seo_meta</code>, <code>seasonal_promo</code>,{" "}
+        <code>ad_copy</code>) exist for ad-hoc, non-persisted generation via{" "}
+        <code>POST /api/marketing/generate</code> — they are not part of the fixed monthly pack
+        above and have no dedicated dashboard fulfillment action yet.
+      </p>
 
       <h2>Automation levels</h2>
-      <ul>
-        <li>
-          <strong>Generate-only</strong> — copy pack ($49 one-time)
-        </li>
-        <li>
-          <strong>Generate + schedule</strong> — Growth tier ($99/mo)
-        </li>
-        <li>
-          <strong>Generate + schedule + optimize</strong> — Complete full marketing ($199/mo)
-        </li>
-      </ul>
+      <p>
+        Growth ($99/mo) and Complete ($199/mo) generate the identical monthly pack above — Complete&apos;s{" "}
+        <code>full_marketing</code> package tier label (vs Growth&apos;s <code>social_email</code>,
+        see <code>packageTierForOrderTier</code>) reflects Complete&apos;s broader bundle (marketing
+        + AI phone receptionist), not a deeper marketing generation depth. Buffer / Google Business
+        Profile / Meta auto-posting is optional and gated on operator OAuth secrets (see{" "}
+        <DocLink href="/docs/process">/docs/process</DocLink> <code>marketing-content-scheduling</code>)
+        for both tiers alike — until then, operators use <strong>Generate pack</strong> +{" "}
+        <strong>Email pack</strong> so clients post themselves. There is no separate one-time
+        &quot;copy pack&quot; product; see <DocLink href="/docs/product-bundles">Product bundles</DocLink>{" "}
+        for the sold tiers and pricing.
+      </p>
 
       <h2>Quality principles</h2>
       <p>Every piece must include business name, city, concrete services, accurate hours, and a relevant CTA.</p>
