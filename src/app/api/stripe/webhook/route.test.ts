@@ -334,6 +334,29 @@ describe("POST /api/stripe/webhook", () => {
     expect(markCheckoutSessionComplete).not.toHaveBeenCalled();
   });
 
+  it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
+    constructEvent.mockReturnValue({ type: "charge.succeeded", data: { object: {} } });
+    const { POST } = await import("./route");
+    const request = () =>
+      new Request("http://localhost/api/stripe/webhook", {
+        method: "POST",
+        headers: { "stripe-signature": "sig_test", "x-forwarded-for": "203.0.113.20" },
+        body: "{}",
+      });
+
+    let lastResponse;
+    for (let i = 0; i < 121; i += 1) {
+      lastResponse = await POST(request());
+    }
+
+    expect(lastResponse!.status).toBe(429);
+    expect(lastResponse!.headers.get("Retry-After")).toBeTruthy();
+    const body = await lastResponse!.json();
+    expect(body.error).toBe("Too many requests");
+    // The 121st request never reached signature verification.
+    expect(constructEvent).toHaveBeenCalledTimes(120);
+  });
+
   it("acknowledges an unhandled event type without touching fulfillment", async () => {
     constructEvent.mockReturnValue({ type: "charge.succeeded", data: { object: {} } });
     const { POST } = await import("./route");

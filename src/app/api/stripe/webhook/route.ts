@@ -44,6 +44,11 @@ import {
 } from "@/lib/commerce/checkout-fields";
 import { parseLeadSlugLookup } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
+import {
+  checkRateLimit,
+  clientIpFromHeaders,
+  type RateLimitConfig,
+} from "@/lib/security/rate-limit";
 import { isStripeCheckoutCurrencyUsd } from "@/lib/payments/checkout-currency";
 import { isStripeCheckoutSessionPaid } from "@/lib/payments/checkout-payment-status";
 import {
@@ -212,6 +217,18 @@ import {
 /** Webhook revenue path: fail closed when Convex is configured but unreachable. */
 const WEBHOOK_CONVEX_PRIMARY = { requireConvex: true } as const;
 
+/**
+ * Every other public write route (contact, checkout create, commerce
+ * checkout create, billing portal, bootstrap-prices, unsubscribe) gates on
+ * checkRateLimit before doing real work — this route was the one exception,
+ * despite reading an unbounded request.text() body before signature
+ * verification (stripe-webhook-rate-limit). Sized well above DEFAULT_RATE_LIMIT
+ * (20/60s) so a legitimate high-volume merchant's event bursts never trip it;
+ * a false-positive 429 is still safe here since Stripe retries failed
+ * webhook deliveries with backoff.
+ */
+const STRIPE_WEBHOOK_RATE_LIMIT: RateLimitConfig = { limit: 120, windowMs: 60_000 };
+
 function notConfigured(message: string) {
   return NextResponse.json(
     {
@@ -228,6 +245,15 @@ export async function POST(request: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secretKey || !webhookSecret) {
     return notConfigured("Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET (see .env.example).");
+  }
+
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`stripe-webhook:${clientIp}`, STRIPE_WEBHOOK_RATE_LIMIT);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests", message: "Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
   }
 
   const signature = request.headers.get("stripe-signature");
