@@ -3,11 +3,31 @@
  * See /docs/process (paid-starter-upsell-nudge).
  *
  * Reuses orderEligibleForBillingPortal as the "already has recurring" check so
- * Billing and Upsell buttons never both appear for the same lead/order set.
+ * Billing and Upsell buttons never both appear for the same lead/order set —
+ * but a refunded/disputed Growth/Complete/Commerce order must not count
+ * (see starter-upsell-exclusion-refund-dispute-aware): the customer has no
+ * live recurring entitlement left, so it must not block the Starter upsell
+ * either. Deliberately NOT orderGrantsSoldCapabilityEntitlement here — that
+ * also excludes a merely-canceled (recurringCanceledAt) order, and a former
+ * subscriber should still be treated as "already has recurring" for this
+ * exclusion, not nudged as if they were Starter-only.
  */
 
 import { isOrderDisputed, isOrderRefunded } from "@/lib/orders/types";
 import { orderEligibleForBillingPortal } from "./portal";
+
+function isLiveRecurringOrder(order: {
+  tier: string;
+  commerceAddon: boolean;
+  refundedAt?: string;
+  disputedAt?: string;
+}): boolean {
+  return (
+    orderEligibleForBillingPortal(order) &&
+    !isOrderRefunded(order) &&
+    !isOrderDisputed(order)
+  );
+}
 
 export type UpsellTargetTier = "growth" | "complete";
 
@@ -51,8 +71,9 @@ export function leadEligibleForStarterUpsell(params: {
   const orders = params.ordersForLead;
   if (orders.length === 0) return false;
   if (!orders.some(isStarterOnlyOrder)) return false;
-  // Inverse of Billing portal eligibility — recurring already sold ⇒ no upsell.
-  if (orders.some(orderEligibleForBillingPortal)) return false;
+  // Inverse of Billing portal eligibility — a live (non-refunded/disputed)
+  // recurring order already sold ⇒ no upsell.
+  if (orders.some(isLiveRecurringOrder)) return false;
   return true;
 }
 

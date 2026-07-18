@@ -1590,6 +1590,23 @@ source). The same digest also lists email-critical leads with no usable address 
         exactly.
       </p>
 
+      <p>
+        <strong>starter-upsell-exclusion-refund-dispute-aware</strong> closed one more sibling gap in
+        the same family: <code>isStarterOnlyOrder</code> got refund/dispute-aware treatment from{" "}
+        refund-dispute-entitlement-gate, but <code>leadEligibleForStarterUpsell</code>&apos;s other
+        half — the &quot;lead has no Growth/Complete/Commerce order yet&quot; exclusion — still ran{" "}
+        <code>orderEligibleForBillingPortal</code> raw (tier/<code>commerceAddon</code> only). A lead
+        with a live Starter order plus a separate Growth/Complete/Commerce order Stripe later refunded
+        or disputed still tier-matched that exclusion, so the Starter → MRR upsell nudge stayed
+        permanently unavailable even though the refunded/disputed order grants zero live entitlement.
+        Added <code>isLiveRecurringOrder</code> (<code>orderEligibleForBillingPortal &amp;&amp;
+        !isOrderRefunded &amp;&amp; !isOrderDisputed</code>) for this exclusion only — deliberately not{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code>, which also excludes a merely-canceled
+        (<code>recurringCanceledAt</code>) order; this exclusion&apos;s design intentionally keeps a
+        former (canceled-but-not-refunded) subscriber counted as &quot;already has recurring&quot; so
+        they are not nudged as if they were Starter-only.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

@@ -98,6 +98,49 @@ describe("leadEligibleForStarterUpsell", () => {
     ).toBe(false);
   });
 
+  it("allows the upsell when the lead's only Growth/Complete/Commerce order was refunded or disputed", () => {
+    expect(
+      leadEligibleForStarterUpsell({
+        stage: "paid",
+        email: "owner@example.com",
+        ordersForLead: [
+          starterOrder,
+          { tier: "growth", commerceAddon: false, refundedAt: "2026-07-01T00:00:00.000Z" },
+        ],
+      }),
+    ).toBe(true);
+    expect(
+      leadEligibleForStarterUpsell({
+        stage: "paid",
+        email: "owner@example.com",
+        ordersForLead: [
+          starterOrder,
+          { tier: "complete", commerceAddon: false, disputedAt: "2026-07-01T00:00:00.000Z" },
+        ],
+      }),
+    ).toBe(true);
+    expect(
+      leadEligibleForStarterUpsell({
+        stage: "paid",
+        email: "owner@example.com",
+        ordersForLead: [
+          starterOrder,
+          { tier: "starter", commerceAddon: true, refundedAt: "2026-07-01T00:00:00.000Z" },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it("still rejects when the Growth/Complete/Commerce order is live (not refunded/disputed)", () => {
+    expect(
+      leadEligibleForStarterUpsell({
+        stage: "paid",
+        email: "owner@example.com",
+        ordersForLead: [starterOrder, { tier: "growth", commerceAddon: false }],
+      }),
+    ).toBe(false);
+  });
+
   it("rejects a lead whose only Starter order was refunded or disputed", () => {
     expect(
       leadEligibleForStarterUpsell({

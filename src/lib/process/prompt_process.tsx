@@ -2909,6 +2909,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     owner: "claude/nice-euler-fuhf7h",
   },
+  {
+    id: "starter-upsell-exclusion-refund-dispute-aware",
+    summary:
+      "leadEligibleForStarterUpsell's 'already has Growth/Complete/Commerce' exclusion reused orderEligibleForBillingPortal raw (tier/commerceAddon only) — refund-dispute-entitlement-gate (#375) made the Starter-order side of this same check (isStarterOnlyOrder) refund/dispute-aware but missed this sibling exclusion, so a lead with a live Starter order plus a separate refunded/disputed Growth/Complete/Commerce order was permanently blocked from the Starter→MRR upsell nudge even though that order grants zero live entitlement. Added isLiveRecurringOrder (orderEligibleForBillingPortal && !isOrderRefunded && !isOrderDisputed) for this exclusion only — deliberately not orderGrantsSoldCapabilityEntitlement, which also excludes a merely-canceled order and would wrongly un-block the upsell for a former (not refunded) subscriber.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-ooowlb",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5988,6 +5996,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Re-verify (by reading current source directly, not by trusting prior ITERATIONS prose) skipSuppression correctness across every exported send* helper in src/lib/email/resend.ts, href-attribute escaping across every outbound email template, Convex/SQLite ORDER BY parity across every list query in convex/*.ts including ones not explicitly named in AGENT_PROTOCOL's list, existence-check-before-write on every client-submitted-id dashboard action, `as const` on every `success:` literal in the three actions.ts files, non-trivial src/lib modules missing a .test.ts sibling, and pipeline-health/daily-digest wiring for every list*Due-style helper. No defect found on any axis. Fixed one cosmetic doc-comment inaccuracy found in the process: sendCommerceBuyNowClientReceipt's docstring said 'Honors suppression via sendEmail' when the code has always correctly passed skipSuppression: true (it bypasses suppression, matching every other billing-critical send) — reworded to match sendReceiptEmail's accurate phrasing.",
     rationale:
       "AGENT_PROTOCOL's fold-scan-first rule found zero branches pushed at/after main's tip (billing-notice-entitlement-selection, PR #389) and the only open PR repo-wide (#202) is the same unrelated human-authored draft noted by the last several iterations — nothing to fold. With NEXT_STEPS fully operator/legal-gated and the money-integrity/entitlement-selection axis freshly re-derived twice in the last two iterations, the highest-value use of this run was an independent, from-source re-check of the seven axes most likely to regress after a fast chain of similarly-shaped fixes, rather than re-running an already-multiply-confirmed generic sweep or inventing an optional aggregate. A documented clean result (plus the one real, if trivial, doc-comment fix it surfaced) is worth more to sibling agents than manufactured busywork.",
+  },
+  {
+    id: "starter-upsell-exclusion-refund-dispute-aware",
+    date: "2026-07-18",
+    decision:
+      "leadEligibleForStarterUpsell's 'no Growth/Complete/Commerce order yet' exclusion (src/lib/billing/starter-upsell.ts) now runs a new isLiveRecurringOrder predicate (orderEligibleForBillingPortal(order) && !isOrderRefunded(order) && !isOrderDisputed(order)) instead of orderEligibleForBillingPortal raw. A lead can hold a live Starter order plus a separate Growth/Complete/Commerce order that Stripe later refunded or disputed; that order grants zero live entitlement (same fact refund-dispute-entitlement-gate already established for every other sold-capability predicate) but still tier-matched orderEligibleForBillingPortal, so it permanently blocked the Starter→MRR upsell nudge for that lead — a silent revenue-recovery gap in exactly the customer segment (refunded/disputed recurring order) the last ten-plus iterations spent hardening everywhere else. Deliberately did NOT swap in orderGrantsSoldCapabilityEntitlement (the combinator the notice-selection and other predicates use) — that also excludes a merely-canceled (recurringCanceledAt) order, and this exclusion's existing design intentionally keeps a former (canceled-but-not-refunded) subscriber counted as 'already has recurring' so they are not nudged as if they were Starter-only.",
+    rationale:
+      "Found via a subagent-assisted audit scoped to AGENT_PROTOCOL's empty-backlog priority order (sold-capability wiring gap, tier 1) after confirming NEXT_STEPS stayed fully gated and all four remote branches pushed near main's tip (codex/dev-work-billing-notice-entitlement, codex/dev-work-post-dunning-audit-0718, codex/continuous-work-20260718-luna, codex/continuous-work-20260718-luna-fold) were fully superseded ancestors of main (independently re-diffed each against main to confirm, not just trusted the prior iteration's summary) — nothing to fold. isStarterOnlyOrder (the Starter-order side of this same mutual-exclusion check) already got the identical refund/dispute-aware treatment in refund-dispute-entitlement-gate (PR #375); this run closes the one sibling call site in the same function that PR's own diff left untouched. No regression: existing 'rejects Growth/Complete already exists' test cases (both a plain non-refunded order and non-Starter-only rejections) are unchanged and still pass — the new isLiveRecurringOrder predicate is strictly narrower than the old raw orderEligibleForBillingPortal check, only permitting the upsell in the additional refunded/disputed case.",
   },
 ];
 
@@ -12397,6 +12413,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "post-billing-notice-entitlement-clean-audit-0718",
+    ),
+  },
+  {
+    date: "2026-07-18",
+    branch: "claude/upbeat-dijkstra-ooowlb",
+    summary:
+      "Empty-backlog after the post-billing-notice-entitlement-clean-audit-0718 clean audit (claude/nice-euler-fuhf7h, tip of main). NEXT_STEPS stayed fully operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). The only open PR (#202) is the same unrelated human-authored draft. Independently re-diffed the four remote branches sitting closest to main's tip (codex/dev-work-billing-notice-entitlement, codex/dev-work-post-dunning-audit-0718, codex/continuous-work-20260718-luna, codex/continuous-work-20260718-luna-fold) against current main rather than trusting the prior iteration's fold assessment — confirmed all four are fully superseded ancestors (their entitlement-selection and nested-invoice-subscription test diffs are already present verbatim on main), nothing to fold. Delegated a subagent-assisted audit scoped to AGENT_PROTOCOL's tier-1 empty-backlog priority (a shipped sold-capability helper missing from wiring/eligibility), instructed to read current source directly rather than ITERATIONS prose. It found a real gap: leadEligibleForStarterUpsell's 'no Growth/Complete/Commerce order yet' exclusion still reused orderEligibleForBillingPortal raw (tier/commerceAddon only) — refund-dispute-entitlement-gate (#375) made the Starter-order side of this exact same mutual-exclusion check (isStarterOnlyOrder) refund/dispute-aware but its own diff never touched this sibling line, so a lead with a live Starter order plus a separate refunded/disputed Growth/Complete/Commerce order was permanently locked out of the Starter→MRR upsell nudge even though that order grants zero live entitlement.",
+    shipped: [
+      "src/lib/billing/starter-upsell.ts (+ test) — new isLiveRecurringOrder predicate (orderEligibleForBillingPortal && !isOrderRefunded && !isOrderDisputed), used only for the 'already has recurring' exclusion in leadEligibleForStarterUpsell; deliberately not orderGrantsSoldCapabilityEntitlement, which also excludes a merely-canceled order and would incorrectly unblock the upsell for a former (not refunded) subscriber",
+      "src/app/dashboard/leads/send-starter-upsell-action.test.ts — action-level regression: sendStarterUpsellAction now succeeds when the lead's existing Growth order was refunded",
+      "NEXT_STEPS + BUSINESS_DECISIONS: starter-upsell-exclusion-refund-dispute-aware (id-based entries, added directly as done — audit-discovered gap, same precedent as refund-dispute-entitlement-gate)",
+      "Tests: 2 new starter-upsell.test.ts cases (allows the upsell when the Growth/Complete/Commerce order was refunded/disputed, still rejects when it's live) + 1 new send-starter-upsell-action.test.ts case (action succeeds through a refunded Growth order)",
+      "Verified: npm ci (node_modules not preinstalled this session) + npm test (2009 passed, 153 files = prior 2006 baseline + 3 new) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated, Node v22.22.2) + npm run dev sanity check: curled /, /dashboard/leads, /preview/demo-cafe, /docs/process (all 200), then stopped the dev server and confirmed port 3000 was freed",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "starter-upsell-exclusion-refund-dispute-aware",
     ),
   },
 ];

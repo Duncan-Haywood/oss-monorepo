@@ -208,6 +208,28 @@ describe("sendStarterUpsellAction", () => {
     expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
   });
 
+  it("allows the upsell when the existing Growth order was refunded", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      starterOrder,
+      {
+        ...starterOrder,
+        id: "ord_growth",
+        stripeSessionId: "cs_test_growth",
+        tier: "growth",
+        amountPaid: 599,
+        refundedAt: "2026-07-14T00:00:00.000Z",
+      },
+    ]);
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res).toEqual({
+      success: true,
+      targetTier: "growth",
+      mock: false,
+    });
+    expect(sendStarterUpsellEmail).toHaveBeenCalled();
+  });
+
   it("sends Growth upsell by default and revalidates on success", async () => {
     const { sendStarterUpsellAction } = await import("./actions");
     const res = await sendStarterUpsellAction("demo-cafe");
