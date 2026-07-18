@@ -544,7 +544,12 @@ export default function ArchitectureDocPage() {
         never turns an already-durable pause/restore write into a retry loop:{" "}
         <code>invoice.payment_failed</code> sends{" "}
         <code>sendPaymentFailedNotice</code> when the paused customer has a
-        recurring order with a lead email on file, and{" "}
+        recurring order — selected via{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code>, the same
+        active/non-refunded/non-disputed predicate every sold-capability
+        eligibility gate uses, so a refunded or disputed historical order
+        never supplies a misleading notice recipient or a stale Manage-billing
+        link — with a lead email on file, and{" "}
         <code>invoice.paid</code> sends the restore twin{" "}
         <code>sendPaymentRecoveredNotice</code> — but only when that event
         actually cleared a prior pause (<code>cleared &gt; 0</code>), so an

@@ -2894,6 +2894,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/nice-euler-65qs5d",
   },
+  {
+    id: "billing-notice-entitlement-selection",
+    summary:
+      "The four Stripe webhook billing notices (sendPaymentFailedNotice, sendPaymentRecoveredNotice, sendSubscriptionPausedNotice, sendSubscriptionResumedNotice) all selected their recipient order via orderHadRecurringEntitlement — 'ever carried a Growth/Complete/Commerce Price' — instead of orderGrantsSoldCapabilityEntitlement, the active+non-refunded+non-disputed predicate every sold-capability eligibility gate already uses. A customer with an older refunded or disputed Growth/Complete order alongside unrelated history could surface a misleading recipient/stale Manage-billing link, or (for a customer whose only historical recurring order was refunded/disputed) send a false 'billing paused/resumed/failed/recovered' notice for an order they were never entitled to and got their money back on. Switched all four call sites to orderGrantsSoldCapabilityEntitlement; CRM pause/restore writes (markOrdersRecurringCanceledByCustomer/clearOrdersRecurringCanceledByCustomer) are unaffected — this is a notice-recipient-selection fix only, not an entitlement-gate change.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-74a30g (folded codex/dev-work-billing-notice-entitlement + codex/continuous-work-20260718-luna-fold)",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5957,6 +5965,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship a distinct sendSubscriptionPausedNotice/sendSubscriptionResumedNotice pair — not a reuse of sendPaymentFailedNotice/sendPaymentRecoveredNotice — for Stripe's pause_collection axis on customer.subscription.updated, gated on event.data.previous_attributes containing a pause_collection key for that specific webhook delivery (Stripe only lists fields that actually changed in previous_attributes). The pause notice fires only when collectionPaused is true AND the key is present; the resume notice fires only when the grants/restore branch actually cleared a prior pause (cleared > 0) AND the key is present. Both conditions are required in both directions — cleared > 0 alone would double-email an ordinary past_due/unpaid recovery that invoice.paid's sendPaymentRecoveredNotice already confirms, and the previous_attributes key alone (without cleared > 0) would send on a healthy renewal that happened to co-occur with an unrelated field change.",
     rationale:
       "invoice.payment_failed/invoice.paid (the prior two iterations) cover the only pause/restore path that has a Stripe invoice event at all — past_due/unpaid. pause_collection is a materially different, silent axis: it can be set with no charge attempt whatsoever (by an operator or support agent working directly in the Stripe Dashboard, or by the customer themselves via Billing Portal's 'pause plan' if enabled), so a subscriber can lose and regain service with truly zero email signal today. Reusing the existing payment-failed/recovered copy would have been actively misleading ('your card was declined') for a state where no charge was ever attempted, so this iteration deliberately spent the extra surface area on a second, accurately-worded notice pair rather than collapsing the messaging to save code. The previous_attributes-key gate is the load-bearing anti-spam mechanism in both directions, in the same spirit as the existing cleared > 0 gate but tracking the specific field that changed rather than only the aggregate CRM-write count — a bare `collectionPaused`/`cleared > 0` check alone cannot distinguish 'this event is the pause_collection transition' from 'this event is an unrelated update while a pre-existing pause_collection state, or an unrelated past_due/unpaid transition, happens to still be in effect'.",
+  },
+  {
+    id: "billing-notice-entitlement-selection",
+    date: "2026-07-18",
+    decision:
+      "Switch all four billing-notice recipient-selection sites (sendPaymentFailedNotice, sendPaymentRecoveredNotice, sendSubscriptionPausedNotice, sendSubscriptionResumedNotice) in src/app/api/stripe/webhook/route.ts from orderHadRecurringEntitlement to orderGrantsSoldCapabilityEntitlement when picking which of a customer's orders to notify about. orderHadRecurringEntitlement only checks tier/commerceAddon ('ever a Growth/Complete/Commerce Price') and ignores recurringCanceledAt/refundedAt/disputedAt entirely, so a customer whose only Growth/Complete order was refunded or disputed — or who has an old refunded order alongside unrelated history — could still match and receive a billing notice referencing an order they hold no active, paid entitlement to (and a Manage-billing link pointing at a stale/refunded Checkout Session). orderGrantsSoldCapabilityEntitlement (active + non-canceled + non-refunded + non-disputed) is the same combinator every sold-capability eligibility predicate already uses (marketing pack, voice pack, commerce catalog, Starter upsell) — this closes the one remaining call-site class that had drifted from it. The underlying CRM pause/restore writes (markOrdersRecurringCanceledByCustomer / clearOrdersRecurringCanceledByCustomer, keyed on Stripe customer id across all of a customer's orders) are unchanged — only which order's slug/session/lead is used to address the *notice* changes.",
+    rationale:
+      "Found while folding two stuck sibling branches (codex/dev-work-billing-notice-entitlement had already fixed the payment_failed/invoice.paid pair but forked before subscription-pause-collection-notice shipped its two additional call sites; codex/continuous-work-20260718-luna-fold carried only additive nested-Stripe-invoice-subscription test coverage with no source change). Neither sibling could open its own PR (GitHub Actions token policy blocks gh pr create for those automations, the same recurring limitation noted on the last several folded iterations). Rather than fold the narrower two-site fix as-is, re-derived the bug against current main (post subscription-pause-collection-notice) and found it applied identically to the two new pause/resume call sites, so extended the same fix to all four sites in one pass — this is the same entitlement-consistency bug class as refund-dispute-entitlement-gate (which fixed the analogous drift in oldest-age dashboard helpers), now closed for the notice-selection call sites too.",
   },
 ];
 
@@ -12335,6 +12351,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "subscription-pause-collection-notice",
+    ),
+  },
+  {
+    date: "2026-07-18",
+    branch: "claude/upbeat-dijkstra-74a30g",
+    summary:
+      "Empty-backlog after PR #388 (subscription-pause-collection-notice, tip of main). NEXT_STEPS stayed fully operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Only one open PR existed repo-wide (#202, a draft, human-authored, unrelated agent-dashboard feature — not a fold candidate). Per AGENT_PROTOCOL's fold-scan-first rule, diffed every branch pushed at/after main's tip: two were pure-additive test-only forks (codex/continuous-work-20260718-luna-fold and its near-duplicate codex/dev-work-post-dunning-audit-0718, both adding recurring.test.ts coverage for Stripe's nested invoice.parent.subscription_details.subscription payload shape — confirmed the source already handles that shape correctly, so this is coverage, not a fix) and one had a real fix: codex/dev-work-billing-notice-entitlement found that sendPaymentFailedNotice/sendPaymentRecoveredNotice selected their recipient order via orderHadRecurringEntitlement (tier/commerceAddon only) instead of orderGrantsSoldCapabilityEntitlement (the refund/dispute-aware predicate every eligibility gate already uses), so a refunded/disputed historical order could still surface a misleading notice. That branch forked before subscription-pause-collection-notice (PR #388) shipped its two additional call sites (sendSubscriptionPausedNotice/sendSubscriptionResumedNotice), which had copy-pasted the same orderHadRecurringEntitlement bug into fresh code — re-derived the fix against current main and extended it to all four call sites in one pass rather than folding the narrower two-site diff as-is. All three source branches carry the same 'GitHub Actions is not permitted to create or approve pull requests' PR-handoff limitation as several prior folded iterations.",
+    shipped: [
+      "src/app/api/stripe/webhook/route.ts — all four billing-notice recipient-selection sites (payment-failed, payment-recovered, subscription-paused, subscription-resumed) switched from orderHadRecurringEntitlement to orderGrantsSoldCapabilityEntitlement; removed the now-unused orderHadRecurringEntitlement import (CRM pause/restore writes elsewhere in the file are unchanged)",
+      "src/app/api/stripe/webhook/route.test.ts — 4 new regression cases (one per notice) proving a refunded/disputed historical recurring order is skipped (no lead lookup, no send)",
+      "src/lib/orders/recurring.test.ts — folded 2 additive test cases proving invoicePaymentFailedPausesRecurringEntitlement/invoicePaidMayRestoreRecurringEntitlement already accept Stripe's nested invoice.parent.subscription_details.subscription shape",
+      "NEXT_STEPS + BUSINESS_DECISIONS: billing-notice-entitlement-selection (id-based entries)",
+      "Verified: npm ci (node_modules not preinstalled this session) + npm test (2006 passed, 153 files = prior 2000 baseline + 6 new) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated) + npm run dev sanity check: curled /, /dashboard/leads, /preview/demo-cafe, /docs/process, /docs/architecture (all 200) and POST /api/stripe/webhook without a valid signature (501, expected — no regression), then stopped the dev server and confirmed port 3000 was freed",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "billing-notice-entitlement-selection",
     ),
   },
 ];

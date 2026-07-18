@@ -23,7 +23,7 @@ import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import {
   invoicePaidMayRestoreRecurringEntitlement,
   invoicePaymentFailedPausesRecurringEntitlement,
-  orderHadRecurringEntitlement,
+  orderGrantsSoldCapabilityEntitlement,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
@@ -1125,7 +1125,7 @@ export async function POST(request: Request) {
             const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
             const orders = await getOrdersByStripeCustomerId(customerId);
             const recurringOrder = orders.find((order) =>
-              orderHadRecurringEntitlement(order),
+              orderGrantsSoldCapabilityEntitlement(order),
             );
             if (recurringOrder) {
               const lead = await getLeadBySlug(recurringOrder.leadSlug);
@@ -1188,7 +1188,7 @@ export async function POST(request: Request) {
           const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
           const orders = await getOrdersByStripeCustomerId(customerId);
           const recurringOrder = orders.find((order) =>
-            orderHadRecurringEntitlement(order),
+            orderGrantsSoldCapabilityEntitlement(order),
           );
           if (recurringOrder) {
             const lead = await getLeadBySlug(recurringOrder.leadSlug);
@@ -1290,7 +1290,7 @@ export async function POST(request: Request) {
         const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
         const orders = await getOrdersByStripeCustomerId(customerId);
         const recurringOrder = orders.find((order) =>
-          orderHadRecurringEntitlement(order),
+          orderGrantsSoldCapabilityEntitlement(order),
         );
         if (recurringOrder) {
           const lead = await getLeadBySlug(recurringOrder.leadSlug);
@@ -1432,7 +1432,7 @@ export async function POST(request: Request) {
           const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
           const orders = await getOrdersByStripeCustomerId(customerId);
           const recurringOrder = orders.find((order) =>
-            orderHadRecurringEntitlement(order),
+            orderGrantsSoldCapabilityEntitlement(order),
           );
           if (recurringOrder) {
             const lead = await getLeadBySlug(recurringOrder.leadSlug);

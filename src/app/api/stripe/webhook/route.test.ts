@@ -797,6 +797,44 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendSubscriptionPausedNotice).not.toHaveBeenCalled();
     });
 
+    it("skips refunded or disputed historical recurring orders", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "refunded-cafe",
+          stripeSessionId: "cs_refunded",
+          tier: "growth",
+          commerceAddon: false,
+          refundedAt: "2026-07-18T00:00:00.000Z",
+        },
+        {
+          leadSlug: "disputed-cafe",
+          stripeSessionId: "cs_disputed",
+          tier: "complete",
+          commerceAddon: false,
+          disputedAt: "2026-07-18T00:00:00.000Z",
+        },
+      ]);
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_pause_notice_5",
+            customer: "cus_pause_notice_5",
+            status: "active",
+            pause_collection: { behavior: "void" },
+            items: { data: [{ current_period_start: 1_720_001_300 }] },
+          },
+          previous_attributes: { pause_collection: null },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getLeadBySlug).not.toHaveBeenCalled();
+      expect(sendSubscriptionPausedNotice).not.toHaveBeenCalled();
+    });
+
     it("emails a subscription-resumed notice when pause_collection is cleared and CRM was actually cleared", async () => {
       getOrdersByStripeCustomerId.mockResolvedValueOnce([
         {
@@ -900,6 +938,44 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      expect(sendSubscriptionResumedNotice).not.toHaveBeenCalled();
+    });
+
+    it("skips refunded or disputed historical recurring orders", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "refunded-cafe",
+          stripeSessionId: "cs_refunded",
+          tier: "growth",
+          commerceAddon: false,
+          refundedAt: "2026-07-18T00:00:00.000Z",
+        },
+        {
+          leadSlug: "disputed-cafe",
+          stripeSessionId: "cs_disputed",
+          tier: "complete",
+          commerceAddon: false,
+          disputedAt: "2026-07-18T00:00:00.000Z",
+        },
+      ]);
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_resume_notice_5",
+            customer: "cus_resume_notice_5",
+            status: "active",
+            pause_collection: null,
+            items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
+          },
+          previous_attributes: { pause_collection: { behavior: "void" } },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getLeadBySlug).not.toHaveBeenCalled();
       expect(sendSubscriptionResumedNotice).not.toHaveBeenCalled();
     });
 
@@ -1180,6 +1256,32 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendPaymentFailedNotice).not.toHaveBeenCalled();
     });
 
+    it("skips refunded or disputed historical recurring orders", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "refunded-cafe",
+          stripeSessionId: "cs_refunded",
+          tier: "growth",
+          commerceAddon: false,
+          refundedAt: "2026-07-18T00:00:00.000Z",
+        },
+        {
+          leadSlug: "disputed-cafe",
+          stripeSessionId: "cs_disputed",
+          tier: "complete",
+          commerceAddon: false,
+          disputedAt: "2026-07-18T00:00:00.000Z",
+        },
+      ]);
+      constructEvent.mockReturnValue(paymentFailedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getLeadBySlug).not.toHaveBeenCalled();
+      expect(sendPaymentFailedNotice).not.toHaveBeenCalled();
+    });
+
     it("skips the notice when the lead has no email on file", async () => {
       getOrdersByStripeCustomerId.mockResolvedValueOnce([
         { leadSlug: "demo-cafe", stripeSessionId: "cs_notice_2", tier: "growth", commerceAddon: false },
@@ -1455,6 +1557,32 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      expect(sendPaymentRecoveredNotice).not.toHaveBeenCalled();
+    });
+
+    it("skips refunded or disputed historical recurring orders", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "refunded-cafe",
+          stripeSessionId: "cs_refunded",
+          tier: "growth",
+          commerceAddon: false,
+          refundedAt: "2026-07-18T00:00:00.000Z",
+        },
+        {
+          leadSlug: "disputed-cafe",
+          stripeSessionId: "cs_disputed",
+          tier: "complete",
+          commerceAddon: false,
+          disputedAt: "2026-07-18T00:00:00.000Z",
+        },
+      ]);
+      constructEvent.mockReturnValue(paidEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getLeadBySlug).not.toHaveBeenCalled();
       expect(sendPaymentRecoveredNotice).not.toHaveBeenCalled();
     });
 

@@ -197,12 +197,28 @@ describe("invoicePaymentFailedPausesRecurringEntitlement", () => {
     expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: "   " })).toBe(false);
     expect(invoicePaymentFailedPausesRecurringEntitlement({ subscription: {} })).toBe(false);
   });
+
+  it("accepts Stripe's nested Invoice subscription field", () => {
+    expect(
+      invoicePaymentFailedPausesRecurringEntitlement({
+        parent: { subscription_details: { subscription: { id: "sub_nested_failed" } } },
+      }),
+    ).toBe(true);
+  });
 });
 
 describe("invoicePaidMayRestoreRecurringEntitlement", () => {
   it("mirrors the subscription-membership gate used by payment_failed", () => {
     expect(invoicePaidMayRestoreRecurringEntitlement({ subscription: "sub_paid_1" })).toBe(true);
     expect(invoicePaidMayRestoreRecurringEntitlement({ subscription: null })).toBe(false);
+  });
+
+  it("accepts Stripe's nested Invoice subscription field", () => {
+    expect(
+      invoicePaidMayRestoreRecurringEntitlement({
+        parent: { subscription_details: { subscription: "sub_nested_paid" } },
+      }),
+    ).toBe(true);
   });
 });
 
