@@ -81,8 +81,14 @@ export const markCompleteOpenBundleForLead = mutation({
     for (const row of rows) {
       if (row.status !== "open") continue;
       if (row.stripeSessionId === args.exceptStripeSessionId) continue;
-      // Missing kind = legacy bundle; only skip explicit commerce_sku.
-      if (row.kind === "commerce_sku") continue;
+      // Allowlist bundle rows the same way the SQLite fallback's WHERE clause
+      // does (kind IS NULL OR '' OR 'bundle') — never a "!== commerce_sku"
+      // blocklist. The checkoutSessions table stores kind as a loose
+      // v.optional(v.string()) (see schema.ts), not the closed
+      // "bundle" | "commerce_sku" union `create` validates on write, so a
+      // stray/future third kind value must fall through untouched on both
+      // backends rather than get silently closed here.
+      if (row.kind !== undefined && row.kind !== "" && row.kind !== "bundle") continue;
       await ctx.db.patch(row._id, { status: "complete" });
       closed += 1;
     }

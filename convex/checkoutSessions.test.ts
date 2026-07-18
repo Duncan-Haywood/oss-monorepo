@@ -80,6 +80,35 @@ test("markCompleteOpenBundleForLead closes sibling open bundle rows for the lead
   expect(openIds).not.toContain("cs_orphan_bundle");
 });
 
+test("markCompleteOpenBundleForLead allowlists bundle-like kind and leaves an unrecognized kind value open, matching the SQLite fallback's WHERE clause", async () => {
+  const t = convexTest(schema, modules);
+  // The checkoutSessions table stores kind as a loose v.optional(v.string())
+  // (schema.ts), not the closed "bundle" | "commerce_sku" union `create`
+  // validates — insert an out-of-union value directly to simulate a stray
+  // row a future kind or a bypassed write path could produce.
+  await t.run(async (ctx) => {
+    await ctx.db.insert("checkoutSessions", {
+      leadSlug: "demo-cafe",
+      stripeSessionId: "cs_unknown_kind",
+      tier: "",
+      commerceAddon: false,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      kind: "future_kind",
+      status: "open",
+    });
+  });
+  await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_paid" }));
+
+  const closed = await t.mutation(api.checkoutSessions.markCompleteOpenBundleForLead, {
+    leadSlug: "demo-cafe",
+    exceptStripeSessionId: "cs_paid",
+  });
+  expect(closed).toBe(0);
+
+  const open: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {});
+  expect(open.map((r) => r.stripeSessionId)).toContain("cs_unknown_kind");
+});
+
 test("markCompleteOpenCommerceForLeadSkuCustomer closes only matching sku+email siblings, case/whitespace-insensitively, and ignores blank email", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(

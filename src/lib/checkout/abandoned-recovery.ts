@@ -55,7 +55,19 @@ export function isRecoveryDue(session: CheckoutSessionRecord, nowMs: number): bo
  * Open bundle checkout_sessions for a lead that should be closed after a
  * later Session for that lead pays. Excludes the paid stripeSessionId and
  * never includes commerce_sku rows (end-customer multi-shopper carts).
- * Used by markCompleteOpenBundleCheckoutSessionsForLead + Vitest.
+ *
+ * This is the canonical spec for that closing rule, not a shared runtime
+ * dependency: db.ts's SQLite fallback (a raw UPDATE ... WHERE) and
+ * convex/checkoutSessions.ts's markCompleteOpenBundleForLead (an in-memory
+ * filter inside a mutation) each hand-implement the same allowlist rather
+ * than importing this function, since one runs as SQL and the other inside
+ * a Convex handler. Any change to this filter must be mirrored in both, and
+ * both must allowlist (kind is undefined/""/"bundle") rather than blocklist
+ * (kind !== "commerce_sku") — checkoutSessions.kind is a loose
+ * v.optional(v.string()) at the schema level (see convex/schema.ts), not
+ * the closed CheckoutSessionKind union, so a stray/future third kind value
+ * must fall through untouched on both backends. Exercised directly by this
+ * file's own Vitest only.
  */
 export function openBundleCheckoutSessionsToClose(
   sessions: readonly CheckoutSessionRecord[],
@@ -86,7 +98,11 @@ export function normalizeCheckoutCustomerEmailForMatch(email: string | undefined
  * that should be closed after a later Buy now Session pays. Excludes the paid
  * stripeSessionId. Never matches when customerEmail is blank on either side
  * (multi-shopper carts must not close by leadSlug+skuId alone).
- * Used by markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer + Vitest.
+ *
+ * Canonical spec only, same caveat as openBundleCheckoutSessionsToClose above:
+ * db.ts's SQLite fallback and convex/checkoutSessions.ts's
+ * markCompleteOpenCommerceForLeadSkuCustomer each hand-implement this filter
+ * rather than importing it. Exercised directly by this file's own Vitest only.
  */
 export function openCommerceCheckoutSessionsToClose(
   sessions: readonly CheckoutSessionRecord[],
