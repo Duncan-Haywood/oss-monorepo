@@ -58,9 +58,10 @@ import {
 } from "@/lib/payments/refunds";
 import {
   bundleCatalogPriceIdsFromEnv,
-  sessionLineItemsIncludePriceId,
+  sessionLineItemsIncludeMetadataKey,
   sessionLineItemsMatchBundleCatalogPrices,
 } from "@/lib/payments/checkout-price-line-items";
+import { commerceSkuStripeKey } from "@/lib/commerce/stripe-sync";
 import {
   commerceAddonPriceIdsFromEnv,
   priceIdsFromStripeLineItems,
@@ -112,19 +113,30 @@ import {
  * listOrdersByLeadSlug), and resolves Price from catalog.stripePriceId
  * (never trusts a client amount; stripe-sync Prices are currency:"usd"); the
  * commerce_sku branch must mirror that slug length gate, CRM entitlement
- * gate, catalog membership gate (plus parseCommerceCheckoutSkuId length),
- * require catalog.stripePriceId on listLineItems, require session.currency
- * === "usd", AND require session.amount_total (integer cents) ===
- * catalogItem.priceCents before insertCommerceOrder / inquiry / client
- * receipt — a truthy slug/skuId alone is not enough (unknown ids must not
- * fall back to "Catalog item"; a paused/canceled Commerce subscriber must
- * not ledger pass-through revenue; a mismatched Price/currency/amount must
- * not skew payouts / client receipts; an over-long slug must not burn
- * getLeadBySlug / getCommerceCatalog). Unknown/over-long slug/skuId, missing
- * lead, !leadEligibleForCommerceCatalog, missing/unsynced stripePriceId,
- * Price not on line items, non-USD currency, or amount mismatch skips like
- * missing skuId (session already marked complete; do not 5xx forever).
- * listLineItems failures return 500 so Stripe retries.
+ * gate, and catalog membership gate (plus parseCommerceCheckoutSkuId
+ * length), and require session.currency === "usd" before insertCommerceOrder
+ * / inquiry / client receipt — a truthy slug/skuId alone is not enough
+ * (unknown ids must not fall back to "Catalog item"; a paused/canceled
+ * Commerce subscriber must not ledger pass-through revenue; an over-long
+ * slug must not burn getLeadBySlug / getCommerceCatalog).
+ *
+ * Price verification is by stable metadata key
+ * (sessionLineItemsIncludeMetadataKey + commerceSkuStripeKey), NOT by exact
+ * match against the catalog's *current* stripePriceId/priceCents
+ * (commerce-sku-price-resync-metadata-match) — Stripe Prices are immutable,
+ * so an operator editing a SKU's price and re-syncing between Session
+ * creation and completion mints a new Price id and overwrites the catalog
+ * row, but an already-open Session still legitimately references the OLD
+ * (still platform-issued, still valid) Price. Matching only the current
+ * stripePriceId/priceCents would silently drop that already-paid sale from
+ * the ledger. amountPaidUsd is recorded from the Session's actual
+ * session.amount_total (a positive integer cents), never from
+ * catalogItem.priceCents, so the ledger reflects what was really charged.
+ * Unknown/over-long slug/skuId, missing lead, !leadEligibleForCommerceCatalog,
+ * no line item Price carrying the expected metadata key, non-USD currency,
+ * or a non-positive/non-integer amount_total all skip like missing skuId
+ * (session already marked complete; do not 5xx forever). listLineItems
+ * failures return 500 so Stripe retries.
  *
  * Async payment methods (ACH, bank transfer, etc.) fire
  * checkout.session.completed with payment_status !== "paid" while
@@ -415,24 +427,27 @@ export async function POST(request: Request) {
             );
             break;
           }
-          // Mirror Buy now create: charges catalog.stripePriceId (501 when
-          // unsynced). Amount+currency gates alone do not prove which Price
-          // was on the Session — require the catalog Price id on line items.
-          const catalogPriceId = catalogItem.stripePriceId?.trim() ?? "";
-          if (!catalogPriceId) {
-            console.warn(
-              `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} missing catalog stripePriceId — skipping ledger/inquiry/client receipt`,
-            );
-            break;
-          }
+          // Prove this Session charged a Price this platform minted for this
+          // exact leadSlug+skuId — by stable metadata key
+          // (commerceSkuStripeKey), NOT by exact-matching the catalog's
+          // *current* stripePriceId (commerce-sku-price-resync-metadata-match).
+          // Stripe Prices are immutable: an operator editing this SKU's price
+          // and re-syncing between Session creation and completion mints a
+          // new Price id and overwrites catalog.stripePriceId, but the
+          // already-open Session still legitimately references the OLD
+          // Price. Matching only the current stripePriceId would reject an
+          // already-paid Session outright — real money charged with no
+          // ledger row and no abandoned-recovery retry (the Session is
+          // already marked complete above).
+          const expectedMetadataKey = commerceSkuStripeKey(orderSlug, knownSkuId);
           try {
             const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
               limit: 100,
+              expand: ["data.price"],
             });
-            const lineItemPriceIds = priceIdsFromStripeLineItems(lineItems.data);
-            if (!sessionLineItemsIncludePriceId(lineItemPriceIds, catalogPriceId)) {
+            if (!sessionLineItemsIncludeMetadataKey(lineItems.data, expectedMetadataKey)) {
               console.warn(
-                `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} catalog Price ${catalogPriceId} not on line items — skipping ledger/inquiry/client receipt`,
+                `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} no line item Price carries metadata key ${expectedMetadataKey} — skipping ledger/inquiry/client receipt`,
               );
               break;
             }
@@ -456,20 +471,19 @@ export async function POST(request: Request) {
             );
             break;
           }
-          // Mirror Buy now create: Price comes from catalog.stripePriceId, so
-          // charged cents must equal catalogItem.priceCents. A Dashboard-minted
-          // or tampered session with a valid skuId but a different Stripe Price
-          // must not skew the Commerce ledger / client receipt.
+          // Ledger the amount actually charged (session.amount_total), NOT
+          // catalogItem.priceCents — the metadata-key check above already
+          // proved the charged Price was platform-issued for this SKU, and
+          // that Price may be an older one than the catalog's current price
+          // (see the metadata-key comment above). Recording the catalog's
+          // current price here instead of the real charge would misstate
+          // both the client receipt and the Commerce payouts ledger.
           const amountCents = session.amount_total;
-          if (
-            typeof amountCents !== "number" ||
-            !Number.isInteger(amountCents) ||
-            amountCents !== catalogItem.priceCents
-          ) {
+          if (typeof amountCents !== "number" || !Number.isInteger(amountCents) || amountCents <= 0) {
             console.warn(
-              `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} amount_total ${String(
+              `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} invalid amount_total ${String(
                 amountCents,
-              )} !== catalog priceCents ${catalogItem.priceCents} — skipping ledger/inquiry/client receipt`,
+              )} — skipping ledger/inquiry/client receipt`,
             );
             break;
           }

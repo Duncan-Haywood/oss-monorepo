@@ -28,6 +28,42 @@ export function sessionLineItemsIncludePriceId(
   return false;
 }
 
+/**
+ * True when any session line item's (expanded) Price carries `metadataKey`
+ * under `local_site_studio_key` metadata. Unlike sessionLineItemsIncludePriceId
+ * (exact match against ONE specific Price id), this proves a line item was
+ * charged using SOME Price this platform minted for the given SKU — old or
+ * current — which is what a stable per-SKU metadata key
+ * (commerceSkuStripeKey, src/lib/commerce/stripe-sync.ts) is for.
+ *
+ * Needed because Stripe Prices are immutable: an operator editing a Commerce
+ * SKU's price and re-syncing mints a brand-new Price id and overwrites the
+ * catalog's stripePriceId, but a Checkout Session created before that resync
+ * still references the OLD (now catalog-orphaned but still valid and still
+ * platform-issued) Price id. Matching only the catalog's *current*
+ * stripePriceId would reject that already-paid session outright
+ * (commerce-sku-price-resync-metadata-match) — real money charged with no
+ * ledger row. Matching by the stable metadata key instead accepts any Price
+ * this platform ever minted for that exact leadSlug+skuId, regardless of
+ * whether a later resync superseded it.
+ */
+export function sessionLineItemsIncludeMetadataKey(
+  lineItems: ReadonlyArray<{
+    price?: { metadata?: Record<string, string> | null } | string | null;
+  }>,
+  metadataKey: string,
+): boolean {
+  const wanted = metadataKey.trim();
+  if (!wanted) return false;
+  for (const item of lineItems) {
+    const price = item.price;
+    if (price && typeof price === "object" && price.metadata?.local_site_studio_key === wanted) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export type BundleCatalogPriceIds = {
   setupId: string;
   /** Null when the bundle has no recurring Price (Starter). */
