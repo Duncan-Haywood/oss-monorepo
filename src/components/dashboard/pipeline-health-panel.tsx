@@ -382,7 +382,8 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <p className="mt-3 text-xs text-amber-900">
           {health.commerceCatalogsUnsyncedCount} Commerce catalog
           {health.commerceCatalogsUnsyncedCount === 1 ? "" : "s"} still need{" "}
-          <strong>Sync to Stripe</strong> so Buy now works — open the catalog editor on{" "}
+          <strong>Sync to Stripe</strong> so Buy now works — see the Commerce catalogs
+          unsynced panel on{" "}
           <Link href="/dashboard/leads" className="underline underline-offset-2">
             /dashboard/leads
           </Link>

@@ -44,6 +44,7 @@ import {
   formatPriceUsd,
   leadEligibleForCommerceCatalog,
   listCommerceCatalogsMissing,
+  listCommerceCatalogsUnsynced,
   newCommerceSkuId,
   sumCommerceOrdersByLeadOrderCount,
   summarizeCommerceOrdersByLead,
@@ -913,6 +914,11 @@ export function LeadsClient({
     orders,
     commerceCatalogs,
   );
+  const commerceCatalogsUnsynced = listCommerceCatalogsUnsynced(
+    leads,
+    orders,
+    commerceCatalogs,
+  );
   const commercePayoutsByLead = summarizeCommerceOrdersByLead(commerceOrders).filter(
     commerceOrdersByLeadSummaryNeedsAttention,
   );
@@ -964,6 +970,64 @@ export function LeadsClient({
                   >
                     Add catalog
                   </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {commerceCatalogsUnsynced.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Commerce catalogs unsynced
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({commerceCatalogsUnsynced.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/product-bundles"
+              className="text-xs font-medium text-amber-800 underline underline-offset-2"
+            >
+              Product bundles
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Saved catalogs with at least one SKU missing a Stripe Price — Buy now
+            doesn&apos;t work for that item until it&apos;s synced.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {commerceCatalogsUnsynced.map((lead) => (
+              <li
+                key={lead.slug}
+                className="rounded-xl border border-amber-100 bg-white px-4 py-3 text-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-zinc-900">
+                      {lead.businessName}{" "}
+                      <span className="font-normal text-zinc-500">({lead.slug})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">{lead.stage} · Commerce add-on</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => openCommerceEditor(lead)}
+                      className="rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-semibold text-amber-900 transition hover:bg-amber-100 disabled:opacity-60"
+                    >
+                      Edit catalog
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleSyncCommerceCatalogToStripe(lead.slug)}
+                      className="rounded-lg bg-amber-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-900 disabled:opacity-60"
+                    >
+                      Sync to Stripe
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}
