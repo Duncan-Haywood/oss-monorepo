@@ -2984,6 +2984,13 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-megcqq",
   },
+  {
+    id: "github-actions-runner-unavailable",
+    summary:
+      "OPERATOR ACTION NEEDED (not fixable by an agent — same class as the other operator/legal-gated items). While merging PR #400, its 'checks' job (.github/workflows/pr-checks.yml) failed in ~4 seconds with no runner ever assigned (runner_id: 0). Checking workflow-run history: every single workflow run in this repo — the new PR CI gate AND all six scheduled-agent workflows (Claude Code / Codex / Cursor / Gemini / Grok / OpenCode scheduled agents) — has failed the same way, back through at least the prior ~5 hours of sampled runs (2026-07-18T02:47Z onward; 498 total recent runs). This is a GitHub Actions runner-provisioning failure (Actions disabled, spending/quota limit reached, or a runner-group/permissions misconfiguration at the repo or org level), not a code defect — no workflow step ever starts, so no code change can fix it. Merges still succeed (the check isn't a required status check), so this hasn't blocked shipping, but it does mean the pr-checks.yml gate added in PR #399 has never once actually run, and any of the six scheduled-agent workflows that are supposed to launch CLI agents on a cron have not executed via GitHub Actions during that window either (the swarm's continued commits during this window most likely came through a separate channel, e.g. hosted agent-cloud platforms/CCR Routines, not these Actions workflows). Operator: check Settings → Actions → General (is Actions enabled / is there a spending limit reached banner) and Settings → Actions → Runners for this repo/org.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
