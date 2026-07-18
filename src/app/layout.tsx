@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { brand } from "@/lib/brand";
+import { homepageMetadata } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = { variable: "" };
 const geistMono = { variable: "" };
 
-export const metadata: Metadata = {
-  title: `${brand.name} — Pre-built websites for local businesses`,
-  description: `${brand.name} builds professional websites before you buy. Preview your site, pay $500, go live. Operated by ${brand.legalEntity} (${brand.legalLocation}).`,
-};
+export const metadata: Metadata = homepageMetadata();
 
 export default function RootLayout({
   children,

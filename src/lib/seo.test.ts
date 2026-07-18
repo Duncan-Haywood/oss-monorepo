@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Lead } from "@/lib/leads/types";
 import {
+  homepageMetadata,
   isLeadPreviewIndexable,
   leadLocalBusinessJsonLd,
   leadMetaDescription,
@@ -95,6 +96,39 @@ describe("previewUrl", () => {
     expect(previewUrl("evil/../../dashboard")).toBe(
       "https://app.example.com/preview/evil%2F..%2F..%2Fdashboard",
     );
+  });
+});
+
+describe("homepageMetadata", () => {
+  it("sets canonical + openGraph + twitter using the configured site URL", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const metadata = homepageMetadata();
+    expect(metadata.alternates).toEqual({ canonical: "https://app.example.com" });
+    expect(metadata.openGraph).toMatchObject({
+      title: metadata.title,
+      description: metadata.description,
+      url: "https://app.example.com",
+      type: "website",
+    });
+    expect(metadata.twitter).toMatchObject({
+      card: "summary",
+      title: metadata.title,
+      description: metadata.description,
+    });
+  });
+
+  it("falls back to the localhost site URL when no env var is configured", () => {
+    const metadata = homepageMetadata();
+    expect(metadata.alternates).toEqual({ canonical: "http://localhost:3000" });
+    expect(metadata.openGraph).toMatchObject({ url: "http://localhost:3000" });
+  });
+
+  it("uses the brand name in title, description, and openGraph siteName", () => {
+    process.env.NEXT_PUBLIC_BRAND_NAME = "Acme Sites";
+    const metadata = homepageMetadata();
+    expect(metadata.title).toContain("Acme Sites");
+    expect(metadata.description).toContain("Acme Sites");
+    expect(metadata.openGraph).toMatchObject({ siteName: "Acme Sites" });
   });
 });
 

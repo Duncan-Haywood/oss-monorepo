@@ -3,6 +3,8 @@
  * Starter sells "Basic SEO" (see landing page copy) — this is what backs it:
  * per-page metadata, canonical URLs, and LocalBusiness structured data.
  */
+import type { Metadata } from "next";
+import { brand } from "@/lib/brand";
 import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
@@ -16,6 +18,30 @@ export function siteUrl(): string {
   const vercelUrl = process.env.VERCEL_URL?.trim();
   if (vercelUrl) return `https://${vercelUrl}`;
   return DEFAULT_SITE_URL;
+}
+
+/**
+ * Root layout metadata — the homepage, and every page that doesn't export
+ * its own generateMetadata (/checkout, /docs/*, /privacy, /terms,
+ * /dashboard/*; only /preview/[slug] overrides it). Extracted out of
+ * src/app/layout.tsx so it's unit-testable: layout.tsx imports globals.css
+ * and has no React test harness in this repo (same reason event-handler
+ * logic gets extracted to a pure sibling module — see AGENT_PROTOCOL).
+ * Previously title/description only — no openGraph/twitter/canonical, so
+ * sharing the homepage (or any uncustomized page) on social/chat apps
+ * unfurled with no title, description, or link preview at all.
+ */
+export function homepageMetadata(): Metadata {
+  const title = `${brand.name} — Pre-built websites for local businesses`;
+  const description = `${brand.name} builds professional websites before you buy. Preview your site, pay $500, go live. Operated by ${brand.legalEntity} (${brand.legalLocation}).`;
+  const url = siteUrl();
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url, siteName: brand.name, type: "website" },
+    twitter: { card: "summary", title, description },
+  };
 }
 
 /** Absolute /preview URL — slug is encodeURIComponent'd (legacy-slug path safety). */
