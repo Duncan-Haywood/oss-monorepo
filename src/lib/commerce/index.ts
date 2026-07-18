@@ -19,6 +19,7 @@ export {
 
 export {
   catalogHasUnsyncedSku,
+  commerceDraftItemsAfterSync,
   commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
   formatPriceUsd,

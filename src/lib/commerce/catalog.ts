@@ -287,6 +287,29 @@ export function normalizeCommerceItems(
   return { ok: true, items };
 }
 
+/**
+ * The dashboard's catalog editor draft (leads-client.tsx commerceDraftItems)
+ * is a single non-keyed slot shared across every lead row, paired with
+ * commerceEditSlug to say which lead currently owns it. "Sync to Stripe" is
+ * callable from two places: inside the open editor (always the owning lead)
+ * and from the standalone "Commerce catalogs unsynced" panel, which can sync
+ * a *different* lead than whichever one's editor happens to be open. Only
+ * refresh the draft when the synced lead is the one actually being edited —
+ * otherwise a sync for lead B while lead A's editor is open silently loads
+ * lead B's items into the visibly-open "lead A" editor, and a subsequent
+ * Save catalog persists lead B's SKUs under lead A's slug (see
+ * commerce-draft-items-cross-lead-clobber).
+ */
+export function commerceDraftItemsAfterSync(
+  editingSlug: string | null,
+  syncedSlug: string,
+  currentDraftItems: CommerceSku[],
+  syncedItems: CommerceSku[],
+): CommerceSku[] {
+  if (editingSlug !== syncedSlug) return currentDraftItems;
+  return syncedItems.map((item) => ({ ...item }));
+}
+
 /** Prefill contact-form message when a visitor requests a catalog item. */
 export function commerceOrderRequestMessage(sku: CommerceSku): string {
   const price = formatPriceUsd(sku.priceCents);

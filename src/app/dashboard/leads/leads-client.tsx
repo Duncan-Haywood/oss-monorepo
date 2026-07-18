@@ -42,6 +42,7 @@ import type { CommerceCatalog, CommerceSku } from "@/lib/commerce/types";
 import type { CommerceOrderRecord } from "@/lib/commerce/orders";
 import {
   MAX_COMMERCE_SKUS,
+  commerceDraftItemsAfterSync,
   commerceOrdersByLeadSummaryNeedsAttention,
   formatPriceUsd,
   leadEligibleForCommerceCatalog,
@@ -823,7 +824,9 @@ export function LeadsClient({
         const without = prev.filter((c) => c.leadSlug !== slug);
         return [res.catalog, ...without];
       });
-      setCommerceDraftItems(res.catalog.items.map((item) => ({ ...item })));
+      setCommerceDraftItems((prev) =>
+        commerceDraftItemsAfterSync(commerceEditSlug, slug, prev, res.catalog.items),
+      );
     });
   };
 

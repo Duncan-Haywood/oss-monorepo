@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  commerceDraftItemsAfterSync,
   commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
   formatPriceUsd,
@@ -468,6 +469,43 @@ describe("normalizeCommerceItems", () => {
         MAX_COMMERCE_SKU_ID_LENGTH,
       );
     }
+  });
+});
+
+describe("commerceDraftItemsAfterSync", () => {
+  const syncedItems = [
+    { id: "sku_1", name: "Synced item", priceCents: 500, stripePriceId: "price_1" },
+  ];
+
+  it("applies the synced items when the editing lead matches the synced lead", () => {
+    const draft = [{ id: "sku_0", name: "Draft item", priceCents: 100 }];
+    const result = commerceDraftItemsAfterSync(
+      "lead-a",
+      "lead-a",
+      draft,
+      syncedItems,
+    );
+    expect(result).toEqual(syncedItems);
+    // Defensive copy, not the same array/object references.
+    expect(result).not.toBe(syncedItems);
+    expect(result[0]).not.toBe(syncedItems[0]);
+  });
+
+  it("leaves the draft untouched when a different lead's catalog was synced (cross-lead clobber guard)", () => {
+    const draft = [{ id: "sku_0", name: "Lead A's unsaved draft", priceCents: 100 }];
+    const result = commerceDraftItemsAfterSync(
+      "lead-a",
+      "lead-b",
+      draft,
+      syncedItems,
+    );
+    expect(result).toBe(draft);
+  });
+
+  it("leaves the draft untouched when no editor is open", () => {
+    const draft: typeof syncedItems = [];
+    const result = commerceDraftItemsAfterSync(null, "lead-b", draft, syncedItems);
+    expect(result).toBe(draft);
   });
 });
 
