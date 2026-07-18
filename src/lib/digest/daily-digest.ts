@@ -341,6 +341,12 @@ export interface DailyDigest {
   openHandoffs: DigestOpenHandoff[];
   openHandoffsCount: number;
   /**
+   * Age in whole hours of the oldest open deploy handoff; null when none.
+   * Same staleness signal as pipeline-health oldestOpenHandoffAgeHours — how
+   * long a paid site has been awaiting DNS / Mark live.
+   */
+  oldestOpenHandoffAgeHours: number | null;
+  /**
    * Leads with stage="paid" — same predicate as pipeline-health
    * paidNotLiveCount (action section). Not the same set as openHandoffs: a
    * lead can be marked paid via the stage dropdown or CSV import with no
@@ -820,6 +826,16 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     .filter((handoff) => handoff.status !== "live")
     .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
   const openHandoffsCount = openHandoffsAll.length;
+  const oldestOpenHandoffAgeHours: number | null = (() => {
+    if (openHandoffsAll.length === 0) return null;
+    let oldestMs = Infinity;
+    for (const handoff of openHandoffsAll) {
+      const parsed = Date.parse(handoff.createdAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
   const openHandoffs: DigestOpenHandoff[] = openHandoffsAll
     .slice(0, OPEN_HANDOFFS_LIMIT)
     .map((handoff) => ({
@@ -981,6 +997,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     oldestBundleOrdersDisputedAgeHours,
     openHandoffs,
     openHandoffsCount,
+    oldestOpenHandoffAgeHours,
     paidNotLive,
     paidNotLiveCount,
     leadsMissingEmail,
@@ -1207,7 +1224,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(disputeClawbackTitle, disputeClawbackRows, "No Commerce payouts have been disputed after the fact.")}
     ${section(bundleRefundTitle, bundleRefundRows, "No bundle orders refunded.")}
     ${section(bundleDisputeTitle, bundleDisputeRows, "No bundle orders disputed.")}
-    ${section(`Production handoffs open (${digest.openHandoffsCount})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
+    ${section(`Production handoffs open (${digest.openHandoffsCount}${digest.oldestOpenHandoffAgeHours !== null ? ` · oldest ${digest.oldestOpenHandoffAgeHours}h` : ""})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
     ${section(`Paid, not yet live (${digest.paidNotLiveCount})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}
     ${coldFootnote(digest, false)}

@@ -1343,6 +1343,9 @@ describe("buildDailyDigest", () => {
     expect(digest.openHandoffs[1]?.businessName).toBe("Provisioned Trades");
     expect(digest.openHandoffs[1]?.status).toBe("provisioned");
     expect(digest.openHandoffs[1]?.host).toBe("trades.example.com");
+    // Staleness anchored to the oldest OPEN handoff (awaiting-cafe, 2026-07-08T08:00,
+    // 100h before NOW) — the older dh_live row (2026-07-01) is live and must not anchor it.
+    expect(digest.oldestOpenHandoffAgeHours).toBe(100);
     expect(digest.isEmpty).toBe(false);
   });
 
@@ -1828,7 +1831,9 @@ describe("renderDailyDigestHtml", () => {
       nowMs: NOW,
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
-    expect(html).toContain("Production handoffs open");
+    // Header carries the staleness signal: handoff created 2026-07-10T00:00,
+    // 60h before NOW (2026-07-12T12:00).
+    expect(html).toContain("Production handoffs open (1 · oldest 60h)");
     expect(html).toContain("awaiting_dns");
     expect(html).toContain("dns-cafe.example.com");
     expect(html).toContain("DNS &lt;Cafe&gt;");

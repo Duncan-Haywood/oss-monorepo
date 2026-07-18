@@ -111,6 +111,14 @@ export interface PipelineHealth {
   /** Ordered for display (funnel top → bottom). */
   stageFunnel: StageCount[];
   openHandoffCount: number;
+  /**
+   * Age in whole hours of the oldest open (status !== "live") deploy handoff;
+   * null when none. Staleness signal for post-payment fulfillment debt — how
+   * long a paid site has been awaiting DNS / Mark live — matching every other
+   * due-queue card on the grid (see the pipeline-health staleness invariant in
+   * prompt_process.tsx AGENT_PROTOCOL).
+   */
+  oldestOpenHandoffAgeHours: number | null;
   /** Paid / discovery_call / outreach leads with no email — cannot convert or follow up. */
   leadsMissingEmailCount: number;
   leadsMissingEmail: MissingEmailLead[];
@@ -404,7 +412,8 @@ export function computePipelineHealth(input: {
     }))
     .slice(0, 8);
 
-  const openHandoffCount = input.handoffs.filter((h) => h.status !== "live").length;
+  const openHandoffs = input.handoffs.filter((h) => h.status !== "live");
+  const openHandoffCount = openHandoffs.length;
   const newInquiryCount = input.inquiries.filter((inq) => inq.status === "new").length;
   const unrepliedInquiries = input.inquiries.filter((inq) =>
     isUnrepliedInquiryStatus(inq.status),
@@ -413,6 +422,20 @@ export function computePipelineHealth(input: {
   const paidNotLiveCount = input.leads.filter((l) => l.stage === "paid").length;
 
   const nowMs = input.nowMs ?? 0;
+
+  // Oldest open deploy handoff by createdAt — anchor the staleness signal to
+  // when the handoff was created (not calendar-cadence), mirroring the
+  // oldestAbandoned/oldestUnrepliedInquiry loops below.
+  let oldestOpenHandoffAgeHours: number | null = null;
+  for (const handoff of openHandoffs) {
+    const createdAtMs = Date.parse(handoff.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
+    if (oldestOpenHandoffAgeHours === null || ageHours > oldestOpenHandoffAgeHours) {
+      oldestOpenHandoffAgeHours = Math.max(0, ageHours);
+    }
+  }
+
   const sessions = input.openCheckoutSessions ?? [];
   const bundleSessions = sessions.filter(isBundleCheckoutSession);
   const commerceRecoveryEligibleSlugs = leadSlugsEligibleForCommerceAbandonedRecovery(
@@ -687,6 +710,7 @@ export function computePipelineHealth(input: {
     stageCounts,
     stageFunnel,
     openHandoffCount,
+    oldestOpenHandoffAgeHours,
     leadsMissingEmailCount: input.leads.filter(leadIsMissingCriticalEmail).length,
     leadsMissingEmail,
     newInquiryCount,
