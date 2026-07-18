@@ -208,7 +208,12 @@ describe("sendStarterUpsellAction", () => {
     expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
   });
 
-  it("allows the upsell when the existing Growth order was refunded", async () => {
+  it("still rejects when the existing Growth order was refunded — a refund does not always cancel the underlying Subscription (mutual-exclusion-restore)", async () => {
+    // orderEligibleForBillingPortal never excludes refunded/disputed orders
+    // (a disputed-but-still-billing subscriber keeps Manage billing on
+    // purpose) — leadEligibleForStarterUpsell must stay in lockstep with it,
+    // or the operator could nudge a still-subscribed customer to buy Growth
+    // again, risking two simultaneously active recurring subscriptions.
     listOrdersByLeadSlug.mockResolvedValue([
       starterOrder,
       {
@@ -223,11 +228,10 @@ describe("sendStarterUpsellAction", () => {
     const { sendStarterUpsellAction } = await import("./actions");
     const res = await sendStarterUpsellAction("demo-cafe");
     expect(res).toEqual({
-      success: true,
-      targetTier: "growth",
-      mock: false,
+      success: false,
+      error: eligibilityError,
     });
-    expect(sendStarterUpsellEmail).toHaveBeenCalled();
+    expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
   });
 
   it("sends Growth upsell by default and revalidates on success", async () => {

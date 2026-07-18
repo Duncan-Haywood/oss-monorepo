@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { orderEligibleForBillingPortal } from "./portal";
 import {
   buildStarterUpsellCheckoutPath,
   isStarterOnlyOrder,
@@ -98,7 +99,15 @@ describe("leadEligibleForStarterUpsell", () => {
     ).toBe(false);
   });
 
-  it("allows the upsell when the lead's only Growth/Complete/Commerce order was refunded or disputed", () => {
+  it("rejects the upsell even when the lead's only Growth/Complete/Commerce order was refunded or disputed (mutual-exclusion-restore regression)", () => {
+    // A Stripe refund or dispute is a single-charge event and does not
+    // always cancel the underlying Subscription — orderEligibleForBillingPortal
+    // never excludes refunded/disputed orders (a disputed-but-still-billing
+    // subscriber keeps Manage billing on purpose), so this predicate must not
+    // either: unblocking the upsell here let a customer whose Growth
+    // subscription is still actively billing get nudged to buy Growth again,
+    // risking two simultaneously active recurring subscriptions if they
+    // clicked through (see starter-upsell-billing-portal-mutual-exclusion-restore).
     expect(
       leadEligibleForStarterUpsell({
         stage: "paid",
@@ -108,7 +117,7 @@ describe("leadEligibleForStarterUpsell", () => {
           { tier: "growth", commerceAddon: false, refundedAt: "2026-07-01T00:00:00.000Z" },
         ],
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       leadEligibleForStarterUpsell({
         stage: "paid",
@@ -118,7 +127,7 @@ describe("leadEligibleForStarterUpsell", () => {
           { tier: "complete", commerceAddon: false, disputedAt: "2026-07-01T00:00:00.000Z" },
         ],
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       leadEligibleForStarterUpsell({
         stage: "paid",
@@ -128,7 +137,7 @@ describe("leadEligibleForStarterUpsell", () => {
           { tier: "starter", commerceAddon: true, refundedAt: "2026-07-01T00:00:00.000Z" },
         ],
       }),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("still rejects when the Growth/Complete/Commerce order is live (not refunded/disputed)", () => {
@@ -139,6 +148,31 @@ describe("leadEligibleForStarterUpsell", () => {
         ordersForLead: [starterOrder, { tier: "growth", commerceAddon: false }],
       }),
     ).toBe(false);
+  });
+
+  it("never allows the upsell for an order set where orderEligibleForBillingPortal is true (mutual exclusion with Manage billing)", () => {
+    // Direct cross-check against the Billing Portal predicate this module's
+    // doc comment claims mutual exclusivity with — for every order a
+    // disputed/refunded Growth/Complete/Commerce order still satisfies
+    // (since orderEligibleForBillingPortal ignores refund/dispute status by
+    // design), the upsell must be rejected too, or both CTAs render at once.
+    const disputedOrCanceledRecurringOrders = [
+      { tier: "growth", commerceAddon: false },
+      { tier: "complete", commerceAddon: false },
+      { tier: "starter", commerceAddon: true },
+      { tier: "growth", commerceAddon: false, refundedAt: "2026-07-01T00:00:00.000Z" },
+      { tier: "complete", commerceAddon: false, disputedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    for (const recurringOrder of disputedOrCanceledRecurringOrders) {
+      expect(orderEligibleForBillingPortal(recurringOrder)).toBe(true);
+      expect(
+        leadEligibleForStarterUpsell({
+          stage: "paid",
+          email: "owner@example.com",
+          ordersForLead: [starterOrder, recurringOrder],
+        }),
+      ).toBe(false);
+    }
   });
 
   it("rejects a lead whose only Starter order was refunded or disputed", () => {

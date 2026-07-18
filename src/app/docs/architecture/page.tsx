@@ -1612,6 +1612,22 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <strong>starter-upsell-billing-portal-mutual-exclusion-restore</strong> reverted{" "}
+        <code>isLiveRecurringOrder</code> from the entry above: its reasoning didn&apos;t hold. A
+        Stripe refund or dispute is a single-charge event and does not always cancel the underlying
+        Subscription — <code>orderEligibleForBillingPortal</code> itself never excludes
+        refunded/disputed orders (a disputed-but-still-billing subscriber keeps Manage billing on
+        purpose), so treating a refunded/disputed Growth/Complete/Commerce order as &quot;no longer
+        blocks the upsell&quot; broke the module&apos;s own stated guarantee that Billing and Upsell
+        buttons never both appear for the same lead. A lead with a live Starter order plus a Growth
+        order that was disputed <em>without</em> canceling the subscription showed both CTAs at once;
+        an operator sending that upsell and the customer paying again would create two simultaneously
+        active recurring subscriptions billing the same customer monthly. Removed the carve-out —{" "}
+        <code>leadEligibleForStarterUpsell</code> now reuses <code>orderEligibleForBillingPortal</code>{" "}
+        directly and unmodified, as AGENT_PROTOCOL has stated all along.
+      </p>
+
+      <p>
         <strong>billing-notice-pause-recipient-write-before-read-fix</strong> fixed a regression{" "}
         billing-notice-entitlement-selection introduced in the two pause-direction webhook notices.
         That fix uniformly swapped all four notice recipient lookups (payment-failed,

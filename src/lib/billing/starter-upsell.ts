@@ -2,32 +2,34 @@
  * Paid Starter → Growth/Complete upsell — pure eligibility + checkout path helpers.
  * See /docs/process (paid-starter-upsell-nudge).
  *
- * Reuses orderEligibleForBillingPortal as the "already has recurring" check so
- * Billing and Upsell buttons never both appear for the same lead/order set —
- * but a refunded/disputed Growth/Complete/Commerce order must not count
- * (see starter-upsell-exclusion-refund-dispute-aware): the customer has no
- * live recurring entitlement left, so it must not block the Starter upsell
- * either. Deliberately NOT orderGrantsSoldCapabilityEntitlement here — that
- * also excludes a merely-canceled (recurringCanceledAt) order, and a former
- * subscriber should still be treated as "already has recurring" for this
- * exclusion, not nudged as if they were Starter-only.
+ * Reuses orderEligibleForBillingPortal, unmodified, as the "already has
+ * recurring" negative check so Billing and Upsell buttons never both appear
+ * for the same lead/order set — see AGENT_PROTOCOL: "Starter upsell
+ * eligibility must reuse orderEligibleForBillingPortal as the negative check
+ * ... never invent a parallel 'has recurring' predicate."
+ *
+ * A prior iteration (starter-upsell-exclusion-refund-dispute-aware) added a
+ * refunded/disputed carve-out here on the theory that such an order "grants
+ * zero live entitlement." That reasoning does not hold for THIS check: a
+ * Stripe refund or dispute is a single-charge event and does not always
+ * cancel the underlying Subscription (see orderGrantsSoldCapabilityEntitlement
+ * in src/lib/orders/recurring.ts — the same fact, documented there for
+ * fulfillment gating). orderEligibleForBillingPortal never excludes
+ * refunded/disputed orders either (a disputed-but-still-billing subscriber
+ * keeps Manage billing on purpose), so the carve-out broke the very mutual
+ * exclusivity this module exists to guarantee: a lead with a live Starter
+ * order plus a Growth/Complete/Commerce order that was disputed WITHOUT
+ * canceling the subscription showed both "Manage billing" and the Starter
+ * upsell CTA simultaneously. If the operator (or an automated cadence) sent
+ * that upsell and the customer paid again, the result is two simultaneously
+ * active recurring subscriptions billing the same customer monthly — a real
+ * duplicate-charge/customer-trust incident triggered by an ordinary
+ * chargeback (see starter-upsell-billing-portal-mutual-exclusion-restore).
+ * Removed the carve-out; orderEligibleForBillingPortal is used directly.
  */
 
 import { isOrderDisputed, isOrderRefunded } from "@/lib/orders/types";
 import { orderEligibleForBillingPortal } from "./portal";
-
-function isLiveRecurringOrder(order: {
-  tier: string;
-  commerceAddon: boolean;
-  refundedAt?: string;
-  disputedAt?: string;
-}): boolean {
-  return (
-    orderEligibleForBillingPortal(order) &&
-    !isOrderRefunded(order) &&
-    !isOrderDisputed(order)
-  );
-}
 
 export type UpsellTargetTier = "growth" | "complete";
 
@@ -71,9 +73,10 @@ export function leadEligibleForStarterUpsell(params: {
   const orders = params.ordersForLead;
   if (orders.length === 0) return false;
   if (!orders.some(isStarterOnlyOrder)) return false;
-  // Inverse of Billing portal eligibility — a live (non-refunded/disputed)
-  // recurring order already sold ⇒ no upsell.
-  if (orders.some(isLiveRecurringOrder)) return false;
+  // Inverse of Billing portal eligibility, unmodified — any
+  // Growth/Complete/Commerce order already sold ⇒ no upsell, regardless of
+  // refund/dispute status (see this module's doc comment).
+  if (orders.some(orderEligibleForBillingPortal)) return false;
   return true;
 }
 
