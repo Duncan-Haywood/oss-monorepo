@@ -133,6 +133,16 @@ export interface PipelineHealth {
   oldestUnrepliedInquiryAgeHours: number | null;
   /** Paid but not yet live — fulfillment debt. */
   paidNotLiveCount: number;
+  /**
+   * Age in whole hours since the oldest paid-not-live lead's earliest bundle
+   * order was created; null when none of those leads has a matching order at
+   * all. See oldestPaidNotLiveAgeHours for why a lead promoted to stage=paid
+   * via the dashboard stage dropdown or a CSV backfill (no order row, and
+   * Lead itself carries no createdAt/updatedAt — see src/lib/leads/types.ts)
+   * is silently skipped from this age signal while still counted in
+   * paidNotLiveCount above.
+   */
+  oldestPaidNotLiveAgeHours: number | null;
   /** Open checkout sessions past the abandoned threshold (see abandoned-recovery). Bundle plan checkouts only. */
   abandonedCheckoutCount: number;
   /** Abandoned sessions due for an operator recovery nudge. Bundle plan checkouts only. */
@@ -320,6 +330,47 @@ export function emptyStageCounts(): Record<LeadPipelineStage, number> {
 const HOUR_MS = 60 * 60 * 1000;
 
 /**
+ * Age in whole hours since the oldest paid-not-live lead's earliest bundle
+ * order was created; null when there are no candidates or none of their
+ * orders parse — including the case where a candidate has no order at all.
+ *
+ * Design decision (deferred from open-deploy-handoff-staleness-signal):
+ * "time since payment" has no reliable anchor for a stage=paid lead created
+ * via the dashboard stage dropdown or a CSV backfill, since Lead itself
+ * carries no createdAt/updatedAt/stage-transition timestamp (see
+ * src/lib/leads/types.ts) and no order row exists for a manually-promoted
+ * lead. Rather than fabricate a fake anchor (e.g. treating "now" as the
+ * payment time, which would hide the debt entirely), this skips a candidate
+ * with no matching order from the age computation — same skip-if-no-anchor
+ * contract as oldestColdLeadAgeHours skipping a lead with no lastOutreachAt,
+ * or oldestMarketingPacksDueAgeHours skipping a lead with no qualifying
+ * order. The count (paidNotLiveCount) still includes every stage=paid lead
+ * regardless — only the staleness signal is order-anchored.
+ *
+ * Pass nowMs from the caller — never Date.now() inside list/age helpers.
+ */
+export function oldestPaidNotLiveAgeHours(
+  candidates: ReadonlyArray<{ slug: string }>,
+  orders: ReadonlyArray<{ leadSlug: string; createdAt?: string }>,
+  nowMs: number,
+): number | null {
+  const candidateSlugs = new Set(candidates.map((candidate) => candidate.slug));
+  let oldestCreatedAtMs: number | null = null;
+  for (const order of orders) {
+    if (!candidateSlugs.has(order.leadSlug)) continue;
+    if (order.createdAt === undefined) continue;
+    const createdAtMs = Date.parse(order.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    if (oldestCreatedAtMs === null || createdAtMs < oldestCreatedAtMs) {
+      oldestCreatedAtMs = createdAtMs;
+    }
+  }
+  if (oldestCreatedAtMs === null) return null;
+  if (nowMs < oldestCreatedAtMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / HOUR_MS));
+}
+
+/**
  * Pure aggregation — safe to call from server pages or client components.
  * Pass whatever the operator dashboard already loaded; no extra DB round-trips.
  * Pass `nowMs` (and open checkout sessions) from the caller — never call Date.now()
@@ -419,9 +470,12 @@ export function computePipelineHealth(input: {
     isUnrepliedInquiryStatus(inq.status),
   );
   const unrepliedInquiryCount = unrepliedInquiries.length;
-  const paidNotLiveCount = input.leads.filter((l) => l.stage === "paid").length;
 
   const nowMs = input.nowMs ?? 0;
+
+  const paidNotLiveLeads = input.leads.filter((l) => l.stage === "paid");
+  const paidNotLiveCount = paidNotLiveLeads.length;
+  const oldestPaidNotLive = oldestPaidNotLiveAgeHours(paidNotLiveLeads, input.orders, nowMs);
 
   // Oldest open deploy handoff by createdAt — anchor the staleness signal to
   // when the handoff was created (not calendar-cadence), mirroring the
@@ -717,6 +771,7 @@ export function computePipelineHealth(input: {
     unrepliedInquiryCount,
     oldestUnrepliedInquiryAgeHours,
     paidNotLiveCount,
+    oldestPaidNotLiveAgeHours: oldestPaidNotLive,
     abandonedCheckoutCount: abandoned.length,
     recoveryDueCount,
     oldestAbandonedAgeHours,

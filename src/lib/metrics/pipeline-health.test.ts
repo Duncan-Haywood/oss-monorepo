@@ -5,6 +5,7 @@ import {
   formatAbandonedAgeHours,
   formatUsd,
   isUnrepliedInquiryStatus,
+  oldestPaidNotLiveAgeHours,
 } from "./pipeline-health";
 import type { Lead, LeadPipelineStage } from "../leads/types";
 import type { DeployHandoff } from "../deploy/types";
@@ -396,6 +397,44 @@ describe("computePipelineHealth", () => {
       inquiries: [],
     });
     expect(health.paidNotLiveCount).toBe(2);
+    // No order at all for either paid lead — nothing to anchor the age on.
+    expect(health.oldestPaidNotLiveAgeHours).toBeNull();
+  });
+
+  it("anchors oldestPaidNotLiveAgeHours to the oldest matching order and skips leads with no order", () => {
+    const leadWithOlderOrder = makeLead("paid", { slug: "lead-with-older-order" });
+    const leadWithNewerOrder = makeLead("paid", { slug: "lead-with-newer-order" });
+    const leadWithNoOrder = makeLead("paid", { slug: "lead-with-no-order" });
+    const liveLeadWithOldOrder = makeLead("live", { slug: "live-lead-old-order" });
+    const olderOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "lead-with-older-order",
+      createdAt: new Date(NOW - 80 * HOUR_MS).toISOString(),
+    };
+    const newerOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "lead-with-newer-order",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    };
+    // Ancient order belongs to a lead that is already live — must not anchor
+    // the paid-not-live signal (same "only open debt anchors" rule as
+    // oldestOpenHandoffAgeHours excluding live handoffs).
+    const liveOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "live-lead-old-order",
+      createdAt: new Date(NOW - 500 * HOUR_MS).toISOString(),
+    };
+
+    const health = computePipelineHealth({
+      leads: [leadWithOlderOrder, leadWithNewerOrder, leadWithNoOrder, liveLeadWithOldOrder],
+      orders: [olderOrder, newerOrder, liveOrder],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.paidNotLiveCount).toBe(3);
+    expect(health.oldestPaidNotLiveAgeHours).toBe(80);
   });
 
   it("defaults abandoned checkout metrics to zero without sessions", () => {
@@ -1183,5 +1222,50 @@ describe("formatAbandonedAgeHours", () => {
     expect(formatAbandonedAgeHours(3)).toBe("3h");
     expect(formatAbandonedAgeHours(24)).toBe("1d");
     expect(formatAbandonedAgeHours(30)).toBe("1d 6h");
+  });
+});
+
+describe("oldestPaidNotLiveAgeHours", () => {
+  it("returns null for no candidates", () => {
+    expect(oldestPaidNotLiveAgeHours([], [], NOW)).toBeNull();
+  });
+
+  it("returns null when no order matches any candidate slug", () => {
+    const candidates = [{ slug: "paid-lead" }];
+    const orders = [{ leadSlug: "other-lead", createdAt: new Date(NOW - 10 * HOUR_MS).toISOString() }];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBeNull();
+  });
+
+  it("returns null when the only matching order has no createdAt or an unparseable one", () => {
+    const candidates = [{ slug: "paid-lead" }];
+    expect(
+      oldestPaidNotLiveAgeHours(candidates, [{ leadSlug: "paid-lead" }], NOW),
+    ).toBeNull();
+    expect(
+      oldestPaidNotLiveAgeHours(
+        candidates,
+        [{ leadSlug: "paid-lead", createdAt: "not-a-date" }],
+        NOW,
+      ),
+    ).toBeNull();
+  });
+
+  it("picks the oldest matching order across every candidate", () => {
+    const candidates = [{ slug: "lead-a" }, { slug: "lead-b" }];
+    const orders = [
+      { leadSlug: "lead-a", createdAt: new Date(NOW - 10 * HOUR_MS).toISOString() },
+      { leadSlug: "lead-b", createdAt: new Date(NOW - 30 * HOUR_MS).toISOString() },
+      // Not a candidate — must not anchor the signal even though it's older.
+      { leadSlug: "lead-c", createdAt: new Date(NOW - 900 * HOUR_MS).toISOString() },
+    ];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBe(30);
+  });
+
+  it("clamps to 0 when the matching order's createdAt is in the future", () => {
+    const candidates = [{ slug: "lead-a" }];
+    const orders = [
+      { leadSlug: "lead-a", createdAt: new Date(NOW + 5 * HOUR_MS).toISOString() },
+    ];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBe(0);
   });
 });

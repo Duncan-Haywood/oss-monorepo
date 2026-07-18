@@ -35,6 +35,7 @@ import { isLeadSnoozed } from "../leads/snooze";
 import {
   isUnrepliedInquiryStatus,
   leadIsMissingCriticalEmail,
+  oldestPaidNotLiveAgeHours,
 } from "../metrics/pipeline-health";
 import {
   listMarketingPacksDue,
@@ -354,6 +355,15 @@ export interface DailyDigest {
    */
   paidNotLive: DigestPaidNotLive[];
   paidNotLiveCount: number;
+  /**
+   * Age in whole hours since the oldest paid-not-live lead's earliest bundle
+   * order was created; null when none of those leads has a matching order.
+   * Same staleness signal as pipeline-health oldestPaidNotLiveAgeHours — see
+   * that function's doc comment for why a lead promoted to stage=paid with
+   * no order row (dashboard stage dropdown / CSV backfill) is silently
+   * skipped from this age signal while still counted in paidNotLiveCount.
+   */
+  oldestPaidNotLiveAgeHours: number | null;
   /**
    * Email-critical leads with no usable email — same predicate as
    * pipeline-health leadsMissingEmailCount (action section). Distinct from
@@ -854,6 +864,11 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
   // dropdown or CSV import) with no deploy_handoffs row ever created.
   const paidNotLiveAll = leads.filter((lead) => lead.stage === "paid");
   const paidNotLiveCount = paidNotLiveAll.length;
+  const oldestPaidNotLiveAgeHoursValue = oldestPaidNotLiveAgeHours(
+    paidNotLiveAll,
+    orders,
+    nowMs,
+  );
   const paidNotLive: DigestPaidNotLive[] = paidNotLiveAll
     .slice(0, PAID_NOT_LIVE_LIMIT)
     .map((lead) => ({
@@ -1000,6 +1015,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     oldestOpenHandoffAgeHours,
     paidNotLive,
     paidNotLiveCount,
+    oldestPaidNotLiveAgeHours: oldestPaidNotLiveAgeHoursValue,
     leadsMissingEmail,
     leadsMissingEmailCount,
     newInquiryCount,
@@ -1225,7 +1241,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(bundleRefundTitle, bundleRefundRows, "No bundle orders refunded.")}
     ${section(bundleDisputeTitle, bundleDisputeRows, "No bundle orders disputed.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount}${digest.oldestOpenHandoffAgeHours !== null ? ` · oldest ${digest.oldestOpenHandoffAgeHours}h` : ""})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
-    ${section(`Paid, not yet live (${digest.paidNotLiveCount})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
+    ${section(`Paid, not yet live (${digest.paidNotLiveCount}${digest.oldestPaidNotLiveAgeHours !== null ? ` · oldest ${digest.oldestPaidNotLiveAgeHours}h` : ""})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
