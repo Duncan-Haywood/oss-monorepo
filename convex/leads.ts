@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { buildPaymentStubLeadFields } from "../src/lib/leads/payment-stub";
 
 const categoryValidator = v.union(
   v.literal("restaurant"),
@@ -146,32 +147,14 @@ export const markLeadPaid = mutation({
     } else {
       // Parity with SQLite recordLeadPayment: checkout can complete before a
       // CRM lead row exists. Insert a paid stub so listOrders revenue and
-      // paidNotLive / handoff eligibility stay consistent. Defaults must stay
-      // in sync with src/lib/leads/payment-stub.ts buildPaymentStubLeadFields.
-      const businessName =
-        args.slug
-          .split("-")
-          .filter(Boolean)
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ") || "Unknown";
-      await ctx.db.insert("leads", {
-        slug: args.slug,
-        businessName,
-        category: "generic",
-        city: "Colorado",
-        state: "CO",
-        tagline: "Local favorites made fresh daily",
-        description: `This is a preview page generated for ${businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
-        phone: "(555) 000-0000",
-        services: [],
-        hours: {
-          weekday: "Mon–Fri 9am–5pm",
-          weekend: "Sat–Sun Closed",
-        },
-        stage: "paid",
-        recommendedTier: "growth",
-        dataSource: "payment_stub",
-      });
+      // paidNotLive / handoff eligibility stay consistent. Defaults come from
+      // the canonical buildPaymentStubLeadFields (src/lib/leads/payment-stub.ts)
+      // — previously this handler forked its own private copy of the same
+      // businessName-from-slug + stub-defaults logic, the same duplicate-logic
+      // drift class fixed once already in convex/orders.ts and
+      // convex/deployHandoffs.ts (see AGENT_PROTOCOL /
+      // convex-deploy-handoff-status-rank-duplicate-fix).
+      await ctx.db.insert("leads", buildPaymentStubLeadFields(args.slug));
     }
 
     await ctx.db.insert("orders", {
