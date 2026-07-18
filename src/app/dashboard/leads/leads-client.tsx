@@ -52,6 +52,7 @@ import {
 import type { ClientVoicePack } from "@/lib/voice/pack";
 import {
   leadEligibleForClientVoicePack,
+  listClientVoicePacksDue,
   scriptTypeLabel,
 } from "@/lib/voice/faq-pack";
 import { leadEligibleForClientVoicePackDelivery } from "@/lib/voice/deliver-pack";
@@ -66,6 +67,8 @@ import { getBundle } from "@/lib/pricing/bundles";
 import {
   contentTypeLabel,
   leadEligibleForMarketingPack,
+  listMarketingPacksDue,
+  marketingMonthKey,
 } from "@/lib/marketing/monthly-pack";
 import { leadEligibleForMarketingPackDelivery } from "@/lib/marketing/deliver-pack";
 import {
@@ -909,6 +912,14 @@ export function LeadsClient({
   );
   const starterUpsellCandidates = listStarterUpsellCandidates(leads, orders);
   const recurringEntitlementPaused = listRecurringEntitlementPaused(leads, orders);
+  const marketingPacksDueMonth = marketingMonthKey(nowMs);
+  const marketingPacksDue = listMarketingPacksDue(
+    leads,
+    orders,
+    marketingPacks,
+    marketingPacksDueMonth,
+  );
+  const clientVoicePacksDue = listClientVoicePacksDue(leads, orders, clientVoicePacks);
   const commerceCatalogsMissing = listCommerceCatalogsMissing(
     leads,
     orders,
@@ -1152,6 +1163,106 @@ export function LeadsClient({
                 </li>
               );
             })}
+          </ul>
+        </section>
+      )}
+
+      {marketingPacksDue.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Marketing packs due
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({marketingPacksDue.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/marketing-automation"
+              className="text-xs font-medium text-emerald-800 underline underline-offset-2"
+            >
+              Marketing automation
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Paid Growth/Complete leads still missing their {marketingPacksDueMonth} marketing
+            pack — the sold monthly fulfillment promise.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {marketingPacksDue.map((lead) => (
+              <li
+                key={lead.slug}
+                className="rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-zinc-900">
+                      {lead.businessName}{" "}
+                      <span className="font-normal text-zinc-500">({lead.slug})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      {lead.stage} · {marketingPacksDueMonth}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => handleGenerateMarketingPack(lead.slug)}
+                    className="rounded-lg bg-emerald-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-900 disabled:opacity-60"
+                  >
+                    Generate pack
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {clientVoicePacksDue.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Voice packs due
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({clientVoicePacksDue.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/voice-agent-flow"
+              className="text-xs font-medium text-violet-800 underline underline-offset-2"
+            >
+              Voice agent flow
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Paid/live Complete leads still missing their FAQ voice pack — the sold phone
+            fulfillment promise (Twilio stays separate).
+          </p>
+          <ul className="mt-4 space-y-3">
+            {clientVoicePacksDue.map((lead) => (
+              <li
+                key={lead.slug}
+                className="rounded-xl border border-violet-100 bg-white px-4 py-3 text-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-zinc-900">
+                      {lead.businessName}{" "}
+                      <span className="font-normal text-zinc-500">({lead.slug})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">{lead.stage} · Complete</p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => handleGenerateClientVoicePack(lead.slug)}
+                    className="rounded-lg bg-violet-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-900 disabled:opacity-60"
+                  >
+                    Generate pack
+                  </button>
+                </div>
+              </li>
+            ))}
           </ul>
         </section>
       )}

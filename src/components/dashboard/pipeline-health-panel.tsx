@@ -341,7 +341,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           {health.marketingPacksDueCount} Growth/Complete lead
           {health.marketingPacksDueCount === 1 ? "" : "s"} still need a{" "}
           {health.marketingPacksDueMonth} marketing pack — generate from the Marketing packs
-          panel on{" "}
+          due panel on{" "}
           <Link href="/dashboard/leads" className="underline underline-offset-2">
             /dashboard/leads
           </Link>{" "}
@@ -395,7 +395,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <p className="mt-3 text-xs text-violet-900">
           {health.clientVoicePacksDueCount} Complete lead
           {health.clientVoicePacksDueCount === 1 ? "" : "s"} still need a voice FAQ pack —
-          generate from the Generate voice controls on{" "}
+          generate from the Voice packs due panel on{" "}
           <Link href="/dashboard/leads" className="underline underline-offset-2">
             /dashboard/leads
           </Link>{" "}
