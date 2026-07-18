@@ -9,6 +9,7 @@ import { normalizeOutreachStep } from "./email/outreach-followups";
 import type { DeployHandoff, DeployHandoffStatus } from "./deploy/types";
 import type { ClientInquiry, ClientInquiryStatus, CreateClientInquiryInput } from "./inquiries/types";
 import { normalizeContactFormFields } from "./inquiries/contact-fields";
+import { newClientInquiryId } from "./inquiries/inquiry-id";
 import type { OrderRecord } from "./orders/types";
 import { sortOrdersNewestFirst } from "./orders/types";
 import type { CheckoutSessionRecord } from "./checkout/types";
@@ -1969,7 +1970,7 @@ export async function insertClientInquiry(
     source: input.source,
   });
   const inquiry: ClientInquiry = {
-    id: `inq_${input.leadSlug}_${Date.now()}`,
+    id: newClientInquiryId(input.leadSlug),
     leadSlug: input.leadSlug,
     businessName: input.businessName,
     name: capped.name || undefined,
