@@ -539,7 +539,21 @@ export default function ArchitectureDocPage() {
         <code>invoice.payment_failed</code>: retrieve the Subscription and clear
         only when grants + no <code>pause_collection</code> (blind clear would
         reopen the pause hole; one-time invoices skip; retrieve failures return{" "}
-        <code>500</code> / <code>subscription_retrieve</code>). On grants restore,{" "}
+        <code>500</code> / <code>subscription_retrieve</code>). Both events also
+        carry a customer-facing email twin, best-effort so a notify failure
+        never turns an already-durable pause/restore write into a retry loop:{" "}
+        <code>invoice.payment_failed</code> sends{" "}
+        <code>sendPaymentFailedNotice</code> when the paused customer has a
+        recurring order with a lead email on file, and{" "}
+        <code>invoice.paid</code> sends the restore twin{" "}
+        <code>sendPaymentRecoveredNotice</code> — but only when that event
+        actually cleared a prior pause (<code>cleared &gt; 0</code>), so an
+        ordinary healthy monthly renewal stays silent instead of emailing every
+        subscriber a spurious &quot;service resumed&quot; notice every billing
+        cycle. Both reuse the original Checkout Session&apos;s{" "}
+        <code>/checkout/success?session_id=</code> Manage-billing link rather
+        than minting a fresh Billing Portal session from inside the webhook.
+        On grants restore,{" "}
         <code>subscription.created</code>|<code>updated</code> and{" "}
         <code>invoice.paid</code> also derive live entitlement from{" "}
         <code>subscription.items</code> vs create-path catalog monthly Prices (

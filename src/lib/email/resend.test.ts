@@ -209,6 +209,18 @@ describe("resend.ts — brand.* HTML escaping", () => {
     expect(sentHtml).not.toContain("<Truck>");
   });
 
+  it("escapes businessName in sendPaymentRecoveredNotice", async () => {
+    const { sendPaymentRecoveredNotice } = await import("./resend");
+    await sendPaymentRecoveredNotice({
+      to: "owner@example.com",
+      businessName: UNSAFE_NAME,
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_recovered",
+    });
+    expect(sentHtml).toContain(ESCAPED_NAME);
+    expect(sentHtml).not.toContain("<Truck>");
+  });
+
   it("escapes brand.name in sendReceiptEmail signature", async () => {
     const { sendReceiptEmail } = await import("./resend");
     await sendReceiptEmail("owner@example.com", "Demo Cafe", "starter", 500);
@@ -393,6 +405,18 @@ describe("resend.ts — href URL HTML escaping", () => {
     expectHrefSafe();
     expect(sentHtml).toMatch(/href="[^"]*\/checkout\/success\?session_id=cs_test_dunning"/);
   });
+
+  it("escapes manage-billing href in sendPaymentRecoveredNotice", async () => {
+    const { sendPaymentRecoveredNotice } = await import("./resend");
+    await sendPaymentRecoveredNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_recovered",
+    });
+    expectHrefSafe();
+    expect(sentHtml).toMatch(/href="[^"]*\/checkout\/success\?session_id=cs_test_recovered"/);
+  });
 });
 
 describe("resend.ts — transactional skipSuppression", () => {
@@ -458,6 +482,18 @@ describe("resend.ts — transactional skipSuppression", () => {
       businessName: "Demo Cafe",
       slug: "demo-cafe",
       stripeSessionId: "cs_test_dunning",
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sendPaymentRecoveredNotice still delivers when marketing-suppressed", async () => {
+    const { sendPaymentRecoveredNotice } = await import("./resend");
+    const result = await sendPaymentRecoveredNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_recovered",
     });
     expect(result.success).toBe(true);
     expect(fetchMock).toHaveBeenCalled();

@@ -485,6 +485,44 @@ export async function sendPaymentFailedNotice(params: {
 }
 
 /**
+ * Recurring-renewal payment-recovered confirmation — sent from the Stripe
+ * webhook's invoice.paid handler, but only when that event actually cleared
+ * a prior recurringCanceledAt pause (see payment-recovered-confirmation-
+ * notice). sendPaymentFailedNotice told the customer their service paused;
+ * without this twin the customer who updates their card gets no signal that
+ * service resumed and may assume they're still locked out. Passes
+ * skipSuppression: true — billing-critical, same class as the dunning
+ * notice, not cold marketing. Reuses the same /checkout/success Manage-
+ * billing link so this needs no fresh Stripe Billing Portal API call from
+ * inside the webhook.
+ */
+export async function sendPaymentRecoveredNotice(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  stripeSessionId: string;
+}) {
+  const { to, businessName, slug, stripeSessionId } = params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const manageBillingUrl = `${baseUrl}/checkout/success?session_id=${encodeURIComponent(stripeSessionId)}`;
+  const safeBiz = escapeHtmlForEmail(businessName);
+  const safeBrand = escapeHtmlForEmail(brand.name);
+  const safeManageBillingUrl = escapeHtmlForEmail(manageBillingUrl);
+
+  const subject = `Your ${brand.name} payment succeeded — service resumed`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">You're all set</h2>
+    <p style="margin-bottom: 16px;">We successfully charged your card on file for <strong>${safeBiz}</strong>'s ${escapeHtmlForEmail(brand.name)} subscription. Your service is active again — nothing else to do.</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${safeManageBillingUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Manage billing</a>
+    </div>
+    <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
+}
+
+/**
  * Operator-triggered delivery of this month's marketing pack to the client
  * (Growth/Complete sold content handoff without Buffer/GBP OAuth).
  * Passes skipSuppression: true — this is paid feature delivery to lead.email,

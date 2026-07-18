@@ -121,11 +121,13 @@ const sendEmail = vi.fn();
 const sendReceiptEmail = vi.fn();
 const sendCommerceBuyNowClientReceipt = vi.fn();
 const sendPaymentFailedNotice = vi.fn();
+const sendPaymentRecoveredNotice = vi.fn();
 vi.mock("@/lib/email/resend", () => ({
   sendEmail: (...args: unknown[]) => sendEmail(...args),
   sendReceiptEmail: (...args: unknown[]) => sendReceiptEmail(...args),
   sendCommerceBuyNowClientReceipt: (...args: unknown[]) => sendCommerceBuyNowClientReceipt(...args),
   sendPaymentFailedNotice: (...args: unknown[]) => sendPaymentFailedNotice(...args),
+  sendPaymentRecoveredNotice: (...args: unknown[]) => sendPaymentRecoveredNotice(...args),
 }));
 
 /** Growth setup ($500) + first month ($99) — matches expectedBundleCheckoutAmountCents. */
@@ -279,6 +281,7 @@ describe("POST /api/stripe/webhook", () => {
     sendReceiptEmail.mockReset().mockResolvedValue({ success: true });
     sendCommerceBuyNowClientReceipt.mockReset().mockResolvedValue({ success: true });
     sendPaymentFailedNotice.mockReset().mockResolvedValue({ success: true });
+    sendPaymentRecoveredNotice.mockReset().mockResolvedValue({ success: true });
 
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_123";
@@ -1125,6 +1128,134 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_reactivated");
       expect(json.received).toBe(false);
+    });
+  });
+
+  describe("invoice.paid payment-recovered confirmation", () => {
+    function paidEvent(overrides: Record<string, unknown> = {}) {
+      return {
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_recovered_1",
+            customer: "cus_recovered",
+            subscription: "sub_recovered",
+            ...overrides,
+          },
+        },
+      };
+    }
+
+    beforeEach(() => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_recovered",
+        customer: "cus_recovered",
+        status: "active",
+        pause_collection: null,
+        items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
+      });
+    });
+
+    it("emails the lead once a recurring order is found and the pause was actually cleared", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "demo-cafe",
+          stripeSessionId: "cs_recovered_1",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "demo-cafe",
+        businessName: "Demo Cafe",
+        email: "owner@demo-cafe.test",
+      });
+      constructEvent.mockReturnValue(paidEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_recovered");
+      expect(sendPaymentRecoveredNotice).toHaveBeenCalledWith({
+        to: "owner@demo-cafe.test",
+        businessName: "Demo Cafe",
+        slug: "demo-cafe",
+        stripeSessionId: "cs_recovered_1",
+      });
+    });
+
+    it("skips the notice when nothing was actually cleared (ordinary healthy renewal)", async () => {
+      clearOrdersRecurringCanceledByCustomer.mockResolvedValueOnce(0);
+      constructEvent.mockReturnValue(paidEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getOrdersByStripeCustomerId).not.toHaveBeenCalled();
+      expect(sendPaymentRecoveredNotice).not.toHaveBeenCalled();
+    });
+
+    it("skips the notice when the customer has no recurring order", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        { leadSlug: "one-off", stripeSessionId: "cs_x", tier: "starter", commerceAddon: false },
+      ]);
+      constructEvent.mockReturnValue(paidEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendPaymentRecoveredNotice).not.toHaveBeenCalled();
+    });
+
+    it("skips the notice when the lead has no email on file", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "demo-cafe",
+          stripeSessionId: "cs_recovered_3",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({ slug: "demo-cafe", businessName: "Demo Cafe" });
+      constructEvent.mockReturnValue(paidEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendPaymentRecoveredNotice).not.toHaveBeenCalled();
+    });
+
+    it("does not 5xx when the notice lookup throws (restore already durable)", async () => {
+      getOrdersByStripeCustomerId.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue(paidEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(clearOrdersRecurringCanceledByCustomer).toHaveBeenCalled();
+      expect(sendPaymentRecoveredNotice).not.toHaveBeenCalled();
+    });
+
+    it("does not fail the webhook when the send itself resolves success:false", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "demo-cafe",
+          stripeSessionId: "cs_recovered_4",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "demo-cafe",
+        businessName: "Demo Cafe",
+        email: "owner@demo-cafe.test",
+      });
+      sendPaymentRecoveredNotice.mockResolvedValueOnce({ success: false, reason: "suppressed" });
+      constructEvent.mockReturnValue(paidEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
     });
   });
 

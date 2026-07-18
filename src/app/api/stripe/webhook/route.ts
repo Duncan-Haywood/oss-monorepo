@@ -1298,8 +1298,9 @@ export async function POST(request: Request) {
         }
         break;
       }
+      let cleared = 0;
       try {
-        const cleared = await clearOrdersRecurringCanceledByCustomer(
+        cleared = await clearOrdersRecurringCanceledByCustomer(
           customerId,
           WEBHOOK_CONVEX_PRIMARY,
         );
@@ -1318,6 +1319,46 @@ export async function POST(request: Request) {
         );
         const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");
         return NextResponse.json(failure.body, { status: failure.status });
+      }
+
+      // Customer-facing recovery confirmation — best-effort, and only when
+      // this event actually cleared a prior pause (cleared > 0). Every other
+      // invoice.paid (ordinary healthy renewal) must stay silent — sending
+      // "service resumed" on a subscription that was never paused would be
+      // confusing noise, not a useful signal. The durable clear/sync above
+      // already succeeded, so a notify failure here must not turn it into a
+      // 5xx/retry loop (see payment-recovered-confirmation-notice, the
+      // restore twin of recurring-payment-failed-dunning-notice).
+      if (cleared > 0) {
+        try {
+          const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
+          const orders = await getOrdersByStripeCustomerId(customerId);
+          const recurringOrder = orders.find((order) =>
+            orderHadRecurringEntitlement(order),
+          );
+          if (recurringOrder) {
+            const lead = await getLeadBySlug(recurringOrder.leadSlug);
+            if (lead?.email) {
+              const { sendPaymentRecoveredNotice } = await import("@/lib/email/resend");
+              const sent = await sendPaymentRecoveredNotice({
+                to: lead.email,
+                businessName: lead.businessName,
+                slug: recurringOrder.leadSlug,
+                stripeSessionId: recurringOrder.stripeSessionId,
+              });
+              if (!sent.success) {
+                console.warn(
+                  `webhook: invoice.paid ${invoice.id} payment-recovered notice not sent for ${recurringOrder.leadSlug} (${sent.reason ?? sent.error ?? "unknown"})`,
+                );
+              }
+            }
+          }
+        } catch (e) {
+          console.error(
+            `Failed to send payment-recovered notice for customer ${customerId} after invoice.paid ${invoice.id}`,
+            e,
+          );
+        }
       }
       break;
     }
