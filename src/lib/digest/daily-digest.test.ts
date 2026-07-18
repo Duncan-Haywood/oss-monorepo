@@ -1375,6 +1375,51 @@ describe("buildDailyDigest", () => {
     expect(digest.paidNotLive[0]?.businessName).toBe("Legacy Bakery");
     expect(digest.openHandoffs).toHaveLength(0);
     expect(digest.isEmpty).toBe(false);
+    // No order row at all for a CSV-backfilled paid lead — nothing to anchor
+    // the staleness signal on (see oldestPaidNotLiveAgeHours's skip-if-no-order
+    // contract in pipeline-health.ts).
+    expect(digest.oldestPaidNotLiveAgeHours).toBeNull();
+  });
+
+  it("anchors oldestPaidNotLiveAgeHours to the oldest matching order across paid-not-live leads", () => {
+    const withOlderOrder = baseLead({
+      slug: "paid-with-older-order",
+      businessName: "Older Order Co",
+      stage: "paid",
+    });
+    const withNewerOrder = baseLead({
+      slug: "paid-with-newer-order",
+      businessName: "Newer Order Co",
+      stage: "paid",
+    });
+    const csvBackfilledNoOrder = baseLead({
+      slug: "csv-backfilled",
+      businessName: "CSV Backfilled Co",
+      stage: "paid",
+    });
+    const digest = buildDailyDigest({
+      leads: [withOlderOrder, withNewerOrder, csvBackfilledNoOrder],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [],
+      orders: [
+        {
+          leadSlug: "paid-with-older-order",
+          tier: "starter",
+          commerceAddon: false,
+          createdAt: "2026-07-09T00:00:00.000Z", // 84h before NOW
+        },
+        {
+          leadSlug: "paid-with-newer-order",
+          tier: "growth",
+          commerceAddon: false,
+          createdAt: "2026-07-12T02:00:00.000Z", // 10h before NOW
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.paidNotLiveCount).toBe(3);
+    expect(digest.oldestPaidNotLiveAgeHours).toBe(84);
   });
 
   it("surfaces email-critical leads with no usable email via leadsMissingEmail", () => {
@@ -1855,9 +1900,37 @@ describe("renderDailyDigestHtml", () => {
       nowMs: NOW,
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
-    expect(html).toContain("Paid, not yet live");
+    // No order row for this lead — header carries no staleness suffix.
+    expect(html).toContain("Paid, not yet live (1)");
+    expect(html).not.toContain("Paid, not yet live (1 ·");
     expect(html).toContain("Legacy &lt;Script&gt; Bakery");
     expect(html).not.toContain("Legacy <Script> Bakery");
+  });
+
+  it("renders paid-not-live header with the oldest matching order's staleness suffix", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "stale-paid-cafe",
+          businessName: "Stale Paid Cafe",
+          stage: "paid",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [],
+      orders: [
+        {
+          leadSlug: "stale-paid-cafe",
+          tier: "starter",
+          commerceAddon: false,
+          createdAt: "2026-07-10T00:00:00.000Z", // 60h before NOW
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Paid, not yet live (1 · oldest 60h)");
   });
 
   it("renders leads-missing-email with escaped business name and stage", () => {

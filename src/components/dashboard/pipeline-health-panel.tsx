@@ -46,7 +46,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.paidNotLiveCount)}
           hint={
             health.paidNotLiveCount > 0
-              ? "See the Paid, not live panel on /dashboard/leads"
+              ? `See the Paid, not live panel on /dashboard/leads${
+                  health.oldestPaidNotLiveAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestPaidNotLiveAgeHours)}`
+                    : ""
+                }`
               : "None pending"
           }
           attention={health.paidNotLiveCount > 0}
