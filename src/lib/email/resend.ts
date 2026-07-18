@@ -648,8 +648,10 @@ export async function sendClientVoicePackToClientEmail(params: {
 
 /**
  * Notify a commerceAddon lead that their end-customer completed a Buy now
- * purchase (Commerce "order notifications" sold promise). Honors suppression
- * via sendEmail. Distinct from sendReceiptEmail (platform bundle buyer receipt).
+ * purchase (Commerce "order notifications" sold promise). Billing-critical —
+ * skips marketing suppression so a prior cold-outreach unsubscribe cannot
+ * block order-notification delivery after money is taken. Distinct from
+ * sendReceiptEmail (platform bundle buyer receipt).
  * See src/lib/commerce/client-receipt.ts + /docs/process (commerce-buy-now-client-receipt).
  */
 export async function sendCommerceBuyNowClientReceipt(params: {

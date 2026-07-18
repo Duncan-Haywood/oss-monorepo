@@ -2902,6 +2902,13 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-74a30g (folded codex/dev-work-billing-notice-entitlement + codex/continuous-work-20260718-luna-fold)",
   },
+  {
+    id: "post-billing-notice-entitlement-clean-audit-0718",
+    summary:
+      "Empty-backlog audit after PR #389 (billing-notice-entitlement-selection): re-verify skipSuppression correctness, href escaping, Convex/SQLite ORDER BY parity, existence-check-before-write, `as const` on success literals, orchestration test coverage, and pipeline-health/digest wiring from source. No defect found; fixed one stale doc comment (sendCommerceBuyNowClientReceipt said 'Honors suppression' when it correctly bypasses it).",
+    status: "done",
+    owner: "claude/nice-euler-fuhf7h",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -5973,6 +5980,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Switch all four billing-notice recipient-selection sites (sendPaymentFailedNotice, sendPaymentRecoveredNotice, sendSubscriptionPausedNotice, sendSubscriptionResumedNotice) in src/app/api/stripe/webhook/route.ts from orderHadRecurringEntitlement to orderGrantsSoldCapabilityEntitlement when picking which of a customer's orders to notify about. orderHadRecurringEntitlement only checks tier/commerceAddon ('ever a Growth/Complete/Commerce Price') and ignores recurringCanceledAt/refundedAt/disputedAt entirely, so a customer whose only Growth/Complete order was refunded or disputed — or who has an old refunded order alongside unrelated history — could still match and receive a billing notice referencing an order they hold no active, paid entitlement to (and a Manage-billing link pointing at a stale/refunded Checkout Session). orderGrantsSoldCapabilityEntitlement (active + non-canceled + non-refunded + non-disputed) is the same combinator every sold-capability eligibility predicate already uses (marketing pack, voice pack, commerce catalog, Starter upsell) — this closes the one remaining call-site class that had drifted from it. The underlying CRM pause/restore writes (markOrdersRecurringCanceledByCustomer / clearOrdersRecurringCanceledByCustomer, keyed on Stripe customer id across all of a customer's orders) are unchanged — only which order's slug/session/lead is used to address the *notice* changes.",
     rationale:
       "Found while folding two stuck sibling branches (codex/dev-work-billing-notice-entitlement had already fixed the payment_failed/invoice.paid pair but forked before subscription-pause-collection-notice shipped its two additional call sites; codex/continuous-work-20260718-luna-fold carried only additive nested-Stripe-invoice-subscription test coverage with no source change). Neither sibling could open its own PR (GitHub Actions token policy blocks gh pr create for those automations, the same recurring limitation noted on the last several folded iterations). Rather than fold the narrower two-site fix as-is, re-derived the bug against current main (post subscription-pause-collection-notice) and found it applied identically to the two new pause/resume call sites, so extended the same fix to all four sites in one pass — this is the same entitlement-consistency bug class as refund-dispute-entitlement-gate (which fixed the analogous drift in oldest-age dashboard helpers), now closed for the notice-selection call sites too.",
+  },
+  {
+    id: "post-billing-notice-entitlement-clean-audit-0718",
+    date: "2026-07-18",
+    decision:
+      "Re-verify (by reading current source directly, not by trusting prior ITERATIONS prose) skipSuppression correctness across every exported send* helper in src/lib/email/resend.ts, href-attribute escaping across every outbound email template, Convex/SQLite ORDER BY parity across every list query in convex/*.ts including ones not explicitly named in AGENT_PROTOCOL's list, existence-check-before-write on every client-submitted-id dashboard action, `as const` on every `success:` literal in the three actions.ts files, non-trivial src/lib modules missing a .test.ts sibling, and pipeline-health/daily-digest wiring for every list*Due-style helper. No defect found on any axis. Fixed one cosmetic doc-comment inaccuracy found in the process: sendCommerceBuyNowClientReceipt's docstring said 'Honors suppression via sendEmail' when the code has always correctly passed skipSuppression: true (it bypasses suppression, matching every other billing-critical send) — reworded to match sendReceiptEmail's accurate phrasing.",
+    rationale:
+      "AGENT_PROTOCOL's fold-scan-first rule found zero branches pushed at/after main's tip (billing-notice-entitlement-selection, PR #389) and the only open PR repo-wide (#202) is the same unrelated human-authored draft noted by the last several iterations — nothing to fold. With NEXT_STEPS fully operator/legal-gated and the money-integrity/entitlement-selection axis freshly re-derived twice in the last two iterations, the highest-value use of this run was an independent, from-source re-check of the seven axes most likely to regress after a fast chain of similarly-shaped fixes, rather than re-running an already-multiply-confirmed generic sweep or inventing an optional aggregate. A documented clean result (plus the one real, if trivial, doc-comment fix it surfaced) is worth more to sibling agents than manufactured busywork.",
   },
 ];
 
@@ -12367,6 +12382,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "billing-notice-entitlement-selection",
+    ),
+  },
+  {
+    date: "2026-07-18",
+    branch: "claude/nice-euler-fuhf7h",
+    summary:
+      "Empty-backlog after PR #389 (billing-notice-entitlement-selection, tip of main). NEXT_STEPS stayed fully operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Per AGENT_PROTOCOL's fold-scan-first rule, checked every branch pushed at/after main's tip and found none — this run is the first to pick up work after PR #389 landed. The only open PR repo-wide (#202) is the same unrelated human-authored draft agent-run-dashboard feature noted by the last several iterations. Dispatched an independent, from-source (not from-ITERATIONS-prose) re-audit across the seven axes most likely to regress after the dense, fast chain of billing-notice fixes shipped over the last five iterations: skipSuppression correctness on all 17 exported send* helpers in src/lib/email/resend.ts, href-attribute escaping in every outbound email template, Convex/SQLite ORDER BY parity on every list query in convex/*.ts (including ones not explicitly named in AGENT_PROTOCOL's list), existence-check-before-write on every client-submitted-id dashboard action, `as const` on every `success:` literal in the three actions.ts files, non-trivial src/lib modules missing a .test.ts sibling, and pipeline-health/daily-digest wiring for every list*Due-style helper. No defect found on any axis. The audit did surface one cosmetic-only inaccuracy: sendCommerceBuyNowClientReceipt's docstring said 'Honors suppression via sendEmail' when the function has always correctly passed skipSuppression: true (it bypasses suppression, matching every other billing-critical send, not honors it) — fixed the wording to match sendReceiptEmail's accurate phrasing rather than leaving a misleading comment for the next agent to trip over.",
+    shipped: [
+      "src/lib/email/resend.ts — corrected sendCommerceBuyNowClientReceipt's docstring (no behavior change; the function already passed skipSuppression: true)",
+      "src/lib/process/prompt_process.tsx — NEXT_STEPS + BUSINESS_DECISIONS: post-billing-notice-entitlement-clean-audit-0718 (id-based entries)",
+      "Process: zero branches pushed at/after main's tip to fold; audit coverage (no fix needed beyond the doc comment): resend.ts skipSuppression on all 17 send helpers; href escaping in every outbound email template; Convex/SQLite ORDER BY parity across all 10 convex/*.ts files' list queries; existence-check-before-write on all client-submitted-id dashboard actions; `as const` on every success literal in the three actions.ts files; src/lib test-file coverage (only barrels/type-only files/documented db.ts glue are untested); pipeline-health + daily-digest wiring for every list*Due-style helper",
+      "Verified: npm test (2006 passed, 153 files — unchanged from the PR #389 baseline, confirming no drift) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated, Node v22.22.2) + npm run dev sanity check: curled /, /dashboard/leads, /preview/demo-cafe, /docs/process, /docs/architecture (all 200) and POST /api/stripe/webhook without a valid signature (501, expected — no regression), then stopped the dev server and confirmed port 3000 was freed",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-billing-notice-entitlement-clean-audit-0718",
     ),
   },
 ];
