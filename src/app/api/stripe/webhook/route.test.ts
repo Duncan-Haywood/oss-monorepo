@@ -353,8 +353,38 @@ describe("POST /api/stripe/webhook", () => {
     expect(lastResponse!.headers.get("Retry-After")).toBeTruthy();
     const body = await lastResponse!.json();
     expect(body.error).toBe("Too many requests");
-    // The 121st request never reached signature verification.
-    expect(constructEvent).toHaveBeenCalledTimes(120);
+    // The gate runs after signature verification, so every request —
+    // including the 121st that gets rate-limited — is still verified first
+    // (stripe-webhook-rate-limit-post-verify: gating on verified events only
+    // means an unverified attacker request, whatever IP it claims, can never
+    // occupy a slot in the bucket a real Stripe IP's traffic lands in).
+    expect(constructEvent).toHaveBeenCalledTimes(121);
+  });
+
+  it("never rate-limits a request that fails signature verification, regardless of claimed IP", async () => {
+    constructEvent.mockImplementation(() => {
+      throw new Error("bad signature");
+    });
+    const { POST } = await import("./route");
+    const request = () =>
+      new Request("http://localhost/api/stripe/webhook", {
+        method: "POST",
+        // A real Stripe webhook IP an attacker could impersonate to try to
+        // exhaust the bucket real Stripe traffic would otherwise land in.
+        headers: { "stripe-signature": "sig_test", "x-forwarded-for": "3.18.12.63" },
+        body: "{}",
+      });
+
+    let lastResponse;
+    for (let i = 0; i < 200; i += 1) {
+      lastResponse = await POST(request());
+    }
+
+    // Every one of the 200 unverified requests gets 400, never 429 — the
+    // rate limiter bucket for this IP was never touched.
+    expect(lastResponse!.status).toBe(400);
+    const json = await lastResponse!.json();
+    expect(json.error).toBe("Signature verification failed");
   });
 
   it("acknowledges an unhandled event type without touching fulfillment", async () => {
