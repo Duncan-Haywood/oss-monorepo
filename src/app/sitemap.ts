@@ -1,15 +1,18 @@
 import type { MetadataRoute } from "next";
 import { getLeads } from "@/lib/db";
+import { DOCS_PAGES } from "@/lib/docs/routes";
 import { DEMO_LEADS } from "@/lib/leads/demo-catalog";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { isLeadPreviewIndexable, siteUrl } from "@/lib/seo";
 
+// Docs sub-routes are derived from DOCS_PAGES (shared with src/app/docs/page.tsx)
+// so a new /docs/* page can never again ship indexable-but-unlisted in the
+// sitemap (sitemap-docs-route-sync — see AGENT_PROTOCOL in prompt_process.tsx).
 const STATIC_ROUTES = [
   "",
   "/checkout",
   "/docs",
-  "/docs/product-bundles",
-  "/docs/business-model",
+  ...DOCS_PAGES.map((page) => page.href),
   "/privacy",
   "/terms",
 ];

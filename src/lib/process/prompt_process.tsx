@@ -606,6 +606,13 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
   },
   {
+    id: "sitemap-docs-route-sync",
+    summary:
+      "Bug: src/app/sitemap.ts's STATIC_ROUTES hand-duplicated only 2 of the 12 indexable /docs/* pages linked from src/app/docs/page.tsx, silently omitting 9 unauthenticated, crawlable docs pages from sitemap.xml. Shipped: shared src/lib/docs/routes.ts (DOCS_PAGES) imported by both docs/page.tsx and sitemap.ts so the two lists can no longer drift.",
+    status: "done",
+    owner: "claude/upbeat-dijkstra-bpm73m",
+  },
+  {
     id: "empty-backlog-convex-public-surface-audit-0718",
     summary:
       "Empty-backlog audit: re-check Convex/SQLite persistence parity and unauthenticated public render sinks after the latest webhook/docs work; ship any real regression found, otherwise record a dated clean audit.",
@@ -6057,6 +6064,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Added src/app/not-found.tsx and src/app/error.tsx — a branded 404 and a client-side error boundary for the entire app, reusing the homepage's zinc/rounded-full visual language and linking back to / and /checkout. Previously every uncaught render error and every notFound()/unmatched-URL hit (a stale outreach email link, a mistyped preview slug, a not-yet-DNS-resolved custom domain) fell through to Next.js's generic, unbranded default UI with no path back to conversion.",
     rationale:
       "Found via empty-backlog audit after PR #395 (tip of main): all four remaining NEXT_STEPS items are operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect), and the last several iterations (#392-#395) already re-verified money/security/Convex-parity/orchestration-test axes clean. Rather than re-running an axis already confirmed clean twice, checked a dimension none of those audits touched: App Router file-convention coverage. `find src/app -name error.tsx -o -name not-found.tsx -o -name global-error.tsx` returned nothing in the whole tree. This is a real, live UX-resilience gap on a headless, unattended revenue site — a lost visitor currently has zero path back to the sales funnel from a broken link, and a client-render exception shows a blank/generic error screen instead of a recoverable one. A single root layout (no route groups, no nested layouts) means one root not-found.tsx/error.tsx covers the entire app per Next.js's documented 'root app/not-found handles global unmatched URLs' behavior — no need for the experimental global-not-found flag. error.tsx uses the Next.js 16.2 `unstable_retry` prop (read from node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/error.md per this repo's AGENTS.md instruction to check the docs before writing code in this non-standard Next.js fork) rather than the older `reset` — `reset` still exists but the current docs present `unstable_retry` as the primary recovery affordance. Zero secrets, zero schema/API changes, no interaction with any money/webhook/Convex path — lowest possible risk for a change that closes a real gap. Verified: npm ci (fresh node_modules) + npm test (2013 passed, 153 files — unchanged, confirming no drift) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated including the new /_not-found route) + npm run dev sanity check (curled an unknown /preview/[slug] and a nonexistent path, parsed the rendered <main> text to confirm the branded copy and both Back-to-homepage/View-pricing links render correctly — caught and fixed a JSX whitespace bug this same way, where a ternary-adjacent text node lost its leading space until rewritten as a single template-literal expression), then stopped the dev server and confirmed port 3000 was freed.",
+  },
+  {
+    id: "sitemap-docs-route-sync",
+    date: "2026-07-18",
+    decision:
+      "src/app/sitemap.ts's STATIC_ROUTES hand-duplicated the /docs/* sub-page list and had only 2 of the 12 pages src/app/docs/page.tsx now links to (product-bundles, business-model) — the other 9 (marketing-automation, legal, voice-agent-flow, architecture, compliance, launch-checklist, production-deploy, roadmap, process, cli-agents) were fully unauthenticated, indexable (robots.ts allows / except /dashboard and /api), and reachable, but silently absent from sitemap.xml since the file was authored once (with only 2 docs pages existing at the time) and never updated as later iterations grew the docs index. Extracted the docs page list into a new shared module, src/lib/docs/routes.ts (DOCS_PAGES), imported by both src/app/docs/page.tsx (unchanged rendering, now sourced from the shared array) and src/app/sitemap.ts (STATIC_ROUTES now spreads DOCS_PAGES' hrefs instead of hand-copying a subset) — a new /docs/* page can no longer ship indexable-but-unlisted.",
+    rationale:
+      "Found via a fresh, from-source audit deliberately scoped away from every axis the last ~20 iterations already re-confirmed clean (Convex/SQLite parity, Stripe webhook/entitlement correctness, email escaping/suppression, field-length bounds, redirect/SSRF/CSRF, rate limiting, slug sanitization, existence-check-before-write, as-const success narrowing, orchestration test coverage, App Router error/not-found conventions) — checked sitemap.ts/robots.ts correctness against the current route set instead, an angle nobody had explicitly audited. This is exactly the class of drift the file's own SEO-completeness invariant (AGENT_PROTOCOL, public marketing OUTPUT surfaces sharing one indexability predicate) already guards against for lead previews, but had never been applied to the docs route list itself — a silent content gap on the same 'Basic SEO' promise /sitemap.xml was built to fulfill (see client-site-seo), not a crash. Deriving both consumers from one array is cheaper than a parity test between two independently-maintained lists and structurally prevents the regression from recurring. Verified: npm ci (fresh node_modules) + npm test (2015 passed, 154 files = prior 2013 baseline + 2 new sitemap.test.ts cases) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated) + npm run dev sanity check: curled /sitemap.xml and confirmed all 12 /docs/* <loc> entries are present (grepped for each), plus /, /dashboard/leads, /preview/demo-cafe, /docs/process, /docs/compliance, /docs/legal, /docs/launch-checklist (all 200), then stopped the dev server and confirmed port 3000 was freed.",
   },
 ];
 
@@ -12556,5 +12571,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm ci (fresh, node_modules not preinstalled) + npm test (2013 passed, 153 files — unchanged, confirming no drift) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated, /_not-found present in the route list) + npm run dev sanity check: curled an unknown /preview/[slug] (branded 404, correct status/CTAs) and a nonexistent path (branded 404, status 404), plus / and /dashboard/leads and /docs/process (all 200) unaffected, then stopped the dev server and confirmed port 3000 was freed",
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "branded-error-not-found-pages"),
+  },
+  {
+    date: "2026-07-18",
+    branch: "claude/upbeat-dijkstra-bpm73m",
+    summary:
+      "Empty-backlog after PR #396 (branded-error-not-found-pages, tip of main). All four remaining NEXT_STEPS items are operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Fold scan: fetched all remote branches; every branch pushed at/after main's tip is a superseded duplicate of already-merged work (re-implementations of the branded error/not-found pages, the subscription-notice pair, and the entitlement-selection fix, each under a different commit hash) — nothing to fold. Dispatched a subagent audit deliberately steered away from every axis the last ~20 iterations already re-confirmed clean, and it surfaced a real, live gap: src/app/sitemap.ts's STATIC_ROUTES hand-duplicated the /docs/* sub-page list from src/app/docs/page.tsx and was only ever updated once, at authoring time, when just 2 of the now-12 docs pages existed — 9 fully public, indexable docs pages (marketing-automation, legal, voice-agent-flow, architecture, compliance, launch-checklist, production-deploy, roadmap, process, cli-agents) were silently missing from sitemap.xml despite being linked, crawlable, and never noindexed.",
+    shipped: [
+      "src/lib/docs/routes.ts — new shared DOCS_PAGES array (title/href/description), the single source of truth for /docs/* sub-pages",
+      "src/app/docs/page.tsx — now imports DOCS_PAGES instead of defining its own local docs list (no rendering change)",
+      "src/app/sitemap.ts — STATIC_ROUTES now spreads DOCS_PAGES.map(page => page.href) instead of hand-copying 2 of 12 docs routes; a new /docs/* page can no longer ship indexable-but-unlisted",
+      "src/app/sitemap.test.ts — new: asserts every DOCS_PAGES href appears in sitemap.xml (would have failed before the fix) plus the existing top-level static routes and every curated demo preview",
+      "NEXT_STEPS + BUSINESS_DECISIONS: sitemap-docs-route-sync (id-based entries, added directly as done — audit-discovered fix, same precedent as prior single-iteration audit-discovered gaps)",
+      "Verified: npm ci (fresh, node_modules not preinstalled) + npm test (2015 passed, 154 files = prior 2013 baseline + 2 new) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated) + npm run dev sanity check: curled /sitemap.xml and confirmed all 12 /docs/* <loc> entries render, plus /, /dashboard/leads, /preview/demo-cafe, /docs/process, /docs/compliance, /docs/legal, /docs/launch-checklist (all 200), then stopped the dev server and confirmed port 3000 was freed",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "sitemap-docs-route-sync"),
   },
 ];
