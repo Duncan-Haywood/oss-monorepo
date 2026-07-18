@@ -49,7 +49,7 @@ vi.mock("@/lib/auth/operator", () => ({
     tryCreateSessionFromPassword(...args),
   operatorSessionCookieOptions: (...args: unknown[]) =>
     operatorSessionCookieOptions(...(args as [number])),
-  sessionMaxAgeSeconds: (...args: unknown[]) => sessionMaxAgeSeconds(...args),
+  sessionMaxAgeSeconds: () => sessionMaxAgeSeconds(),
 }));
 
 function formData(entries: Record<string, string>): FormData {

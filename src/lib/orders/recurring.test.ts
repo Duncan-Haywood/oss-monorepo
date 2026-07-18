@@ -105,45 +105,44 @@ describe("orderGrantsSoldCapabilityEntitlement", () => {
 
 describe("orderEligibleForPauseNotice", () => {
   it("accepts an order with a freshly-set recurringCanceledAt (the pause write already ran)", () => {
-    expect(
-      orderEligibleForPauseNotice({
-        tier: "growth",
-        commerceAddon: false,
-        recurringCanceledAt: 1_720_000_000_000,
-      }),
-    ).toBe(true);
+    // recurringCanceledAt is intentionally present but ignored by the function's
+    // narrower parameter type (see the doc comment on orderEligibleForPauseNotice)
+    // — routed through a variable so the excess-property check doesn't flag it.
+    const order = {
+      tier: "growth",
+      commerceAddon: false,
+      recurringCanceledAt: 1_720_000_000_000,
+    };
+    expect(orderEligibleForPauseNotice(order)).toBe(true);
   });
 
   it("rejects a non-recurring (Starter, no Commerce) order", () => {
-    expect(
-      orderEligibleForPauseNotice({
-        tier: "starter",
-        commerceAddon: false,
-        recurringCanceledAt: 1_720_000_000_000,
-      }),
-    ).toBe(false);
+    const order = {
+      tier: "starter",
+      commerceAddon: false,
+      recurringCanceledAt: 1_720_000_000_000,
+    };
+    expect(orderEligibleForPauseNotice(order)).toBe(false);
   });
 
   it("rejects a refunded order even though it just paused", () => {
-    expect(
-      orderEligibleForPauseNotice({
-        tier: "growth",
-        commerceAddon: false,
-        recurringCanceledAt: 1_720_000_000_000,
-        refundedAt: "2026-07-18T00:00:00.000Z",
-      }),
-    ).toBe(false);
+    const order = {
+      tier: "growth",
+      commerceAddon: false,
+      recurringCanceledAt: 1_720_000_000_000,
+      refundedAt: "2026-07-18T00:00:00.000Z",
+    };
+    expect(orderEligibleForPauseNotice(order)).toBe(false);
   });
 
   it("rejects a disputed order even though it just paused", () => {
-    expect(
-      orderEligibleForPauseNotice({
-        tier: "complete",
-        commerceAddon: false,
-        recurringCanceledAt: 1_720_000_000_000,
-        disputedAt: "2026-07-18T00:00:00.000Z",
-      }),
-    ).toBe(false);
+    const order = {
+      tier: "complete",
+      commerceAddon: false,
+      recurringCanceledAt: 1_720_000_000_000,
+      disputedAt: "2026-07-18T00:00:00.000Z",
+    };
+    expect(orderEligibleForPauseNotice(order)).toBe(false);
   });
 });
 
