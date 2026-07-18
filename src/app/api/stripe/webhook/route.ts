@@ -1155,8 +1155,9 @@ export async function POST(request: Request) {
         break;
       }
       const pausedAt = stripeSubscriptionPausedAtMs(subscription, Date.now());
+      let updated = 0;
       try {
-        const updated = await markOrdersRecurringCanceledByCustomer(
+        updated = await markOrdersRecurringCanceledByCustomer(
           customerId,
           pausedAt,
           WEBHOOK_CONVEX_PRIMARY,
@@ -1183,8 +1184,16 @@ export async function POST(request: Request) {
       // has no invoice event at all — it is the one pause reason with zero
       // existing customer signal. The durable pause write above already
       // succeeded, so a notify failure here must not turn it into a 5xx/retry
-      // loop.
-      if (collectionPaused && pauseCollectionJustChanged) {
+      // loop. Also require updated > 0 (subscription-pause-collection-notice-
+      // redelivery-dedup): unlike invoice.payment_failed's dunning notice
+      // (which intentionally re-sends once per Smart Retry attempt with no
+      // dedup marker), pause_collection has no such "new attempt" concept —
+      // every real toggle transitions recurringCanceledAt from unset, so
+      // Stripe redelivering the identical event (its previous_attributes is
+      // baked into the event payload and stays "changed" on every replay)
+      // would otherwise re-send this notice on every redelivery once the
+      // pause write has already gone through and the row is no longer NULL.
+      if (collectionPaused && pauseCollectionJustChanged && updated > 0) {
         try {
           const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
           const orders = await getOrdersByStripeCustomerId(customerId);
