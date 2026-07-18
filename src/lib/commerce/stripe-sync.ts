@@ -18,7 +18,11 @@ export function commerceSkuStripeKey(leadSlug: string, skuId: string): string {
   return `commerce_sku_${leadSlug}_${skuId}`;
 }
 
-type MinimalStripeProduct = { id: string; metadata?: Record<string, string> };
+type MinimalStripeProduct = {
+  id: string;
+  metadata?: Record<string, string>;
+  active?: boolean;
+};
 type MinimalStripePrice = {
   id: string;
   unit_amount: number | null;
@@ -30,7 +34,7 @@ export interface StripeProductsAndPrices {
   products: {
     list(params: {
       limit: number;
-      active: boolean;
+      active?: boolean;
       starting_after?: string;
     }): Promise<{ data: MinimalStripeProduct[]; has_more: boolean }>;
     create(params: {
@@ -45,7 +49,7 @@ export interface StripeProductsAndPrices {
   prices: {
     list(params: {
       product: string;
-      active: boolean;
+      active?: boolean;
       limit: number;
       starting_after?: string;
     }): Promise<{ data: MinimalStripePrice[]; has_more: boolean }>;
@@ -55,9 +59,26 @@ export interface StripeProductsAndPrices {
       unit_amount: number;
       metadata: Record<string, string>;
     }): Promise<MinimalStripePrice>;
+    update(
+      id: string,
+      params: { active: boolean },
+    ): Promise<MinimalStripePrice>;
   };
 }
 
+/**
+ * Look up by metadata key across BOTH active and inactive Products — never
+ * pass `active: true` here. A Product can go inactive by a means outside
+ * this module's control (the operator's own Archive orphan Stripe products
+ * action, or a direct edit in the Stripe Dashboard) while its SKU id stays
+ * in the catalog; scoping this lookup to active-only would miss it and mint
+ * a second Product under the identical "stable" idempotency key every time
+ * Sync to Stripe re-runs, permanently orphaning the first (an inactive
+ * Product is invisible to this same lookup AND to
+ * listOrphanCommerceStripeProducts' active-only scan, so it can never be
+ * cleaned up either). Reactivate a matched-but-inactive Product instead of
+ * creating a duplicate — see stripe-product-price-reactivate-on-resync.
+ */
 async function findProductByKey(
   stripe: StripeProductsAndPrices,
   key: string,
@@ -65,12 +86,22 @@ async function findProductByKey(
   const matchesKey = (product: MinimalStripeProduct) =>
     product.metadata?.local_site_studio_key === key;
   const listed = await listAllPages(
-    (starting_after) => stripe.products.list({ limit: 100, active: true, starting_after }),
+    (starting_after) => stripe.products.list({ limit: 100, starting_after }),
     matchesKey,
   );
-  return listed.find(matchesKey) ?? null;
+  const match = listed.find(matchesKey) ?? null;
+  if (match && match.active === false) {
+    return stripe.products.update(match.id, { active: true });
+  }
+  return match;
 }
 
+/**
+ * Match by amount across BOTH active and inactive Prices for this Product —
+ * same reactivate-on-resync rule as findProductByKey (see its doc comment),
+ * on the Price axis: a manually-deactivated Price at the same amount must be
+ * reactivated, not duplicated under the same product.
+ */
 async function findMatchingPrice(
   stripe: StripeProductsAndPrices,
   productId: string,
@@ -78,11 +109,14 @@ async function findMatchingPrice(
 ): Promise<MinimalStripePrice | null> {
   const matchesAmount = (price: MinimalStripePrice) => price.unit_amount === unitAmount;
   const listed = await listAllPages(
-    (starting_after) =>
-      stripe.prices.list({ product: productId, active: true, limit: 100, starting_after }),
+    (starting_after) => stripe.prices.list({ product: productId, limit: 100, starting_after }),
     matchesAmount,
   );
-  return listed.find(matchesAmount) ?? null;
+  const match = listed.find(matchesAmount) ?? null;
+  if (match && match.active === false) {
+    return stripe.prices.update(match.id, { active: true });
+  }
+  return match;
 }
 
 export type SyncedCommerceSku = CommerceSku & {

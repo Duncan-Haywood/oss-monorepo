@@ -63,6 +63,12 @@ function createFakeStripe(): StripeProductsAndPrices & {
         prices.push(price);
         return price;
       },
+      async update(id, params) {
+        const price = prices.find((p) => p.id === id);
+        if (!price) throw new Error(`Price ${id} not found`);
+        price.active = params.active;
+        return price;
+      },
     },
     productCount: () => products.length,
     activeProductCount: () => products.filter((p) => p.active).length,
@@ -149,6 +155,38 @@ describe("syncCommerceCatalogToStripe", () => {
     expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
     expect(stripe.productCount()).toBe(122);
     expect(stripe.priceCount()).toBe(122);
+  });
+
+  it("reactivates a Product deactivated outside this module instead of duplicating it", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    // Simulate an operator deactivating the Product directly in the Stripe
+    // Dashboard (or via this app's own Archive orphan Stripe products action,
+    // if the same skuId is ever reintroduced) while the SKU stays in the
+    // catalog — re-syncing must reactivate, not mint a duplicate under the
+    // same idempotency key.
+    await stripe.products.update(first[0]!.stripeProductId, { active: false });
+    expect(stripe.activeProductCount()).toBe(1);
+
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    expect(second[0]?.stripeProductId).toBe(first[0]?.stripeProductId);
+    expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
+    expect(stripe.productCount()).toBe(2); // no duplicate created
+    expect(stripe.activeProductCount()).toBe(2); // deactivated one is active again
+  });
+
+  it("reactivates a Price deactivated outside this module instead of duplicating it", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    await stripe.prices.update(first[0]!.stripePriceId, { active: false });
+
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
+    expect(stripe.priceCount()).toBe(2); // no duplicate created
   });
 });
 
