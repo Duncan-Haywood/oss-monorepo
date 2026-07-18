@@ -690,12 +690,19 @@ describe("POST /api/stripe/webhook", () => {
 
   describe("customer.subscription.updated pause_collection notice", () => {
     it("emails a subscription-paused notice when pause_collection is newly set", async () => {
+      // recurringCanceledAt is set here because the handler already called
+      // markOrdersRecurringCanceledByCustomer (the pause write) before this
+      // read — this is the actual post-write shape, not an idealized one; a
+      // predicate that requires recurringCanceledAt to be unset would always
+      // reject this order and silently drop the notice (regression guard for
+      // billing-notice-pause-recipient-write-before-read-fix).
       getOrdersByStripeCustomerId.mockResolvedValueOnce([
         {
           leadSlug: "demo-cafe",
           stripeSessionId: "cs_paused_1",
           tier: "growth",
           commerceAddon: false,
+          recurringCanceledAt: 1_720_000_900_000,
         },
       ]);
       getLeadBySlug.mockResolvedValueOnce({
@@ -804,6 +811,7 @@ describe("POST /api/stripe/webhook", () => {
           stripeSessionId: "cs_refunded",
           tier: "growth",
           commerceAddon: false,
+          recurringCanceledAt: 1_720_001_300_000,
           refundedAt: "2026-07-18T00:00:00.000Z",
         },
         {
@@ -811,6 +819,7 @@ describe("POST /api/stripe/webhook", () => {
           stripeSessionId: "cs_disputed",
           tier: "complete",
           commerceAddon: false,
+          recurringCanceledAt: 1_720_001_300_000,
           disputedAt: "2026-07-18T00:00:00.000Z",
         },
       ]);
@@ -1217,12 +1226,17 @@ describe("POST /api/stripe/webhook", () => {
     });
 
     it("emails the lead once a recurring order is found for the customer", async () => {
+      // recurringCanceledAt is set here for the same reason as the
+      // pause_collection notice test above: markOrdersRecurringCanceledByCustomer
+      // already ran before this read (regression guard for
+      // billing-notice-pause-recipient-write-before-read-fix).
       getOrdersByStripeCustomerId.mockResolvedValueOnce([
         {
           leadSlug: "demo-cafe",
           stripeSessionId: "cs_notice_1",
           tier: "growth",
           commerceAddon: false,
+          recurringCanceledAt: 1_720_000_600_000,
         },
       ]);
       getLeadBySlug.mockResolvedValueOnce({
@@ -1263,6 +1277,7 @@ describe("POST /api/stripe/webhook", () => {
           stripeSessionId: "cs_refunded",
           tier: "growth",
           commerceAddon: false,
+          recurringCanceledAt: 1_720_000_600_000,
           refundedAt: "2026-07-18T00:00:00.000Z",
         },
         {
@@ -1270,6 +1285,7 @@ describe("POST /api/stripe/webhook", () => {
           stripeSessionId: "cs_disputed",
           tier: "complete",
           commerceAddon: false,
+          recurringCanceledAt: 1_720_000_600_000,
           disputedAt: "2026-07-18T00:00:00.000Z",
         },
       ]);
@@ -1284,7 +1300,13 @@ describe("POST /api/stripe/webhook", () => {
 
     it("skips the notice when the lead has no email on file", async () => {
       getOrdersByStripeCustomerId.mockResolvedValueOnce([
-        { leadSlug: "demo-cafe", stripeSessionId: "cs_notice_2", tier: "growth", commerceAddon: false },
+        {
+          leadSlug: "demo-cafe",
+          stripeSessionId: "cs_notice_2",
+          tier: "growth",
+          commerceAddon: false,
+          recurringCanceledAt: 1_720_000_600_000,
+        },
       ]);
       getLeadBySlug.mockResolvedValueOnce({ slug: "demo-cafe", businessName: "Demo Cafe" });
       constructEvent.mockReturnValue(paymentFailedEvent());
@@ -1308,7 +1330,13 @@ describe("POST /api/stripe/webhook", () => {
 
     it("does not fail the webhook when the send itself resolves success:false", async () => {
       getOrdersByStripeCustomerId.mockResolvedValueOnce([
-        { leadSlug: "demo-cafe", stripeSessionId: "cs_notice_3", tier: "growth", commerceAddon: false },
+        {
+          leadSlug: "demo-cafe",
+          stripeSessionId: "cs_notice_3",
+          tier: "growth",
+          commerceAddon: false,
+          recurringCanceledAt: 1_720_000_600_000,
+        },
       ]);
       getLeadBySlug.mockResolvedValueOnce({
         slug: "demo-cafe",

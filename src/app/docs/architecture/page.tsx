@@ -1607,6 +1607,34 @@ source). The same digest also lists email-critical leads with no usable address 
         they are not nudged as if they were Starter-only.
       </p>
 
+      <p>
+        <strong>billing-notice-pause-recipient-write-before-read-fix</strong> fixed a regression{" "}
+        billing-notice-entitlement-selection introduced in the two pause-direction webhook notices.
+        That fix uniformly swapped all four notice recipient lookups (payment-failed,
+        payment-recovered, subscription-paused, subscription-resumed) from{" "}
+        <code>orderHadRecurringEntitlement</code> to{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code> to stop a refunded/disputed order from
+        surfacing a stale notice — correct for the two resume-direction sites, which read the order{" "}
+        <em>after</em> <code>clearOrdersRecurringCanceledByCustomer</code> runs. But the two
+        pause-direction sites (<code>customer.subscription.updated</code> pause_collection branch,{" "}
+        <code>invoice.payment_failed</code> dunning) read the order <em>immediately after</em>{" "}
+        <code>markOrdersRecurringCanceledByCustomer</code> just set{" "}
+        <code>recurringCanceledAt</code> on that exact row —{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code> requires that field unset, so it always
+        rejected the order it had just paused and{" "}
+        <strong>sendSubscriptionPausedNotice / sendPaymentFailedNotice silently never fired on
+        main</strong>, despite being merged, unit-tested, and marked done. Added{" "}
+        <code>orderEligibleForPauseNotice</code> (<code>orderHadRecurringEntitlement &amp;&amp;
+        !isOrderRefunded &amp;&amp; !isOrderDisputed</code>) — the pause-notice twin of{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code> that deliberately ignores{" "}
+        <code>recurringCanceledAt</code> since it is expected to be freshly set at its call sites —
+        and used it only at the two pause-direction sites; the resume-direction sites are unchanged.
+        <code>route.test.ts</code>&apos;s blanket <code>vi.mock(&quot;@/lib/db&quot;)</code> hid this:
+        the pause-notice fixtures never included <code>recurringCanceledAt</code>, a state real
+        SQLite/Convex can never return at that point in the flow — fixed to match what the preceding
+        write actually produces.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

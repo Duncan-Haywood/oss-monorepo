@@ -23,6 +23,7 @@ import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import {
   invoicePaidMayRestoreRecurringEntitlement,
   invoicePaymentFailedPausesRecurringEntitlement,
+  orderEligibleForPauseNotice,
   orderGrantsSoldCapabilityEntitlement,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
@@ -1187,9 +1188,7 @@ export async function POST(request: Request) {
         try {
           const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
           const orders = await getOrdersByStripeCustomerId(customerId);
-          const recurringOrder = orders.find((order) =>
-            orderGrantsSoldCapabilityEntitlement(order),
-          );
+          const recurringOrder = orders.find((order) => orderEligibleForPauseNotice(order));
           if (recurringOrder) {
             const lead = await getLeadBySlug(recurringOrder.leadSlug);
             if (lead?.email) {
@@ -1289,9 +1288,7 @@ export async function POST(request: Request) {
       try {
         const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
         const orders = await getOrdersByStripeCustomerId(customerId);
-        const recurringOrder = orders.find((order) =>
-          orderGrantsSoldCapabilityEntitlement(order),
-        );
+        const recurringOrder = orders.find((order) => orderEligibleForPauseNotice(order));
         if (recurringOrder) {
           const lead = await getLeadBySlug(recurringOrder.leadSlug);
           if (lead?.email) {
