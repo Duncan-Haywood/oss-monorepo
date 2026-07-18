@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DeployHandoff } from "@/lib/deploy/types";
+import { commerceSkuStripeKey } from "@/lib/commerce/stripe-sync";
 
 /**
  * Route-level coverage for the highest money-criticality code in the repo:
@@ -163,8 +164,29 @@ function catalogSubscriptionItems(
   };
 }
 
-function commerceSkuLineItems(priceId: string = COMMERCE_SKU_PRICE_ID) {
-  return { data: [{ price: { id: priceId } }] };
+/**
+ * Default matches the default commerceSession() lead/sku pairing
+ * (demo-cafe/sku_1) — the webhook now proves a line item's Price by stable
+ * metadata key (commerceSkuStripeKey), not by exact id match against the
+ * catalog's *current* stripePriceId (commerce-sku-price-resync-metadata-match).
+ * Callers using a different leadSlug/skuId (e.g. "sku_latte") must pass a
+ * matching metadataKey explicitly; pass metadataKey: null to simulate a
+ * foreign/unrelated Price with no local_site_studio_key at all.
+ */
+function commerceSkuLineItems(
+  priceId: string = COMMERCE_SKU_PRICE_ID,
+  metadataKey: string | null = commerceSkuStripeKey("demo-cafe", "sku_1"),
+) {
+  return {
+    data: [
+      {
+        price: {
+          id: priceId,
+          metadata: metadataKey ? { local_site_studio_key: metadataKey } : {},
+        },
+      },
+    ],
+  };
 }
 
 function checkoutSession(overrides: Record<string, unknown> = {}) {
@@ -2594,7 +2616,9 @@ describe("POST /api/stripe/webhook", () => {
         customer_details: { email: "shopper@example.com" },
       });
       constructEvent.mockReturnValue(completedEvent(session));
-      listLineItems.mockResolvedValue(commerceSkuLineItems());
+      listLineItems.mockResolvedValue(
+        commerceSkuLineItems(COMMERCE_SKU_PRICE_ID, commerceSkuStripeKey("demo-cafe", "sku_latte")),
+      );
       getLeadBySlug.mockResolvedValue({
         ...eligibleCommerceLead,
         slug: "demo-cafe",
@@ -2709,7 +2733,9 @@ describe("POST /api/stripe/webhook", () => {
     }
 
     beforeEach(() => {
-      listLineItems.mockResolvedValue(commerceSkuLineItems());
+      listLineItems.mockResolvedValue(
+        commerceSkuLineItems(COMMERCE_SKU_PRICE_ID, commerceSkuStripeKey("demo-cafe", "sku_latte")),
+      );
       getLeadBySlug.mockResolvedValue({
         ...eligibleCommerceLead,
         slug: "demo-cafe",
@@ -2766,9 +2792,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer).not.toHaveBeenCalled();
     });
 
-    it("does not close commerce orphans when catalog amount gate skips ledger", async () => {
+    it("does not close commerce orphans when amount_total is invalid (skips ledger)", async () => {
+      // amount_total no longer has to equal the catalog's *current* priceCents
+      // (see commerce-sku-price-resync-metadata-match) — a non-positive
+      // amount is still invalid regardless of price history.
       constructEvent.mockReturnValue(
-        completedEvent(paidCommerceSession({ amount_total: 9999 })),
+        completedEvent(paidCommerceSession({ amount_total: 0 })),
       );
       const { POST } = await import("./route");
 
@@ -3352,7 +3381,10 @@ describe("POST /api/stripe/webhook", () => {
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
-      expect(listLineItems).toHaveBeenCalledWith("cs_test_1", { limit: 100 });
+      expect(listLineItems).toHaveBeenCalledWith("cs_test_1", {
+        limit: 100,
+        expand: ["data.price"],
+      });
       expect(insertCommerceOrder).toHaveBeenCalledWith(
         expect.objectContaining({
           leadSlug: "demo-cafe",
@@ -3590,9 +3622,54 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     });
 
-    it("skips ledger/notify when amount_total !== catalog priceCents (Buy now create Price twin)", async () => {
+    it("records the ledger from the actual amount_total even when it no longer matches the catalog's current priceCents (commerce-sku-price-resync-metadata-match regression)", async () => {
+      // Simulates: shopper opens a Checkout Session at the old $9.99 price,
+      // operator edits the SKU to $25.00 and re-syncs (catalog.priceCents is
+      // now 2500 and stripePriceId points at a brand-new Stripe Price), then
+      // the shopper completes the ORIGINAL session — Stripe honors the old,
+      // now catalog-orphaned Price and genuinely charges $9.99. The line
+      // item still carries the platform's stable metadata key for this SKU
+      // (stripe-sync sets it on every Price it ever mints), so the ledger
+      // must record the real $9.99 charge instead of silently dropping it.
       constructEvent.mockReturnValue(
         completedEvent(commerceSession({ amount_total: 999 })),
+      );
+      getLeadBySlug.mockResolvedValue(eligibleCommerceLead);
+      getCommerceCatalog.mockResolvedValue({
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: "price_commerce_sku_1_resynced",
+          },
+        ],
+      });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).toHaveBeenCalledWith(
+        expect.objectContaining({
+          leadSlug: "demo-cafe",
+          skuId: "sku_1",
+          amountPaidUsd: 9.99,
+          stripeSessionId: "cs_test_1",
+        }),
+        { requireConvex: true },
+      );
+      expect(insertClientInquiry).toHaveBeenCalledTimes(1);
+      expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
+    });
+
+    it("skips ledger/notify when amount_total is non-positive (invalid charge, not a repriced-catalog case)", async () => {
+      constructEvent.mockReturnValue(
+        completedEvent(commerceSession({ amount_total: 0 })),
       );
       getLeadBySlug.mockResolvedValue(eligibleCommerceLead);
       getCommerceCatalog.mockResolvedValue({
@@ -3686,7 +3763,7 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     });
 
-    it("skips ledger/notify when catalog Price is not on line items (amount+currency match)", async () => {
+    it("skips ledger/notify when no line item Price carries the expected metadata key (foreign/tampered Price)", async () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue(eligibleCommerceLead);
       getCommerceCatalog.mockResolvedValue({
@@ -3699,30 +3776,47 @@ describe("POST /api/stripe/webhook", () => {
           },
         ],
       });
-      listLineItems.mockResolvedValue(commerceSkuLineItems("price_other_sku"));
+      // A Price with no local_site_studio_key at all — never platform-issued
+      // for any SKU, e.g. a Dashboard-minted or tampered Session.
+      listLineItems.mockResolvedValue(commerceSkuLineItems("price_other_sku", null));
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
-      expect(listLineItems).toHaveBeenCalledWith("cs_test_1", { limit: 100 });
+      expect(listLineItems).toHaveBeenCalledWith("cs_test_1", {
+        limit: 100,
+        expand: ["data.price"],
+      });
       expect(insertCommerceOrder).not.toHaveBeenCalled();
       expect(insertClientInquiry).not.toHaveBeenCalled();
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     });
 
-    it("skips ledger/notify when catalog stripePriceId is missing (Buy now create unsynced twin)", async () => {
+    it("records the ledger even when the catalog's current stripePriceId is missing, as long as line items carry this SKU's metadata key", async () => {
+      // Same resync scenario as the commerce-sku-price-resync-metadata-match
+      // regression test above, at the extreme: the catalog row currently has
+      // no stripePriceId at all (e.g. cleared by a later edit), but the
+      // Session's Price is still provably platform-issued for this SKU via
+      // its stable metadata key, so the sale must still be ledgered.
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue(eligibleCommerceLead);
       getCommerceCatalog.mockResolvedValue({
         items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
       });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
-      expect(listLineItems).not.toHaveBeenCalled();
-      expect(insertCommerceOrder).not.toHaveBeenCalled();
-      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(listLineItems).toHaveBeenCalled();
+      expect(insertCommerceOrder).toHaveBeenCalledWith(
+        expect.objectContaining({ leadSlug: "demo-cafe", skuId: "sku_1" }),
+        { requireConvex: true },
+      );
     });
 
     it("returns 500 (commerce_sku_price_line_items) when listLineItems fails", async () => {

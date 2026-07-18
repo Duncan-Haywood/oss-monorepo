@@ -4,6 +4,7 @@ import {
   bundleCatalogPriceIdsFromEnv,
   catalogRecurringPriceIdsFromEnv,
   sessionLineItemsIncludeCatalogRecurringPrice,
+  sessionLineItemsIncludeMetadataKey,
   sessionLineItemsIncludePriceId,
   sessionLineItemsMatchBundleCatalogPrices,
 } from "./checkout-price-line-items";
@@ -27,6 +28,78 @@ describe("sessionLineItemsIncludePriceId", () => {
   it("trims the wanted Price id but does not soft-match substrings", () => {
     expect(sessionLineItemsIncludePriceId(["price_a"], "  price_a  ")).toBe(true);
     expect(sessionLineItemsIncludePriceId(["price_ab"], "price_a")).toBe(false);
+  });
+});
+
+describe("sessionLineItemsIncludeMetadataKey", () => {
+  it("returns true when a line item's Price metadata carries the wanted key", () => {
+    expect(
+      sessionLineItemsIncludeMetadataKey(
+        [{ price: { metadata: { local_site_studio_key: "commerce_sku_demo-cafe_sku_1" } } }],
+        "commerce_sku_demo-cafe_sku_1",
+      ),
+    ).toBe(true);
+  });
+
+  it("never compares a Price id — only the metadata key matters (proves an old, catalog-orphaned Price still matches)", () => {
+    // The whole point of this helper: unlike sessionLineItemsIncludePriceId,
+    // it never looks at a Price's id at all, only its stable per-SKU
+    // metadata key. A line item carrying a Price id that no longer appears
+    // anywhere in the catalog (superseded by a resync) still matches, as
+    // long as the metadata key is present — this signature intentionally
+    // does not even accept a Price id parameter to check against.
+    expect(
+      sessionLineItemsIncludeMetadataKey(
+        [{ price: { metadata: { local_site_studio_key: "commerce_sku_demo-cafe_sku_1" } } }],
+        "commerce_sku_demo-cafe_sku_1",
+      ),
+    ).toBe(true);
+  });
+
+  it("returns false when no line item Price carries the wanted key", () => {
+    expect(
+      sessionLineItemsIncludeMetadataKey(
+        [{ price: { metadata: { local_site_studio_key: "commerce_sku_other-lead_sku_9" } } }],
+        "commerce_sku_demo-cafe_sku_1",
+      ),
+    ).toBe(false);
+  });
+
+  it("returns false for a Price with no metadata, a string-id line item (not expanded), or an empty list", () => {
+    expect(
+      sessionLineItemsIncludeMetadataKey([{ price: { metadata: {} } }], "commerce_sku_demo-cafe_sku_1"),
+    ).toBe(false);
+    expect(
+      sessionLineItemsIncludeMetadataKey([{ price: "price_abc" }], "commerce_sku_demo-cafe_sku_1"),
+    ).toBe(false);
+    expect(sessionLineItemsIncludeMetadataKey([], "commerce_sku_demo-cafe_sku_1")).toBe(false);
+  });
+
+  it("returns false when metadataKey is blank or only whitespace", () => {
+    expect(
+      sessionLineItemsIncludeMetadataKey(
+        [{ price: { metadata: { local_site_studio_key: "" } } }],
+        "",
+      ),
+    ).toBe(false);
+    expect(
+      sessionLineItemsIncludeMetadataKey(
+        [{ price: { metadata: { local_site_studio_key: "commerce_sku_demo-cafe_sku_1" } } }],
+        "   ",
+      ),
+    ).toBe(false);
+  });
+
+  it("checks every line item, not just the first", () => {
+    expect(
+      sessionLineItemsIncludeMetadataKey(
+        [
+          { price: { metadata: { local_site_studio_key: "commerce_sku_other_sku" } } },
+          { price: { metadata: { local_site_studio_key: "commerce_sku_demo-cafe_sku_1" } } },
+        ],
+        "commerce_sku_demo-cafe_sku_1",
+      ),
+    ).toBe(true);
   });
 });
 
