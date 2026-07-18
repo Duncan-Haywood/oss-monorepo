@@ -132,36 +132,83 @@ export const CSV_LEAD_TEMPLATE = [
 /**
  * Split raw CSV text into lines, handling double-quoted fields that may contain
  * embedded newlines (RFC 4180 §2, item 6). Normalises CRLF / bare CR to LF.
+ *
+ * A `"` only opens a quoted field when it is the FIRST character of that
+ * field (immediately after a comma, or at the very start of a row) — a
+ * stray `"` appearing mid-field (e.g. a business name like `72" TV Mounting
+ * Pros`, a completely ordinary value for an electronics/fencing/tailoring
+ * category) must stay a literal character, never a quote-mode toggle. The
+ * previous implementation toggled `inQuotes` on ANY `"`, so a single
+ * unescaped mid-field quote left `inQuotes` stuck true for the rest of the
+ * file: the row's own trailing newline was swallowed as "inside a quoted
+ * field", silently merging the NEXT lead's entire row onto this one (see
+ * csv-import-stray-quote-field-start-guard).
  */
 export function splitCsvIntoLines(csvText: string): string[] {
   const normalized = csvText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const lines: string[] = [];
   let current = "";
   let inQuotes = false;
+  let atFieldStart = true;
 
   for (let i = 0; i < normalized.length; i++) {
     const ch = normalized[i];
-    if (ch === '"') {
-      inQuotes = !inQuotes;
+    if (inQuotes) {
+      if (ch === '"') {
+        if (normalized[i + 1] === '"') {
+          current += '""';
+          i += 1;
+        } else {
+          inQuotes = false;
+          current += ch;
+        }
+      } else {
+        current += ch;
+      }
+      continue;
+    }
+
+    if (ch === '"' && atFieldStart) {
+      inQuotes = true;
       current += ch;
-    } else if (ch === "\n" && !inQuotes) {
+      atFieldStart = false;
+      continue;
+    }
+    if (ch === ",") {
+      current += ch;
+      atFieldStart = true;
+      continue;
+    }
+    if (ch === "\n") {
       const trimmed = current.trimEnd();
       if (trimmed.length > 0) lines.push(trimmed);
       current = "";
-    } else {
-      current += ch;
+      atFieldStart = true;
+      continue;
     }
+    current += ch;
+    atFieldStart = false;
   }
   const remaining = current.trimEnd();
   if (remaining.length > 0) lines.push(remaining);
   return lines;
 }
 
-/** Split a single CSV line into fields, honoring double-quoted values. */
+/**
+ * Split a single CSV line into fields, honoring double-quoted values.
+ *
+ * Same field-start-only quote-opening rule as splitCsvIntoLines (and must
+ * stay in sync with it — both parse the same RFC 4180 grammar): a `"` only
+ * opens a quoted field as the first character of that field, otherwise it's
+ * a literal character. Without this guard a stray mid-field quote (e.g.
+ * `72" TV Mounting Pros`) swallowed the rest of the line — including every
+ * later comma — into one field.
+ */
 export function parseCsvLine(line: string): string[] {
   const fields: string[] = [];
   let current = "";
   let inQuotes = false;
+  let atFieldStart = true;
 
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
@@ -179,16 +226,19 @@ export function parseCsvLine(line: string): string[] {
       continue;
     }
 
-    if (ch === '"') {
+    if (ch === '"' && atFieldStart) {
       inQuotes = true;
+      atFieldStart = false;
       continue;
     }
     if (ch === ",") {
       fields.push(current.trim());
       current = "";
+      atFieldStart = true;
       continue;
     }
     current += ch;
+    atFieldStart = false;
   }
   fields.push(current.trim());
   return fields;

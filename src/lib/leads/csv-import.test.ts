@@ -35,6 +35,19 @@ describe("splitCsvIntoLines", () => {
   it("returns empty array for empty text", () => {
     expect(splitCsvIntoLines("")).toEqual([]);
   });
+
+  it("does not merge the next row when a field has a stray mid-field quote (odd quote count)", () => {
+    const csv = [
+      'businessName,category,city',
+      '72" TV Mounting Pros,electronics,Denver',
+      "Second Business,salon,Boulder",
+    ].join("\n");
+    expect(splitCsvIntoLines(csv)).toEqual([
+      "businessName,category,city",
+      '72" TV Mounting Pros,electronics,Denver',
+      "Second Business,salon,Boulder",
+    ]);
+  });
 });
 
 describe("parseCsvLine", () => {
@@ -48,6 +61,22 @@ describe("parseCsvLine", () => {
 
   it("unescapes doubled quotes inside a quoted field", () => {
     expect(parseCsvLine('"she said ""hi""",b')).toEqual(['she said "hi"', "b"]);
+  });
+
+  it("treats a stray mid-field quote as a literal character, not a quote-mode toggle", () => {
+    expect(parseCsvLine('72" TV Mounting Pros,electronics,Denver')).toEqual([
+      '72" TV Mounting Pros',
+      "electronics",
+      "Denver",
+    ]);
+  });
+
+  it("still opens a quoted field that starts right after a comma even with a literal quote elsewhere on the line", () => {
+    expect(parseCsvLine('6\' Fence Co,"tall, sturdy",fencing')).toEqual([
+      "6' Fence Co",
+      "tall, sturdy",
+      "fencing",
+    ]);
   });
 });
 
