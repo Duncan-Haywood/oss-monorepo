@@ -106,7 +106,12 @@ export default function RoadmapDocPage() {
         real lead (see <DocLink href="/docs/process">process log</DocLink>{" "}
         <code>preview-subdomain-routing</code>). Remaining: the one-time wildcard DNS (a single{" "}
         <code>*.localsitestudio.com</code> CNAME to Vercel) and wildcard domain on the Vercel
-        project — operator infrastructure, not code.
+        project — operator infrastructure, not code. Branded 404 and error pages (
+        <code>src/app/not-found.tsx</code>, <code>src/app/error.tsx</code>): shipped — a stale
+        outreach/preview link or an uncaught render exception now shows on-brand copy with a
+        path back to the homepage and pricing instead of Next&apos;s generic default UI (see{" "}
+        <DocLink href="/docs/process">process log</DocLink>{" "}
+        <code>branded-error-not-found-pages</code>).
       </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
