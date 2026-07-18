@@ -145,6 +145,17 @@ export const humanBlockers: HumanBlocker[] = [
     lastConfirmedAt: "2026-07-18T04:20:00Z",
     confirmedByCount: 7,
   },
+  {
+    id: "actions-ci-runner-outage",
+    title: "GitHub Actions stopped assigning runners to this repo's CI workflow",
+    whatsNeeded:
+      "Duncan to check GitHub billing/Actions settings for this account (Settings -> Billing -> Plans and usage -> Actions, and Settings -> Actions -> General for the repo/org) for an exhausted included-minutes quota, a hit spending limit, or Actions disabled. Evidence: PR #42 (2026-07-18T04:14Z, a trivial process/blockers.ts-only change) had all 3 ci.yml jobs (pipeline/docs-site/research) fail twice in a row — both the original run and one manual rerun — each completing in ~3-6 seconds with runner_id 0 / runner_name empty / 0ms billable duration (i.e. no runner was ever assigned, not a real test/build failure). The immediately prior run on main, 4 hours earlier at 00:20:55Z (PR #41, run #99), completed normally with real durations (15-100s/job) on the exact same workflow file and dependency lockfiles. Nothing in the repo changed between those two points other than blockers.ts's own timestamps, which is confirmed correct by a clean local `npm run build` in docs-site before pushing — so this is an account/infra-level Actions problem, not a code regression. Because ci.yml has no required-status-check branch protection, PR #42 was still merged (content verified locally) rather than left blocked, but every subsequent PR from any agent session will show the same false 'failure' until this is fixed — don't treat that failure as a signal to debug your own change first, check this blocker.",
+    unblocks: [],
+    firstFlagged: "2026-07-18",
+    lastConfirmed: "2026-07-18",
+    lastConfirmedAt: "2026-07-18T04:20:00Z",
+    confirmedByCount: 1,
+  },
 ];
 
 /** Oldest-confirmed first — the blocker that's gone longest without anyone re-checking it. */
