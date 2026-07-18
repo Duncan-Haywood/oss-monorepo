@@ -4,6 +4,7 @@ import {
   invoicePaymentFailedPausesRecurringEntitlement,
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
+  orderEligibleForPauseNotice,
   orderGrantsSoldCapabilityEntitlement,
   orderHadRecurringEntitlement,
   orderHasActiveRecurringEntitlement,
@@ -97,6 +98,50 @@ describe("orderGrantsSoldCapabilityEntitlement", () => {
         tier: "growth",
         commerceAddon: false,
         recurringCanceledAt: 1_720_000_000_000,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("orderEligibleForPauseNotice", () => {
+  it("accepts an order with a freshly-set recurringCanceledAt (the pause write already ran)", () => {
+    expect(
+      orderEligibleForPauseNotice({
+        tier: "growth",
+        commerceAddon: false,
+        recurringCanceledAt: 1_720_000_000_000,
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects a non-recurring (Starter, no Commerce) order", () => {
+    expect(
+      orderEligibleForPauseNotice({
+        tier: "starter",
+        commerceAddon: false,
+        recurringCanceledAt: 1_720_000_000_000,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects a refunded order even though it just paused", () => {
+    expect(
+      orderEligibleForPauseNotice({
+        tier: "growth",
+        commerceAddon: false,
+        recurringCanceledAt: 1_720_000_000_000,
+        refundedAt: "2026-07-18T00:00:00.000Z",
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects a disputed order even though it just paused", () => {
+    expect(
+      orderEligibleForPauseNotice({
+        tier: "complete",
+        commerceAddon: false,
+        recurringCanceledAt: 1_720_000_000_000,
+        disputedAt: "2026-07-18T00:00:00.000Z",
       }),
     ).toBe(false);
   });

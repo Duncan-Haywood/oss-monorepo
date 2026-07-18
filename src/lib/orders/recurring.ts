@@ -72,6 +72,30 @@ export function orderGrantsSoldCapabilityEntitlement(order: {
 }
 
 /**
+ * Recipient-selection gate for the two pause-direction webhook notices
+ * (subscription-paused, payment-failed dunning). The webhook handler always
+ * calls markOrdersRecurringCanceledByCustomer (which sets recurringCanceledAt
+ * on the matching order) BEFORE re-reading that same order via
+ * getOrdersByStripeCustomerId to pick a notice recipient — so at that read,
+ * recurringCanceledAt is freshly set on the very order the notice is about.
+ * orderGrantsSoldCapabilityEntitlement requires recurringCanceledAt to be
+ * unset and would therefore always reject that order, silently dropping the
+ * notice (see billing-notice-pause-recipient-write-before-read-fix). Use
+ * orderHadRecurringEntitlement (tier/commerceAddon only, ignoring
+ * recurringCanceledAt) plus the same refund/dispute exclusion instead — this
+ * is the pause-notice twin of orderGrantsSoldCapabilityEntitlement, valid
+ * only at a call site that reads immediately after writing that same pause.
+ */
+export function orderEligibleForPauseNotice(order: {
+  tier: string;
+  commerceAddon: boolean;
+  refundedAt?: string;
+  disputedAt?: string;
+}): boolean {
+  return orderHadRecurringEntitlement(order) && !isOrderRefunded(order) && !isOrderDisputed(order);
+}
+
+/**
  * Stripe Subscription statuses that restore CRM recurring entitlement after a
  * prior customer.subscription.deleted or past_due/unpaid / pause_collection
  * pause. past_due / unpaid must not clear — they pause via
