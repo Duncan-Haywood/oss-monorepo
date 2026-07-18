@@ -35,6 +35,7 @@ import {
   sendClientVoicePackToClientAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
+import { isOrderRefunded, isOrderDisputed } from "@/lib/orders/types";
 import type { MarketingPack } from "@/lib/marketing/pack";
 import type { CommerceCatalog, CommerceSku } from "@/lib/commerce/types";
 import type { CommerceOrderRecord } from "@/lib/commerce/orders";
@@ -934,6 +935,8 @@ export function LeadsClient({
     commerceOrdersByLeadSummaryNeedsAttention,
   );
   const commercePayoutsOrderCount = sumCommerceOrdersByLeadOrderCount(commercePayoutsByLead);
+  const bundleOrderRefunds = orders.filter(isOrderRefunded);
+  const bundleOrderDisputes = orders.filter(isOrderDisputed);
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
 
   return (
@@ -1477,6 +1480,62 @@ export function LeadsClient({
                     {formatUsd(summary.unpaidTotalUsd)} owed
                   </p>
                 </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {(bundleOrderRefunds.length > 0 || bundleOrderDisputes.length > 0) && (
+        <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Bundle order refunds &amp; disputes
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({bundleOrderRefunds.length + bundleOrderDisputes.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/architecture#payments"
+              className="text-xs font-medium text-rose-800 underline underline-offset-2"
+            >
+              Payments
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Starter/Growth/Complete orders Stripe refunded or disputed — already excluded from
+            Recorded revenue. Visibility only (no payout to claw back on this ledger); named here
+            so you know which client to follow up with.
+          </p>
+          <ul className="mt-4 space-y-2">
+            {bundleOrderRefunds.map((order) => (
+              <li
+                key={`refund-${order.stripeSessionId}`}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-100 bg-white px-4 py-3 text-sm"
+              >
+                <span className="font-semibold text-zinc-900">
+                  {businessNameBySlug.get(order.leadSlug) || order.leadSlug}{" "}
+                  <span className="font-normal text-zinc-500">({order.leadSlug})</span>
+                </span>
+                <span className="text-xs text-zinc-600">
+                  {order.tier} · {formatUsd(order.amountPaid)} · refunded{" "}
+                  {new Date(order.refundedAt as string).toLocaleDateString()}
+                </span>
+              </li>
+            ))}
+            {bundleOrderDisputes.map((order) => (
+              <li
+                key={`dispute-${order.stripeSessionId}`}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-100 bg-white px-4 py-3 text-sm"
+              >
+                <span className="font-semibold text-zinc-900">
+                  {businessNameBySlug.get(order.leadSlug) || order.leadSlug}{" "}
+                  <span className="font-normal text-zinc-500">({order.leadSlug})</span>
+                </span>
+                <span className="text-xs text-zinc-600">
+                  {order.tier} · {formatUsd(order.amountPaid)} · disputed{" "}
+                  {new Date(order.disputedAt as string).toLocaleDateString()}
+                </span>
               </li>
             ))}
           </ul>

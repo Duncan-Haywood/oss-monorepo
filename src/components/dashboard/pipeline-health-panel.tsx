@@ -251,7 +251,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
                   health.oldestBundleOrdersRefundedAgeHours !== null
                     ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersRefundedAgeHours)}`
                     : ""
-                }`
+                } — see the Bundle order refunds & disputes panel`
               : "No bundle orders refunded"
           }
           attention={health.bundleOrdersRefundedCount > 0}
@@ -265,7 +265,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
                   health.oldestBundleOrdersDisputedAgeHours !== null
                     ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersDisputedAgeHours)}`
                     : ""
-                }`
+                } — see the Bundle order refunds & disputes panel`
               : "No bundle orders disputed"
           }
           attention={health.bundleOrdersDisputedCount > 0}
