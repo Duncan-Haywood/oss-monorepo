@@ -1,0 +1,102 @@
+import { convexTest } from "convex-test";
+import { expect, test } from "vitest";
+import { api } from "./_generated/api";
+import schema from "./schema";
+
+const modules = import.meta.glob("./**/*.ts");
+
+interface MarketingPackRow {
+  id: string;
+  leadSlug: string;
+  yearMonth: string;
+  variants: Array<{ contentType: string; title?: string; body: string; cta?: string; hashtags?: string[]; scheduledFor?: string }>;
+  generatedAt: string;
+  generator: "stub" | "anthropic";
+  packageTier?: string;
+}
+
+function variant(overrides: Partial<Record<string, unknown>> = {}) {
+  return {
+    contentType: "social_caption",
+    title: "Title",
+    body: "Body copy",
+    cta: undefined,
+    hashtags: undefined,
+    scheduledFor: undefined,
+    ...overrides,
+  };
+}
+
+function upsertArgs(overrides: Partial<Record<string, unknown>> = {}) {
+  return {
+    packId: "mp_demo-cafe_2026-01",
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    variants: [variant()],
+    generatedAt: "2026-01-01T00:00:00.000Z",
+    generator: "stub" as const,
+    packageTier: "growth",
+    ...overrides,
+  };
+}
+
+test("upsert inserts a new pack, then replaces (never duplicates) the same lead+month on a second call", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.marketingPacks.upsert, upsertArgs());
+  await t.mutation(
+    api.marketingPacks.upsert,
+    upsertArgs({ packId: "mp_demo-cafe_2026-01_v2", variants: [variant({ body: "Regenerated body" })], generatedAt: "2026-01-02T00:00:00.000Z" }),
+  );
+
+  const rows = await t.query(api.marketingPacks.listByMonth, { yearMonth: "2026-01" });
+  expect(rows).toHaveLength(1);
+  expect(rows[0].id).toBe("mp_demo-cafe_2026-01_v2");
+  expect(rows[0].variants[0].body).toBe("Regenerated body");
+});
+
+test("upsert keeps separate rows for the same lead across different months (month-keyed, not lead-keyed)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.marketingPacks.upsert, upsertArgs({ yearMonth: "2026-01", packId: "mp_demo-cafe_2026-01" }));
+  await t.mutation(api.marketingPacks.upsert, upsertArgs({ yearMonth: "2026-02", packId: "mp_demo-cafe_2026-02" }));
+
+  const jan = await t.query(api.marketingPacks.getByLeadMonth, { leadSlug: "demo-cafe", yearMonth: "2026-01" });
+  const feb = await t.query(api.marketingPacks.getByLeadMonth, { leadSlug: "demo-cafe", yearMonth: "2026-02" });
+  expect(jan?.id).toBe("mp_demo-cafe_2026-01");
+  expect(feb?.id).toBe("mp_demo-cafe_2026-02");
+});
+
+test("getByLeadMonth returns null for an unknown lead+month combination", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.marketingPacks.upsert, upsertArgs());
+
+  await expect(
+    t.query(api.marketingPacks.getByLeadMonth, { leadSlug: "demo-cafe", yearMonth: "2026-02" }),
+  ).resolves.toBeNull();
+  await expect(
+    t.query(api.marketingPacks.getByLeadMonth, { leadSlug: "other-lead", yearMonth: "2026-01" }),
+  ).resolves.toBeNull();
+});
+
+test("listByMonth scopes to the requested month and sorts newest-generatedAt-first (matches SQLite ORDER BY generatedAt DESC)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.marketingPacks.upsert,
+    upsertArgs({ leadSlug: "lead-a", packId: "mp_a", generatedAt: "2026-01-01T00:00:00.000Z" }),
+  );
+  await t.mutation(
+    api.marketingPacks.upsert,
+    upsertArgs({ leadSlug: "lead-b", packId: "mp_b", generatedAt: "2026-01-03T00:00:00.000Z" }),
+  );
+  await t.mutation(
+    api.marketingPacks.upsert,
+    upsertArgs({ leadSlug: "lead-c", packId: "mp_c", generatedAt: "2026-01-02T00:00:00.000Z" }),
+  );
+  // Different month — must not leak into the 2026-01 listing.
+  await t.mutation(
+    api.marketingPacks.upsert,
+    upsertArgs({ leadSlug: "lead-a", packId: "mp_a_feb", yearMonth: "2026-02", generatedAt: "2026-02-01T00:00:00.000Z" }),
+  );
+
+  const rows: MarketingPackRow[] = await t.query(api.marketingPacks.listByMonth, { yearMonth: "2026-01" });
+  expect(rows.map((r) => r.id)).toEqual(["mp_b", "mp_c", "mp_a"]);
+});
