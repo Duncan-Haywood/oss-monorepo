@@ -1,5 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { preferAdvancedHandoffStatus as preferAdvancedHandoffStatusCanonical } from "../src/lib/deploy/handoff-preserve";
+import type { DeployHandoffStatus } from "../src/lib/deploy/types";
 
 const dnsInstruction = v.object({
   type: v.string(),
@@ -188,25 +190,29 @@ export const getByCustomDomain = query({
 });
 
 /**
- * Progress rank for handoff status — keep in sync with
- * preferAdvancedHandoffStatus in src/lib/deploy/handoff-preserve.ts.
- * Note-only marker writes (bundle receipt/DNS) must not regress live.
+ * Progress rank for handoff status lives once, canonically, in
+ * src/lib/deploy/handoff-preserve.ts (HANDOFF_STATUS_RANK /
+ * preferAdvancedHandoffStatus) — imported directly here (a relative import
+ * of a pure module with no `@/`-alias or server-only dependency, same
+ * pattern as convex/orders.ts importing orderHadRecurringEntitlement from
+ * src/lib/orders/recurring) instead of a second hand-maintained copy of the
+ * rank table that can silently drift out of sync with the canonical one if a
+ * status is ever added or reordered there. Note-only marker writes (bundle
+ * receipt/DNS) must not regress live — see
+ * handoff-email-marker-status-no-downgrade and
+ * convex-orders-recurring-entitlement-duplicate-fix (the prior instance of
+ * this exact duplication bug class). Convex's `status` schema field is a
+ * plain v.string(), not the narrower DeployHandoffStatus union, so cast at
+ * the call boundary only — the comparison logic itself is untouched.
  */
-const HANDOFF_STATUS_RANK: Record<string, number> = {
-  pending: 0,
-  failed: 0,
-  awaiting_dns: 1,
-  provisioned: 2,
-  live: 3,
-};
-
 function preferAdvancedHandoffStatus(
   existing: string,
   requested: string,
 ): string {
-  const existingRank = HANDOFF_STATUS_RANK[existing] ?? 0;
-  const requestedRank = HANDOFF_STATUS_RANK[requested] ?? 0;
-  return requestedRank >= existingRank ? requested : existing;
+  return preferAdvancedHandoffStatusCanonical(
+    existing as DeployHandoffStatus,
+    requested as DeployHandoffStatus,
+  );
 }
 
 export const updateStatus = mutation({
