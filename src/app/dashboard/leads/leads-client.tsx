@@ -255,22 +255,20 @@ export function LeadsClient({
   const handleStageChange = async (slug: string, newStage: LeadPipelineStage) => {
     const current = leads.find((l) => l.slug === slug);
     const previousStage = current?.stage;
+    if (!current) return;
 
-    // Optimistic UI update
-    setLeads((prev) =>
-      prev.map((l) => {
-        if (l.slug !== slug) return l;
-        if (newStage === "outreach_sent" && l.email) {
-          return {
-            ...l,
+    const optimisticLead: Lead =
+      newStage === "outreach_sent" && current.email
+        ? {
+            ...current,
             stage: newStage,
             outreachStep: 1,
             lastOutreachAt: new Date().toISOString(),
-          };
-        }
-        return { ...l, stage: newStage };
-      }),
-    );
+          }
+        : { ...current, stage: newStage };
+
+    // Optimistic UI update
+    setLeads((prev) => prev.map((l) => (l.slug === slug ? optimisticLead : l)));
 
     const res = await updateLeadStageAction(slug, newStage);
     if (!res.success) {
@@ -280,15 +278,17 @@ export function LeadsClient({
       // silently wipe every other in-session optimistic edit (other stage
       // changes, added leads, snooze/notes/cold-disposition updates) back
       // to stale state whenever a single unrelated stage change fails.
-      setLeads((prev) => revertSingleLeadOptimisticUpdate(prev, slug, current));
+      // Passing optimisticLead guards against a slower, overlapping call:
+      // if a second stage change on this row already landed and changed it
+      // since, this call's revert becomes a no-op instead of clobbering the
+      // newer, already-persisted stage (stage-change-optimistic-revert-race).
+      setLeads((prev) =>
+        revertSingleLeadOptimisticUpdate(prev, slug, current, optimisticLead),
+      );
       return;
     }
 
-    if (
-      current &&
-      previousStage &&
-      shouldPromptNotesAfterStageChange(previousStage, newStage)
-    ) {
+    if (previousStage && shouldPromptNotesAfterStageChange(previousStage, newStage)) {
       openNotesEditor(current, "discovery_call");
     }
   };

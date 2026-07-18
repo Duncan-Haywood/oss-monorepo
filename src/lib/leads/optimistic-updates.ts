@@ -22,6 +22,15 @@
  *    disposition updates) back to stale state whenever a single unrelated
  *    stage change fails, not just the row that failed.
  *    revertSingleLeadOptimisticUpdate reverts only the one row.
+ *
+ * 3. handleStageChange had no in-flight guard: a second stage change on the
+ *    same row before the first call's response lands can resolve out of
+ *    order. If the FIRST call fails after the SECOND already succeeded and
+ *    persisted, an unconditional revert stomped the row back to the first
+ *    call's stale snapshot, discarding the real, already-committed stage
+ *    (see stage-change-optimistic-revert-race). revertSingleLeadOptimisticUpdate
+ *    now takes the exact optimistic Lead object this call applied and only
+ *    reverts when the row still holds that same reference.
  */
 
 import type { Lead } from "./types";
@@ -48,12 +57,24 @@ export function upsertSavedLeadBySlug(leads: Lead[], savedLead: Lead): Lead[] {
  * `previous` should be the lead as it was found immediately before applying
  * the optimistic update (undefined if the slug wasn't in the list, in which
  * case there is nothing to revert).
+ *
+ * `expectedOptimistic`, when passed, should be the exact Lead object
+ * reference this call wrote into state for `slug`. If the row no longer
+ * holds that reference — because a later, overlapping call already changed
+ * it, and per the out-of-order-response race above may have already
+ * succeeded and persisted that change — this is a no-op: reverting would
+ * clobber real, already-committed state with a stale snapshot.
  */
 export function revertSingleLeadOptimisticUpdate(
   leads: Lead[],
   slug: string,
   previous: Lead | undefined,
+  expectedOptimistic?: Lead,
 ): Lead[] {
   if (!previous) return leads;
-  return leads.map((l) => (l.slug === slug ? previous : l));
+  return leads.map((l) => {
+    if (l.slug !== slug) return l;
+    if (expectedOptimistic !== undefined && l !== expectedOptimistic) return l;
+    return previous;
+  });
 }

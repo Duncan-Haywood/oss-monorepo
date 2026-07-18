@@ -92,4 +92,54 @@ describe("revertSingleLeadOptimisticUpdate", () => {
     const result = revertSingleLeadOptimisticUpdate(current, "target-lead", undefined);
     expect(result).toBe(current);
   });
+
+  it("reverts when the row still holds the exact optimistic object this call applied", () => {
+    // Regression for stage-change-optimistic-revert-race: the common case
+    // (no overlapping call) must keep working once a 4th expectedOptimistic
+    // argument is threaded through.
+    const previous = makeLead({ slug: "target-lead", stage: "discovered" });
+    const optimisticLead = makeLead({ slug: "target-lead", stage: "outreach_sent" });
+    const current = [optimisticLead];
+
+    const result = revertSingleLeadOptimisticUpdate(
+      current,
+      "target-lead",
+      previous,
+      optimisticLead,
+    );
+
+    expect(result).toEqual([previous]);
+  });
+
+  it("does not revert when a later, overlapping call already changed the row", () => {
+    // Regression for stage-change-optimistic-revert-race: operator changes
+    // stage A -> B (call 1, snapshot = A), then B -> C (call 2, snapshot =
+    // B) before call 1's response lands. Call 2 succeeds and persists C.
+    // Call 1 then fails and tries to revert to A — its expectedOptimistic
+    // (B) no longer matches the row (now C), so the revert must be a no-op
+    // instead of clobbering the newer, already-committed stage.
+    const staleOptimisticB = makeLead({ slug: "target-lead", stage: "outreach_sent" });
+    const newerOptimisticC = makeLead({ slug: "target-lead", stage: "paid" });
+    const current = [newerOptimisticC];
+    const previousA = makeLead({ slug: "target-lead", stage: "discovered" });
+
+    const result = revertSingleLeadOptimisticUpdate(
+      current,
+      "target-lead",
+      previousA,
+      staleOptimisticB,
+    );
+
+    expect(result[0]).toBe(newerOptimisticC);
+    expect(result).toEqual([newerOptimisticC]);
+  });
+
+  it("still reverts unconditionally when expectedOptimistic is omitted (back-compat)", () => {
+    const previous = makeLead({ slug: "target-lead", stage: "discovered" });
+    const current = [makeLead({ slug: "target-lead", stage: "outreach_sent" })];
+
+    const result = revertSingleLeadOptimisticUpdate(current, "target-lead", previous);
+
+    expect(result).toEqual([previous]);
+  });
 });
