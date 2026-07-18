@@ -2925,6 +2925,13 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/nice-euler-fnq49q",
   },
+  {
+    id: "post-pause-recipient-fix-clean-audit-0718",
+    summary:
+      "Empty-backlog audit after PR #392 (billing-notice-pause-recipient-write-before-read-fix, tip of main). Re-verified from source (not ITERATIONS prose): all four webhook billing-notice recipient-selection sites use the correct predicate for their read timing (orderEligibleForPauseNotice on the two pause-direction sites, orderGrantsSoldCapabilityEntitlement on the two resume-direction sites); Convex/SQLite parity for getOrdersByStripeCustomerId (index, ordering, API map registration); refund/dispute clawback wiring into pipeline-health + daily digest; sold-capability helper wiring; and orchestration test coverage. Also fetched all remotes — no branch pushed after main's tip, and the sole open PR (#202) remains the same unrelated human-authored draft. No defect found; ran a fresh npm ci + npm test (2013/2013) + npm run lint + npm run build, all clean. Recorded as a clean audit rather than manufactured work, per AGENT_PROTOCOL's own guidance.",
+    status: "done",
+    owner: "claude/upbeat-dijkstra-q7wwna",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -12463,5 +12470,19 @@ export const ITERATIONS: ProcessIteration[] = [
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "billing-notice-pause-recipient-write-before-read-fix",
     ),
+  },
+  {
+    date: "2026-07-18",
+    branch: "claude/upbeat-dijkstra-q7wwna",
+    summary:
+      "Empty-backlog after PR #392 (billing-notice-pause-recipient-write-before-read-fix, tip of main). NEXT_STEPS stayed fully operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Fetched every remote branch — none pushed after main's tip, and the sole open PR (#202) is the same unrelated human-authored draft the last several iterations already found. Dispatched a subagent-assisted audit scoped to AGENT_PROTOCOL's empty-backlog priority order, seeded with the hypothesis that the dense five-iteration chain of billing-notice fixes (#386-#392) was the highest-probability place for a residual gap, instructed to read current source directly rather than trust ITERATIONS prose. It re-verified: all four webhook billing-notice recipient-selection sites now use the correct predicate for their read timing (the pause-direction fix in #392 held); getOrdersByStripeCustomerId's Convex/SQLite parity (index, ordering, API map registration); refund/dispute clawback wiring into pipeline-health + daily digest; every sold-capability helper is consumed somewhere (no orphans); and every non-trivial src/lib/src/app module has test coverage. No defect found on any axis, and no new remote branch existed to fold. Recording this as a dated clean audit rather than manufacturing an optional feature, per AGENT_PROTOCOL's explicit guidance that a documented clean audit is more useful to sibling agents than busywork.",
+    shipped: [
+      "No product code changes — this was a documented clean empty-backlog audit",
+      "Sibling fold scan: git fetch origin + reviewed all remote branches and the one open PR (#202, unrelated human-authored draft); nothing to fold",
+      "Audit coverage (no fix needed): webhook billing-notice recipient-selection predicate correctness at all four call sites post-#392; Convex/SQLite parity for getOrdersByStripeCustomerId; refund/dispute clawback pipeline-health + digest wiring; sold-capability helper wiring; orchestration test coverage",
+      "NEXT_STEPS: post-pause-recipient-fix-clean-audit-0718 done",
+      "Verified: npm ci + npx vitest run (2013 passed, 153 files — unchanged from the PR #392 baseline, confirming no drift) + npm run lint (clean) + npm run build (tsc clean, all 31 routes generated)",
+    ],
+    decisions: [],
   },
 ];
