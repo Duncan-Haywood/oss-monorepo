@@ -3,6 +3,8 @@ import { MAX_LEAD_DATA_SOURCE_LENGTH } from "./create-fields";
 import {
   CSV_LEAD_TEMPLATE,
   existingLeadSlugConflictMessage,
+  formatCsvImportSummary,
+  MAX_CSV_IMPORT_SUMMARY_ERROR_LINES,
   MAX_CSV_IMPORT_TEXT_LENGTH,
   parseCsvImportText,
   parseCsvLine,
@@ -309,6 +311,68 @@ describe("existingLeadSlugConflictMessage", () => {
   it("names the colliding slug and says pipeline state is preserved", () => {
     expect(existingLeadSlugConflictMessage("blue-river-salon")).toMatch(/blue-river-salon/);
     expect(existingLeadSlugConflictMessage("blue-river-salon")).toMatch(/pipeline state/);
+  });
+});
+
+describe("formatCsvImportSummary", () => {
+  it("summarizes a clean import with no errors", () => {
+    expect(formatCsvImportSummary({ imported: 3, skipped: 0, errors: [] })).toBe(
+      "Imported 3 leads.",
+    );
+    expect(formatCsvImportSummary({ imported: 1, skipped: 0, errors: [] })).toBe(
+      "Imported 1 lead.",
+    );
+  });
+
+  it("includes the skipped count when present", () => {
+    expect(formatCsvImportSummary({ imported: 2, skipped: 1, errors: [] })).toBe(
+      "Imported 2 leads (1 skipped).",
+    );
+  });
+
+  it("renders each row's own message instead of a canned slug-collision sentence", () => {
+    const message = formatCsvImportSummary({
+      imported: 7,
+      skipped: 3,
+      errors: [
+        { row: 2, message: 'Invalid category "resturant" (use restaurant|salon|trades|generic)' },
+        { row: 5, message: "businessName is required" },
+        { row: 0, message: existingLeadSlugConflictMessage("blue-river-salon") },
+      ],
+    });
+    expect(message).toContain("Imported 7 leads (3 skipped).");
+    expect(message).toContain("3 row warning(s)");
+    // The specific, actionable per-row reasons must be visible verbatim —
+    // not collapsed into a generic "existing slugs" sentence that would
+    // misattribute the category/businessName errors to a slug collision.
+    expect(message).toContain('Row 2: Invalid category "resturant"');
+    expect(message).toContain("Row 5: businessName is required");
+    expect(message).toContain('blue-river-salon');
+    expect(message).not.toBe(
+      "Imported 7 leads (3 skipped). 3 row warning(s) — existing slugs are not overwritten.",
+    );
+  });
+
+  it("caps the itemized list and notes how many more were dropped", () => {
+    const errors = Array.from({ length: MAX_CSV_IMPORT_SUMMARY_ERROR_LINES + 5 }, (_, i) => ({
+      row: i + 1,
+      message: `error ${i + 1}`,
+    }));
+    const message = formatCsvImportSummary({ imported: 1, skipped: errors.length, errors });
+    expect(message).toContain(`${errors.length} row warning(s)`);
+    expect(message).toContain(`Row ${MAX_CSV_IMPORT_SUMMARY_ERROR_LINES}: error ${MAX_CSV_IMPORT_SUMMARY_ERROR_LINES}`);
+    expect(message).not.toContain(`Row ${MAX_CSV_IMPORT_SUMMARY_ERROR_LINES + 1}:`);
+    expect(message).toContain("(+5 more)");
+  });
+
+  it("omits the row prefix for row 0 (whole-import errors, e.g. slug collisions)", () => {
+    const message = formatCsvImportSummary({
+      imported: 1,
+      skipped: 1,
+      errors: [{ row: 0, message: "top-level note" }],
+    });
+    expect(message).toContain("— top-level note");
+    expect(message).not.toContain("Row 0:");
   });
 });
 

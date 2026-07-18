@@ -455,3 +455,46 @@ export function partitionLeadsByExistingSlugs<T extends { slug: string }>(
 export function existingLeadSlugConflictMessage(slug: string): string {
   return `Lead already exists for slug "${slug}" — skipped to avoid overwriting pipeline state (stage, outreach, notes, snooze). Edit the existing lead instead.`;
 }
+
+/**
+ * Cap how many itemized row errors the dashboard summary line shows —
+ * MAX_ROWS import can carry up to 100 distinct errors, and a single <p> is
+ * not the place to render all of them.
+ */
+export const MAX_CSV_IMPORT_SUMMARY_ERROR_LINES = 8;
+
+/**
+ * Build the operator-facing summary line for a completed CSV import.
+ *
+ * importLeadsCsvAction's `errors` array carries a mix of causes — invalid
+ * category, missing/over-long businessName, existing-slug collision, and
+ * per-row write failure — each already worded specifically by its source
+ * (parseLeadsCsv / existingLeadSlugConflictMessage / the upsert catch
+ * branch). Collapsing them into one canned "existing slugs are not
+ * overwritten" sentence misattributes every non-collision error (e.g. a
+ * typo'd category) to a slug collision, so the operator concludes a
+ * duplicate was correctly protected when the row was actually dropped for a
+ * fixable, unrelated reason — with no way to tell which. Render each row's
+ * own message instead.
+ */
+export function formatCsvImportSummary(result: {
+  imported: number;
+  skipped: number;
+  errors: CsvImportRowError[];
+}): string {
+  const base =
+    `Imported ${result.imported} lead${result.imported === 1 ? "" : "s"}` +
+    (result.skipped ? ` (${result.skipped} skipped)` : "") +
+    ".";
+  if (result.errors.length === 0) return base;
+
+  const shown = result.errors.slice(0, MAX_CSV_IMPORT_SUMMARY_ERROR_LINES);
+  const itemized = shown
+    .map((e) => (e.row > 0 ? `Row ${e.row}: ${e.message}` : e.message))
+    .join(" ");
+  const more =
+    result.errors.length > shown.length
+      ? ` (+${result.errors.length - shown.length} more)`
+      : "";
+  return `${base} ${result.errors.length} row warning(s) — ${itemized}${more}`;
+}

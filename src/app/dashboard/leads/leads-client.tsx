@@ -6,7 +6,7 @@ import type { Lead, LeadPipelineStage, BusinessCategory } from "@/lib/leads/type
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
-import { CSV_LEAD_TEMPLATE } from "@/lib/leads/csv-import";
+import { CSV_LEAD_TEMPLATE, formatCsvImportSummary } from "@/lib/leads/csv-import";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import {
   updateLeadStageAction,
@@ -423,13 +423,7 @@ export function LeadsClient({
         return;
       }
 
-      setCsvMessage(
-        `Imported ${res.imported} lead${res.imported === 1 ? "" : "s"}` +
-          (res.skipped ? ` (${res.skipped} skipped)` : "") +
-          (res.errors.length
-            ? `. ${res.errors.length} row warning(s) — existing slugs are not overwritten.`
-            : "."),
-      );
+      setCsvMessage(formatCsvImportSummary(res));
 
       // Refresh list from optimistic parse by reloading — server owns truth
       window.location.reload();
