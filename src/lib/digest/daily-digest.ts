@@ -30,6 +30,7 @@ import {
   leadSlugsEligibleForCommerceAbandonedRecovery,
   listAbandonedCheckoutsDue,
   listCommerceAbandonedCheckoutsDue,
+  oldestCheckoutSessionAgeHours,
 } from "../checkout/abandoned-recovery";
 import { isLeadSnoozed } from "../leads/snooze";
 import {
@@ -551,16 +552,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
 
   const checkoutRecoveriesDueAll = listAbandonedCheckoutsDue(openCheckoutSessions, nowMs);
   const checkoutRecoveriesDueCount = checkoutRecoveriesDueAll.length;
-  const oldestAbandonedAgeHours: number | null = (() => {
-    if (checkoutRecoveriesDueAll.length === 0) return null;
-    let oldestMs = Infinity;
-    for (const session of checkoutRecoveriesDueAll) {
-      const parsed = Date.parse(session.createdAt);
-      if (Number.isNaN(parsed)) continue;
-      if (parsed < oldestMs) oldestMs = parsed;
-    }
-    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
-  })();
+  const oldestAbandonedAgeHours = oldestCheckoutSessionAgeHours(checkoutRecoveriesDueAll, nowMs);
   const checkoutRecoveriesDue: DigestCheckoutRecovery[] = checkoutRecoveriesDueAll
     .slice(0, RECOVERIES_LIMIT)
     .map((session) => ({
@@ -580,16 +572,10 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceRecoveryEligibleSlugs,
   );
   const commerceCheckoutRecoveriesDueCount = commerceCheckoutRecoveriesDueAll.length;
-  const oldestCommerceAbandonedAgeHours: number | null = (() => {
-    if (commerceCheckoutRecoveriesDueAll.length === 0) return null;
-    let oldestMs = Infinity;
-    for (const session of commerceCheckoutRecoveriesDueAll) {
-      const parsed = Date.parse(session.createdAt);
-      if (Number.isNaN(parsed)) continue;
-      if (parsed < oldestMs) oldestMs = parsed;
-    }
-    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
-  })();
+  const oldestCommerceAbandonedAgeHours = oldestCheckoutSessionAgeHours(
+    commerceCheckoutRecoveriesDueAll,
+    nowMs,
+  );
   const commerceCheckoutRecoveriesDue: DigestCommerceCheckoutRecovery[] =
     commerceCheckoutRecoveriesDueAll.slice(0, RECOVERIES_LIMIT).map((session) => ({
       stripeSessionId: session.stripeSessionId,

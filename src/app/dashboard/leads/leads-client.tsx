@@ -97,6 +97,7 @@ import {
   leadSlugsEligibleForCommerceAbandonedRecovery,
   listAbandonedCheckoutsDue,
   listCommerceAbandonedCheckoutsDue,
+  oldestCheckoutSessionAgeHours,
 } from "@/lib/checkout/abandoned-recovery";
 import {
   qualityBandClass,
@@ -967,10 +968,19 @@ export function LeadsClient({
   const followUpsDue = listFollowUpsDue(leads, nowMs);
   const coldLeads = listColdLeads(leads, nowMs);
   const abandonedCheckoutsDue = listAbandonedCheckoutsDue(checkoutSessions, nowMs);
+  // Same oldestCheckoutSessionAgeHours pipeline-health/daily-digest already use for
+  // this exact due queue — this panel previously had zero staleness signal at all,
+  // unlike every sibling due-queue panel once the staleness-signal series closed
+  // their gaps (see abandoned-checkout-panels-staleness-signal).
+  const oldestAbandonedCheckoutHours = oldestCheckoutSessionAgeHours(abandonedCheckoutsDue, nowMs);
   const commerceAbandonedCheckoutsDue = listCommerceAbandonedCheckoutsDue(
     checkoutSessions,
     nowMs,
     leadSlugsEligibleForCommerceAbandonedRecovery(leads, orders),
+  );
+  const oldestCommerceAbandonedCheckoutHours = oldestCheckoutSessionAgeHours(
+    commerceAbandonedCheckoutsDue,
+    nowMs,
   );
   const starterUpsellCandidates = listStarterUpsellCandidates(leads, orders);
   const oldestStarterUpsellHours = oldestStarterUpsellCandidateAgeHours(
@@ -1443,7 +1453,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Abandoned checkouts
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({abandonedCheckoutsDue.length})
+                ({abandonedCheckoutsDue.length}
+                {oldestAbandonedCheckoutHours !== null
+                  ? ` · oldest ${oldestAbandonedCheckoutHours}h`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1458,7 +1472,9 @@ export function LeadsClient({
             Operator-triggered recovery email; suppresses honor the unsubscribe list.
           </p>
           <ul className="mt-4 space-y-3">
-            {abandonedCheckoutsDue.map((session) => (
+            {abandonedCheckoutsDue.map((session) => {
+              const sessionAgeHours = oldestCheckoutSessionAgeHours([session], nowMs);
+              return (
               <li
                 key={session.stripeSessionId}
                 className="rounded-xl border border-amber-100 bg-white px-4 py-3 text-sm"
@@ -1472,6 +1488,7 @@ export function LeadsClient({
                     <p className="mt-1 text-xs text-zinc-600">
                       {session.tier} plan · started{" "}
                       {new Date(session.createdAt).toLocaleString()}
+                      {sessionAgeHours !== null ? ` · due ${sessionAgeHours}h ago` : null}
                       {session.customerEmail ? ` · ${session.customerEmail}` : null}
                       {session.recoverySentAt
                         ? ` · last nudged ${new Date(session.recoverySentAt).toLocaleDateString()}`
@@ -1488,7 +1505,8 @@ export function LeadsClient({
                   </button>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </section>
       )}
@@ -1499,7 +1517,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Abandoned Buy now
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({commerceAbandonedCheckoutsDue.length})
+                ({commerceAbandonedCheckoutsDue.length}
+                {oldestCommerceAbandonedCheckoutHours !== null
+                  ? ` · oldest ${oldestCommerceAbandonedCheckoutHours}h`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1522,6 +1544,7 @@ export function LeadsClient({
                   ?.items.find((item) => item.id === session.skuId)?.name ??
                 session.skuId ??
                 "SKU";
+              const sessionAgeHours = oldestCheckoutSessionAgeHours([session], nowMs);
               return (
                 <li
                   key={session.stripeSessionId}
@@ -1535,6 +1558,7 @@ export function LeadsClient({
                       </p>
                       <p className="mt-1 text-xs text-zinc-600">
                         {skuName} · started {new Date(session.createdAt).toLocaleString()}
+                        {sessionAgeHours !== null ? ` · due ${sessionAgeHours}h ago` : null}
                         {session.customerEmail ? ` · ${session.customerEmail}` : " · no email"}
                         {session.recoverySentAt
                           ? ` · last nudged ${new Date(session.recoverySentAt).toLocaleDateString()}`

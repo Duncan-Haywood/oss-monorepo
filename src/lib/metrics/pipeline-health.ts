@@ -30,6 +30,7 @@ import {
   isCommerceSkuCheckoutSession,
   isRecoveryDue,
   leadSlugsEligibleForCommerceAbandonedRecovery,
+  oldestCheckoutSessionAgeHours,
 } from "@/lib/checkout/abandoned-recovery";
 import {
   listCommerceCatalogsMissing,
@@ -537,28 +538,9 @@ export function computePipelineHealth(input: {
     isRecoveryDue(session, nowMs),
   ).length;
 
-  let oldestAbandonedAgeHours: number | null = null;
-  for (const session of abandoned) {
-    const createdAtMs = Date.parse(session.createdAt);
-    if (Number.isNaN(createdAtMs)) continue;
-    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
-    if (oldestAbandonedAgeHours === null || ageHours > oldestAbandonedAgeHours) {
-      oldestAbandonedAgeHours = Math.max(0, ageHours);
-    }
-  }
+  const oldestAbandonedAgeHours = oldestCheckoutSessionAgeHours(abandoned, nowMs);
 
-  let oldestCommerceAbandonedAgeHours: number | null = null;
-  for (const session of commerceAbandoned) {
-    const createdAtMs = Date.parse(session.createdAt);
-    if (Number.isNaN(createdAtMs)) continue;
-    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
-    if (
-      oldestCommerceAbandonedAgeHours === null ||
-      ageHours > oldestCommerceAbandonedAgeHours
-    ) {
-      oldestCommerceAbandonedAgeHours = Math.max(0, ageHours);
-    }
-  }
+  const oldestCommerceAbandonedAgeHours = oldestCheckoutSessionAgeHours(commerceAbandoned, nowMs);
 
   const oldestUnrepliedInquiryAgeHours = oldestUnrepliedInquiryAgeHoursFor(
     unrepliedInquiries,
