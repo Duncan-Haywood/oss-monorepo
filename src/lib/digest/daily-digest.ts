@@ -434,6 +434,16 @@ export interface DailyDigest {
    * the email just sent listed real fulfillment/revenue debt.
    */
   actionableItemCount: number;
+  /**
+   * Human-readable label per section, in the same order and over the same
+   * set of sections actionableItemCount sums — the single source of truth
+   * for the "Nothing urgent today" empty-state prose (renderDailyDigestHtml),
+   * so a future section added to actionableItemCount can't silently miss
+   * that sentence the way six sections (refund/dispute clawback, bundle
+   * refunds/disputes, paid-not-live, missing email) previously did (see
+   * daily-digest-empty-state-copy-drift).
+   */
+  actionableSectionLabels: readonly string[];
   /** True when none of the above sections have anything for the operator to act on. */
   isEmpty: boolean;
 }
@@ -935,34 +945,44 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
   // Pre-slice true count per section (mirrors the *Count fields below, using
   // workNext.length directly since it's a ranked top-N pick list rather than
   // a due-queue with its own separate uncapped count). Single source of
-  // truth for both isEmpty and actionableItemCount so the two can never
-  // drift from each other, and so a caller that needs "how many items" never
-  // has to hand-duplicate this list (see actionableItemCount doc comment).
-  const actionableItemCount =
-    workNext.length +
-    followUpsDueCount +
-    checkoutRecoveriesDueCount +
-    commerceCheckoutRecoveriesDueCount +
-    unrepliedInquiriesCount +
-    marketingPacksDueCount +
-    starterUpsellCandidatesCount +
-    commerceCatalogsMissingCount +
-    commerceCatalogsUnsyncedCount +
-    clientVoicePacksDueCount +
-    commercePayoutsOwedCount +
-    commerceOrdersRefundClawbackCount +
-    commerceOrdersDisputeClawbackCount +
-    bundleOrdersRefundedCount +
-    bundleOrdersDisputedCount +
-    openHandoffsCount +
-    paidNotLiveCount +
-    leadsMissingEmailCount +
-    recurringEntitlementPausedCount;
+  // truth for actionableItemCount, actionableSectionLabels, and isEmpty so
+  // the three can never drift from each other, and so a caller that needs
+  // "how many items" or "what did we check" never has to hand-duplicate this
+  // list (see actionableItemCount doc comment; the empty-state prose in
+  // renderDailyDigestHtml used to hand-duplicate a subset of these labels
+  // and silently fell six sections behind — daily-digest-empty-state-copy-drift).
+  const actionableSections: ReadonlyArray<{ label: string; count: number }> = [
+    { label: "Work next", count: workNext.length },
+    { label: "follow-ups", count: followUpsDueCount },
+    { label: "checkout recoveries", count: checkoutRecoveriesDueCount },
+    { label: "Buy now carts", count: commerceCheckoutRecoveriesDueCount },
+    { label: "inbox", count: unrepliedInquiriesCount },
+    { label: "marketing packs", count: marketingPacksDueCount },
+    { label: "Starter upsells", count: starterUpsellCandidatesCount },
+    { label: "Commerce catalogs", count: commerceCatalogsMissingCount },
+    { label: "Sync to Stripe", count: commerceCatalogsUnsyncedCount },
+    { label: "Complete voice packs", count: clientVoicePacksDueCount },
+    { label: "Commerce payouts owed", count: commercePayoutsOwedCount },
+    { label: "Refund clawback", count: commerceOrdersRefundClawbackCount },
+    { label: "Dispute clawback", count: commerceOrdersDisputeClawbackCount },
+    { label: "Bundle refunds", count: bundleOrdersRefundedCount },
+    { label: "Bundle disputes", count: bundleOrdersDisputedCount },
+    { label: "production handoffs", count: openHandoffsCount },
+    { label: "Paid, not live", count: paidNotLiveCount },
+    { label: "Missing email", count: leadsMissingEmailCount },
+    { label: "paused/canceled MRR recoveries", count: recurringEntitlementPausedCount },
+  ];
+  const actionableItemCount = actionableSections.reduce(
+    (sum, section) => sum + section.count,
+    0,
+  );
+  const actionableSectionLabels = actionableSections.map((section) => section.label);
   const isEmpty = actionableItemCount === 0;
 
   return {
     generatedAtMs: nowMs,
     actionableItemCount,
+    actionableSectionLabels,
     workNext,
     followUpsDue,
     followUpsDueCount,
@@ -1076,12 +1096,20 @@ function coldFootnote(digest: DailyDigest, emptyState: boolean): string {
   return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} also went cold after Email 3${oldestBit} — not actionable above, but worth a manual look.</p>`;
 }
 
+/** Joins items with commas and "and" before the last (Oxford comma for 3+). */
+export function joinWithAnd(items: readonly string[]): string {
+  if (items.length === 0) return "";
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
 /** Renders the digest as email-safe inline-styled HTML. Pure — no fetch/DOM. */
 export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): string {
   if (digest.isEmpty) {
     return `
       <h2 style="margin:0 0 16px 0;color:#09090b;">Nothing urgent today</h2>
-      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, Buy now carts, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, Complete voice packs, Commerce payouts owed, production handoffs, and paused/canceled MRR recoveries are all clear.</p>
+      <p style="margin:0;color:#3f3f46;">${joinWithAnd(digest.actionableSectionLabels)} are all clear.</p>
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
       ${closedLeadFootnote(digest)}

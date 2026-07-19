@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import type { ClientInquiry } from "../inquiries/types";
 import type { CheckoutSessionRecord } from "../checkout/types";
 import type { Lead } from "../leads/types";
-import { buildDailyDigest, formatSnoozeRemainingHours, renderDailyDigestHtml } from "./daily-digest";
+import {
+  buildDailyDigest,
+  formatSnoozeRemainingHours,
+  joinWithAnd,
+  renderDailyDigestHtml,
+} from "./daily-digest";
 
 const NOW = Date.parse("2026-07-12T12:00:00.000Z");
 
@@ -129,6 +134,41 @@ describe("buildDailyDigest", () => {
     expect(digest.marketingPacksDue).toHaveLength(1);
     expect(digest.isEmpty).toBe(false);
     expect(digest.actionableItemCount).toBe(1);
+  });
+
+  it("actionableSectionLabels covers every section actionableItemCount sums, including the clawback/dispute/paid-not-live/missing-email sections", () => {
+    // Regression for daily-digest-empty-state-copy-drift: renderDailyDigestHtml's
+    // "Nothing urgent today" prose used to hand-duplicate a 13-section subset
+    // of this same 19-section list, silently omitting refund clawback, dispute
+    // clawback, bundle refunds, bundle disputes, paid-not-live, and missing
+    // email from the sentence even though those sections gate isEmpty too.
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.actionableSectionLabels).toEqual([
+      "Work next",
+      "follow-ups",
+      "checkout recoveries",
+      "Buy now carts",
+      "inbox",
+      "marketing packs",
+      "Starter upsells",
+      "Commerce catalogs",
+      "Sync to Stripe",
+      "Complete voice packs",
+      "Commerce payouts owed",
+      "Refund clawback",
+      "Dispute clawback",
+      "Bundle refunds",
+      "Bundle disputes",
+      "production handoffs",
+      "Paid, not live",
+      "Missing email",
+      "paused/canceled MRR recoveries",
+    ]);
   });
 
   it("surfaces a ready-to-outreach lead in workNext", () => {
@@ -1624,6 +1664,16 @@ describe("formatSnoozeRemainingHours", () => {
   });
 });
 
+describe("joinWithAnd", () => {
+  it("joins zero, one, two, and three-or-more items", () => {
+    expect(joinWithAnd([])).toBe("");
+    expect(joinWithAnd(["a"])).toBe("a");
+    expect(joinWithAnd(["a", "b"])).toBe("a and b");
+    expect(joinWithAnd(["a", "b", "c"])).toBe("a, b, and c");
+    expect(joinWithAnd(["a", "b", "c", "d"])).toBe("a, b, c, and d");
+  });
+});
+
 describe("renderDailyDigestHtml", () => {
   it("renders an empty-state message when there is nothing to act on", () => {
     const digest = buildDailyDigest({
@@ -1634,6 +1684,26 @@ describe("renderDailyDigestHtml", () => {
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).toContain("Nothing urgent today");
+  });
+
+  it("empty-state prose enumerates every actionable section, not a stale hand-duplicated subset", () => {
+    // Regression for daily-digest-empty-state-copy-drift.
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    for (const label of digest.actionableSectionLabels) {
+      expect(html).toContain(label);
+    }
+    expect(html).toContain("Refund clawback");
+    expect(html).toContain("Dispute clawback");
+    expect(html).toContain("Bundle refunds");
+    expect(html).toContain("Bundle disputes");
+    expect(html).toContain("Paid, not live");
+    expect(html).toContain("Missing email");
   });
 
   it("mentions snoozed leads as a footnote even when the digest is otherwise empty", () => {
