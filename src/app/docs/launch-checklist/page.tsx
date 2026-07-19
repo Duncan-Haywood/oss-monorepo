@@ -288,6 +288,17 @@ export default function LaunchChecklistDocPage() {
           rejects placeholders before <code>ConvexHttpClient</code> construction.
         </li>
         <li>
+          Once <code>NEXT_PUBLIC_CONVEX_URL</code> is configured, also set the server-only{" "}
+          <code>CONVEX_API_SECRET</code> (<code>npx convex env set CONVEX_API_SECRET ...</code>{" "}
+          on the Convex deployment, matching the app host&apos;s env). Every{" "}
+          <code>convex/*.ts</code> public function requires it, so a missing secret fails{" "}
+          <em>every</em> Convex call closed and silently falls back to instance-local SQLite —
+          the same split-brain risk the URL check above exists to prevent. Until it&apos;s set,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a second pink banner
+          via <code>assessConvexApiSecretEnvReadiness</code>.
+        </li>
+        <li>
           Confirm lead <code>email</code> persists after save — outreach depends on it.
         </li>
       </ol>
