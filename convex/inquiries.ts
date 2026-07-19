@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const statusValidator = v.union(
   v.literal("new"),
@@ -71,9 +72,11 @@ export const create = mutation({
     phone: v.optional(v.string()),
     message: v.string(),
     source: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: inquiryReturn,
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const now = Date.now();
     await ctx.db.insert("clientInquiries", {
       inquiryId: args.inquiryId,
@@ -108,9 +111,11 @@ export const create = mutation({
 export const list = query({
   args: {
     limit: v.optional(v.number()),
+    apiSecret: v.string(),
   },
   returns: v.array(inquiryReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const limit = Math.min(Math.max(args.limit ?? 100, 1), 200);
     const rows = await ctx.db
       .query("clientInquiries")
@@ -132,9 +137,10 @@ export const list = query({
  * unreplied-inquiry-list-completeness in /docs/process.
  */
 export const listUnreplied = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(inquiryReturn),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const [newRows, readRows] = await Promise.all([
       ctx.db
         .query("clientInquiries")
@@ -155,9 +161,11 @@ export const listBySlug = query({
   args: {
     leadSlug: v.string(),
     limit: v.optional(v.number()),
+    apiSecret: v.string(),
   },
   returns: v.array(inquiryReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     const rows = await ctx.db
       .query("clientInquiries")
@@ -184,9 +192,11 @@ export const listBySlug = query({
 export const listCommerceCheckoutBySlug = query({
   args: {
     leadSlug: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.array(inquiryReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db
       .query("clientInquiries")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -202,9 +212,11 @@ export const listCommerceCheckoutBySlug = query({
 export const getById = query({
   args: {
     inquiryId: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(inquiryReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("clientInquiries")
       .withIndex("by_inquiryId", (q) => q.eq("inquiryId", args.inquiryId))
@@ -218,9 +230,11 @@ export const updateStatus = mutation({
   args: {
     inquiryId: v.string(),
     status: statusValidator,
+    apiSecret: v.string(),
   },
   returns: v.union(inquiryReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("clientInquiries")
       .withIndex("by_inquiryId", (q) => q.eq("inquiryId", args.inquiryId))
@@ -241,9 +255,11 @@ export const recordReply = mutation({
   args: {
     inquiryId: v.string(),
     operatorReply: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(inquiryReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("clientInquiries")
       .withIndex("by_inquiryId", (q) => q.eq("inquiryId", args.inquiryId))
