@@ -179,7 +179,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         require a signed operator session when auth is configured.
       </p>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
         <div className="rounded-xl border border-zinc-200 px-4 py-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
             Revenue
@@ -226,6 +226,29 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             {health.oldestAbandonedAgeHours !== null
               ? ` · oldest ${formatAbandonedAgeHours(health.oldestAbandonedAgeHours)}`
               : ""}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.commerceAbandonedCheckoutCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Buy now carts
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {health.commerceAbandonedCheckoutCount}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.commerceRecoveryDueCount > 0
+              ? `${health.commerceRecoveryDueCount} recovery due${
+                  health.oldestCommerceAbandonedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceAbandonedAgeHours)}`
+                    : ""
+                }`
+              : "Commerce SKU checkouts past 2h"}
           </p>
         </div>
         <div
