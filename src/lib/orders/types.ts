@@ -20,7 +20,6 @@ export interface OrderRecord {
   recurringCanceledAt?: number;
   /** USD dollars (not cents). */
   amountPaid: number;
-  status: string;
   createdAt: string;
   /**
    * ISO timestamp when Stripe charge.refunded (full or partial) resolved to

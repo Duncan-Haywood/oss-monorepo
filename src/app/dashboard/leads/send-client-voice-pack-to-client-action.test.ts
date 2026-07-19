@@ -101,7 +101,6 @@ const completeOrder = {
   tier: "complete",
   commerceAddon: false,
   amountPaid: 699,
-  status: "paid",
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 

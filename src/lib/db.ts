@@ -120,7 +120,6 @@ function getSqliteDb(): DatabaseSync {
       tier TEXT NOT NULL,
       commerceAddon INTEGER NOT NULL DEFAULT 0,
       amountPaid INTEGER NOT NULL,
-      status TEXT NOT NULL DEFAULT 'paid',
       createdAt TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -999,8 +998,8 @@ export async function recordLeadPayment(
   const orderId = newOrderId();
   const createdAt = new Date().toISOString();
   db.prepare(`
-    INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, status, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'paid', ?)
+    INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     orderId,
     leadRow.id,
@@ -1069,7 +1068,6 @@ function mapConvexOrderRow(row: {
         ? row.recurringCanceledAt
         : undefined,
     amountPaid: row.amountTotal,
-    status: "paid",
     createdAt: new Date(row.createdAt).toISOString(),
     refundedAt: row.refundedAt || undefined,
     disputedAt: row.disputedAt || undefined,
@@ -1102,7 +1100,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt, o.refundedAt, o.disputedAt
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        ORDER BY o.createdAt DESC`,
@@ -1158,7 +1156,7 @@ export async function listOrdersByLeadSlug(
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt, o.refundedAt, o.disputedAt
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE l.slug = ?
@@ -1214,7 +1212,7 @@ export async function getOrderByStripeSessionId(
   const row = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt, o.refundedAt, o.disputedAt
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE o.stripeSessionId = ?`,
@@ -1269,7 +1267,7 @@ export async function getOrdersByStripeCustomerId(
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.status, o.createdAt, o.refundedAt, o.disputedAt
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE o.stripeCustomerId = ?

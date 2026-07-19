@@ -97,7 +97,6 @@ const starterOrder = {
   tier: "starter",
   commerceAddon: false,
   amountPaid: 500,
-  status: "paid",
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 

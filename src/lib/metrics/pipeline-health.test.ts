@@ -105,7 +105,6 @@ function makeOrder(amountPaid: number): OrderRecord {
     tier: "starter",
     commerceAddon: false,
     amountPaid,
-    status: "paid",
     createdAt: new Date().toISOString(),
   };
 }
@@ -547,7 +546,6 @@ describe("computePipelineHealth", () => {
           amountPaid: 800,
           stripeSessionId: "cs_paid",
           commerceAddon: true,
-          status: "paid",
           createdAt: new Date(NOW - 10 * DAY_MS).toISOString(),
         },
       ],
@@ -593,7 +591,6 @@ describe("computePipelineHealth", () => {
           amountPaid: 800,
           stripeSessionId: "cs_paid",
           commerceAddon: true,
-          status: "paid",
           createdAt: new Date(NOW - 10 * DAY_MS).toISOString(),
         },
       ],
@@ -629,7 +626,6 @@ describe("computePipelineHealth", () => {
           stripeSessionId: "cs_paid",
           commerceAddon: true,
           recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
-          status: "paid",
           createdAt: new Date(NOW - 10 * DAY_MS).toISOString(),
         },
       ],

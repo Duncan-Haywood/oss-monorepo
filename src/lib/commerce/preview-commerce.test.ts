@@ -12,7 +12,6 @@ function order(overrides: Partial<OrderRecord> = {}): OrderRecord {
     tier: "starter",
     commerceAddon: true,
     amountPaid: 800,
-    status: "paid",
     createdAt: "2026-07-16T00:00:00.000Z",
     ...overrides,
   };

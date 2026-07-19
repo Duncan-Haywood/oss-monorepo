@@ -101,7 +101,6 @@ const commerceOrder = {
   tier: "growth",
   commerceAddon: true,
   amountPaid: 849,
-  status: "paid",
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 
