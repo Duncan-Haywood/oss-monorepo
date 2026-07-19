@@ -64,6 +64,7 @@ import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
 import {
   leadEligibleForStarterUpsell,
   listStarterUpsellCandidates,
+  oldestStarterUpsellCandidateAgeHours,
   resolveUpsellTargetTier,
 } from "@/lib/billing/starter-upsell";
 import { listRecurringEntitlementPaused } from "@/lib/orders/recurring";
@@ -970,6 +971,11 @@ export function LeadsClient({
     leadSlugsEligibleForCommerceAbandonedRecovery(leads, orders),
   );
   const starterUpsellCandidates = listStarterUpsellCandidates(leads, orders);
+  const oldestStarterUpsellHours = oldestStarterUpsellCandidateAgeHours(
+    starterUpsellCandidates,
+    orders,
+    nowMs,
+  );
   const recurringEntitlementPaused = listRecurringEntitlementPaused(leads, orders);
   const marketingPacksDueMonth = marketingMonthKey(nowMs);
   const marketingPacksDue = listMarketingPacksDue(
@@ -1159,7 +1165,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Starter → MRR upsell
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({starterUpsellCandidates.length})
+                ({starterUpsellCandidates.length}
+                {oldestStarterUpsellHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestStarterUpsellHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1177,6 +1187,11 @@ export function LeadsClient({
             {starterUpsellCandidates.map((lead) => {
               const targetTier = resolveUpsellTargetTier(lead.recommendedTier);
               const bundle = getBundle(targetTier);
+              const upsellAgeHours = oldestStarterUpsellCandidateAgeHours(
+                [{ slug: lead.slug }],
+                orders,
+                nowMs,
+              );
               return (
                 <li
                   key={lead.slug}
@@ -1194,6 +1209,9 @@ export function LeadsClient({
                           ? ` · $${bundle.monthlyPriceUsd}/mo`
                           : null}
                         {lead.email ? ` · ${lead.email}` : null}
+                        {upsellAgeHours !== null ? (
+                          <> · paid {formatAbandonedAgeHours(upsellAgeHours)} ago</>
+                        ) : null}
                       </p>
                     </div>
                     <button
