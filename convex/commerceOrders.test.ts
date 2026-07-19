@@ -72,11 +72,13 @@ test("markPaidOut / markRefunded / markDisputed / clearDisputed round-trip throu
   let unpaid = await t.query(api.commerceOrders.listUnpaid, { apiSecret: TEST_API_SECRET });
   expect(unpaid).toHaveLength(1);
 
-  await t.mutation(api.commerceOrders.markPaidOut, {
-    stripeSessionId: "cs_1",
-    paidOutAt: "2026-01-02T00:00:00.000Z",
-    apiSecret: TEST_API_SECRET,
-  });
+  await expect(
+    t.mutation(api.commerceOrders.markPaidOut, {
+      stripeSessionId: "cs_1",
+      paidOutAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
   unpaid = await t.query(api.commerceOrders.listUnpaid, { apiSecret: TEST_API_SECRET });
   expect(unpaid).toHaveLength(0);
 
@@ -160,7 +162,7 @@ test("markPaidOut / markRefunded / markDisputed on an unknown stripeSessionId ar
       paidOutAt: "2026-01-01T00:00:00.000Z",
       apiSecret: TEST_API_SECRET,
     }),
-  ).resolves.toBeNull();
+  ).resolves.toBe(false);
   await expect(
     t.mutation(api.commerceOrders.markRefunded, {
       stripeSessionId: "cs_missing",
@@ -190,6 +192,84 @@ test("markPaidOut / markRefunded / markDisputed on an unknown stripeSessionId ar
 
   const rows = await t.query(api.commerceOrders.list, { apiSecret: TEST_API_SECRET });
   expect(rows).toHaveLength(0);
+});
+
+test("markPaidOut atomically rejects an order that is refunded, disputed, or already paid out — never double-guards on a stale caller read alone", async () => {
+  // Regression test for commerce-order-paid-out-refund-race-guard: the
+  // dashboard action (markCommerceOrderPaidOutAction) checks
+  // refundedAt/disputedAt/paidOutAt on a row it read moments earlier, but an
+  // independent Stripe webhook can record a refund/dispute in the window
+  // between that read and this mutation. markPaidOut must re-verify all
+  // three fields atomically with its own write so a race never leaves a row
+  // both paid out AND refunded/disputed.
+  const t = convexTest(schema, modules);
+
+  await t.mutation(api.commerceOrders.insert, insertArgs({ stripeSessionId: "cs_refunded" }));
+  await t.mutation(api.commerceOrders.markRefunded, {
+    stripeSessionId: "cs_refunded",
+    refundedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  await expect(
+    t.mutation(api.commerceOrders.markPaidOut, {
+      stripeSessionId: "cs_refunded",
+      paidOutAt: "2026-01-03T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+  let row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_refunded",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.paidOutAt).toBeUndefined();
+
+  await t.mutation(
+    api.commerceOrders.insert,
+    insertArgs({ stripeSessionId: "cs_disputed", orderId: "corder_disputed" }),
+  );
+  await t.mutation(api.commerceOrders.markDisputed, {
+    stripeSessionId: "cs_disputed",
+    disputedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  await expect(
+    t.mutation(api.commerceOrders.markPaidOut, {
+      stripeSessionId: "cs_disputed",
+      paidOutAt: "2026-01-03T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+  row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_disputed",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.paidOutAt).toBeUndefined();
+
+  await t.mutation(
+    api.commerceOrders.insert,
+    insertArgs({ stripeSessionId: "cs_already_paid", orderId: "corder_already_paid" }),
+  );
+  await expect(
+    t.mutation(api.commerceOrders.markPaidOut, {
+      stripeSessionId: "cs_already_paid",
+      paidOutAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+  // Redelivery / a second click after paidOutAt is already set must not
+  // move the originally-recorded timestamp.
+  await expect(
+    t.mutation(api.commerceOrders.markPaidOut, {
+      stripeSessionId: "cs_already_paid",
+      paidOutAt: "2026-01-09T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+  row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_already_paid",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.paidOutAt).toBe("2026-01-02T00:00:00.000Z");
 });
 
 test("list / listUnpaid / listRefunded / listDisputed sort newest createdAt first", async () => {

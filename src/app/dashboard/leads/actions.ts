@@ -1255,8 +1255,9 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
     }
 
     const paidOutAt = new Date().toISOString();
+    let applied: boolean;
     try {
-      await markCommerceOrderPaidOut(
+      applied = await markCommerceOrderPaidOut(
         sessionId,
         paidOutAt,
         COMMERCE_PAID_OUT_CONVEX_PRIMARY,
@@ -1272,6 +1273,19 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
       throw error;
     }
     revalidatePath("/dashboard/leads");
+    if (!applied) {
+      // The refunded/disputed/already-paid-out check above ran against a
+      // snapshot read; markCommerceOrderPaidOut re-verifies the same fields
+      // atomically with the write and found one had changed underneath us
+      // (most likely a Stripe refund/dispute webhook landed in that window).
+      // Revalidate so the dashboard shows the up-to-date reason instead of
+      // silently reporting success on a write that never happened.
+      return {
+        success: false as const,
+        error:
+          "Order was refunded or disputed after this page loaded — refresh and check its status; nothing was paid out",
+      };
+    }
     return { success: true as const, paidOutAt };
   } catch (error) {
     console.error("Error in markCommerceOrderPaidOutAction:", error);

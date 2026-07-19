@@ -162,10 +162,21 @@ export const getByStripeSessionId = query({
  * Marks a commerce order as manually paid out to the client. Keyed on
  * stripeSessionId (unique, always present) rather than the Convex row id —
  * matches the checkoutSessions mutation pattern (recordRecoverySent).
+ *
+ * Returns whether the patch was actually applied. markCommerceOrderPaidOutAction
+ * checks refundedAt/disputedAt on a row it read *before* this call — an
+ * independent Stripe webhook (charge.refunded / charge.dispute.created) can
+ * land in the window between that read and this mutation, since the two are
+ * uncorrelated async deliveries with no shared lock. Re-checking
+ * refundedAt/disputedAt/paidOutAt here, atomically with the patch, is the
+ * only thing that actually prevents paying a client out for money Stripe has
+ * already reversed or withdrawn — the action-level check alone is a
+ * stale-read guard, not a guarantee. See
+ * commerce-order-paid-out-refund-race-guard in /docs/process.
  */
 export const markPaidOut = mutation({
   args: { stripeSessionId: v.string(), paidOutAt: v.string(), apiSecret: v.string() },
-  returns: v.null(),
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const order = await ctx.db
@@ -174,10 +185,11 @@ export const markPaidOut = mutation({
         q.eq("stripeSessionId", args.stripeSessionId),
       )
       .unique();
-    if (order) {
-      await ctx.db.patch(order._id, { paidOutAt: args.paidOutAt });
+    if (!order || order.paidOutAt || order.refundedAt || order.disputedAt) {
+      return false;
     }
-    return null;
+    await ctx.db.patch(order._id, { paidOutAt: args.paidOutAt });
+    return true;
   },
 });
 

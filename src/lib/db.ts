@@ -3149,20 +3149,32 @@ export async function getCommerceOrderByStripeSessionId(
  * Pass { requireConvex: true } from markCommerceOrderPaidOutAction so a
  * Convex mutation failure surfaces instead of SQLite-only success while
  * Convex-first unpaid owed readers still show the order as owed.
+ *
+ * Returns whether the row was actually marked paid out. The caller
+ * (markCommerceOrderPaidOutAction) already rejects a refunded/disputed/
+ * already-paid-out order based on a row it read moments earlier — but that
+ * earlier read can go stale: an independent Stripe webhook
+ * (charge.refunded / charge.dispute.created) can record a refund or dispute
+ * in the window between that read and this write, since the two are
+ * uncorrelated async deliveries. The UPDATE's WHERE clause (and the Convex
+ * mutation's matching in-handler check) re-verifies refundedAt/disputedAt/
+ * paidOutAt atomically with the write itself, so a race never leaves an
+ * order both paid out AND refunded/disputed — the action-level check alone
+ * cannot guarantee that. See commerce-order-paid-out-refund-race-guard in
+ * /docs/process.
  */
 export async function markCommerceOrderPaidOut(
   stripeSessionId: string,
   paidOutAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.commerceOrders.markPaidOut, {
+      return await convexClient.mutation(api.commerceOrders.markPaidOut, {
         stripeSessionId,
         paidOutAt,
         apiSecret: convexApiSecret,
       });
-      return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("markCommerceOrderPaidOut", e);
@@ -3175,10 +3187,12 @@ export async function markCommerceOrderPaidOut(
   }
 
   const db = getSqliteDb();
-  db.prepare("UPDATE commerce_orders SET paidOutAt = ? WHERE stripeSessionId = ?").run(
-    paidOutAt,
-    stripeSessionId,
-  );
+  const result = db
+    .prepare(
+      "UPDATE commerce_orders SET paidOutAt = ? WHERE stripeSessionId = ? AND (paidOutAt IS NULL OR paidOutAt = '') AND (refundedAt IS NULL OR refundedAt = '') AND (disputedAt IS NULL OR disputedAt = '')",
+    )
+    .run(paidOutAt, stripeSessionId);
+  return result.changes > 0;
 }
 
 /**
