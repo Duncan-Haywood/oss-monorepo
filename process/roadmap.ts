@@ -384,7 +384,7 @@ export const roadmap: RoadmapPhase[] = [
   {
     id: "phase-4-pick-wedge",
     title: "Phase 4 — Pick the wedge",
-    status: "not_started",
+    status: "in_progress",
     window: "Month 3",
     summary: "Select the audience where 40%+ would pay $49/mo; land 1 brokerage pilot.",
     tasks: [

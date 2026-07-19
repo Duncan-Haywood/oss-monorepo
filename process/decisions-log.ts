@@ -305,4 +305,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-a4sdsa",
     relatedTaskIds: ["p2-human-notification-throttle"],
   },
+  {
+    date: "2026-07-19",
+    title: "Stop re-deriving the full stale-branch commit-subject cross-reference every session; check only the delta",
+    decision:
+      "process/blockers.ts's stale-branch-cleanup entry no longer needs a from-scratch commit-subject cross-reference against all ~44 branches every re-verification pass. Going forward, a session should just diff the current `git ls-remote --heads origin` branch count/name list against this entry's previously recorded count and name, and only do the deeper per-commit check when the delta is more than the expected +1 (this session's own branch merging) or a new branch's name doesn't obviously correspond to the immediately-preceding merged PR. Also fixed a small stale-status paydown: phase-4-pick-wedge's phase-level status was still 'not_started' even though its only task (p4-gtm-motion) has been 'done' since 2026-07-18 — flipped the phase to 'in_progress' since real work has started even though the phase's actual goal (landing a paying brokerage pilot) hasn't.",
+    rationale:
+      "This session re-verified all 6 human blockers (12-hour recheck window had elapsed) and, as part of that, re-ran the full per-branch commit-subject audit one more time — the 20th consecutive time it has found exactly one new branch, and that branch has been, every single time without exception, simply the most recently merged PR's own now-abandoned source branch. Twenty-for-twenty is enough confirmations that continuing to re-derive this from first principles every ~12 hours is exactly the kind of redundant busywork blockers.ts itself exists to eliminate for the other 5 blockers (see this file's original 2026-07-13 doc comment) — the check has stopped producing new information and just costs a `git fetch` per branch plus reasoning tokens every pass. The GitHub-side proxy restriction on branch deletion (confirmed 403, 'Write access to this GitHub API path is not permitted through this proxy') means this blocker can't be resolved by an agent regardless of how thoroughly it's re-audited, so the audit's only remaining value is catching an actual surprise — which a simple delta check still does, at a fraction of the cost. The phase-4 status fix is unrelated small hygiene noticed while reading roadmap.ts for nextActionableTasks() during this same pass, in the spirit of prompt_process.tsx's guidance to pay down stale statuses when nothing else is agent-actionable.",
+    madeBy: "claude/dazzling-allen-lijq0y",
+    relatedTaskIds: ["p2-blocker-recheck-throttle", "p4-gtm-motion"],
+  },
 ];
