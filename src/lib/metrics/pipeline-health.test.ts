@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   computePipelineHealth,
+  deployHandoffAgeHours,
   emptyStageCounts,
   formatAbandonedAgeHours,
   formatUsd,
@@ -1247,6 +1248,41 @@ describe("formatAbandonedAgeHours", () => {
     expect(formatAbandonedAgeHours(3)).toBe("3h");
     expect(formatAbandonedAgeHours(24)).toBe("1d");
     expect(formatAbandonedAgeHours(30)).toBe("1d 6h");
+  });
+});
+
+describe("deployHandoffAgeHours", () => {
+  it("computes whole hours since createdAt, clamped to 0 for a future timestamp", () => {
+    expect(
+      deployHandoffAgeHours(new Date(NOW - 40 * HOUR_MS).toISOString(), NOW),
+    ).toBe(40);
+    expect(deployHandoffAgeHours(new Date(NOW + HOUR_MS).toISOString(), NOW)).toBe(0);
+    expect(deployHandoffAgeHours(new Date(NOW).toISOString(), NOW)).toBe(0);
+  });
+
+  it("returns null when createdAt fails to parse", () => {
+    expect(deployHandoffAgeHours("not-a-date", NOW)).toBeNull();
+  });
+
+  it("matches the aggregate oldestOpenHandoffAgeHours loop for the oldest open handoff", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      inquiries: [],
+      handoffs: [
+        makeHandoff("pending", {
+          createdAt: new Date(NOW - 40 * HOUR_MS).toISOString(),
+        }),
+        makeHandoff("awaiting_dns", {
+          createdAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
+        }),
+      ],
+      nowMs: NOW,
+    });
+    expect(health.oldestOpenHandoffAgeHours).toBe(40);
+    expect(
+      deployHandoffAgeHours(new Date(NOW - 40 * HOUR_MS).toISOString(), NOW),
+    ).toBe(health.oldestOpenHandoffAgeHours);
   });
 });
 
