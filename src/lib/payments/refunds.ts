@@ -73,6 +73,32 @@ export function disputeStatusClearsDisputeFlag(status: unknown): boolean {
 }
 
 /**
+ * Extracts the Charge id from a Stripe Refund — `charge` may be a bare id
+ * string or an expanded Charge object depending on the webhook's expand
+ * config. Returns null when absent so the caller can skip re-verification.
+ * Used by refund.updated's reversal handler to re-fetch the charge's own
+ * aggregate amount_refunded before trusting a single refund event's status —
+ * see refundStatusReversesRefund below for why a single event is not enough.
+ */
+export function refundChargeId(refund: {
+  charge?: string | { id?: string | null } | null;
+}): string | null {
+  const charge = refund.charge;
+  if (typeof charge === "string" && charge.trim().length > 0) {
+    return charge;
+  }
+  if (
+    charge &&
+    typeof charge === "object" &&
+    typeof charge.id === "string" &&
+    charge.id.trim().length > 0
+  ) {
+    return charge.id;
+  }
+  return null;
+}
+
+/**
  * True when a refund.updated event should clear refundedAt — the refund that
  * originally set it (via charge.refunded, amount_refunded > 0) never actually
  * completed. This is common for bank-sourced refunds (ACH, some debit cards):
@@ -84,6 +110,15 @@ export function disputeStatusClearsDisputeFlag(status: unknown): boolean {
  *
  * - `failed` — the refund attempt did not complete; funds stay with the platform.
  * - `canceled` — a `requires_action` refund (e.g. Sofort) was canceled before completing.
+ *
+ * IMPORTANT: this predicate is about the single refund EVENT, not the whole
+ * charge. Stripe allows multiple independent (e.g. partial) refunds per
+ * charge — a caller must not clear refundedAt off this predicate alone,
+ * since a *different*, still-successful refund on the same charge would then
+ * be silently erased. Re-fetch the charge (stripe.charges.retrieve, keyed by
+ * refundChargeId(refund)) and re-check chargeHasRefund(charge) — only clear
+ * when that re-derived aggregate shows zero net refund remaining. See
+ * refund-reversal-charge-aggregate-recheck.
  *
  * `succeeded` (and any other status) is not a reversal — the initial
  * refundedAt mark from charge.refunded already covers that case.

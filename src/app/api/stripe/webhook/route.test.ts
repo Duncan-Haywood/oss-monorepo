@@ -19,6 +19,7 @@ const constructEvent = vi.fn();
 const listLineItems = vi.fn();
 const retrieveSubscription = vi.fn();
 const listCheckoutSessions = vi.fn();
+const retrieveCharge = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
     webhooks = { constructEvent: (...args: unknown[]) => constructEvent(...args) };
@@ -30,6 +31,9 @@ vi.mock("stripe", () => ({
     };
     subscriptions = {
       retrieve: (...args: unknown[]) => retrieveSubscription(...args),
+    };
+    charges = {
+      retrieve: (...args: unknown[]) => retrieveCharge(...args),
     };
   },
 }));
@@ -302,6 +306,11 @@ describe("POST /api/stripe/webhook", () => {
     markCommerceOrderDisputed.mockReset().mockResolvedValue(undefined);
     clearCommerceOrderDisputed.mockReset().mockResolvedValue(undefined);
     listCheckoutSessions.mockReset().mockResolvedValue({ data: [] });
+    // Default: the re-fetched charge shows zero net refund remaining, so
+    // existing refund.updated reversal tests clear as before; individual
+    // tests override this to simulate a still-refunded charge (a different,
+    // still-successful refund on the same charge).
+    retrieveCharge.mockReset().mockResolvedValue({ amount_refunded: 0 });
     getDeployHandoffBySlug.mockReset().mockResolvedValue(null);
     insertDeployHandoff.mockReset().mockResolvedValue(undefined);
     listDeployHandoffs.mockReset().mockResolvedValue([]);
@@ -2499,6 +2508,7 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      expect(retrieveCharge).toHaveBeenCalledWith("ch_refund_1");
       expect(clearCommerceOrderRefunded).toHaveBeenCalledWith("cs_commerce_1", {
         requireConvex: true,
       });
@@ -2571,6 +2581,50 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      expect(listCheckoutSessions).not.toHaveBeenCalled();
+      expect(clearCommerceOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("skips a reversed refund with no charge — cannot re-verify aggregate state", async () => {
+      constructEvent.mockReturnValue(refundUpdatedEvent({ charge: null }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(retrieveCharge).not.toHaveBeenCalled();
+      expect(listCheckoutSessions).not.toHaveBeenCalled();
+      expect(clearCommerceOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("does not clear refundedAt when a different refund on the same charge is still in effect", async () => {
+      // Refund A ($30) already succeeded on this charge (refundedAt got set
+      // by the earlier charge.refunded event). Refund B ($20), a separate
+      // partial refund attempt on the SAME charge, now fails — but Refund A's
+      // money never came back, so the charge's own amount_refunded is still
+      // nonzero. refundedAt must stay set; this refund event alone must not
+      // clear it. See refund-reversal-charge-aggregate-recheck.
+      retrieveCharge.mockResolvedValueOnce({ amount_refunded: 3000 });
+      constructEvent.mockReturnValue(refundUpdatedEvent({ status: "failed" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(retrieveCharge).toHaveBeenCalledWith("ch_refund_1");
+      expect(listCheckoutSessions).not.toHaveBeenCalled();
+      expect(clearCommerceOrderRefunded).not.toHaveBeenCalled();
+      expect(clearOrderRefunded).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 commerce_order_refund_reversed_charge_lookup when the charge retrieve fails", async () => {
+      retrieveCharge.mockRejectedValueOnce(new Error("stripe down"));
+      constructEvent.mockReturnValue(refundUpdatedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_order_refund_reversed_charge_lookup");
+      expect(json.received).toBe(false);
       expect(listCheckoutSessions).not.toHaveBeenCalled();
       expect(clearCommerceOrderRefunded).not.toHaveBeenCalled();
     });
