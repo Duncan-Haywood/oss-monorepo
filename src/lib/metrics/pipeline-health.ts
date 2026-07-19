@@ -497,11 +497,10 @@ export function computePipelineHealth(input: {
   // oldestAbandoned/oldestUnrepliedInquiry loops below.
   let oldestOpenHandoffAgeHours: number | null = null;
   for (const handoff of openHandoffs) {
-    const createdAtMs = Date.parse(handoff.createdAt);
-    if (Number.isNaN(createdAtMs)) continue;
-    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
+    const ageHours = deployHandoffAgeHours(handoff.createdAt, nowMs);
+    if (ageHours === null) continue;
     if (oldestOpenHandoffAgeHours === null || ageHours > oldestOpenHandoffAgeHours) {
-      oldestOpenHandoffAgeHours = Math.max(0, ageHours);
+      oldestOpenHandoffAgeHours = ageHours;
     }
   }
 
@@ -830,6 +829,22 @@ export function formatUsd(amount: number): string {
     currency: "USD",
     maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
   }).format(amount);
+}
+
+/**
+ * Age in whole hours since a single deploy handoff's createdAt; null when
+ * createdAt fails to parse. Factored out of the oldestOpenHandoffAgeHours
+ * loop above (same Date.parse + NaN-guard + Math.max(0, …) contract) as a
+ * per-item pure function so leads-client.tsx's "Production deploy handoffs"
+ * panel can render each row's own staleness — not just the aggregate
+ * oldest — without inlining untested Date-math in JSX (per AGENT_PROTOCOL's
+ * no-test-harness-for-client-components note: extract such computations
+ * into a pure, unit-testable helper instead).
+ */
+export function deployHandoffAgeHours(createdAt: string, nowMs: number): number | null {
+  const createdAtMs = Date.parse(createdAt);
+  if (Number.isNaN(createdAtMs)) return null;
+  return Math.max(0, Math.floor((nowMs - createdAtMs) / HOUR_MS));
 }
 
 /** Human-readable abandoned-cart age for the pipeline health panel. */

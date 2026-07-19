@@ -138,7 +138,11 @@ import {
   inquiryCanReceiveReply,
   inquiryShouldAutoMarkRead,
 } from "@/lib/inquiries/reply";
-import { formatAbandonedAgeHours, formatUsd } from "@/lib/metrics/pipeline-health";
+import {
+  deployHandoffAgeHours,
+  formatAbandonedAgeHours,
+  formatUsd,
+} from "@/lib/metrics/pipeline-health";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
@@ -1902,6 +1906,9 @@ export function LeadsClient({
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Production deploy handoffs
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({openHandoffs.length})
+              </span>
             </h2>
             <Link
               href="/docs/production-deploy"
@@ -1914,107 +1921,111 @@ export function LeadsClient({
             Created automatically after Stripe checkout. Confirm DNS, then mark live.
           </p>
           <ul className="mt-4 space-y-3">
-            {openHandoffs.map((h) => (
-              <li
-                key={h.id}
-                className="rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-zinc-900">
-                      {h.businessName}{" "}
-                      <span className="font-normal text-zinc-500">({h.leadSlug})</span>
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-600">
-                      Status: <code>{h.status}</code>
-                      {h.vercelDomainStatus ? (
-                        <>
-                          {" "}
-                          · Vercel: <code>{h.vercelDomainStatus}</code>
-                        </>
-                      ) : null}
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-600">
-                      Host: <code>{h.suggestedHost}</code> ·{" "}
-                      <a
-                        href={h.previewUrl}
-                        className="underline underline-offset-2"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Preview
-                      </a>{" "}
-                      · Contact: <code>{h.contactFormUrl}</code>
-                      {h.customDomain ? (
-                        <>
-                          {" "}
-                          · Custom domain: <code>{h.customDomain}</code>
-                        </>
-                      ) : null}
-                    </p>
-                    <ul className="mt-2 space-y-0.5 text-xs text-zinc-500">
-                      {h.dnsInstructions.map((d) => (
-                        <li key={`${d.type}-${d.host}`}>
-                          <code>{d.type}</code> {d.host} → {d.value}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-3 flex items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder="Dedicated Vercel project ID (optional isolation)"
-                        value={vercelProjectInputs[h.leadSlug] ?? h.vercelProjectId ?? ""}
-                        onChange={(e) =>
-                          setVercelProjectInputs((prev) => ({
-                            ...prev,
-                            [h.leadSlug]: e.target.value,
-                          }))
-                        }
-                        className="w-72 max-w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none transition focus:border-zinc-900"
-                      />
-                      <button
-                        type="button"
-                        disabled={isPending}
-                        onClick={() => handleAssignVercelProject(h.leadSlug)}
-                        className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
-                      >
-                        Save + provision
-                      </button>
+            {openHandoffs.map((h) => {
+              const handoffAgeHours = deployHandoffAgeHours(h.createdAt, nowMs);
+              return (
+                <li
+                  key={h.id}
+                  className="rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {h.businessName}{" "}
+                        <span className="font-normal text-zinc-500">({h.leadSlug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        Status: <code>{h.status}</code> · opened{" "}
+                        {formatAbandonedAgeHours(handoffAgeHours)} ago
+                        {h.vercelDomainStatus ? (
+                          <>
+                            {" "}
+                            · Vercel: <code>{h.vercelDomainStatus}</code>
+                          </>
+                        ) : null}
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        Host: <code>{h.suggestedHost}</code> ·{" "}
+                        <a
+                          href={h.previewUrl}
+                          className="underline underline-offset-2"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Preview
+                        </a>{" "}
+                        · Contact: <code>{h.contactFormUrl}</code>
+                        {h.customDomain ? (
+                          <>
+                            {" "}
+                            · Custom domain: <code>{h.customDomain}</code>
+                          </>
+                        ) : null}
+                      </p>
+                      <ul className="mt-2 space-y-0.5 text-xs text-zinc-500">
+                        {h.dnsInstructions.map((d) => (
+                          <li key={`${d.type}-${d.host}`}>
+                            <code>{d.type}</code> {d.host} → {d.value}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="mt-3 flex items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder="Dedicated Vercel project ID (optional isolation)"
+                          value={vercelProjectInputs[h.leadSlug] ?? h.vercelProjectId ?? ""}
+                          onChange={(e) =>
+                            setVercelProjectInputs((prev) => ({
+                              ...prev,
+                              [h.leadSlug]: e.target.value,
+                            }))
+                          }
+                          className="w-72 max-w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none transition focus:border-zinc-900"
+                        />
+                        <button
+                          type="button"
+                          disabled={isPending}
+                          onClick={() => handleAssignVercelProject(h.leadSlug)}
+                          className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
+                        >
+                          Save + provision
+                        </button>
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder="Client's own domain (e.g. joesplumbing.com)"
+                          value={customDomainInputs[h.leadSlug] ?? h.customDomain ?? ""}
+                          onChange={(e) =>
+                            setCustomDomainInputs((prev) => ({
+                              ...prev,
+                              [h.leadSlug]: e.target.value,
+                            }))
+                          }
+                          className="w-72 max-w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none transition focus:border-zinc-900"
+                        />
+                        <button
+                          type="button"
+                          disabled={isPending}
+                          onClick={() => handleAssignCustomDomain(h.leadSlug)}
+                          className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
+                        >
+                          Save domain
+                        </button>
+                      </div>
                     </div>
-                    <div className="mt-2 flex items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder="Client's own domain (e.g. joesplumbing.com)"
-                        value={customDomainInputs[h.leadSlug] ?? h.customDomain ?? ""}
-                        onChange={(e) =>
-                          setCustomDomainInputs((prev) => ({
-                            ...prev,
-                            [h.leadSlug]: e.target.value,
-                          }))
-                        }
-                        className="w-72 max-w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none transition focus:border-zinc-900"
-                      />
-                      <button
-                        type="button"
-                        disabled={isPending}
-                        onClick={() => handleAssignCustomDomain(h.leadSlug)}
-                        className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
-                      >
-                        Save domain
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleMarkHandoffLive(h.leadSlug)}
+                      className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+                    >
+                      Mark live
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    disabled={isPending}
-                    onClick={() => handleMarkHandoffLive(h.leadSlug)}
-                    className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
-                  >
-                    Mark live
-                  </button>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
