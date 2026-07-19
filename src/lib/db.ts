@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { DEMO_LEADS } from "./leads/demo-catalog";
 import type { Lead, LeadPipelineStage, OutreachStep } from "./leads/types";
+import { newLeadId } from "./leads/types";
 import { buildPaymentStubLeadFields } from "./leads/payment-stub";
 import { normalizeOutreachStep } from "./email/outreach-followups";
 import type { DeployHandoff, DeployHandoffStatus } from "./deploy/types";
@@ -11,8 +12,9 @@ import type { ClientInquiry, ClientInquiryStatus, CreateClientInquiryInput } fro
 import { normalizeContactFormFields } from "./inquiries/contact-fields";
 import { newClientInquiryId } from "./inquiries/inquiry-id";
 import type { OrderRecord } from "./orders/types";
-import { sortOrdersNewestFirst } from "./orders/types";
+import { newOrderId, sortOrdersNewestFirst } from "./orders/types";
 import type { CheckoutSessionRecord } from "./checkout/types";
+import { newCheckoutSessionId } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
 import type { CommerceCatalog, UpsertCommerceCatalogInput } from "./commerce/types";
 import {
@@ -615,7 +617,7 @@ export async function upsertLead(
       lead.slug,
     );
   } else {
-    const id = `lead_${Date.now()}`;
+    const id = newLeadId();
     db.prepare(`
       INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt, lastPreviewOpenAt, notes, snoozedUntil)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -932,7 +934,7 @@ export async function recordLeadPayment(
   if (!lead) {
     // Keep field defaults aligned with Convex markLeadPaid stub + payment-stub.ts.
     const stub = buildPaymentStubLeadFields(params.slug);
-    const id = `lead_${Date.now()}`;
+    const id = newLeadId();
 
     db.prepare(`
       INSERT INTO leads (id, slug, businessName, category, city, state, phone, tagline, description, recommendedTier, dataSource, status)
@@ -959,7 +961,7 @@ export async function recordLeadPayment(
   const leadRow = db.prepare("SELECT id FROM leads WHERE slug = ?").get(params.slug) as { id: string };
 
   // Insert order
-  const orderId = `order_${Date.now()}`;
+  const orderId = newOrderId();
   db.prepare(`
     INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, status)
     VALUES (?, ?, ?, ?, ?, ?, ?, 'paid')
@@ -2319,7 +2321,7 @@ export async function recordCheckoutSessionCreated(
     VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)
     ON CONFLICT(stripeSessionId) DO NOTHING
   `).run(
-    `chk_${Date.now()}`,
+    newCheckoutSessionId(),
     params.leadSlug,
     params.stripeSessionId,
     params.tier,

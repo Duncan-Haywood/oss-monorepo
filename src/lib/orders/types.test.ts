@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   isOrderDisputed,
   isOrderRefunded,
+  newOrderId,
   orderCountsTowardRevenue,
   sortOrdersNewestFirst,
 } from "./types";
@@ -50,5 +51,24 @@ describe("sortOrdersNewestFirst", () => {
     const sorted = sortOrdersNewestFirst(input);
     expect(sorted.map((o) => o.id)).toEqual(["new", "mid", "old"]);
     expect(input[0]?.id).toBe("old");
+  });
+});
+
+describe("newOrderId", () => {
+  it("returns a non-empty string prefixed with order_", () => {
+    const id = newOrderId();
+    expect(typeof id).toBe("string");
+    expect(id.startsWith("order_")).toBe(true);
+  });
+
+  it("generates distinct ids across same-millisecond calls (collision guard)", () => {
+    // Regression for leads-sqlite-id-collision-guard: the pre-fix generator
+    // was `order_${Date.now()}` with no random component, so two orders
+    // inserted in the same millisecond (e.g. two Stripe webhook deliveries
+    // processed back-to-back) produced an identical id — orders.id is a
+    // SQLite PRIMARY KEY, so the second INSERT throws a constraint-violation
+    // error instead of the row landing safely.
+    const ids = new Set(Array.from({ length: 50 }, () => newOrderId()));
+    expect(ids.size).toBe(50);
   });
 });

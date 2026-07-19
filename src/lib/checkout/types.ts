@@ -39,3 +39,17 @@ export interface CheckoutSessionRecord {
   /** Present when kind === "commerce_sku". */
   skuId?: string;
 }
+
+/**
+ * Stable app-owned id for a new SQLite-fallback checkout_sessions row (see
+ * leads-sqlite-id-collision-guard). The prior generator was
+ * `chk_${Date.now()}` — millisecond-only, same collision-prone class as the
+ * pre-fix lead/order/inquiry id generators. `checkout_sessions.id` is a
+ * SQLite PRIMARY KEY; the row's `ON CONFLICT(stripeSessionId) DO NOTHING`
+ * only de-dupes on the Stripe session id column, so a colliding `id` from a
+ * *different* stripeSessionId inserted in the same millisecond (two shoppers
+ * starting checkout at once) still throws a constraint-violation error.
+ */
+export function newCheckoutSessionId(): string {
+  return `chk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
