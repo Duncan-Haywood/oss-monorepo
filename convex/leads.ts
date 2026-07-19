@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { buildPaymentStubLeadFields } from "../src/lib/leads/payment-stub";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const categoryValidator = v.union(
   v.literal("restaurant"),
@@ -52,9 +53,10 @@ const leadFields = {
 };
 
 export const list = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(v.any()),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     // Match the SQLite fallback (getLeads: ORDER BY createdAt DESC — newest
     // first). The leads table has no explicit createdAt field, so _creationTime
     // descending is the closest available proxy; a bare .collect() returns
@@ -65,9 +67,10 @@ export const list = query({
 });
 
 export const getBySlug = query({
-  args: { slug: v.string() },
+  args: { slug: v.string(), apiSecret: v.string() },
   returns: v.union(v.any(), v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     return await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -79,9 +82,11 @@ export const updateStage = mutation({
   args: {
     slug: v.string(),
     stage: stageValidator,
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -95,17 +100,20 @@ export const updateStage = mutation({
 });
 
 export const upsertLead = mutation({
-  args: leadFields,
+  args: { ...leadFields, apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const { apiSecret, ...leadData } = args;
+    void apiSecret;
     const existing = await ctx.db
       .query("leads")
-      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .withIndex("by_slug", (q) => q.eq("slug", leadData.slug))
       .unique();
     if (existing) {
-      await ctx.db.patch(existing._id, args);
+      await ctx.db.patch(existing._id, leadData);
     } else {
-      await ctx.db.insert("leads", args);
+      await ctx.db.insert("leads", leadData);
     }
     return null;
   },
@@ -120,6 +128,7 @@ export const markLeadPaid = mutation({
     commerceAddon: v.boolean(),
     amountTotal: v.float64(),
     stripeCustomerId: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   // Returns whether this call recorded a *new* order — false means Stripe
   // redelivered a checkout.session.completed event we already processed, and
@@ -129,6 +138,7 @@ export const markLeadPaid = mutation({
   // and commerce_orders).
   returns: v.object({ alreadyRecorded: v.boolean() }),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("orders")
       .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
@@ -176,9 +186,11 @@ export const recordOutreach = mutation({
     slug: v.string(),
     outreachStep: v.union(v.literal(1), v.literal(2), v.literal(3)),
     lastOutreachAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -198,9 +210,11 @@ export const recordPreviewOpen = mutation({
   args: {
     slug: v.string(),
     openedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -221,9 +235,11 @@ export const updateNotes = mutation({
     slug: v.string(),
     /** Empty string clears notes; undefined is treated the same. */
     notes: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -244,9 +260,11 @@ export const updateSnooze = mutation({
     slug: v.string(),
     /** Empty string clears snooze; undefined is treated the same. */
     snoozedUntil: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -275,9 +293,11 @@ export const applyColdDisposition = mutation({
     lastOutreachAt: v.optional(v.string()),
     /** Empty string clears snooze. */
     snoozedUntil: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -298,12 +318,14 @@ export const applyColdDisposition = mutation({
 export const seed = mutation({
   args: {
     leads: v.array(v.object(leadFields)),
+    apiSecret: v.string(),
   },
   returns: v.object({
     message: v.string(),
     count: v.number(),
   }),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existingLeads = await ctx.db.query("leads").collect();
     if (existingLeads.length > 0) {
       return { message: "Database already seeded", count: existingLeads.length };
