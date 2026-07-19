@@ -179,7 +179,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         require a signed operator session when auth is configured.
       </p>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         <div className="rounded-xl border border-zinc-200 px-4 py-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
             Revenue
@@ -206,6 +206,29 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               oldest {formatAbandonedAgeHours(health.oldestOpenHandoffAgeHours)}
             </p>
           ) : null}
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.paidNotLiveCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Paid, not live
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {health.paidNotLiveCount}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.paidNotLiveCount > 0
+              ? `See the Paid, not live panel on /dashboard/leads${
+                  health.oldestPaidNotLiveAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestPaidNotLiveAgeHours)}`
+                    : ""
+                }`
+              : "None pending"}
+          </p>
         </div>
         <div
           className={`rounded-xl border px-4 py-3 ${
