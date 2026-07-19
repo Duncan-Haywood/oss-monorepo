@@ -65,6 +65,7 @@ export async function GET(request: NextRequest) {
       <!DOCTYPE html>
       <html>
         <head>
+          <meta charset="utf-8">
           <title>Unsubscribed Successfully</title>
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <style>
@@ -108,7 +109,7 @@ export async function GET(request: NextRequest) {
       `,
       {
         headers: {
-          "Content-Type": "text/html",
+          "Content-Type": "text/html; charset=utf-8",
         },
       },
     );
