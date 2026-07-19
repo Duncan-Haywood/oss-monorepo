@@ -994,6 +994,11 @@ export function LeadsClient({
     orders,
     commerceCatalogs,
   );
+  const oldestCommerceCatalogsUnsyncedHours = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsUnsynced,
+    orders,
+    nowMs,
+  );
   const commercePayoutsByLead = summarizeCommerceOrdersByLead(commerceOrders).filter(
     commerceOrdersByLeadSummaryNeedsAttention,
   );
@@ -1080,7 +1085,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Commerce catalogs unsynced
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({commerceCatalogsUnsynced.length})
+                ({commerceCatalogsUnsynced.length}
+                {oldestCommerceCatalogsUnsyncedHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestCommerceCatalogsUnsyncedHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1095,7 +1104,13 @@ export function LeadsClient({
             doesn&apos;t work for that item until it&apos;s synced.
           </p>
           <ul className="mt-4 space-y-3">
-            {commerceCatalogsUnsynced.map((lead) => (
+            {commerceCatalogsUnsynced.map((lead) => {
+              const catalogUnsyncedAgeHours = oldestCommerceCatalogCandidateAgeHours(
+                [{ slug: lead.slug }],
+                orders,
+                nowMs,
+              );
+              return (
               <li
                 key={lead.slug}
                 className="rounded-xl border border-amber-100 bg-white px-4 py-3 text-sm"
@@ -1106,7 +1121,12 @@ export function LeadsClient({
                       {lead.businessName}{" "}
                       <span className="font-normal text-zinc-500">({lead.slug})</span>
                     </p>
-                    <p className="mt-1 text-xs text-zinc-600">{lead.stage} · Commerce add-on</p>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      {lead.stage} · Commerce add-on
+                      {catalogUnsyncedAgeHours !== null ? (
+                        <> · due {formatAbandonedAgeHours(catalogUnsyncedAgeHours)} ago</>
+                      ) : null}
+                    </p>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -1128,7 +1148,8 @@ export function LeadsClient({
                   </div>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </section>
       )}
