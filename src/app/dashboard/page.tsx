@@ -13,7 +13,11 @@ import {
   listCommerceOrdersRefunded,
   listCommerceOrdersDisputed,
 } from "@/lib/db";
-import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
+import {
+  computePipelineHealth,
+  formatAbandonedAgeHours,
+  formatUsd,
+} from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
@@ -197,6 +201,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
             {health.openHandoffCount}
           </p>
+          {health.openHandoffCount > 0 && health.oldestOpenHandoffAgeHours !== null ? (
+            <p className="mt-1 text-[11px] text-zinc-500">
+              oldest {formatAbandonedAgeHours(health.oldestOpenHandoffAgeHours)}
+            </p>
+          ) : null}
         </div>
         <div
           className={`rounded-xl border px-4 py-3 ${
@@ -214,6 +223,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <p className="mt-1 text-[11px] text-zinc-500">
             {health.abandonedCheckoutCount} abandoned cart
             {health.abandonedCheckoutCount === 1 ? "" : "s"}
+            {health.oldestAbandonedAgeHours !== null
+              ? ` · oldest ${formatAbandonedAgeHours(health.oldestAbandonedAgeHours)}`
+              : ""}
           </p>
         </div>
         <div
@@ -233,6 +245,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             {health.newInquiryCount > 0
               ? `${health.newInquiryCount} new · reply on Lead pipeline`
               : "new or read awaiting reply"}
+            {health.oldestUnrepliedInquiryAgeHours !== null
+              ? ` · oldest ${formatAbandonedAgeHours(health.oldestUnrepliedInquiryAgeHours)}`
+              : ""}
           </p>
         </div>
         <div
