@@ -206,4 +206,30 @@ describe("webhookFulfillmentFailureResponse", () => {
     expect(result.body.step).toBe("bundle_order_dispute_clear");
     expect(result.body.error).toMatch(/retry/i);
   });
+
+  it("returns 500 with received:false for reversed-refund session lookup failures", () => {
+    const result = webhookFulfillmentFailureResponse(
+      "commerce_order_refund_reversed_session_lookup",
+    );
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("commerce_order_refund_reversed_session_lookup");
+    expect(result.body.error).toMatch(/retry/i);
+  });
+
+  it("returns 500 with received:false for commerce order refund clear failures", () => {
+    const result = webhookFulfillmentFailureResponse("commerce_order_refund_clear");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("commerce_order_refund_clear");
+    expect(result.body.error).toMatch(/retry/i);
+  });
+
+  it("returns 500 with received:false for bundle order refund clear failures", () => {
+    const result = webhookFulfillmentFailureResponse("bundle_order_refund_clear");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("bundle_order_refund_clear");
+    expect(result.body.error).toMatch(/retry/i);
+  });
 });

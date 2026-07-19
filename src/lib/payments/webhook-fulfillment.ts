@@ -158,7 +158,35 @@ export type WebhookFulfillmentStep =
    * dispute still excluded from revenueTotalUsd forever. See
    * bundle-order-dispute-tracking.
    */
-  | "bundle_order_dispute_clear";
+  | "bundle_order_dispute_clear"
+  /**
+   * Looking up the Checkout Session behind a reversed refund (via
+   * stripe.checkout.sessions.list({ payment_intent })) on refund.updated
+   * (status failed/canceled) — required so Stripe retries rather than
+   * silently leaving a refund-that-never-completed still excluded from owed
+   * totals because the correlating lookup failed transiently. See
+   * commerce-order-refund-reversal-tracking.
+   */
+  | "commerce_order_refund_reversed_session_lookup"
+  /**
+   * Clearing commerceOrders.refundedAt after refund.updated reports the
+   * refund that set it (failed/canceled) never actually completed —
+   * required so Stripe retries rather than leaving a commerce order
+   * permanently excluded from the "owed to client" total and Mark paid out
+   * even though the funds never left the platform. See
+   * commerce-order-refund-reversal-tracking.
+   */
+  | "commerce_order_refund_clear"
+  /**
+   * Clearing orders.refundedAt (bundle Starter/Growth/Complete/Commerce-addon
+   * revenue) after refund.updated reports the refund that set it
+   * (failed/canceled) never actually completed — required so Stripe retries
+   * rather than leaving a bundle order permanently excluded from
+   * revenueTotalUsd. Session lookup reuses
+   * commerce_order_refund_reversed_session_lookup. See
+   * commerce-order-refund-reversal-tracking.
+   */
+  | "bundle_order_refund_clear";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

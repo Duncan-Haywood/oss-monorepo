@@ -71,3 +71,23 @@ export function chargePaymentIntentId(charge: {
 export function disputeStatusClearsDisputeFlag(status: unknown): boolean {
   return status === "won" || status === "warning_closed";
 }
+
+/**
+ * True when a refund.updated event should clear refundedAt — the refund that
+ * originally set it (via charge.refunded, amount_refunded > 0) never actually
+ * completed. This is common for bank-sourced refunds (ACH, some debit cards):
+ * Stripe reports the refund as pending/succeeded first, then reverses it days
+ * later when the destination account rejects it. Until this reversal twin
+ * shipped, that money silently stayed excluded from the "owed to client"
+ * total and permanently blocked Mark paid out forever, even though the funds
+ * never left the platform. See commerce-order-refund-reversal-tracking.
+ *
+ * - `failed` — the refund attempt did not complete; funds stay with the platform.
+ * - `canceled` — a `requires_action` refund (e.g. Sofort) was canceled before completing.
+ *
+ * `succeeded` (and any other status) is not a reversal — the initial
+ * refundedAt mark from charge.refunded already covers that case.
+ */
+export function refundStatusReversesRefund(status: unknown): boolean {
+  return status === "failed" || status === "canceled";
+}

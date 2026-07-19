@@ -3,6 +3,7 @@ import {
   chargeHasRefund,
   chargePaymentIntentId,
   disputeStatusClearsDisputeFlag,
+  refundStatusReversesRefund,
 } from "./refunds";
 
 describe("chargeHasRefund", () => {
@@ -83,5 +84,30 @@ describe("disputeStatusClearsDisputeFlag", () => {
     expect(disputeStatusClearsDisputeFlag(null)).toBe(false);
     expect(disputeStatusClearsDisputeFlag("")).toBe(false);
     expect(disputeStatusClearsDisputeFlag("charge_refunded")).toBe(false);
+  });
+});
+
+describe("refundStatusReversesRefund", () => {
+  it("is true for failed (refund attempt did not complete)", () => {
+    expect(refundStatusReversesRefund("failed")).toBe(true);
+  });
+
+  it("is true for canceled (requires_action refund canceled before completing)", () => {
+    expect(refundStatusReversesRefund("canceled")).toBe(true);
+  });
+
+  it("is false for succeeded (a genuine completed refund)", () => {
+    expect(refundStatusReversesRefund("succeeded")).toBe(false);
+  });
+
+  it("is false for in-progress statuses", () => {
+    expect(refundStatusReversesRefund("pending")).toBe(false);
+    expect(refundStatusReversesRefund("requires_action")).toBe(false);
+  });
+
+  it("is false for missing/unknown status", () => {
+    expect(refundStatusReversesRefund(undefined)).toBe(false);
+    expect(refundStatusReversesRefund(null)).toBe(false);
+    expect(refundStatusReversesRefund("")).toBe(false);
   });
 });

@@ -117,7 +117,7 @@ test("markPaidOut / markRefunded / markDisputed / clearDisputed round-trip throu
   });
   disputed = await t.query(api.commerceOrders.listDisputed, { apiSecret: TEST_API_SECRET });
   expect(disputed).toHaveLength(0);
-  const row = await t.query(api.commerceOrders.getByStripeSessionId, {
+  let row = await t.query(api.commerceOrders.getByStripeSessionId, {
     stripeSessionId: "cs_1",
     apiSecret: TEST_API_SECRET,
   });
@@ -125,6 +125,31 @@ test("markPaidOut / markRefunded / markDisputed / clearDisputed round-trip throu
   // Clearing the dispute must not clear the unrelated refund or paidOutAt marks.
   expect(row?.refundedAt).toBe("2026-01-03T00:00:00.000Z");
   expect(row?.paidOutAt).toBe("2026-01-02T00:00:00.000Z");
+
+  // clearRefunded is the reversal twin of markRefunded (refund.updated
+  // failed/canceled) — must clear refundedAt without disturbing paidOutAt.
+  await t.mutation(api.commerceOrders.clearRefunded, {
+    stripeSessionId: "cs_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  const refundedAfterClear = await t.query(api.commerceOrders.listRefunded, {
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(refundedAfterClear).toHaveLength(0);
+  row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.refundedAt).toBeUndefined();
+  expect(row?.paidOutAt).toBe("2026-01-02T00:00:00.000Z");
+
+  // Idempotent: clearing an already-clear row is a no-op.
+  await expect(
+    t.mutation(api.commerceOrders.clearRefunded, {
+      stripeSessionId: "cs_1",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBeNull();
 });
 
 test("markPaidOut / markRefunded / markDisputed on an unknown stripeSessionId are safe no-ops", async () => {
@@ -152,6 +177,12 @@ test("markPaidOut / markRefunded / markDisputed on an unknown stripeSessionId ar
   ).resolves.toBeNull();
   await expect(
     t.mutation(api.commerceOrders.clearDisputed, {
+      stripeSessionId: "cs_missing",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBeNull();
+  await expect(
+    t.mutation(api.commerceOrders.clearRefunded, {
       stripeSessionId: "cs_missing",
       apiSecret: TEST_API_SECRET,
     }),
@@ -222,6 +253,9 @@ test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SEC
   ).rejects.toThrow(/Unauthorized/);
   await expect(
     t.mutation(api.commerceOrders.clearDisputed, { stripeSessionId: "cs_1", apiSecret: "wrong" }),
+  ).rejects.toThrow(/Unauthorized/);
+  await expect(
+    t.mutation(api.commerceOrders.clearRefunded, { stripeSessionId: "cs_1", apiSecret: "wrong" }),
   ).rejects.toThrow(/Unauthorized/);
 });
 

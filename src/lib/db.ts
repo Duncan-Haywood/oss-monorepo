@@ -428,6 +428,7 @@ const api: any = {
     clearRecurringCanceledByCustomer: "orders:clearRecurringCanceledByCustomer",
     syncRecurringEntitlementByCustomer: "orders:syncRecurringEntitlementByCustomer",
     markRefunded: "orders:markRefunded",
+    clearRefunded: "orders:clearRefunded",
     markDisputed: "orders:markDisputed",
     clearDisputed: "orders:clearDisputed",
   },
@@ -466,6 +467,7 @@ const api: any = {
     markPaidOut: "commerceOrders:markPaidOut",
     markClientReceiptSent: "commerceOrders:markClientReceiptSent",
     markRefunded: "commerceOrders:markRefunded",
+    clearRefunded: "commerceOrders:clearRefunded",
     markDisputed: "commerceOrders:markDisputed",
     clearDisputed: "commerceOrders:clearDisputed",
   },
@@ -1321,6 +1323,41 @@ export async function markOrderRefunded(
   db.prepare(
     "UPDATE orders SET refundedAt = ? WHERE stripeSessionId = ? AND (refundedAt IS NULL OR refundedAt = '')",
   ).run(refundedAt, stripeSessionId);
+}
+
+/**
+ * Clears orders.refundedAt after refund.updated reports the refund that set
+ * it (failed/canceled) never actually completed — funds never left the
+ * platform. Keyed on stripeSessionId — mirrors clearCommerceOrderRefunded.
+ * Idempotent. Pass { requireConvex: true } from the webhook.
+ * See commerce-order-refund-reversal-tracking.
+ */
+export async function clearOrderRefunded(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.clearRefunded, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("clearOrderRefunded", e);
+      }
+      console.warn(
+        `Failed to clear order ${stripeSessionId} refunded on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE orders SET refundedAt = NULL WHERE stripeSessionId = ? AND refundedAt IS NOT NULL AND refundedAt != ''",
+  ).run(stripeSessionId);
 }
 
 /**
@@ -3224,6 +3261,47 @@ export async function markCommerceOrderRefunded(
   db.prepare(
     "UPDATE commerce_orders SET refundedAt = ? WHERE stripeSessionId = ? AND (refundedAt IS NULL OR refundedAt = '')",
   ).run(refundedAt, stripeSessionId);
+}
+
+/**
+ * Clears a commerce order's refundedAt — called from the Stripe webhook's
+ * refund.updated handler when the refund that originally set it
+ * (failed/canceled) never actually completed, so the funds never left the
+ * platform and the order must reopen as owed / eligible for Mark paid out.
+ * Keyed on stripeSessionId, matching markCommerceOrderRefunded. Idempotent: a
+ * redelivered clear on an already-unrefunded row is a no-op.
+ *
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY) so a
+ * Convex mutation failure surfaces (5xx → Stripe retry) instead of SQLite-only
+ * success while Convex-first owed/clawback readers on other instances still
+ * show the order as refunded (and permanently excluded from owed) forever.
+ */
+export async function clearCommerceOrderRefunded(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.clearRefunded, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("clearCommerceOrderRefunded", e);
+      }
+      console.warn(
+        `Failed to clear commerce order ${stripeSessionId} refunded on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE commerce_orders SET refundedAt = NULL WHERE stripeSessionId = ? AND refundedAt IS NOT NULL AND refundedAt != ''",
+  ).run(stripeSessionId);
 }
 
 /**

@@ -1518,6 +1518,22 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        A refund itself can also reverse — common for bank-sourced refunds (ACH, some debit cards)
+        that Stripe reports as <code>pending</code>/<code>succeeded</code> first, then fails or is
+        canceled days later when the destination account rejects it. Disputes got a resolution
+        twin (<code>charge.dispute.closed</code>) from the start; refunds did not, so a reversed
+        refund left the order permanently excluded from owed totals and Mark paid out even though
+        the funds never left the platform (<code>commerce-order-refund-reversal-tracking</code>).{" "}
+        <code>refund.updated</code> with status <code>failed</code> or <code>canceled</code> (
+        <code>refundStatusReversesRefund</code>) resolves the Session the same way as
+        <code>charge.refunded</code> and clears <code>refundedAt</code> — <code>clearCommerceOrderRefunded</code>{" "}
+        for a Commerce order, <code>clearOrderRefunded</code> for a bundle order (both Convex
+        replace-omit + SQLite NULL, mirroring the dispute clear twins exactly). Any other status (
+        <code>succeeded</code>, <code>pending</code>, <code>requires_action</code>) is a no-op here
+        — the initial <code>refundedAt</code> mark already happened via <code>charge.refunded</code>.
+      </p>
+
+      <p>
         Bundle (Starter/Growth/Complete/Commerce-addon) order refunds and disputes have no
         manual-payout double-loss risk — that revenue is never disbursed to a client — but a
         refunded or disputed charge still needs to stop counting as revenue and stay visible to

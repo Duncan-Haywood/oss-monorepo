@@ -258,6 +258,49 @@ export const listRefunded = query({
 });
 
 /**
+ * Clears a commerce order's refundedAt — called from the Stripe webhook's
+ * refund.updated handler when the refund that originally set it
+ * (failed/canceled) never actually completed, so the funds never left the
+ * platform and the order must reopen as owed / eligible for Mark paid out.
+ * Keyed on stripeSessionId, matching markRefunded. Idempotent: rows without
+ * refundedAt stay. Missing order is a no-op. Uses replace (not patch) so the
+ * optional field is omitted — matches SQLite NULL and the clearDisputed
+ * pattern. See commerce-order-refund-reversal-tracking.
+ */
+export const clearRefunded = mutation({
+  args: { stripeSessionId: v.string(), apiSecret: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (!order || !order.refundedAt) {
+      return null;
+    }
+    // replace so omitted optionals clear — patch(undefined) would leave the field.
+    await ctx.db.replace(order._id, {
+      orderId: order.orderId,
+      leadSlug: order.leadSlug,
+      skuId: order.skuId,
+      skuName: order.skuName,
+      amountPaidUsd: order.amountPaidUsd,
+      stripeSessionId: order.stripeSessionId,
+      createdAt: order.createdAt,
+      ...(order.paidOutAt ? { paidOutAt: order.paidOutAt } : {}),
+      ...(order.clientReceiptEmailSentAt
+        ? { clientReceiptEmailSentAt: order.clientReceiptEmailSentAt }
+        : {}),
+      ...(order.disputedAt ? { disputedAt: order.disputedAt } : {}),
+    });
+    return null;
+  },
+});
+
+/**
  * Marks a commerce order disputed — called from the Stripe webhook's
  * charge.dispute.created handler once it resolves the order's Checkout
  * Session. Keyed on stripeSessionId (unique, always present), matching

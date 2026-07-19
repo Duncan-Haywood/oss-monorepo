@@ -215,6 +215,23 @@ test("markRefunded / markDisputed / clearDisputed are idempotent and independent
   await expect(
     t.mutation(api.orders.clearDisputed, { stripeSessionId: "cs_1", apiSecret: TEST_API_SECRET }),
   ).resolves.toBeNull();
+
+  // clearRefunded is the reversal twin of markRefunded (refund.updated
+  // failed/canceled) — must clear refundedAt without disturbing disputedAt.
+  await t.mutation(api.orders.clearRefunded, {
+    stripeSessionId: "cs_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  const afterRefundClear = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(afterRefundClear?.refundedAt).toBeUndefined();
+
+  // Idempotent: clearing an already-clear row is a no-op, not an error.
+  await expect(
+    t.mutation(api.orders.clearRefunded, { stripeSessionId: "cs_1", apiSecret: TEST_API_SECRET }),
+  ).resolves.toBeNull();
 });
 
 test("list / listByLeadSlug / getByStripeCustomerId are all newest-createdAt-first", async () => {
@@ -292,6 +309,9 @@ test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SEC
   ).rejects.toThrow(/Unauthorized/);
   await expect(
     t.mutation(api.orders.clearDisputed, { stripeSessionId: "cs_1", apiSecret: "wrong" }),
+  ).rejects.toThrow(/Unauthorized/);
+  await expect(
+    t.mutation(api.orders.clearRefunded, { stripeSessionId: "cs_1", apiSecret: "wrong" }),
   ).rejects.toThrow(/Unauthorized/);
 });
 

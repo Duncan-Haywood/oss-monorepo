@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import {
   clearCommerceOrderDisputed,
+  clearCommerceOrderRefunded,
   clearOrderDisputed,
+  clearOrderRefunded,
   clearOrdersRecurringCanceledByCustomer,
   getCommerceOrderByStripeSessionId,
   markCheckoutSessionComplete,
@@ -55,6 +57,7 @@ import {
   chargeHasRefund,
   chargePaymentIntentId,
   disputeStatusClearsDisputeFlag,
+  refundStatusReversesRefund,
 } from "@/lib/payments/refunds";
 import {
   bundleCatalogPriceIdsFromEnv,
@@ -1854,6 +1857,102 @@ export async function POST(request: Request) {
           e,
         );
         const failure = webhookFulfillmentFailureResponse("commerce_order_dispute");
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      break;
+    }
+    case "refund.updated": {
+      // Reversal twin of charge.refunded / commerce-order-refund-clawback-tracking:
+      // a refund that charge.refunded already flagged (amount_refunded > 0) can
+      // itself later fail or be canceled — common for bank-sourced refunds (ACH,
+      // some debit cards) that Stripe reports as pending/succeeded first, then
+      // reverses days later when the destination account rejects it. Funds never
+      // actually left the platform, so refundedAt must clear (commerce-order-refund-reversal-tracking).
+      // Non-reversal statuses (succeeded/pending/requires_action) are a no-op here
+      // — the initial mark already happened via charge.refunded.
+      const refund = event.data.object as Stripe.Refund;
+      if (!refundStatusReversesRefund(refund.status)) {
+        break;
+      }
+      const refundPaymentIntentId = chargePaymentIntentId(refund);
+      if (!refundPaymentIntentId) {
+        console.warn(
+          `webhook: refund.updated ${refund.id} status=${refund.status} has no payment_intent — cannot correlate to a Checkout Session, skipping`,
+        );
+        break;
+      }
+      let reversedRefundSessions: Stripe.ApiList<Stripe.Checkout.Session>;
+      try {
+        reversedRefundSessions = await stripe.checkout.sessions.list({
+          payment_intent: refundPaymentIntentId,
+          limit: 1,
+        });
+      } catch (e) {
+        console.error(
+          `Failed to list Checkout Sessions for reversed refund ${refund.id} (payment_intent=${refundPaymentIntentId})`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse(
+          "commerce_order_refund_reversed_session_lookup",
+        );
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      const reversedRefundSession = reversedRefundSessions.data[0];
+      if (!reversedRefundSession) {
+        console.warn(
+          `webhook: refund.updated ${refund.id} payment_intent=${refundPaymentIntentId} matched no Checkout Session — not one of our commerce orders, skipping`,
+        );
+        break;
+      }
+      const reversedCommerceOrder = await getCommerceOrderByStripeSessionId(
+        reversedRefundSession.id,
+      );
+      if (!reversedCommerceOrder) {
+        // Not a commerce_sku Buy now order — check whether it backs a bundle
+        // order instead (bundle-order-refund-tracking).
+        const reversedBundleOrder = await getOrderByStripeSessionId(
+          reversedRefundSession.id,
+        );
+        if (!reversedBundleOrder) {
+          console.warn(
+            `webhook: refund.updated ${refund.id} payment_intent=${refundPaymentIntentId} Session ${reversedRefundSession.id} matched no commerce or bundle order, skipping`,
+          );
+          break;
+        }
+        if (!reversedBundleOrder.refundedAt) {
+          // Nothing to clear (Stripe redelivery, or refundedAt was never set) — idempotent.
+          break;
+        }
+        try {
+          await clearOrderRefunded(reversedRefundSession.id, WEBHOOK_CONVEX_PRIMARY);
+          console.warn(
+            `webhook: refund.updated ${refund.id} status=${refund.status} cleared bundle refunded flag for session ${reversedRefundSession.id} (leadSlug=${reversedBundleOrder.leadSlug}, tier=${reversedBundleOrder.tier})`,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to clear bundle order refunded for session ${reversedRefundSession.id} after refund.updated ${refund.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse("bundle_order_refund_clear");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+        break;
+      }
+      if (!reversedCommerceOrder.refundedAt) {
+        // Nothing to clear (Stripe redelivery, or refundedAt was never set) — idempotent.
+        break;
+      }
+      try {
+        await clearCommerceOrderRefunded(reversedRefundSession.id, WEBHOOK_CONVEX_PRIMARY);
+        console.warn(
+          `webhook: refund.updated ${refund.id} status=${refund.status} cleared refunded flag for session ${reversedRefundSession.id} (leadSlug=${reversedCommerceOrder.leadSlug}, skuId=${reversedCommerceOrder.skuId})`,
+        );
+      } catch (e) {
+        console.error(
+          `Failed to clear commerce order refunded for session ${reversedRefundSession.id} after refund.updated ${refund.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse("commerce_order_refund_clear");
         return NextResponse.json(failure.body, { status: failure.status });
       }
       break;

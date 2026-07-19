@@ -308,6 +308,50 @@ export const markRefunded = mutation({
 });
 
 /**
+ * Clears orders.refundedAt after refund.updated reports the refund that set
+ * it (failed/canceled) never actually completed — funds never left the
+ * platform. Uses replace so the optional field is omitted (patch(undefined)
+ * would leave it). Idempotent: already-clear rows are a no-op. Mirrors
+ * commerceOrders.clearRefunded. See commerce-order-refund-reversal-tracking.
+ */
+export const clearRefunded = mutation({
+  args: {
+    stripeSessionId: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const row = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId)
+      )
+      .unique();
+    if (!row || !row.refundedAt) {
+      return null;
+    }
+    await ctx.db.replace(row._id, {
+      leadSlug: row.leadSlug,
+      stripeSessionId: row.stripeSessionId,
+      stripeCustomerId: row.stripeCustomerId,
+      customerEmail: row.customerEmail,
+      tier: row.tier,
+      commerceAddon: row.commerceAddon,
+      amountTotal: row.amountTotal,
+      createdAt: row.createdAt,
+      ...(typeof row.recurringCanceledAt === "number" &&
+      Number.isFinite(row.recurringCanceledAt) &&
+      row.recurringCanceledAt > 0
+        ? { recurringCanceledAt: row.recurringCanceledAt }
+        : {}),
+      ...(row.disputedAt ? { disputedAt: row.disputedAt } : {}),
+    });
+    return null;
+  },
+});
+
+/**
  * Flags a bundle order as disputed by Stripe (charge.dispute.created, or
  * charge.dispute.closed with status lost when created was missed). Keyed on
  * stripeSessionId — mirrors commerceOrders.markDisputed. Idempotent: a row
