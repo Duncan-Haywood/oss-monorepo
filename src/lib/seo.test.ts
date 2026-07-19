@@ -4,6 +4,7 @@ import type { Lead } from "@/lib/leads/types";
 import {
   docPageMetadata,
   homepageMetadata,
+  homepageOrganizationJsonLd,
   isLeadPreviewIndexable,
   leadLocalBusinessJsonLd,
   leadMetaDescription,
@@ -150,6 +151,41 @@ describe("homepageMetadata", () => {
     expect(() => homepageMetadata()).not.toThrow();
     const metadata = homepageMetadata();
     expect(metadata.metadataBase).toEqual(new URL("http://localhost:3000"));
+  });
+});
+
+describe("homepageOrganizationJsonLd", () => {
+  it("builds a schema.org Organization object from brand + siteUrl", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    process.env.NEXT_PUBLIC_BRAND_NAME = "Acme Sites";
+    process.env.NEXT_PUBLIC_LEGAL_ENTITY = "Acme Labs LLC";
+    const jsonLd = homepageOrganizationJsonLd();
+    expect(jsonLd).toEqual({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Acme Sites",
+      legalName: "Acme Labs LLC",
+      url: "https://app.example.com",
+      email: jsonLd.email,
+    });
+  });
+
+  it("falls back to brand defaults when no env vars are configured", () => {
+    const jsonLd = homepageOrganizationJsonLd();
+    expect(jsonLd.url).toBe("http://localhost:3000");
+    expect(jsonLd.name).toBeTruthy();
+    expect(jsonLd.legalName).toBeTruthy();
+    expect(jsonLd.email).toBeTruthy();
+  });
+
+  it("omits postalAddress — its unset-env fallback is a bracketed placeholder, not real data", () => {
+    const jsonLd = homepageOrganizationJsonLd();
+    expect(jsonLd).not.toHaveProperty("address");
+  });
+
+  it("round-trips through safeJsonLdScript unescaped for non-malicious input", () => {
+    const jsonLd = homepageOrganizationJsonLd();
+    expect(JSON.parse(safeJsonLdScript(jsonLd))).toEqual(jsonLd);
   });
 });
 

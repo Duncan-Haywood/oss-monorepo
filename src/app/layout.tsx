@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { homepageMetadata } from "@/lib/seo";
+import { homepageMetadata, homepageOrganizationJsonLd, safeJsonLdScript } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = { variable: "" };
@@ -20,6 +20,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-white text-zinc-900">
+        {/* Platform identity, sitewide — see homepageOrganizationJsonLd doc comment. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLdScript(homepageOrganizationJsonLd()) }}
+        />
         <SiteHeader />
         <div className="flex-1">{children}</div>
         <SiteFooter />

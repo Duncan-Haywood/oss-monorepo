@@ -90,6 +90,33 @@ export function homepageMetadata(): Metadata {
 }
 
 /**
+ * schema.org Organization JSON-LD for the platform's own identity — distinct
+ * from leadLocalBusinessJsonLd, which describes a client's business, not this
+ * platform. Serialize with safeJsonLdScript and embed sitewide (root layout)
+ * the same way SiteHeader/SiteFooter branding already renders on every page,
+ * including preview/dashboard routes — this describes the operator, who
+ * always consents to describing itself, so (unlike LocalBusiness JSON-LD on
+ * a cold-prospect preview) there is no indexable-only gate here.
+ *
+ * Deliberately omits brand.postalAddress: its no-env-set fallback is a
+ * bracketed placeholder string ("[Registered business address — ...]"),
+ * not real data, and every other brand.* fallback here reads as plausible
+ * real content — publishing that placeholder verbatim as structured data
+ * would look like a real address to any consumer that doesn't know it's a
+ * fallback. Include it once NEXT_PUBLIC_COMPANY_ADDRESS is operator-set.
+ */
+export function homepageOrganizationJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: brand.name,
+    legalName: brand.legalEntity,
+    url: siteUrl(),
+    email: brand.supportEmail,
+  };
+}
+
+/**
  * Metadata for a /docs/[slug] sub-page, sourced from DOCS_PAGES — the same
  * title/description already shared by the docs index and sitemap.xml (see
  * sitemap-docs-route-sync). Every one of the 12 docs pages previously had no

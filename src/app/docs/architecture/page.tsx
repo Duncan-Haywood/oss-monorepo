@@ -346,6 +346,18 @@ export default function ArchitectureDocPage() {
         scrape, and an unescaped <code>&lt;/script&gt;</code> in one would end the JSON-LD tag
         early and let injected HTML run for every real visitor to that lead&apos;s preview site.
       </p>
+      <p>
+        Separately, the root layout (<code>src/app/layout.tsx</code>) embeds a sitewide schema.org{" "}
+        <code>Organization</code> JSON-LD block (<code>homepageOrganizationJsonLd</code>,{" "}
+        <code>src/lib/seo.ts</code>) describing the platform itself, not a client business — it
+        renders on every route (marketing, preview, dashboard) the same way the header/footer
+        branding already does, since the operator always consents to describing itself and there
+        is no indexable-only gate to apply. It intentionally omits{" "}
+        <code>brand.postalAddress</code>: unlike every other <code>brand.*</code> fallback, that
+        one defaults to a bracketed placeholder string rather than plausible real content, and
+        publishing it verbatim as structured data would misrepresent a placeholder as a real
+        address. Also serialized via <code>safeJsonLdScript</code>.
+      </p>
 
       <h2 id="preview-hosting">3. Preview hosting</h2>
       <p>
