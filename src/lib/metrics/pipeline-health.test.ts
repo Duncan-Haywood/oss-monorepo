@@ -8,6 +8,7 @@ import {
   isUnrepliedInquiryStatus,
   oldestBundleOrderRefundOrDisputeAgeHours,
   oldestCommerceOrdersOwedAgeHours,
+  oldestOpenHandoffAgeHours,
   oldestPaidNotLiveAgeHours,
   oldestUnrepliedInquiryAgeHoursFor,
 } from "./pipeline-health";
@@ -1355,6 +1356,35 @@ describe("oldestCommerceOrdersOwedAgeHours", () => {
         [{ createdAt: new Date(NOW + HOUR_MS).toISOString() }],
         NOW,
       ),
+    ).toBe(0);
+  });
+});
+
+describe("oldestOpenHandoffAgeHours", () => {
+  it("returns null for an empty handoff set", () => {
+    expect(oldestOpenHandoffAgeHours([], NOW)).toBeNull();
+  });
+
+  it("returns null when every handoff's createdAt fails to parse", () => {
+    expect(oldestOpenHandoffAgeHours([{ createdAt: "not-a-date" }], NOW)).toBeNull();
+  });
+
+  it("selects the maximum age across handoffs, skipping unparseable rows", () => {
+    expect(
+      oldestOpenHandoffAgeHours(
+        [
+          { createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+          { createdAt: new Date(NOW - 72 * HOUR_MS).toISOString() },
+          { createdAt: "not-a-date" },
+        ],
+        NOW,
+      ),
+    ).toBe(72);
+  });
+
+  it("clamps a future createdAt to 0", () => {
+    expect(
+      oldestOpenHandoffAgeHours([{ createdAt: new Date(NOW + HOUR_MS).toISOString() }], NOW),
     ).toBe(0);
   });
 });

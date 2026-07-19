@@ -507,14 +507,7 @@ export function computePipelineHealth(input: {
   // Oldest open deploy handoff by createdAt — anchor the staleness signal to
   // when the handoff was created (not calendar-cadence), mirroring the
   // oldestAbandoned/oldestUnrepliedInquiry loops below.
-  let oldestOpenHandoffAgeHours: number | null = null;
-  for (const handoff of openHandoffs) {
-    const ageHours = deployHandoffAgeHours(handoff.createdAt, nowMs);
-    if (ageHours === null) continue;
-    if (oldestOpenHandoffAgeHours === null || ageHours > oldestOpenHandoffAgeHours) {
-      oldestOpenHandoffAgeHours = ageHours;
-    }
-  }
+  const oldestOpenHandoffHours = oldestOpenHandoffAgeHours(openHandoffs, nowMs);
 
   const sessions = input.openCheckoutSessions ?? [];
   const bundleSessions = sessions.filter(isBundleCheckoutSession);
@@ -767,7 +760,7 @@ export function computePipelineHealth(input: {
     stageCounts,
     stageFunnel,
     openHandoffCount,
-    oldestOpenHandoffAgeHours,
+    oldestOpenHandoffAgeHours: oldestOpenHandoffHours,
     leadsMissingEmailCount: input.leads.filter(leadIsMissingCriticalEmail).length,
     leadsMissingEmail,
     newInquiryCount,
@@ -835,6 +828,31 @@ export function deployHandoffAgeHours(createdAt: string, nowMs: number): number 
   const createdAtMs = Date.parse(createdAt);
   if (Number.isNaN(createdAtMs)) return null;
   return Math.max(0, Math.floor((nowMs - createdAtMs) / HOUR_MS));
+}
+
+/**
+ * Age in whole hours since the oldest open (status !== "live") deploy
+ * handoff's createdAt; null when `handoffs` is empty or every createdAt
+ * fails to parse. Callers pass the already-filtered open set (see
+ * computePipelineHealth above) — reuses deployHandoffAgeHours per item, same
+ * shape as oldestCommerceOrdersOwedAgeHours below. Factored out of
+ * computePipelineHealth's inline loop so leads-client.tsx's "Production
+ * deploy handoffs" panel header can render the same aggregate staleness
+ * signal pipeline-health/digest already show, instead of a bare count.
+ */
+export function oldestOpenHandoffAgeHours(
+  handoffs: ReadonlyArray<{ createdAt: string }>,
+  nowMs: number,
+): number | null {
+  let oldest: number | null = null;
+  for (const handoff of handoffs) {
+    const ageHours = deployHandoffAgeHours(handoff.createdAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  return oldest;
 }
 
 /**
