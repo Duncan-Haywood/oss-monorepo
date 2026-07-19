@@ -488,7 +488,9 @@ const api: any = {
 export async function getLeads(): Promise<Lead[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.leads.list)) as Lead[];
+      return (await convexClient.query(api.leads.list, {
+        apiSecret: convexApiSecret,
+      })) as Lead[];
     } catch (e) {
       console.warn("Failed to fetch leads from Convex, falling back to SQLite database", e);
     }
@@ -503,7 +505,10 @@ export async function getLeads(): Promise<Lead[]> {
 export async function getLeadBySlug(slug: string): Promise<Lead | null> {
   if (convexClient) {
     try {
-      const lead = await convexClient.query(api.leads.getBySlug, { slug });
+      const lead = await convexClient.query(api.leads.getBySlug, {
+        slug,
+        apiSecret: convexApiSecret,
+      });
       return (lead as Lead) || null;
     } catch (e) {
       console.warn(`Failed to fetch lead ${slug} from Convex, falling back to SQLite database`, e);
@@ -538,7 +543,11 @@ export async function updateLeadStage(
   // DEPLOY_HANDOFF_CONVEX_PRIMARY through this same helper.
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.updateStage, { slug, stage });
+      await convexClient.mutation(api.leads.updateStage, {
+        slug,
+        stage,
+        apiSecret: convexApiSecret,
+      });
       return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -577,7 +586,10 @@ export async function upsertLead(
 ): Promise<void> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.upsertLead, lead);
+      await convexClient.mutation(api.leads.upsertLead, {
+        ...lead,
+        apiSecret: convexApiSecret,
+      });
       return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -679,6 +691,7 @@ export async function recordLeadOutreach(
         slug,
         outreachStep,
         lastOutreachAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -727,6 +740,7 @@ export async function recordLeadPreviewOpen(
       await convexClient.mutation(api.leads.recordPreviewOpen, {
         slug,
         openedAt,
+        apiSecret: convexApiSecret,
       });
       return { recorded: true };
     } catch (e) {
@@ -773,6 +787,7 @@ export async function updateLeadNotes(
       await convexClient.mutation(api.leads.updateNotes, {
         slug,
         notes: notes ?? "",
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -818,6 +833,7 @@ export async function updateLeadSnooze(
       await convexClient.mutation(api.leads.updateSnooze, {
         slug,
         snoozedUntil: snoozedUntil ?? "",
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -871,6 +887,7 @@ export async function applyColdLeadDisposition(
         outreachStep: patch.outreachStep,
         lastOutreachAt: patch.lastOutreachAt ?? "",
         snoozedUntil: patch.snoozedUntil ?? "",
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -925,7 +942,10 @@ export async function recordLeadPayment(
 ): Promise<{ alreadyRecorded: boolean }> {
   if (convexClient) {
     try {
-      return await convexClient.mutation(api.leads.markLeadPaid, params);
+      return await convexClient.mutation(api.leads.markLeadPaid, {
+        ...params,
+        apiSecret: convexApiSecret,
+      });
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("recordLeadPayment", e);
