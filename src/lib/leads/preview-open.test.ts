@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH,
+  MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS,
   MAX_PREVIEW_OPENED_AT_LENGTH,
   OUTREACH_PREVIEW_SRC,
   buildPreviewOpenBeaconPath,
@@ -169,5 +170,28 @@ describe("resolvePreviewOpenedAt", () => {
     expect(resolvePreviewOpenedAt("2026-07-12T11:00:00+00:00", serverNow)).toBe(
       "2026-07-12T11:00:00.000Z",
     );
+  });
+
+  it("falls back to server now for a far-future spoofed timestamp", () => {
+    expect(resolvePreviewOpenedAt("2099-01-01T00:00:00.000Z", serverNow)).toBe(serverNow);
+  });
+
+  it("falls back to server now just past the future-skew tolerance", () => {
+    const justOver = new Date(
+      Date.parse(serverNow) + MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS + 1,
+    ).toISOString();
+    expect(resolvePreviewOpenedAt(justOver, serverNow)).toBe(serverNow);
+  });
+
+  it("accepts a timestamp within the future-skew tolerance", () => {
+    const withinSkew = new Date(
+      Date.parse(serverNow) + MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS - 1,
+    ).toISOString();
+    expect(resolvePreviewOpenedAt(withinSkew, serverNow)).toBe(withinSkew);
+  });
+
+  it("accepts a plausible past timestamp unchanged", () => {
+    const past = "2020-01-01T00:00:00.000Z";
+    expect(resolvePreviewOpenedAt(past, serverNow)).toBe(past);
   });
 });
