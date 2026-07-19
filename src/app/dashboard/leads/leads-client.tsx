@@ -57,6 +57,7 @@ import type { ClientVoicePack } from "@/lib/voice/pack";
 import {
   leadEligibleForClientVoicePack,
   listClientVoicePacksDue,
+  oldestClientVoicePacksDueAgeHours,
   scriptTypeLabel,
 } from "@/lib/voice/faq-pack";
 import { leadEligibleForClientVoicePackDelivery } from "@/lib/voice/deliver-pack";
@@ -992,6 +993,11 @@ export function LeadsClient({
     nowMs,
   );
   const clientVoicePacksDue = listClientVoicePacksDue(leads, orders, clientVoicePacks);
+  const oldestClientVoicePacksDueHours = oldestClientVoicePacksDueAgeHours(
+    clientVoicePacksDue,
+    orders,
+    nowMs,
+  );
   const commerceCatalogsMissing = listCommerceCatalogsMissing(
     leads,
     orders,
@@ -1372,7 +1378,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Voice packs due
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({clientVoicePacksDue.length})
+                ({clientVoicePacksDue.length}
+                {oldestClientVoicePacksDueHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestClientVoicePacksDueHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1387,7 +1397,13 @@ export function LeadsClient({
             fulfillment promise (Twilio stays separate).
           </p>
           <ul className="mt-4 space-y-3">
-            {clientVoicePacksDue.map((lead) => (
+            {clientVoicePacksDue.map((lead) => {
+              const packDueAgeHours = oldestClientVoicePacksDueAgeHours(
+                [{ slug: lead.slug }],
+                orders,
+                nowMs,
+              );
+              return (
               <li
                 key={lead.slug}
                 className="rounded-xl border border-violet-100 bg-white px-4 py-3 text-sm"
@@ -1398,7 +1414,12 @@ export function LeadsClient({
                       {lead.businessName}{" "}
                       <span className="font-normal text-zinc-500">({lead.slug})</span>
                     </p>
-                    <p className="mt-1 text-xs text-zinc-600">{lead.stage} · Complete</p>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      {lead.stage} · Complete
+                      {packDueAgeHours !== null
+                        ? ` · due ${formatAbandonedAgeHours(packDueAgeHours)} ago`
+                        : ""}
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -1410,7 +1431,8 @@ export function LeadsClient({
                   </button>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </section>
       )}
