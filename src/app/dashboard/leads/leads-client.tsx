@@ -143,6 +143,7 @@ import {
   formatAbandonedAgeHours,
   formatUsd,
   isUnrepliedInquiryStatus,
+  oldestPaidNotLiveAgeHours,
   oldestUnrepliedInquiryAgeHoursFor,
 } from "@/lib/metrics/pipeline-health";
 
@@ -935,6 +936,12 @@ export function LeadsClient({
   // CSV import with no deploy_handoffs row ever created (see
   // paid-not-live-dashboard-panel-and-remedy).
   const paidNotLive = leads.filter((lead) => lead.stage === "paid");
+  // Same order-anchored, refund/dispute-aware staleness signal already shown
+  // by pipeline-health's MetricCard hint and the daily digest's paidNotLive
+  // section header — this per-lead panel previously had no staleness signal
+  // at all, unlike every sibling due-queue panel (Website inquiries,
+  // Production deploy handoffs) once those closed the same gap.
+  const oldestPaidNotLiveHours = oldestPaidNotLiveAgeHours(paidNotLive, orders, nowMs);
   const openInquiries = inquiries.filter((inq) => inq.status !== "archived");
   // Unreplied = new OR read (isUnrepliedInquiryStatus), matching
   // pipeline-health's unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours
@@ -1873,7 +1880,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Paid, not live
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({paidNotLive.length})
+                ({paidNotLive.length}
+                {oldestPaidNotLiveHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestPaidNotLiveHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1891,34 +1902,44 @@ export function LeadsClient({
             automatically appears in Production deploy handoffs once created.
           </p>
           <ul className="mt-4 space-y-3">
-            {paidNotLive.map((lead) => (
-              <li
-                key={lead.slug}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-100 bg-white px-4 py-3 text-sm"
-              >
-                <div>
-                  <p className="font-semibold text-zinc-900">
-                    {lead.businessName}{" "}
-                    <span className="font-normal text-zinc-500">({lead.slug})</span>
-                  </p>
-                  <p className="mt-1 text-xs text-zinc-600">
-                    {handoffSlugs.has(lead.slug)
-                      ? "Has a deploy handoff — see Production deploy handoffs below."
-                      : "No deploy handoff on file."}
-                  </p>
-                </div>
-                {!handoffSlugs.has(lead.slug) && (
-                  <button
-                    type="button"
-                    disabled={isPending}
-                    onClick={() => handleCreateDeployHandoff(lead.slug)}
-                    className="rounded-lg bg-red-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-800 disabled:opacity-60"
-                  >
-                    Create deploy handoff
-                  </button>
-                )}
-              </li>
-            ))}
+            {paidNotLive.map((lead) => {
+              const leadPaidAgeHours = oldestPaidNotLiveAgeHours(
+                [{ slug: lead.slug }],
+                orders,
+                nowMs,
+              );
+              return (
+                <li
+                  key={lead.slug}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div>
+                    <p className="font-semibold text-zinc-900">
+                      {lead.businessName}{" "}
+                      <span className="font-normal text-zinc-500">({lead.slug})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      {handoffSlugs.has(lead.slug)
+                        ? "Has a deploy handoff — see Production deploy handoffs below."
+                        : "No deploy handoff on file."}
+                      {leadPaidAgeHours !== null ? (
+                        <> · paid {formatAbandonedAgeHours(leadPaidAgeHours)} ago</>
+                      ) : null}
+                    </p>
+                  </div>
+                  {!handoffSlugs.has(lead.slug) && (
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleCreateDeployHandoff(lead.slug)}
+                      className="rounded-lg bg-red-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-800 disabled:opacity-60"
+                    >
+                      Create deploy handoff
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
