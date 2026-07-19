@@ -133,6 +133,24 @@ describe("homepageMetadata", () => {
     expect(metadata.description).toContain("Acme Sites");
     expect(metadata.openGraph).toMatchObject({ siteName: "Acme Sites" });
   });
+
+  it("sets metadataBase from the configured site URL, required for opengraph-image/twitter-image file-convention images to resolve to an absolute URL instead of a hardcoded localhost fallback", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const metadata = homepageMetadata();
+    expect(metadata.metadataBase).toEqual(new URL("https://app.example.com"));
+  });
+
+  it("falls back metadataBase to localhost when no env var is configured", () => {
+    const metadata = homepageMetadata();
+    expect(metadata.metadataBase).toEqual(new URL("http://localhost:3000"));
+  });
+
+  it("falls back metadataBase to localhost instead of throwing when NEXT_PUBLIC_APP_URL is set but not a parseable URL", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "not-a-valid-url no scheme";
+    expect(() => homepageMetadata()).not.toThrow();
+    const metadata = homepageMetadata();
+    expect(metadata.metadataBase).toEqual(new URL("http://localhost:3000"));
+  });
 });
 
 describe("staticPageMetadata", () => {
