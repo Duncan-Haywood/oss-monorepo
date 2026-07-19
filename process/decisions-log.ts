@@ -295,4 +295,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-imbgjx",
     relatedTaskIds: ["p2-blocker-recheck-window-widen", "p2-blocker-recheck-throttle"],
   },
+  {
+    date: "2026-07-19",
+    title: "Throttle out-of-band (push/email) reminders to Duncan separately from in-repo blocker rechecks, and send the first one",
+    decision:
+      "Added process/human-notifications.ts with a humanNotificationLog and shouldNotifyHuman(hours = 72) helper, mirroring blockers.ts's in-repo recentlyConfirmedWithinHours() pattern but for out-of-band notifications (push/email) some agent harnesses can send directly to Duncan. prompt_process.tsx's step 0a-2 tells a session to call shouldNotifyHuman() before sending a repeat 'still blocked on you' reminder, and to log one entry per notification sent so later sessions don't duplicate it. This session's own cheap check (recentlyConfirmedWithinHours(12) was true, ~5h since the last full pass) found nothing changed — 6/6 human blockers still unresolved (some over a month old), only PR #4 open/unchanged, all real-data logs still empty, and the actions-ci-runner-outage blocker now ~21 hours in with the identical runner_id-0 signature re-confirmed on run 29659392167 (main, 20:16:41Z). Because no evidence exists that any prior session's 'still blocked' finding was ever surfaced to Duncan outside a git commit, and because the CI outage specifically needs a timely billing/quota check, this session sent one push notification summarizing both, then recorded it here so it isn't repeated for at least 72 hours.",
+    rationale:
+      "The scheduled-routine guidance this session runs under is explicit that an unneeded notification is 'annoying in a way that accumulates,' and blockers.ts's own confirmedByCount values (11-18 across the 6 blockers) prove a fresh session rediscovers the same 'still blocked' fact on essentially every run — sending a notification every time would guarantee Duncan mutes them, defeating the point. But the opposite failure (never notifying, because every session assumes a previous one must have) is worse here: a business that's been 100% human-blocked for over a month, plus a day-plus-long CI outage, are exactly the kind of things a routine is supposed to surface, not quietly track in a file nobody opens. A 72-hour throttle (vs. blockers.ts's 12-hour in-repo one) reflects that an out-of-band ping is a heavier interruption than a git commit, and that none of the 6 blockers have ever resolved on a timescale where a 3-day gap would cost meaningfully more delay than a human would tolerate anyway. Genuinely new findings (a blocker resolving, a new blocker appearing) should still bypass this throttle per human-notifications.ts's own doc comment.",
+    madeBy: "claude/dazzling-allen-a4sdsa",
+    relatedTaskIds: ["p2-human-notification-throttle"],
+  },
 ];

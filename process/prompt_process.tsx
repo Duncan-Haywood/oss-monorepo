@@ -29,6 +29,7 @@ import { roadmap, nextActionableTasks, isGateSatisfied } from "./roadmap";
 import { decisionsLog } from "./decisions-log";
 import { progressLog } from "./progress-log";
 import { humanBlockers, staleFirst, recentlyConfirmedWithinHours } from "./blockers";
+import { humanNotificationLog } from "./human-notifications";
 import { captureChecklist, totalTargetMinutes, preShootPrep, BRACKET_GUIDANCE } from "./capture-checklist";
 import { mlsComplianceRules } from "./mls-compliance";
 import { AUDIT_DIMENSIONS, listingAuditLog, auditSummary } from "./listing-audit-rubric";
@@ -70,6 +71,18 @@ Each session:
    the cron schedule, since none of the 6 blockers here resolve on
    anything faster than a human choosing to do a real-world action. See
    decisions-log.ts.)
+0a-2. If your harness can send an out-of-band notification (push/email)
+   straight to Duncan, separate from anything committed here: that is
+   worth doing when it carries genuinely new information (a blocker
+   resolved, a new blocker appeared, a real decision shipped), but a
+   repeat "still blocked on you" ping is exactly the kind of notification
+   human-notifications.ts's own doc comment warns gets muted if sent every
+   run. Call shouldNotifyHuman() first; only send a "still blocked,
+   reminder" notification if it returns true (default throttle: 72h), and
+   append a humanNotificationLog entry (in the same commit as whatever
+   else this session ships, or its own tiny commit if nothing else
+   changed) so the next session's shouldNotifyHuman() call sees it. Skip
+   this step entirely if your harness has no such capability.
 0b. Check blockers.ts — it's the single source of truth for what's
    blocked on a human right now (README.md and this file's dashboard both
    read from it, so it should never need updating in more than one place).
@@ -212,6 +225,13 @@ export function ProcessDashboard() {
           The single source of truth for what's blocked on a human right now — see process/blockers.ts.
           Sorted oldest-confirmed first, so the top row is the one that's gone longest without anyone
           re-checking it.
+          {humanNotificationLog.length > 0 && (
+            <>
+              {" "}Last out-of-band reminder sent to Duncan{" "}
+              {humanNotificationLog[humanNotificationLog.length - 1].notifiedAt} — see
+              process/human-notifications.ts.
+            </>
+          )}
         </p>
         <div className="mt-4 space-y-3">
           {staleFirst().map((b) => (

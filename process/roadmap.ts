@@ -351,6 +351,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "prompt_process.tsx's step 0a calls recentlyConfirmedWithinHours(12) instead of (3), with a doc note explaining why and pointing at this decision. See process/blockers.ts's cron-cadence-too-frequent entry and decisions-log.ts.",
       },
+      {
+        id: "p2-human-notification-throttle",
+        title: "Throttle out-of-band (push/email) reminders to Duncan, separate from in-repo blocker rechecks",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "blockers.ts's recentlyConfirmedWithinHours() already throttles in-repo noise (a branch/commit/PR every run), but some agent harnesses can also send an actual push notification/email straight to Duncan — a heavier interruption than a git commit, and unthrottled it would repeat the same 'still blocked on you' fact on nearly every run given the 6 human blockers have been stable for over a month (see blockers.ts's confirmedByCount values). No evidence existed that any prior session's finding had ever reached Duncan outside a git log, despite the business being 100% human-blocked since 2026-06-13 and a ~21-hour GitHub Actions runner outage needing a timely billing check.",
+        doneWhen:
+          "process/human-notifications.ts exists with a humanNotificationLog and shouldNotifyHuman(hours = 72) helper; prompt_process.tsx's step 0a-2 tells a session to check it before sending a repeat reminder and to log every notification sent. First notification sent and logged 2026-07-19. See process/human-notifications.ts and decisions-log.ts.",
+      },
     ],
   },
   {

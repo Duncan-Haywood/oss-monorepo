@@ -530,4 +530,21 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): with the window now 12h, expect a full pass to actually be due roughly twice a day rather than every 3-4 hours; if recentlyConfirmedWithinHours(12) returns true, do only the cheap check (empty logs? new merges? nextActionableTasks() still empty?) per step 0a and skip the branch/commit/PR entirely if nothing's different — that's now the common case, not the exception.",
     ],
   },
+  {
+    date: "2026-07-19",
+    agent: "claude/dazzling-allen-a4sdsa",
+    summary:
+      "recentlyConfirmedWithinHours(12) was true (blockers last confirmed ~5h earlier by PR #47) and the cheap check found nothing new — 6/6 human blockers unchanged, leads-log.ts/listingAuditLog/loggedInterviewResults still empty, PR #4 still the only open PR (draft/unchanged), nextActionableTasks() still empty (p3-app-scope remains correctly gated), and the actions-ci-runner-outage blocker independently re-confirmed still ongoing (run 29659392167 on main at 20:16:41Z, identical runner_id-0/~4s pattern, now ~21h in). Per step 0a this alone doesn't warrant a full re-verification branch. This session's harness can send Duncan an actual push notification/email, separate from anything in this repo, and no prior session's progress-log/blockers.ts entry showed any evidence that capability had ever been used to tell him the business has been 100% human-blocked for over a month or that CI has been down for over a day — so, judging that worth surfacing once rather than never, built a throttle for it first (so it doesn't become a new source of noise) and then used it.",
+    changes: [
+      "process/human-notifications.ts (new): humanNotificationLog + shouldNotifyHuman(hours = 72), the out-of-band equivalent of blockers.ts's recentlyConfirmedWithinHours(), so a repeat 'still blocked' push/email reminder doesn't get sent every session.",
+      "prompt_process.tsx: new step 0a-2 tells a session with notification capability to check shouldNotifyHuman() before sending a reminder and to log every notification sent; imports humanNotificationLog and renders its most recent timestamp under the Human blockers dashboard section.",
+      "roadmap.ts: added p2-human-notification-throttle (phase 2), status done. decisions-log.ts: logged the decision and rationale.",
+      "Sent one push notification this session summarizing the month-long human-blocked state and the CI outage, and recorded it in humanNotificationLog (2026-07-19T01:20:00Z) so no session re-sends one for at least 72h absent genuinely new information.",
+      "Verified: docs-site/ `npm run build` passes clean (imports prompt_process.tsx -> human-notifications.ts, so this type-checks the new file/import/dashboard change); pipeline/ and research/ untouched, not rebuilt. Checked open PRs via the GitHub MCP server — only #4 open, unrelated files, still draft/unchanged.",
+    ],
+    nextUp: [
+      "Human: same six items as every recent session remain the highest-leverage next steps — see blockers.ts (first concierge delivery, phase-1 interviews, Zillow listing audit, Cloudflare Access dashboard toggle + merge PR #4, confirm the Zelle/PayPal payment handle actually receives funds, and check GitHub Actions billing/quota for the runner outage, now the most time-sensitive item).",
+      "Agent (next session): if recentlyConfirmedWithinHours(12) is true and the cheap check finds nothing new, skip the branch/commit/PR per step 0a same as always. Separately, only send another out-of-band reminder if shouldNotifyHuman() returns true (72h throttle) or a genuinely new finding (blocker resolved / new blocker) justifies bypassing it — don't notify every run just because the capability exists.",
+    ],
+  },
 ];
