@@ -23,6 +23,7 @@ import { brand } from "@/lib/brand";
 import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
 import { getCategoryTheme } from "@/lib/previews/themes";
+import type { RateLimitResult } from "@/lib/security/rate-limit";
 
 export const LEAD_OG_IMAGE_SIZE = { width: 1200, height: 630 } as const;
 export const LEAD_OG_IMAGE_ALT = "Business preview";
@@ -116,4 +117,48 @@ export function renderLeadOgImage(lead: Lead): ImageResponse {
     ),
     LEAD_OG_IMAGE_SIZE,
   );
+}
+
+export type LeadOgImagePlan =
+  | { kind: "rate_limited" }
+  | { kind: "not_found" }
+  | { kind: "lead"; lead: Lead };
+
+export interface PlanLeadOgImageDeps {
+  loadLead: (slug: string) => Promise<Lead | null>;
+  checkRateLimit: (key: string) => RateLimitResult;
+}
+
+/**
+ * Both opengraph-image.tsx and twitter-image.tsx are public, unauthenticated,
+ * and take an arbitrary attacker-chosen slug — unlike every other public
+ * data-driven route in this codebase (contact form, checkout create,
+ * preview-open beacon, unsubscribe), neither had per-IP rate limiting before
+ * this, even though rendering costs a DB round trip (loadPreviewPageLead
+ * resolves ANY slug to a real or synthetic lead, so there's no cheap
+ * existence short-circuit) plus a full satori layout + PNG raster — the most
+ * CPU-expensive operation any public route in the app performs. A scripted
+ * loop over random slugs could force unbounded renders with zero throttling.
+ * See preview-og-image-rate-limit.
+ *
+ * Checks the rate limit BEFORE the DB lookup (same ordering every other
+ * public route uses) so a limited request never pays the DB round trip
+ * either. One shared bucket key across both routes (og-image/twitter-image
+ * cost the same and are the same abuse surface) — key by clientIp, not by
+ * slug, matching preview-open's `preview-open:${clientIp}` pattern.
+ */
+export async function planLeadOgImageResponse(
+  slug: string,
+  clientIp: string,
+  deps: PlanLeadOgImageDeps,
+): Promise<LeadOgImagePlan> {
+  const rate = deps.checkRateLimit(`preview-og-image:${clientIp}`);
+  if (!rate.allowed) {
+    return { kind: "rate_limited" };
+  }
+  const lead = await deps.loadLead(slug);
+  if (!lead) {
+    return { kind: "not_found" };
+  }
+  return { kind: "lead", lead };
 }
