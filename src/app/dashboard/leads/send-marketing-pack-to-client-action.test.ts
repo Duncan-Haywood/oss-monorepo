@@ -100,7 +100,6 @@ const growthOrder = {
   tier: "growth",
   commerceAddon: false,
   amountPaid: 599,
-  status: "paid",
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 

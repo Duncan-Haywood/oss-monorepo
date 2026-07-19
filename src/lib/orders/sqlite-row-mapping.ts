@@ -17,7 +17,6 @@ export interface SqliteOrderJoinRow {
   commerceAddon: number;
   recurringCanceledAt: number | null;
   amountPaid: number;
-  status: string;
   createdAt: string;
   refundedAt: string | null;
   disputedAt: string | null;
@@ -39,7 +38,6 @@ export function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
         ? row.recurringCanceledAt
         : undefined,
     amountPaid: row.amountPaid,
-    status: row.status,
     createdAt: row.createdAt,
     refundedAt: row.refundedAt || undefined,
     disputedAt: row.disputedAt || undefined,
