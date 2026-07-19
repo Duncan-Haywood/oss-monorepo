@@ -84,6 +84,7 @@ describe("buildDailyDigest", () => {
     expect(digest.clientVoicePacksDue).toHaveLength(0);
     expect(digest.oldestClientVoicePacksDueAgeHours).toBeNull();
     expect(digest.commercePayoutsOwed).toHaveLength(0);
+    expect(digest.oldestCommerceOrdersOwedAgeHours).toBeNull();
     expect(digest.openHandoffs).toHaveLength(0);
     expect(digest.paidNotLive).toHaveLength(0);
     expect(digest.leadsMissingEmail).toHaveLength(0);
@@ -833,6 +834,8 @@ describe("buildDailyDigest", () => {
     expect(digest.commercePayoutsOwed[1]?.totalUsd).toBe(16.5);
     expect(digest.commercePayoutsOwed[1]?.orderCount).toBe(2);
     expect(digest.commercePayoutsOwedTotalUsd).toBe(66.5);
+    // Oldest still-owed order is the salon's co_3 (2026-07-11T09:00), 27h before NOW.
+    expect(digest.oldestCommerceOrdersOwedAgeHours).toBe(27);
     expect(digest.isEmpty).toBe(false);
   });
 
@@ -862,6 +865,7 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.commercePayoutsOwed).toHaveLength(0);
     expect(digest.commercePayoutsOwedTotalUsd).toBe(0);
+    expect(digest.oldestCommerceOrdersOwedAgeHours).toBeNull();
   });
 
   it("excludes refunded commerce orders from payouts owed (never paid out)", () => {
@@ -890,6 +894,56 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.commercePayoutsOwed).toHaveLength(0);
     expect(digest.commercePayoutsOwedTotalUsd).toBe(0);
+    expect(digest.oldestCommerceOrdersOwedAgeHours).toBeNull();
+  });
+
+  it("anchors oldestCommerceOrdersOwedAgeHours to the oldest still-owed order across leads, ignoring disputed rows", () => {
+    const cafe = baseLead({
+      slug: "mixed-cafe",
+      businessName: "Mixed Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrders: [
+        {
+          id: "co_1",
+          leadSlug: "mixed-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 4.5,
+          stripeSessionId: "cs_1",
+          // Newer still-owed row.
+          createdAt: new Date(NOW - 5 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          id: "co_2",
+          leadSlug: "mixed-cafe",
+          skuId: "sku_muffin",
+          skuName: "Muffin",
+          amountPaidUsd: 3.0,
+          stripeSessionId: "cs_2",
+          // Older, but disputed and never paid out — excluded from the owed set,
+          // so it must not anchor the staleness signal.
+          createdAt: new Date(NOW - 999 * 60 * 60 * 1000).toISOString(),
+          disputedAt: "2026-07-12T10:00:00.000Z",
+        },
+        {
+          id: "co_3",
+          leadSlug: "mixed-cafe",
+          skuId: "sku_scone",
+          skuName: "Scone",
+          amountPaidUsd: 2.5,
+          stripeSessionId: "cs_3",
+          // Oldest genuinely still-owed row — anchors the signal.
+          createdAt: new Date(NOW - 48 * 60 * 60 * 1000).toISOString(),
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.oldestCommerceOrdersOwedAgeHours).toBe(48);
   });
 
   it("surfaces refund-after-payout as a clawback owed from the client", () => {
@@ -1714,6 +1768,8 @@ describe("renderDailyDigestHtml", () => {
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).toContain("Commerce payouts owed");
+    // createdAt 2026-07-12T09:00 is 3h before NOW (2026-07-12T12:00).
+    expect(html).toContain("Commerce payouts owed ($25.00 · 1 client · oldest 3h)");
     expect(html).toContain("$25.00 owed");
     expect(html).toContain("Owed &lt;Shop&gt;");
     expect(html).not.toContain("Owed <Shop>");

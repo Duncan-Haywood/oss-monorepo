@@ -225,7 +225,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={formatUsd(health.commerceOrdersRevenueUsd)}
           hint={
             health.commerceOrdersCount > 0
-              ? `${health.commerceOrdersCount} Buy now order${health.commerceOrdersCount === 1 ? "" : "s"} still owed to clients — not your revenue · Mark paid out on Commerce payouts panel`
+              ? `${health.commerceOrdersCount} Buy now order${health.commerceOrdersCount === 1 ? "" : "s"} still owed to clients — not your revenue · Mark paid out on Commerce payouts panel${
+                  health.oldestCommerceOrdersOwedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersOwedAgeHours)}`
+                    : ""
+                }`
               : "No unpaid Buy now orders"
           }
           attention={health.commerceOrdersCount > 0}

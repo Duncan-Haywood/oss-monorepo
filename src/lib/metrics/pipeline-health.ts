@@ -223,6 +223,15 @@ export interface PipelineHealth {
   /** Count of unpaid, unrefunded Commerce Buy now orders still owed to clients. */
   commerceOrdersCount: number;
   /**
+   * Age in whole hours since the oldest still-owed Commerce Buy now order's
+   * createdAt; null when none owed. Same staleness-signal convention as every
+   * other due-queue field in this interface (oldestOpenHandoffAgeHours,
+   * oldestCommerceOrdersRefundClawbackAgeHours below, etc.) — this is the
+   * "not yet paid out at all" axis, distinct from the clawback axis (an
+   * order already paid out, then refunded/disputed after the fact).
+   */
+  oldestCommerceOrdersOwedAgeHours: number | null;
+  /**
    * Count of Commerce Buy now orders refunded by Stripe AFTER the operator
    * already marked them paid out to the client — the operator is out that
    * money and must claw it back from the client (see
@@ -416,6 +425,8 @@ export function computePipelineHealth(input: {
   /** Recorded Commerce Buy now orders (optional) — unpaid owed uses paidOutAt/refundedAt/disputedAt. */
   commerceOrders?: ReadonlyArray<{
     amountPaidUsd: number;
+    /** Anchors oldestCommerceOrdersOwedAgeHours; skipped (no staleness signal) when absent. */
+    createdAt?: string;
     paidOutAt?: string;
     refundedAt?: string;
     disputedAt?: string;
@@ -663,6 +674,10 @@ export function computePipelineHealth(input: {
       !isCommerceOrderDisputed(order),
   );
   const commerceOrdersRevenueUsd = sumCommerceOrdersRevenueUsd(unpaidCommerceOrders);
+  const oldestCommerceOrdersOwedHours = oldestCommerceOrdersOwedAgeHours(
+    unpaidCommerceOrders,
+    nowMs,
+  );
 
   const commerceOrdersRefunded = input.commerceOrdersRefunded ?? [];
   const commerceOrdersRefundClawback = commerceOrdersRefunded.filter(
@@ -810,6 +825,7 @@ export function computePipelineHealth(input: {
     oldestClientVoicePacksDueAgeHours: oldestClientVoicePacksDueHours,
     commerceOrdersRevenueUsd,
     commerceOrdersCount: unpaidCommerceOrders.length,
+    oldestCommerceOrdersOwedAgeHours: oldestCommerceOrdersOwedHours,
     commerceOrdersRefundClawbackCount: commerceOrdersRefundClawback.length,
     commerceOrdersRefundClawbackUsd,
     oldestCommerceOrdersRefundClawbackAgeHours,
@@ -845,6 +861,33 @@ export function deployHandoffAgeHours(createdAt: string, nowMs: number): number 
   const createdAtMs = Date.parse(createdAt);
   if (Number.isNaN(createdAtMs)) return null;
   return Math.max(0, Math.floor((nowMs - createdAtMs) / HOUR_MS));
+}
+
+/**
+ * Age in whole hours since the oldest still-owed Commerce Buy now order's
+ * createdAt; null when `orders` is empty or every createdAt fails to parse.
+ * Callers pass the unpaid/unrefunded/undisputed set (see commerceOrdersRevenueUsd
+ * above and its digest twin) — reuses deployHandoffAgeHours per item rather than
+ * duplicating the Date.parse/NaN-guard/clamp logic a third time, same as the
+ * oldestOpenHandoffAgeHours loop above. This is the "money never yet paid out"
+ * axis, distinct from oldestCommerceOrdersRefundClawbackAgeHours /
+ * oldestCommerceOrdersDisputeClawbackAgeHours below (money paid out, then
+ * clawed back by Stripe after the fact).
+ */
+export function oldestCommerceOrdersOwedAgeHours(
+  orders: ReadonlyArray<{ createdAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldest: number | null = null;
+  for (const order of orders) {
+    if (order.createdAt === undefined) continue;
+    const ageHours = deployHandoffAgeHours(order.createdAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  return oldest;
 }
 
 /** Human-readable abandoned-cart age for the pipeline health panel. */
