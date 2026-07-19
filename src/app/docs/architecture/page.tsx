@@ -411,7 +411,13 @@ export default function ArchitectureDocPage() {
         <code>type=&quot;application/ld+json&quot;</code>, the JSON-LD in{" "}
         <code>src/app/layout.tsx</code> and <code>src/app/preview/[slug]/page.tsx</code>) needs
         the nonce threaded in on either tier: <code>script-src</code> only governs elements the
-        browser would actually execute as script, and a JSON-LD data block is never executed.
+        browser would actually execute as script, and a JSON-LD data block is never executed. The
+        strict tier also sets <code>frame-src &apos;self&apos; https://www.google.com
+        https://maps.google.com</code>, allowlisting <code>/preview/[slug]</code>&apos;s Google
+        Maps embed (<code>src/components/preview/maps-embed.tsx</code>) — with no{" "}
+        <code>frame-src</code>, <code>default-src &apos;self&apos;</code> blocks that cross-origin
+        iframe in a real browser, a regression the original rollout&apos;s curl-only verification
+        missed since curl never enforces CSP or renders an iframe.
       </p>
 
       <h2 id="preview-hosting">3. Preview hosting</h2>

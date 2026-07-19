@@ -39,6 +39,14 @@ import { randomUUID } from "node:crypto";
  * runs the script-src check against it, on either tier. Neither call site
  * needs the nonce threaded in for that reason (confirmed by grep for every
  * dangerouslySetInnerHTML / <script sink in the app before shipping this).
+ *
+ * buildNonceContentSecurityPolicy's default-src 'self' also governs
+ * frame-src (no separate frame-src falls back to default-src per the CSP
+ * spec), which would otherwise block /preview/[slug]'s cross-origin Google
+ * Maps embed (src/components/preview/maps-embed.tsx) in a real browser —
+ * curl-based verification of header presence alone cannot catch this, since
+ * curl never enforces CSP or renders an iframe. An explicit frame-src
+ * allowlists exactly that origin rather than leaving frame-src unrestricted.
  */
 
 const SHARED_HARDENING_DIRECTIVES =
@@ -55,6 +63,11 @@ export function buildNonceContentSecurityPolicy(nonce: string, isDev: boolean): 
     styleSrc,
     "img-src 'self' blob: data:",
     "font-src 'self'",
+    // /preview/[slug]'s Google Maps embed (src/components/preview/maps-embed.tsx)
+    // is a cross-origin iframe; with no frame-src, default-src 'self' blocks it.
+    // maps.google.com 302s to www.google.com/maps for the embed response, so both
+    // origins are allowlisted rather than relying on one redirect target.
+    "frame-src 'self' https://www.google.com https://maps.google.com",
     SHARED_HARDENING_DIRECTIVES,
   ].join("; ");
 }

@@ -49,6 +49,11 @@ describe("buildNonceContentSecurityPolicy", () => {
     expect(buildNonceContentSecurityPolicy("abc123", false)).toContain("default-src 'self'");
   });
 
+  it("allows the /preview Google Maps embed's origins via frame-src", () => {
+    const csp = buildNonceContentSecurityPolicy("abc123", false);
+    expect(csp).toContain("frame-src 'self' https://www.google.com https://maps.google.com");
+  });
+
   it("two calls never produce the same nonce value embedded twice by accident", () => {
     const a = buildNonceContentSecurityPolicy(generateCspNonce(), false);
     const b = buildNonceContentSecurityPolicy(generateCspNonce(), false);
