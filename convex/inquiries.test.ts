@@ -186,6 +186,31 @@ test("recordReply returns null on an unknown id (never throws) and sets status=r
   expect(replied?.repliedAt).toBeTruthy();
 });
 
+test("recordReply rejects (returns null, no patch) once the inquiry is archived — race guard against a stale action-level read", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.inquiries.create, createArgs());
+  await t.mutation(api.inquiries.updateStatus, {
+    inquiryId: "inq_demo-cafe_1",
+    status: "archived",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  await expect(
+    t.mutation(api.inquiries.recordReply, {
+      inquiryId: "inq_demo-cafe_1",
+      operatorReply: "Too late, archived first",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBeNull();
+
+  const stillArchived: InquiryRow | null = await t.query(api.inquiries.getById, {
+    inquiryId: "inq_demo-cafe_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(stillArchived?.status).toBe("archived");
+  expect(stillArchived?.operatorReply).toBeUndefined();
+});
+
 test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SECRET configured", async () => {
   const t = convexTest(schema, modules);
   await expect(

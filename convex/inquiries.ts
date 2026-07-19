@@ -251,6 +251,19 @@ export const updateStatus = mutation({
   },
 });
 
+/**
+ * replyToInquiryAction gates on inquiryCanReceiveReply(inquiry) against a row
+ * it read *before* this call — a concurrent updateInquiryStatusAction("archived")
+ * (a second operator tab, or the same operator archiving from a stale reply
+ * composer) can land in the window between that read and this mutation, since
+ * the two are independent async calls with no shared lock. Re-checking
+ * status here, atomically with the patch, is the only thing that actually
+ * prevents overwriting an operator's archive decision with status=replied
+ * and firing an email the operator just decided not to send — the
+ * action-level check alone is a stale-read guard, not a guarantee. Same bug
+ * class as commerce-order-paid-out-refund-race-guard, applied to the inquiry
+ * reply surface. See inquiry-reply-archive-race-guard.
+ */
 export const recordReply = mutation({
   args: {
     inquiryId: v.string(),
@@ -265,7 +278,7 @@ export const recordReply = mutation({
       .withIndex("by_inquiryId", (q) => q.eq("inquiryId", args.inquiryId))
       .unique();
 
-    if (!existing) {
+    if (!existing || existing.status === "archived") {
       return null;
     }
 
