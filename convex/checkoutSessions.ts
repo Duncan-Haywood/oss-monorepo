@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 export const create = mutation({
   args: {
@@ -11,23 +12,33 @@ export const create = mutation({
     createdAt: v.string(),
     kind: v.optional(v.union(v.literal("bundle"), v.literal("commerce_sku"))),
     skuId: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    // Destructure apiSecret out before persisting — schema.ts's checkoutSessions
+    // table is a strict defineTable that rejects unlisted fields, and the
+    // previous `{ ...args, status: "open" }` insert would otherwise leak
+    // apiSecret into the row as an extra column (same gotcha as
+    // orders.createOrder / leads.upsertLead / commerceOrders.insert).
+    const { apiSecret, ...session } = args;
+    void apiSecret;
     const existing = await ctx.db
       .query("checkoutSessions")
-      .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
+      .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", session.stripeSessionId))
       .unique();
     if (existing) return null;
-    await ctx.db.insert("checkoutSessions", { ...args, status: "open" });
+    await ctx.db.insert("checkoutSessions", { ...session, status: "open" });
     return null;
   },
 });
 
 export const markComplete = mutation({
-  args: { stripeSessionId: v.string() },
+  args: { stripeSessionId: v.string(), apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const session = await ctx.db
       .query("checkoutSessions")
       .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
@@ -46,9 +57,10 @@ export const markComplete = mutation({
  * can nudge a retry. Safe no-op when no row matches.
  */
 export const markOpen = mutation({
-  args: { stripeSessionId: v.string() },
+  args: { stripeSessionId: v.string(), apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const session = await ctx.db
       .query("checkoutSessions")
       .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
@@ -70,9 +82,11 @@ export const markCompleteOpenBundleForLead = mutation({
   args: {
     leadSlug: v.string(),
     exceptStripeSessionId: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.number(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db
       .query("checkoutSessions")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -109,9 +123,11 @@ export const markCompleteOpenCommerceForLeadSkuCustomer = mutation({
     skuId: v.string(),
     customerEmail: v.string(),
     exceptStripeSessionId: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.number(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const email = args.customerEmail.trim().toLowerCase();
     const skuId = args.skuId.trim();
     if (!email || !skuId) return 0;
@@ -135,9 +151,10 @@ export const markCompleteOpenCommerceForLeadSkuCustomer = mutation({
 });
 
 export const recordRecoverySent = mutation({
-  args: { stripeSessionId: v.string(), sentAt: v.string() },
+  args: { stripeSessionId: v.string(), sentAt: v.string(), apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const session = await ctx.db
       .query("checkoutSessions")
       .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
@@ -150,9 +167,10 @@ export const recordRecoverySent = mutation({
 });
 
 export const listOpen = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(v.any()),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db
       .query("checkoutSessions")
       .withIndex("by_status", (q) => q.eq("status", "open"))

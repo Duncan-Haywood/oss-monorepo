@@ -1,9 +1,18 @@
 import { convexTest } from "convex-test";
-import { expect, test } from "vitest";
+import { afterEach, beforeEach, expect, test } from "vitest";
 import { api } from "./_generated/api";
 import schema from "./schema";
 
 const modules = import.meta.glob("./**/*.ts");
+const TEST_API_SECRET = "test-convex-api-secret";
+
+beforeEach(() => {
+  process.env.CONVEX_API_SECRET = TEST_API_SECRET;
+});
+
+afterEach(() => {
+  delete process.env.CONVEX_API_SECRET;
+});
 
 interface CheckoutSessionRow {
   leadSlug: string;
@@ -23,6 +32,7 @@ function createArgs(overrides: Partial<Record<string, unknown>> = {}) {
     tier: "growth",
     commerceAddon: false,
     createdAt: "2026-01-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
     ...overrides,
   };
 }
@@ -33,7 +43,9 @@ test("create is idempotent on stripeSessionId and inserts new rows with status o
   // Redelivery / repeat checkout-create call must not insert a second row.
   await t.mutation(api.checkoutSessions.create, createArgs());
 
-  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {});
+  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
   expect(rows).toHaveLength(1);
   expect(rows[0].status).toBe("open");
 });
@@ -42,18 +54,36 @@ test("markComplete / markOpen round-trip a session's status and are safe no-ops 
   const t = convexTest(schema, modules);
   await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_1" }));
 
-  await t.mutation(api.checkoutSessions.markComplete, { stripeSessionId: "cs_1" });
-  let open: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {});
+  await t.mutation(api.checkoutSessions.markComplete, {
+    stripeSessionId: "cs_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  let open: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
   expect(open).toHaveLength(0);
 
   // async_payment_failed must reopen a completed session so abandoned-recovery
   // can nudge a retry.
-  await t.mutation(api.checkoutSessions.markOpen, { stripeSessionId: "cs_1" });
-  open = await t.query(api.checkoutSessions.listOpen, {});
+  await t.mutation(api.checkoutSessions.markOpen, {
+    stripeSessionId: "cs_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  open = await t.query(api.checkoutSessions.listOpen, { apiSecret: TEST_API_SECRET });
   expect(open).toHaveLength(1);
 
-  await expect(t.mutation(api.checkoutSessions.markComplete, { stripeSessionId: "cs_missing" })).resolves.toBeNull();
-  await expect(t.mutation(api.checkoutSessions.markOpen, { stripeSessionId: "cs_missing" })).resolves.toBeNull();
+  await expect(
+    t.mutation(api.checkoutSessions.markComplete, {
+      stripeSessionId: "cs_missing",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBeNull();
+  await expect(
+    t.mutation(api.checkoutSessions.markOpen, {
+      stripeSessionId: "cs_missing",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBeNull();
 });
 
 test("markCompleteOpenBundleForLead closes sibling open bundle rows for the lead but never touches commerce_sku rows", async () => {
@@ -68,10 +98,13 @@ test("markCompleteOpenBundleForLead closes sibling open bundle rows for the lead
   const closed = await t.mutation(api.checkoutSessions.markCompleteOpenBundleForLead, {
     leadSlug: "demo-cafe",
     exceptStripeSessionId: "cs_paid",
+    apiSecret: TEST_API_SECRET,
   });
   expect(closed).toBe(1);
 
-  const open: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {});
+  const open: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
   const openIds = open.map((r) => r.stripeSessionId);
   // The just-paid session and the untouched commerce_sku row both stay open;
   // only the sibling bundle cart closes.
@@ -102,10 +135,13 @@ test("markCompleteOpenBundleForLead allowlists bundle-like kind and leaves an un
   const closed = await t.mutation(api.checkoutSessions.markCompleteOpenBundleForLead, {
     leadSlug: "demo-cafe",
     exceptStripeSessionId: "cs_paid",
+    apiSecret: TEST_API_SECRET,
   });
   expect(closed).toBe(0);
 
-  const open: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {});
+  const open: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
   expect(open.map((r) => r.stripeSessionId)).toContain("cs_unknown_kind");
 });
 
@@ -133,10 +169,13 @@ test("markCompleteOpenCommerceForLeadSkuCustomer closes only matching sku+email 
     skuId: "sku_1",
     customerEmail: "buyer@example.com",
     exceptStripeSessionId: "cs_paid",
+    apiSecret: TEST_API_SECRET,
   });
   expect(closed).toBe(1);
 
-  const open: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {});
+  const open: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
   const openIds = open.map((r) => r.stripeSessionId);
   expect(openIds).toContain("cs_paid");
   expect(openIds).toContain("cs_other_shopper");
@@ -149,11 +188,21 @@ test("recordRecoverySent stamps recoverySentAt on a known session and is a safe 
   await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_1" }));
 
   await expect(
-    t.mutation(api.checkoutSessions.recordRecoverySent, { stripeSessionId: "cs_missing", sentAt: "2026-01-05T00:00:00.000Z" }),
+    t.mutation(api.checkoutSessions.recordRecoverySent, {
+      stripeSessionId: "cs_missing",
+      sentAt: "2026-01-05T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
   ).resolves.toBeNull();
 
-  await t.mutation(api.checkoutSessions.recordRecoverySent, { stripeSessionId: "cs_1", sentAt: "2026-01-05T00:00:00.000Z" });
-  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {});
+  await t.mutation(api.checkoutSessions.recordRecoverySent, {
+    stripeSessionId: "cs_1",
+    sentAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
   expect(rows[0].recoverySentAt).toBe("2026-01-05T00:00:00.000Z");
 });
 
@@ -163,8 +212,53 @@ test("listOpen returns only open sessions, sorted oldest-createdAt-first (matche
   await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_a", createdAt: "2026-01-01T00:00:00.000Z" }));
   await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_c", createdAt: "2026-01-02T00:00:00.000Z" }));
   await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_already_done", createdAt: "2026-01-04T00:00:00.000Z" }));
-  await t.mutation(api.checkoutSessions.markComplete, { stripeSessionId: "cs_already_done" });
+  await t.mutation(api.checkoutSessions.markComplete, {
+    stripeSessionId: "cs_already_done",
+    apiSecret: TEST_API_SECRET,
+  });
 
-  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {});
+  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
   expect(rows.map((r) => r.stripeSessionId)).toEqual(["cs_a", "cs_c", "cs_b"]);
+});
+
+test("create never persists apiSecret onto the row", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_no_leak" }));
+
+  const row = await t.run(async (ctx) =>
+    ctx.db
+      .query("checkoutSessions")
+      .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", "cs_no_leak"))
+      .unique(),
+  );
+  expect(row).not.toBeNull();
+  expect(row).not.toHaveProperty("apiSecret");
+});
+
+test("create rejects a missing/wrong apiSecret and never creates a row for the attempted session", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_attack", apiSecret: "wrong-secret" })),
+  ).rejects.toThrow(/Unauthorized/);
+
+  const row = await t.run(async (ctx) =>
+    ctx.db
+      .query("checkoutSessions")
+      .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", "cs_attack"))
+      .unique(),
+  );
+  expect(row).toBeNull();
+});
+
+test("create and listOpen reject any caller when CONVEX_API_SECRET is unset, even a plausible-looking guess", async () => {
+  delete process.env.CONVEX_API_SECRET;
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.checkoutSessions.create, createArgs()),
+  ).rejects.toThrow(/Unauthorized/);
+  await expect(
+    t.query(api.checkoutSessions.listOpen, { apiSecret: TEST_API_SECRET }),
+  ).rejects.toThrow(/Unauthorized/);
 });
