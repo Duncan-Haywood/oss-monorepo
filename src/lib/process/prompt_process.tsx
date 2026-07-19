@@ -618,8 +618,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "convex-api-secret-readiness-banner",
     summary:
       "Follow-up to convex-public-function-api-secret (now fully shipped, all 10 files migrated behind requireApiSecret): add an operator-visible readiness banner (mirroring ConvexUrlEnvBanner / src/lib/convex/convex-url-env-readiness.ts) that warns when NEXT_PUBLIC_CONVEX_URL is configured but the server-only CONVEX_API_SECRET env var is unset or doesn't match the Convex deployment's own CONVEX_API_SECRET — today that misconfiguration fails silently (every Convex call throws inside requireApiSecret and falls back to SQLite-only, same degraded path as any other Convex outage) with no dashboard signal, so an operator could run for a long time believing multi-instance Convex persistence is active when every write is actually landing on instance-local SQLite. Env-presence check only, mirroring the existing NEXT_PUBLIC_CONVEX_URL banner's shape — does not attempt to verify the secret actually matches the Convex deployment (that would require a live round-trip call, which is out of scope for a login/dashboard-load readiness check).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-jpf6bu",
   },
   {
     id: "sitemap-docs-route-sync",
