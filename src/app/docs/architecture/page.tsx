@@ -359,6 +359,27 @@ export default function ArchitectureDocPage() {
         address. Also serialized via <code>safeJsonLdScript</code>.
       </p>
 
+      <h2 id="security-headers">2c. Security headers</h2>
+      <p>
+        <code>next.config.ts</code>&apos;s <code>headers()</code> applies{" "}
+        <code>SECURITY_HEADERS</code> (<code>src/lib/security/security-headers.ts</code>, a
+        directly-Vitest-tested data module — <code>next.config.ts</code> itself sits outside this
+        app&apos;s module graph and isn&apos;t covered by <code>vitest.config.ts</code>&apos;s
+        include globs) to every route: <code>X-Frame-Options: DENY</code> (nothing in this app is
+        meant to be framed by another origin — the only <code>iframe</code> is{" "}
+        <code>/preview/[slug]</code>&apos;s own Google Maps embed, this app framing Maps, not the
+        reverse), <code>X-Content-Type-Options: nosniff</code>,{" "}
+        <code>Referrer-Policy: strict-origin-when-cross-origin</code>,{" "}
+        <code>Permissions-Policy</code> denying camera/microphone/geolocation/browsing-topics, and
+        a two-year <code>Strict-Transport-Security</code>. Deliberately excludes{" "}
+        <code>Content-Security-Policy</code>: a CSP strict enough to matter needs a per-request
+        nonce, and nonce-based CSP forces every nonce&apos;d page into dynamic rendering (Next.js
+        disables static optimization/ISR for those pages) — trading away this app&apos;s currently
+        static marketing/docs pages needs a deliberate pass, not a side effect of a headers sweep
+        (see <code>csp-nonce-rollout</code> in <DocLink href="/docs/process">Process log</DocLink>
+        ).
+      </p>
+
       <h2 id="preview-hosting">3. Preview hosting</h2>
       <p>
         Primary app on Vercel. Previews at <code>{"{slug}"}.preview.domain.com</code> via wildcard DNS.
