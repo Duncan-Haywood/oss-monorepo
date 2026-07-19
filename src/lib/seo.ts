@@ -22,6 +22,24 @@ export function siteUrl(): string {
 }
 
 /**
+ * siteUrl() as a URL object, for the one metadata field (metadataBase) that
+ * requires one rather than a string. NEXT_PUBLIC_APP_URL is presence-checked
+ * by assessAppUrlEnvReadiness but never format-validated (an operator could
+ * paste "mysite.com" with no scheme) — `new URL()` throws on that, and this
+ * field is read at every page's metadata generation, so a throw here would
+ * break the entire site rather than degrading one banner. Fail closed to the
+ * localhost default on a parse error, same as every other siteUrl() consumer
+ * silently falling back rather than crashing.
+ */
+function siteOriginUrl(): URL {
+  try {
+    return new URL(siteUrl());
+  } catch {
+    return new URL(DEFAULT_SITE_URL);
+  }
+}
+
+/**
  * Metadata for any static (non-preview) page, self-referential by design:
  * alternates.canonical / openGraph.url always point at the page's own path,
  * never siteUrl() alone. Shared by homepageMetadata (path "") and
@@ -52,11 +70,23 @@ export function staticPageMetadata(opts: {
  * Previously title/description only — no openGraph/twitter/canonical, so
  * sharing the homepage (or any uncustomized page) on social/chat apps
  * unfurled with no title, description, or link preview at all.
+ *
+ * Sets metadataBase — required for the site-og-image opengraph-image.tsx /
+ * twitter-image.tsx file-convention images (site-brand-image.tsx) to resolve
+ * to an absolute URL. Without it, Next.js resolves those relative image URLs
+ * against a hardcoded "http://localhost:3000" in every environment,
+ * including production — the build even warns about this. Root layout is
+ * the correct (and only necessary) place: metadataBase set here applies to
+ * every descendant route's URL-based metadata fields that don't set their
+ * own absolute URL, including /preview/[slug]'s per-lead opengraph-image.
  */
 export function homepageMetadata(): Metadata {
   const title = `${brand.name} — Pre-built websites for local businesses`;
   const description = `${brand.name} builds professional websites before you buy. Preview your site, pay $500, go live. Operated by ${brand.legalEntity} (${brand.legalLocation}).`;
-  return staticPageMetadata({ title, description, path: "" });
+  return {
+    ...staticPageMetadata({ title, description, path: "" }),
+    metadataBase: siteOriginUrl(),
+  };
 }
 
 /**
