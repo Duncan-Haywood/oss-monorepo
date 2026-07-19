@@ -1,10 +1,12 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 export const isSuppressed = query({
-  args: { email: v.string() },
+  args: { email: v.string(), apiSecret: v.string() },
   returns: v.boolean(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("suppressions")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -14,9 +16,10 @@ export const isSuppressed = query({
 });
 
 export const suppress = mutation({
-  args: { email: v.string() },
+  args: { email: v.string(), apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("suppressions")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -28,9 +31,10 @@ export const suppress = mutation({
 });
 
 export const list = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(v.string()),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db.query("suppressions").collect();
     return rows.map((r) => r.email);
   },
