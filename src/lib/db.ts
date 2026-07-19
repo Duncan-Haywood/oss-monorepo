@@ -2790,6 +2790,7 @@ export async function upsertCommerceCatalog(
         leadSlug: catalog.leadSlug,
         items: catalog.items,
         updatedAt: catalog.updatedAt,
+        apiSecret: convexApiSecret,
       });
       return catalog;
     } catch (e) {
@@ -2822,6 +2823,7 @@ export async function getCommerceCatalog(
     try {
       return (await convexClient.query(api.commerceCatalogs.getByLeadSlug, {
         leadSlug,
+        apiSecret: convexApiSecret,
       })) as CommerceCatalog | null;
     } catch (e) {
       console.warn(
@@ -2854,7 +2856,7 @@ export async function listCommerceCatalogs(
     try {
       return (await convexClient.query(
         api.commerceCatalogs.list,
-        {},
+        { apiSecret: convexApiSecret },
       )) as CommerceCatalog[];
     } catch (e) {
       console.warn(
