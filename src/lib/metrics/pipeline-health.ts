@@ -908,6 +908,43 @@ export function oldestUnrepliedInquiryAgeHoursFor(
   return oldest;
 }
 
+/**
+ * Age in whole hours since the oldest bundle order refund or dispute
+ * (whichever is older) among the given refunded/disputed order sets; null
+ * when both are empty or every candidate's refundedAt/disputedAt fails to
+ * parse. Mirrors the two separate oldestBundleOrdersRefundedAgeHours /
+ * oldestBundleOrdersDisputedAgeHours loops in computePipelineHealth above,
+ * but combined for leads-client.tsx's "Bundle order refunds & disputes"
+ * panel, which shows both refunds and disputes under one header count —
+ * same precedent as oldestCommerceOrdersOwedAgeHours / deployHandoffAgeHours
+ * (extract Date-math into a pure, unit-testable helper instead of inlining
+ * it in JSX, per AGENT_PROTOCOL's no-test-harness-for-client-components note).
+ */
+export function oldestBundleOrderRefundOrDisputeAgeHours(
+  refunds: ReadonlyArray<{ refundedAt?: string }>,
+  disputes: ReadonlyArray<{ disputedAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldest: number | null = null;
+  for (const order of refunds) {
+    if (order.refundedAt === undefined) continue;
+    const ageHours = deployHandoffAgeHours(order.refundedAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  for (const order of disputes) {
+    if (order.disputedAt === undefined) continue;
+    const ageHours = deployHandoffAgeHours(order.disputedAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  return oldest;
+}
+
 /** Human-readable abandoned-cart age for the pipeline health panel. */
 export function formatAbandonedAgeHours(hours: number | null): string {
   if (hours === null) return "—";

@@ -6,6 +6,7 @@ import {
   formatAbandonedAgeHours,
   formatUsd,
   isUnrepliedInquiryStatus,
+  oldestBundleOrderRefundOrDisputeAgeHours,
   oldestCommerceOrdersOwedAgeHours,
   oldestPaidNotLiveAgeHours,
   oldestUnrepliedInquiryAgeHoursFor,
@@ -1352,6 +1353,48 @@ describe("oldestCommerceOrdersOwedAgeHours", () => {
     expect(
       oldestCommerceOrdersOwedAgeHours(
         [{ createdAt: new Date(NOW + HOUR_MS).toISOString() }],
+        NOW,
+      ),
+    ).toBe(0);
+  });
+});
+
+describe("oldestBundleOrderRefundOrDisputeAgeHours", () => {
+  it("returns null for empty refund and dispute sets", () => {
+    expect(oldestBundleOrderRefundOrDisputeAgeHours([], [], NOW)).toBeNull();
+  });
+
+  it("returns null when every candidate is missing its timestamp or fails to parse", () => {
+    expect(
+      oldestBundleOrderRefundOrDisputeAgeHours(
+        [{ refundedAt: undefined }, { refundedAt: "not-a-date" }],
+        [{ disputedAt: undefined }, { disputedAt: "not-a-date" }],
+        NOW,
+      ),
+    ).toBeNull();
+  });
+
+  it("selects the maximum age across both refunds and disputes, skipping unparseable rows", () => {
+    expect(
+      oldestBundleOrderRefundOrDisputeAgeHours(
+        [
+          { refundedAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+          { refundedAt: "not-a-date" },
+        ],
+        [
+          { disputedAt: new Date(NOW - 90 * HOUR_MS).toISOString() },
+          { disputedAt: undefined },
+        ],
+        NOW,
+      ),
+    ).toBe(90);
+  });
+
+  it("clamps a future refundedAt/disputedAt to 0", () => {
+    expect(
+      oldestBundleOrderRefundOrDisputeAgeHours(
+        [{ refundedAt: new Date(NOW + HOUR_MS).toISOString() }],
+        [],
         NOW,
       ),
     ).toBe(0);
