@@ -27,4 +27,19 @@ describe("requireApiSecret", () => {
     process.env.CONVEX_API_SECRET = "";
     expect(() => requireApiSecret("")).toThrow(/Unauthorized/);
   });
+
+  it("rejects a same-length secret that differs only in its last character", () => {
+    process.env.CONVEX_API_SECRET = "correct-secret";
+    expect(() => requireApiSecret("correct-secreT")).toThrow(/Unauthorized/);
+  });
+
+  it("rejects a provided secret that is a strict prefix of the expected one", () => {
+    process.env.CONVEX_API_SECRET = "correct-secret";
+    expect(() => requireApiSecret("correct-secre")).toThrow(/Unauthorized/);
+  });
+
+  it("rejects a provided secret longer than the expected one", () => {
+    process.env.CONVEX_API_SECRET = "correct-secret";
+    expect(() => requireApiSecret("correct-secret-extra")).toThrow(/Unauthorized/);
+  });
 });
