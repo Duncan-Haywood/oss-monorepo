@@ -2869,6 +2869,7 @@ export async function insertCommerceOrder(
         ...input,
         orderId: id,
         createdAt,
+        apiSecret: convexApiSecret,
       });
       // Convex insert returns null when by_stripeSessionId already exists.
       return { alreadyRecorded: result === null };
@@ -2922,6 +2923,7 @@ export async function listCommerceOrders(
     try {
       const rows = (await convexClient.query(api.commerceOrders.list, {
         limit: safeLimit,
+        apiSecret: convexApiSecret,
       })) as CommerceOrderRecord[];
       return sortCommerceOrdersNewestFirst(rows);
     } catch (e) {
@@ -2954,7 +2956,7 @@ export async function listUnpaidCommerceOrders(): Promise<CommerceOrderRecord[]>
     try {
       const rows = (await convexClient.query(
         api.commerceOrders.listUnpaid,
-        {},
+        { apiSecret: convexApiSecret },
       )) as CommerceOrderRecord[];
       return sortCommerceOrdersNewestFirst(rows);
     } catch (e) {
@@ -2989,7 +2991,7 @@ export async function listCommerceOrdersRefunded(): Promise<CommerceOrderRecord[
     try {
       const rows = (await convexClient.query(
         api.commerceOrders.listRefunded,
-        {},
+        { apiSecret: convexApiSecret },
       )) as CommerceOrderRecord[];
       return sortCommerceOrdersNewestFirst(rows);
     } catch (e) {
@@ -3023,7 +3025,7 @@ export async function listCommerceOrdersDisputed(): Promise<CommerceOrderRecord[
     try {
       const rows = (await convexClient.query(
         api.commerceOrders.listDisputed,
-        {},
+        { apiSecret: convexApiSecret },
       )) as CommerceOrderRecord[];
       return sortCommerceOrdersNewestFirst(rows);
     } catch (e) {
@@ -3053,7 +3055,7 @@ export async function getCommerceOrderByStripeSessionId(
     try {
       const row = (await convexClient.query(
         api.commerceOrders.getByStripeSessionId,
-        { stripeSessionId },
+        { stripeSessionId, apiSecret: convexApiSecret },
       )) as CommerceOrderRecord | null;
       return row;
     } catch (e) {
@@ -3090,6 +3092,7 @@ export async function markCommerceOrderPaidOut(
       await convexClient.mutation(api.commerceOrders.markPaidOut, {
         stripeSessionId,
         paidOutAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -3129,6 +3132,7 @@ export async function markCommerceOrderClientReceiptSent(
       await convexClient.mutation(api.commerceOrders.markClientReceiptSent, {
         stripeSessionId,
         clientReceiptEmailSentAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -3169,6 +3173,7 @@ export async function markCommerceOrderRefunded(
       await convexClient.mutation(api.commerceOrders.markRefunded, {
         stripeSessionId,
         refundedAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -3210,6 +3215,7 @@ export async function markCommerceOrderDisputed(
       await convexClient.mutation(api.commerceOrders.markDisputed, {
         stripeSessionId,
         disputedAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -3248,6 +3254,7 @@ export async function clearCommerceOrderDisputed(
     try {
       await convexClient.mutation(api.commerceOrders.clearDisputed, {
         stripeSessionId,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
