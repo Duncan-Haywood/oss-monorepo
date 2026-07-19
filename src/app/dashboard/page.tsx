@@ -179,13 +179,63 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         require a signed operator session when auth is configured.
       </p>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-9">
         <div className="rounded-xl border border-zinc-200 px-4 py-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
             Revenue
           </p>
           <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
             {formatUsd(health.revenueTotalUsd)}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.commerceOrdersRefundClawbackCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Refund clawback needed
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {formatUsd(health.commerceOrdersRefundClawbackUsd)}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.commerceOrdersRefundClawbackCount > 0
+              ? `${health.commerceOrdersRefundClawbackCount} paid-out order${
+                  health.commerceOrdersRefundClawbackCount === 1 ? "" : "s"
+                } refunded${
+                  health.oldestCommerceOrdersRefundClawbackAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersRefundClawbackAgeHours)}`
+                    : ""
+                }`
+              : "No payouts refunded after the fact"}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.commerceOrdersDisputeClawbackCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Dispute clawback needed
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {formatUsd(health.commerceOrdersDisputeClawbackUsd)}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.commerceOrdersDisputeClawbackCount > 0
+              ? `${health.commerceOrdersDisputeClawbackCount} paid-out order${
+                  health.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"
+                } disputed${
+                  health.oldestCommerceOrdersDisputeClawbackAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersDisputeClawbackAgeHours)}`
+                    : ""
+                }`
+              : "No payouts disputed after the fact"}
           </p>
         </div>
         <div
