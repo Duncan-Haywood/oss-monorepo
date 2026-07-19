@@ -45,6 +45,9 @@ import {
   commerceDraftItemsAfterSync,
   commerceOrdersByLeadSummaryNeedsAttention,
   formatPriceUsd,
+  isCommerceOrderDisputed,
+  isCommerceOrderPaidOut,
+  isCommerceOrderRefunded,
   leadEligibleForCommerceCatalog,
   listCommerceCatalogsMissing,
   listCommerceCatalogsUnsynced,
@@ -68,7 +71,10 @@ import {
   oldestStarterUpsellCandidateAgeHours,
   resolveUpsellTargetTier,
 } from "@/lib/billing/starter-upsell";
-import { listRecurringEntitlementPaused } from "@/lib/orders/recurring";
+import {
+  listRecurringEntitlementPaused,
+  oldestRecurringEntitlementPausedAgeHours,
+} from "@/lib/orders/recurring";
 import { getBundle } from "@/lib/pricing/bundles";
 import {
   contentTypeLabel,
@@ -149,6 +155,8 @@ import {
   formatUsd,
   isUnrepliedInquiryStatus,
   oldestBundleOrderRefundOrDisputeAgeHours,
+  oldestCommerceOrdersOwedAgeHours,
+  oldestOpenHandoffAgeHours,
   oldestPaidNotLiveAgeHours,
   oldestUnrepliedInquiryAgeHoursFor,
 } from "@/lib/metrics/pipeline-health";
@@ -935,6 +943,13 @@ export function LeadsClient({
     });
 
   const openHandoffs = handoffs.filter((h) => h.status !== "live");
+  // Same aggregate staleness signal pipeline-health's MetricCard hint and the
+  // daily digest's "Production handoffs open" section header already show —
+  // this per-lead panel previously had per-row ages (deployHandoffAgeHours,
+  // shipped by open-deploy-handoff-header-count-and-row-ages) but no header
+  // oldest suffix, unlike every sibling due-queue panel (see
+  // open-handoff-and-commerce-payouts-header-staleness-signal).
+  const oldestOpenHandoffsHours = oldestOpenHandoffAgeHours(openHandoffs, nowMs);
   const handoffSlugs = new Set(handoffs.map((h) => h.leadSlug));
   // Same lead.stage === "paid" predicate as pipeline-health paidNotLiveCount
   // and the daily digest's paidNotLive section — distinct from openHandoffs
@@ -989,6 +1004,15 @@ export function LeadsClient({
     nowMs,
   );
   const recurringEntitlementPaused = listRecurringEntitlementPaused(leads, orders);
+  // Same aggregate staleness signal pipeline-health's MetricCard hint and the
+  // daily digest already show for this due-queue — this per-lead panel
+  // previously had per-row ages (pausedAgeHours) but no header oldest suffix,
+  // unlike every sibling due-queue panel (see
+  // open-handoff-and-commerce-payouts-header-staleness-signal).
+  const oldestRecurringEntitlementPausedHours = oldestRecurringEntitlementPausedAgeHours(
+    recurringEntitlementPaused,
+    nowMs,
+  );
   const marketingPacksDueMonth = marketingMonthKey(nowMs);
   const marketingPacksDue = listMarketingPacksDue(
     leads,
@@ -1032,6 +1056,22 @@ export function LeadsClient({
     commerceOrdersByLeadSummaryNeedsAttention,
   );
   const commercePayoutsOrderCount = sumCommerceOrdersByLeadOrderCount(commercePayoutsByLead);
+  // Same unpaid/unrefunded/undisputed "still owed" set + aggregate staleness
+  // signal already shown by pipeline-health's "Commerce sales (pass-through)"
+  // MetricCard hint and the daily digest's "Commerce payouts owed" section
+  // header — this per-lead panel previously had per-row ages (`owed Xh ago`)
+  // but no header oldest suffix, unlike every sibling due-queue panel (see
+  // open-handoff-and-commerce-payouts-header-staleness-signal).
+  const commerceOrdersStillOwed = commerceOrders.filter(
+    (order) =>
+      !isCommerceOrderPaidOut(order) &&
+      !isCommerceOrderRefunded(order) &&
+      !isCommerceOrderDisputed(order),
+  );
+  const oldestCommercePayoutsOwedHours = oldestCommerceOrdersOwedAgeHours(
+    commerceOrdersStillOwed,
+    nowMs,
+  );
   const bundleOrderRefunds = orders.filter(isOrderRefunded);
   const bundleOrderDisputes = orders.filter(isOrderDisputed);
   const oldestBundleOrderRefundOrDisputeHours = oldestBundleOrderRefundOrDisputeAgeHours(
@@ -1259,7 +1299,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               MRR paused / canceled
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({recurringEntitlementPaused.length})
+                ({recurringEntitlementPaused.length}
+                {oldestRecurringEntitlementPausedHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestRecurringEntitlementPausedHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1592,7 +1636,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Commerce payouts (manual)
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({commercePayoutsOrderCount} order{commercePayoutsOrderCount === 1 ? "" : "s"})
+                ({commercePayoutsOrderCount} order{commercePayoutsOrderCount === 1 ? "" : "s"}
+                {oldestCommercePayoutsOwedHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestCommercePayoutsOwedHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -2095,7 +2143,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Production deploy handoffs
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({openHandoffs.length})
+                ({openHandoffs.length}
+                {oldestOpenHandoffsHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestOpenHandoffsHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
