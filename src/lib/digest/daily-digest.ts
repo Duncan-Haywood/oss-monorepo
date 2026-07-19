@@ -35,6 +35,7 @@ import { isLeadSnoozed } from "../leads/snooze";
 import {
   isUnrepliedInquiryStatus,
   leadIsMissingCriticalEmail,
+  oldestCommerceOrdersOwedAgeHours,
   oldestPaidNotLiveAgeHours,
 } from "../metrics/pipeline-health";
 import {
@@ -55,6 +56,9 @@ import {
 } from "../commerce/catalog";
 import {
   commerceOrderNeedsClawback,
+  isCommerceOrderDisputed,
+  isCommerceOrderPaidOut,
+  isCommerceOrderRefunded,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
 } from "../commerce/orders";
@@ -296,6 +300,15 @@ export interface DailyDigest {
   commercePayoutsOwedCount: number;
   /** Sum of commercePayoutsOwed totals (USD dollars) — already computed pre-slice, unaffected by the cap. */
   commercePayoutsOwedTotalUsd: number;
+  /**
+   * Age in whole hours since the oldest still-owed (unpaid/unrefunded/
+   * undisputed) Commerce Buy now order's createdAt; null when none owed.
+   * Same staleness signal as pipeline-health oldestCommerceOrdersOwedAgeHours
+   * — the "not yet paid out" axis, distinct from
+   * oldestCommerceOrdersRefundClawbackAgeHours /
+   * oldestCommerceOrdersDisputeClawbackAgeHours below.
+   */
+  oldestCommerceOrdersOwedAgeHours: number | null;
   /** Commerce orders refunded after payout — clawback owed from the client (action section). */
   commerceOrdersRefundClawback: DigestCommerceOrderRefundClawback[];
   /** True count before the COMMERCE_REFUND_CLAWBACK_LIMIT slice — use for the section header. */
@@ -707,6 +720,20 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       orderCount: summary.unpaidCount,
       totalUsd: summary.unpaidTotalUsd,
     }));
+  // commerceOrders (fed from listUnpaidCommerceOrders) only excludes paidOutAt
+  // — re-filter out refunded/disputed rows too so a still-open refund/dispute
+  // does not anchor the "owed" staleness signal (mirrors the unpaidCommerceOrders
+  // filter in pipeline-health.ts's computePipelineHealth exactly).
+  const commerceOrdersOwed = commerceOrders.filter(
+    (order) =>
+      !isCommerceOrderPaidOut(order) &&
+      !isCommerceOrderRefunded(order) &&
+      !isCommerceOrderDisputed(order),
+  );
+  const oldestCommerceOrdersOwedAgeHoursValue = oldestCommerceOrdersOwedAgeHours(
+    commerceOrdersOwed,
+    nowMs,
+  );
 
   // Refund-after-payout clawback — distinct feed from commerceOrders above,
   // which drops any row once paidOutAt is set (see
@@ -994,6 +1021,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commercePayoutsOwed,
     commercePayoutsOwedCount,
     commercePayoutsOwedTotalUsd,
+    oldestCommerceOrdersOwedAgeHours: oldestCommerceOrdersOwedAgeHoursValue,
     commerceOrdersRefundClawback,
     commerceOrdersRefundClawbackCount,
     commerceOrdersRefundClawbackTotalUsd,
@@ -1147,7 +1175,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   );
   const payoutTitle =
     digest.commercePayoutsOwedCount > 0
-      ? `Commerce payouts owed ($${digest.commercePayoutsOwedTotalUsd.toFixed(2)} · ${digest.commercePayoutsOwedCount} client${digest.commercePayoutsOwedCount === 1 ? "" : "s"})`
+      ? `Commerce payouts owed ($${digest.commercePayoutsOwedTotalUsd.toFixed(2)} · ${digest.commercePayoutsOwedCount} client${digest.commercePayoutsOwedCount === 1 ? "" : "s"}${digest.oldestCommerceOrdersOwedAgeHours !== null ? ` · oldest ${digest.oldestCommerceOrdersOwedAgeHours}h` : ""})`
       : "Commerce payouts owed (0)";
 
   const clawbackRows = digest.commerceOrdersRefundClawback.map(

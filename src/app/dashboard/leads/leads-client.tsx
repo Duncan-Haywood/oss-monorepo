@@ -1490,14 +1490,19 @@ export function LeadsClient({
                               Paid out {new Date(row.paidOutAt).toLocaleDateString()}
                             </span>
                           ) : (
-                            <button
-                              type="button"
-                              disabled={isPending}
-                              onClick={() => handleMarkCommerceOrderPaidOut(row.stripeSessionId)}
-                              className="shrink-0 rounded-lg border border-teal-700 px-2 py-0.5 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60"
-                            >
-                              Mark paid out
-                            </button>
+                            <span className="flex shrink-0 items-center gap-2">
+                              <span className="text-zinc-500">
+                                owed {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
+                              </span>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleMarkCommerceOrderPaidOut(row.stripeSessionId)}
+                                className="rounded-lg border border-teal-700 px-2 py-0.5 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60"
+                              >
+                                Mark paid out
+                              </button>
+                            </span>
                           )}
                         </li>
                       ))}

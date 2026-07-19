@@ -6,6 +6,7 @@ import {
   formatAbandonedAgeHours,
   formatUsd,
   isUnrepliedInquiryStatus,
+  oldestCommerceOrdersOwedAgeHours,
   oldestPaidNotLiveAgeHours,
 } from "./pipeline-health";
 import type { Lead, LeadPipelineStage } from "../leads/types";
@@ -1186,6 +1187,38 @@ describe("computePipelineHealth", () => {
     });
     expect(health.commerceOrdersRevenueUsd).toBe(0);
     expect(health.commerceOrdersCount).toBe(0);
+    expect(health.oldestCommerceOrdersOwedAgeHours).toBeNull();
+  });
+
+  it("anchors oldestCommerceOrdersOwedAgeHours to the oldest still-owed order, ignoring paid-out/refunded/disputed and no-createdAt rows", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        // Oldest still-owed row — anchors the signal.
+        { amountPaidUsd: 12.5, createdAt: new Date(NOW - 80 * HOUR_MS).toISOString() },
+        // Newer still-owed row — does not win over the older one.
+        { amountPaidUsd: 7.25, createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+        // Paid out — excluded from the owed set entirely, so its older createdAt must not anchor.
+        {
+          amountPaidUsd: 3.0,
+          createdAt: new Date(NOW - 999 * HOUR_MS).toISOString(),
+          paidOutAt: "2026-07-12T10:00:00.000Z",
+        },
+        // Refunded (never paid out) — also excluded, older createdAt must not anchor.
+        {
+          amountPaidUsd: 9.0,
+          createdAt: new Date(NOW - 999 * HOUR_MS).toISOString(),
+          refundedAt: "2026-07-12T10:00:00.000Z",
+        },
+        // No createdAt at all — must be skipped, not treated as age 0.
+        { amountPaidUsd: 1.0 },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.oldestCommerceOrdersOwedAgeHours).toBe(80);
   });
 
   it("defaults closed lead count to zero when none are closed", () => {
@@ -1283,6 +1316,44 @@ describe("deployHandoffAgeHours", () => {
     expect(
       deployHandoffAgeHours(new Date(NOW - 40 * HOUR_MS).toISOString(), NOW),
     ).toBe(health.oldestOpenHandoffAgeHours);
+  });
+});
+
+describe("oldestCommerceOrdersOwedAgeHours", () => {
+  it("returns null for an empty order set", () => {
+    expect(oldestCommerceOrdersOwedAgeHours([], NOW)).toBeNull();
+  });
+
+  it("returns null when every order is missing createdAt or fails to parse", () => {
+    expect(
+      oldestCommerceOrdersOwedAgeHours(
+        [{ createdAt: undefined }, { createdAt: "not-a-date" }],
+        NOW,
+      ),
+    ).toBeNull();
+  });
+
+  it("selects the maximum age across orders, skipping unparseable rows", () => {
+    expect(
+      oldestCommerceOrdersOwedAgeHours(
+        [
+          { createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+          { createdAt: new Date(NOW - 60 * HOUR_MS).toISOString() },
+          { createdAt: "not-a-date" },
+          { createdAt: undefined },
+        ],
+        NOW,
+      ),
+    ).toBe(60);
+  });
+
+  it("clamps a future createdAt to 0", () => {
+    expect(
+      oldestCommerceOrdersOwedAgeHours(
+        [{ createdAt: new Date(NOW + HOUR_MS).toISOString() }],
+        NOW,
+      ),
+    ).toBe(0);
   });
 });
 
