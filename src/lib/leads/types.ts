@@ -70,3 +70,17 @@ export interface Lead {
    */
   snoozedUntil?: string;
 }
+
+/**
+ * Stable app-owned id for a new SQLite-fallback lead row (see leads-sqlite-id-collision-guard).
+ * The prior generator was `lead_${Date.now()}` — millisecond-only, no random
+ * component, unlike newCommerceOrderId/newCommerceSkuId/newClientInquiryId.
+ * `leads.id` is a SQLite PRIMARY KEY, so two leads created in the same
+ * millisecond (a CSV bulk-import loop inserting many fresh rows synchronously,
+ * or two near-simultaneous Stripe webhook payment-stub creates) throw a
+ * constraint-violation error on INSERT rather than silently colliding —
+ * still a real outage on the money/CRM create paths, not just a data bug.
+ */
+export function newLeadId(): string {
+  return `lead_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}

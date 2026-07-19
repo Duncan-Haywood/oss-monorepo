@@ -70,3 +70,16 @@ export function sortOrdersNewestFirst<T extends { createdAt: string }>(orders: T
     a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0,
   );
 }
+
+/**
+ * Stable app-owned id for a new SQLite-fallback bundle order row (see
+ * leads-sqlite-id-collision-guard). The prior generator was
+ * `order_${Date.now()}` — millisecond-only, same collision-prone class as the
+ * pre-fix lead/inquiry id generators. `orders.id` is a SQLite PRIMARY KEY, so
+ * two orders inserted in the same millisecond (e.g. two Stripe webhook
+ * deliveries processed back-to-back) throw a constraint-violation error on
+ * INSERT instead of silently colliding.
+ */
+export function newOrderId(): string {
+  return `order_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
