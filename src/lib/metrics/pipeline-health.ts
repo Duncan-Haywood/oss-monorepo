@@ -560,18 +560,10 @@ export function computePipelineHealth(input: {
     }
   }
 
-  let oldestUnrepliedInquiryAgeHours: number | null = null;
-  for (const inquiry of unrepliedInquiries) {
-    const createdAtMs = Date.parse(inquiry.createdAt);
-    if (Number.isNaN(createdAtMs)) continue;
-    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
-    if (
-      oldestUnrepliedInquiryAgeHours === null ||
-      ageHours > oldestUnrepliedInquiryAgeHours
-    ) {
-      oldestUnrepliedInquiryAgeHours = Math.max(0, ageHours);
-    }
-  }
+  const oldestUnrepliedInquiryAgeHours = oldestUnrepliedInquiryAgeHoursFor(
+    unrepliedInquiries,
+    nowMs,
+  );
 
   const coldLeads = input.leads.filter((lead) => isColdLead(lead, nowMs));
   let oldestColdLeadAgeHours: number | null = null;
@@ -882,6 +874,32 @@ export function oldestCommerceOrdersOwedAgeHours(
   for (const order of orders) {
     if (order.createdAt === undefined) continue;
     const ageHours = deployHandoffAgeHours(order.createdAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  return oldest;
+}
+
+/**
+ * Age in whole hours since the oldest still-unreplied (new/read) inquiry's
+ * createdAt; null when `inquiries` is empty, none are unreplied, or every
+ * candidate's createdAt fails to parse. Callers should pass whatever
+ * inquiry set they already have on hand (computePipelineHealth uses this
+ * for the aggregate above; leads-client.tsx's "Website inquiries" panel
+ * reuses it directly so its own header staleness signal matches
+ * pipeline-health/digest instead of re-deriving the same Date-math a third
+ * time inline in JSX — same precedent as oldestCommerceOrdersOwedAgeHours).
+ */
+export function oldestUnrepliedInquiryAgeHoursFor(
+  inquiries: ReadonlyArray<{ status: ClientInquiryStatus; createdAt: string }>,
+  nowMs: number,
+): number | null {
+  let oldest: number | null = null;
+  for (const inquiry of inquiries) {
+    if (!isUnrepliedInquiryStatus(inquiry.status)) continue;
+    const ageHours = deployHandoffAgeHours(inquiry.createdAt, nowMs);
     if (ageHours === null) continue;
     if (oldest === null || ageHours > oldest) {
       oldest = ageHours;

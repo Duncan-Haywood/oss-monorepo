@@ -8,6 +8,7 @@ import {
   isUnrepliedInquiryStatus,
   oldestCommerceOrdersOwedAgeHours,
   oldestPaidNotLiveAgeHours,
+  oldestUnrepliedInquiryAgeHoursFor,
 } from "./pipeline-health";
 import type { Lead, LeadPipelineStage } from "../leads/types";
 import type { DeployHandoff } from "../deploy/types";
@@ -1351,6 +1352,47 @@ describe("oldestCommerceOrdersOwedAgeHours", () => {
     expect(
       oldestCommerceOrdersOwedAgeHours(
         [{ createdAt: new Date(NOW + HOUR_MS).toISOString() }],
+        NOW,
+      ),
+    ).toBe(0);
+  });
+});
+
+describe("oldestUnrepliedInquiryAgeHoursFor", () => {
+  it("returns null for an empty inquiry set", () => {
+    expect(oldestUnrepliedInquiryAgeHoursFor([], NOW)).toBeNull();
+  });
+
+  it("returns null when every inquiry is replied/archived (no unreplied candidates)", () => {
+    expect(
+      oldestUnrepliedInquiryAgeHoursFor(
+        [
+          { status: "replied", createdAt: new Date(NOW - 40 * HOUR_MS).toISOString() },
+          { status: "archived", createdAt: new Date(NOW - 90 * HOUR_MS).toISOString() },
+        ],
+        NOW,
+      ),
+    ).toBeNull();
+  });
+
+  it("selects the maximum age across new/read inquiries, skipping replied/archived and unparseable rows", () => {
+    expect(
+      oldestUnrepliedInquiryAgeHoursFor(
+        [
+          { status: "new", createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+          { status: "read", createdAt: new Date(NOW - 30 * HOUR_MS).toISOString() },
+          { status: "replied", createdAt: new Date(NOW - 200 * HOUR_MS).toISOString() },
+          { status: "new", createdAt: "not-a-date" },
+        ],
+        NOW,
+      ),
+    ).toBe(30);
+  });
+
+  it("clamps a future createdAt to 0", () => {
+    expect(
+      oldestUnrepliedInquiryAgeHoursFor(
+        [{ status: "new", createdAt: new Date(NOW + HOUR_MS).toISOString() }],
         NOW,
       ),
     ).toBe(0);
