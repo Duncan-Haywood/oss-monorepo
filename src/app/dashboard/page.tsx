@@ -31,6 +31,7 @@ import { assessProductionDomainEnvReadiness } from "@/lib/deploy/production-doma
 import { assessVercelTokenEnvReadiness } from "@/lib/deploy/vercel-token-env-readiness";
 import { assessVercelProjectIdEnvReadiness } from "@/lib/deploy/vercel-project-id-env-readiness";
 import { assessConvexUrlEnvReadiness } from "@/lib/convex/convex-url-env-readiness";
+import { assessConvexApiSecretEnvReadiness } from "@/lib/convex/convex-api-secret-env-readiness";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
@@ -45,6 +46,7 @@ import { ProductionDomainEnvBanner } from "@/components/dashboard/production-dom
 import { VercelTokenEnvBanner } from "@/components/dashboard/vercel-token-env-banner";
 import { VercelProjectIdEnvBanner } from "@/components/dashboard/vercel-project-id-env-banner";
 import { ConvexUrlEnvBanner } from "@/components/dashboard/convex-url-env-banner";
+import { ConvexApiSecretEnvBanner } from "@/components/dashboard/convex-api-secret-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -133,6 +135,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const vercelTokenEnv = assessVercelTokenEnvReadiness();
   const vercelProjectIdEnv = assessVercelProjectIdEnvReadiness();
   const convexUrlEnv = assessConvexUrlEnvReadiness();
+  const convexApiSecretEnv = assessConvexApiSecretEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -152,6 +155,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <VercelTokenEnvBanner readiness={vercelTokenEnv} />
         <VercelProjectIdEnvBanner readiness={vercelProjectIdEnv} />
         <ConvexUrlEnvBanner readiness={convexUrlEnv} />
+        <ConvexApiSecretEnvBanner readiness={convexApiSecretEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}

@@ -327,7 +327,15 @@ export default function ArchitectureDocPage() {
         example.convex.cloud|changeme placeholders are flagged;{" "}
         <code>resolveConvexDeploymentUrl</code> also gates <code>src/lib/db.ts</code> client
         init so whitespace-only cannot construct <code>ConvexHttpClient</code>. Local
-        single-process SQLite remains fine for solo demos. <code>siteUrl()</code>&apos;s precedence (
+        single-process SQLite remains fine for solo demos. Once{" "}
+        <code>NEXT_PUBLIC_CONVEX_URL</code> is configured, a second pink banner (
+        <code>assessConvexApiSecretEnvReadiness</code>,{" "}
+        <code>src/lib/convex/convex-api-secret-env-readiness.ts</code>) warns when the
+        server-only <code>CONVEX_API_SECRET</code> is unset — every{" "}
+        <code>convex/*.ts</code> public function requires it (see{" "}
+        <code>requireApiSecret</code> above), so a missing secret fails every Convex call
+        closed and silently falls back to SQLite with no other dashboard signal.{" "}
+        <code>siteUrl()</code>&apos;s precedence (
         <code>NEXT_PUBLIC_APP_URL</code> trimmed + trailing-slash-stripped &gt;{" "}
         <code>VERCEL_URL</code> &gt; localhost default) and the per-category JSON-LD{" "}
         <code>@type</code> mapping have direct Vitest coverage in{" "}
