@@ -298,13 +298,19 @@ describe("replyToInquiryAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("surfaces not-found when the mark returns null", async () => {
+  it("surfaces not-found/archived-race when the mark returns null", async () => {
+    // Null covers both a genuinely missing row and recordClientInquiryReply's
+    // own archived-race guard (inquiry-reply-archive-race-guard) — the
+    // action's inquiryCanReceiveReply check above ran against a stale read,
+    // so a concurrent archive between that read and this call also surfaces
+    // here, not only a missing inquiry.
     recordClientInquiryReply.mockResolvedValue(null);
     const { replyToInquiryAction } = await import("./actions");
     const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
-      error: "Inquiry not found",
+      error:
+        "Inquiry not found or was archived after this page loaded — refresh and check its status",
     });
     expect(sendInquiryReply).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();

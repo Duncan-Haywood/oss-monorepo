@@ -2319,6 +2319,13 @@ export async function getClientInquiryById(
  * replyToInquiryAction so a Convex mutation failure does not silently leave
  * the replied mark only in instance-local SQLite while unrepliedInquiryCount
  * reads Convex-first (duplicate-reply risk). Callers must mark BEFORE Resend.
+ *
+ * Re-checks status !== "archived" atomically against the row it just read,
+ * mirroring convex/inquiries.ts recordReply — replyToInquiryAction's
+ * inquiryCanReceiveReply gate runs against a stale read from moments earlier
+ * and a concurrent archive can land in that window (see
+ * inquiry-reply-archive-race-guard). Returns null on that race the same way
+ * it already does for a missing row.
  */
 export async function recordClientInquiryReply(
   inquiryId: string,
@@ -2352,7 +2359,7 @@ export async function recordClientInquiryReply(
   const existing = db
     .prepare("SELECT * FROM client_inquiries WHERE id = ?")
     .get(inquiryId) as SqliteClientInquiryRow | undefined;
-  if (!existing) return null;
+  if (!existing || existing.status === "archived") return null;
 
   const now = new Date().toISOString();
   db.prepare(

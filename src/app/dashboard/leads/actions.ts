@@ -482,7 +482,11 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
 
     // Durably mark replied BEFORE Resend (persist-then-notify) so a Convex
     // mutation failure never lets a real visitor reply land unrecorded —
-    // see INQUIRY_REPLY_CONVEX_PRIMARY.
+    // see INQUIRY_REPLY_CONVEX_PRIMARY. recordClientInquiryReply also
+    // atomically re-checks status !== "archived" on the row it patches
+    // (inquiry-reply-archive-race-guard) — the inquiryCanReceiveReply check
+    // above ran against a stale read, so null here can also mean a
+    // concurrent archive landed after that read, not only a missing row.
     let updated;
     try {
       updated = await recordClientInquiryReply(
@@ -501,7 +505,11 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
       throw error;
     }
     if (!updated) {
-      return { success: false as const, error: "Inquiry not found" };
+      return {
+        success: false as const,
+        error:
+          "Inquiry not found or was archived after this page loaded — refresh and check its status",
+      };
     }
 
     const sent = await sendInquiryReply({
