@@ -38,7 +38,11 @@ import {
   oldestCommerceCatalogCandidateAgeHours,
 } from "@/lib/commerce/catalog";
 import { listClientVoicePacksDue, oldestClientVoicePacksDueAgeHours } from "@/lib/voice/faq-pack";
-import { isColdLead, isFollowUpDue } from "@/lib/email/outreach-followups";
+import {
+  isColdLead,
+  isFollowUpDue,
+  oldestLastOutreachAgeHours,
+} from "@/lib/email/outreach-followups";
 import { isLeadSnoozed } from "@/lib/leads/snooze";
 import {
   listMarketingPacksDue,
@@ -541,28 +545,10 @@ export function computePipelineHealth(input: {
   );
 
   const coldLeads = input.leads.filter((lead) => isColdLead(lead, nowMs));
-  let oldestColdLeadAgeHours: number | null = null;
-  for (const lead of coldLeads) {
-    if (!lead.lastOutreachAt) continue;
-    const lastOutreachMs = Date.parse(lead.lastOutreachAt);
-    if (Number.isNaN(lastOutreachMs)) continue;
-    const ageHours = Math.floor((nowMs - lastOutreachMs) / HOUR_MS);
-    if (oldestColdLeadAgeHours === null || ageHours > oldestColdLeadAgeHours) {
-      oldestColdLeadAgeHours = Math.max(0, ageHours);
-    }
-  }
+  const oldestColdLeadAgeHours = oldestLastOutreachAgeHours(coldLeads, nowMs);
 
   const followUpsDue = input.leads.filter((lead) => isFollowUpDue(lead, nowMs));
-  let oldestFollowUpDueAgeHours: number | null = null;
-  for (const lead of followUpsDue) {
-    if (!lead.lastOutreachAt) continue;
-    const lastOutreachMs = Date.parse(lead.lastOutreachAt);
-    if (Number.isNaN(lastOutreachMs)) continue;
-    const ageHours = Math.floor((nowMs - lastOutreachMs) / HOUR_MS);
-    if (oldestFollowUpDueAgeHours === null || ageHours > oldestFollowUpDueAgeHours) {
-      oldestFollowUpDueAgeHours = Math.max(0, ageHours);
-    }
-  }
+  const oldestFollowUpDueAgeHours = oldestLastOutreachAgeHours(followUpsDue, nowMs);
 
   const snoozedLeads = input.leads.filter((lead) =>
     isLeadSnoozed(lead.snoozedUntil, nowMs),

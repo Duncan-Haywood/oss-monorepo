@@ -24,7 +24,11 @@ import type { CheckoutSessionRecord } from "../checkout/types";
 import type { DeployHandoff, DeployHandoffStatus } from "../deploy/types";
 import type { Lead, LeadPipelineStage } from "../leads/types";
 import { rankLeadsForOutreach, type LeadQualityBand } from "../leads/quality-score";
-import { listFollowUpsDue, listColdLeads } from "../email/outreach-followups";
+import {
+  listFollowUpsDue,
+  listColdLeads,
+  oldestLastOutreachAgeHours,
+} from "../email/outreach-followups";
 import { escapeHtmlForEmail } from "../inquiries/reply";
 import {
   leadSlugsEligibleForCommerceAbandonedRecovery,
@@ -531,17 +535,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
 
   const followUpsDueAll = listFollowUpsDue(leads, nowMs);
   const followUpsDueCount = followUpsDueAll.length;
-  const oldestFollowUpDueAgeHours: number | null = (() => {
-    if (followUpsDueAll.length === 0) return null;
-    let oldestMs = Infinity;
-    for (const lead of followUpsDueAll) {
-      if (!lead.lastOutreachAt) continue;
-      const parsed = Date.parse(lead.lastOutreachAt);
-      if (Number.isNaN(parsed)) continue;
-      if (parsed < oldestMs) oldestMs = parsed;
-    }
-    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
-  })();
+  const oldestFollowUpDueAgeHours = oldestLastOutreachAgeHours(followUpsDueAll, nowMs);
   const followUpsDue: DigestFollowUpLead[] = followUpsDueAll
     .slice(0, FOLLOW_UPS_LIMIT)
     .map((lead) => ({
@@ -904,17 +898,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
 
   const coldLeads = listColdLeads(leads, nowMs);
   const coldLeadCount = coldLeads.length;
-  const oldestColdLeadAgeHours: number | null = (() => {
-    if (coldLeads.length === 0) return null;
-    let oldestMs = Infinity;
-    for (const lead of coldLeads) {
-      if (!lead.lastOutreachAt) continue;
-      const parsed = Date.parse(lead.lastOutreachAt);
-      if (Number.isNaN(parsed)) continue;
-      if (parsed < oldestMs) oldestMs = parsed;
-    }
-    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
-  })();
+  const oldestColdLeadAgeHours = oldestLastOutreachAgeHours(coldLeads, nowMs);
   const closedLeadCount = leads.filter((lead) => lead.stage === "closed").length;
 
   const snoozedLeads = leads.filter((lead) =>

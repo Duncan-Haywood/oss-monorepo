@@ -93,6 +93,7 @@ import {
   listFollowUpsDue,
   nextFollowUpStep,
   normalizeOutreachStep,
+  oldestLastOutreachAgeHours,
 } from "@/lib/email/outreach-followups";
 import {
   coldLeadDispositionLabel,
@@ -982,6 +983,13 @@ export function LeadsClient({
   // Snapshot clock from mount — server re-checks cadence on send.
   const followUpsDue = listFollowUpsDue(leads, nowMs);
   const coldLeads = listColdLeads(leads, nowMs);
+  // Same oldestLastOutreachAgeHours pipeline-health/daily-digest already use for
+  // these exact due queues — these two panels previously had zero staleness
+  // signal at all, unlike every sibling due-queue panel once the
+  // staleness-signal series closed their gaps (see
+  // followups-due-panel-staleness-signal).
+  const oldestFollowUpDueHours = oldestLastOutreachAgeHours(followUpsDue, nowMs);
+  const oldestColdLeadHours = oldestLastOutreachAgeHours(coldLeads, nowMs);
   const abandonedCheckoutsDue = listAbandonedCheckoutsDue(checkoutSessions, nowMs);
   // Same oldestCheckoutSessionAgeHours pipeline-health/daily-digest already use for
   // this exact due queue — this panel previously had zero staleness signal at all,
@@ -1802,7 +1810,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Follow-ups due
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({followUpsDue.length})
+                ({followUpsDue.length}
+                {oldestFollowUpDueHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestFollowUpDueHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1861,7 +1873,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Cold leads
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({coldLeads.length})
+                ({coldLeads.length}
+                {oldestColdLeadHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestColdLeadHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
