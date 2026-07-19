@@ -49,6 +49,7 @@ import {
   listCommerceCatalogsMissing,
   listCommerceCatalogsUnsynced,
   newCommerceSkuId,
+  oldestCommerceCatalogCandidateAgeHours,
   sumCommerceOrdersByLeadOrderCount,
   summarizeCommerceOrdersByLead,
 } from "@/lib/commerce";
@@ -983,6 +984,11 @@ export function LeadsClient({
     orders,
     commerceCatalogs,
   );
+  const oldestCommerceCatalogsMissingHours = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsMissing,
+    orders,
+    nowMs,
+  );
   const commerceCatalogsUnsynced = listCommerceCatalogsUnsynced(
     leads,
     orders,
@@ -1009,7 +1015,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Commerce catalogs missing
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({commerceCatalogsMissing.length})
+                ({commerceCatalogsMissing.length}
+                {oldestCommerceCatalogsMissingHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestCommerceCatalogsMissingHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1025,30 +1035,42 @@ export function LeadsClient({
             Request order notifies the inquiry inbox.
           </p>
           <ul className="mt-4 space-y-3">
-            {commerceCatalogsMissing.map((lead) => (
-              <li
-                key={lead.slug}
-                className="rounded-xl border border-orange-100 bg-white px-4 py-3 text-sm"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-zinc-900">
-                      {lead.businessName}{" "}
-                      <span className="font-normal text-zinc-500">({lead.slug})</span>
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-600">{lead.stage} · Commerce add-on</p>
+            {commerceCatalogsMissing.map((lead) => {
+              const catalogMissingAgeHours = oldestCommerceCatalogCandidateAgeHours(
+                [{ slug: lead.slug }],
+                orders,
+                nowMs,
+              );
+              return (
+                <li
+                  key={lead.slug}
+                  className="rounded-xl border border-orange-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {lead.businessName}{" "}
+                        <span className="font-normal text-zinc-500">({lead.slug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {lead.stage} · Commerce add-on
+                        {catalogMissingAgeHours !== null ? (
+                          <> · due {formatAbandonedAgeHours(catalogMissingAgeHours)} ago</>
+                        ) : null}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => openCommerceEditor(lead)}
+                      className="rounded-lg bg-orange-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-900 disabled:opacity-60"
+                    >
+                      Add catalog
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    disabled={isPending}
-                    onClick={() => openCommerceEditor(lead)}
-                    className="rounded-lg bg-orange-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-900 disabled:opacity-60"
-                  >
-                    Add catalog
-                  </button>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
