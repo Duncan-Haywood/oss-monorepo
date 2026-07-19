@@ -962,9 +962,10 @@ export async function recordLeadPayment(
 
   // Insert order
   const orderId = newOrderId();
+  const createdAt = new Date().toISOString();
   db.prepare(`
-    INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'paid')
+    INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, status, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'paid', ?)
   `).run(
     orderId,
     leadRow.id,
@@ -972,7 +973,8 @@ export async function recordLeadPayment(
     params.stripeCustomerId ?? null,
     params.tier,
     params.commerceAddon ? 1 : 0,
-    params.amountTotal
+    params.amountTotal,
+    createdAt
   );
   return { alreadyRecorded: false };
 }
