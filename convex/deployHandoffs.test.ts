@@ -1,9 +1,18 @@
 import { convexTest } from "convex-test";
-import { expect, test } from "vitest";
+import { afterEach, beforeEach, expect, test } from "vitest";
 import { api } from "./_generated/api";
 import schema from "./schema";
 
 const modules = import.meta.glob("./**/*.ts");
+const TEST_API_SECRET = "test-convex-api-secret";
+
+beforeEach(() => {
+  process.env.CONVEX_API_SECRET = TEST_API_SECRET;
+});
+
+afterEach(() => {
+  delete process.env.CONVEX_API_SECRET;
+});
 
 interface DeployHandoffRow {
   id: string;
@@ -31,6 +40,7 @@ function upsertArgs(overrides: Partial<Record<string, unknown>> = {}) {
     notes: [],
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
     ...overrides,
   };
 }
@@ -48,7 +58,7 @@ test("upsert inserts a new handoff, then replaces (keeping handoffId + createdAt
     }),
   );
 
-  const rows = await t.query(api.deployHandoffs.list, {});
+  const rows = await t.query(api.deployHandoffs.list, { apiSecret: TEST_API_SECRET });
   expect(rows).toHaveLength(1);
   expect(rows[0].id).toBe("handoff_1");
   expect(rows[0].createdAt).toBe("2026-01-01T00:00:00.000Z");
@@ -67,17 +77,63 @@ test("upsert replace clears an omitted optional field (matches SQLite NULL overw
     upsertArgs({ customDomain: undefined, vercelProjectId: undefined, updatedAt: "2026-01-02T00:00:00.000Z" }),
   );
 
-  const found = await t.query(api.deployHandoffs.getByLeadSlug, { leadSlug: "demo-cafe" });
+  const found = await t.query(api.deployHandoffs.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
   expect(found?.customDomain).toBeUndefined();
   expect(found?.vercelProjectId).toBeUndefined();
+});
+
+test("upsert never persists apiSecret onto the row", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs());
+
+  const row = await t.run(async (ctx) =>
+    ctx.db
+      .query("deployHandoffs")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", "demo-cafe"))
+      .unique(),
+  );
+  expect(row).not.toBeNull();
+  expect(row).not.toHaveProperty("apiSecret");
+});
+
+test("upsert rejects a missing/wrong apiSecret and never creates a row for the attempted lead", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.deployHandoffs.upsert, upsertArgs({ apiSecret: "wrong-secret" })),
+  ).rejects.toThrow(/Unauthorized/);
+
+  const row = await t.run(async (ctx) =>
+    ctx.db
+      .query("deployHandoffs")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", "demo-cafe"))
+      .unique(),
+  );
+  expect(row).toBeNull();
+});
+
+test("upsert and list reject any caller when CONVEX_API_SECRET is unset, even a plausible-looking guess", async () => {
+  delete process.env.CONVEX_API_SECRET;
+  const t = convexTest(schema, modules);
+  await expect(t.mutation(api.deployHandoffs.upsert, upsertArgs())).rejects.toThrow(/Unauthorized/);
+  await expect(
+    t.query(api.deployHandoffs.list, { apiSecret: TEST_API_SECRET }),
+  ).rejects.toThrow(/Unauthorized/);
 });
 
 test("getByLeadSlug returns null for an unknown lead, and the stored handoff otherwise", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.deployHandoffs.upsert, upsertArgs());
 
-  await expect(t.query(api.deployHandoffs.getByLeadSlug, { leadSlug: "no-such-lead" })).resolves.toBeNull();
-  const found = await t.query(api.deployHandoffs.getByLeadSlug, { leadSlug: "demo-cafe" });
+  await expect(
+    t.query(api.deployHandoffs.getByLeadSlug, { leadSlug: "no-such-lead", apiSecret: TEST_API_SECRET }),
+  ).resolves.toBeNull();
+  const found = await t.query(api.deployHandoffs.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
   expect(found?.leadSlug).toBe("demo-cafe");
 });
 
@@ -87,7 +143,7 @@ test("list keeps one row per lead and sorts newest-createdAt-first", async () =>
   await t.mutation(api.deployHandoffs.upsert, upsertArgs({ leadSlug: "lead-b", handoffId: "h-b", createdAt: "2026-01-03T00:00:00.000Z" }));
   await t.mutation(api.deployHandoffs.upsert, upsertArgs({ leadSlug: "lead-c", handoffId: "h-c", createdAt: "2026-01-02T00:00:00.000Z" }));
 
-  const rows: DeployHandoffRow[] = await t.query(api.deployHandoffs.list, {});
+  const rows: DeployHandoffRow[] = await t.query(api.deployHandoffs.list, { apiSecret: TEST_API_SECRET });
   expect(rows.map((r) => r.leadSlug)).toEqual(["lead-b", "lead-c", "lead-a"]);
 });
 
@@ -100,11 +156,19 @@ test("getByCustomDomain resolves a lead by its stored custom domain, ignores emp
   );
 
   await expect(
-    t.query(api.deployHandoffs.getByCustomDomain, { customDomain: "client.example.com" }),
+    t.query(api.deployHandoffs.getByCustomDomain, {
+      customDomain: "client.example.com",
+      apiSecret: TEST_API_SECRET,
+    }),
   ).resolves.toEqual({ leadSlug: "demo-cafe" });
-  await expect(t.query(api.deployHandoffs.getByCustomDomain, { customDomain: "" })).resolves.toBeNull();
   await expect(
-    t.query(api.deployHandoffs.getByCustomDomain, { customDomain: "unrelated.example.com" }),
+    t.query(api.deployHandoffs.getByCustomDomain, { customDomain: "", apiSecret: TEST_API_SECRET }),
+  ).resolves.toBeNull();
+  await expect(
+    t.query(api.deployHandoffs.getByCustomDomain, {
+      customDomain: "unrelated.example.com",
+      apiSecret: TEST_API_SECRET,
+    }),
   ).resolves.toBeNull();
 });
 
@@ -117,6 +181,7 @@ test("updateStatus never downgrades an already-progressed status (live survives 
     status: "awaiting_dns",
     extraNotes: ["DNS handoff email sent"],
     updatedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
   });
 
   expect(result?.status).toBe("live");
@@ -132,6 +197,7 @@ test("updateStatus advances a lower-ranked status forward (Mark live)", async ()
     status: "live",
     extraNotes: [],
     updatedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
   });
 
   expect(result?.status).toBe("live");
@@ -145,8 +211,30 @@ test("updateStatus returns null for an unknown lead", async () => {
       status: "live",
       extraNotes: [],
       updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
     }),
   ).resolves.toBeNull();
+});
+
+test("updateStatus rejects a missing/wrong apiSecret and leaves the status unchanged", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs({ status: "awaiting_dns" }));
+
+  await expect(
+    t.mutation(api.deployHandoffs.updateStatus, {
+      leadSlug: "demo-cafe",
+      status: "live",
+      extraNotes: [],
+      updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: "wrong-secret",
+    }),
+  ).rejects.toThrow(/Unauthorized/);
+
+  const found = await t.query(api.deployHandoffs.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(found?.status).toBe("awaiting_dns");
 });
 
 test("updateVercelProject sets a dedicated project id, clears it on an empty/whitespace string, and returns null for an unknown lead", async () => {
@@ -157,6 +245,7 @@ test("updateVercelProject sets a dedicated project id, clears it on an empty/whi
     leadSlug: "demo-cafe",
     vercelProjectId: "prj_123",
     updatedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
   });
   expect(set?.vercelProjectId).toBe("prj_123");
 
@@ -164,6 +253,7 @@ test("updateVercelProject sets a dedicated project id, clears it on an empty/whi
     leadSlug: "demo-cafe",
     vercelProjectId: "   ",
     updatedAt: "2026-01-03T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
   });
   expect(cleared?.vercelProjectId).toBeUndefined();
 
@@ -172,8 +262,29 @@ test("updateVercelProject sets a dedicated project id, clears it on an empty/whi
       leadSlug: "no-such-lead",
       vercelProjectId: "prj_x",
       updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
     }),
   ).resolves.toBeNull();
+});
+
+test("updateVercelProject rejects a missing/wrong apiSecret and leaves the project unchanged", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs({ vercelProjectId: "prj_original" }));
+
+  await expect(
+    t.mutation(api.deployHandoffs.updateVercelProject, {
+      leadSlug: "demo-cafe",
+      vercelProjectId: "prj_attacker",
+      updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: "wrong-secret",
+    }),
+  ).rejects.toThrow(/Unauthorized/);
+
+  const found = await t.query(api.deployHandoffs.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(found?.vercelProjectId).toBe("prj_original");
 });
 
 test("updateCustomDomain normalizes a pasted URL down to a bare lowercase hostname, clears on empty string, and returns null for an unknown lead", async () => {
@@ -184,6 +295,7 @@ test("updateCustomDomain normalizes a pasted URL down to a bare lowercase hostna
     leadSlug: "demo-cafe",
     customDomain: "HTTPS://Client.Example.com/some/path.",
     updatedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
   });
   expect(set?.customDomain).toBe("client.example.com");
 
@@ -191,6 +303,7 @@ test("updateCustomDomain normalizes a pasted URL down to a bare lowercase hostna
     leadSlug: "demo-cafe",
     customDomain: "",
     updatedAt: "2026-01-03T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
   });
   expect(cleared?.customDomain).toBeUndefined();
 
@@ -199,6 +312,27 @@ test("updateCustomDomain normalizes a pasted URL down to a bare lowercase hostna
       leadSlug: "no-such-lead",
       customDomain: "client.example.com",
       updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
     }),
   ).resolves.toBeNull();
+});
+
+test("updateCustomDomain rejects a missing/wrong apiSecret and leaves the domain unchanged", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs({ customDomain: "original.example.com" }));
+
+  await expect(
+    t.mutation(api.deployHandoffs.updateCustomDomain, {
+      leadSlug: "demo-cafe",
+      customDomain: "attacker.example.com",
+      updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: "wrong-secret",
+    }),
+  ).rejects.toThrow(/Unauthorized/);
+
+  const found = await t.query(api.deployHandoffs.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(found?.customDomain).toBe("original.example.com");
 });

@@ -2,6 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { preferAdvancedHandoffStatus as preferAdvancedHandoffStatusCanonical } from "../src/lib/deploy/handoff-preserve";
 import type { DeployHandoffStatus } from "../src/lib/deploy/types";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const dnsInstruction = v.object({
   type: v.string(),
@@ -104,48 +105,59 @@ export const upsert = mutation({
     notes: v.array(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    // Destructure apiSecret out before persisting — schema.ts's deployHandoffs
+    // table is a strict defineTable that rejects unlisted fields, and the
+    // previous plain `ctx.db.insert("deployHandoffs", args)` would otherwise
+    // leak apiSecret into the row as an extra column (same gotcha as
+    // orders.createOrder / leads.upsertLead / commerceOrders.insert /
+    // checkoutSessions.create).
+    const { apiSecret, ...handoff } = args;
+    void apiSecret;
     const existing = await ctx.db
       .query("deployHandoffs")
-      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", handoff.leadSlug))
       .unique();
 
     if (existing) {
       // replace (not patch) so omitted optionals clear — matches SQLite NULL overwrite.
       await ctx.db.replace(existing._id, {
         handoffId: existing.handoffId,
-        leadSlug: args.leadSlug,
-        businessName: args.businessName,
-        tier: args.tier,
-        commerceAddon: args.commerceAddon,
-        stripeSessionId: args.stripeSessionId,
-        customerEmail: args.customerEmail,
-        previewUrl: args.previewUrl,
-        suggestedHost: args.suggestedHost,
-        customDomain: args.customDomain,
-        contactFormUrl: args.contactFormUrl,
-        dnsInstructions: args.dnsInstructions,
-        status: args.status,
-        vercelDomainStatus: args.vercelDomainStatus,
-        vercelProjectId: args.vercelProjectId,
-        notes: args.notes,
+        leadSlug: handoff.leadSlug,
+        businessName: handoff.businessName,
+        tier: handoff.tier,
+        commerceAddon: handoff.commerceAddon,
+        stripeSessionId: handoff.stripeSessionId,
+        customerEmail: handoff.customerEmail,
+        previewUrl: handoff.previewUrl,
+        suggestedHost: handoff.suggestedHost,
+        customDomain: handoff.customDomain,
+        contactFormUrl: handoff.contactFormUrl,
+        dnsInstructions: handoff.dnsInstructions,
+        status: handoff.status,
+        vercelDomainStatus: handoff.vercelDomainStatus,
+        vercelProjectId: handoff.vercelProjectId,
+        notes: handoff.notes,
         createdAt: existing.createdAt,
-        updatedAt: args.updatedAt,
+        updatedAt: handoff.updatedAt,
       });
       return null;
     }
 
-    await ctx.db.insert("deployHandoffs", args);
+    await ctx.db.insert("deployHandoffs", handoff);
     return null;
   },
 });
 
 export const getByLeadSlug = query({
-  args: { leadSlug: v.string() },
+  args: { leadSlug: v.string(), apiSecret: v.string() },
   returns: v.union(handoffReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("deployHandoffs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -156,9 +168,10 @@ export const getByLeadSlug = query({
 });
 
 export const list = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(handoffReturn),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     // Bounded by paid leads — collect + sort is fine (same as suppressions list).
     const rows = await ctx.db.query("deployHandoffs").collect();
     return rows
@@ -173,9 +186,10 @@ export const list = query({
  * domains) never match a lookup since real hosts are non-empty.
  */
 export const getByCustomDomain = query({
-  args: { customDomain: v.string() },
+  args: { customDomain: v.string(), apiSecret: v.string() },
   returns: v.union(v.object({ leadSlug: v.string() }), v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     if (!args.customDomain) return null;
     // .first() (not .unique()) — customDomain has no uniqueness constraint at
     // the DB level, and a rare operator collision must not throw for every
@@ -221,9 +235,11 @@ export const updateStatus = mutation({
     status: v.string(),
     extraNotes: v.array(v.string()),
     updatedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(handoffReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("deployHandoffs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -255,9 +271,11 @@ export const updateVercelProject = mutation({
     /** Empty string clears the dedicated project (falls back to shared env). */
     vercelProjectId: v.string(),
     updatedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(handoffReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("deployHandoffs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -301,9 +319,11 @@ export const updateCustomDomain = mutation({
     /** Empty string clears the custom domain (falls back to suggestedHost). */
     customDomain: v.string(),
     updatedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(handoffReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("deployHandoffs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
