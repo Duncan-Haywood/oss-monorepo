@@ -1539,11 +1539,12 @@ export function LeadsClient({
                     </p>
                     <p className="mt-1 text-xs text-zinc-600">
                       {session.tier} plan · started{" "}
-                      {new Date(session.createdAt).toLocaleString()}
-                      {sessionAgeHours !== null ? ` · due ${sessionAgeHours}h ago` : null}
+                      {formatAbandonedAgeHours(sessionAgeHours)} ago
                       {session.customerEmail ? ` · ${session.customerEmail}` : null}
                       {session.recoverySentAt
-                        ? ` · last nudged ${new Date(session.recoverySentAt).toLocaleDateString()}`
+                        ? ` · last nudged ${formatAbandonedAgeHours(
+                            deployHandoffAgeHours(session.recoverySentAt, nowMs),
+                          )} ago`
                         : null}
                     </p>
                   </div>
@@ -1609,11 +1610,12 @@ export function LeadsClient({
                         <span className="font-normal text-zinc-500">({session.leadSlug})</span>
                       </p>
                       <p className="mt-1 text-xs text-zinc-600">
-                        {skuName} · started {new Date(session.createdAt).toLocaleString()}
-                        {sessionAgeHours !== null ? ` · due ${sessionAgeHours}h ago` : null}
+                        {skuName} · started {formatAbandonedAgeHours(sessionAgeHours)} ago
                         {session.customerEmail ? ` · ${session.customerEmail}` : " · no email"}
                         {session.recoverySentAt
-                          ? ` · last nudged ${new Date(session.recoverySentAt).toLocaleDateString()}`
+                          ? ` · last nudged ${formatAbandonedAgeHours(
+                              deployHandoffAgeHours(session.recoverySentAt, nowMs),
+                            )} ago`
                           : null}
                       </p>
                     </div>
@@ -1679,14 +1681,17 @@ export function LeadsClient({
                     </p>
                     <p className="mt-1 text-xs text-zinc-600">
                       {summary.orderCount} order{summary.orderCount === 1 ? "" : "s"} · latest{" "}
-                      {new Date(summary.latestCreatedAt).toLocaleString()}
+                      {formatAbandonedAgeHours(
+                        deployHandoffAgeHours(summary.latestCreatedAt, nowMs),
+                      )}{" "}
+                      ago
                     </p>
                     <ul className="mt-2 space-y-1.5 text-xs text-zinc-600">
                       {summary.orders.slice(0, 5).map((row) => (
                         <li key={row.stripeSessionId} className="flex items-center justify-between gap-2">
                           <span className={row.paidOutAt ? "text-zinc-400 line-through" : undefined}>
                             {formatUsd(row.amountPaidUsd)} · {row.skuName} ·{" "}
-                            {new Date(row.createdAt).toLocaleDateString()}
+                            {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
                           </span>
                           {row.refundedAt ? (
                             <span className="shrink-0 font-semibold text-red-700">
@@ -1702,7 +1707,8 @@ export function LeadsClient({
                             </span>
                           ) : row.paidOutAt ? (
                             <span className="shrink-0 text-teal-700">
-                              Paid out {new Date(row.paidOutAt).toLocaleDateString()}
+                              Paid out{" "}
+                              {formatAbandonedAgeHours(deployHandoffAgeHours(row.paidOutAt, nowMs))} ago
                             </span>
                           ) : (
                             <span className="flex shrink-0 items-center gap-2">
@@ -1846,7 +1852,9 @@ export function LeadsClient({
                         Next: Email {next ?? "?"} · last step{" "}
                         {normalizeOutreachStep(lead.outreachStep) || "—"}
                         {lead.lastOutreachAt
-                          ? ` · last sent ${new Date(lead.lastOutreachAt).toLocaleDateString()}`
+                          ? ` · last sent ${formatAbandonedAgeHours(
+                              deployHandoffAgeHours(lead.lastOutreachAt, nowMs),
+                            )} ago`
                           : " · no timestamp (treat as due)"}
                         {lead.email ? ` · ${lead.email}` : null}
                       </p>
@@ -1917,7 +1925,9 @@ export function LeadsClient({
                     <p className="mt-1 text-xs text-zinc-600">
                       Step {normalizeOutreachStep(lead.outreachStep) || 0}/3
                       {lead.lastOutreachAt
-                        ? ` · last sent ${new Date(lead.lastOutreachAt).toLocaleDateString()}`
+                        ? ` · last sent ${formatAbandonedAgeHours(
+                            deployHandoffAgeHours(lead.lastOutreachAt, nowMs),
+                          )} ago`
                         : null}
                       {lead.email ? ` · ${lead.email}` : null}
                     </p>
@@ -2358,7 +2368,9 @@ export function LeadsClient({
                         <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-800">
                           Your reply
                           {inq.repliedAt
-                            ? ` · ${new Date(inq.repliedAt).toLocaleString()}`
+                            ? ` · ${formatAbandonedAgeHours(
+                                deployHandoffAgeHours(inq.repliedAt, nowMs),
+                              )} ago`
                             : null}
                         </p>
                         <p className="mt-1 whitespace-pre-wrap text-xs text-zinc-800">
@@ -2367,17 +2379,8 @@ export function LeadsClient({
                       </div>
                     ) : null}
                     <p className="mt-2 text-[11px] text-zinc-400">
-                      {new Date(inq.createdAt).toLocaleString()}
-                      {isUnrepliedInquiryStatus(inq.status) ? (
-                        <>
-                          {" "}
-                          · received{" "}
-                          {formatAbandonedAgeHours(
-                            deployHandoffAgeHours(inq.createdAt, nowMs),
-                          )}{" "}
-                          ago
-                        </>
-                      ) : null}
+                      {formatAbandonedAgeHours(deployHandoffAgeHours(inq.createdAt, nowMs))} ago
+                      {isUnrepliedInquiryStatus(inq.status) ? " · unreplied" : null}
                       {inq.source ? (
                         <>
                           {" "}
@@ -2991,14 +2994,21 @@ export function LeadsClient({
                         </p>
                         {lead.lastOutreachAt ? (
                           <p className="mt-0.5 text-[11px] text-zinc-400">
-                            {new Date(lead.lastOutreachAt).toLocaleDateString()}
+                            {formatAbandonedAgeHours(
+                              deployHandoffAgeHours(lead.lastOutreachAt, nowMs),
+                            )}{" "}
+                            ago
                           </p>
                         ) : (
                           <p className="mt-0.5 text-[11px] text-zinc-400">No sends yet</p>
                         )}
                         {lead.lastPreviewOpenAt ? (
                           <p className="mt-0.5 text-[11px] text-sky-700">
-                            Preview {new Date(lead.lastPreviewOpenAt).toLocaleDateString()}
+                            Preview{" "}
+                            {formatAbandonedAgeHours(
+                              deployHandoffAgeHours(lead.lastPreviewOpenAt, nowMs),
+                            )}{" "}
+                            ago
                           </p>
                         ) : null}
                       </td>
