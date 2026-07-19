@@ -10,7 +10,7 @@ const steps = [
   {
     title: "Preview before you buy",
     description:
-      "Receive a link to your pre-built website. Talk to our AI assistant for tweaks, or buy as-is — no sales calls.",
+      "Receive a link to your pre-built website. Email us for tweaks, or buy as-is — no sales calls.",
   },
   {
     title: "Go live in days",
@@ -214,8 +214,11 @@ export default function Home() {
           ))}
         </div>
         <p className="mt-8 text-center text-xs text-zinc-500">
-          Sold by {brand.legalEntity}. Call our AI assistant to compare tiers — no human sales
-          calls.
+          Sold by {brand.legalEntity}. Questions on tiers? Email{" "}
+          <a href={`mailto:${brand.supportEmail}`} className="underline">
+            {brand.supportEmail}
+          </a>{" "}
+          — no human sales calls.
         </p>
       </section>
 
@@ -284,8 +287,11 @@ export default function Home() {
           <div>
             <dt className="font-semibold text-zinc-900">Is there a sales call?</dt>
             <dd className="mt-2 text-sm leading-6 text-zinc-600">
-              No. Self-serve checkout, optional AI assistant for questions. Sold by{" "}
-              {brand.legalEntity}.
+              No. Self-serve checkout — email{" "}
+              <a href={`mailto:${brand.supportEmail}`} className="underline">
+                {brand.supportEmail}
+              </a>{" "}
+              with questions. Sold by {brand.legalEntity}.
             </dd>
           </div>
         </dl>
