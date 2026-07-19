@@ -372,12 +372,46 @@ export default function ArchitectureDocPage() {
         <code>Referrer-Policy: strict-origin-when-cross-origin</code>,{" "}
         <code>Permissions-Policy</code> denying camera/microphone/geolocation/browsing-topics, and
         a two-year <code>Strict-Transport-Security</code>. Deliberately excludes{" "}
-        <code>Content-Security-Policy</code>: a CSP strict enough to matter needs a per-request
-        nonce, and nonce-based CSP forces every nonce&apos;d page into dynamic rendering (Next.js
-        disables static optimization/ISR for those pages) — trading away this app&apos;s currently
-        static marketing/docs pages needs a deliberate pass, not a side effect of a headers sweep
-        (see <code>csp-nonce-rollout</code> in <DocLink href="/docs/process">Process log</DocLink>
-        ).
+        <code>Content-Security-Policy</code>: that header can only be applied statically to{" "}
+        <em>every</em> route from <code>next.config.ts</code>, but a CSP strict enough to matter
+        needs a per-request nonce, and nonce-based CSP requires dynamic rendering to reach the
+        page (Next.js disables static optimization/ISR wherever the nonce is applied) — this
+        app&apos;s marketing/docs pages are static by default, so a sitewide nonce&apos;d policy
+        set here would permanently block Next&apos;s own framework hydration script on every one
+        of them.
+      </p>
+      <p>
+        Content-Security-Policy is instead set per-request from{" "}
+        <code>src/proxy.ts</code> (Next 16&apos;s Proxy runs on the Node.js runtime by default,
+        unlike the old Edge-only Middleware), via the two-tier policy in{" "}
+        <code>src/lib/security/content-security-policy.ts</code>. Routes Next already renders
+        dynamically per request — <code>/dashboard</code> (this app&apos;s most sensitive
+        surface: operator auth plus every mutating action), <code>/checkout</code>, and{" "}
+        <code>/preview</code> — get the strict tier:{" "}
+        <code>script-src &apos;self&apos; &apos;nonce-&lt;value&gt;&apos;
+        &apos;strict-dynamic&apos;</code> and a matching <code>style-src</code>, with a fresh
+        nonce minted every request and folded into the <em>request</em> headers (not just the
+        response) so Next can read it back out during SSR and auto-apply it to its own
+        framework/hydration scripts, exactly as{" "}
+        <a href="https://nextjs.org/docs/app/guides/content-security-policy">
+          Next&apos;s CSP guide
+        </a>{" "}
+        documents. A rewrite always applies the strict tier for its destination regardless of the
+        original request path — the preview-subdomain and custom-domain rewrites in{" "}
+        <code>src/proxy.ts</code> both land on <code>/preview/[slug]</code> even though the
+        inbound path was <code>&quot;/&quot;</code>. Every other route (the static marketing/docs
+        pages, <code>/api/*</code>) gets a nonce-free but still-hardened tier —{" "}
+        <code>object-src &apos;none&apos;; base-uri &apos;self&apos;; form-action
+        &apos;self&apos;; frame-ancestors &apos;none&apos;; upgrade-insecure-requests</code>{" "}
+        — deliberately omitting <code>default-src</code>/<code>script-src</code>/
+        <code>style-src</code> so an unset directive stays unrestricted and static-page hydration
+        keeps working unchanged, the same no-CSP-for-scripts behavior this app already shipped,
+        just with real fetch-directive hardening layered on top of it. Neither of this app&apos;s
+        two inline <code>&lt;script&gt;</code> tags (both{" "}
+        <code>type=&quot;application/ld+json&quot;</code>, the JSON-LD in{" "}
+        <code>src/app/layout.tsx</code> and <code>src/app/preview/[slug]/page.tsx</code>) needs
+        the nonce threaded in on either tier: <code>script-src</code> only governs elements the
+        browser would actually execute as script, and a JSON-LD data block is never executed.
       </p>
 
       <h2 id="preview-hosting">3. Preview hosting</h2>

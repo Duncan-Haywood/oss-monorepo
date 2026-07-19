@@ -15,10 +15,18 @@ import {
 import { productionRootDomain } from "@/lib/deploy/handoff";
 import { getLeadBySlug, getLeadSlugByCustomDomain } from "@/lib/db";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
+import {
+  STATIC_SAFE_CONTENT_SECURITY_POLICY,
+  buildNonceContentSecurityPolicy,
+  generateCspNonce,
+  isNonceCspPath,
+} from "@/lib/security/content-security-policy";
 
-function dashboardAuthGate(request: NextRequest, pathname: string): NextResponse | null {
+type DashboardGate = { kind: "next" } | { kind: "redirect"; url: URL } | null;
+
+function dashboardAuthGate(request: NextRequest, pathname: string): DashboardGate {
   if (pathname === "/dashboard/login" || pathname.startsWith("/dashboard/login/")) {
-    return NextResponse.next();
+    return { kind: "next" };
   }
 
   // Trimmed secret only — login signs with getPassword(); raw env would
@@ -26,12 +34,12 @@ function dashboardAuthGate(request: NextRequest, pathname: string): NextResponse
   // whitespace (operator-auth-proxy-password-trim / sibling 037c dual-claim).
   const password = getPassword();
   if (!password) {
-    return NextResponse.next();
+    return { kind: "next" };
   }
 
   const token = request.cookies.get(OPERATOR_SESSION_COOKIE)?.value;
   if (verifyOperatorSessionToken(token, password)) {
-    return NextResponse.next();
+    return { kind: "next" };
   }
 
   // Bound next= before minting Location (login-next-path twin). Also drop
@@ -42,7 +50,36 @@ function dashboardAuthGate(request: NextRequest, pathname: string): NextResponse
   loginUrl.search = "";
   loginUrl.hash = "";
   loginUrl.searchParams.set("next", safeNextPath(pathname));
-  return NextResponse.redirect(loginUrl);
+  return { kind: "redirect", url: loginUrl };
+}
+
+/**
+ * Content-Security-Policy must land on the REQUEST headers (not just the
+ * response) so Next can read the nonce back out during SSR and auto-apply
+ * it to its own framework/hydration scripts on the nonce tier — see
+ * src/lib/security/content-security-policy.ts's module comment.
+ */
+function cspRequestHeaders(request: NextRequest, useNonceTier: boolean): { headers: Headers; contentSecurityPolicy: string } {
+  const headers = new Headers(request.headers);
+  const contentSecurityPolicy = useNonceTier
+    ? buildNonceContentSecurityPolicy(generateCspNonce(), process.env.NODE_ENV === "development")
+    : STATIC_SAFE_CONTENT_SECURITY_POLICY;
+  headers.set("Content-Security-Policy", contentSecurityPolicy);
+  return { headers, contentSecurityPolicy };
+}
+
+function nextWithCsp(request: NextRequest, useNonceTier: boolean): NextResponse {
+  const { headers: requestHeaders, contentSecurityPolicy } = cspRequestHeaders(request, useNonceTier);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set("Content-Security-Policy", contentSecurityPolicy);
+  return response;
+}
+
+function rewriteWithCsp(request: NextRequest, destination: URL, useNonceTier: boolean): NextResponse {
+  const { headers: requestHeaders, contentSecurityPolicy } = cspRequestHeaders(request, useNonceTier);
+  const response = NextResponse.rewrite(destination, { request: { headers: requestHeaders } });
+  response.headers.set("Content-Security-Policy", contentSecurityPolicy);
+  return response;
 }
 
 /**
@@ -64,7 +101,15 @@ export async function proxy(request: NextRequest) {
 
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
     const gate = dashboardAuthGate(request, pathname);
-    if (gate) return gate;
+    if (gate?.kind === "redirect") {
+      // A 3xx has no body to render — the CSP that matters is on the
+      // follow-up request the browser makes to loginUrl, which is proxied
+      // again from scratch.
+      return NextResponse.redirect(gate.url);
+    }
+    if (gate?.kind === "next") {
+      return nextWithCsp(request, true);
+    }
   }
 
   if (pathname === "/") {
@@ -78,20 +123,22 @@ export async function proxy(request: NextRequest) {
       const lead = await getLeadBySlug(previewSlug);
       if (lead) {
         // encode-at-use: keep rewrite target a single path segment even if a
-        // legacy free-form slug somehow resolves (see slug-path.ts).
-        return NextResponse.rewrite(new URL(leadPreviewPath(previewSlug), request.url));
+        // legacy free-form slug somehow resolves (see slug-path.ts). Rewrite
+        // target is always /preview/[slug] regardless of the "/" request
+        // pathname, so the nonce tier applies unconditionally here.
+        return rewriteWithCsp(request, new URL(leadPreviewPath(previewSlug), request.url), true);
       }
     } else if (!isPlatformHost(host, root) && isPlausibleCustomDomainHost(host)) {
       // Plausible-host gate before DB (length ≤253 + label shape) — twin of
       // Save domain write validation; getLeadSlugByCustomDomain also checks.
       const slug = await getLeadSlugByCustomDomain(host);
       if (slug) {
-        return NextResponse.rewrite(new URL(leadPreviewPath(slug), request.url));
+        return rewriteWithCsp(request, new URL(leadPreviewPath(slug), request.url), true);
       }
     }
   }
 
-  return NextResponse.next();
+  return nextWithCsp(request, isNonceCspPath(pathname));
 }
 
 export const config = {

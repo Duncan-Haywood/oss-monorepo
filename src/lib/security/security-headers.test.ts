@@ -34,7 +34,7 @@ describe("SECURITY_HEADERS", () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  it("does not set Content-Security-Policy (nonce rollout is a separate change)", () => {
+  it("does not set Content-Security-Policy (set per-request from proxy.ts instead — see content-security-policy.ts)", () => {
     expect(SECURITY_HEADERS.some((h) => h.key === "Content-Security-Policy")).toBe(false);
   });
 });

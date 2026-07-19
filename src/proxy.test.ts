@@ -251,4 +251,73 @@ describe("src/proxy.ts orchestration", () => {
     expect(isNext(response)).toBe(true);
     expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
   });
+
+  describe("Content-Security-Policy (csp-nonce-rollout)", () => {
+    it("sends the static-safe policy (no nonce) on a static marketing/docs route", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/docs/architecture"));
+      const csp = response.headers.get("Content-Security-Policy");
+      expect(csp).not.toBeNull();
+      expect(csp).not.toContain("nonce-");
+      expect(csp).toContain("object-src 'none'");
+      expect(csp).toContain("frame-ancestors 'none'");
+    });
+
+    it("sends the static-safe policy on the platform homepage (no rewrite, still statically generated)", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(
+        request("http://localsitestudio.com/", { headers: { host: "localsitestudio.com" } }),
+      );
+      expect(response.headers.get("Content-Security-Policy")).not.toContain("nonce-");
+    });
+
+    it("sends a nonce-scoped strict policy on /dashboard when the gate passes through", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/dashboard"));
+      const csp = response.headers.get("Content-Security-Policy");
+      expect(csp).toMatch(/script-src 'self' 'nonce-[^']+' 'strict-dynamic'/);
+      expect(csp).toMatch(/style-src 'self' 'nonce-[^']+'/);
+    });
+
+    it("sends no Content-Security-Policy header on the login redirect itself (3xx, no body to render)", async () => {
+      process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/dashboard/leads"));
+      expect(response.status).toBe(307);
+      expect(response.headers.get("Content-Security-Policy")).toBeNull();
+    });
+
+    it("sends a nonce-scoped policy on /checkout", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/checkout"));
+      expect(response.headers.get("Content-Security-Policy")).toMatch(/nonce-/);
+    });
+
+    it("sends a nonce-scoped policy on a directly-requested /preview/[slug] page", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/preview/joes-plumbing"));
+      expect(response.headers.get("Content-Security-Policy")).toMatch(/nonce-/);
+    });
+
+    it("sends a nonce-scoped policy on a preview-subdomain rewrite, even though the request path was \"/\"", async () => {
+      getLeadBySlug.mockResolvedValue({ slug: "joes-plumbing" });
+      const { proxy } = await import("./proxy");
+      const response = await proxy(
+        request("http://joes-plumbing.localsitestudio.com/", {
+          headers: { host: "joes-plumbing.localsitestudio.com" },
+        }),
+      );
+      expect(rewriteTarget(response)).not.toBeNull();
+      expect(response.headers.get("Content-Security-Policy")).toMatch(/nonce-/);
+    });
+
+    it("issues a fresh nonce per request", async () => {
+      const { proxy } = await import("./proxy");
+      const first = await proxy(request("http://localhost/dashboard"));
+      const second = await proxy(request("http://localhost/dashboard"));
+      expect(first.headers.get("Content-Security-Policy")).not.toBe(
+        second.headers.get("Content-Security-Policy"),
+      );
+    });
+  });
 });
