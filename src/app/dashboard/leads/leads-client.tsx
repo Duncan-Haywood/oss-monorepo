@@ -74,6 +74,7 @@ import {
   leadEligibleForMarketingPack,
   listMarketingPacksDue,
   marketingMonthKey,
+  oldestMarketingPacksDueAgeHours,
 } from "@/lib/marketing/monthly-pack";
 import { leadEligibleForMarketingPackDelivery } from "@/lib/marketing/deliver-pack";
 import {
@@ -984,6 +985,12 @@ export function LeadsClient({
     marketingPacks,
     marketingPacksDueMonth,
   );
+  const oldestMarketingPacksDueHours = oldestMarketingPacksDueAgeHours(
+    marketingPacksDue,
+    orders,
+    marketingPacksDueMonth,
+    nowMs,
+  );
   const clientVoicePacksDue = listClientVoicePacksDue(leads, orders, clientVoicePacks);
   const commerceCatalogsMissing = listCommerceCatalogsMissing(
     leads,
@@ -1299,7 +1306,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Marketing packs due
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({marketingPacksDue.length})
+                ({marketingPacksDue.length}
+                {oldestMarketingPacksDueHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestMarketingPacksDueHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1314,7 +1325,14 @@ export function LeadsClient({
             pack — the sold monthly fulfillment promise.
           </p>
           <ul className="mt-4 space-y-3">
-            {marketingPacksDue.map((lead) => (
+            {marketingPacksDue.map((lead) => {
+              const packDueAgeHours = oldestMarketingPacksDueAgeHours(
+                [{ slug: lead.slug }],
+                orders,
+                marketingPacksDueMonth,
+                nowMs,
+              );
+              return (
               <li
                 key={lead.slug}
                 className="rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm"
@@ -1327,6 +1345,9 @@ export function LeadsClient({
                     </p>
                     <p className="mt-1 text-xs text-zinc-600">
                       {lead.stage} · {marketingPacksDueMonth}
+                      {packDueAgeHours !== null
+                        ? ` · due ${formatAbandonedAgeHours(packDueAgeHours)} ago`
+                        : ""}
                     </p>
                   </div>
                   <button
@@ -1339,7 +1360,8 @@ export function LeadsClient({
                   </button>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </section>
       )}
