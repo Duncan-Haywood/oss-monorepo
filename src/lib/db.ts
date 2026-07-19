@@ -68,6 +68,19 @@ export type { ConvexPrimaryWriteOptions } from "./payments/convex-primary";
 const convexUrl = resolveConvexDeploymentUrl(process.env.NEXT_PUBLIC_CONVEX_URL);
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
 
+/**
+ * Shared secret sent with every Convex call to a function protected by
+ * requireApiSecret (see convex/lib/apiSecret.ts) — deliberately NOT
+ * NEXT_PUBLIC_-prefixed, so it never ships to the browser bundle. Must match
+ * the CONVEX_API_SECRET environment variable configured on the Convex
+ * deployment itself (Convex dashboard or `npx convex env set`), which is a
+ * separate env store from this app's hosting env. An unset/mismatched value
+ * on either side makes every protected Convex call fail closed and fall back
+ * to SQLite (same degraded-but-safe path as any other Convex outage), not a
+ * hard crash — see convex-public-function-api-secret in prompt_process.tsx.
+ */
+const convexApiSecret = process.env.CONVEX_API_SECRET ?? "";
+
 // SQLite Database Setup (for local fallback persistence and suppression list)
 const dbPath = path.join(process.cwd(), "local.db");
 let sqliteDb: DatabaseSync | null = null;
@@ -1583,6 +1596,7 @@ export async function isEmailSuppressed(email: string): Promise<boolean> {
     try {
       return (await convexClient.query(api.suppressions.isSuppressed, {
         email: normalized,
+        apiSecret: convexApiSecret,
       })) as boolean;
     } catch (e) {
       console.warn("Failed to check suppression on Convex, falling back to SQLite database", e);
@@ -1602,7 +1616,10 @@ export async function suppressEmail(
   const normalized = email.toLowerCase().trim();
   if (convexClient) {
     try {
-      await convexClient.mutation(api.suppressions.suppress, { email: normalized });
+      await convexClient.mutation(api.suppressions.suppress, {
+        email: normalized,
+        apiSecret: convexApiSecret,
+      });
       return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -1620,7 +1637,9 @@ export async function suppressEmail(
 export async function getSuppressedEmails(): Promise<string[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.suppressions.list)) as string[];
+      return (await convexClient.query(api.suppressions.list, {
+        apiSecret: convexApiSecret,
+      })) as string[];
     } catch (e) {
       console.warn("Failed to list suppressions from Convex, falling back to SQLite database", e);
     }
