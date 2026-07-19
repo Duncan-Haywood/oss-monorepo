@@ -1705,6 +1705,7 @@ export async function insertDeployHandoff(
         notes: handoff.notes,
         createdAt: handoff.createdAt,
         updatedAt: handoff.updatedAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -1768,6 +1769,7 @@ export async function getDeployHandoffBySlug(slug: string): Promise<DeployHandof
     try {
       return (await convexClient.query(api.deployHandoffs.getByLeadSlug, {
         leadSlug: slug,
+        apiSecret: convexApiSecret,
       })) as DeployHandoff | null;
     } catch (e) {
       console.warn(
@@ -1788,7 +1790,9 @@ export async function getDeployHandoffBySlug(slug: string): Promise<DeployHandof
 export async function listDeployHandoffs(): Promise<DeployHandoff[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.deployHandoffs.list)) as DeployHandoff[];
+      return (await convexClient.query(api.deployHandoffs.list, {
+        apiSecret: convexApiSecret,
+      })) as DeployHandoff[];
     } catch (e) {
       console.warn(
         "Failed to list deploy handoffs from Convex, falling back to SQLite database",
@@ -1819,6 +1823,7 @@ export async function updateDeployHandoffStatus(
         status,
         extraNotes,
         updatedAt,
+        apiSecret: convexApiSecret,
       })) as DeployHandoff | null;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -1873,6 +1878,7 @@ export async function updateDeployHandoffVercelProject(
         leadSlug,
         vercelProjectId: vercelProjectId ?? "",
         updatedAt,
+        apiSecret: convexApiSecret,
       })) as DeployHandoff | null;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -1923,6 +1929,7 @@ export async function updateDeployHandoffCustomDomain(
         leadSlug,
         customDomain: normalized ?? "",
         updatedAt,
+        apiSecret: convexApiSecret,
       })) as DeployHandoff | null;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -1980,6 +1987,7 @@ export async function getLeadSlugByCustomDomain(customDomain: string): Promise<s
       for (const alias of aliases) {
         const result = (await convexClient.query(api.deployHandoffs.getByCustomDomain, {
           customDomain: alias,
+          apiSecret: convexApiSecret,
         })) as { leadSlug: string } | null;
         if (result?.leadSlug) return result.leadSlug;
       }
