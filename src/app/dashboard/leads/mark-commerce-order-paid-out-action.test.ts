@@ -10,7 +10,13 @@ import { MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH } from "@/lib/billing/checkout-se
  * and unpaid math. This suite locks the dashboard action glue: requireOperatorAuth,
  * missing/empty/over-long session id, not-found, already-paid-out guard,
  * COMMERCE_PAID_OUT_CONVEX_PRIMARY persist, ConvexPrimaryWriteError fail-closed
- * (no revalidate), and success revalidate.
+ * (no revalidate), success revalidate, and the markCommerceOrderPaidOut
+ * false-return race guard (see commerce-order-paid-out-refund-race-guard):
+ * markCommerceOrderPaidOut re-checks refundedAt/disputedAt/paidOutAt
+ * atomically with its write and returns false when a Stripe webhook
+ * refunded/disputed the order in the window between this action's own
+ * snapshot read and that write — the action must surface that as a failure,
+ * not silently report success on a write that never applied.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -96,7 +102,7 @@ describe("markCommerceOrderPaidOutAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     getCommerceOrderByStripeSessionId.mockReset().mockResolvedValue(unpaidOrder);
-    markCommerceOrderPaidOut.mockReset().mockResolvedValue(undefined);
+    markCommerceOrderPaidOut.mockReset().mockResolvedValue(true);
   });
 
   it("returns auth error without looking up the order", async () => {
@@ -191,6 +197,27 @@ describe("markCommerceOrderPaidOutAction", () => {
       error: "Order was refunded to the customer — nothing is owed to the client",
     });
     expect(markCommerceOrderPaidOut).not.toHaveBeenCalled();
+  });
+
+  it("reports failure (and still revalidates) when a refund/dispute lands in the race window between read and write", async () => {
+    // The action's own read sees a clean order (no refundedAt/disputedAt), so
+    // the pre-write guards above pass — but markCommerceOrderPaidOut's own
+    // atomic re-check finds the order was refunded/disputed a moment later
+    // (an independent Stripe webhook) and returns false without writing.
+    markCommerceOrderPaidOut.mockResolvedValue(false);
+    const { markCommerceOrderPaidOutAction } = await import("./actions");
+    const res = await markCommerceOrderPaidOutAction("cs_test_commerce_paid");
+
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Order was refunded or disputed after this page loaded — refresh and check its status; nothing was paid out",
+    });
+    expect(markCommerceOrderPaidOut).toHaveBeenCalledOnce();
+    // Revalidate anyway — the underlying order state genuinely changed
+    // (the refund/dispute that caused the false return), so the dashboard
+    // should reflect it rather than keep showing stale "owed" state.
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
   it("persists paidOutAt with COMMERCE_PAID_OUT_CONVEX_PRIMARY and revalidates", async () => {
