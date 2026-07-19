@@ -2350,6 +2350,7 @@ export async function recordCheckoutSessionCreated(
         ...params,
         kind,
         createdAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -2395,7 +2396,10 @@ export async function markCheckoutSessionComplete(
 ): Promise<void> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.checkoutSessions.markComplete, { stripeSessionId });
+      await convexClient.mutation(api.checkoutSessions.markComplete, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      });
       return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -2430,7 +2434,10 @@ export async function markCheckoutSessionOpen(
 ): Promise<void> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.checkoutSessions.markOpen, { stripeSessionId });
+      await convexClient.mutation(api.checkoutSessions.markOpen, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      });
       return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -2467,6 +2474,7 @@ export async function markCompleteOpenBundleCheckoutSessionsForLead(
       return (await convexClient.mutation(api.checkoutSessions.markCompleteOpenBundleForLead, {
         leadSlug,
         exceptStripeSessionId,
+        apiSecret: convexApiSecret,
       })) as number;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -2524,6 +2532,7 @@ export async function markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer
           skuId: normalizedSkuId,
           customerEmail: email,
           exceptStripeSessionId,
+          apiSecret: convexApiSecret,
         },
       )) as number;
     } catch (e) {
@@ -2570,6 +2579,7 @@ export async function recordCheckoutRecoverySent(
       await convexClient.mutation(api.checkoutSessions.recordRecoverySent, {
         stripeSessionId,
         sentAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -2594,7 +2604,9 @@ export async function recordCheckoutRecoverySent(
 export async function listOpenCheckoutSessions(): Promise<CheckoutSessionRecord[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.checkoutSessions.listOpen)) as CheckoutSessionRecord[];
+      return (await convexClient.query(api.checkoutSessions.listOpen, {
+        apiSecret: convexApiSecret,
+      })) as CheckoutSessionRecord[];
     } catch (e) {
       console.warn(
         "Failed to list open checkout sessions from Convex, falling back to SQLite",
