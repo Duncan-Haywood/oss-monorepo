@@ -142,6 +142,8 @@ import {
   deployHandoffAgeHours,
   formatAbandonedAgeHours,
   formatUsd,
+  isUnrepliedInquiryStatus,
+  oldestUnrepliedInquiryAgeHoursFor,
 } from "@/lib/metrics/pipeline-health";
 
 interface LeadsClientProps {
@@ -934,6 +936,21 @@ export function LeadsClient({
   // paid-not-live-dashboard-panel-and-remedy).
   const paidNotLive = leads.filter((lead) => lead.stage === "paid");
   const openInquiries = inquiries.filter((inq) => inq.status !== "archived");
+  // Unreplied = new OR read (isUnrepliedInquiryStatus), matching
+  // pipeline-health's unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours
+  // and the daily digest's "Unreplied inquiries" header — this panel's own
+  // header previously counted status === "new" only, silently dropping
+  // "read"-but-unreplied inquiries from the count (they still rendered in
+  // the list, just uncounted) and never showed any staleness signal at all,
+  // unlike every sibling due-queue panel (see inquiries-panel-unreplied-count-and-staleness).
+  const unrepliedOpenInquiries = openInquiries.filter((inq) =>
+    isUnrepliedInquiryStatus(inq.status),
+  );
+  const newOpenInquiryCount = openInquiries.filter((inq) => inq.status === "new").length;
+  const oldestUnrepliedOpenInquiryAgeHours = oldestUnrepliedInquiryAgeHoursFor(
+    openInquiries,
+    nowMs,
+  );
   // Snapshot clock from mount — server re-checks cadence on send.
   const followUpsDue = listFollowUpsDue(leads, nowMs);
   const coldLeads = listColdLeads(leads, nowMs);
@@ -2041,7 +2058,12 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Website inquiries
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({openInquiries.filter((i) => i.status === "new").length} new)
+                ({unrepliedOpenInquiries.length} unreplied
+                {newOpenInquiryCount > 0 ? ` · ${newOpenInquiryCount} new` : ""}
+                {oldestUnrepliedOpenInquiryAgeHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestUnrepliedOpenInquiryAgeHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -2112,6 +2134,16 @@ export function LeadsClient({
                     ) : null}
                     <p className="mt-2 text-[11px] text-zinc-400">
                       {new Date(inq.createdAt).toLocaleString()}
+                      {isUnrepliedInquiryStatus(inq.status) ? (
+                        <>
+                          {" "}
+                          · received{" "}
+                          {formatAbandonedAgeHours(
+                            deployHandoffAgeHours(inq.createdAt, nowMs),
+                          )}{" "}
+                          ago
+                        </>
+                      ) : null}
                       {inq.source ? (
                         <>
                           {" "}
