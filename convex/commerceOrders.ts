@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const orderReturn = v.object({
   id: v.string(),
@@ -65,34 +66,43 @@ export const insert = mutation({
     amountPaidUsd: v.number(),
     stripeSessionId: v.string(),
     createdAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(orderReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    // Destructure apiSecret out before persisting — schema.ts's commerceOrders
+    // table is a strict defineTable that rejects unlisted fields, and a raw
+    // `args` insert would otherwise leak apiSecret into the row as an extra
+    // column (same gotcha as orders.createOrder / leads.upsertLead).
+    const { apiSecret, ...order } = args;
+    void apiSecret;
     const existing = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
-        q.eq("stripeSessionId", args.stripeSessionId),
+        q.eq("stripeSessionId", order.stripeSessionId),
       )
       .unique();
     if (existing) return null;
 
-    await ctx.db.insert("commerceOrders", args);
+    await ctx.db.insert("commerceOrders", order);
     return {
-      id: args.orderId,
-      leadSlug: args.leadSlug,
-      skuId: args.skuId,
-      skuName: args.skuName,
-      amountPaidUsd: args.amountPaidUsd,
-      stripeSessionId: args.stripeSessionId,
-      createdAt: args.createdAt,
+      id: order.orderId,
+      leadSlug: order.leadSlug,
+      skuId: order.skuId,
+      skuName: order.skuName,
+      amountPaidUsd: order.amountPaidUsd,
+      stripeSessionId: order.stripeSessionId,
+      createdAt: order.createdAt,
     };
   },
 });
 
 export const list = query({
-  args: { limit: v.optional(v.number()) },
+  args: { limit: v.optional(v.number()), apiSecret: v.string() },
   returns: v.array(orderReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const limit = Math.min(Math.max(args.limit ?? 200, 1), 500);
     // Match SQLite `ORDER BY createdAt DESC LIMIT ?`. Bare `.order("desc").take(limit)`
     // sorts `_creationTime`, not the app `createdAt` column — when those diverge
@@ -115,9 +125,10 @@ export const list = query({
  * until Stripe Connect, and completeness beats a truncated recent page.
  */
 export const listUnpaid = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(orderReturn),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db.query("commerceOrders").collect();
     // Match SQLite `(paidOutAt IS NULL OR paidOutAt = '') ORDER BY createdAt DESC`
     // and isCommerceOrderPaidOut's Boolean(paidOutAt) — empty string must stay unpaid.
@@ -132,9 +143,10 @@ export const listUnpaid = query({
 
 /** Lookup one commerce order by Stripe Checkout Session id (Mark paid out). */
 export const getByStripeSessionId = query({
-  args: { stripeSessionId: v.string() },
+  args: { stripeSessionId: v.string(), apiSecret: v.string() },
   returns: v.union(orderReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
@@ -152,9 +164,10 @@ export const getByStripeSessionId = query({
  * matches the checkoutSessions mutation pattern (recordRecoverySent).
  */
 export const markPaidOut = mutation({
-  args: { stripeSessionId: v.string(), paidOutAt: v.string() },
+  args: { stripeSessionId: v.string(), paidOutAt: v.string(), apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const order = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
@@ -174,9 +187,14 @@ export const markPaidOut = mutation({
  * recovers the client order notification while this field is unset.
  */
 export const markClientReceiptSent = mutation({
-  args: { stripeSessionId: v.string(), clientReceiptEmailSentAt: v.string() },
+  args: {
+    stripeSessionId: v.string(),
+    clientReceiptEmailSentAt: v.string(),
+    apiSecret: v.string(),
+  },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const order = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
@@ -201,9 +219,10 @@ export const markClientReceiptSent = mutation({
  * the webhook route treats that as "not one of our commerce orders."
  */
 export const markRefunded = mutation({
-  args: { stripeSessionId: v.string(), refundedAt: v.string() },
+  args: { stripeSessionId: v.string(), refundedAt: v.string(), apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const order = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
@@ -226,9 +245,10 @@ export const markRefunded = mutation({
  * page, same rationale as listUnpaid (see commerce-order-refund-clawback-tracking).
  */
 export const listRefunded = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(orderReturn),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db.query("commerceOrders").collect();
     return rows
       .filter((row) => Boolean(row.refundedAt))
@@ -247,9 +267,10 @@ export const listRefunded = query({
  * commerce orders."
  */
 export const markDisputed = mutation({
-  args: { stripeSessionId: v.string(), disputedAt: v.string() },
+  args: { stripeSessionId: v.string(), disputedAt: v.string(), apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const order = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
@@ -270,9 +291,10 @@ export const markDisputed = mutation({
  * invisible to every uncapped reader (see commerce-order-dispute-clawback-tracking).
  */
 export const listDisputed = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(orderReturn),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db.query("commerceOrders").collect();
     return rows
       .filter((row) => Boolean(row.disputedAt))
@@ -290,9 +312,10 @@ export const listDisputed = query({
  * disputedAt stay. Missing order is a no-op.
  */
 export const clearDisputed = mutation({
-  args: { stripeSessionId: v.string() },
+  args: { stripeSessionId: v.string(), apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const order = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
