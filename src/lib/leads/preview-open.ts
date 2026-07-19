@@ -15,6 +15,13 @@ export const OUTREACH_PREVIEW_SRC = "outreach";
 export const MAX_PREVIEW_OPENED_AT_LENGTH = 64;
 
 /**
+ * How far a client-supplied `openedAt` may sit ahead of server "now" before
+ * it's treated as implausible (clock skew tolerance, not a hard protocol
+ * bound like MAX_PREVIEW_OPENED_AT_LENGTH).
+ */
+export const MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS = 5 * 60 * 1000;
+
+/**
  * Optional attribution query params (`src` / `utm_source`) ceiling. Genuine
  * values are short tokens (`outreach`, `email`, `resend`). Over-long probes are
  * treated as missing — soft-cap would invent a truncated attribution token;
@@ -124,8 +131,19 @@ export function shouldPersistPreviewOpen(
 
 /**
  * Resolve optional beacon `openedAt` before Date.parse / persist.
- * Missing, non-string, over-MAX, or unparseable → server now (fall-back).
- * Valid ISO-ish strings are normalized via `new Date(...).toISOString()`.
+ * Missing, non-string, over-MAX, unparseable, or implausibly future-dated
+ * (beyond MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS past server now) → server now
+ * (fall-back). Valid ISO-ish strings are normalized via
+ * `new Date(...).toISOString()`.
+ *
+ * The future-skew guard exists because the resolved value both gates
+ * shouldPersistPreviewOpen's debounce clock (route.ts derives `nowMs` from
+ * it) and is persisted verbatim as lead.lastPreviewOpenAt. `/preview/[slug]`
+ * is a public, unauthenticated URL keyed only by a leakable slug — an
+ * unbounded future openedAt would let one spoofed request permanently mark
+ * the lead "just opened" (instant quality-score engagement credit) while
+ * silently debouncing away every real future open until server time catches
+ * up to the spoofed date (preview-open-openedat-future-skew-guard).
  */
 export function resolvePreviewOpenedAt(
   raw: unknown,
@@ -135,5 +153,9 @@ export function resolvePreviewOpenedAt(
   if (raw.length === 0 || raw.length > MAX_PREVIEW_OPENED_AT_LENGTH) return nowIso;
   const parsed = Date.parse(raw);
   if (Number.isNaN(parsed)) return nowIso;
+  const nowMs = Date.parse(nowIso);
+  if (!Number.isNaN(nowMs) && parsed > nowMs + MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS) {
+    return nowIso;
+  }
   return new Date(parsed).toISOString();
 }
