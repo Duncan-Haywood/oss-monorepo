@@ -3,6 +3,7 @@ import {
   chargeHasRefund,
   chargePaymentIntentId,
   disputeStatusClearsDisputeFlag,
+  refundChargeId,
   refundStatusReversesRefund,
 } from "./refunds";
 
@@ -57,6 +58,32 @@ describe("chargePaymentIntentId", () => {
 
   it("returns null when the expanded object has no id", () => {
     expect(chargePaymentIntentId({ payment_intent: {} })).toBeNull();
+  });
+});
+
+describe("refundChargeId", () => {
+  it("returns the id when charge is a bare string", () => {
+    expect(refundChargeId({ charge: "ch_123" })).toBe("ch_123");
+  });
+
+  it("returns the id when charge is an expanded object", () => {
+    expect(refundChargeId({ charge: { id: "ch_456" } })).toBe("ch_456");
+  });
+
+  it("returns null when charge is missing", () => {
+    expect(refundChargeId({})).toBeNull();
+  });
+
+  it("returns null when charge is null", () => {
+    expect(refundChargeId({ charge: null })).toBeNull();
+  });
+
+  it("returns null for a blank string charge", () => {
+    expect(refundChargeId({ charge: "  " })).toBeNull();
+  });
+
+  it("returns null when the expanded object has no id", () => {
+    expect(refundChargeId({ charge: {} })).toBeNull();
   });
 });
 

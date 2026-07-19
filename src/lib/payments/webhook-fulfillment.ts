@@ -160,9 +160,22 @@ export type WebhookFulfillmentStep =
    */
   | "bundle_order_dispute_clear"
   /**
+   * Re-fetching the Charge behind a reversed refund (via
+   * stripe.charges.retrieve) on refund.updated (status failed/canceled), to
+   * re-verify the charge's own aggregate amount_refunded before clearing —
+   * required so Stripe retries rather than risking a stale-state clear (or
+   * silently leaving refundedAt stuck) because the re-verification lookup
+   * failed transiently. Stripe allows multiple independent refunds per
+   * charge; a single refund event's status alone is not ground truth for
+   * whether the charge still has a genuinely-completed refund on it. See
+   * refund-reversal-charge-aggregate-recheck.
+   */
+  | "commerce_order_refund_reversed_charge_lookup"
+  /**
    * Looking up the Checkout Session behind a reversed refund (via
    * stripe.checkout.sessions.list({ payment_intent })) on refund.updated
-   * (status failed/canceled) — required so Stripe retries rather than
+   * (status failed/canceled), after the charge re-verification above showed
+   * zero net refund remaining — required so Stripe retries rather than
    * silently leaving a refund-that-never-completed still excluded from owed
    * totals because the correlating lookup failed transiently. See
    * commerce-order-refund-reversal-tracking.

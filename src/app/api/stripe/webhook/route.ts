@@ -57,6 +57,7 @@ import {
   chargeHasRefund,
   chargePaymentIntentId,
   disputeStatusClearsDisputeFlag,
+  refundChargeId,
   refundStatusReversesRefund,
 } from "@/lib/payments/refunds";
 import {
@@ -1878,6 +1879,39 @@ export async function POST(request: Request) {
       if (!refundPaymentIntentId) {
         console.warn(
           `webhook: refund.updated ${refund.id} status=${refund.status} has no payment_intent — cannot correlate to a Checkout Session, skipping`,
+        );
+        break;
+      }
+      // Stripe allows multiple independent (e.g. partial) refunds on the same
+      // charge. This refund event's own status is not enough to know whether
+      // refundedAt should clear — a *different* refund on this same charge may
+      // still be genuinely in effect. Re-fetch the charge and re-check its own
+      // aggregate amount_refunded (ground truth, same predicate the original
+      // charge.refunded handler uses) before clearing anything. See
+      // refund-reversal-charge-aggregate-recheck.
+      const refundedChargeId = refundChargeId(refund);
+      if (!refundedChargeId) {
+        console.warn(
+          `webhook: refund.updated ${refund.id} status=${refund.status} has no charge — cannot re-verify aggregate refund state, skipping`,
+        );
+        break;
+      }
+      let refreshedRefundCharge: Stripe.Charge;
+      try {
+        refreshedRefundCharge = await stripe.charges.retrieve(refundedChargeId);
+      } catch (e) {
+        console.error(
+          `Failed to retrieve charge ${refundedChargeId} for reversed refund ${refund.id}`,
+          e,
+        );
+        const failure = webhookFulfillmentFailureResponse(
+          "commerce_order_refund_reversed_charge_lookup",
+        );
+        return NextResponse.json(failure.body, { status: failure.status });
+      }
+      if (chargeHasRefund(refreshedRefundCharge)) {
+        console.warn(
+          `webhook: refund.updated ${refund.id} status=${refund.status} but charge ${refundedChargeId} still shows amount_refunded=${refreshedRefundCharge.amount_refunded} — a different refund on this charge is still in effect, not clearing refundedAt`,
         );
         break;
       }
