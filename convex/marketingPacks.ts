@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const variantValidator = v.object({
   contentType: v.string(),
@@ -29,9 +30,11 @@ export const upsert = mutation({
     generatedAt: v.string(),
     generator: v.union(v.literal("stub"), v.literal("anthropic")),
     packageTier: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: packReturn,
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     // Compound index typing needs a generated DataModel; with generic ctx,
     // chain only the first indexed field then match yearMonth in TS.
     const candidates = await ctx.db
@@ -76,9 +79,11 @@ export const getByLeadMonth = query({
   args: {
     leadSlug: v.string(),
     yearMonth: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(packReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const candidates = await ctx.db
       .query("marketingPacks")
       .withIndex("by_lead_month", (q) => q.eq("leadSlug", args.leadSlug))
@@ -107,9 +112,11 @@ export const listByMonth = query({
   args: {
     yearMonth: v.string(),
     limit: v.optional(v.number()),
+    apiSecret: v.string(),
   },
   returns: v.array(packReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     void args.limit;
     const rows = await ctx.db
       .query("marketingPacks")

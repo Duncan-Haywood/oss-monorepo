@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const variantValidator = v.object({
   scriptType: v.string(),
@@ -23,9 +24,11 @@ export const upsert = mutation({
     variants: v.array(variantValidator),
     generatedAt: v.string(),
     generator: v.union(v.literal("stub"), v.literal("anthropic")),
+    apiSecret: v.string(),
   },
   returns: packReturn,
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("clientVoicePacks")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -61,9 +64,11 @@ export const upsert = mutation({
 export const getByLeadSlug = query({
   args: {
     leadSlug: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(packReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("clientVoicePacks")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -88,9 +93,11 @@ export const getByLeadSlug = query({
 export const list = query({
   args: {
     limit: v.optional(v.number()),
+    apiSecret: v.string(),
   },
   returns: v.array(packReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     void args.limit;
     const rows = await ctx.db.query("clientVoicePacks").collect();
     // Newest-first to match SQLite ORDER BY generatedAt DESC.

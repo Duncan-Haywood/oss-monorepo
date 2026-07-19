@@ -2664,6 +2664,7 @@ export async function upsertMarketingPack(
         generatedAt: pack.generatedAt,
         generator: pack.generator,
         packageTier: pack.packageTier,
+        apiSecret: convexApiSecret,
       });
       return pack;
     } catch (e) {
@@ -2710,6 +2711,7 @@ export async function getMarketingPack(
       const pack = (await convexClient.query(api.marketingPacks.getByLeadMonth, {
         leadSlug,
         yearMonth,
+        apiSecret: convexApiSecret,
       })) as MarketingPack | null;
       // Convex-primary reads bypass parsePackVariants — soft-cap here so Email
       // pack + dashboard cannot emit pre-generate-cap rows.
@@ -2745,6 +2747,7 @@ export async function listMarketingPacksForMonth(
     try {
       const packs = (await convexClient.query(api.marketingPacks.listByMonth, {
         yearMonth,
+        apiSecret: convexApiSecret,
       })) as MarketingPack[];
       return packs.map(softCapMarketingPack);
     } catch (e) {
@@ -3326,6 +3329,7 @@ export async function upsertClientVoicePack(
         variants: pack.variants,
         generatedAt: pack.generatedAt,
         generator: pack.generator,
+        apiSecret: convexApiSecret,
       });
       return pack;
     } catch (e) {
@@ -3366,6 +3370,7 @@ export async function getClientVoicePackByLeadSlug(
     try {
       const pack = (await convexClient.query(api.clientVoicePacks.getByLeadSlug, {
         leadSlug,
+        apiSecret: convexApiSecret,
       })) as ClientVoicePack | null;
       // Convex-primary reads bypass parseClientVoiceVariants — soft-cap here so
       // Email voice pack + dashboard cannot emit pre-generate-cap rows.
@@ -3400,7 +3405,7 @@ export async function listClientVoicePacks(
     try {
       const packs = (await convexClient.query(
         api.clientVoicePacks.list,
-        {},
+        { apiSecret: convexApiSecret },
       )) as ClientVoicePack[];
       return packs.map(softCapClientVoicePack);
     } catch (e) {
