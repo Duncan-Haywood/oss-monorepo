@@ -11,6 +11,7 @@ import {
   listAbandonedCheckoutsDue,
   listCommerceAbandonedCheckoutsDue,
   normalizeCheckoutCustomerEmailForMatch,
+  oldestCheckoutSessionAgeHours,
   openBundleCheckoutSessionsToClose,
   openCommerceCheckoutSessionsToClose,
 } from "./abandoned-recovery";
@@ -207,6 +208,35 @@ describe("listCommerceAbandonedCheckoutsDue", () => {
       createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
     });
     expect(listCommerceAbandonedCheckoutsDue([cart], NOW, new Set())).toEqual([]);
+  });
+});
+
+describe("oldestCheckoutSessionAgeHours", () => {
+  it("returns null for an empty list", () => {
+    expect(oldestCheckoutSessionAgeHours([], NOW)).toBeNull();
+  });
+
+  it("returns the age in hours of the single oldest session, order-agnostic", () => {
+    const sessions = [
+      { createdAt: new Date(NOW - 3 * HOUR_MS).toISOString() },
+      { createdAt: new Date(NOW - 9 * HOUR_MS).toISOString() },
+      { createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+    ];
+    expect(oldestCheckoutSessionAgeHours(sessions, NOW)).toBe(9);
+    expect(oldestCheckoutSessionAgeHours([...sessions].reverse(), NOW)).toBe(9);
+  });
+
+  it("clamps a future createdAt to 0 rather than a negative age", () => {
+    const sessions = [{ createdAt: new Date(NOW + HOUR_MS).toISOString() }];
+    expect(oldestCheckoutSessionAgeHours(sessions, NOW)).toBe(0);
+  });
+
+  it("skips unparsable createdAt values instead of throwing", () => {
+    const sessions = [
+      { createdAt: "not-a-date" },
+      { createdAt: new Date(NOW - 4 * HOUR_MS).toISOString() },
+    ];
+    expect(oldestCheckoutSessionAgeHours(sessions, NOW)).toBe(4);
   });
 });
 

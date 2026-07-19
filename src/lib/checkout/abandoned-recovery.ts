@@ -197,3 +197,26 @@ export function listCommerceAbandonedCheckoutsDue(
     .filter((session) => eligibleLeadSlugs.has(session.leadSlug))
     .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
 }
+
+/**
+ * Oldest age in hours across a set of checkout sessions by createdAt, or
+ * null if empty. Order-agnostic (safe on either an unsorted or
+ * oldest-first list) and set-agnostic — pipeline-health.ts calls this with
+ * the full abandoned set while the daily digest and dashboard panel call it
+ * with the narrower recovery-due subset; pass whichever set that call site
+ * already filters to rather than assuming this recomputes the filter.
+ * Was duplicated as an inline loop/IIFE in pipeline-health.ts (x2) and
+ * daily-digest.ts (x2) before being extracted here (abandoned-checkout-panels-staleness-signal).
+ */
+export function oldestCheckoutSessionAgeHours(
+  sessions: ReadonlyArray<{ createdAt: string }>,
+  nowMs: number,
+): number | null {
+  let oldestMs: number | null = null;
+  for (const session of sessions) {
+    const createdAtMs = Date.parse(session.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    if (oldestMs === null || createdAtMs < oldestMs) oldestMs = createdAtMs;
+  }
+  return oldestMs === null ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+}
