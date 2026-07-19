@@ -143,6 +143,7 @@ import {
   formatAbandonedAgeHours,
   formatUsd,
   isUnrepliedInquiryStatus,
+  oldestBundleOrderRefundOrDisputeAgeHours,
   oldestPaidNotLiveAgeHours,
   oldestUnrepliedInquiryAgeHoursFor,
 } from "@/lib/metrics/pipeline-health";
@@ -993,6 +994,11 @@ export function LeadsClient({
   const commercePayoutsOrderCount = sumCommerceOrdersByLeadOrderCount(commercePayoutsByLead);
   const bundleOrderRefunds = orders.filter(isOrderRefunded);
   const bundleOrderDisputes = orders.filter(isOrderDisputed);
+  const oldestBundleOrderRefundOrDisputeHours = oldestBundleOrderRefundOrDisputeAgeHours(
+    bundleOrderRefunds,
+    bundleOrderDisputes,
+    nowMs,
+  );
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
 
   return (
@@ -1553,7 +1559,11 @@ export function LeadsClient({
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
               Bundle order refunds &amp; disputes
               <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({bundleOrderRefunds.length + bundleOrderDisputes.length})
+                ({bundleOrderRefunds.length + bundleOrderDisputes.length}
+                {oldestBundleOrderRefundOrDisputeHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestBundleOrderRefundOrDisputeHours)}`
+                  : ""}
+                )
               </span>
             </h2>
             <Link
@@ -1580,7 +1590,10 @@ export function LeadsClient({
                 </span>
                 <span className="text-xs text-zinc-600">
                   {order.tier} · {formatUsd(order.amountPaid)} · refunded{" "}
-                  {new Date(order.refundedAt as string).toLocaleDateString()}
+                  {formatAbandonedAgeHours(
+                    order.refundedAt ? deployHandoffAgeHours(order.refundedAt, nowMs) : null,
+                  )}{" "}
+                  ago
                 </span>
               </li>
             ))}
@@ -1595,7 +1608,10 @@ export function LeadsClient({
                 </span>
                 <span className="text-xs text-zinc-600">
                   {order.tier} · {formatUsd(order.amountPaid)} · disputed{" "}
-                  {new Date(order.disputedAt as string).toLocaleDateString()}
+                  {formatAbandonedAgeHours(
+                    order.disputedAt ? deployHandoffAgeHours(order.disputedAt, nowMs) : null,
+                  )}{" "}
+                  ago
                 </span>
               </li>
             ))}
