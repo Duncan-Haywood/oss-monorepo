@@ -1077,7 +1077,7 @@ function mapConvexOrderRow(row: {
 export async function listOrders(): Promise<OrderRecord[]> {
   if (convexClient) {
     try {
-      const rows = (await convexClient.query(api.orders.list)) as Array<{
+      const rows = (await convexClient.query(api.orders.list, { apiSecret: convexApiSecret })) as Array<{
         _id: string;
         leadSlug: string;
         stripeSessionId: string;
@@ -1129,6 +1129,7 @@ export async function listOrdersByLeadSlug(
     try {
       const rows = (await convexClient.query(api.orders.listByLeadSlug, {
         leadSlug,
+        apiSecret: convexApiSecret,
       })) as Array<{
         _id: string;
         leadSlug: string;
@@ -1184,6 +1185,7 @@ export async function getOrderByStripeSessionId(
     try {
       const row = (await convexClient.query(api.orders.getByStripeSessionId, {
         stripeSessionId,
+        apiSecret: convexApiSecret,
       })) as {
         _id: string;
         leadSlug: string;
@@ -1238,6 +1240,7 @@ export async function getOrdersByStripeCustomerId(
     try {
       const rows = (await convexClient.query(api.orders.getByStripeCustomerId, {
         stripeCustomerId: customerId,
+        apiSecret: convexApiSecret,
       })) as Array<{
         _id: string;
         leadSlug: string;
@@ -1300,6 +1303,7 @@ export async function markOrderRefunded(
       await convexClient.mutation(api.orders.markRefunded, {
         stripeSessionId,
         refundedAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -1336,6 +1340,7 @@ export async function markOrderDisputed(
       await convexClient.mutation(api.orders.markDisputed, {
         stripeSessionId,
         disputedAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -1369,6 +1374,7 @@ export async function clearOrderDisputed(
     try {
       await convexClient.mutation(api.orders.clearDisputed, {
         stripeSessionId,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -1407,7 +1413,7 @@ export async function markOrdersRecurringCanceledByCustomer(
     try {
       const result = (await convexClient.mutation(
         api.orders.markRecurringCanceledByCustomer,
-        { stripeCustomerId: customerId, canceledAt: at },
+        { stripeCustomerId: customerId, canceledAt: at, apiSecret: convexApiSecret },
       )) as { updatedCount: number };
       return result.updatedCount;
     } catch (e) {
@@ -1476,7 +1482,7 @@ export async function clearOrdersRecurringCanceledByCustomer(
     try {
       const result = (await convexClient.mutation(
         api.orders.clearRecurringCanceledByCustomer,
-        { stripeCustomerId: customerId },
+        { stripeCustomerId: customerId, apiSecret: convexApiSecret },
       )) as { updatedCount: number };
       return result.updatedCount;
     } catch (e) {
@@ -1560,6 +1566,7 @@ export async function syncOrdersRecurringEntitlementByCustomer(
           stripeCustomerId: customerId,
           tier: entitlement.tier,
           commerceAddon: entitlement.commerceAddon,
+          apiSecret: convexApiSecret,
         },
       )) as { updatedCount: number };
       return result.updatedCount;

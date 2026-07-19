@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { orderHadRecurringEntitlement } from "../src/lib/orders/recurring";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const orderDocValidator = v.object({
   _id: v.id("orders"),
@@ -31,29 +32,34 @@ export const createOrder = mutation({
     stripeCustomerId: v.optional(v.string()),
     amountTotal: v.float64(),
     customerEmail: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.id("orders"),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const { apiSecret, ...order } = args;
+    void apiSecret;
     const existing = await ctx.db
       .query("orders")
       .withIndex("by_stripeSessionId", (q) =>
-        q.eq("stripeSessionId", args.stripeSessionId)
+        q.eq("stripeSessionId", order.stripeSessionId)
       )
       .unique();
     if (existing) {
       return existing._id;
     }
     return await ctx.db.insert("orders", {
-      ...args,
+      ...order,
       createdAt: Date.now(),
     });
   },
 });
 
 export const list = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(orderDocValidator),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     // Newest-first by createdAt — matches SQLite ORDER BY createdAt DESC and
     // db.ts sortOrdersNewestFirst. Do not rely on .collect() insertion order;
     // Billing Portal latestEligibleOrder assumes newest row first.
@@ -68,9 +74,10 @@ export const list = query({
  * Newest-first by createdAt — matches SQLite WHERE + ORDER BY createdAt DESC.
  */
 export const listByLeadSlug = query({
-  args: { leadSlug: v.string() },
+  args: { leadSlug: v.string(), apiSecret: v.string() },
   returns: v.array(orderDocValidator),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db
       .query("orders")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -80,9 +87,10 @@ export const listByLeadSlug = query({
 });
 
 export const getByStripeSessionId = query({
-  args: { stripeSessionId: v.string() },
+  args: { stripeSessionId: v.string(), apiSecret: v.string() },
   returns: v.union(orderDocValidator, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     return await ctx.db
       .query("orders")
       .withIndex("by_stripeSessionId", (q) =>
@@ -99,9 +107,10 @@ export const getByStripeSessionId = query({
  * matching list/listByLeadSlug.
  */
 export const getByStripeCustomerId = query({
-  args: { stripeCustomerId: v.string() },
+  args: { stripeCustomerId: v.string(), apiSecret: v.string() },
   returns: v.array(orderDocValidator),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db
       .query("orders")
       .withIndex("by_stripeCustomerId", (q) =>
@@ -122,9 +131,11 @@ export const markRecurringCanceledByCustomer = mutation({
   args: {
     stripeCustomerId: v.string(),
     canceledAt: v.number(),
+    apiSecret: v.string(),
   },
   returns: v.object({ updatedCount: v.number() }),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const customerId = args.stripeCustomerId.trim();
     if (!customerId) {
       return { updatedCount: 0 };
@@ -165,9 +176,11 @@ export const markRecurringCanceledByCustomer = mutation({
 export const clearRecurringCanceledByCustomer = mutation({
   args: {
     stripeCustomerId: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.object({ updatedCount: v.number() }),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const customerId = args.stripeCustomerId.trim();
     if (!customerId) {
       return { updatedCount: 0 };
@@ -228,9 +241,11 @@ export const syncRecurringEntitlementByCustomer = mutation({
       v.literal("complete"),
     ),
     commerceAddon: v.boolean(),
+    apiSecret: v.string(),
   },
   returns: v.object({ updatedCount: v.number() }),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const customerId = args.stripeCustomerId.trim();
     if (!customerId) {
       return { updatedCount: 0 };
@@ -273,9 +288,11 @@ export const markRefunded = mutation({
   args: {
     stripeSessionId: v.string(),
     refundedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("orders")
       .withIndex("by_stripeSessionId", (q) =>
@@ -301,9 +318,11 @@ export const markDisputed = mutation({
   args: {
     stripeSessionId: v.string(),
     disputedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("orders")
       .withIndex("by_stripeSessionId", (q) =>
@@ -327,9 +346,11 @@ export const markDisputed = mutation({
 export const clearDisputed = mutation({
   args: {
     stripeSessionId: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("orders")
       .withIndex("by_stripeSessionId", (q) =>
