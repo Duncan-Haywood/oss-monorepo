@@ -1,6 +1,25 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ManageBillingButton } from "./manage-billing-button";
 import { loadCheckoutSuccessSession } from "@/lib/checkout/success-session";
+import { brand } from "@/lib/brand";
+import { staticPageMetadata } from "@/lib/seo";
+
+// Every other page in this flow (checkout/page.tsx, privacy, terms, all 12
+// /docs/* pages) sets its own metadata; without one here this page silently
+// inherited root layout.tsx's homepageMetadata() — wrong title/description
+// and a canonical/OG url pointing at "/" instead of itself (same bug class
+// docs-canonical-self-reference-fix fixed for /docs/*, never swept past that
+// route tree). Per-session transactional page with no evergreen content to
+// rank, so noindex — mirrors the /preview/[slug] non-indexable pattern.
+export const metadata: Metadata = {
+  ...staticPageMetadata({
+    title: `Payment received — ${brand.name}`,
+    description: `Your ${brand.name} purchase is confirmed — next steps to get your site live.`,
+    path: "/checkout/success",
+  }),
+  robots: { index: false, follow: false },
+};
 
 type CheckoutSuccessPageProps = {
   searchParams: Promise<{ session_id?: string }>;
