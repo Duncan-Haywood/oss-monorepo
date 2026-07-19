@@ -21,8 +21,11 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headerGet = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: vi.fn(async () => ({
+    get: (...args: unknown[]) => headerGet(...(args as [string])),
+  })),
 }));
 
 const getLeadBySlug = vi.fn();
@@ -131,6 +134,7 @@ describe("generateMarketingPackAction", () => {
     process.env = { ...originalEnv };
     delete process.env.ANTHROPIC_API_KEY;
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headerGet.mockReset().mockReturnValue("203.0.113.5");
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
     listOrdersByLeadSlug.mockReset().mockResolvedValue([growthOrder]);
@@ -163,6 +167,22 @@ describe("generateMarketingPackAction", () => {
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(upsertMarketingPack).not.toHaveBeenCalled();
+    expect(generate).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated generation from the same IP (auth alone is not a throttle)", async () => {
+    const { generateMarketingPackAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await generateMarketingPackAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    generate.mockClear();
+    const res = await generateMarketingPackAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
     expect(generate).not.toHaveBeenCalled();
   });
 

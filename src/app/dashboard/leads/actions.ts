@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { requireOperatorAuth } from "@/lib/auth/operator";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 import {
   updateLeadStage,
   upsertLead,
@@ -1757,6 +1758,14 @@ export async function generateMarketingPackAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`marketing-pack-generate:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -2224,6 +2233,14 @@ export async function generateClientVoicePackAction(slug: string) {
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
+    }
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`client-voice-pack-generate:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
     }
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
