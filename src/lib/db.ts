@@ -2052,6 +2052,7 @@ export async function insertClientInquiry(
         phone: inquiry.phone,
         message: inquiry.message,
         source: inquiry.source,
+        apiSecret: convexApiSecret,
       });
       return inquiry;
     } catch (e) {
@@ -2091,6 +2092,7 @@ export async function listClientInquiries(limit = 100): Promise<ClientInquiry[]>
     try {
       return (await convexClient.query(api.inquiries.list, {
         limit: safeLimit,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry[];
     } catch (e) {
       console.warn("Failed to list client inquiries from Convex, falling back to SQLite", e);
@@ -2116,7 +2118,9 @@ export async function listClientInquiries(limit = 100): Promise<ClientInquiry[]>
 export async function listUnrepliedInquiries(): Promise<ClientInquiry[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.inquiries.listUnreplied, {})) as ClientInquiry[];
+      return (await convexClient.query(api.inquiries.listUnreplied, {
+        apiSecret: convexApiSecret,
+      })) as ClientInquiry[];
     } catch (e) {
       console.warn(
         "Failed to list unreplied client inquiries from Convex, falling back to SQLite",
@@ -2145,6 +2149,7 @@ export async function listClientInquiriesBySlug(
       return (await convexClient.query(api.inquiries.listBySlug, {
         leadSlug,
         limit: safeLimit,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry[];
     } catch (e) {
       console.warn(
@@ -2178,7 +2183,7 @@ export async function listCommerceCheckoutInquiriesBySlug(
     try {
       return (await convexClient.query(
         api.inquiries.listCommerceCheckoutBySlug,
-        { leadSlug },
+        { leadSlug, apiSecret: convexApiSecret },
       )) as ClientInquiry[];
     } catch (e) {
       console.warn(
@@ -2216,6 +2221,7 @@ export async function updateClientInquiryStatus(
       const updated = (await convexClient.mutation(api.inquiries.updateStatus, {
         inquiryId,
         status,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry | null;
       if (updated) return updated;
       // Shared store is authoritative when requireConvex — do not invent from SQLite.
@@ -2254,6 +2260,7 @@ export async function getClientInquiryById(
     try {
       const inquiry = (await convexClient.query(api.inquiries.getById, {
         inquiryId,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry | null;
       if (inquiry) return inquiry;
     } catch (e) {
@@ -2288,6 +2295,7 @@ export async function recordClientInquiryReply(
       const updated = (await convexClient.mutation(api.inquiries.recordReply, {
         inquiryId,
         operatorReply,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry | null;
       if (updated) return updated;
       // Shared store is authoritative when requireConvex — do not invent from SQLite.
