@@ -11,6 +11,7 @@ import {
   listUnpaidCommerceOrders,
   listCommerceOrdersRefunded,
   listCommerceOrdersDisputed,
+  listCommerceOrdersMissingClientReceipt,
 } from "@/lib/db";
 import { mergeCommerceOrdersForReview } from "@/lib/commerce";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
@@ -73,6 +74,9 @@ async function loadLeadsPipelineHealth(): Promise<{
   commerceOrders: Awaited<ReturnType<typeof listUnpaidCommerceOrders>>;
   commerceOrdersRefunded: Awaited<ReturnType<typeof listCommerceOrdersRefunded>>;
   commerceOrdersDisputed: Awaited<ReturnType<typeof listCommerceOrdersDisputed>>;
+  commerceOrdersMissingClientReceipt: Awaited<
+    ReturnType<typeof listCommerceOrdersMissingClientReceipt>
+  >;
 }> {
   const nowMs = Date.now();
   const marketingMonth = marketingMonthKey(nowMs);
@@ -89,6 +93,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     commerceOrders,
     commerceOrdersRefunded,
     commerceOrdersDisputed,
+    commerceOrdersMissingClientReceipt,
   ] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
@@ -102,6 +107,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     listUnpaidCommerceOrders(),
     listCommerceOrdersRefunded(),
     listCommerceOrdersDisputed(),
+    listCommerceOrdersMissingClientReceipt(),
   ]);
   return {
     leads,
@@ -116,6 +122,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     commerceOrders,
     commerceOrdersRefunded,
     commerceOrdersDisputed,
+    commerceOrdersMissingClientReceipt,
     health: computePipelineHealth({
       leads,
       orders,
@@ -128,6 +135,7 @@ async function loadLeadsPipelineHealth(): Promise<{
       commerceOrders,
       commerceOrdersRefunded,
       commerceOrdersDisputed,
+      commerceOrdersMissingClientReceipt,
       nowMs,
     }),
   };

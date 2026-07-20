@@ -162,6 +162,7 @@ describe("buildDailyDigest", () => {
       "Commerce payouts owed",
       "Refund clawback",
       "Dispute clawback",
+      "Missing client receipt",
       "Bundle refunds",
       "Bundle disputes",
       "production handoffs",
@@ -1909,6 +1910,61 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("$25.00 paid out");
     expect(html).toContain("Clawback &lt;Shop&gt;");
     expect(html).not.toContain("Clawback <Shop>");
+  });
+
+  it("renders Missing client receipt section and escapes business names", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "silent-shop",
+          businessName: "Silent <Shop>",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersMissingClientReceipt: [
+        {
+          id: "co_missing",
+          leadSlug: "silent-shop",
+          skuId: "sku_1",
+          skuName: "Gift card",
+          amountPaidUsd: 25,
+          stripeSessionId: "cs_missing",
+          createdAt: "2026-07-12T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Missing client receipt");
+    expect(html).toContain("sold Gift card ($25.00)");
+    expect(html).toContain("Silent &lt;Shop&gt;");
+    expect(html).not.toContain("Silent <Shop>");
+    expect(digest.commerceOrdersMissingClientReceiptCount).toBe(1);
+    expect(digest.oldestCommerceOrdersMissingClientReceiptAgeHours).not.toBeNull();
+  });
+
+  it("does not conflate missing-client-receipt with payout/refund/dispute status", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ slug: "paid-shop", stage: "live" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersMissingClientReceipt: [
+        {
+          id: "co_paid_but_silent",
+          leadSlug: "paid-shop",
+          skuId: "sku_1",
+          skuName: "Latte",
+          amountPaidUsd: 5,
+          stripeSessionId: "cs_paid_but_silent",
+          createdAt: "2026-07-12T09:00:00.000Z",
+          paidOutAt: "2026-07-13T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commerceOrdersMissingClientReceiptCount).toBe(1);
   });
 
   it("renders Bundle revenue refunded section and escapes business names", () => {

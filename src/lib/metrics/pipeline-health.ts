@@ -263,6 +263,15 @@ export interface PipelineHealth {
   /** Age in whole hours since the oldest dispute-after-payout was flagged; null when none. */
   oldestCommerceOrdersDisputeClawbackAgeHours: number | null;
   /**
+   * Count of Commerce Buy now orders with no client-receipt-sent marker —
+   * the local business was never notified they made a sale (see
+   * commerce-buy-now-client-receipt-visibility). Independent of payout
+   * status: distinct from commerceOrdersCount (money owed) above.
+   */
+  commerceOrdersMissingClientReceiptCount: number;
+  /** Age in whole hours since the oldest order still missing a client receipt; null when none. */
+  oldestCommerceOrdersMissingClientReceiptAgeHours: number | null;
+  /**
    * Paid/live Growth/Complete/Commerce leads with recurringCanceledAt and no
    * still-active recurring order — MRR recovery debt (Billing Portal chase).
    * Distinct from marketingPacksDue (those drop out when entitlement pauses).
@@ -458,6 +467,16 @@ export function computePipelineHealth(input: {
     amountPaidUsd: number;
     paidOutAt?: string;
     disputedAt?: string;
+  }>;
+  /**
+   * Every Commerce Buy now order with no client-receipt-sent marker
+   * (optional) — pass listCommerceOrdersMissingClientReceipt() (uncapped).
+   * Independent of paidOutAt/refundedAt/disputedAt: this tracks whether the
+   * local business was ever notified of the sale, not whether they've been
+   * paid (see commerce-buy-now-client-receipt-visibility).
+   */
+  commerceOrdersMissingClientReceipt?: ReadonlyArray<{
+    createdAt?: string;
   }>;
   nowMs?: number;
 }): PipelineHealth {
@@ -716,6 +735,11 @@ export function computePipelineHealth(input: {
     }
   }
 
+  const commerceOrdersMissingClientReceipt =
+    input.commerceOrdersMissingClientReceipt ?? [];
+  const oldestCommerceOrdersMissingClientReceiptAgeHoursValue =
+    oldestCommerceOrdersOwedAgeHours(commerceOrdersMissingClientReceipt, nowMs);
+
   const recurringEntitlementPaused = listRecurringEntitlementPaused(
     input.leads,
     input.orders,
@@ -785,6 +809,9 @@ export function computePipelineHealth(input: {
     commerceOrdersDisputeClawbackCount: commerceOrdersDisputeClawback.length,
     commerceOrdersDisputeClawbackUsd,
     oldestCommerceOrdersDisputeClawbackAgeHours,
+    commerceOrdersMissingClientReceiptCount: commerceOrdersMissingClientReceipt.length,
+    oldestCommerceOrdersMissingClientReceiptAgeHours:
+      oldestCommerceOrdersMissingClientReceiptAgeHoursValue,
     recurringEntitlementPausedCount,
     oldestRecurringEntitlementPausedAgeHours: oldestRecurringPausedAgeHours,
     starterUpsellCandidatesCount: starterUpsellCandidates.length,

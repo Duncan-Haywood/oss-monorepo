@@ -359,6 +359,29 @@ export const listDisputed = query({
 });
 
 /**
+ * Every commerce order with no client-receipt-sent marker, regardless of
+ * paidOutAt/refundedAt/disputedAt — sendCommerceBuyNowClientReceipt notifies
+ * the local business (the "client") that their storefront sold something;
+ * a permanently-bad email or a sustained Resend outage past Stripe's webhook
+ * retry window leaves clientReceiptEmailSentAt unset forever with nothing
+ * else surfacing the gap (see commerce-buy-now-client-receipt-visibility).
+ * Same collect + filter shape as listRefunded/listDisputed — bounded operator
+ * ledger, completeness over a truncated recent page.
+ */
+export const listMissingClientReceipt = query({
+  args: { apiSecret: v.string() },
+  returns: v.array(orderReturn),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const rows = await ctx.db.query("commerceOrders").collect();
+    return rows
+      .filter((row) => !row.clientReceiptEmailSentAt)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map(mapOrderRow);
+  },
+});
+
+/**
  * Clears commerceOrders.disputedAt after charge.dispute.closed with status
  * won / warning_closed — Stripe reinstated (or never permanently withdrew)
  * the funds, so Mark paid out and owed totals must reopen. Uses replace (not

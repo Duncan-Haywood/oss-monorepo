@@ -35,6 +35,7 @@ import {
   listUnpaidCommerceOrders,
   listCommerceOrdersRefunded,
   listCommerceOrdersDisputed,
+  listCommerceOrdersMissingClientReceipt,
   listDeployHandoffs,
   getLeadSlugByCustomDomain,
   getDeployHandoffBySlug,
@@ -1725,6 +1726,7 @@ export async function sendDailyDigestAction() {
       commerceOrders,
       commerceOrdersRefunded,
       commerceOrdersDisputed,
+      commerceOrdersMissingClientReceipt,
       handoffs,
     ] = await Promise.all([
       getLeads(),
@@ -1737,6 +1739,7 @@ export async function sendDailyDigestAction() {
       listUnpaidCommerceOrders(),
       listCommerceOrdersRefunded(),
       listCommerceOrdersDisputed(),
+      listCommerceOrdersMissingClientReceipt(),
       listDeployHandoffs(),
     ]);
 
@@ -1754,6 +1757,7 @@ export async function sendDailyDigestAction() {
       commerceOrders,
       commerceOrdersRefunded,
       commerceOrdersDisputed,
+      commerceOrdersMissingClientReceipt,
       handoffs,
       nowMs,
     });

@@ -86,6 +86,7 @@ const CLIENT_VOICE_PACKS_LIMIT = 5;
 const COMMERCE_PAYOUTS_LIMIT = 5;
 const COMMERCE_REFUND_CLAWBACK_LIMIT = 5;
 const COMMERCE_DISPUTE_CLAWBACK_LIMIT = 5;
+const COMMERCE_MISSING_CLIENT_RECEIPT_LIMIT = 5;
 const BUNDLE_ORDERS_REFUNDED_LIMIT = 5;
 const BUNDLE_ORDERS_DISPUTED_LIMIT = 5;
 const OPEN_HANDOFFS_LIMIT = 5;
@@ -192,6 +193,19 @@ export interface DigestCommerceOrderDisputeClawback {
   skuName: string;
   amountPaidUsd: number;
   disputedAt: string;
+}
+
+/**
+ * A commerce order with no client-receipt-sent marker — the local business
+ * was never notified they made a Buy now sale (see
+ * commerce-buy-now-client-receipt-visibility). Independent of payout status.
+ */
+export interface DigestCommerceOrderMissingClientReceipt {
+  slug: string;
+  businessName: string;
+  skuName: string;
+  amountPaidUsd: number;
+  createdAt: string;
 }
 
 /**
@@ -330,6 +344,12 @@ export interface DailyDigest {
   commerceOrdersDisputeClawbackTotalUsd: number;
   /** Age in whole hours of the oldest dispute-clawback order (by disputedAt); null when none. */
   oldestCommerceOrdersDisputeClawbackAgeHours: number | null;
+  /** Commerce orders with no client-receipt-sent marker (visibility section). */
+  commerceOrdersMissingClientReceipt: DigestCommerceOrderMissingClientReceipt[];
+  /** True count before the COMMERCE_MISSING_CLIENT_RECEIPT_LIMIT slice — use for the section header. */
+  commerceOrdersMissingClientReceiptCount: number;
+  /** Age in whole hours since the oldest order still missing a client receipt; null when none. */
+  oldestCommerceOrdersMissingClientReceiptAgeHours: number | null;
   /**
    * Bundle (Starter/Growth/Complete/Commerce-addon) orders Stripe refunded —
    * visibility footnote, not an action section (no clawback owed on this
@@ -497,6 +517,12 @@ export interface BuildDailyDigestInput {
    */
   commerceOrdersDisputed?: ReadonlyArray<CommerceOrderRecord>;
   /**
+   * Every Commerce Buy now order with no client-receipt-sent marker — pass
+   * listCommerceOrdersMissingClientReceipt() (uncapped). Independent of
+   * paidOutAt/refundedAt/disputedAt (see commerce-buy-now-client-receipt-visibility).
+   */
+  commerceOrdersMissingClientReceipt?: ReadonlyArray<CommerceOrderRecord>;
+  /**
    * Production deploy handoffs — pass listDeployHandoffs() (uncapped). Live rows
    * are filtered out; open rows drive the Production handoffs open section.
    */
@@ -524,6 +550,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceOrders = [],
     commerceOrdersRefunded = [],
     commerceOrdersDisputed = [],
+    commerceOrdersMissingClientReceipt: commerceOrdersMissingClientReceiptInput = [],
     handoffs = [],
     nowMs,
   } = input;
@@ -789,6 +816,25 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
   })();
 
+  // Client-receipt visibility — independent axis from payout status; a
+  // permanently-bad email or sustained Resend outage leaves this unset
+  // forever with nothing else surfacing the gap (see
+  // commerce-buy-now-client-receipt-visibility).
+  const commerceOrdersMissingClientReceiptCount =
+    commerceOrdersMissingClientReceiptInput.length;
+  const commerceOrdersMissingClientReceipt: DigestCommerceOrderMissingClientReceipt[] =
+    commerceOrdersMissingClientReceiptInput
+      .slice(0, COMMERCE_MISSING_CLIENT_RECEIPT_LIMIT)
+      .map((order) => ({
+        slug: order.leadSlug,
+        businessName: leadsBySlug.get(order.leadSlug)?.businessName ?? order.leadSlug,
+        skuName: order.skuName,
+        amountPaidUsd: order.amountPaidUsd,
+        createdAt: order.createdAt,
+      }));
+  const oldestCommerceOrdersMissingClientReceiptAgeHoursValue =
+    oldestCommerceOrdersOwedAgeHours(commerceOrdersMissingClientReceiptInput, nowMs);
+
   // Bundle order refunds — visibility footnote, not a clawback action (no
   // payout-panel double-loss risk on this ledger; see
   // bundle-order-refund-tracking).
@@ -965,6 +1011,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "Commerce payouts owed", count: commercePayoutsOwedCount },
     { label: "Refund clawback", count: commerceOrdersRefundClawbackCount },
     { label: "Dispute clawback", count: commerceOrdersDisputeClawbackCount },
+    { label: "Missing client receipt", count: commerceOrdersMissingClientReceiptCount },
     { label: "Bundle refunds", count: bundleOrdersRefundedCount },
     { label: "Bundle disputes", count: bundleOrdersDisputedCount },
     { label: "production handoffs", count: openHandoffsCount },
@@ -1020,6 +1067,10 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceOrdersDisputeClawbackCount,
     commerceOrdersDisputeClawbackTotalUsd,
     oldestCommerceOrdersDisputeClawbackAgeHours,
+    commerceOrdersMissingClientReceipt,
+    commerceOrdersMissingClientReceiptCount,
+    oldestCommerceOrdersMissingClientReceiptAgeHours:
+      oldestCommerceOrdersMissingClientReceiptAgeHoursValue,
     bundleOrdersRefunded,
     bundleOrdersRefundedCount,
     bundleOrdersRefundedTotalUsd,
@@ -1194,6 +1245,12 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ? `Dispute clawback needed ($${digest.commerceOrdersDisputeClawbackTotalUsd.toFixed(2)} · ${digest.commerceOrdersDisputeClawbackCount} order${digest.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"}${digest.oldestCommerceOrdersDisputeClawbackAgeHours !== null ? ` · oldest ${digest.oldestCommerceOrdersDisputeClawbackAgeHours}h` : ""})`
       : "Dispute clawback needed (0)";
 
+  const missingClientReceiptRows = digest.commerceOrdersMissingClientReceipt.map(
+    (row) =>
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — sold ${escapeHtmlForEmail(row.skuName)} ($${row.amountPaidUsd.toFixed(2)}), but was never notified — resend the receipt`,
+  );
+  const missingClientReceiptTitle = `Missing client receipt (${digest.commerceOrdersMissingClientReceiptCount}${digest.oldestCommerceOrdersMissingClientReceiptAgeHours !== null ? ` · oldest ${digest.oldestCommerceOrdersMissingClientReceiptAgeHours}h` : ""})`;
+
   const bundleRefundRows = digest.bundleOrdersRefunded.map(
     (row) =>
       `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} (${escapeHtmlForEmail(row.tier)}) refunded by Stripe — already excluded from revenue, no action needed`,
@@ -1264,6 +1321,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
     ${section(clawbackTitle, clawbackRows, "No Commerce payouts have been refunded after the fact.")}
     ${section(disputeClawbackTitle, disputeClawbackRows, "No Commerce payouts have been disputed after the fact.")}
+    ${section(missingClientReceiptTitle, missingClientReceiptRows, "Every Commerce Buy now sale has notified the client.")}
     ${section(bundleRefundTitle, bundleRefundRows, "No bundle orders refunded.")}
     ${section(bundleDisputeTitle, bundleDisputeRows, "No bundle orders disputed.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount}${digest.oldestOpenHandoffAgeHours !== null ? ` · oldest ${digest.oldestOpenHandoffAgeHours}h` : ""})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
