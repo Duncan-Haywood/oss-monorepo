@@ -2661,19 +2661,27 @@ export async function markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer
 }
 
 /** Records that an operator sent an abandoned-checkout recovery email for this session. */
+/**
+ * Returns false (no write) when the session is missing or is no longer
+ * "open" at write time — never trusts the caller's earlier
+ * listOpenCheckoutSessions() snapshot alone. A concurrent Stripe webhook can
+ * complete the same session between that read and this call (a real payment
+ * landing), and the calling action must skip sending a "finish your
+ * purchase" recovery email once this returns false
+ * (checkout-session-recovery-race-guard).
+ */
 export async function recordCheckoutRecoverySent(
   stripeSessionId: string,
   sentAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.checkoutSessions.recordRecoverySent, {
+      return await convexClient.mutation(api.checkoutSessions.recordRecoverySent, {
         stripeSessionId,
         sentAt,
         apiSecret: convexApiSecret,
       });
-      return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("recordCheckoutRecoverySent", e);
@@ -2686,10 +2694,12 @@ export async function recordCheckoutRecoverySent(
   }
 
   const db = getSqliteDb();
-  db.prepare("UPDATE checkout_sessions SET recoverySentAt = ? WHERE stripeSessionId = ?").run(
-    sentAt,
-    stripeSessionId,
-  );
+  const result = db
+    .prepare(
+      "UPDATE checkout_sessions SET recoverySentAt = ? WHERE stripeSessionId = ? AND status = 'open'",
+    )
+    .run(sentAt, stripeSessionId);
+  return result.changes > 0;
 }
 
 /** All checkout sessions still "open" (not yet completed) — the abandoned-recovery due queue's input. */

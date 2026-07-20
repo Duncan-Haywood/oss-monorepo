@@ -183,7 +183,7 @@ test("markCompleteOpenCommerceForLeadSkuCustomer closes only matching sku+email 
   expect(openIds).not.toContain("cs_same_shopper");
 });
 
-test("recordRecoverySent stamps recoverySentAt on a known session and is a safe no-op on an unknown one", async () => {
+test("recordRecoverySent stamps recoverySentAt on a known open session and resolves true, and is a safe no-op resolving false on an unknown one", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_1" }));
 
@@ -193,17 +193,53 @@ test("recordRecoverySent stamps recoverySentAt on a known session and is a safe 
       sentAt: "2026-01-05T00:00:00.000Z",
       apiSecret: TEST_API_SECRET,
     }),
-  ).resolves.toBeNull();
+  ).resolves.toBe(false);
 
-  await t.mutation(api.checkoutSessions.recordRecoverySent, {
-    stripeSessionId: "cs_1",
-    sentAt: "2026-01-05T00:00:00.000Z",
+  await expect(
+    t.mutation(api.checkoutSessions.recordRecoverySent, {
+      stripeSessionId: "cs_1",
+      sentAt: "2026-01-05T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(rows[0].recoverySentAt).toBe("2026-01-05T00:00:00.000Z");
+});
+
+test("recordRecoverySent (checkout-session-recovery-race-guard): resolves false and leaves recoverySentAt unset once the session completed (a real payment landing) after the caller's earlier listOpen snapshot", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_race" }));
+  // Simulates a concurrent Stripe webhook completing the session between the
+  // dashboard action's listOpenCheckoutSessions() read and this mutation.
+  await t.mutation(api.checkoutSessions.markComplete, {
+    stripeSessionId: "cs_race",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  await expect(
+    t.mutation(api.checkoutSessions.recordRecoverySent, {
+      stripeSessionId: "cs_race",
+      sentAt: "2026-01-05T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+
+  // recoverySentAt must stay unset — no patch applied — so a future genuine
+  // reopen (async_payment_failed) does not inherit a stale sent-marker.
+  const openIds = (
+    await t.query(api.checkoutSessions.listOpen, { apiSecret: TEST_API_SECRET })
+  ).map((r: CheckoutSessionRow) => r.stripeSessionId);
+  expect(openIds).not.toContain("cs_race");
+  await t.mutation(api.checkoutSessions.markOpen, {
+    stripeSessionId: "cs_race",
     apiSecret: TEST_API_SECRET,
   });
   const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
     apiSecret: TEST_API_SECRET,
   });
-  expect(rows[0].recoverySentAt).toBe("2026-01-05T00:00:00.000Z");
+  expect(rows.find((r) => r.stripeSessionId === "cs_race")?.recoverySentAt).toBeUndefined();
 });
 
 test("listOpen returns only open sessions, sorted oldest-createdAt-first (matches SQLite ORDER BY createdAt ASC)", async () => {
