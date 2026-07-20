@@ -22,6 +22,21 @@ export const MAX_PREVIEW_OPENED_AT_LENGTH = 64;
 export const MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS = 5 * 60 * 1000;
 
 /**
+ * How far a client-supplied `openedAt` may sit behind server "now" before
+ * it's treated as implausible (mirrors the future bound above). This is not
+ * just symmetry for its own sake: the resolved value is persisted verbatim
+ * as Lead.lastPreviewOpenAt, which shouldPersistPreviewOpen then treats as
+ * the debounce checkpoint for every *future* call. An unbounded past value
+ * lets a caller pin that checkpoint arbitrarily far back — real "now" minus
+ * an ancient checkpoint always comfortably clears PREVIEW_OPEN_DEBOUNCE_MS,
+ * so every subsequent call (however soon after, however many) is treated as
+ * "long overdue" and writes again, permanently defeating the debounce rather
+ * than merely surviving one stale value until the next genuine open
+ * (preview-open-openedat-past-skew-debounce-bypass-guard).
+ */
+export const MAX_PREVIEW_OPENED_AT_PAST_SKEW_MS = 5 * 60 * 1000;
+
+/**
  * Optional attribution query params (`src` / `utm_source`) ceiling. Genuine
  * values are short tokens (`outreach`, `email`, `resend`). Over-long probes are
  * treated as missing — soft-cap would invent a truncated attribution token;
@@ -131,19 +146,25 @@ export function shouldPersistPreviewOpen(
 
 /**
  * Resolve optional beacon `openedAt` before Date.parse / persist.
- * Missing, non-string, over-MAX, unparseable, or implausibly future-dated
- * (beyond MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS past server now) → server now
- * (fall-back). Valid ISO-ish strings are normalized via
+ * Missing, non-string, over-MAX, unparseable, or implausibly future- or
+ * past-dated (beyond MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS /
+ * MAX_PREVIEW_OPENED_AT_PAST_SKEW_MS around server now) → server now
+ * (fall-back). Valid ISO-ish strings within tolerance are normalized via
  * `new Date(...).toISOString()`.
  *
- * The future-skew guard exists because the resolved value both gates
- * shouldPersistPreviewOpen's debounce clock (route.ts derives `nowMs` from
- * it) and is persisted verbatim as lead.lastPreviewOpenAt. `/preview/[slug]`
- * is a public, unauthenticated URL keyed only by a leakable slug — an
- * unbounded future openedAt would let one spoofed request permanently mark
- * the lead "just opened" (instant quality-score engagement credit) while
- * silently debouncing away every real future open until server time catches
- * up to the spoofed date (preview-open-openedat-future-skew-guard).
+ * Both skew guards exist because the resolved value both gates
+ * shouldPersistPreviewOpen's debounce clock and is persisted verbatim as
+ * lead.lastPreviewOpenAt. `/preview/[slug]` is a public, unauthenticated URL
+ * keyed only by a leakable slug: an unbounded future openedAt would let one
+ * spoofed request permanently mark the lead "just opened" (instant
+ * quality-score engagement credit) while silently debouncing away every
+ * real future open until server time catches up to the spoofed date
+ * (preview-open-openedat-future-skew-guard); an unbounded past openedAt
+ * would let a spoofed request pin the debounce checkpoint arbitrarily far
+ * back, so every subsequent call — real "now" minus an ancient checkpoint
+ * always clears PREVIEW_OPEN_DEBOUNCE_MS — writes again, permanently
+ * defeating the debounce rather than merely surviving until the next
+ * genuine open (preview-open-openedat-past-skew-debounce-bypass-guard).
  */
 export function resolvePreviewOpenedAt(
   raw: unknown,
@@ -154,8 +175,9 @@ export function resolvePreviewOpenedAt(
   const parsed = Date.parse(raw);
   if (Number.isNaN(parsed)) return nowIso;
   const nowMs = Date.parse(nowIso);
-  if (!Number.isNaN(nowMs) && parsed > nowMs + MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS) {
-    return nowIso;
+  if (!Number.isNaN(nowMs)) {
+    if (parsed > nowMs + MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS) return nowIso;
+    if (parsed < nowMs - MAX_PREVIEW_OPENED_AT_PAST_SKEW_MS) return nowIso;
   }
   return new Date(parsed).toISOString();
 }

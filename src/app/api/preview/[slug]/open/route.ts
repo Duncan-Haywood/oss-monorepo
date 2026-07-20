@@ -79,7 +79,10 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ ok: true, recorded: false, reason: "not_attributed" });
   }
 
-  const nowMs = Date.parse(openedAt);
+  // Debounce clock must be real server time, never the (client-influenced,
+  // though now skew-bounded) resolved `openedAt` — see
+  // preview-open-openedat-past-skew-debounce-bypass-guard.
+  const nowMs = Date.now();
   if (!shouldPersistPreviewOpen(lead.lastPreviewOpenAt, nowMs)) {
     return NextResponse.json({ ok: true, recorded: false, reason: "debounced" });
   }

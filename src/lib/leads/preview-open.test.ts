@@ -3,6 +3,7 @@ import {
   MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH,
   MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS,
   MAX_PREVIEW_OPENED_AT_LENGTH,
+  MAX_PREVIEW_OPENED_AT_PAST_SKEW_MS,
   OUTREACH_PREVIEW_SRC,
   buildPreviewOpenBeaconPath,
   previewUrlWithOutreachTracking,
@@ -156,8 +157,9 @@ describe("resolvePreviewOpenedAt", () => {
   });
 
   it("accepts exact-max length when parseable", () => {
-    // 24-char ISO padded conceptually — use a real ISO under the ceiling.
-    const iso = "2026-07-12T11:00:00.000Z";
+    // 24-char ISO padded conceptually — use a real ISO under the ceiling,
+    // close enough to serverNow to stay inside the past-skew tolerance.
+    const iso = "2026-07-16T08:59:00.000Z";
     expect(iso.length).toBeLessThanOrEqual(MAX_PREVIEW_OPENED_AT_LENGTH);
     expect(resolvePreviewOpenedAt(iso, serverNow)).toBe(iso);
   });
@@ -167,8 +169,8 @@ describe("resolvePreviewOpenedAt", () => {
   });
 
   it("normalizes parseable non-ISO dates to toISOString", () => {
-    expect(resolvePreviewOpenedAt("2026-07-12T11:00:00+00:00", serverNow)).toBe(
-      "2026-07-12T11:00:00.000Z",
+    expect(resolvePreviewOpenedAt("2026-07-16T08:59:00+00:00", serverNow)).toBe(
+      "2026-07-16T08:59:00.000Z",
     );
   });
 
@@ -190,8 +192,21 @@ describe("resolvePreviewOpenedAt", () => {
     expect(resolvePreviewOpenedAt(withinSkew, serverNow)).toBe(withinSkew);
   });
 
-  it("accepts a plausible past timestamp unchanged", () => {
-    const past = "2020-01-01T00:00:00.000Z";
-    expect(resolvePreviewOpenedAt(past, serverNow)).toBe(past);
+  it("falls back to server now for an implausibly old spoofed timestamp", () => {
+    expect(resolvePreviewOpenedAt("2001-01-01T00:00:00.000Z", serverNow)).toBe(serverNow);
+  });
+
+  it("falls back to server now just past the past-skew tolerance", () => {
+    const justOver = new Date(
+      Date.parse(serverNow) - MAX_PREVIEW_OPENED_AT_PAST_SKEW_MS - 1,
+    ).toISOString();
+    expect(resolvePreviewOpenedAt(justOver, serverNow)).toBe(serverNow);
+  });
+
+  it("accepts a timestamp within the past-skew tolerance", () => {
+    const withinSkew = new Date(
+      Date.parse(serverNow) - MAX_PREVIEW_OPENED_AT_PAST_SKEW_MS + 1,
+    ).toISOString();
+    expect(resolvePreviewOpenedAt(withinSkew, serverNow)).toBe(withinSkew);
   });
 });

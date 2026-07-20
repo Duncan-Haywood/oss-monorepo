@@ -123,6 +123,30 @@ describe("POST /api/preview/[slug]/open — requireConvex", () => {
     expect(Number.isNaN(Date.parse(persistedOpenedAt))).toBe(false);
   });
 
+  it("clamps an implausibly old spoofed openedAt to server now before persisting", async () => {
+    const { POST } = await import("./route");
+    const spoofedPast = "2001-01-01T00:00:00.000Z";
+    const response = await POST(
+      new Request("http://localhost/api/preview/demo-cafe/open?src=outreach", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ openedAt: spoofedPast }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json).toEqual({ ok: true, recorded: true });
+    expect(recordLeadPreviewOpen).toHaveBeenCalledTimes(1);
+    const persistedOpenedAt = recordLeadPreviewOpen.mock.calls[0]?.[1] as string;
+    // An unbounded-past checkpoint would let every later call see real "now"
+    // minus an ancient lastPreviewOpenAt, permanently clearing the 30-minute
+    // debounce — the persisted value must stay close to real server time.
+    expect(persistedOpenedAt).not.toBe(spoofedPast);
+    expect(Math.abs(Date.now() - Date.parse(persistedOpenedAt))).toBeLessThan(60_000);
+  });
+
   it("returns 400 when the raw JSON body exceeds MAX_PUBLIC_JSON_BODY_BYTES", async () => {
     const { MAX_PUBLIC_JSON_BODY_BYTES } = await import(
       "@/lib/security/json-body"
