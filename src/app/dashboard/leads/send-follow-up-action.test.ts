@@ -323,14 +323,14 @@ describe("sendFollowUpAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("rejects when recordLeadOutreach resolves false (paid/live/closed race guard) and never sends", async () => {
+  it("rejects when recordLeadOutreach resolves false (paid/live/closed race guard, or duplicate-step race guard) and never sends", async () => {
     recordLeadOutreach.mockResolvedValue(false);
     const { sendFollowUpAction } = await import("./actions");
     const res = await sendFollowUpAction("demo-cafe");
     expect(res).toEqual({
       success: false,
       error:
-        "Lead was paid, went live, or was closed after this page loaded — refresh and check its status; the follow-up was not sent",
+        "Lead was paid, went live, or was closed after this page loaded — or this follow-up step was already sent by another request. Refresh and check its status; the follow-up was not sent",
     });
     expect(sendOutreachFollowUp2).not.toHaveBeenCalled();
     expect(sendOutreachFollowUp3).not.toHaveBeenCalled();

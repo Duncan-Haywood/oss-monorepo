@@ -372,6 +372,61 @@ test("recordOutreach returns false and skips the write when the fresh row alread
   ).resolves.toBe(false);
 });
 
+test("recordOutreach returns false and skips the write when the lead's outreachStep already reached the requested step (outreach-step-duplicate-send-guard)", async () => {
+  // Reproduces a double-click / two-tab race on sendFollowUpAction or
+  // updateLeadStageAction("outreach_sent"): two concurrent calls both read
+  // the same pre-write outreachStep and both compute the same target step.
+  // Without this guard both would patch the row and both would proceed to
+  // send the real Resend email — a genuine duplicate send to a live prospect.
+  const t = convexTest(schema, modules);
+
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "dup-send-cafe", stage: "outreach_sent", outreachStep: 1 }),
+  );
+
+  // The winner of the race already advanced the lead to step 2.
+  await expect(
+    t.mutation(api.leads.recordOutreach, {
+      slug: "dup-send-cafe",
+      outreachStep: 2,
+      lastOutreachAt: "2026-02-01T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+
+  // The loser of the race replays the exact same request (same target step,
+  // same stale outreachStep=1 snapshot) — must be skipped, not double-sent.
+  await expect(
+    t.mutation(api.leads.recordOutreach, {
+      slug: "dup-send-cafe",
+      outreachStep: 2,
+      lastOutreachAt: "2026-02-01T00:05:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+
+  // A stale replay behind the current step (e.g. a delayed Email 1 request
+  // arriving after Email 2 already recorded) must also be skipped.
+  await expect(
+    t.mutation(api.leads.recordOutreach, {
+      slug: "dup-send-cafe",
+      outreachStep: 1,
+      lastOutreachAt: "2026-02-01T00:06:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "dup-send-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  // Only the first (winning) write landed — timestamp not clobbered by
+  // either later loser.
+  expect(row?.outreachStep).toBe(2);
+  expect(row?.lastOutreachAt).toBe("2026-02-01T00:00:00.000Z");
+});
+
 test("recordPreviewOpen no-ops (never throws) on an unknown slug, unlike every other lead mutation", async () => {
   const t = convexTest(schema, modules);
   await expect(

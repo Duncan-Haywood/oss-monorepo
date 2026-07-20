@@ -711,14 +711,24 @@ export async function recordLeadOutreach(
   // checkout or stage change landing between the caller's earlier snapshot
   // read and this write must not still record an outreach step / let the
   // caller send a real Email 2/3 to a lead that just converted or closed.
+  // The outreachStep re-check mirrors convex/leads.ts's matching guard: two
+  // concurrent calls (double-click, two tabs) that both snapshot the same
+  // pre-write outreachStep and both compute the same target step must not
+  // both patch the row and both send the real Resend email
+  // (outreach-step-duplicate-send-guard).
   const db = getSqliteDb();
-  const existing = db.prepare("SELECT slug, status FROM leads WHERE slug = ?").get(slug) as
-    | { slug: string; status: string }
+  const existing = db
+    .prepare("SELECT slug, status, outreachStep FROM leads WHERE slug = ?")
+    .get(slug) as
+    | { slug: string; status: string; outreachStep: number | null }
     | undefined;
   if (!existing) {
     throw new Error(`Lead with slug ${slug} not found`);
   }
   if (existing.status === "paid" || existing.status === "live" || existing.status === "closed") {
+    return false;
+  }
+  if ((existing.outreachStep ?? 0) >= outreachStep) {
     return false;
   }
   db.prepare(`

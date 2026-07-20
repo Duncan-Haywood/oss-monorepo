@@ -223,7 +223,17 @@ export const recordOutreach = mutation({
     lastOutreachAt: v.string(),
     apiSecret: v.string(),
   },
-  /** false when the fresh row had already gone paid/live/closed — patch skipped. */
+  /**
+   * false when the fresh row had already gone paid/live/closed, or the lead's
+   * current outreachStep already reached/passed args.outreachStep — patch
+   * skipped either way. The latter closes a duplicate-send window: two
+   * concurrent sendFollowUpAction/updateLeadStageAction("outreach_sent")
+   * calls (a double-click, or two operator tabs) both read the same
+   * pre-write outreachStep, both compute the same target step, both pass
+   * the paid/live/closed check, and — without this guard — both patched the
+   * row and both proceeded to send the real Resend Email 1/2/3 to a live
+   * prospect (outreach-step-duplicate-send-guard).
+   */
   returns: v.boolean(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
@@ -235,6 +245,9 @@ export const recordOutreach = mutation({
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
     if (lead.stage === "paid" || lead.stage === "live" || lead.stage === "closed") {
+      return false;
+    }
+    if ((lead.outreachStep ?? 0) >= args.outreachStep) {
       return false;
     }
     await ctx.db.patch(lead._id, {

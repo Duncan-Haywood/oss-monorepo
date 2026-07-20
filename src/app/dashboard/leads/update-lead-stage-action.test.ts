@@ -242,7 +242,7 @@ describe("updateLeadStageAction", () => {
     expect(res).toEqual({
       success: false,
       error:
-        "Stage saved, but the lead went paid/live/closed before Email 1 could be recorded — Email 1 was not sent",
+        "Stage saved, but the lead went paid/live/closed, or Email 1 was already sent by another request, before this could record it — Email 1 was not sent here",
     });
     expect(updateLeadStage).toHaveBeenCalledOnce();
     expect(recordLeadOutreach).toHaveBeenCalledOnce();

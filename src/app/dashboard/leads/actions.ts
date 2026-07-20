@@ -656,13 +656,17 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
           throw error;
         }
         if (!outreachRecorded) {
-          // recordLeadOutreach's own paid/live/closed write-time guard
-          // fired — defense in depth for the near-zero-width window between
-          // our own updateLeadStage write above and this call.
+          // recordLeadOutreach's own paid/live/closed write-time guard fired
+          // (defense in depth for the near-zero-width window between our own
+          // updateLeadStage write above and this call), OR Email 1 was
+          // already recorded by a concurrent call to this same action — a
+          // double-click or a second open tab racing this request
+          // (outreach-step-duplicate-send-guard) — either way Email 1 is not
+          // sent here.
           return {
             success: false as const,
             error:
-              "Stage saved, but the lead went paid/live/closed before Email 1 could be recorded — Email 1 was not sent",
+              "Stage saved, but the lead went paid/live/closed, or Email 1 was already sent by another request, before this could record it — Email 1 was not sent here",
           };
         }
         // sendOutreachEmail → sendEmail resolves { success: false } on
@@ -1078,11 +1082,14 @@ export async function sendFollowUpAction(slug: string) {
       // condition atomically at write time and skips the patch (and this
       // action skips the Resend send) when a concurrent Stripe checkout or
       // stage change already moved this lead to paid/live/closed in between
-      // (sendfollowup-action-paid-live-closed-race-guard).
+      // (sendfollowup-action-paid-live-closed-race-guard), OR when this
+      // exact step was already recorded by a concurrent call (a double-click
+      // or a second open tab racing this same request — outreach-step-
+      // duplicate-send-guard) — either way the follow-up was not sent here.
       return {
         success: false as const,
         error:
-          "Lead was paid, went live, or was closed after this page loaded — refresh and check its status; the follow-up was not sent",
+          "Lead was paid, went live, or was closed after this page loaded — or this follow-up step was already sent by another request. Refresh and check its status; the follow-up was not sent",
       };
     }
 
