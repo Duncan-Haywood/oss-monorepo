@@ -8,7 +8,7 @@ export default function CliAgentsDocPage() {
   return (
     <DocPage
       title="CLI scheduled agents"
-      subtitle="GitHub Actions that run Codex, Gemini, OpenCode, Grok Build, Cursor Agent, and Claude Code once per hour, staggered"
+      subtitle="GitHub Actions configured to run Codex, Gemini, OpenCode, Grok Build, Cursor Agent, and Claude Code once per hour, staggered — currently down, see outage note below"
       related={[
         { href: "/docs/process", label: "Process log" },
         { href: "/docs/architecture", label: "Architecture" },
