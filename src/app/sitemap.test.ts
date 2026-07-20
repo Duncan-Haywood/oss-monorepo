@@ -10,6 +10,12 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("sitemap", () => {
+  it("declares a revalidate window so paid/live leads aren't frozen out until the next deploy", async () => {
+    const mod = await import("./sitemap");
+    expect(mod.revalidate).toBeTypeOf("number");
+    expect(mod.revalidate).toBeGreaterThan(0);
+  });
+
   it("lists every /docs/* sub-page from DOCS_PAGES, not a stale hand-copied subset", async () => {
     getLeads.mockResolvedValue([]);
     const sitemap = (await import("./sitemap")).default;
