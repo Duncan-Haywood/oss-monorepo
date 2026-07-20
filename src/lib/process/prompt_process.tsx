@@ -3437,6 +3437,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 4 — Data ingestion",
     owner: "claude/upbeat-dijkstra-v2iugu",
   },
+  {
+    id: "checkout-page-rate-limit",
+    summary:
+      "Empty-backlog audit found the plain public /checkout entry page (src/app/checkout/page.tsx) was the one page in the preview-page-rate-limit / checkout-success-page-rate-limit family never swept — it calls loadCheckoutPrefillLead(params.slug) unconditionally on every request, which fires a real Convex/SQLite getLeadBySlug round trip for any slug that passes the length gate with no per-IP throttle at all, unlike its two siblings. A scripted loop over guessed/leaked slugs forces unbounded DB round trips plus a full SSR render with zero backoff — the same resource-exhaustion class AGENT_PROTOCOL documents (public, unauthenticated, data-driven GET, no existence short-circuit, an expensive per-request lookup). Shipped: planCheckoutPageAccess + CHECKOUT_PAGE_RATE_LIMIT (src/lib/checkout/checkout-page-access.ts), mirroring planCheckoutSuccessAccess exactly — checks checkRateLimit(`checkout-page:${clientIp}`) BEFORE loadCheckoutPrefillLead; a rate-limited hit falls back to the un-prefilled checkout ({ slug: undefined, lead: null }) rather than erroring, so a throttled caller never gets stranded mid-purchase, same fail-to-cheap-existing-path pattern as the two sibling fixes.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-1xj7hh",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -15770,5 +15778,21 @@ export const ITERATIONS: ProcessIteration[] = [
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "outreach-step-duplicate-send-guard",
     ),
+  },
+  {
+    date: "2026-07-20",
+    branch: "claude/upbeat-dijkstra-1xj7hh",
+    summary:
+      "Picked up as a scheduled routine (\"continue toward a profitable, growing business\") after PR #511 (outreach-step-duplicate-send-guard, tip of main at 1c881b1); this branch was created fresh from that exact tip. Confirmed baseline green (fresh npm ci + npx tsc --noEmit clean + npm run lint clean + npm test 2383 passed/177 files + npm run build clean). NEXT_STEPS confirmed still fully gated (same five operator/legal/infra-blocked items). Fold-scanned the remote: sorted ~450 branches by push time — the entire recent claude/* cluster (nice-euler-bg6t52 down through several dozen) diffs identical-content-different-SHA against main (already squash/rebase-merged); mcp__github__list_pull_requests confirmed the one open PR (#202) is still the same weeks-stale unrelated draft every prior iteration has noted — no live fold candidate.",
+    shipped: [
+      "Dispatched a research agent primed with the full AGENT_PROTOCOL text and the tail of ITERATIONS (so it wouldn't re-propose the just-shipped rate-limit or race-guard series), told to independently verify any candidate. It found the plain public /checkout entry page (src/app/checkout/page.tsx) was the one page in the preview-page-rate-limit / checkout-success-page-rate-limit family never swept: it calls loadCheckoutPrefillLead(params.slug) unconditionally, firing a real Convex/SQLite getLeadBySlug round trip for any slug that passes the length gate, with zero per-IP throttle.",
+      "Independently re-verified before touching anything: read src/app/checkout/page.tsx and src/lib/checkout/prefill-slug.ts end to end confirming no checkRateLimit anywhere in the call path, and read both sibling implementations (src/lib/checkout/success-page-access.ts, src/lib/leads/preview-page-access.ts) to confirm the exact pattern to mirror.",
+      "src/lib/checkout/checkout-page-access.ts — new planCheckoutPageAccess + CHECKOUT_PAGE_RATE_LIMIT (plain DEFAULT_RATE_LIMIT, 20/60s), mirroring planCheckoutSuccessAccess: checks checkRateLimit(`checkout-page:${clientIp}`) before ever calling loadPrefillLead, so a rate-limited hit never reaches the DB.",
+      "src/app/checkout/page.tsx — derives clientIp via clientIpFromHeaders(await headers()) and routes through planCheckoutPageAccess before loadCheckoutPrefillLead; a rate-limited plan falls back to the pre-existing un-prefilled checkout ({ slug: undefined, lead: null }) instead of erroring or stranding the buyer.",
+      "src/lib/checkout/checkout-page-access.test.ts — five new cases mirroring success-page-access.test.ts: rate limit checked before loadPrefillLead, both loaded/missing-slug results pass through unchanged when allowed, bucket keyed by client IP (not slug), and CHECKOUT_PAGE_RATE_LIMIT equals the plain 20/60s default.",
+      "src/lib/process/prompt_process.tsx — appended checkout-page-rate-limit to BUSINESS_DECISIONS and this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a security-hardening fix on already-shipped code, not a new backlog item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run src/lib/checkout/checkout-page-access.test.ts src/lib/checkout/prefill-slug.test.ts (13 passed) + npm test (full suite) + npm run build (clean).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "checkout-page-rate-limit"),
   },
 ];
