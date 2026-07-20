@@ -115,7 +115,17 @@ export const updateStage = mutation({
 
 export const upsertLead = mutation({
   args: { ...leadFields, apiSecret: v.string() },
-  returns: v.null(),
+  /**
+   * Create-only, atomic at write time: returns false (no write) when a row
+   * with this slug already exists by the time this mutation runs, instead of
+   * patching it — see lead-upsert-create-only-race-guard. Both call sites
+   * (addLeadAction, importLeadsCsvAction) already treat a pre-existing slug
+   * as a conflict via their own earlier existence check, never a legitimate
+   * update; a stale bulk snapshot (importLeadsCsvAction reads all existing
+   * slugs once, then loops up to MAX_ROWS sequential upserts) must not let a
+   * lead created/promoted mid-loop be silently reverted to CSV defaults.
+   */
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const { apiSecret, ...leadData } = args;
@@ -125,11 +135,10 @@ export const upsertLead = mutation({
       .withIndex("by_slug", (q) => q.eq("slug", leadData.slug))
       .unique();
     if (existing) {
-      await ctx.db.patch(existing._id, leadData);
-    } else {
-      await ctx.db.insert("leads", leadData);
+      return false;
     }
-    return null;
+    await ctx.db.insert("leads", leadData);
+    return true;
   },
 });
 

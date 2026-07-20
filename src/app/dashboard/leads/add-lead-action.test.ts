@@ -120,7 +120,7 @@ describe("addLeadAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
-    upsertLead.mockReset().mockResolvedValue(undefined);
+    upsertLead.mockReset().mockResolvedValue(true);
     recordLeadOutreach.mockReset().mockResolvedValue(undefined);
     sendOutreachEmail.mockReset().mockResolvedValue({
       success: true,
@@ -306,6 +306,26 @@ describe("addLeadAction", () => {
       error: existingLeadSlugConflictMessage("demo-cafe"),
     });
     expect(upsertLead).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("returns a conflict error and skips outreach/revalidate when upsertLead loses the create-only race (lead-upsert-create-only-race-guard)", async () => {
+    upsertLead.mockResolvedValue(false);
+    const { existingLeadSlugConflictMessage } = await import(
+      "@/lib/leads/csv-import"
+    );
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "race-cafe",
+      stage: "outreach_sent",
+    });
+    expect(res).toEqual({
+      success: false,
+      error: existingLeadSlugConflictMessage("race-cafe"),
+    });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 

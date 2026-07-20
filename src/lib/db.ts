@@ -595,17 +595,27 @@ export async function updateLeadStage(
   return true;
 }
 
+/**
+ * Create-only despite the name (kept for parity with the Convex mutation and
+ * both call sites' historical naming): returns false without writing when a
+ * row with this slug already exists at write time, instead of patching it —
+ * see lead-upsert-create-only-race-guard. addLeadAction and
+ * importLeadsCsvAction both already treat a pre-existing slug as a conflict
+ * via their own earlier existence check, never a legitimate update; this
+ * atomic re-check closes the window where importLeadsCsvAction's one-time
+ * bulk existingSlugs snapshot goes stale partway through its sequential
+ * per-row upsert loop.
+ */
 export async function upsertLead(
   lead: Lead,
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.upsertLead, {
+      return (await convexClient.mutation(api.leads.upsertLead, {
         ...lead,
         apiSecret: convexApiSecret,
-      });
-      return;
+      })) as boolean;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("upsertLead", e);
@@ -616,75 +626,48 @@ export async function upsertLead(
 
   // SQLite Fallback
   const db = getSqliteDb();
+  const check = db.prepare("SELECT id FROM leads WHERE slug = ?").get(lead.slug) as { id: string } | undefined;
+  if (check) {
+    return false;
+  }
+
   const services = serializeLeadServices(lead.services);
   const hoursStr = serializeLeadHours(lead.hours);
   const dataSource = lead.dataSource ?? "manual_entry";
-
-  const check = db.prepare("SELECT id FROM leads WHERE slug = ?").get(lead.slug) as { id: string } | undefined;
   const outreachStep = normalizeOutreachStep(lead.outreachStep);
   const lastOutreachAt = lead.lastOutreachAt ?? null;
   const lastPreviewOpenAt = lead.lastPreviewOpenAt ?? null;
   const notes = lead.notes ?? null;
   const snoozedUntil = lead.snoozedUntil ?? null;
 
-  if (check) {
-    db.prepare(`
-      UPDATE leads
-      SET businessName = ?, category = ?, city = ?, state = ?, address = ?, phone = ?, email = ?, hours = ?, services = ?,
-          tagline = ?, description = ?, recommendedTier = ?, dataSource = ?, status = ?,
-          outreachStep = ?, lastOutreachAt = ?, lastPreviewOpenAt = ?, notes = ?, snoozedUntil = ?, updatedAt = datetime('now')
-      WHERE slug = ?
-    `).run(
-      lead.businessName,
-      lead.category,
-      lead.city,
-      lead.state,
-      lead.address ?? null,
-      lead.phone,
-      lead.email ?? null,
-      hoursStr,
-      services,
-      lead.tagline,
-      lead.description,
-      lead.recommendedTier,
-      dataSource,
-      lead.stage,
-      outreachStep,
-      lastOutreachAt,
-      lastPreviewOpenAt,
-      notes,
-      snoozedUntil,
-      lead.slug,
-    );
-  } else {
-    const id = newLeadId();
-    db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt, lastPreviewOpenAt, notes, snoozedUntil)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      id,
-      lead.slug,
-      lead.businessName,
-      lead.category,
-      lead.city,
-      lead.state,
-      lead.address ?? null,
-      lead.phone,
-      lead.email ?? null,
-      hoursStr,
-      services,
-      lead.tagline,
-      lead.description,
-      lead.recommendedTier,
-      dataSource,
-      lead.stage,
-      outreachStep,
-      lastOutreachAt,
-      lastPreviewOpenAt,
-      notes,
-      snoozedUntil,
-    );
-  }
+  const id = newLeadId();
+  db.prepare(`
+    INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt, lastPreviewOpenAt, notes, snoozedUntil)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id,
+    lead.slug,
+    lead.businessName,
+    lead.category,
+    lead.city,
+    lead.state,
+    lead.address ?? null,
+    lead.phone,
+    lead.email ?? null,
+    hoursStr,
+    services,
+    lead.tagline,
+    lead.description,
+    lead.recommendedTier,
+    dataSource,
+    lead.stage,
+    outreachStep,
+    lastOutreachAt,
+    lastPreviewOpenAt,
+    notes,
+    snoozedUntil,
+  );
+  return true;
 }
 
 /**

@@ -1561,7 +1561,14 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
     }
 
     try {
-      await upsertLead(lead, LEAD_UPSERT_CONVEX_PRIMARY);
+      const created = await upsertLead(lead, LEAD_UPSERT_CONVEX_PRIMARY);
+      if (!created) {
+        // Defense in depth for the near-zero-width window between the
+        // existence check above and this write (a concurrent create/import
+        // for the same slug landing in between) — see
+        // lead-upsert-create-only-race-guard.
+        return { success: false as const, error: existingLeadSlugConflictMessage(lead.slug) };
+      }
     } catch (error) {
       if (error instanceof ConvexPrimaryWriteError) {
         return {
@@ -1695,7 +1702,20 @@ export async function importLeadsCsvAction(input: {
 
     for (const [index, lead] of fresh.entries()) {
       try {
-        await upsertLead(lead, LEAD_UPSERT_CONVEX_PRIMARY);
+        const created = await upsertLead(lead, LEAD_UPSERT_CONVEX_PRIMARY);
+        if (!created) {
+          // The one-time existingSlugs snapshot above went stale during this
+          // sequential loop — a concurrent create/payment/import for this
+          // slug landed between that snapshot and this row's turn. Report it
+          // as a collision rather than silently skipping (see
+          // lead-upsert-create-only-race-guard) — never resurface a false
+          // "imported" for a row that was actually refused.
+          upsertErrors.push({
+            row: index + 1,
+            message: existingLeadSlugConflictMessage(lead.slug),
+          });
+          continue;
+        }
         importedSlugs.push(lead.slug);
         // Prevent later rows in the same batch from colliding with earlier inserts.
         existingSlugs.add(lead.slug);

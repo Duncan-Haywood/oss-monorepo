@@ -130,7 +130,7 @@ describe("importLeadsCsvAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     getLeads.mockReset().mockResolvedValue([]);
-    upsertLead.mockReset().mockResolvedValue(undefined);
+    upsertLead.mockReset().mockResolvedValue(true);
   });
 
   it("returns auth error without parsing or upserting", async () => {
@@ -336,10 +336,45 @@ describe("importLeadsCsvAction", () => {
     );
   });
 
+  it("reports a stale-snapshot collision (not a false import) when upsertLead loses the create-only race mid-batch (lead-upsert-create-only-race-guard)", async () => {
+    // The one-time existingSlugs snapshot (read before the loop) missed a
+    // concurrent create/payment/import that landed for this exact slug
+    // between the snapshot and this row's turn — upsertLead's atomic
+    // re-check refuses the write; the action must not still count it as
+    // imported or silently drop it.
+    upsertLead
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+    const { existingLeadSlugConflictMessage } = await import(
+      "@/lib/leads/csv-import"
+    );
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow, cafeRow),
+    });
+
+    expect(res).toMatchObject({
+      success: true,
+      imported: 1,
+      slugs: ["demo-cafe"],
+      skipped: 1,
+    });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        {
+          row: 1,
+          message: existingLeadSlugConflictMessage("blue-river-salon"),
+        },
+      ]),
+    );
+    expect(revalidatePath).toHaveBeenCalledWith("/preview/demo-cafe");
+    expect(revalidatePath).not.toHaveBeenCalledWith("/preview/blue-river-salon");
+  });
+
   it("fails closed per-row on ConvexPrimaryWriteError and still imports siblings", async () => {
     upsertLead
       .mockRejectedValueOnce(new MockConvexPrimaryWriteError())
-      .mockResolvedValueOnce(undefined);
+      .mockResolvedValueOnce(true);
     const { importLeadsCsvAction } = await import("./actions");
     const res = await importLeadsCsvAction({
       csvText: csvFor(salonRow, cafeRow),
