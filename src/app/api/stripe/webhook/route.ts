@@ -642,11 +642,22 @@ export async function POST(request: Request) {
                 });
                 if (sent.success) {
                   try {
-                    await markCommerceOrderClientReceiptSent(
+                    const marked = await markCommerceOrderClientReceiptSent(
                       session.id,
                       new Date().toISOString(),
                       WEBHOOK_CONVEX_PRIMARY,
                     );
+                    if (!marked) {
+                      // A concurrent writer (an operator's manual resend, or
+                      // another redelivery of this same event) already set
+                      // the marker between our read and this write — state
+                      // is consistent (already marked sent), so this is not
+                      // a fulfillment failure worth a 5xx retry, just a
+                      // signal that the send above may have been a duplicate.
+                      console.warn(
+                        `Commerce client receipt sent-marker for ${orderSlug} was already set by a concurrent writer — this send may have been a duplicate`,
+                      );
+                    }
                   } catch (markerError) {
                     console.error(
                       `Failed to record commerce client receipt sent-marker for ${orderSlug}`,

@@ -197,6 +197,22 @@ export const markPaidOut = mutation({
  * Durable client-receipt sent-marker after sendCommerceBuyNowClientReceipt
  * resolves { success: true }. Keyed on stripeSessionId — Stripe redelivery
  * recovers the client order notification while this field is unset.
+ *
+ * Returns whether the patch was actually applied. Both live callers
+ * (resendCommerceClientReceiptAction and the Stripe webhook's redelivery-
+ * recovery path) read clientReceiptEmailSentAt, send the email, THEN call
+ * this mutation — an independent trigger (an operator resend click racing a
+ * webhook redelivery, or two redeliveries) can pass that same stale-unset
+ * read and both send before either marks. Re-checking clientReceiptEmailSentAt
+ * here, atomically with the patch, is the same action-vs-mutation lost-update
+ * guard already applied to markPaidOut/markRefunded/markDisputed in this file
+ * and to checkoutSessions.recordRecoverySent — this was the one durable
+ * marker mutation in this file missing it. It cannot un-send a duplicate
+ * email already in flight, but it does keep the persisted timestamp at the
+ * first successful send (never clobbered by a later race) and lets a caller
+ * that loses the race tell the operator a duplicate notification may have
+ * gone out, instead of reporting an unconditional success. See
+ * commerce-client-receipt-marker-race-guard in /docs/process.
  */
 export const markClientReceiptSent = mutation({
   args: {
@@ -204,7 +220,7 @@ export const markClientReceiptSent = mutation({
     clientReceiptEmailSentAt: v.string(),
     apiSecret: v.string(),
   },
-  returns: v.null(),
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const order = await ctx.db
@@ -213,12 +229,13 @@ export const markClientReceiptSent = mutation({
         q.eq("stripeSessionId", args.stripeSessionId),
       )
       .unique();
-    if (order) {
-      await ctx.db.patch(order._id, {
-        clientReceiptEmailSentAt: args.clientReceiptEmailSentAt,
-      });
+    if (!order || order.clientReceiptEmailSentAt) {
+      return false;
     }
-    return null;
+    await ctx.db.patch(order._id, {
+      clientReceiptEmailSentAt: args.clientReceiptEmailSentAt,
+    });
+    return true;
   },
 });
 

@@ -296,7 +296,7 @@ describe("POST /api/stripe/webhook", () => {
     getCommerceOrderByStripeSessionId.mockReset().mockResolvedValue(null);
     getOrderByStripeSessionId.mockReset().mockResolvedValue(null);
     getOrdersByStripeCustomerId.mockReset().mockResolvedValue([]);
-    markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(undefined);
+    markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(true);
     markCommerceOrderRefunded.mockReset().mockResolvedValue(undefined);
     markOrderRefunded.mockReset().mockResolvedValue(undefined);
     clearOrderRefunded.mockReset().mockResolvedValue(undefined);
@@ -4345,6 +4345,41 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_client_receipt_sent_marker");
+      expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
+      expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledTimes(1);
+    });
+
+    it("returns 200 (not a fulfillment failure) when a concurrent writer already set the receipt marker", async () => {
+      // Regression test for commerce-client-receipt-marker-race-guard:
+      // markCommerceOrderClientReceiptSent now re-checks clientReceiptEmailSentAt
+      // atomically with the write and returns false when an independent
+      // trigger (e.g. an operator's manual resend, or another redelivery of
+      // this same event) already set it between this handler's read and its
+      // write. The email above already sent — the marker state is already
+      // consistent (marked), so this must not be treated as a fulfillment
+      // failure worth a 5xx retry.
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue(eligibleCommerceLead);
+      getCommerceCatalog.mockResolvedValue({
+        items: [
+          {
+            id: "sku_1",
+            name: "Coffee Beans",
+            priceCents: 2500,
+            stripePriceId: COMMERCE_SKU_PRICE_ID,
+          },
+        ],
+      });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      markCommerceOrderClientReceiptSent.mockResolvedValue(false);
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
       expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
       expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledTimes(1);
     });
