@@ -26,9 +26,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getClientInquiryById = vi.fn();
 const recordClientInquiryReply = vi.fn();
@@ -117,6 +126,7 @@ describe("replyToInquiryAction", () => {
   beforeEach(() => {
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getClientInquiryById.mockReset().mockResolvedValue(openInquiry);
     recordClientInquiryReply.mockReset().mockResolvedValue(repliedInquiry);
@@ -140,6 +150,22 @@ describe("replyToInquiryAction", () => {
     expect(getClientInquiryById).not.toHaveBeenCalled();
     expect(recordClientInquiryReply).not.toHaveBeenCalled();
     expect(sendInquiryReply).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated replies from the same IP (auth alone is not a throttle)", async () => {
+    const { replyToInquiryAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
+      expect(res.success).toBe(true);
+    }
+    getClientInquiryById.mockClear();
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getClientInquiryById).not.toHaveBeenCalled();
   });
 
   it("rejects an empty inquiry id", async () => {

@@ -20,9 +20,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const listOpenCheckoutSessions = vi.fn();
 const getLeadBySlug = vi.fn();
@@ -122,6 +131,7 @@ describe("sendCheckoutRecoveryAction", () => {
   beforeEach(() => {
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     listOpenCheckoutSessions.mockReset().mockResolvedValue([bundleSession]);
     getLeadBySlug.mockReset().mockResolvedValue({
@@ -152,6 +162,22 @@ describe("sendCheckoutRecoveryAction", () => {
     expect(listOpenCheckoutSessions).not.toHaveBeenCalled();
     expect(recordCheckoutRecoverySent).not.toHaveBeenCalled();
     expect(sendCheckoutAbandonedRecovery).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated recovery sends from the same IP (auth alone is not a throttle)", async () => {
+    const { sendCheckoutRecoveryAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await sendCheckoutRecoveryAction("cs_test_bundle");
+      expect(res.success).toBe(true);
+    }
+    listOpenCheckoutSessions.mockClear();
+    const res = await sendCheckoutRecoveryAction("cs_test_bundle");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(listOpenCheckoutSessions).not.toHaveBeenCalled();
   });
 
   it("rejects an empty session id", async () => {
@@ -286,6 +312,7 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
   beforeEach(() => {
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     listOpenCheckoutSessions.mockReset().mockResolvedValue([commerceSession]);
     getLeadBySlug.mockReset().mockResolvedValue({
@@ -319,6 +346,22 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
     expect(res).toEqual({
       success: false,
       error: "Unauthorized — sign in at /dashboard/login",
+    });
+    expect(listOpenCheckoutSessions).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated recovery sends from the same IP (auth alone is not a throttle)", async () => {
+    const { sendCommerceCheckoutRecoveryAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await sendCommerceCheckoutRecoveryAction("cs_test_commerce");
+      expect(res.success).toBe(true);
+    }
+    listOpenCheckoutSessions.mockClear();
+    const res = await sendCommerceCheckoutRecoveryAction("cs_test_commerce");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
     });
     expect(listOpenCheckoutSessions).not.toHaveBeenCalled();
   });

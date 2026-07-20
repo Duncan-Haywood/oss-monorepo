@@ -451,6 +451,16 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`inquiry-reply:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedId = parseInquiryId(inquiryId);
     if (!parsedId.ok) {
       return {
@@ -560,6 +570,18 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    // A move to outreach_sent conditionally sends a real Resend Email 1
+    // below (auth alone is not a throttle — see AGENT_PROTOCOL).
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`lead-stage-update:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -821,6 +843,18 @@ export async function disposeColdLeadAction(
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    // Re-engage (sendEmail1) conditionally sends a real Resend Email 1
+    // below (auth alone is not a throttle — see AGENT_PROTOCOL).
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`cold-lead-dispose:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -967,6 +1001,16 @@ export async function sendFollowUpAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`outreach-follow-up:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -1086,6 +1130,16 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`checkout-recovery:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSessionId = parseCheckoutSessionId(stripeSessionId);
     if (!parsedSessionId.ok) {
       return {
@@ -1186,6 +1240,16 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-checkout-recovery:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSessionId = parseCheckoutSessionId(stripeSessionId);
     if (!parsedSessionId.ok) {
       return {
@@ -1408,6 +1472,16 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-client-receipt-resend:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSessionId = parseCheckoutSessionId(stripeSessionId);
     if (!parsedSessionId.ok) {
       return {
@@ -1512,6 +1586,17 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
+    }
+
+    // Adding directly in outreach_sent stage conditionally sends a real
+    // Resend Email 1 below (auth alone is not a throttle — see AGENT_PROTOCOL).
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`lead-add:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
     }
 
     const stage = leadData.stage ?? "discovered";
@@ -1775,6 +1860,16 @@ export async function sendStarterUpsellAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`starter-upsell:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -1921,6 +2016,17 @@ export async function sendDailyDigestAction() {
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
+    }
+
+    // Builds the digest from a dozen full-ledger reads plus a real Resend
+    // send — auth alone is not a throttle (see AGENT_PROTOCOL).
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`daily-digest:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
     }
 
     const digestEmail = process.env.OPERATOR_DIGEST_EMAIL?.trim();
@@ -2112,6 +2218,16 @@ export async function sendMarketingPackToClientAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`marketing-pack-send:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -2597,6 +2713,16 @@ export async function sendClientVoicePackToClientAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`client-voice-pack-send:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {

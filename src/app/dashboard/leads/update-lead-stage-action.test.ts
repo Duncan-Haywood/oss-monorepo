@@ -25,9 +25,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const updateLeadStage = vi.fn();
 const getLeadBySlug = vi.fn();
@@ -118,6 +127,7 @@ describe("updateLeadStageAction", () => {
   beforeEach(() => {
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     updateLeadStage.mockReset().mockResolvedValue(true);
     getLeadBySlug.mockReset().mockResolvedValue(baseLead);
@@ -143,6 +153,22 @@ describe("updateLeadStageAction", () => {
     expect(updateLeadStage).not.toHaveBeenCalled();
     expect(recordLeadOutreach).not.toHaveBeenCalled();
     expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated stage moves from the same IP (auth alone is not a throttle)", async () => {
+    const { updateLeadStageAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+      expect(res.success).toBe(true);
+    }
+    updateLeadStage.mockClear();
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(updateLeadStage).not.toHaveBeenCalled();
   });
 
   it("hard-rejects over-long slug before getLeadBySlug", async () => {

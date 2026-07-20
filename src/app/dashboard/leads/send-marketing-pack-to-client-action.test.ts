@@ -23,9 +23,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeadBySlug = vi.fn();
 const listOrdersByLeadSlug = vi.fn();
@@ -127,6 +136,7 @@ describe("sendMarketingPackToClientAction", () => {
     process.env = { ...originalEnv };
     delete process.env.NEXT_PUBLIC_APP_URL;
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
     listOrdersByLeadSlug.mockReset().mockResolvedValue([growthOrder]);
@@ -162,6 +172,22 @@ describe("sendMarketingPackToClientAction", () => {
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated pack sends from the same IP (auth alone is not a throttle)", async () => {
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await sendMarketingPackToClientAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
   });
 
   it("rejects an empty slug", async () => {

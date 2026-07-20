@@ -27,9 +27,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getCommerceOrderByStripeSessionId = vi.fn();
 const getLeadBySlug = vi.fn();
@@ -134,6 +143,7 @@ describe("resendCommerceClientReceiptAction", () => {
     process.env = { ...originalEnv };
     delete process.env.NEXT_PUBLIC_APP_URL;
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getCommerceOrderByStripeSessionId
       .mockReset()
@@ -162,6 +172,22 @@ describe("resendCommerceClientReceiptAction", () => {
     });
     expect(getCommerceOrderByStripeSessionId).not.toHaveBeenCalled();
     expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated resends from the same IP (auth alone is not a throttle)", async () => {
+    const { resendCommerceClientReceiptAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await resendCommerceClientReceiptAction("cs_test_commerce_receipt");
+      expect(res.success).toBe(true);
+    }
+    getCommerceOrderByStripeSessionId.mockClear();
+    const res = await resendCommerceClientReceiptAction("cs_test_commerce_receipt");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getCommerceOrderByStripeSessionId).not.toHaveBeenCalled();
   });
 
   it("rejects an empty session id", async () => {

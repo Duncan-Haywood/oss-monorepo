@@ -159,6 +159,22 @@ describe("sendDailyDigestAction", () => {
     expect(sendOperatorDailyDigest).not.toHaveBeenCalled();
   });
 
+  it("rate-limits repeated digest sends from the same IP (auth alone is not a throttle)", async () => {
+    const { sendDailyDigestAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await sendDailyDigestAction();
+      expect(res.success).toBe(true);
+    }
+    getLeads.mockClear();
+    const res = await sendDailyDigestAction();
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeads).not.toHaveBeenCalled();
+  });
+
   it("rejects when OPERATOR_DIGEST_EMAIL is unset", async () => {
     delete process.env.OPERATOR_DIGEST_EMAIL;
     const { sendDailyDigestAction } = await import("./actions");
