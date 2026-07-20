@@ -252,6 +252,65 @@ describe("src/proxy.ts orchestration", () => {
     expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
   });
 
+  describe("Host-route rate limiting (proxy-host-route-rate-limit)", () => {
+    it("rate-limits repeated preview-subdomain lookups from the same IP before getLeadBySlug", async () => {
+      getLeadBySlug.mockResolvedValue({ slug: "joes-plumbing" });
+      const { proxy } = await import("./proxy");
+      const req = () =>
+        request("http://joes-plumbing.localsitestudio.com/", {
+          headers: { host: "joes-plumbing.localsitestudio.com", "x-forwarded-for": "9.9.9.9" },
+        });
+      // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+      for (let i = 0; i < 20; i++) {
+        const response = await proxy(req());
+        expect(rewriteTarget(response)).toBe(
+          "http://joes-plumbing.localsitestudio.com/preview/joes-plumbing",
+        );
+      }
+      getLeadBySlug.mockClear();
+      const throttled = await proxy(req());
+      expect(isNext(throttled)).toBe(true);
+      expect(rewriteTarget(throttled)).toBeNull();
+      expect(getLeadBySlug).not.toHaveBeenCalled();
+    });
+
+    it("rate-limits repeated custom-domain lookups from the same IP before getLeadSlugByCustomDomain", async () => {
+      getLeadSlugByCustomDomain.mockResolvedValue("joes-plumbing");
+      const { proxy } = await import("./proxy");
+      const req = () =>
+        request("http://joesplumbing.com/", {
+          headers: { host: "joesplumbing.com", "x-forwarded-for": "8.8.8.8" },
+        });
+      for (let i = 0; i < 20; i++) {
+        const response = await proxy(req());
+        expect(rewriteTarget(response)).toBe("http://joesplumbing.com/preview/joes-plumbing");
+      }
+      getLeadSlugByCustomDomain.mockClear();
+      const throttled = await proxy(req());
+      expect(isNext(throttled)).toBe(true);
+      expect(rewriteTarget(throttled)).toBeNull();
+      expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
+    });
+
+    it("keys the rate-limit bucket by client IP, not shared across different callers", async () => {
+      getLeadBySlug.mockResolvedValue({ slug: "joes-plumbing" });
+      const { proxy } = await import("./proxy");
+      const reqFor = (ip: string) =>
+        request("http://joes-plumbing.localsitestudio.com/", {
+          headers: { host: "joes-plumbing.localsitestudio.com", "x-forwarded-for": ip },
+        });
+      for (let i = 0; i < 20; i++) {
+        await proxy(reqFor("1.1.1.1"));
+      }
+      getLeadBySlug.mockClear();
+      const other = await proxy(reqFor("2.2.2.2"));
+      expect(rewriteTarget(other)).toBe(
+        "http://joes-plumbing.localsitestudio.com/preview/joes-plumbing",
+      );
+      expect(getLeadBySlug).toHaveBeenCalledWith("joes-plumbing");
+    });
+  });
+
   describe("Content-Security-Policy (csp-nonce-rollout)", () => {
     it("sends the static-safe policy (no nonce) on a static marketing/docs route", async () => {
       const { proxy } = await import("./proxy");

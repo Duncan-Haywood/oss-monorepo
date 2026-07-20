@@ -21,6 +21,7 @@ import {
   generateCspNonce,
   isNonceCspPath,
 } from "@/lib/security/content-security-policy";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 type DashboardGate = { kind: "next" } | { kind: "redirect"; url: URL } | null;
 
@@ -119,21 +120,39 @@ export async function proxy(request: NextRequest) {
     // and getLeadSlugByCustomDomain (isPlausibleCustomDomainHost) so over-long
     // spoofed Host never burns CRM/Convex (proxy-host-lookup-field-length-cap).
     const previewSlug = extractPreviewSubdomainSlug(host, root);
-    if (previewSlug) {
-      const lead = await getLeadBySlug(previewSlug);
-      if (lead) {
-        // encode-at-use: keep rewrite target a single path segment even if a
-        // legacy free-form slug somehow resolves (see slug-path.ts). Rewrite
-        // target is always /preview/[slug] regardless of the "/" request
-        // pathname, so the nonce tier applies unconditionally here.
-        return rewriteWithCsp(request, new URL(leadPreviewPath(previewSlug), request.url), true);
-      }
-    } else if (!isPlatformHost(host, root) && isPlausibleCustomDomainHost(host)) {
-      // Plausible-host gate before DB (length ≤253 + label shape) — twin of
-      // Save domain write validation; getLeadSlugByCustomDomain also checks.
-      const slug = await getLeadSlugByCustomDomain(host);
-      if (slug) {
-        return rewriteWithCsp(request, new URL(leadPreviewPath(slug), request.url), true);
+    const isCustomDomainCandidate =
+      !previewSlug && !isPlatformHost(host, root) && isPlausibleCustomDomainHost(host);
+    if (previewSlug || isCustomDomainCandidate) {
+      // Every Host reaching this point already passed its cheap length/shape
+      // gate (extractPreviewSubdomainSlug / isPlausibleCustomDomainHost) but
+      // still costs a real Convex/SQLite round trip on both a hit and a
+      // miss — no valid slug/domain guess is required to trigger it. This
+      // runs on literally every request to "/" (the proxy matcher's front
+      // door), keyed purely on the attacker-controlled Host header, so
+      // rate-limit BEFORE either DB lookup — same resource-exhaustion class
+      // as preview-page-rate-limit / checkout-page-rate-limit, applied to
+      // the one surface those sweeps didn't reach (proxy-host-route-rate-
+      // limit). A throttled hit falls through to the ordinary marketing
+      // homepage rather than erroring.
+      const clientIp = clientIpFromHeaders(request.headers);
+      const rate = checkRateLimit(`proxy-host-route:${clientIp}`);
+      if (rate.allowed) {
+        if (previewSlug) {
+          const lead = await getLeadBySlug(previewSlug);
+          if (lead) {
+            // encode-at-use: keep rewrite target a single path segment even
+            // if a legacy free-form slug somehow resolves (see
+            // slug-path.ts). Rewrite target is always /preview/[slug]
+            // regardless of the "/" request pathname, so the nonce tier
+            // applies unconditionally here.
+            return rewriteWithCsp(request, new URL(leadPreviewPath(previewSlug), request.url), true);
+          }
+        } else {
+          const slug = await getLeadSlugByCustomDomain(host);
+          if (slug) {
+            return rewriteWithCsp(request, new URL(leadPreviewPath(slug), request.url), true);
+          }
+        }
       }
     }
   }
