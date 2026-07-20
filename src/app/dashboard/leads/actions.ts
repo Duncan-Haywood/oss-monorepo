@@ -1858,6 +1858,16 @@ export async function openBillingPortalAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`dashboard-billing-portal:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -2305,6 +2315,16 @@ export async function syncCommerceCatalogToStripeAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-catalog-sync:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -2415,6 +2435,16 @@ export async function archiveOrphanCommerceStripeProductsAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-orphan-archive:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {

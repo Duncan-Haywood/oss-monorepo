@@ -116,6 +116,30 @@ describe("openBillingPortalAction", () => {
     expect(stripeCtor).not.toHaveBeenCalled();
   });
 
+  it("rate-limits repeated portal opens from the same IP (auth alone is not a throttle)", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    createBillingPortalForLead.mockResolvedValue({
+      ok: true,
+      url: "https://billing.stripe.com/session/1",
+    });
+
+    const { openBillingPortalAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await openBillingPortalAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    createBillingPortalForLead.mockClear();
+    stripeCtor.mockClear();
+    const res = await openBillingPortalAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(createBillingPortalForLead).not.toHaveBeenCalled();
+    expect(stripeCtor).not.toHaveBeenCalled();
+  });
+
   it("returns error when slug is empty or whitespace", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
 
