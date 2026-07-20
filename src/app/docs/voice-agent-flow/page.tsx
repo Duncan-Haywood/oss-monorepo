@@ -110,7 +110,13 @@ export default function VoiceAgentFlowDocPage() {
         <code>listClientVoicePacksDue</code>. Full telephony remains Phase 7.
       </p>
 
-      <h2>Webhook routing</h2>
+      <h2>Webhook routing (planned — Phase 7, not yet built)</h2>
+      <p>
+        Neither route below exists in the codebase yet — no telephony provider (Twilio/Vapi/Retell)
+        is wired up. This is the intended routing once that phase ships; see{" "}
+        <DocLink href="/docs/architecture">Architecture</DocLink> and{" "}
+        <DocLink href="/docs/process">process log</DocLink> for current status.
+      </p>
       <ul>
         <li>
           <code>/api/voice/platform/webhook</code> — outreach, inbound sales, discovery
