@@ -129,7 +129,7 @@ describe("sendCheckoutRecoveryAction", () => {
       businessName: "Demo Cafe",
       email: "lead@example.com",
     });
-    recordCheckoutRecoverySent.mockReset().mockResolvedValue(undefined);
+    recordCheckoutRecoverySent.mockReset().mockResolvedValue(true);
     sendCheckoutAbandonedRecovery.mockReset().mockResolvedValue({
       success: true,
       mock: false,
@@ -267,6 +267,19 @@ describe("sendCheckoutRecoveryAction", () => {
     }
     expect(recordCheckoutRecoverySent).toHaveBeenCalled();
   });
+
+  it("skips the send when the session completed (real payment) after the listOpen snapshot but before the mark", async () => {
+    recordCheckoutRecoverySent.mockResolvedValue(false);
+    const { sendCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCheckoutRecoveryAction("cs_test_bundle");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Checkout session was completed after this page loaded — refresh; recovery email was not sent",
+    });
+    expect(sendCheckoutAbandonedRecovery).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
 });
 
 describe("sendCommerceCheckoutRecoveryAction", () => {
@@ -288,7 +301,7 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
       leadSlug: "demo-cafe",
       items: [{ id: "sku_latte", name: "Latte" }],
     });
-    recordCheckoutRecoverySent.mockReset().mockResolvedValue(undefined);
+    recordCheckoutRecoverySent.mockReset().mockResolvedValue(true);
     sendCommerceAbandonedRecovery.mockReset().mockResolvedValue({
       success: true,
       mock: false,
@@ -411,6 +424,18 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
     if (!res.success) {
       expect(res.error).toMatch(/shared store/);
     }
+    expect(sendCommerceAbandonedRecovery).not.toHaveBeenCalled();
+  });
+
+  it("skips the send when the shopper's cart completed (real payment) after the listOpen snapshot but before the mark", async () => {
+    recordCheckoutRecoverySent.mockResolvedValue(false);
+    const { sendCommerceCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCommerceCheckoutRecoveryAction("cs_test_commerce");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Checkout session was completed after this page loaded — refresh; recovery email was not sent",
+    });
     expect(sendCommerceAbandonedRecovery).not.toHaveBeenCalled();
   });
 });

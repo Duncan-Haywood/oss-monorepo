@@ -150,19 +150,32 @@ export const markCompleteOpenCommerceForLeadSkuCustomer = mutation({
   },
 });
 
+/**
+ * Re-checks the freshly-read row's own status at write time — never trusts
+ * the caller's earlier listOpen() snapshot alone. A dashboard recovery action
+ * reads listOpen(), gates on the session still being "open", then calls this
+ * mutation moments later; a concurrent Stripe webhook can complete the same
+ * session in that window (real payment succeeding). Returns false (no patch)
+ * once the row is missing or no longer "open", so the calling action can skip
+ * sending a "finish your purchase" email to a customer who already paid
+ * (checkout-session-recovery-race-guard — same action-vs-mutation lost-update
+ * class as commerceOrders.markPaidOut / leads.recordOutreach / updateStage /
+ * applyColdDisposition / inquiries.recordReply, applied to this call site).
+ */
 export const recordRecoverySent = mutation({
   args: { stripeSessionId: v.string(), sentAt: v.string(), apiSecret: v.string() },
-  returns: v.null(),
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const session = await ctx.db
       .query("checkoutSessions")
       .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
       .unique();
-    if (session) {
-      await ctx.db.patch(session._id, { recoverySentAt: args.sentAt });
+    if (!session || session.status !== "open") {
+      return false;
     }
-    return null;
+    await ctx.db.patch(session._id, { recoverySentAt: args.sentAt });
+    return true;
   },
 });
 

@@ -1118,8 +1118,9 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
     // Durable mark before send (persist-then-notify). requireConvex when
     // configured so Convex-first abandoned queues cannot re-nudge after a
     // SQLite-only recoverySentAt write.
+    let marked: boolean;
     try {
-      await recordCheckoutRecoverySent(
+      marked = await recordCheckoutRecoverySent(
         sessionId,
         new Date().toISOString(),
         CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
@@ -1133,6 +1134,18 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
         };
       }
       throw error;
+    }
+    // Re-checked at write time against the session's own status, not just
+    // the listOpenCheckoutSessions() snapshot above — a concurrent Stripe
+    // webhook can complete this exact session (a real payment landing) in
+    // the window between that read and this mark. Skip the send entirely
+    // rather than nudge a customer who already paid to "finish checkout".
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Checkout session was completed after this page loaded — refresh; recovery email was not sent",
+      };
     }
 
     const sent = await sendCheckoutAbandonedRecovery(to, businessName, session.leadSlug, session.tier);
@@ -1227,8 +1240,9 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
       catalog?.items.find((item) => item.id === session.skuId)?.name ?? session.skuId ?? "item";
     const businessName = lead.businessName || session.leadSlug;
 
+    let marked: boolean;
     try {
-      await recordCheckoutRecoverySent(
+      marked = await recordCheckoutRecoverySent(
         sessionId,
         new Date().toISOString(),
         CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
@@ -1242,6 +1256,18 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
         };
       }
       throw error;
+    }
+    // Re-checked at write time against the session's own status — a
+    // concurrent Stripe webhook can complete this exact Buy now cart (the
+    // shopper actually paying) in the window between listOpenCheckoutSessions
+    // above and this mark. Skip the send rather than nudge a shopper who
+    // already paid to "finish checkout".
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Checkout session was completed after this page loaded — refresh; recovery email was not sent",
+      };
     }
 
     const sent = await sendCommerceAbandonedRecovery(
