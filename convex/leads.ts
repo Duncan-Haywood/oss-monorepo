@@ -188,7 +188,8 @@ export const recordOutreach = mutation({
     lastOutreachAt: v.string(),
     apiSecret: v.string(),
   },
-  returns: v.null(),
+  /** false when the fresh row had already gone paid/live/closed — patch skipped. */
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const lead = await ctx.db
@@ -198,11 +199,14 @@ export const recordOutreach = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
+    if (lead.stage === "paid" || lead.stage === "live" || lead.stage === "closed") {
+      return false;
+    }
     await ctx.db.patch(lead._id, {
       outreachStep: args.outreachStep,
       lastOutreachAt: args.lastOutreachAt,
     });
-    return null;
+    return true;
   },
 });
 

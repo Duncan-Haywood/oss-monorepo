@@ -682,20 +682,19 @@ export async function recordLeadOutreach(
   outreachStep: OutreachStep,
   lastOutreachAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (outreachStep < 1 || outreachStep > 3) {
     throw new Error("outreachStep must be 1, 2, or 3");
   }
 
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.recordOutreach, {
+      return (await convexClient.mutation(api.leads.recordOutreach, {
         slug,
         outreachStep,
         lastOutreachAt,
         apiSecret: convexApiSecret,
-      });
-      return;
+      })) as boolean;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("recordLeadOutreach", e);
@@ -710,19 +709,28 @@ export async function recordLeadOutreach(
   // Existence-check-then-throw mirrors convex/leads.ts's recordOutreach
   // (throws `Lead with slug ${slug} not found`) and the sibling lead-mutation
   // helpers in this file — see updateLeadStage above for the full rationale
-  // (db-convex-sqlite-not-found-parity).
+  // (db-convex-sqlite-not-found-parity). The paid/live/closed re-check
+  // mirrors applyColdLeadDisposition's atomic race guard (see
+  // sendfollowup-action-paid-live-closed-race-guard) — a concurrent Stripe
+  // checkout or stage change landing between the caller's earlier snapshot
+  // read and this write must not still record an outreach step / let the
+  // caller send a real Email 2/3 to a lead that just converted or closed.
   const db = getSqliteDb();
-  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
-    | { slug: string }
+  const existing = db.prepare("SELECT slug, status FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string; status: string }
     | undefined;
   if (!existing) {
     throw new Error(`Lead with slug ${slug} not found`);
+  }
+  if (existing.status === "paid" || existing.status === "live" || existing.status === "closed") {
+    return false;
   }
   db.prepare(`
     UPDATE leads
     SET outreachStep = ?, lastOutreachAt = ?, updatedAt = datetime('now')
     WHERE slug = ?
   `).run(outreachStep, lastOutreachAt, slug);
+  return true;
 }
 
 /**
