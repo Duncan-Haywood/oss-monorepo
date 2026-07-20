@@ -813,8 +813,9 @@ export async function disposeColdLeadAction(
       return { success: false as const, error: planned.error };
     }
 
+    let applied: boolean;
     try {
-      await applyColdLeadDisposition(
+      applied = await applyColdLeadDisposition(
         slug,
         planned.patch,
         COLD_DISPOSITION_CONVEX_PRIMARY,
@@ -828,6 +829,19 @@ export async function disposeColdLeadAction(
         };
       }
       throw error;
+    }
+
+    if (!applied) {
+      // planColdLeadDisposition's paid/live guard above ran against the
+      // snapshot read at the top of this action — applyColdLeadDisposition
+      // re-checks the same condition atomically at write time and no-ops
+      // when a concurrent Stripe checkout already moved this lead to
+      // paid/live in between (cold-lead-disposition-paid-live-race-guard).
+      return {
+        success: false as const,
+        error:
+          "Lead was paid or went live after this page loaded — refresh and check its status; the cold-lead disposition was not applied",
+      };
     }
 
     let outreachStep = planned.patch.outreachStep;

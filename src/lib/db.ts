@@ -869,6 +869,15 @@ export async function updateLeadSnooze(
  * disposeColdLeadAction so a Convex mutation failure does not silently leave
  * stage/outreach only in instance-local SQLite while Convex-first readers
  * (getLeads, cold badges, pipeline-health) never see the Re-engage/Close.
+ *
+ * Returns false (no write applied) when the row's stage has already moved to
+ * paid/live by the time this runs — planColdLeadDisposition's own paid/live
+ * guard only saw disposeColdLeadAction's earlier snapshot read, so a
+ * concurrent Stripe checkout completing in that window must not have its
+ * stage silently reverted back to closed/discovered (same TOCTOU class as
+ * commerce-order-paid-out-refund-race-guard; the Convex twin
+ * applyColdDisposition re-checks the identical condition atomically at
+ * patch time).
  */
 export async function applyColdLeadDisposition(
   slug: string,
@@ -879,18 +888,17 @@ export async function applyColdLeadDisposition(
     snoozedUntil: string | undefined;
   },
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.applyColdDisposition, {
+      return (await convexClient.mutation(api.leads.applyColdDisposition, {
         slug,
         stage: patch.stage,
         outreachStep: patch.outreachStep,
         lastOutreachAt: patch.lastOutreachAt ?? "",
         snoozedUntil: patch.snoozedUntil ?? "",
         apiSecret: convexApiSecret,
-      });
-      return;
+      })) as boolean;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("applyColdLeadDisposition", e);
@@ -903,11 +911,14 @@ export async function applyColdLeadDisposition(
   }
 
   const db = getSqliteDb();
-  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
-    | { slug: string }
+  const existing = db.prepare("SELECT slug, status FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string; status: string }
     | undefined;
   if (!existing) {
     throw new Error(`Lead with slug ${slug} not found`);
+  }
+  if (existing.status === "paid" || existing.status === "live") {
+    return false;
   }
   db.prepare(`
     UPDATE leads
@@ -920,6 +931,7 @@ export async function applyColdLeadDisposition(
     patch.snoozedUntil ?? null,
     slug,
   );
+  return true;
 }
 
 /**

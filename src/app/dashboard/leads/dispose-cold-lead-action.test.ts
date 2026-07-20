@@ -123,7 +123,7 @@ describe("disposeColdLeadAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(coldLead);
-    applyColdLeadDisposition.mockReset().mockResolvedValue(undefined);
+    applyColdLeadDisposition.mockReset().mockResolvedValue(true);
     recordLeadOutreach.mockReset().mockResolvedValue(undefined);
     sendOutreachEmail.mockReset().mockResolvedValue({
       success: true,
@@ -268,6 +268,40 @@ describe("disposeColdLeadAction", () => {
     expect(recordLeadOutreach).not.toHaveBeenCalled();
     expect(sendOutreachEmail).not.toHaveBeenCalled();
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("rejects when the lead went paid/live after this page loaded (write no-op race)", async () => {
+    // applyColdLeadDisposition atomically re-checks paid/live at write time
+    // and returns false when a concurrent Stripe checkout beat this action
+    // to the write — the stale snapshot read at the top of the action still
+    // saw a cold, unpaid lead (cold-lead-disposition-paid-live-race-guard).
+    applyColdLeadDisposition.mockResolvedValue(false);
+    const { disposeColdLeadAction } = await import("./actions");
+    const res = await disposeColdLeadAction("cold-bakery", "close");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead was paid or went live after this page loaded — refresh and check its status; the cold-lead disposition was not applied",
+    });
+    expect(applyColdLeadDisposition).toHaveBeenCalledOnce();
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("does not send Email 1 when re-engage + sendEmail1 loses the paid/live write race", async () => {
+    applyColdLeadDisposition.mockResolvedValue(false);
+    const { disposeColdLeadAction } = await import("./actions");
+    const res = await disposeColdLeadAction("cold-bakery", "reengage", {
+      sendEmail1: true,
+    });
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead was paid or went live after this page loaded — refresh and check its status; the cold-lead disposition was not applied",
+    });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
   });
 
   it("skips Email 1 when the disposition write fails closed on Convex", async () => {
