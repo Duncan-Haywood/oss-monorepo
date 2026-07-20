@@ -25,9 +25,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -110,7 +119,26 @@ describe("assignVercelProjectAction", () => {
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
+    headersMock.mockReset().mockResolvedValue(headerStore());
     assignVercelProjectAndProvision.mockReset().mockResolvedValue(assignedHandoff);
+  });
+
+  it("rate-limits repeated calls from the same IP (auth alone is not a throttle)", async () => {
+    const { assignVercelProjectAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await assignVercelProjectAction("demo-cafe", "prj_demo_isolated");
+      expect(res.success).toBe(true);
+    }
+    assignVercelProjectAndProvision.mockClear();
+    revalidatePath.mockClear();
+    const res = await assignVercelProjectAction("demo-cafe", "prj_demo_isolated");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(assignVercelProjectAndProvision).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("returns auth error without assigning a project", async () => {

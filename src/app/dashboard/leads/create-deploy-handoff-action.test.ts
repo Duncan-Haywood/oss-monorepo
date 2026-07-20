@@ -26,9 +26,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeadBySlug = vi.fn();
 const getDeployHandoffBySlug = vi.fn();
@@ -95,6 +104,7 @@ describe("createDeployHandoffForLeadAction", () => {
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
+    headersMock.mockReset().mockResolvedValue(headerStore());
     getLeadBySlug.mockReset().mockResolvedValue(paidLead);
     getDeployHandoffBySlug.mockReset().mockResolvedValue(null);
     enqueueProductionHandoff.mockReset().mockResolvedValue(createdHandoff);
@@ -114,6 +124,24 @@ describe("createDeployHandoffForLeadAction", () => {
     expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(enqueueProductionHandoff).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated calls from the same IP (auth alone is not a throttle)", async () => {
+    const { createDeployHandoffForLeadAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await createDeployHandoffForLeadAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    enqueueProductionHandoff.mockClear();
+    const res = await createDeployHandoffForLeadAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(enqueueProductionHandoff).not.toHaveBeenCalled();
   });
 
   it("rejects an empty slug without calling getLeadBySlug", async () => {

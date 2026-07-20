@@ -166,6 +166,16 @@ export async function createDeployHandoffForLeadAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`deploy-handoff-create:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -276,6 +286,16 @@ export async function assignVercelProjectAction(slug: string, vercelProjectId: s
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`vercel-project-assign:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -326,6 +346,16 @@ export async function assignCustomDomainAction(slug: string, customDomain: strin
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`custom-domain-assign:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
