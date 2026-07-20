@@ -176,7 +176,19 @@ export const markLeadPaid = mutation({
       .unique();
 
     if (lead) {
-      await ctx.db.patch(lead._id, { stage: "paid" });
+      // Never regress an already-live lead back to "paid" — this mutation
+      // fires on every successful bundle checkout, including a paid Starter
+      // upsell to Growth/Complete on a lead whose site is already deployed
+      // (leadEligibleForStarterUpsell explicitly allows stage="live"). The
+      // order row below still records the new revenue either way; only the
+      // stage patch is guarded, mirroring the automatic-write-never-downgrades
+      // precedent (preferAdvancedHandoffStatus /
+      // update-lead-stage-action-paid-live-revert-guard) rather than the
+      // dashboard operator's manual updateStage, which intentionally still
+      // allows a human to set paid<->live directly.
+      if (lead.stage !== "live") {
+        await ctx.db.patch(lead._id, { stage: "paid" });
+      }
     } else {
       // Parity with SQLite recordLeadPayment: checkout can complete before a
       // CRM lead row exists. Insert a paid stub so listOrders revenue and

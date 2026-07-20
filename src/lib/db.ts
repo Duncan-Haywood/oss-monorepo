@@ -1004,7 +1004,14 @@ export async function recordLeadPayment(
       stub.dataSource,
     );
   } else {
-    const stmt = db.prepare("UPDATE leads SET status = 'paid', updatedAt = datetime('now') WHERE slug = ?");
+    // Mirrors convex/leads.ts markLeadPaid's live-stage guard: never regress
+    // an already-live lead back to "paid" on a second purchase (e.g. a
+    // Starter upsell to Growth/Complete on a lead whose site is already
+    // deployed). The order INSERT below still runs unconditionally either
+    // way — only the status patch is guarded.
+    const stmt = db.prepare(
+      "UPDATE leads SET status = 'paid', updatedAt = datetime('now') WHERE slug = ? AND status != 'live'",
+    );
     stmt.run(params.slug);
   }
 

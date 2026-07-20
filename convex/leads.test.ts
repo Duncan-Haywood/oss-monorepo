@@ -252,6 +252,30 @@ test("markLeadPaid moves an existing lead's stage to paid rather than inserting 
   expect(leads[0].businessName).toBe("Demo Cafe");
 });
 
+test("markLeadPaid never regresses an already-live lead's stage back to paid, but still records the new order", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "live-cafe", stage: "live" }));
+
+  const result = await t.mutation(api.leads.markLeadPaid, {
+    slug: "live-cafe",
+    stripeSessionId: "cs_test_upsell",
+    customerEmail: "owner@live-cafe.example",
+    tier: "complete",
+    commerceAddon: false,
+    amountTotal: 19900,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(result.alreadyRecorded).toBe(false);
+
+  const leads: LeadRow[] = await t.query(api.leads.list, { apiSecret: TEST_API_SECRET });
+  expect(leads).toHaveLength(1);
+  expect(leads[0].stage).toBe("live");
+
+  const orders = await t.query(api.orders.list, { apiSecret: TEST_API_SECRET });
+  expect(orders).toHaveLength(1);
+  expect(orders[0].stripeSessionId).toBe("cs_test_upsell");
+});
+
 test("recordOutreach throws on an unknown slug and patches step + timestamp on a known one", async () => {
   const t = convexTest(schema, modules);
   await expect(
