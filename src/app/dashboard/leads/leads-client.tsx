@@ -22,6 +22,7 @@ import {
   sendCheckoutRecoveryAction,
   sendCommerceCheckoutRecoveryAction,
   markCommerceOrderPaidOutAction,
+  resendCommerceClientReceiptAction,
   updateLeadNotesAction,
   snoozeLeadAction,
   disposeColdLeadAction,
@@ -173,6 +174,8 @@ interface LeadsClientProps {
   initialClientVoicePacks?: ClientVoicePack[];
   /** Pass-through Buy now ledger for manual client payout reconciliation. */
   initialCommerceOrders?: CommerceOrderRecord[];
+  /** Buy now orders whose client-receipt notification never sent — row-level remedy queue. */
+  initialCommerceOrdersMissingClientReceipt?: CommerceOrderRecord[];
   /** UTC YYYY-MM for the packs loaded on the server. */
   marketingMonth?: string;
 }
@@ -204,6 +207,7 @@ export function LeadsClient({
   initialCommerceCatalogs = [],
   initialClientVoicePacks = [],
   initialCommerceOrders = [],
+  initialCommerceOrdersMissingClientReceipt = [],
   marketingMonth = "",
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
@@ -225,6 +229,8 @@ export function LeadsClient({
     null,
   );
   const [commerceOrders, setCommerceOrders] = useState<CommerceOrderRecord[]>(initialCommerceOrders);
+  const [commerceOrdersMissingClientReceipt, setCommerceOrdersMissingClientReceipt] =
+    useState<CommerceOrderRecord[]>(initialCommerceOrdersMissingClientReceipt);
   /** Snapshot clock for due-queue math — avoid Date.now() during render (react-hooks/purity). */
   const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
@@ -718,6 +724,19 @@ export function LeadsClient({
     });
   };
 
+  const handleResendCommerceClientReceipt = (stripeSessionId: string) => {
+    startTransition(async () => {
+      const res = await resendCommerceClientReceiptAction(stripeSessionId);
+      if (!res.success) {
+        alert(`Resend client receipt failed: ${res.error}`);
+        return;
+      }
+      setCommerceOrdersMissingClientReceipt((prev) =>
+        prev.filter((o) => o.stripeSessionId !== stripeSessionId),
+      );
+    });
+  };
+
   const leadHasBillingPortal = (slug: string) =>
     orders.some((o) => o.leadSlug === slug && orderEligibleForBillingPortal(o));
 
@@ -1088,6 +1107,11 @@ export function LeadsClient({
     nowMs,
   );
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
+  const emailBySlug = new Map(leads.map((l) => [l.slug, l.email]));
+  const oldestCommerceOrdersMissingClientReceiptHours = oldestCommerceOrdersOwedAgeHours(
+    commerceOrdersMissingClientReceipt,
+    nowMs,
+  );
 
   return (
     <div className="mt-8">
@@ -1740,6 +1764,67 @@ export function LeadsClient({
                 </div>
               </li>
             ))}
+          </ul>
+        </section>
+      )}
+
+      {commerceOrdersMissingClientReceipt.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Missing client receipt
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({commerceOrdersMissingClientReceipt.length}
+                {oldestCommerceOrdersMissingClientReceiptHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestCommerceOrdersMissingClientReceiptHours)}`
+                  : ""}
+                )
+              </span>
+            </h2>
+            <Link
+              href="/docs/architecture#commerce"
+              className="text-xs font-medium text-amber-800 underline underline-offset-2"
+            >
+              Commerce
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Buy now sales never notified to the client — a permanently-bad lead email or a
+            sustained Resend outage. Resend below, or add an email on the lead first.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {commerceOrdersMissingClientReceipt.map((row) => {
+              const email = emailBySlug.get(row.leadSlug);
+              return (
+                <li
+                  key={row.stripeSessionId}
+                  className="rounded-xl border border-amber-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {businessNameBySlug.get(row.leadSlug) || row.leadSlug}{" "}
+                        <span className="font-normal text-zinc-500">({row.leadSlug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {formatUsd(row.amountPaidUsd)} · {row.skuName} ·{" "}
+                        {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
+                        {email ? ` · ${email}` : " · no email on file"}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending || !email}
+                      onClick={() => handleResendCommerceClientReceipt(row.stripeSessionId)}
+                      className="rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-800 disabled:opacity-60"
+                      title={email ? "Resend the order notification email" : "No email on file for this lead"}
+                    >
+                      Resend receipt
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

@@ -156,6 +156,7 @@ export default async function LeadsPage() {
     commerceOrders,
     commerceOrdersRefunded,
     commerceOrdersDisputed,
+    commerceOrdersMissingClientReceipt,
   } = await loadLeadsPipelineHealth();
   // The Commerce payouts panel must also surface orders that were refunded/
   // disputed AFTER already being marked paid out (clawback owed from the
@@ -244,6 +245,7 @@ export default async function LeadsPage() {
           marketingMonth={marketingMonth}
           initialClientVoicePacks={clientVoicePacks}
           initialCommerceOrders={commerceOrdersForPayoutsPanel}
+          initialCommerceOrdersMissingClientReceipt={commerceOrdersMissingClientReceipt}
         />
       </div>
     </main>
