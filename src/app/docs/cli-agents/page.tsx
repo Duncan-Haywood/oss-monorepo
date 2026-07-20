@@ -16,13 +16,30 @@ export default function CliAgentsDocPage() {
       ]}
     >
       <p>
-        Six scheduled workflows under <code>.github/workflows/</code> run autonomous CLI
-        agents against this repo once per hour. Crons are staggered by 10 minutes so the
-        CLIs do not all claim the same <code>NEXT_STEPS</code> item in the same second.
-        Each workflow executes both <code>.github/prompts/dev-work.md</code> and{" "}
-        <code>.github/prompts/continuous-work.md</code>, which point agents at{" "}
+        Six scheduled workflows under <code>.github/workflows/</code> are configured to run
+        autonomous CLI agents against this repo once per hour. Crons are staggered by 10
+        minutes so the CLIs do not all claim the same <code>NEXT_STEPS</code> item in the
+        same second. Each workflow executes both <code>.github/prompts/dev-work.md</code>{" "}
+        and <code>.github/prompts/continuous-work.md</code>, which point agents at{" "}
         <code>src/lib/process/prompt_process.tsx</code> (<code>AGENT_PROTOCOL</code> +{" "}
         <code>NEXT_STEPS</code>).
+      </p>
+
+      <p>
+        <strong>Known outage (since at least 2026-07-18):</strong> every workflow run in
+        this repo — the six scheduled-agent workflows below and the <code>pr-checks.yml</code>{" "}
+        CI gate — has been failing within seconds with no runner ever assigned
+        (<code>runner_id: 0</code>). This is a GitHub Actions runner-provisioning problem
+        (Actions disabled, a spending/quota limit reached, or a runner-group/permissions
+        misconfiguration at the repo or org level), not a code defect in these workflow
+        files, and it is not fixable by an agent. See NEXT_STEPS id{" "}
+        <code>github-actions-runner-unavailable</code> in{" "}
+        <DocLink href="/docs/process">the process log</DocLink> for the operator action
+        needed (check Settings → Actions → General and Settings → Actions → Runners).
+        Continued commits from the agent swarm during this outage are most likely arriving
+        through a separate channel (e.g. a hosted agent-cloud platform or CCR Routine)
+        rather than these Actions workflows — treat the table below as the intended
+        steady-state configuration, not confirmation that it is currently executing.
       </p>
 
       <p>
