@@ -1137,6 +1137,34 @@ describe("computePipelineHealth", () => {
     expect(health.oldestCommerceOrdersDisputeClawbackAgeHours).toBeNull();
   });
 
+  it("surfaces commerce orders missing a client-receipt-sent marker", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrdersMissingClientReceipt: [
+        { createdAt: "2026-07-10T10:00:00.000Z" },
+        { createdAt: "2026-07-11T10:00:00.000Z" },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersMissingClientReceiptCount).toBe(2);
+    expect(health.oldestCommerceOrdersMissingClientReceiptAgeHours).not.toBeNull();
+  });
+
+  it("defaults missing-client-receipt fields to zero/null when none recorded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersMissingClientReceiptCount).toBe(0);
+    expect(health.oldestCommerceOrdersMissingClientReceiptAgeHours).toBeNull();
+  });
+
   it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
     // Simulate listCommerceOrders(N)'s newest-first page: an old unpaid Buy now
     // row pushed off the page by newer paid-out traffic. Callers must feed

@@ -462,6 +462,7 @@ const api: any = {
     listUnpaid: "commerceOrders:listUnpaid",
     listRefunded: "commerceOrders:listRefunded",
     listDisputed: "commerceOrders:listDisputed",
+    listMissingClientReceipt: "commerceOrders:listMissingClientReceipt",
     getByStripeSessionId: "commerceOrders:getByStripeSessionId",
     markPaidOut: "commerceOrders:markPaidOut",
     markClientReceiptSent: "commerceOrders:markClientReceiptSent",
@@ -3128,6 +3129,45 @@ export async function listCommerceOrdersDisputed(): Promise<CommerceOrderRecord[
     .prepare(
       `SELECT * FROM commerce_orders
        WHERE disputedAt IS NOT NULL AND disputedAt != ''
+       ORDER BY createdAt DESC`,
+    )
+    .all() as unknown as SqliteCommerceOrderRow[];
+  return rows.map(mapCommerceOrderRow);
+}
+
+/**
+ * Every commerce order with no client-receipt-sent marker, regardless of
+ * paidOutAt/refundedAt/disputedAt — sendCommerceBuyNowClientReceipt notifies
+ * the local business (the "client") that their storefront sold something; a
+ * permanently-bad email or a sustained Resend outage past Stripe's webhook
+ * retry window leaves clientReceiptEmailSentAt unset forever with nothing
+ * else surfacing the gap. Uncapped for the same reason
+ * listCommerceOrdersRefunded/listCommerceOrdersDisputed are (see
+ * commerce-buy-now-client-receipt-visibility).
+ */
+export async function listCommerceOrdersMissingClientReceipt(): Promise<
+  CommerceOrderRecord[]
+> {
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(
+        api.commerceOrders.listMissingClientReceipt,
+        { apiSecret: convexApiSecret },
+      )) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
+    } catch (e) {
+      console.warn(
+        "Failed to list commerce orders missing client receipt from Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT * FROM commerce_orders
+       WHERE clientReceiptEmailSentAt IS NULL OR clientReceiptEmailSentAt = ''
        ORDER BY createdAt DESC`,
     )
     .all() as unknown as SqliteCommerceOrderRow[];

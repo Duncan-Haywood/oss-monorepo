@@ -38,6 +38,7 @@ const listClientVoicePacks = vi.fn();
 const listUnpaidCommerceOrders = vi.fn();
 const listCommerceOrdersRefunded = vi.fn();
 const listCommerceOrdersDisputed = vi.fn();
+const listCommerceOrdersMissingClientReceipt = vi.fn();
 const listClientInquiries = vi.fn();
 const listCommerceOrders = vi.fn();
 const listDeployHandoffs = vi.fn();
@@ -79,6 +80,8 @@ vi.mock("@/lib/db", () => ({
     listCommerceOrdersRefunded(...args),
   listCommerceOrdersDisputed: (...args: unknown[]) =>
     listCommerceOrdersDisputed(...args),
+  listCommerceOrdersMissingClientReceipt: (...args: unknown[]) =>
+    listCommerceOrdersMissingClientReceipt(...args),
   listCommerceOrders: (...args: unknown[]) => listCommerceOrders(...args),
   listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
 }));
@@ -126,6 +129,7 @@ describe("sendDailyDigestAction", () => {
     listUnpaidCommerceOrders.mockReset().mockResolvedValue([]);
     listCommerceOrdersRefunded.mockReset().mockResolvedValue([]);
     listCommerceOrdersDisputed.mockReset().mockResolvedValue([]);
+    listCommerceOrdersMissingClientReceipt.mockReset().mockResolvedValue([]);
     listDeployHandoffs.mockReset().mockResolvedValue([]);
     listClientInquiries.mockReset();
     listCommerceOrders.mockReset();
@@ -199,6 +203,8 @@ describe("sendDailyDigestAction", () => {
     expect(listClientVoicePacks).toHaveBeenCalledOnce();
     expect(listUnpaidCommerceOrders).toHaveBeenCalledOnce();
     expect(listCommerceOrdersRefunded).toHaveBeenCalledOnce();
+    expect(listCommerceOrdersDisputed).toHaveBeenCalledOnce();
+    expect(listCommerceOrdersMissingClientReceipt).toHaveBeenCalledOnce();
     expect(listDeployHandoffs).toHaveBeenCalledOnce();
     expect(listCommerceOrders).not.toHaveBeenCalled();
 

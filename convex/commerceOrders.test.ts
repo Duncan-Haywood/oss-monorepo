@@ -154,6 +154,44 @@ test("markPaidOut / markRefunded / markDisputed / clearDisputed round-trip throu
   ).resolves.toBeNull();
 });
 
+test("listMissingClientReceipt surfaces orders with no receipt marker, independent of payout/refund/dispute status", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.commerceOrders.insert, insertArgs({ stripeSessionId: "cs_silent" }));
+  await t.mutation(api.commerceOrders.insert, insertArgs({ stripeSessionId: "cs_notified" }));
+
+  let missing = await t.query(api.commerceOrders.listMissingClientReceipt, {
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(missing.map((r: CommerceOrderRow) => r.stripeSessionId).sort()).toEqual([
+    "cs_notified",
+    "cs_silent",
+  ]);
+
+  await t.mutation(api.commerceOrders.markClientReceiptSent, {
+    stripeSessionId: "cs_notified",
+    clientReceiptEmailSentAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  missing = await t.query(api.commerceOrders.listMissingClientReceipt, {
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(missing).toHaveLength(1);
+  expect(missing[0].stripeSessionId).toBe("cs_silent");
+
+  // A paid-out order with no receipt marker still counts — payout status and
+  // client-notification status are independent axes.
+  await t.mutation(api.commerceOrders.markPaidOut, {
+    stripeSessionId: "cs_silent",
+    paidOutAt: "2026-01-03T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  missing = await t.query(api.commerceOrders.listMissingClientReceipt, {
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(missing).toHaveLength(1);
+  expect(missing[0].stripeSessionId).toBe("cs_silent");
+});
+
 test("markPaidOut / markRefunded / markDisputed on an unknown stripeSessionId are safe no-ops", async () => {
   const t = convexTest(schema, modules);
   await expect(
@@ -300,6 +338,9 @@ test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SEC
   await expect(t.query(api.commerceOrders.listUnpaid, { apiSecret: "wrong" })).rejects.toThrow(/Unauthorized/);
   await expect(t.query(api.commerceOrders.listRefunded, { apiSecret: "wrong" })).rejects.toThrow(/Unauthorized/);
   await expect(t.query(api.commerceOrders.listDisputed, { apiSecret: "wrong" })).rejects.toThrow(/Unauthorized/);
+  await expect(
+    t.query(api.commerceOrders.listMissingClientReceipt, { apiSecret: "wrong" }),
+  ).rejects.toThrow(/Unauthorized/);
   await expect(
     t.query(api.commerceOrders.getByStripeSessionId, { stripeSessionId: "cs_1", apiSecret: "wrong" }),
   ).rejects.toThrow(/Unauthorized/);

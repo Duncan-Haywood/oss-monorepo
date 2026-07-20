@@ -1591,6 +1591,18 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>clientReceiptEmailSentAt</code> tracks a different axis entirely: whether the local
+        business was ever <em>notified</em> of a Buy now sale, independent of payout/refund/dispute
+        status. A permanently-bad client email or a sustained Resend outage past Stripe&apos;s
+        webhook retry window used to leave this unset forever with nothing surfacing the gap.{" "}
+        <code>listCommerceOrdersMissingClientReceipt</code> (uncapped, mirrors{" "}
+        <code>listCommerceOrdersRefunded</code>/<code>listCommerceOrdersDisputed</code>) feeds the
+        pipeline-health <strong>Missing client receipt</strong> card and a matching daily-digest
+        section so a silently-unnotified sale stays visible until the operator resends the receipt
+        or the underlying email issue is fixed.
+      </p>
+
+      <p>
         A refund itself can also reverse — common for bank-sourced refunds (ACH, some debit cards)
         that Stripe reports as <code>pending</code>/<code>succeeded</code> first, then fails or is
         canceled days later when the destination account rejects it. Disputes got a resolution

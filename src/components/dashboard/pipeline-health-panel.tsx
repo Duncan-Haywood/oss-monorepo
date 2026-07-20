@@ -263,6 +263,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.commerceOrdersDisputeClawbackCount > 0}
         />
         <MetricCard
+          label="Missing client receipt"
+          value={String(health.commerceOrdersMissingClientReceiptCount)}
+          hint={
+            health.commerceOrdersMissingClientReceiptCount > 0
+              ? `Buy now sale${health.commerceOrdersMissingClientReceiptCount === 1 ? "" : "s"} never notified to the client${
+                  health.oldestCommerceOrdersMissingClientReceiptAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersMissingClientReceiptAgeHours)}`
+                    : ""
+                }`
+              : "Every Buy now sale has notified the client"
+          }
+          attention={health.commerceOrdersMissingClientReceiptCount > 0}
+        />
+        <MetricCard
           label="Bundle revenue refunded"
           value={formatUsd(health.bundleOrdersRefundedUsd)}
           hint={
