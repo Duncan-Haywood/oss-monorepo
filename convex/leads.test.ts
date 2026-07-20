@@ -169,17 +169,29 @@ test("updateStage still allows the normal paid -> live transition (Mark live) an
   expect(revertedRow?.stage).toBe("paid");
 });
 
-test("upsertLead inserts a new lead then patches (not duplicates) the existing row on a second call", async () => {
+test("upsertLead inserts a new lead and returns true, then returns false without patching on a second call for the same slug (lead-upsert-create-only-race-guard)", async () => {
+  // Reproduces importLeadsCsvAction's TOCTOU window: the action's one-time
+  // existingSlugs snapshot (read once before its sequential per-row upsert
+  // loop) can go stale mid-loop — a concurrent create/payment/import for the
+  // same slug must not have its stage/outreach/notes/snooze silently
+  // clobbered back to CSV/create-path defaults by a second upsertLead call.
   const t = convexTest(schema, modules);
-  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe", businessName: "Demo Cafe" }));
-  await t.mutation(
+  const first = await t.mutation(
     api.leads.upsertLead,
-    upsertArgs({ slug: "demo-cafe", businessName: "Demo Cafe Updated" }),
+    upsertArgs({ slug: "demo-cafe", businessName: "Demo Cafe", stage: "paid" }),
   );
+  expect(first).toBe(true);
+
+  const second = await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "demo-cafe", businessName: "Demo Cafe Updated", stage: "discovered" }),
+  );
+  expect(second).toBe(false);
 
   const rows: LeadRow[] = await t.query(api.leads.list, { apiSecret: TEST_API_SECRET });
   expect(rows).toHaveLength(1);
-  expect(rows[0].businessName).toBe("Demo Cafe Updated");
+  expect(rows[0].businessName).toBe("Demo Cafe");
+  expect(rows[0].stage).toBe("paid");
 });
 
 test("markLeadPaid is idempotent on stripeSessionId and inserts a paid stub lead using the canonical payment-stub defaults when none exists", async () => {
