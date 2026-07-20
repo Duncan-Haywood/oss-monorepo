@@ -7561,6 +7561,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Before this fix, the panel rendered live-looking action buttons unconditionally regardless of the flag. On every default deploy (flag unset), clicking any of the three buttons hit the real server action, which correctly returned success:false, but the client's onClick handlers surface that as a blocking window.alert (e.g. 'Create Connect account failed: Stripe Connect onboarding disabled') — a jarring first-click failure for every operator, exactly the UX defect BundlePriceEnvBanner's bootstrapAllowed branch was built to avoid for its sibling ALLOW_STRIPE_BOOTSTRAP flag. The scaffold shipped the gate function (isStripeConnectOnboardingAllowed) and used its sibling assessStripeConnectOnboardingGate inside the server actions, but never wired the client-side half of the same mirror into the new UI it added — a wiring gap in the scaffold's own established twin pattern, not a re-proposal of the scaffold or a step toward the money-movement half (still counsel-gated, untouched by this change).",
   },
+  {
+    date: "2026-07-20",
+    id: "cli-agents-doc-outage-caveat",
+    decision:
+      "/docs/cli-agents (src/app/docs/cli-agents/page.tsx) unconditionally described the six scheduled GitHub Actions workflows as actively running autonomous CLI agents 'once per hour,' with no mention that every workflow run in the repo — the six scheduled-agent workflows and the pr-checks.yml CI gate alike — has been failing within seconds with no runner assigned since at least 2026-07-18 (NEXT_STEPS id github-actions-runner-unavailable, status=todo, unresolved as of the tip of main). Added a dated outage note directly under the intro paragraph, before the workflow table, cross-referencing the NEXT_STEPS item and clarifying that the table describes the intended steady-state configuration rather than confirmed current execution, and that swarm commits during the outage most likely arrive through a separate channel (a hosted agent-cloud platform or CCR Routine) rather than these Actions workflows.",
+    rationale:
+      "A dispatched research agent doing a tier-7 (docs/marketing staleness) sweep grepped every file under src/app/docs/ for any mention of the runner outage, runner_id, or the NEXT_STEPS id and found zero hits, while the process log itself has documented the outage as unresolved for two-plus days across multiple iterations. An operator or any reader landing on /docs/cli-agents got a factually wrong picture — 'this is live infrastructure running hourly' — when the infrastructure has actually been non-functional the whole time, with no code fix possible from an agent (this is a GitHub Settings → Actions provisioning issue, not a workflow-file defect). Every other docs page the agent audited in depth (product-bundles, architecture, roadmap, launch-checklist) was current against its corresponding source, and the landing page's feature claims still match what's shipped, so this was the one genuine staleness gap tier 7 surfaced — not a fabricated finding to fill an empty-backlog iteration.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -16038,5 +16046,18 @@ export const ITERATIONS: ProcessIteration[] = [
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "stripe-connect-panel-onboarding-gate-wiring",
     ),
+  },
+  {
+    date: "2026-07-20",
+    branch: "claude/nice-euler-rcl5tx",
+    summary:
+      "Picked up as a scheduled routine (\"continue toward a profitable, growing business, merge changes when done\") after PR #522 (stripe-connect-panel-onboarding-gate-wiring, tip of main at 0662af8); this branch was already at that exact tip. Confirmed baseline green (fresh npm ci, 409 packages + npx tsc --noEmit clean + npm run lint clean + npm test 2432 passed/184 files + npm run build clean, same 34-route ○/ƒ split). NEXT_STEPS confirmed still fully gated via grep (same five operator/legal/infra-blocked items). Checked the newest ~25 of the remote's 463 branches by push time — all ahead<=1 vs origin/main; the one ahead=1 outlier (claude/upbeat-dijkstra-vpztxo) diffed and confirmed identical content to already-merged PR #520 under a different SHA, the established squash/stale-fork-point signature. mcp__github__list_pull_requests confirmed PR #202 is still the same weeks-stale unrelated draft. Rather than re-run a sixth-plus identical five-tier sweep, dispatched a research agent straight at AGENT_PROTOCOL's tier 7 (docs/marketing staleness audit) plus a fast tier-1-5 spot-check and a branch-delete permission recheck.",
+    shipped: [
+      "src/app/docs/cli-agents/page.tsx — the research agent found /docs/cli-agents unconditionally describes all six scheduled GitHub Actions workflows as actively running autonomous agents 'once per hour,' with zero mention that every workflow run in the repo (all six scheduled-agent workflows plus the pr-checks.yml CI gate) has been failing with no runner assigned since at least 2026-07-18 (NEXT_STEPS id github-actions-runner-unavailable, still status=todo). Added a dated outage note before the workflow table cross-referencing that NEXT_STEPS item, and reworded the intro from 'run... once per hour' to 'are configured to run... once per hour' so the page no longer misstates current execution state as fact.",
+      "src/lib/process/prompt_process.tsx — appended cli-agents-doc-outage-caveat to BUSINESS_DECISIONS and this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a docs-accuracy fix, not a new backlog item.",
+      "Spot-check + recheck (no other changes needed): re-verified the three Stripe Connect dashboard actions still call requireOperatorAuth + checkRateLimit (no regression); re-attempted `git push origin --delete` on a confirmed fully-merged branch (diffed empty against origin/main first) — still HTTP 403, branch-delete permission remains blocked, unchanged from prior iterations.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2432 passed, 184 files, unchanged — docs-only content change) + npm run build (clean, same 34-route ○/ƒ split). Ran npm run dev and curled /docs/cli-agents (200) plus /, /dashboard, /dashboard/leads, /preview/demo-cafe, /docs/process to confirm no regression; stopped the dev server and confirmed the port was freed afterward.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "cli-agents-doc-outage-caveat"),
   },
 ];
