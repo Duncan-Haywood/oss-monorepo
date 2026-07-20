@@ -1,10 +1,12 @@
 "use server";
 
 import Stripe from "stripe";
+import { headers } from "next/headers";
 import { requireOperatorAuth } from "@/lib/auth/operator";
 import { assessStripeBootstrapGate } from "@/lib/pricing/bootstrap-gate";
 import { bootstrapStripePrices } from "@/lib/pricing/bootstrap-stripe-prices";
 import type { BootstrapPriceResult } from "@/lib/pricing/bootstrap-stripe-prices";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 // Local return-type annotation only — "use server" files must export async
 // functions, not `export type` aliases (Turbopack registers every top-level
@@ -20,14 +22,25 @@ type BootstrapStripePricesActionResult =
 
 /**
  * Operator-triggered Stripe Price bootstrap from the dashboard banner.
- * Same ALLOW_STRIPE_BOOTSTRAP=1 gate as POST /api/stripe/bootstrap-prices —
- * does not fake-complete stripe-price-objects (paste envSnippet + unset flag).
+ * Same ALLOW_STRIPE_BOOTSTRAP=1 gate AND per-IP rate limit as
+ * POST /api/stripe/bootstrap-prices — requireOperatorAuth alone is not a
+ * throttle when OPERATOR_DASHBOARD_PASSWORD is unset (see AGENT_PROTOCOL).
+ * Does not fake-complete stripe-price-objects (paste envSnippet + unset flag).
  */
 export async function bootstrapStripePricesAction(): Promise<BootstrapStripePricesActionResult> {
   try {
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`bootstrap-prices:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
     }
 
     const gate = assessStripeBootstrapGate();

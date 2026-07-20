@@ -6,13 +6,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  *
  * bootstrap-gate.test.ts + bootstrap-prices/route.test.ts already cover
  * the shared gate and API route. This suite locks the server-action glue:
- * requireOperatorAuth rejection, gate failure surfaces, success
+ * requireOperatorAuth rejection, per-IP rate limit (auth alone is not a
+ * throttle — see AGENT_PROTOCOL), gate failure surfaces, success
  * results+envSnippet+next, and Stripe throw → error string.
  */
 
 const requireOperatorAuth = vi.fn();
 vi.mock("@/lib/auth/operator", () => ({
   requireOperatorAuth: (...args: unknown[]) => requireOperatorAuth(...args),
+}));
+
+const headerGet = vi.fn();
+vi.mock("next/headers", () => ({
+  headers: vi.fn(async () => ({
+    get: (...args: unknown[]) => headerGet(...(args as [string])),
+  })),
 }));
 
 const bootstrapStripePrices = vi.fn();
@@ -34,6 +42,7 @@ describe("bootstrapStripePricesAction", () => {
 
   beforeEach(() => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headerGet.mockReset().mockReturnValue("203.0.113.5");
     bootstrapStripePrices.mockReset();
     stripeCtor.mockReset();
     process.env = { ...originalEnv };
@@ -60,6 +69,29 @@ describe("bootstrapStripePricesAction", () => {
     expect(result).toEqual({
       success: false,
       error: "Unauthorized — sign in at /dashboard/login",
+    });
+    expect(bootstrapStripePrices).not.toHaveBeenCalled();
+    expect(stripeCtor).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated bootstrap calls from the same IP (auth alone is not a throttle)", async () => {
+    process.env.ALLOW_STRIPE_BOOTSTRAP = "1";
+    process.env.STRIPE_SECRET_KEY = "sk_test_bootstrap";
+    bootstrapStripePrices.mockResolvedValue({ results: [], envSnippet: "" });
+
+    const { bootstrapStripePricesAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await bootstrapStripePricesAction();
+      expect(res.success).toBe(true);
+    }
+    bootstrapStripePrices.mockClear();
+    stripeCtor.mockClear();
+
+    const limited = await bootstrapStripePricesAction();
+    expect(limited).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
     });
     expect(bootstrapStripePrices).not.toHaveBeenCalled();
     expect(stripeCtor).not.toHaveBeenCalled();
