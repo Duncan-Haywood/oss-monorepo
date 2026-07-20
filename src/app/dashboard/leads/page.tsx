@@ -36,6 +36,7 @@ import { ConvexUrlEnvBanner } from "@/components/dashboard/convex-url-env-banner
 import { ConvexApiSecretEnvBanner } from "@/components/dashboard/convex-api-secret-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
+import { isStripeConnectOnboardingAllowed } from "@/lib/commerce/stripe-connect-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
 import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness";
@@ -186,6 +187,7 @@ export default async function LeadsPage() {
   const convexUrlEnv = assessConvexUrlEnvReadiness();
   const convexApiSecretEnv = assessConvexApiSecretEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
+  const connectOnboardingAllowed = isStripeConnectOnboardingAllowed();
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -246,6 +248,7 @@ export default async function LeadsPage() {
           initialClientVoicePacks={clientVoicePacks}
           initialCommerceOrders={commerceOrdersForPayoutsPanel}
           initialCommerceOrdersMissingClientReceipt={commerceOrdersMissingClientReceipt}
+          connectOnboardingAllowed={connectOnboardingAllowed}
         />
       </div>
     </main>

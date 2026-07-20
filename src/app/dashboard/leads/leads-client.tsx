@@ -181,6 +181,8 @@ interface LeadsClientProps {
   initialCommerceOrdersMissingClientReceipt?: CommerceOrderRecord[];
   /** UTC YYYY-MM for the packs loaded on the server. */
   marketingMonth?: string;
+  /** True when ALLOW_STRIPE_CONNECT_ONBOARDING=1 — enables the Payouts panel's account-creation buttons. */
+  connectOnboardingAllowed?: boolean;
 }
 
 const STAGES: { id: LeadPipelineStage; label: string; color: string; desc: string }[] = [
@@ -212,6 +214,7 @@ export function LeadsClient({
   initialCommerceOrders = [],
   initialCommerceOrdersMissingClientReceipt = [],
   marketingMonth = "",
+  connectOnboardingAllowed = false,
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
@@ -3615,45 +3618,59 @@ export function LeadsClient({
                               account — no transfers happen yet. Requires
                               ALLOW_STRIPE_CONNECT_ONBOARDING=1 on this deploy.
                             </p>
-                            <div className="mt-2 flex flex-wrap items-center gap-2">
-                              {lead.stripeConnectAccountId ? (
-                                <span className="text-[11px] text-zinc-600">
-                                  Account: <code>{lead.stripeConnectAccountId}</code>
-                                </span>
-                              ) : (
-                                <button
-                                  type="button"
-                                  disabled={isPending}
-                                  onClick={() => handleCreateStripeConnectAccount(lead.slug)}
-                                  className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
-                                >
-                                  Create Connect account
-                                </button>
-                              )}
-                              {lead.stripeConnectAccountId ? (
-                                <>
-                                  <button
-                                    type="button"
-                                    disabled={isPending}
-                                    onClick={() =>
-                                      handleGetStripeConnectOnboardingLink(lead.slug)
-                                    }
-                                    className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
-                                  >
-                                    Get onboarding link
-                                  </button>
-                                  <button
-                                    type="button"
-                                    disabled={isPending}
-                                    onClick={() => handleCheckStripeConnectStatus(lead.slug)}
-                                    className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
-                                  >
-                                    Check status
-                                  </button>
-                                </>
-                              ) : null}
-                            </div>
-                            {connectStatusByLead[lead.slug] ? (
+                            {!connectOnboardingAllowed ? (
+                              <p className="mt-2 text-[11px] font-medium text-zinc-600">
+                                Set ALLOW_STRIPE_CONNECT_ONBOARDING=1 (and
+                                STRIPE_SECRET_KEY) on this deploy to enable Connect
+                                account creation for clients.
+                              </p>
+                            ) : (
+                              <>
+                                <div className="mt-2 flex flex-wrap items-center gap-2">
+                                  {lead.stripeConnectAccountId ? (
+                                    <span className="text-[11px] text-zinc-600">
+                                      Account: <code>{lead.stripeConnectAccountId}</code>
+                                    </span>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      disabled={isPending}
+                                      onClick={() =>
+                                        handleCreateStripeConnectAccount(lead.slug)
+                                      }
+                                      className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                                    >
+                                      Create Connect account
+                                    </button>
+                                  )}
+                                  {lead.stripeConnectAccountId ? (
+                                    <>
+                                      <button
+                                        type="button"
+                                        disabled={isPending}
+                                        onClick={() =>
+                                          handleGetStripeConnectOnboardingLink(lead.slug)
+                                        }
+                                        className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                                      >
+                                        Get onboarding link
+                                      </button>
+                                      <button
+                                        type="button"
+                                        disabled={isPending}
+                                        onClick={() =>
+                                          handleCheckStripeConnectStatus(lead.slug)
+                                        }
+                                        className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                                      >
+                                        Check status
+                                      </button>
+                                    </>
+                                  ) : null}
+                                </div>
+                              </>
+                            )}
+                            {connectOnboardingAllowed && connectStatusByLead[lead.slug] ? (
                               <p className="mt-2 text-[11px] text-zinc-600">
                                 Charges enabled:{" "}
                                 {connectStatusByLead[lead.slug].chargesEnabled ? "yes" : "no"} ·
