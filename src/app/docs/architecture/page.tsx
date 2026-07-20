@@ -1795,7 +1795,10 @@ source). The same digest also lists email-critical leads with no usable address 
         <li>Vercel hosting, Stripe Checkout</li>
         <li>Vapi/Retell (platform + client voice)</li>
         <li>Resend (email), Buffer (scheduling MVP)</li>
-        <li>Database: Convex (chosen) — demo leads in TypeScript until wired</li>
+        <li>
+          Database: Convex-first with a SQLite fallback (dual-write with fail-closed{" "}
+          <code>requireConvex</code> on every recurring write path — see above)
+        </li>
       </ul>
     </DocPage>
   );
