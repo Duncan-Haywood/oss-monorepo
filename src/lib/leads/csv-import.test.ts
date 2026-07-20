@@ -1,11 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { MAX_LEAD_DATA_SOURCE_LENGTH } from "./create-fields";
+import { MAX_LEAD_SLUG_LENGTH } from "./slug";
 import {
+  CSV_LEAD_HEADERS,
   CSV_LEAD_TEMPLATE,
   existingLeadSlugConflictMessage,
   formatCsvImportSummary,
+  MAX_ADDRESS_LENGTH,
+  MAX_BUSINESS_NAME_LENGTH,
+  MAX_CITY_LENGTH,
+  MAX_CSV_EMAIL_LENGTH,
   MAX_CSV_IMPORT_SUMMARY_ERROR_LINES,
   MAX_CSV_IMPORT_TEXT_LENGTH,
+  MAX_CSV_PHONE_LENGTH,
+  MAX_DESCRIPTION_LENGTH,
+  MAX_HOURS_SEGMENT_LENGTH,
+  MAX_SERVICE_ITEM_LENGTH,
+  MAX_SERVICES,
+  MAX_STATE_LENGTH,
+  MAX_TAGLINE_LENGTH,
   parseCsvImportText,
   parseCsvLine,
   parseLeadsCsv,
@@ -444,6 +457,52 @@ describe("parseCsvImportText", () => {
       ok: true,
       csvText: exact,
     });
+  });
+
+  it("stays under Next's default Server Actions body size limit (csv-import-text-length-capacity-math)", () => {
+    // importLeadsCsvAction is a "use server" action and next.config.ts does
+    // not set experimental.serverActions.bodySizeLimit, so Next's default
+    // 1MB request-body ceiling applies ahead of parseCsvImportText ever
+    // running. Raising MAX_CSV_IMPORT_TEXT_LENGTH past that framework limit
+    // would make a request between the two ceilings fail with an opaque
+    // Next-level body-size rejection instead of this module's actionable
+    // too_long result — a strictly worse outcome. See
+    // node_modules/next/dist/docs/.../serverActions.md's bodySizeLimit section.
+    const NEXT_DEFAULT_SERVER_ACTIONS_BODY_SIZE_LIMIT_BYTES = 1_000_000;
+    expect(MAX_CSV_IMPORT_TEXT_LENGTH).toBeLessThan(
+      NEXT_DEFAULT_SERVER_ACTIONS_BODY_SIZE_LIMIT_BYTES,
+    );
+  });
+
+  it("documents that MAX_CSV_IMPORT_TEXT_LENGTH does not fit 100 rows each maxed on every per-cell cap", () => {
+    // MAX_ROWS (100, enforced separately by parseLeadsCsv on parsed row
+    // count) is not itself a byte budget — a single row that maxes out every
+    // per-cell cap (create-fields.ts), most of all `services`
+    // (MAX_SERVICES x MAX_SERVICE_ITEM_LENGTH), is already large enough that
+    // 100 such rows blow well past this byte ceiling. That's intentional
+    // (see MAX_CSV_IMPORT_TEXT_LENGTH's module comment) — a services-heavy
+    // bulk import needs multiple smaller CSV batches. This test pins the
+    // arithmetic so a future change to either constant can't silently make
+    // the old (false) "512 KiB fits 100 capped rows" claim true again
+    // without anyone noticing the assumption shifted.
+    const worstCaseRowBytes =
+      MAX_BUSINESS_NAME_LENGTH +
+      "restaurant".length + // longest BusinessCategory literal
+      MAX_CITY_LENGTH +
+      MAX_STATE_LENGTH +
+      MAX_ADDRESS_LENGTH +
+      MAX_CSV_PHONE_LENGTH +
+      MAX_CSV_EMAIL_LENGTH +
+      MAX_HOURS_SEGMENT_LENGTH * 2 +
+      MAX_SERVICES * MAX_SERVICE_ITEM_LENGTH +
+      (MAX_SERVICES - 1) + // ';'-joined service items
+      MAX_TAGLINE_LENGTH +
+      MAX_DESCRIPTION_LENGTH +
+      "complete".length + // longest recommendedTier literal
+      MAX_LEAD_SLUG_LENGTH +
+      (CSV_LEAD_HEADERS.length - 1); // comma separators between columns
+    const MAX_ROWS = 100;
+    expect(worstCaseRowBytes * MAX_ROWS).toBeGreaterThan(MAX_CSV_IMPORT_TEXT_LENGTH);
   });
 
   it("preserves leading/trailing whitespace on ok payloads (parseLeadsCsv owns trim)", () => {

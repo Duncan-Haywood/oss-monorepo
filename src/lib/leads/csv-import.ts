@@ -79,8 +79,20 @@ const MAX_ROWS = 100;
  * gate, so a multi-MB body with few rows still burns parse work. Soft-cap /
  * truncate would cut mid-row and mint corrupt leads — hard-reject instead.
  *
- * 512 KiB comfortably fits 100 capped rows (create-path MAX_* per cell) while
- * blocking multi-MB probes on importLeadsCsvAction.
+ * This is NOT big enough to fit 100 rows each maxed out on every per-cell cap
+ * (create-fields.ts) — a single row with a maximal `services` cell alone
+ * (MAX_SERVICES=100 × MAX_SERVICE_ITEM_LENGTH=100) is already ~10KB, so 100
+ * such rows would need ~1.3MB, well over this ceiling (csv-import-text-length-
+ * capacity-math). That's intentional, not a bug to "fix" by raising this
+ * value: importLeadsCsvAction is a `"use server"` action, and this repo does
+ * not override Next's default `serverActions.bodySizeLimit` (1MB, see
+ * next.config.ts) — raising this past that framework ceiling would make a
+ * request between the two limits fail with an opaque Next-level body-size
+ * rejection instead of parseCsvImportText's actionable `too_long` result, an
+ * even worse outcome. This value is a coarse anti-abuse ceiling comfortably
+ * under that 1MB framework limit, not a promise that any MAX_ROWS-sized
+ * import fits — a services-heavy bulk import genuinely needs multiple smaller
+ * CSV batches, and importLeadsCsvAction's too_long error says so.
  */
 export const MAX_CSV_IMPORT_TEXT_LENGTH = 512_000;
 

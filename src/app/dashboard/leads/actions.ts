@@ -56,6 +56,7 @@ import { CLIENT_VOICE_PACK_CONVEX_PRIMARY } from "@/lib/voice/pack-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import {
   existingLeadSlugConflictMessage,
+  MAX_CSV_IMPORT_TEXT_LENGTH,
   parseCsvImportText,
   parseLeadsCsv,
   partitionLeadsByExistingSlugs,
@@ -1517,7 +1518,7 @@ export async function importLeadsCsvAction(input: {
         success: false as const,
         error:
           parsedText.reason === "too_long"
-            ? "CSV text is too long"
+            ? `CSV text is too long (over ${MAX_CSV_IMPORT_TEXT_LENGTH.toLocaleString("en-US")} characters) — split it into smaller batches (fewer rows, or shorter services lists) and import each separately.`
             : "CSV text is empty",
       };
     }

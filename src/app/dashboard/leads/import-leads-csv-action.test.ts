@@ -169,7 +169,7 @@ describe("importLeadsCsvAction", () => {
     const res = await importLeadsCsvAction({ csvText: over });
     expect(res).toEqual({
       success: false,
-      error: "CSV text is too long",
+      error: `CSV text is too long (over ${MAX_CSV_IMPORT_TEXT_LENGTH.toLocaleString("en-US")} characters) — split it into smaller batches (fewer rows, or shorter services lists) and import each separately.`,
     });
     expect(getLeads).not.toHaveBeenCalled();
     expect(upsertLead).not.toHaveBeenCalled();
