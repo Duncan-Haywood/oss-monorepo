@@ -537,7 +537,7 @@ export async function updateLeadStage(
   slug: string,
   stage: LeadPipelineStage,
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   // Pass { requireConvex: true } (LEAD_STAGE_CONVEX_PRIMARY) from
   // updateLeadStageAction so a Convex mutation failure does not silently leave
   // stage only in instance-local SQLite while Convex-first readers (getLeads /
@@ -545,12 +545,11 @@ export async function updateLeadStage(
   // DEPLOY_HANDOFF_CONVEX_PRIMARY through this same helper.
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.updateStage, {
+      return (await convexClient.mutation(api.leads.updateStage, {
         slug,
         stage,
         apiSecret: convexApiSecret,
-      });
-      return;
+      })) as boolean;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("updateLeadStage", e);
@@ -572,14 +571,28 @@ export async function updateLeadStage(
   // the two backends must still agree on what "success" means for any future
   // caller (db-convex-sqlite-not-found-parity).
   const db = getSqliteDb();
-  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
-    | { slug: string }
+  const existing = db.prepare("SELECT slug, status FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string; status: string }
     | undefined;
   if (!existing) {
     throw new Error(`Lead with slug ${slug} not found`);
   }
+  // Write-time re-check mirroring applyColdLeadDisposition/recordLeadOutreach:
+  // reject a write that would revert an already-paid/live lead to an earlier
+  // stage (a stale dashboard dropdown snapshot racing a concurrent Stripe
+  // checkout), while still allowing the normal paid->live Mark-live
+  // transition (or a re-confirm of the same terminal stage)
+  // (update-lead-stage-action-paid-live-revert-guard).
+  if (
+    (existing.status === "paid" || existing.status === "live") &&
+    stage !== "paid" &&
+    stage !== "live"
+  ) {
+    return false;
+  }
   const stmt = db.prepare("UPDATE leads SET status = ?, updatedAt = datetime('now') WHERE slug = ?");
   stmt.run(stage, slug);
+  return true;
 }
 
 export async function upsertLead(

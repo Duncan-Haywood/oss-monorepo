@@ -100,6 +100,75 @@ test("updateStage throws on an unknown slug (parity with SQLite's existence-chec
   expect(row?.stage).toBe("live");
 });
 
+test("updateStage returns false and skips the write when the fresh row already went paid/live and the new stage would revert it (update-lead-stage-action-paid-live-revert-guard)", async () => {
+  // Reproduces updateLeadStageAction's TOCTOU window: the operator's
+  // dashboard dropdown snapshot showed an earlier stage, but a concurrent
+  // Stripe checkout (updateStage here stands in for recordLeadPayment)
+  // completed in between — the stale dropdown write must not revert that.
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "race-cafe", stage: "outreach_sent" }),
+  );
+  await t.mutation(api.leads.updateStage, {
+    slug: "race-cafe",
+    stage: "paid",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  await expect(
+    t.mutation(api.leads.updateStage, {
+      slug: "race-cafe",
+      stage: "outreach_sent",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "race-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.stage).toBe("paid");
+});
+
+test("updateStage still allows the normal paid -> live transition (Mark live) and a same-stage reconfirm from a fresh live/paid row", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "live-cafe", stage: "outreach_sent" }),
+  );
+  await t.mutation(api.leads.updateStage, {
+    slug: "live-cafe",
+    stage: "paid",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  await expect(
+    t.mutation(api.leads.updateStage, {
+      slug: "live-cafe",
+      stage: "live",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+  const liveRow: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "live-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(liveRow?.stage).toBe("live");
+
+  await expect(
+    t.mutation(api.leads.updateStage, {
+      slug: "live-cafe",
+      stage: "paid",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+  const revertedRow: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "live-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(revertedRow?.stage).toBe("paid");
+});
+
 test("upsertLead inserts a new lead then patches (not duplicates) the existing row on a second call", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe", businessName: "Demo Cafe" }));
