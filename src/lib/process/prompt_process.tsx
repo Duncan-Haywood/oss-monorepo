@@ -7569,6 +7569,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "A dispatched research agent doing a tier-7 (docs/marketing staleness) sweep grepped every file under src/app/docs/ for any mention of the runner outage, runner_id, or the NEXT_STEPS id and found zero hits, while the process log itself has documented the outage as unresolved for two-plus days across multiple iterations. An operator or any reader landing on /docs/cli-agents got a factually wrong picture — 'this is live infrastructure running hourly' — when the infrastructure has actually been non-functional the whole time, with no code fix possible from an agent (this is a GitHub Settings → Actions provisioning issue, not a workflow-file defect). Every other docs page the agent audited in depth (product-bundles, architecture, roadmap, launch-checklist) was current against its corresponding source, and the landing page's feature claims still match what's shipped, so this was the one genuine staleness gap tier 7 surfaced — not a fabricated finding to fill an empty-backlog iteration.",
   },
+  {
+    date: "2026-07-20",
+    id: "cli-agents-doc-subtitle-outage-note",
+    decision:
+      "The cli-agents-doc-outage-caveat fix reworded the /docs/cli-agents intro paragraph and inserted a 'Known outage' note, but never touched the page's subtitle prop (src/app/docs/cli-agents/page.tsx:11), which DocPage renders as the very first line under the h1 — before the intro paragraph and before the outage note. That subtitle still asserted, present-tense and unconditionally, that the GitHub Actions 'run ... once per hour, staggered,' the identical actively-running framing the prior fix set out to eliminate. Reworded it to 'configured to run ... once per hour, staggered — currently down, see outage note below' so the most prominent text on the page no longer contradicts the outage note a few lines further down.",
+    rationale:
+      "A research agent dispatched to find the next real gap (NEXT_STEPS still fully gated on all five items) verified the prior outage-caveat fix against live source rather than trusting the process log's own description of it, and found this one spot the fix missed: the page visibly contradicted itself, stating as fact in the subtitle that agents run hourly while a 'Known outage' paragraph immediately below said every run has failed with runner_id: 0 for 2+ days. No test asserts on the subtitle string (grepped for it across src/); docPageMetadata's SEO description pulls from a separate DOCS_PAGES registry entry unaffected by this change. Text-only fix, no NEXT_STEPS impact — continues rather than duplicates the just-shipped outage-caveat work.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -16059,5 +16067,17 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2432 passed, 184 files, unchanged — docs-only content change) + npm run build (clean, same 34-route ○/ƒ split). Ran npm run dev and curled /docs/cli-agents (200) plus /, /dashboard, /dashboard/leads, /preview/demo-cafe, /docs/process to confirm no regression; stopped the dev server and confirmed the port was freed afterward.",
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "cli-agents-doc-outage-caveat"),
+  },
+  {
+    date: "2026-07-20",
+    branch: "claude/upbeat-dijkstra-p0ejzg",
+    summary:
+      "Picked up as a scheduled routine (\"continue toward a profitable, growing business, merge changes when done\") after PR #523 (cli-agents-doc-outage-caveat, tip of main at f913021); this branch was already at that exact tip. Confirmed baseline green (fresh npm ci, 409 packages + npx tsc --noEmit clean + npm run lint clean + npm test 2432 passed/184 files + npm run build clean, same 34-route ○/ƒ split). NEXT_STEPS confirmed still fully gated via grep (same five operator/legal/infra-blocked items). mcp__github__list_pull_requests confirmed PR #202 is still the same weeks-stale unrelated draft. Fold-scanned 16 of the most distinctly-named remote branches (out of 463 total) by diffing each directly against origin/main: every one showed 50k-100k-line diffs dominated by deletions, the established old-stale-fork signature (forked long before the repo's current size) — no live fold candidate. Dispatched a research agent to verify the just-shipped cli-agents-doc-outage-caveat fix (PR #523) against live source rather than trust the process log's self-description, since it was the freshest change and least likely to have been re-audited.",
+    shipped: [
+      "src/app/docs/cli-agents/page.tsx — reworded the DocPage subtitle prop (line 11), the one piece of the page the outage-caveat fix missed: it still asserted present-tense that the GitHub Actions 'run ... once per hour, staggered' — the exact actively-running framing the prior fix reworded the body copy away from — while the 'Known outage' paragraph a few lines below says every run has failed with runner_id: 0 since 2026-07-18. Now reads 'configured to run ... once per hour, staggered — currently down, see outage note below,' matching the corrected body language so the page no longer visibly contradicts itself in its first line of text.",
+      "src/lib/process/prompt_process.tsx — appended cli-agents-doc-subtitle-outage-note to BUSINESS_DECISIONS and this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a docs-accuracy fix on the just-shipped outage note, not a new backlog item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + grep confirmed no test asserts on the subtitle string, so npm test unchanged (2432 passed, 184 files) + npm run build (clean, same 34-route ○/ƒ split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "cli-agents-doc-subtitle-outage-note"),
   },
 ];
