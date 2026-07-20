@@ -29,6 +29,7 @@ import {
   listCommerceCatalogs,
   getCommerceOrderByStripeSessionId,
   markCommerceOrderPaidOut,
+  markCommerceOrderClientReceiptSent,
   upsertClientVoicePack,
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
@@ -42,6 +43,7 @@ import {
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
+import { COMMERCE_CLIENT_RECEIPT_RESEND_CONVEX_PRIMARY } from "@/lib/commerce/client-receipt-persist";
 import { COMMERCE_CATALOG_CONVEX_PRIMARY } from "@/lib/commerce/catalog-persist";
 import { parseInquiryId } from "@/lib/inquiries/inquiry-id";
 import { INQUIRY_REPLY_CONVEX_PRIMARY } from "@/lib/inquiries/reply-persist";
@@ -109,6 +111,7 @@ import {
   sendStarterUpsellEmail,
   sendMarketingPackToClientEmail,
   sendClientVoicePackToClientEmail,
+  sendCommerceBuyNowClientReceipt,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
@@ -1384,6 +1387,111 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
     return { success: true as const, paidOutAt };
   } catch (error) {
     console.error("Error in markCommerceOrderPaidOutAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Operator manually resends a Commerce Buy now client-receipt notification —
+ * the row-level remedy for listCommerceOrdersMissingClientReceipt (a
+ * permanently-bad lead email or a Resend outage past Stripe's webhook retry
+ * window otherwise leaves the sold order-notification promise unfulfilled
+ * with no way for the operator to identify or act on which order is stuck;
+ * see commerce-buy-now-client-receipt-manual-resend).
+ */
+export async function resendCommerceClientReceiptAction(stripeSessionId: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    const parsedSessionId = parseCheckoutSessionId(stripeSessionId);
+    if (!parsedSessionId.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSessionId.reason === "too_long"
+            ? "Checkout session id is too long"
+            : "Checkout session id is required",
+      };
+    }
+    const sessionId = parsedSessionId.sessionId;
+
+    const order = await getCommerceOrderByStripeSessionId(sessionId);
+    if (!order) {
+      return { success: false as const, error: "Commerce order not found" };
+    }
+    if (order.clientReceiptEmailSentAt) {
+      return {
+        success: false as const,
+        error: "Client receipt was already sent for this order",
+      };
+    }
+
+    const lead = await getLeadBySlug(order.leadSlug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found for this order" };
+    }
+    const to = lead.email?.trim();
+    if (!to) {
+      return {
+        success: false as const,
+        error: "No email on file for this lead — add one first",
+      };
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const previewUrl = `${leadPreviewAbsoluteUrl(baseUrl, order.leadSlug)}#catalog`;
+    const sent = await sendCommerceBuyNowClientReceipt({
+      to,
+      businessName: lead.businessName || order.leadSlug,
+      slug: order.leadSlug,
+      skuName: order.skuName,
+      amountTotalUsd: order.amountPaidUsd,
+      stripeSessionId: order.stripeSessionId,
+      previewUrl,
+    });
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send client receipt email",
+      };
+    }
+
+    const clientReceiptEmailSentAt = new Date().toISOString();
+    try {
+      await markCommerceOrderClientReceiptSent(
+        sessionId,
+        clientReceiptEmailSentAt,
+        COMMERCE_CLIENT_RECEIPT_RESEND_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Receipt email was sent but the sent-marker could not be recorded in the shared store — it may show as missing again until this is retried.",
+        };
+      }
+      throw error;
+    }
+
+    revalidatePath("/dashboard/leads");
+    return {
+      success: true as const,
+      clientReceiptEmailSentAt,
+      mock: "mock" in sent ? Boolean(sent.mock) : false,
+    };
+  } catch (error) {
+    console.error("Error in resendCommerceClientReceiptAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
