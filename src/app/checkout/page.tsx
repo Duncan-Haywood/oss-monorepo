@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Suspense } from "react";
+import { planCheckoutPageAccess } from "@/lib/checkout/checkout-page-access";
 import { loadCheckoutPrefillLead } from "@/lib/checkout/prefill-slug";
 import { brand } from "@/lib/brand";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import type { BundleTier } from "@/lib/pricing/bundles";
 import { staticPageMetadata } from "@/lib/seo";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 import { CheckoutForm, type CheckoutPrefill } from "./checkout-form";
 
 export const metadata: Metadata = staticPageMetadata({
@@ -31,8 +34,20 @@ function parseTier(value: string | undefined): BundleTier | undefined {
 
 export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
   const params = await searchParams;
-  // Optional slug: over-long treated as missing (fall-back), never strands checkout.
-  const { slug, lead } = await loadCheckoutPrefillLead(params.slug);
+  const clientIp = clientIpFromHeaders(await headers());
+  // Rate limit BEFORE loadCheckoutPrefillLead — that call fires a real
+  // Convex/SQLite round trip for any slug that passes the length gate, and
+  // this page previously had no per-IP throttle at all (checkout-page-rate-
+  // limit; twin of checkout-success-page-rate-limit / preview-page-rate-limit
+  // on the same resource-exhaustion class). A rate-limited hit skips the DB
+  // lookup and falls back to the un-prefilled checkout, never strands the
+  // buyer, same fail-to-cheap-existing-path pattern as those two siblings.
+  const plan = await planCheckoutPageAccess(params.slug, clientIp, {
+    loadPrefillLead: loadCheckoutPrefillLead,
+    checkRateLimit,
+  });
+  const { slug, lead } =
+    plan.kind === "rate_limited" ? { slug: undefined, lead: null } : plan.result;
 
   const prefill: CheckoutPrefill = {
     slug,
