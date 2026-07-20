@@ -282,7 +282,15 @@ export const updateSnooze = mutation({
 
 /**
  * Apply a cold-lead disposition patch (re-engage or close) in one write.
- * Caller validates via planColdLeadDisposition — this only persists fields.
+ * Caller validates via planColdLeadDisposition — but that validation runs
+ * against a snapshot read moments earlier in disposeColdLeadAction, so this
+ * mutation re-checks the one condition that matters (paid/live) atomically
+ * against the fresh row immediately before patching — mirrors
+ * commerceOrders.markPaidOut's re-check-at-write-time shape
+ * (commerce-order-paid-out-refund-race-guard) for the same TOCTOU class: a
+ * concurrent Stripe checkout completing between the action's read and this
+ * write must not have its stage='paid'/'live' silently reverted back to
+ * closed/discovered by a stale Close/Re-engage click.
  */
 export const applyColdDisposition = mutation({
   args: {
@@ -295,7 +303,8 @@ export const applyColdDisposition = mutation({
     snoozedUntil: v.optional(v.string()),
     apiSecret: v.string(),
   },
-  returns: v.null(),
+  /** false when the fresh row had already gone paid/live — patch skipped. */
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const lead = await ctx.db
@@ -305,13 +314,16 @@ export const applyColdDisposition = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
+    if (lead.stage === "paid" || lead.stage === "live") {
+      return false;
+    }
     await ctx.db.patch(lead._id, {
       stage: args.stage,
       outreachStep: args.outreachStep,
       lastOutreachAt: args.lastOutreachAt ?? "",
       snoozedUntil: args.snoozedUntil ?? "",
     });
-    return null;
+    return true;
   },
 });
 

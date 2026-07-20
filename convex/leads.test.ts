@@ -303,6 +303,87 @@ test("applyColdDisposition throws on an unknown slug and patches stage/outreach/
   expect(row?.snoozedUntil).toBe("");
 });
 
+test("applyColdDisposition returns true and applies the patch on a clean cold lead", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "clean-cafe", stage: "outreach_sent", outreachStep: 3 }),
+  );
+
+  const applied = await t.mutation(api.leads.applyColdDisposition, {
+    slug: "clean-cafe",
+    stage: "closed",
+    outreachStep: 3,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(applied).toBe(true);
+
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "clean-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.stage).toBe("closed");
+});
+
+test("applyColdDisposition returns false and skips the write when the fresh row already went paid/live (cold-lead-disposition-paid-live-race-guard)", async () => {
+  // Reproduces disposeColdLeadAction's TOCTOU window: the operator's earlier
+  // planColdLeadDisposition read saw a cold, unpaid lead, but a concurrent
+  // Stripe checkout (updateStage here stands in for recordLeadPayment)
+  // completed in between — the disposition write must not revert that.
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "race-cafe", stage: "outreach_sent", outreachStep: 3 }),
+  );
+  await t.mutation(api.leads.updateStage, {
+    slug: "race-cafe",
+    stage: "paid",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const applied = await t.mutation(api.leads.applyColdDisposition, {
+    slug: "race-cafe",
+    stage: "closed",
+    outreachStep: 3,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(applied).toBe(false);
+
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "race-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.stage).toBe("paid");
+  expect(row?.outreachStep).toBe(3);
+});
+
+test("applyColdDisposition also rejects a fresh 'live' row the same way", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "live-cafe", stage: "outreach_sent", outreachStep: 3 }),
+  );
+  await t.mutation(api.leads.updateStage, {
+    slug: "live-cafe",
+    stage: "live",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const applied = await t.mutation(api.leads.applyColdDisposition, {
+    slug: "live-cafe",
+    stage: "discovered",
+    outreachStep: 0,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(applied).toBe(false);
+
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "live-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.stage).toBe("live");
+});
+
 test("seed inserts leads only when the table is empty, and is a no-op afterwards", async () => {
   const t = convexTest(schema, modules);
   const first = await t.mutation(api.leads.seed, {
