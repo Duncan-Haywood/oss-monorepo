@@ -579,8 +579,9 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
       return { success: false as const, error: "Lead not found" };
     }
 
+    let staged: boolean;
     try {
-      await updateLeadStage(slug, stage, LEAD_STAGE_CONVEX_PRIMARY);
+      staged = await updateLeadStage(slug, stage, LEAD_STAGE_CONVEX_PRIMARY);
     } catch (error) {
       if (error instanceof ConvexPrimaryWriteError) {
         return {
@@ -592,13 +593,32 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
       throw error;
     }
 
+    if (!staged) {
+      // updateLeadStage's write-time re-check ran against the freshly read
+      // row and refused because a concurrent Stripe checkout already moved
+      // this lead to paid/live between our getLeadBySlug read above and this
+      // write — the operator's dropdown snapshot was stale
+      // (update-lead-stage-action-paid-live-revert-guard).
+      return {
+        success: false as const,
+        error:
+          "Lead was paid or went live after this page loaded — refresh and check its status; the stage was not changed",
+      };
+    }
+
     // If stage is changed to outreach_sent, durably mark Email 1 sent BEFORE
     // sending (persist-then-notify) so a Convex mutation failure never lets a
     // real send land unrecorded — see OUTREACH_CADENCE_CONVEX_PRIMARY.
     if (stage === "outreach_sent") {
       if (lead.email) {
+        let outreachRecorded: boolean;
         try {
-          await recordLeadOutreach(slug, 1, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
+          outreachRecorded = await recordLeadOutreach(
+            slug,
+            1,
+            undefined,
+            OUTREACH_CADENCE_CONVEX_PRIMARY,
+          );
         } catch (error) {
           if (error instanceof ConvexPrimaryWriteError) {
             return {
@@ -608,6 +628,16 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
             };
           }
           throw error;
+        }
+        if (!outreachRecorded) {
+          // recordLeadOutreach's own paid/live/closed write-time guard
+          // fired — defense in depth for the near-zero-width window between
+          // our own updateLeadStage write above and this call.
+          return {
+            success: false as const,
+            error:
+              "Stage saved, but the lead went paid/live/closed before Email 1 could be recorded — Email 1 was not sent",
+          };
         }
         // sendOutreachEmail → sendEmail resolves { success: false } on
         // suppression/Resend failure (never throws). Surface that to the

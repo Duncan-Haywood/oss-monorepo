@@ -119,9 +119,9 @@ describe("updateLeadStageAction", () => {
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
-    updateLeadStage.mockReset().mockResolvedValue(undefined);
+    updateLeadStage.mockReset().mockResolvedValue(true);
     getLeadBySlug.mockReset().mockResolvedValue(baseLead);
-    recordLeadOutreach.mockReset().mockResolvedValue(undefined);
+    recordLeadOutreach.mockReset().mockResolvedValue(true);
     sendOutreachEmail.mockReset().mockResolvedValue({
       success: true,
       id: "email_1",
@@ -194,6 +194,35 @@ describe("updateLeadStageAction", () => {
       expect(sendOutreachEmail).not.toHaveBeenCalled();
     },
   );
+
+  it("returns the paid/live race-guard error and never records outreach when updateLeadStage resolves false", async () => {
+    updateLeadStage.mockResolvedValue(false);
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "outreach_sent");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead was paid or went live after this page loaded — refresh and check its status; the stage was not changed",
+    });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("returns a race-guard error and skips Email 1 when recordLeadOutreach resolves false", async () => {
+    recordLeadOutreach.mockResolvedValue(false);
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "outreach_sent");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Stage saved, but the lead went paid/live/closed before Email 1 could be recorded — Email 1 was not sent",
+    });
+    expect(updateLeadStage).toHaveBeenCalledOnce();
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
 
   it("fails closed when Convex primary stage write rejects", async () => {
     updateLeadStage.mockRejectedValue(new MockConvexPrimaryWriteError());

@@ -84,7 +84,14 @@ export const updateStage = mutation({
     stage: stageValidator,
     apiSecret: v.string(),
   },
-  returns: v.null(),
+  /**
+   * false when the fresh row had already gone paid/live and this write
+   * would revert it to an earlier stage — patch skipped
+   * (update-lead-stage-action-paid-live-revert-guard). A write that itself
+   * targets paid or live is always allowed even from a paid/live row (the
+   * normal Mark-live and re-confirm transitions).
+   */
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const lead = await ctx.db
@@ -94,8 +101,15 @@ export const updateStage = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
+    if (
+      (lead.stage === "paid" || lead.stage === "live") &&
+      args.stage !== "paid" &&
+      args.stage !== "live"
+    ) {
+      return false;
+    }
     await ctx.db.patch(lead._id, { stage: args.stage });
-    return null;
+    return true;
   },
 });
 
