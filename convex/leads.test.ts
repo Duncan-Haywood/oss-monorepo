@@ -183,18 +183,88 @@ test("recordOutreach throws on an unknown slug and patches step + timestamp on a
   ).rejects.toThrow("Lead with slug no-such-lead not found");
 
   await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe" }));
-  await t.mutation(api.leads.recordOutreach, {
+  const applied = await t.mutation(api.leads.recordOutreach, {
     slug: "demo-cafe",
     outreachStep: 2,
     lastOutreachAt: "2026-02-01T00:00:00.000Z",
     apiSecret: TEST_API_SECRET,
   });
+  expect(applied).toBe(true);
   const row: LeadRow | null = await t.query(api.leads.getBySlug, {
     slug: "demo-cafe",
     apiSecret: TEST_API_SECRET,
   });
   expect(row?.outreachStep).toBe(2);
   expect(row?.lastOutreachAt).toBe("2026-02-01T00:00:00.000Z");
+});
+
+test("recordOutreach returns false and skips the write when the fresh row already went paid/live/closed (sendfollowup-action-paid-live-closed-race-guard)", async () => {
+  // Reproduces sendFollowUpAction's TOCTOU window: the operator's earlier
+  // getLeadBySlug read saw an outreach-eligible lead, but a concurrent
+  // Stripe checkout (updateStage here stands in for recordLeadPayment) or a
+  // stage change to closed completed in between — the outreach write must
+  // not still record a step or let the caller send a real Email 2/3.
+  const t = convexTest(schema, modules);
+
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "race-cafe", stage: "outreach_sent", outreachStep: 1 }),
+  );
+  await t.mutation(api.leads.updateStage, {
+    slug: "race-cafe",
+    stage: "paid",
+    apiSecret: TEST_API_SECRET,
+  });
+  await expect(
+    t.mutation(api.leads.recordOutreach, {
+      slug: "race-cafe",
+      outreachStep: 2,
+      lastOutreachAt: "2026-02-01T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+  const paidRow: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "race-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(paidRow?.outreachStep).toBe(1);
+  expect(paidRow?.lastOutreachAt).toBeUndefined();
+
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "live-cafe", stage: "outreach_sent", outreachStep: 1 }),
+  );
+  await t.mutation(api.leads.updateStage, {
+    slug: "live-cafe",
+    stage: "live",
+    apiSecret: TEST_API_SECRET,
+  });
+  await expect(
+    t.mutation(api.leads.recordOutreach, {
+      slug: "live-cafe",
+      outreachStep: 2,
+      lastOutreachAt: "2026-02-01T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "closed-cafe", stage: "outreach_sent", outreachStep: 1 }),
+  );
+  await t.mutation(api.leads.updateStage, {
+    slug: "closed-cafe",
+    stage: "closed",
+    apiSecret: TEST_API_SECRET,
+  });
+  await expect(
+    t.mutation(api.leads.recordOutreach, {
+      slug: "closed-cafe",
+      outreachStep: 2,
+      lastOutreachAt: "2026-02-01T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
 });
 
 test("recordPreviewOpen no-ops (never throws) on an unknown slug, unlike every other lead mutation", async () => {

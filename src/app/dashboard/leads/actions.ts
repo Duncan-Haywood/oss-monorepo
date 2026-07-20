@@ -980,8 +980,9 @@ export async function sendFollowUpAction(slug: string) {
     // Durably mark the follow-up step sent BEFORE calling Resend
     // (persist-then-notify) so a Convex mutation failure never lets a real
     // send land unrecorded and risk a duplicate on another instance.
+    let recorded: boolean;
     try {
-      await recordLeadOutreach(slug, next, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
+      recorded = await recordLeadOutreach(slug, next, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
     } catch (error) {
       if (error instanceof ConvexPrimaryWriteError) {
         return {
@@ -991,6 +992,20 @@ export async function sendFollowUpAction(slug: string) {
         };
       }
       throw error;
+    }
+
+    if (!recorded) {
+      // The paid/live/closed gate above ran against the snapshot read at the
+      // top of this action — recordLeadOutreach re-checks the same
+      // condition atomically at write time and skips the patch (and this
+      // action skips the Resend send) when a concurrent Stripe checkout or
+      // stage change already moved this lead to paid/live/closed in between
+      // (sendfollowup-action-paid-live-closed-race-guard).
+      return {
+        success: false as const,
+        error:
+          "Lead was paid, went live, or was closed after this page loaded — refresh and check its status; the follow-up was not sent",
+      };
     }
 
     const sent =

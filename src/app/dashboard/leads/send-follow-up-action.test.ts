@@ -114,7 +114,7 @@ describe("sendFollowUpAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(outreachLead);
-    recordLeadOutreach.mockReset().mockResolvedValue(undefined);
+    recordLeadOutreach.mockReset().mockResolvedValue(true);
     sendOutreachFollowUp2.mockReset().mockResolvedValue({
       success: true,
       id: "email_2",
@@ -293,6 +293,20 @@ describe("sendFollowUpAction", () => {
         "Could not record the outreach mark in the shared store — follow-up was not sent. Retry in a moment.",
     });
     expect(sendOutreachFollowUp2).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("rejects when recordLeadOutreach resolves false (paid/live/closed race guard) and never sends", async () => {
+    recordLeadOutreach.mockResolvedValue(false);
+    const { sendFollowUpAction } = await import("./actions");
+    const res = await sendFollowUpAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead was paid, went live, or was closed after this page loaded — refresh and check its status; the follow-up was not sent",
+    });
+    expect(sendOutreachFollowUp2).not.toHaveBeenCalled();
+    expect(sendOutreachFollowUp3).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
