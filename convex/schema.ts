@@ -33,6 +33,13 @@ export default defineSchema({
     notes: v.optional(v.string()),
     /** ISO timestamp until which this lead is parked off Work next. */
     snoozedUntil: v.optional(v.string()),
+    /**
+     * Stripe Connect Express account id for this local business (dormant
+     * scaffold — see commerce-payouts-stripe-connect / stripe-connect-gate.ts).
+     * Account creation/status-checking only; no payout/transfer flow reads
+     * this yet.
+     */
+    stripeConnectAccountId: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

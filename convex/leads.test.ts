@@ -25,6 +25,7 @@ interface LeadRow {
   lastPreviewOpenAt?: string;
   notes?: string;
   snoozedUntil?: string;
+  stripeConnectAccountId?: string;
 }
 
 function newLeadArgs(overrides: Partial<Record<string, unknown>> = {}) {
@@ -492,6 +493,38 @@ test("updateNotes / updateSnooze throw on an unknown slug and an empty string cl
   row = await t.query(api.leads.getBySlug, { slug: "demo-cafe", apiSecret: TEST_API_SECRET });
   expect(row?.notes).toBe("");
   expect(row?.snoozedUntil).toBe("");
+});
+
+test("updateStripeConnectAccountId throws on an unknown slug and an empty string clears the field", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.leads.updateStripeConnectAccountId, {
+      slug: "no-such-lead",
+      stripeConnectAccountId: "acct_123",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).rejects.toThrow("Lead with slug no-such-lead not found");
+
+  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe" }));
+  await t.mutation(api.leads.updateStripeConnectAccountId, {
+    slug: "demo-cafe",
+    stripeConnectAccountId: "acct_123",
+    apiSecret: TEST_API_SECRET,
+  });
+  let row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.stripeConnectAccountId).toBe("acct_123");
+
+  // Empty string (or omitted) clears — Convex patch ignores `undefined` keys,
+  // so the handler must coerce to "" for the clear to persist.
+  await t.mutation(api.leads.updateStripeConnectAccountId, {
+    slug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.leads.getBySlug, { slug: "demo-cafe", apiSecret: TEST_API_SECRET });
+  expect(row?.stripeConnectAccountId).toBe("");
 });
 
 test("applyColdDisposition throws on an unknown slug and patches stage/outreach/snooze together, clearing via empty string", async () => {

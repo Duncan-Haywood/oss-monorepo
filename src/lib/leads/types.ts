@@ -69,6 +69,14 @@ export interface Lead {
    * non-actionable while snoozedUntil > now. See src/lib/leads/snooze.ts.
    */
   snoozedUntil?: string;
+  /**
+   * Stripe Connect Express account id for this local business, once created
+   * by the operator via createStripeConnectAccountAction (dormant behind
+   * ALLOW_STRIPE_CONNECT_ONBOARDING — see stripe-connect-gate.ts). Account
+   * creation/status-checking only; no payout/transfer wiring reads this yet
+   * (commerce-payouts-stripe-connect stays operator/legal-gated for that).
+   */
+  stripeConnectAccountId?: string;
 }
 
 /**

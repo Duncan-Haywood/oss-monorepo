@@ -259,6 +259,7 @@ function getSqliteDb(): DatabaseSync {
   addLeadCol("lastPreviewOpenAt", "TEXT");
   addLeadCol("notes", "TEXT");
   addLeadCol("snoozedUntil", "TEXT");
+  addLeadCol("stripeConnectAccountId", "TEXT");
 
   const handoffCols = (
     sqliteDb.prepare("PRAGMA table_info(deploy_handoffs)").all() as unknown as Array<{ name: string }>
@@ -407,6 +408,7 @@ const api: any = {
     updateNotes: "leads:updateNotes",
     updateSnooze: "leads:updateSnooze",
     applyColdDisposition: "leads:applyColdDisposition",
+    updateStripeConnectAccountId: "leads:updateStripeConnectAccountId",
   },
   inquiries: {
     create: "inquiries:create",
@@ -875,6 +877,52 @@ export async function updateLeadSnooze(
     SET snoozedUntil = ?, updatedAt = datetime('now')
     WHERE slug = ?
   `).run(snoozedUntil ?? null, slug);
+}
+
+/**
+ * Persist a lead's Stripe Connect Express account id (dormant scaffold — see
+ * commerce-payouts-stripe-connect / stripe-connect-gate.ts). Pass
+ * { requireConvex: true } (LEAD_STRIPE_CONNECT_CONVEX_PRIMARY) from
+ * createStripeConnectAccountAction so a Convex mutation failure surfaces to
+ * the operator instead of writing only to instance-local SQLite while
+ * Convex-first readers (getLeads) never see the created account id.
+ */
+export async function updateLeadStripeConnectAccountId(
+  slug: string,
+  stripeConnectAccountId: string | undefined,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.updateStripeConnectAccountId, {
+        slug,
+        stripeConnectAccountId: stripeConnectAccountId ?? "",
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadStripeConnectAccountId", e);
+      }
+      console.warn(
+        `Failed to update Stripe Connect account id for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET stripeConnectAccountId = ?, updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(stripeConnectAccountId ?? null, slug);
 }
 
 /**

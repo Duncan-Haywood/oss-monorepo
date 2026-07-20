@@ -35,6 +35,9 @@ import {
   archiveOrphanCommerceStripeProductsAction,
   generateClientVoicePackAction,
   sendClientVoicePackToClientAction,
+  createStripeConnectAccountAction,
+  createStripeConnectOnboardingLinkAction,
+  checkStripeConnectAccountStatusAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
 import { isOrderRefunded, isOrderDisputed } from "@/lib/orders/types";
@@ -891,6 +894,53 @@ export function LeadsClient({
       alert(
         `Archived ${res.archivedCount} orphan Stripe Product${res.archivedCount === 1 ? "" : "s"} (removed SKUs).`,
       );
+    });
+  };
+
+  const [connectStatusByLead, setConnectStatusByLead] = useState<
+    Record<string, { chargesEnabled: boolean; payoutsEnabled: boolean; detailsSubmitted: boolean }>
+  >({});
+
+  const handleCreateStripeConnectAccount = (slug: string) => {
+    startTransition(async () => {
+      const res = await createStripeConnectAccountAction(slug);
+      if (!res.success) {
+        alert(`Create Connect account failed: ${res.error}`);
+        return;
+      }
+      setLeads((prev) =>
+        prev.map((l) => (l.slug === slug ? { ...l, stripeConnectAccountId: res.accountId } : l)),
+      );
+    });
+  };
+
+  const handleGetStripeConnectOnboardingLink = (slug: string) => {
+    startTransition(async () => {
+      const res = await createStripeConnectOnboardingLinkAction(slug);
+      if (!res.success) {
+        alert(`Get onboarding link failed: ${res.error}`);
+        return;
+      }
+      await copyMarketingVariant(res.url);
+      alert(`Onboarding link copied — send it to the client:\n${res.url}`);
+    });
+  };
+
+  const handleCheckStripeConnectStatus = (slug: string) => {
+    startTransition(async () => {
+      const res = await checkStripeConnectAccountStatusAction(slug);
+      if (!res.success) {
+        alert(`Check status failed: ${res.error}`);
+        return;
+      }
+      setConnectStatusByLead((prev) => ({
+        ...prev,
+        [slug]: {
+          chargesEnabled: res.chargesEnabled,
+          payoutsEnabled: res.payoutsEnabled,
+          detailsSubmitted: res.detailsSubmitted,
+        },
+      }));
     });
   };
 
@@ -3553,6 +3603,66 @@ export function LeadsClient({
                             >
                               Cancel
                             </button>
+                          </div>
+                          <div className="mt-4 border-t border-orange-100 pt-3">
+                            <h4 className="text-xs font-semibold text-zinc-900">
+                              Payouts (Stripe Connect) — scaffold, dormant by default
+                            </h4>
+                            <p className="mt-1 text-[11px] text-zinc-500">
+                              Creates a Connect Express account for this business so
+                              it&apos;s ready once payout wiring ships. Buy now money
+                              still lands entirely in the platform&apos;s own Stripe
+                              account — no transfers happen yet. Requires
+                              ALLOW_STRIPE_CONNECT_ONBOARDING=1 on this deploy.
+                            </p>
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              {lead.stripeConnectAccountId ? (
+                                <span className="text-[11px] text-zinc-600">
+                                  Account: <code>{lead.stripeConnectAccountId}</code>
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={isPending}
+                                  onClick={() => handleCreateStripeConnectAccount(lead.slug)}
+                                  className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                                >
+                                  Create Connect account
+                                </button>
+                              )}
+                              {lead.stripeConnectAccountId ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    disabled={isPending}
+                                    onClick={() =>
+                                      handleGetStripeConnectOnboardingLink(lead.slug)
+                                    }
+                                    className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                                  >
+                                    Get onboarding link
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={isPending}
+                                    onClick={() => handleCheckStripeConnectStatus(lead.slug)}
+                                    className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                                  >
+                                    Check status
+                                  </button>
+                                </>
+                              ) : null}
+                            </div>
+                            {connectStatusByLead[lead.slug] ? (
+                              <p className="mt-2 text-[11px] text-zinc-600">
+                                Charges enabled:{" "}
+                                {connectStatusByLead[lead.slug].chargesEnabled ? "yes" : "no"} ·
+                                Payouts enabled:{" "}
+                                {connectStatusByLead[lead.slug].payoutsEnabled ? "yes" : "no"} ·
+                                Details submitted:{" "}
+                                {connectStatusByLead[lead.slug].detailsSubmitted ? "yes" : "no"}
+                              </p>
+                            ) : null}
                           </div>
                         </td>
                       </tr>

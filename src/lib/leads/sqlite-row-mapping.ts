@@ -32,6 +32,7 @@ export interface SqliteLeadRow {
   lastPreviewOpenAt?: string | null;
   notes?: string | null;
   snoozedUntil?: string | null;
+  stripeConnectAccountId?: string | null;
 }
 
 /** Encode LeadHours into the single TEXT column db.ts persists — "weekday · weekend", or bare weekday when weekend is empty. */
@@ -117,5 +118,6 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     lastPreviewOpenAt: row.lastPreviewOpenAt || undefined,
     notes: row.notes || undefined,
     snoozedUntil: row.snoozedUntil || undefined,
+    stripeConnectAccountId: row.stripeConnectAccountId || undefined,
   };
 }

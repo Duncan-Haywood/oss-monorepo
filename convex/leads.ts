@@ -332,6 +332,31 @@ export const updateSnooze = mutation({
   },
 });
 
+export const updateStripeConnectAccountId = mutation({
+  args: {
+    slug: v.string(),
+    /** Empty string clears; undefined is treated the same. */
+    stripeConnectAccountId: v.optional(v.string()),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    // Convex patch ignores undefined keys — persist "" so clears stick.
+    await ctx.db.patch(lead._id, {
+      stripeConnectAccountId: args.stripeConnectAccountId ?? "",
+    });
+    return null;
+  },
+});
+
 /**
  * Apply a cold-lead disposition patch (re-engage or close) in one write.
  * Caller validates via planColdLeadDisposition — but that validation runs

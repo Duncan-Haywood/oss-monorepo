@@ -1563,6 +1563,31 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        A dormant Stripe Connect Express scaffold shipped as a tier-6 empty-backlog candidate
+        (2026-07-20, see <code>commerce-payouts-stripe-connect</code>):{" "}
+        <code>createStripeConnectAccountAction</code>,{" "}
+        <code>createStripeConnectOnboardingLinkAction</code>, and{" "}
+        <code>checkStripeConnectAccountStatusAction</code> (src/app/dashboard/leads/actions.ts)
+        create a per-lead Connect Express account (idempotent — re-finds an existing account by{" "}
+        <code>metadata.local_site_studio_lead_slug</code> via{" "}
+        <code>createExpressConnectAccount</code>, mirroring <code>bootstrapStripePrices</code>
+        &apos;s idempotency pattern), generate a Stripe-hosted onboarding link for the operator to
+        send the client, and check live{" "}
+        <code>charges_enabled</code>/<code>payouts_enabled</code>/<code>details_submitted</code>{" "}
+        status. <code>leads.stripeConnectAccountId</code> (Convex + SQLite,{" "}
+        <code>LEAD_STRIPE_CONNECT_CONVEX_PRIMARY</code> requireConvex fail-closed) is the only
+        persisted field — <strong>account creation and status-checking carry no money-movement
+        risk</strong>. All three actions are gated behind{" "}
+        <code>ALLOW_STRIPE_CONNECT_ONBOARDING=1</code> (default off — see{" "}
+        <code>stripe-connect-gate.ts</code>, same 403/501 shape as{" "}
+        <code>ALLOW_STRIPE_BOOTSTRAP</code>). This scaffold does not move money: Commerce Buy now
+        revenue still lands entirely in the platform&apos;s own Stripe account until a future,
+        counsel-reviewed iteration wires an actual transfer/destination-charge path onto the
+        created accounts — <code>commerce-payouts-stripe-connect</code> stays{" "}
+        <code>status: &quot;todo&quot;</code> in <code>NEXT_STEPS</code> for that reason.
+      </p>
+
+      <p>
         Until Stripe Connect ships, a refunded or disputed Commerce Buy now charge is a real
         payout-safety exposure: the operator could <strong>Mark paid out</strong> an order Stripe
         had already returned to the shopper (refund) or already debited from the platform pending

@@ -40,6 +40,7 @@ import {
   listDeployHandoffs,
   getLeadSlugByCustomDomain,
   getDeployHandoffBySlug,
+  updateLeadStripeConnectAccountId,
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
@@ -50,6 +51,7 @@ import { INQUIRY_REPLY_CONVEX_PRIMARY } from "@/lib/inquiries/reply-persist";
 import { COLD_DISPOSITION_CONVEX_PRIMARY } from "@/lib/leads/cold-disposition-persist";
 import { LEAD_NOTES_CONVEX_PRIMARY } from "@/lib/leads/notes-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
+import { LEAD_STRIPE_CONNECT_CONVEX_PRIMARY } from "@/lib/leads/stripe-connect-persist";
 import { LEAD_STAGE_CONVEX_PRIMARY } from "@/lib/leads/stage-persist";
 import { LEAD_UPSERT_CONVEX_PRIMARY } from "@/lib/leads/upsert-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
@@ -99,6 +101,12 @@ import {
   parseOperatorCustomDomain,
 } from "@/lib/deploy/custom-domain-routing";
 import { parseVercelProjectId } from "@/lib/deploy/vercel-project-id";
+import { assessStripeConnectOnboardingGate } from "@/lib/commerce/stripe-connect-gate";
+import {
+  createExpressConnectAccount,
+  createConnectOnboardingLink,
+  fetchConnectAccountStatus,
+} from "@/lib/commerce/stripe-connect";
 import type { ClientInquiryStatus } from "@/lib/inquiries/types";
 import {
   sendOutreachEmail,
@@ -2647,6 +2655,245 @@ export async function archiveOrphanCommerceStripeProductsAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in archiveOrphanCommerceStripeProductsAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown Stripe error",
+    };
+  }
+}
+
+/**
+ * Create (or find, if already created) a Stripe Connect Express account for
+ * a lead's local business — commerce-payouts-stripe-connect tier-6
+ * empty-backlog scaffold. ACCOUNT CREATION ONLY: no money-movement, no
+ * transfer/payout wiring reads the resulting accountId yet. Dormant behind
+ * ALLOW_STRIPE_CONNECT_ONBOARDING (default off) — see stripe-connect-gate.ts.
+ * The actual payout path still requires a future, counsel-reviewed iteration.
+ */
+export async function createStripeConnectAccountAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-connect-account-create:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long" ? "Slug is too long" : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
+
+    const gate = assessStripeConnectOnboardingGate();
+    if (!gate.ok) {
+      return { success: false as const, error: gate.message };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    if (lead.stripeConnectAccountId) {
+      return {
+        success: true as const,
+        accountId: lead.stripeConnectAccountId,
+        created: false,
+      };
+    }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      // assessStripeConnectOnboardingGate already checked; belt-and-suspenders for tsc.
+      return {
+        success: false as const,
+        error: "Set STRIPE_SECRET_KEY before creating Connect accounts.",
+      };
+    }
+
+    const stripe = new Stripe(secretKey);
+    const { accountId, created } = await createExpressConnectAccount(stripe, {
+      leadSlug: lead.slug,
+      email: lead.email,
+      businessName: lead.businessName,
+    });
+
+    try {
+      await updateLeadStripeConnectAccountId(
+        slug,
+        accountId,
+        LEAD_STRIPE_CONNECT_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Connect account created on Stripe but could not be saved in the shared store — retry (idempotent; the same account will be reused).",
+        };
+      }
+      throw error;
+    }
+
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, accountId, created };
+  } catch (error) {
+    console.error("Error in createStripeConnectAccountAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown Stripe error",
+    };
+  }
+}
+
+/**
+ * Generate a Stripe-hosted Connect Express onboarding link for a lead's
+ * already-created Connect account. Operator sends the URL to the client, who
+ * completes their own KYC/bank details on Stripe's hosted flow. Dormant
+ * behind ALLOW_STRIPE_CONNECT_ONBOARDING, same gate as account creation.
+ */
+export async function createStripeConnectOnboardingLinkAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-connect-onboarding-link:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long" ? "Slug is too long" : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
+
+    const gate = assessStripeConnectOnboardingGate();
+    if (!gate.ok) {
+      return { success: false as const, error: gate.message };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+    if (!lead.stripeConnectAccountId) {
+      return {
+        success: false as const,
+        error: "Create a Connect account for this lead first",
+      };
+    }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      return {
+        success: false as const,
+        error: "Set STRIPE_SECRET_KEY before generating an onboarding link.",
+      };
+    }
+
+    // Same never-trust-request-Host precedent as billing-portal/checkout
+    // redirects — a server action has no request Host to trust anyway.
+    const appUrl = resolveStripeRedirectAppUrl();
+    const stripe = new Stripe(secretKey);
+    const { url } = await createConnectOnboardingLink(stripe, lead.stripeConnectAccountId, {
+      refreshUrl: `${appUrl}/dashboard/leads`,
+      returnUrl: `${appUrl}/dashboard/leads`,
+    });
+
+    return { success: true as const, url };
+  } catch (error) {
+    console.error("Error in createStripeConnectOnboardingLinkAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown Stripe error",
+    };
+  }
+}
+
+/**
+ * Fetch a lead's live Stripe Connect Express onboarding status
+ * (charges_enabled / payouts_enabled / details_submitted). Status-checking
+ * only — no persistence, no money-movement. Same gate as account creation.
+ */
+export async function checkStripeConnectAccountStatusAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-connect-status-check:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long" ? "Slug is too long" : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
+
+    const gate = assessStripeConnectOnboardingGate();
+    if (!gate.ok) {
+      return { success: false as const, error: gate.message };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+    if (!lead.stripeConnectAccountId) {
+      return {
+        success: false as const,
+        error: "Create a Connect account for this lead first",
+      };
+    }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      return {
+        success: false as const,
+        error: "Set STRIPE_SECRET_KEY before checking Connect status.",
+      };
+    }
+
+    const stripe = new Stripe(secretKey);
+    const status = await fetchConnectAccountStatus(stripe, lead.stripeConnectAccountId);
+
+    return { success: true as const, ...status };
+  } catch (error) {
+    console.error("Error in checkStripeConnectAccountStatusAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",

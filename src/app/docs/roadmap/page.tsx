@@ -440,8 +440,12 @@ export default function RoadmapDocPage() {
         <code>/preview/[slug]#catalog</code>. Completed Buy now also emails the Commerce client
         (<code>lead.email</code>) via <code>sendCommerceBuyNowClientReceipt</code> so they can
         fulfill — distinct from the shopper abandoned-recovery email and from the Local Site
-        Studio bundle receipt. Still open: an actual payout path to
-        the client (Stripe Connect) — operator/legal-gated, see{" "}
+        Studio bundle receipt. A dormant Stripe Connect Express account-creation + onboarding-link
+        scaffold shipped 2026-07-20 (Payouts panel on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, gated off by default behind{" "}
+        <code>ALLOW_STRIPE_CONNECT_ONBOARDING</code>) — see{" "}
+        <DocLink href="/docs/architecture">architecture</DocLink>. Still open: the actual
+        transfer/payout path to the client — operator/legal-gated, see{" "}
         <code>commerce-payouts-stripe-connect</code> in{" "}
         <DocLink href="/docs/process">process</DocLink>.
       </p>
