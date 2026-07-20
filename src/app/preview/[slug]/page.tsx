@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { CategoryPreview } from "@/components/preview/category-preview";
 import { PreviewOpenBeacon } from "@/components/preview/preview-open-beacon";
 import { loadPreviewCommerceItems } from "@/lib/commerce/preview-commerce";
-import { isCuratedDemoLeadSlug } from "@/lib/leads/demo-catalog";
+import { isCuratedDemoLeadSlug, resolvePreviewLead } from "@/lib/leads/demo-catalog";
 import { resolvePreviewOpenAttrParam } from "@/lib/leads/preview-open";
+import { planPreviewPageAccess } from "@/lib/leads/preview-page-access";
 import { loadPreviewPageLead } from "@/lib/leads/preview-page-lead";
 import {
   isLeadPreviewIndexable,
@@ -14,6 +16,7 @@ import {
   previewUrl,
   safeJsonLdScript,
 } from "@/lib/seo";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 type PreviewPageProps = {
   params: Promise<{ slug: string }>;
@@ -27,8 +30,18 @@ function firstParam(value: string | string[] | undefined): string | null {
 
 export async function generateMetadata({ params }: PreviewPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const lead = await loadPreviewPageLead(slug);
-  if (!lead) notFound();
+  const clientIp = clientIpFromHeaders(await headers());
+  const plan = await planPreviewPageAccess(slug, clientIp, {
+    loadLead: loadPreviewPageLead,
+    checkRateLimit,
+  });
+  if (plan.kind === "not_found") notFound();
+  // A rate-limited hit skips the DB lookup entirely (planPreviewPageAccess
+  // never calls loadLead) — fall back to the pure, DB-free slug inference so
+  // a throttled crawler/bot still gets valid metadata instead of an error
+  // (preview-page-rate-limit, mirrors preview-og-image-rate-limit's
+  // renderSiteOgImage fallback).
+  const lead = plan.kind === "ok" ? plan.lead : resolvePreviewLead(slug);
   const title = leadMetaTitle(lead);
   const description = leadMetaDescription(lead);
   const url = previewUrl(slug);
@@ -53,8 +66,14 @@ export async function generateMetadata({ params }: PreviewPageProps): Promise<Me
 export default async function PreviewPage({ params, searchParams }: PreviewPageProps) {
   const { slug } = await params;
   const query = await searchParams;
-  const lead = await loadPreviewPageLead(slug);
-  if (!lead) notFound();
+  const clientIp = clientIpFromHeaders(await headers());
+  const plan = await planPreviewPageAccess(slug, clientIp, {
+    loadLead: loadPreviewPageLead,
+    checkRateLimit,
+  });
+  if (plan.kind === "not_found") notFound();
+  // Same DB-free fallback as generateMetadata above on a rate-limited hit.
+  const lead = plan.kind === "ok" ? plan.lead : resolvePreviewLead(slug);
   // Same consent predicate as sitemap + robots — never emit LocalBusiness
   // JSON-LD on a noindex cold-prospect preview (preview-jsonld-indexable-only).
   const jsonLd = leadPreviewJsonLdIfIndexable(lead, {
@@ -69,8 +88,11 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
     lead.stage === "outreach_sent" || lead.stage === "discovery_call";
 
   // Stage-gate + slug-scoped orders — never listOrders() the full ledger on
-  // public cold-outreach previews (preview-page-uncapped-listOrders).
-  const commerceItems = await loadPreviewCommerceItems(lead, slug);
+  // public cold-outreach previews (preview-page-uncapped-listOrders). Skip
+  // entirely on a rate-limited hit — there's no real per-lead DB record to
+  // key off of, and the whole point of the fallback is avoiding this call.
+  const commerceItems =
+    plan.kind === "ok" ? await loadPreviewCommerceItems(lead, slug) : [];
 
   return (
     <>
