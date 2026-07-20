@@ -310,6 +310,53 @@ test("markPaidOut atomically rejects an order that is refunded, disputed, or alr
   expect(row?.paidOutAt).toBe("2026-01-02T00:00:00.000Z");
 });
 
+test("markClientReceiptSent atomically re-checks clientReceiptEmailSentAt — never a silent last-writer-wins clobber", async () => {
+  // Regression test for commerce-client-receipt-marker-race-guard: both live
+  // callers (resendCommerceClientReceiptAction and the Stripe webhook's
+  // redelivery-recovery path) read clientReceiptEmailSentAt, send the email,
+  // THEN call this mutation — an independent trigger racing that same
+  // stale-unset read must not silently overwrite an already-recorded
+  // timestamp, and the mutation must tell the loser of the race it lost.
+  const t = convexTest(schema, modules);
+  await t.mutation(api.commerceOrders.insert, insertArgs({ stripeSessionId: "cs_receipt_race" }));
+
+  await expect(
+    t.mutation(api.commerceOrders.markClientReceiptSent, {
+      stripeSessionId: "cs_receipt_race",
+      clientReceiptEmailSentAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+
+  // A second, racing call (e.g. a webhook redelivery landing right after a
+  // manual resend, or vice versa) must lose the race and leave the
+  // originally-recorded timestamp untouched.
+  await expect(
+    t.mutation(api.commerceOrders.markClientReceiptSent, {
+      stripeSessionId: "cs_receipt_race",
+      clientReceiptEmailSentAt: "2026-01-09T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+
+  const row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_receipt_race",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.clientReceiptEmailSentAt).toBe("2026-01-02T00:00:00.000Z");
+});
+
+test("markClientReceiptSent on an unknown stripeSessionId is a safe no-op returning false", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.commerceOrders.markClientReceiptSent, {
+      stripeSessionId: "cs_missing",
+      clientReceiptEmailSentAt: "2026-01-01T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+});
+
 test("list / listUnpaid / listRefunded / listDisputed sort newest createdAt first", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(

@@ -142,7 +142,7 @@ describe("resendCommerceClientReceiptAction", () => {
     sendCommerceBuyNowClientReceipt
       .mockReset()
       .mockResolvedValue({ success: true, id: "email_1" });
-    markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(undefined);
+    markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -325,6 +325,25 @@ describe("resendCommerceClientReceiptAction", () => {
       success: false,
       error:
         "Receipt email was sent but the sent-marker could not be recorded in the shared store — it may show as missing again until this is retried.",
+    });
+    expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledOnce();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("reports a likely duplicate when a concurrent writer (e.g. webhook redelivery) already set the marker", async () => {
+    // Regression test for commerce-client-receipt-marker-race-guard:
+    // markCommerceOrderClientReceiptSent now re-checks clientReceiptEmailSentAt
+    // atomically with the write and returns false when a racing caller (a
+    // Stripe webhook redelivery, or a second click) already set it between
+    // this action's read and its write — the email above already sent, so
+    // this must surface as a distinct duplicate-risk error, not silent success.
+    markCommerceOrderClientReceiptSent.mockResolvedValue(false);
+    const { resendCommerceClientReceiptAction } = await import("./actions");
+    const res = await resendCommerceClientReceiptAction("cs_test_commerce_receipt");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Client receipt was already marked sent by a concurrent request (e.g. a webhook redelivery) — this click may have sent a duplicate notification email.",
     });
     expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledOnce();
     expect(revalidatePath).not.toHaveBeenCalled();

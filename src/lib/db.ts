@@ -3293,20 +3293,23 @@ export async function markCommerceOrderPaidOut(
  * Pass { requireConvex: true } from the Stripe webhook so a Convex mutation
  * failure surfaces (5xx → Stripe retry) instead of SQLite-only success while
  * Convex-first getCommerceOrderByStripeSessionId still looks unmarked.
+ *
+ * Returns whether the row was actually marked (re-checks clientReceiptEmailSentAt
+ * IS NULL atomically with the write, matching markCommerceOrderPaidOut's
+ * refunded/disputed/paidOutAt re-check) — see commerce-client-receipt-marker-race-guard.
  */
 export async function markCommerceOrderClientReceiptSent(
   stripeSessionId: string,
   clientReceiptEmailSentAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.commerceOrders.markClientReceiptSent, {
+      return await convexClient.mutation(api.commerceOrders.markClientReceiptSent, {
         stripeSessionId,
         clientReceiptEmailSentAt,
         apiSecret: convexApiSecret,
       });
-      return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("markCommerceOrderClientReceiptSent", e);
@@ -3319,9 +3322,12 @@ export async function markCommerceOrderClientReceiptSent(
   }
 
   const db = getSqliteDb();
-  db.prepare(
-    "UPDATE commerce_orders SET clientReceiptEmailSentAt = ? WHERE stripeSessionId = ?",
-  ).run(clientReceiptEmailSentAt, stripeSessionId);
+  const result = db
+    .prepare(
+      "UPDATE commerce_orders SET clientReceiptEmailSentAt = ? WHERE stripeSessionId = ? AND (clientReceiptEmailSentAt IS NULL OR clientReceiptEmailSentAt = '')",
+    )
+    .run(clientReceiptEmailSentAt, stripeSessionId);
+  return result.changes > 0;
 }
 
 /**

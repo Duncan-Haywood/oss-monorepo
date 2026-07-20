@@ -1467,8 +1467,9 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
     }
 
     const clientReceiptEmailSentAt = new Date().toISOString();
+    let marked: boolean;
     try {
-      await markCommerceOrderClientReceiptSent(
+      marked = await markCommerceOrderClientReceiptSent(
         sessionId,
         clientReceiptEmailSentAt,
         COMMERCE_CLIENT_RECEIPT_RESEND_CONVEX_PRIMARY,
@@ -1482,6 +1483,13 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
         };
       }
       throw error;
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Client receipt was already marked sent by a concurrent request (e.g. a webhook redelivery) — this click may have sent a duplicate notification email.",
+      };
     }
 
     revalidatePath("/dashboard/leads");
