@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getLeadBySlug, isCuratedDemoLeadSlug } from "@/lib/leads/demo-catalog";
 import { getBundle } from "@/lib/pricing/bundles";
 import { CATEGORY_LANDING_PAGES, categoryLandingPageByHref } from "./category-landing";
+import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "./monthly-pack";
 
 describe("CATEGORY_LANDING_PAGES", () => {
   it("has one entry per non-generic BusinessCategory, each with a unique href", () => {
@@ -42,6 +43,15 @@ describe("CATEGORY_LANDING_PAGES", () => {
         expect(entry.answer.length).toBeGreaterThan(0);
       }
     }
+  });
+});
+
+describe("monthly marketing cadence copy", () => {
+  it("derives the salon page's cadence copy from monthlyMarketingSocialPostCount/monthlyMarketingEmailCount, not a hardcoded literal", () => {
+    const cadence = `${monthlyMarketingSocialPostCount()} social/GBP posts + ${monthlyMarketingEmailCount()} emails`;
+    const salon = categoryLandingPageByHref("/websites-for-salons");
+    expect(salon?.features.some((feature) => feature.includes(cadence))).toBe(true);
+    expect(salon?.faq.some((entry) => entry.answer.includes(cadence))).toBe(true);
   });
 });
 

@@ -13,6 +13,12 @@
  */
 import { getBundle, minBundleSetupPriceUsd, type BundleTier } from "@/lib/pricing/bundles";
 import type { BusinessCategory } from "@/lib/leads/types";
+import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "./monthly-pack";
+
+// Same drift-risk class as startingSetupPriceUsd above, but for the
+// marketing-pack cadence (see monthly-marketing-pack-cadence-single-source-of-truth
+// in prompt_process.tsx) — never hand-type "8 social/GBP posts + 2 emails" again.
+const monthlyMarketingCadence = `${monthlyMarketingSocialPostCount()} social/GBP posts + ${monthlyMarketingEmailCount()} emails`;
 
 // "$500" quoted below always derives from src/lib/pricing/bundles.ts (the
 // same source Stripe checkout charges from), never a hardcoded literal — a
@@ -103,7 +109,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
       "Services and pricing tiers laid out clearly",
       "Contact form and map for walk-in-friendly locations",
       "Basic SEO so \"salon near me\" searches find you",
-      "8 social/GBP posts + 2 emails a month (Growth/Complete)",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
     ],
     recommendedTier: "complete",
     exampleLeadSlug: "serene-salon",
@@ -116,7 +122,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
       {
         question: "Do you write the social posts every month?",
         answer:
-          "Growth and Complete include 8 social/GBP posts plus 2 emails a month, generated from your site's own brand voice and ready to copy-post — no separate marketing hire.",
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your site's own brand voice and ready to copy-post — no separate marketing hire.`,
       },
       {
         question: "Is there a phone agent for booking calls?",
