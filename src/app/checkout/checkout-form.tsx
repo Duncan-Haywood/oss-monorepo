@@ -180,7 +180,11 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
           {loading ? "Redirecting to Stripe…" : "Continue to Stripe"}
         </button>
 
-        {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+        {error ? (
+          <p className="mt-4 text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        ) : null}
 
         <ul className="mt-4 space-y-1 text-xs text-zinc-500">
           <li>Secure payment powered by Stripe.</li>
