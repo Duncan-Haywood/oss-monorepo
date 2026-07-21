@@ -40,13 +40,27 @@ jobs:
     steps:
       - id: set
         shell: bash
+        env:
+          PROMPT_KIND_INPUT: ${{ github.event.inputs.prompt_kind }}
         run: |
-          kind="${{ github.event.inputs.prompt_kind || 'both' }}"
-          if [ "$kind" = "both" ] || [ "$kind" = "" ]; then
-            echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
-          else
-            echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
-          fi
+          # workflow_dispatch's `type: choice` is UI-only — the REST/GraphQL
+          # API accepts any string, so this must not raw-interpolate
+          # ${{ github.event.inputs.* }} into a run: script (script
+          # injection) and must hard-reject any value outside the known set
+          # rather than pass it through into $GITHUB_OUTPUT / matrix.*.
+          kind="${PROMPT_KIND_INPUT:-both}"
+          case "$kind" in
+            both|"")
+              echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+              ;;
+            dev-work|continuous-work)
+              echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::warning::Unrecognized prompt_kind '${kind}', falling back to both."
+              echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+              ;;
+          esac
 
   claude:
     needs: resolve-prompts
