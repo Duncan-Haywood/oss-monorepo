@@ -2649,6 +2649,8 @@ export function LeadsClient({
               setShowCsvImport(!showCsvImport);
               if (!showCsvImport) setShowAddForm(false);
             }}
+            aria-expanded={showCsvImport}
+            aria-controls="csv-import-panel"
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-800 transition hover:border-zinc-400 hover:bg-zinc-50"
           >
             {showCsvImport ? "Close CSV" : "Import CSV"}
@@ -2659,6 +2661,8 @@ export function LeadsClient({
               setShowAddForm(!showAddForm);
               if (!showAddForm) setShowCsvImport(false);
             }}
+            aria-expanded={showAddForm}
+            aria-controls="add-lead-panel"
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
           >
             {showAddForm ? "Close Form" : "Add Lead Manually"}
@@ -2668,7 +2672,7 @@ export function LeadsClient({
 
       {/* CSV bulk import */}
       {showCsvImport && (
-        <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6">
+        <div id="csv-import-panel" className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6">
           <h2 className="text-lg font-semibold tracking-tight">Import leads from CSV</h2>
           <p className="mt-1 text-xs text-zinc-500">
             Compliant scale-up before Places API — tag each batch with a data source. Max 100 rows.
@@ -2773,7 +2777,7 @@ export function LeadsClient({
 
       {/* Manual Add Form (Collapse panel) */}
       {showAddForm && (
-        <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6 backdrop-blur-sm transition-all duration-300">
+        <div id="add-lead-panel" className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6 backdrop-blur-sm transition-all duration-300">
           <h2 className="text-lg font-semibold tracking-tight">Add New Lead</h2>
           <p className="text-xs text-zinc-500 mt-1">
             Input business info to pre-generate a customized preview site.
