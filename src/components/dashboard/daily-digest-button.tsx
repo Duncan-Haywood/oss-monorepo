@@ -38,7 +38,7 @@ export function DailyDigestButton() {
         {isPending ? "Sending digest…" : "Send daily digest"}
       </button>
       {status?.kind === "success" ? (
-        <p className="text-xs text-emerald-700">
+        <p className="text-xs text-emerald-700" role="status">
           Sent{status.mock ? " (mock — RESEND_API_KEY not configured)" : ""} —{" "}
           {status.itemCount === 0
             ? "nothing urgent today"
@@ -47,7 +47,9 @@ export function DailyDigestButton() {
         </p>
       ) : null}
       {status?.kind === "error" ? (
-        <p className="text-xs text-rose-700">{status.message}</p>
+        <p className="text-xs text-rose-700" role="alert">
+          {status.message}
+        </p>
       ) : null}
     </div>
   );
