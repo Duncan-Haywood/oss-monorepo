@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import {
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+} from "@/lib/marketing/monthly-pack";
 import { docPageMetadata } from "@/lib/seo";
 import {
   bundlePriceHeadingLabel,
@@ -63,8 +67,9 @@ export default function ProductBundlesDocPage() {
 
       <h2>Growth — {bundlePriceHeadingLabel(getBundle("growth")!)}</h2>
       <p>
-        Everything in Starter plus AI marketing engine: 8 social/GBP posts + 2 emails/month,
-        brand voice from site data. Operators generate a monthly pack on the leads dashboard and
+        Everything in Starter plus AI marketing engine: {monthlyMarketingSocialPostCount()}{" "}
+        social/GBP posts + {monthlyMarketingEmailCount()} emails/month, brand voice from site
+        data. Operators generate a monthly pack on the leads dashboard and
         can <strong>Email pack</strong> to the client (Resend) so they can post themselves;
         when Convex is configured, Generate pack fails closed (<code>requireConvex</code>) so a
         multi-instance deploy cannot claim success after a SQLite-only write that leaves Email

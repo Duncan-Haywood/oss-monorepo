@@ -32,6 +32,9 @@ export {
   marketingMonthKey,
   marketingMonthStartMs,
   MONTHLY_MARKETING_PACK_TYPES,
+  monthlyMarketingContentTypeCount,
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
   oldestMarketingPacksDueAgeHours,
   packageTierForOrderTier,
 } from "./monthly-pack";

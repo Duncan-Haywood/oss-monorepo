@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
 import { docPageMetadata } from "@/lib/seo";
+import {
+  monthlyMarketingContentTypeCount,
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+} from "@/lib/marketing/monthly-pack";
 import { getBundle } from "@/lib/pricing/bundles";
 
 export const metadata: Metadata = docPageMetadata("/docs/marketing-automation");
@@ -20,8 +25,10 @@ export default function MarketingAutomationDocPage() {
       <h2>Content types</h2>
       <p>
         Every monthly pack (<code>MONTHLY_MARKETING_PACK_TYPES</code> in{" "}
-        <code>src/lib/marketing/monthly-pack.ts</code>) is the same fixed 10-item set for both
-        Growth and Complete — 8 social/GBP posts + 2 emails, matching the sold promise below:
+        <code>src/lib/marketing/monthly-pack.ts</code>) is the same fixed{" "}
+        {monthlyMarketingSocialPostCount() + monthlyMarketingEmailCount()}-item set for both
+        Growth and Complete — {monthlyMarketingSocialPostCount()} social/GBP posts +{" "}
+        {monthlyMarketingEmailCount()} emails, matching the sold promise below:
       </p>
       <table>
         <thead>
@@ -35,27 +42,27 @@ export default function MarketingAutomationDocPage() {
           <tr>
             <td>GBP post</td>
             <td>Google Business Profile</td>
-            <td>2</td>
+            <td>{monthlyMarketingContentTypeCount("gbp_post")}</td>
           </tr>
           <tr>
             <td>Facebook caption</td>
             <td>Facebook (manual post, or via Buffer once OAuth is configured)</td>
-            <td>3</td>
+            <td>{monthlyMarketingContentTypeCount("facebook_caption")}</td>
           </tr>
           <tr>
             <td>Instagram caption</td>
             <td>Instagram (manual post, or via Buffer once OAuth is configured)</td>
-            <td>3</td>
+            <td>{monthlyMarketingContentTypeCount("instagram_caption")}</td>
           </tr>
           <tr>
             <td>Email campaign</td>
             <td>Resend (Email pack)</td>
-            <td>1</td>
+            <td>{monthlyMarketingContentTypeCount("email_campaign")}</td>
           </tr>
           <tr>
             <td>Review-request email</td>
             <td>Resend (Email pack)</td>
-            <td>1</td>
+            <td>{monthlyMarketingContentTypeCount("review_request_email")}</td>
           </tr>
         </tbody>
       </table>
@@ -97,8 +104,9 @@ export default function MarketingAutomationDocPage() {
       <p>
         Operator-triggered monthly pack generation for paid/live Growth/Complete leads is
         shipped: <strong>Generate pack</strong> on{" "}
-        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> persists 8 social/GBP posts
-        + 2 emails per UTC month (Anthropic when <code>ANTHROPIC_API_KEY</code> is set; stub
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> persists{" "}
+        {monthlyMarketingSocialPostCount()} social/GBP posts + {monthlyMarketingEmailCount()}{" "}
+        emails per UTC month (Anthropic when <code>ANTHROPIC_API_KEY</code> is set; stub
         otherwise — both paths covered by <code>src/lib/marketing/generators.test.ts</code>;
         request shape from lead data covered by{" "}
         <code>src/lib/marketing/build-request.test.ts</code>). Until the key is a

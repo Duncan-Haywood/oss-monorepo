@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import {
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+} from "@/lib/marketing/monthly-pack";
 import { docPageMetadata } from "@/lib/seo";
 import {
   bundlePriceHeadingLabel,
@@ -360,8 +364,9 @@ export default function RoadmapDocPage() {
       <p>
         Operator-triggered monthly marketing pack for paid/live Growth/Complete leads: shipped
         (<code>generateMarketingPackAction</code> on{" "}
-        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — 8 social/GBP posts + 2
-        emails, Anthropic when <code>ANTHROPIC_API_KEY</code> is set, stub fallback, persisted
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — {monthlyMarketingSocialPostCount()}{" "}
+        social/GBP posts + {monthlyMarketingEmailCount()} emails, Anthropic when{" "}
+        <code>ANTHROPIC_API_KEY</code> is set, stub fallback, persisted
         per lead/month; when Convex is configured the persist uses <code>requireConvex</code>{" "}
         so Generate pack cannot succeed only in instance-local SQLite —{" "}
         <code>marketing-pack-convex-primary</code>; action-level Vitest in{" "}
