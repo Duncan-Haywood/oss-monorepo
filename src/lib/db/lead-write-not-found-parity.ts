@@ -30,7 +30,9 @@ export function extractExportedFunctionSource(
   source: string,
   functionName: string,
 ): string {
-  const marker = `export async function ${functionName}(`;
+  const asyncMarker = `export async function ${functionName}(`;
+  const syncMarker = `export function ${functionName}(`;
+  const marker = source.includes(asyncMarker) ? asyncMarker : syncMarker;
   const start = source.indexOf(marker);
   if (start === -1) {
     throw new Error(
@@ -53,4 +55,25 @@ export function extractExportedFunctionSource(
  */
 export function throwsBeforeWrite(functionSource: string): boolean {
   return /if\s*\(!existing\)\s*\{\s*throw new Error/.test(functionSource);
+}
+
+/**
+ * db.ts's SQLite-fallback branch for a lead-mutation helper may now be a
+ * one-line delegation (`return sqliteFooBar(getSqliteDb(), ...);`) to an
+ * injectable query function in src/lib/db/sqlite-queries.ts, rather than
+ * inlining the guard itself (see sqlite-db-injectable-query-extraction /
+ * db-race-guard-sqlite-query-extraction). When that's the shape, the
+ * existence-check-then-throw pattern to verify lives in the delegated
+ * function's source, not db.ts's own — resolve to that source so this guard
+ * keeps checking real behavior instead of false-failing on a pure code move.
+ */
+export function resolveSqliteFallbackSource(
+  dbFunctionSource: string,
+  sqliteQueriesSource: string,
+): string {
+  const delegateMatch = dbFunctionSource.match(/return\s+(sqlite[A-Za-z0-9_]+)\(/);
+  if (!delegateMatch) {
+    return dbFunctionSource;
+  }
+  return extractExportedFunctionSource(sqliteQueriesSource, delegateMatch[1]);
 }

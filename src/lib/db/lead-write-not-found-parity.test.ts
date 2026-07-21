@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   extractExportedFunctionSource,
+  resolveSqliteFallbackSource,
   throwsBeforeWrite,
 } from "./lead-write-not-found-parity";
 
@@ -25,6 +26,41 @@ describe("extractExportedFunctionSource", () => {
     expect(() =>
       extractExportedFunctionSource("export const x = 1;", "missingFn"),
     ).toThrow(/Could not find/);
+  });
+});
+
+describe("resolveSqliteFallbackSource", () => {
+  it("returns the source unchanged when the function has no delegation", () => {
+    const fnSource = `
+      const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug);
+      if (!existing) {
+        throw new Error(\`Lead with slug \${slug} not found\`);
+      }
+      db.prepare("UPDATE leads SET status = ? WHERE slug = ?").run(stage, slug);
+    `;
+    expect(resolveSqliteFallbackSource(fnSource, "export function sqliteUnused() {}")).toBe(
+      fnSource,
+    );
+  });
+
+  it("follows a one-line delegation to the target function's source in sqlite-queries.ts", () => {
+    const dbFnSource = `
+      export async function updateLeadStage(slug, stage) {
+        return sqliteUpdateLeadStage(getSqliteDb(), slug, stage);
+      }
+    `;
+    const sqliteQueriesSource = `
+      export function sqliteUpdateLeadStage(db, slug, stage) {
+        const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug);
+        if (!existing) {
+          throw new Error(\`Lead with slug \${slug} not found\`);
+        }
+        db.prepare("UPDATE leads SET status = ? WHERE slug = ?").run(stage, slug);
+      }
+    `;
+    const resolved = resolveSqliteFallbackSource(dbFnSource, sqliteQueriesSource);
+    expect(resolved).toContain("if (!existing)");
+    expect(throwsBeforeWrite(resolved)).toBe(true);
   });
 });
 
@@ -51,20 +87,35 @@ describe("throwsBeforeWrite", () => {
 
 describe("db.ts lead-mutation not-found parity with convex/leads.ts (repo)", () => {
   const dbSource = readFileSync(path.join(REPO_ROOT, "src/lib/db.ts"), "utf8");
+  const sqliteQueriesSource = readFileSync(
+    path.join(REPO_ROOT, "src/lib/db/sqlite-queries.ts"),
+    "utf8",
+  );
 
   it("updateLeadStage's SQLite fallback throws on an unknown slug, matching convex/leads.ts updateStage", () => {
     // convex/leads.ts's updateStage throws `Lead with slug ${slug} not
     // found` on a miss (see convex/leads.ts:88-90) — a bare
     // `UPDATE ... WHERE slug = ?` matches zero rows and returns normally, so
     // this would previously pass on Convex and silently no-op on SQLite.
-    const fnSource = extractExportedFunctionSource(dbSource, "updateLeadStage");
+    // db.ts's fallback now delegates to sqliteUpdateLeadStage (pure code
+    // move, see db-race-guard-sqlite-query-extraction) — follow that
+    // delegation so this guard checks the real behavior, not db.ts's own
+    // now-trivial one-line pass-through.
+    const fnSource = resolveSqliteFallbackSource(
+      extractExportedFunctionSource(dbSource, "updateLeadStage"),
+      sqliteQueriesSource,
+    );
     expect(throwsBeforeWrite(fnSource)).toBe(true);
   });
 
   it("recordLeadOutreach's SQLite fallback throws on an unknown slug, matching convex/leads.ts recordOutreach", () => {
     // convex/leads.ts's recordOutreach throws the same message on a miss
-    // (see convex/leads.ts:203-205).
-    const fnSource = extractExportedFunctionSource(dbSource, "recordLeadOutreach");
+    // (see convex/leads.ts:203-205). Follows the sqliteRecordLeadOutreach
+    // delegation, same rationale as updateLeadStage above.
+    const fnSource = resolveSqliteFallbackSource(
+      extractExportedFunctionSource(dbSource, "recordLeadOutreach"),
+      sqliteQueriesSource,
+    );
     expect(throwsBeforeWrite(fnSource)).toBe(true);
   });
 
