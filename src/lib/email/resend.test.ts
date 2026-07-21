@@ -20,17 +20,20 @@ describe("resend.ts — businessName HTML escaping", () => {
   const originalKey = process.env.RESEND_API_KEY;
   let sentHtml: string;
   let sentSubject: string;
+  let sentText: string;
 
   beforeEach(() => {
     process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
     sentHtml = "";
     sentSubject = "";
+    sentText = "";
     vi.stubGlobal(
       "fetch",
       vi.fn(async (_url: string, init: RequestInit) => {
         const body = JSON.parse(String(init.body));
         sentHtml = body.html;
         sentSubject = body.subject;
+        sentText = body.text;
         return {
           ok: true,
           json: async () => ({ id: "email_test" }),
@@ -50,6 +53,19 @@ describe("resend.ts — businessName HTML escaping", () => {
     await sendOutreachEmail("owner@example.com", UNSAFE_NAME, "demo-cafe");
     expect(sentHtml).toContain(ESCAPED_NAME);
     expect(sentHtml).not.toContain("<Truck>");
+  });
+
+  it("sends a plain-text part alongside html with tags stripped and entities decoded", async () => {
+    const { sendOutreachEmail } = await import("./resend");
+    await sendOutreachEmail("owner@example.com", UNSAFE_NAME, "demo-cafe");
+    expect(sentText).toBeTruthy();
+    // No leftover element tags (style attrs, <p>/<div>/<a>, etc) — the
+    // decoded business name legitimately contains a literal "<Truck>", so
+    // assert no tag-shaped markup instead of a blanket no-angle-bracket check.
+    expect(sentText).not.toMatch(/<\/?(p|div|h[1-6]|a|hr|br)\b[^>]*>/i);
+    expect(sentText).toContain(UNSAFE_NAME);
+    expect(sentText).toContain("View Your Preview Site (");
+    expect(sentText).toContain("Unsubscribe (");
   });
 
   it("normalizes control characters in provider-facing subjects", async () => {
@@ -310,17 +326,20 @@ describe("resend.ts — EMAIL_FROM From header", () => {
   const originalBrand = process.env.NEXT_PUBLIC_BRAND_NAME;
   const originalFrom = process.env.EMAIL_FROM;
   let sentFrom: string;
+  let sentText: string;
 
   beforeEach(() => {
     process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
     process.env.NEXT_PUBLIC_BRAND_NAME = "Local Site Studio";
     process.env.EMAIL_FROM = "noreply@marisstellalabs.com";
     sentFrom = "";
+    sentText = "";
     vi.stubGlobal(
       "fetch",
       vi.fn(async (_url: string, init: RequestInit) => {
         const body = JSON.parse(String(init.body));
         sentFrom = body.from;
+        sentText = body.text;
         return {
           ok: true,
           json: async () => ({ id: "email_test" }),
@@ -356,6 +375,12 @@ describe("resend.ts — EMAIL_FROM From header", () => {
       "Local Site Studio <noreply@marisstellalabs.com>",
     );
     expect(sentFrom).not.toContain("outreach@updates.localsitestudio.com");
+  });
+
+  it("sends a plain-text part derived from the digest html", async () => {
+    const { sendOperatorDailyDigest } = await import("./resend");
+    await sendOperatorDailyDigest("ops@example.com", "<p>3 new leads &amp; 1 order</p>");
+    expect(sentText).toBe("3 new leads & 1 order");
   });
 
   it("picks up a trimmed EMAIL_FROM override", async () => {

@@ -50,6 +50,40 @@ export function plainTextToEmailHtml(text: string): string {
     .join("");
 }
 
+/**
+ * Convert a composed HTML email body into a readable plain-text
+ * alternative — the rough inverse of plainTextToEmailHtml. Every outbound
+ * email template here builds HTML only; providers (Resend included) treat a
+ * missing text part as a spam-score signal and it's the only body some mail
+ * clients render, so every send should carry one instead of hand-maintaining
+ * a second copy of each template. Not a general HTML-to-text library — only
+ * needs to handle the tags this repo's own templates emit (p/div/h1-6/li/tr,
+ * br/hr, a[href], plus the five entities escapeHtmlForEmail produces).
+ */
+export function plainTextFromEmailHtml(html: string): string {
+  const withLinks = html.replace(
+    /<a\s+[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi,
+    (_match, href: string, text: string) => `${text} (${href})`,
+  );
+  const withBreaks = withLinks
+    .replace(/<(br|hr)\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h[1-6]|li|tr)>/gi, "\n\n")
+    .replace(/<[^>]+>/g, "");
+  const decoded = withBreaks
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&");
+  return decoded
+    .split("\n")
+    .map((line) => line.trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export function inquiryCanReceiveReply(inquiry: {
   email?: string | null;
   status: string;
