@@ -2,7 +2,18 @@ import { DatabaseSync } from "node:sqlite";
 import { describe, expect, it } from "vitest";
 import type { Lead } from "../leads/types";
 import { initializeSqliteSchema } from "./sqlite-schema";
-import { sqliteListOrders, sqliteListOrdersByLeadSlug, sqliteUpsertLead } from "./sqlite-queries";
+import {
+  sqliteListOrders,
+  sqliteListOrdersByLeadSlug,
+  sqliteUpsertLead,
+  sqliteUpdateLeadStage,
+  sqliteRecordLeadOutreach,
+  sqliteApplyColdLeadDisposition,
+  sqliteRecordClientInquiryReply,
+  sqliteRecordCheckoutRecoverySent,
+  sqliteMarkCommerceOrderPaidOut,
+  sqliteMarkCommerceOrderClientReceiptSent,
+} from "./sqlite-queries";
 
 function freshDb(): DatabaseSync {
   const db = new DatabaseSync(":memory:");
@@ -48,6 +59,52 @@ function insertOrderDirect(
   db.prepare(
     "INSERT INTO orders (id, leadId, stripeSessionId, tier, amountPaid, createdAt) VALUES (?, ?, ?, ?, ?, ?)",
   ).run(`order_${stripeSessionId}`, leadId, stripeSessionId, "starter", 1000, createdAt);
+}
+
+function insertInquiryDirect(
+  db: DatabaseSync,
+  id: string,
+  leadSlug: string,
+  status: string,
+): void {
+  db.prepare(
+    "INSERT INTO client_inquiries (id, leadSlug, businessName, message, status) VALUES (?, ?, ?, ?, ?)",
+  ).run(id, leadSlug, "Direct Insert Co", "I'd like a quote", status);
+}
+
+function insertCheckoutSessionDirect(
+  db: DatabaseSync,
+  stripeSessionId: string,
+  leadSlug: string,
+  status: string,
+): void {
+  db.prepare(
+    "INSERT INTO checkout_sessions (id, leadSlug, stripeSessionId, tier, status) VALUES (?, ?, ?, ?, ?)",
+  ).run(`cs_${stripeSessionId}`, leadSlug, stripeSessionId, "starter", status);
+}
+
+function insertCommerceOrderDirect(
+  db: DatabaseSync,
+  stripeSessionId: string,
+  leadSlug: string,
+  overrides: Partial<{ paidOutAt: string; refundedAt: string; disputedAt: string; clientReceiptEmailSentAt: string }> = {},
+): void {
+  db.prepare(
+    `INSERT INTO commerce_orders
+       (id, leadSlug, skuId, skuName, amountPaidUsd, stripeSessionId, paidOutAt, refundedAt, disputedAt, clientReceiptEmailSentAt)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    `co_${stripeSessionId}`,
+    leadSlug,
+    "sku_1",
+    "Test SKU",
+    50,
+    stripeSessionId,
+    overrides.paidOutAt ?? null,
+    overrides.refundedAt ?? null,
+    overrides.disputedAt ?? null,
+    overrides.clientReceiptEmailSentAt ?? null,
+  );
 }
 
 describe("sqliteUpsertLead", () => {
@@ -127,5 +184,263 @@ describe("sqliteListOrders / sqliteListOrdersByLeadSlug", () => {
     const db = freshDb();
     insertLeadDirect(db, "no-orders");
     expect(sqliteListOrdersByLeadSlug(db, "no-orders")).toEqual([]);
+  });
+});
+
+describe("sqliteUpdateLeadStage", () => {
+  it("throws when the slug does not exist (db-convex-sqlite-not-found-parity)", () => {
+    const db = freshDb();
+    expect(() => sqliteUpdateLeadStage(db, "missing", "site_built")).toThrow(
+      "Lead with slug missing not found",
+    );
+  });
+
+  it("updates a non-terminal lead's stage and returns true", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    expect(sqliteUpdateLeadStage(db, "test-lead", "outreach_sent")).toBe(true);
+    const row = db.prepare("SELECT status FROM leads WHERE slug = ?").get("test-lead") as {
+      status: string;
+    };
+    expect(row.status).toBe("outreach_sent");
+  });
+
+  it("rejects reverting an already-paid lead to an earlier stage (update-lead-stage-action-paid-live-revert-guard)", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    db.prepare("UPDATE leads SET status = 'paid' WHERE slug = ?").run("test-lead");
+
+    expect(sqliteUpdateLeadStage(db, "test-lead", "discovery_call")).toBe(false);
+    const row = db.prepare("SELECT status FROM leads WHERE slug = ?").get("test-lead") as {
+      status: string;
+    };
+    expect(row.status).toBe("paid");
+  });
+
+  it("still allows the paid -> live Mark-live transition", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    db.prepare("UPDATE leads SET status = 'paid' WHERE slug = ?").run("test-lead");
+
+    expect(sqliteUpdateLeadStage(db, "test-lead", "live")).toBe(true);
+    const row = db.prepare("SELECT status FROM leads WHERE slug = ?").get("test-lead") as {
+      status: string;
+    };
+    expect(row.status).toBe("live");
+  });
+});
+
+describe("sqliteRecordLeadOutreach", () => {
+  it("throws when the slug does not exist", () => {
+    const db = freshDb();
+    expect(() => sqliteRecordLeadOutreach(db, "missing", 1, "2026-01-01T00:00:00.000Z")).toThrow(
+      "Lead with slug missing not found",
+    );
+  });
+
+  it("records the outreach step and timestamp on a discovered lead", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    expect(sqliteRecordLeadOutreach(db, "test-lead", 1, "2026-01-01T00:00:00.000Z")).toBe(true);
+    const row = db
+      .prepare("SELECT outreachStep, lastOutreachAt FROM leads WHERE slug = ?")
+      .get("test-lead") as { outreachStep: number; lastOutreachAt: string };
+    expect(row.outreachStep).toBe(1);
+    expect(row.lastOutreachAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+
+  it("rejects sending to an already-converted or closed lead (sendfollowup-action-paid-live-closed-race-guard)", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    db.prepare("UPDATE leads SET status = 'paid' WHERE slug = ?").run("test-lead");
+    expect(sqliteRecordLeadOutreach(db, "test-lead", 1, "2026-01-01T00:00:00.000Z")).toBe(false);
+  });
+
+  it("rejects a duplicate/stale step that does not advance outreachStep (outreach-step-duplicate-send-guard)", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    expect(sqliteRecordLeadOutreach(db, "test-lead", 2, "2026-01-01T00:00:00.000Z")).toBe(true);
+    // A second, concurrent call targeting the same or an earlier step must not re-send.
+    expect(sqliteRecordLeadOutreach(db, "test-lead", 2, "2026-01-02T00:00:00.000Z")).toBe(false);
+    const row = db.prepare("SELECT lastOutreachAt FROM leads WHERE slug = ?").get("test-lead") as {
+      lastOutreachAt: string;
+    };
+    expect(row.lastOutreachAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+});
+
+describe("sqliteApplyColdLeadDisposition", () => {
+  const patch = {
+    stage: "discovered" as const,
+    outreachStep: 0 as const,
+    lastOutreachAt: undefined,
+    snoozedUntil: undefined,
+  };
+
+  it("throws when the slug does not exist", () => {
+    const db = freshDb();
+    expect(() => sqliteApplyColdLeadDisposition(db, "missing", patch)).toThrow(
+      "Lead with slug missing not found",
+    );
+  });
+
+  it("applies a re-engage disposition patch and returns true", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    expect(sqliteApplyColdLeadDisposition(db, "test-lead", patch)).toBe(true);
+    const row = db.prepare("SELECT status, outreachStep FROM leads WHERE slug = ?").get(
+      "test-lead",
+    ) as { status: string; outreachStep: number };
+    expect(row.status).toBe("discovered");
+    expect(row.outreachStep).toBe(0);
+  });
+
+  it("rejects a disposition once the lead has converted to paid/live (commerce-order-paid-out-refund-race-guard-class TOCTOU)", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    db.prepare("UPDATE leads SET status = 'live' WHERE slug = ?").run("test-lead");
+    expect(sqliteApplyColdLeadDisposition(db, "test-lead", { ...patch, stage: "closed" })).toBe(
+      false,
+    );
+    const row = db.prepare("SELECT status FROM leads WHERE slug = ?").get("test-lead") as {
+      status: string;
+    };
+    expect(row.status).toBe("live");
+  });
+});
+
+describe("sqliteRecordClientInquiryReply", () => {
+  it("returns null when the inquiry does not exist", () => {
+    const db = freshDb();
+    expect(sqliteRecordClientInquiryReply(db, "missing", "Thanks for reaching out!")).toBeNull();
+  });
+
+  it("marks a new inquiry replied and returns the updated record", () => {
+    const db = freshDb();
+    insertInquiryDirect(db, "inq_1", "test-lead", "new");
+    const result = sqliteRecordClientInquiryReply(db, "inq_1", "Thanks for reaching out!");
+    expect(result?.status).toBe("replied");
+    expect(result?.operatorReply).toBe("Thanks for reaching out!");
+    expect(result?.repliedAt).toBeTruthy();
+
+    const row = db.prepare("SELECT status, operatorReply FROM client_inquiries WHERE id = ?").get(
+      "inq_1",
+    ) as { status: string; operatorReply: string };
+    expect(row.status).toBe("replied");
+    expect(row.operatorReply).toBe("Thanks for reaching out!");
+  });
+
+  it("rejects replying to an already-archived inquiry (inquiry-reply-archive-race-guard)", () => {
+    const db = freshDb();
+    insertInquiryDirect(db, "inq_1", "test-lead", "archived");
+    expect(sqliteRecordClientInquiryReply(db, "inq_1", "Too late")).toBeNull();
+    const row = db.prepare("SELECT status, operatorReply FROM client_inquiries WHERE id = ?").get(
+      "inq_1",
+    ) as { status: string; operatorReply: string | null };
+    expect(row.status).toBe("archived");
+    expect(row.operatorReply).toBeNull();
+  });
+});
+
+describe("sqliteRecordCheckoutRecoverySent", () => {
+  it("marks an open session's recoverySentAt and returns true", () => {
+    const db = freshDb();
+    insertCheckoutSessionDirect(db, "cs_open", "test-lead", "open");
+    expect(sqliteRecordCheckoutRecoverySent(db, "cs_open", "2026-01-01T00:00:00.000Z")).toBe(true);
+    const row = db.prepare("SELECT recoverySentAt FROM checkout_sessions WHERE stripeSessionId = ?").get(
+      "cs_open",
+    ) as { recoverySentAt: string };
+    expect(row.recoverySentAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+
+  it("returns false for a missing session", () => {
+    const db = freshDb();
+    expect(sqliteRecordCheckoutRecoverySent(db, "missing", "2026-01-01T00:00:00.000Z")).toBe(false);
+  });
+
+  it("rejects a session that already completed via a concurrent webhook (checkout-session-recovery-race-guard)", () => {
+    const db = freshDb();
+    insertCheckoutSessionDirect(db, "cs_complete", "test-lead", "complete");
+    expect(sqliteRecordCheckoutRecoverySent(db, "cs_complete", "2026-01-01T00:00:00.000Z")).toBe(
+      false,
+    );
+    const row = db
+      .prepare("SELECT recoverySentAt FROM checkout_sessions WHERE stripeSessionId = ?")
+      .get("cs_complete") as { recoverySentAt: string | null };
+    expect(row.recoverySentAt).toBeNull();
+  });
+});
+
+describe("sqliteMarkCommerceOrderPaidOut", () => {
+  it("marks an eligible order paid out and returns true", () => {
+    const db = freshDb();
+    insertCommerceOrderDirect(db, "cs_eligible", "test-lead");
+    expect(sqliteMarkCommerceOrderPaidOut(db, "cs_eligible", "2026-01-01T00:00:00.000Z")).toBe(true);
+    const row = db.prepare("SELECT paidOutAt FROM commerce_orders WHERE stripeSessionId = ?").get(
+      "cs_eligible",
+    ) as { paidOutAt: string };
+    expect(row.paidOutAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+
+  it("rejects an order refunded by a concurrent webhook since the caller's read (commerce-order-paid-out-refund-race-guard)", () => {
+    const db = freshDb();
+    insertCommerceOrderDirect(db, "cs_refunded", "test-lead", {
+      refundedAt: "2026-01-01T00:00:00.000Z",
+    });
+    expect(sqliteMarkCommerceOrderPaidOut(db, "cs_refunded", "2026-01-02T00:00:00.000Z")).toBe(
+      false,
+    );
+  });
+
+  it("rejects an order disputed by a concurrent webhook", () => {
+    const db = freshDb();
+    insertCommerceOrderDirect(db, "cs_disputed", "test-lead", {
+      disputedAt: "2026-01-01T00:00:00.000Z",
+    });
+    expect(sqliteMarkCommerceOrderPaidOut(db, "cs_disputed", "2026-01-02T00:00:00.000Z")).toBe(
+      false,
+    );
+  });
+
+  it("rejects an order already marked paid out (no double-pay)", () => {
+    const db = freshDb();
+    insertCommerceOrderDirect(db, "cs_already", "test-lead", {
+      paidOutAt: "2026-01-01T00:00:00.000Z",
+    });
+    expect(sqliteMarkCommerceOrderPaidOut(db, "cs_already", "2026-01-02T00:00:00.000Z")).toBe(
+      false,
+    );
+    const row = db.prepare("SELECT paidOutAt FROM commerce_orders WHERE stripeSessionId = ?").get(
+      "cs_already",
+    ) as { paidOutAt: string };
+    expect(row.paidOutAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+});
+
+describe("sqliteMarkCommerceOrderClientReceiptSent", () => {
+  it("marks an unsent order's receipt and returns true", () => {
+    const db = freshDb();
+    insertCommerceOrderDirect(db, "cs_unsent", "test-lead");
+    expect(
+      sqliteMarkCommerceOrderClientReceiptSent(db, "cs_unsent", "2026-01-01T00:00:00.000Z"),
+    ).toBe(true);
+    const row = db
+      .prepare("SELECT clientReceiptEmailSentAt FROM commerce_orders WHERE stripeSessionId = ?")
+      .get("cs_unsent") as { clientReceiptEmailSentAt: string };
+    expect(row.clientReceiptEmailSentAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+
+  it("rejects a redelivered webhook once the receipt marker is already set (commerce-client-receipt-marker-race-guard)", () => {
+    const db = freshDb();
+    insertCommerceOrderDirect(db, "cs_sent", "test-lead", {
+      clientReceiptEmailSentAt: "2026-01-01T00:00:00.000Z",
+    });
+    expect(
+      sqliteMarkCommerceOrderClientReceiptSent(db, "cs_sent", "2026-01-02T00:00:00.000Z"),
+    ).toBe(false);
+    const row = db
+      .prepare("SELECT clientReceiptEmailSentAt FROM commerce_orders WHERE stripeSessionId = ?")
+      .get("cs_sent") as { clientReceiptEmailSentAt: string };
+    expect(row.clientReceiptEmailSentAt).toBe("2026-01-01T00:00:00.000Z");
   });
 });

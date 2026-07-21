@@ -34,6 +34,13 @@ import {
   sqliteListOrders,
   sqliteListOrdersByLeadSlug,
   sqliteUpsertLead,
+  sqliteUpdateLeadStage,
+  sqliteRecordLeadOutreach,
+  sqliteApplyColdLeadDisposition,
+  sqliteRecordClientInquiryReply,
+  sqliteRecordCheckoutRecoverySent,
+  sqliteMarkCommerceOrderPaidOut,
+  sqliteMarkCommerceOrderClientReceiptSent,
 } from "./db/sqlite-queries";
 import { preferAdvancedHandoffStatus } from "./deploy/handoff-preserve";
 import {
@@ -271,29 +278,7 @@ export async function updateLeadStage(
   // handoff/lead chain) so this was not reachable through the UI today, but
   // the two backends must still agree on what "success" means for any future
   // caller (db-convex-sqlite-not-found-parity).
-  const db = getSqliteDb();
-  const existing = db.prepare("SELECT slug, status FROM leads WHERE slug = ?").get(slug) as
-    | { slug: string; status: string }
-    | undefined;
-  if (!existing) {
-    throw new Error(`Lead with slug ${slug} not found`);
-  }
-  // Write-time re-check mirroring applyColdLeadDisposition/recordLeadOutreach:
-  // reject a write that would revert an already-paid/live lead to an earlier
-  // stage (a stale dashboard dropdown snapshot racing a concurrent Stripe
-  // checkout), while still allowing the normal paid->live Mark-live
-  // transition (or a re-confirm of the same terminal stage)
-  // (update-lead-stage-action-paid-live-revert-guard).
-  if (
-    (existing.status === "paid" || existing.status === "live") &&
-    stage !== "paid" &&
-    stage !== "live"
-  ) {
-    return false;
-  }
-  const stmt = db.prepare("UPDATE leads SET status = ?, updatedAt = datetime('now') WHERE slug = ?");
-  stmt.run(stage, slug);
-  return true;
+  return sqliteUpdateLeadStage(getSqliteDb(), slug, stage);
 }
 
 /**
@@ -361,41 +346,7 @@ export async function recordLeadOutreach(
     }
   }
 
-  // Existence-check-then-throw mirrors convex/leads.ts's recordOutreach
-  // (throws `Lead with slug ${slug} not found`) and the sibling lead-mutation
-  // helpers in this file — see updateLeadStage above for the full rationale
-  // (db-convex-sqlite-not-found-parity). The paid/live/closed re-check
-  // mirrors applyColdLeadDisposition's atomic race guard (see
-  // sendfollowup-action-paid-live-closed-race-guard) — a concurrent Stripe
-  // checkout or stage change landing between the caller's earlier snapshot
-  // read and this write must not still record an outreach step / let the
-  // caller send a real Email 2/3 to a lead that just converted or closed.
-  // The outreachStep re-check mirrors convex/leads.ts's matching guard: two
-  // concurrent calls (double-click, two tabs) that both snapshot the same
-  // pre-write outreachStep and both compute the same target step must not
-  // both patch the row and both send the real Resend email
-  // (outreach-step-duplicate-send-guard).
-  const db = getSqliteDb();
-  const existing = db
-    .prepare("SELECT slug, status, outreachStep FROM leads WHERE slug = ?")
-    .get(slug) as
-    | { slug: string; status: string; outreachStep: number | null }
-    | undefined;
-  if (!existing) {
-    throw new Error(`Lead with slug ${slug} not found`);
-  }
-  if (existing.status === "paid" || existing.status === "live" || existing.status === "closed") {
-    return false;
-  }
-  if ((existing.outreachStep ?? 0) >= outreachStep) {
-    return false;
-  }
-  db.prepare(`
-    UPDATE leads
-    SET outreachStep = ?, lastOutreachAt = ?, updatedAt = datetime('now')
-    WHERE slug = ?
-  `).run(outreachStep, lastOutreachAt, slug);
-  return true;
+  return sqliteRecordLeadOutreach(getSqliteDb(), slug, outreachStep, lastOutreachAt);
 }
 
 /**
@@ -630,28 +581,7 @@ export async function applyColdLeadDisposition(
     }
   }
 
-  const db = getSqliteDb();
-  const existing = db.prepare("SELECT slug, status FROM leads WHERE slug = ?").get(slug) as
-    | { slug: string; status: string }
-    | undefined;
-  if (!existing) {
-    throw new Error(`Lead with slug ${slug} not found`);
-  }
-  if (existing.status === "paid" || existing.status === "live") {
-    return false;
-  }
-  db.prepare(`
-    UPDATE leads
-    SET status = ?, outreachStep = ?, lastOutreachAt = ?, snoozedUntil = ?, updatedAt = datetime('now')
-    WHERE slug = ?
-  `).run(
-    patch.stage,
-    patch.outreachStep,
-    patch.lastOutreachAt ?? null,
-    patch.snoozedUntil ?? null,
-    slug,
-  );
-  return true;
+  return sqliteApplyColdLeadDisposition(getSqliteDb(), slug, patch);
 }
 
 /**
@@ -2061,26 +1991,7 @@ export async function recordClientInquiryReply(
     }
   }
 
-  const db = getSqliteDb();
-  const existing = db
-    .prepare("SELECT * FROM client_inquiries WHERE id = ?")
-    .get(inquiryId) as SqliteClientInquiryRow | undefined;
-  if (!existing || existing.status === "archived") return null;
-
-  const now = new Date().toISOString();
-  db.prepare(
-    `UPDATE client_inquiries
-     SET status = ?, operatorReply = ?, repliedAt = ?, updatedAt = ?
-     WHERE id = ?`,
-  ).run("replied", operatorReply, now, now, inquiryId);
-
-  return mapClientInquiryRow({
-    ...existing,
-    status: "replied",
-    operatorReply,
-    repliedAt: now,
-    updatedAt: now,
-  });
+  return sqliteRecordClientInquiryReply(getSqliteDb(), inquiryId, operatorReply);
 }
 
 // --- Checkout sessions (abandoned-checkout recovery, Phase 3) ---
@@ -2365,13 +2276,7 @@ export async function recordCheckoutRecoverySent(
     }
   }
 
-  const db = getSqliteDb();
-  const result = db
-    .prepare(
-      "UPDATE checkout_sessions SET recoverySentAt = ? WHERE stripeSessionId = ? AND status = 'open'",
-    )
-    .run(sentAt, stripeSessionId);
-  return result.changes > 0;
+  return sqliteRecordCheckoutRecoverySent(getSqliteDb(), stripeSessionId, sentAt);
 }
 
 /** All checkout sessions still "open" (not yet completed) — the abandoned-recovery due queue's input. */
@@ -2948,13 +2853,7 @@ export async function markCommerceOrderPaidOut(
     }
   }
 
-  const db = getSqliteDb();
-  const result = db
-    .prepare(
-      "UPDATE commerce_orders SET paidOutAt = ? WHERE stripeSessionId = ? AND (paidOutAt IS NULL OR paidOutAt = '') AND (refundedAt IS NULL OR refundedAt = '') AND (disputedAt IS NULL OR disputedAt = '')",
-    )
-    .run(paidOutAt, stripeSessionId);
-  return result.changes > 0;
+  return sqliteMarkCommerceOrderPaidOut(getSqliteDb(), stripeSessionId, paidOutAt);
 }
 
 /**
@@ -2993,13 +2892,11 @@ export async function markCommerceOrderClientReceiptSent(
     }
   }
 
-  const db = getSqliteDb();
-  const result = db
-    .prepare(
-      "UPDATE commerce_orders SET clientReceiptEmailSentAt = ? WHERE stripeSessionId = ? AND (clientReceiptEmailSentAt IS NULL OR clientReceiptEmailSentAt = '')",
-    )
-    .run(clientReceiptEmailSentAt, stripeSessionId);
-  return result.changes > 0;
+  return sqliteMarkCommerceOrderClientReceiptSent(
+    getSqliteDb(),
+    stripeSessionId,
+    clientReceiptEmailSentAt,
+  );
 }
 
 /**
