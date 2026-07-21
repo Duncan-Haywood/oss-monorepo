@@ -3,6 +3,7 @@ import {
   checkRateLimit,
   clientIpFromHeaders,
   getRateLimiterBucketCountForTests,
+  MAX_CLIENT_IP_LENGTH,
   MAX_RATE_LIMIT_BUCKETS,
   resetRateLimiterForTests,
 } from "./rate-limit";
@@ -140,5 +141,33 @@ describe("clientIpFromHeaders", () => {
 
   it("falls back to a fixed placeholder when neither header is present", () => {
     expect(clientIpFromHeaders(new Headers())).toBe("unknown");
+  });
+
+  it("falls back to the placeholder when x-forwarded-for exceeds MAX_CLIENT_IP_LENGTH", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "9".repeat(MAX_CLIENT_IP_LENGTH + 1),
+    });
+    expect(clientIpFromHeaders(headers)).toBe("unknown");
+  });
+
+  it("accepts an x-forwarded-for entry at exactly MAX_CLIENT_IP_LENGTH", () => {
+    const value = "9".repeat(MAX_CLIENT_IP_LENGTH);
+    const headers = new Headers({ "x-forwarded-for": value });
+    expect(clientIpFromHeaders(headers)).toBe(value);
+  });
+
+  it("falls through to x-real-ip when x-forwarded-for is oversized", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "9".repeat(MAX_CLIENT_IP_LENGTH + 1),
+      "x-real-ip": "198.51.100.7",
+    });
+    expect(clientIpFromHeaders(headers)).toBe("198.51.100.7");
+  });
+
+  it("falls back to the placeholder when x-real-ip exceeds MAX_CLIENT_IP_LENGTH", () => {
+    const headers = new Headers({
+      "x-real-ip": "8".repeat(MAX_CLIENT_IP_LENGTH + 1),
+    });
+    expect(clientIpFromHeaders(headers)).toBe("unknown");
   });
 });
