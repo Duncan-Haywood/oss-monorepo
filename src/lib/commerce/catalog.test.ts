@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  commerceCatalogIntroCopy,
   commerceDraftItemsAfterSync,
   commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
@@ -519,6 +520,38 @@ describe("formatPriceUsd + commerceOrderRequestMessage", () => {
         priceCents: 5000,
       }),
     ).toBe("I'd like to order: Gift card ($50.00).");
+  });
+});
+
+describe("commerceCatalogIntroCopy", () => {
+  it("promises a manual request when every SKU is unsynced", () => {
+    const copy = commerceCatalogIntroCopy([{}, { stripePriceId: undefined }]);
+    expect(copy).toContain("Request an item below");
+    expect(copy).toContain("email or phone");
+  });
+
+  it("promises instant Stripe checkout when every SKU is synced", () => {
+    const copy = commerceCatalogIntroCopy([
+      { stripePriceId: "price_a" },
+      { stripePriceId: "price_b" },
+    ]);
+    expect(copy).toContain("Buy now to pay securely through Stripe");
+    expect(copy).not.toContain("email or phone");
+  });
+
+  it("describes both paths for a partially-synced catalog (the common steady state)", () => {
+    const copy = commerceCatalogIntroCopy([
+      { stripePriceId: "price_a" },
+      {},
+    ]);
+    expect(copy).toContain("Buy now items charge securely through Stripe");
+    expect(copy).toContain("email or phone");
+  });
+
+  it("treats an empty catalog like all-unsynced (no direct-checkout SKU exists)", () => {
+    expect(commerceCatalogIntroCopy([])).toBe(
+      "Request an item below — we'll confirm availability and payment by email or phone.",
+    );
   });
 });
 
