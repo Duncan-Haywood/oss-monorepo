@@ -310,6 +310,34 @@ export function commerceDraftItemsAfterSync(
   return syncedItems.map((item) => ({ ...item }));
 }
 
+/**
+ * Preview-page catalog intro copy — must describe what the buyer is actually
+ * about to do. A saved catalog is very often a mix of Stripe-synced SKUs
+ * (instant "Buy now" checkout) and not-yet-synced SKUs (contact-form
+ * "Request order" — see catalogHasUnsyncedSku, which exists precisely
+ * because partial sync is the common steady state right after an operator
+ * adds a new SKU to an already-synced catalog). A single hardcoded "Request
+ * an item below — we'll confirm availability and payment by email or phone"
+ * paragraph was shown unconditionally regardless of that mix, so a synced
+ * SKU's buyer read a promise of a manual follow-up call/email and then
+ * landed on a real Stripe Checkout that charged them immediately — a
+ * genuine trust/expectation mismatch in the paid buyer journey, not just a
+ * style nit (commerce-catalog-intro-copy-checkout-mismatch).
+ */
+export function commerceCatalogIntroCopy(
+  items: ReadonlyArray<{ stripePriceId?: string }>,
+): string {
+  const hasDirectCheckout = items.some((item) => item.stripePriceId);
+  const hasRequestOnly = items.some((item) => !item.stripePriceId);
+  if (hasDirectCheckout && hasRequestOnly) {
+    return "Buy now items charge securely through Stripe right away. For everything else, request below and we'll confirm availability and payment by email or phone.";
+  }
+  if (hasDirectCheckout) {
+    return "Buy now to pay securely through Stripe — instant checkout.";
+  }
+  return "Request an item below — we'll confirm availability and payment by email or phone.";
+}
+
 /** Prefill contact-form message when a visitor requests a catalog item. */
 export function commerceOrderRequestMessage(sku: CommerceSku): string {
   const price = formatPriceUsd(sku.priceCents);

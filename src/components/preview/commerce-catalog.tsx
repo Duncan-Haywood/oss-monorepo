@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { CommerceSku } from "@/lib/commerce/types";
 import {
+  commerceCatalogIntroCopy,
   commerceOrderRequestMessage,
   formatPriceUsd,
 } from "@/lib/commerce/catalog";
@@ -101,8 +102,7 @@ export function PreviewCommerceCatalog({
           Menu &amp; products
         </h2>
         <p className="mt-2 text-sm leading-6 text-zinc-600">
-          Request an item below — we&apos;ll confirm availability and payment by
-          email or phone.
+          {commerceCatalogIntroCopy(items)}
         </p>
         <ul className="mt-6 divide-y divide-zinc-200/80">
           {items.map((sku) => {
