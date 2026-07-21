@@ -707,7 +707,7 @@ export async function sendReceiptEmail(to: string, businessName: string, tier: s
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Thank you for your order!</h2>
     <p style="margin-bottom: 16px;">We have received your payment for the <strong>${safeTier}</strong> setup plan for <strong>${escapeHtmlForEmail(businessName)}</strong>.</p>
     <p style="margin-bottom: 16px;">Total paid: <strong>$${amount.toFixed(2)}</strong></p>
-    <p style="margin-bottom: 24px;">Our team is already beginning to configure your final custom domain and publish your site. We will reach out within 24 hours with your dashboard access credentials.</p>
+    <p style="margin-bottom: 24px;">Our team is already beginning to configure your final custom domain and publish your site. You'll receive a separate email shortly with DNS setup instructions and next steps.</p>
     <p style="margin-bottom: 8px;">Warmly,</p>
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
