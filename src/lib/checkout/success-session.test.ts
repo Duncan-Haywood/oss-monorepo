@@ -106,6 +106,7 @@ describe("loadCheckoutSuccessSession", () => {
         confirmed: true,
         sessionId: "cs_test_ok",
         showBillingPortal: true,
+        isCommercePurchase: false,
       });
       // Subscription mode must prove catalog recurring Price (portal API twin).
       expect(listLineItems).toHaveBeenCalledWith("cs_test_ok");
@@ -137,6 +138,7 @@ describe("loadCheckoutSuccessSession", () => {
         confirmed: true,
         sessionId: "cs_foreign_sub",
         showBillingPortal: false,
+        isCommercePurchase: false,
       });
     } finally {
       if (prevGrowth === undefined) delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
@@ -176,8 +178,29 @@ describe("loadCheckoutSuccessSession", () => {
       confirmed: true,
       sessionId: "cs_test_starter",
       showBillingPortal: false,
+      isCommercePurchase: false,
     });
     expect(emptyLineItems).toHaveBeenCalledWith("cs_test_starter");
+  });
+
+  it("marks isCommercePurchase for a Commerce Buy-now checkout (metadata.kind=commerce_sku)", async () => {
+    const retrieve = vi.fn().mockResolvedValue({
+      status: "complete",
+      payment_status: "paid",
+      mode: "payment",
+      metadata: { slug: "demo-cafe", skuId: "sku_1", kind: "commerce_sku" },
+    });
+    const result = await loadCheckoutSuccessSession("cs_test_commerce_sku", {
+      secretKey: "sk_test_x",
+      retrieve,
+      listLineItems: emptyLineItems,
+    });
+    expect(result).toEqual({
+      confirmed: true,
+      sessionId: "cs_test_commerce_sku",
+      showBillingPortal: false,
+      isCommercePurchase: true,
+    });
   });
 
   it("does not trust metadata.tier=growth on payment-mode success page", async () => {
@@ -198,6 +221,7 @@ describe("loadCheckoutSuccessSession", () => {
       confirmed: true,
       sessionId: "cs_forged_tier",
       showBillingPortal: false,
+      isCommercePurchase: false,
     });
   });
 
@@ -225,6 +249,7 @@ describe("loadCheckoutSuccessSession", () => {
         confirmed: true,
         sessionId: "cs_forged_addon",
         showBillingPortal: false,
+        isCommercePurchase: false,
       });
       expect(listLineItems).toHaveBeenCalledWith("cs_forged_addon");
     } finally {
@@ -263,6 +288,7 @@ describe("loadCheckoutSuccessSession", () => {
         confirmed: true,
         sessionId: "cs_commerce_lines",
         showBillingPortal: true,
+        isCommercePurchase: false,
       });
     } finally {
       if (prevSetup === undefined) delete process.env.STRIPE_PRICE_ID_COMMERCE_SETUP;
@@ -289,6 +315,7 @@ describe("loadCheckoutSuccessSession", () => {
       confirmed: true,
       sessionId: "cs_list_fail",
       showBillingPortal: false,
+      isCommercePurchase: false,
     });
   });
 
@@ -321,6 +348,7 @@ describe("loadCheckoutSuccessSession", () => {
       confirmed: true,
       sessionId: exact,
       showBillingPortal: false,
+      isCommercePurchase: false,
     });
     expect(retrieve).toHaveBeenCalledWith(exact);
   });

@@ -69,8 +69,14 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
     <main className="mx-auto max-w-lg px-6 py-16 text-center">
       <h1 className="text-3xl font-semibold tracking-tight">Payment received</h1>
       <p className="mt-3 text-zinc-600">
-        Thanks — your order is confirmed. A receipt is on its way from Stripe, and we&apos;ll
-        follow up by email with next steps to get your site live.
+        {checkout.isCommercePurchase ? (
+          "Thanks — your order is confirmed. A receipt is on its way from Stripe."
+        ) : (
+          <>
+            Thanks — your order is confirmed. A receipt is on its way from Stripe, and we&apos;ll
+            follow up by email with next steps to get your site live.
+          </>
+        )}
       </p>
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         {checkout.showBillingPortal ? (
