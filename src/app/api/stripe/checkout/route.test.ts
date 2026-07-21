@@ -175,6 +175,7 @@ describe("POST /api/stripe/checkout", () => {
       mode: string;
       line_items: { price: string; quantity: number }[];
       customer_email?: string;
+      allow_promotion_codes?: boolean;
       success_url: string;
       cancel_url: string;
       metadata: Record<string, string>;
@@ -184,6 +185,7 @@ describe("POST /api/stripe/checkout", () => {
       { price: "price_starter_setup", quantity: 1 },
     ]);
     expect(createArgs.customer_email).toBe("owner@demo-cafe.test");
+    expect(createArgs.allow_promotion_codes).toBe(true);
     expect(createArgs.success_url).toContain("/checkout/success?session_id={CHECKOUT_SESSION_ID}");
     expect(createArgs.cancel_url).toBe(
       "https://app.example.com/checkout?cancelled=1&slug=demo-cafe&tier=starter",
