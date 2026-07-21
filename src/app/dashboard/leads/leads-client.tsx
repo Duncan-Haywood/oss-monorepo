@@ -2614,6 +2614,7 @@ export function LeadsClient({
         <div className="relative flex-1 max-w-md">
           <input
             type="text"
+            aria-label="Search leads by name, city, or slug"
             placeholder="Search leads by name, city, or slug..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -2681,8 +2682,11 @@ export function LeadsClient({
           <form onSubmit={handleCsvImport} className="mt-6 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-zinc-700">Data source</label>
+                <label className="block text-xs font-semibold text-zinc-700" htmlFor="csv-data-source">
+                  Data source
+                </label>
                 <input
+                  id="csv-data-source"
                   type="text"
                   value={csvDataSource}
                   onChange={(e) => setCsvDataSource(e.target.value)}
@@ -2691,8 +2695,11 @@ export function LeadsClient({
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-zinc-700">Initial stage</label>
+                <label className="block text-xs font-semibold text-zinc-700" htmlFor="csv-initial-stage">
+                  Initial stage
+                </label>
                 <select
+                  id="csv-initial-stage"
                   value={csvStage}
                   onChange={(e) => setCsvStage(e.target.value as LeadPipelineStage)}
                   className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
@@ -2707,8 +2714,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Upload file</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="csv-upload-file">
+                Upload file
+              </label>
               <input
+                id="csv-upload-file"
                 type="file"
                 accept=".csv,text/csv"
                 onChange={(e) => void handleCsvFile(e.target.files?.[0] ?? null)}
@@ -2717,8 +2727,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">CSV text</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="csv-text">
+                CSV text
+              </label>
               <textarea
+                id="csv-text"
                 value={csvText}
                 onChange={(e) => setCsvText(e.target.value)}
                 rows={8}
@@ -2768,8 +2781,11 @@ export function LeadsClient({
 
           <form onSubmit={handleAddLeadSubmit} className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Business Name</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-business-name">
+                Business Name
+              </label>
               <input
+                id="add-lead-business-name"
                 type="text"
                 required
                 value={formName}
@@ -2781,8 +2797,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Preview Slug</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-preview-slug">
+                Preview Slug
+              </label>
               <input
+                id="add-lead-preview-slug"
                 type="text"
                 required
                 value={formSlug}
@@ -2794,8 +2813,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Category Theme</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-category">
+                Category Theme
+              </label>
               <select
+                id="add-lead-category"
                 value={formCategory}
                 onChange={(e) => setFormCategory(e.target.value as BusinessCategory)}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
@@ -2809,8 +2831,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Recommended Tier</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-tier">
+                Recommended Tier
+              </label>
               <select
+                id="add-lead-tier"
                 value={formTier}
                 onChange={(e) => setFormTier(e.target.value as "starter" | "growth" | "complete")}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
@@ -2828,8 +2853,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Pipeline Stage</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-stage">
+                Pipeline Stage
+              </label>
               <select
+                id="add-lead-stage"
                 value={formStage}
                 onChange={(e) => setFormStage(e.target.value as LeadPipelineStage)}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
@@ -2843,8 +2871,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Phone</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-phone">
+                Phone
+              </label>
               <input
+                id="add-lead-phone"
                 type="text"
                 value={formPhone}
                 onChange={(e) => setFormPhone(e.target.value)}
@@ -2855,8 +2886,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Email Address</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-email">
+                Email Address
+              </label>
               <input
+                id="add-lead-email"
                 type="email"
                 value={formEmail}
                 onChange={(e) => setFormEmail(e.target.value)}
@@ -2867,8 +2901,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">City</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-city">
+                City
+              </label>
               <input
+                id="add-lead-city"
                 type="text"
                 value={formCity}
                 onChange={(e) => setFormCity(e.target.value)}
@@ -2879,8 +2916,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">State</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-state">
+                State
+              </label>
               <input
+                id="add-lead-state"
                 type="text"
                 value={formState}
                 onChange={(e) => setFormState(e.target.value)}
@@ -2891,8 +2931,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Street Address (optional)</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-address">
+                Street Address (optional)
+              </label>
               <input
+                id="add-lead-address"
                 type="text"
                 value={formAddress}
                 onChange={(e) => setFormAddress(e.target.value)}
@@ -2903,8 +2946,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Tagline</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-tagline">
+                Tagline
+              </label>
               <input
+                id="add-lead-tagline"
                 type="text"
                 value={formTagline}
                 onChange={(e) => setFormTagline(e.target.value)}
@@ -2915,8 +2961,11 @@ export function LeadsClient({
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-zinc-700">Description</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-description">
+                Description
+              </label>
               <input
+                id="add-lead-description"
                 type="text"
                 value={formDesc}
                 onChange={(e) => setFormDesc(e.target.value)}
@@ -2927,8 +2976,11 @@ export function LeadsClient({
             </div>
 
             <div className="sm:col-span-2 md:col-span-3">
-              <label className="block text-xs font-semibold text-zinc-700">Services (Comma separated)</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-services">
+                Services (Comma separated)
+              </label>
               <input
+                id="add-lead-services"
                 type="text"
                 value={formServices}
                 onChange={(e) => setFormServices(e.target.value)}
@@ -2938,8 +2990,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Hours (Weekday)</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-hours-weekday">
+                Hours (Weekday)
+              </label>
               <input
+                id="add-lead-hours-weekday"
                 type="text"
                 value={formWeekday}
                 onChange={(e) => setFormWeekday(e.target.value)}
@@ -2949,8 +3004,11 @@ export function LeadsClient({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700">Hours (Weekend)</label>
+              <label className="block text-xs font-semibold text-zinc-700" htmlFor="add-lead-hours-weekend">
+                Hours (Weekend)
+              </label>
               <input
+                id="add-lead-hours-weekend"
                 type="text"
                 value={formWeekend}
                 onChange={(e) => setFormWeekend(e.target.value)}
@@ -3778,13 +3836,17 @@ export function LeadsClient({
                               </span>
                             </p>
                           ) : null}
-                          <label className="block text-xs font-semibold text-zinc-700">
+                          <label
+                            className="block text-xs font-semibold text-zinc-700"
+                            htmlFor={`operator-notes-${lead.slug}`}
+                          >
                             Operator notes
                             <span className="ml-2 font-normal text-zinc-400">
                               Call outcomes, objections, next steps — not shown on the preview site
                             </span>
                           </label>
                           <textarea
+                            id={`operator-notes-${lead.slug}`}
                             value={notesDraft}
                             onChange={(e) => setNotesDraft(e.target.value)}
                             rows={3}
