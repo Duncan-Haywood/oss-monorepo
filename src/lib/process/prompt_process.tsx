@@ -560,4 +560,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "sharp-libvips-cve-fix-and-image-optimizer-disable",
     ),
   },
+  {
+    date: "2026-07-21",
+    branch: "claude/nice-euler-986i01",
+    summary:
+      "Picked up as a scheduled routine (\"continue toward a profitable and growing business, merge changes when done\") at origin/main tip 121d368 (PR #586, sharp-libvips-cve-fix-and-image-optimizer-disable); this branch started at that exact tip. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit clean + npm run lint clean + npm test (2527 passed/189 files) + npm run dev sanity check (curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, deleted local.db afterward). No live Stripe/Resend/Convex/Anthropic secret in this session's environment, so all five NEXT_STEPS items stay operator/legal/infra-gated as documented. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated cursor/* draft). mcp__github__actions_list sampled the newest 30 workflow runs — 30/30 conclusion=failure, no runner ever assigned — github-actions-runner-unavailable stays status=todo, unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: origin/main was the newest ref by committer date, ahead of every other branch — no live fold candidate.\n\nDispatched a foreground research agent briefed on AGENT_PROTOCOL in full plus this file's most recent ~40 BUSINESS_DECISIONS entries, asked to hunt a fresh gap across the standard priority order without re-reporting anything already checked clean. It re-verified all 5 tiers directly and came back with no genuine, actionable finding — only two already-reviewed near-misses (a `hostAliasCandidates` guard divergence in convex/deployHandoffs.ts that is real but structurally unreachable, and the codebase's pervasive `window.alert()` convention for one-shot dashboard results, which is an established pattern, not a gap). It flagged one untraced lead: convex/leads.ts's `seed` mutation. Followed up directly: confirmed it has zero callers anywhere in application code (only its own test file exercises it; its one reference in src/lib/db.ts's CONVEX_API_MAP is a name-validation entry, not an invocation) — dead code, gated behind requireApiSecret, the same already-reviewed-and-left-alone class as convex/orders.ts's createOrder mutation. See post-sharp-cve-fix-empty-backlog-clean-audit-two in BUSINESS_DECISIONS for the full detail on why leaving it alone (not deleting it) was the right call.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-sharp-cve-fix-empty-backlog-clean-audit-two.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — no product/config code changed this iteration; a dispatched research agent plus a direct personal follow-up on its one lead came back genuinely clean.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2527 passed, unchanged, 189 files) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-sharp-cve-fix-empty-backlog-clean-audit-two",
+    ),
+  },
 ];
