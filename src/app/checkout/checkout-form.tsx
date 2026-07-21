@@ -185,7 +185,11 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
         <ul className="mt-4 space-y-1 text-xs text-zinc-500">
           <li>Secure payment powered by Stripe.</li>
           <li>Preview first — pay only when you are ready to claim the site.</li>
-          <li>Cancel anytime on Growth / Complete after the first month.</li>
+          {monthlyTotal > 0 ? (
+            <li>Cancel anytime after the first month.</li>
+          ) : (
+            <li>One-time payment — no recurring charge.</li>
+          )}
         </ul>
       </div>
     </>
