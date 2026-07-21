@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Lead } from "@/lib/leads/types";
 import type { CommerceSku } from "@/lib/commerce/types";
-import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
+import { softCapLeadForPublicSurface, type PublicLead } from "@/lib/leads/public-fields";
 import { minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
 import { getCategoryTheme } from "@/lib/previews/themes";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
@@ -16,7 +16,7 @@ type CategoryPreviewProps = {
   commerceItems?: CommerceSku[];
 };
 
-function isDemoPreview(lead: Lead): boolean {
+function isDemoPreview(lead: PublicLead): boolean {
   return lead.dataSource === "demo_catalog" || lead.dataSource === "slug_inference";
 }
 

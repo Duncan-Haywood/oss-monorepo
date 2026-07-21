@@ -75,4 +75,16 @@ describe("softCapLeadForPublicSurface", () => {
     expect(capped.address).toBeUndefined();
     expect(capped.email).toBeUndefined();
   });
+
+  it("strips dashboard-only notes and the Stripe Connect account id", () => {
+    const capped = softCapLeadForPublicSurface(
+      baseLead({
+        notes: "Called 2026-07-10, wants a discount — do not lowball.",
+        stripeConnectAccountId: "acct_1Example000000",
+      }),
+    );
+    expect(capped).not.toHaveProperty("notes");
+    expect(capped).not.toHaveProperty("stripeConnectAccountId");
+    expect(JSON.stringify(capped)).not.toContain("acct_1Example000000");
+  });
 });

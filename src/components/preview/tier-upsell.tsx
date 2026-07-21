@@ -1,9 +1,16 @@
 import Link from "next/link";
 import { BUNDLES, COMMERCE_ADDON } from "@/lib/pricing/bundles";
-import type { Lead } from "@/lib/leads/types";
+import type { PublicLead } from "@/lib/leads/public-fields";
 
 type TierUpsellProps = {
-  lead: Lead;
+  /**
+   * Must be the softCapLeadForPublicSurface result, not a raw Lead — this
+   * component is rendered on the public /preview/[slug] page, and PublicLead
+   * structurally excludes dashboard-only fields (notes, stripeConnectAccountId)
+   * so a future Client Component boundary here can't serialize them into the
+   * RSC payload.
+   */
+  lead: PublicLead;
 };
 
 /**
