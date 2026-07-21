@@ -55,6 +55,30 @@ describe("monthly marketing cadence copy", () => {
   });
 });
 
+describe("add-on gating stays consistent between SEO copy and features/FAQ", () => {
+  it("never advertises online ordering in seoTitle/metaDescription without qualifying it as the optional Commerce add-on", () => {
+    for (const page of CATEGORY_LANDING_PAGES) {
+      const advertisesOnlineOrdering = page.features.some((feature) =>
+        feature.includes("online ordering"),
+      );
+      if (!advertisesOnlineOrdering) continue;
+
+      const isGatedBehindCommerceAddon = page.features.some(
+        (feature) => feature.includes("online ordering") && feature.includes("Commerce add-on"),
+      );
+      if (!isGatedBehindCommerceAddon) continue;
+
+      for (const copy of [page.seoTitle, page.metaDescription]) {
+        if (!copy.includes("online ordering")) continue;
+        expect(
+          /optional|add-on/i.test(copy),
+          `${page.href}: "${copy}" mentions online ordering as if included, but it's gated behind the Commerce add-on`,
+        ).toBe(true);
+      }
+    }
+  });
+});
+
 describe("categoryLandingPageByHref", () => {
   it("finds the matching page by href", () => {
     const page = categoryLandingPageByHref("/websites-for-salons");

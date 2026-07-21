@@ -53,9 +53,9 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
     category: "restaurant",
     href: "/websites-for-restaurants",
     navLabel: "Restaurants",
-    seoTitle: "Website for Restaurants — menu, hours, and online ordering",
+    seoTitle: "Website for Restaurants — menu, hours, and optional online ordering",
     metaDescription:
-      `A restaurant website with your menu, hours, location, and online ordering — built and previewed before you pay. From $${startingSetupPriceUsd}, live in days.`,
+      `A restaurant website with your menu, hours, location, and optional online ordering (Commerce add-on) — built and previewed before you pay. From $${startingSetupPriceUsd}, live in days.`,
     heroHeadline: "A website for your restaurant, ready before you decide",
     heroSubhead:
       "Menu, hours, location, and a contact form — built from your public business details and previewed for free. Add online ordering when you're ready.",
