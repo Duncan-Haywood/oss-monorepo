@@ -37,6 +37,7 @@ import { assessVercelTokenEnvReadiness } from "@/lib/deploy/vercel-token-env-rea
 import { assessVercelProjectIdEnvReadiness } from "@/lib/deploy/vercel-project-id-env-readiness";
 import { assessConvexUrlEnvReadiness } from "@/lib/convex/convex-url-env-readiness";
 import { assessConvexApiSecretEnvReadiness } from "@/lib/convex/convex-api-secret-env-readiness";
+import { getBundle } from "@/lib/pricing/bundles";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
@@ -67,7 +68,7 @@ const sections = [
   },
   {
     title: "Stripe checkout",
-    description: "Payment flow for the $500 website package.",
+    description: `Payment flow for the $${getBundle("starter")!.setupPriceUsd} website package.`,
     href: "/checkout",
   },
 ];

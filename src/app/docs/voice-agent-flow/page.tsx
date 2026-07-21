@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
 import { docPageMetadata } from "@/lib/seo";
+import { COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
+
+const starterBundle = getBundle("starter")!;
+const growthBundle = getBundle("growth")!;
+const completeBundle = getBundle("complete")!;
 
 export const metadata: Metadata = docPageMetadata("/docs/voice-agent-flow");
 
@@ -61,11 +66,13 @@ export default function VoiceAgentFlowDocPage() {
 
       <h2>Bundle explanation (tool: explainBundles)</h2>
       <blockquote>
-        We have three main plans. <strong>Starter</strong> — $500 one-time for your website.{" "}
-        <strong>Growth</strong> — same website plus automated Google and social posts for $99
-        a month. <strong>Complete</strong> — $199 a month, includes everything in Growth plus
-        an AI assistant that answers <em>your</em> business phone. If you take online orders,
-        we can add <strong>Commerce</strong> for $300 setup and $49 a month.
+        We have three main plans. <strong>Starter</strong> — ${starterBundle.setupPriceUsd}{" "}
+        one-time for your website. <strong>Growth</strong> — same website plus automated
+        Google and social posts for ${growthBundle.monthlyPriceUsd} a month.{" "}
+        <strong>Complete</strong> — ${completeBundle.monthlyPriceUsd} a month, includes
+        everything in Growth plus an AI assistant that answers <em>your</em> business phone. If
+        you take online orders, we can add <strong>Commerce</strong> for $
+        {COMMERCE_ADDON.setupPriceUsd} setup and ${COMMERCE_ADDON.monthlyPriceUsd} a month.
       </blockquote>
 
       <h2>Opt-out (TCPA)</h2>

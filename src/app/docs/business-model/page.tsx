@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
 import { docPageMetadata } from "@/lib/seo";
+import {
+  bundlePriceHeadingLabel,
+  commerceAddonPriceHeadingLabel,
+  getBundle,
+  minBundleSetupPriceUsd,
+} from "@/lib/pricing/bundles";
 
 export const metadata: Metadata = docPageMetadata("/docs/business-model");
 
@@ -34,22 +40,22 @@ export default function BusinessModelDocPage() {
         <tbody>
           <tr>
             <td>Starter</td>
-            <td>$500 one-time</td>
+            <td>{bundlePriceHeadingLabel(getBundle("starter")!)}</td>
             <td>Landing page, contact form, maps, SEO, domain handoff</td>
           </tr>
           <tr>
             <td>Growth</td>
-            <td>$500 + $99/mo</td>
+            <td>{bundlePriceHeadingLabel(getBundle("growth")!)}</td>
             <td>Starter + AI marketing (8 social/GBP + 2 emails/mo)</td>
           </tr>
           <tr>
             <td>Complete</td>
-            <td>$500 + $199/mo</td>
+            <td>{bundlePriceHeadingLabel(getBundle("complete")!)}</td>
             <td>Growth + full marketing + client AI phone agent</td>
           </tr>
           <tr>
             <td>Commerce add-on</td>
-            <td>+$300 + $49/mo</td>
+            <td>{commerceAddonPriceHeadingLabel()}</td>
             <td>Stripe checkout, catalog ≤50 SKUs</td>
           </tr>
         </tbody>
@@ -82,7 +88,7 @@ export default function BusinessModelDocPage() {
       <ol>
         <li>Preview link on subdomain</li>
         <li>Callback number for AI assistant</li>
-        <li>Checkout on preview — bundles from $500</li>
+        <li>Checkout on preview — bundles from ${minBundleSetupPriceUsd()}</li>
         <li>CAN-SPAM footer: public brand + {brand.legalEntity} address</li>
       </ol>
 

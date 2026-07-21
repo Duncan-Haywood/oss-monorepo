@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
 import { docPageMetadata } from "@/lib/seo";
+import { getBundle } from "@/lib/pricing/bundles";
 
 export const metadata: Metadata = docPageMetadata("/docs/marketing-automation");
 
@@ -67,7 +68,8 @@ export default function MarketingAutomationDocPage() {
 
       <h2>Automation levels</h2>
       <p>
-        Growth ($99/mo) and Complete ($199/mo) generate the identical monthly pack above — Complete&apos;s{" "}
+        Growth (${getBundle("growth")!.monthlyPriceUsd}/mo) and Complete ($
+        {getBundle("complete")!.monthlyPriceUsd}/mo) generate the identical monthly pack above — Complete&apos;s{" "}
         <code>full_marketing</code> package tier label (vs Growth&apos;s <code>social_email</code>,
         see <code>packageTierForOrderTier</code>) reflects Complete&apos;s broader bundle (marketing
         + AI phone receptionist), not a deeper marketing generation depth. Buffer / Google Business

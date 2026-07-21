@@ -79,7 +79,7 @@ import {
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
 } from "@/lib/orders/recurring";
-import { getBundle } from "@/lib/pricing/bundles";
+import { bundlePriceHeadingLabel, getBundle } from "@/lib/pricing/bundles";
 import {
   contentTypeLabel,
   leadEligibleForMarketingPack,
@@ -2807,9 +2807,15 @@ export function LeadsClient({
                 onChange={(e) => setFormTier(e.target.value as "starter" | "growth" | "complete")}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               >
-                <option value="starter">Starter ($500)</option>
-                <option value="growth">Growth ($500 + $99/mo)</option>
-                <option value="complete">Complete ($500 + $199/mo)</option>
+                <option value="starter">
+                  Starter (${getBundle("starter")!.setupPriceUsd})
+                </option>
+                <option value="growth">
+                  Growth ({bundlePriceHeadingLabel(getBundle("growth")!)})
+                </option>
+                <option value="complete">
+                  Complete ({bundlePriceHeadingLabel(getBundle("complete")!)})
+                </option>
               </select>
             </div>
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
 import { docPageMetadata } from "@/lib/seo";
+import { getBundle } from "@/lib/pricing/bundles";
 
 export const metadata: Metadata = docPageMetadata("/docs/architecture");
 
@@ -1023,7 +1024,8 @@ export default function ArchitectureDocPage() {
         action-glue level.
       </p>
       <p>
-        Paid Starter customers (one-time $500, no Growth/Complete/Commerce order yet) get an
+        Paid Starter customers (one-time ${getBundle("starter")!.setupPriceUsd}, no
+        Growth/Complete/Commerce order yet) get an
         operator-triggered <strong>Upsell</strong> email from{" "}
         <code>/dashboard/leads</code> — eligibility is the inverse of billing-portal eligibility
         (<code>src/lib/billing/starter-upsell.ts</code>). The operator{" "}

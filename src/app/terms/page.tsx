@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { brand, legalEntityLine, marketingFooterLine } from "@/lib/brand";
 import { staticPageMetadata } from "@/lib/seo";
+import { getBundle } from "@/lib/pricing/bundles";
 
 export const metadata: Metadata = staticPageMetadata({
   title: `Terms of Service — ${brand.name}`,
@@ -21,9 +22,9 @@ export default function TermsPage() {
           website packages from {brand.legalEntity} will be published here before launch.
         </p>
         <p>
-          Terms will cover the $500 website package, preview evaluation, payment via
-          Stripe, deliverables, intellectual property, refunds, and governing law
-          (Colorado, USA).
+          Terms will cover the ${getBundle("starter")!.setupPriceUsd} website package, preview
+          evaluation, payment via Stripe, deliverables, intellectual property, refunds, and
+          governing law (Colorado, USA).
         </p>
         <p>
           Draft outline:{" "}

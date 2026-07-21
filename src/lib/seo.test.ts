@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { DOCS_PAGES } from "@/lib/docs/routes";
 import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
+import { minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
 import type { Lead } from "@/lib/leads/types";
 import {
   categoryLandingPageMetadata,
@@ -136,6 +137,11 @@ describe("homepageMetadata", () => {
     expect(metadata.title).toContain("Acme Sites");
     expect(metadata.description).toContain("Acme Sites");
     expect(metadata.openGraph).toMatchObject({ siteName: "Acme Sites" });
+  });
+
+  it("quotes minBundleSetupPriceUsd(), not a hardcoded figure, so a bundle price change can't leave this Google-snippet/social-unfurl description advertising a stale number", () => {
+    const metadata = homepageMetadata();
+    expect(metadata.description).toContain(`pay $${minBundleSetupPriceUsd()}, go live`);
   });
 
   it("sets metadataBase from the configured site URL, required for opengraph-image/twitter-image file-convention images to resolve to an absolute URL instead of a hardcoded localhost fallback", () => {
