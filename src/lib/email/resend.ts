@@ -20,6 +20,7 @@ import {
   formatCommerceBuyNowClientReceiptHtml,
 } from "../commerce/client-receipt";
 import { getBundle } from "../pricing/bundles";
+import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "../marketing/monthly-pack";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -420,10 +421,13 @@ export async function sendStarterUpsellEmail(params: {
   const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
   const safePreviewUrl = escapeHtmlForEmail(previewUrl);
   const tierLabel = targetTier === "complete" ? "Complete" : "Growth";
+  // Cadence derives from MONTHLY_MARKETING_PACK_TYPES, never hand-typed —
+  // see monthly-marketing-pack-cadence-single-source-of-truth (prompt_process.tsx).
+  const monthlyMarketingCadence = `${monthlyMarketingSocialPostCount()} social/GBP posts + ${monthlyMarketingEmailCount()} emails`;
   const marketingLine =
     targetTier === "complete"
-      ? "AI marketing (8 social/GBP posts + 2 emails/month) plus a client AI phone agent that answers your business line."
-      : "an AI marketing engine: 8 social/GBP posts + 2 emails per month, written from your site data.";
+      ? `AI marketing (${monthlyMarketingCadence}/month) plus a client AI phone agent that answers your business line.`
+      : `an AI marketing engine: ${monthlyMarketingCadence} per month, written from your site data.`;
 
   const subject = `${businessName} — add ${tierLabel} marketing ($${monthlyPriceUsd}/mo)`;
   const html = `

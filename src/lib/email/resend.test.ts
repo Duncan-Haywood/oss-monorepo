@@ -197,6 +197,32 @@ describe("resend.ts — brand.* HTML escaping", () => {
     expect(sentHtml).not.toContain(`live on ${UNSAFE_BRAND} Starter`);
   });
 
+  it("derives sendStarterUpsellEmail's marketing cadence copy from monthlyMarketingSocialPostCount/monthlyMarketingEmailCount, not a hardcoded literal", async () => {
+    const { sendStarterUpsellEmail } = await import("./resend");
+    const { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } = await import(
+      "../marketing/monthly-pack"
+    );
+    const cadence = `${monthlyMarketingSocialPostCount()} social/GBP posts + ${monthlyMarketingEmailCount()} emails`;
+
+    await sendStarterUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      targetTier: "growth",
+      monthlyPriceUsd: 99,
+    });
+    expect(sentHtml).toContain(`${cadence} per month`);
+
+    await sendStarterUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      targetTier: "complete",
+      monthlyPriceUsd: 199,
+    });
+    expect(sentHtml).toContain(`${cadence}/month`);
+  });
+
   it("escapes businessName in sendPaymentFailedNotice", async () => {
     const { sendPaymentFailedNotice } = await import("./resend");
     await sendPaymentFailedNotice({
