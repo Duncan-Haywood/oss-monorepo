@@ -684,25 +684,6 @@ export async function recordLeadPayment(
   return { alreadyRecorded: false };
 }
 
-export async function countLeadsByStage(): Promise<Record<LeadPipelineStage, number>> {
-  const leads = await getLeads();
-  const counts: Record<LeadPipelineStage, number> = {
-    discovered: 0,
-    site_built: 0,
-    outreach_sent: 0,
-    discovery_call: 0,
-    paid: 0,
-    live: 0,
-    closed: 0,
-  };
-  for (const lead of leads) {
-    if (lead.stage in counts) {
-      counts[lead.stage] += 1;
-    }
-  }
-  return counts;
-}
-
 /**
  * List paid orders for operator pipeline health (revenue totals).
  * Convex when configured; SQLite join otherwise.
