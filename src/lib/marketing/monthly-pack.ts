@@ -50,6 +50,46 @@ export function leadStageEligibleForMarketingPack(stage: LeadPipelineStage): boo
   return stage === "paid" || stage === "live";
 }
 
+const SOCIAL_POST_CONTENT_TYPES: ReadonlySet<MarketingContentType> = new Set([
+  "gbp_post",
+  "facebook_caption",
+  "instagram_caption",
+]);
+const EMAIL_CONTENT_TYPES: ReadonlySet<MarketingContentType> = new Set([
+  "email_campaign",
+  "review_request_email",
+]);
+
+/**
+ * "8 social/GBP posts" — the count of MONTHLY_MARKETING_PACK_TYPES entries
+ * that are social/GBP posts rather than emails. Marketing/docs copy
+ * (homepage, /docs/product-bundles, /docs/marketing-automation,
+ * /docs/business-model, /docs/roadmap, /docs/launch-checklist) hand-typed
+ * this number as literal prose for months; derive it here so a future change
+ * to the pack composition can't leave that copy silently stale — the same
+ * drift class the pricing constants above closed for USD amounts (see
+ * homepage-bundle-pricing-single-source-of-truth).
+ */
+export function monthlyMarketingSocialPostCount(): number {
+  return MONTHLY_MARKETING_PACK_TYPES.filter((type) => SOCIAL_POST_CONTENT_TYPES.has(type))
+    .length;
+}
+
+/** "2 emails" — the email half of the same sold-promise count. */
+export function monthlyMarketingEmailCount(): number {
+  return MONTHLY_MARKETING_PACK_TYPES.filter((type) => EMAIL_CONTENT_TYPES.has(type)).length;
+}
+
+/**
+ * Occurrences of a single content type within one monthly pack — backs the
+ * per-row counts in /docs/marketing-automation's Content types table so
+ * those numbers (2 GBP posts, 3 Facebook captions, etc.) can't drift from
+ * the actual generated set either.
+ */
+export function monthlyMarketingContentTypeCount(type: MarketingContentType): number {
+  return MONTHLY_MARKETING_PACK_TYPES.filter((t) => t === type).length;
+}
+
 /**
  * Eligible when the lead is paid/live AND has at least one Growth/Complete order
  * that still grants active entitlement (active recurring, never refunded/disputed

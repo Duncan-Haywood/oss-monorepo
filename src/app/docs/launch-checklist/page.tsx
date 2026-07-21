@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import {
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+} from "@/lib/marketing/monthly-pack";
 import { docPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = docPageMetadata("/docs/launch-checklist");
@@ -425,8 +429,9 @@ export default function LaunchChecklistDocPage() {
         </li>
         <li>
           For a paid/live Growth or Complete lead, click <strong>Generate pack</strong> on{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — confirm 8 social/GBP
-          posts + 2 emails appear for the current UTC month (stub copy without{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — confirm{" "}
+          {monthlyMarketingSocialPostCount()} social/GBP posts + {monthlyMarketingEmailCount()}{" "}
+          emails appear for the current UTC month (stub copy without{" "}
           <code>ANTHROPIC_API_KEY</code>; real copy when the key is set). Until the key is a
           non-placeholder secret, the teal <code>assessAnthropicEnvReadiness</code> banner
           surfaces that sold AI quality is stub — set it before fulfilling paid Growth/Complete

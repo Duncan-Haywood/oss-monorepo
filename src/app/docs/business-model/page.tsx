@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import {
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+} from "@/lib/marketing/monthly-pack";
 import { docPageMetadata } from "@/lib/seo";
 import {
   bundlePriceHeadingLabel,
@@ -46,7 +50,10 @@ export default function BusinessModelDocPage() {
           <tr>
             <td>Growth</td>
             <td>{bundlePriceHeadingLabel(getBundle("growth")!)}</td>
-            <td>Starter + AI marketing (8 social/GBP + 2 emails/mo)</td>
+            <td>
+              Starter + AI marketing ({monthlyMarketingSocialPostCount()} social/GBP +{" "}
+              {monthlyMarketingEmailCount()} emails/mo)
+            </td>
           </tr>
           <tr>
             <td>Complete</td>

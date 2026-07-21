@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { brand } from "@/lib/brand";
 import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
+import {
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+} from "@/lib/marketing/monthly-pack";
 import { COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 
 const steps = [
@@ -26,7 +30,11 @@ const steps = [
 // (src/lib/pricing/bundles.ts), the single source of truth Stripe checkout
 // also reads, so a future price change (BUSINESS_DECISIONS) can't leave this,
 // the highest-traffic page, advertising a stale number while checkout charges
-// the new one (homepage-bundle-pricing-single-source-of-truth).
+// the new one (homepage-bundle-pricing-single-source-of-truth). The Growth
+// feature's post/email counts are likewise derived from
+// MONTHLY_MARKETING_PACK_TYPES (monthlyMarketingSocialPostCount /
+// monthlyMarketingEmailCount) rather than hand-typed, so a future change to
+// the pack composition can't leave this copy silently stale either.
 const bundleMarketingCopy = [
   {
     id: "starter" as const,
@@ -44,7 +52,7 @@ const bundleMarketingCopy = [
     tagline: "Site + customers on autopilot",
     features: [
       "Everything in Starter",
-      "8 social/GBP posts + 2 emails per month",
+      `${monthlyMarketingSocialPostCount()} social/GBP posts + ${monthlyMarketingEmailCount()} emails per month`,
       "Ready-to-post packs for Google, Facebook, Instagram",
       "Brand voice from your site data",
     ],

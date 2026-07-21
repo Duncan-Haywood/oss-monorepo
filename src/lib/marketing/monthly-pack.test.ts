@@ -10,6 +10,9 @@ import {
   marketingMonthKey,
   marketingMonthStartMs,
   MONTHLY_MARKETING_PACK_TYPES,
+  monthlyMarketingContentTypeCount,
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
   oldestMarketingPacksDueAgeHours,
 } from "./monthly-pack";
 import { monthlyPackRequestForLead } from "./build-request";
@@ -316,15 +319,32 @@ describe("oldestMarketingPacksDueAgeHours", () => {
 describe("MONTHLY_MARKETING_PACK_TYPES", () => {
   it("is 8 posts + 2 emails", () => {
     expect(MONTHLY_MARKETING_PACK_TYPES).toHaveLength(10);
-    const posts = MONTHLY_MARKETING_PACK_TYPES.filter(
-      (t) =>
-        t === "gbp_post" || t === "facebook_caption" || t === "instagram_caption",
-    );
-    const emails = MONTHLY_MARKETING_PACK_TYPES.filter(
-      (t) => t === "email_campaign" || t === "review_request_email",
-    );
-    expect(posts).toHaveLength(8);
-    expect(emails).toHaveLength(2);
+    expect(monthlyMarketingSocialPostCount()).toBe(8);
+    expect(monthlyMarketingEmailCount()).toBe(2);
+  });
+});
+
+describe("monthlyMarketingContentTypeCount", () => {
+  it("matches the exact per-type breakdown /docs/marketing-automation renders", () => {
+    expect(monthlyMarketingContentTypeCount("gbp_post")).toBe(2);
+    expect(monthlyMarketingContentTypeCount("facebook_caption")).toBe(3);
+    expect(monthlyMarketingContentTypeCount("instagram_caption")).toBe(3);
+    expect(monthlyMarketingContentTypeCount("email_campaign")).toBe(1);
+    expect(monthlyMarketingContentTypeCount("review_request_email")).toBe(1);
+    // Ad-hoc-only types are not part of the fixed monthly pack.
+    expect(monthlyMarketingContentTypeCount("local_seo_meta")).toBe(0);
+    expect(monthlyMarketingContentTypeCount("seasonal_promo")).toBe(0);
+    expect(monthlyMarketingContentTypeCount("ad_copy")).toBe(0);
+  });
+
+  it("sums to the full pack length", () => {
+    const sum =
+      monthlyMarketingContentTypeCount("gbp_post") +
+      monthlyMarketingContentTypeCount("facebook_caption") +
+      monthlyMarketingContentTypeCount("instagram_caption") +
+      monthlyMarketingContentTypeCount("email_campaign") +
+      monthlyMarketingContentTypeCount("review_request_email");
+    expect(sum).toBe(MONTHLY_MARKETING_PACK_TYPES.length);
   });
 });
 
