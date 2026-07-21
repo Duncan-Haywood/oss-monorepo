@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { DOCS_PAGES } from "@/lib/docs/routes";
 import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
 import { minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
+import type { CommerceSku } from "@/lib/commerce/types";
 import type { Lead } from "@/lib/leads/types";
 import {
   categoryLandingPageMetadata,
@@ -342,6 +343,45 @@ describe("leadLocalBusinessJsonLd", () => {
     const jsonLd = leadLocalBusinessJsonLd(baseLead({ address: undefined }));
     expect((jsonLd.address as Record<string, unknown>).streetAddress).toBeUndefined();
   });
+
+  it("omits hasOfferCatalog entirely when there are no Commerce catalog items", () => {
+    const jsonLd = leadLocalBusinessJsonLd(baseLead());
+    expect(jsonLd.hasOfferCatalog).toBeUndefined();
+    expect(leadLocalBusinessJsonLd(baseLead(), { commerceItems: [] }).hasOfferCatalog).toBeUndefined();
+  });
+
+  it("attaches a schema.org OfferCatalog with one Offer per Commerce SKU", () => {
+    const skus: CommerceSku[] = [
+      { id: "sku-1", name: "Cold brew", description: "12oz can", priceCents: 499 },
+      {
+        id: "sku-2",
+        name: "Loaf of bread",
+        priceCents: 1250,
+        stripeProductId: "prod_123",
+        stripePriceId: "price_123",
+      },
+    ];
+    const jsonLd = leadLocalBusinessJsonLd(baseLead(), { commerceItems: skus });
+    expect(jsonLd.hasOfferCatalog).toEqual({
+      "@type": "OfferCatalog",
+      name: "Products",
+      itemListElement: [
+        {
+          "@type": "Offer",
+          itemOffered: { "@type": "Product", name: "Cold brew", description: "12oz can" },
+          price: "4.99",
+          priceCurrency: "USD",
+        },
+        {
+          "@type": "Offer",
+          itemOffered: { "@type": "Product", name: "Loaf of bread", description: undefined },
+          price: "12.50",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+        },
+      ],
+    });
+  });
 });
 
 describe("safeJsonLdScript", () => {
@@ -374,6 +414,18 @@ describe("safeJsonLdScript", () => {
     const jsonLd = leadLocalBusinessJsonLd(baseLead({ businessName: "Joe's Café & Grill" }));
     const serialized = safeJsonLdScript(jsonLd);
     expect(JSON.parse(serialized).name).toBe("Joe's Café & Grill");
+  });
+
+  it("neutralizes a breakout attempt in an operator-entered Commerce SKU name/description", () => {
+    const malicious = "</script><script>alert(document.cookie)</script>";
+    const skus: CommerceSku[] = [{ id: "sku-1", name: malicious, description: malicious, priceCents: 100 }];
+    const jsonLd = leadLocalBusinessJsonLd(baseLead(), { commerceItems: skus });
+    const serialized = safeJsonLdScript(jsonLd);
+
+    expect(serialized).not.toContain("</script>");
+    const parsed = JSON.parse(serialized);
+    expect(parsed.hasOfferCatalog.itemListElement[0].itemOffered.name).toBe(malicious);
+    expect(parsed.hasOfferCatalog.itemListElement[0].itemOffered.description).toBe(malicious);
   });
 });
 
@@ -438,5 +490,19 @@ describe("leadPreviewJsonLdIfIndexable", () => {
         leadPreviewJsonLdIfIndexable(baseLead({ stage }), { isCuratedDemo: false }),
       ).toBeNull();
     }
+  });
+
+  it("threads commerceItems through into hasOfferCatalog for an indexable lead", () => {
+    const skus: CommerceSku[] = [{ id: "sku-1", name: "Cold brew", priceCents: 499 }];
+    const lead = baseLead({ stage: "paid" });
+    const jsonLd = leadPreviewJsonLdIfIndexable(lead, {
+      isCuratedDemo: false,
+      commerceItems: skus,
+    });
+    expect(jsonLd).toEqual(leadLocalBusinessJsonLd(lead, { commerceItems: skus }));
+    expect(
+      ((jsonLd as Record<string, unknown>).hasOfferCatalog as Record<string, unknown>)
+        .itemListElement,
+    ).toHaveLength(1);
   });
 });
