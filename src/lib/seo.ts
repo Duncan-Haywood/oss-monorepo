@@ -6,6 +6,7 @@
 import type { Metadata } from "next";
 import { brand } from "@/lib/brand";
 import { DOCS_PAGES } from "@/lib/docs/routes";
+import type { CategoryLandingPage } from "@/lib/marketing/category-landing";
 import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
@@ -140,6 +141,46 @@ export function docPageMetadata(href: string): Metadata {
     description: doc.description,
     path: doc.href,
   });
+}
+
+/**
+ * Metadata for a /websites-for-* category landing page — same
+ * staticPageMetadata shape as docPageMetadata, sourced from the page's own
+ * CATEGORY_LANDING_PAGES entry (src/lib/marketing/category-landing.ts) so
+ * title/description/canonical can never drift from what the page itself
+ * renders.
+ */
+export function categoryLandingPageMetadata(page: CategoryLandingPage): Metadata {
+  return staticPageMetadata({
+    title: page.seoTitle,
+    description: page.metaDescription,
+    path: page.href,
+  });
+}
+
+/**
+ * schema.org Service JSON-LD for a category landing page — describes the
+ * platform's offering for that business category (distinct from
+ * leadLocalBusinessJsonLd, which describes a client's own business on their
+ * preview page). FAQPage JSON-LD was deliberately not used here: Google
+ * restricted FAQ rich-result eligibility to government/health sites before
+ * this repo's last SEO pass (see homepage-organization-jsonld in
+ * prompt_process.tsx), so it would not earn the rich-snippet benefit that
+ * markup used to. Service schema has durable, policy-independent value for
+ * any crawler resolving what this page offers, the same rationale as
+ * homepageOrganizationJsonLd.
+ */
+export function categoryLandingServiceJsonLd(page: CategoryLandingPage): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: page.seoTitle,
+    serviceType: `Website design for ${page.navLabel.toLowerCase()}`,
+    description: page.metaDescription,
+    url: `${siteUrl()}${page.href}`,
+    provider: { "@type": "Organization", name: brand.name, url: siteUrl() },
+    areaServed: "US",
+  };
 }
 
 /** Absolute /preview URL — slug is encodeURIComponent'd (legacy-slug path safety). */

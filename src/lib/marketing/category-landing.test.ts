@@ -1,0 +1,57 @@
+import { describe, expect, it } from "vitest";
+import { getLeadBySlug, isCuratedDemoLeadSlug } from "@/lib/leads/demo-catalog";
+import { getBundle } from "@/lib/pricing/bundles";
+import { CATEGORY_LANDING_PAGES, categoryLandingPageByHref } from "./category-landing";
+
+describe("CATEGORY_LANDING_PAGES", () => {
+  it("has one entry per non-generic BusinessCategory, each with a unique href", () => {
+    const categories = CATEGORY_LANDING_PAGES.map((page) => page.category);
+    expect(new Set(categories).size).toBe(categories.length);
+    expect(categories.sort()).toEqual(["restaurant", "salon", "trades"]);
+
+    const hrefs = CATEGORY_LANDING_PAGES.map((page) => page.href);
+    expect(new Set(hrefs).size).toBe(hrefs.length);
+    for (const href of hrefs) {
+      expect(href.startsWith("/")).toBe(true);
+    }
+  });
+
+  it("points recommendedTier at a real bundle and exampleLeadSlug at a curated, always-indexable demo lead", () => {
+    for (const page of CATEGORY_LANDING_PAGES) {
+      const bundle = getBundle(page.recommendedTier);
+      expect(bundle, `${page.href}: recommendedTier "${page.recommendedTier}" is not a real bundle`).toBeDefined();
+
+      const lead = getLeadBySlug(page.exampleLeadSlug);
+      expect(lead, `${page.href}: exampleLeadSlug "${page.exampleLeadSlug}" is not a real demo lead`).toBeDefined();
+      expect(lead?.category).toBe(page.category);
+      expect(isCuratedDemoLeadSlug(page.exampleLeadSlug)).toBe(true);
+    }
+  });
+
+  it("has non-empty copy for every field a page renders", () => {
+    for (const page of CATEGORY_LANDING_PAGES) {
+      expect(page.seoTitle.length).toBeGreaterThan(0);
+      expect(page.metaDescription.length).toBeGreaterThan(0);
+      expect(page.heroHeadline.length).toBeGreaterThan(0);
+      expect(page.heroSubhead.length).toBeGreaterThan(0);
+      expect(page.painPoints.length).toBeGreaterThan(0);
+      expect(page.features.length).toBeGreaterThan(0);
+      expect(page.faq.length).toBeGreaterThan(0);
+      for (const entry of page.faq) {
+        expect(entry.question.length).toBeGreaterThan(0);
+        expect(entry.answer.length).toBeGreaterThan(0);
+      }
+    }
+  });
+});
+
+describe("categoryLandingPageByHref", () => {
+  it("finds the matching page by href", () => {
+    const page = categoryLandingPageByHref("/websites-for-salons");
+    expect(page?.category).toBe("salon");
+  });
+
+  it("returns undefined for an unknown href", () => {
+    expect(categoryLandingPageByHref("/websites-for-does-not-exist")).toBeUndefined();
+  });
+});
