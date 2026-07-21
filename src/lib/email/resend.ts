@@ -4,7 +4,7 @@ import { formatResendFromHeader } from "./email-from-env-readiness";
 import { signUnsubscribeToken } from "./unsubscribe-token";
 import { previewUrlWithOutreachTracking } from "../leads/preview-open";
 import { leadPreviewAbsoluteUrl } from "../leads/slug-path";
-import { escapeHtmlForEmail, plainTextToEmailHtml } from "../inquiries/reply";
+import { escapeHtmlForEmail, plainTextFromEmailHtml, plainTextToEmailHtml } from "../inquiries/reply";
 import {
   formatMarketingPackEmailHtml,
   marketingPackDeliverySubject,
@@ -138,6 +138,9 @@ Unsubscribe URL: ${unsubscribeUrl}`);
         to: [to],
         subject: safeSubject,
         html: fullHtml,
+        // Deliverability/spam-score signal — every send needs a text part,
+        // not just the HTML-only body this file used to send exclusively.
+        text: plainTextFromEmailHtml(fullHtml),
       }),
     });
 
@@ -385,6 +388,7 @@ Content Preview: ${html.substring(0, 150)}...`);
         to: [to],
         subject,
         html,
+        text: plainTextFromEmailHtml(html),
       }),
     });
 

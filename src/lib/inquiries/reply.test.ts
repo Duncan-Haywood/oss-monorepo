@@ -5,6 +5,7 @@ import {
   inquiryShouldAutoMarkRead,
   MAX_INQUIRY_REPLY_LENGTH,
   normalizeInquiryReply,
+  plainTextFromEmailHtml,
   plainTextToEmailHtml,
 } from "./reply";
 
@@ -43,6 +44,44 @@ describe("escapeHtmlForEmail / plainTextToEmailHtml", () => {
     expect(html).toContain("Hello &amp;<br />world");
     expect(html).toContain("Second");
     expect(html.match(/<p /g)?.length).toBe(2);
+  });
+});
+
+describe("plainTextFromEmailHtml", () => {
+  it("strips tags, decodes entities, and separates blocks with blank lines", () => {
+    const text = plainTextFromEmailHtml(
+      `<p style="margin: 0;">Hello &amp; welcome, O&#39;Brien &lt;Corp&gt;</p><p>Second line</p>`,
+    );
+    expect(text).toBe("Hello & welcome, O'Brien <Corp>\n\nSecond line");
+  });
+
+  it("renders a link as text plus a parenthesized URL", () => {
+    const text = plainTextFromEmailHtml(
+      `<a href="https://example.com/preview?slug=demo&amp;utm=1" style="color: blue;">View Your Preview Site</a>`,
+    );
+    expect(text).toBe("View Your Preview Site (https://example.com/preview?slug=demo&utm=1)");
+  });
+
+  it("turns <br> into a single newline without doubling paragraph spacing", () => {
+    const text = plainTextFromEmailHtml("Line one<br />Line two");
+    expect(text).toBe("Line one\nLine two");
+  });
+
+  it("collapses runs of blank lines and trims the result", () => {
+    const text = plainTextFromEmailHtml(
+      `<div>\n  </div><div>First</div><div></div><div>Second</div>`,
+    );
+    expect(text).toBe("First\n\nSecond");
+  });
+
+  it("round-trips a realistic composed email body with no leftover markup", () => {
+    const text = plainTextFromEmailHtml(
+      `<div style="font-family: sans-serif;"><h2>Hello Team,</h2><p>We built your site.</p><a href="https://example.com/x">View it</a><hr /><footer><p><a href="https://example.com/unsub">Unsubscribe</a></p></footer></div>`,
+    );
+    expect(text).not.toMatch(/<[^>]+>/);
+    expect(text).toContain("Hello Team,");
+    expect(text).toContain("View it (https://example.com/x)");
+    expect(text).toContain("Unsubscribe (https://example.com/unsub)");
   });
 });
 
