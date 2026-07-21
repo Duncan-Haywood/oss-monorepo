@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
 import { docPageMetadata } from "@/lib/seo";
+import {
+  bundlePriceHeadingLabel,
+  commerceAddonPriceHeadingLabel,
+  getBundle,
+} from "@/lib/pricing/bundles";
 
 export const metadata: Metadata = docPageMetadata("/docs/roadmap");
 
@@ -34,7 +39,7 @@ export default function RoadmapDocPage() {
           <tr>
             <td>1, 3, 5</td>
             <td>Website + Stripe + deploy</td>
-            <td>Starter ($500)</td>
+            <td>Starter (${getBundle("starter")!.setupPriceUsd})</td>
           </tr>
           <tr>
             <td>2</td>
@@ -44,17 +49,17 @@ export default function RoadmapDocPage() {
           <tr>
             <td>6</td>
             <td>Marketing engine</td>
-            <td>Growth ($500 + $99/mo)</td>
+            <td>Growth ({bundlePriceHeadingLabel(getBundle("growth")!)})</td>
           </tr>
           <tr>
             <td>7</td>
             <td>Client AI phone</td>
-            <td>Complete ($500 + $199/mo)</td>
+            <td>Complete ({bundlePriceHeadingLabel(getBundle("complete")!)})</td>
           </tr>
           <tr>
             <td>8</td>
             <td>Stripe catalog</td>
-            <td>Commerce (+$300 + $49/mo)</td>
+            <td>Commerce ({commerceAddonPriceHeadingLabel()})</td>
           </tr>
         </tbody>
       </table>

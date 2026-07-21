@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   BUNDLES,
   COMMERCE_ADDON,
+  bundlePriceHeadingLabel,
+  commerceAddonPriceHeadingLabel,
   expectedBundleCheckoutAmountCents,
   getBundle,
+  minBundleSetupPriceUsd,
 } from "./bundles";
 
 /**
@@ -72,6 +75,30 @@ describe("getBundle", () => {
     for (const id of ["starter", "growth", "complete"] as const) {
       expect(getBundle(id)?.id).toBe(id);
     }
+  });
+});
+
+describe("minBundleSetupPriceUsd", () => {
+  it("returns the lowest setupPriceUsd across BUNDLES — the marketing 'from $X' figure", () => {
+    expect(minBundleSetupPriceUsd()).toBe(Math.min(...BUNDLES.map((b) => b.setupPriceUsd)));
+    expect(minBundleSetupPriceUsd()).toBe(500);
+  });
+});
+
+describe("bundlePriceHeadingLabel", () => {
+  it("formats a one-time tier without a monthlyPriceUsd", () => {
+    expect(bundlePriceHeadingLabel(getBundle("starter")!)).toBe("$500 one-time");
+  });
+
+  it("formats a recurring tier as setup + monthly", () => {
+    expect(bundlePriceHeadingLabel(getBundle("growth")!)).toBe("$500 + $99/mo");
+    expect(bundlePriceHeadingLabel(getBundle("complete")!)).toBe("$500 + $199/mo");
+  });
+});
+
+describe("commerceAddonPriceHeadingLabel", () => {
+  it("formats the Commerce add-on as a stacking '+$X + $Y/mo' figure", () => {
+    expect(commerceAddonPriceHeadingLabel()).toBe("+$300 + $49/mo");
   });
 });
 

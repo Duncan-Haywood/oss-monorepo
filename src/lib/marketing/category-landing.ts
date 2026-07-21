@@ -11,8 +11,15 @@
  * (Places API), which stays legal-gated. See category-landing-pages in
  * BUSINESS_DECISIONS (prompt_process.tsx) for the full rationale.
  */
-import type { BundleTier } from "@/lib/pricing/bundles";
+import { getBundle, minBundleSetupPriceUsd, type BundleTier } from "@/lib/pricing/bundles";
 import type { BusinessCategory } from "@/lib/leads/types";
+
+// "$500" quoted below always derives from src/lib/pricing/bundles.ts (the
+// same source Stripe checkout charges from), never a hardcoded literal — a
+// future bundle price change (BUSINESS_DECISIONS) must not leave these SEO
+// meta descriptions / FAQ answers advertising a stale figure to organic
+// search traffic while checkout charges the new one.
+const startingSetupPriceUsd = minBundleSetupPriceUsd();
 
 export interface CategoryLandingFaqEntry {
   question: string;
@@ -42,7 +49,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
     navLabel: "Restaurants",
     seoTitle: "Website for Restaurants — menu, hours, and online ordering",
     metaDescription:
-      "A restaurant website with your menu, hours, location, and online ordering — built and previewed before you pay. From $500, live in days.",
+      `A restaurant website with your menu, hours, location, and online ordering — built and previewed before you pay. From $${startingSetupPriceUsd}, live in days.`,
     heroHeadline: "A website for your restaurant, ready before you decide",
     heroSubhead:
       "Menu, hours, location, and a contact form — built from your public business details and previewed for free. Add online ordering when you're ready.",
@@ -83,7 +90,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
     navLabel: "Salons",
     seoTitle: "Salon Website Builder — booking, services, and reviews",
     metaDescription:
-      "A salon or spa website with your services, hours, and booking info — built and previewed before you pay. From $500, with optional monthly marketing.",
+      `A salon or spa website with your services, hours, and booking info — built and previewed before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
     heroHeadline: "A website that makes your salon look as good as your work",
     heroSubhead:
       "Services, hours, and a booking-ready contact form — previewed for free before you buy. Add monthly social posts once you're live.",
@@ -124,7 +131,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
     navLabel: "Trades & home services",
     seoTitle: "Website for Trades & Home Services — plumbers, electricians, contractors",
     metaDescription:
-      "A website for plumbers, electricians, and contractors with your services, service area, and a quote-request form — built and previewed before you pay, from $500.",
+      `A website for plumbers, electricians, and contractors with your services, service area, and a quote-request form — built and previewed before you pay, from $${startingSetupPriceUsd}.`,
     heroHeadline: "A website that turns emergency calls into booked jobs",
     heroSubhead:
       "Services, service area, and a quote-request form — previewed for free before you pay. Simple and fast, built for calls, not browsing.",
@@ -145,7 +152,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
       {
         question: "I just need something simple and fast — is that an option?",
         answer:
-          "Yes — Starter ($500, one-time) covers exactly this: a professional page, contact form, map, and basic SEO, no recurring fee required.",
+          `Yes — Starter ($${getBundle("starter")!.setupPriceUsd}, one-time) covers exactly this: a professional page, contact form, map, and basic SEO, no recurring fee required.`,
       },
       {
         question: "Can I add online payment for deposits later?",

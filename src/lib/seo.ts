@@ -10,6 +10,7 @@ import type { CategoryLandingPage } from "@/lib/marketing/category-landing";
 import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
+import { minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
 
 const DEFAULT_SITE_URL = "http://localhost:3000";
 
@@ -83,7 +84,7 @@ export function staticPageMetadata(opts: {
  */
 export function homepageMetadata(): Metadata {
   const title = `${brand.name} — Pre-built websites for local businesses`;
-  const description = `${brand.name} builds professional websites before you buy. Preview your site, pay $500, go live. Operated by ${brand.legalEntity} (${brand.legalLocation}).`;
+  const description = `${brand.name} builds professional websites before you buy. Preview your site, pay $${minBundleSetupPriceUsd()}, go live. Operated by ${brand.legalEntity} (${brand.legalLocation}).`;
   return {
     ...staticPageMetadata({ title, description, path: "" }),
     metadataBase: siteOriginUrl(),
