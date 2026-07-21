@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Suspense } from "react";
+import { cancelledCheckoutBanner } from "@/lib/checkout/cancelled-banner";
 import { planCheckoutPageAccess } from "@/lib/checkout/checkout-page-access";
 import { loadCheckoutPrefillLead } from "@/lib/checkout/prefill-slug";
 import { brand } from "@/lib/brand";
-import { leadPreviewPath } from "@/lib/leads/slug-path";
 import type { BundleTier } from "@/lib/pricing/bundles";
 import { staticPageMetadata } from "@/lib/seo";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
@@ -58,24 +58,23 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     initialCommerce: params.commerce === "1" || params.commerce === "true",
   };
 
+  const banner = cancelledCheckoutBanner(lead);
+
   return (
     <main className="mx-auto max-w-lg px-6 py-16">
       {params.cancelled === "1" ? (
         <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Checkout cancelled — your preview is still available
-          {prefill.slug ? (
+          {banner.kind === "with_preview" ? (
             <>
-              {" "}
-              at{" "}
-              <a
-                className="underline underline-offset-2"
-                href={leadPreviewPath(prefill.slug)}
-              >
-                {leadPreviewPath(prefill.slug)}
+              Checkout cancelled — your preview is still available at{" "}
+              <a className="underline underline-offset-2" href={banner.previewPath}>
+                {banner.previewPath}
               </a>
+              . Adjust the plan below when you are ready.
             </>
-          ) : null}
-          . Adjust the plan below when you are ready.
+          ) : (
+            "Checkout cancelled — adjust your plan below whenever you're ready."
+          )}
         </p>
       ) : null}
       <Suspense>
