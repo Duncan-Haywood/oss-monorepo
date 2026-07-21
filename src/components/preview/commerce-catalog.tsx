@@ -66,7 +66,11 @@ function BuyNowButton({ slug, sku, ctaClass }: { slug: string; sku: CommerceSku;
       >
         {loading ? "Redirecting…" : "Buy now"}
       </button>
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="text-xs text-red-600">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
