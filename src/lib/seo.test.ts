@@ -1,7 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { DOCS_PAGES } from "@/lib/docs/routes";
+import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
 import type { Lead } from "@/lib/leads/types";
 import {
+  categoryLandingPageMetadata,
+  categoryLandingServiceJsonLd,
   docPageMetadata,
   homepageMetadata,
   homepageOrganizationJsonLd,
@@ -253,6 +256,34 @@ describe("docPageMetadata", () => {
         canonical: `https://app.example.com${doc.href}`,
       });
       expect(metadata.alternates).not.toEqual({ canonical: "https://app.example.com" });
+    }
+  });
+});
+
+describe("categoryLandingPageMetadata", () => {
+  it("sources title/description/canonical from the page's own CATEGORY_LANDING_PAGES entry", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    for (const page of CATEGORY_LANDING_PAGES) {
+      const metadata = categoryLandingPageMetadata(page);
+      expect(metadata.title).toBe(page.seoTitle);
+      expect(metadata.description).toBe(page.metaDescription);
+      expect(metadata.alternates).toEqual({
+        canonical: `https://app.example.com${page.href}`,
+      });
+    }
+  });
+});
+
+describe("categoryLandingServiceJsonLd", () => {
+  it("emits a Service schema naming the platform as provider, distinct from a client's LocalBusiness JSON-LD", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    for (const page of CATEGORY_LANDING_PAGES) {
+      const jsonLd = categoryLandingServiceJsonLd(page);
+      expect(jsonLd["@type"]).toBe("Service");
+      expect(jsonLd.url).toBe(`https://app.example.com${page.href}`);
+      expect(jsonLd.provider).toMatchObject({ "@type": "Organization" });
+      // Round-trips through the same escaping helper every other JSON-LD site uses.
+      expect(() => JSON.parse(safeJsonLdScript(jsonLd).replace(/\\u003c/g, "<"))).not.toThrow();
     }
   });
 });

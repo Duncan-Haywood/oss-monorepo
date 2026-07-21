@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { brand } from "@/lib/brand";
+import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
 
 const steps = [
   {
@@ -135,6 +136,27 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section id="industries" className="mx-auto max-w-6xl px-6 py-20">
+        <h2 className="text-2xl font-semibold tracking-tight">Built for your industry</h2>
+        <p className="mt-4 max-w-2xl text-zinc-600">
+          Every bundle adapts to how your business actually runs — see what that looks like for
+          yours.
+        </p>
+        <div className="mt-10 grid gap-6 sm:grid-cols-3">
+          {CATEGORY_LANDING_PAGES.map((page) => (
+            <Link
+              key={page.href}
+              href={page.href}
+              className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-colors hover:border-zinc-400"
+            >
+              <p className="text-sm font-medium text-zinc-500">{page.navLabel}</p>
+              <h3 className="mt-2 text-lg font-semibold text-zinc-900">{page.heroHeadline}</h3>
+              <p className="mt-3 text-sm text-zinc-500 underline-offset-4">See what&rsquo;s included →</p>
+            </Link>
+          ))}
         </div>
       </section>
 
