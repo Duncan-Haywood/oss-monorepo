@@ -2745,8 +2745,16 @@ export function LeadsClient({
             </div>
           </form>
 
-          {csvError && <p className="mt-4 text-xs font-medium text-red-600">{csvError}</p>}
-          {csvMessage && <p className="mt-4 text-xs font-medium text-emerald-700">{csvMessage}</p>}
+          {csvError && (
+            <p className="mt-4 text-xs font-medium text-red-600" role="alert">
+              {csvError}
+            </p>
+          )}
+          {csvMessage && (
+            <p className="mt-4 text-xs font-medium text-emerald-700" role="status">
+              {csvMessage}
+            </p>
+          )}
         </div>
       )}
 
@@ -2961,7 +2969,11 @@ export function LeadsClient({
               </button>
             </div>
           </form>
-          {formError && <p className="mt-4 text-xs font-medium text-red-600">{formError}</p>}
+          {formError && (
+            <p className="mt-4 text-xs font-medium text-red-600" role="alert">
+              {formError}
+            </p>
+          )}
         </div>
       )}
 
@@ -3802,7 +3814,9 @@ export function LeadsClient({
                               {notesDraft.trim().length}/{MAX_OPERATOR_NOTES_LENGTH}
                             </span>
                             {notesError ? (
-                              <span className="text-xs font-medium text-red-600">{notesError}</span>
+                              <span className="text-xs font-medium text-red-600" role="alert">
+                                {notesError}
+                              </span>
                             ) : null}
                           </div>
                         </td>
