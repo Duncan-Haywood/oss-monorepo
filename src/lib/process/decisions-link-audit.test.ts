@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -8,23 +8,38 @@ import {
 } from "./decisions-link-audit";
 
 const REPO_ROOT = path.resolve(__dirname, "../../..");
+const PROCESS_DIR = path.join(REPO_ROOT, "src/lib/process");
+const ARCHIVE_DIR = path.join(PROCESS_DIR, "archive");
 
+function readArchiveFiles(prefix: string): string {
+  return readdirSync(ARCHIVE_DIR)
+    .filter((name) => name.startsWith(prefix) && name.endsWith(".ts"))
+    .sort()
+    .map((name) => readFileSync(path.join(ARCHIVE_DIR, name), "utf8"))
+    .join("\n");
+}
+
+/**
+ * BUSINESS_DECISIONS and ITERATIONS are split across archive files (oldest
+ * entries) plus a live tail (business-decisions.ts and prompt_process.tsx's
+ * ITERATIONS section respectively) — see process-log-archive-scalability-split
+ * in BUSINESS_DECISIONS. Every id and every id-filter reference must still be
+ * visible to this audit regardless of which file physically holds it.
+ */
 function loadPromptProcessSections(): { businessDecisionsSource: string; iterationsSource: string } {
-  const source = readFileSync(
-    path.join(REPO_ROOT, "src/lib/process/prompt_process.tsx"),
-    "utf8",
-  );
-  const bdStart = source.indexOf("export const BUSINESS_DECISIONS");
-  const itStart = source.indexOf("export const ITERATIONS");
-  if (bdStart === -1 || itStart === -1 || itStart <= bdStart) {
-    throw new Error(
-      "Could not locate BUSINESS_DECISIONS/ITERATIONS export boundaries in prompt_process.tsx",
-    );
+  const businessDecisionsLive = readFileSync(path.join(PROCESS_DIR, "business-decisions.ts"), "utf8");
+  const businessDecisionsArchived = readArchiveFiles("business-decisions-archive-");
+  const businessDecisionsSource = businessDecisionsArchived + "\n" + businessDecisionsLive;
+
+  const promptProcessSource = readFileSync(path.join(PROCESS_DIR, "prompt_process.tsx"), "utf8");
+  const itStart = promptProcessSource.indexOf("export const ITERATIONS");
+  if (itStart === -1) {
+    throw new Error("Could not locate ITERATIONS export boundary in prompt_process.tsx");
   }
-  return {
-    businessDecisionsSource: source.slice(bdStart, itStart),
-    iterationsSource: source.slice(itStart),
-  };
+  const iterationsArchived = readArchiveFiles("iterations-archive-");
+  const iterationsSource = iterationsArchived + "\n" + promptProcessSource.slice(itStart);
+
+  return { businessDecisionsSource, iterationsSource };
 }
 
 describe("listBusinessDecisionIds", () => {
