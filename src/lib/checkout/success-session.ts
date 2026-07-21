@@ -22,6 +22,12 @@
  * Session with payment_status unpaid. Mirror the webhook paid gate
  * (webhook-checkout-payment-status-paid-gate) so /checkout/success does not
  * show "Payment received" before funds clear.
+ *
+ * isCommercePurchase (metadata.kind === "commerce_sku") lets the page
+ * distinguish a Commerce Buy-now end-customer purchase from a bundle
+ * purchase — the two share this one success page, but a Buy-now buyer is
+ * never a Local Site Studio subscriber and must not see bundle-only copy
+ * (checkout-success-commerce-buyer-copy).
  */
 
 import Stripe from "stripe";
@@ -42,6 +48,13 @@ export type ConfirmedCheckoutSuccess = {
   confirmed: true;
   sessionId: string;
   showBillingPortal: boolean;
+  /**
+   * True for a Commerce Buy-now purchase (metadata.kind === "commerce_sku")
+   * — the buyer is an end customer of the local business, not a Local Site
+   * Studio subscriber. /checkout/success must not show them bundle-purchase
+   * copy about "getting your site live" (checkout-success-commerce-buyer-copy).
+   */
+  isCommercePurchase: boolean;
 };
 
 export type UnconfirmedCheckoutSuccess = {
@@ -150,7 +163,8 @@ export async function loadCheckoutSuccessSession(
       commerceAddon,
       catalogRecurringProven,
     });
-    return { confirmed: true, sessionId, showBillingPortal };
+    const isCommercePurchase = session.metadata?.kind === "commerce_sku";
+    return { confirmed: true, sessionId, showBillingPortal, isCommercePurchase };
   } catch {
     return { confirmed: false };
   }

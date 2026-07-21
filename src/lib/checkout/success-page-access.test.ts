@@ -10,7 +10,12 @@ describe("planCheckoutSuccessAccess", () => {
     const plan = await planCheckoutSuccessAccess("cs_test_123", "1.2.3.4", {
       loadSession: async () => {
         loadSessionCalled = true;
-        return { confirmed: true, sessionId: "cs_test_123", showBillingPortal: false };
+        return {
+          confirmed: true,
+          sessionId: "cs_test_123",
+          showBillingPortal: false,
+          isCommercePurchase: false,
+        };
       },
       checkRateLimit: () => ({ allowed: false, remaining: 0, retryAfterSeconds: 30 }),
     });
@@ -19,7 +24,12 @@ describe("planCheckoutSuccessAccess", () => {
   });
 
   it("loads the session and passes through the result when the rate limit passes", async () => {
-    const result = { confirmed: true as const, sessionId: "cs_test_456", showBillingPortal: true };
+    const result = {
+      confirmed: true as const,
+      sessionId: "cs_test_456",
+      showBillingPortal: true,
+      isCommercePurchase: false,
+    };
     const plan = await planCheckoutSuccessAccess("cs_test_456", "1.2.3.4", {
       loadSession: async () => result,
       checkRateLimit: () => ({ allowed: true, remaining: 19, retryAfterSeconds: 0 }),
