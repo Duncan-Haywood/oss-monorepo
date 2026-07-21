@@ -336,3 +336,66 @@ test("updateCustomDomain rejects a missing/wrong apiSecret and leaves the domain
   });
   expect(found?.customDomain).toBe("original.example.com");
 });
+
+// custom-domain-assign-race-guard: the caller-side getLeadSlugByCustomDomain
+// precheck (assignCustomDomainAction) cannot by itself stop two concurrent
+// Save-domain requests for two different leads from both passing before
+// either write lands — the mutation must re-check atomically, right before
+// its own persist, and reject the second writer rather than letting two
+// leads end up sharing one Host→preview domain.
+test("updateCustomDomain rejects when a different lead already owns the exact host, and leaves that lead's domain unchanged", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs({ customDomain: "client.example.com" }));
+  await t.mutation(
+    api.deployHandoffs.upsert,
+    upsertArgs({ leadSlug: "other-lead", handoffId: "handoff_2", customDomain: undefined }),
+  );
+
+  await expect(
+    t.mutation(api.deployHandoffs.updateCustomDomain, {
+      leadSlug: "other-lead",
+      customDomain: "client.example.com",
+      updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toEqual({ conflict: true, ownerSlug: "demo-cafe" });
+
+  const otherLead = await t.query(api.deployHandoffs.getByLeadSlug, {
+    leadSlug: "other-lead",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(otherLead?.customDomain).toBeUndefined();
+});
+
+test("updateCustomDomain rejects the www twin of a domain another lead already owns", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs({ customDomain: "client.example.com" }));
+  await t.mutation(
+    api.deployHandoffs.upsert,
+    upsertArgs({ leadSlug: "other-lead", handoffId: "handoff_2", customDomain: undefined }),
+  );
+
+  await expect(
+    t.mutation(api.deployHandoffs.updateCustomDomain, {
+      leadSlug: "other-lead",
+      customDomain: "www.client.example.com",
+      updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toEqual({ conflict: true, ownerSlug: "demo-cafe" });
+});
+
+test("updateCustomDomain allows the same lead to re-save its own already-owned domain (not a conflict with itself)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs({ customDomain: "client.example.com" }));
+
+  const result = await t.mutation(api.deployHandoffs.updateCustomDomain, {
+    leadSlug: "demo-cafe",
+    customDomain: "client.example.com",
+    updatedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(result).toEqual(
+    expect.objectContaining({ leadSlug: "demo-cafe", customDomain: "client.example.com" }),
+  );
+});

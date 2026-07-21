@@ -270,6 +270,30 @@ describe("assignCustomDomainAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
+  // custom-domain-assign-race-guard: getLeadSlugByCustomDomain (mocked to
+  // null above) can miss a concurrent Save domain by a different lead that
+  // lands between this action's precheck and its write — the write path's
+  // own atomic re-check (updateDeployHandoffCustomDomain) throws
+  // CustomDomainConflictError in that case, and the action must surface the
+  // same operator-facing message the upfront precheck uses, not the generic
+  // ConvexPrimaryWriteError retry copy.
+  it("surfaces the already-owned message when the write's own race-guard catches a concurrent conflict", async () => {
+    const { CustomDomainConflictError } = await import(
+      "@/lib/deploy/custom-domain-routing"
+    );
+    assignCustomDomainAndProvision.mockRejectedValue(
+      new CustomDomainConflictError("other-lead"),
+    );
+    const { assignCustomDomainAction } = await import("./actions");
+    const res = await assignCustomDomainAction("demo-cafe", "www.democafe.com");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Domain www.democafe.com is already saved on lead other-lead — clear it there first, or pick a different host",
+    });
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
   it("assigns a trimmed domain and revalidates dashboard", async () => {
     const { assignCustomDomainAction } = await import("./actions");
     const res = await assignCustomDomainAction(

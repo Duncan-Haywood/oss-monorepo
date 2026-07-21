@@ -313,6 +313,18 @@ export const updateVercelProject = mutation({
   },
 });
 
+// Mirror src/lib/deploy/custom-domain-routing's customDomainHostAliases —
+// Convex cannot import that module directly (it depends on @/lib/leads/slug-path,
+// an alias import Convex's bundler does not resolve), same reason the host
+// normalization above is hand-rolled rather than imported.
+function hostAliasCandidates(host: string): string[] {
+  if (host.startsWith("www.")) {
+    const apex = host.slice(4);
+    return apex ? [host, apex] : [host];
+  }
+  return [host, `www.${host}`];
+}
+
 export const updateCustomDomain = mutation({
   args: {
     leadSlug: v.string(),
@@ -321,7 +333,11 @@ export const updateCustomDomain = mutation({
     updatedAt: v.string(),
     apiSecret: v.string(),
   },
-  returns: v.union(handoffReturn, v.null()),
+  returns: v.union(
+    handoffReturn,
+    v.null(),
+    v.object({ conflict: v.literal(true), ownerSlug: v.string() }),
+  ),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const existing = await ctx.db
@@ -354,6 +370,27 @@ export const updateCustomDomain = mutation({
       host = host.replace(/\.$/, "").trim();
       customDomain = host || undefined;
     }
+
+    // Atomic re-check immediately before the write — closes the TOCTOU
+    // window between the caller's own getLeadSlugByCustomDomain precheck
+    // and this mutation's persist (two concurrent Save domain requests for
+    // two different leads can both pass that precheck before either write
+    // lands). A Convex mutation is a single serialized transaction, so a
+    // second concurrent call touching the same by_customDomain index entry
+    // is retried against this call's already-committed result rather than
+    // racing it — see custom-domain-assign-race-guard.
+    if (customDomain) {
+      for (const alias of hostAliasCandidates(customDomain)) {
+        const conflict = await ctx.db
+          .query("deployHandoffs")
+          .withIndex("by_customDomain", (q) => q.eq("customDomain", alias))
+          .first();
+        if (conflict && conflict.leadSlug !== existing.leadSlug) {
+          return { conflict: true as const, ownerSlug: conflict.leadSlug };
+        }
+      }
+    }
+
     // replace so clearing the domain actually drops the optional field.
     await ctx.db.replace(existing._id, {
       handoffId: existing.handoffId,

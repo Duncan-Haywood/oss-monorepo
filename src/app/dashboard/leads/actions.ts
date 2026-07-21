@@ -97,6 +97,7 @@ import {
 } from "@/lib/deploy/handoff";
 import { DEPLOY_HANDOFF_CONVEX_PRIMARY } from "@/lib/deploy/handoff-persist";
 import {
+  CustomDomainConflictError,
   customDomainAlreadyOwnedMessage,
   parseOperatorCustomDomain,
 } from "@/lib/deploy/custom-domain-routing";
@@ -401,6 +402,15 @@ export async function assignCustomDomainAction(slug: string, customDomain: strin
     try {
       handoff = await assignCustomDomainAndProvision(slug, parsed.host);
     } catch (error) {
+      // Atomic re-check inside the write (updateDeployHandoffCustomDomain)
+      // caught a concurrent Save domain that landed between this action's
+      // own precheck above and the write — same message as that precheck.
+      if (error instanceof CustomDomainConflictError) {
+        return {
+          success: false as const,
+          error: customDomainAlreadyOwnedMessage(parsed.host ?? customDomain, error.ownerSlug),
+        };
+      }
       if (error instanceof ConvexPrimaryWriteError) {
         return {
           success: false as const,

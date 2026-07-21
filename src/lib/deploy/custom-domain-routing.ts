@@ -158,6 +158,25 @@ export function customDomainAlreadyOwnedMessage(
 }
 
 /**
+ * Thrown by the write path (src/lib/db.ts's updateDeployHandoffCustomDomain,
+ * both the Convex and SQLite branches) when a conflicting owner is found
+ * immediately before the actual persist — the atomic re-check that closes
+ * the TOCTOU window the caller-side getLeadSlugByCustomDomain precheck in
+ * assignCustomDomainAction cannot close on its own (two concurrent Save
+ * domain requests for two different leads can both pass that precheck
+ * before either write lands). See custom-domain-assign-race-guard.
+ */
+export class CustomDomainConflictError extends Error {
+  readonly ownerSlug: string;
+
+  constructor(ownerSlug: string) {
+    super(`Custom domain already assigned to lead ${ownerSlug}`);
+    this.name = "CustomDomainConflictError";
+    this.ownerSlug = ownerSlug;
+  }
+}
+
+/**
  * True when `host` is platform-owned traffic that must never be diverted to
  * a lead's preview via the *custom-domain* lookup: localhost/dev, any Vercel
  * deployment domain, or the platform's own production root domain (marketing
