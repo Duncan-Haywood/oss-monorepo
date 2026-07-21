@@ -107,7 +107,8 @@ export default function ProductBundlesDocPage() {
         <code>archive-orphan-commerce-stripe-products-action.test.ts</code>). A
         completed Buy now also emails the local business (<code>lead.email</code>
         ) with the SKU/amount so they can fulfill — the sold order-notification promise — separate
-        from the operator inquiry inbox and from Stripe Connect payouts. Stripe redeliveries of the
+        from the operator inquiry inbox and from the manual Commerce payouts reconciliation below
+        (there is no automated Stripe Connect payout yet — see the Operator note). Stripe redeliveries of the
         same Checkout Session recover a missing inquiry and a missing client email independently
         when the <code>commerceOrders</code> ledger row exists: inquiry when no prior{" "}
         <code>commerce_checkout</code> inquiry embeds that session id (uncapped{" "}
