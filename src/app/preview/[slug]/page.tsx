@@ -74,10 +74,19 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   if (plan.kind === "not_found") notFound();
   // Same DB-free fallback as generateMetadata above on a rate-limited hit.
   const lead = plan.kind === "ok" ? plan.lead : resolvePreviewLead(slug);
+  // Stage-gate + slug-scoped orders — never listOrders() the full ledger on
+  // public cold-outreach previews (preview-page-uncapped-listOrders). Skip
+  // entirely on a rate-limited hit — there's no real per-lead DB record to
+  // key off of, and the whole point of the fallback is avoiding this call.
+  const commerceItems =
+    plan.kind === "ok" ? await loadPreviewCommerceItems(lead, slug) : [];
   // Same consent predicate as sitemap + robots — never emit LocalBusiness
   // JSON-LD on a noindex cold-prospect preview (preview-jsonld-indexable-only).
+  // commerceItems is already stage/eligibility-gated by loadPreviewCommerceItems
+  // above, so it's always [] here for a non-indexable lead.
   const jsonLd = leadPreviewJsonLdIfIndexable(lead, {
     isCuratedDemo: isCuratedDemoLeadSlug(slug),
+    commerceItems,
   });
   // Bound before PreviewOpenBeacon — API route already caps, but trackByStage
   // still re-emits uncapped searchParams onto the beacon fetch URL
@@ -86,13 +95,6 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   const utmSource = resolvePreviewOpenAttrParam(firstParam(query.utm_source));
   const trackByStage =
     lead.stage === "outreach_sent" || lead.stage === "discovery_call";
-
-  // Stage-gate + slug-scoped orders — never listOrders() the full ledger on
-  // public cold-outreach previews (preview-page-uncapped-listOrders). Skip
-  // entirely on a rate-limited hit — there's no real per-lead DB record to
-  // key off of, and the whole point of the fallback is avoiding this call.
-  const commerceItems =
-    plan.kind === "ok" ? await loadPreviewCommerceItems(lead, slug) : [];
 
   return (
     <>

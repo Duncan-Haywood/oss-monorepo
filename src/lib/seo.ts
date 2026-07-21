@@ -11,6 +11,7 @@ import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
+import type { CommerceSku } from "@/lib/commerce/types";
 
 const DEFAULT_SITE_URL = "http://localhost:3000";
 
@@ -233,9 +234,42 @@ export function leadMetaDescription(lead: Lead): string {
   return softCapLeadForPublicSurface(lead).description;
 }
 
+/**
+ * schema.org OfferCatalog for a lead's Commerce add-on SKUs — attached to
+ * LocalBusiness JSON-LD as hasOfferCatalog so search engines can surface
+ * priced products/menu items in rich results, the same way any indexed
+ * ecommerce or restaurant site does. A SKU only reached the public preview
+ * catalog by passing loadPreviewCommerceItems' own eligibility gate
+ * (leadStageEligibleForCommerceCatalog + leadEligibleForCommerceCatalog), so
+ * no separate consent check is needed here beyond the indexable gate the
+ * caller already applies. `availability` is included only once
+ * stripePriceId is set (syncCommerceCatalogToStripe has run) — an unsynced
+ * SKU shows a "contact us" CTA on the page itself (commerce-catalog.tsx),
+ * not a real-time purchasable state, so asserting InStock for it would be a
+ * false structured-data signal.
+ */
+function commerceOfferCatalogJsonLd(items: CommerceSku[]): Record<string, unknown> | undefined {
+  if (items.length === 0) return undefined;
+  return {
+    "@type": "OfferCatalog",
+    name: "Products",
+    itemListElement: items.map((item) => ({
+      "@type": "Offer",
+      itemOffered: { "@type": "Product", name: item.name, description: item.description },
+      price: (item.priceCents / 100).toFixed(2),
+      priceCurrency: "USD",
+      ...(item.stripePriceId ? { availability: "https://schema.org/InStock" } : {}),
+    })),
+  };
+}
+
 /** JSON-LD LocalBusiness object for a lead's preview site. Serialize with safeJsonLdScript. */
-export function leadLocalBusinessJsonLd(lead: Lead): Record<string, unknown> {
+export function leadLocalBusinessJsonLd(
+  lead: Lead,
+  opts: { commerceItems?: CommerceSku[] } = {},
+): Record<string, unknown> {
   const capped = softCapLeadForPublicSurface(lead);
+  const hasOfferCatalog = commerceOfferCatalogJsonLd(opts.commerceItems ?? []);
   return {
     "@context": "https://schema.org",
     "@type": SCHEMA_TYPE_BY_CATEGORY[capped.category],
@@ -249,6 +283,7 @@ export function leadLocalBusinessJsonLd(lead: Lead): Record<string, unknown> {
       addressLocality: capped.city,
       addressRegion: capped.state,
     },
+    ...(hasOfferCatalog ? { hasOfferCatalog } : {}),
   };
 }
 
@@ -259,10 +294,10 @@ export function leadLocalBusinessJsonLd(lead: Lead): Record<string, unknown> {
  */
 export function leadPreviewJsonLdIfIndexable(
   lead: Lead,
-  opts: { isCuratedDemo: boolean },
+  opts: { isCuratedDemo: boolean; commerceItems?: CommerceSku[] },
 ): Record<string, unknown> | null {
   if (!isLeadPreviewIndexable(lead, opts)) return null;
-  return leadLocalBusinessJsonLd(lead);
+  return leadLocalBusinessJsonLd(lead, { commerceItems: opts.commerceItems });
 }
 
 /**
