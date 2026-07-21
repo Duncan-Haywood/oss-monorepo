@@ -41,6 +41,7 @@ import {
   sqliteRecordCheckoutRecoverySent,
   sqliteMarkCommerceOrderPaidOut,
   sqliteMarkCommerceOrderClientReceiptSent,
+  sqliteUpdateDeployHandoffCustomDomain,
 } from "./db/sqlite-queries";
 import { preferAdvancedHandoffStatus } from "./deploy/handoff-preserve";
 import {
@@ -1626,39 +1627,7 @@ export async function updateDeployHandoffCustomDomain(
   }
 
   const db = getSqliteDb();
-  const row = db
-    .prepare("SELECT * FROM deploy_handoffs WHERE leadSlug = ?")
-    .get(leadSlug) as SqliteDeployHandoffRow | undefined;
-  if (!row) return null;
-
-  const existing = mapDeployHandoffRow(row);
-
-  // Same atomic re-check as the Convex mutation, immediately before the
-  // write, so two concurrent Save domain requests for two different leads
-  // cannot both pass the caller-side getLeadSlugByCustomDomain precheck and
-  // land conflicting rows (custom-domain-assign-race-guard).
-  if (normalized) {
-    for (const alias of customDomainHostAliases(normalized)) {
-      const conflictRow = db
-        .prepare("SELECT leadSlug FROM deploy_handoffs WHERE customDomain = ?")
-        .get(alias) as { leadSlug: string } | undefined;
-      if (conflictRow && conflictRow.leadSlug !== leadSlug) {
-        throw new CustomDomainConflictError(conflictRow.leadSlug);
-      }
-    }
-  }
-
-  db.prepare(`
-    UPDATE deploy_handoffs
-    SET customDomain = ?, updatedAt = ?
-    WHERE leadSlug = ?
-  `).run(normalized, updatedAt, leadSlug);
-
-  return {
-    ...existing,
-    customDomain: normalized || undefined,
-    updatedAt,
-  };
+  return sqliteUpdateDeployHandoffCustomDomain(db, leadSlug, normalized, updatedAt);
 }
 
 /**

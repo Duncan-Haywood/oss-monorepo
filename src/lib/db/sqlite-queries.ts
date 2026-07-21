@@ -23,6 +23,9 @@ import type { OrderRecord } from "../orders/types";
 import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "../orders/sqlite-row-mapping";
 import type { ClientInquiry } from "../inquiries/types";
 import { mapClientInquiryRow, type SqliteClientInquiryRow } from "../inquiries/sqlite-row-mapping";
+import type { DeployHandoff } from "../deploy/types";
+import { mapDeployHandoffRow, type SqliteDeployHandoffRow } from "../deploy/sqlite-row-mapping";
+import { customDomainHostAliases, CustomDomainConflictError } from "../deploy/custom-domain-routing";
 
 /**
  * Newest-first bundle order ledger (digest + dashboard aggregates). Must
@@ -349,4 +352,57 @@ export function sqliteMarkCommerceOrderClientReceiptSent(
     )
     .run(clientReceiptEmailSentAt, stripeSessionId);
   return result.changes > 0;
+}
+
+/**
+ * Set (or clear) a lead's custom domain, atomically re-checking ownership
+ * (by exact host and its www/apex alias) immediately before the write — the
+ * same guard as the Convex twin (convex/deployHandoffs.ts's updateCustomDomain
+ * mutation), closing the TOCTOU window where two concurrent Save domain
+ * requests for two different leads could both pass the caller-side
+ * getLeadSlugByCustomDomain precheck before either write lands
+ * (custom-domain-assign-race-guard). Throws CustomDomainConflictError when a
+ * different lead already owns the target host or its alias; returns null for
+ * an unknown leadSlug. `customDomain` must already be normalized (bare
+ * hostname or null) by the caller — src/lib/db.ts's
+ * updateDeployHandoffCustomDomain owns that normalization, mirroring how
+ * sqliteApplyColdLeadDisposition takes an already-computed patch. Split out
+ * of src/lib/db.ts's SQLite-fallback branch (added same-day as the Convex fix
+ * but left untested — server-only-lib-cannot-be-vitest-tested-directly is
+ * exactly why every sibling in this file was already extracted) — pure code
+ * move, no behavior change.
+ */
+export function sqliteUpdateDeployHandoffCustomDomain(
+  db: DatabaseSync,
+  leadSlug: string,
+  customDomain: string | null,
+  updatedAt: string,
+): DeployHandoff | null {
+  const row = db
+    .prepare("SELECT * FROM deploy_handoffs WHERE leadSlug = ?")
+    .get(leadSlug) as SqliteDeployHandoffRow | undefined;
+  if (!row) return null;
+
+  const existing = mapDeployHandoffRow(row);
+
+  if (customDomain) {
+    for (const alias of customDomainHostAliases(customDomain)) {
+      const conflictRow = db
+        .prepare("SELECT leadSlug FROM deploy_handoffs WHERE customDomain = ?")
+        .get(alias) as { leadSlug: string } | undefined;
+      if (conflictRow && conflictRow.leadSlug !== leadSlug) {
+        throw new CustomDomainConflictError(conflictRow.leadSlug);
+      }
+    }
+  }
+
+  db.prepare(
+    "UPDATE deploy_handoffs SET customDomain = ?, updatedAt = ? WHERE leadSlug = ?",
+  ).run(customDomain, updatedAt, leadSlug);
+
+  return {
+    ...existing,
+    customDomain: customDomain || undefined,
+    updatedAt,
+  };
 }

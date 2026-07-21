@@ -13,7 +13,9 @@ import {
   sqliteRecordCheckoutRecoverySent,
   sqliteMarkCommerceOrderPaidOut,
   sqliteMarkCommerceOrderClientReceiptSent,
+  sqliteUpdateDeployHandoffCustomDomain,
 } from "./sqlite-queries";
+import { CustomDomainConflictError } from "../deploy/custom-domain-routing";
 
 function freshDb(): DatabaseSync {
   const db = new DatabaseSync(":memory:");
@@ -81,6 +83,30 @@ function insertCheckoutSessionDirect(
   db.prepare(
     "INSERT INTO checkout_sessions (id, leadSlug, stripeSessionId, tier, status) VALUES (?, ?, ?, ?, ?)",
   ).run(`cs_${stripeSessionId}`, leadSlug, stripeSessionId, "starter", status);
+}
+
+function insertDeployHandoffDirect(
+  db: DatabaseSync,
+  leadSlug: string,
+  overrides: Partial<{ customDomain: string }> = {},
+): void {
+  db.prepare(
+    `INSERT INTO deploy_handoffs
+      (id, leadSlug, businessName, tier, stripeSessionId, customerEmail, previewUrl, suggestedHost, customDomain, contactFormUrl, dnsInstructions)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    `handoff_${leadSlug}`,
+    leadSlug,
+    "Direct Insert Co",
+    "starter",
+    `cs_${leadSlug}`,
+    "owner@example.com",
+    `https://example.com/preview/${leadSlug}`,
+    `${leadSlug}.example.com`,
+    overrides.customDomain ?? null,
+    `https://example.com/api/contact/${leadSlug}`,
+    "[]",
+  );
 }
 
 function insertCommerceOrderDirect(
@@ -442,5 +468,76 @@ describe("sqliteMarkCommerceOrderClientReceiptSent", () => {
       .prepare("SELECT clientReceiptEmailSentAt FROM commerce_orders WHERE stripeSessionId = ?")
       .get("cs_sent") as { clientReceiptEmailSentAt: string };
     expect(row.clientReceiptEmailSentAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+});
+
+describe("sqliteUpdateDeployHandoffCustomDomain", () => {
+  it("returns null for an unknown leadSlug", () => {
+    const db = freshDb();
+    expect(
+      sqliteUpdateDeployHandoffCustomDomain(db, "missing", "client.example.com", "2026-01-01T00:00:00.000Z"),
+    ).toBeNull();
+  });
+
+  it("sets the domain and returns the updated handoff", () => {
+    const db = freshDb();
+    insertDeployHandoffDirect(db, "test-lead");
+    const result = sqliteUpdateDeployHandoffCustomDomain(
+      db,
+      "test-lead",
+      "client.example.com",
+      "2026-01-02T00:00:00.000Z",
+    );
+    expect(result?.customDomain).toBe("client.example.com");
+    expect(result?.updatedAt).toBe("2026-01-02T00:00:00.000Z");
+    const row = db
+      .prepare("SELECT customDomain FROM deploy_handoffs WHERE leadSlug = ?")
+      .get("test-lead") as { customDomain: string };
+    expect(row.customDomain).toBe("client.example.com");
+  });
+
+  it("clears the domain on null", () => {
+    const db = freshDb();
+    insertDeployHandoffDirect(db, "test-lead", { customDomain: "client.example.com" });
+    const result = sqliteUpdateDeployHandoffCustomDomain(db, "test-lead", null, "2026-01-02T00:00:00.000Z");
+    expect(result?.customDomain).toBeUndefined();
+    const row = db
+      .prepare("SELECT customDomain FROM deploy_handoffs WHERE leadSlug = ?")
+      .get("test-lead") as { customDomain: string | null };
+    expect(row.customDomain).toBeNull();
+  });
+
+  it("rejects when a different lead already owns the exact host, and leaves that lead's domain unchanged (custom-domain-assign-race-guard)", () => {
+    const db = freshDb();
+    insertDeployHandoffDirect(db, "demo-cafe", { customDomain: "client.example.com" });
+    insertDeployHandoffDirect(db, "other-lead");
+    expect(() =>
+      sqliteUpdateDeployHandoffCustomDomain(db, "other-lead", "client.example.com", "2026-01-02T00:00:00.000Z"),
+    ).toThrow(CustomDomainConflictError);
+    const row = db
+      .prepare("SELECT customDomain FROM deploy_handoffs WHERE leadSlug = ?")
+      .get("other-lead") as { customDomain: string | null };
+    expect(row.customDomain).toBeNull();
+  });
+
+  it("rejects the www twin of a domain another lead already owns", () => {
+    const db = freshDb();
+    insertDeployHandoffDirect(db, "demo-cafe", { customDomain: "www.client.example.com" });
+    insertDeployHandoffDirect(db, "other-lead");
+    expect(() =>
+      sqliteUpdateDeployHandoffCustomDomain(db, "other-lead", "client.example.com", "2026-01-02T00:00:00.000Z"),
+    ).toThrow(CustomDomainConflictError);
+  });
+
+  it("allows the same lead to re-save its own already-owned domain (not a conflict with itself)", () => {
+    const db = freshDb();
+    insertDeployHandoffDirect(db, "test-lead", { customDomain: "client.example.com" });
+    const result = sqliteUpdateDeployHandoffCustomDomain(
+      db,
+      "test-lead",
+      "client.example.com",
+      "2026-01-02T00:00:00.000Z",
+    );
+    expect(result?.customDomain).toBe("client.example.com");
   });
 });
