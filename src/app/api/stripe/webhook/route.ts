@@ -104,12 +104,17 @@ import {
  * IDs (never metadata), require session.currency === "usd"
  * (isStripeCheckoutCurrencyUsd), AND require session.amount_total (integer
  * cents) === expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon)
- * before recordLeadPayment / handoff / receipt — a truthy metadata.slug /
- * tier / commerceAddon alone is not enough (Dashboard-minted or tampered
- * Checkout Sessions). Over-long slug (parseLeadSlugLookup), unknown tier,
- * missing catalog Prices on line items, non-USD currency, or amount mismatch
- * skips like missing slug/tier (session already marked complete; do not 5xx
- * forever). listLineItems failures return 500 so Stripe retries.
+ * minus session.total_details.amount_discount (Stripe's own server-computed
+ * discount from a redeemed allow_promotion_codes promo, never a client-
+ * supplied value) before recordLeadPayment / handoff / receipt — a truthy
+ * metadata.slug / tier / commerceAddon alone is not enough (Dashboard-minted
+ * or tampered Checkout Sessions), and a genuinely promo-discounted session
+ * must still fulfill rather than being treated as tampered (bundle-webhook-
+ * promotion-code-amount-parity). Over-long slug (parseLeadSlugLookup),
+ * unknown tier, missing catalog Prices on line items, non-USD currency, or
+ * amount mismatch skips like missing slug/tier (session already marked
+ * complete; do not 5xx forever). listLineItems failures return 500 so Stripe
+ * retries.
  *
  * Commerce Buy now create already hard-rejects over-long slug via
  * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog,
@@ -784,17 +789,29 @@ export async function POST(request: Request) {
           break;
         }
 
+        // allow_promotion_codes is enabled on the create path (checkout-allow-
+        // promotion-codes), so a genuinely-discounted session's amount_total is
+        // LESS than the full catalog price. Reconcile against Stripe's own
+        // total_details.amount_discount (computed server-side from the actual
+        // redeemed promotion code, not client-supplied) rather than requiring
+        // exact equality to the undiscounted catalog price — a tampered/
+        // mismatched amount with no corresponding Stripe-verified discount
+        // still fails this check exactly as before.
         const expectedCents = expectedBundleCheckoutAmountCents(bundle, commerceAddon);
         const amountCents = session.amount_total;
+        const discountCents = session.total_details?.amount_discount ?? 0;
+        const expectedAfterDiscountCents = Math.max(0, expectedCents - discountCents);
         if (
           typeof amountCents !== "number" ||
           !Number.isInteger(amountCents) ||
-          amountCents !== expectedCents
+          !Number.isInteger(discountCents) ||
+          discountCents < 0 ||
+          amountCents !== expectedAfterDiscountCents
         ) {
           console.warn(
             `webhook: bundle session ${session.id} for ${slug} tier ${knownTier} amount_total ${String(
               amountCents,
-            )} !== catalog expectedCents ${expectedCents} (commerceAddon=${String(
+            )} !== catalog expectedCents ${expectedCents} minus amount_discount ${discountCents} (commerceAddon=${String(
               commerceAddon,
             )}) — skipping payment/handoff/receipt`,
           );

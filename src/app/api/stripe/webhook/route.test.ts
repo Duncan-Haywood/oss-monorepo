@@ -3301,6 +3301,61 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendReceiptEmail).not.toHaveBeenCalled();
     });
 
+    it("does not record payment when amount_total is below catalog expected cents with no matching Stripe-verified discount (tamper, not a real promo)", async () => {
+      // Same 999 mismatch as above, but this time total_details is present
+      // with amount_discount: 0 — proves the low amount isn't excused just
+      // because total_details exists; it must actually account for the gap.
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        amount_total: 999,
+        total_details: { amount_discount: 0, amount_shipping: null, amount_tax: 0 },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
+      expect(sendReceiptEmail).not.toHaveBeenCalled();
+    });
+
+    it("records payment when amount_total reflects a genuine Stripe-applied allow_promotion_codes discount (bundle-webhook-promotion-code-amount-parity)", async () => {
+      const discountCents = 10_000;
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        amount_total: GROWTH_CHECKOUT_AMOUNT_CENTS - discountCents,
+        total_details: {
+          amount_discount: discountCents,
+          amount_shipping: null,
+          amount_tax: 0,
+        },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          slug: "demo-cafe",
+          tier: "growth",
+          amountTotal: (GROWTH_CHECKOUT_AMOUNT_CENTS - discountCents) / 100,
+        }),
+        { requireConvex: true },
+      );
+    });
+
     it("does not record payment when amount_total is missing (null) despite known tier", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },
