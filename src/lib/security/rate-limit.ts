@@ -128,19 +128,38 @@ export function checkRateLimit(
 }
 
 /**
+ * Generous enough for any real IPv4/IPv6 value (or a long comma-separated
+ * forwarded chain) while still bounding the string a client-controlled
+ * header can inject into a rate-limit bucket key — mirrors the same
+ * hard-cap-then-placeholder pattern as MAX_OPERATOR_PASSWORD_LENGTH
+ * (src/lib/auth/operator.ts) and MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH
+ * (src/lib/leads/slug-path.ts).
+ */
+export const MAX_CLIENT_IP_LENGTH = 128;
+
+/**
  * Derives a best-effort client identifier from standard proxy headers.
  * Falls back to a fixed placeholder when neither header is present (direct
  * connection in dev, or a test harness) so every unattributed request
- * shares one bucket rather than silently bypassing the limiter.
+ * shares one bucket rather than silently bypassing the limiter. Also falls
+ * back to the placeholder when the extracted value exceeds
+ * MAX_CLIENT_IP_LENGTH — a direct (non-proxied) caller can set an
+ * arbitrarily long x-forwarded-for/x-real-ip value, and without this cap
+ * that string flows straight into the shared bucket Map's key, growing its
+ * per-entry memory footprint (MAX_RATE_LIMIT_BUCKETS bounds entry count,
+ * not entry size) and letting the caller trivially rotate keys to dodge
+ * per-IP throttling.
  */
 export function clientIpFromHeaders(headers: Headers): string {
   const forwardedFor = headers.get("x-forwarded-for");
   if (forwardedFor) {
     const first = forwardedFor.split(",")[0]?.trim();
-    if (first) return first;
+    if (first && first.length <= MAX_CLIENT_IP_LENGTH) return first;
   }
   const realIp = headers.get("x-real-ip");
-  if (realIp && realIp.trim()) return realIp.trim();
+  if (realIp && realIp.trim() && realIp.trim().length <= MAX_CLIENT_IP_LENGTH) {
+    return realIp.trim();
+  }
   return "unknown";
 }
 
