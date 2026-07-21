@@ -294,6 +294,7 @@ describe("POST /api/commerce/checkout", () => {
         mode: string;
         line_items: Array<{ price: string; quantity: number }>;
         customer_email?: string;
+        allow_promotion_codes?: boolean;
         metadata: Record<string, string>;
         cancel_url: string;
         success_url: string;
@@ -304,6 +305,7 @@ describe("POST /api/commerce/checkout", () => {
       { price: "price_latte_450", quantity: 1 },
     ]);
     expect(params.customer_email).toBe("shopper@example.com");
+    expect(params.allow_promotion_codes).toBe(true);
     expect(params.metadata).toEqual({
       slug: "demo-cafe",
       skuId: "sku_latte",

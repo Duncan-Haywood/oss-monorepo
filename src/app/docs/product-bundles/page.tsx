@@ -125,6 +125,19 @@ export default function ProductBundlesDocPage() {
         commerce-payouts-stripe-connect).
       </p>
 
+      <h2>Discounts / promo codes</h2>
+      <p>
+        Every Checkout Session (bundle + Commerce add-on at <code>/api/stripe/checkout</code>,
+        Commerce Buy now at <code>/api/commerce/checkout</code>) sets{" "}
+        <code>allow_promotion_codes: true</code>, so Stripe&apos;s own promo-code field appears on
+        the hosted Checkout page with no app code change per campaign. Create a Coupon and a
+        Promotion Code (the customer-facing string, e.g. <code>LAUNCH20</code>) directly in the
+        Stripe Dashboard (Product catalog → Coupons) — a launch discount, referral-partner code, or
+        win-back offer for a churned Growth/Complete subscriber all work this way. The webhook
+        already records <code>session.amount_total</code> (the post-discount charged amount), so a
+        redeemed code needs no ledger, entitlement, or pipeline-health change to stay accurate.
+      </p>
+
       <h2>Recommendation logic</h2>
       <ul>
         <li>High phone volume → Complete</li>
