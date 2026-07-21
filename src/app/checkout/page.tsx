@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { Suspense } from "react";
 import { cancelledCheckoutBanner } from "@/lib/checkout/cancelled-banner";
 import { planCheckoutPageAccess } from "@/lib/checkout/checkout-page-access";
@@ -67,9 +68,9 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
           {banner.kind === "with_preview" ? (
             <>
               Checkout cancelled — your preview is still available at{" "}
-              <a className="underline underline-offset-2" href={banner.previewPath}>
+              <Link className="underline underline-offset-2" href={banner.previewPath}>
                 {banner.previewPath}
-              </a>
+              </Link>
               . Adjust the plan below when you are ready.
             </>
           ) : (
