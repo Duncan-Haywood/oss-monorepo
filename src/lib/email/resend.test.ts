@@ -121,6 +121,19 @@ describe("resend.ts — businessName HTML escaping", () => {
     expect(sentHtml).toContain("<strong>Growth</strong>");
     expect(sentHtml).not.toContain("<strong>GROWTH</strong>");
   });
+
+  it("sendReceiptEmail does not promise a nonexistent client dashboard/login", async () => {
+    // This product has no client-facing dashboard or login (operator inbox
+    // only, see /docs/production-deploy) — the receipt must not tell a paying
+    // customer to expect "dashboard access credentials" that will never
+    // arrive. The real next step (DNS setup) ships as a separate email from
+    // the same webhook handler (bundle-receipt-no-dashboard-credentials-copy).
+    const { sendReceiptEmail } = await import("./resend");
+    await sendReceiptEmail("owner@example.com", "Demo Cafe", "starter", 500);
+    expect(sentHtml).not.toContain("dashboard access credentials");
+    expect(sentHtml).not.toContain("login credentials");
+    expect(sentHtml).toContain("DNS setup instructions");
+  });
 });
 
 describe("resend.ts — brand.* HTML escaping", () => {
