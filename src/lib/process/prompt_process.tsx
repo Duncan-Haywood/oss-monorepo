@@ -614,4 +614,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-convex-return-validator-fix-empty-backlog-clean-audit",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-mtbnha",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip b369543 (PR #589, post-convex-return-validator-fix-empty-backlog-clean-audit) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit clean + npm run lint clean + npm test (2529 passed/189 files) + a full clean rebuild (same 42-route ○/ƒ split). No live Stripe/Resend/Convex/Anthropic secret in this session, so all five NEXT_STEPS items stay operator/legal/infra-gated. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated cursor/* draft). mcp__github__actions_list resampled the newest 30 workflow runs — still 30/30 conclusion=failure, no runner ever assigned; github-actions-runner-unavailable unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: origin/main was the newest ref by committer date — no live fold candidate.\n\nSince this session's own HEAD *is* the last-verified-clean sha, the empty-backlog-diff-gate's waste-reduction rule applied — skipped a from-scratch tiered sweep in favor of a fast spot-check, starting with `npm outdated` (next/react/react-dom/eslint-config-next are exact-pinned in package.json, so patch releases never surface via npm ci alone). Found next 16.2.9→16.2.11 available and confirmed via web search that 16.2.11 (2026-07-20/21) is Next.js's first scheduled monthly security release, patching 4 HIGH + 5 MEDIUM severity issues including a Middleware/Proxy bypass class in App Router applications — directly on point for this app, since src/proxy.ts is the sole enforcement point for dashboardAuthGate (operator auth) and isNonceCspPath (which routes get the strict nonce-scoped CSP tier). Treated this the same way sharp-libvips-cve-fix-and-image-optimizer-disable treated an upstream CVE: patch proactively rather than wait for a concrete exploit report against this specific app's routing.",
+    shipped: [
+      "package.json / package-lock.json — bumped next 16.2.9→16.2.11, eslint-config-next 16.2.9→16.2.11 (kept matching, as every prior next bump in this history has), and react/react-dom 19.2.4→19.2.8 (latest patch in the 19.2.x line Next 16.2.11 was built against) via `npm install --save-exact`, preserving the existing exact-pin convention. Left eslint (^9) and typescript (^5) alone — both have only major-version updates available (10.7.0, 7.0.2), out of scope for a security patch.",
+      "src/lib/process/business-decisions.ts — appended nextjs-16-2-11-monthly-security-release-patch.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a supply-chain/framework-security patch, not a resolution of any gated item.",
+      "Verified: fresh npm install (0 vulnerabilities, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2529 passed, unchanged, 189 files) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check specifically re-curling /dashboard/leads and /preview/example-bakery and confirming the CSP header (nonce-scoped script-src/style-src, Maps frame-src) and security headers (X-Frame-Options, Strict-Transport-Security) render identically post-upgrade, not just a bare 200; killed the dev server, confirmed port 3000 freed, deleted local.db afterward.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "nextjs-16-2-11-monthly-security-release-patch",
+    ),
+  },
 ];
