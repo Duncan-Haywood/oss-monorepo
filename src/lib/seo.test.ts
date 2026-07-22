@@ -15,6 +15,7 @@ import {
   leadMetaDescription,
   leadMetaTitle,
   leadPreviewJsonLdIfIndexable,
+  MAX_META_DESCRIPTION_LENGTH,
   previewUrl,
   safeJsonLdScript,
   siteUrl,
@@ -162,6 +163,15 @@ describe("homepageMetadata", () => {
     const metadata = homepageMetadata();
     expect(metadata.metadataBase).toEqual(new URL("http://localhost:3000"));
   });
+
+  it("caps the description at MAX_META_DESCRIPTION_LENGTH even with a realistic long operator-set brand name/legal entity/location — the description is built from unbounded env vars, not hardcoded copy, so it has no length guarantee upstream", () => {
+    process.env.NEXT_PUBLIC_BRAND_NAME = "Rocky Mountain Web Design & Digital Marketing Studio";
+    process.env.NEXT_PUBLIC_LEGAL_ENTITY = "Rocky Mountain Web Design and Digital Marketing Studio LLC";
+    process.env.NEXT_PUBLIC_LEGAL_LOCATION = "Denver, Colorado, USA";
+    const metadata = homepageMetadata();
+    expect(metadata.description?.length).toBeLessThanOrEqual(MAX_META_DESCRIPTION_LENGTH);
+    expect(metadata.description).toContain("Rocky Mountain Web Design");
+  });
 });
 
 describe("homepageOrganizationJsonLd", () => {
@@ -230,6 +240,25 @@ describe("staticPageMetadata", () => {
     expect(metadata.alternates).toEqual({
       canonical: "http://localhost:3000/docs/legal",
     });
+  });
+
+  it("passes a description at or under MAX_META_DESCRIPTION_LENGTH through unchanged", () => {
+    const description = "Short and well under the SERP-truncation width.";
+    const metadata = staticPageMetadata({ title: "T", description, path: "/x" });
+    expect(metadata.description).toBe(description);
+  });
+
+  it("truncates an over-length description at a word boundary with an ellipsis, applied consistently to description/openGraph/twitter", () => {
+    const description =
+      "This description is deliberately long enough to exceed Google's SERP-truncation width so the cap must kick in and trim it back down to size before it reaches search results.";
+    expect(description.length).toBeGreaterThan(MAX_META_DESCRIPTION_LENGTH);
+    const metadata = staticPageMetadata({ title: "T", description, path: "/x" });
+    expect(metadata.description?.length).toBeLessThanOrEqual(MAX_META_DESCRIPTION_LENGTH);
+    expect(metadata.description?.endsWith("…")).toBe(true);
+    expect(metadata.description?.endsWith(" …")).toBe(false);
+    expect(description.startsWith(metadata.description?.slice(0, -1) ?? "")).toBe(true);
+    expect(metadata.openGraph).toMatchObject({ description: metadata.description });
+    expect(metadata.twitter).toMatchObject({ description: metadata.description });
   });
 });
 

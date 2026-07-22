@@ -542,4 +542,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "rfc8058-one-click-unsubscribe-docs-disclosure",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-nocu7a",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 7cfc527 (PR #609, rfc8058-one-click-unsubscribe-docs-disclosure) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2554 passed, 190 files) + a full clean rebuild (same 42-route ○/ƒ split). Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: the newest ~20 claude/* siblings all had either zero unique commits vs origin/main, or their one unique commit's file content was byte-identical to something already merged under a different squash-merge SHA — no live fold candidate. NEXT_STEPS stayed fully gated (same five operator/legal/infra items).\n\nDispatched a foreground research agent, briefed on AGENT_PROTOCOL in full plus everything recently confirmed clean (including that all three category-landing metaDescriptions already pass MAX_CATEGORY_META_DESCRIPTION_LENGTH), to find a genuinely fresh gap. It found the sibling surface that fix never closed: homepageMetadata() (src/lib/seo.ts) builds the root <meta name=\"description\"> from brand.name/legalEntity/legalLocation — all unbounded, operator-set env vars — with no length cap anywhere upstream, unlike category-landing.ts's hardcoded copy. A realistic long business name/legal-entity/location combo renders the assembled description at 231 characters, well past Google's ~155-160 char SERP-truncation width. See homepage-meta-description-length-cap in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/seo.ts — added exported MAX_META_DESCRIPTION_LENGTH = 155 and a capMetaDescription word-boundary-with-ellipsis truncation helper (mirroring the existing truncateForOgImage precedent), applied inside staticPageMetadata so homepageMetadata/docPageMetadata/categoryLandingPageMetadata are all protected from one shared choke point.",
+      "src/lib/seo.test.ts — new tests: staticPageMetadata leaves an under-cap description unchanged and truncates an over-cap one at a word boundary consistently across description/openGraph/twitter; homepageMetadata stays under the cap even with a realistic long synthetic NEXT_PUBLIC_BRAND_NAME/NEXT_PUBLIC_LEGAL_ENTITY/NEXT_PUBLIC_LEGAL_LOCATION (the exact 231-char scenario above).",
+      "src/lib/process/business-decisions.ts — appended homepage-meta-description-length-cap.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is an SEO/organic-acquisition fix discovered by audit, not a resolution of any gated item.",
+      "Verified: fresh npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2557 passed, up from 2554 — 3 new, 190 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check with the same long synthetic brand/legal-entity/location env vars set (deleted local.db, curled / and grepped the live rendered <meta name=\"description\"> tag, confirming it actually truncates with a trailing ellipsis at the correct length in the real HTML output; curled /docs/legal to confirm its short description passed through unchanged; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "homepage-meta-description-length-cap",
+    ),
+  },
 ];

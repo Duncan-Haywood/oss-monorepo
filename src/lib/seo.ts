@@ -15,6 +15,31 @@ import type { CommerceSku } from "@/lib/commerce/types";
 
 const DEFAULT_SITE_URL = "http://localhost:3000";
 
+/**
+ * Google truncates SERP snippets at roughly this width (see
+ * MAX_CATEGORY_META_DESCRIPTION_LENGTH in category-landing.ts, the first
+ * surface this was fixed for — that fix hand-shortened static copy since
+ * those strings are hardcoded). staticPageMetadata applies the same cap to
+ * every description that passes through it (homepage, /docs/*, category
+ * landing) so one truncation point protects every current and future
+ * caller — homepageMetadata's description is built from operator-set env
+ * vars (brand.name/legalEntity/legalLocation via NEXT_PUBLIC_BRAND_NAME/
+ * NEXT_PUBLIC_LEGAL_ENTITY/NEXT_PUBLIC_LEGAL_LOCATION), which have no length
+ * bound anywhere upstream and can realistically push the assembled sentence
+ * well past this width for any real operator-chosen business name at launch
+ * (see homepage-meta-description-length-cap).
+ */
+export const MAX_META_DESCRIPTION_LENGTH = 155;
+
+/** Truncate at a word boundary with an ellipsis rather than mid-word. */
+function capMetaDescription(description: string): string {
+  if (description.length <= MAX_META_DESCRIPTION_LENGTH) return description;
+  const truncated = description.slice(0, MAX_META_DESCRIPTION_LENGTH - 1);
+  const lastSpace = truncated.lastIndexOf(" ");
+  const wordSafe = lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated;
+  return `${wordSafe.trimEnd()}…`;
+}
+
 /** Absolute site origin, no trailing slash. Falls back to localhost outside Vercel/prod. */
 export function siteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_APP_URL?.trim();
@@ -53,7 +78,8 @@ export function staticPageMetadata(opts: {
   description: string;
   path: string;
 }): Metadata {
-  const { title, description } = opts;
+  const { title } = opts;
+  const description = capMetaDescription(opts.description);
   const url = `${siteUrl()}${opts.path}`;
   return {
     title,
