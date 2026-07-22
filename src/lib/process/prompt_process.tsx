@@ -600,4 +600,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "leads-convex-query-return-validator-system-field-leak",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-i5uyj0",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 4245951 (PR #588, leads-convex-query-return-validator-system-field-leak) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit clean + npm run lint clean + npm test (2529 passed/189 files, unchanged) + a full clean rebuild (same 42-route ○/ƒ split) + npm run dev sanity check (all 200). No live Stripe/Resend/Convex/Anthropic secret in this session, so all five NEXT_STEPS items stay operator/legal/infra-gated. GitHub Actions still 15/15 sampled failures with no runner assigned (github-actions-runner-unavailable unchanged). Re-tried deleting one of the five previously-confirmed-safe stale branches — still HTTP 403, no delete permission in this session either. Fold-scanned the 25 most-recently-pushed claude/* branches plus the newest codex/cursor/opencode/grok branches: no live fold candidate (same 5 known-stale byte-identical branches; non-claude families still 3+ days stale).\n\nSince this session's own HEAD *is* the most recent verified-clean sha (no product-affecting commit landed in the gap since the prior iteration), the empty-backlog-diff-gate's waste-reduction rule applied: skipped a full from-scratch tiered sweep and instead dispatched one foreground research agent to hunt a fresh tier 1-5 gap with explicit instructions not to re-report anything already checked clean. It re-verified all 5 tiers directly (including specifically re-confirming the immediately-prior iteration's Convex return-validator fix fully closes the softCapLeadForPublicSurface leak risk it targeted) and came back with a genuine, well-substantiated 'nothing new' result — not a shallow pass.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-convex-return-validator-fix-empty-backlog-clean-audit.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — no product/config code changed this iteration; the mandated baseline plus a dispatched cross-check agent both came back genuinely clean.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2529 passed, unchanged, 189 files) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-convex-return-validator-fix-empty-backlog-clean-audit",
+    ),
+  },
 ];
