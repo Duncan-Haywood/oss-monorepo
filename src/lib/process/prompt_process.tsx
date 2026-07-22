@@ -654,4 +654,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "suppressed-emails-operator-visibility",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-po59dv",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 5745c42 (PR #591, suppressed-emails-operator-visibility). This session's container initially carried a stale, unrelated local checkout with the same short-looking branch name but no common git ancestor to origin/main (git merge-base failed entirely) — discovered this before pushing anything, reset the branch cleanly to origin/main, and discarded two fixes already drafted against that stale base (bounded rate-limiter memory; the Stripe current_period_start/invoice.parent.subscription_details API migration) once a fresh fetch showed both had already independently shipped on this real origin/main. After the reset, origin/main matched this branch's tip exactly. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities — node_modules from the stale-base session was missing convex-test and broke convex/*.test.ts until reinstalled against this session's actual package-lock.json) + npm run lint clean + npm test (2529 passed/189 files) + a full clean rebuild. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated cursor/* draft). Fold-scanned the newest 20 remote branches by committer date after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: origin/main was the newest ref — no live fold candidate. All five NEXT_STEPS items stayed operator/legal/infra-gated.\n\nDispatched a foreground research agent briefed on AGENT_PROTOCOL in full (including the explicitly-closed landing-page-parity series) to hunt a fresh gap across the standard tier order. Tiers 1-4 came back clean on every axis checked (pipeline-health/daily-digest section parity field-by-field; every convex/*.ts query file already on the typed/mapped-return-validator pattern; a broad exported-but-uncalled sweep across ~540 src/lib exports). One genuine finding, same class as the already-shipped countLeadsByStage removal: getHandoffsForOperator (src/lib/deploy/handoff.ts) — a trivial `return listDeployHandoffs();` wrapper, exported and unit-tested — had zero call sites anywhere in src/app or convex; every real caller imports and calls listDeployHandoffs() from @/lib/db directly, and handoff.ts didn't even re-export the wrapper, so it wasn't reachable as an alias either.",
+    shipped: [
+      "src/lib/deploy/handoff.ts — removed the dead getHandoffsForOperator wrapper and its now-unused listDeployHandoffs import (DeployHandoff the type stays; still used by 12 other signatures in the file).",
+      "src/lib/deploy/handoff.test.ts — removed the getHandoffsForOperator describe block (its only reader).",
+      "src/lib/process/business-decisions.ts — appended dead-export-get-handoffs-for-operator-removal.",
+      "src/lib/process/prompt_process.tsx — this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a dead-code removal, not a resolution of any gated item.",
+      "Verified: fresh npm ci (0 vulnerabilities) + npm run lint (clean) + npm test (2528 passed = prior 2529 minus the one removed delegation test, 189 files unchanged) + a full clean rebuild (clean, same route split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "dead-export-get-handoffs-for-operator-removal",
+    ),
+  },
 ];

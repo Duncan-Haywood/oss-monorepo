@@ -6,7 +6,6 @@ import type {
 import {
   getDeployHandoffBySlug,
   insertDeployHandoff,
-  listDeployHandoffs,
   updateDeployHandoffCustomDomain,
   updateDeployHandoffStatus,
   updateDeployHandoffVercelProject,
@@ -333,8 +332,4 @@ export async function markHandoffLive(leadSlug: string): Promise<DeployHandoff |
   if (!updated) return null;
   await updateLeadStage(leadSlug, "live", DEPLOY_HANDOFF_CONVEX_PRIMARY);
   return updated;
-}
-
-export async function getHandoffsForOperator(): Promise<DeployHandoff[]> {
-  return listDeployHandoffs();
 }

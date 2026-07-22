@@ -517,16 +517,4 @@ describe("deploy/handoff", () => {
       expect(updateLeadStage).not.toHaveBeenCalled();
     });
   });
-
-  describe("getHandoffsForOperator", () => {
-    it("delegates to listDeployHandoffs", async () => {
-      const handoffs = [baseHandoff()];
-      listDeployHandoffs.mockResolvedValue(handoffs);
-      const { getHandoffsForOperator } = await import("./handoff");
-
-      const result = await getHandoffsForOperator();
-
-      expect(result).toBe(handoffs);
-    });
-  });
 });
