@@ -538,4 +538,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-archive10-split-empty-backlog-spotcheck-clean",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-lcjx1k",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip b800038 (PR #632, post-archive10-split-diff-gate-anchor-correction) — session started as a shallow clone whose local main initially resolved to a stale e1df9ea; unshallowed and pruned-refetched before trusting any comparison, per AGENT_PROTOCOL's own warning about this exact failure mode. After that, origin/main matched HEAD exactly (0/0 ahead-behind). Confirmed baseline green (npm ci, tsc, lint, 2602 tests, npm audit clean) — unchanged from the prior iteration. GitHub Actions still 30/30 failure with runner_id=0; still the sole weeks-stale open PR #202; branch-delete permission still 403 with no MCP delete-branch tool. Fold-scanned ~600 claude/* siblings by push time; the ~20 with real (non-process-log) diffs against origin/main all turned out to be squash-merge false positives from is-ancestor checking alone — confirmed already-merged by subject-line + content match instead, no live fold candidate. With the diff-gate at HEAD itself, ran a fast spot-check on fresh angles (npm audit/outdated, action-test coverage cross-reference across all 32 dashboard actions, as-const success-literal grep, process-log file sizes) — all clean. See post-632-empty-backlog-spotcheck-clean in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-632-empty-backlog-spotcheck-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. No other files changed — NEXT_STEPS unchanged, all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2602 passed, unchanged, 193 files) + npm audit (0 vulnerabilities).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-632-empty-backlog-spotcheck-clean",
+    ),
+  },
 ];
