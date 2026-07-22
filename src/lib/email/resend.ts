@@ -21,6 +21,7 @@ import {
 } from "../commerce/client-receipt";
 import { getBundle } from "../pricing/bundles";
 import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "../marketing/monthly-pack";
+import { buildStarterUpsellCheckoutPath } from "../billing/starter-upsell";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -420,7 +421,15 @@ export async function sendStarterUpsellEmail(params: {
 }) {
   const { to, businessName, slug, targetTier, monthlyPriceUsd } = params;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(targetTier)}`;
+  // Reuse the dedicated, tested path builder (src/lib/billing/starter-upsell.ts)
+  // instead of hand-duplicating the slug/tier query string here — this file
+  // and that helper were both added in the same original commit
+  // (paid-starter-upsell-nudge) but were never actually wired together, so a
+  // future change to the query-string shape there (e.g. adding a UTM param,
+  // fixing the un-trimmed slug this hand-duplicate lacked) could silently
+  // fail to reach this, the only place the link is actually sent to a
+  // customer. See starter-upsell-checkout-url-single-source-of-truth.
+  const checkoutUrl = `${baseUrl}${buildStarterUpsellCheckoutPath(slug, targetTier)}`;
   const previewUrl = leadPreviewAbsoluteUrl(baseUrl, slug);
   const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
   const safePreviewUrl = escapeHtmlForEmail(previewUrl);
