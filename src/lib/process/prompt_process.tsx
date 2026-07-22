@@ -698,4 +698,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "commerce-sku-minimum-price-floor",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-ti74em",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip c71a88d (PR #617, commerce-sku-minimum-price-floor) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2564 passed, 190 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (600+ refs): the newest ~28 claude/* siblings by committer date each had a single unique commit whose message/content matched an already-merged PR already cited in this ITERATIONS tail — no live fold candidate.\n\nDispatched a foreground general-purpose research agent, briefed on AGENT_PROTOCOL in full plus everything the last ~30 iterations had already covered, and told to implement any real fix directly. See commerce-storefront-buy-now-aria-label in BUSINESS_DECISIONS for the full finding: the list-row-action-button-aria-label fix (PR #601) gave duplicate-named list-row buttons a distinguishing aria-label on two operator dashboard panels but was never applied to the actual public storefront — src/components/preview/commerce-catalog.tsx's BuyNowButton rendered the identical literal text \"Buy now\" on every SKU in a multi-item catalog (and \"Request order\" likewise), so a screen-reader user browsing a real paying customer's storefront via a controls-list shortcut saw N indistinguishable entries with no way to tell which item each one purchases — the same bug class already fixed twice internally, but never checked on the page that actually takes customers' money.",
+    shipped: [
+      "src/lib/commerce/catalog.ts — added exported commerceBuyNowAriaLabel(sku) and commerceRequestOrderAriaLabel(sku) pure helpers beside the module's existing pure helpers.",
+      "src/lib/commerce/index.ts — re-exported both new helpers from the shared commerce barrel.",
+      "src/components/preview/commerce-catalog.tsx — wired aria-label={commerceBuyNowAriaLabel(sku)} onto BuyNowButton's <button> and aria-label={commerceRequestOrderAriaLabel(sku)} onto the Request order <a> — no visible-text change.",
+      "src/lib/commerce/catalog.test.ts — new test asserting both helpers produce distinct, item-specific labels for two different SKUs.",
+      "src/lib/process/business-decisions.ts — appended commerce-storefront-buy-now-aria-label.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is an accessibility fix discovered by audit, not a resolution of any gated item.",
+      "Verified: fresh npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2565 passed, up from 2564 — 1 new, 190 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-storefront-buy-now-aria-label",
+    ),
+  },
 ];

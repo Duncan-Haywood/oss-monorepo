@@ -3,8 +3,10 @@
 import { useState } from "react";
 import type { CommerceSku } from "@/lib/commerce/types";
 import {
+  commerceBuyNowAriaLabel,
   commerceCatalogIntroCopy,
   commerceOrderRequestMessage,
+  commerceRequestOrderAriaLabel,
   formatPriceUsd,
 } from "@/lib/commerce/catalog";
 
@@ -62,6 +64,7 @@ function BuyNowButton({ slug, sku, ctaClass }: { slug: string; sku: CommerceSku;
         type="button"
         disabled={loading}
         onClick={handleBuy}
+        aria-label={commerceBuyNowAriaLabel(sku)}
         className={`inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors disabled:opacity-60 ${ctaClass}`}
       >
         {loading ? "Redirecting…" : "Buy now"}
@@ -130,6 +133,7 @@ export function PreviewCommerceCatalog({
                 ) : (
                   <a
                     href="#contact"
+                    aria-label={commerceRequestOrderAriaLabel(sku)}
                     className={`inline-flex h-10 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors ${ctaClass}`}
                     onClick={() => {
                       try {

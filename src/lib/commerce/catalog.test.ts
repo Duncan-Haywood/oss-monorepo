@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  commerceBuyNowAriaLabel,
   commerceCatalogIntroCopy,
   commerceDraftItemsAfterSync,
   commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
+  commerceRequestOrderAriaLabel,
   formatPriceUsd,
   leadEligibleForCommerceCatalog,
   leadStageEligibleForCommerceCatalog,
@@ -574,6 +576,30 @@ describe("commerceCatalogIntroCopy", () => {
   it("treats an empty catalog like all-unsynced (no direct-checkout SKU exists)", () => {
     expect(commerceCatalogIntroCopy([])).toBe(
       "Request an item below — we'll confirm availability and payment by email or phone.",
+    );
+  });
+});
+
+describe("commerceBuyNowAriaLabel + commerceRequestOrderAriaLabel", () => {
+  it("names each catalog item uniquely so a screen-reader list of buttons/links is distinguishable", () => {
+    // Without a per-item accessible name, every SKU on a multi-item catalog
+    // renders a "Buy now" button (or "Request order" link) with the exact
+    // same accessible name — a screen-reader user browsing by a
+    // controls-list shortcut (NVDA/JAWS "list all buttons") sees N identical
+    // entries with no way to tell which item each one acts on. Same bug
+    // class as list-row-action-button-aria-label, on the public storefront
+    // instead of an operator dashboard panel.
+    const giftCard = { id: "1", name: "Gift card", priceCents: 5000 };
+    const candle = { id: "2", name: "Soy candle", priceCents: 1899 };
+
+    expect(commerceBuyNowAriaLabel(giftCard)).toBe("Buy now — Gift card ($50.00)");
+    expect(commerceBuyNowAriaLabel(candle)).toBe("Buy now — Soy candle ($18.99)");
+    expect(commerceBuyNowAriaLabel(giftCard)).not.toBe(commerceBuyNowAriaLabel(candle));
+
+    expect(commerceRequestOrderAriaLabel(giftCard)).toBe("Request order — Gift card");
+    expect(commerceRequestOrderAriaLabel(candle)).toBe("Request order — Soy candle");
+    expect(commerceRequestOrderAriaLabel(giftCard)).not.toBe(
+      commerceRequestOrderAriaLabel(candle),
     );
   });
 });

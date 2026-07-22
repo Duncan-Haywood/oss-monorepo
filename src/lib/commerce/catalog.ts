@@ -346,6 +346,32 @@ export function commerceOrderRequestMessage(sku: CommerceSku): string {
 }
 
 /**
+ * Accessible name for a catalog item's "Buy now" button. Without this, every
+ * SKU on a multi-item /preview/[slug] catalog renders a button whose visible
+ * text is the identical literal "Buy now" — a screen-reader user browsing by
+ * a controls-list shortcut (NVDA/JAWS "list all buttons") sees N identical
+ * entries with no way to tell which item each one buys, the same
+ * list-row-action-button-aria-label bug class already fixed on two operator
+ * dashboard panels (SuppressedEmailsPanel's Remove, leads-client.tsx's
+ * commerce-receipt-resend) but never checked on this public, real-money,
+ * customer-facing storefront. Extracted as a pure helper (rather than inlined
+ * in the "use client" component) so it's unit-testable — this repo has no
+ * React testing harness.
+ */
+export function commerceBuyNowAriaLabel(sku: CommerceSku): string {
+  return `Buy now — ${sku.name} (${formatPriceUsd(sku.priceCents)})`;
+}
+
+/**
+ * Accessible name for a catalog item's "Request order" link — same
+ * duplicate-accessible-name issue as commerceBuyNowAriaLabel above, for the
+ * request-only (not yet synced to Stripe) catalog items.
+ */
+export function commerceRequestOrderAriaLabel(sku: CommerceSku): string {
+  return `Request order — ${sku.name}`;
+}
+
+/**
  * Operator inquiry-inbox notification body for a completed Buy now Stripe
  * Checkout Session (kind: "commerce_sku") — the paid counterpart to
  * commerceOrderRequestMessage, so a synced-SKU purchase still reaches the

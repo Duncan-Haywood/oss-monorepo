@@ -20,9 +20,11 @@ export {
 
 export {
   catalogHasUnsyncedSku,
+  commerceBuyNowAriaLabel,
   commerceDraftItemsAfterSync,
   commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
+  commerceRequestOrderAriaLabel,
   formatPriceUsd,
   leadEligibleForCommerceCatalog,
   leadStageEligibleForCommerceCatalog,
