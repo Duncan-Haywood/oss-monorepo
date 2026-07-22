@@ -277,6 +277,7 @@ describe("resendCommerceClientReceiptAction", () => {
       amountTotalUsd: 5,
       stripeSessionId: "cs_test_commerce_receipt",
       previewUrl: "https://app.example.com/preview/demo-cafe#catalog",
+      quantity: undefined,
     });
     expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledWith(
       "cs_test_commerce_receipt",
@@ -284,6 +285,19 @@ describe("resendCommerceClientReceiptAction", () => {
       { requireConvex: true },
     );
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("passes the order's persisted quantity through to the resend (adjustable_quantity Buy now)", async () => {
+    getCommerceOrderByStripeSessionId.mockResolvedValue({
+      ...missingReceiptOrder,
+      quantity: 4,
+    });
+    const { resendCommerceClientReceiptAction } = await import("./actions");
+    const res = await resendCommerceClientReceiptAction("cs_test_commerce_receipt");
+    expect(res.success).toBe(true);
+    expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledWith(
+      expect.objectContaining({ quantity: 4 }),
+    );
   });
 
   it("defaults preview base URL to localhost when NEXT_PUBLIC_APP_URL is unset", async () => {

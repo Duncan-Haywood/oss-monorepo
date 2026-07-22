@@ -1586,6 +1586,7 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
       amountTotalUsd: order.amountPaidUsd,
       stripeSessionId: order.stripeSessionId,
       previewUrl,
+      quantity: order.quantity,
     });
     if (!sent.success) {
       return {

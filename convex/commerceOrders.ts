@@ -14,6 +14,7 @@ const orderReturn = v.object({
   clientReceiptEmailSentAt: v.optional(v.string()),
   refundedAt: v.optional(v.string()),
   disputedAt: v.optional(v.string()),
+  quantity: v.optional(v.number()),
 });
 
 function mapOrderRow(row: {
@@ -28,6 +29,7 @@ function mapOrderRow(row: {
   clientReceiptEmailSentAt?: string;
   refundedAt?: string;
   disputedAt?: string;
+  quantity?: number;
 }) {
   return {
     id: row.orderId,
@@ -44,6 +46,7 @@ function mapOrderRow(row: {
     refundedAt: row.refundedAt || undefined,
     // Empty string must stay undisputed (same SQLite/Convex parity as paidOutAt/refundedAt).
     disputedAt: row.disputedAt || undefined,
+    quantity: row.quantity,
   };
 }
 
@@ -66,6 +69,7 @@ export const insert = mutation({
     amountPaidUsd: v.number(),
     stripeSessionId: v.string(),
     createdAt: v.string(),
+    quantity: v.optional(v.number()),
     apiSecret: v.string(),
   },
   returns: v.union(orderReturn, v.null()),
@@ -94,6 +98,7 @@ export const insert = mutation({
       amountPaidUsd: order.amountPaidUsd,
       stripeSessionId: order.stripeSessionId,
       createdAt: order.createdAt,
+      quantity: order.quantity,
     };
   },
 });
@@ -324,6 +329,7 @@ export const clearRefunded = mutation({
         ? { clientReceiptEmailSentAt: order.clientReceiptEmailSentAt }
         : {}),
       ...(order.disputedAt ? { disputedAt: order.disputedAt } : {}),
+      ...(order.quantity !== undefined ? { quantity: order.quantity } : {}),
     });
     return null;
   },
@@ -434,6 +440,7 @@ export const clearDisputed = mutation({
         ? { clientReceiptEmailSentAt: order.clientReceiptEmailSentAt }
         : {}),
       ...(order.refundedAt ? { refundedAt: order.refundedAt } : {}),
+      ...(order.quantity !== undefined ? { quantity: order.quantity } : {}),
     });
     return null;
   },

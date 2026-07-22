@@ -155,7 +155,8 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
       skuName TEXT NOT NULL,
       amountPaidUsd REAL NOT NULL,
       stripeSessionId TEXT UNIQUE NOT NULL,
-      createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+      quantity INTEGER
     );
 
     CREATE INDEX IF NOT EXISTS idx_commerce_orders_slug
@@ -275,6 +276,9 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   }
   if (!commerceOrderCols.includes("disputedAt")) {
     db.exec("ALTER TABLE commerce_orders ADD COLUMN disputedAt TEXT");
+  }
+  if (!commerceOrderCols.includes("quantity")) {
+    db.exec("ALTER TABLE commerce_orders ADD COLUMN quantity INTEGER");
   }
 
   // Seed SQLite database if empty

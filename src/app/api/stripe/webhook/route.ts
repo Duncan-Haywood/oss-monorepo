@@ -62,6 +62,7 @@ import {
 } from "@/lib/payments/refunds";
 import {
   bundleCatalogPriceIdsFromEnv,
+  commerceSkuLineItemQuantity,
   sessionLineItemsIncludeMetadataKey,
   sessionLineItemsMatchBundleCatalogPrices,
 } from "@/lib/payments/checkout-price-line-items";
@@ -449,6 +450,12 @@ export async function POST(request: Request) {
           // ledger row and no abandoned-recovery retry (the Session is
           // already marked complete above).
           const expectedMetadataKey = commerceSkuStripeKey(orderSlug, knownSkuId);
+          // Units actually charged (Stripe adjustable_quantity — see
+          // commerce-checkout-adjustable-quantity), read from the matched
+          // line item below — undefined when missing/invalid. Declared
+          // outside the try block so it survives past the line-items fetch
+          // for the ledger insert / inquiry / client receipt calls further down.
+          let quantity: number | undefined;
           try {
             const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
               limit: 100,
@@ -460,6 +467,7 @@ export async function POST(request: Request) {
               );
               break;
             }
+            quantity = commerceSkuLineItemQuantity(lineItems.data, expectedMetadataKey);
           } catch (lineItemError) {
             console.error(
               `Failed to list line items for commerce_sku Price parity on ${session.id}`,
@@ -514,6 +522,7 @@ export async function POST(request: Request) {
                 skuName,
                 amountPaidUsd,
                 stripeSessionId: session.id,
+                quantity,
               },
               WEBHOOK_CONVEX_PRIMARY,
             ));
@@ -604,6 +613,7 @@ export async function POST(request: Request) {
                     amountTotalUsd: amountPaidUsd,
                     stripeSessionId: session.id,
                     skuId: knownSkuId,
+                    quantity,
                   }),
                   source: "commerce_checkout",
                 },
@@ -644,6 +654,7 @@ export async function POST(request: Request) {
                   stripeSessionId: session.id,
                   customerEmail: customerEmail || undefined,
                   previewUrl: `${leadPreviewAbsoluteUrl(baseUrl, orderSlug)}#catalog`,
+                  quantity,
                 });
                 if (sent.success) {
                   try {

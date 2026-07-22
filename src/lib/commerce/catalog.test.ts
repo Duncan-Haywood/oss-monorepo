@@ -627,4 +627,36 @@ describe("commerceOrderPaidInquiryMessage", () => {
       }),
     ).toBe("Paid order via Buy now: Gift card ($50.00) — Stripe session cs_test_123.");
   });
+
+  it("notes the quantity when more than one unit was purchased (adjustable_quantity Buy now)", () => {
+    expect(
+      commerceOrderPaidInquiryMessage({
+        skuName: "Latte",
+        amountTotalUsd: 15,
+        stripeSessionId: "cs_test_123",
+        skuId: "sku_latte",
+        quantity: 3,
+      }),
+    ).toBe(
+      "Paid order via Buy now: Latte ($15.00) — Stripe session cs_test_123, SKU sku_latte, quantity 3.",
+    );
+  });
+
+  it("omits the quantity note for exactly 1 unit or an unknown/undefined quantity", () => {
+    expect(
+      commerceOrderPaidInquiryMessage({
+        skuName: "Latte",
+        amountTotalUsd: 5,
+        stripeSessionId: "cs_test_123",
+        quantity: 1,
+      }),
+    ).toBe("Paid order via Buy now: Latte ($5.00) — Stripe session cs_test_123.");
+    expect(
+      commerceOrderPaidInquiryMessage({
+        skuName: "Latte",
+        amountTotalUsd: 5,
+        stripeSessionId: "cs_test_123",
+      }),
+    ).toBe("Paid order via Buy now: Latte ($5.00) — Stripe session cs_test_123.");
+  });
 });

@@ -3,6 +3,7 @@ import { getBundle } from "@/lib/pricing/bundles";
 import {
   bundleCatalogPriceIdsFromEnv,
   catalogRecurringPriceIdsFromEnv,
+  commerceSkuLineItemQuantity,
   sessionLineItemsIncludeCatalogRecurringPrice,
   sessionLineItemsIncludeMetadataKey,
   sessionLineItemsIncludePriceId,
@@ -100,6 +101,80 @@ describe("sessionLineItemsIncludeMetadataKey", () => {
         "commerce_sku_demo-cafe_sku_1",
       ),
     ).toBe(true);
+  });
+});
+
+describe("commerceSkuLineItemQuantity", () => {
+  it("returns the matched line item's quantity (adjustable_quantity Buy now purchase)", () => {
+    expect(
+      commerceSkuLineItemQuantity(
+        [
+          {
+            price: { metadata: { local_site_studio_key: "commerce_sku_demo-cafe_sku_1" } },
+            quantity: 3,
+          },
+        ],
+        "commerce_sku_demo-cafe_sku_1",
+      ),
+    ).toBe(3);
+  });
+
+  it("returns undefined when no line item carries the metadata key", () => {
+    expect(
+      commerceSkuLineItemQuantity(
+        [
+          {
+            price: { metadata: { local_site_studio_key: "commerce_sku_other_sku" } },
+            quantity: 5,
+          },
+        ],
+        "commerce_sku_demo-cafe_sku_1",
+      ),
+    ).toBeUndefined();
+  });
+
+  it("returns undefined when the matched line item's quantity is missing, zero, negative, or non-integer — never falls back to a bogus value", () => {
+    const key = "commerce_sku_demo-cafe_sku_1";
+    expect(
+      commerceSkuLineItemQuantity(
+        [{ price: { metadata: { local_site_studio_key: key } } }],
+        key,
+      ),
+    ).toBeUndefined();
+    expect(
+      commerceSkuLineItemQuantity(
+        [{ price: { metadata: { local_site_studio_key: key } }, quantity: 0 }],
+        key,
+      ),
+    ).toBeUndefined();
+    expect(
+      commerceSkuLineItemQuantity(
+        [{ price: { metadata: { local_site_studio_key: key } }, quantity: -1 }],
+        key,
+      ),
+    ).toBeUndefined();
+    expect(
+      commerceSkuLineItemQuantity(
+        [{ price: { metadata: { local_site_studio_key: key } }, quantity: 1.5 }],
+        key,
+      ),
+    ).toBeUndefined();
+    expect(
+      commerceSkuLineItemQuantity(
+        [{ price: { metadata: { local_site_studio_key: key } }, quantity: null }],
+        key,
+      ),
+    ).toBeUndefined();
+  });
+
+  it("returns undefined when metadataKey is blank/whitespace, or the list is empty", () => {
+    expect(commerceSkuLineItemQuantity([], "commerce_sku_demo-cafe_sku_1")).toBeUndefined();
+    expect(
+      commerceSkuLineItemQuantity(
+        [{ price: { metadata: { local_site_studio_key: "commerce_sku_demo-cafe_sku_1" } }, quantity: 3 }],
+        "   ",
+      ),
+    ).toBeUndefined();
   });
 });
 

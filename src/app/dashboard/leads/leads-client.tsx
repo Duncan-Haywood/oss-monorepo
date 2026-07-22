@@ -1768,7 +1768,8 @@ export function LeadsClient({
                       {summary.orders.slice(0, 5).map((row) => (
                         <li key={row.stripeSessionId} className="flex items-center justify-between gap-2">
                           <span className={row.paidOutAt ? "text-zinc-400 line-through" : undefined}>
-                            {formatUsd(row.amountPaidUsd)} · {row.skuName} ·{" "}
+                            {formatUsd(row.amountPaidUsd)} · {row.skuName}
+                            {row.quantity && row.quantity > 1 ? ` × ${row.quantity}` : ""} ·{" "}
                             {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
                           </span>
                           {row.refundedAt ? (
@@ -1861,7 +1862,8 @@ export function LeadsClient({
                         <span className="font-normal text-zinc-500">({row.leadSlug})</span>
                       </p>
                       <p className="mt-1 text-xs text-zinc-600">
-                        {formatUsd(row.amountPaidUsd)} · {row.skuName} ·{" "}
+                        {formatUsd(row.amountPaidUsd)} · {row.skuName}
+                        {row.quantity && row.quantity > 1 ? ` × ${row.quantity}` : ""} ·{" "}
                         {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
                         {email ? ` · ${email}` : " · no email on file"}
                       </p>

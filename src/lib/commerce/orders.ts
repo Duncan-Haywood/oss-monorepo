@@ -24,6 +24,18 @@ export interface CommerceOrderRecord {
   amountPaidUsd: number;
   stripeSessionId: string;
   createdAt: string;
+  /**
+   * Units of skuId actually purchased in this Checkout Session — read from
+   * Stripe's own line-item `quantity` (adjustable_quantity, see
+   * commerce-checkout-adjustable-quantity/commerce-order-quantity-visibility).
+   * Optional: absent on rows recorded before quantity was captured, or if a
+   * future line item shape ever lacks it — callers must not assume 1, only
+   * that "undefined" means "unknown," and render accordingly (never fall
+   * back to inferring quantity from amountPaidUsd ÷ current catalog price,
+   * since a re-synced SKU price makes that division meaningless for an
+   * already-open/paid Session — see commerceSkuStripeKey's stale-Price note).
+   */
+  quantity?: number;
   /** Set once an operator has manually paid this order's amount out to the client. */
   paidOutAt?: string;
   /**
@@ -61,6 +73,8 @@ export interface InsertCommerceOrderInput {
   skuName: string;
   amountPaidUsd: number;
   stripeSessionId: string;
+  /** See CommerceOrderRecord.quantity — optional, undefined means unknown. */
+  quantity?: number;
 }
 
 /**

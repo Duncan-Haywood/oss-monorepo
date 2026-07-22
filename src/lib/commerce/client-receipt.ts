@@ -38,6 +38,16 @@ export function formatCommerceBuyNowClientReceiptHtml(input: {
   customerEmail?: string;
   stripeSessionId: string;
   previewUrl?: string;
+  /**
+   * Units purchased (Stripe adjustable_quantity — see
+   * commerce-checkout-adjustable-quantity). Shown whenever known (including
+   * exactly 1) so the business owner never has to infer how many units to
+   * fulfill from the total price alone — a SKU price change between Session
+   * creation and completion makes amountTotalUsd ÷ current catalog price an
+   * unreliable quantity signal. Omitted entirely when undefined (legacy rows
+   * recorded before quantity capture shipped), matching prior behavior.
+   */
+  quantity?: number;
 }): string {
   const {
     businessName,
@@ -46,11 +56,16 @@ export function formatCommerceBuyNowClientReceiptHtml(input: {
     customerEmail,
     stripeSessionId,
     previewUrl,
+    quantity,
   } = input;
   const price = formatPriceUsd(Math.round(amountTotalUsd * 100));
   const customerLine = customerEmail?.trim()
     ? `<p style="margin-bottom: 8px;"><strong>Customer email:</strong> ${escapeHtmlForEmail(customerEmail.trim())}</p>`
     : `<p style="margin-bottom: 8px; color: #71717a;">No customer email was collected at checkout.</p>`;
+  const quantityLine =
+    typeof quantity === "number"
+      ? `<p style="margin: 0 0 8px 0;"><strong>Quantity:</strong> ${escapeHtmlForEmail(String(quantity))}</p>`
+      : "";
   const previewLine = previewUrl
     ? `<p style="margin: 16px 0; font-size: 14px;">Your catalog: <a href="${escapeHtmlForEmail(previewUrl)}" style="color: #2563eb;">${escapeHtmlForEmail(previewUrl)}</a></p>`
     : "";
@@ -60,6 +75,7 @@ export function formatCommerceBuyNowClientReceiptHtml(input: {
     <p style="margin-bottom: 16px;">Hi ${escapeHtmlForEmail(businessName)} — a customer just completed a Buy now purchase on your site.</p>
     <div style="margin-bottom: 16px; padding: 16px; border: 1px solid #e4e4e7; border-radius: 8px;">
       <p style="margin: 0 0 8px 0;"><strong>Item:</strong> ${escapeHtmlForEmail(skuName)}</p>
+      ${quantityLine}
       <p style="margin: 0 0 8px 0;"><strong>Amount paid:</strong> ${escapeHtmlForEmail(price)}</p>
       ${customerLine}
       <p style="margin: 0; font-size: 12px; color: #71717a;">Stripe session: ${escapeHtmlForEmail(stripeSessionId)}</p>

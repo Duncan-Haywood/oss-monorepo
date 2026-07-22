@@ -64,6 +64,39 @@ export function sessionLineItemsIncludeMetadataKey(
   return false;
 }
 
+/**
+ * Units actually charged for the SKU proven present by
+ * sessionLineItemsIncludeMetadataKey — the matching line item's own Stripe
+ * `quantity` (adjustable_quantity, see commerce-checkout-adjustable-quantity).
+ * Returns undefined when no line item carries the metadata key, or when
+ * Stripe's own `quantity` field is missing / not a positive integer, so
+ * callers persist "unknown" rather than a bogus 0/NaN/negative value — never
+ * assume 1 as a fallback (see commerce-order-quantity-visibility: a stale
+ * legacy row or an unexpected line-item shape must read as "quantity
+ * unknown," not silently as "quantity 1").
+ */
+export function commerceSkuLineItemQuantity(
+  lineItems: ReadonlyArray<{
+    price?: { metadata?: Record<string, string> | null } | string | null;
+    quantity?: number | null;
+  }>,
+  metadataKey: string,
+): number | undefined {
+  const wanted = metadataKey.trim();
+  if (!wanted) return undefined;
+  for (const item of lineItems) {
+    const price = item.price;
+    if (price && typeof price === "object" && price.metadata?.local_site_studio_key === wanted) {
+      const quantity = item.quantity;
+      if (typeof quantity === "number" && Number.isInteger(quantity) && quantity > 0) {
+        return quantity;
+      }
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
 export type BundleCatalogPriceIds = {
   setupId: string;
   /** Null when the bundle has no recurring Price (Starter). */

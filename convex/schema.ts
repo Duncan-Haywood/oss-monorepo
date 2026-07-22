@@ -205,6 +205,14 @@ export default defineSchema({
      * amount back.
      */
     disputedAt: v.optional(v.string()),
+    /**
+     * Units of skuId actually purchased (Stripe adjustable_quantity line-item
+     * quantity — see commerce-checkout-adjustable-quantity /
+     * commerce-order-quantity-visibility). Optional: absent on rows recorded
+     * before quantity capture shipped, or if a Session's line item ever lacks
+     * a valid quantity.
+     */
+    quantity: v.optional(v.number()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"]),

@@ -2605,8 +2605,8 @@ export async function insertCommerceOrder(
 
   db.prepare(
     `INSERT OR IGNORE INTO commerce_orders (
-      id, leadSlug, skuId, skuName, amountPaidUsd, stripeSessionId, createdAt
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      id, leadSlug, skuId, skuName, amountPaidUsd, stripeSessionId, createdAt, quantity
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     id,
     input.leadSlug,
@@ -2615,6 +2615,7 @@ export async function insertCommerceOrder(
     input.amountPaidUsd,
     input.stripeSessionId,
     createdAt,
+    input.quantity ?? null,
   );
   return { alreadyRecorded: false };
 }

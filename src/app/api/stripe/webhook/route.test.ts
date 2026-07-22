@@ -184,6 +184,7 @@ function catalogSubscriptionItems(
 function commerceSkuLineItems(
   priceId: string = COMMERCE_SKU_PRICE_ID,
   metadataKey: string | null = commerceSkuStripeKey("demo-cafe", "sku_1"),
+  quantity?: number,
 ) {
   return {
     data: [
@@ -192,6 +193,7 @@ function commerceSkuLineItems(
           id: priceId,
           metadata: metadataKey ? { local_site_studio_key: metadataKey } : {},
         },
+        ...(quantity !== undefined ? { quantity } : {}),
       },
     ],
   };
@@ -3737,6 +3739,52 @@ describe("POST /api/stripe/webhook", () => {
         expect.any(String),
         { requireConvex: true },
       );
+    });
+
+    it("records the purchased quantity on the ledger and surfaces it to the operator inquiry + client receipt (adjustable_quantity Buy now)", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      listLineItems.mockResolvedValue(
+        commerceSkuLineItems(COMMERCE_SKU_PRICE_ID, undefined, 3),
+      );
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+        quantity: 3,
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).toHaveBeenCalledWith(
+        expect.objectContaining({ quantity: 3 }),
+        { requireConvex: true },
+      );
+      const inquiryArg = insertClientInquiry.mock.calls[0]?.[0];
+      expect(inquiryArg.message).toContain("quantity 3");
+      expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledWith(
+        expect.objectContaining({ quantity: 3 }),
+      );
+    });
+
+    it("omits quantity (undefined, never a bogus fallback) when the matched line item carries no quantity", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      listLineItems.mockResolvedValue(commerceSkuLineItems());
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).toHaveBeenCalledWith(
+        expect.objectContaining({ quantity: undefined }),
+        { requireConvex: true },
+      );
+      const inquiryArg = insertClientInquiry.mock.calls[0]?.[0];
+      expect(inquiryArg.message).not.toContain("quantity");
     });
 
     it("skips ledger/notify when lead is missing (create-path 404 twin)", async () => {

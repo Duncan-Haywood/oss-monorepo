@@ -698,6 +698,7 @@ export async function sendCommerceBuyNowClientReceipt(params: {
   stripeSessionId: string;
   customerEmail?: string;
   previewUrl?: string;
+  quantity?: number;
 }) {
   const {
     to,
@@ -708,6 +709,7 @@ export async function sendCommerceBuyNowClientReceipt(params: {
     stripeSessionId,
     customerEmail,
     previewUrl,
+    quantity,
   } = params;
   const subject = commerceBuyNowClientReceiptSubject(businessName, skuName);
   const html = formatCommerceBuyNowClientReceiptHtml({
@@ -717,6 +719,7 @@ export async function sendCommerceBuyNowClientReceipt(params: {
     customerEmail,
     stripeSessionId,
     previewUrl,
+    quantity,
   });
 
   return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });

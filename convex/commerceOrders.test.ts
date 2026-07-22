@@ -20,6 +20,7 @@ interface CommerceOrderRow {
   paidOutAt?: string;
   refundedAt?: string;
   disputedAt?: string;
+  quantity?: number;
 }
 
 function insertArgs(overrides: {
@@ -30,6 +31,7 @@ function insertArgs(overrides: {
   amountPaidUsd?: number;
   stripeSessionId?: string;
   createdAt?: string;
+  quantity?: number;
 } = {}) {
   return {
     orderId: overrides.orderId ?? "corder_1",
@@ -39,6 +41,7 @@ function insertArgs(overrides: {
     amountPaidUsd: overrides.amountPaidUsd ?? 4.5,
     stripeSessionId: overrides.stripeSessionId ?? "cs_test_1",
     createdAt: overrides.createdAt ?? "2026-01-01T00:00:00.000Z",
+    quantity: overrides.quantity,
     apiSecret: TEST_API_SECRET,
   };
 }
@@ -63,6 +66,71 @@ test("insert does not leak apiSecret into the persisted row", async () => {
   });
   expect(row).not.toBeNull();
   expect(row).not.toHaveProperty("apiSecret");
+});
+
+test("quantity round-trips through insert/get, list, and survives clearRefunded/clearDisputed's replace() (never silently dropped)", async () => {
+  const t = convexTest(schema, modules);
+  const inserted = await t.mutation(
+    api.commerceOrders.insert,
+    insertArgs({ stripeSessionId: "cs_qty", quantity: 3 }),
+  );
+  expect(inserted?.quantity).toBe(3);
+
+  let row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_qty",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.quantity).toBe(3);
+
+  const rows: CommerceOrderRow[] = await t.query(api.commerceOrders.list, {
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(rows.find((r) => r.stripeSessionId === "cs_qty")?.quantity).toBe(3);
+
+  // clearRefunded/clearDisputed rebuild the row via ctx.db.replace() with an
+  // explicit field list — quantity must be threaded through that list or it
+  // silently vanishes on the very next refund/dispute-reversal event.
+  await t.mutation(api.commerceOrders.markRefunded, {
+    stripeSessionId: "cs_qty",
+    refundedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.commerceOrders.clearRefunded, {
+    stripeSessionId: "cs_qty",
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_qty",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.refundedAt).toBeUndefined();
+  expect(row?.quantity).toBe(3);
+
+  await t.mutation(api.commerceOrders.markDisputed, {
+    stripeSessionId: "cs_qty",
+    disputedAt: "2026-01-03T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.commerceOrders.clearDisputed, {
+    stripeSessionId: "cs_qty",
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_qty",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.disputedAt).toBeUndefined();
+  expect(row?.quantity).toBe(3);
+});
+
+test("quantity is undefined (not 0/null) when omitted — legacy/unknown-quantity rows never render as zero units", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.commerceOrders.insert, insertArgs({ stripeSessionId: "cs_no_qty" }));
+  const row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_no_qty",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.quantity).toBeUndefined();
 });
 
 test("markPaidOut / markRefunded / markDisputed / clearDisputed round-trip through listUnpaid / listRefunded / listDisputed", async () => {

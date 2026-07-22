@@ -382,8 +382,20 @@ export function commerceOrderPaidInquiryMessage(input: {
   amountTotalUsd: number;
   stripeSessionId: string;
   skuId?: string;
+  /**
+   * Units purchased (Stripe adjustable_quantity — see
+   * commerce-checkout-adjustable-quantity). Only noted when >1: a shopper
+   * buying exactly 1 (or a legacy/unknown-quantity row, quantity undefined)
+   * reads identically to before this field existed, so existing operator
+   * fulfillment habits and message text stay unchanged for the common case.
+   */
+  quantity?: number;
 }): string {
   const price = formatPriceUsd(Math.round(input.amountTotalUsd * 100));
   const skuNote = input.skuId ? `, SKU ${input.skuId}` : "";
-  return `Paid order via Buy now: ${input.skuName} (${price}) — Stripe session ${input.stripeSessionId}${skuNote}.`;
+  const quantityNote =
+    typeof input.quantity === "number" && input.quantity > 1
+      ? `, quantity ${input.quantity}`
+      : "";
+  return `Paid order via Buy now: ${input.skuName} (${price}) — Stripe session ${input.stripeSessionId}${skuNote}${quantityNote}.`;
 }
