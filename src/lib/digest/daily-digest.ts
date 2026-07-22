@@ -179,6 +179,8 @@ export interface DigestCommerceOrderRefundClawback {
   skuName: string;
   amountPaidUsd: number;
   refundedAt: string;
+  /** See CommerceOrderRecord.quantity — optional, undefined means unknown (never assumed as 1). */
+  quantity?: number;
 }
 
 /**
@@ -193,6 +195,8 @@ export interface DigestCommerceOrderDisputeClawback {
   skuName: string;
   amountPaidUsd: number;
   disputedAt: string;
+  /** See CommerceOrderRecord.quantity — optional, undefined means unknown (never assumed as 1). */
+  quantity?: number;
 }
 
 /**
@@ -206,6 +210,8 @@ export interface DigestCommerceOrderMissingClientReceipt {
   skuName: string;
   amountPaidUsd: number;
   createdAt: string;
+  /** See CommerceOrderRecord.quantity — optional, undefined means unknown (never assumed as 1). */
+  quantity?: number;
 }
 
 /**
@@ -772,6 +778,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         skuName: order.skuName,
         amountPaidUsd: order.amountPaidUsd,
         refundedAt: order.refundedAt ?? "",
+        quantity: order.quantity,
       }));
   const oldestCommerceOrdersRefundClawbackAgeHours: number | null = (() => {
     let oldestMs = Infinity;
@@ -804,6 +811,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         skuName: order.skuName,
         amountPaidUsd: order.amountPaidUsd,
         disputedAt: order.disputedAt ?? "",
+        quantity: order.quantity,
       }));
   const oldestCommerceOrdersDisputeClawbackAgeHours: number | null = (() => {
     let oldestMs = Infinity;
@@ -831,6 +839,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         skuName: order.skuName,
         amountPaidUsd: order.amountPaidUsd,
         createdAt: order.createdAt,
+        quantity: order.quantity,
       }));
   const oldestCommerceOrdersMissingClientReceiptAgeHoursValue =
     oldestCommerceOrdersOwedAgeHours(commerceOrdersMissingClientReceiptInput, nowMs);
@@ -1229,7 +1238,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
 
   const clawbackRows = digest.commerceOrdersRefundClawback.map(
     (row) =>
-      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} paid out for ${escapeHtmlForEmail(row.skuName)}, then refunded by Stripe — claw back from client`,
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} paid out for ${escapeHtmlForEmail(row.skuName)}${row.quantity && row.quantity > 1 ? ` × ${row.quantity}` : ""}, then refunded by Stripe — claw back from client`,
   );
   const clawbackTitle =
     digest.commerceOrdersRefundClawbackCount > 0
@@ -1238,7 +1247,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
 
   const disputeClawbackRows = digest.commerceOrdersDisputeClawback.map(
     (row) =>
-      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} paid out for ${escapeHtmlForEmail(row.skuName)}, then disputed by the shopper's bank — claw back from client`,
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} paid out for ${escapeHtmlForEmail(row.skuName)}${row.quantity && row.quantity > 1 ? ` × ${row.quantity}` : ""}, then disputed by the shopper's bank — claw back from client`,
   );
   const disputeClawbackTitle =
     digest.commerceOrdersDisputeClawbackCount > 0
@@ -1247,7 +1256,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
 
   const missingClientReceiptRows = digest.commerceOrdersMissingClientReceipt.map(
     (row) =>
-      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — sold ${escapeHtmlForEmail(row.skuName)} ($${row.amountPaidUsd.toFixed(2)}), but was never notified — resend the receipt`,
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — sold ${escapeHtmlForEmail(row.skuName)}${row.quantity && row.quantity > 1 ? ` × ${row.quantity}` : ""} ($${row.amountPaidUsd.toFixed(2)}), but was never notified — resend the receipt`,
   );
   const missingClientReceiptTitle = `Missing client receipt (${digest.commerceOrdersMissingClientReceiptCount}${digest.oldestCommerceOrdersMissingClientReceiptAgeHours !== null ? ` · oldest ${digest.oldestCommerceOrdersMissingClientReceiptAgeHours}h` : ""})`;
 

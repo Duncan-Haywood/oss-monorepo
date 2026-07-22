@@ -1879,6 +1879,38 @@ describe("renderDailyDigestHtml", () => {
     expect(html).not.toContain("Clawback <Shop>");
   });
 
+  it("renders a × N quantity suffix on the Refund clawback row when known and greater than 1", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "clawback-shop",
+          businessName: "Clawback Shop",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersRefunded: [
+        {
+          id: "co_clawback",
+          leadSlug: "clawback-shop",
+          skuId: "sku_1",
+          skuName: "Gift card",
+          amountPaidUsd: 25,
+          stripeSessionId: "cs_clawback",
+          createdAt: "2026-07-12T09:00:00.000Z",
+          paidOutAt: "2026-07-12T10:00:00.000Z",
+          refundedAt: "2026-07-13T09:00:00.000Z",
+          quantity: 3,
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commerceOrdersRefundClawback[0]?.quantity).toBe(3);
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Gift card × 3, then refunded");
+  });
+
   it("renders Dispute clawback needed section and escapes business names", () => {
     const digest = buildDailyDigest({
       leads: [
@@ -1910,6 +1942,38 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("$25.00 paid out");
     expect(html).toContain("Clawback &lt;Shop&gt;");
     expect(html).not.toContain("Clawback <Shop>");
+  });
+
+  it("renders a × N quantity suffix on the Dispute clawback row when known and greater than 1", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "clawback-shop",
+          businessName: "Clawback Shop",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersDisputed: [
+        {
+          id: "co_clawback",
+          leadSlug: "clawback-shop",
+          skuId: "sku_1",
+          skuName: "Gift card",
+          amountPaidUsd: 25,
+          stripeSessionId: "cs_clawback",
+          createdAt: "2026-07-12T09:00:00.000Z",
+          paidOutAt: "2026-07-12T10:00:00.000Z",
+          disputedAt: "2026-07-13T09:00:00.000Z",
+          quantity: 2,
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commerceOrdersDisputeClawback[0]?.quantity).toBe(2);
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Gift card × 2, then disputed");
   });
 
   it("renders Missing client receipt section and escapes business names", () => {
@@ -1945,6 +2009,36 @@ describe("renderDailyDigestHtml", () => {
     expect(digest.oldestCommerceOrdersMissingClientReceiptAgeHours).not.toBeNull();
   });
 
+  it("renders a × N quantity suffix on the Missing client receipt row when known and greater than 1", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "silent-shop",
+          businessName: "Silent Shop",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersMissingClientReceipt: [
+        {
+          id: "co_missing",
+          leadSlug: "silent-shop",
+          skuId: "sku_1",
+          skuName: "Gift card",
+          amountPaidUsd: 25,
+          stripeSessionId: "cs_missing",
+          createdAt: "2026-07-12T09:00:00.000Z",
+          quantity: 4,
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commerceOrdersMissingClientReceipt[0]?.quantity).toBe(4);
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("sold Gift card × 4 ($25.00)");
+  });
+
   it("does not conflate missing-client-receipt with payout/refund/dispute status", () => {
     const digest = buildDailyDigest({
       leads: [baseLead({ slug: "paid-shop", stage: "live" })],
@@ -1965,6 +2059,41 @@ describe("renderDailyDigestHtml", () => {
       nowMs: NOW,
     });
     expect(digest.commerceOrdersMissingClientReceiptCount).toBe(1);
+  });
+
+  it("omits the × N quantity suffix when quantity is exactly 1 or unknown", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ slug: "single-shop", businessName: "Single Shop", stage: "live" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrdersMissingClientReceipt: [
+        {
+          id: "co_single",
+          leadSlug: "single-shop",
+          skuId: "sku_1",
+          skuName: "Gift card",
+          amountPaidUsd: 25,
+          stripeSessionId: "cs_single",
+          createdAt: "2026-07-12T09:00:00.000Z",
+          quantity: 1,
+        },
+        {
+          id: "co_unknown",
+          leadSlug: "single-shop",
+          skuId: "sku_2",
+          skuName: "Mug",
+          amountPaidUsd: 10,
+          stripeSessionId: "cs_unknown",
+          createdAt: "2026-07-12T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("sold Gift card ($25.00)");
+    expect(html).not.toContain("Gift card × 1");
+    expect(html).toContain("sold Mug ($10.00)");
+    expect(html).not.toContain("Mug ×");
   });
 
   it("renders Bundle revenue refunded section and escapes business names", () => {
