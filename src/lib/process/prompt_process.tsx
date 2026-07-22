@@ -330,6 +330,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-subad7",
   },
+  {
+    id: "business-decisions-archive-08-split",
+    summary:
+      "Process maintenance flagged by the immediately-preceding iteration (post-commerce-checkout-quantity-empty-backlog-clean-audit): business-decisions.ts had grown to 261,047 bytes, close enough to the 262,144-byte (256KiB) read-limit ceiling that a future append could hit it mid-iteration. Split the oldest 39 of the live tail's 50 entries into a new archive/business-decisions-archive-08.ts (following the same ~200KB-per-file convention as archive files 01-07), leaving the newest 11 entries live at 64,052 bytes. Verified lossless via an AST-level deep-equality check (tsx import + assert.deepStrictEqual of the old vs. new assembled BUSINESS_DECISIONS arrays, 654 entries, identical order) before finalizing, per the archive-scalability-split bullet's own verification requirement.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-anx43p",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -652,6 +660,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "post-commerce-checkout-quantity-empty-backlog-clean-audit",
+    ),
+  },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-anx43p",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 7b0bc26 (PR #615, post-commerce-checkout-quantity-empty-backlog-clean-audit) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2563 passed, 190 files) + a full clean rebuild (same 42-route ○/ƒ split). Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: the newest ~8 claude/* siblings by committer date all had either zero unique commits against origin/main or one unique commit already merged onto main under a different squash-merge SHA (confirmed via `git merge-base --is-ancestor`, not just an ahead-count) — no live fold candidate. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft).\n\nRan the empty-backlog diff-gate against the just-set anchor (5586399): `git log --oneline 5586399..HEAD -- src convex .github/workflows` returned only the anchor-recording commit itself, docs-only — zero product-affecting commits since the last full five-tier sweep, so a fresh from-scratch sweep would only re-derive an identical clean result. Per the diff-gate rule, skipped straight to the concrete action that same prior iteration had already flagged: business-decisions.ts at 261,047 bytes was close enough to the 262,144-byte (256KiB) ceiling that the next entry or two should plan the archive split before a write hit the limit mid-iteration. Performed that split as its own focused iteration (never a drive-by alongside a feature change, per AGENT_PROTOCOL bullet 43).",
+    shipped: [
+      "src/lib/process/archive/business-decisions-archive-08.ts — new file, the oldest 39 of business-decisions.ts's 50 live-tail BUSINESS_DECISIONS entries moved here verbatim (byte-for-byte, same order), mirroring the ~200KB-per-file convention of archive files 01-07.",
+      "src/lib/process/business-decisions.ts — now imports and spreads BUSINESS_DECISIONS_ARCHIVE_08 alongside 01-07; live tail reduced to the newest 11 entries (64,052 bytes, well under the ceiling with headroom before the next split is needed).",
+      "src/lib/process/business-decisions.ts — appended business-decisions-archive-08-split recording the split itself.",
+      "src/lib/process/prompt_process.tsx — added the business-decisions-archive-08-split NEXT_STEPS entry (status done) and appended this ITERATIONS entry. NEXT_STEPS' five gated items stayed as-is — this is process-file maintenance, not a resolution of any gated item.",
+      "Verified losslessness before finalizing: wrote the pre-split file to a temporary sibling module (same directory, so relative imports resolved unchanged), imported both the old and new assembled BUSINESS_DECISIONS arrays via tsx, and ran assert.deepStrictEqual(NEW, OLD) — passed, both 654 entries, identical values and order — then deleted the temporary file. No entry text, id, date, or field was edited or reordered; a pure structural move.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2563 passed, unchanged — a pure data-relocation touches no tested logic — 190 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "business-decisions-archive-08-split",
     ),
   },
 ];
