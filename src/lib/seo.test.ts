@@ -329,10 +329,27 @@ describe("leadMetaTitle / leadMetaDescription", () => {
     expect(leadMetaTitle(baseLead())).toBe("Pine Cafe — Boulder, CO | Fresh local plates");
   });
 
-  it("returns the lead description (soft-capped at create-path max)", () => {
+  it("returns the lead description unchanged when it's already under the SERP-truncation width", () => {
     expect(leadMetaDescription(baseLead())).toBe("Neighborhood cafe serving brunch and coffee.");
+  });
+
+  it("caps at MAX_META_DESCRIPTION_LENGTH (not the far longer create-path max) for a real client's own long business description", () => {
+    // A real client's stored description soft-caps at create-path max
+    // (2000 chars) for on-page body rendering, but the SERP snippet width
+    // is much narrower — this must not leak the full 2000 chars into
+    // generateMetadata's description/openGraph/twitter on a real customer's
+    // live preview page.
+    const longDescription =
+      "We are a family-owned neighborhood restaurant serving fresh, locally-sourced brunch and dinner every day of the week, with a full bar, patio seating, and weekly live music on Friday nights.";
+    expect(longDescription.length).toBeGreaterThan(MAX_META_DESCRIPTION_LENGTH);
+    const description = leadMetaDescription(baseLead({ description: longDescription }));
+    expect(description.length).toBeLessThanOrEqual(MAX_META_DESCRIPTION_LENGTH);
+    expect(description.endsWith("…")).toBe(true);
+
     const oversized = "d".repeat(2500);
-    expect(leadMetaDescription(baseLead({ description: oversized }))).toHaveLength(2000);
+    expect(leadMetaDescription(baseLead({ description: oversized }))).toHaveLength(
+      MAX_META_DESCRIPTION_LENGTH,
+    );
   });
 });
 

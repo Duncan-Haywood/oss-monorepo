@@ -314,6 +314,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/nice-euler-9bn7gs",
   },
+  {
+    id: "lead-preview-meta-description-length-cap",
+    summary:
+      "Empty-backlog audit (SEO/growth-lever gap, same class as the just-shipped category-landing-meta-description-length-cap and homepage-meta-description-length-cap) found /preview/[slug]'s generateMetadata was the one meta-description surface those two prior fixes never touched — and the highest-value one, since it's a real paying customer's own live site (Starter sells 'Basic SEO'; see src/lib/seo.ts's file header). leadMetaDescription(lead) returned softCapLeadForPublicSurface(lead).description verbatim, which soft-caps at create-path max (MAX_DESCRIPTION_LENGTH=2000, an on-page-body-rendering bound) rather than Google's ~155-160 char SERP-truncation width — unlike homepageMetadata/docPageMetadata/categoryLandingPageMetadata, this page builds its Metadata object by hand rather than through staticPageMetadata, so it never picked up the shared capMetaDescription cap those three get for free. A real client with more than a one-sentence business description got an uncapped (up to 2000-char) <meta name=\"description\">/openGraph.description/twitter.description on their own indexable preview page, silently defeating the paid SEO deliverable — the existing seo.test.ts test even pinned the bug as spec ('toHaveLength(2000)'). Shipped: leadMetaDescription now applies the same capMetaDescription/MAX_META_DESCRIPTION_LENGTH=155 helper directly (single choke point in seo.ts, no new constant). Updated the stale test to assert the capped behavior instead of the 2000-char bug, plus a new realistic-long-description regression case. Deliberately left alone: leadMetaTitle (title-width SERP truncation is a distinct, narrower bound — ~60 chars vs description's ~155 — and titles were out of scope for both prior fixes in this same series too; a future iteration can pick that up as its own fix rather than folding an unrelated bound into this one).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-c2moyl",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -556,6 +564,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "homepage-meta-description-length-cap",
+    ),
+  },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-c2moyl",
+    summary:
+      "Unattended iteration, picked up at origin/main tip 31bb493 (PR #610, homepage-meta-description-length-cap) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2557 passed, 190 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: origin/main was the newest ref; the newest ~10 claude/* siblings were all ahead=0 against origin/main except five already-traced byte-identical duplicates of already-merged content (re-confirmed via `git diff origin/main..<branch> --stat` — pure deletions relative to a further-ahead main, the documented stale-branch artifact). No live fold candidate.\n\nRather than dispatch a from-scratch tier 1-5 sweep, targeted the exact sibling surface the two immediately-preceding iterations (category-landing-meta-description-length-cap, homepage-meta-description-length-cap) left unclosed: grepped every consumer of src/lib/seo.ts's staticPageMetadata (the shared choke point those two fixes protected — homepageMetadata, docPageMetadata, categoryLandingPageMetadata) and found /preview/[slug]'s generateMetadata was the one public metadata surface that builds its own Metadata object by hand instead, calling leadMetaDescription(lead) directly. leadMetaDescription returned softCapLeadForPublicSurface(lead).description verbatim — soft-capped at create-path max (MAX_DESCRIPTION_LENGTH=2000, an on-page-body-rendering bound, not a SERP-width one) with zero cap at Google's ~155-160 char SERP-truncation width. This is the highest-value surface in the whole meta-description series: /preview/[slug] becomes a real, indexable customer website once stage=paid|live, and Starter explicitly sells 'Basic SEO' per seo.ts's own file header — a client whose stored business description runs more than a sentence got an uncapped meta description/openGraph.description/twitter.description silently truncated by Google mid-word, wherever that happened to land, directly undermining the paid SEO deliverable. seo.test.ts had literally encoded the bug as spec (`expect(leadMetaDescription(baseLead({ description: oversized }))).toHaveLength(2000)`), which is what surfaced this on inspection.",
+    shipped: [
+      "src/lib/seo.ts — leadMetaDescription now wraps its result in the same capMetaDescription helper staticPageMetadata already uses, so the preview page gets the identical 155-char word-boundary-with-ellipsis truncation as the homepage/category-landing/docs pages. Updated doc comments on both capMetaDescription's constant and leadMetaDescription itself to cross-reference the new caller.",
+      "src/lib/seo.test.ts — replaced the test that pinned the 2000-char bug as spec with two cases: description left unchanged when already under the cap, and description capped at MAX_META_DESCRIPTION_LENGTH with a trailing ellipsis for both a realistic long business description and the original 2500-char stress case.",
+      "src/lib/process/business-decisions.ts — appended lead-preview-meta-description-length-cap.",
+      "src/lib/process/prompt_process.tsx — added the lead-preview-meta-description-length-cap NEXT_STEPS entry (status done) and appended this ITERATIONS entry. Deliberately left alone: leadMetaTitle (title SERP-truncation is a materially narrower, distinct bound — ~60 chars vs description's ~155 — and was out of scope for both prior fixes in this exact series; flagged as a follow-up rather than folded in here) and renderLeadOgImage's separate truncateForOgImage (a correct, unrelated visual-fit bound for the fixed-size OG image canvas).",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2558 passed, up from 2557 — 1 new, 190 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /docs/process — all 200; curled /preview/example-bakery directly and grepped the actual rendered `<meta name=\"description\">` tag, confirming the real demo lead's description — already under 155 chars — passes through unchanged; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "lead-preview-meta-description-length-cap",
     ),
   },
 ];

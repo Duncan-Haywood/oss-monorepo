@@ -27,7 +27,11 @@ const DEFAULT_SITE_URL = "http://localhost:3000";
  * NEXT_PUBLIC_LEGAL_ENTITY/NEXT_PUBLIC_LEGAL_LOCATION), which have no length
  * bound anywhere upstream and can realistically push the assembled sentence
  * well past this width for any real operator-chosen business name at launch
- * (see homepage-meta-description-length-cap).
+ * (see homepage-meta-description-length-cap). leadMetaDescription (a real
+ * client's own /preview/[slug] page, not this platform's own copy) applies
+ * this same cap directly rather than through staticPageMetadata, since the
+ * preview page's generateMetadata builds its Metadata object by hand (see
+ * lead-preview-meta-description-length-cap).
  */
 export const MAX_META_DESCRIPTION_LENGTH = 155;
 
@@ -256,8 +260,24 @@ export function leadMetaTitle(lead: Lead): string {
   return `${capped.businessName} — ${capped.city}, ${capped.state} | ${capped.tagline}`;
 }
 
+/**
+ * The lead's stored description is soft-capped at create-path max
+ * (MAX_DESCRIPTION_LENGTH=2000, softCapLeadForPublicSurface) for on-page
+ * body rendering, which is a completely different bound than the ~155-char
+ * SERP-truncation width capMetaDescription enforces — a real client's
+ * business description (this is the paid "Basic SEO" deliverable, see the
+ * file header) can easily run several hundred characters and, before this
+ * fix, was passed straight into generateMetadata's description/
+ * openGraph.description/twitter.description on the actual live /preview/
+ * [slug] page with no SERP-width cap at all, unlike every static-copy page
+ * that already goes through staticPageMetadata (see
+ * category-landing-meta-description-length-cap /
+ * homepage-meta-description-length-cap for the two prior surfaces this
+ * exact bug was fixed on — this is the same gap on the highest-value
+ * surface: a real paying customer's own site).
+ */
 export function leadMetaDescription(lead: Lead): string {
-  return softCapLeadForPublicSurface(lead).description;
+  return capMetaDescription(softCapLeadForPublicSurface(lead).description);
 }
 
 /**
