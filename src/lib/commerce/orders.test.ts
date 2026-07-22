@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  commerceMarkPaidOutAriaLabel,
   commerceOrderNeedsClawback,
   commerceOrdersByLeadSummaryNeedsAttention,
   isCommerceOrderDisputed,
@@ -115,6 +116,52 @@ describe("sumCommerceOrdersRevenueUsd", () => {
         { amountPaidUsd: Number.NaN },
       ]),
     ).toBe(10);
+  });
+});
+
+describe("commerceMarkPaidOutAriaLabel", () => {
+  it("includes business name, sku name, and amount", () => {
+    expect(
+      commerceMarkPaidOutAriaLabel(
+        { skuName: "Latte", amountPaidUsd: 15, quantity: undefined },
+        "Example Bakery",
+      ),
+    ).toBe("Mark paid out — Example Bakery: Latte ($15.00)");
+  });
+
+  it("appends a quantity suffix only when quantity is known and greater than 1", () => {
+    expect(
+      commerceMarkPaidOutAriaLabel(
+        { skuName: "Latte", amountPaidUsd: 45, quantity: 3 },
+        "Example Bakery",
+      ),
+    ).toBe("Mark paid out — Example Bakery: Latte × 3 ($45.00)");
+    expect(
+      commerceMarkPaidOutAriaLabel(
+        { skuName: "Latte", amountPaidUsd: 15, quantity: 1 },
+        "Example Bakery",
+      ),
+    ).toBe("Mark paid out — Example Bakery: Latte ($15.00)");
+  });
+
+  it("produces distinct labels for two different orders on the same lead", () => {
+    const businessName = "Example Bakery";
+    const a = commerceMarkPaidOutAriaLabel(
+      { skuName: "Latte", amountPaidUsd: 15, quantity: undefined },
+      businessName,
+    );
+    const b = commerceMarkPaidOutAriaLabel(
+      { skuName: "Croissant", amountPaidUsd: 6, quantity: undefined },
+      businessName,
+    );
+    expect(a).not.toBe(b);
+  });
+
+  it("produces distinct labels for the same sku/amount across two different leads", () => {
+    const order = { skuName: "Latte", amountPaidUsd: 15, quantity: undefined };
+    expect(commerceMarkPaidOutAriaLabel(order, "Example Bakery")).not.toBe(
+      commerceMarkPaidOutAriaLabel(order, "Other Cafe"),
+    );
   });
 });
 

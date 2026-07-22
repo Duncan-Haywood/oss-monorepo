@@ -115,6 +115,37 @@ export function sumCommerceOrdersRevenueUsd(
   return total;
 }
 
+/**
+ * Distinguishing accessible name for the "Mark paid out" button rendered once
+ * per unpaid order inside the Commerce payouts (manual) panel
+ * (leads-client.tsx) — a lead with two or more unpaid Buy now orders renders
+ * two or more buttons with the identical visible text "Mark paid out" inside
+ * that lead's own order list, and every lead's list shares the page in one
+ * combined screen-reader "list of buttons" view (VoiceOver Form Controls
+ * rotor / NVDA and JAWS button lists). This is the same "distinguishable
+ * identical control labels in a list" bug class already fixed for
+ * SuppressedEmailsPanel's Remove button and this same panel's sibling
+ * Missing-client-receipt "Resend receipt" button (see
+ * list-row-action-button-aria-label) and for the public storefront's Buy
+ * now/Request order buttons (commerce-storefront-buy-now-aria-label) — this
+ * exact button was the one instance that audit's own "checked every other
+ * `.map()` site" pass judged safe as "sits inside a large, clearly-
+ * demarcated per-lead card block," which does not hold once a single lead
+ * has more than one unpaid order. businessName disambiguates across leads;
+ * skuName + amount + quantity (only appended when known and >1, matching
+ * every other quantity-aware render site) disambiguate between one lead's
+ * own multiple orders. Pure — no I/O.
+ */
+export function commerceMarkPaidOutAriaLabel(
+  order: Pick<CommerceOrderRecord, "skuName" | "amountPaidUsd" | "quantity">,
+  businessName: string,
+): string {
+  const amount = `$${order.amountPaidUsd.toFixed(2)}`;
+  const quantitySuffix =
+    order.quantity && order.quantity > 1 ? ` × ${order.quantity}` : "";
+  return `Mark paid out — ${businessName}: ${order.skuName}${quantitySuffix} (${amount})`;
+}
+
 /** True once an operator has marked this order's amount as paid out to the client. */
 export function isCommerceOrderPaidOut(
   order: Pick<CommerceOrderRecord, "paidOutAt">,

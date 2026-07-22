@@ -48,6 +48,7 @@ import {
   MAX_COMMERCE_SKUS,
   MIN_SKU_PRICE_CENTS,
   commerceDraftItemsAfterSync,
+  commerceMarkPaidOutAriaLabel,
   commerceOrdersByLeadSummaryNeedsAttention,
   formatPriceUsd,
   isCommerceOrderDisputed,
@@ -1798,6 +1799,10 @@ export function LeadsClient({
                                 type="button"
                                 disabled={isPending}
                                 onClick={() => handleMarkCommerceOrderPaidOut(row.stripeSessionId)}
+                                aria-label={commerceMarkPaidOutAriaLabel(
+                                  row,
+                                  businessNameBySlug.get(summary.leadSlug) || summary.leadSlug,
+                                )}
                                 className="rounded-lg border border-teal-700 px-2 py-0.5 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60"
                               >
                                 Mark paid out

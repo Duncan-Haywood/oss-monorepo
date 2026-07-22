@@ -55,6 +55,7 @@ export {
 } from "./stripe-sync";
 
 export {
+  commerceMarkPaidOutAriaLabel,
   commerceOrderNeedsClawback,
   commerceOrdersByLeadSummaryNeedsAttention,
   isCommerceOrderDisputed,

@@ -744,4 +744,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "commerce-order-quantity-visibility",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-80eypy",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 9d1ce3a8 (PR #619, commerce-order-quantity-visibility) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2579 passed, 190 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (600+ refs): the newest 8 claude/* siblings by committer date each carried exactly one commit ahead of origin/main, all confirmed byte-identical to the five most recent commits already on origin/main — no live fold candidate.\n\nRan the empty-backlog diff-gate against the documented anchor (5586399): 5 commits since — a non-trivial diff per AGENT_PROTOCOL's diff-gate rule, so a fresh tier 1-5 audit was warranted, deliberately steered away from the 5 surfaces those exact commits had just reviewed (checkout adjustable-quantity, SKU min-price, storefront aria-labels, order-quantity capture, archive split). Read src/lib/leads/*.ts, src/lib/email/*.ts, src/lib/security/*.ts, every convex/*.ts handler, src/app/api/**/route.ts, and src/lib/commerce/stripe-sync.ts end to end. Tiers 2-4 came back clean. Found one genuine, previously-unflagged accessibility gap: the Commerce payouts (manual) panel's per-order 'Mark paid out' button in leads-client.tsx rendered the identical visible text on every unpaid order for a lead, with no aria-label — the same 'duplicate list-row control label' bug class list-row-action-button-aria-label (PR #601) and commerce-storefront-buy-now-aria-label (PR #618) already fixed elsewhere, missed on this one instance because its risk only appears once a single lead has two or more unpaid Buy now orders (list-row-action-button-aria-label's own audit had judged this exact button 'safe' for sitting inside a per-lead card block, a judgment that does not hold at that volume). See commerce-payouts-mark-paid-out-aria-label in BUSINESS_DECISIONS for the full finding.",
+    shipped: [
+      "src/lib/commerce/orders.ts — added commerceMarkPaidOutAriaLabel(order, businessName), a new pure helper producing a distinguishing accessible name (business name + sku name + amount + optional quantity suffix) for the Commerce payouts panel's 'Mark paid out' button.",
+      "src/lib/commerce/index.ts — re-exported commerceMarkPaidOutAriaLabel from the shared commerce barrel.",
+      "src/app/dashboard/leads/leads-client.tsx — wired aria-label={commerceMarkPaidOutAriaLabel(row, businessNameBySlug.get(summary.leadSlug) || summary.leadSlug)} onto the 'Mark paid out' button — no visible-text change.",
+      "src/lib/commerce/orders.test.ts — new commerceMarkPaidOutAriaLabel describe block: base label shape, quantity suffix only when known and >1, and two distinctness assertions (same lead different orders; same order different leads).",
+      "src/lib/process/business-decisions.ts — appended commerce-payouts-mark-paid-out-aria-label.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is an accessibility fix discovered by audit, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2583 passed, up from 2579 — 4 new, 190 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-payouts-mark-paid-out-aria-label",
+    ),
+  },
 ];
