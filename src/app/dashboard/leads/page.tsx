@@ -12,6 +12,7 @@ import {
   listCommerceOrdersRefunded,
   listCommerceOrdersDisputed,
   listCommerceOrdersMissingClientReceipt,
+  getSuppressedEmails,
 } from "@/lib/db";
 import { mergeCommerceOrdersForReview } from "@/lib/commerce";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
@@ -19,6 +20,7 @@ import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-panel";
+import { SuppressedEmailsPanel } from "@/components/dashboard/suppressed-emails-panel";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
@@ -78,6 +80,7 @@ async function loadLeadsPipelineHealth(): Promise<{
   commerceOrdersMissingClientReceipt: Awaited<
     ReturnType<typeof listCommerceOrdersMissingClientReceipt>
   >;
+  suppressedEmails: Awaited<ReturnType<typeof getSuppressedEmails>>;
 }> {
   const nowMs = Date.now();
   const marketingMonth = marketingMonthKey(nowMs);
@@ -95,6 +98,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     commerceOrdersRefunded,
     commerceOrdersDisputed,
     commerceOrdersMissingClientReceipt,
+    suppressedEmails,
   ] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
@@ -109,6 +113,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     listCommerceOrdersRefunded(),
     listCommerceOrdersDisputed(),
     listCommerceOrdersMissingClientReceipt(),
+    getSuppressedEmails(),
   ]);
   return {
     leads,
@@ -124,6 +129,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     commerceOrdersRefunded,
     commerceOrdersDisputed,
     commerceOrdersMissingClientReceipt,
+    suppressedEmails,
     health: computePipelineHealth({
       leads,
       orders,
@@ -158,6 +164,7 @@ export default async function LeadsPage() {
     commerceOrdersRefunded,
     commerceOrdersDisputed,
     commerceOrdersMissingClientReceipt,
+    suppressedEmails,
   } = await loadLeadsPipelineHealth();
   // The Commerce payouts panel must also surface orders that were refunded/
   // disputed AFTER already being marked paid out (clawback owed from the
@@ -250,6 +257,7 @@ export default async function LeadsPage() {
           initialCommerceOrdersMissingClientReceipt={commerceOrdersMissingClientReceipt}
           connectOnboardingAllowed={connectOnboardingAllowed}
         />
+        <SuppressedEmailsPanel emails={suppressedEmails} />
       </div>
     </main>
   );

@@ -305,6 +305,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-nbqcq2",
   },
+  {
+    id: "suppressed-emails-operator-visibility",
+    summary:
+      "Empty-backlog audit (tier 1 — sold-capability wiring gap) found getSuppressedEmails() (src/lib/db.ts, dual-backend since suppression-convex-parity-fix) had zero callers anywhere in application code — no operator surface could see who had unsubscribed, only a reactive per-send note when a send happened to target an already-suppressed address. Shipped a read-only SuppressedEmailsPanel on /dashboard/leads listing every suppressed address (alphabetically sorted client-side to sidestep the two backends' differing, uncontracted row order). No unsuppress/remove control yet — deliberately left as a follow-up to keep this iteration focused, matching how this same feature's own history has scoped prior passes.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/nice-euler-9bn7gs",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -627,6 +635,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "nextjs-16-2-11-monthly-security-release-patch",
+    ),
+  },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-9bn7gs",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip e9d8398 (PR #590, nextjs-16-2-11-monthly-security-release-patch) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci + npx tsc --noEmit clean + npm run lint clean + npm test (2529 passed/189 files) + a full clean rebuild (same 42-route ○/ƒ split). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated cursor/* draft). Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: origin/main was the newest ref by committer date; spot-checked the next 30 most-recently-pushed claude/* siblings and found them all either already merged (0-ahead, squash) or a docs-only clean-audit duplicate byte-identical to an already-merged commit (claude/nice-euler-i5uyj0 vs main's own b369543; claude/upbeat-dijkstra-nbqcq2's content already landed as main's 4245951/PR #588) — no live fold candidate. All five NEXT_STEPS items stayed operator/legal/infra-gated (no live Stripe/Resend/Convex/Anthropic secret in this session).\n\nDispatched a foreground research agent, briefed on AGENT_PROTOCOL in full, to hunt a fresh gap across the standard tier order (sold-capability wiring, Convex/SQLite parity, security/injection, untested orchestration, docs staleness), explicitly told not to re-propose the now-closed dashboard-landing-parity series and to check whether any other convex/*.ts file still had the just-fixed v.any()-return-validator issue. It found a genuine tier-1 gap: getSuppressedEmails() (src/lib/db.ts, backed by convex/suppressions.ts's list query) — a fully shipped, dual-backend, tested CAN-SPAM capability — had zero callers anywhere in application code, so no operator surface could proactively see, audit, or confirm the unsubscribe list; only a reactive per-send note existed. Tiers 2/3 re-confirmed clean (no remaining v.any() return validators in any convex/*.ts file; orders.ts's _id-carrying validator still can't leak past db.ts's field-mapping mapConvexOrderRow; all dangerouslySetInnerHTML sinks still route through safeJsonLdScript; CSP nonce allowlist still matches every dynamically-rendered route).",
+    shipped: [
+      "src/components/dashboard/suppressed-emails-panel.tsx — new read-only server component. Sorts the returned email list alphabetically (`[...emails].sort(...)`) before rendering so the panel never depends on getSuppressedEmails' cross-backend row order (Convex .collect() vs SQLite's plain SELECT have no shared ordering contract on this table, and neither tracks a createdAt to sort by).",
+      "src/app/dashboard/leads/page.tsx — added getSuppressedEmails() to loadLeadsPipelineHealth's existing parallel Promise.all, threaded suppressedEmails through the loader's return type, and rendered <SuppressedEmailsPanel emails={suppressedEmails} /> after LeadsClient.",
+      "src/lib/process/business-decisions.ts — appended suppressed-emails-operator-visibility.",
+      "src/lib/process/prompt_process.tsx — added the suppressed-emails-operator-visibility NEXT_STEPS done entry and this ITERATIONS entry.",
+      "Deliberately NOT shipped this iteration: an unsuppress/remove control (would need a new Convex mutation + SQLite twin + dashboard action + the standard not-found-existence-check pattern) — left as a follow-up so this diff stays a single, independently reviewable/revertible unit, matching how this same suppression feature's own history has scoped prior passes (suppression-convex-parity-fix and the original CAN-SPAM audit both logged adjacent lower-priority findings as follow-ups rather than bundling them in).",
+      "Verified: fresh npm ci (0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2529 passed, unchanged, 189 files — no new test added; this repo has zero *.test.tsx files/no React Testing Library harness, and the only new logic is a trivial inline sort with no branching) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (curled /dashboard/leads — 200, panel renders its correct empty state against the seeded demo DB — and /preview/example-bakery — 200; killed the dev server, confirmed port 3000 freed).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "suppressed-emails-operator-visibility",
     ),
   },
 ];
