@@ -887,4 +887,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "leads-category-tier-read-normalize-parity",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-ysdr64",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 201add3 (PR #628, leads-category-tier-read-normalize-parity) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2597 passed, 192 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). mcp__github__actions_list sampled the newest 30 pr-checks.yml workflow runs — 30/30 conclusion=failure — github-actions-runner-unavailable stays status=todo, unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (567 refs): direct two-ref `git diff origin/main <branch> --stat` on the 10 most-recently-committed claude/* siblings all came back as pure deletions relative to current main — already-merged-under-a-different-SHA content from PRs #619-#628. No live fold candidate.\n\nThe empty-backlog diff-gate against the documented anchor (6f05c86) showed 6 commits since (#623-#628), one of which (#628) is a real product-code change — a non-trivial diff per AGENT_PROTOCOL's diff-gate rule, so ran a full tier 1-5 sweep rather than a fast spot-check, deliberately centered on the exact bug class #628 fixed (a stored-but-loosely-typed Convex field feeding an unguarded object-keyed lookup). See post-leads-category-parity-empty-backlog-spotcheck-clean in BUSINESS_DECISIONS for the full list of what was checked (every Record<union-type, ...> lookup table in src/, the checkoutSessions.kind precedent, the newest unsuppressEmailAction end to end, email-normalization consistency, and an untested-module scan) and why each came back clean. Nothing genuine or previously-unflagged turned up — logged as a short, honest clean-audit entry per AGENT_PROTOCOL's explicit instruction rather than inventing busywork.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-leads-category-parity-empty-backlog-spotcheck-clean, recording the clean full tier 1-5 sweep and re-anchoring the empty-backlog diff-gate from 6f05c86 to this iteration's own starting tip (201add3).",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. No other files changed — NEXT_STEPS unchanged, all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked.",
+      "Verified: baseline npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2597 passed, unchanged, 192 files) still hold since no application code changed in this iteration.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-leads-category-parity-empty-backlog-spotcheck-clean",
+    ),
+  },
 ];
