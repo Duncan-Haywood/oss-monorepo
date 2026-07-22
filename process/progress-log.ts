@@ -547,4 +547,19 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): if recentlyConfirmedWithinHours(12) is true and the cheap check finds nothing new, skip the branch/commit/PR per step 0a same as always. Separately, only send another out-of-band reminder if shouldNotifyHuman() returns true (72h throttle) or a genuinely new finding (blocker resolved / new blocker) justifies bypassing it — don't notify every run just because the capability exists.",
     ],
   },
+  {
+    date: "2026-07-22",
+    agent: "claude/dazzling-allen-dco74e",
+    summary:
+      "Full re-verification pass (recentlyConfirmedWithinHours(12) had just elapsed, ~13h since the last check at 06:13Z). All 7 human blockers re-confirmed unchanged: real-data logs still empty, PR #4 still the only open PR (draft/unchanged), nextActionableTasks() still empty, CI outage re-confirmed still ongoing (~111h, run 29896411411). No product/business progress was agent-actionable this session, so per prompt_process.tsx step 4 spent it on process hygiene instead: trimmed the actions-ci-runner-outage blocker out of the same unbounded-growth pattern stale-branch-cleanup hit in 2026-07-19's fix, and corrected a branch-count error (recorded 48, actually 51 — a `list_branches` recount, not new agent activity).",
+    changes: [
+      "process/blockers.ts: bumped lastConfirmed/lastConfirmedAt/confirmedByCount on all 7 entries with fresh evidence (GitHub Actions job list checked directly on the newest run on main; open-PR list checked via the GitHub MCP server; leads-log.ts/listingAuditLog/roadmap.ts read directly). Rewrote actions-ci-runner-outage's whatsNeeded from an ever-appended per-session paragraph (13 sessions deep) down to the fixed diagnosis plus one overwritable 'most recent run / duration as of' data point. Corrected stale-branch-cleanup's branch count from a recorded 48 to the actual 51 (full-pagination list_branches, not just page 1) and confirmed via ancestry check that the two non-standard-named branches behind that delta (cursor/docs-cloudflare-access-5df0, cursor/setup-dev-environment-2314) are pre-existing 2026-06-14 abandoned scaffolding with no merge-base to main and no unique business content, not new work from a concurrent agent session — the repo's other open branches were all checked for genuinely new, not-yet-PR'd work per prompt_process.tsx step 6 and found to be the usual pattern (each one the immediately-preceding session's own now-merged source branch).",
+      "decisions-log.ts: new entry documenting the CI-outage blocker trim and the branch-count correction.",
+      "Verified: docs-site/ `npm run build` passes clean (type-checks blockers.ts/decisions-log.ts/progress-log.ts via prompt_process.tsx's import chain). pipeline/ and research/ untouched, not rebuilt. shouldNotifyHuman(72) returned false (~17h since the 2026-07-22T02:10Z push) — no repeat out-of-band notification sent this session, consistent with the throttle.",
+    ],
+    nextUp: [
+      "Human: same seven items remain the highest-leverage next steps — see blockers.ts (first concierge delivery, phase-1 interviews, Zillow listing audit, Cloudflare Access dashboard toggle + merge PR #4, confirm the Zelle/PayPal payment handle actually receives funds, check GitHub Actions billing/quota for the runner outage — now ~111h and the single most actionable item — and reconsider the cron cadence).",
+      "Agent (next session): a full pass on actions-ci-runner-outage should now just overwrite the 'most recent run' / 'duration as of' facts in blockers.ts in place, not append another paragraph — same pattern already established for stale-branch-cleanup.",
+    ],
+  },
 ];
