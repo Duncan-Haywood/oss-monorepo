@@ -11,6 +11,7 @@ import {
   MAX_SKU_DESCRIPTION_LENGTH,
   MAX_SKU_NAME_LENGTH,
   MAX_SKU_PRICE_CENTS,
+  MIN_SKU_PRICE_CENTS,
   type CommerceSku,
 } from "./types";
 
@@ -248,12 +249,12 @@ export function normalizeCommerceItems(
     if (
       typeof priceCents !== "number" ||
       !Number.isInteger(priceCents) ||
-      priceCents < 0 ||
+      priceCents < MIN_SKU_PRICE_CENTS ||
       priceCents > MAX_SKU_PRICE_CENTS
     ) {
       return {
         ok: false,
-        error: `SKU ${i + 1} needs a whole-cent price between $0 and $${MAX_SKU_PRICE_CENTS / 100}`,
+        error: `SKU ${i + 1} needs a whole-cent price between $${(MIN_SKU_PRICE_CENTS / 100).toFixed(2)} and $${MAX_SKU_PRICE_CENTS / 100} — Stripe rejects a Checkout charge below its $${(MIN_SKU_PRICE_CENTS / 100).toFixed(2)} minimum`,
       };
     }
     const description =

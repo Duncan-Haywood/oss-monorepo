@@ -46,6 +46,7 @@ import type { CommerceCatalog, CommerceSku } from "@/lib/commerce/types";
 import type { CommerceOrderRecord } from "@/lib/commerce/orders";
 import {
   MAX_COMMERCE_SKUS,
+  MIN_SKU_PRICE_CENTS,
   commerceDraftItemsAfterSync,
   commerceOrdersByLeadSummaryNeedsAttention,
   formatPriceUsd,
@@ -3581,7 +3582,7 @@ export function LeadsClient({
                                   Price (USD)
                                   <input
                                     type="number"
-                                    min={0}
+                                    min={MIN_SKU_PRICE_CENTS / 100}
                                     step={0.01}
                                     value={(item.priceCents / 100).toFixed(2)}
                                     onChange={(e) => {

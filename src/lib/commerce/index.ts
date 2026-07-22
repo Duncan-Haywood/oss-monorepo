@@ -4,6 +4,7 @@ export {
   MAX_SKU_DESCRIPTION_LENGTH,
   MAX_SKU_NAME_LENGTH,
   MAX_SKU_PRICE_CENTS,
+  MIN_SKU_PRICE_CENTS,
   type CommerceCatalog,
   type CommerceSku,
   type UpsertCommerceCatalogInput,

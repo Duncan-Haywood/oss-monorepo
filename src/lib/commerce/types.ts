@@ -17,6 +17,16 @@ export const MAX_COMMERCE_SKU_ID_LENGTH = 64;
 export const MAX_SKU_NAME_LENGTH = 80;
 export const MAX_SKU_DESCRIPTION_LENGTH = 280;
 export const MAX_SKU_PRICE_CENTS = 1_000_000_00; // $1,000,000.00
+/**
+ * Stripe rejects a USD Checkout Session line item under its documented
+ * per-currency minimum charge amount (50 cents) — see
+ * https://docs.stripe.com/currencies#minimum-and-maximum-charge-amounts.
+ * Below this, Sync to Stripe silently succeeds (Price creation has no
+ * minimum) but every "Buy now" click 502s at Checkout Session creation with
+ * no operator-visible signal — see MIN_SKU_PRICE_CENTS usage in
+ * normalizeCommerceItems.
+ */
+export const MIN_SKU_PRICE_CENTS = 50; // $0.50
 
 export interface CommerceSku {
   id: string;

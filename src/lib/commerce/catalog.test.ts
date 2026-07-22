@@ -13,7 +13,11 @@ import {
   oldestCommerceCatalogCandidateAgeHours,
   preserveCommerceStripeIds,
 } from "./catalog";
-import { MAX_COMMERCE_SKU_ID_LENGTH, MAX_COMMERCE_SKUS } from "./types";
+import {
+  MAX_COMMERCE_SKU_ID_LENGTH,
+  MAX_COMMERCE_SKUS,
+  MIN_SKU_PRICE_CENTS,
+} from "./types";
 
 describe("leadEligibleForCommerceCatalog", () => {
   it("requires paid/live stage and a commerceAddon order", () => {
@@ -436,6 +440,25 @@ describe("normalizeCommerceItems", () => {
     expect(
       normalizeCommerceItems([{ name: "X", priceCents: -1 }]).ok,
     ).toBe(false);
+  });
+
+  it("rejects a price under Stripe's real USD minimum charge (0.50), including 0", () => {
+    // Sync to Stripe has no price floor of its own — a SKU under this amount
+    // would save/sync successfully but 502 for every real shopper the moment
+    // they click Buy now (Stripe rejects the Checkout Session at create time).
+    const zero = normalizeCommerceItems([{ name: "Free sample", priceCents: 0 }]);
+    expect(zero.ok).toBe(false);
+    if (!zero.ok) {
+      expect(zero.error).toMatch(/\$0\.50/);
+    }
+
+    const under = normalizeCommerceItems([{ name: "Napkin fee", priceCents: 25 }]);
+    expect(under.ok).toBe(false);
+
+    const atFloor = normalizeCommerceItems([
+      { name: "Extra shot", priceCents: MIN_SKU_PRICE_CENTS },
+    ]);
+    expect(atFloor.ok).toBe(true);
   });
 
   it("hard-rejects over-long opaque SKU ids (never truncates)", () => {
