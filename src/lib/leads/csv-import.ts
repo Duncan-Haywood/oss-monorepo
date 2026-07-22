@@ -428,14 +428,24 @@ export function parseLeadsCsv(
     }
     seenSlugs.add(slug);
 
+    // A non-empty services cell that resolves to zero real tokens after
+    // split/trim/filter (e.g. "Haircuts;;;" or " ; ; ", a plausible artifact
+    // from a scraped/exported data source) must still fall back to the same
+    // placeholder as an empty cell — otherwise the public preview site's
+    // "Services" section (category-preview.tsx) renders a heading over an
+    // empty list for a real, prospected lead. normalizeLeadCreateFields
+    // (manual Add lead) already has this exact `.length > 0` fallback; CSV
+    // import lacked it, so the two create-paths could silently diverge on
+    // this input shape (csv-import-empty-services-tokens-fallback).
     const servicesRaw = get("services");
-    const services = servicesRaw
+    const splitServices = servicesRaw
       ? servicesRaw
           .split(";")
           .map((s) => softCap(s.trim(), MAX_SERVICE_ITEM_LENGTH))
           .filter(Boolean)
           .slice(0, MAX_SERVICES)
-      : ["Custom digital setup"];
+      : [];
+    const services = splitServices.length > 0 ? splitServices : ["Custom digital setup"];
 
     const hoursRaw = get("hours");
     const parsedHours = hoursRaw
