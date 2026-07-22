@@ -514,6 +514,24 @@ export default function LaunchChecklistDocPage() {
           <code>mark-commerce-order-paid-out-action.test.ts</code> locks that glue.
         </li>
         <li>
+          Optional, dormant by default: each Commerce lead row&apos;s expanded panel has a{" "}
+          <strong>Payouts (Stripe Connect) — scaffold</strong> section for pre-provisioning a
+          client&apos;s Connect Express account ahead of the future payout wiring. It stays
+          inert (buttons hidden behind a message) until you set{" "}
+          <code>ALLOW_STRIPE_CONNECT_ONBOARDING=1</code> alongside{" "}
+          <code>STRIPE_SECRET_KEY</code> — do not flip this on until you are ready to start
+          collecting client KYC/bank details, since <strong>Create Connect account</strong> and{" "}
+          <strong>Get onboarding link</strong> both make real Stripe API calls once enabled.
+          Creating an account is idempotent (re-finds the same account on a retry) and{" "}
+          <strong>Check status</strong> reports live <code>charges_enabled</code> /{" "}
+          <code>payouts_enabled</code> / <code>details_submitted</code> flags. This only
+          provisions the account — no transfer/destination-charge wiring reads it yet, so Buy
+          now money still lands entirely in the platform&apos;s own Stripe account and manual
+          payouts (the bullet above) remain the only way clients get paid until that
+          counsel-reviewed money-movement half ships (see{" "}
+          <DocLink href="/docs/architecture">architecture</DocLink>).
+        </li>
+        <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
           receptionist scripts (greeting, hours, services, booking, after-hours, take-a-message)
           appear (stub without <code>ANTHROPIC_API_KEY</code>). When Convex is configured,
