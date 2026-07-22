@@ -24,6 +24,14 @@
  * README.md and prompt_process.tsx both read from it instead of
  * maintaining their own prose copy.
  *
+ * 2026-07-22: the actions-ci-runner-outage entry had grown into an
+ * ever-longer paragraph — each of 13 re-verification sessions appended its
+ * own run ID/timestamp/duration rather than replacing the previous ones,
+ * the same unbounded-growth pattern stale-branch-cleanup hit first (see its
+ * 2026-07-19 note below). Trimmed it to the fixed diagnosis plus the latest
+ * data point; a future full pass should overwrite the "most recent run" and
+ * "duration as of" facts in place rather than appending another paragraph.
+ *
  * 2026-07-13, later the same day: date-only `lastConfirmed` granularity
  * turned out not to be enough. With three separate hourly cron triggers
  * hitting this repo (two on local-site-studio, one here), several sessions
@@ -77,8 +85,8 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p2-first-deliveries", "p3-app-scope"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-22",
-    lastConfirmedAt: "2026-07-22T06:13:00Z",
-    confirmedByCount: 24,
+    lastConfirmedAt: "2026-07-22T19:12:00Z",
+    confirmedByCount: 25,
   },
   {
     id: "phase-1-interviews",
@@ -87,8 +95,8 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p1-run-interviews", "p3-app-scope"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-22",
-    lastConfirmedAt: "2026-07-22T06:13:00Z",
-    confirmedByCount: 24,
+    lastConfirmedAt: "2026-07-22T19:12:00Z",
+    confirmedByCount: 25,
   },
   {
     id: "zillow-listing-audit",
@@ -98,8 +106,8 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p1-listing-audit"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-22",
-    lastConfirmedAt: "2026-07-22T06:13:00Z",
-    confirmedByCount: 24,
+    lastConfirmedAt: "2026-07-22T19:12:00Z",
+    confirmedByCount: 25,
   },
   {
     id: "cloudflare-access-dashboard",
@@ -109,19 +117,19 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p0-docs-site"],
     firstFlagged: "2026-06-15",
     lastConfirmed: "2026-07-22",
-    lastConfirmedAt: "2026-07-22T06:13:00Z",
-    confirmedByCount: 25,
+    lastConfirmedAt: "2026-07-22T19:12:00Z",
+    confirmedByCount: 26,
   },
   {
     id: "stale-branch-cleanup",
-    title: "Delete ~48 confirmed-stale, fully-merged branches",
+    title: "Delete ~51 confirmed-stale, fully-merged/abandoned branches",
     whatsNeeded:
-      "From github.com (or a token with delete permission) delete the branches confirmed strictly merged/superseded (48 non-main branches per `list_branches` as of 2026-07-22T06:13Z, unchanged count from the last session; only cursor/fix-pages-access-4a7e is live, as PR #4, still draft and still waiting on the same Cloudflare dashboard step). No new branches appeared since the last count (still 48 non-main + main = 49 total), so this session didn't need to re-derive ancestry for anything new or re-test the delete endpoint. Per prior sessions' repeated confirmation, this is a proxy-level restriction, not a repo-permissions issue: the GitHub REST `DELETE /git/refs/heads/...` endpoint returns a distinct 403 ('Write access to this GitHub API path is not permitted through this proxy').",
+      "From github.com (or a token with delete permission) delete the branches confirmed strictly merged/superseded or dead-end (51 non-main branches per a full-pagination `list_branches` call as of 2026-07-22T19:12Z, corrected up from the previously recorded 48 — re-audited this session and found no evidence of any new unmerged work causing the delta, just a recount; only cursor/fix-pages-access-4a7e is live, as PR #4, still draft and still waiting on the same Cloudflare dashboard step). Two non-'dazzling-allen' branches without a merge-base to main (cursor/docs-cloudflare-access-5df0, cursor/setup-dev-environment-2314, both dated 2026-06-14, pre-dating this repo's current main lineage) were checked this session and confirmed to be abandoned early scaffolding attempts with no unique business content worth recovering. Per prior sessions' repeated confirmation, deletion is blocked by a proxy-level restriction, not a repo-permissions issue: the GitHub REST `DELETE /git/refs/heads/...` endpoint returns a distinct 403 ('Write access to this GitHub API path is not permitted through this proxy').",
     unblocks: [],
     firstFlagged: "2026-07-12",
     lastConfirmed: "2026-07-22",
-    lastConfirmedAt: "2026-07-22T06:13:00Z",
-    confirmedByCount: 25,
+    lastConfirmedAt: "2026-07-22T19:12:00Z",
+    confirmedByCount: 26,
   },
   {
     id: "payment-handle-setup",
@@ -131,8 +139,8 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p2-first-deliveries"],
     firstFlagged: "2026-07-13",
     lastConfirmed: "2026-07-22",
-    lastConfirmedAt: "2026-07-22T06:13:00Z",
-    confirmedByCount: 19,
+    lastConfirmedAt: "2026-07-22T19:12:00Z",
+    confirmedByCount: 20,
   },
   {
     id: "cron-cadence-too-frequent",
@@ -142,19 +150,19 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: [],
     firstFlagged: "2026-07-13",
     lastConfirmed: "2026-07-22",
-    lastConfirmedAt: "2026-07-22T06:13:00Z",
-    confirmedByCount: 18,
+    lastConfirmedAt: "2026-07-22T19:12:00Z",
+    confirmedByCount: 19,
   },
   {
     id: "actions-ci-runner-outage",
     title: "GitHub Actions stopped assigning runners to this repo's CI workflow",
     whatsNeeded:
-      "Duncan to check GitHub billing/Actions settings for this account (Settings -> Billing -> Plans and usage -> Actions, and Settings -> Actions -> General for the repo/org) for an exhausted included-minutes quota, a hit spending limit, or Actions disabled. Evidence: PR #42 (2026-07-18T04:14Z, a trivial process/blockers.ts-only change) had all 3 ci.yml jobs (pipeline/docs-site/research) fail twice in a row — both the original run and one manual rerun — each completing in ~3-6 seconds with runner_id 0 / runner_name empty / 0ms billable duration (i.e. no runner was ever assigned, not a real test/build failure). The immediately prior run on main, 4 hours earlier at 00:20:55Z (PR #41, run #99), completed normally with real durations (15-100s/job) on the exact same workflow file and dependency lockfiles. Nothing in the repo changed between those two points other than blockers.ts's own timestamps, which is confirmed correct by a clean local `npm run build` in docs-site before pushing — so this is an account/infra-level Actions problem, not a code regression. Re-confirmed still ongoing this session using the GitHub MCP Actions API directly (not just build logs): the most recent run on main (run 29800708055, head a891acc, created 2026-07-21T04:14:32Z, triggered by PR #52's own merge) shows the identical signature on all 3 jobs — runner_id 0, runner_name empty, ~2-3s wall clock, conclusion 'failure' with no actual test/build output; no newer run exists since main hasn't moved and no other PR is open. Duration is now ~86 hours and counting (started 2026-07-18T04:14Z, re-checked 2026-07-21T18:10Z) with zero signs of self-resolving. Because ci.yml has no required-status-check branch protection, every affected PR (#42 onward) still merged (content verified locally each time) rather than being blocked, but every subsequent PR from any agent session will show the same false 'failure' until this is fixed — don't treat that failure as a signal to debug your own change first, check this blocker. Pushed to Duncan once out-of-band on 2026-07-19T01:20Z (see human-notifications.ts) specifically citing this outage. Re-confirmed still ongoing again via the GitHub MCP Actions API on 2026-07-22T06:13Z: latest run on main (29885295402, head 4f1a44e, created 2026-07-22T02:14:53Z, triggered by PR #54's own merge) shows the identical signature on all 3 jobs — runner_id 0, runner_name empty, 2-3s wall clock, conclusion 'failure', no actual test/build output; no newer run exists since main hasn't moved and no other PR is open. Duration is now ~98 hours and counting (started 2026-07-18T04:14Z) with zero signs of self-resolving. shouldNotifyHuman(72) returned false this session (~4h since the 2026-07-22T02:10Z notification) — no repeat out-of-band reminder sent; the 72h throttle exists precisely so a session this soon after the last one doesn't re-ping.",
+      "Duncan to check GitHub billing/Actions settings for this account (Settings -> Billing -> Plans and usage -> Actions, and Settings -> Actions -> General for the repo/org) for an exhausted included-minutes quota, a hit spending limit, or Actions disabled. Started 2026-07-18T04:14Z: PR #42's ci.yml runs began completing all 3 jobs in ~3-6s with runner_id 0 / runner_name empty / 0ms billable duration (no runner ever assigned — not a real test/build failure), versus the prior run's normal 15-100s/job durations on the identical workflow file and lockfiles. ci.yml has no required-status-check branch protection, so affected PRs still merge (content verified locally each time) — this just means every subsequent PR shows the same false 'failure' until fixed; don't treat it as a signal to debug your own change first, check this blocker instead. Re-confirmed unchanged on 14 full-pass re-verifications since, zero exceptions, most recently on run 29896411411 (main @ 998b1af, 2026-07-22T06:19:38Z) — identical signature on all 3 jobs. Duration as of this check (2026-07-22T19:12Z): ~111 hours and counting, zero sign of self-resolving. Two out-of-band pushes already sent to Duncan citing this specifically (2026-07-19T01:20Z, 2026-07-22T02:10Z — see human-notifications.ts); further reminders throttled to 72h via shouldNotifyHuman(). A session doing a full pass should just pull the newest run on main via list_workflow_runs/list_workflow_jobs and check for the same runner_id:0/empty-runner_name/~3s-duration signature rather than re-deriving or re-narrating this history — 14 identical confirmations is enough to stop appending a fresh paragraph each time (same reasoning as stale-branch-cleanup's 2026-07-19 simplification).",
     unblocks: [],
     firstFlagged: "2026-07-18",
     lastConfirmed: "2026-07-22",
-    lastConfirmedAt: "2026-07-22T06:13:00Z",
-    confirmedByCount: 13,
+    lastConfirmedAt: "2026-07-22T19:12:00Z",
+    confirmedByCount: 14,
   },
 ];
 

@@ -315,4 +315,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-lijq0y",
     relatedTaskIds: ["p2-blocker-recheck-throttle", "p4-gtm-motion"],
   },
+  {
+    date: "2026-07-22",
+    title: "Stop re-narrating the CI-outage blocker's full history each session; overwrite the latest data point instead",
+    decision:
+      "process/blockers.ts's actions-ci-runner-outage entry is trimmed from a paragraph that had grown a new run-ID/timestamp/duration sentence every re-verification (13 sessions deep, all confirming the identical runner_id:0/empty-runner_name/~3s-duration signature) down to the fixed diagnosis plus one 'most recent run' / 'duration as of' data point. A future full pass should overwrite those two facts in place, not append another paragraph. Also corrected the stale-branch-cleanup entry's branch count from a recorded 48 to the actual 51 (verified via a full-pagination `list_branches` call, not just the first page) and confirmed the two non-standard-named branches found in the process (cursor/docs-cloudflare-access-5df0, cursor/setup-dev-environment-2314) are pre-existing, no-merge-base, abandoned early scaffolding from 2026-06-14 with no unique business content — not new work from a concurrent agent session.",
+    rationale:
+      "Same unbounded-growth pattern the 2026-07-19 stale-branch-cleanup decision above already fixed for that blocker, just discovered a session later in a different entry: a human blocker's job is to state the current diagnosis and evidence, not to accumulate an audit trail every session re-reads and re-writes. At 14 confirmations with zero exceptions, the diagnosis (an account/infra-level Actions problem, not a code regression) is settled; only the 'is it still happening, how long has it been' facts need to stay current. This session was otherwise a routine full re-verification pass (recentlyConfirmedWithinHours(12) had just elapsed, ~13h since the last check) that found nothing else changed: leads-log.ts/listingAuditLog/loggedInterviewResults still empty, PR #4 still the only open PR (draft, unchanged), nextActionableTasks() still empty, and the CI outage re-confirmed still ongoing (~111h) via a fresh GitHub Actions API check rather than trusting a prior session's note. shouldNotifyHuman(72) returned false (~17h since the last out-of-band ping), so no repeat push notification was sent — consistent with the throttle's own purpose.",
+    madeBy: "claude/dazzling-allen-dco74e",
+    relatedTaskIds: ["p2-blocker-recheck-throttle", "p2-human-notification-throttle"],
+  },
 ];
