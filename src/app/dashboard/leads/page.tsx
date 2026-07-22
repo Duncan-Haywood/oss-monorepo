@@ -15,6 +15,7 @@ import {
   getSuppressedEmails,
 } from "@/lib/db";
 import { mergeCommerceOrdersForReview } from "@/lib/commerce";
+import { mergeInquiriesForInbox } from "@/lib/inquiries/merge";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
@@ -68,6 +69,7 @@ async function loadLeadsPipelineHealth(): Promise<{
   leads: Awaited<ReturnType<typeof getLeads>>;
   handoffs: Awaited<ReturnType<typeof listDeployHandoffs>>;
   inquiries: Awaited<ReturnType<typeof listClientInquiries>>;
+  unrepliedInquiries: Awaited<ReturnType<typeof listUnrepliedInquiries>>;
   orders: Awaited<ReturnType<typeof listOrders>>;
   openCheckoutSessions: Awaited<ReturnType<typeof listOpenCheckoutSessions>>;
   marketingPacks: Awaited<ReturnType<typeof listMarketingPacksForMonth>>;
@@ -119,6 +121,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     leads,
     handoffs,
     inquiries,
+    unrepliedInquiries,
     orders,
     openCheckoutSessions,
     marketingPacks,
@@ -154,6 +157,7 @@ export default async function LeadsPage() {
     leads,
     handoffs,
     inquiries,
+    unrepliedInquiries,
     orders,
     openCheckoutSessions,
     marketingPacks,
@@ -177,6 +181,14 @@ export default async function LeadsPage() {
     commerceOrdersRefunded,
     commerceOrdersDisputed,
   );
+  // The Website inquiries panel must also surface every currently-unreplied
+  // inquiry regardless of age — listClientInquiries(50)'s recent-N page
+  // (every status) alone silently drops an unreplied inquiry older than the
+  // newest 50 total inquiries once that volume is exceeded, even though
+  // pipeline-health's MetricCard hint and the daily digest (both fed from the
+  // uncapped listUnrepliedInquiries() below) keep counting it as outstanding
+  // (see inquiries-inbox-uncapped-unreplied-merge).
+  const inquiriesForInboxPanel = mergeInquiriesForInbox(inquiries, unrepliedInquiries);
   const isConvexActive = isConvexUrlConfigured(process.env.NEXT_PUBLIC_CONVEX_URL);
   const priceEnv = assessBundlePriceEnvReadiness();
   const coreEnv = assessStripeCoreEnvReadiness();
@@ -246,7 +258,7 @@ export default async function LeadsPage() {
         <LeadsClient
           initialLeads={leads}
           initialHandoffs={handoffs}
-          initialInquiries={inquiries}
+          initialInquiries={inquiriesForInboxPanel}
           initialCheckoutSessions={openCheckoutSessions}
           initialOrders={orders}
           initialMarketingPacks={marketingPacks}
