@@ -1,5 +1,6 @@
 import type { Lead, LeadHours, LeadPipelineStage } from "./types";
 import { normalizeOutreachStep } from "../email/outreach-followups";
+import { normalizeLeadCategory, normalizeLeadRecommendedTier } from "./category-normalize";
 
 /**
  * Pure SQLite <-> Lead row mapping, split out of src/lib/db.ts (which imports
@@ -70,24 +71,10 @@ export function parseLeadServices(raw: string | null | undefined): string[] {
   }
 }
 
-const CATEGORIES = ["restaurant", "salon", "trades", "generic"] as const;
-const RECOMMENDED_TIERS = ["starter", "growth", "complete"] as const;
-
 /** Map a SQLite `leads` row back into the app-wide Lead shape (fallback-read path). */
 export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
-  const category = (CATEGORIES as readonly string[]).includes(row.category)
-    ? (row.category as Lead["category"])
-    : "generic";
-
-  const recommendedTier = (RECOMMENDED_TIERS as readonly string[]).includes(
-    row.recommendedTier ?? "",
-  )
-    ? (row.recommendedTier as Lead["recommendedTier"])
-    : category === "trades"
-      ? "starter"
-      : category === "salon"
-        ? "complete"
-        : "growth";
+  const category = normalizeLeadCategory(row.category);
+  const recommendedTier = normalizeLeadRecommendedTier(row.recommendedTier, category);
 
   return {
     slug: row.slug,

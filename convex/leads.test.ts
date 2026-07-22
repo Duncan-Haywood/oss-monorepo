@@ -135,6 +135,67 @@ test("list and getBySlug never leak Convex's own _id/_creationTime system fields
   }
 });
 
+test("list and getBySlug normalize an unrecognized stored category/recommendedTier to safe defaults, matching mapSqliteRowToLead (leads-category-tier-read-normalize-parity)", async () => {
+  const t = convexTest(schema, modules);
+  // The leads table stores category/recommendedTier as loose v.string()
+  // (schema.ts), not the closed literal unions upsertLead's categoryValidator/
+  // tierValidator enforce — insert out-of-union values directly to simulate a
+  // legacy row or a hand-edited Convex dashboard value a bypassed write path
+  // could produce. Unlike checkoutSessions' analogous "unrecognized kind stays
+  // as-is" test above, category/recommendedTier must NOT pass through raw:
+  // getCategoryTheme's CATEGORY_THEMES[category] lookup (src/lib/previews/themes.ts)
+  // has no fallback and throws on an unrecognized key, crashing the public
+  // /preview/[slug] page for that lead.
+  await t.run(async (ctx) => {
+    await ctx.db.insert("leads", {
+      slug: "legacy-lead",
+      businessName: "Legacy Lead",
+      category: "not-a-real-category",
+      city: "Boulder",
+      state: "CO",
+      tagline: "Fresh daily",
+      description: "A cozy neighborhood cafe.",
+      phone: "(555) 000-0000",
+      services: ["coffee"],
+      hours: { weekday: "Mon-Fri 7am-5pm", weekend: "Sat-Sun 8am-2pm" },
+      stage: "discovered",
+      recommendedTier: "not-a-real-tier",
+    });
+    await ctx.db.insert("leads", {
+      slug: "legacy-trades-lead",
+      businessName: "Legacy Trades Lead",
+      category: "trades",
+      city: "Boulder",
+      state: "CO",
+      tagline: "Reliable service",
+      description: "Trusted local trades.",
+      phone: "(555) 000-0001",
+      services: ["plumbing"],
+      hours: { weekday: "Mon-Fri 7am-5pm", weekend: "Sat-Sun 8am-2pm" },
+      stage: "discovered",
+      recommendedTier: "not-a-real-tier",
+    });
+  });
+
+  const rows: LeadRow[] = await t.query(api.leads.list, { apiSecret: TEST_API_SECRET });
+  const legacy = rows.find((r) => r.slug === "legacy-lead");
+  expect(legacy?.category).toBe("generic");
+  expect((legacy as unknown as { recommendedTier: string }).recommendedTier).toBe("growth");
+
+  // Unrecognized recommendedTier falls back to the *category*-derived default
+  // (trades -> starter), the same rule mapSqliteRowToLead applies.
+  const legacyTrades = rows.find((r) => r.slug === "legacy-trades-lead");
+  expect((legacyTrades as unknown as { recommendedTier: string }).recommendedTier).toBe(
+    "starter",
+  );
+
+  const bySlug = await t.query(api.leads.getBySlug, {
+    slug: "legacy-lead",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect((bySlug as unknown as { category: string } | null)?.category).toBe("generic");
+});
+
 test("updateStage throws on an unknown slug (parity with SQLite's existence-check-then-throw) and patches an existing lead", async () => {
   const t = convexTest(schema, modules);
   await expect(

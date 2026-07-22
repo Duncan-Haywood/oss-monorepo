@@ -1,5 +1,9 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import {
+  normalizeLeadCategory,
+  normalizeLeadRecommendedTier,
+} from "../src/lib/leads/category-normalize";
 import { buildPaymentStubLeadFields } from "../src/lib/leads/payment-stub";
 import { requireApiSecret } from "./lib/apiSecret";
 
@@ -79,18 +83,33 @@ const leadFields = {
  * leads-convex-query-return-validator-system-field-leak.
  *
  * Deliberately does NOT reuse `leadFields`'s strict category/stage/
- * recommendedTier literal unions here — those exist to validate WRITES
- * (upsertLead/seed args), but schema.ts itself stores all three as plain
- * `v.string()` (its own comments note the literal values are documented,
- * not schema-enforced). A stricter return validator would make list/
- * getBySlug throw at runtime for any pre-existing row whose value predates
- * (or otherwise falls outside) the current literal set, turning a merely
- * unexpected value into a hard 500 on every dashboard/preview read for that
- * row instead of just passing it through — the same class of risk
+ * recommendedTier literal unions as the RETURN VALIDATOR here — those exist
+ * to validate WRITES (upsertLead/seed args), but schema.ts itself stores all
+ * three as plain `v.string()` (its own comments note the literal values are
+ * documented, not schema-enforced). A stricter return validator would make
+ * list/getBySlug throw at runtime for any pre-existing row whose value
+ * predates (or otherwise falls outside) the current literal set, turning a
+ * merely unexpected value into a hard 500 on every dashboard/preview read for
+ * that row instead of just passing it through — the same class of risk
  * checkoutSessions.ts's kind field is already documented to guard against.
- * Match schema.ts's own looseness for these three fields; everything else
- * here (services/hours/optional string fields) was already schema-typed
- * consistently between writes and storage, so no such gap applies to them.
+ * `stage` is left as a raw pass-through (dashboard/pipeline-health render it
+ * as plain text — no downstream lookup crashes on an unrecognized value).
+ *
+ * `category` and `recommendedTier` are different: category feeds a direct
+ * object-keyed lookup with no fallback downstream (getCategoryTheme's
+ * CATEGORY_THEMES[category] in src/lib/previews/themes.ts, consumed by the
+ * public /preview/[slug] page and its OG-image routes) — an unrecognized
+ * value there doesn't just render oddly, it throws. mapSqliteRowToLead
+ * (src/lib/leads/sqlite-row-mapping.ts) has always defended against this by
+ * falling back to "generic"/a category-derived tier default for an
+ * unrecognized stored value; this mapping function did not, so the exact
+ * same corrupt row degraded gracefully on SQLite but 500'd on Convex — a
+ * dual-backend parity gap in read-time value safety, not row ordering.
+ * mapLeadRow now runs both fields through the same shared normalizer
+ * (normalizeLeadCategory / normalizeLeadRecommendedTier, category-normalize.ts)
+ * mapSqliteRowToLead uses, so the return validator can stay loose (`v.string()`,
+ * no new RPC-throw risk) while the actual value it returns is always one of
+ * the current literals on both backends (leads-category-tier-read-normalize-parity).
  */
 const leadReturn = v.object({
   slug: v.string(),
@@ -142,10 +161,11 @@ function mapLeadRow(row: {
   snoozedUntil?: string;
   stripeConnectAccountId?: string;
 }) {
+  const category = normalizeLeadCategory(row.category);
   return {
     slug: row.slug,
     businessName: row.businessName,
-    category: row.category,
+    category,
     city: row.city,
     state: row.state,
     address: row.address,
@@ -156,7 +176,7 @@ function mapLeadRow(row: {
     services: row.services,
     hours: row.hours,
     stage: row.stage,
-    recommendedTier: row.recommendedTier,
+    recommendedTier: normalizeLeadRecommendedTier(row.recommendedTier, category),
     dataSource: row.dataSource,
     outreachStep: row.outreachStep,
     lastOutreachAt: row.lastOutreachAt,

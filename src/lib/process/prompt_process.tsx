@@ -868,4 +868,23 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-connect-launch-checklist-empty-backlog-spotcheck-clean",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-52cd8n",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 2694e36 (PR #627, post-connect-launch-checklist-empty-backlog-spotcheck-clean) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2592 passed, 191 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). mcp__github__actions_list sampled the newest 30 workflow runs — 30/30 conclusion=failure, no runner ever assigned — github-actions-runner-unavailable stays status=todo, unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (620+ refs): the newest 5 claude/* siblings by committer date each diffed as pure deletions against origin/main (already-merged-under-a-different-SHA content from #623-#627) — no live fold candidate.\n\nThe empty-backlog diff-gate against the documented anchor (6f05c86) showed 5 commits since (#623-#627), mostly docs and each already reviewed by its own originating iteration, so per the waste-reduction rule dispatched a foreground research/implementation agent for a fast, freshly-angled spot-check rather than a from-scratch tier 1-5 sweep, explicitly steered away from the ~12 surface classes the last ~20 iterations had already exhausted. It found a genuine dual-backend parity gap in a fresh dimension (read-time value safety, not row ordering/return-validator shape): convex/leads.ts's mapLeadRow passed a stored leads.category/recommendedTier straight through with no normalization, while mapSqliteRowToLead has always defended against an out-of-union value by falling back to \"generic\"/a category-derived tier. Because getCategoryTheme's CATEGORY_THEMES[category] lookup (src/lib/previews/themes.ts) throws on an unrecognized key with no downstream guard, a legacy/corrupted category value would 500 the public /preview/[slug] page and its OG-image routes on a Convex-backed deployment while degrading gracefully on SQLite. See leads-category-tier-read-normalize-parity in BUSINESS_DECISIONS for the full finding and fix.",
+    shipped: [
+      "src/lib/leads/category-normalize.ts (new) — normalizeLeadCategory / normalizeLeadRecommendedTier, the shared fallback-normalization source of truth both backends now use.",
+      "src/lib/leads/category-normalize.test.ts (new) — unit coverage for both normalizers' recognized/unrecognized/fallback-tier-by-category cases.",
+      "src/lib/leads/sqlite-row-mapping.ts — mapSqliteRowToLead refactored to call the shared normalizers (pure refactor, zero behavior change).",
+      "convex/leads.ts — mapLeadRow now normalizes category/recommendedTier through the shared helpers before returning; extended leadReturn's doc comment explaining why the return validator stays loose while the returned value is now always safe.",
+      "convex/leads.test.ts — new test inserting a row directly via `t.run(ctx => ctx.db.insert(...))` (bypassing the mutation's validator) with an out-of-union category/recommendedTier, asserting list/getBySlug normalize them exactly like SQLite does.",
+      "src/lib/process/business-decisions.ts — appended leads-category-tier-read-normalize-parity.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a Convex/SQLite parity fix discovered by audit, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2597 passed, up from 2592 — 5 new, 192 files up from 191) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process, /docs/architecture — all 200; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "leads-category-tier-read-normalize-parity",
+    ),
+  },
 ];
