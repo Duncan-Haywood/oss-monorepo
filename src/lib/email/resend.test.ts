@@ -686,3 +686,80 @@ describe("resend.ts — transactional skipSuppression", () => {
     expect(fetchMock).toHaveBeenCalled();
   });
 });
+
+describe("resend.ts — sendStarterUpsellEmail checkout URL single source of truth", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+  const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+  let sentHtml: string;
+
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    sentHtml = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const body = JSON.parse(String(init.body));
+        sentHtml = body.html;
+        return {
+          ok: true,
+          json: async () => ({ id: "email_test" }),
+        } as Response;
+      }),
+    );
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    process.env.RESEND_API_KEY = originalKey;
+    if (originalAppUrl === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = originalAppUrl;
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  // Guards against the two implementations (this email's checkout link, and
+  // the dedicated src/lib/billing/starter-upsell.ts path builder — both
+  // added in the same original commit but never wired together until
+  // starter-upsell-checkout-url-single-source-of-truth) silently drifting
+  // apart again in the future, the same bug class as
+  // daily-digest-button-item-count-drift / monthly-marketing-pack-cadence-
+  // single-source-of-truth (see AGENT_PROTOCOL / prompt_process.tsx).
+  it("sendStarterUpsellEmail's checkout href is exactly buildStarterUpsellCheckoutPath's output", async () => {
+    const { sendStarterUpsellEmail } = await import("./resend");
+    const { buildStarterUpsellCheckoutPath } = await import(
+      "../billing/starter-upsell"
+    );
+    await sendStarterUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      targetTier: "complete",
+      monthlyPriceUsd: 199,
+    });
+    const expectedHref = `https://app.example.com${buildStarterUpsellCheckoutPath("demo-cafe", "complete")}`.replace(
+      /&/g,
+      "&amp;",
+    );
+    expect(sentHtml).toContain(`href="${expectedHref}"`);
+  });
+
+  it("matches for the growth tier too", async () => {
+    const { sendStarterUpsellEmail } = await import("./resend");
+    const { buildStarterUpsellCheckoutPath } = await import(
+      "../billing/starter-upsell"
+    );
+    await sendStarterUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      targetTier: "growth",
+      monthlyPriceUsd: 99,
+    });
+    const expectedHref = `https://app.example.com${buildStarterUpsellCheckoutPath("demo-cafe", "growth")}`.replace(
+      /&/g,
+      "&amp;",
+    );
+    expect(sentHtml).toContain(`href="${expectedHref}"`);
+  });
+});
