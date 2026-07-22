@@ -750,4 +750,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "starter-upsell-checkout-url-single-source-of-truth",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-hc05pe",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 0d7173d (PR #597, starter-upsell-checkout-url-single-source-of-truth) — this branch started at that exact tip and origin/main matched it exactly at session start, so no rebase was needed. Full fold-scan (`git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`, 500+ refs) found no live fold candidate — the newest branch window was all already-merged except the same two long-standing byte-identical duplicates prior iterations already confirmed and traced to already-merged content (claude/nice-euler-i5uyj0, claude/upbeat-dijkstra-nbqcq2); their remote refs remain undeletable this session (HTTP 403, matching the already-documented no-delete-permission finding). Confirmed baseline green (npm ci/tsc/lint/test/build/dev-sanity, all clean, same 42-route split, 2545 tests). The empty-backlog-diff-gate (`git log --oneline 58988a7..HEAD -- src convex .github/workflows`) returned exactly one product commit, already reviewed by its own originating iteration, so per the waste-reduction rule dispatched a single targeted Explore-agent spot-check across all five priority tiers instead of a from-scratch sweep. It independently confirmed the repo is genuinely clean at this snapshot. See post-starter-upsell-checkout-url-empty-backlog-clean-audit in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-starter-upsell-checkout-url-empty-backlog-clean-audit.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — no product/config code changed this iteration; the mandated baseline plus a targeted five-tier spot-check both came back genuinely clean.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2545 passed, unchanged, 190 files) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-starter-upsell-checkout-url-empty-backlog-clean-audit",
+    ),
+  },
 ];
