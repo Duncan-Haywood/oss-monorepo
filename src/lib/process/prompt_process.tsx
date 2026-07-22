@@ -717,4 +717,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-unsuppress-control-empty-backlog-clean-audit",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-o8y73i",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 09a3273 (PR #595, post-unsuppress-control-empty-backlog-clean-audit) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2543 passed, 190 files) + a full clean rebuild (same 42-route ○/ƒ split). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: origin/main was the newest ref; the newest ~11 claude/* siblings were all ahead=0 except the same two long-standing byte-identical duplicates prior iterations already traced to content merged under a different commit hash (claude/nice-euler-i5uyj0, claude/upbeat-dijkstra-nbqcq2) — re-confirmed via a direct per-file content diff against origin/main, not just diff --stat. No live fold candidate. All five NEXT_STEPS items stayed operator/legal/infra-gated (no live Stripe/Resend/Convex/Anthropic secret in this session).\n\nDispatched a foreground research agent, briefed on AGENT_PROTOCOL in full plus an explicit list of everything the last six-plus iterations had already confirmed clean, to hunt a genuinely fresh gap rather than re-report a closed tier. It found a real docs/policy mismatch: PR #594's unsuppress control (Remove button on SuppressedEmailsPanel, deletes an address from the CAN-SPAM suppression list) was never mentioned in /docs/compliance or /docs/architecture — /docs/compliance's retention table flatly claimed 'Opted-out / DNC: Indefinitely' with no caveat, which a launch-readiness auditor reading that page would reasonably (and now inaccurately) rely on.",
+    shipped: [
+      "src/app/docs/compliance/page.tsx — added a CAN-SPAM checklist bullet documenting the operator unsuppress control (scoped explicitly to correcting a mistaken/stale entry, never re-permitting contact after a genuine opt-out; removal does not itself restore consent), and updated the retention table's 'Opted-out / DNC' row to match.",
+      "src/app/docs/architecture/page.tsx — added a sentence to the existing suppression-subsystem paragraph naming SuppressedEmailsPanel/getSuppressedEmails (view) and unsuppressEmailAction/convex/suppressions.ts's unsuppress mutation/db.ts's unsuppressEmail (remove, both requireConvex), with the same correction-not-re-consent caveat so the two docs pages can't drift apart.",
+      "src/lib/process/business-decisions.ts — appended compliance-docs-unsuppress-control-disclosure.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a docs-staleness fix (AGENT_PROTOCOL tier 5), not a resolution of any gated item; no product/runtime code changed.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2543 passed, unchanged, 190 files) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process, /docs/compliance, /docs/architecture — all 200; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "compliance-docs-unsuppress-control-disclosure",
+    ),
+  },
 ];
