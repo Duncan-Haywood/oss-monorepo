@@ -809,4 +809,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "daily-digest-commerce-order-quantity-parity",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-xcjv8o",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 1851f18 (PR #623, daily-digest-commerce-order-quantity-parity) — origin/main matched that tip exactly at session start. Confirmed baseline green first: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2592 passed, 191 files). Reconfirmed the sole open PR is still #202 (unrelated human draft) and the GitHub Actions runner is still broken (30/30 recent runs conclusion=failure, no runner assigned) — github-actions-runner-unavailable stays status=todo. Fold-scanned the 4 most-recent claude/* sibling branches by direct diff against origin/main rather than trusting ahead-count: all four (claude/upbeat-dijkstra-ib4ktj, claude/upbeat-dijkstra-80eypy, claude/nice-euler-yjzfa8, claude/nice-euler-4iv0tf) confirmed fully superseded/byte-identical to content already merged in #620/#622/#623 or anchored at a stale pre-#621 tip — no live fold candidate. Re-attempted the branch-delete permission check (git push origin --delete on the confirmed-safe claude/nice-euler-4iv0tf) — still HTTP 403, consistent with merged-branch-cleanup-verified-no-delete-permission; no session in this family can clean up the ~600+ stale remote refs.\n\nThe diff-gate against the documented anchor (6f05c86) showed zero new commits since the prior iteration's own full tier 1-5 sweep, so dispatched a fast, targeted spot-check (a foreground general-purpose agent, explicitly steered away from every surface the last ~15 iterations had already covered) rather than repeating a from-scratch sweep. It found commerce order quantity capture — five shipped PRs (#613, #619, #620, #622, #623) — had zero mentions anywhere in /docs/architecture's otherwise exhaustively-detailed Commerce section. See commerce-order-quantity-architecture-docs-disclosure in BUSINESS_DECISIONS for the full finding and fix.",
+    shipped: [
+      "src/app/docs/architecture/page.tsx — one new paragraph in the Commerce section documenting MAX_COMMERCE_LINE_ITEM_QUANTITY, the adjustable_quantity Checkout line item, commerceSkuLineItemQuantity's price-resync-safe quantity source, the optional/never-assumed-as-1 quantity field's Convex replace-mutation preservation, and every surface (inquiry message, client-receipt email, two dashboard panels, three digest sections) a known quantity > 1 renders a '× N' suffix on.",
+      "src/lib/process/business-decisions.ts — appended commerce-order-quantity-architecture-docs-disclosure.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a docs-clarity fix discovered by audit, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2592 passed, unchanged — docs-only edit, 191 files) + npm run build (clean, same 42-route ○/ƒ split) + npm run dev sanity check (curled /docs/architecture, 200, confirmed the new paragraph renders in the live HTML; server killed, port 3000 freed, local.db deleted).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-order-quantity-architecture-docs-disclosure",
+    ),
+  },
 ];

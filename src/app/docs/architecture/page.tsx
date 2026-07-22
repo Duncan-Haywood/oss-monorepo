@@ -1582,6 +1582,36 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>POST /api/commerce/checkout</code>&apos;s line item carries{" "}
+        <code>adjustable_quantity</code> (min 1, max <code>MAX_COMMERCE_LINE_ITEM_QUANTITY</code>{" "}
+        = 25) so a shopper can buy more than one unit from Stripe&apos;s own hosted Checkout page
+        — there is no in-app cart, so a café selling 3 lattes in one visit relies on that stepper
+        rather than 3 separate Checkout round trips (
+        <code>commerce-checkout-adjustable-quantity</code>). The webhook still ledgers{" "}
+        <code>session.amount_total</code> (quantity-agnostic, unaffected by unit count), but the{" "}
+        <code>commerceOrders</code> row also captures the actual purchased{" "}
+        <code>quantity</code> — read off the same <code>listLineItems</code> response already
+        fetched for Price-parity verification via{" "}
+        <code>commerceSkuLineItemQuantity</code>, never back-computed from{" "}
+        <code>amountPaidUsd</code> ÷ the catalog&apos;s current price, since an operator can
+        re-sync a SKU to a new Stripe Price between Session creation and completion while an
+        already-open Session still legitimately charges the old one (
+        <code>commerce-order-quantity-visibility</code>). <code>quantity</code> is optional and
+        undefined — never assumed as 1 — on any row recorded before this shipped or whose line
+        item ever lacks a valid quantity; Convex&apos;s <code>clearRefunded</code>/
+        <code>clearDisputed</code> replace-based mutations explicitly preserve it, the same trap
+        <code>paidOutAt</code>/<code>clientReceiptEmailSentAt</code> already had to avoid there.
+        A known quantity over 1 renders as a{" "}
+        <code>× N</code> suffix on the operator inquiry-inbox message (
+        <code>commerceOrderPaidInquiryMessage</code>), the client-receipt email (
+        <code>formatCommerceBuyNowClientReceiptHtml</code>), the Commerce payouts and Missing
+        client receipt dashboard panels, and the daily digest&apos;s refund-clawback,
+        dispute-clawback, and missing-client-receipt sections (
+        <code>daily-digest-commerce-order-quantity-parity</code>) — the exact fulfillment/notify
+        surfaces a local business relies on to tell a 1-unit sale from a 3-unit one.
+      </p>
+
+      <p>
         A dormant Stripe Connect Express scaffold shipped as a tier-6 empty-backlog candidate
         (2026-07-20, see <code>commerce-payouts-stripe-connect</code>):{" "}
         <code>createStripeConnectAccountAction</code>,{" "}
