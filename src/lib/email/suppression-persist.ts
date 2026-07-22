@@ -16,3 +16,18 @@ import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 export const UNSUBSCRIBE_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
   requireConvex: true,
 };
+
+/**
+ * Fail-closed write options for the operator dashboard's unsuppress
+ * (opt-back-in) control. Same requireConvex reasoning as
+ * UNSUBSCRIBE_CONVEX_PRIMARY, but the failure mode without it is worse than
+ * "stays suppressed": isEmailSuppressed reads Convex-first, so a Convex
+ * mutation failure silently soft-falling back to SQLite here would let the
+ * action report success while every Convex-primary read — including this
+ * same instance's very next one — still finds the address suppressed. That
+ * is a silent no-op dressed up as a success, the same bug class
+ * update-lead-stage-action-existence-check closed for a missing slug.
+ */
+export const OPERATOR_UNSUPPRESS_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
+  requireConvex: true,
+};

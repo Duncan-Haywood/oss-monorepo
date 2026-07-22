@@ -41,8 +41,12 @@ import {
   getLeadSlugByCustomDomain,
   getDeployHandoffBySlug,
   updateLeadStripeConnectAccountId,
+  isEmailSuppressed,
+  unsuppressEmail,
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import { OPERATOR_UNSUPPRESS_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
+import { MAX_CONTACT_EMAIL_LENGTH } from "@/lib/inquiries/contact-fields";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
 import { COMMERCE_CLIENT_RECEIPT_RESEND_CONVEX_PRIMARY } from "@/lib/commerce/client-receipt-persist";
 import { COMMERCE_CATALOG_CONVEX_PRIMARY } from "@/lib/commerce/catalog-persist";
@@ -3080,6 +3084,77 @@ export async function sendClientVoicePackToClientAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in sendClientVoicePackToClientAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Operator override: remove an address from the CAN-SPAM suppression list
+ * (SuppressedEmailsPanel's Remove control). getSuppressedEmails shipped this
+ * list as read-only (suppressed-emails-operator-visibility) — there was no
+ * way to correct a mistaken opt-in-request-treated-as-opt-out or a stale
+ * suppression without direct DB access. Every sibling write action in this
+ * file fetches the record before writing (see updateLeadStageAction); the
+ * "record" here is the suppression row itself, keyed by the email address,
+ * so isEmailSuppressed doubles as the not-found check.
+ */
+export async function unsuppressEmailAction(email: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`unsuppress-email:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const trimmed = email.trim();
+    if (!trimmed) {
+      return { success: false as const, error: "Email is required" };
+    }
+    // Opaque lookup key, not free text — hard-reject over-length rather than
+    // soft-cap (a truncated address would look up / delete the wrong row).
+    if (trimmed.length > MAX_CONTACT_EMAIL_LENGTH) {
+      return { success: false as const, error: "Email is too long" };
+    }
+
+    const suppressed = await isEmailSuppressed(trimmed);
+    if (!suppressed) {
+      return { success: false as const, error: "Address is not on the suppression list" };
+    }
+
+    let removed: boolean;
+    try {
+      removed = await unsuppressEmail(trimmed, OPERATOR_UNSUPPRESS_CONVEX_PRIMARY);
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not remove the address in the shared store — other instances may still treat it as suppressed. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
+    if (!removed) {
+      // A concurrent unsuppress (double-click, second tab) already removed
+      // this row between our isEmailSuppressed check and this write.
+      return { success: false as const, error: "Address is not on the suppression list" };
+    }
+
+    revalidatePath("/dashboard/leads");
+    return { success: true as const };
+  } catch (error) {
+    console.error("Error in unsuppressEmailAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
