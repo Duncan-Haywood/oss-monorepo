@@ -16,6 +16,7 @@ import {
   leadMetaTitle,
   leadPreviewJsonLdIfIndexable,
   MAX_META_DESCRIPTION_LENGTH,
+  MAX_META_TITLE_LENGTH,
   previewUrl,
   safeJsonLdScript,
   siteUrl,
@@ -172,6 +173,15 @@ describe("homepageMetadata", () => {
     expect(metadata.description?.length).toBeLessThanOrEqual(MAX_META_DESCRIPTION_LENGTH);
     expect(metadata.description).toContain("Rocky Mountain Web Design");
   });
+
+  it("caps the title at MAX_META_TITLE_LENGTH with a realistic long operator-set brand name — brand.name is unbounded, so a real long business name can push the title past Google's SERP-truncation width", () => {
+    process.env.NEXT_PUBLIC_BRAND_NAME = "Rocky Mountain Web Design & Digital Marketing Studio";
+    const untitled = `Rocky Mountain Web Design & Digital Marketing Studio — Pre-built websites for local businesses`;
+    expect(untitled.length).toBeGreaterThan(MAX_META_TITLE_LENGTH);
+    const metadata = homepageMetadata();
+    expect(metadata.title?.toString().length).toBeLessThanOrEqual(MAX_META_TITLE_LENGTH);
+    expect(metadata.title?.toString().endsWith("…")).toBe(true);
+  });
 });
 
 describe("homepageOrganizationJsonLd", () => {
@@ -260,6 +270,22 @@ describe("staticPageMetadata", () => {
     expect(metadata.openGraph).toMatchObject({ description: metadata.description });
     expect(metadata.twitter).toMatchObject({ description: metadata.description });
   });
+
+  it("passes a title at or under MAX_META_TITLE_LENGTH through unchanged", () => {
+    const title = "Short title";
+    const metadata = staticPageMetadata({ title, description: "D", path: "/x" });
+    expect(metadata.title).toBe(title);
+  });
+
+  it("truncates an over-length title at a word boundary with an ellipsis, applied consistently to title/openGraph/twitter", () => {
+    const title = "This title is deliberately long enough to exceed Google's SERP title-truncation width";
+    expect(title.length).toBeGreaterThan(MAX_META_TITLE_LENGTH);
+    const metadata = staticPageMetadata({ title, description: "D", path: "/x" });
+    expect(metadata.title?.toString().length).toBeLessThanOrEqual(MAX_META_TITLE_LENGTH);
+    expect(metadata.title?.toString().endsWith("…")).toBe(true);
+    expect(metadata.openGraph).toMatchObject({ title: metadata.title });
+    expect(metadata.twitter).toMatchObject({ title: metadata.title });
+  });
 });
 
 describe("docPageMetadata", () => {
@@ -327,6 +353,23 @@ describe("categoryLandingServiceJsonLd", () => {
 describe("leadMetaTitle / leadMetaDescription", () => {
   it("formats the title as 'Business — City, State | Tagline'", () => {
     expect(leadMetaTitle(baseLead())).toBe("Pine Cafe — Boulder, CO | Fresh local plates");
+  });
+
+  it("caps at MAX_META_TITLE_LENGTH (not the far longer create-path max) for a real client's long business name/tagline", () => {
+    // businessName/tagline soft-cap at create-path max (200 chars each) for
+    // on-page rendering, but the SERP title width is much narrower — this
+    // must not leak an uncapped title into generateMetadata/openGraph/
+    // twitter on a real customer's live preview page.
+    const lead = baseLead({
+      businessName: "The Rocky Mountain Neighborhood Bakery and Coffee House",
+      tagline: "Serving fresh bread, pastries, and specialty coffee every day of the week",
+    });
+    const title = leadMetaTitle(lead);
+    expect(title.length).toBeLessThanOrEqual(MAX_META_TITLE_LENGTH);
+    expect(title.endsWith("…")).toBe(true);
+
+    const oversized = baseLead({ businessName: "b".repeat(200), tagline: "t".repeat(200) });
+    expect(leadMetaTitle(oversized)).toHaveLength(MAX_META_TITLE_LENGTH);
   });
 
   it("returns the lead description unchanged when it's already under the SERP-truncation width", () => {

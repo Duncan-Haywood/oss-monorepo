@@ -34,6 +34,12 @@ const startingSetupPriceUsd = minBundleSetupPriceUsd();
 // category-landing-meta-description-length-cap in BUSINESS_DECISIONS.
 export const MAX_CATEGORY_META_DESCRIPTION_LENGTH = 155;
 
+// Same organic-CTR concern as MAX_CATEGORY_META_DESCRIPTION_LENGTH above, but
+// for the SERP title, which Google truncates at a much narrower width — see
+// MAX_META_TITLE_LENGTH in seo.ts (the shared cap staticPageMetadata applies
+// to every title, including these). See lead-preview-meta-title-length-cap.
+export const MAX_CATEGORY_SEO_TITLE_LENGTH = 60;
+
 export interface CategoryLandingFaqEntry {
   question: string;
   answer: string;
@@ -60,7 +66,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
     category: "restaurant",
     href: "/websites-for-restaurants",
     navLabel: "Restaurants",
-    seoTitle: "Website for Restaurants — menu, hours, and optional online ordering",
+    seoTitle: "Website for Restaurants — menu, hours, ordering",
     metaDescription:
       `A restaurant website with menu, hours, and location — previewed free before you pay. Optional online ordering (Commerce add-on). From $${startingSetupPriceUsd}.`,
     heroHeadline: "A website for your restaurant, ready before you decide",
@@ -142,7 +148,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
     category: "trades",
     href: "/websites-for-trades",
     navLabel: "Trades & home services",
-    seoTitle: "Website for Trades & Home Services — plumbers, electricians, contractors",
+    seoTitle: "Website for Trades & Home Services — plumbers, electricians",
     metaDescription:
       `Websites for plumbers, electricians, and contractors — services, service area, and a quote form, previewed free before you pay. From $${startingSetupPriceUsd}.`,
     heroHeadline: "A website that turns emergency calls into booked jobs",

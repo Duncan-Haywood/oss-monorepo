@@ -35,13 +35,32 @@ const DEFAULT_SITE_URL = "http://localhost:3000";
  */
 export const MAX_META_DESCRIPTION_LENGTH = 155;
 
+/**
+ * Google truncates a SERP title around this width too — narrower than the
+ * description's ~155-160 chars (see MAX_META_DESCRIPTION_LENGTH's comment).
+ * Same unbounded-upstream-input problem: staticPageMetadata's title (homepage/
+ * docs/category-landing) can include brand.name, and leadMetaTitle's title is
+ * built from a real client's businessName/city/state/tagline — none of those
+ * fields are bounded anywhere near 60 chars (see MAX_BUSINESS_NAME_LENGTH=200
+ * / MAX_TAGLINE_LENGTH=200 in leads/create-fields.ts).
+ */
+export const MAX_META_TITLE_LENGTH = 60;
+
 /** Truncate at a word boundary with an ellipsis rather than mid-word. */
-function capMetaDescription(description: string): string {
-  if (description.length <= MAX_META_DESCRIPTION_LENGTH) return description;
-  const truncated = description.slice(0, MAX_META_DESCRIPTION_LENGTH - 1);
+function truncateAtWordBoundary(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  const truncated = text.slice(0, maxLength - 1);
   const lastSpace = truncated.lastIndexOf(" ");
   const wordSafe = lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated;
   return `${wordSafe.trimEnd()}…`;
+}
+
+function capMetaDescription(description: string): string {
+  return truncateAtWordBoundary(description, MAX_META_DESCRIPTION_LENGTH);
+}
+
+function capMetaTitle(title: string): string {
+  return truncateAtWordBoundary(title, MAX_META_TITLE_LENGTH);
 }
 
 /** Absolute site origin, no trailing slash. Falls back to localhost outside Vercel/prod. */
@@ -82,7 +101,7 @@ export function staticPageMetadata(opts: {
   description: string;
   path: string;
 }): Metadata {
-  const { title } = opts;
+  const title = capMetaTitle(opts.title);
   const description = capMetaDescription(opts.description);
   const url = `${siteUrl()}${opts.path}`;
   return {
@@ -255,9 +274,20 @@ const SCHEMA_TYPE_BY_CATEGORY: Record<BusinessCategory, string> = {
   generic: "LocalBusiness",
 };
 
+/**
+ * businessName/tagline soft-cap at create-path max (200 chars each, see
+ * MAX_BUSINESS_NAME_LENGTH/MAX_TAGLINE_LENGTH in leads/create-fields.ts) —
+ * an on-page-rendering bound, not the much narrower ~60-char SERP title
+ * width capMetaTitle enforces. Same gap class as leadMetaDescription (see
+ * lead-preview-meta-description-length-cap), just on the title instead of
+ * the description, and left open by that fix as a distinct follow-up (see
+ * lead-preview-meta-title-length-cap).
+ */
 export function leadMetaTitle(lead: Lead): string {
   const capped = softCapLeadForPublicSurface(lead);
-  return `${capped.businessName} — ${capped.city}, ${capped.state} | ${capped.tagline}`;
+  return capMetaTitle(
+    `${capped.businessName} — ${capped.city}, ${capped.state} | ${capped.tagline}`,
+  );
 }
 
 /**

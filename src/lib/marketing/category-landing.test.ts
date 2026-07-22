@@ -4,6 +4,7 @@ import { getBundle } from "@/lib/pricing/bundles";
 import {
   CATEGORY_LANDING_PAGES,
   MAX_CATEGORY_META_DESCRIPTION_LENGTH,
+  MAX_CATEGORY_SEO_TITLE_LENGTH,
   categoryLandingPageByHref,
 } from "./category-landing";
 import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "./monthly-pack";
@@ -39,6 +40,15 @@ describe("CATEGORY_LANDING_PAGES", () => {
         page.metaDescription.length,
         `${page.href}: metaDescription is ${page.metaDescription.length} chars, over MAX_CATEGORY_META_DESCRIPTION_LENGTH (${MAX_CATEGORY_META_DESCRIPTION_LENGTH}) — Google will truncate it mid-sentence in search results: "${page.metaDescription}"`,
       ).toBeLessThanOrEqual(MAX_CATEGORY_META_DESCRIPTION_LENGTH);
+    }
+  });
+
+  it("keeps seoTitle under the Google SERP title-truncation width", () => {
+    for (const page of CATEGORY_LANDING_PAGES) {
+      expect(
+        page.seoTitle.length,
+        `${page.href}: seoTitle is ${page.seoTitle.length} chars, over MAX_CATEGORY_SEO_TITLE_LENGTH (${MAX_CATEGORY_SEO_TITLE_LENGTH}) — Google will truncate it mid-word in search results: "${page.seoTitle}"`,
+      ).toBeLessThanOrEqual(MAX_CATEGORY_SEO_TITLE_LENGTH);
     }
   });
 
