@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import { MAX_COMMERCE_LINE_ITEM_QUANTITY } from "@/lib/commerce/checkout-fields";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
 
@@ -292,7 +293,15 @@ describe("POST /api/commerce/checkout", () => {
     const [params] = sessionsCreate.mock.calls[0] as [
       {
         mode: string;
-        line_items: Array<{ price: string; quantity: number }>;
+        line_items: Array<{
+          price: string;
+          quantity: number;
+          adjustable_quantity?: {
+            enabled: boolean;
+            minimum: number;
+            maximum: number;
+          };
+        }>;
         customer_email?: string;
         allow_promotion_codes?: boolean;
         metadata: Record<string, string>;
@@ -302,7 +311,15 @@ describe("POST /api/commerce/checkout", () => {
     ];
     expect(params.mode).toBe("payment");
     expect(params.line_items).toEqual([
-      { price: "price_latte_450", quantity: 1 },
+      {
+        price: "price_latte_450",
+        quantity: 1,
+        adjustable_quantity: {
+          enabled: true,
+          minimum: 1,
+          maximum: MAX_COMMERCE_LINE_ITEM_QUANTITY,
+        },
+      },
     ]);
     expect(params.customer_email).toBe("shopper@example.com");
     expect(params.allow_promotion_codes).toBe(true);

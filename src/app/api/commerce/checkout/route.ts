@@ -4,6 +4,7 @@ import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
 import {
+  MAX_COMMERCE_LINE_ITEM_QUANTITY,
   parseCommerceCheckoutSkuId,
   parseCommerceCheckoutSlug,
 } from "@/lib/commerce/checkout-fields";
@@ -34,6 +35,15 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  *
  * Records kind=commerce_sku on checkout_sessions so abandoned Buy now carts
  * never enter the bundle recovery queue (wrong Finish-checkout email).
+ *
+ * The line item carries adjustable_quantity so a shopper can buy more than
+ * one unit from Stripe's own hosted Checkout page (there is no in-app cart —
+ * PreviewCommerceCatalog's Buy now button posts one skuId per Session) —
+ * quantity is otherwise hardcoded to 1 and Stripe shows no quantity stepper
+ * at all. Safe with every downstream invariant: the webhook ledgers
+ * session.amount_total (not catalogItem.priceCents × quantity) and proves
+ * Price identity via the stable commerceSkuStripeKey metadata match, both
+ * quantity-agnostic (commerce-checkout-adjustable-quantity).
  *
  * Rate limited per client IP (best-effort, per-instance — see
  * src/lib/security/rate-limit.ts) to blunt scripted checkout-session churn.
@@ -132,7 +142,17 @@ export async function POST(request: Request) {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: [{ price: item.stripePriceId, quantity: 1 }],
+      line_items: [
+        {
+          price: item.stripePriceId,
+          quantity: 1,
+          adjustable_quantity: {
+            enabled: true,
+            minimum: 1,
+            maximum: MAX_COMMERCE_LINE_ITEM_QUANTITY,
+          },
+        },
+      ],
       customer_email: customerEmail,
       allow_promotion_codes: true,
       success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,

@@ -23,6 +23,17 @@ export { MAX_LEAD_SLUG_LENGTH as MAX_COMMERCE_CHECKOUT_SLUG_LENGTH };
 /** Same ceiling as normalizeCommerceItems (auth-gated catalog save). */
 export const MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH = MAX_COMMERCE_SKU_ID_LENGTH;
 
+/**
+ * Upper bound on Stripe's line-item adjustable_quantity for a single
+ * commerce_sku Buy now Checkout Session (see commerce-checkout-adjustable-quantity).
+ * Not a security control — the per-unit Price is always resolved
+ * server-side, so there is no price to tamper with regardless of quantity.
+ * Purely a sane ceiling for a single local-business storefront item (e.g.
+ * a café order of a few lattes), so a mistyped or scripted huge quantity
+ * doesn't mint an unusually large single charge.
+ */
+export const MAX_COMMERCE_LINE_ITEM_QUANTITY = 25;
+
 export type ParseCommerceCheckoutFieldResult =
   | { ok: true; value: string }
   | { ok: false; reason: "missing" | "too_long" };

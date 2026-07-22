@@ -623,4 +623,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "process-log-file-size-read-limit-superseded",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-okjf2r",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip ac0ce90 (PR #613, process-log-file-size-read-limit-superseded) after recovering this session's branch from a stale local-only state (a prior firing had committed locally but never pushed; no PR existed for the branch name, so the branch was reset onto the verified real origin/main tip rather than continuing from a state GitHub had no record of). Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2563 passed, 190 files). Dispatched a fold-scan (20 most-recently-pushed sibling branches: 11 zero-diff, 9 with real diffs all already merged onto main under a different squash-merge SHA — no live fold candidate) and, per AGENT_PROTOCOL's precedent of steering toward real growth levers (checkout-success-dead-end-contact-fallback, the meta-title/description SEO series) rather than only internal-wiring audits, a research agent explicitly briefed to find a genuine revenue/conversion gap.\n\nIt found POST /api/commerce/checkout (Commerce Buy Now Stripe Checkout Session create) hardcoded quantity: 1 with no adjustable_quantity, and there is no in-app cart — PreviewCommerceCatalog's Buy now button fires one Session per SKU. A shopper cannot buy more than one unit of a demo catalog item (Latte, Draft pastry — the exact café-menu shape this feature targets) without re-running the whole Checkout flow per unit: re-entering payment details, an extra operator order-notification email, and an extra Stripe per-transaction fee each time. See commerce-checkout-adjustable-quantity in BUSINESS_DECISIONS for the full finding and the verification that the fix is safe against every existing money invariant (webhook ledgers session.amount_total and proves Price identity via commerceSkuStripeKey, both quantity-agnostic).",
+    shipped: [
+      "src/lib/commerce/checkout-fields.ts — added exported MAX_COMMERCE_LINE_ITEM_QUANTITY = 25 (a sane, non-security ceiling — the per-unit Price is always server-resolved, so quantity cannot be used to under-pay).",
+      "src/app/api/commerce/checkout/route.ts — line_items now carries adjustable_quantity: { enabled: true, minimum: 1, maximum: MAX_COMMERCE_LINE_ITEM_QUANTITY } so Stripe's own hosted Checkout page shows a quantity stepper; updated the file-header doc comment to record why this is safe against the webhook's quantity-agnostic ledgering/idempotency.",
+      "src/app/api/commerce/checkout/route.test.ts — extended the existing 'creates a payment session from the server-resolved stripePriceId' test to assert the new adjustable_quantity shape on the Stripe session-create call.",
+      "src/lib/process/business-decisions.ts — appended commerce-checkout-adjustable-quantity.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a growth/conversion fix discovered by audit, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2563 passed, unchanged count, 190 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; POSTed /api/commerce/checkout with no STRIPE_SECRET_KEY set and confirmed the expected 501, since no live Stripe test key was available this session to exercise Session-create end-to-end; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-checkout-adjustable-quantity",
+    ),
+  },
 ];
