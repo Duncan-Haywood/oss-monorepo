@@ -495,4 +495,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "iterations-archive-09-proactive-resplit",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-qs2gbn",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 9619190 (PR #606, iterations-archive-09-proactive-resplit) — this branch started at that exact tip and origin/main matched it exactly at session start, so this iteration's own empty-backlog-diff-gate was trivially empty. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2553 passed, 190 files) + a full clean rebuild (same 42-route ○/ƒ split). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). mcp__github__actions_list sampled the newest 30 workflow runs — 30/30 conclusion=failure, no runner ever assigned — github-actions-runner-unavailable stays status=todo, unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: the newest ~8 claude/* siblings by committer date were all ahead=0 against origin/main except four already-traced byte-identical duplicates of already-merged content (claude/nice-euler-dkcqjk/#605, claude/upbeat-dijkstra-jqifyz/#604, claude/nice-euler-5kg7z3/#601, claude/nice-euler-sszqwk/#599). No live fold candidate.\n\nSince the diff-gate was empty and the last several iterations had already exhausted the standard internal-wiring tiers, dispatched a foreground general-purpose research agent explicitly steered toward the operator's actual stated goal — real revenue/growth levers, not another internal-invariant nit — and told to implement any real fix directly. It confirmed all three category-landing pages' meta descriptions stay under the recently-added 155-char cap, then found a genuine dead-end: /checkout/success's \"We couldn't confirm this payment\" fallback state (the highest-anxiety moment in the funnel, right after a possible real charge) told the customer to contact support but gave them no actual contact method at all — no email, no mailto link, no phone. Reviewed the agent's diff line by line before accepting. See checkout-success-dead-end-contact-fallback in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/app/checkout/success/page.tsx — the \"We couldn't confirm this payment\" fallback paragraph now includes a working mailto:${brand.supportEmail} link, matching the exact pattern already used on /privacy, /terms, and the homepage FAQ.",
+      "src/lib/process/business-decisions.ts — appended checkout-success-dead-end-contact-fallback.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a conversion/trust-signal fix discovered by audit, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2553 passed, unchanged, 190 files) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; curled /checkout/success directly and grepped the rendered HTML, confirming mailto:support@marisstellalabs.com renders in the actual fallback state; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "checkout-success-dead-end-contact-fallback",
+    ),
+  },
 ];

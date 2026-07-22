@@ -53,7 +53,11 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
         <h1 className="text-3xl font-semibold tracking-tight">We couldn&apos;t confirm this payment</h1>
         <p className="mt-3 text-zinc-600">
           If you just completed checkout, this can take a few seconds — refresh the page. If the
-          problem continues, contact support and reference your email from checkout.
+          problem continues, email{" "}
+          <a href={`mailto:${brand.supportEmail}`} className="underline">
+            {brand.supportEmail}
+          </a>{" "}
+          and reference the email address you used at checkout.
         </p>
         <Link
           href="/checkout"
