@@ -508,7 +508,15 @@ export default function ArchitectureDocPage() {
         unsubscribe route passes <code>requireConvex</code> (
         <code>UNSUBSCRIBE_CONVEX_PRIMARY</code>) when Convex is configured so a mutation failure
         returns <code>500</code> instead of claiming success after a SQLite-only write that other
-        instances&apos; <code>isEmailSuppressed</code> (Convex-first) would never see. Every
+        instances&apos; <code>isEmailSuppressed</code> (Convex-first) would never see. Operators
+        can view the full suppression list on <DocLink href="/dashboard">/dashboard/leads</DocLink>{" "}
+        (<code>SuppressedEmailsPanel</code>, reading <code>getSuppressedEmails</code>) and remove a
+        mistaken/stale entry via <code>unsuppressEmailAction</code> (
+        <code>convex/suppressions.ts</code>&apos;s <code>unsuppress</code> mutation +{" "}
+        <code>unsuppressEmail</code> in <code>src/lib/db.ts</code>, both passing{" "}
+        <code>requireConvex</code> so the removal is never silently SQLite-only) — this is a
+        correction path, not a way to re-permit contact after a genuine opt-out; removal does not
+        constitute renewed consent. Every
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}
         <code>brand.postalAddress</code> in signatures and the shared footer, the email

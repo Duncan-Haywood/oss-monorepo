@@ -94,6 +94,14 @@ export default function ComplianceDocPage() {
           list that gates every automated send
         </li>
         <li>Non-deceptive subject lines</li>
+        <li>
+          Operators can review the full suppression list and remove an address via the
+          Suppressed emails panel on <DocLink href="/dashboard">/dashboard/leads</DocLink> (
+          <code>unsuppressEmailAction</code>) — this is for correcting a mistaken or stale
+          suppression only, never because the recipient asked to be contacted again; removing an
+          address does not restore consent, and a genuine opt-out must go through a fresh,
+          affirmative re-consent flow before that address is emailed again
+        </li>
       </ul>
 
       <h2>Voice — TCPA</h2>
@@ -126,7 +134,10 @@ export default function ComplianceDocPage() {
           </tr>
           <tr>
             <td>Opted-out / DNC</td>
-            <td>Indefinitely</td>
+            <td>
+              Indefinitely, unless an operator removes a mistaken/stale entry via the Suppressed
+              emails panel (see above)
+            </td>
           </tr>
           <tr>
             <td>Email logs</td>
