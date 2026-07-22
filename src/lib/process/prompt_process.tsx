@@ -852,4 +852,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "category-landing-meta-description-length-cap",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-dkcqjk",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip fb6edae (PR #604, category-landing-meta-description-length-cap) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first (npm ci/tsc/lint/test all clean, 2546 tests/190 files); mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft); a full fold-scan (`git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`, 543 refs) found no live candidate — the newest ~30 claude/* siblings were all already-merged except the same byte-identical duplicates prior iterations already traced. Given six-plus consecutive prior iterations were empty-backlog clean audits or small cosmetic fixes, dispatched a foreground general-purpose research agent explicitly steered away from re-running the standard tier 1-5 sweep and toward finding something genuinely fresh by reading real code paths. It found a real, previously-unaudited email-deliverability gap and shipped the fix + tests directly (per instructions, leaving this process log for me to write). Reviewed its diff line by line before accepting, then re-ran full verification myself. See outbound-email-list-unsubscribe-header-rfc8058 in BUSINESS_DECISIONS for full detail: every outbound email built a working footer unsubscribe link but never sent the List-Unsubscribe/List-Unsubscribe-Post header pair Gmail/Yahoo's 2024 bulk-sender rules read directly for spam-folder placement — a silent drag on inbox placement for this app's core cold-outreach growth channel. Fixed alongside a required second half: /api/unsubscribe only supported GET, so advertising RFC 8058 one-click support via the new header without a working POST target would itself have been a negative signal.",
+    shipped: [
+      "src/lib/email/resend.ts — sendEmail()'s Resend API call now sends a List-Unsubscribe + List-Unsubscribe-Post header pair using the same signed unsubscribeUrl already in the HTML footer.",
+      "src/app/api/unsubscribe/route.ts — extracted GET's rate-limit/length-gate/token-verify/suppressEmail logic into a shared verifyAndSuppress() helper (GET behavior unchanged) and added a POST handler (RFC 8058 one-click) sharing every guard GET enforces, including the same per-IP rate-limit bucket.",
+      "src/lib/email/resend.test.ts — new test asserting the header pair is sent and matches the HTML footer's unsubscribe link.",
+      "src/app/api/unsubscribe/route.test.ts — 6 new POST tests (success with/without body, forged-token 400, missing-email 400, fail-closed 500 on ConvexPrimaryWriteError, shared-rate-limit-bucket-with-GET proof).",
+      "src/lib/process/business-decisions.ts — appended outbound-email-list-unsubscribe-header-rfc8058.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a growth/deliverability fix on already-shipped outreach infrastructure, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2553 passed, up from 2546 — 7 new, 190 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split, /api/unsubscribe still ƒ) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; signed a genuine dev-secret HMAC token and curled a real GET (200, HTML confirmation), a real RFC 8058 POST with body `List-Unsubscribe=One-Click` (200, plain-text `Unsubscribed.`), and a forged-token POST (400) against /api/unsubscribe; killed the dev server, confirmed port freed, deleted local.db and the scratch script afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "outbound-email-list-unsubscribe-header-rfc8058",
+    ),
+  },
 ];

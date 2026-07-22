@@ -142,6 +142,24 @@ Unsubscribe URL: ${unsubscribeUrl}`);
         // Deliverability/spam-score signal — every send needs a text part,
         // not just the HTML-only body this file used to send exclusively.
         text: plainTextFromEmailHtml(fullHtml),
+        // Gmail/Yahoo bulk-sender requirements (effective 2024-02) require a
+        // List-Unsubscribe + List-Unsubscribe-Post header pair pointing at a
+        // one-click endpoint on every outbound message, not just a footer
+        // link buried in the HTML body — inbox providers read these headers
+        // directly to decide spam-folder placement and to offer their own
+        // native "Unsubscribe" affordance next to the sender name. The URL
+        // is the exact same signed unsubscribeUrl already in the footer
+        // (raw, not HTML-escaped — this is a mail header value, not markup),
+        // and /api/unsubscribe now has a POST handler (RFC 8058) so a mail
+        // client's automated one-click request actually succeeds instead of
+        // 405ing (see verifyAndSuppress / POST in
+        // src/app/api/unsubscribe/route.ts) — advertising one-click support
+        // via headers alone, without that POST handler, would itself be a
+        // spam signal once a provider probes it.
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
       }),
     });
 

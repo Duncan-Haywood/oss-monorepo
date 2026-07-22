@@ -21,12 +21,14 @@ describe("resend.ts — businessName HTML escaping", () => {
   let sentHtml: string;
   let sentSubject: string;
   let sentText: string;
+  let sentHeaders: Record<string, string> | undefined;
 
   beforeEach(() => {
     process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
     sentHtml = "";
     sentSubject = "";
     sentText = "";
+    sentHeaders = undefined;
     vi.stubGlobal(
       "fetch",
       vi.fn(async (_url: string, init: RequestInit) => {
@@ -34,6 +36,7 @@ describe("resend.ts — businessName HTML escaping", () => {
         sentHtml = body.html;
         sentSubject = body.subject;
         sentText = body.text;
+        sentHeaders = body.headers;
         return {
           ok: true,
           json: async () => ({ id: "email_test" }),
@@ -136,6 +139,29 @@ describe("resend.ts — businessName HTML escaping", () => {
     await sendReceiptEmail("owner@example.com", "Demo Cafe", "growth", 500);
     expect(sentHtml).toContain("<strong>Growth</strong>");
     expect(sentHtml).not.toContain("<strong>GROWTH</strong>");
+  });
+
+  it("sends a List-Unsubscribe + List-Unsubscribe-Post header pair matching the footer unsubscribe link", async () => {
+    // Gmail/Yahoo bulk-sender requirements (2024-02+) read these headers
+    // directly for spam-folder placement and their own native "Unsubscribe"
+    // affordance — a footer link alone is not enough. See
+    // src/app/api/unsubscribe/route.ts's POST handler for the RFC 8058
+    // one-click target this header pair advertises.
+    process.env.NEXT_PUBLIC_APP_URL = "https://example.test";
+    const { sendOutreachEmail } = await import("./resend");
+    await sendOutreachEmail("owner@example.com", UNSAFE_NAME, "demo-cafe");
+
+    expect(sentHeaders).toBeDefined();
+    expect(sentHeaders!["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
+    const listUnsubscribe = sentHeaders!["List-Unsubscribe"];
+    expect(listUnsubscribe).toMatch(/^<https:\/\/example\.test\/api\/unsubscribe\?email=.*&token=.*>$/);
+    // Same URL the HTML footer's Unsubscribe anchor points at (unescaped
+    // here — this is a mail header value, not markup, so no &amp;/&#39; etc).
+    expect(sentHtml).toContain(
+      listUnsubscribe.slice(1, -1).replace(/&/g, "&amp;"),
+    );
+
+    delete process.env.NEXT_PUBLIC_APP_URL;
   });
 
   it("sendReceiptEmail does not promise a nonexistent client dashboard/login", async () => {

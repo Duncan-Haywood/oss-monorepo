@@ -249,3 +249,122 @@ describe("GET /api/unsubscribe", () => {
     expect(suppressEmail).toHaveBeenCalledTimes(20);
   });
 });
+
+// RFC 8058 one-click unsubscribe — mail clients (Gmail/Yahoo) POST directly
+// to the List-Unsubscribe header URL with no user-visible page and no
+// redirect, expecting a bare 200. This must share every guard GET enforces
+// (rate limit, length gates, token verification) via the same
+// verifyAndSuppress helper, not a looser parallel path.
+describe("POST /api/unsubscribe (RFC 8058 one-click)", () => {
+  beforeEach(() => {
+    suppressEmail.mockReset();
+    suppressEmail.mockResolvedValue(undefined);
+    resetRateLimiterForTests();
+  });
+
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it("suppresses the email and passes UNSUBSCRIBE_CONVEX_PRIMARY when the token matches", async () => {
+    const { POST } = await import("./route");
+    const token = signUnsubscribeToken("pat@example.com");
+    const request = new NextRequest(unsubscribeUrl("pat@example.com", token), {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: "List-Unsubscribe=One-Click",
+    });
+
+    const response = await POST(request);
+    const text = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(suppressEmail).toHaveBeenCalledWith("pat@example.com", UNSUBSCRIBE_CONVEX_PRIMARY);
+    // RFC 8058 callers never render a body — plain-text ack, not the GET
+    // handler's full HTML confirmation page.
+    expect(text).not.toContain("<!DOCTYPE html>");
+  });
+
+  it("succeeds even with no request body (some clients omit the RFC 8058 form body)", async () => {
+    const { POST } = await import("./route");
+    const token = signUnsubscribeToken("pat@example.com");
+    const request = new NextRequest(unsubscribeUrl("pat@example.com", token), {
+      method: "POST",
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(200);
+    expect(suppressEmail).toHaveBeenCalledWith("pat@example.com", UNSUBSCRIBE_CONVEX_PRIMARY);
+  });
+
+  it("400s and never suppresses when the token does not match the email", async () => {
+    const { POST } = await import("./route");
+    const tokenForSomeoneElse = signUnsubscribeToken("someone-else@example.com");
+    const request = new NextRequest(
+      unsubscribeUrl("victim@example.com", tokenForSomeoneElse),
+      { method: "POST" },
+    );
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(400);
+    expect(suppressEmail).not.toHaveBeenCalled();
+  });
+
+  it("400s and never suppresses when the email param is missing", async () => {
+    const { POST } = await import("./route");
+    const request = new NextRequest("http://localhost/api/unsubscribe", {
+      method: "POST",
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(400);
+    expect(suppressEmail).not.toHaveBeenCalled();
+  });
+
+  it("returns a fail-closed 500 with a retry message when suppressEmail throws ConvexPrimaryWriteError", async () => {
+    const { ConvexPrimaryWriteError } = await import("@/lib/payments/convex-primary");
+    suppressEmail.mockRejectedValue(
+      new ConvexPrimaryWriteError("suppressEmail", new Error("boom")),
+    );
+    const { POST } = await import("./route");
+    const token = signUnsubscribeToken("pat@example.com");
+    const request = new NextRequest(unsubscribeUrl("pat@example.com", token), {
+      method: "POST",
+    });
+
+    const response = await POST(request);
+    const text = await response.text();
+
+    expect(response.status).toBe(500);
+    expect(text).toMatch(/try again/i);
+  });
+
+  it("returns 429 with Retry-After once a client IP exceeds the rate limit, sharing GET's bucket", async () => {
+    const { GET, POST } = await import("./route");
+    const email = "rate-limit-post@example.com";
+    const token = signUnsubscribeToken(email);
+    const ip = "203.0.113.99";
+    const getRequest = () =>
+      new NextRequest(unsubscribeUrl(email, token), {
+        headers: { "x-forwarded-for": ip },
+      });
+    const postRequest = () =>
+      new NextRequest(unsubscribeUrl(email, token), {
+        method: "POST",
+        headers: { "x-forwarded-for": ip },
+      });
+
+    // Exhaust the shared per-IP bucket via GET, then confirm POST on the
+    // same IP is throttled too — one limiter, not a parallel bypass.
+    for (let i = 0; i < 20; i += 1) {
+      await GET(getRequest());
+    }
+    const response = await POST(postRequest());
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get("Retry-After")).toBeTruthy();
+  });
+});
