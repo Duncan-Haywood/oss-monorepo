@@ -78,6 +78,63 @@ test("getBySlug returns null for an unknown slug and the row for a known one", a
   expect(found?.slug).toBe("demo-cafe");
 });
 
+test("list and getBySlug never leak Convex's own _id/_creationTime system fields onto a Lead (leads-convex-query-return-validator-system-field-leak)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({
+      slug: "demo-cafe",
+      address: "123 Main St",
+      email: "owner@demo-cafe.test",
+      notes: "called twice, interested",
+      snoozedUntil: "2026-08-01T00:00:00.000Z",
+    }),
+  );
+
+  const allowedKeys = new Set([
+    "slug",
+    "businessName",
+    "category",
+    "city",
+    "state",
+    "address",
+    "tagline",
+    "description",
+    "phone",
+    "email",
+    "services",
+    "hours",
+    "stage",
+    "recommendedTier",
+    "dataSource",
+    "outreachStep",
+    "lastOutreachAt",
+    "lastPreviewOpenAt",
+    "notes",
+    "snoozedUntil",
+    "stripeConnectAccountId",
+  ]);
+
+  const rows = await t.query(api.leads.list, { apiSecret: TEST_API_SECRET });
+  expect(rows).toHaveLength(1);
+  expect(rows[0]).not.toHaveProperty("_id");
+  expect(rows[0]).not.toHaveProperty("_creationTime");
+  for (const key of Object.keys(rows[0])) {
+    expect(allowedKeys.has(key)).toBe(true);
+  }
+
+  const row = await t.query(api.leads.getBySlug, {
+    slug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row).not.toBeNull();
+  expect(row).not.toHaveProperty("_id");
+  expect(row).not.toHaveProperty("_creationTime");
+  for (const key of Object.keys(row as object)) {
+    expect(allowedKeys.has(key)).toBe(true);
+  }
+});
+
 test("updateStage throws on an unknown slug (parity with SQLite's existence-check-then-throw) and patches an existing lead", async () => {
   const t = convexTest(schema, modules);
   await expect(

@@ -259,6 +259,36 @@ test("listOpen returns only open sessions, sorted oldest-createdAt-first (matche
   expect(rows.map((r) => r.stripeSessionId)).toEqual(["cs_a", "cs_c", "cs_b"]);
 });
 
+test("listOpen never leaks Convex's own _id/_creationTime system fields onto a CheckoutSessionRecord (leads-convex-query-return-validator-system-field-leak)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_clean" }));
+
+  const rows = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(rows).toHaveLength(1);
+  expect(rows[0]).not.toHaveProperty("_id");
+  expect(rows[0]).not.toHaveProperty("_creationTime");
+  // Every returned key must be a real CheckoutSessionRecord field — Convex
+  // itself drops unset-optional keys from the wire response, so this only
+  // asserts no *extra* (system or otherwise unexpected) key ever appears.
+  const allowedKeys = new Set([
+    "commerceAddon",
+    "createdAt",
+    "customerEmail",
+    "kind",
+    "leadSlug",
+    "recoverySentAt",
+    "skuId",
+    "status",
+    "stripeSessionId",
+    "tier",
+  ]);
+  for (const key of Object.keys(rows[0])) {
+    expect(allowedKeys.has(key)).toBe(true);
+  }
+});
+
 test("create never persists apiSecret onto the row", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_no_leak" }));

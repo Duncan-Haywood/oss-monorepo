@@ -52,9 +52,124 @@ const leadFields = {
   snoozedUntil: v.optional(v.string()),
 };
 
+/**
+ * list/getBySlug's return shape — every OTHER Convex file in this app
+ * (orders/commerceOrders/deployHandoffs/marketingPacks/clientVoicePacks/
+ * commerceCatalogs/inquiries) defines an explicit `xReturn` validator + a
+ * mapping function that names every field, so a raw `ctx.db` doc (which
+ * always carries Convex's own `_id`/`_creationTime` system fields, per
+ * https://docs.convex.dev/database/document-storage#document-ids) never
+ * reaches a caller unmapped. leads.ts's list/getBySlug were the one
+ * remaining pair returning `v.array(v.any())`/`v.any()` and the raw doc
+ * itself — src/lib/db.ts's getLeads()/getLeadBySlug() then blindly cast
+ * that raw doc `as Lead[]`/`as Lead`, so on a Convex-backed deployment every
+ * in-memory `Lead` object silently carried two extra enumerable properties
+ * (`_id`, `_creationTime`) the `Lead` TypeScript interface has no field for
+ * — unlike the SQLite fallback (mapSqliteRowToLead builds a clean object
+ * literal with only `Lead`'s own fields). That divergence isn't just a
+ * type/style inconsistency: it directly undermined the just-shipped
+ * `softCapLeadForPublicSurface` / `PublicLead` hardening
+ * (public-lead-strip-notes-and-stripe-connect-id) — that fix destructures
+ * only `notes`/`stripeConnectAccountId` out of `lead` before spreading
+ * `...publicLead`, so on a Convex-backed instance the "safe for a public
+ * surface" object would still carry a Convex-internal document id via the
+ * spread, since `_id`/`_creationTime` were never named fields to strip.
+ * Explicit mapping (mirroring commerceOrders.ts's mapOrderRow) closes this
+ * for both backends the same way every other table already does. See
+ * leads-convex-query-return-validator-system-field-leak.
+ *
+ * Deliberately does NOT reuse `leadFields`'s strict category/stage/
+ * recommendedTier literal unions here — those exist to validate WRITES
+ * (upsertLead/seed args), but schema.ts itself stores all three as plain
+ * `v.string()` (its own comments note the literal values are documented,
+ * not schema-enforced). A stricter return validator would make list/
+ * getBySlug throw at runtime for any pre-existing row whose value predates
+ * (or otherwise falls outside) the current literal set, turning a merely
+ * unexpected value into a hard 500 on every dashboard/preview read for that
+ * row instead of just passing it through — the same class of risk
+ * checkoutSessions.ts's kind field is already documented to guard against.
+ * Match schema.ts's own looseness for these three fields; everything else
+ * here (services/hours/optional string fields) was already schema-typed
+ * consistently between writes and storage, so no such gap applies to them.
+ */
+const leadReturn = v.object({
+  slug: v.string(),
+  businessName: v.string(),
+  category: v.string(),
+  city: v.string(),
+  state: v.string(),
+  address: v.optional(v.string()),
+  tagline: v.string(),
+  description: v.string(),
+  phone: v.string(),
+  email: v.optional(v.string()),
+  services: v.array(v.string()),
+  hours: v.object({
+    weekday: v.string(),
+    weekend: v.string(),
+  }),
+  stage: v.string(),
+  recommendedTier: v.string(),
+  dataSource: v.optional(v.string()),
+  outreachStep: v.optional(v.number()),
+  lastOutreachAt: v.optional(v.string()),
+  lastPreviewOpenAt: v.optional(v.string()),
+  notes: v.optional(v.string()),
+  snoozedUntil: v.optional(v.string()),
+  stripeConnectAccountId: v.optional(v.string()),
+});
+
+function mapLeadRow(row: {
+  slug: string;
+  businessName: string;
+  category: string;
+  city: string;
+  state: string;
+  address?: string;
+  tagline: string;
+  description: string;
+  phone: string;
+  email?: string;
+  services: string[];
+  hours: { weekday: string; weekend: string };
+  stage: string;
+  recommendedTier: string;
+  dataSource?: string;
+  outreachStep?: number;
+  lastOutreachAt?: string;
+  lastPreviewOpenAt?: string;
+  notes?: string;
+  snoozedUntil?: string;
+  stripeConnectAccountId?: string;
+}) {
+  return {
+    slug: row.slug,
+    businessName: row.businessName,
+    category: row.category,
+    city: row.city,
+    state: row.state,
+    address: row.address,
+    tagline: row.tagline,
+    description: row.description,
+    phone: row.phone,
+    email: row.email,
+    services: row.services,
+    hours: row.hours,
+    stage: row.stage,
+    recommendedTier: row.recommendedTier,
+    dataSource: row.dataSource,
+    outreachStep: row.outreachStep,
+    lastOutreachAt: row.lastOutreachAt,
+    lastPreviewOpenAt: row.lastPreviewOpenAt,
+    notes: row.notes,
+    snoozedUntil: row.snoozedUntil,
+    stripeConnectAccountId: row.stripeConnectAccountId,
+  };
+}
+
 export const list = query({
   args: { apiSecret: v.string() },
-  returns: v.array(v.any()),
+  returns: v.array(leadReturn),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     // Match the SQLite fallback (getLeads: ORDER BY createdAt DESC — newest
@@ -62,19 +177,22 @@ export const list = query({
     // descending is the closest available proxy; a bare .collect() returns
     // _creationTime ASCENDING, which reversed the /dashboard/leads table order
     // between backends. See convex-query-ordering-parity in /docs/process.
-    return await ctx.db.query("leads").order("desc").collect();
+    const rows = await ctx.db.query("leads").order("desc").collect();
+    return rows.map(mapLeadRow);
   },
 });
 
 export const getBySlug = query({
   args: { slug: v.string(), apiSecret: v.string() },
-  returns: v.union(v.any(), v.null()),
+  returns: v.union(leadReturn, v.null()),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
-    return await ctx.db
+    const row = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .unique();
+    if (!row) return null;
+    return mapLeadRow(row);
   },
 });
 

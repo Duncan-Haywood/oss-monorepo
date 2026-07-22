@@ -2,6 +2,63 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireApiSecret } from "./lib/apiSecret";
 
+/**
+ * listOpen's return shape — see leads.ts's leadReturn/mapLeadRow doc comment
+ * for the full rationale (leads-convex-query-return-validator-system-field-
+ * leak). This was the sibling query still returning `v.array(v.any())` and
+ * a raw `ctx.db` doc (carrying Convex's own `_id`/`_creationTime`) straight
+ * through — src/lib/db.ts's listOpenCheckoutSessions() casts the result
+ * `as CheckoutSessionRecord[]` with no field-level mapping, unlike every
+ * other list query in this app (mapOrderRow, mapCheckoutSessionRow's own
+ * SQLite twin, etc.), so a Convex-backed instance silently attached two
+ * extra properties to every in-memory CheckoutSessionRecord that its own
+ * TypeScript interface has no field for.
+ */
+// Match schema.ts's own looseness exactly (v.string() / v.optional(v.string())
+// for tier/status/kind, not a stricter literal union) — markCompleteOpenBundleForLead's
+// doc comment above already establishes why: kind in particular must let a
+// stray/future third value round-trip untouched on both backends rather than
+// reject it. A stricter union here would make listOpen throw on exactly the
+// row shape that comment says must fall through safely.
+const checkoutSessionReturn = v.object({
+  leadSlug: v.string(),
+  stripeSessionId: v.string(),
+  tier: v.string(),
+  commerceAddon: v.boolean(),
+  customerEmail: v.optional(v.string()),
+  status: v.string(),
+  createdAt: v.string(),
+  recoverySentAt: v.optional(v.string()),
+  kind: v.optional(v.string()),
+  skuId: v.optional(v.string()),
+});
+
+function mapCheckoutSessionRow(row: {
+  leadSlug: string;
+  stripeSessionId: string;
+  tier: string;
+  commerceAddon: boolean;
+  customerEmail?: string;
+  status: string;
+  createdAt: string;
+  recoverySentAt?: string;
+  kind?: string;
+  skuId?: string;
+}) {
+  return {
+    leadSlug: row.leadSlug,
+    stripeSessionId: row.stripeSessionId,
+    tier: row.tier,
+    commerceAddon: row.commerceAddon,
+    customerEmail: row.customerEmail,
+    status: row.status,
+    createdAt: row.createdAt,
+    recoverySentAt: row.recoverySentAt,
+    kind: row.kind,
+    skuId: row.skuId,
+  };
+}
+
 export const create = mutation({
   args: {
     leadSlug: v.string(),
@@ -181,7 +238,7 @@ export const recordRecoverySent = mutation({
 
 export const listOpen = query({
   args: { apiSecret: v.string() },
-  returns: v.array(v.any()),
+  returns: v.array(checkoutSessionReturn),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const rows = await ctx.db
@@ -193,6 +250,8 @@ export const listOpen = query({
     // here — abandoned-recovery processes the oldest open carts first so the
     // longest-unrecovered (most urgent) sessions are prioritized. See
     // convex-query-ordering-parity in /docs/process.
-    return rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    return rows
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+      .map(mapCheckoutSessionRow);
   },
 });
