@@ -764,4 +764,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-starter-upsell-checkout-url-empty-backlog-clean-audit",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-sszqwk",
+    summary:
+      "Scheduled routine. Full fold-scan across all 537 remote refs; discovered mid-scan that this session's clone was shallow, which made merge-base checks against older branches fail or wildly overstate live divergence — ran `git fetch --unshallow origin` before trusting any diff. With full history, every branch in the newest ~120-branch window (by committer date) came back either exactly merged or a pre-squash duplicate of already-merged content; no live fold candidate. Dispatched a general-purpose research agent for a full tier 1-5 sweep (sold-capability wiring, Convex/SQLite parity, security/injection, untested orchestration, docs staleness) since all five NEXT_STEPS items remain operator/legal/infra-gated. It independently re-confirmed tiers 1-4 clean (suppression normalization, Stripe Connect action guards, digest actionableSections, public-fields stripping all already correct) and surfaced one genuine tier-5 finding: the empty-backlog-diff-gate's last-verified-clean-sha anchor had silently drifted across the last three ITERATIONS entries to always mean 'since the previous docs-only commit' rather than 'since the last full five-tier sweep' (true anchor: 8dedc39/PR #563; entries since then cited only 58988a7, one iteration removed from itself) — 35 real product commits had accumulated unaccounted-for against the true anchor. See empty-backlog-diff-gate-anchor-drift-closed in BUSINESS_DECISIONS for full detail and the corrected anchor.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended empty-backlog-diff-gate-anchor-drift-closed, closing the diff-gate anchor drift and flagging the shallow-clone fold-scan pitfall for future iterations.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — no product/runtime code changed this iteration; this is a process-bookkeeping fix, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2545 passed, unchanged, 190 files) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "empty-backlog-diff-gate-anchor-drift-closed",
+    ),
+  },
 ];
