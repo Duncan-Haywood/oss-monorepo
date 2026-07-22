@@ -1420,7 +1420,17 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>/preview/[slug]</code>). Missing catalogs count on pipeline health (
         <code>commerceCatalogsMissingCount</code>) and list in the daily digest. Saved catalogs
         that still have ≥1 SKU without <code>stripePriceId</code> count separately (
-        <code>commerceCatalogsUnsyncedCount</code> / digest Sync to Stripe due). Stripe Products
+        <code>commerceCatalogsUnsyncedCount</code> / digest Sync to Stripe due).{" "}
+        <code>normalizeCommerceItems</code> (Save catalog) rejects a non-integer or out-of-range{" "}
+        <code>priceCents</code> before persisting: the floor is{" "}
+        <code>MIN_SKU_PRICE_CENTS</code> ($0.50, Stripe&apos;s own documented USD minimum charge
+        amount) and the ceiling is <code>MAX_SKU_PRICE_CENTS</code> ($1,000,000) — without the
+        floor, an operator could save (and Sync to Stripe would happily create a real Product/Price
+        for) a SKU priced below what Stripe will actually charge, and every shopper&apos;s Buy now
+        click on it would 502 at Checkout Session creation with no operator-visible signal anywhere
+        (no order, no abandoned-cart entry, nothing in pipeline-health/digest) — see{" "}
+        <code>commerce-sku-minimum-price-floor</code> in the{" "}
+        <DocLink href="/docs/process">process log</DocLink>. Stripe Products
         sync shipped: <code>syncCommerceCatalogToStripeAction</code> (dashboard &quot;Sync to
         Stripe&quot; button) calls <code>syncCommerceCatalogToStripe</code> (
         <code>src/lib/commerce/stripe-sync.ts</code>) to idempotently create/find a Stripe
