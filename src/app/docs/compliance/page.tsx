@@ -93,6 +93,15 @@ export default function ComplianceDocPage() {
           Retry-After so a harvested footer link cannot unboundedly mutate the global suppression
           list that gates every automated send
         </li>
+        <li>
+          Every outbound send carries <code>List-Unsubscribe</code> +{" "}
+          <code>List-Unsubscribe-Post: List-Unsubscribe=One-Click</code> headers (
+          <code>src/lib/email/resend.ts</code>) per Gmail/Yahoo bulk-sender requirements, and{" "}
+          <code>POST /api/unsubscribe</code> (RFC 8058 one-click) shares the exact same
+          rate-limit / token-verify / length-cap / <code>requireConvex</code> guards as{" "}
+          <code>GET</code> so a mail client&apos;s automated one-click request cannot bypass
+          anything the browser-driven link enforces
+        </li>
         <li>Non-deceptive subject lines</li>
         <li>
           Operators can review the full suppression list and remove an address via the

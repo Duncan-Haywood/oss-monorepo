@@ -526,4 +526,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "csv-import-empty-services-tokens-fallback",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-rfbo83",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 633fc94 (PR #608, csv-import-empty-services-tokens-fallback) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2554 passed, 190 files) + a full clean rebuild (same 42-route ○/ƒ split). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). Dispatched a foreground fold-scan agent after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (600+ refs); it flagged claude/upbeat-dijkstra-nbqcq2 as an unmerged fold candidate, but a direct check of convex/leads.ts / convex/checkoutSessions.ts on this branch (already at origin/main tip) confirmed that exact content (leadReturn/mapLeadRow, checkoutSessionReturn/mapCheckoutSessionRow) is already live — the byte-identical-duplicate-merged-under-a-different-hash trap AGENT_PROTOCOL already documents for that same branch. No live fold candidate.\n\nDispatched a second foreground research agent, briefed on AGENT_PROTOCOL plus the full list of already-done NEXT_STEPS tiers 1-5, to find one genuinely fresh gap. It found that the RFC 8058 one-click unsubscribe shipment (outbound-email-list-unsubscribe-header-rfc8058: POST /api/unsubscribe + List-Unsubscribe/List-Unsubscribe-Post headers) — which shipped in the iteration right after compliance-docs-unsuppress-control-disclosure last touched this exact paragraph — was never reflected in /docs/architecture or /docs/compliance; both still described the unsubscribe system as GET-only. Verified the gap directly against src/app/api/unsubscribe/route.ts and src/lib/email/resend.ts before writing docs. See rfc8058-one-click-unsubscribe-docs-disclosure in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/app/docs/architecture/page.tsx — extended the existing unsubscribe paragraph to document the List-Unsubscribe/List-Unsubscribe-Post header pair sent on every outbound email and the POST /api/unsubscribe (RFC 8058) handler sharing verifyAndSuppress's guards with GET.",
+      "src/app/docs/compliance/page.tsx — added a CAN-SPAM checklist bullet naming the same header pair and RFC 8058 POST handler.",
+      "src/lib/process/business-decisions.ts — appended rfc8058-one-click-unsubscribe-docs-disclosure.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a docs-staleness fix (AGENT_PROTOCOL tier 6), not a resolution of any gated item; no product/runtime code changed.",
+      "Verified: fresh npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2554 passed, unchanged, 190 files) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process, /docs/architecture, /docs/compliance — all 200; grepped the rendered HTML of /docs/compliance for 'List-Unsubscribe-Post' and /docs/architecture for 'RFC 8058', both present; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "rfc8058-one-click-unsubscribe-docs-disclosure",
+    ),
+  },
 ];

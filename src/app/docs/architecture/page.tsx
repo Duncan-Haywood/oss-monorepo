@@ -465,7 +465,16 @@ export default function ArchitectureDocPage() {
         Every automated marketing send (outreach Email 1-3, Starter upsell, abandoned-checkout
         recovery) calls <code>sendEmail</code> (<code>src/lib/email/resend.ts</code>), which
         checks the CAN-SPAM unsubscribe suppression list before sending and{" "}
-        <code>GET /api/unsubscribe</code> writes to it. Post-payment transactional sends —{" "}
+        <code>GET /api/unsubscribe</code> writes to it. Every outbound{" "}
+        <code>sendEmail</code> call also sets <code>List-Unsubscribe</code> +{" "}
+        <code>List-Unsubscribe-Post: List-Unsubscribe=One-Click</code> headers pointing at the
+        same signed <code>unsubscribeUrl</code> (Gmail/Yahoo bulk-sender requirements, effective
+        2024-02) — <code>POST /api/unsubscribe</code> (RFC 8058 one-click, added alongside the
+        headers so a mail client&apos;s automated request actually succeeds instead of 405ing,
+        since an advertised-but-broken one-click target is itself a spam signal) shares{" "}
+        <code>verifyAndSuppress</code>, the exact same rate-limit / token-verify / length-cap /{" "}
+        <code>requireConvex</code> guards <code>GET</code> uses below, differing only in response
+        shape (plain-text acknowledgement, never the HTML confirmation page a human sees). Post-payment transactional sends —{" "}
         <code>sendReceiptEmail</code>, the bundle DNS go-live <code>sendEmail</code> in the Stripe
         webhook, and <code>sendCommerceBuyNowClientReceipt</code> — pass{" "}
         <code>skipSuppression: true</code> so a cold-outreach unsubscribe cannot block receipt /
