@@ -56,6 +56,12 @@ export const humanNotificationLog: HumanNotificationRecord[] = [
     reason:
       "Business 100% human-blocked for 1+ month (6 blockers, see blockers.ts) plus a ~21h GitHub Actions runner outage needing a billing/quota check.",
   },
+  {
+    notifiedAt: "2026-07-22T02:10:00Z",
+    notifiedBy: "claude/dazzling-allen-czn0ij",
+    reason:
+      "Repeat reminder per shouldNotifyHuman(72)'s throttle, which this session's check crossed (~72.8h since the last notification). The GitHub Actions runner outage (blockers.ts's actions-ci-runner-outage) is unresolved and now ~94h old with zero sign of self-resolving; business remains 100% human-blocked on the same 7 items as the last notification, none changed.",
+  },
 ];
 
 /** Hours since the last out-of-band notification was sent. Infinity if none ever sent. */
