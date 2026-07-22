@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { getLeadBySlug, isCuratedDemoLeadSlug } from "@/lib/leads/demo-catalog";
 import { getBundle } from "@/lib/pricing/bundles";
-import { CATEGORY_LANDING_PAGES, categoryLandingPageByHref } from "./category-landing";
+import {
+  CATEGORY_LANDING_PAGES,
+  MAX_CATEGORY_META_DESCRIPTION_LENGTH,
+  categoryLandingPageByHref,
+} from "./category-landing";
 import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "./monthly-pack";
 
 describe("CATEGORY_LANDING_PAGES", () => {
@@ -26,6 +30,15 @@ describe("CATEGORY_LANDING_PAGES", () => {
       expect(lead, `${page.href}: exampleLeadSlug "${page.exampleLeadSlug}" is not a real demo lead`).toBeDefined();
       expect(lead?.category).toBe(page.category);
       expect(isCuratedDemoLeadSlug(page.exampleLeadSlug)).toBe(true);
+    }
+  });
+
+  it("keeps metaDescription under the Google SERP-truncation width", () => {
+    for (const page of CATEGORY_LANDING_PAGES) {
+      expect(
+        page.metaDescription.length,
+        `${page.href}: metaDescription is ${page.metaDescription.length} chars, over MAX_CATEGORY_META_DESCRIPTION_LENGTH (${MAX_CATEGORY_META_DESCRIPTION_LENGTH}) — Google will truncate it mid-sentence in search results: "${page.metaDescription}"`,
+      ).toBeLessThanOrEqual(MAX_CATEGORY_META_DESCRIPTION_LENGTH);
     }
   });
 

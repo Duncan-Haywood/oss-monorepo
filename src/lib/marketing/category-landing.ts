@@ -27,6 +27,13 @@ const monthlyMarketingCadence = `${monthlyMarketingSocialPostCount()} social/GBP
 // search traffic while checkout charges the new one.
 const startingSetupPriceUsd = minBundleSetupPriceUsd();
 
+// Google truncates SERP snippets at roughly this width — a metaDescription
+// past it doesn't 404 or misrender, it just silently loses its own closing
+// words to an ellipsis in search results, which is real (if quiet) organic-CTR
+// drag on the exact acquisition channel this file exists to build. See
+// category-landing-meta-description-length-cap in BUSINESS_DECISIONS.
+export const MAX_CATEGORY_META_DESCRIPTION_LENGTH = 155;
+
 export interface CategoryLandingFaqEntry {
   question: string;
   answer: string;
@@ -55,7 +62,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
     navLabel: "Restaurants",
     seoTitle: "Website for Restaurants — menu, hours, and optional online ordering",
     metaDescription:
-      `A restaurant website with your menu, hours, location, and optional online ordering (Commerce add-on) — built and previewed before you pay. From $${startingSetupPriceUsd}, live in days.`,
+      `A restaurant website with menu, hours, and location — previewed free before you pay. Optional online ordering (Commerce add-on). From $${startingSetupPriceUsd}.`,
     heroHeadline: "A website for your restaurant, ready before you decide",
     heroSubhead:
       "Menu, hours, location, and a contact form — built from your public business details and previewed for free. Add online ordering when you're ready.",
@@ -137,7 +144,7 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
     navLabel: "Trades & home services",
     seoTitle: "Website for Trades & Home Services — plumbers, electricians, contractors",
     metaDescription:
-      `A website for plumbers, electricians, and contractors with your services, service area, and a quote-request form — built and previewed before you pay, from $${startingSetupPriceUsd}.`,
+      `Websites for plumbers, electricians, and contractors — services, service area, and a quote form, previewed free before you pay. From $${startingSetupPriceUsd}.`,
     heroHeadline: "A website that turns emergency calls into booked jobs",
     heroSubhead:
       "Services, service area, and a quote-request form — previewed for free before you pay. Simple and fast, built for calls, not browsing.",

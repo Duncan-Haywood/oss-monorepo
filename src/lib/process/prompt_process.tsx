@@ -836,4 +836,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-aria-label-series-second-clean-audit",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-jqifyz",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 0b9d9e8 (PR #603, post-aria-label-series-second-clean-audit) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first (npm ci/tsc/lint/test all clean, 2545 tests/190 files); mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft); a full fold-scan (`git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`) found no live candidate — the newest ~30 claude/* siblings were all already-merged except the same two long-standing byte-identical duplicates prior iterations already traced (claude/nice-euler-5kg7z3/#601, claude/nice-euler-sszqwk/#599).\n\nSince the standard tier 1-5 audit had already come back clean twice in a row at this exact snapshot, dispatched a foreground research agent steered toward a genuinely fresh angle: real revenue/growth-lever gaps (pricing/checkout/upsell conversion, SEO/organic-acquisition, outreach cadence copy) rather than internal wiring parity. It confirmed the pricing page, checkout flow, tier-upsell cards, and outreach copy are all sound, but flagged category-landing-content.tsx and the marketing-automation/business-model docs pages as not yet read line-by-line. Following up directly: both render cleanly with no hardcoded/drifting numbers, but measuring the actual rendered <meta name=\"description\"> byte length (not just the source literal) on the three /websites-for-* category landing pages surfaced a genuine gap: restaurant (163 chars) and trades (161 chars) both render past the ~155-160 character width Google typically renders before truncating a SERP snippet with an ellipsis — a small, silent drag on organic click-through for the exact acquisition channel these pages exist to build, with no existing test asserting an upper bound (only a non-empty check).",
+    shipped: [
+      "src/lib/marketing/category-landing.ts — shortened restaurant metaDescription (163 → 139 chars) and trades metaDescription (161 → 138 chars), preserving the dynamic $${startingSetupPriceUsd} interpolation and the restaurant page's required 'optional'/'Commerce add-on' online-ordering qualifier. Added exported MAX_CATEGORY_META_DESCRIPTION_LENGTH = 155.",
+      "src/lib/marketing/category-landing.test.ts — new test asserting every CATEGORY_LANDING_PAGES entry's metaDescription stays at or under MAX_CATEGORY_META_DESCRIPTION_LENGTH, closing the silent-regression gap for any future edit to these pages or to bundle pricing.",
+      "src/lib/process/business-decisions.ts — appended category-landing-meta-description-length-cap.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is an SEO/growth-lever fix discovered by audit, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2546 passed, up from 2545 — 1 new, 190 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /websites-for-restaurants, /websites-for-salons, /websites-for-trades, /dashboard/leads, /preview/example-bakery, /docs/process, /docs/business-model, /docs/marketing-automation — all 200; curled and grepped the actual rendered <meta name=\"description\"> tags on the two edited pages to confirm the shipped strings — not just the source — measure 139/138 chars with the real current bundle price; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "category-landing-meta-description-length-cap",
+    ),
+  },
 ];
