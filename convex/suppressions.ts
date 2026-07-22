@@ -39,3 +39,26 @@ export const list = query({
     return rows.map((r) => r.email);
   },
 });
+
+/**
+ * Operator override: remove an address from the CAN-SPAM opt-out list.
+ * Returns whether a row was actually deleted so the caller (db.ts's
+ * unsuppressEmail) can distinguish "removed" from "was never suppressed" —
+ * the dashboard action does its own existence check first via
+ * isEmailSuppressed, but this stays defensive against a race between that
+ * check and this write.
+ */
+export const unsuppress = mutation({
+  args: { email: v.string(), apiSecret: v.string() },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const existing = await ctx.db
+      .query("suppressions")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .unique();
+    if (!existing) return false;
+    await ctx.db.delete(existing._id);
+    return true;
+  },
+});

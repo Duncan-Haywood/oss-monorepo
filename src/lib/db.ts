@@ -185,6 +185,7 @@ const api: any = {
     isSuppressed: "suppressions:isSuppressed",
     suppress: "suppressions:suppress",
     list: "suppressions:list",
+    unsuppress: "suppressions:unsuppress",
   },
   deployHandoffs: {
     upsert: "deployHandoffs:upsert",
@@ -1330,6 +1331,42 @@ export async function getSuppressedEmails(): Promise<string[]> {
   const db = getSqliteDb();
   const rows = db.prepare("SELECT email FROM suppression_list").all() as { email: string }[];
   return rows.map((r) => r.email);
+}
+
+/**
+ * Operator override: remove an address from the CAN-SPAM opt-out list.
+ * Returns whether a row was actually removed (false = the address was not
+ * suppressed to begin with). isEmailSuppressed reads Convex-first at every
+ * outreach send, so this must accept ConvexPrimaryWriteOptions the same way
+ * suppressEmail does — a silent SQLite-only fallback here would look like it
+ * succeeded to the operator while every Convex-primary instance (including
+ * this one's own next read) kept treating the address as suppressed.
+ */
+export async function unsuppressEmail(
+  email: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  const normalized = email.toLowerCase().trim();
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.suppressions.unsuppress, {
+        email: normalized,
+        apiSecret: convexApiSecret,
+      })) as boolean;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("unsuppressEmail", e);
+      }
+      console.warn("Failed to remove suppression on Convex, falling back to SQLite database", e);
+    }
+  }
+
+  // SQLite Fallback
+  const db = getSqliteDb();
+  const result = db
+    .prepare("DELETE FROM suppression_list WHERE email = ?")
+    .run(normalized);
+  return result.changes > 0;
 }
 
 // --- Production deploy handoffs (Phase 5) ---
