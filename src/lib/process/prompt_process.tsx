@@ -703,4 +703,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "unsuppress-email-operator-control",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-d1vjvz",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 20e43d6 (PR #594, unsuppress-email-operator-control) — this branch started at that exact tip and origin/main matched it exactly at session start, so no rebase was needed. Full fold-scan first (`git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`, 500+ refs): the sole open PR is still #202 (same weeks-stale, unrelated human draft). Ranked every remote branch by committerdate: the newest ~20 claude/* siblings were all ahead=0 (already merged) except the same two long-standing byte-identical duplicates prior iterations already confirmed (claude/nice-euler-i5uyj0, claude/upbeat-dijkstra-nbqcq2). The newest non-claude family (opencode/*) was 4+ days stale. No live fold candidate.\n\nConfirmed baseline green first: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit clean + npm run lint clean + npm test (2543 passed/190 files) + a full clean rebuild (same 42-route ○/ƒ split) + npm run dev sanity check (curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200). No live Stripe/Resend/Convex/Anthropic secret in this session, so all five NEXT_STEPS items stay operator/legal/infra-gated as documented.\n\nThe empty-backlog-diff-gate (`git log --oneline 8dedc39..HEAD -- src convex .github/workflows`, 8dedc39/#563 remains the most recent full five-tier sweep) returned 31 commits, every one already reviewed by its own originating iteration. Following the established practice of the last several iterations at this same anchor, ran a targeted spot-check instead of a fresh from-scratch sweep, focused on the immediately-preceding iteration's newly-shipped surface (unsuppress-email-operator-control): re-verified convex/suppressions.ts's unsuppress mutation + its API map registration, db.ts's unsuppressEmail dual-backend shape, unsuppressEmailAction's auth/rate-limit/opaque-id-cap/existence-check/as-const/requireConvex-fail-closed pattern, and re-ran a repo-wide TODO/FIXME/HACK grep (zero live hits, only test-fixture strings). Genuinely found nothing new — see post-unsuppress-control-empty-backlog-clean-audit in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-unsuppress-control-empty-backlog-clean-audit.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — no product/config code changed this iteration; the mandated baseline plus a targeted spot-check both came back genuinely clean.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2543 passed, unchanged, 190 files) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-unsuppress-control-empty-backlog-clean-audit",
+    ),
+  },
 ];
