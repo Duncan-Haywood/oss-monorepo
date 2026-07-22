@@ -68,6 +68,7 @@ export function SuppressedEmailsPanel({ emails }: SuppressedEmailsPanelProps) {
                 type="button"
                 onClick={() => handleRemove(email)}
                 disabled={isPending}
+                aria-label={`Remove ${email} from the suppression list`}
                 className="shrink-0 rounded-md border border-zinc-300 px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-50 disabled:opacity-50"
               >
                 Remove

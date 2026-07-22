@@ -1869,6 +1869,7 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending || !email}
                       onClick={() => handleResendCommerceClientReceipt(row.stripeSessionId)}
+                      aria-label={`Resend receipt for ${businessNameBySlug.get(row.leadSlug) || row.leadSlug}`}
                       className="rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-800 disabled:opacity-60"
                       title={email ? "Resend the order notification email" : "No email on file for this lead"}
                     >

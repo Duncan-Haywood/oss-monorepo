@@ -792,4 +792,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "orders-convex-id-leak-exception-scope-widened",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/nice-euler-5kg7z3",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 86f9b44 (PR #600, orders-convex-id-leak-exception-scope-widened) — this branch started at that exact tip and origin/main matched it exactly at session start, so this iteration's own empty-backlog-diff-gate was trivially empty (only the two already-reviewed AGENT_PROTOCOL-only commits since the prior anchor). Confirmed baseline green first, then fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: the newest 20 claude/* siblings by committer date were all ahead=0 against origin/main except the same three long-standing byte-identical duplicates prior iterations already traced to already-merged content (claude/nice-euler-sszqwk, claude/nice-euler-i5uyj0, claude/upbeat-dijkstra-nbqcq2) — no live fold candidate. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). No live Stripe/Resend/Convex/Anthropic secret in this session, so all five NEXT_STEPS items stay operator/legal/infra-gated.\n\nRan a direct, targeted spot-check across the standard priority tiers rather than a from-scratch sweep (re-confirmed rate-limiting on every API route, CSP nonce-tier coverage against a fresh build's actual ƒ route list, the three Stripe Connect onboarding actions' auth/rate-limit/existence-check/as-const pattern, the unsuppress-email dual-backend fail-closed path, and the three category-landing pages' add-on gating claims — all clean; npm audit/outdated both clean). Found one genuine, previously-unflagged accessibility gap distinct from every prior fix in this repo's a11y series: two dashboard list panels (SuppressedEmailsPanel's Remove button, leads-client.tsx's commerce-receipt-resend button) render the exact same accessible button name on every row of a list, giving a screen-reader user navigating by a controls-list shortcut no way to tell rows apart without switching to linear reading. See list-row-action-button-aria-label in BUSINESS_DECISIONS for the full detail, the reasoning for scoping the fix to exactly these two instances after checking all 60 `.map()` call sites in leads-client.tsx, and full verification.",
+    shipped: [
+      "src/components/dashboard/suppressed-emails-panel.tsx — added aria-label={`Remove ${email} from the suppression list`} to the per-row Remove button.",
+      "src/app/dashboard/leads/leads-client.tsx — added aria-label={`Resend receipt for ${businessName}`} to the commerceOrdersMissingClientReceipt per-row Resend receipt button.",
+      "src/lib/process/business-decisions.ts — appended list-row-action-button-aria-label.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is an accessibility hardening fix on already-shipped operator surfaces, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2545 passed, unchanged, 190 files — JSX-attribute-only change touches no tested logic) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; confirmed /dashboard/leads renders both panels' correct empty state against the seeded demo DB; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "list-row-action-button-aria-label",
+    ),
+  },
 ];
