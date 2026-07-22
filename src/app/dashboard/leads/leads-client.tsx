@@ -8,6 +8,7 @@ import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import { CSV_LEAD_TEMPLATE, formatCsvImportSummary } from "@/lib/leads/csv-import";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
+import { dashboardRowActionAriaLabel } from "@/lib/leads/dashboard-row-aria-labels";
 import {
   updateLeadStageAction,
   addLeadAction,
@@ -1224,6 +1225,7 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => openCommerceEditor(lead)}
+                      aria-label={dashboardRowActionAriaLabel("Add catalog", lead.businessName, lead.slug)}
                       className="rounded-lg bg-orange-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-900 disabled:opacity-60"
                     >
                       Add catalog
@@ -1289,6 +1291,7 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => openCommerceEditor(lead)}
+                      aria-label={dashboardRowActionAriaLabel("Edit catalog", lead.businessName, lead.slug)}
                       className="rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-semibold text-amber-900 transition hover:bg-amber-100 disabled:opacity-60"
                     >
                       Edit catalog
@@ -1297,6 +1300,7 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => handleSyncCommerceCatalogToStripe(lead.slug)}
+                      aria-label={dashboardRowActionAriaLabel("Sync to Stripe", lead.businessName, lead.slug)}
                       className="rounded-lg bg-amber-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-900 disabled:opacity-60"
                     >
                       Sync to Stripe
@@ -1368,6 +1372,11 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => handleSendStarterUpsell(lead.slug)}
+                      aria-label={dashboardRowActionAriaLabel(
+                        `Send ${bundle?.name ?? targetTier} upsell`,
+                        lead.businessName,
+                        lead.slug,
+                      )}
                       className="rounded-lg bg-teal-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
                     >
                       Send {bundle?.name ?? targetTier} upsell
@@ -1434,6 +1443,7 @@ export function LeadsClient({
                         type="button"
                         disabled={isPending}
                         onClick={() => handleOpenBillingPortal(lead.slug)}
+                        aria-label={dashboardRowActionAriaLabel("Manage billing", lead.businessName, lead.slug)}
                         className="rounded-lg bg-rose-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-900 disabled:opacity-60"
                       >
                         Manage billing
@@ -1501,6 +1511,11 @@ export function LeadsClient({
                     type="button"
                     disabled={isPending}
                     onClick={() => handleGenerateMarketingPack(lead.slug)}
+                    aria-label={dashboardRowActionAriaLabel(
+                      "Generate marketing pack",
+                      lead.businessName,
+                      lead.slug,
+                    )}
                     className="rounded-lg bg-emerald-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-900 disabled:opacity-60"
                   >
                     Generate pack
@@ -1566,6 +1581,11 @@ export function LeadsClient({
                     type="button"
                     disabled={isPending}
                     onClick={() => handleGenerateClientVoicePack(lead.slug)}
+                    aria-label={dashboardRowActionAriaLabel(
+                      "Generate voice pack",
+                      lead.businessName,
+                      lead.slug,
+                    )}
                     className="rounded-lg bg-violet-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-900 disabled:opacity-60"
                   >
                     Generate pack
@@ -1631,6 +1651,12 @@ export function LeadsClient({
                     type="button"
                     disabled={isPending}
                     onClick={() => handleSendCheckoutRecovery(session.stripeSessionId)}
+                    aria-label={dashboardRowActionAriaLabel(
+                      "Send recovery email",
+                      businessNameBySlug.get(session.leadSlug) || session.leadSlug,
+                      session.leadSlug,
+                      `${session.tier} plan`,
+                    )}
                     className="rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-800 disabled:opacity-60"
                   >
                     Send recovery email
@@ -1702,6 +1728,12 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending || !session.customerEmail}
                       onClick={() => handleSendCommerceCheckoutRecovery(session.stripeSessionId)}
+                      aria-label={dashboardRowActionAriaLabel(
+                        "Send Buy now recovery",
+                        businessNameBySlug.get(session.leadSlug) || session.leadSlug,
+                        session.leadSlug,
+                        skuName,
+                      )}
                       className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
                       title={
                         session.customerEmail
@@ -2010,6 +2042,11 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending || !next}
                       onClick={() => handleSendFollowUp(lead.slug)}
+                      aria-label={dashboardRowActionAriaLabel(
+                        `Send Email ${next ?? "?"}`,
+                        lead.businessName,
+                        lead.slug,
+                      )}
                       className="rounded-lg bg-violet-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-800 disabled:opacity-60"
                     >
                       Send Email {next ?? "?"}
@@ -2093,6 +2130,11 @@ export function LeadsClient({
                             : "Reset cadence to Discovered"
                       }
                       onClick={() => handleColdDisposition(lead.slug, "reengage")}
+                      aria-label={dashboardRowActionAriaLabel(
+                        reengageSendEmail1 ? "Re-engage + Email 1" : coldLeadDispositionLabel("reengage"),
+                        lead.businessName,
+                        lead.slug,
+                      )}
                       className="rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-800 transition hover:bg-stone-100 disabled:opacity-60"
                     >
                       {reengageSendEmail1
@@ -2103,6 +2145,11 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => handleColdDisposition(lead.slug, "close")}
+                      aria-label={dashboardRowActionAriaLabel(
+                        coldLeadDispositionLabel("close"),
+                        lead.businessName,
+                        lead.slug,
+                      )}
                       className="rounded-lg bg-stone-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-stone-900 disabled:opacity-60"
                     >
                       {coldLeadDispositionLabel("close")}
@@ -2192,6 +2239,7 @@ export function LeadsClient({
                     <div className="flex flex-col gap-2">
                       <Link
                         href={leadPreviewPath(lead.slug)}
+                        aria-label={dashboardRowActionAriaLabel("Preview", lead.businessName, lead.slug)}
                         className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-center text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50"
                         target="_blank"
                       >
@@ -2202,6 +2250,11 @@ export function LeadsClient({
                           type="button"
                           disabled={isPending}
                           onClick={() => handleStageChange(lead.slug, "outreach_sent")}
+                          aria-label={dashboardRowActionAriaLabel(
+                            "Send Email 1",
+                            lead.businessName,
+                            lead.slug,
+                          )}
                           className="rounded-lg bg-rose-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-800 disabled:opacity-60"
                         >
                           Send Email 1
@@ -2212,6 +2265,11 @@ export function LeadsClient({
                           type="button"
                           disabled={isPending}
                           onClick={() => handleSendFollowUp(lead.slug)}
+                          aria-label={dashboardRowActionAriaLabel(
+                            `Send Email ${nextFollowUpStep(lead.outreachStep) ?? "?"}`,
+                            lead.businessName,
+                            lead.slug,
+                          )}
                           className="rounded-lg bg-violet-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-800 disabled:opacity-60"
                         >
                           Send Email {nextFollowUpStep(lead.outreachStep) ?? "?"}
@@ -2225,6 +2283,11 @@ export function LeadsClient({
                             disabled={isPending}
                             title={`Snooze ${snoozePresetLabel(preset)}`}
                             onClick={() => handleSnooze(lead.slug, preset)}
+                            aria-label={dashboardRowActionAriaLabel(
+                              `Snooze ${snoozePresetLabel(preset)}`,
+                              lead.businessName,
+                              lead.slug,
+                            )}
                             className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-[10px] font-semibold text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-60"
                           >
                             {preset}
@@ -2298,6 +2361,11 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => handleCreateDeployHandoff(lead.slug)}
+                      aria-label={dashboardRowActionAriaLabel(
+                        "Create deploy handoff",
+                        lead.businessName,
+                        lead.slug,
+                      )}
                       className="rounded-lg bg-red-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-800 disabled:opacity-60"
                     >
                       Create deploy handoff
@@ -2399,6 +2467,11 @@ export function LeadsClient({
                           type="button"
                           disabled={isPending}
                           onClick={() => handleAssignVercelProject(h.leadSlug)}
+                          aria-label={dashboardRowActionAriaLabel(
+                            "Save + provision Vercel project",
+                            h.businessName,
+                            h.leadSlug,
+                          )}
                           className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
                         >
                           Save + provision
@@ -2421,6 +2494,11 @@ export function LeadsClient({
                           type="button"
                           disabled={isPending}
                           onClick={() => handleAssignCustomDomain(h.leadSlug)}
+                          aria-label={dashboardRowActionAriaLabel(
+                            "Save domain",
+                            h.businessName,
+                            h.leadSlug,
+                          )}
                           className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
                         >
                           Save domain
@@ -2431,6 +2509,7 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => handleMarkHandoffLive(h.leadSlug)}
+                      aria-label={dashboardRowActionAriaLabel("Mark live", h.businessName, h.leadSlug)}
                       className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
                     >
                       Mark live
@@ -2580,6 +2659,12 @@ export function LeadsClient({
                         type="button"
                         disabled={isPending}
                         onClick={() => handleInquiryStatus(inq.id, "read")}
+                        aria-label={dashboardRowActionAriaLabel(
+                          "Mark read",
+                          inq.businessName,
+                          inq.leadSlug,
+                          inq.name || inq.email || undefined,
+                        )}
                         className="rounded-lg bg-sky-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-800 disabled:opacity-60"
                       >
                         Mark read
@@ -2590,6 +2675,12 @@ export function LeadsClient({
                         type="button"
                         disabled={isPending}
                         onClick={() => handleToggleReplyComposer(inq)}
+                        aria-label={dashboardRowActionAriaLabel(
+                          inq.status === "replied" ? "Reply again" : "Reply",
+                          inq.businessName,
+                          inq.leadSlug,
+                          inq.name || inq.email || undefined,
+                        )}
                         className="rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-sky-900 transition hover:bg-sky-50 disabled:opacity-60"
                       >
                         {inq.status === "replied" ? "Reply again" : "Reply"}
@@ -2599,12 +2690,24 @@ export function LeadsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => handleInquiryStatus(inq.id, "archived")}
+                      aria-label={dashboardRowActionAriaLabel(
+                        "Archive",
+                        inq.businessName,
+                        inq.leadSlug,
+                        inq.name || inq.email || undefined,
+                      )}
                       className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-60"
                     >
                       Archive
                     </button>
                     <Link
                       href={leadPreviewPath(inq.leadSlug)}
+                      aria-label={dashboardRowActionAriaLabel(
+                        "Preview",
+                        inq.businessName,
+                        inq.leadSlug,
+                        inq.name || inq.email || undefined,
+                      )}
                       className="text-center text-[11px] font-medium text-sky-800 underline underline-offset-2"
                       target="_blank"
                     >
@@ -3247,6 +3350,11 @@ export function LeadsClient({
                             onClick={() =>
                               notesOpen ? closeNotesEditor() : openNotesEditor(lead)
                             }
+                            aria-label={dashboardRowActionAriaLabel(
+                              notesOpen ? "Close notes" : leadHasNotes(lead.notes) ? "Edit notes" : "Notes",
+                              lead.businessName,
+                              lead.slug,
+                            )}
                             className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
                           >
                             {notesOpen ? "Close" : leadHasNotes(lead.notes) ? "Edit notes" : "Notes"}
@@ -3259,6 +3367,11 @@ export function LeadsClient({
                                 type="button"
                                 disabled={isPending}
                                 onClick={() => handleClearSnooze(lead.slug)}
+                                aria-label={dashboardRowActionAriaLabel(
+                                  "Unsnooze",
+                                  lead.businessName,
+                                  lead.slug,
+                                )}
                                 className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-800 transition hover:border-slate-300 hover:bg-slate-100 disabled:opacity-60"
                               >
                                 Unsnooze
@@ -3272,6 +3385,11 @@ export function LeadsClient({
                                     disabled={isPending}
                                     title={`Snooze ${snoozePresetLabel(preset)}`}
                                     onClick={() => handleSnooze(lead.slug, preset)}
+                                    aria-label={dashboardRowActionAriaLabel(
+                                      `Snooze ${snoozePresetLabel(preset)}`,
+                                      lead.businessName,
+                                      lead.slug,
+                                    )}
                                     className="rounded-md px-1.5 py-1 text-[10px] font-semibold text-zinc-600 transition hover:bg-zinc-100 disabled:opacity-60"
                                   >
                                     {preset}
@@ -3295,6 +3413,11 @@ export function LeadsClient({
                                       : "Reset cadence to Discovered"
                                 }
                                 onClick={() => handleColdDisposition(lead.slug, "reengage")}
+                                aria-label={dashboardRowActionAriaLabel(
+                                  reengageSendEmail1 ? "Re-engage + Email 1" : "Re-engage",
+                                  lead.businessName,
+                                  lead.slug,
+                                )}
                                 className="inline-flex h-8 items-center justify-center rounded-lg border border-stone-300 bg-white px-3 text-xs font-semibold text-stone-800 transition hover:bg-stone-100 disabled:opacity-60"
                               >
                                 {reengageSendEmail1 ? "Re-engage + Email 1" : "Re-engage"}
@@ -3303,6 +3426,7 @@ export function LeadsClient({
                                 type="button"
                                 disabled={isPending}
                                 onClick={() => handleColdDisposition(lead.slug, "close")}
+                                aria-label={dashboardRowActionAriaLabel("Close", lead.businessName, lead.slug)}
                                 className="inline-flex h-8 items-center justify-center rounded-lg border border-stone-700 bg-stone-800 px-3 text-xs font-semibold text-white transition hover:bg-stone-900 disabled:opacity-60"
                               >
                                 Close
@@ -3318,6 +3442,11 @@ export function LeadsClient({
                               type="button"
                               disabled={isPending}
                               onClick={() => handleSendFollowUp(lead.slug)}
+                              aria-label={dashboardRowActionAriaLabel(
+                                `Email ${next}`,
+                                lead.businessName,
+                                lead.slug,
+                              )}
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
                             >
                               Email {next}
@@ -3329,6 +3458,7 @@ export function LeadsClient({
                               type="button"
                               disabled={isPending}
                               onClick={() => handleOpenBillingPortal(lead.slug)}
+                              aria-label={dashboardRowActionAriaLabel("Billing", lead.businessName, lead.slug)}
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-900 transition hover:border-emerald-300 hover:bg-emerald-100 disabled:opacity-60"
                             >
                               Billing
@@ -3339,6 +3469,7 @@ export function LeadsClient({
                               type="button"
                               disabled={isPending}
                               onClick={() => handleSendStarterUpsell(lead.slug)}
+                              aria-label={dashboardRowActionAriaLabel("Upsell", lead.businessName, lead.slug)}
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 px-3 text-xs font-semibold text-teal-900 transition hover:border-teal-300 hover:bg-teal-100 disabled:opacity-60"
                             >
                               Upsell
@@ -3350,6 +3481,11 @@ export function LeadsClient({
                                 type="button"
                                 disabled={isPending}
                                 onClick={() => handleGenerateMarketingPack(lead.slug)}
+                                aria-label={dashboardRowActionAriaLabel(
+                                  existingPack ? "Regenerate marketing pack" : "Generate marketing pack",
+                                  lead.businessName,
+                                  lead.slug,
+                                )}
                                 className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-900 transition hover:border-sky-300 hover:bg-sky-100 disabled:opacity-60"
                               >
                                 {existingPack ? "Regenerate pack" : "Generate pack"}
@@ -3361,6 +3497,11 @@ export function LeadsClient({
                                   onClick={() =>
                                     setMarketingPackOpenSlug(packOpen ? null : lead.slug)
                                   }
+                                  aria-label={dashboardRowActionAriaLabel(
+                                    packOpen ? "Hide marketing pack" : "View marketing pack",
+                                    lead.businessName,
+                                    lead.slug,
+                                  )}
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 px-3 text-xs font-semibold text-sky-800 transition hover:bg-sky-50 disabled:opacity-60"
                                 >
                                   {packOpen ? "Hide pack" : "View pack"}
@@ -3375,6 +3516,11 @@ export function LeadsClient({
                                   type="button"
                                   disabled={isPending}
                                   onClick={() => handleEmailMarketingPack(lead.slug)}
+                                  aria-label={dashboardRowActionAriaLabel(
+                                    "Email marketing pack",
+                                    lead.businessName,
+                                    lead.slug,
+                                  )}
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-900 transition hover:border-sky-300 hover:bg-sky-100 disabled:opacity-60"
                                 >
                                   Email pack
@@ -3391,6 +3537,15 @@ export function LeadsClient({
                                   ? closeCommerceEditor()
                                   : openCommerceEditor(lead)
                               }
+                              aria-label={dashboardRowActionAriaLabel(
+                                commerceOpen
+                                  ? "Close catalog"
+                                  : existingCatalog
+                                    ? "Edit catalog"
+                                    : "Add catalog",
+                                lead.businessName,
+                                lead.slug,
+                              )}
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 px-3 text-xs font-semibold text-orange-900 transition hover:border-orange-300 hover:bg-orange-100 disabled:opacity-60"
                             >
                               {commerceOpen
@@ -3406,6 +3561,11 @@ export function LeadsClient({
                                 type="button"
                                 disabled={isPending}
                                 onClick={() => handleGenerateClientVoicePack(lead.slug)}
+                                aria-label={dashboardRowActionAriaLabel(
+                                  existingVoicePack ? "Regenerate voice pack" : "Generate voice pack",
+                                  lead.businessName,
+                                  lead.slug,
+                                )}
                                 className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
                               >
                                 {existingVoicePack ? "Regenerate voice" : "Generate voice"}
@@ -3419,6 +3579,11 @@ export function LeadsClient({
                                       voicePackOpen ? null : lead.slug,
                                     )
                                   }
+                                  aria-label={dashboardRowActionAriaLabel(
+                                    voicePackOpen ? "Hide voice pack" : "View voice pack",
+                                    lead.businessName,
+                                    lead.slug,
+                                  )}
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 px-3 text-xs font-semibold text-violet-800 transition hover:bg-violet-50 disabled:opacity-60"
                                 >
                                   {voicePackOpen ? "Hide voice" : "View voice"}
@@ -3433,6 +3598,11 @@ export function LeadsClient({
                                   type="button"
                                   disabled={isPending}
                                   onClick={() => handleEmailClientVoicePack(lead.slug)}
+                                  aria-label={dashboardRowActionAriaLabel(
+                                    "Email voice pack",
+                                    lead.businessName,
+                                    lead.slug,
+                                  )}
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
                                 >
                                   Email voice pack
@@ -3442,6 +3612,11 @@ export function LeadsClient({
                           ) : null}
                           <Link
                             href={leadPreviewPath(lead.slug)}
+                            aria-label={dashboardRowActionAriaLabel(
+                              "Preview Site",
+                              lead.businessName,
+                              lead.slug,
+                            )}
                             className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
                           >
                             Preview Site
@@ -3493,6 +3668,9 @@ export function LeadsClient({
                                     <button
                                       type="button"
                                       onClick={() => void copyMarketingVariant(copyText)}
+                                      aria-label={`Copy variant ${index + 1}: ${contentTypeLabel(
+                                        variant.contentType,
+                                      )}`}
                                       className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-50"
                                     >
                                       Copy
@@ -3623,6 +3801,7 @@ export function LeadsClient({
                                         prev.filter((_, i) => i !== index),
                                       )
                                     }
+                                    aria-label={`Remove item ${index + 1}${item.name ? `: ${item.name}` : ""}`}
                                     className="inline-flex h-8 items-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-600 hover:bg-zinc-50 disabled:opacity-40"
                                   >
                                     Remove
@@ -3809,6 +3988,9 @@ export function LeadsClient({
                                     <button
                                       type="button"
                                       onClick={() => void copyMarketingVariant(copyText)}
+                                      aria-label={`Copy variant ${index + 1}: ${scriptTypeLabel(
+                                        variant.scriptType,
+                                      )}`}
                                       className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-50"
                                     >
                                       Copy
