@@ -510,4 +510,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "checkout-success-dead-end-contact-fallback",
     ),
   },
+  {
+    date: "2026-07-22",
+    branch: "claude/upbeat-dijkstra-r8oyd0",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 3e03d22 (PR #607, checkout-success-dead-end-contact-fallback) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first (fresh npm ci, 409 packages, 0 vulnerabilities + npx tsc --noEmit clean + npm run lint clean + npm test 2553 passed/190 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: the newest ~6 claude/* siblings were all already-merged or byte-identical duplicates of already-merged content — no live fold candidate. Dispatched a foreground general-purpose research agent, explicitly steered away from re-running the standard tier 1-5 sweep and toward finding something fresh by reading real code paths. It found a real create-path divergence in CSV lead import and shipped the fix + test directly (per instructions, leaving this process log for me to write). Reviewed its diff line by line before accepting, then re-ran full verification myself. See csv-import-empty-services-tokens-fallback in BUSINESS_DECISIONS for full detail: a services CSV cell with no real tokens after split/trim/filter (e.g. \"Haircuts;;;\") silently produced an empty services array instead of falling back to the placeholder the manual Add-lead path already uses — a real gap between this app's two lead-creation paths that left a bulk-imported lead's public preview page showing an empty Services list.",
+    shipped: [
+      "src/lib/leads/csv-import.ts — parseLeadsCsv's services parse now falls back to [\"Custom digital setup\"] whenever the split/trim/filter result is empty, not only when the raw cell is absent, mirroring normalizeLeadCreateFields' identical guard on the manual create-path.",
+      "src/lib/leads/csv-import.test.ts — new test covering an all-semicolons cell and an all-blank-tokens cell, both asserting the placeholder fallback.",
+      "src/lib/process/business-decisions.ts — appended csv-import-empty-services-tokens-fallback.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged (all five gated items stayed as-is) — this is a lead-ingestion data-integrity fix discovered by audit, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2554 passed, up from 2553 — 1 new, 190 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (deleted local.db, curled /, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; killed the dev server, confirmed port 3000 freed, deleted local.db afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "csv-import-empty-services-tokens-fallback",
+    ),
+  },
 ];

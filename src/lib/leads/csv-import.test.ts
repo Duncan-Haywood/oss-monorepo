@@ -201,6 +201,19 @@ describe("parseLeadsCsv", () => {
     expect(result.leads[0]?.services).toEqual(["Haircuts", "Color", "Blowouts"]);
   });
 
+  it("defaults to a single placeholder when a non-empty services cell has no real tokens", () => {
+    // A stray separator artifact (e.g. from a scraped export) must not leave
+    // the lead with zero services — the public preview site's Services
+    // section would render an empty list for a real prospected lead. Mirrors
+    // normalizeLeadCreateFields' identical fallback on the manual create-path
+    // (see "defaults empty services to a single placeholder" in create-fields.test.ts).
+    const semicolonsOnly = parseLeadsCsv('businessName,services\nAcme,";;;"');
+    expect(semicolonsOnly.leads[0]?.services).toEqual(["Custom digital setup"]);
+
+    const blankTokens = parseLeadsCsv('businessName,services\nAcme," ; ; "');
+    expect(blankTokens.leads[0]?.services).toEqual(["Custom digital setup"]);
+  });
+
   it("parses an optional address column, leaving it undefined when absent", () => {
     const withAddress = parseLeadsCsv("businessName,address\nAcme,1200 Blake St");
     expect(withAddress.leads[0]?.address).toBe("1200 Blake St");
