@@ -770,4 +770,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "buffer-schedule-toctou-docs-parity-gap",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-ph0ck5",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 01fcf7d6 (PR #670, buffer-schedule-toctou-docs-parity-gap) — HEAD matched origin/main exactly at session start. Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (601 remote heads) and a sample fold-scan of ~30 of the newest claude/* branches confirmed the swarm's dominant pattern right now is dual-build collisions already superseded by merged PRs (e.g. claude/nice-euler-vbfxs1 independently re-shipping releaseVercelDomains, already merged as #667) — no live fold candidate. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Instead of a solo re-sweep of an extremely well-audited backlog, dispatched three parallel foreground general-purpose research agents per AGENT_PROTOCOL's tier 1/2/3 priority order, each briefed to avoid every known-saturated area and steered toward the two least-audited surfaces (the dormant Buffer marketing-scheduling and Stripe Connect Express onboarding scaffolds). All three came back with genuine, distinct findings. See buffer-token-header-not-query in BUSINESS_DECISIONS for the full detail on all three (including the two deliberately-deferred ones).",
+    shipped: [
+      "src/lib/marketing/buffer.ts — listBufferProfiles now sends BUFFER_ACCESS_TOKEN via an Authorization: Bearer header instead of the access_token URL query parameter, closing a credential-in-log exposure (query strings are captured verbatim by generic HTTP logging/tracing/proxy tooling) and matching the same file's createBufferUpdate, which already sent the token correctly via POST body.",
+      "src/lib/marketing/buffer.test.ts — updated the listBufferProfiles test to assert the token appears only in the Authorization header, never the URL.",
+      "src/lib/process/business-decisions.ts — appended buffer-token-header-not-query, documenting all three audit findings (one shipped, two deliberately deferred as well-scoped future leads: Stripe Connect pipeline-health/digest visibility gap, and a missing Stripe Idempotency-Key on Connect Express account creation that can mint duplicate orphaned accounts under concurrent requests).",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a security/injection-surface fix (tier 3) discovered by a dispatched audit, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities), npx vitest run (2709 passed, 198 files, unchanged count), npm run lint (clean), npm run build (clean, same 42-route split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "buffer-token-header-not-query"),
+  },
 ];

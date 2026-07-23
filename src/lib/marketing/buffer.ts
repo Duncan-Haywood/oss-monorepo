@@ -26,8 +26,13 @@ export interface BufferProfile {
 
 /** List every social profile connected to the operator's own Buffer account. */
 export async function listBufferProfiles(accessToken: string): Promise<BufferProfile[]> {
-  const url = `${BUFFER_API_BASE}/profiles.json?access_token=${encodeURIComponent(accessToken)}`;
-  const response = await fetch(url);
+  // Sent via the Authorization header, never the URL query string — a query-string
+  // token is exactly what generic HTTP-layer logging/tracing/proxy tooling captures
+  // by default (http.url spans, access logs), leaking a credential that grants
+  // full post-as access to every connected social profile (buffer-token-header-not-query).
+  const response = await fetch(`${BUFFER_API_BASE}/profiles.json`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
   if (!response.ok) {
     const body = await response.text();
     throw new Error(`Buffer profile list failed (${response.status}): ${body.slice(0, 200)}`);

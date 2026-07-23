@@ -30,9 +30,10 @@ describe("listBufferProfiles", () => {
       { id: "p1", service: "facebook", formattedUsername: "Demo Cafe" },
       { id: "p2", service: "instagram", formattedUsername: undefined },
     ]);
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("access_token=tok_x"),
-    );
+    const [calledUrl, calledInit] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(calledUrl).not.toContain("access_token");
+    expect(calledUrl).not.toContain("tok_x");
+    expect(calledInit).toEqual({ headers: { Authorization: "Bearer tok_x" } });
   });
 
   it("throws on a non-ok response", async () => {
