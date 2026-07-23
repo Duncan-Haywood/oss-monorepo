@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ORGANIC_CHECKOUT_SLUG_PREFIX,
+  deriveOrganicCheckoutLeadSlugFromIdempotencyKey,
   isOrganicCheckoutLeadSlug,
   mintOrganicCheckoutLeadSlug,
   resolveBundleCheckoutLeadSlug,
@@ -29,10 +30,10 @@ describe("organic checkout attribution", () => {
   });
 
   it("mints when slug is missing or whitespace-only", () => {
-    const minted = resolveBundleCheckoutLeadSlug(undefined, () => "organic-fixed");
+    const minted = resolveBundleCheckoutLeadSlug(undefined, { mint: () => "organic-fixed" });
     expect(minted).toEqual({ leadSlug: "organic-fixed", mintedOrganic: true });
 
-    const blank = resolveBundleCheckoutLeadSlug("   ", () => "organic-blank");
+    const blank = resolveBundleCheckoutLeadSlug("   ", { mint: () => "organic-blank" });
     expect(blank).toEqual({ leadSlug: "organic-blank", mintedOrganic: true });
   });
 
@@ -60,10 +61,10 @@ describe("organic checkout attribution", () => {
   });
 
   it("mints when a client-supplied slug sanitizes away to nothing", () => {
-    const minted = resolveBundleCheckoutLeadSlug("???", () => "organic-symbols");
+    const minted = resolveBundleCheckoutLeadSlug("???", { mint: () => "organic-symbols" });
     expect(minted).toEqual({ leadSlug: "organic-symbols", mintedOrganic: true });
 
-    const dotsOnly = resolveBundleCheckoutLeadSlug("..", () => "organic-dots");
+    const dotsOnly = resolveBundleCheckoutLeadSlug("..", { mint: () => "organic-dots" });
     expect(dotsOnly).toEqual({ leadSlug: "organic-dots", mintedOrganic: true });
   });
 
@@ -71,5 +72,39 @@ describe("organic checkout attribution", () => {
     expect(isOrganicCheckoutLeadSlug("organic-abc123")).toBe(true);
     expect(isOrganicCheckoutLeadSlug("ORGANIC-ABC")).toBe(true);
     expect(isOrganicCheckoutLeadSlug("example-bakery")).toBe(false);
+  });
+
+  describe("idempotency-key-derived organic slugs (retry stability)", () => {
+    const KEY_A = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+    const KEY_B = "9c858901-8a57-4791-81fe-4c455b099bc9";
+
+    it("derives a stable organic-* slug from an idempotency key", () => {
+      const slug = deriveOrganicCheckoutLeadSlugFromIdempotencyKey(KEY_A);
+      expect(slug).toMatch(/^organic-[0-9a-f]{12}$/);
+      expect(deriveOrganicCheckoutLeadSlugFromIdempotencyKey(KEY_A)).toBe(slug);
+    });
+
+    it("derives different slugs for different idempotency keys", () => {
+      expect(deriveOrganicCheckoutLeadSlugFromIdempotencyKey(KEY_A)).not.toBe(
+        deriveOrganicCheckoutLeadSlugFromIdempotencyKey(KEY_B),
+      );
+    });
+
+    it("resolves the same organic slug across repeated calls sharing an idempotency key, without minting", () => {
+      const mint = () => {
+        throw new Error("mint should not be called when idempotencyKey is present");
+      };
+      const first = resolveBundleCheckoutLeadSlug(undefined, { idempotencyKey: KEY_A, mint });
+      const retry = resolveBundleCheckoutLeadSlug(undefined, { idempotencyKey: KEY_A, mint });
+      expect(retry).toEqual(first);
+      expect(first.mintedOrganic).toBe(true);
+      expect(first.leadSlug).toBe(deriveOrganicCheckoutLeadSlugFromIdempotencyKey(KEY_A));
+    });
+
+    it("still prefers an explicit lead slug over a supplied idempotency key", () => {
+      expect(
+        resolveBundleCheckoutLeadSlug("example-bakery", { idempotencyKey: KEY_A }),
+      ).toEqual({ leadSlug: "example-bakery", mintedOrganic: false });
+    });
   });
 });

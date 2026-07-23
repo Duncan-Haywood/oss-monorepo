@@ -110,14 +110,19 @@ export async function POST(request: Request) {
   const appUrl = resolveStripeRedirectAppUrl();
   const stripe = new Stripe(secretKey);
 
-  // Homepage CTAs omit slug — mint organic-* so webhook fulfillment + payment
-  // stubs still create CRM/handoff rows after Stripe collects money.
-  const { leadSlug, mintedOrganic } = resolveBundleCheckoutLeadSlug(body.slug);
-  // Soft-cap before Stripe + persist — rate limits blunt count, not size.
-  const customerEmail = normalizeCheckoutCustomerEmail(body.customerEmail);
   // Client-minted per-attempt key — see idempotency-key.ts for why this must
   // NOT be a stable server-derived key like the catalog/bootstrap/Connect ones.
   const idempotencyKey = parseClientIdempotencyKey(body.idempotencyKey);
+  // Homepage CTAs omit slug — mint organic-* so webhook fulfillment + payment
+  // stubs still create CRM/handoff rows after Stripe collects money. Derive
+  // the organic slug from idempotencyKey (when present) rather than a fresh
+  // random one, so a same-key retry sends Stripe the same metadata.slug —
+  // see resolveBundleCheckoutLeadSlug's doc comment.
+  const { leadSlug, mintedOrganic } = resolveBundleCheckoutLeadSlug(body.slug, {
+    idempotencyKey,
+  });
+  // Soft-cap before Stripe + persist — rate limits blunt count, not size.
+  const customerEmail = normalizeCheckoutCustomerEmail(body.customerEmail);
 
   const cancelParams = new URLSearchParams({ cancelled: "1" });
   cancelParams.set("slug", leadSlug);

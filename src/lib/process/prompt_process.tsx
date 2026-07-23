@@ -642,4 +642,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "daily-digest-recovery-nudge-number",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-bjvkv8",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 35a4c6dd (PR #690, daily-digest-recovery-nudge-number) — HEAD matched origin/main exactly at session start; this session's own designated branch name had already been merged and its remote ref pruned, matching the documented merged-branch-restart pattern. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2789 passed, 200 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` and a push-time diff of the newest ~8 claude/* branches against origin/main confirmed every one already merged — no live fold candidate.\n\nDispatched a foreground research agent (Explore), weighted toward tiers 2-5 concrete gaps since recent iterations skewed growth/SEO. It audited the immediately-preceding session's own shipped feature (checkout-session-create-idempotency-key, PR #688) against current source and found a real self-inflicted regression: the organic-slug minting the bundle checkout route uses for CRM-less homepage CTAs re-randomizes on every call, including a retry that reuses the same client idempotency key — sending Stripe a changed metadata.slug under a reused Idempotency-Key, which Stripe itself rejects as an idempotency_error. See organic-checkout-slug-idempotency-key-stability in BUSINESS_DECISIONS for full detail and the two runner-ups ruled out.",
+    shipped: [
+      "src/lib/checkout/organic-attribution.ts — new deriveOrganicCheckoutLeadSlugFromIdempotencyKey (stable SHA-256-derived organic-* slug from a client idempotency key); resolveBundleCheckoutLeadSlug's second param changed from a positional mint callback to an options object ({ idempotencyKey?, mint? }) — idempotencyKey (when present) now takes priority over random minting, while an explicit client-supplied slug still wins over both.",
+      "src/app/api/stripe/checkout/route.ts — reordered so idempotencyKey is parsed before resolveBundleCheckoutLeadSlug is called, and threads it through. /api/commerce/checkout independently confirmed unaffected (slug/skuId are always explicit request fields there, never randomly minted).",
+      "Tests: src/lib/checkout/organic-attribution.test.ts (updated existing call sites to the new options shape; new describe block covering deterministic derivation, different-keys-differ, same-key-retry-no-mint-call, explicit-slug-wins-over-key) and src/app/api/stripe/checkout/route.test.ts (new regression test: two real POSTs sharing an idempotencyKey and no slug produce byte-identical metadata.slug).",
+      "src/lib/process/business-decisions.ts — appended organic-checkout-slug-idempotency-key-stability.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a correctness fix to an already-shipped feature, not a resolution of any gated item. Diff-gate anchor moves to 35a4c6dd (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2794 passed, up from 2789 — 5 new, 200 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /docs/architecture all 200; POSTed /api/stripe/checkout with tier+idempotencyKey only, confirmed expected 501-without-secret response with no runtime error; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "organic-checkout-slug-idempotency-key-stability",
+    ),
+  },
 ];

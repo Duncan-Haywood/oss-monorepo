@@ -354,6 +354,34 @@ describe("POST /api/stripe/checkout", () => {
     );
   });
 
+  it("mints the SAME organic-* slug across a retry that reuses the client idempotency key", async () => {
+    // Regression for the bug this fix closes: resolveBundleCheckoutLeadSlug
+    // used to mint a fresh random slug on every call even when the client
+    // sent the same Idempotency-Key for a same-params retry (network-error
+    // resend, double-click) — a different metadata.slug on that retry would
+    // make Stripe itself reject the reused key with idempotency_error, since
+    // Stripe treats a key reused with different parameters as an error.
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_organic_retry",
+      url: "https://checkout.stripe.com/organic-retry",
+    });
+    const { POST } = await import("./route");
+    const idempotencyKey = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+
+    const first = await POST(checkoutRequest({ tier: "starter", idempotencyKey }));
+    expect(first.status).toBe(200);
+    const second = await POST(checkoutRequest({ tier: "starter", idempotencyKey }));
+    expect(second.status).toBe(200);
+
+    const firstSlug = (sessionsCreate.mock.calls[0]![0] as { metadata: Record<string, string> })
+      .metadata.slug;
+    const secondSlug = (sessionsCreate.mock.calls[1]![0] as { metadata: Record<string, string> })
+      .metadata.slug;
+    expect(firstSlug).toMatch(/^organic-[0-9a-f]+$/);
+    expect(secondSlug).toBe(firstSlug);
+  });
+
   it("treats whitespace-only slug as missing and mints organic-*", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({
