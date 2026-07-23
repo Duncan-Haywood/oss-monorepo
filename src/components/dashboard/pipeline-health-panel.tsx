@@ -221,7 +221,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.commerceCatalogsUnsyncedCount > 0}
         />
         <MetricCard
-          label="Voice packs due"
+          label="Complete voice packs due"
           value={String(health.clientVoicePacksDueCount)}
           hint={
             health.clientVoicePacksDueCount > 0

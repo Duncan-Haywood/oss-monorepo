@@ -653,4 +653,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "pipeline-health-panel-voice-pack-label-drift",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-jh7aes",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip a46f45db (PR #662) — HEAD matched origin/main exactly at session start (after correcting an initial stale-local-ref false read of origin/main, per AGENT_PROTOCOL's own warning about diffing against a stale local main). Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, 198 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Fold-scanned the 5 most-recently-committed remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` — each carried exactly one commit already merged byte-identical under a different SHA (PRs #659-#662 plus one clean-audit entry); no live fold candidate. Empty-backlog diff-gate against the last full tier 1-3 sweep's anchor (93e8e050) showed only 4 real product commits since, each already independently spot-checked by its own originating iteration, so dispatched a fast targeted spot-check via one foreground general-purpose research agent instead of a full re-sweep. See pipeline-health-panel-voice-packs-due-label-drift in BUSINESS_DECISIONS for the full mechanism of the one real gap it found (and the ones it independently re-verified clean).",
+    shipped: [
+      "src/components/dashboard/pipeline-health-panel.tsx — corrected the 'Voice packs due' MetricCard label (line 224) to 'Complete voice packs due', matching daily-digest.ts's section title and all three architecture-doc references, and its own sibling card (line 238, 'Complete voice packs not emailed') fixed by the immediately-preceding PR #662. Pure copy fix — no data/logic change. Deliberately left leads-client.tsx's separately-named 'Voice packs due' panel untouched (a different UI surface, consistently named that way across three docs pages already).",
+      "src/lib/process/business-decisions.ts — appended pipeline-health-panel-voice-packs-due-label-drift.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a tier-7 docs/UI-copy-consistency fix, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, 198 files, unchanged — React client components have no test harness in this repo) + npm run build (clean, same 42-route split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "pipeline-health-panel-voice-packs-due-label-drift",
+    ),
+  },
 ];
