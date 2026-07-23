@@ -941,4 +941,23 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "contact-form-notify-reply-to-visitor",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-hs1t9e",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 25a93f33 (PR #680, contact-form-notify-reply-to-visitor) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2751 passed, 199 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (611 remote heads) confirmed the three most-recently-pushed non-merged claude/* branches (upbeat-dijkstra-qm7oeo, nice-euler-2znhzl, upbeat-dijkstra-vgx9wx) are each byte-identical duplicates of commits already merged under different SHAs — no live fold candidate; `git push origin --delete` on all three returned 403 (no delete permission this session, same gap prior iterations hit).\n\nDispatched a foreground research agent, steered away from every surface fixed today. It found the mirror-image of the immediately-preceding iteration's own fix: contact-form-notify-reply-to-visitor added Reply-To to the business's inbound-inquiry notify email, but its own ITERATIONS entry explicitly scoped out sendInquiryReply (the operator dashboard's Reply-button send to the visitor) as 'never part of this gap' since it already targets the visitor as `to`. That left the loop one-directional: a visitor's follow-up after the operator's reply had no Reply-To at all and silently landed on this app's noreply EMAIL_FROM instead of the business owner's inbox — replyToInquiryAction (src/app/dashboard/leads/actions.ts:517) never even fetched the lead record to have an email to route to. Independently re-verified by reading resend.ts:376-413, actions.ts:517-635, and the pinned no-replyTo call-shape assertion in reply-to-inquiry-action.test.ts before implementing. See inquiry-reply-notify-reply-to-business-owner in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/email/resend.ts — sendInquiryReply gained an optional replyTo?: string param, forwarded into its existing sendEmail(...) call (sanitizeReplyToEmail validation already applies, no new escaping code needed).",
+      "src/app/dashboard/leads/actions.ts — replyToInquiryAction now calls getLeadBySlug(inquiry.leadSlug) (already imported in this file) and passes replyTo: lead?.email || undefined into sendInquiryReply — best-effort, never gates or blocks the send.",
+      "src/app/dashboard/leads/reply-to-inquiry-action.test.ts — exposed getLeadBySlug as a configurable named mock (was an anonymous inline vi.fn()), defaulted it to a lead with an email, updated the success-path assertion to expect replyTo, and added two new cases (no lead email, no lead record) confirming replyTo: undefined is still passed rather than the field being dropped from the call.",
+      "src/lib/email/resend.test.ts — two new cases confirming sendInquiryReply forwards replyTo to Resend's reply_to field when present and omits it entirely when absent.",
+      "src/app/docs/architecture/page.tsx — extended the existing Starter CRM-loop paragraph to describe the reply-direction fix closing the loop both ways.",
+      "src/lib/process/business-decisions.ts — appended inquiry-reply-notify-reply-to-business-owner.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a sold-capability wiring-gap fix, not a resolution of any gated item. Diff-gate anchor moves to 25a93f33 (this iteration's own starting tip).",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2755 passed, up from 2751 — 4 new, 199 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /docs/architecture all 200; curled the rendered docs HTML confirming the new sentence renders; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "inquiry-reply-notify-reply-to-business-owner",
+    ),
+  },
 ];

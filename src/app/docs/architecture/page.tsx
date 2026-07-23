@@ -506,7 +506,16 @@ export default function ArchitectureDocPage() {
         CRM also skips: <code>POST /api/contact/[slug]</code> inquiry notify to{" "}
         <code>lead.email</code>, and operator <code>sendInquiryReply</code> to the visitor —
         persist-then-notify must not mark an inquiry replied while marketing suppression
-        permanently blocks the visitor reply. Sold Growth/Complete pack delivery on{" "}
+        permanently blocks the visitor reply.{" "}
+        <code>replyToInquiryAction</code> also looks up the lead via{" "}
+        <code>getLeadBySlug</code> and passes its email as <code>sendInquiryReply</code>&apos;s{" "}
+        <code>replyTo</code> (same <code>sanitizeReplyToEmail</code> validation as the notify
+        direction above) — closing the CRM reply loop both ways: the visitor&apos;s first message
+        already Reply-To&apos;s back to them from the notify email, and now the operator&apos;s
+        reply Reply-To&apos;s to the business owner&apos;s own inbox instead of this
+        app&apos;s <code>EMAIL_FROM</code>, so a visitor&apos;s follow-up no longer vanishes into a
+        noreply address. Falls back to no <code>Reply-To</code> (prior behavior) when the lead has
+        no email on file. Sold Growth/Complete pack delivery on{" "}
         <code>lead.email</code> also skips: <code>sendMarketingPackToClientEmail</code> and{" "}
         <code>sendClientVoicePackToClientEmail</code> pass <code>skipSuppression: true</code> so a
         cold-outreach unsub cannot permanently block paid monthly marketing content or Complete

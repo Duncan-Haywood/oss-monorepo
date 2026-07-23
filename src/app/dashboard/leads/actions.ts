@@ -596,6 +596,13 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
       };
     }
 
+    // Reply-To routes a visitor's follow-up (hitting Reply on this email)
+    // straight to the business owner's own inbox instead of this app's
+    // noreply EMAIL_FROM — the mirror-image of the notify email's Reply-To
+    // fix (contact-form-notify-reply-to-visitor), closing the CRM reply loop
+    // in both directions. Best-effort: a missing lead/email just omits it,
+    // same fallback contact-form notify already uses.
+    const lead = await getLeadBySlug(inquiry.leadSlug);
     const sent = await sendInquiryReply({
       to,
       businessName: inquiry.businessName,
@@ -603,6 +610,7 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
       replyBody: normalized.body,
       originalMessage: inquiry.message,
       inquirerName: inquiry.name,
+      replyTo: lead?.email || undefined,
     });
 
     if (!sent.success) {

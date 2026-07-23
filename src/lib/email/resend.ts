@@ -380,9 +380,17 @@ export async function sendInquiryReply(params: {
   replyBody: string;
   originalMessage: string;
   inquirerName?: string;
+  replyTo?: string;
 }) {
-  const { to, businessName, leadSlug, replyBody, originalMessage, inquirerName } =
-    params;
+  const {
+    to,
+    businessName,
+    leadSlug,
+    replyBody,
+    originalMessage,
+    inquirerName,
+    replyTo,
+  } = params;
   const greeting = inquirerName?.trim()
     ? `Hello ${escapeHtmlForEmail(inquirerName.trim())},`
     : "Hello,";
@@ -409,6 +417,7 @@ export async function sendInquiryReply(params: {
     html,
     leadSlug,
     skipSuppression: true,
+    replyTo,
   });
 }
 

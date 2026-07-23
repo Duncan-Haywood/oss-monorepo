@@ -887,4 +887,29 @@ describe("resend.ts — sendEmail Reply-To", () => {
     expect(sentBody.reply_to).toBeUndefined();
     expect("reply_to" in sentBody).toBe(false);
   });
+
+  it("sendInquiryReply forwards replyTo to Resend as reply_to (visitor's follow-up routes to the business owner)", async () => {
+    const { sendInquiryReply } = await import("./resend");
+    await sendInquiryReply({
+      to: "visitor@example.com",
+      businessName: "Demo Cafe",
+      leadSlug: "demo-cafe",
+      replyBody: "Thanks for writing in.",
+      originalMessage: "Do you take walk-ins?",
+      replyTo: "owner@democafe.example",
+    });
+    expect(sentBody.reply_to).toBe("owner@democafe.example");
+  });
+
+  it("sendInquiryReply omits reply_to when no lead email is on file", async () => {
+    const { sendInquiryReply } = await import("./resend");
+    await sendInquiryReply({
+      to: "visitor@example.com",
+      businessName: "Demo Cafe",
+      leadSlug: "demo-cafe",
+      replyBody: "Thanks for writing in.",
+      originalMessage: "Do you take walk-ins?",
+    });
+    expect("reply_to" in sentBody).toBe(false);
+  });
 });

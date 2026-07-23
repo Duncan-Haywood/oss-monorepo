@@ -41,10 +41,11 @@ function headerStore(entries: Record<string, string | null> = {}) {
 
 const getClientInquiryById = vi.fn();
 const recordClientInquiryReply = vi.fn();
+const getLeadBySlug = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
-  getLeadBySlug: vi.fn(),
+  getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   recordCheckoutRecoverySent: vi.fn(),
   getCommerceCatalog: vi.fn(),
   updateLeadStage: vi.fn(),
@@ -129,6 +130,10 @@ describe("replyToInquiryAction", () => {
     headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getClientInquiryById.mockReset().mockResolvedValue(openInquiry);
+    getLeadBySlug.mockReset().mockResolvedValue({
+      slug: "demo-cafe",
+      email: "owner@democafe.example",
+    });
     recordClientInquiryReply.mockReset().mockResolvedValue(repliedInquiry);
     sendInquiryReply.mockReset().mockResolvedValue({
       success: true,
@@ -295,8 +300,28 @@ describe("replyToInquiryAction", () => {
       replyBody: "Thanks — yes, walk-ins welcome after 2pm.",
       originalMessage: "Do you take walk-ins?",
       inquirerName: "Alex Visitor",
+      replyTo: "owner@democafe.example",
     });
+    expect(getLeadBySlug).toHaveBeenCalledWith("demo-cafe");
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("omits replyTo when the lead has no email on file", async () => {
+    getLeadBySlug.mockResolvedValue({ slug: "demo-cafe", email: undefined });
+    const { replyToInquiryAction } = await import("./actions");
+    await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
+    expect(sendInquiryReply).toHaveBeenCalledWith(
+      expect.objectContaining({ replyTo: undefined }),
+    );
+  });
+
+  it("omits replyTo when the lead lookup finds no record", async () => {
+    getLeadBySlug.mockResolvedValue(undefined);
+    const { replyToInquiryAction } = await import("./actions");
+    await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
+    expect(sendInquiryReply).toHaveBeenCalledWith(
+      expect.objectContaining({ replyTo: undefined }),
+    );
   });
 
   it("trims the inquiry email before sending", async () => {
