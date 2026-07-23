@@ -26,6 +26,11 @@ interface LeadRow {
   notes?: string;
   snoozedUntil?: string;
   stripeConnectAccountId?: string;
+  stripeConnectAccountCreatedAt?: string;
+  stripeConnectChargesEnabled?: boolean;
+  stripeConnectPayoutsEnabled?: boolean;
+  stripeConnectDetailsSubmitted?: boolean;
+  stripeConnectStatusCheckedAt?: string;
 }
 
 function newLeadArgs(overrides: Partial<Record<string, unknown>> = {}) {
@@ -647,6 +652,66 @@ test("updateStripeConnectAccountId throws on an unknown slug and an empty string
   });
   row = await t.query(api.leads.getBySlug, { slug: "demo-cafe", apiSecret: TEST_API_SECRET });
   expect(row?.stripeConnectAccountId).toBe("");
+});
+
+test("updateStripeConnectAccountId sets stripeConnectAccountCreatedAt once and never overwrites it on a later call", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe" }));
+
+  await t.mutation(api.leads.updateStripeConnectAccountId, {
+    slug: "demo-cafe",
+    stripeConnectAccountId: "acct_123",
+    stripeConnectAccountCreatedAt: "2026-07-20T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  let row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.stripeConnectAccountCreatedAt).toBe("2026-07-20T00:00:00.000Z");
+
+  // A later call (e.g. an idempotent re-run after a prior persist failure)
+  // passing a DIFFERENT createdAt must not overwrite the first-learned value.
+  await t.mutation(api.leads.updateStripeConnectAccountId, {
+    slug: "demo-cafe",
+    stripeConnectAccountId: "acct_123",
+    stripeConnectAccountCreatedAt: "2026-07-23T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.leads.getBySlug, { slug: "demo-cafe", apiSecret: TEST_API_SECRET });
+  expect(row?.stripeConnectAccountCreatedAt).toBe("2026-07-20T00:00:00.000Z");
+});
+
+test("updateStripeConnectStatus throws on an unknown slug and patches the cached onboarding status", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.leads.updateStripeConnectStatus, {
+      slug: "no-such-lead",
+      chargesEnabled: true,
+      payoutsEnabled: true,
+      detailsSubmitted: true,
+      checkedAt: "2026-07-23T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).rejects.toThrow("Lead with slug no-such-lead not found");
+
+  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe" }));
+  await t.mutation(api.leads.updateStripeConnectStatus, {
+    slug: "demo-cafe",
+    chargesEnabled: true,
+    payoutsEnabled: false,
+    detailsSubmitted: true,
+    checkedAt: "2026-07-23T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.stripeConnectChargesEnabled).toBe(true);
+  expect(row?.stripeConnectPayoutsEnabled).toBe(false);
+  expect(row?.stripeConnectDetailsSubmitted).toBe(true);
+  expect(row?.stripeConnectStatusCheckedAt).toBe("2026-07-23T00:00:00.000Z");
 });
 
 test("applyColdDisposition throws on an unknown slug and patches stage/outreach/snooze together, clearing via empty string", async () => {

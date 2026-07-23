@@ -124,6 +124,7 @@ const api: any = {
     updateSnooze: "leads:updateSnooze",
     applyColdDisposition: "leads:applyColdDisposition",
     updateStripeConnectAccountId: "leads:updateStripeConnectAccountId",
+    updateStripeConnectStatus: "leads:updateStripeConnectStatus",
     updateBufferProfileIds: "leads:updateBufferProfileIds",
     updateBufferPostedVariantKeys: "leads:updateBufferPostedVariantKeys",
   },
@@ -508,17 +509,29 @@ export async function updateLeadSnooze(
  * createStripeConnectAccountAction so a Convex mutation failure surfaces to
  * the operator instead of writing only to instance-local SQLite while
  * Convex-first readers (getLeads) never see the created account id.
+ *
+ * `accountCreatedAt` (ISO timestamp) anchors the onboarding-incomplete
+ * staleness signal (oldestConnectOnboardingIncompleteAgeHours — see
+ * stripe-connect-onboarding-pipeline-health-visibility) — set-once semantics:
+ * a lead that already has a stored value keeps it (SQLite: COALESCE; Convex:
+ * the mutation itself only patches the key when the lead doesn't already
+ * have one), so a later idempotent re-call (e.g. after a prior persist
+ * failure) never resets "how long has this been incomplete" back to now.
  */
 export async function updateLeadStripeConnectAccountId(
   slug: string,
   stripeConnectAccountId: string | undefined,
   options?: ConvexPrimaryWriteOptions,
+  accountCreatedAt?: string,
 ): Promise<void> {
   if (convexClient) {
     try {
       await convexClient.mutation(api.leads.updateStripeConnectAccountId, {
         slug,
         stripeConnectAccountId: stripeConnectAccountId ?? "",
+        ...(accountCreatedAt !== undefined
+          ? { stripeConnectAccountCreatedAt: accountCreatedAt }
+          : {}),
         apiSecret: convexApiSecret,
       });
       return;
@@ -542,9 +555,71 @@ export async function updateLeadStripeConnectAccountId(
   }
   db.prepare(`
     UPDATE leads
-    SET stripeConnectAccountId = ?, updatedAt = datetime('now')
+    SET stripeConnectAccountId = ?,
+        stripeConnectAccountCreatedAt = COALESCE(stripeConnectAccountCreatedAt, ?),
+        updatedAt = datetime('now')
     WHERE slug = ?
-  `).run(stripeConnectAccountId ?? null, slug);
+  `).run(stripeConnectAccountId ?? null, accountCreatedAt ?? null, slug);
+}
+
+/**
+ * Persist the operator's most recent Stripe Connect Express onboarding
+ * status check (checkStripeConnectAccountStatusAction) — a display cache for
+ * pipeline-health/digest visibility (see
+ * stripe-connect-onboarding-pipeline-health-visibility), not the source of
+ * truth (Stripe's own account object is). Deliberately best-effort, same
+ * class as updateLeadBufferPostedVariantKeys: this runs right after a
+ * successful live status fetch that has already been returned to the
+ * operator, so a persistence failure must not turn that success into a
+ * reported error — it falls back to SQLite (or, on total failure, the caller
+ * logs and moves on) rather than throwing.
+ */
+export async function updateLeadStripeConnectStatus(
+  slug: string,
+  status: { chargesEnabled: boolean; payoutsEnabled: boolean; detailsSubmitted: boolean },
+  checkedAt: string,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.updateStripeConnectStatus, {
+        slug,
+        chargesEnabled: status.chargesEnabled,
+        payoutsEnabled: status.payoutsEnabled,
+        detailsSubmitted: status.detailsSubmitted,
+        checkedAt,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to persist Stripe Connect status for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET stripeConnectChargesEnabled = ?,
+        stripeConnectPayoutsEnabled = ?,
+        stripeConnectDetailsSubmitted = ?,
+        stripeConnectStatusCheckedAt = ?,
+        updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(
+    status.chargesEnabled ? 1 : 0,
+    status.payoutsEnabled ? 1 : 0,
+    status.detailsSubmitted ? 1 : 0,
+    checkedAt,
+    slug,
+  );
 }
 
 /**

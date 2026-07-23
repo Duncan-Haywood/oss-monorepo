@@ -189,6 +189,11 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   addLeadCol("notes", "TEXT");
   addLeadCol("snoozedUntil", "TEXT");
   addLeadCol("stripeConnectAccountId", "TEXT");
+  addLeadCol("stripeConnectAccountCreatedAt", "TEXT");
+  addLeadCol("stripeConnectChargesEnabled", "INTEGER");
+  addLeadCol("stripeConnectPayoutsEnabled", "INTEGER");
+  addLeadCol("stripeConnectDetailsSubmitted", "INTEGER");
+  addLeadCol("stripeConnectStatusCheckedAt", "TEXT");
   addLeadCol("bufferProfileIds", "TEXT");
   addLeadCol("bufferPostedVariantKeys", "TEXT");
 

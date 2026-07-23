@@ -166,3 +166,69 @@ export async function fetchConnectAccountStatus(
     detailsSubmitted: account.details_submitted ?? false,
   };
 }
+
+/**
+ * Pure pipeline-health/digest visibility helpers for the Connect scaffold
+ * (stripe-connect-onboarding-pipeline-health-visibility) — closes the gap
+ * flagged by buffer-token-header-not-query: Connect onboarding status had
+ * zero visibility outside each lead's own Payouts panel, unlike every other
+ * due-queue signal in this codebase. A Connect account is presumed
+ * incomplete until BOTH chargesEnabled and payoutsEnabled are confirmed
+ * true by the operator's most recent "Check status" click — an account
+ * that's never been checked (undefined) counts as incomplete by design,
+ * since Stripe Express accounts require onboarding steps before either flag
+ * goes true.
+ */
+
+const HOUR_MS = 60 * 60 * 1000;
+
+/** True once a lead has a Connect account that is not yet confirmed fully onboarded. */
+export function connectOnboardingIncomplete(lead: {
+  stripeConnectAccountId?: string;
+  stripeConnectChargesEnabled?: boolean;
+  stripeConnectPayoutsEnabled?: boolean;
+}): boolean {
+  if (!lead.stripeConnectAccountId) return false;
+  return !(lead.stripeConnectChargesEnabled === true && lead.stripeConnectPayoutsEnabled === true);
+}
+
+/** Leads with an incomplete Connect account, slug-sorted (mirrors listCommerceCatalogsMissing). */
+export function listLeadsWithIncompleteConnectOnboarding<
+  T extends {
+    slug: string;
+    stripeConnectAccountId?: string;
+    stripeConnectChargesEnabled?: boolean;
+    stripeConnectPayoutsEnabled?: boolean;
+  },
+>(leads: readonly T[]): T[] {
+  return leads
+    .filter(connectOnboardingIncomplete)
+    .slice()
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/**
+ * Age in whole hours since the oldest incomplete Connect account was created
+ * (stripeConnectAccountCreatedAt); null when there are no candidates or none
+ * carry a parseable timestamp. A candidate with no createdAt (a pre-existing
+ * account created before this field shipped) is skipped from the age
+ * computation — same skip-if-no-anchor contract as oldestPaidNotLiveAgeHours
+ * — but still counts toward connectOnboardingIncompleteCount above. Pass
+ * nowMs from the caller — never Date.now() inside list/age helpers.
+ */
+export function oldestConnectOnboardingIncompleteAgeHours(
+  candidates: ReadonlyArray<{ stripeConnectAccountCreatedAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldestCreatedAtMs: number | null = null;
+  for (const candidate of candidates) {
+    if (typeof candidate.stripeConnectAccountCreatedAt !== "string") continue;
+    const createdAtMs = Date.parse(candidate.stripeConnectAccountCreatedAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    if (oldestCreatedAtMs === null || createdAtMs < oldestCreatedAtMs) {
+      oldestCreatedAtMs = createdAtMs;
+    }
+  }
+  if (oldestCreatedAtMs === null) return null;
+  return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / HOUR_MS));
+}

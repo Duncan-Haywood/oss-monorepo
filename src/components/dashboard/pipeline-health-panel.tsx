@@ -221,6 +221,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.commerceCatalogsUnsyncedCount > 0}
         />
         <MetricCard
+          label="Stripe Connect onboarding incomplete"
+          value={String(health.connectOnboardingIncompleteCount)}
+          hint={
+            health.connectOnboardingIncompleteCount > 0
+              ? `Connect account created but not confirmed fully onboarded${
+                  health.oldestConnectOnboardingIncompleteAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestConnectOnboardingIncompleteAgeHours)}`
+                    : ""
+                }`
+              : "Every Connect account is fully onboarded (or none created yet)"
+          }
+          attention={health.connectOnboardingIncompleteCount > 0}
+        />
+        <MetricCard
           label="Complete voice packs due"
           value={String(health.clientVoicePacksDueCount)}
           hint={

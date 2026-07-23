@@ -43,6 +43,11 @@ export type PublicLead = Omit<
   Lead,
   | "notes"
   | "stripeConnectAccountId"
+  | "stripeConnectAccountCreatedAt"
+  | "stripeConnectChargesEnabled"
+  | "stripeConnectPayoutsEnabled"
+  | "stripeConnectDetailsSubmitted"
+  | "stripeConnectStatusCheckedAt"
   | "bufferProfileIds"
   | "bufferPostedVariantKeys"
 >;
@@ -52,6 +57,12 @@ export type PublicLead = Omit<
  * and strip fields that must never reach an unauthenticated visitor: `notes`
  * (operator call notes — dashboard only per its own doc comment),
  * `stripeConnectAccountId` (a Stripe financial identifier),
+ * `stripeConnectAccountCreatedAt`/`stripeConnectChargesEnabled`/
+ * `stripeConnectPayoutsEnabled`/`stripeConnectDetailsSubmitted`/
+ * `stripeConnectStatusCheckedAt` (the cached Connect onboarding status these
+ * anchor/describe — operator-internal payout-account detail about the
+ * underlying business, the same "dashboard-only" class as notes; see
+ * stripe-connect-onboarding-pipeline-health-visibility),
  * `bufferProfileIds` (the operator's connected Buffer social-profile ids —
  * see marketing-content-scheduling-buffer-scaffold; an operator-internal
  * third-party account identifier, the same class as stripeConnectAccountId),
@@ -65,25 +76,36 @@ export type PublicLead = Omit<
  * design.
  *
  * Every current caller only reads individual fields off the result, so none
- * of these four are live-exploitable today — but this is the one function
+ * of these are live-exploitable today — but this is the one function
  * whose contract is "safe to hand to a public surface", and at least one
  * caller (CategoryPreview → TierUpsell) already passes the whole result
  * object onward. Omitting these fields from the return type (rather than
  * relying on every caller reading around them) means a future Client
  * Component boundary added on that path cannot silently serialize an
- * operator's notes, Stripe account id, or Buffer profile ids/post markers
- * into the RSC payload (public-lead-strip-buffer-posted-variant-keys).
+ * operator's notes, Stripe account id/onboarding status, or Buffer profile
+ * ids/post markers into the RSC payload
+ * (public-lead-strip-buffer-posted-variant-keys).
  */
 export function softCapLeadForPublicSurface(lead: Lead): PublicLead {
   const {
     notes,
     stripeConnectAccountId,
+    stripeConnectAccountCreatedAt,
+    stripeConnectChargesEnabled,
+    stripeConnectPayoutsEnabled,
+    stripeConnectDetailsSubmitted,
+    stripeConnectStatusCheckedAt,
     bufferProfileIds,
     bufferPostedVariantKeys,
     ...publicLead
   } = lead;
   void notes;
   void stripeConnectAccountId;
+  void stripeConnectAccountCreatedAt;
+  void stripeConnectChargesEnabled;
+  void stripeConnectPayoutsEnabled;
+  void stripeConnectDetailsSubmitted;
+  void stripeConnectStatusCheckedAt;
   void bufferProfileIds;
   void bufferPostedVariantKeys;
   const address =

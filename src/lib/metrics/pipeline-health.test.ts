@@ -134,6 +134,8 @@ describe("computePipelineHealth", () => {
     expect(health.oldestRecurringEntitlementPausedAgeHours).toBeNull();
     expect(health.starterUpsellCandidatesCount).toBe(0);
     expect(health.oldestStarterUpsellCandidateAgeHours).toBeNull();
+    expect(health.connectOnboardingIncompleteCount).toBe(0);
+    expect(health.oldestConnectOnboardingIncompleteAgeHours).toBeNull();
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
@@ -920,6 +922,38 @@ describe("computePipelineHealth", () => {
     });
     expect(health.starterUpsellCandidatesCount).toBe(2);
     expect(health.oldestStarterUpsellCandidateAgeHours).toBe(10);
+  });
+
+  it("counts leads with an incomplete Stripe Connect account, anchoring age on stripeConnectAccountCreatedAt", () => {
+    const neverChecked = makeLead("paid", {
+      slug: "connect-never-checked",
+      stripeConnectAccountId: "acct_1",
+      stripeConnectAccountCreatedAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+    });
+    const partiallyEnabled = makeLead("paid", {
+      slug: "connect-partial",
+      stripeConnectAccountId: "acct_2",
+      stripeConnectChargesEnabled: true,
+      stripeConnectPayoutsEnabled: false,
+      stripeConnectAccountCreatedAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const fullyOnboarded = makeLead("paid", {
+      slug: "connect-complete",
+      stripeConnectAccountId: "acct_3",
+      stripeConnectChargesEnabled: true,
+      stripeConnectPayoutsEnabled: true,
+    });
+    const noAccount = makeLead("paid", { slug: "connect-none" });
+
+    const health = computePipelineHealth({
+      leads: [neverChecked, partiallyEnabled, fullyOnboarded, noAccount],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.connectOnboardingIncompleteCount).toBe(2);
+    expect(health.oldestConnectOnboardingIncompleteAgeHours).toBe(30);
   });
 
   it("counts paid/live commerceAddon leads missing a catalog", () => {

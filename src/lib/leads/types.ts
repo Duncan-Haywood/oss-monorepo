@@ -78,6 +78,33 @@ export interface Lead {
    */
   stripeConnectAccountId?: string;
   /**
+   * ISO timestamp when this lead's Connect account was first created/found
+   * (set once, at the same time as stripeConnectAccountId — never updated
+   * again). Anchors the "how long has onboarding been incomplete" staleness
+   * signal (oldestConnectOnboardingIncompleteAgeHours) the same way an
+   * order's own createdAt anchors every other due-queue's oldest-age card —
+   * Lead itself has no general createdAt/updatedAt field to reuse. See
+   * stripe-connect-onboarding-pipeline-health-visibility.
+   */
+  stripeConnectAccountCreatedAt?: string;
+  /**
+   * Live Stripe Connect Express onboarding status, cached from the operator's
+   * most recent "Check status" click (checkStripeConnectAccountStatusAction) —
+   * undefined means never checked. This is a DISPLAY CACHE, not the source of
+   * truth (Stripe's own account object is); a stale/never-refreshed value
+   * only means the pipeline-health/digest visibility can lag behind an
+   * operator completing onboarding out-of-band, never that money moves on a
+   * wrong value (this scaffold moves no money at all yet). See
+   * stripe-connect-onboarding-pipeline-health-visibility.
+   */
+  stripeConnectChargesEnabled?: boolean;
+  /** See stripeConnectChargesEnabled — same cache-freshness caveat. */
+  stripeConnectPayoutsEnabled?: boolean;
+  /** See stripeConnectChargesEnabled — same cache-freshness caveat. */
+  stripeConnectDetailsSubmitted?: boolean;
+  /** ISO timestamp of the most recent successful status check; undefined means never checked. */
+  stripeConnectStatusCheckedAt?: string;
+  /**
    * Buffer profile ids the operator has chosen to auto-post this lead's
    * generated marketing pack content to, via saveLeadBufferProfilesAction
    * (dormant behind ALLOW_MARKETING_SCHEDULING — see

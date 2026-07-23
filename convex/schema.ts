@@ -41,6 +41,22 @@ export default defineSchema({
      */
     stripeConnectAccountId: v.optional(v.string()),
     /**
+     * ISO timestamp when the Connect account above was first created/found —
+     * set once, never updated again. Anchors the onboarding-incomplete
+     * staleness signal (see stripe-connect-onboarding-pipeline-health-visibility).
+     */
+    stripeConnectAccountCreatedAt: v.optional(v.string()),
+    /**
+     * Cached Stripe Connect Express onboarding status from the operator's
+     * most recent "Check status" click — display cache only, not the source
+     * of truth (Stripe's own account object is). See
+     * stripe-connect-onboarding-pipeline-health-visibility.
+     */
+    stripeConnectChargesEnabled: v.optional(v.boolean()),
+    stripeConnectPayoutsEnabled: v.optional(v.boolean()),
+    stripeConnectDetailsSubmitted: v.optional(v.boolean()),
+    stripeConnectStatusCheckedAt: v.optional(v.string()),
+    /**
      * Buffer profile ids the operator has chosen to auto-post this lead's
      * generated marketing pack content to (dormant scaffold — see
      * marketing-content-scheduling / src/lib/marketing/buffer-gate.ts).

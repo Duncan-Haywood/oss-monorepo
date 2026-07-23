@@ -43,6 +43,7 @@ import {
   getLeadSlugByCustomDomain,
   getDeployHandoffBySlug,
   updateLeadStripeConnectAccountId,
+  updateLeadStripeConnectStatus,
   updateLeadBufferProfileIds,
   updateLeadBufferPostedVariantKeys,
   isEmailSuppressed,
@@ -2856,6 +2857,7 @@ export async function createStripeConnectAccountAction(slug: string) {
         slug,
         accountId,
         LEAD_STRIPE_CONNECT_CONVEX_PRIMARY,
+        new Date().toISOString(),
       );
     } catch (error) {
       if (error instanceof ConvexPrimaryWriteError) {
@@ -3011,6 +3013,19 @@ export async function checkStripeConnectAccountStatusAction(slug: string) {
 
     const stripe = new Stripe(secretKey);
     const status = await fetchConnectAccountStatus(stripe, lead.stripeConnectAccountId);
+
+    // Best-effort cache for pipeline-health/digest visibility (see
+    // stripe-connect-onboarding-pipeline-health-visibility) — a persistence
+    // failure here must not turn this already-successful live check into a
+    // reported error; the operator already sees the correct status this call.
+    try {
+      await updateLeadStripeConnectStatus(slug, status, new Date().toISOString());
+    } catch (persistError) {
+      console.warn(
+        `Failed to persist Stripe Connect status for ${slug}`,
+        persistError,
+      );
+    }
 
     return { success: true as const, ...status };
   } catch (error) {

@@ -12,7 +12,8 @@
  * + commerce-abandoned-checkout-tracking
  * + commerce-pipeline-health-unpaid-owed
  * + recurring-entitlement-paused-pipeline-digest
- * + marketing-voice-pack-client-send-visibility).
+ * + marketing-voice-pack-client-send-visibility
+ * + stripe-connect-onboarding-pipeline-health-visibility).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -72,6 +73,10 @@ import {
   listStarterUpsellCandidates,
   oldestStarterUpsellCandidateAgeHours,
 } from "@/lib/billing/starter-upsell";
+import {
+  listLeadsWithIncompleteConnectOnboarding,
+  oldestConnectOnboardingIncompleteAgeHours,
+} from "@/lib/commerce/stripe-connect";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -314,6 +319,17 @@ export interface PipelineHealth {
   starterUpsellCandidatesCount: number;
   /** Age in whole hours since the oldest qualifying Starter order; null when none. */
   oldestStarterUpsellCandidateAgeHours: number | null;
+  /**
+   * Leads with a Stripe Connect Express account created but not yet
+   * confirmed fully onboarded (both charges_enabled and payouts_enabled) —
+   * dormant scaffold visibility (see
+   * stripe-connect-onboarding-pipeline-health-visibility). This scaffold
+   * moves no money yet (commerce-payouts-stripe-connect stays operator/legal
+   * gated), so this is an operator-awareness queue, not a money signal.
+   */
+  connectOnboardingIncompleteCount: number;
+  /** Age in whole hours since the oldest incomplete account was created; null when none/unanchored. */
+  oldestConnectOnboardingIncompleteAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -811,6 +827,12 @@ export function computePipelineHealth(input: {
     nowMs,
   );
 
+  const connectOnboardingIncomplete = listLeadsWithIncompleteConnectOnboarding(input.leads);
+  const oldestConnectOnboardingIncompleteHours = oldestConnectOnboardingIncompleteAgeHours(
+    connectOnboardingIncomplete,
+    nowMs,
+  );
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -874,6 +896,8 @@ export function computePipelineHealth(input: {
     oldestRecurringEntitlementPausedAgeHours: oldestRecurringPausedAgeHours,
     starterUpsellCandidatesCount: starterUpsellCandidates.length,
     oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellAgeHours,
+    connectOnboardingIncompleteCount: connectOnboardingIncomplete.length,
+    oldestConnectOnboardingIncompleteAgeHours: oldestConnectOnboardingIncompleteHours,
   };
 }
 

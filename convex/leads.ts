@@ -136,6 +136,11 @@ const leadReturn = v.object({
   notes: v.optional(v.string()),
   snoozedUntil: v.optional(v.string()),
   stripeConnectAccountId: v.optional(v.string()),
+  stripeConnectAccountCreatedAt: v.optional(v.string()),
+  stripeConnectChargesEnabled: v.optional(v.boolean()),
+  stripeConnectPayoutsEnabled: v.optional(v.boolean()),
+  stripeConnectDetailsSubmitted: v.optional(v.boolean()),
+  stripeConnectStatusCheckedAt: v.optional(v.string()),
   bufferProfileIds: v.optional(v.array(v.string())),
   bufferPostedVariantKeys: v.optional(v.array(v.string())),
 });
@@ -162,6 +167,11 @@ function mapLeadRow(row: {
   notes?: string;
   snoozedUntil?: string;
   stripeConnectAccountId?: string;
+  stripeConnectAccountCreatedAt?: string;
+  stripeConnectChargesEnabled?: boolean;
+  stripeConnectPayoutsEnabled?: boolean;
+  stripeConnectDetailsSubmitted?: boolean;
+  stripeConnectStatusCheckedAt?: string;
   bufferProfileIds?: string[];
   bufferPostedVariantKeys?: string[];
 }) {
@@ -188,6 +198,11 @@ function mapLeadRow(row: {
     notes: row.notes,
     snoozedUntil: row.snoozedUntil,
     stripeConnectAccountId: row.stripeConnectAccountId,
+    stripeConnectAccountCreatedAt: row.stripeConnectAccountCreatedAt,
+    stripeConnectChargesEnabled: row.stripeConnectChargesEnabled,
+    stripeConnectPayoutsEnabled: row.stripeConnectPayoutsEnabled,
+    stripeConnectDetailsSubmitted: row.stripeConnectDetailsSubmitted,
+    stripeConnectStatusCheckedAt: row.stripeConnectStatusCheckedAt,
     bufferProfileIds: row.bufferProfileIds,
     bufferPostedVariantKeys: row.bufferPostedVariantKeys,
   };
@@ -487,6 +502,14 @@ export const updateStripeConnectAccountId = mutation({
     slug: v.string(),
     /** Empty string clears; undefined is treated the same. */
     stripeConnectAccountId: v.optional(v.string()),
+    /**
+     * Set once, the first time this lead learns its account id (either just
+     * created on Stripe, or found via idempotent metadata search after a
+     * prior persist failure) — never overwritten on a later call, so a
+     * repeat call after the field is already set is a no-op for this key.
+     * See stripe-connect-onboarding-pipeline-health-visibility.
+     */
+    stripeConnectAccountCreatedAt: v.optional(v.string()),
     apiSecret: v.string(),
   },
   returns: v.null(),
@@ -503,8 +526,47 @@ export const updateStripeConnectAccountId = mutation({
     // undefined (see convex-patch-undefined-clear-semantics-correction in
     // business-decisions.ts) — this still persists "" rather than passing
     // undefined through, for parity with the SQLite twin's cleared value.
+    // stripeConnectAccountCreatedAt is only ever included in the patch when
+    // the caller passed one AND the lead doesn't already have one — omitting
+    // the key entirely (rather than patching it to the same value) means a
+    // second call for the same lead can never overwrite the original
+    // first-learned timestamp.
     await ctx.db.patch(lead._id, {
       stripeConnectAccountId: args.stripeConnectAccountId ?? "",
+      ...(args.stripeConnectAccountCreatedAt !== undefined &&
+      !lead.stripeConnectAccountCreatedAt
+        ? { stripeConnectAccountCreatedAt: args.stripeConnectAccountCreatedAt }
+        : {}),
+    });
+    return null;
+  },
+});
+
+export const updateStripeConnectStatus = mutation({
+  args: {
+    slug: v.string(),
+    chargesEnabled: v.boolean(),
+    payoutsEnabled: v.boolean(),
+    detailsSubmitted: v.boolean(),
+    /** ISO timestamp of this check — checkStripeConnectAccountStatusAction's own clock, not Stripe's. */
+    checkedAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    await ctx.db.patch(lead._id, {
+      stripeConnectChargesEnabled: args.chargesEnabled,
+      stripeConnectPayoutsEnabled: args.payoutsEnabled,
+      stripeConnectDetailsSubmitted: args.detailsSubmitted,
+      stripeConnectStatusCheckedAt: args.checkedAt,
     });
     return null;
   },

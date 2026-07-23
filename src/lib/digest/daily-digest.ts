@@ -14,7 +14,8 @@
  * + leads-missing-email-in-digest
  * + recurring-entitlement-paused-pipeline-digest
  * + commerce-order-refund-clawback-tracking
- * + marketing-voice-pack-client-send-visibility).
+ * + marketing-voice-pack-client-send-visibility
+ * + stripe-connect-onboarding-pipeline-health-visibility).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -81,6 +82,10 @@ import {
   oldestRecurringEntitlementPausedAgeHours,
   type RecurringEntitlementPausedStage,
 } from "../orders/recurring";
+import {
+  listLeadsWithIncompleteConnectOnboarding,
+  oldestConnectOnboardingIncompleteAgeHours,
+} from "../commerce/stripe-connect";
 
 const WORK_NEXT_LIMIT = 5;
 const FOLLOW_UPS_LIMIT = 5;
@@ -103,6 +108,7 @@ const OPEN_HANDOFFS_LIMIT = 5;
 const PAID_NOT_LIVE_LIMIT = 5;
 const LEADS_MISSING_EMAIL_LIMIT = 5;
 const RECURRING_ENTITLEMENT_PAUSED_LIMIT = 5;
+const CONNECT_ONBOARDING_INCOMPLETE_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -319,6 +325,18 @@ export interface DigestRecurringEntitlementPaused {
   hasStripeCustomerId: boolean;
 }
 
+/**
+ * Lead with a Stripe Connect Express account created but not yet confirmed
+ * fully onboarded (see stripe-connect-onboarding-pipeline-health-visibility)
+ * — same predicate as pipeline-health connectOnboardingIncompleteCount via
+ * connectOnboardingIncomplete. Dormant-scaffold visibility only; this moves
+ * no money (commerce-payouts-stripe-connect stays operator/legal-gated).
+ */
+export interface DigestConnectOnboardingIncomplete {
+  slug: string;
+  businessName: string;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
@@ -492,6 +510,17 @@ export interface DailyDigest {
   recurringEntitlementPausedCount: number;
   /** Age in whole hours of the oldest recurring entitlement pause; null when none. */
   oldestRecurringEntitlementPausedAgeHours: number | null;
+  /**
+   * Leads with a Stripe Connect Express account not yet confirmed fully
+   * onboarded — same predicate as pipeline-health
+   * connectOnboardingIncompleteCount (see
+   * stripe-connect-onboarding-pipeline-health-visibility).
+   */
+  connectOnboardingIncomplete: DigestConnectOnboardingIncomplete[];
+  /** True count before the CONNECT_ONBOARDING_INCOMPLETE_LIMIT slice. */
+  connectOnboardingIncompleteCount: number;
+  /** Age in whole hours since the oldest incomplete account was created; null when none/unanchored. */
+  oldestConnectOnboardingIncompleteAgeHours: number | null;
   /**
    * True pre-slice sum of every actionable section's count (the same fields
    * isEmpty checks) — the single source of truth for "how many items does
@@ -1087,6 +1116,20 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         hasStripeCustomerId: lead.hasStripeCustomerId,
       }));
 
+  const connectOnboardingIncompleteAll = listLeadsWithIncompleteConnectOnboarding(leads);
+  const connectOnboardingIncompleteCount = connectOnboardingIncompleteAll.length;
+  const oldestConnectOnboardingIncompleteAgeHoursValue = oldestConnectOnboardingIncompleteAgeHours(
+    connectOnboardingIncompleteAll,
+    nowMs,
+  );
+  const connectOnboardingIncomplete: DigestConnectOnboardingIncomplete[] =
+    connectOnboardingIncompleteAll
+      .slice(0, CONNECT_ONBOARDING_INCOMPLETE_LIMIT)
+      .map((lead) => ({
+        slug: lead.slug,
+        businessName: lead.businessName,
+      }));
+
   // Pre-slice true count per section (mirrors the *Count fields below, using
   // workNext.length directly since it's a ranked top-N pick list rather than
   // a due-queue with its own separate uncapped count). Single source of
@@ -1119,6 +1162,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "Paid, not live", count: paidNotLiveCount },
     { label: "Missing email", count: leadsMissingEmailCount },
     { label: "paused/canceled MRR recoveries", count: recurringEntitlementPausedCount },
+    { label: "Stripe Connect onboarding incomplete", count: connectOnboardingIncompleteCount },
   ];
   const actionableItemCount = actionableSections.reduce(
     (sum, section) => sum + section.count,
@@ -1209,6 +1253,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     recurringEntitlementPausedCount,
     oldestRecurringEntitlementPausedAgeHours:
       oldestRecurringEntitlementPausedAgeHoursValue,
+    connectOnboardingIncomplete,
+    connectOnboardingIncompleteCount,
+    oldestConnectOnboardingIncompleteAgeHours: oldestConnectOnboardingIncompleteAgeHoursValue,
     isEmpty,
   };
 }
@@ -1411,6 +1458,11 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     return `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — ${escapeHtmlForEmail(lead.stage)} MRR paused/canceled${billingHint}`;
   });
 
+  const connectOnboardingIncompleteRows = digest.connectOnboardingIncomplete.map(
+    (lead) =>
+      `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Stripe Connect account not yet confirmed fully onboarded`,
+  );
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -1439,6 +1491,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount}${digest.oldestStarterUpsellCandidateAgeHours !== null ? ` · oldest ${digest.oldestStarterUpsellCandidateAgeHours}h` : ""})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount}${digest.oldestCommerceCatalogsMissingAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsMissingAgeHours}h` : ""})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount}${digest.oldestCommerceCatalogsUnsyncedAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsUnsyncedAgeHours}h` : ""})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
+    ${section(`Stripe Connect onboarding incomplete (${digest.connectOnboardingIncompleteCount}${digest.oldestConnectOnboardingIncompleteAgeHours !== null ? ` · oldest ${digest.oldestConnectOnboardingIncompleteAgeHours}h` : ""})`, connectOnboardingIncompleteRows, "Every Connect account is fully onboarded (or none created yet).")}
     ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount}${digest.oldestClientVoicePacksDueAgeHours !== null ? ` · oldest ${digest.oldestClientVoicePacksDueAgeHours}h` : ""})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(voicePackMissingSendTitle, voicePackMissingSendRows, "Every generated Complete voice FAQ pack has been emailed to its client.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}

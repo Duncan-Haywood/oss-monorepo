@@ -107,4 +107,21 @@ describe("softCapLeadForPublicSurface", () => {
     expect(capped).not.toHaveProperty("bufferPostedVariantKeys");
     expect(JSON.stringify(capped)).not.toContain("buffer_profile_abc123");
   });
+
+  it("strips the cached Stripe Connect onboarding status fields", () => {
+    const capped = softCapLeadForPublicSurface(
+      baseLead({
+        stripeConnectAccountCreatedAt: "2026-07-20T00:00:00.000Z",
+        stripeConnectChargesEnabled: true,
+        stripeConnectPayoutsEnabled: false,
+        stripeConnectDetailsSubmitted: true,
+        stripeConnectStatusCheckedAt: "2026-07-23T00:00:00.000Z",
+      }),
+    );
+    expect(capped).not.toHaveProperty("stripeConnectAccountCreatedAt");
+    expect(capped).not.toHaveProperty("stripeConnectChargesEnabled");
+    expect(capped).not.toHaveProperty("stripeConnectPayoutsEnabled");
+    expect(capped).not.toHaveProperty("stripeConnectDetailsSubmitted");
+    expect(capped).not.toHaveProperty("stripeConnectStatusCheckedAt");
+  });
 });

@@ -201,4 +201,31 @@ describe("mapSqliteRowToLead", () => {
 
     expect(mapSqliteRowToLead(baseRow()).bufferProfileIds).toBeUndefined();
   });
+
+  it("round-trips Stripe Connect status fields, distinguishing never-checked (undefined) from confirmed false", () => {
+    const neverChecked = mapSqliteRowToLead(
+      baseRow({ stripeConnectAccountId: "acct_1" }),
+    );
+    expect(neverChecked.stripeConnectAccountCreatedAt).toBeUndefined();
+    expect(neverChecked.stripeConnectChargesEnabled).toBeUndefined();
+    expect(neverChecked.stripeConnectPayoutsEnabled).toBeUndefined();
+    expect(neverChecked.stripeConnectDetailsSubmitted).toBeUndefined();
+    expect(neverChecked.stripeConnectStatusCheckedAt).toBeUndefined();
+
+    const checked = mapSqliteRowToLead(
+      baseRow({
+        stripeConnectAccountId: "acct_1",
+        stripeConnectAccountCreatedAt: "2026-07-20T00:00:00.000Z",
+        stripeConnectChargesEnabled: 1,
+        stripeConnectPayoutsEnabled: 0,
+        stripeConnectDetailsSubmitted: 1,
+        stripeConnectStatusCheckedAt: "2026-07-23T00:00:00.000Z",
+      }),
+    );
+    expect(checked.stripeConnectAccountCreatedAt).toBe("2026-07-20T00:00:00.000Z");
+    expect(checked.stripeConnectChargesEnabled).toBe(true);
+    expect(checked.stripeConnectPayoutsEnabled).toBe(false);
+    expect(checked.stripeConnectDetailsSubmitted).toBe(true);
+    expect(checked.stripeConnectStatusCheckedAt).toBe("2026-07-23T00:00:00.000Z");
+  });
 });

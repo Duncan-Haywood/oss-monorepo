@@ -34,6 +34,11 @@ export interface SqliteLeadRow {
   notes?: string | null;
   snoozedUntil?: string | null;
   stripeConnectAccountId?: string | null;
+  stripeConnectAccountCreatedAt?: string | null;
+  stripeConnectChargesEnabled?: number | null;
+  stripeConnectPayoutsEnabled?: number | null;
+  stripeConnectDetailsSubmitted?: number | null;
+  stripeConnectStatusCheckedAt?: string | null;
   bufferProfileIds?: string | null;
   bufferPostedVariantKeys?: string | null;
 }
@@ -107,6 +112,19 @@ export function parseLeadBufferPostedVariantKeys(
   }
 }
 
+/**
+ * Inverse of the `? 1 : 0` write convention this codebase uses for every
+ * SQLite boolean column (see e.g. orders.commerceAddon) — tri-state: 1 →
+ * true, 0 → false, null/undefined → undefined (never checked yet), so a
+ * lead whose Connect status was never checked stays distinguishable from one
+ * confirmed NOT chargesEnabled/payoutsEnabled.
+ */
+export function parseSqliteTriStateBoolean(raw: number | null | undefined): boolean | undefined {
+  if (raw === 1) return true;
+  if (raw === 0) return false;
+  return undefined;
+}
+
 /** Map a SQLite `leads` row back into the app-wide Lead shape (fallback-read path). */
 export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
   const category = normalizeLeadCategory(row.category);
@@ -142,6 +160,11 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     notes: row.notes || undefined,
     snoozedUntil: row.snoozedUntil || undefined,
     stripeConnectAccountId: row.stripeConnectAccountId || undefined,
+    stripeConnectAccountCreatedAt: row.stripeConnectAccountCreatedAt || undefined,
+    stripeConnectChargesEnabled: parseSqliteTriStateBoolean(row.stripeConnectChargesEnabled),
+    stripeConnectPayoutsEnabled: parseSqliteTriStateBoolean(row.stripeConnectPayoutsEnabled),
+    stripeConnectDetailsSubmitted: parseSqliteTriStateBoolean(row.stripeConnectDetailsSubmitted),
+    stripeConnectStatusCheckedAt: row.stripeConnectStatusCheckedAt || undefined,
     bufferProfileIds: parseLeadBufferProfileIds(row.bufferProfileIds),
     bufferPostedVariantKeys: parseLeadBufferPostedVariantKeys(row.bufferPostedVariantKeys),
   };

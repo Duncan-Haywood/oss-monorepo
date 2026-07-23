@@ -1676,8 +1676,33 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>charges_enabled</code>/<code>payouts_enabled</code>/<code>details_submitted</code>{" "}
         status. <code>leads.stripeConnectAccountId</code> (Convex + SQLite,{" "}
         <code>LEAD_STRIPE_CONNECT_CONVEX_PRIMARY</code> requireConvex fail-closed) is the only
-        persisted field — <strong>account creation and status-checking carry no money-movement
-        risk</strong>. All three actions are gated behind{" "}
+        fail-closed persisted field — <strong>account creation and status-checking carry no
+        money-movement risk</strong>. Since{" "}
+        <code>stripe-connect-onboarding-pipeline-health-visibility</code> (2026-07-23),{" "}
+        <code>checkStripeConnectAccountStatusAction</code> also best-effort caches its live result
+        onto the lead (<code>stripeConnectChargesEnabled</code>/
+        <code>stripeConnectPayoutsEnabled</code>/<code>stripeConnectDetailsSubmitted</code>/
+        <code>stripeConnectStatusCheckedAt</code>, plus a set-once{" "}
+        <code>stripeConnectAccountCreatedAt</code> written alongside the account id) — a display
+        cache only (Stripe&apos;s own account object stays the source of truth), so a persist
+        failure never turns an already-successful live check into a reported error. This closes a
+        real visibility gap flagged by <code>buffer-token-header-not-query</code>: Connect
+        onboarding status previously had zero visibility outside each lead&apos;s own Payouts
+        panel, unlike every other due-queue signal in this codebase.{" "}
+        <code>connectOnboardingIncomplete</code>/<code>listLeadsWithIncompleteConnectOnboarding</code>/
+        <code>oldestConnectOnboardingIncompleteAgeHours</code> (src/lib/commerce/stripe-connect.ts)
+        treat a Connect account as incomplete until BOTH <code>chargesEnabled</code> and{" "}
+        <code>payoutsEnabled</code> are confirmed true — including an account never checked at
+        all — and feed a new &quot;Stripe Connect onboarding incomplete&quot; card on{" "}
+        <code>PipelineHealthPanel</code> and a matching daily-digest section, anchoring the
+        staleness signal on <code>stripeConnectAccountCreatedAt</code> (skip-if-no-anchor, same
+        contract as <code>oldestPaidNotLiveAgeHours</code>) rather than the more recent{" "}
+        <code>stripeConnectStatusCheckedAt</code>, since the latter reflects when it was last
+        looked at, not how long it has been stuck incomplete. The five new fields are stripped by{" "}
+        <code>softCapLeadForPublicSurface</code> — same dashboard-only class as{" "}
+        <code>notes</code>/<code>stripeConnectAccountId</code>. This is operator-awareness only —
+        still no money movement — so <code>commerce-payouts-stripe-connect</code> stays{" "}
+        <code>status: &quot;todo&quot;</code>. All three actions are gated behind{" "}
         <code>ALLOW_STRIPE_CONNECT_ONBOARDING=1</code> (default off — see{" "}
         <code>stripe-connect-gate.ts</code>, same 403/501 shape as{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP</code>). This scaffold does not move money: Commerce Buy now

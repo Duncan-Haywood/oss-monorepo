@@ -95,6 +95,9 @@ describe("buildDailyDigest", () => {
     expect(digest.leadsMissingEmail).toHaveLength(0);
     expect(digest.snoozedLeadCount).toBe(0);
     expect(digest.soonestSnoozeRemainingHours).toBeNull();
+    expect(digest.connectOnboardingIncomplete).toHaveLength(0);
+    expect(digest.connectOnboardingIncompleteCount).toBe(0);
+    expect(digest.oldestConnectOnboardingIncompleteAgeHours).toBeNull();
     expect(digest.actionableItemCount).toBe(0);
   });
 
@@ -171,6 +174,7 @@ describe("buildDailyDigest", () => {
       "Paid, not live",
       "Missing email",
       "paused/canceled MRR recoveries",
+      "Stripe Connect onboarding incomplete",
     ]);
   });
 
@@ -708,6 +712,40 @@ describe("buildDailyDigest", () => {
     expect(html).toContain("MRR paused / canceled (1 · oldest 3h)");
     expect(html).toContain("Paused Growth Co");
     expect(html).toContain("Manage billing / Billing Portal");
+  });
+
+  it("lists leads with an incomplete Stripe Connect account (stripe-connect-onboarding-pipeline-health-visibility)", () => {
+    const incomplete = baseLead({
+      slug: "connect-incomplete",
+      businessName: "Connect Pending Co",
+      stage: "paid",
+      stripeConnectAccountId: "acct_1",
+      stripeConnectAccountCreatedAt: new Date(NOW - 12 * 60 * 60 * 1000).toISOString(),
+    });
+    const complete = baseLead({
+      slug: "connect-complete",
+      businessName: "Connect Ready Co",
+      stage: "live",
+      stripeConnectAccountId: "acct_2",
+      stripeConnectChargesEnabled: true,
+      stripeConnectPayoutsEnabled: true,
+    });
+    const digest = buildDailyDigest({
+      leads: [incomplete, complete],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.connectOnboardingIncompleteCount).toBe(1);
+    expect(digest.connectOnboardingIncomplete).toHaveLength(1);
+    expect(digest.connectOnboardingIncomplete[0]?.businessName).toBe("Connect Pending Co");
+    expect(digest.oldestConnectOnboardingIncompleteAgeHours).toBe(12);
+    expect(digest.isEmpty).toBe(false);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Stripe Connect onboarding incomplete (1 · oldest 12h)");
+    expect(html).toContain("Connect Pending Co");
+    expect(html).not.toContain("Connect Ready Co");
   });
 
   it("lists Starter → MRR upsell candidates", () => {

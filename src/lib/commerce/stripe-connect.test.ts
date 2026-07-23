@@ -3,6 +3,9 @@ import {
   createExpressConnectAccount,
   createConnectOnboardingLink,
   fetchConnectAccountStatus,
+  connectOnboardingIncomplete,
+  listLeadsWithIncompleteConnectOnboarding,
+  oldestConnectOnboardingIncompleteAgeHours,
   type StripeConnectAccountsClient,
 } from "./stripe-connect";
 
@@ -233,5 +236,83 @@ describe("fetchConnectAccountStatus", () => {
     expect(status.chargesEnabled).toBe(false);
     expect(status.payoutsEnabled).toBe(false);
     expect(status.detailsSubmitted).toBe(false);
+  });
+});
+
+describe("connectOnboardingIncomplete", () => {
+  it("is false when no Connect account exists yet", () => {
+    expect(connectOnboardingIncomplete({})).toBe(false);
+  });
+
+  it("is true for a never-checked account (undefined flags)", () => {
+    expect(connectOnboardingIncomplete({ stripeConnectAccountId: "acct_1" })).toBe(true);
+  });
+
+  it("is true when only one of charges/payouts enabled is confirmed true", () => {
+    expect(
+      connectOnboardingIncomplete({
+        stripeConnectAccountId: "acct_1",
+        stripeConnectChargesEnabled: true,
+        stripeConnectPayoutsEnabled: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("is false once both charges and payouts are confirmed enabled", () => {
+    expect(
+      connectOnboardingIncomplete({
+        stripeConnectAccountId: "acct_1",
+        stripeConnectChargesEnabled: true,
+        stripeConnectPayoutsEnabled: true,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("listLeadsWithIncompleteConnectOnboarding", () => {
+  it("filters to incomplete accounts only, slug-sorted", () => {
+    const leads = [
+      { slug: "zeta-salon", stripeConnectAccountId: "acct_z" },
+      { slug: "no-account-yet" },
+      {
+        slug: "alpha-cafe",
+        stripeConnectAccountId: "acct_a",
+        stripeConnectChargesEnabled: true,
+        stripeConnectPayoutsEnabled: true,
+      },
+      { slug: "beta-trades", stripeConnectAccountId: "acct_b" },
+    ];
+
+    const result = listLeadsWithIncompleteConnectOnboarding(leads);
+    expect(result.map((l) => l.slug)).toEqual(["beta-trades", "zeta-salon"]);
+  });
+});
+
+describe("oldestConnectOnboardingIncompleteAgeHours", () => {
+  const nowMs = Date.parse("2026-07-23T12:00:00.000Z");
+
+  it("returns null when there are no candidates", () => {
+    expect(oldestConnectOnboardingIncompleteAgeHours([], nowMs)).toBeNull();
+  });
+
+  it("returns null when no candidate has a parseable createdAt", () => {
+    expect(
+      oldestConnectOnboardingIncompleteAgeHours(
+        [{}, { stripeConnectAccountCreatedAt: "not-a-date" }],
+        nowMs,
+      ),
+    ).toBeNull();
+  });
+
+  it("skips unanchored candidates but still ages the ones that have a timestamp", () => {
+    const hours = oldestConnectOnboardingIncompleteAgeHours(
+      [
+        {},
+        { stripeConnectAccountCreatedAt: "2026-07-22T12:00:00.000Z" },
+        { stripeConnectAccountCreatedAt: "2026-07-23T06:00:00.000Z" },
+      ],
+      nowMs,
+    );
+    expect(hours).toBe(24);
   });
 });

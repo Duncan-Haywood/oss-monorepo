@@ -46,6 +46,7 @@ vi.mock("next/headers", () => ({
 
 const getLeadBySlug = vi.fn();
 const updateLeadStripeConnectAccountId = vi.fn();
+const updateLeadStripeConnectStatus = vi.fn();
 vi.mock("@/lib/db", () => ({
   updateLeadStage: vi.fn(),
   upsertLead: vi.fn(),
@@ -84,6 +85,8 @@ vi.mock("@/lib/db", () => ({
   getDeployHandoffBySlug: vi.fn(),
   updateLeadStripeConnectAccountId: (...args: unknown[]) =>
     updateLeadStripeConnectAccountId(...args),
+  updateLeadStripeConnectStatus: (...args: unknown[]) =>
+    updateLeadStripeConnectStatus(...args),
 }));
 
 const createExpressConnectAccount = vi.fn();
@@ -131,6 +134,7 @@ describe("Stripe Connect dashboard actions", () => {
     headerGet.mockReset().mockReturnValue("203.0.113.5");
     getLeadBySlug.mockReset();
     updateLeadStripeConnectAccountId.mockReset().mockResolvedValue(undefined);
+    updateLeadStripeConnectStatus.mockReset().mockResolvedValue(undefined);
     createExpressConnectAccount.mockReset();
     createConnectOnboardingLink.mockReset();
     fetchConnectAccountStatus.mockReset();
@@ -216,6 +220,7 @@ describe("Stripe Connect dashboard actions", () => {
         "demo-cafe",
         "acct_new",
         expect.objectContaining({ requireConvex: true }),
+        expect.any(String),
       );
       expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
       expect(result).toEqual({ success: true, accountId: "acct_new", created: true });
@@ -297,6 +302,42 @@ describe("Stripe Connect dashboard actions", () => {
         success: true,
         chargesEnabled: true,
         payoutsEnabled: false,
+        detailsSubmitted: true,
+      });
+    });
+
+    it("persists the checked status for pipeline-health/digest visibility", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      fetchConnectAccountStatus.mockResolvedValue({
+        chargesEnabled: true,
+        payoutsEnabled: false,
+        detailsSubmitted: true,
+      });
+      const { checkStripeConnectAccountStatusAction } = await import("./actions");
+      await checkStripeConnectAccountStatusAction("demo-cafe");
+
+      expect(updateLeadStripeConnectStatus).toHaveBeenCalledWith(
+        "demo-cafe",
+        { chargesEnabled: true, payoutsEnabled: false, detailsSubmitted: true },
+        expect.any(String),
+      );
+    });
+
+    it("still returns the live status when persisting it fails (best-effort, never surfaces as an error)", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      fetchConnectAccountStatus.mockResolvedValue({
+        chargesEnabled: true,
+        payoutsEnabled: true,
+        detailsSubmitted: true,
+      });
+      updateLeadStripeConnectStatus.mockRejectedValue(new Error("Convex down"));
+      const { checkStripeConnectAccountStatusAction } = await import("./actions");
+      const result = await checkStripeConnectAccountStatusAction("demo-cafe");
+
+      expect(result).toEqual({
+        success: true,
+        chargesEnabled: true,
+        payoutsEnabled: true,
         detailsSubmitted: true,
       });
     });
