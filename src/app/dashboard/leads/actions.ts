@@ -1857,6 +1857,22 @@ export async function importLeadsCsvAction(input: {
       return { success: false as const, error: auth.error };
     }
 
+    // A single call can drive up to MAX_CSV_IMPORT_ROWS sequential
+    // upsertLead writes below — the same "loop of DB/API calls needs its own
+    // throttle" pattern as syncCommerceCatalogToStripeAction /
+    // archiveOrphanCommerceStripeProductsAction / scheduleMarketingPackToBufferAction,
+    // and auth alone is not a throttle when OPERATOR_DASHBOARD_PASSWORD is
+    // unset (see AGENT_PROTOCOL). This was the one loop-heavy dashboard
+    // action in this file missing it (csv-import-action-rate-limit).
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`csv-import:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     // Hard-reject over-long CSV payloads before splitCsvIntoLines / upsert —
     // auth is not a payload-size throttle; soft-cap would truncate mid-row.
     const parsedText = parseCsvImportText(input.csvText);

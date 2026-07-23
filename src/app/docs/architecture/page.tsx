@@ -50,7 +50,14 @@ export default function ArchitectureDocPage() {
         via <code>parseCsvImportText</code> before <code>parseLeadsCsv</code> /{" "}
         <code>splitCsvIntoLines</code> — auth is not a payload-size throttle, and soft-cap would
         truncate mid-row (MAX_ROWS=100 alone is not enough: line-splitting runs over the full
-        string first). The optional batch <code>dataSource</code> tag is soft-capped via shared{" "}
+        string first). A per-IP <code>checkRateLimit</code> call (
+        <code>csv-import:&#123;clientIp&#125;</code>) also throttles the action itself, mirroring
+        every other loop-heavy dashboard action in this file (Commerce catalog Sync to Stripe,
+        Archive orphans, Buffer schedule) — the byte cap alone only bounds a single request&apos;s
+        size, not how often an unauthenticated caller (when{" "}
+        <code>OPERATOR_DASHBOARD_PASSWORD</code> is unset) can repeat the up-to-100-row
+        sequential <code>upsertLead</code> loop below. The optional batch <code>dataSource</code>{" "}
+        tag is soft-capped via shared{" "}
         <code>normalizeLeadDataSource</code> / <code>MAX_LEAD_DATA_SOURCE_LENGTH</code> (64) —
         compliance free text, not an opaque lookup key — on both CSV import and{" "}
         <strong>Add lead</strong> before upsert. Optional <code>hours</code> cells use the same{" "}

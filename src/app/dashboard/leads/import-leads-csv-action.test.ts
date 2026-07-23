@@ -24,9 +24,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeads = vi.fn();
 const upsertLead = vi.fn();
@@ -130,6 +139,7 @@ describe("importLeadsCsvAction", () => {
   beforeEach(() => {
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getLeads.mockReset().mockResolvedValue([]);
     upsertLead.mockReset().mockResolvedValue(true);
@@ -150,6 +160,24 @@ describe("importLeadsCsvAction", () => {
     });
     expect(getLeads).not.toHaveBeenCalled();
     expect(upsertLead).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated imports from the same IP (auth alone is not a throttle)", async () => {
+    const { importLeadsCsvAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await importLeadsCsvAction({ csvText: csvFor(salonRow) });
+      expect(res.success).toBe(true);
+    }
+    upsertLead.mockClear();
+    getLeads.mockClear();
+    const res = await importLeadsCsvAction({ csvText: csvFor(salonRow) });
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(upsertLead).not.toHaveBeenCalled();
+    expect(getLeads).not.toHaveBeenCalled();
   });
 
   it("rejects empty CSV text without calling getLeads", async () => {
