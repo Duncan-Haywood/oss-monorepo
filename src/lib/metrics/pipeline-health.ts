@@ -11,7 +11,8 @@
  * + commerce-order-revenue-ledger
  * + commerce-abandoned-checkout-tracking
  * + commerce-pipeline-health-unpaid-owed
- * + recurring-entitlement-paused-pipeline-digest).
+ * + recurring-entitlement-paused-pipeline-digest
+ * + marketing-voice-pack-client-send-visibility).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -37,7 +38,12 @@ import {
   listCommerceCatalogsUnsynced,
   oldestCommerceCatalogCandidateAgeHours,
 } from "@/lib/commerce/catalog";
-import { listClientVoicePacksDue, oldestClientVoicePacksDueAgeHours } from "@/lib/voice/faq-pack";
+import {
+  listClientVoicePacksDue,
+  oldestClientVoicePacksDueAgeHours,
+  listClientVoicePacksMissingClientSend,
+  oldestClientVoicePackMissingClientSendAgeHours,
+} from "@/lib/voice/faq-pack";
 import {
   isColdLead,
   isFollowUpDue,
@@ -48,6 +54,8 @@ import {
   listMarketingPacksDue,
   marketingMonthKey,
   oldestMarketingPacksDueAgeHours,
+  listMarketingPacksMissingClientSend,
+  oldestMarketingPackMissingClientSendAgeHours,
 } from "@/lib/marketing/monthly-pack";
 import {
   commerceOrderNeedsClawback,
@@ -197,6 +205,15 @@ export interface PipelineHealth {
    */
   oldestMarketingPacksDueAgeHours: number | null;
   /**
+   * Current month's marketing packs generated but never emailed to the
+   * client — delivery debt on packs that already exist, distinct from
+   * marketingPacksDueCount (generation debt on leads with no pack row at
+   * all). See marketing-voice-pack-client-send-visibility.
+   */
+  marketingPacksMissingClientSendCount: number;
+  /** Age in whole hours since the oldest such pack was generated; null when none. */
+  oldestMarketingPacksMissingClientSendAgeHours: number | null;
+  /**
    * Paid/live commerceAddon leads missing any catalog row.
    * Commerce fulfillment debt — not a second priority queue.
    */
@@ -217,6 +234,14 @@ export interface PipelineHealth {
   clientVoicePacksDueCount: number;
   /** Age in whole hours since the oldest voice-pack-due lead's qualifying order; null when none. */
   oldestClientVoicePacksDueAgeHours: number | null;
+  /**
+   * Client voice packs generated but never emailed to the client — delivery
+   * debt on packs that already exist, distinct from clientVoicePacksDueCount
+   * (generation debt). See marketing-voice-pack-client-send-visibility.
+   */
+  clientVoicePacksMissingClientSendCount: number;
+  /** Age in whole hours since the oldest such pack was generated; null when none. */
+  oldestClientVoicePacksMissingClientSendAgeHours: number | null;
   /**
    * USD still owed to Commerce clients from Buy now orders (excludes rows with
    * paidOutAt OR refundedAt — a refunded end-customer sale owes the client
@@ -428,14 +453,27 @@ export function computePipelineHealth(input: {
   inquiries: ClientInquiry[];
   openCheckoutSessions?: CheckoutSessionRecord[];
   /** Packs already generated for the current UTC month (optional). */
-  marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
+  marketingPacksThisMonth?: ReadonlyArray<{
+    leadSlug: string;
+    yearMonth: string;
+    /** Anchors marketingPacksMissingClientSendCount's age signal. */
+    generatedAt?: string;
+    /** Unset means never emailed to the client — see marketing-voice-pack-client-send-visibility. */
+    sentToClientAt?: string;
+  }>;
   /** Existing commerce catalogs (optional) — missing/unsynced counts reuse list* helpers. */
   commerceCatalogs?: ReadonlyArray<{
     leadSlug: string;
     items?: ReadonlyArray<{ stripePriceId?: string }>;
   }>;
   /** Existing client voice FAQ packs (one row per Complete lead). */
-  clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
+  clientVoicePacks?: ReadonlyArray<{
+    leadSlug: string;
+    /** Anchors clientVoicePacksMissingClientSendCount's age signal. */
+    generatedAt?: string;
+    /** Unset means never emailed to the client — see marketing-voice-pack-client-send-visibility. */
+    sentToClientAt?: string;
+  }>;
   /** Recorded Commerce Buy now orders (optional) — unpaid owed uses paidOutAt/refundedAt/disputedAt. */
   commerceOrders?: ReadonlyArray<{
     amountPaidUsd: number;
@@ -613,6 +651,22 @@ export function computePipelineHealth(input: {
     input.orders,
     input.clientVoicePacks ?? [],
   );
+  const marketingPacksMissingClientSend = listMarketingPacksMissingClientSend(
+    packsThisMonth,
+    input.leads,
+    input.orders,
+  );
+  const oldestMarketingPacksMissingClientSendHours = oldestMarketingPackMissingClientSendAgeHours(
+    marketingPacksMissingClientSend,
+    nowMs,
+  );
+  const clientVoicePacksMissingClientSend = listClientVoicePacksMissingClientSend(
+    input.clientVoicePacks ?? [],
+    input.leads,
+    input.orders,
+  );
+  const oldestClientVoicePacksMissingClientSendHours =
+    oldestClientVoicePackMissingClientSendAgeHours(clientVoicePacksMissingClientSend, nowMs);
   const oldestMarketingPacksDueHours = oldestMarketingPacksDueAgeHours(
     marketingPacksDue,
     input.orders,
@@ -794,12 +848,16 @@ export function computePipelineHealth(input: {
     marketingPacksDueCount: marketingPacksDue.length,
     marketingPacksDueMonth,
     oldestMarketingPacksDueAgeHours: oldestMarketingPacksDueHours,
+    marketingPacksMissingClientSendCount: marketingPacksMissingClientSend.length,
+    oldestMarketingPacksMissingClientSendAgeHours: oldestMarketingPacksMissingClientSendHours,
     commerceCatalogsMissingCount: commerceCatalogsMissing.length,
     oldestCommerceCatalogsMissingAgeHours: oldestCommerceCatalogsMissingHours,
     commerceCatalogsUnsyncedCount: commerceCatalogsUnsynced.length,
     oldestCommerceCatalogsUnsyncedAgeHours: oldestCommerceCatalogsUnsyncedHours,
     clientVoicePacksDueCount: clientVoicePacksDue.length,
     oldestClientVoicePacksDueAgeHours: oldestClientVoicePacksDueHours,
+    clientVoicePacksMissingClientSendCount: clientVoicePacksMissingClientSend.length,
+    oldestClientVoicePacksMissingClientSendAgeHours: oldestClientVoicePacksMissingClientSendHours,
     commerceOrdersRevenueUsd,
     commerceOrdersCount: unpaidCommerceOrders.length,
     oldestCommerceOrdersOwedAgeHours: oldestCommerceOrdersOwedHours,

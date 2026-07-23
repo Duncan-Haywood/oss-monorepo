@@ -18,6 +18,7 @@ export interface SqliteMarketingPackRow {
   generatedAt: string;
   generator: string;
   packageTier: string | null;
+  sentToClientAt: string | null;
 }
 
 /** Inverse of `JSON.stringify(pack.variants)`; malformed/absent JSON or non-array/non-well-shaped elements degrade to []. Soft-caps title/body/cta/hashtags so pre-cap persisted rows cannot bypass generate-time caps on read. */
@@ -60,5 +61,6 @@ export function mapMarketingPackRow(row: SqliteMarketingPackRow): MarketingPack 
     generatedAt: row.generatedAt,
     generator: row.generator === "anthropic" ? "anthropic" : "stub",
     packageTier: tier,
+    sentToClientAt: row.sentToClientAt ?? undefined,
   };
 }

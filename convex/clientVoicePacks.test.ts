@@ -121,3 +121,71 @@ test("list sorts newest-generatedAt-first (matches SQLite ORDER BY generatedAt D
   });
   expect(rows.map((r) => r.id)).toEqual(["cvp_b", "cvp_c", "cvp_a"]);
 });
+
+test("markSentToClient marks an unsent pack and returns true", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.clientVoicePacks.upsert, upsertArgs());
+
+  const marked = await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(marked).toBe(true);
+
+  const row = await t.query(api.clientVoicePacks.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.sentToClientAt).toBe("2026-01-05T00:00:00.000Z");
+});
+
+test("markSentToClient is a no-op once already marked, and returns false for an unknown lead", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.clientVoicePacks.upsert, upsertArgs());
+  await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const secondMark = await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    sentToClientAt: "2026-01-06T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(secondMark).toBe(false);
+  const row = await t.query(api.clientVoicePacks.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.sentToClientAt).toBe("2026-01-05T00:00:00.000Z");
+
+  const missing = await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "no-such-lead",
+    sentToClientAt: "2026-01-06T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(missing).toBe(false);
+});
+
+test("upsert (regenerate) clears a previously-set sentToClientAt", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.clientVoicePacks.upsert, upsertArgs());
+  await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  await t.mutation(
+    api.clientVoicePacks.upsert,
+    upsertArgs({ packId: "cvp_demo-cafe_v2", generatedAt: "2026-01-10T00:00:00.000Z" }),
+  );
+
+  const row = await t.query(api.clientVoicePacks.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.sentToClientAt).toBeUndefined();
+});

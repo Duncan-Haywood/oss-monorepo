@@ -233,6 +233,79 @@ export function oldestMarketingPacksDueAgeHours(
 }
 
 /**
+ * Current month's marketing packs that were generated but never emailed to
+ * the client — the same "generated ≠ delivered" gap already closed for
+ * Commerce Buy now orders (commerce-buy-now-client-receipt-visibility).
+ * Independent of listMarketingPacksDue (that tracks generation debt on
+ * leads with no pack row at all; this tracks delivery debt on packs that
+ * already exist). Gated on leadEligibleForMarketingPack so a pack generated
+ * for a lead whose entitlement has since lapsed doesn't chase a send that's
+ * no longer this lead's active promise — the client already paid for the
+ * content that was generated, so the pack itself (not the lead's current
+ * status) is what's tracked. See marketing-voice-pack-client-send-visibility.
+ */
+export function listMarketingPacksMissingClientSend<
+  T extends { leadSlug: string; sentToClientAt?: string },
+>(
+  packsThisMonth: ReadonlyArray<T>,
+  leads: ReadonlyArray<{ slug: string; stage: LeadPipelineStage }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
+): T[] {
+  const eligibleSlugs = new Set(
+    leads
+      .filter((lead) =>
+        leadEligibleForMarketingPack(
+          lead,
+          orders.filter((o) => o.leadSlug === lead.slug),
+        ),
+      )
+      .map((lead) => lead.slug),
+  );
+  return packsThisMonth
+    .filter(
+      (pack) =>
+        eligibleSlugs.has(pack.leadSlug) &&
+        !(typeof pack.sentToClientAt === "string" && pack.sentToClientAt.length > 0),
+    )
+    .sort((a, b) => a.leadSlug.localeCompare(b.leadSlug));
+}
+
+/**
+ * Age in whole hours since the oldest of `candidates` (as returned by
+ * listMarketingPacksMissingClientSend) was generated; null when there are no
+ * candidates or none of their generatedAt values parse. Anchored to
+ * generatedAt (not a qualifying order) since the debt is "this specific pack
+ * hasn't been emailed yet," not "this lead's entitlement has been active for
+ * N hours" — see oldestMarketingPacksDueAgeHours for the sibling generation-debt
+ * age signal, which anchors differently for that reason. Pass nowMs from the
+ * caller — never Date.now() inside list/age helpers.
+ */
+export function oldestMarketingPackMissingClientSendAgeHours(
+  candidates: ReadonlyArray<{ generatedAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldestMs: number | null = null;
+  for (const candidate of candidates) {
+    if (typeof candidate.generatedAt !== "string") continue;
+    const generatedAtMs = Date.parse(candidate.generatedAt);
+    if (Number.isNaN(generatedAtMs)) continue;
+    if (oldestMs === null || generatedAtMs < oldestMs) {
+      oldestMs = generatedAtMs;
+    }
+  }
+  if (oldestMs === null) return null;
+  if (nowMs < oldestMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+}
+
+/**
  * Prefer Complete over Growth among *active* marketing entitlement rows.
  * Paused/canceled Complete must not outrank an still-active Growth after
  * recurringCanceledAt CRM sync — same predicate as leadEligibleForMarketingPack.

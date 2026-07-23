@@ -355,6 +355,47 @@ export function sqliteMarkCommerceOrderClientReceiptSent(
 }
 
 /**
+ * Durable sent-marker after sendMarketingPackToClientEmail resolves
+ * { success: true }. Returns whether the row was actually marked (re-checks
+ * sentToClientAt IS NULL atomically with the write, same TOCTOU-safe pattern
+ * as sqliteMarkCommerceOrderClientReceiptSent). Split out of
+ * src/lib/db.ts's markMarketingPackSentToClient SQLite-fallback branch (see
+ * marketing-voice-pack-client-send-visibility).
+ */
+export function sqliteMarkMarketingPackSentToClient(
+  db: DatabaseSync,
+  leadSlug: string,
+  yearMonth: string,
+  sentToClientAt: string,
+): boolean {
+  const result = db
+    .prepare(
+      "UPDATE marketing_packs SET sentToClientAt = ? WHERE leadSlug = ? AND yearMonth = ? AND (sentToClientAt IS NULL OR sentToClientAt = '')",
+    )
+    .run(sentToClientAt, leadSlug, yearMonth);
+  return result.changes > 0;
+}
+
+/**
+ * Durable sent-marker after sendClientVoicePackToClientEmail resolves
+ * { success: true }. Same re-check-atomically-with-the-write pattern as
+ * sqliteMarkMarketingPackSentToClient (see
+ * marketing-voice-pack-client-send-visibility).
+ */
+export function sqliteMarkClientVoicePackSentToClient(
+  db: DatabaseSync,
+  leadSlug: string,
+  sentToClientAt: string,
+): boolean {
+  const result = db
+    .prepare(
+      "UPDATE client_voice_packs SET sentToClientAt = ? WHERE leadSlug = ? AND (sentToClientAt IS NULL OR sentToClientAt = '')",
+    )
+    .run(sentToClientAt, leadSlug);
+  return result.changes > 0;
+}
+
+/**
  * Set (or clear) a lead's custom domain, atomically re-checking ownership
  * (by exact host and its www/apex alias) immediately before the write — the
  * same guard as the Convex twin (convex/deployHandoffs.ts's updateCustomDomain

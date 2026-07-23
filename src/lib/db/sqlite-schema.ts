@@ -123,6 +123,7 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
       generatedAt TEXT NOT NULL,
       generator TEXT NOT NULL,
       packageTier TEXT,
+      sentToClientAt TEXT,
       UNIQUE(leadSlug, yearMonth)
     );
 
@@ -142,7 +143,8 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
       leadSlug TEXT NOT NULL UNIQUE,
       variantsJson TEXT NOT NULL,
       generatedAt TEXT NOT NULL,
-      generator TEXT NOT NULL
+      generator TEXT NOT NULL,
+      sentToClientAt TEXT
     );
 
     CREATE INDEX IF NOT EXISTS idx_client_voice_packs_slug
@@ -281,6 +283,24 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   }
   if (!commerceOrderCols.includes("quantity")) {
     db.exec("ALTER TABLE commerce_orders ADD COLUMN quantity INTEGER");
+  }
+
+  const marketingPackCols = (
+    db.prepare("PRAGMA table_info(marketing_packs)").all() as unknown as Array<{
+      name: string;
+    }>
+  ).map((c) => c.name);
+  if (!marketingPackCols.includes("sentToClientAt")) {
+    db.exec("ALTER TABLE marketing_packs ADD COLUMN sentToClientAt TEXT");
+  }
+
+  const clientVoicePackCols = (
+    db.prepare("PRAGMA table_info(client_voice_packs)").all() as unknown as Array<{
+      name: string;
+    }>
+  ).map((c) => c.name);
+  if (!clientVoicePackCols.includes("sentToClientAt")) {
+    db.exec("ALTER TABLE client_voice_packs ADD COLUMN sentToClientAt TEXT");
   }
 
   // Seed SQLite database if empty

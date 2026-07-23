@@ -81,7 +81,76 @@ export function listClientVoicePacksDue<
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
+/**
+ * Client voice packs that were generated but never emailed to the client —
+ * same "generated ≠ delivered" gap as
+ * listMarketingPacksMissingClientSend/commerce-buy-now-client-receipt-visibility.
+ * Independent of listClientVoicePacksDue (generation debt vs. delivery
+ * debt on packs that already exist). Gated on leadEligibleForClientVoicePack
+ * for the same reason as the marketing twin — the client already paid for
+ * the generated content, so the pack (not the lead's current entitlement
+ * status) is what's tracked. See marketing-voice-pack-client-send-visibility.
+ */
+export function listClientVoicePacksMissingClientSend<
+  T extends { leadSlug: string; sentToClientAt?: string },
+>(
+  packs: ReadonlyArray<T>,
+  leads: ReadonlyArray<{ slug: string; stage: LeadPipelineStage }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
+): T[] {
+  const eligibleSlugs = new Set(
+    leads
+      .filter((lead) =>
+        leadEligibleForClientVoicePack(
+          lead,
+          orders.filter((o) => o.leadSlug === lead.slug),
+        ),
+      )
+      .map((lead) => lead.slug),
+  );
+  return packs
+    .filter(
+      (pack) =>
+        eligibleSlugs.has(pack.leadSlug) &&
+        !(typeof pack.sentToClientAt === "string" && pack.sentToClientAt.length > 0),
+    )
+    .sort((a, b) => a.leadSlug.localeCompare(b.leadSlug));
+}
+
 const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * Age in whole hours since the oldest of `candidates` (as returned by
+ * listClientVoicePacksMissingClientSend) was generated; null when there are
+ * no candidates or none of their generatedAt values parse. Anchored to
+ * generatedAt, not a qualifying order — same rationale as
+ * oldestMarketingPackMissingClientSendAgeHours. Pass nowMs from the caller —
+ * never Date.now() inside list/age helpers.
+ */
+export function oldestClientVoicePackMissingClientSendAgeHours(
+  candidates: ReadonlyArray<{ generatedAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldestMs: number | null = null;
+  for (const candidate of candidates) {
+    if (typeof candidate.generatedAt !== "string") continue;
+    const generatedAtMs = Date.parse(candidate.generatedAt);
+    if (Number.isNaN(generatedAtMs)) continue;
+    if (oldestMs === null || generatedAtMs < oldestMs) {
+      oldestMs = generatedAtMs;
+    }
+  }
+  if (oldestMs === null) return null;
+  if (nowMs < oldestMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+}
 
 /**
  * Age in whole hours since the oldest qualifying Complete order among

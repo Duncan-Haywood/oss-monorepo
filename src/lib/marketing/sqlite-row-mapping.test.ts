@@ -18,6 +18,7 @@ const baseRow: SqliteMarketingPackRow = {
   generatedAt: "2026-01-01T00:00:00.000Z",
   generator: "stub",
   packageTier: "social_email",
+  sentToClientAt: null,
 };
 
 describe("parsePackVariants", () => {
@@ -111,6 +112,14 @@ describe("mapMarketingPackRow", () => {
     expect(mapMarketingPackRow({ ...baseRow, packageTier: "full_marketing" }).packageTier).toBe(
       "full_marketing",
     );
+  });
+
+  it("maps a null sentToClientAt to undefined and passes through a set value", () => {
+    expect(mapMarketingPackRow(baseRow).sentToClientAt).toBeUndefined();
+    expect(
+      mapMarketingPackRow({ ...baseRow, sentToClientAt: "2026-01-05T00:00:00.000Z" })
+        .sentToClientAt,
+    ).toBe("2026-01-05T00:00:00.000Z");
   });
 
   it("survives a corrupted variantsJson column without throwing", () => {

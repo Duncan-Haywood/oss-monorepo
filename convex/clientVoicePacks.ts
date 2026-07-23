@@ -15,6 +15,7 @@ const packReturn = v.object({
   variants: v.array(variantValidator),
   generatedAt: v.string(),
   generator: v.union(v.literal("stub"), v.literal("anthropic")),
+  sentToClientAt: v.optional(v.string()),
 });
 
 export const upsert = mutation({
@@ -34,12 +35,15 @@ export const upsert = mutation({
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
       .unique();
 
+    // Regenerating always clears sentToClientAt — see marketingPacks.upsert's
+    // matching comment (marketing-voice-pack-client-send-visibility).
     if (existing) {
       await ctx.db.patch(existing._id, {
         packId: args.packId,
         variants: args.variants,
         generatedAt: args.generatedAt,
         generator: args.generator,
+        sentToClientAt: undefined,
       });
     } else {
       await ctx.db.insert("clientVoicePacks", {
@@ -58,6 +62,32 @@ export const upsert = mutation({
       generatedAt: args.generatedAt,
       generator: args.generator,
     };
+  },
+});
+
+/**
+ * Durable sent-marker after sendClientVoicePackToClientEmail resolves
+ * { success: true }. Mirrors marketingPacks.markSentToClient (see
+ * marketing-voice-pack-client-send-visibility).
+ */
+export const markSentToClient = mutation({
+  args: {
+    leadSlug: v.string(),
+    sentToClientAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const existing = await ctx.db
+      .query("clientVoicePacks")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .unique();
+    if (!existing || existing.sentToClientAt) {
+      return false;
+    }
+    await ctx.db.patch(existing._id, { sentToClientAt: args.sentToClientAt });
+    return true;
   },
 });
 
@@ -80,6 +110,7 @@ export const getByLeadSlug = query({
       variants: row.variants,
       generatedAt: row.generatedAt,
       generator: row.generator as "stub" | "anthropic",
+      sentToClientAt: row.sentToClientAt,
     };
   },
 });
@@ -108,6 +139,7 @@ export const list = query({
       variants: row.variants,
       generatedAt: row.generatedAt,
       generator: row.generator as "stub" | "anthropic",
+      sentToClientAt: row.sentToClientAt,
     }));
   },
 });

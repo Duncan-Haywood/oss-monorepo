@@ -16,6 +16,7 @@ export interface SqliteClientVoicePackRow {
   variantsJson: string;
   generatedAt: string;
   generator: string;
+  sentToClientAt: string | null;
 }
 
 /** Inverse of `JSON.stringify(pack.variants)`; malformed/absent JSON or non-array/non-well-shaped elements degrade to []. Soft-caps title/body/cta so pre-cap persisted rows cannot bypass generate-time caps on read. */
@@ -57,5 +58,6 @@ export function mapClientVoicePackRow(row: SqliteClientVoicePackRow): ClientVoic
     variants: parseClientVoiceVariants(row.variantsJson),
     generatedAt: row.generatedAt,
     generator,
+    sentToClientAt: row.sentToClientAt ?? undefined,
   };
 }

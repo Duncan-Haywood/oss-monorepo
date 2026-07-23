@@ -7,6 +7,7 @@ import {
   leadEligibleForMarketingPack,
   leadNeedsMarketingPackForMonth,
   listMarketingPacksDue,
+  listMarketingPacksMissingClientSend,
   marketingMonthKey,
   marketingMonthStartMs,
   MONTHLY_MARKETING_PACK_TYPES,
@@ -14,6 +15,7 @@ import {
   monthlyMarketingEmailCount,
   monthlyMarketingSocialPostCount,
   oldestMarketingPacksDueAgeHours,
+  oldestMarketingPackMissingClientSendAgeHours,
 } from "./monthly-pack";
 import { monthlyPackRequestForLead } from "./build-request";
 import {
@@ -210,6 +212,72 @@ describe("listMarketingPacksDue", () => {
         month,
       ).map((l) => l.slug),
     ).toEqual(["old-fulfilled"]);
+  });
+});
+
+describe("listMarketingPacksMissingClientSend", () => {
+  const month = "2026-07";
+  const paidLead = baseLead({ slug: "sent-pending", stage: "paid" });
+  const orders = [{ leadSlug: "sent-pending", tier: "growth" }];
+
+  it("flags a generated pack with no sentToClientAt", () => {
+    const packs = [
+      { leadSlug: "sent-pending", yearMonth: month, generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(
+      listMarketingPacksMissingClientSend(packs, [paidLead], orders).map((p) => p.leadSlug),
+    ).toEqual(["sent-pending"]);
+  });
+
+  it("excludes a pack that already has sentToClientAt", () => {
+    const packs = [
+      {
+        leadSlug: "sent-pending",
+        yearMonth: month,
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        sentToClientAt: "2026-07-02T00:00:00.000Z",
+      },
+    ];
+    expect(listMarketingPacksMissingClientSend(packs, [paidLead], orders)).toEqual([]);
+  });
+
+  it("excludes a pack whose lead is no longer eligible (e.g. Starter-only)", () => {
+    const starterOnly = baseLead({ slug: "starter-only", stage: "paid" });
+    const packs = [
+      { leadSlug: "starter-only", yearMonth: month, generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(
+      listMarketingPacksMissingClientSend(
+        packs,
+        [starterOnly],
+        [{ leadSlug: "starter-only", tier: "starter" }],
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("oldestMarketingPackMissingClientSendAgeHours", () => {
+  it("returns null when there are no candidates", () => {
+    expect(oldestMarketingPackMissingClientSendAgeHours([], 0)).toBeNull();
+  });
+
+  it("computes hours since the oldest candidate's generatedAt", () => {
+    const nowMs = Date.parse("2026-07-10T00:00:00.000Z");
+    const candidates = [
+      { generatedAt: "2026-07-05T00:00:00.000Z" },
+      { generatedAt: "2026-07-08T00:00:00.000Z" },
+    ];
+    expect(oldestMarketingPackMissingClientSendAgeHours(candidates, nowMs)).toBe(5 * 24);
+  });
+
+  it("skips a candidate with no parseable generatedAt", () => {
+    const nowMs = Date.parse("2026-07-10T00:00:00.000Z");
+    expect(
+      oldestMarketingPackMissingClientSendAgeHours(
+        [{ generatedAt: undefined }, { generatedAt: "not-a-date" }],
+        nowMs,
+      ),
+    ).toBeNull();
   });
 });
 

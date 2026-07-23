@@ -829,6 +829,14 @@ export function LeadsClient({
         alert(`Email pack failed: ${res.error}`);
         return;
       }
+      if ("sentToClientAt" in res && res.sentToClientAt) {
+        const sentToClientAt = res.sentToClientAt;
+        setMarketingPacks((prev) =>
+          prev.map((p) =>
+            p.leadSlug === slug && p.yearMonth === res.yearMonth ? { ...p, sentToClientAt } : p,
+          ),
+        );
+      }
       alert(
         res.mock
           ? `Mock marketing pack email logged (Resend unset) — ${res.yearMonth}`
@@ -1063,6 +1071,12 @@ export function LeadsClient({
       if (!res.success) {
         alert(`Email voice pack failed: ${res.error}`);
         return;
+      }
+      if ("sentToClientAt" in res && res.sentToClientAt) {
+        const sentToClientAt = res.sentToClientAt;
+        setClientVoicePacks((prev) =>
+          prev.map((p) => (p.leadSlug === slug ? { ...p, sentToClientAt } : p)),
+        );
       }
       alert(
         res.mock
@@ -3725,7 +3739,18 @@ export function LeadsClient({
                                 : "Generated via Anthropic"}{" "}
                               · {existingPack.variants.length} pieces · copy to post,
                               or auto-post via the Buffer scaffold below (dormant by
-                              default)
+                              default) ·{" "}
+                              <span
+                                className={
+                                  existingPack.sentToClientAt
+                                    ? "font-medium text-emerald-700"
+                                    : "font-medium text-amber-700"
+                                }
+                              >
+                                {existingPack.sentToClientAt
+                                  ? `Emailed to client ${new Date(existingPack.sentToClientAt).toLocaleDateString()}`
+                                  : "Not yet emailed to client"}
+                              </span>
                             </p>
                           </div>
                           <ul className="mt-3 space-y-3">
@@ -4142,7 +4167,18 @@ export function LeadsClient({
                                 ? "Stub scripts — set ANTHROPIC_API_KEY for LLM"
                                 : "Generated via Anthropic"}{" "}
                               · {existingVoicePack.variants.length} scripts · copy into a temp
-                              number / Cal.com (Twilio stays Phase 7)
+                              number / Cal.com (Twilio stays Phase 7) ·{" "}
+                              <span
+                                className={
+                                  existingVoicePack.sentToClientAt
+                                    ? "font-medium text-emerald-700"
+                                    : "font-medium text-amber-700"
+                                }
+                              >
+                                {existingVoicePack.sentToClientAt
+                                  ? `Emailed to client ${new Date(existingVoicePack.sentToClientAt).toLocaleDateString()}`
+                                  : "Not yet emailed to client"}
+                              </span>
                             </p>
                           </div>
                           <ul className="mt-3 space-y-3">

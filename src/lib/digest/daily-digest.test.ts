@@ -155,10 +155,12 @@ describe("buildDailyDigest", () => {
       "Buy now carts",
       "inbox",
       "marketing packs",
+      "marketing packs not emailed",
       "Starter upsells",
       "Commerce catalogs",
       "Sync to Stripe",
       "Complete voice packs",
+      "Complete voice packs not emailed",
       "Commerce payouts owed",
       "Refund clawback",
       "Dispute clawback",
@@ -619,6 +621,48 @@ describe("buildDailyDigest", () => {
     );
   });
 
+  it("lists marketing packs generated this month but never emailed to the client", () => {
+    const notSent = baseLead({
+      slug: "not-sent",
+      businessName: "Not Sent Cafe",
+      stage: "paid",
+    });
+    const sent = baseLead({ slug: "sent", businessName: "Sent Salon", stage: "live" });
+    const digest = buildDailyDigest({
+      leads: [notSent, sent],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        { leadSlug: "not-sent", tier: "growth", commerceAddon: false },
+        { leadSlug: "sent", tier: "complete", commerceAddon: false },
+      ],
+      marketingPacksThisMonth: [
+        {
+          leadSlug: "not-sent",
+          yearMonth: "2026-07",
+          generatedAt: new Date(NOW - 9 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          leadSlug: "sent",
+          yearMonth: "2026-07",
+          generatedAt: new Date(NOW - 40 * 60 * 60 * 1000).toISOString(),
+          sentToClientAt: new Date(NOW - 60 * 60 * 1000).toISOString(),
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.marketingPacksMissingClientSend).toHaveLength(1);
+    expect(digest.marketingPacksMissingClientSend[0]?.businessName).toBe("Not Sent Cafe");
+    expect(digest.marketingPacksMissingClientSendCount).toBe(1);
+    expect(digest.oldestMarketingPacksMissingClientSendAgeHours).toBe(9);
+    expect(digest.isEmpty).toBe(false);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain(
+      `Marketing packs not emailed (1 · oldest ${digest.oldestMarketingPacksMissingClientSendAgeHours}h)`,
+    );
+  });
+
   it("lists paid/live MRR customers with paused recurring entitlement for Billing Portal chase", () => {
     const paused = baseLead({
       slug: "paused-mrr",
@@ -820,6 +864,49 @@ describe("buildDailyDigest", () => {
     expect(digest.clientVoicePacksDue[0]?.businessName).toBe("Needs Voice Spa");
     expect(digest.oldestClientVoicePacksDueAgeHours).toBe(6);
     expect(digest.isEmpty).toBe(false);
+  });
+
+  it("lists client voice packs generated but never emailed to the client", () => {
+    const notSent = baseLead({
+      slug: "voice-not-sent",
+      businessName: "Voice Not Sent Spa",
+      stage: "paid",
+    });
+    const sent = baseLead({
+      slug: "voice-sent",
+      businessName: "Voice Sent Spa",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [notSent, sent],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        { leadSlug: "voice-not-sent", tier: "complete", commerceAddon: false },
+        { leadSlug: "voice-sent", tier: "complete", commerceAddon: false },
+      ],
+      clientVoicePacks: [
+        {
+          leadSlug: "voice-not-sent",
+          generatedAt: new Date(NOW - 15 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          leadSlug: "voice-sent",
+          generatedAt: new Date(NOW - 50 * 60 * 60 * 1000).toISOString(),
+          sentToClientAt: new Date(NOW - 60 * 60 * 1000).toISOString(),
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.clientVoicePacksMissingClientSend).toHaveLength(1);
+    expect(digest.clientVoicePacksMissingClientSend[0]?.businessName).toBe("Voice Not Sent Spa");
+    expect(digest.oldestClientVoicePacksMissingClientSendAgeHours).toBe(15);
+    expect(digest.isEmpty).toBe(false);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain(
+      `Complete voice packs not emailed (1 · oldest ${digest.oldestClientVoicePacksMissingClientSendAgeHours}h)`,
+    );
   });
 
   it("lists Commerce payouts owed from pass-through Buy now orders", () => {

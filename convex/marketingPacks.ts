@@ -19,6 +19,7 @@ const packReturn = v.object({
   generatedAt: v.string(),
   generator: v.union(v.literal("stub"), v.literal("anthropic")),
   packageTier: v.optional(v.string()),
+  sentToClientAt: v.optional(v.string()),
 });
 
 export const upsert = mutation({
@@ -43,6 +44,9 @@ export const upsert = mutation({
       .collect();
     const existing = candidates.find((row) => row.yearMonth === args.yearMonth);
 
+    // Regenerating always clears sentToClientAt (undefined unsets a Convex
+    // field on patch) — new pack content has not yet been sent, even if the
+    // prior month's/version's pack was (marketing-voice-pack-client-send-visibility).
     if (existing) {
       await ctx.db.patch(existing._id, {
         packId: args.packId,
@@ -50,6 +54,7 @@ export const upsert = mutation({
         generatedAt: args.generatedAt,
         generator: args.generator,
         packageTier: args.packageTier,
+        sentToClientAt: undefined,
       });
     } else {
       await ctx.db.insert("marketingPacks", {
@@ -72,6 +77,36 @@ export const upsert = mutation({
       generator: args.generator,
       packageTier: args.packageTier,
     };
+  },
+});
+
+/**
+ * Durable sent-marker after sendMarketingPackToClientEmail resolves
+ * { success: true }. Returns whether the row was actually marked — re-checks
+ * sentToClientAt IS unset atomically with the write, mirroring
+ * commerceOrders.markClientReceiptSent (see
+ * marketing-voice-pack-client-send-visibility).
+ */
+export const markSentToClient = mutation({
+  args: {
+    leadSlug: v.string(),
+    yearMonth: v.string(),
+    sentToClientAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const candidates = await ctx.db
+      .query("marketingPacks")
+      .withIndex("by_lead_month", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    const existing = candidates.find((row) => row.yearMonth === args.yearMonth);
+    if (!existing || existing.sentToClientAt) {
+      return false;
+    }
+    await ctx.db.patch(existing._id, { sentToClientAt: args.sentToClientAt });
+    return true;
   },
 });
 
@@ -98,6 +133,7 @@ export const getByLeadMonth = query({
       generatedAt: row.generatedAt,
       generator: row.generator as "stub" | "anthropic",
       packageTier: row.packageTier,
+      sentToClientAt: row.sentToClientAt,
     };
   },
 });
@@ -132,6 +168,7 @@ export const listByMonth = query({
       generatedAt: row.generatedAt,
       generator: row.generator as "stub" | "anthropic",
       packageTier: row.packageTier,
+      sentToClientAt: row.sentToClientAt,
     }));
   },
 });

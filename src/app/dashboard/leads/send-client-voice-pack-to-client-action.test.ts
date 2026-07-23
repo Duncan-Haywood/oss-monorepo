@@ -39,6 +39,7 @@ function headerStore(entries: Record<string, string | null> = {}) {
 const getLeadBySlug = vi.fn();
 const listOrdersByLeadSlug = vi.fn();
 const getClientVoicePackByLeadSlug = vi.fn();
+const markClientVoicePackSentToClient = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -70,6 +71,8 @@ vi.mock("@/lib/db", () => ({
     getClientVoicePackByLeadSlug(...args),
   listClientVoicePacks: vi.fn(),
   listUnpaidCommerceOrders: vi.fn(),
+  markClientVoicePackSentToClient: (...args: unknown[]) =>
+    markClientVoicePackSentToClient(...args),
 }));
 
 const sendClientVoicePackToClientEmail = vi.fn();
@@ -267,6 +270,7 @@ describe("sendClientVoicePackToClientAction", () => {
     expect(res).toEqual({
       success: true,
       mock: false,
+      sentToClientAt: expect.any(String),
     });
     expect(sendClientVoicePackToClientEmail).toHaveBeenCalledOnce();
     expect(sendClientVoicePackToClientEmail).toHaveBeenCalledWith({
@@ -277,6 +281,11 @@ describe("sendClientVoicePackToClientAction", () => {
       previewUrl: "https://app.example.com/preview/demo-cafe",
     });
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(markClientVoicePackSentToClient).toHaveBeenCalledWith(
+      "demo-cafe",
+      expect.any(String),
+      expect.objectContaining({ requireConvex: true }),
+    );
   });
 
   it("defaults preview base URL to localhost when NEXT_PUBLIC_APP_URL is unset", async () => {
@@ -330,6 +339,7 @@ describe("sendClientVoicePackToClientAction", () => {
     expect(res).toEqual({
       success: true,
       mock: true,
+      sentToClientAt: expect.any(String),
     });
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });

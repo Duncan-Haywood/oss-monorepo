@@ -5,7 +5,9 @@ import {
   isCompleteBundleTier,
   leadEligibleForClientVoicePack,
   listClientVoicePacksDue,
+  listClientVoicePacksMissingClientSend,
   oldestClientVoicePacksDueAgeHours,
+  oldestClientVoicePackMissingClientSendAgeHours,
   scriptTypeLabel,
 } from "./faq-pack";
 import { clientVoicePackRequestForLead } from "./build-request";
@@ -213,6 +215,70 @@ describe("oldestClientVoicePacksDueAgeHours", () => {
       },
     ];
     expect(oldestClientVoicePacksDueAgeHours(candidates, orders, NOW)).toBe(4);
+  });
+});
+
+describe("listClientVoicePacksMissingClientSend", () => {
+  const paidLead = baseLead({ slug: "sent-pending", stage: "paid" });
+  const orders = [{ leadSlug: "sent-pending", tier: "complete" }];
+
+  it("flags a generated pack with no sentToClientAt", () => {
+    const packs = [
+      { leadSlug: "sent-pending", generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(
+      listClientVoicePacksMissingClientSend(packs, [paidLead], orders).map((p) => p.leadSlug),
+    ).toEqual(["sent-pending"]);
+  });
+
+  it("excludes a pack that already has sentToClientAt", () => {
+    const packs = [
+      {
+        leadSlug: "sent-pending",
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        sentToClientAt: "2026-07-02T00:00:00.000Z",
+      },
+    ];
+    expect(listClientVoicePacksMissingClientSend(packs, [paidLead], orders)).toEqual([]);
+  });
+
+  it("excludes a pack whose lead is no longer eligible (e.g. Growth-only)", () => {
+    const growthOnly = baseLead({ slug: "growth-only", stage: "paid" });
+    const packs = [
+      { leadSlug: "growth-only", generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(
+      listClientVoicePacksMissingClientSend(
+        packs,
+        [growthOnly],
+        [{ leadSlug: "growth-only", tier: "growth" }],
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("oldestClientVoicePackMissingClientSendAgeHours", () => {
+  it("returns null when there are no candidates", () => {
+    expect(oldestClientVoicePackMissingClientSendAgeHours([], 0)).toBeNull();
+  });
+
+  it("computes hours since the oldest candidate's generatedAt", () => {
+    const nowMs = Date.parse("2026-07-10T00:00:00.000Z");
+    const candidates = [
+      { generatedAt: "2026-07-05T00:00:00.000Z" },
+      { generatedAt: "2026-07-08T00:00:00.000Z" },
+    ];
+    expect(oldestClientVoicePackMissingClientSendAgeHours(candidates, nowMs)).toBe(5 * 24);
+  });
+
+  it("skips a candidate with no parseable generatedAt", () => {
+    const nowMs = Date.parse("2026-07-10T00:00:00.000Z");
+    expect(
+      oldestClientVoicePackMissingClientSendAgeHours(
+        [{ generatedAt: undefined }, { generatedAt: "not-a-date" }],
+        nowMs,
+      ),
+    ).toBeNull();
   });
 });
 

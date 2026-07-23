@@ -537,4 +537,28 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "iterations-archive-11-split",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-rd9ey0",
+    summary:
+      "Scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"). Local checkout was a shallow clone whose origin/main ref looked stale/divergent until `git fetch --unshallow`; afterward HEAD (eb53d25e, PR #654) matched origin/main exactly. mcp__github__list_pull_requests confirmed the only open PR is #202 (unrelated, weeks-stale human draft). NEXT_STEPS is fully gated (the same five operator/legal/infra-blocked items), so dispatched three parallel research agents per AGENT_PROTOCOL's priority order (sold-capability wiring gaps, Convex/SQLite parity, security/injection audit). Security came back clean. Convex/SQLite parity found a real but lower-priority TOCTOU race in scheduleMarketingPackToBufferAction's duplicate-post guard (logged for a future iteration, not fixed here). Tier-1 sold-capability wins: Growth/Complete marketing packs and Complete client voice FAQ packs could be Generated (clearing the due-count) without ever being emailed to the client via the separate Email pack/Email voice pack action — no field tracked delivery at all, the same gap already closed for Commerce Buy now orders (commerce-buy-now-client-receipt-visibility) but never extended to these two sibling pack flows. See marketing-voice-pack-client-send-visibility in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/marketing/pack.ts, src/lib/voice/pack.ts — added optional sentToClientAt to MarketingPack/ClientVoicePack.",
+      "convex/schema.ts, convex/marketingPacks.ts, convex/clientVoicePacks.ts — sentToClientAt column + markSentToClient mutations (race-guarded, mirrors commerceOrders.markClientReceiptSent); upsert explicitly clears sentToClientAt on every regenerate.",
+      "src/lib/db/sqlite-schema.ts, src/lib/db/sqlite-queries.ts — new nullable sentToClientAt column (+ migration) on marketing_packs/client_voice_packs, sqliteMarkMarketingPackSentToClient/sqliteMarkClientVoicePackSentToClient with the same race-guarded WHERE clause.",
+      "src/lib/db.ts — markMarketingPackSentToClient/markClientVoicePackSentToClient (Convex-first + SQLite fallback), both new Convex mutations registered on the static API map, upsert SQL now clears sentToClientAt on conflict.",
+      "src/app/dashboard/leads/actions.ts — sendMarketingPackToClientAction/sendClientVoicePackToClientAction call the new mark-sent helper (best-effort, after a confirmed successful send) and return sentToClientAt.",
+      "src/lib/marketing/monthly-pack.ts, src/lib/voice/faq-pack.ts — new listMarketingPacksMissingClientSend/oldestMarketingPackMissingClientSendAgeHours and listClientVoicePacksMissingClientSend/oldestClientVoicePackMissingClientSendAgeHours pure helpers.",
+      "src/lib/metrics/pipeline-health.ts, src/lib/digest/daily-digest.ts — new marketingPacksMissingClientSendCount/clientVoicePacksMissingClientSendCount fields + age twins, wired into pipeline-health and two new daily-digest sections (Marketing packs not emailed / Complete voice packs not emailed), folded into actionableSections.",
+      "src/app/dashboard/leads/leads-client.tsx — pack panels show an inline Emailed/Not-yet-emailed badge, updated optimistically from the send action response.",
+      "src/app/docs/architecture/page.tsx, src/app/docs/marketing-automation/page.tsx — documented the new sentToClientAt tracking and its visibility surfaces.",
+      "New/updated tests: monthly-pack.test.ts, faq-pack.test.ts, sqlite-queries.test.ts, marketing/voice sqlite-row-mapping.test.ts, convex/marketingPacks.test.ts, convex/clientVoicePacks.test.ts, pipeline-health.test.ts, daily-digest.test.ts, send-marketing-pack-to-client-action.test.ts, send-client-voice-pack-to-client-action.test.ts.",
+      "src/lib/process/business-decisions.ts — appended marketing-voice-pack-client-send-visibility.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a sold-capability wiring-gap fix discovered by a dispatched tier-1 audit, not a resolution of any gated item. A lower-priority Convex/SQLite TOCTOU race in scheduleMarketingPackToBufferAction's duplicate-post guard was found but deliberately left unfixed this iteration (one focused iteration per run) — worth picking up next.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npm run build (clean, same 42-route split) + npm run lint (clean) + npm test (2702 passed, up from 2672 — 30 new, 198 files unchanged) + npm run dev sanity check (/dashboard/leads and /preview/example-bakery both 200; dev server killed afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "marketing-voice-pack-client-send-visibility",
+    ),
+  },
 ];

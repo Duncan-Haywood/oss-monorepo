@@ -13,7 +13,8 @@
  * + digest-section-counts-uncapped
  * + leads-missing-email-in-digest
  * + recurring-entitlement-paused-pipeline-digest
- * + commerce-order-refund-clawback-tracking).
+ * + commerce-order-refund-clawback-tracking
+ * + marketing-voice-pack-client-send-visibility).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -47,6 +48,8 @@ import {
   listMarketingPacksDue,
   marketingMonthKey,
   oldestMarketingPacksDueAgeHours,
+  listMarketingPacksMissingClientSend,
+  oldestMarketingPackMissingClientSendAgeHours,
 } from "../marketing/monthly-pack";
 import {
   listStarterUpsellCandidates,
@@ -67,7 +70,12 @@ import {
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
 } from "../commerce/orders";
-import { listClientVoicePacksDue, oldestClientVoicePacksDueAgeHours } from "../voice/faq-pack";
+import {
+  listClientVoicePacksDue,
+  oldestClientVoicePacksDueAgeHours,
+  listClientVoicePacksMissingClientSend,
+  oldestClientVoicePackMissingClientSendAgeHours,
+} from "../voice/faq-pack";
 import {
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
@@ -79,6 +87,8 @@ const FOLLOW_UPS_LIMIT = 5;
 const RECOVERIES_LIMIT = 5;
 const INQUIRIES_LIMIT = 5;
 const MARKETING_PACKS_LIMIT = 5;
+const MARKETING_PACKS_MISSING_SEND_LIMIT = 5;
+const CLIENT_VOICE_PACKS_MISSING_SEND_LIMIT = 5;
 const UPSELL_LIMIT = 5;
 const COMMERCE_CATALOGS_LIMIT = 5;
 const COMMERCE_UNSYNCED_LIMIT = 5;
@@ -137,6 +147,18 @@ export interface DigestMarketingPackDue {
   yearMonth: string;
 }
 
+/**
+ * A marketing pack generated this month but never emailed to the client —
+ * see marketing-voice-pack-client-send-visibility. Distinct from
+ * DigestMarketingPackDue (that's generation debt; this is delivery debt on
+ * a pack that already exists).
+ */
+export interface DigestMarketingPackMissingClientSend {
+  slug: string;
+  businessName: string;
+  yearMonth: string;
+}
+
 export interface DigestStarterUpsellLead {
   slug: string;
   businessName: string;
@@ -154,6 +176,16 @@ export interface DigestCommerceCatalogUnsynced {
 }
 
 export interface DigestClientVoicePackDue {
+  slug: string;
+  businessName: string;
+}
+
+/**
+ * A client voice pack generated but never emailed to the client — see
+ * marketing-voice-pack-client-send-visibility. Distinct from
+ * DigestClientVoicePackDue (generation debt vs. delivery debt).
+ */
+export interface DigestClientVoicePackMissingClientSend {
   slug: string;
   businessName: string;
 }
@@ -303,6 +335,12 @@ export interface DailyDigest {
   marketingPacksDueCount: number;
   /** Age in whole hours since the oldest due lead's pack first became due this month; null when none. */
   oldestMarketingPacksDueAgeHours: number | null;
+  /** Marketing packs generated this month but never emailed to the client (delivery debt, not generation debt). */
+  marketingPacksMissingClientSend: DigestMarketingPackMissingClientSend[];
+  /** True count before the MARKETING_PACKS_MISSING_SEND_LIMIT slice — use for the section header. */
+  marketingPacksMissingClientSendCount: number;
+  /** Age in whole hours since the oldest such pack was generated; null when none. */
+  oldestMarketingPacksMissingClientSendAgeHours: number | null;
   starterUpsellCandidates: DigestStarterUpsellLead[];
   starterUpsellCandidatesCount: number;
   /** Age in whole hours since the oldest candidate's qualifying Starter-only order; null when none. */
@@ -319,6 +357,12 @@ export interface DailyDigest {
   clientVoicePacksDueCount: number;
   /** Age in whole hours since the oldest voice-pack-due lead's qualifying order; null when none. */
   oldestClientVoicePacksDueAgeHours: number | null;
+  /** Client voice packs generated but never emailed to the client (delivery debt, not generation debt). */
+  clientVoicePacksMissingClientSend: DigestClientVoicePackMissingClientSend[];
+  /** True count before the CLIENT_VOICE_PACKS_MISSING_SEND_LIMIT slice — use for the section header. */
+  clientVoicePacksMissingClientSendCount: number;
+  /** Age in whole hours since the oldest such pack was generated; null when none. */
+  oldestClientVoicePacksMissingClientSendAgeHours: number | null;
   /** Per-lead pass-through Buy now totals still owed until Connect (action section). */
   commercePayoutsOwed: DigestCommercePayoutOwed[];
   /** True count before the COMMERCE_PAYOUTS_LIMIT slice — use for the section header. */
@@ -499,12 +543,25 @@ export interface BuildDailyDigestInput {
     /** ISO timestamp when charge.dispute.created flagged this order — see bundle-order-dispute-tracking. */
     disputedAt?: string;
   }>;
-  marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
+  marketingPacksThisMonth?: ReadonlyArray<{
+    leadSlug: string;
+    yearMonth: string;
+    /** Anchors marketingPacksMissingClientSend's age signal. */
+    generatedAt?: string;
+    /** Unset means never emailed to the client — see marketing-voice-pack-client-send-visibility. */
+    sentToClientAt?: string;
+  }>;
   commerceCatalogs?: ReadonlyArray<{
     leadSlug: string;
     items?: ReadonlyArray<{ stripePriceId?: string }>;
   }>;
-  clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
+  clientVoicePacks?: ReadonlyArray<{
+    leadSlug: string;
+    /** Anchors clientVoicePacksMissingClientSend's age signal. */
+    generatedAt?: string;
+    /** Unset means never emailed to the client — see marketing-voice-pack-client-send-visibility. */
+    sentToClientAt?: string;
+  }>;
   /** Pass-through Buy now ledger rows — reuse summarizeCommerceOrdersByLead. */
   commerceOrders?: ReadonlyArray<CommerceOrderRecord>;
   /**
@@ -655,6 +712,23 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       yearMonth,
     }));
 
+  const marketingPacksMissingClientSendAll = listMarketingPacksMissingClientSend(
+    marketingPacksThisMonth,
+    leads,
+    orders,
+  );
+  const marketingPacksMissingClientSendCount = marketingPacksMissingClientSendAll.length;
+  const marketingPacksMissingClientSend: DigestMarketingPackMissingClientSend[] =
+    marketingPacksMissingClientSendAll
+      .slice(0, MARKETING_PACKS_MISSING_SEND_LIMIT)
+      .map((pack) => ({
+        slug: pack.leadSlug,
+        businessName: leadsBySlug.get(pack.leadSlug)?.businessName ?? pack.leadSlug,
+        yearMonth: pack.yearMonth,
+      }));
+  const oldestMarketingPacksMissingClientSendAgeHoursValue =
+    oldestMarketingPackMissingClientSendAgeHours(marketingPacksMissingClientSendAll, nowMs);
+
   const starterUpsellCandidatesAll = listStarterUpsellCandidates(leads, orders);
   const starterUpsellCandidatesCount = starterUpsellCandidatesAll.length;
   const starterUpsellCandidates: DigestStarterUpsellLead[] = starterUpsellCandidatesAll
@@ -699,6 +773,22 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       slug: lead.slug,
       businessName: lead.businessName,
     }));
+
+  const clientVoicePacksMissingClientSendAll = listClientVoicePacksMissingClientSend(
+    clientVoicePacks,
+    leads,
+    orders,
+  );
+  const clientVoicePacksMissingClientSendCount = clientVoicePacksMissingClientSendAll.length;
+  const clientVoicePacksMissingClientSend: DigestClientVoicePackMissingClientSend[] =
+    clientVoicePacksMissingClientSendAll
+      .slice(0, CLIENT_VOICE_PACKS_MISSING_SEND_LIMIT)
+      .map((pack) => ({
+        slug: pack.leadSlug,
+        businessName: leadsBySlug.get(pack.leadSlug)?.businessName ?? pack.leadSlug,
+      }));
+  const oldestClientVoicePacksMissingClientSendAgeHoursValue =
+    oldestClientVoicePackMissingClientSendAgeHours(clientVoicePacksMissingClientSendAll, nowMs);
 
   const oldestMarketingPacksDueAgeHoursValue = oldestMarketingPacksDueAgeHours(
     marketingPacksDueAll,
@@ -1013,10 +1103,12 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "Buy now carts", count: commerceCheckoutRecoveriesDueCount },
     { label: "inbox", count: unrepliedInquiriesCount },
     { label: "marketing packs", count: marketingPacksDueCount },
+    { label: "marketing packs not emailed", count: marketingPacksMissingClientSendCount },
     { label: "Starter upsells", count: starterUpsellCandidatesCount },
     { label: "Commerce catalogs", count: commerceCatalogsMissingCount },
     { label: "Sync to Stripe", count: commerceCatalogsUnsyncedCount },
     { label: "Complete voice packs", count: clientVoicePacksDueCount },
+    { label: "Complete voice packs not emailed", count: clientVoicePacksMissingClientSendCount },
     { label: "Commerce payouts owed", count: commercePayoutsOwedCount },
     { label: "Refund clawback", count: commerceOrdersRefundClawbackCount },
     { label: "Dispute clawback", count: commerceOrdersDisputeClawbackCount },
@@ -1052,6 +1144,10 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     marketingPacksDue,
     marketingPacksDueCount,
     oldestMarketingPacksDueAgeHours: oldestMarketingPacksDueAgeHoursValue,
+    marketingPacksMissingClientSend,
+    marketingPacksMissingClientSendCount,
+    oldestMarketingPacksMissingClientSendAgeHours:
+      oldestMarketingPacksMissingClientSendAgeHoursValue,
     starterUpsellCandidates,
     starterUpsellCandidatesCount,
     oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellCandidateAgeHoursValue,
@@ -1064,6 +1160,10 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     clientVoicePacksDue,
     clientVoicePacksDueCount,
     oldestClientVoicePacksDueAgeHours: oldestClientVoicePacksDueAgeHoursValue,
+    clientVoicePacksMissingClientSend,
+    clientVoicePacksMissingClientSendCount,
+    oldestClientVoicePacksMissingClientSendAgeHours:
+      oldestClientVoicePacksMissingClientSendAgeHoursValue,
     commercePayoutsOwed,
     commercePayoutsOwedCount,
     commercePayoutsOwedTotalUsd,
@@ -1207,6 +1307,12 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtmlForEmail(pack.businessName)}</strong> — ${escapeHtmlForEmail(pack.yearMonth)} pack not generated`,
   );
 
+  const packMissingSendRows = digest.marketingPacksMissingClientSend.map(
+    (pack) =>
+      `<strong>${escapeHtmlForEmail(pack.businessName)}</strong> — ${escapeHtmlForEmail(pack.yearMonth)} pack generated but never emailed to client`,
+  );
+  const packMissingSendTitle = `Marketing packs not emailed (${digest.marketingPacksMissingClientSendCount}${digest.oldestMarketingPacksMissingClientSendAgeHours !== null ? ` · oldest ${digest.oldestMarketingPacksMissingClientSendAgeHours}h` : ""})`;
+
   const upsellRows = digest.starterUpsellCandidates.map(
     (lead) =>
       `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Starter paid, suggest ${escapeHtmlForEmail(lead.targetTier)} upsell`,
@@ -1226,6 +1332,12 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     (lead) =>
       `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Complete voice FAQ pack not generated`,
   );
+
+  const voicePackMissingSendRows = digest.clientVoicePacksMissingClientSend.map(
+    (lead) =>
+      `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Complete voice FAQ pack generated but never emailed to client`,
+  );
+  const voicePackMissingSendTitle = `Complete voice packs not emailed (${digest.clientVoicePacksMissingClientSendCount}${digest.oldestClientVoicePacksMissingClientSendAgeHours !== null ? ` · oldest ${digest.oldestClientVoicePacksMissingClientSendAgeHours}h` : ""})`;
 
   const payoutRows = digest.commercePayoutsOwed.map(
     (row) =>
@@ -1318,6 +1430,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       "Inbox clear.",
     )}
     ${section(`Marketing packs due (${digest.marketingPacksDueCount}${digest.oldestMarketingPacksDueAgeHours !== null ? ` · oldest ${digest.oldestMarketingPacksDueAgeHours}h` : ""})`, packRows, "All Growth/Complete packs generated this month.")}
+    ${section(packMissingSendTitle, packMissingSendRows, "Every generated marketing pack this month has been emailed to its client.")}
     ${section(
       `MRR paused / canceled (${digest.recurringEntitlementPausedCount}${digest.oldestRecurringEntitlementPausedAgeHours !== null ? ` · oldest ${digest.oldestRecurringEntitlementPausedAgeHours}h` : ""})`,
       recurringPausedRows,
@@ -1327,6 +1440,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount}${digest.oldestCommerceCatalogsMissingAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsMissingAgeHours}h` : ""})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount}${digest.oldestCommerceCatalogsUnsyncedAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsUnsyncedAgeHours}h` : ""})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
     ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount}${digest.oldestClientVoicePacksDueAgeHours !== null ? ` · oldest ${digest.oldestClientVoicePacksDueAgeHours}h` : ""})`, voicePackRows, "All Complete voice FAQ packs generated.")}
+    ${section(voicePackMissingSendTitle, voicePackMissingSendRows, "Every generated Complete voice FAQ pack has been emailed to its client.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
     ${section(clawbackTitle, clawbackRows, "No Commerce payouts have been refunded after the fact.")}
     ${section(disputeClawbackTitle, disputeClawbackRows, "No Commerce payouts have been disputed after the fact.")}

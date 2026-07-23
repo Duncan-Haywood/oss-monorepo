@@ -130,7 +130,12 @@ export default function MarketingAutomationDocPage() {
         current-month pack gate, and suppression / send failure on that dashboard path.
         Eligible leads missing this month&apos;s pack surface on pipeline health (
         <strong>Marketing packs due</strong>) and in the operator daily digest so fulfillment
-        debt is visible without scanning every row.
+        debt is visible without scanning every row. Generating a pack is not the same as
+        delivering it: a pack that was generated but never successfully emailed sets no marker
+        of its own, so a separate <strong>Marketing packs not emailed</strong> pipeline-health
+        card and digest section (<code>sentToClientAt</code>, cleared on every regenerate) tracks
+        that gap independently — the same pattern Complete&apos;s client voice FAQ pack follows
+        for <strong>Email voice pack</strong> (<strong>Complete voice packs not emailed</strong>).
       </p>
       <p>
         <strong>Buffer auto-posting (dormant scaffold).</strong> Behind{" "}

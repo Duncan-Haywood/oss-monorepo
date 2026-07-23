@@ -1721,6 +1721,30 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        The same generated-vs-delivered gap existed for Growth/Complete marketing packs and Complete
+        client voice FAQ packs: <strong>Generate</strong> and{" "}
+        <strong>Email pack / Email voice pack</strong> are two separate operator actions with
+        nothing linking them, and the due-count helpers (<code>listMarketingPacksDue</code>/{" "}
+        <code>listClientVoicePacksDue</code>) only check whether a pack row exists, not whether it
+        was ever emailed — so clicking Generate alone silently cleared the fulfillment debt even
+        if Email pack was never clicked or the send failed.{" "}
+        <code>MarketingPack</code>/<code>ClientVoicePack</code> now carry an optional{" "}
+        <code>sentToClientAt</code>, mirroring <code>clientReceiptEmailSentAt</code>:{" "}
+        <code>sendMarketingPackToClientAction</code>/<code>sendClientVoicePackToClientAction</code>{" "}
+        mark it (best-effort, after the send already resolved <code>{"{ success: true }"}</code> —
+        a marker-write failure never turns a successful send into a reported failure), and
+        regenerating a pack (<code>upsertMarketingPack</code>/<code>upsertClientVoicePack</code>)
+        always clears it since new content has not yet been sent.{" "}
+        <code>listMarketingPacksMissingClientSend</code>/
+        <code>listClientVoicePacksMissingClientSend</code> (gated on the same eligibility predicate
+        as the due-count twins) feed new pipeline-health cards and daily-digest sections —{" "}
+        <strong>Marketing packs not emailed</strong> / <strong>Complete voice packs not emailed</strong>{" "}
+        — distinct from the existing generation-debt cards, plus an inline emailed/not-yet-emailed
+        badge on the dashboard&apos;s pack panels (see{" "}
+        <code>marketing-voice-pack-client-send-visibility</code>).
+      </p>
+
+      <p>
         A refund itself can also reverse — common for bank-sourced refunds (ACH, some debit cards)
         that Stripe reports as <code>pending</code>/<code>succeeded</code> first, then fails or is
         canceled days later when the destination account rejects it. Disputes got a resolution

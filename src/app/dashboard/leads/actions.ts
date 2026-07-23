@@ -24,6 +24,7 @@ import {
   upsertMarketingPack,
   listMarketingPacksForMonth,
   getMarketingPack,
+  markMarketingPackSentToClient,
   upsertCommerceCatalog,
   getCommerceCatalog,
   listCommerceCatalogs,
@@ -33,6 +34,7 @@ import {
   upsertClientVoicePack,
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
+  markClientVoicePackSentToClient,
   listUnpaidCommerceOrders,
   listCommerceOrdersRefunded,
   listCommerceOrdersDisputed,
@@ -2427,11 +2429,34 @@ export async function sendMarketingPackToClientAction(slug: string) {
       };
     }
 
+    // Durable sent-marker after a confirmed successful send — closes the
+    // "generated but never emailed" visibility gap (see
+    // marketing-voice-pack-client-send-visibility). Best-effort: the email
+    // already went out, so a marker-write failure must not turn a successful
+    // send into a reported failure; the pack just stays flagged as
+    // not-yet-sent for the next digest/pipeline-health read, which is safe
+    // (worst case: a harmless "resend" nudge, never a missed delivery).
+    const sentToClientAt = new Date().toISOString();
+    try {
+      await markMarketingPackSentToClient(
+        lead.slug,
+        pack.yearMonth,
+        sentToClientAt,
+        MARKETING_PACK_CONVEX_PRIMARY,
+      );
+    } catch (markError) {
+      console.error(
+        `Failed to record marketing pack sent-to-client marker for ${lead.slug}:`,
+        markError,
+      );
+    }
+
     revalidatePath("/dashboard/leads");
     return {
       success: true as const,
       yearMonth: pack.yearMonth,
       mock: "mock" in sent ? Boolean(sent.mock) : false,
+      sentToClientAt,
     };
   } catch (error) {
     console.error("Error in sendMarketingPackToClientAction:", error);
@@ -3452,10 +3477,30 @@ export async function sendClientVoicePackToClientAction(slug: string) {
       };
     }
 
+    // Durable sent-marker after a confirmed successful send — mirrors
+    // sendMarketingPackToClientAction's marker write (see
+    // marketing-voice-pack-client-send-visibility). Best-effort: the email
+    // already went out, so a marker-write failure must not report a failed
+    // send.
+    const sentToClientAt = new Date().toISOString();
+    try {
+      await markClientVoicePackSentToClient(
+        lead.slug,
+        sentToClientAt,
+        CLIENT_VOICE_PACK_CONVEX_PRIMARY,
+      );
+    } catch (markError) {
+      console.error(
+        `Failed to record client voice pack sent-to-client marker for ${lead.slug}:`,
+        markError,
+      );
+    }
+
     revalidatePath("/dashboard/leads");
     return {
       success: true as const,
       mock: "mock" in sent ? Boolean(sent.mock) : false,
+      sentToClientAt,
     };
   } catch (error) {
     console.error("Error in sendClientVoicePackToClientAction:", error);

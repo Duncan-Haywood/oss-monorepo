@@ -13,6 +13,14 @@ export interface ClientVoicePack {
   variants: ClientVoiceScriptVariant[];
   generatedAt: string;
   generator: ClientVoicePackGeneratorKind;
+  /**
+   * Set once sendClientVoicePackToClientEmail resolved { success: true } for
+   * this pack — regenerating the pack (upsertClientVoicePack) always clears
+   * it, since new script content has not yet been sent. Mirrors
+   * MarketingPack.sentToClientAt (see
+   * marketing-voice-pack-client-send-visibility).
+   */
+  sentToClientAt?: string;
 }
 
 export interface UpsertClientVoicePackInput {

@@ -46,6 +46,8 @@ import {
   sqliteRecordCheckoutRecoverySent,
   sqliteMarkCommerceOrderPaidOut,
   sqliteMarkCommerceOrderClientReceiptSent,
+  sqliteMarkMarketingPackSentToClient,
+  sqliteMarkClientVoicePackSentToClient,
   sqliteUpdateDeployHandoffCustomDomain,
 } from "./db/sqlite-queries";
 import { preferAdvancedHandoffStatus } from "./deploy/handoff-preserve";
@@ -162,6 +164,7 @@ const api: any = {
     upsert: "marketingPacks:upsert",
     getByLeadMonth: "marketingPacks:getByLeadMonth",
     listByMonth: "marketingPacks:listByMonth",
+    markSentToClient: "marketingPacks:markSentToClient",
   },
   commerceCatalogs: {
     upsert: "commerceCatalogs:upsert",
@@ -172,6 +175,7 @@ const api: any = {
     upsert: "clientVoicePacks:upsert",
     getByLeadSlug: "clientVoicePacks:getByLeadSlug",
     list: "clientVoicePacks:list",
+    markSentToClient: "clientVoicePacks:markSentToClient",
   },
   commerceOrders: {
     insert: "commerceOrders:insert",
@@ -2460,6 +2464,8 @@ export async function upsertMarketingPack(
   }
 
   const db = getSqliteDb();
+  // Regenerating always clears sentToClientAt on the ON CONFLICT branch — new
+  // pack content has not yet been sent (marketing-voice-pack-client-send-visibility).
   db.prepare(`
     INSERT INTO marketing_packs (
       id, leadSlug, yearMonth, variantsJson, generatedAt, generator, packageTier
@@ -2469,7 +2475,8 @@ export async function upsertMarketingPack(
       variantsJson = excluded.variantsJson,
       generatedAt = excluded.generatedAt,
       generator = excluded.generator,
-      packageTier = excluded.packageTier
+      packageTier = excluded.packageTier,
+      sentToClientAt = NULL
   `).run(
     pack.id,
     pack.leadSlug,
@@ -2546,6 +2553,42 @@ export async function listMarketingPacksForMonth(
     )
     .all(yearMonth) as unknown as SqliteMarketingPackRow[];
   return rows.map(mapMarketingPackRow);
+}
+
+/**
+ * Durable sent-marker after sendMarketingPackToClientEmail resolves
+ * { success: true } in sendMarketingPackToClientAction. Keyed on
+ * leadSlug+yearMonth (matches the pack's own uniqueness). Returns whether the
+ * row was actually marked (re-checks sentToClientAt unset atomically with the
+ * write, matching markCommerceOrderClientReceiptSent's race guard) — see
+ * marketing-voice-pack-client-send-visibility.
+ */
+export async function markMarketingPackSentToClient(
+  leadSlug: string,
+  yearMonth: string,
+  sentToClientAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.marketingPacks.markSentToClient, {
+        leadSlug,
+        yearMonth,
+        sentToClientAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markMarketingPackSentToClient", e);
+      }
+      console.warn(
+        `Failed to mark marketing pack sent to client for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  return sqliteMarkMarketingPackSentToClient(getSqliteDb(), leadSlug, yearMonth, sentToClientAt);
 }
 
 // --- Commerce catalogs (≤50 SKUs for commerceAddon leads) ---
@@ -3218,6 +3261,8 @@ export async function upsertClientVoicePack(
   }
 
   const db = getSqliteDb();
+  // Regenerating always clears sentToClientAt — see upsertMarketingPack's
+  // matching comment (marketing-voice-pack-client-send-visibility).
   db.prepare(`
     INSERT INTO client_voice_packs (
       id, leadSlug, variantsJson, generatedAt, generator
@@ -3226,7 +3271,8 @@ export async function upsertClientVoicePack(
       id = excluded.id,
       variantsJson = excluded.variantsJson,
       generatedAt = excluded.generatedAt,
-      generator = excluded.generator
+      generator = excluded.generator,
+      sentToClientAt = NULL
   `).run(
     pack.id,
     pack.leadSlug,
@@ -3295,4 +3341,37 @@ export async function listClientVoicePacks(
     .prepare("SELECT * FROM client_voice_packs ORDER BY generatedAt DESC")
     .all() as unknown as SqliteClientVoicePackRow[];
   return rows.map(mapClientVoicePackRow);
+}
+
+/**
+ * Durable sent-marker after sendClientVoicePackToClientEmail resolves
+ * { success: true } in sendClientVoicePackToClientAction. Keyed on leadSlug
+ * (matches the pack's own uniqueness — one row per lead). Mirrors
+ * markMarketingPackSentToClient's race-guard (see
+ * marketing-voice-pack-client-send-visibility).
+ */
+export async function markClientVoicePackSentToClient(
+  leadSlug: string,
+  sentToClientAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.clientVoicePacks.markSentToClient, {
+        leadSlug,
+        sentToClientAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markClientVoicePackSentToClient", e);
+      }
+      console.warn(
+        `Failed to mark client voice pack sent to client for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  return sqliteMarkClientVoicePackSentToClient(getSqliteDb(), leadSlug, sentToClientAt);
 }

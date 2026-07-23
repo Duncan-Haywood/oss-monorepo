@@ -819,6 +819,36 @@ describe("computePipelineHealth", () => {
     );
   });
 
+  it("counts marketing packs generated this month but never emailed to the client", () => {
+    const notSent = makeLead("paid", { slug: "not-sent" });
+    const sent = makeLead("live", { slug: "sent" });
+    const health = computePipelineHealth({
+      leads: [notSent, sent],
+      orders: [
+        { ...makeOrder(599), id: "o1", leadSlug: "not-sent", tier: "growth" },
+        { ...makeOrder(699), id: "o2", leadSlug: "sent", tier: "complete" },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [
+        {
+          leadSlug: "not-sent",
+          yearMonth: "2026-07",
+          generatedAt: new Date(NOW - 8 * HOUR_MS).toISOString(),
+        },
+        {
+          leadSlug: "sent",
+          yearMonth: "2026-07",
+          generatedAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+          sentToClientAt: new Date(NOW - 1 * HOUR_MS).toISOString(),
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.marketingPacksMissingClientSendCount).toBe(1);
+    expect(health.oldestMarketingPacksMissingClientSendAgeHours).toBe(8);
+  });
+
   it("counts paid/live leads with paused recurring entitlement (not marketing packs due)", () => {
     const paused = makeLead("paid", { slug: "paused-mrr" });
     const active = makeLead("live", { slug: "active-mrr" });
@@ -996,6 +1026,31 @@ describe("computePipelineHealth", () => {
     });
     expect(health.clientVoicePacksDueCount).toBe(1);
     expect(health.oldestClientVoicePacksDueAgeHours).toBe(6);
+  });
+
+  it("counts client voice packs generated but never emailed to the client", () => {
+    const notSent = makeLead("paid", { slug: "voice-not-sent" });
+    const sent = makeLead("live", { slug: "voice-sent" });
+    const health = computePipelineHealth({
+      leads: [notSent, sent],
+      orders: [
+        { ...makeOrder(699), id: "o1", leadSlug: "voice-not-sent", tier: "complete" },
+        { ...makeOrder(699), id: "o2", leadSlug: "voice-sent", tier: "complete" },
+      ],
+      handoffs: [],
+      inquiries: [],
+      clientVoicePacks: [
+        { leadSlug: "voice-not-sent", generatedAt: new Date(NOW - 12 * HOUR_MS).toISOString() },
+        {
+          leadSlug: "voice-sent",
+          generatedAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+          sentToClientAt: new Date(NOW - 1 * HOUR_MS).toISOString(),
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.clientVoicePacksMissingClientSendCount).toBe(1);
+    expect(health.oldestClientVoicePacksMissingClientSendAgeHours).toBe(12);
   });
 
   it("sums commerce Buy now order revenue separately from revenueTotalUsd", () => {

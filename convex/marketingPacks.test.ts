@@ -149,3 +149,79 @@ test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SEC
     t.query(api.marketingPacks.listByMonth, { yearMonth: "2026-01", apiSecret: "wrong" }),
   ).rejects.toThrow(/Unauthorized/);
 });
+
+test("markSentToClient marks an unsent pack and returns true", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.marketingPacks.upsert, upsertArgs());
+
+  const marked = await t.mutation(api.marketingPacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(marked).toBe(true);
+
+  const row = await t.query(api.marketingPacks.getByLeadMonth, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.sentToClientAt).toBe("2026-01-05T00:00:00.000Z");
+});
+
+test("markSentToClient is a no-op once already marked, and returns false for an unknown pack", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.marketingPacks.upsert, upsertArgs());
+  await t.mutation(api.marketingPacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const secondMark = await t.mutation(api.marketingPacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    sentToClientAt: "2026-01-06T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(secondMark).toBe(false);
+  const row = await t.query(api.marketingPacks.getByLeadMonth, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.sentToClientAt).toBe("2026-01-05T00:00:00.000Z");
+
+  const missing = await t.mutation(api.marketingPacks.markSentToClient, {
+    leadSlug: "no-such-lead",
+    yearMonth: "2026-01",
+    sentToClientAt: "2026-01-06T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(missing).toBe(false);
+});
+
+test("upsert (regenerate) clears a previously-set sentToClientAt", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.marketingPacks.upsert, upsertArgs());
+  await t.mutation(api.marketingPacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  await t.mutation(
+    api.marketingPacks.upsert,
+    upsertArgs({ packId: "mp_demo-cafe_2026-01_v2", generatedAt: "2026-01-10T00:00:00.000Z" }),
+  );
+
+  const row = await t.query(api.marketingPacks.getByLeadMonth, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.sentToClientAt).toBeUndefined();
+});

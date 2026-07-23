@@ -18,6 +18,7 @@ const baseRow: SqliteClientVoicePackRow = {
   ]),
   generatedAt: "2026-01-01T00:00:00.000Z",
   generator: "stub",
+  sentToClientAt: null,
 };
 
 describe("parseClientVoiceVariants", () => {
@@ -107,5 +108,13 @@ describe("mapClientVoicePackRow", () => {
     const row: SqliteClientVoicePackRow = { ...baseRow, variantsJson: "{corrupt" };
     expect(() => mapClientVoicePackRow(row)).not.toThrow();
     expect(mapClientVoicePackRow(row).variants).toEqual([]);
+  });
+
+  it("maps a null sentToClientAt to undefined and passes through a set value", () => {
+    expect(mapClientVoicePackRow(baseRow).sentToClientAt).toBeUndefined();
+    expect(
+      mapClientVoicePackRow({ ...baseRow, sentToClientAt: "2026-01-05T00:00:00.000Z" })
+        .sentToClientAt,
+    ).toBe("2026-01-05T00:00:00.000Z");
   });
 });

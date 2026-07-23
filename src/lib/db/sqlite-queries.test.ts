@@ -13,6 +13,8 @@ import {
   sqliteRecordCheckoutRecoverySent,
   sqliteMarkCommerceOrderPaidOut,
   sqliteMarkCommerceOrderClientReceiptSent,
+  sqliteMarkMarketingPackSentToClient,
+  sqliteMarkClientVoicePackSentToClient,
   sqliteUpdateDeployHandoffCustomDomain,
 } from "./sqlite-queries";
 import { CustomDomainConflictError } from "../deploy/custom-domain-routing";
@@ -132,6 +134,103 @@ function insertCommerceOrderDirect(
     overrides.clientReceiptEmailSentAt ?? null,
   );
 }
+
+function insertMarketingPackDirect(
+  db: DatabaseSync,
+  leadSlug: string,
+  yearMonth: string,
+  sentToClientAt?: string,
+): void {
+  db.prepare(
+    `INSERT INTO marketing_packs (id, leadSlug, yearMonth, variantsJson, generatedAt, generator, sentToClientAt)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    `mp_${leadSlug}_${yearMonth}`,
+    leadSlug,
+    yearMonth,
+    "[]",
+    "2026-07-01T00:00:00.000Z",
+    "stub",
+    sentToClientAt ?? null,
+  );
+}
+
+function insertClientVoicePackDirect(
+  db: DatabaseSync,
+  leadSlug: string,
+  sentToClientAt?: string,
+): void {
+  db.prepare(
+    `INSERT INTO client_voice_packs (id, leadSlug, variantsJson, generatedAt, generator, sentToClientAt)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+  ).run(`cv_${leadSlug}`, leadSlug, "[]", "2026-07-01T00:00:00.000Z", "stub", sentToClientAt ?? null);
+}
+
+describe("sqliteMarkMarketingPackSentToClient", () => {
+  it("marks an unsent pack and returns true", () => {
+    const db = freshDb();
+    insertMarketingPackDirect(db, "test-lead", "2026-07");
+    expect(
+      sqliteMarkMarketingPackSentToClient(db, "test-lead", "2026-07", "2026-07-05T00:00:00.000Z"),
+    ).toBe(true);
+    const row = db
+      .prepare("SELECT sentToClientAt FROM marketing_packs WHERE leadSlug = ? AND yearMonth = ?")
+      .get("test-lead", "2026-07") as { sentToClientAt: string };
+    expect(row.sentToClientAt).toBe("2026-07-05T00:00:00.000Z");
+  });
+
+  it("is a no-op once already marked sent (race guard)", () => {
+    const db = freshDb();
+    insertMarketingPackDirect(db, "test-lead", "2026-07", "2026-07-05T00:00:00.000Z");
+    expect(
+      sqliteMarkMarketingPackSentToClient(db, "test-lead", "2026-07", "2026-07-06T00:00:00.000Z"),
+    ).toBe(false);
+    const row = db
+      .prepare("SELECT sentToClientAt FROM marketing_packs WHERE leadSlug = ? AND yearMonth = ?")
+      .get("test-lead", "2026-07") as { sentToClientAt: string };
+    expect(row.sentToClientAt).toBe("2026-07-05T00:00:00.000Z");
+  });
+
+  it("returns false for an unknown leadSlug/yearMonth pair", () => {
+    const db = freshDb();
+    expect(
+      sqliteMarkMarketingPackSentToClient(db, "missing", "2026-07", "2026-07-05T00:00:00.000Z"),
+    ).toBe(false);
+  });
+});
+
+describe("sqliteMarkClientVoicePackSentToClient", () => {
+  it("marks an unsent pack and returns true", () => {
+    const db = freshDb();
+    insertClientVoicePackDirect(db, "test-lead");
+    expect(
+      sqliteMarkClientVoicePackSentToClient(db, "test-lead", "2026-07-05T00:00:00.000Z"),
+    ).toBe(true);
+    const row = db
+      .prepare("SELECT sentToClientAt FROM client_voice_packs WHERE leadSlug = ?")
+      .get("test-lead") as { sentToClientAt: string };
+    expect(row.sentToClientAt).toBe("2026-07-05T00:00:00.000Z");
+  });
+
+  it("is a no-op once already marked sent (race guard)", () => {
+    const db = freshDb();
+    insertClientVoicePackDirect(db, "test-lead", "2026-07-05T00:00:00.000Z");
+    expect(
+      sqliteMarkClientVoicePackSentToClient(db, "test-lead", "2026-07-06T00:00:00.000Z"),
+    ).toBe(false);
+    const row = db
+      .prepare("SELECT sentToClientAt FROM client_voice_packs WHERE leadSlug = ?")
+      .get("test-lead") as { sentToClientAt: string };
+    expect(row.sentToClientAt).toBe("2026-07-05T00:00:00.000Z");
+  });
+
+  it("returns false for an unknown leadSlug", () => {
+    const db = freshDb();
+    expect(
+      sqliteMarkClientVoicePackSentToClient(db, "missing", "2026-07-05T00:00:00.000Z"),
+    ).toBe(false);
+  });
+});
 
 describe("sqliteUpsertLead", () => {
   it("inserts a new lead and returns true", () => {

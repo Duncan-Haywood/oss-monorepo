@@ -39,6 +39,7 @@ function headerStore(entries: Record<string, string | null> = {}) {
 const getLeadBySlug = vi.fn();
 const listOrdersByLeadSlug = vi.fn();
 const getMarketingPack = vi.fn();
+const markMarketingPackSentToClient = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -69,6 +70,8 @@ vi.mock("@/lib/db", () => ({
   getClientVoicePackByLeadSlug: vi.fn(),
   listClientVoicePacks: vi.fn(),
   listUnpaidCommerceOrders: vi.fn(),
+  markMarketingPackSentToClient: (...args: unknown[]) =>
+    markMarketingPackSentToClient(...args),
 }));
 
 const sendMarketingPackToClientEmail = vi.fn();
@@ -279,6 +282,7 @@ describe("sendMarketingPackToClientAction", () => {
       success: true,
       yearMonth,
       mock: false,
+      sentToClientAt: expect.any(String),
     });
     expect(sendMarketingPackToClientEmail).toHaveBeenCalledOnce();
     expect(sendMarketingPackToClientEmail).toHaveBeenCalledWith({
@@ -290,6 +294,12 @@ describe("sendMarketingPackToClientAction", () => {
       previewUrl: "https://app.example.com/preview/demo-cafe",
     });
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(markMarketingPackSentToClient).toHaveBeenCalledWith(
+      "demo-cafe",
+      yearMonth,
+      expect.any(String),
+      expect.objectContaining({ requireConvex: true }),
+    );
   });
 
   it("defaults preview base URL to localhost when NEXT_PUBLIC_APP_URL is unset", async () => {
@@ -344,6 +354,7 @@ describe("sendMarketingPackToClientAction", () => {
       success: true,
       yearMonth,
       mock: true,
+      sentToClientAt: expect.any(String),
     });
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });

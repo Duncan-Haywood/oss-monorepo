@@ -157,6 +157,14 @@ export default defineSchema({
     generatedAt: v.string(),
     generator: v.string(), // "stub" | "anthropic"
     packageTier: v.optional(v.string()),
+    /**
+     * Set once sendMarketingPackToClientEmail succeeded for this pack —
+     * upsert always clears it on regenerate (new content, not yet sent).
+     * Closes the "generated but never emailed" gap (see
+     * marketing-voice-pack-client-send-visibility), mirroring
+     * commerceOrders.clientReceiptEmailSentAt.
+     */
+    sentToClientAt: v.optional(v.string()),
   })
     .index("by_lead_month", ["leadSlug", "yearMonth"])
     .index("by_month", ["yearMonth"])
@@ -257,6 +265,8 @@ export default defineSchema({
     ),
     generatedAt: v.string(),
     generator: v.string(), // "stub" | "anthropic"
+    /** Set once sendClientVoicePackToClientEmail succeeded — mirrors marketingPacks.sentToClientAt. */
+    sentToClientAt: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_packId", ["packId"]),
