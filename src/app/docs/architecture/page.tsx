@@ -1667,7 +1667,13 @@ source). The same digest also lists email-critical leads with no usable address 
         same completed Buy now webhook also emails <code>lead.email</code> (
         <code>sendCommerceBuyNowClientReceipt</code>) so the local business gets the sold order
         notification — best-effort after inquiry + ledger on first delivery only; skipped when the
-        lead has no email or when the session was already ledgered.
+        lead has no email or when the session was already ledgered. The notice&apos;s own copy says
+        &quot;Questions? Just reply to this email&quot; — <code>sendCommerceBuyNowClientReceipt</code>{" "}
+        now forwards <code>customerEmail</code> (the shopper&apos;s address, already shown in the
+        body) as <code>replyTo</code> so hitting <strong>Reply</strong> actually routes to the
+        shopper instead of this app&apos;s <code>EMAIL_FROM</code>, mirroring the same
+        Reply-To fix already shipped for the Starter contact-form CRM loop; omitted when Stripe
+        Checkout collected no customer email.
       </p>
 
       <p>

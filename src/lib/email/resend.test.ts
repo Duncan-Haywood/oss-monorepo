@@ -912,4 +912,31 @@ describe("resend.ts — sendEmail Reply-To", () => {
     });
     expect("reply_to" in sentBody).toBe(false);
   });
+
+  it("sendCommerceBuyNowClientReceipt forwards customerEmail to Resend as reply_to (its own copy promises 'reply to this email')", async () => {
+    const { sendCommerceBuyNowClientReceipt } = await import("./resend");
+    await sendCommerceBuyNowClientReceipt({
+      to: "owner@democafe.example",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      skuName: "Latte",
+      amountTotalUsd: 4.5,
+      stripeSessionId: "cs_test_commerce",
+      customerEmail: "shopper@example.com",
+    });
+    expect(sentBody.reply_to).toBe("shopper@example.com");
+  });
+
+  it("sendCommerceBuyNowClientReceipt omits reply_to when no customer email was collected at checkout", async () => {
+    const { sendCommerceBuyNowClientReceipt } = await import("./resend");
+    await sendCommerceBuyNowClientReceipt({
+      to: "owner@democafe.example",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      skuName: "Latte",
+      amountTotalUsd: 4.5,
+      stripeSessionId: "cs_test_commerce",
+    });
+    expect("reply_to" in sentBody).toBe(false);
+  });
 });

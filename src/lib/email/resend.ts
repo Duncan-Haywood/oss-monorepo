@@ -766,7 +766,14 @@ export async function sendCommerceBuyNowClientReceipt(params: {
     quantity,
   });
 
-  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
+  return sendEmail({
+    to,
+    subject,
+    html,
+    leadSlug: slug,
+    skipSuppression: true,
+    replyTo: customerEmail,
+  });
 }
 
 /**

@@ -960,4 +960,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "inquiry-reply-notify-reply-to-business-owner",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-hs1t9e",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), branch reset to origin/main tip abc959af after PR #681 (inquiry-reply-notify-reply-to-business-owner) merged — this same designated branch name's prior PR had already merged, so restarted from the fresh main tip per this repo's already-merged-branch convention. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2755 passed, 199 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (612 remote heads) and a `git log origin/main..<branch>` check of the newest 8 non-merged claude/* branches confirmed every one carries exactly one commit already merged into origin/main verbatim under a different SHA — no live fold candidate.\n\nDispatched a foreground research agent, steered away from every surface fixed today. It found the third instance of the same Reply-To bug class the two immediately-preceding iterations (PR #680, #681) just fixed on the Starter contact-form CRM loop: sendCommerceBuyNowClientReceipt (the Commerce Buy Now 'New paid order' notice to the local business) already receives and displays customerEmail (the shopper's address) in its body, and its own copy says 'Questions? Just reply to this email' — but never passed customerEmail through as replyTo, so hitting Reply landed on this app's noreply EMAIL_FROM instead of the shopper. The webhook call site already had customerEmail in scope and passed it in; only resend.ts's internal plumbing was missing. Independently re-verified by reading client-receipt.ts:34-88 and resend.ts:736-770 before implementing. See commerce-buy-now-client-receipt-reply-to-shopper in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/email/resend.ts — sendCommerceBuyNowClientReceipt's sendEmail call now passes replyTo: customerEmail (customerEmail was already a param, used only for the HTML body until now).",
+      "src/lib/email/resend.test.ts — two new cases in the existing sendEmail Reply-To describe block: customerEmail forwards to Resend's reply_to when present, omitted entirely when no customer email was collected at checkout.",
+      "src/app/docs/architecture/page.tsx — extended the existing Commerce Buy Now client-receipt paragraph to describe the fix, cross-referencing the Starter contact-form CRM Reply-To fix as the established sibling pattern.",
+      "src/lib/process/business-decisions.ts — appended commerce-buy-now-client-receipt-reply-to-shopper. Also flagged (not shipped, separate larger gap): the dashboard's manual Resend-receipt action has no customerEmail to wire since CommerceOrderRecord never persists the shopper's email on the ledger at all — would need a new persisted field, out of scope for this pass.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a sold-capability wiring-gap fix, not a resolution of any gated item. Diff-gate anchor moves to abc959af (this iteration's own starting tip).",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2757 passed, up from 2755 — 2 new, 199 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /docs/architecture all 200; curled the rendered docs HTML confirming the new sentence renders; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-buy-now-client-receipt-reply-to-shopper",
+    ),
+  },
 ];
