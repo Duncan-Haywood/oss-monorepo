@@ -443,7 +443,10 @@ export const updateNotes = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
-    // Convex patch ignores undefined keys — persist "" so clears stick.
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — this still persists "" rather than passing
+    // undefined through, for parity with the SQLite twin's cleared value.
     await ctx.db.patch(lead._id, {
       notes: args.notes ?? "",
     });
@@ -468,7 +471,10 @@ export const updateSnooze = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
-    // Convex patch ignores undefined keys — persist "" so clears stick.
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — this still persists "" rather than passing
+    // undefined through, for parity with the SQLite twin's cleared value.
     await ctx.db.patch(lead._id, {
       snoozedUntil: args.snoozedUntil ?? "",
     });
@@ -493,7 +499,10 @@ export const updateStripeConnectAccountId = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
-    // Convex patch ignores undefined keys — persist "" so clears stick.
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — this still persists "" rather than passing
+    // undefined through, for parity with the SQLite twin's cleared value.
     await ctx.db.patch(lead._id, {
       stripeConnectAccountId: args.stripeConnectAccountId ?? "",
     });

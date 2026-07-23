@@ -604,8 +604,10 @@ test("updateNotes / updateSnooze throw on an unknown slug and an empty string cl
   expect(row?.notes).toBe("Called, interested");
   expect(row?.snoozedUntil).toBe("2026-04-01T00:00:00.000Z");
 
-  // Empty string (or omitted) clears both — Convex patch ignores `undefined`
-  // keys, so the handler must coerce to "" for the clear to persist.
+  // Empty string (or omitted) clears both. Convex patch() would also clear
+  // via an explicit `undefined` — the handler coerces to "" instead for
+  // parity with the SQLite twin's cleared value, not because patch ignores
+  // undefined (see convex-patch-undefined-clear-semantics-correction).
   await t.mutation(api.leads.updateNotes, { slug: "demo-cafe", apiSecret: TEST_API_SECRET });
   await t.mutation(api.leads.updateSnooze, { slug: "demo-cafe", apiSecret: TEST_API_SECRET });
   row = await t.query(api.leads.getBySlug, { slug: "demo-cafe", apiSecret: TEST_API_SECRET });
@@ -635,8 +637,10 @@ test("updateStripeConnectAccountId throws on an unknown slug and an empty string
   });
   expect(row?.stripeConnectAccountId).toBe("acct_123");
 
-  // Empty string (or omitted) clears — Convex patch ignores `undefined` keys,
-  // so the handler must coerce to "" for the clear to persist.
+  // Empty string (or omitted) clears. Convex patch() would also clear via an
+  // explicit `undefined` — the handler coerces to "" instead for parity with
+  // the SQLite twin's cleared value, not because patch ignores undefined
+  // (see convex-patch-undefined-clear-semantics-correction).
   await t.mutation(api.leads.updateStripeConnectAccountId, {
     slug: "demo-cafe",
     apiSecret: TEST_API_SECRET,

@@ -606,4 +606,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "pipeline-health-panel-missing-client-send-cards",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-f8rpu2",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip af6bafe4 (PR #659) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, 198 files) + npm run build (clean, same 42-route split). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Fold-scanned the newest ~15 claude/* remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` — every branch with a nonzero diff against origin/main was a single commit already merged byte-identical under a different SHA; no live fold candidate. Empty-backlog diff-gate (anchor 93e8e050) showed zero real product commits since the last full sweep, so dispatched a fast targeted spot-check rather than a full tier 1-5 sweep, focused on the Buffer marketing-scheduling area, the Stripe Connect payouts scaffold, and a general as-const/test-coverage grep — all three came back clean. While chasing the Buffer-area check, it surfaced a real factual error in this codebase's own documented invariants (not a live bug): three convex/leads.ts mutations, their matching convex/leads.test.ts comments, and two historical BUSINESS_DECISIONS entries all claimed 'Convex db.patch() ignores undefined keys' — verified false against both the installed convex SDK's own TSDoc and a live convex-test probe, which confirmed patch() actually removes a field set to undefined. See convex-patch-undefined-clear-semantics-correction in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "convex/leads.ts — corrected the misleading comment on updateNotes/updateSnooze/updateStripeConnectAccountId (3 sites) to state the accurate Convex patch() semantics; runtime behavior unchanged (still persists \"\" for parity with the SQLite twin, now for the right stated reason).",
+      "convex/leads.test.ts — corrected the matching 2 comments.",
+      "src/lib/process/business-decisions.ts — appended convex-patch-undefined-clear-semantics-correction, explicitly not rewriting the two archived entries that carried the original false claim (archive-01, archive-03) per AGENT_PROTOCOL's append-only rule.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a tier-7 docs/rulebook-accuracy fix, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, 198 files, unchanged — comment-only change) + npm run build (clean, same 42-route split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "convex-patch-undefined-clear-semantics-correction",
+    ),
+  },
 ];
