@@ -3129,20 +3129,28 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
         skipped.push(`${profileId}: ${profile.service} has no matching pack content type`);
         continue;
       }
-      const variant = pack.variants.find((v) => v.contentType === contentType);
-      if (!variant) {
+      const variants = pack.variants.filter((v) => v.contentType === contentType);
+      if (variants.length === 0) {
         skipped.push(`${profileId}: no ${contentType} in this month's pack`);
         continue;
       }
 
-      const result = await createBufferUpdate(gate.accessToken, {
-        profileIds: [profileId],
-        text: formatMarketingVariantForBuffer(variant),
-      });
-      if (result.success) {
-        scheduled.push(profileId);
-      } else {
-        failed.push(`${profileId}: ${result.error}`);
+      // Queue every matching variant for this month, not just the first —
+      // MONTHLY_MARKETING_PACK_TYPES generates 3 facebook_caption/
+      // instagram_caption variants per lead per month, all sold/billed
+      // deliverables (see buffer-schedule-all-matching-variants).
+      for (const [index, variant] of variants.entries()) {
+        const label =
+          variants.length > 1 ? `${profileId} (${index + 1}/${variants.length})` : profileId;
+        const result = await createBufferUpdate(gate.accessToken, {
+          profileIds: [profileId],
+          text: formatMarketingVariantForBuffer(variant),
+        });
+        if (result.success) {
+          scheduled.push(label);
+        } else {
+          failed.push(`${label}: ${result.error}`);
+        }
       }
     }
 

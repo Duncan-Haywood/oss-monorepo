@@ -336,5 +336,79 @@ describe("Buffer scheduling dashboard actions", () => {
         text: "Come visit us!",
       });
     });
+
+    it("queues every matching variant for a content type, not just the first (buffer-schedule-all-matching-variants)", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb", "p-ig"] }));
+      getMarketingPack.mockResolvedValue(
+        fakePack({
+          variants: [
+            { contentType: "facebook_caption", body: "FB post 1" },
+            { contentType: "facebook_caption", body: "FB post 2" },
+            { contentType: "facebook_caption", body: "FB post 3" },
+            { contentType: "instagram_caption", body: "IG post 1" },
+            { contentType: "instagram_caption", body: "IG post 2" },
+            { contentType: "instagram_caption", body: "IG post 3" },
+          ],
+        }),
+      );
+      listBufferProfiles.mockResolvedValue([
+        { id: "p-fb", service: "facebook" },
+        { id: "p-ig", service: "instagram" },
+      ]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.scheduled).toEqual([
+        "p-fb (1/3)",
+        "p-fb (2/3)",
+        "p-fb (3/3)",
+        "p-ig (1/3)",
+        "p-ig (2/3)",
+        "p-ig (3/3)",
+      ]);
+      expect(result.skipped).toEqual([]);
+      expect(result.failed).toEqual([]);
+      expect(createBufferUpdate).toHaveBeenCalledTimes(6);
+      expect(createBufferUpdate).toHaveBeenNthCalledWith(1, "tok_test", {
+        profileIds: ["p-fb"],
+        text: "FB post 1",
+      });
+      expect(createBufferUpdate).toHaveBeenNthCalledWith(3, "tok_test", {
+        profileIds: ["p-fb"],
+        text: "FB post 3",
+      });
+      expect(createBufferUpdate).toHaveBeenNthCalledWith(4, "tok_test", {
+        profileIds: ["p-ig"],
+        text: "IG post 1",
+      });
+    });
+
+    it("labels only the failed variant when one of several fails for the same profile", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb"] }));
+      getMarketingPack.mockResolvedValue(
+        fakePack({
+          variants: [
+            { contentType: "facebook_caption", body: "FB post 1" },
+            { contentType: "facebook_caption", body: "FB post 2" },
+          ],
+        }),
+      );
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate
+        .mockResolvedValueOnce({ success: true, updateIds: ["u1"] })
+        .mockResolvedValueOnce({ success: false, error: "rate limited" });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.scheduled).toEqual(["p-fb (1/2)"]);
+      expect(result.failed).toEqual(["p-fb (2/2): rate limited"]);
+    });
   });
 });

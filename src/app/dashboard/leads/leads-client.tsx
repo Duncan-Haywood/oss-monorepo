@@ -3779,7 +3779,7 @@ export function LeadsClient({
                               Auto-post to Buffer — scaffold, dormant by default
                             </h4>
                             <p className="mt-1 text-[11px] text-zinc-500">
-                              Posts this month&apos;s facebook_caption / instagram_caption
+                              Posts all of this month&apos;s facebook_caption / instagram_caption
                               variants to the Buffer profiles you connect below, using
                               the operator&apos;s own Buffer account (no per-lead OAuth).
                               Requires ALLOW_MARKETING_SCHEDULING=1 on this deploy.

@@ -142,9 +142,11 @@ export default function MarketingAutomationDocPage() {
         gains <strong>Load Buffer profiles</strong> (lists every social profile connected to that
         Buffer account), a per-lead profile picker (<strong>Save profiles for this lead</strong>,
         persisted as <code>lead.bufferProfileIds</code>), and <strong>Send pack to Buffer</strong>{" "}
-        (queues that month&apos;s matching <code>facebook_caption</code>/
-        <code>instagram_caption</code> variant into each selected profile&apos;s existing posting
-        schedule — never posts immediately, and never guesses at a channel: a profile whose{" "}
+        (queues every matching <code>facebook_caption</code>/
+        <code>instagram_caption</code> variant that month&apos;s pack contains — all 3 of each,
+        matching <code>MONTHLY_MARKETING_PACK_TYPES</code> — into each selected profile&apos;s
+        existing posting schedule — never posts immediately, and never guesses at a channel: a
+        profile whose{" "}
         <code>service</code> has no matching pack content type, or that vanished from Buffer, is
         reported skipped rather than silently dropped). Same recurring-entitlement gate as Email
         pack: <strong>Send pack to Buffer</strong> re-checks{" "}
