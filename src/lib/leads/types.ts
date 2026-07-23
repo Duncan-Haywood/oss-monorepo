@@ -77,6 +77,14 @@ export interface Lead {
    * (commerce-payouts-stripe-connect stays operator/legal-gated for that).
    */
   stripeConnectAccountId?: string;
+  /**
+   * Buffer profile ids the operator has chosen to auto-post this lead's
+   * generated marketing pack content to, via saveLeadBufferProfilesAction
+   * (dormant behind ALLOW_MARKETING_SCHEDULING — see
+   * src/lib/marketing/buffer-gate.ts). Empty/absent means Buffer auto-posting
+   * is not set up for this lead yet — operator still copy-pastes manually.
+   */
+  bufferProfileIds?: string[];
 }
 
 /**

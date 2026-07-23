@@ -41,6 +41,7 @@ import {
   getLeadSlugByCustomDomain,
   getDeployHandoffBySlug,
   updateLeadStripeConnectAccountId,
+  updateLeadBufferProfileIds,
   isEmailSuppressed,
   unsuppressEmail,
 } from "@/lib/db";
@@ -56,6 +57,7 @@ import { COLD_DISPOSITION_CONVEX_PRIMARY } from "@/lib/leads/cold-disposition-pe
 import { LEAD_NOTES_CONVEX_PRIMARY } from "@/lib/leads/notes-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
 import { LEAD_STRIPE_CONNECT_CONVEX_PRIMARY } from "@/lib/leads/stripe-connect-persist";
+import { LEAD_BUFFER_PROFILES_CONVEX_PRIMARY } from "@/lib/leads/buffer-profiles-persist";
 import { LEAD_STAGE_CONVEX_PRIMARY } from "@/lib/leads/stage-persist";
 import { LEAD_UPSERT_CONVEX_PRIMARY } from "@/lib/leads/upsert-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
@@ -112,6 +114,15 @@ import {
   createConnectOnboardingLink,
   fetchConnectAccountStatus,
 } from "@/lib/commerce/stripe-connect";
+import { assessMarketingSchedulingGate } from "@/lib/marketing/buffer-gate";
+import {
+  listBufferProfiles,
+  createBufferUpdate,
+  bufferServiceContentType,
+  formatMarketingVariantForBuffer,
+  MAX_BUFFER_PROFILE_ID_LENGTH,
+  MAX_BUFFER_PROFILES_PER_LEAD,
+} from "@/lib/marketing/buffer";
 import type { ClientInquiryStatus } from "@/lib/inquiries/types";
 import {
   sendOutreachEmail,
@@ -2912,6 +2923,226 @@ export async function checkStripeConnectAccountStatusAction(slug: string) {
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
+    };
+  }
+}
+
+/**
+ * List every social profile connected to the operator's own Buffer account
+ * (marketing-content-scheduling tier-6 empty-backlog scaffold). Operator-wide,
+ * not per-lead — the operator picks which of these apply to a given lead via
+ * saveLeadBufferProfilesAction. Dormant behind ALLOW_MARKETING_SCHEDULING
+ * (default off) — see buffer-gate.ts.
+ */
+export async function listBufferProfilesAction() {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`marketing-buffer-profiles-list:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const gate = assessMarketingSchedulingGate();
+    if (!gate.ok) {
+      return { success: false as const, error: gate.message };
+    }
+
+    const profiles = await listBufferProfiles(gate.accessToken);
+    return { success: true as const, profiles };
+  } catch (error) {
+    console.error("Error in listBufferProfilesAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown Buffer error",
+    };
+  }
+}
+
+/**
+ * Save which of the operator's Buffer profiles this lead's marketing pack
+ * content should auto-post to. Dormant behind ALLOW_MARKETING_SCHEDULING,
+ * same gate as listBufferProfilesAction — profile ids are opaque Buffer
+ * tokens, hard-rejected over MAX_BUFFER_PROFILE_ID_LENGTH rather than
+ * truncated (AGENT_PROTOCOL opaque-id size-bound class).
+ */
+export async function saveLeadBufferProfilesAction(slug: string, profileIds: string[]) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`marketing-buffer-profiles-save:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long" ? "Slug is too long" : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
+
+    const gate = assessMarketingSchedulingGate();
+    if (!gate.ok) {
+      return { success: false as const, error: gate.message };
+    }
+
+    if (profileIds.length > MAX_BUFFER_PROFILES_PER_LEAD) {
+      return { success: false as const, error: "Too many Buffer profiles selected" };
+    }
+    if (profileIds.some((id) => !id || id.length > MAX_BUFFER_PROFILE_ID_LENGTH)) {
+      return { success: false as const, error: "Invalid Buffer profile id" };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    try {
+      await updateLeadBufferProfileIds(slug, profileIds, LEAD_BUFFER_PROFILES_CONVEX_PRIMARY);
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not save Buffer profiles in the shared store — retry in a moment.",
+        };
+      }
+      throw error;
+    }
+
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, bufferProfileIds: profileIds };
+  } catch (error) {
+    console.error("Error in saveLeadBufferProfilesAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Auto-post this UTC month's marketing pack to the lead's saved Buffer
+ * profiles, replacing operator copy-paste. Only facebook_caption/
+ * instagram_caption variants map onto a Buffer profile service today (see
+ * bufferServiceContentType) — other content types in the pack are left for
+ * manual delivery (email pack send / operator copy). Each Buffer update is
+ * scheduled into that profile's existing posting slots, never posted
+ * immediately. Dormant behind ALLOW_MARKETING_SCHEDULING, same gate as the
+ * two actions above.
+ */
+export async function scheduleMarketingPackToBufferAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`marketing-buffer-schedule:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long" ? "Slug is too long" : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
+
+    const gate = assessMarketingSchedulingGate();
+    if (!gate.ok) {
+      return { success: false as const, error: gate.message };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    if (!lead.bufferProfileIds?.length) {
+      return {
+        success: false as const,
+        error: "Select Buffer profiles for this lead first",
+      };
+    }
+
+    const yearMonth = marketingMonthKey(Date.now());
+    const pack = await getMarketingPack(lead.slug, yearMonth);
+    if (!pack || pack.variants.length === 0) {
+      return {
+        success: false as const,
+        error: `No marketing pack for ${yearMonth} — generate one first`,
+      };
+    }
+
+    const profiles = await listBufferProfiles(gate.accessToken);
+    const profileById = new Map(profiles.map((profile) => [profile.id, profile]));
+
+    const scheduled: string[] = [];
+    const skipped: string[] = [];
+    const failed: string[] = [];
+
+    for (const profileId of lead.bufferProfileIds) {
+      const profile = profileById.get(profileId);
+      if (!profile) {
+        skipped.push(`${profileId}: no longer connected to Buffer`);
+        continue;
+      }
+      const contentType = bufferServiceContentType(profile.service);
+      if (!contentType) {
+        skipped.push(`${profileId}: ${profile.service} has no matching pack content type`);
+        continue;
+      }
+      const variant = pack.variants.find((v) => v.contentType === contentType);
+      if (!variant) {
+        skipped.push(`${profileId}: no ${contentType} in this month's pack`);
+        continue;
+      }
+
+      const result = await createBufferUpdate(gate.accessToken, {
+        profileIds: [profileId],
+        text: formatMarketingVariantForBuffer(variant),
+      });
+      if (result.success) {
+        scheduled.push(profileId);
+      } else {
+        failed.push(`${profileId}: ${result.error}`);
+      }
+    }
+
+    return { success: true as const, scheduled, skipped, failed };
+  } catch (error) {
+    console.error("Error in scheduleMarketingPackToBufferAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown Buffer error",
     };
   }
 }

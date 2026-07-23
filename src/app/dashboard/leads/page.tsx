@@ -40,6 +40,7 @@ import { ConvexApiSecretEnvBanner } from "@/components/dashboard/convex-api-secr
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { isStripeConnectOnboardingAllowed } from "@/lib/commerce/stripe-connect-gate";
+import { isMarketingSchedulingAllowed } from "@/lib/marketing/buffer-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
 import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness";
@@ -207,6 +208,7 @@ export default async function LeadsPage() {
   const convexApiSecretEnv = assessConvexApiSecretEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
   const connectOnboardingAllowed = isStripeConnectOnboardingAllowed();
+  const marketingSchedulingAllowed = isMarketingSchedulingAllowed();
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -268,6 +270,7 @@ export default async function LeadsPage() {
           initialCommerceOrders={commerceOrdersForPayoutsPanel}
           initialCommerceOrdersMissingClientReceipt={commerceOrdersMissingClientReceipt}
           connectOnboardingAllowed={connectOnboardingAllowed}
+          marketingSchedulingAllowed={marketingSchedulingAllowed}
         />
         <SuppressedEmailsPanel emails={suppressedEmails} />
       </div>

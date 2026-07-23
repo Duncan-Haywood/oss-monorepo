@@ -374,8 +374,13 @@ export default function RoadmapDocPage() {
         <code>sendMarketingPackToClientAction</code>) delivers the pack to{" "}
         <code>lead.email</code> via Resend — action-level Vitest in{" "}
         <code>send-marketing-pack-to-client-action.test.ts</code>. Eligible-but-missing packs
-        count on pipeline health and list in the daily digest. Buffer / GBP / Meta
-        auto-scheduling stays operator-gated on secrets.
+        count on pipeline health and list in the daily digest. Buffer auto-posting shipped
+        as a dormant scaffold (<DocLink href="/docs/marketing-automation">
+          Marketing automation
+        </DocLink>{" "}
+        — <code>ALLOW_MARKETING_SCHEDULING</code> + <code>BUFFER_ACCESS_TOKEN</code>, default
+        off); GBP / Meta auto-scheduling stays fully gated on per-business OAuth an agent
+        cannot obtain.
       </p>
 
       <h2>Phase 7 — Client AI phone</h2>

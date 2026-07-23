@@ -39,6 +39,9 @@ import {
   createStripeConnectAccountAction,
   createStripeConnectOnboardingLinkAction,
   checkStripeConnectAccountStatusAction,
+  listBufferProfilesAction,
+  saveLeadBufferProfilesAction,
+  scheduleMarketingPackToBufferAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
 import { isOrderRefunded, isOrderDisputed } from "@/lib/orders/types";
@@ -186,6 +189,8 @@ interface LeadsClientProps {
   marketingMonth?: string;
   /** True when ALLOW_STRIPE_CONNECT_ONBOARDING=1 — enables the Payouts panel's account-creation buttons. */
   connectOnboardingAllowed?: boolean;
+  /** True when ALLOW_MARKETING_SCHEDULING=1 — enables the Buffer auto-post panel. */
+  marketingSchedulingAllowed?: boolean;
 }
 
 const STAGES: { id: LeadPipelineStage; label: string; color: string; desc: string }[] = [
@@ -218,6 +223,7 @@ export function LeadsClient({
   initialCommerceOrdersMissingClientReceipt = [],
   marketingMonth = "",
   connectOnboardingAllowed = false,
+  marketingSchedulingAllowed = false,
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
@@ -946,6 +952,66 @@ export function LeadsClient({
           payoutsEnabled: res.payoutsEnabled,
           detailsSubmitted: res.detailsSubmitted,
         },
+      }));
+    });
+  };
+
+  const [bufferProfiles, setBufferProfiles] = useState<
+    Array<{ id: string; service: string; formattedUsername?: string }>
+  >([]);
+  const [bufferSelectionByLead, setBufferSelectionByLead] = useState<Record<string, string[]>>({});
+  const [bufferScheduleResultByLead, setBufferScheduleResultByLead] = useState<
+    Record<string, { scheduled: string[]; skipped: string[]; failed: string[] }>
+  >({});
+
+  const handleListBufferProfiles = () => {
+    startTransition(async () => {
+      const res = await listBufferProfilesAction();
+      if (!res.success) {
+        alert(`Load Buffer profiles failed: ${res.error}`);
+        return;
+      }
+      setBufferProfiles(res.profiles);
+    });
+  };
+
+  const bufferSelectionForLead = (lead: Lead) =>
+    bufferSelectionByLead[lead.slug] ?? lead.bufferProfileIds ?? [];
+
+  const handleToggleBufferProfile = (slug: string, profileId: string) => {
+    setBufferSelectionByLead((prev) => {
+      const current = prev[slug] ?? leads.find((l) => l.slug === slug)?.bufferProfileIds ?? [];
+      const next = current.includes(profileId)
+        ? current.filter((id) => id !== profileId)
+        : [...current, profileId];
+      return { ...prev, [slug]: next };
+    });
+  };
+
+  const handleSaveBufferProfiles = (slug: string) => {
+    const selected = bufferSelectionByLead[slug] ?? [];
+    startTransition(async () => {
+      const res = await saveLeadBufferProfilesAction(slug, selected);
+      if (!res.success) {
+        alert(`Save Buffer profiles failed: ${res.error}`);
+        return;
+      }
+      setLeads((prev) =>
+        prev.map((l) => (l.slug === slug ? { ...l, bufferProfileIds: res.bufferProfileIds } : l)),
+      );
+    });
+  };
+
+  const handleScheduleMarketingPackToBuffer = (slug: string) => {
+    startTransition(async () => {
+      const res = await scheduleMarketingPackToBufferAction(slug);
+      if (!res.success) {
+        alert(`Send to Buffer failed: ${res.error}`);
+        return;
+      }
+      setBufferScheduleResultByLead((prev) => ({
+        ...prev,
+        [slug]: { scheduled: res.scheduled, skipped: res.skipped, failed: res.failed },
       }));
     });
   };
@@ -3640,8 +3706,9 @@ export function LeadsClient({
                               {existingPack.generator === "stub"
                                 ? "Stub copy — set ANTHROPIC_API_KEY for LLM"
                                 : "Generated via Anthropic"}{" "}
-                              · {existingPack.variants.length} pieces · copy to post
-                              (auto-schedule stays operator-gated)
+                              · {existingPack.variants.length} pieces · copy to post,
+                              or auto-post via the Buffer scaffold below (dormant by
+                              default)
                             </p>
                           </div>
                           <ul className="mt-3 space-y-3">
@@ -3698,6 +3765,100 @@ export function LeadsClient({
                               );
                             })}
                           </ul>
+                          <div className="mt-4 border-t border-sky-100 pt-3">
+                            <h4 className="text-xs font-semibold text-zinc-900">
+                              Auto-post to Buffer — scaffold, dormant by default
+                            </h4>
+                            <p className="mt-1 text-[11px] text-zinc-500">
+                              Posts this month&apos;s facebook_caption / instagram_caption
+                              variants to the Buffer profiles you connect below, using
+                              the operator&apos;s own Buffer account (no per-lead OAuth).
+                              Requires ALLOW_MARKETING_SCHEDULING=1 on this deploy.
+                            </p>
+                            {!marketingSchedulingAllowed ? (
+                              <p className="mt-2 text-[11px] font-medium text-zinc-600">
+                                Set ALLOW_MARKETING_SCHEDULING=1 (and
+                                BUFFER_ACCESS_TOKEN) on this deploy to enable Buffer
+                                auto-posting.
+                              </p>
+                            ) : (
+                              <>
+                                <div className="mt-2 flex flex-wrap items-center gap-2">
+                                  <button
+                                    type="button"
+                                    disabled={isPending}
+                                    onClick={handleListBufferProfiles}
+                                    className="inline-flex h-8 items-center rounded-lg border border-sky-200 px-3 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:opacity-60"
+                                  >
+                                    Load Buffer profiles
+                                  </button>
+                                  {lead.bufferProfileIds?.length ? (
+                                    <button
+                                      type="button"
+                                      disabled={isPending}
+                                      onClick={() =>
+                                        handleScheduleMarketingPackToBuffer(lead.slug)
+                                      }
+                                      className="inline-flex h-8 items-center rounded-lg border border-sky-200 px-3 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:opacity-60"
+                                    >
+                                      Send pack to Buffer
+                                    </button>
+                                  ) : null}
+                                </div>
+                                {bufferProfiles.length > 0 ? (
+                                  <div className="mt-2">
+                                    <p className="text-[11px] text-zinc-500">
+                                      Select which of the operator&apos;s connected
+                                      Buffer profiles this lead posts to:
+                                    </p>
+                                    <ul className="mt-1 flex flex-wrap gap-2">
+                                      {bufferProfiles.map((profile) => {
+                                        const selected = bufferSelectionForLead(lead).includes(
+                                          profile.id,
+                                        );
+                                        return (
+                                          <li key={profile.id}>
+                                            <label className="inline-flex items-center gap-1 rounded-lg border border-sky-200 px-2 py-1 text-[11px] text-zinc-700">
+                                              <input
+                                                type="checkbox"
+                                                checked={selected}
+                                                onChange={() =>
+                                                  handleToggleBufferProfile(
+                                                    lead.slug,
+                                                    profile.id,
+                                                  )
+                                                }
+                                              />
+                                              {profile.service}
+                                              {profile.formattedUsername
+                                                ? ` (${profile.formattedUsername})`
+                                                : ""}
+                                            </label>
+                                          </li>
+                                        );
+                                      })}
+                                    </ul>
+                                    <button
+                                      type="button"
+                                      disabled={isPending}
+                                      onClick={() => handleSaveBufferProfiles(lead.slug)}
+                                      className="mt-2 inline-flex h-8 items-center rounded-lg border border-sky-200 px-3 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:opacity-60"
+                                    >
+                                      Save profiles for this lead
+                                    </button>
+                                  </div>
+                                ) : null}
+                              </>
+                            )}
+                            {marketingSchedulingAllowed && bufferScheduleResultByLead[lead.slug] ? (
+                              <p className="mt-2 text-[11px] text-zinc-600">
+                                Scheduled:{" "}
+                                {bufferScheduleResultByLead[lead.slug].scheduled.length} ·
+                                Skipped: {bufferScheduleResultByLead[lead.slug].skipped.length} ·
+                                Failed: {bufferScheduleResultByLead[lead.slug].failed.length}
+                              </p>
+                            ) : null}
+                          </div>
                         </td>
                       </tr>
                     ) : null}

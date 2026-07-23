@@ -136,6 +136,7 @@ const leadReturn = v.object({
   notes: v.optional(v.string()),
   snoozedUntil: v.optional(v.string()),
   stripeConnectAccountId: v.optional(v.string()),
+  bufferProfileIds: v.optional(v.array(v.string())),
 });
 
 function mapLeadRow(row: {
@@ -160,6 +161,7 @@ function mapLeadRow(row: {
   notes?: string;
   snoozedUntil?: string;
   stripeConnectAccountId?: string;
+  bufferProfileIds?: string[];
 }) {
   const category = normalizeLeadCategory(row.category);
   return {
@@ -184,6 +186,7 @@ function mapLeadRow(row: {
     notes: row.notes,
     snoozedUntil: row.snoozedUntil,
     stripeConnectAccountId: row.stripeConnectAccountId,
+    bufferProfileIds: row.bufferProfileIds,
   };
 }
 
@@ -490,6 +493,30 @@ export const updateStripeConnectAccountId = mutation({
     // Convex patch ignores undefined keys — persist "" so clears stick.
     await ctx.db.patch(lead._id, {
       stripeConnectAccountId: args.stripeConnectAccountId ?? "",
+    });
+    return null;
+  },
+});
+
+export const updateBufferProfileIds = mutation({
+  args: {
+    slug: v.string(),
+    /** Empty array clears; the operator's chosen Buffer profile ids for this lead. */
+    bufferProfileIds: v.array(v.string()),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    await ctx.db.patch(lead._id, {
+      bufferProfileIds: args.bufferProfileIds,
     });
     return null;
   },

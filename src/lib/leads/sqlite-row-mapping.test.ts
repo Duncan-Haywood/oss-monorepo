@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   mapSqliteRowToLead,
+  parseLeadBufferProfileIds,
   parseLeadHours,
   parseLeadServices,
+  serializeLeadBufferProfileIds,
   serializeLeadHours,
   serializeLeadServices,
   type SqliteLeadRow,
@@ -86,6 +88,31 @@ describe("serializeLeadServices / parseLeadServices round-trip", () => {
   });
 });
 
+describe("serializeLeadBufferProfileIds / parseLeadBufferProfileIds round-trip", () => {
+  it("round-trips an ordinary profile id array", () => {
+    const ids = ["p1", "p2"];
+    expect(parseLeadBufferProfileIds(serializeLeadBufferProfileIds(ids))).toEqual(ids);
+  });
+
+  it("returns undefined (not []) for an empty array, so the dormant-state check stays a simple truthy length check", () => {
+    expect(parseLeadBufferProfileIds(serializeLeadBufferProfileIds([]))).toBeUndefined();
+  });
+
+  it("returns undefined for a null/undefined/empty column instead of throwing", () => {
+    expect(parseLeadBufferProfileIds(null)).toBeUndefined();
+    expect(parseLeadBufferProfileIds(undefined)).toBeUndefined();
+    expect(parseLeadBufferProfileIds("")).toBeUndefined();
+  });
+
+  it("returns undefined for malformed JSON instead of throwing", () => {
+    expect(parseLeadBufferProfileIds("{not valid json")).toBeUndefined();
+  });
+
+  it("returns undefined when the JSON parses but isn't an array", () => {
+    expect(parseLeadBufferProfileIds('{"weekday":"x"}')).toBeUndefined();
+  });
+});
+
 describe("mapSqliteRowToLead", () => {
   it("maps a fully-populated row through unchanged", () => {
     const row = baseRow({
@@ -164,5 +191,14 @@ describe("mapSqliteRowToLead", () => {
   it("normalizes an out-of-range outreachStep to 0", () => {
     expect(mapSqliteRowToLead(baseRow({ outreachStep: 99 })).outreachStep).toBe(0);
     expect(mapSqliteRowToLead(baseRow({ outreachStep: null })).outreachStep).toBe(0);
+  });
+
+  it("parses bufferProfileIds JSON and leaves it undefined when absent", () => {
+    const withProfiles = mapSqliteRowToLead(
+      baseRow({ bufferProfileIds: JSON.stringify(["p1", "p2"]) }),
+    );
+    expect(withProfiles.bufferProfileIds).toEqual(["p1", "p2"]);
+
+    expect(mapSqliteRowToLead(baseRow()).bufferProfileIds).toBeUndefined();
   });
 });

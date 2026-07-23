@@ -73,8 +73,10 @@ export default function ProductBundlesDocPage() {
         can <strong>Email pack</strong> to the client (Resend) so they can post themselves;
         when Convex is configured, Generate pack fails closed (<code>requireConvex</code>) so a
         multi-instance deploy cannot claim success after a SQLite-only write that leaves Email
-        pack / packs-due blind elsewhere. Buffer / GBP / Meta auto-scheduling stays optional
-        once OAuth is configured.
+        pack / packs-due blind elsewhere. Buffer auto-scheduling is available as a dormant
+        scaffold once the operator sets <code>ALLOW_MARKETING_SCHEDULING</code> +{" "}
+        <code>BUFFER_ACCESS_TOKEN</code>; GBP / Meta auto-scheduling stays fully gated on
+        per-business OAuth.
       </p>
 
       <h2>Complete — {bundlePriceHeadingLabel(getBundle("complete")!)}</h2>

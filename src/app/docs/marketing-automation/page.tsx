@@ -46,12 +46,12 @@ export default function MarketingAutomationDocPage() {
           </tr>
           <tr>
             <td>Facebook caption</td>
-            <td>Facebook (manual post, or via Buffer once OAuth is configured)</td>
+            <td>Facebook (manual post, or auto-posted via the dormant Buffer scaffold)</td>
             <td>{monthlyMarketingContentTypeCount("facebook_caption")}</td>
           </tr>
           <tr>
             <td>Instagram caption</td>
-            <td>Instagram (manual post, or via Buffer once OAuth is configured)</td>
+            <td>Instagram (manual post, or auto-posted via the dormant Buffer scaffold)</td>
             <td>{monthlyMarketingContentTypeCount("instagram_caption")}</td>
           </tr>
           <tr>
@@ -79,10 +79,13 @@ export default function MarketingAutomationDocPage() {
         {getBundle("complete")!.monthlyPriceUsd}/mo) generate the identical monthly pack above — Complete&apos;s{" "}
         <code>full_marketing</code> package tier label (vs Growth&apos;s <code>social_email</code>,
         see <code>packageTierForOrderTier</code>) reflects Complete&apos;s broader bundle (marketing
-        + AI phone receptionist), not a deeper marketing generation depth. Buffer / Google Business
-        Profile / Meta auto-posting is optional and gated on operator OAuth secrets (see{" "}
-        <DocLink href="/docs/process">/docs/process</DocLink> <code>marketing-content-scheduling</code>)
-        for both tiers alike — until then, operators use <strong>Generate pack</strong> +{" "}
+        + AI phone receptionist), not a deeper marketing generation depth. Buffer auto-posting
+        (facebook_caption/instagram_caption only) is a dormant scaffold behind{" "}
+        <code>ALLOW_MARKETING_SCHEDULING</code> + <code>BUFFER_ACCESS_TOKEN</code> (default off) —
+        see <DocLink href="/docs/process">/docs/process</DocLink>{" "}
+        <code>marketing-content-scheduling</code>. Google Business Profile / Meta auto-posting stay
+        fully gated behind per-business OAuth an agent cannot obtain. For both tiers alike — until
+        Buffer is configured, operators use <strong>Generate pack</strong> +{" "}
         <strong>Email pack</strong> so clients post themselves. There is no separate one-time
         &quot;copy pack&quot; product; see <DocLink href="/docs/product-bundles">Product bundles</DocLink>{" "}
         for the sold tiers and pricing.
@@ -122,14 +125,35 @@ export default function MarketingAutomationDocPage() {
         dashboard path.{" "}
         <strong>Email pack</strong> sends that month&apos;s pack to{" "}
         <code>lead.email</code> via Resend so clients can post themselves without waiting on
-        Buffer / GBP OAuth — action-level Vitest in{" "}
+        Buffer — action-level Vitest in{" "}
         <code>send-marketing-pack-to-client-action.test.ts</code> locks auth, eligibility,
         current-month pack gate, and suppression / send failure on that dashboard path.
         Eligible leads missing this month&apos;s pack surface on pipeline health (
         <strong>Marketing packs due</strong>) and in the operator daily digest so fulfillment
-        debt is visible without scanning every row. Buffer / GBP / Meta auto-posting stays
-        operator-gated on OAuth secrets (see <DocLink href="/docs/process">/docs/process</DocLink>{" "}
-        <code>marketing-content-scheduling</code>).
+        debt is visible without scanning every row.
+      </p>
+      <p>
+        <strong>Buffer auto-posting (dormant scaffold).</strong> Behind{" "}
+        <code>ALLOW_MARKETING_SCHEDULING=1</code> + <code>BUFFER_ACCESS_TOKEN</code> (the
+        operator&apos;s own long-lived Buffer access token — one grant for the whole account, not
+        per-lead OAuth), the Marketing pack panel on <DocLink href="/dashboard/leads">
+          /dashboard/leads
+        </DocLink>{" "}
+        gains <strong>Load Buffer profiles</strong> (lists every social profile connected to that
+        Buffer account), a per-lead profile picker (<strong>Save profiles for this lead</strong>,
+        persisted as <code>lead.bufferProfileIds</code>), and <strong>Send pack to Buffer</strong>{" "}
+        (queues that month&apos;s matching <code>facebook_caption</code>/
+        <code>instagram_caption</code> variant into each selected profile&apos;s existing posting
+        schedule — never posts immediately, and never guesses at a channel: a profile whose{" "}
+        <code>service</code> has no matching pack content type, or that vanished from Buffer, is
+        reported skipped rather than silently dropped). Google Business Profile / Meta stay fully
+        gated — those need a distinct OAuth grant per local business, not one operator-level
+        token. See <code>src/lib/marketing/buffer.ts</code>,{" "}
+        <code>src/lib/marketing/buffer-gate.ts</code>, and{" "}
+        <code>src/app/dashboard/leads/buffer-actions.test.ts</code> for the full contract and test
+        coverage; see{" "}
+        <DocLink href="/docs/process">/docs/process</DocLink>{" "}
+        <code>marketing-content-scheduling</code> for the still-gated GBP/Meta half.
       </p>
 
       <p>

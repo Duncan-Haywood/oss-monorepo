@@ -160,7 +160,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "marketing-content-scheduling",
     summary:
-      "Auto-post generated marketing packs (marketing-content-generation) to Buffer / Google Business Profile / Meta instead of operator copy-paste — requires BUFFER_ACCESS_TOKEN / GBP OAuth / Meta OAuth (all operator-gated secrets). Ship the OAuth checklist + scheduling call sites once an operator has credentials; do not fake-complete without real tokens.",
+      "Auto-post generated marketing packs (marketing-content-generation) to Buffer / Google Business Profile / Meta instead of operator copy-paste — requires BUFFER_ACCESS_TOKEN / GBP OAuth / Meta OAuth (all operator-gated secrets). Ship the OAuth checklist + scheduling call sites once an operator has credentials; do not fake-complete without real tokens." +
+      " NOTE (2026-07-23, marketing-content-scheduling-buffer-scaffold): the Buffer HALF of this item has shipped, dormant behind ALLOW_MARKETING_SCHEDULING=1 (default off) — Buffer authenticates with one operator-level access token (no per-lead OAuth), unlike GBP/Meta. Operators can now list the profiles connected to their own Buffer account, map specific profiles to a lead, and auto-post that lead's current-month facebook_caption/instagram_caption marketing pack variants from the Marketing pack panel on /dashboard/leads. Still gated (status stays todo): Google Business Profile and Meta auto-posting both require a distinct OAuth grant per local business — no shortcut exists the way Buffer's single account-level token provides, so that half needs real operator/business credentials before it can ship.",
     status: "todo",
     phase: "Phase 6 — Marketing automation",
   },
@@ -582,6 +583,32 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "post-634-empty-backlog-spotcheck-agent-verified-clean",
+    ),
+  },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-sm4qyg",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 81de265 (PR #635, post-634-empty-backlog-spotcheck-agent-verified-clean) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2605 passed, 194 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated human draft). mcp__github__actions_list sampled the newest 30 workflow runs — 30/30 conclusion=failure, no runner ever assigned — github-actions-runner-unavailable stays status=todo, unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: the newest ~25 claude/* siblings all diffed as pure deletions against origin/main — no live fold candidate.\n\nWith the free NEXT_STEPS backlog empty (all five remaining items operator/legal/infra-gated) and no live sibling candidate, applied the tier-6 pattern that previously closed half of commerce-payouts-stripe-connect to a second gated item: dispatched a research subagent to confirm marketing-content-scheduling's Buffer half carried no equivalent money-movement/legal blocker (Buffer authenticates with one operator-level access token, not per-lead OAuth like GBP/Meta) and that no prior agent had already scaffolded it. Confirmed clean, then shipped the Buffer half dormant behind ALLOW_MARKETING_SCHEDULING (default off) — see marketing-content-scheduling-buffer-scaffold in BUSINESS_DECISIONS for the full file-by-file breakdown.",
+    shipped: [
+      "src/lib/marketing/buffer-gate.ts (new) — ALLOW_MARKETING_SCHEDULING + BUFFER_ACCESS_TOKEN gate (403/501), mirrors stripe-connect-gate.ts exactly.",
+      "src/lib/marketing/buffer.ts (new) — fetch-based Buffer classic REST API client (listBufferProfiles, createBufferUpdate — never throws) plus pure bufferServiceContentType / formatMarketingVariantForBuffer helpers.",
+      "convex/schema.ts + convex/leads.ts (updateBufferProfileIds mutation, leadReturn validator, mapLeadRow) — new leads.bufferProfileIds: v.optional(v.array(v.string())) field.",
+      "src/lib/db.ts — updateBufferProfileIds registered on the static Convex API map; new updateLeadBufferProfileIds (Convex-primary-then-SQLite-fallback).",
+      "src/lib/leads/types.ts, src/lib/leads/sqlite-row-mapping.ts (serializeLeadBufferProfileIds/parseLeadBufferProfileIds + SqliteLeadRow/mapSqliteRowToLead wiring), src/lib/db/sqlite-schema.ts (addLeadCol migration) — full Lead type + SQLite fallback wiring.",
+      "src/lib/leads/buffer-profiles-persist.ts (new) — LEAD_BUFFER_PROFILES_CONVEX_PRIMARY fail-closed write options, mirrors stripe-connect-persist.ts.",
+      "src/app/dashboard/leads/actions.ts — listBufferProfilesAction, saveLeadBufferProfilesAction (opaque-id length + count caps), scheduleMarketingPackToBufferAction (scheduled/skipped/failed partition).",
+      "src/app/dashboard/leads/page.tsx + leads-client.tsx — marketingSchedulingAllowed prop threading; new 'Auto-post to Buffer — scaffold, dormant by default' panel under the Marketing pack panel.",
+      "src/lib/marketing/buffer-gate.test.ts, buffer.test.ts (new) — gate + client + pure-helper unit coverage (global.fetch mocked, mirrors handoff.test.ts's precedent for a fetch-based third-party API).",
+      "src/lib/leads/buffer-profiles-persist.test.ts, src/lib/leads/sqlite-row-mapping.test.ts (extended) — persist-options + serialize/parse round-trip coverage.",
+      "src/app/dashboard/leads/buffer-actions.test.ts (new) — action-level coverage for all three new actions (auth, rate-limit, gate, lead-not-found, opaque-id caps, ConvexPrimaryWriteError fail-closed, scheduled/skipped/failed partition).",
+      "/docs/marketing-automation, /docs/architecture, /docs/roadmap, /docs/product-bundles, /docs/launch-checklist, .env.example — disclosed the shipped Buffer scaffold and kept the still-gated GBP/Meta half honest.",
+      "src/lib/process/business-decisions.ts — appended marketing-content-scheduling-buffer-scaffold.",
+      "src/lib/process/prompt_process.tsx — updated the marketing-content-scheduling NEXT_STEPS entry with a NOTE describing the shipped half (status stays todo — GBP/Meta remain fully gated); appended this ITERATIONS entry.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2642 passed, up from 2605 — 37 new, 198 files up from 194).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "marketing-content-scheduling-buffer-scaffold",
     ),
   },
 ];

@@ -28,7 +28,11 @@ import {
   type ConvexPrimaryWriteOptions,
 } from "./payments/convex-primary";
 import { resolveConvexDeploymentUrl } from "./convex/convex-url-env-readiness";
-import { mapSqliteRowToLead, type SqliteLeadRow } from "./leads/sqlite-row-mapping";
+import {
+  mapSqliteRowToLead,
+  serializeLeadBufferProfileIds,
+  type SqliteLeadRow,
+} from "./leads/sqlite-row-mapping";
 import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "./orders/sqlite-row-mapping";
 import {
   sqliteListOrders,
@@ -117,6 +121,7 @@ const api: any = {
     updateSnooze: "leads:updateSnooze",
     applyColdDisposition: "leads:applyColdDisposition",
     updateStripeConnectAccountId: "leads:updateStripeConnectAccountId",
+    updateBufferProfileIds: "leads:updateBufferProfileIds",
   },
   inquiries: {
     create: "inquiries:create",
@@ -534,6 +539,52 @@ export async function updateLeadStripeConnectAccountId(
     SET stripeConnectAccountId = ?, updatedAt = datetime('now')
     WHERE slug = ?
   `).run(stripeConnectAccountId ?? null, slug);
+}
+
+/**
+ * Persist a lead's chosen Buffer profile ids (dormant scaffold — see
+ * marketing-content-scheduling / src/lib/marketing/buffer-gate.ts). Pass
+ * { requireConvex: true } (LEAD_BUFFER_PROFILES_CONVEX_PRIMARY) from
+ * saveLeadBufferProfilesAction so a Convex mutation failure surfaces to the
+ * operator instead of writing only to instance-local SQLite while
+ * Convex-first readers (getLeads) never see the chosen profiles.
+ */
+export async function updateLeadBufferProfileIds(
+  slug: string,
+  bufferProfileIds: string[],
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.updateBufferProfileIds, {
+        slug,
+        bufferProfileIds,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadBufferProfileIds", e);
+      }
+      console.warn(
+        `Failed to update Buffer profile ids for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET bufferProfileIds = ?, updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(serializeLeadBufferProfileIds(bufferProfileIds), slug);
 }
 
 /**

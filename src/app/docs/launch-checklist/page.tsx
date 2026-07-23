@@ -530,7 +530,11 @@ export default function LaunchChecklistDocPage() {
           write that other instances (Email pack / packs-due) cannot see. With
           an email on the lead, click <strong>Email pack</strong> — confirm the
           pack arrives (or a mock send is logged when Resend is unset).
-          Copy/paste or client email works until Buffer/GBP OAuth is configured.
+          Copy/paste or client email works today; optionally set{" "}
+          <code>ALLOW_MARKETING_SCHEDULING=1</code> + <code>BUFFER_ACCESS_TOKEN</code>{" "}
+          to enable the dormant Buffer auto-post scaffold (facebook/instagram
+          only — GBP/Meta still need per-business OAuth, see{" "}
+          <DocLink href="/docs/marketing-automation">Marketing automation</DocLink>).
           Before generating, confirm pipeline-health{" "}
           <strong>Marketing packs due</strong> counts eligible leads missing
           this month&apos;s pack (and that the daily digest lists them).

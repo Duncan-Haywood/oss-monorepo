@@ -40,6 +40,14 @@ export default defineSchema({
      * this yet.
      */
     stripeConnectAccountId: v.optional(v.string()),
+    /**
+     * Buffer profile ids the operator has chosen to auto-post this lead's
+     * generated marketing pack content to (dormant scaffold — see
+     * marketing-content-scheduling / src/lib/marketing/buffer-gate.ts).
+     * Profile ids come from the operator's own Buffer account (listBufferProfiles);
+     * no per-lead OAuth. Empty/absent means auto-posting is not set up for this lead.
+     */
+    bufferProfileIds: v.optional(v.array(v.string())),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

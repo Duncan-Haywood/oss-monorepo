@@ -1363,8 +1363,11 @@ source). The same digest also lists email-critical leads with no usable address 
         marketing). Action-level Vitest in{" "}
         <code>src/app/dashboard/leads/send-marketing-pack-to-client-action.test.ts</code> locks
         auth, eligibility, current-month pack gate, send failure, and preview URL wiring
-        (deliver-pack helpers alone do not cover that glue). Buffer / GBP / Meta OAuth
-        auto-posting remains optional. See{" "}
+        (deliver-pack helpers alone do not cover that glue). Buffer auto-posting is a dormant
+        scaffold (<code>src/lib/marketing/buffer.ts</code> / <code>buffer-gate.ts</code>,
+        behind <code>ALLOW_MARKETING_SCHEDULING</code> + <code>BUFFER_ACCESS_TOKEN</code>,
+        default off) — one operator-level Buffer access token, no per-lead OAuth; GBP/Meta
+        auto-posting remains fully gated behind per-business OAuth. See{" "}
         <DocLink href="/docs/marketing-automation">Marketing automation</DocLink> and{" "}
         <DocLink href="/docs/process">process log</DocLink>.
       </p>

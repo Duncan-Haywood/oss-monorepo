@@ -34,6 +34,7 @@ export interface SqliteLeadRow {
   notes?: string | null;
   snoozedUntil?: string | null;
   stripeConnectAccountId?: string | null;
+  bufferProfileIds?: string | null;
 }
 
 /** Encode LeadHours into the single TEXT column db.ts persists — "weekday · weekend", or bare weekday when weekend is empty. */
@@ -68,6 +69,22 @@ export function parseLeadServices(raw: string | null | undefined): string[] {
     return Array.isArray(parsed) ? (parsed as string[]) : [];
   } catch {
     return [];
+  }
+}
+
+/** Encode Lead.bufferProfileIds into the JSON TEXT column db.ts persists. */
+export function serializeLeadBufferProfileIds(bufferProfileIds: string[]): string {
+  return JSON.stringify(bufferProfileIds);
+}
+
+/** Inverse of serializeLeadBufferProfileIds; malformed/absent JSON degrades to undefined. */
+export function parseLeadBufferProfileIds(raw: string | null | undefined): string[] | undefined {
+  if (!raw) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? (parsed as string[]) : undefined;
+  } catch {
+    return undefined;
   }
 }
 
@@ -106,5 +123,6 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     notes: row.notes || undefined,
     snoozedUntil: row.snoozedUntil || undefined,
     stripeConnectAccountId: row.stripeConnectAccountId || undefined,
+    bufferProfileIds: parseLeadBufferProfileIds(row.bufferProfileIds),
   };
 }
