@@ -203,10 +203,13 @@ export const clearRecurringCanceledByCustomer = mutation({
       ) {
         continue;
       }
-      // replace so omitted optionals clear — patch(undefined) would leave the field.
-      // Carry refundedAt / disputedAt forward untouched (this mutation only
-      // clears the recurring-cancel pause; a refunded/disputed order stays
-      // flagged on reactivate).
+      // Convex db.patch() actually removes a field when it's explicitly
+      // undefined (see convex-patch-undefined-clear-semantics-correction in
+      // business-decisions.ts) — replace with conditional spreads is used
+      // here regardless, so every persisted optional is explicit at the call
+      // site. Carry refundedAt / disputedAt forward untouched (this mutation
+      // only clears the recurring-cancel pause; a refunded/disputed order
+      // stays flagged on reactivate).
       await ctx.db.replace(row._id, {
         leadSlug: row.leadSlug,
         stripeSessionId: row.stripeSessionId,
@@ -310,8 +313,11 @@ export const markRefunded = mutation({
 /**
  * Clears orders.refundedAt after refund.updated reports the refund that set
  * it (failed/canceled) never actually completed — funds never left the
- * platform. Uses replace so the optional field is omitted (patch(undefined)
- * would leave it). Idempotent: already-clear rows are a no-op. Mirrors
+ * platform. Uses replace with conditional spreads so the optional field is
+ * explicitly omitted at the call site (db.patch() would also clear it when
+ * passed undefined — see convex-patch-undefined-clear-semantics-correction in
+ * business-decisions.ts — replace is a stylistic choice here, not a
+ * workaround). Idempotent: already-clear rows are a no-op. Mirrors
  * commerceOrders.clearRefunded. See commerce-order-refund-reversal-tracking.
  */
 export const clearRefunded = mutation({
@@ -384,8 +390,12 @@ export const markDisputed = mutation({
 /**
  * Clears orders.disputedAt after charge.dispute.closed with status won /
  * warning_closed — funds reinstated (or never permanently withdrawn). Uses
- * replace so the optional field is omitted (patch(undefined) would leave it).
- * Idempotent: already-clear rows are a no-op. See bundle-order-dispute-tracking.
+ * replace with conditional spreads so the optional field is explicitly
+ * omitted at the call site (db.patch() would also clear it when passed
+ * undefined — see convex-patch-undefined-clear-semantics-correction in
+ * business-decisions.ts — replace is a stylistic choice here, not a
+ * workaround). Idempotent: already-clear rows are a no-op. See
+ * bundle-order-dispute-tracking.
  */
 export const clearDisputed = mutation({
   args: {

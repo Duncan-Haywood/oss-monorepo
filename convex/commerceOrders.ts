@@ -315,7 +315,10 @@ export const clearRefunded = mutation({
     if (!order || !order.refundedAt) {
       return null;
     }
-    // replace so omitted optionals clear — patch(undefined) would leave the field.
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — replace with conditional spreads is used here
+    // regardless, so every persisted optional is explicit at the call site.
     await ctx.db.replace(order._id, {
       orderId: order.orderId,
       leadSlug: order.leadSlug,
@@ -426,7 +429,10 @@ export const clearDisputed = mutation({
     if (!order || !order.disputedAt) {
       return null;
     }
-    // replace so omitted optionals clear — patch(undefined) would leave the field.
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — replace with conditional spreads is used here
+    // regardless, so every persisted optional is explicit at the call site.
     await ctx.db.replace(order._id, {
       orderId: order.orderId,
       leadSlug: order.leadSlug,

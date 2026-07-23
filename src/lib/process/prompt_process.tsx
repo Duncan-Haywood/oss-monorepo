@@ -622,4 +622,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "convex-patch-undefined-clear-semantics-correction",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-y9nct5",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip b2df7576 (PR #660, convex-patch-undefined-clear-semantics-correction) — HEAD matched origin/main exactly at session start. Fold-scanned the newest ~10 claude/* remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: the 5 with a nonzero diff against origin/main (nice-euler-f8rpu2, upbeat-dijkstra-l5seug, nice-euler-lkp2ad, upbeat-dijkstra-cwoqft, nice-euler-rd9ey0) each carried content already merged byte-identical under a different SHA — confirmed dead, no live fold candidate. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Empty-backlog diff-gate showed zero real product commits since the last full sweep, so dispatched a fast targeted spot-check via one foreground general-purpose research agent, explicitly steered away from every surface the past 48h of iterations had already covered. It came back clean on every functional angle it checked (existence-check-before-write, skipSuppression coverage, TOCTOU windows, Stripe Connect test coverage, accessibility) but found one real, fresh, low-severity gap: PR #660 corrected a false 'Convex db.patch() ignores undefined keys' claim in convex/leads.ts, but the identical disproven claim survived verbatim in 5 sibling comment/docblock sites across convex/commerceOrders.ts and convex/orders.ts. See convex-patch-undefined-clear-semantics-correction-siblings in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "convex/commerceOrders.ts — corrected 2 inline comments (clearRefunded, clearDisputed) that falsely claimed patch(undefined) would leave the field.",
+      "convex/orders.ts — corrected 1 inline comment (clearRecurringCanceledByCustomer) and 2 docblocks (clearRefunded, clearDisputed) with the same false claim.",
+      "src/lib/process/business-decisions.ts — appended convex-patch-undefined-clear-semantics-correction-siblings.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a tier-7 docs/rulebook-accuracy fix completing a correction the immediately-preceding iteration started, not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, 198 files, unchanged — comment-only change) + npm run build (clean, same 42-route split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "convex-patch-undefined-clear-semantics-correction-siblings",
+    ),
+  },
 ];
