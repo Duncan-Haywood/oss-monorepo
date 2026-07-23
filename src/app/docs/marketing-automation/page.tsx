@@ -164,7 +164,16 @@ export default function MarketingAutomationDocPage() {
         latter embeds the former inside each marker string — so{" "}
         <code>softCapLeadForPublicSurface</code> (
         <DocLink href="/docs/architecture">Architecture</DocLink> § SEO/meta) strips both before a
-        lead ever reaches the public <code>/preview/[slug]</code> surface. Same recurring-entitlement
+        lead ever reaches the public <code>/preview/[slug]</code> surface. The schedule loop&apos;s
+        Buffer network calls are a real, sequential, per-profile await window — a concurrent second
+        invocation (a double-click, or two operator tabs) could otherwise overwrite the first
+        invocation&apos;s freshly-written marker with a stale pre-loop snapshot, the same lost-update
+        class as Commerce catalog Sync to Stripe / Archive orphans (
+        <DocLink href="/docs/architecture">Architecture</DocLink> § Commerce catalog): the action
+        re-reads the lead immediately before its final <code>bufferPostedVariantKeys</code> persist
+        and merges only
+        this invocation&apos;s own newly-posted keys onto that fresh set, rather than writing the
+        in-memory snapshot taken before the loop&apos;s awaits. Same recurring-entitlement
         gate as Email pack: <strong>Send pack to Buffer</strong> re-checks{" "}
         <code>orders.recurringCanceledAt</code> before posting, so a paused/canceled subscriber&apos;s
         live social profiles never receive new auto-posted content after cancellation. Google
