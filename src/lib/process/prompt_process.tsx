@@ -806,4 +806,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "discovery-call-outreach-cadence-gap",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-ijcc7s",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), sixth iteration in the same session, picked up at origin/main tip 7d39a5d9 (PR #648, discovery-call-outreach-cadence-gap) — restarted the branch from a freshly-fetched origin/main. Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2665 passed, 198 files). Only 1 real product commit had landed since the immediately-preceding iteration's own full sweep, so dispatched a targeted spot-check instead — explicitly asked to check for other write paths with the same outreach-cadence bug class before falling back to unaudited areas. It found a real third instance: addLeadAction (the 'Add Lead' form) offers discovery_call directly via the same STAGES dropdown every other stage picker uses, but its outreach-mark block was never widened the way updateLeadStageAction/importLeadsCsvAction were in the immediately-preceding iteration — a lead created straight into discovery_call had the identical outreachStep=0-forever failure mode. See add-lead-discovery-call-outreach-cadence-gap in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts — addLeadAction's outreach-mark block widened to `(stage === \"outreach_sent\" || stage === \"discovery_call\") && lead.email`, mirroring updateLeadStageAction's restructuring (record for either stage, send Email 1 only for outreach_sent, stage-specific ConvexPrimaryWriteError message).",
+      "src/app/dashboard/leads/leads-client.tsx — handleAddLeadSubmit's optimistic savedLead construction now bumps outreachStep/lastOutreachAt for either outreach_sent or discovery_call with an email present (previously never set for either stage).",
+      "src/app/dashboard/leads/add-lead-action.test.ts — 3 new discovery_call cases (records step 1 without sending, no-op with no email, ConvexPrimaryWriteError fails closed).",
+      "src/app/docs/architecture/page.tsx — disclosed the Add Lead form's discovery_call cadence-record behavior alongside the existing Add lead / CSV / stage-move sentences.",
+      "src/lib/process/business-decisions.ts — appended add-lead-discovery-call-outreach-cadence-gap.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items remain operator/legal/infra-blocked; this is a sold-capability wiring-gap / data-integrity bug fix discovered by a targeted spot-check, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2668 passed, up from 2665 — 3 new, 198 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /docs/architecture all 200; curled the rendered docs HTML confirming the new prose renders; dev server killed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "add-lead-discovery-call-outreach-cadence-gap",
+    ),
+  },
 ];

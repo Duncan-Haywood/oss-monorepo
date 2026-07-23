@@ -70,9 +70,17 @@ export default function ArchitectureDocPage() {
         <code>upsertLead</code>. When Convex is configured, Add lead and CSV import pass{" "}
         <code>requireConvex</code> (<code>LEAD_UPSERT_CONVEX_PRIMARY</code>) so a mutation failure
         surfaces a retry instead of claiming success after a SQLite-only write other instances
-        cannot see. Action-level Vitest in <code>add-lead-action.test.ts</code> locks that Add
-        lead glue (auth, slug/businessName gates, sanitize, field-length soft-caps / hard-reject,
-        existing-slug conflict, requireConvex fail-closed, outreach_sent mark-before-Resend) and{" "}
+        cannot see. The <strong>Add Lead</strong> form&apos;s Pipeline Stage dropdown offers{" "}
+        <code>discovery_call</code> directly (same <code>STAGES</code> list as the dashboard
+        stage-move dropdown) — <code>addLeadAction</code> records outreach cadence step 1 for a
+        lead created straight into either <code>outreach_sent</code> or{" "}
+        <code>discovery_call</code>, sending a real Email 1 only for <code>outreach_sent</code>,
+        mirroring the same record-without-send-for-discovery_call rule as{" "}
+        <code>updateLeadStageAction</code> and <code>importLeadsCsvAction</code>. Action-level
+        Vitest in <code>add-lead-action.test.ts</code> locks that Add lead glue (auth,
+        slug/businessName gates, sanitize, field-length soft-caps / hard-reject, existing-slug
+        conflict, requireConvex fail-closed, outreach_sent mark-before-Resend, discovery_call
+        record-without-send) and{" "}
         <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV (auth, empty /
         invalid CSV, per-row requireConvex, existing-slug skip, partial Convex failure, outreach
         cadence mark for rows imported directly into outreach_sent or discovery_call) beside

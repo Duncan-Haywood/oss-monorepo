@@ -1758,9 +1758,18 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
       throw error;
     }
 
-    // If added directly in outreach_sent stage, durably mark Email 1 sent
-    // BEFORE sending (persist-then-notify) — see OUTREACH_CADENCE_CONVEX_PRIMARY.
-    if (stage === "outreach_sent" && lead.email) {
+    // If added directly in outreach_sent OR discovery_call stage, durably
+    // record outreach cadence step 1 BEFORE any send (persist-then-notify) —
+    // see OUTREACH_CADENCE_CONVEX_PRIMARY. isFollowUpDue/isColdLead both
+    // treat outreach_sent and discovery_call as valid due-queue stages gated
+    // on outreachStep >= 1 (src/lib/email/outreach-followups.ts); the "Add
+    // Lead" form's Pipeline Stage dropdown offers discovery_call directly
+    // (same STAGES list as the dashboard stage-move dropdown), so a lead
+    // created straight into discovery_call needs the same mark
+    // updateLeadStageAction/importLeadsCsvAction already record, or it stays
+    // outreachStep=0 forever and is permanently invisible to Follow-ups due
+    // / Cold leads (add-lead-discovery-call-outreach-cadence-gap).
+    if ((stage === "outreach_sent" || stage === "discovery_call") && lead.email) {
       try {
         await recordLeadOutreach(lead.slug, 1, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
       } catch (error) {
@@ -1768,31 +1777,39 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
           return {
             success: false as const,
             error:
-              "Lead saved, but could not record the outreach mark in the shared store — Email 1 was not sent. Retry Email 1 from the dashboard in a moment.",
+              stage === "outreach_sent"
+                ? "Lead saved, but could not record the outreach mark in the shared store — Email 1 was not sent. Retry Email 1 from the dashboard in a moment."
+                : "Lead saved, but could not record the outreach mark in the shared store. Retry in a moment.",
             slug: lead.slug,
           };
         }
         throw error;
       }
-      // sendOutreachEmail → sendEmail resolves { success: false } on
-      // suppression/Resend failure (never throws). Surface that to the
-      // operator — persist-then-notify keeps the mark; do not pretend Email 1 sent.
-      const sent = await sendOutreachEmail(
-        lead.email,
-        lead.businessName,
-        lead.slug,
-      );
-      if (!sent.success) {
-        return {
-          success: false as const,
-          error:
-            "reason" in sent && sent.reason === "suppressed"
-              ? "Lead saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list"
-              : "error" in sent && typeof sent.error === "string"
-                ? `Lead saved and marked Outreach Sent, but Email 1 failed to send — ${sent.error}`
-                : "Lead saved and marked Outreach Sent, but Email 1 failed to send — retry Email 1 from the dashboard",
-          slug: lead.slug,
-        };
+
+      // Discovery Call is a manual, already-happened move, not an automated
+      // send — the cadence mark above is all it needs. Only outreach_sent
+      // triggers a real Email 1.
+      if (stage === "outreach_sent") {
+        // sendOutreachEmail → sendEmail resolves { success: false } on
+        // suppression/Resend failure (never throws). Surface that to the
+        // operator — persist-then-notify keeps the mark; do not pretend Email 1 sent.
+        const sent = await sendOutreachEmail(
+          lead.email,
+          lead.businessName,
+          lead.slug,
+        );
+        if (!sent.success) {
+          return {
+            success: false as const,
+            error:
+              "reason" in sent && sent.reason === "suppressed"
+                ? "Lead saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list"
+                : "error" in sent && typeof sent.error === "string"
+                  ? `Lead saved and marked Outreach Sent, but Email 1 failed to send — ${sent.error}`
+                  : "Lead saved and marked Outreach Sent, but Email 1 failed to send — retry Email 1 from the dashboard",
+            slug: lead.slug,
+          };
+        }
       }
     }
 

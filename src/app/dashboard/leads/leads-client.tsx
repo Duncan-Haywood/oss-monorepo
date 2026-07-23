@@ -534,7 +534,15 @@ export function LeadsClient({
         // a row whose slug matches no DB record — every later action
         // (stage change, snooze, notes, follow-up) on that row would then
         // silently target a non-existent lead until the page reloads.
-        const savedLead = { ...newLeadData, slug: res.slug };
+        const savedLead =
+          (formStage === "outreach_sent" || formStage === "discovery_call") && newLeadData.email
+            ? {
+                ...newLeadData,
+                slug: res.slug,
+                outreachStep: 1 as const,
+                lastOutreachAt: new Date().toISOString(),
+              }
+            : { ...newLeadData, slug: res.slug };
         setLeads((prev) => upsertSavedLeadBySlug(prev, savedLead));
         
         // Reset form

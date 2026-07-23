@@ -446,6 +446,61 @@ describe("addLeadAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
+  it("on discovery_call records outreach cadence step 1 without sending Email 1 (add-lead-discovery-call-outreach-cadence-gap)", async () => {
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "discovery-cafe",
+      stage: "discovery_call",
+    });
+
+    expect(res).toEqual({ success: true, slug: "discovery-cafe" });
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(recordLeadOutreach).toHaveBeenCalledWith(
+      "discovery-cafe",
+      1,
+      undefined,
+      { requireConvex: true },
+    );
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("on discovery_call skips the outreach mark when the lead has no email", async () => {
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "discovery-no-email-cafe",
+      stage: "discovery_call",
+      email: "",
+    });
+
+    expect(res).toEqual({ success: true, slug: "discovery-no-email-cafe" });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("fails closed on discovery_call outreach mark Convex error after lead save", async () => {
+    recordLeadOutreach.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "discovery-mark-fail-cafe",
+      stage: "discovery_call",
+    });
+
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead saved, but could not record the outreach mark in the shared store. Retry in a moment.",
+      slug: "discovery-mark-fail-cafe",
+    });
+    expect(upsertLead).toHaveBeenCalledOnce();
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
   it("surfaces unexpected Error messages from the upsert", async () => {
     upsertLead.mockRejectedValue(new Error("db offline"));
     const { addLeadAction } = await import("./actions");
