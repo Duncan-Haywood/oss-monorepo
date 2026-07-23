@@ -6,6 +6,7 @@ import {
   monthlyMarketingSocialPostCount,
 } from "@/lib/marketing/monthly-pack";
 import { docPageMetadata } from "@/lib/seo";
+import { STRIPE_WEBHOOK_HANDLED_EVENT_TYPES } from "@/lib/stripe/webhook-event-types";
 
 export const metadata: Metadata = docPageMetadata("/docs/launch-checklist");
 
@@ -21,141 +22,179 @@ export default function LaunchChecklistDocPage() {
       ]}
     >
       <p>
-        Agents can ship code; only a human operator can finish Stripe, DNS, and legal setup.
-        Work this list top-to-bottom before the first outreach batch.
+        Agents can ship code; only a human operator can finish Stripe, DNS, and
+        legal setup. Work this list top-to-bottom before the first outreach
+        batch.
       </p>
 
       <h2>1. Payments (blocks every sale)</h2>
       <ol>
         <li>
-          Confirm Stripe account is under <strong>{brand.legalEntity}</strong> (not a personal
-          account).
+          Confirm Stripe account is under <strong>{brand.legalEntity}</strong>{" "}
+          (not a personal account).
         </li>
         <li>
-          Set <code>STRIPE_SECRET_KEY</code> and <code>STRIPE_WEBHOOK_SECRET</code> in the
-          deployment environment. Until both are present,{" "}
+          Set <code>STRIPE_SECRET_KEY</code> and{" "}
+          <code>STRIPE_WEBHOOK_SECRET</code> in the deployment environment.
+          Until both are present,{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber core-secrets
-          banner via <code>assessStripeCoreEnvReadiness</code> — missing{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an
+          amber core-secrets banner via{" "}
+          <code>assessStripeCoreEnvReadiness</code> — missing{" "}
           <code>STRIPE_SECRET_KEY</code> blocks checkout create; missing{" "}
-          <code>STRIPE_WEBHOOK_SECRET</code> is worse (Stripe can charge while CRM/handoff never
-          records). Distinct from the rose Price-ID banner below.{" "}
-          <code>NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code> is not required — every checkout
-          (bundle + Commerce Buy now) redirects to a Stripe-hosted Checkout Session URL
-          server-side, so no client-side Stripe.js ever reads a publishable key.
+          <code>STRIPE_WEBHOOK_SECRET</code> is worse (Stripe can charge while
+          CRM/handoff never records). Distinct from the rose Price-ID banner
+          below. <code>NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code> is not required
+          — every checkout (bundle + Commerce Buy now) redirects to a
+          Stripe-hosted Checkout Session URL server-side, so no client-side
+          Stripe.js ever reads a publishable key.
         </li>
         <li>
           Create Prices: set <code>ALLOW_STRIPE_BOOTSTRAP=1</code>, open{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> (or{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>), click{" "}
-          <strong>Run bootstrap</strong> on the checkout-blocked banner, copy the returned{" "}
-          <code>envSnippet</code> into secrets, then <strong>unset</strong> the bootstrap flag.
-          (API twin: <code>POST /api/stripe/bootstrap-prices</code> — same{" "}
+          <strong>Run bootstrap</strong> on the checkout-blocked banner, copy
+          the returned <code>envSnippet</code> into secrets, then{" "}
+          <strong>unset</strong> the bootstrap flag. (API twin:{" "}
+          <code>POST /api/stripe/bootstrap-prices</code> — same{" "}
           <code>requireOperatorAuth</code> session check plus{" "}
-          <code>assessStripeBootstrapGate</code>, so an unauthenticated caller can&rsquo;t trigger
-          it during your bootstrap window. Action-level Vitest in{" "}
-          <code>src/app/dashboard/actions.test.ts</code> locks the banner path operators click;
-          route-level Vitest in{" "}
-          <code>src/app/api/stripe/bootstrap-prices/route.test.ts</code> locks the API twin,
-          including the 401 auth rejection.)
-          Until every{" "}
+          <code>assessStripeBootstrapGate</code>, so an unauthenticated caller
+          can&rsquo;t trigger it during your bootstrap window. Action-level
+          Vitest in <code>src/app/dashboard/actions.test.ts</code> locks the
+          banner path operators click; route-level Vitest in{" "}
+          <code>src/app/api/stripe/bootstrap-prices/route.test.ts</code> locks
+          the API twin, including the 401 auth rejection.) Until every{" "}
           <code>STRIPE_PRICE_ID_*</code> from <code>BUNDLES</code> +{" "}
-          <code>COMMERCE_ADDON</code> is set, those pages show a checkout-blocked banner (via{" "}
-          <code>assessBundlePriceEnvReadiness</code>) — fix that before outreach that points at
-          Checkout. Bootstrap stays operator-gated (flag + paste secrets); the banner button
-          only removes the curl friction, it does not fake-complete{" "}
-          <code>stripe-price-objects</code>.
+          <code>COMMERCE_ADDON</code> is set, those pages show a
+          checkout-blocked banner (via{" "}
+          <code>assessBundlePriceEnvReadiness</code>) — fix that before outreach
+          that points at Checkout. Bootstrap stays operator-gated (flag + paste
+          secrets); the banner button only removes the curl friction, it does
+          not fake-complete <code>stripe-price-objects</code>.
         </li>
         <li>
-          Point the Stripe webhook to <code>/api/stripe/webhook</code> for{" "}
-          <code>checkout.session.completed</code> (test mode first, then live).
+          Point the Stripe webhook to <code>/api/stripe/webhook</code> (test
+          mode first, then live). In Stripe Dashboard: Developers → Webhooks →
+          your endpoint → <strong>Select events</strong>, and enable every one
+          of these {STRIPE_WEBHOOK_HANDLED_EVENT_TYPES.length} event types —
+          enabling only <code>checkout.session.completed</code> and leaving the
+          rest off is a real, silent production gap: the route already handles
+          all of them, but Stripe simply never sends an event type the endpoint
+          isn&rsquo;t subscribed to, so the corresponding shipped code
+          (async-payment retry recovery, subscription pause/resume +
+          payment-failed/recovered notices, refund/dispute clawback tracking)
+          would never fire.
+          <ul>
+            {STRIPE_WEBHOOK_HANDLED_EVENT_TYPES.map((eventType) => (
+              <li key={eventType}>
+                <code>{eventType}</code>
+              </li>
+            ))}
+          </ul>
         </li>
         <li>
-          Smoke-test: open a demo preview → Checkout (confirm business name / email prefilled from
-          slug) → pay with a test card → confirm lead stage becomes <code>paid</code> on{" "}
+          Smoke-test: open a demo preview → Checkout (confirm business name /
+          email prefilled from slug) → pay with a test card → confirm lead stage
+          becomes <code>paid</code> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
         </li>
         <li>
-          Activate <strong>Customer Portal</strong> in the Stripe Dashboard (Settings → Billing →
-          Customer portal) so Growth/Complete/Commerce subscribers can update cards and cancel.
-          Then open <strong>Billing</strong> on a paid lead row, or{" "}
-          <strong>Manage subscription</strong> on <code>/checkout/success</code> after a
-          subscription checkout. If a lead has multiple eligible orders, Billing must open against
-          the newest one (<code>listOrders</code> newest-first). Action-level Vitest (
-          <code>open-billing-portal-action.test.ts</code>) locks the dashboard Billing path
-          (auth, <code>STRIPE_SECRET_KEY</code>, returnUrl, helper passthrough) beside the
-          customer self-serve route suite.
+          Activate <strong>Customer Portal</strong> in the Stripe Dashboard
+          (Settings → Billing → Customer portal) so Growth/Complete/Commerce
+          subscribers can update cards and cancel. Then open{" "}
+          <strong>Billing</strong> on a paid lead row, or{" "}
+          <strong>Manage subscription</strong> on <code>/checkout/success</code>{" "}
+          after a subscription checkout. If a lead has multiple eligible orders,
+          Billing must open against the newest one (<code>listOrders</code>{" "}
+          newest-first). Action-level Vitest (
+          <code>open-billing-portal-action.test.ts</code>) locks the dashboard
+          Billing path (auth, <code>STRIPE_SECRET_KEY</code>, returnUrl, helper
+          passthrough) beside the customer self-serve route suite.
         </li>
         <li>
-          After a Starter-only test payment (no Growth/Complete/Commerce), confirm the{" "}
-          <strong>Starter → MRR upsell</strong> panel and row <strong>Upsell</strong> button
-          appear on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>. Send the nudge
-          (mock log is fine without Resend) and confirm the checkout link preselects Growth
-          (or Complete when <code>recommendedTier</code> is Complete). Action-level Vitest (
-          <code>send-starter-upsell-action.test.ts</code>) locks the dashboard Upsell path
-          (auth, Starter-only eligibility, target tier, suppression / Resend) beside the
-          helper suite. Billing and Upsell must not both show for the same lead.
+          After a Starter-only test payment (no Growth/Complete/Commerce),
+          confirm the <strong>Starter → MRR upsell</strong> panel and row{" "}
+          <strong>Upsell</strong> button appear on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>. Send the
+          nudge (mock log is fine without Resend) and confirm the checkout link
+          preselects Growth (or Complete when <code>recommendedTier</code> is
+          Complete). Action-level Vitest (
+          <code>send-starter-upsell-action.test.ts</code>) locks the dashboard
+          Upsell path (auth, Starter-only eligibility, target tier, suppression
+          / Resend) beside the helper suite. Billing and Upsell must not both
+          show for the same lead.
         </li>
       </ol>
 
       <h2>2. Operator dashboard auth (blocks safe outreach at scale)</h2>
       <ol>
         <li>
-          Set a strong <code>OPERATOR_DASHBOARD_PASSWORD</code> in the deployment environment
-          (leading/trailing whitespace is trimmed on env read, login submit, and the{" "}
-          <code>proxy.ts</code> Host gate via shared <code>getPassword()</code>; whitespace-only
-          is treated as unset). Until set (or while still a <code>changeme</code>/
+          Set a strong <code>OPERATOR_DASHBOARD_PASSWORD</code> in the
+          deployment environment (leading/trailing whitespace is trimmed on env
+          read, login submit, and the <code>proxy.ts</code> Host gate via shared{" "}
+          <code>getPassword()</code>; whitespace-only is treated as unset).
+          Until set (or while still a <code>changeme</code>/
           <code>password</code> placeholder),{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
-          banner via <code>assessOperatorAuthEnvReadiness</code> — <code>proxy.ts</code> +{" "}
-          <code>requireOperatorAuth</code> stay in open demo mode (world-reachable CRM mutations).
-          Do not import real contacts or flip stages to <code>outreach_sent</code> without it.
-          Distinct from Stripe / Resend / Anthropic / digest banners.
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an
+          amber open-dashboard banner via{" "}
+          <code>assessOperatorAuthEnvReadiness</code> — <code>proxy.ts</code> +{" "}
+          <code>requireOperatorAuth</code> stay in open demo mode
+          (world-reachable CRM mutations). Do not import real contacts or flip
+          stages to <code>outreach_sent</code> without it. Distinct from Stripe
+          / Resend / Anthropic / digest banners.
         </li>
         <li>
-          Open <DocLink href="/dashboard/login">/dashboard/login</DocLink>, sign in, confirm
-          lead mutations still work, then use Sign out. Action-level Vitest (
-          <code>src/app/dashboard/login/actions.test.ts</code>) locks that login/logout glue
-          (unconfigured redirect, invalid password, cookie set/clear) beside{" "}
-          <code>src/lib/auth/safe-next-path.ts</code> (page + action twin — reject
-          protocol-relative hosts and non-dashboard <code>next</code>) +{" "}
-          <code>operator.test.ts</code> token crypto +{" "}
-          <code>requireOperatorAuth</code> cookie-read and <code>proxy.test.ts</code> Host
-          gate.
+          Open <DocLink href="/dashboard/login">/dashboard/login</DocLink>, sign
+          in, confirm lead mutations still work, then use Sign out. Action-level
+          Vitest (<code>src/app/dashboard/login/actions.test.ts</code>) locks
+          that login/logout glue (unconfigured redirect, invalid password,
+          cookie set/clear) beside <code>src/lib/auth/safe-next-path.ts</code>{" "}
+          (page + action twin — reject protocol-relative hosts and non-dashboard{" "}
+          <code>next</code>) + <code>operator.test.ts</code> token crypto +{" "}
+          <code>requireOperatorAuth</code> cookie-read and{" "}
+          <code>proxy.test.ts</code> Host gate.
         </li>
         <li>
-          Set <code>NEXT_PUBLIC_APP_URL</code> to the public production origin (not{" "}
-          <code>http://localhost:3000</code>). Until set to a non-localhost public URL,{" "}
+          Set <code>NEXT_PUBLIC_APP_URL</code> to the public production origin
+          (not <code>http://localhost:3000</code>). Until set to a non-localhost
+          public URL, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an
+          orange canonical-URL banner via <code>assessAppUrlEnvReadiness</code>{" "}
+          — checkout cancel/success, digest links, unsubscribe footers, pack
+          preview links, and SEO <code>siteUrl()</code> otherwise fall back to
+          request origin or localhost. Distinct from Stripe / Resend / auth
+          banners.
+        </li>
+        <li>
+          Set <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> to the bare public
+          production root (e.g. <code>yoursite.com</code>, not{" "}
+          <code>preview.yoursite.com</code> or <code>example.com</code>). Until
+          set, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a
+          cyan production-root banner via{" "}
+          <code>assessProductionDomainEnvReadiness</code> — handoff{" "}
+          <code>suggestedHost</code> and DNS counseling otherwise fall back to
+          stripping <code>preview.</code> from{" "}
+          <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code> (or the localsitestudio.com
+          default). Distinct from the APP_URL / Stripe / brand banners.
+        </li>
+        <li>
+          Optional but recommended for auto domain registration: set{" "}
+          <code>VERCEL_TOKEN</code>. Until set to a non-placeholder secret,{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an orange
-          canonical-URL banner via <code>assessAppUrlEnvReadiness</code> — checkout
-          cancel/success, digest links, unsubscribe footers, pack preview links, and SEO{" "}
-          <code>siteUrl()</code> otherwise fall back to request origin or localhost. Distinct
-          from Stripe / Resend / auth banners.
-        </li>
-        <li>
-          Set <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> to the bare public production root (e.g.{" "}
-          <code>yoursite.com</code>, not <code>preview.yoursite.com</code> or{" "}
-          <code>example.com</code>). Until set, <DocLink href="/dashboard">/dashboard</DocLink>{" "}
-          and <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a cyan
-          production-root banner via <code>assessProductionDomainEnvReadiness</code> — handoff{" "}
-          <code>suggestedHost</code> and DNS counseling otherwise fall back to stripping{" "}
-          <code>preview.</code> from <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code> (or the
-          localsitestudio.com default). Distinct from the APP_URL / Stripe / brand banners.
-        </li>
-        <li>
-          Optional but recommended for auto domain registration: set <code>VERCEL_TOKEN</code>.
-          Until set to a non-placeholder secret, <DocLink href="/dashboard">/dashboard</DocLink>{" "}
-          and <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a blue
-          Vercel-automation banner via <code>assessVercelTokenEnvReadiness</code> — paid handoffs
-          otherwise stay <code>awaiting_dns</code> with manual notes (
-          <code>tryProvisionVercelDomain</code> never calls the Domains API). Distinct from the
-          cyan production-domain banner; per-handoff <strong>Assign project</strong> or shared{" "}
-          <code>VERCEL_PROJECT_ID</code> still required for the API call itself. Until shared{" "}
-          <code>VERCEL_PROJECT_ID</code> is a non-placeholder id, dashboards show an indigo
-          shared-project banner via <code>assessVercelProjectIdEnvReadiness</code> — Domains API
-          still skips unless every handoff gets Assign project.
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a
+          blue Vercel-automation banner via{" "}
+          <code>assessVercelTokenEnvReadiness</code> — paid handoffs otherwise
+          stay <code>awaiting_dns</code> with manual notes (
+          <code>tryProvisionVercelDomain</code> never calls the Domains API).
+          Distinct from the cyan production-domain banner; per-handoff{" "}
+          <strong>Assign project</strong> or shared{" "}
+          <code>VERCEL_PROJECT_ID</code> still required for the API call itself.
+          Until shared <code>VERCEL_PROJECT_ID</code> is a non-placeholder id,
+          dashboards show an indigo shared-project banner via{" "}
+          <code>assessVercelProjectIdEnvReadiness</code> — Domains API still
+          skips unless every handoff gets Assign project.
         </li>
       </ol>
 
@@ -167,170 +206,196 @@ export default function LaunchChecklistDocPage() {
           <code>RESEND_API_KEY</code> is a non-placeholder secret,{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a sky
-          outreach-blocked banner via <code>assessResendEmailEnvReadiness</code> — missing or{" "}
-          <code>re_placeholder…</code> keys leave every automated send in silent mock mode
-          (operators see success while no inbox is reached). Distinct from the Stripe core /
-          Price-ID banners. Until <code>EMAIL_FROM</code> is a non-placeholder Resend-verified
-          address, the same dashboards show a lime From-address banner via{" "}
+          outreach-blocked banner via <code>assessResendEmailEnvReadiness</code>{" "}
+          — missing or <code>re_placeholder…</code> keys leave every automated
+          send in silent mock mode (operators see success while no inbox is
+          reached). Distinct from the Stripe core / Price-ID banners. Until{" "}
+          <code>EMAIL_FROM</code> is a non-placeholder Resend-verified address,
+          the same dashboards show a lime From-address banner via{" "}
           <code>assessEmailFromEnvReadiness</code> — <code>sendEmail</code> /{" "}
-          <code>sendOperatorDailyDigest</code> use <code>brand.emailFrom</code> for the Resend{" "}
-          <code>from</code> header (never a hardcoded platform domain). Until{" "}
-          <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a non-placeholder postal address, the same
-          dashboards show a yellow CAN-SPAM-address banner via{" "}
-          <code>assessCompanyAddressEnvReadiness</code> — missing / whitespace / bracket-stub
-          values leave every outreach footer on{" "}
+          <code>sendOperatorDailyDigest</code> use <code>brand.emailFrom</code>{" "}
+          for the Resend <code>from</code> header (never a hardcoded platform
+          domain). Until <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a
+          non-placeholder postal address, the same dashboards show a yellow
+          CAN-SPAM-address banner via{" "}
+          <code>assessCompanyAddressEnvReadiness</code> — missing / whitespace /
+          bracket-stub values leave every outreach footer on{" "}
           <code>[Registered business address — Colorado, USA]</code> via{" "}
-          <code>brand.postalAddress</code>. Until <code>ANTHROPIC_API_KEY</code> is a
-          non-placeholder secret, the same dashboards show a teal AI-packs-on-stub banner via{" "}
-          <code>assessAnthropicEnvReadiness</code> — Growth/Complete{" "}
-          <strong>Generate pack</strong> / Complete <strong>Generate voice</strong> still
-          produce packs, but via Stub* template copy (sold AI quality gap).
+          <code>brand.postalAddress</code>. Until <code>ANTHROPIC_API_KEY</code>{" "}
+          is a non-placeholder secret, the same dashboards show a teal
+          AI-packs-on-stub banner via <code>assessAnthropicEnvReadiness</code> —
+          Growth/Complete <strong>Generate pack</strong> / Complete{" "}
+          <strong>Generate voice</strong> still produce packs, but via Stub*
+          template copy (sold AI quality gap).
         </li>
         <li>Configure SPF / DKIM / DMARC on the sending domain.</li>
         <li>
-          Import a small operator-owned CSV on the leads dashboard (or add one lead manually
-          with email), move stage to <code>outreach_sent</code>, confirm the email (or mock log)
-          and unsubscribe path (<code>GET /api/unsubscribe?email=…</code>). With Convex configured,
+          Import a small operator-owned CSV on the leads dashboard (or add one
+          lead manually with email), move stage to <code>outreach_sent</code>,
+          confirm the email (or mock log) and unsubscribe path (
+          <code>GET /api/unsubscribe?email=…</code>). With Convex configured,
           Add lead / CSV import must fail closed on Convex mutation failure (
-          <code>requireConvex</code> / <code>LEAD_UPSERT_CONVEX_PRIMARY</code>) — never claim
-          success after a SQLite-only write other instances cannot see; action-level Vitest (
-          <code>add-lead-action.test.ts</code>) locks the manual Add lead path (auth,
-          slug/businessName gates, existing-slug conflict, requireConvex fail-closed,
-          outreach_sent mark-before-Resend) and{" "}
-          <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV (auth, empty /
-          invalid CSV, per-row requireConvex, existing-slug skip, partial failure) beside
-          upsert-persist helpers. Manual stage moves on the
-          dashboard likewise fail closed (<code>LEAD_STAGE_CONVEX_PRIMARY</code>) so funnel state
-          cannot succeed only in instance-local SQLite while Convex-first readers miss the move
-          (Mark live already fail-closes via handoff writes; action-level Vitest in{" "}
-          <code>mark-handoff-live-action.test.ts</code> locks that path; Save domain Host→preview
-          likewise fail-closes — <code>assign-custom-domain-action.test.ts</code> locks auth /
+          <code>requireConvex</code> / <code>LEAD_UPSERT_CONVEX_PRIMARY</code>)
+          — never claim success after a SQLite-only write other instances cannot
+          see; action-level Vitest (<code>add-lead-action.test.ts</code>) locks
+          the manual Add lead path (auth, slug/businessName gates, existing-slug
+          conflict, requireConvex fail-closed, outreach_sent mark-before-Resend)
+          and <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV
+          (auth, empty / invalid CSV, per-row requireConvex, existing-slug skip,
+          partial failure) beside upsert-persist helpers. Manual stage moves on
+          the dashboard likewise fail closed (
+          <code>LEAD_STAGE_CONVEX_PRIMARY</code>) so funnel state cannot succeed
+          only in instance-local SQLite while Convex-first readers miss the move
+          (Mark live already fail-closes via handoff writes; action-level Vitest
+          in <code>mark-handoff-live-action.test.ts</code> locks that path; Save
+          domain Host→preview likewise fail-closes —{" "}
+          <code>assign-custom-domain-action.test.ts</code> locks auth /
           trim-to-null clear / no-handoff / requireConvex). A Convex unsubscribe
-          write failure must return 500 (not a success page after a SQLite-only suppress).
-          Re-importing the same CSV (or re-adding the same slug) should skip/reject the collision
-          rather than resetting stage or outreach.
+          write failure must return 500 (not a success page after a SQLite-only
+          suppress). Re-importing the same CSV (or re-adding the same slug)
+          should skip/reject the collision rather than resetting stage or
+          outreach.
         </li>
         <li>
-          After a few days (or by forcing <code>lastOutreachAt</code> older in SQLite for a
-          test lead), confirm the Follow-ups due panel offers Email 2 / Email 3 and that
-          suppression still blocks sends. Every Email 1/2/3 send durably marks{" "}
-          <code>outreachStep</code> before calling Resend; with Convex configured that mark
-          fails closed (<code>requireConvex</code>) — a mutation failure skips the send and
-          shows a retry message instead of a false success.           Action-level Vitest (
-          <code>send-follow-up-action.test.ts</code>) locks the dashboard Follow-up path
-          (auth, stage/email gates, mark-before-Resend, Email 2 vs 3, Convex skip-send)
-          beside the outreach-followups helper suite. Reply from the inquiry inbox likewise
-          marks <code>replied</code> before Resend (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>);
-          action-level Vitest (<code>reply-to-inquiry-action.test.ts</code>) locks that path
-          (auth, body/inquiry gates, mark-before-Resend, Convex skip-send) beside reply-persist
-          / reply.ts helpers. Mark-read on composer open and Archive share the same{" "}
-          <code>INQUIRY_REPLY_CONVEX_PRIMARY</code> fail-closed surface; action-level Vitest (
-          <code>update-inquiry-status-action.test.ts</code>) locks status-only glue (auth,
-          invalid status, requireConvex fail-closed, null not-found) beside the Reply suite.
-          Cold-lead Re-engage / Close likewise fails closed on disposition (
-          <code>COLD_DISPOSITION_CONVEX_PRIMARY</code>) and marks Email 1 before Resend when
-          the optional checkbox is set; action-level Vitest (
-          <code>dispose-cold-lead-action.test.ts</code>) locks that path beside cold-archive
-          helpers. The stage dropdown fails closed on{" "}
-          <code>LEAD_STAGE_CONVEX_PRIMARY</code> and, on <code>outreach_sent</code>, marks
-          Email 1 before Resend; action-level Vitest (
-          <code>update-lead-stage-action.test.ts</code>) locks that path beside stage-persist
-          helpers. Work next Snooze / Unsnooze fails closed on{" "}
-          <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>; action-level Vitest (
-          <code>snooze-lead-action.test.ts</code>) locks that path beside snooze-persist
-          helpers (auth, preset/clear gates, requireConvex fail-closed). Discovery-call /
-          Email 3 notes Save fails closed on <code>LEAD_NOTES_CONVEX_PRIMARY</code>;
-          action-level Vitest (<code>update-lead-notes-action.test.ts</code>) locks that
-          path beside notes-persist helpers (auth, soft cap, clear/trim, requireConvex
+          After a few days (or by forcing <code>lastOutreachAt</code> older in
+          SQLite for a test lead), confirm the Follow-ups due panel offers Email
+          2 / Email 3 and that suppression still blocks sends. Every Email 1/2/3
+          send durably marks <code>outreachStep</code> before calling Resend;
+          with Convex configured that mark fails closed (
+          <code>requireConvex</code>) — a mutation failure skips the send and
+          shows a retry message instead of a false success. Action-level Vitest
+          (<code>send-follow-up-action.test.ts</code>) locks the dashboard
+          Follow-up path (auth, stage/email gates, mark-before-Resend, Email 2
+          vs 3, Convex skip-send) beside the outreach-followups helper suite.
+          Reply from the inquiry inbox likewise marks <code>replied</code>{" "}
+          before Resend (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>);
+          action-level Vitest (<code>reply-to-inquiry-action.test.ts</code>)
+          locks that path (auth, body/inquiry gates, mark-before-Resend, Convex
+          skip-send) beside reply-persist / reply.ts helpers. Mark-read on
+          composer open and Archive share the same{" "}
+          <code>INQUIRY_REPLY_CONVEX_PRIMARY</code> fail-closed surface;
+          action-level Vitest (<code>update-inquiry-status-action.test.ts</code>
+          ) locks status-only glue (auth, invalid status, requireConvex
+          fail-closed, null not-found) beside the Reply suite. Cold-lead
+          Re-engage / Close likewise fails closed on disposition (
+          <code>COLD_DISPOSITION_CONVEX_PRIMARY</code>) and marks Email 1 before
+          Resend when the optional checkbox is set; action-level Vitest (
+          <code>dispose-cold-lead-action.test.ts</code>) locks that path beside
+          cold-archive helpers. The stage dropdown fails closed on{" "}
+          <code>LEAD_STAGE_CONVEX_PRIMARY</code> and, on{" "}
+          <code>outreach_sent</code>, marks Email 1 before Resend; action-level
+          Vitest (<code>update-lead-stage-action.test.ts</code>) locks that path
+          beside stage-persist helpers. Work next Snooze / Unsnooze fails closed
+          on <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>; action-level Vitest (
+          <code>snooze-lead-action.test.ts</code>) locks that path beside
+          snooze-persist helpers (auth, preset/clear gates, requireConvex
+          fail-closed). Discovery-call / Email 3 notes Save fails closed on{" "}
+          <code>LEAD_NOTES_CONVEX_PRIMARY</code>; action-level Vitest (
+          <code>update-lead-notes-action.test.ts</code>) locks that path beside
+          notes-persist helpers (auth, soft cap, clear/trim, requireConvex
           fail-closed).
         </li>
         <li>
-          On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, confirm the{" "}
-          <strong>Work next</strong> panel ranks real CSV/manual leads above demos, surfaces
-          missing-email leads as Blocked, and the Quality column sorts the table by score.
+          On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>,
+          confirm the <strong>Work next</strong> panel ranks real CSV/manual
+          leads above demos, surfaces missing-email leads as Blocked, and the
+          Quality column sorts the table by score.
         </li>
         <li>
-          With a synthetic open <code>checkout_sessions</code> row older than 2h, confirm Work next
-          shows a Cart badge and ranks that lead above a plain follow-up-due peer.
+          With a synthetic open <code>checkout_sessions</code> row older than
+          2h, confirm Work next shows a Cart badge and ranks that lead above a
+          plain follow-up-due peer.
         </li>
         <li>
           Open a preview with <code>?src=outreach</code> (or after stage is{" "}
-          <code>outreach_sent</code>), confirm <code>lastPreviewOpenAt</code> appears as an
-          Opened badge on the leads table and that Follow-ups due ranks openers first. With
-          Convex configured, a failed shared-store write must return <code>503</code> (
-          <code>requireConvex</code>) — never claim <code>recorded:true</code> after a
-          SQLite-only update other instances cannot see.
+          <code>outreach_sent</code>), confirm <code>lastPreviewOpenAt</code>{" "}
+          appears as an Opened badge on the leads table and that Follow-ups due
+          ranks openers first. With Convex configured, a failed shared-store
+          write must return <code>503</code> (<code>requireConvex</code>) —
+          never claim <code>recorded:true</code> after a SQLite-only update
+          other instances cannot see.
         </li>
         <li>
-          Set <code>OPERATOR_DIGEST_EMAIL</code> and use <strong>Send daily digest</strong> on{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> to confirm Work next,
-          follow-ups due, abandoned-checkout recoveries, unreplied inquiries, marketing packs
-          due (Growth/Complete missing this UTC month — from an uncapped pack list, not a
-          newest-N page), Starter → MRR upsell candidates, and
-          Complete voice packs due all show up in one email (or the mock log) — plus a
-          snoozed-lead footnote (count + soonest return) when any lead is parked off Work next.
-          The operator should not need to open the dashboard to know what is urgent today.
+          Set <code>OPERATOR_DIGEST_EMAIL</code> and use{" "}
+          <strong>Send daily digest</strong> on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> to confirm
+          Work next, follow-ups due, abandoned-checkout recoveries, unreplied
+          inquiries, marketing packs due (Growth/Complete missing this UTC month
+          — from an uncapped pack list, not a newest-N page), Starter → MRR
+          upsell candidates, and Complete voice packs due all show up in one
+          email (or the mock log) — plus a snoozed-lead footnote (count +
+          soonest return) when any lead is parked off Work next. The operator
+          should not need to open the dashboard to know what is urgent today.
           Until that env is a non-placeholder inbox,{" "}
           <code>assessOperatorDigestEmailEnvReadiness</code> shows an emerald
-          daily-digest-blocked banner on <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> (missing / whitespace-only
-          / <code>you@example.com</code>-style placeholders) so the gap is visible before click.
+          daily-digest-blocked banner on{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> (missing /
+          whitespace-only / <code>you@example.com</code>-style placeholders) so
+          the gap is visible before click.
         </li>
       </ol>
 
       <h2>4. Persistence</h2>
       <ol>
         <li>
-          Optional but recommended for multi-instance deploys: provision Convex (
-          <code>NEXT_PUBLIC_CONVEX_URL</code>). Local SQLite is the zero-config fallback for
-          solo demos. Until the Convex URL is a non-placeholder deployment URL,{" "}
-          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a pink
-          multi-instance persistence banner via <code>assessConvexUrlEnvReadiness</code> —
-          serverless hosts otherwise keep SQLite-only split-brain (payments/CRM/handoffs
-          invisible across instances). <code>resolveConvexDeploymentUrl</code> trims and
-          rejects placeholders before <code>ConvexHttpClient</code> construction.
+          Optional but recommended for multi-instance deploys: provision Convex
+          (<code>NEXT_PUBLIC_CONVEX_URL</code>). Local SQLite is the zero-config
+          fallback for solo demos. Until the Convex URL is a non-placeholder
+          deployment URL, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a
+          pink multi-instance persistence banner via{" "}
+          <code>assessConvexUrlEnvReadiness</code> — serverless hosts otherwise
+          keep SQLite-only split-brain (payments/CRM/handoffs invisible across
+          instances). <code>resolveConvexDeploymentUrl</code> trims and rejects
+          placeholders before <code>ConvexHttpClient</code> construction.
         </li>
         <li>
-          Once <code>NEXT_PUBLIC_CONVEX_URL</code> is configured, also set the server-only{" "}
-          <code>CONVEX_API_SECRET</code> (<code>npx convex env set CONVEX_API_SECRET ...</code>{" "}
-          on the Convex deployment, matching the app host&apos;s env). Every{" "}
-          <code>convex/*.ts</code> public function requires it, so a missing secret fails{" "}
-          <em>every</em> Convex call closed and silently falls back to instance-local SQLite —
-          the same split-brain risk the URL check above exists to prevent. Until it&apos;s set,{" "}
+          Once <code>NEXT_PUBLIC_CONVEX_URL</code> is configured, also set the
+          server-only <code>CONVEX_API_SECRET</code> (
+          <code>npx convex env set CONVEX_API_SECRET ...</code> on the Convex
+          deployment, matching the app host&apos;s env). Every{" "}
+          <code>convex/*.ts</code> public function requires it, so a missing
+          secret fails <em>every</em> Convex call closed and silently falls back
+          to instance-local SQLite — the same split-brain risk the URL check
+          above exists to prevent. Until it&apos;s set,{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a second pink banner
-          via <code>assessConvexApiSecretEnvReadiness</code>.
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a
+          second pink banner via <code>assessConvexApiSecretEnvReadiness</code>.
         </li>
         <li>
-          Confirm lead <code>email</code> persists after save — outreach depends on it.
+          Confirm lead <code>email</code> persists after save — outreach depends
+          on it.
         </li>
       </ol>
 
       <h2>5. Branding + legal</h2>
       <ol>
         <li>
-          Set <code>NEXT_PUBLIC_BRAND_NAME</code> before customer-facing launches. Until set to
-          a non-placeholder public brand, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a rose brand-copy
-          banner via <code>assessBrandNameEnvReadiness</code> — outreach From names, marketing
-          footers, voice intros, and CAN-SPAM sender lines otherwise fall back to{" "}
-          <code>Your Brand</code> (legacy <code>NEXT_PUBLIC_APP_NAME</code> does not count).
-          Distinct from Stripe / Resend / APP_URL / auth banners. Until{" "}
-          <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a real Colorado postal address, the same
-          dashboards show a yellow CAN-SPAM-address banner via{" "}
-          <code>assessCompanyAddressEnvReadiness</code> — outreach footers otherwise ship the
-          bracket stub via <code>brand.postalAddress</code>.
+          Set <code>NEXT_PUBLIC_BRAND_NAME</code> before customer-facing
+          launches. Until set to a non-placeholder public brand,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a
+          rose brand-copy banner via <code>assessBrandNameEnvReadiness</code> —
+          outreach From names, marketing footers, voice intros, and CAN-SPAM
+          sender lines otherwise fall back to <code>Your Brand</code> (legacy{" "}
+          <code>NEXT_PUBLIC_APP_NAME</code> does not count). Distinct from
+          Stripe / Resend / APP_URL / auth banners. Until{" "}
+          <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a real Colorado postal
+          address, the same dashboards show a yellow CAN-SPAM-address banner via{" "}
+          <code>assessCompanyAddressEnvReadiness</code> — outreach footers
+          otherwise ship the bracket stub via <code>brand.postalAddress</code>.
         </li>
         <li>
-          Privacy and Terms are live at <DocLink href="/privacy">/privacy</DocLink> and{" "}
-          <DocLink href="/terms">/terms</DocLink> — review with counsel before paid ads or
-          cold email at scale.
+          Privacy and Terms are live at{" "}
+          <DocLink href="/privacy">/privacy</DocLink> and{" "}
+          <DocLink href="/terms">/terms</DocLink> — review with counsel before
+          paid ads or cold email at scale.
         </li>
         <li>
           Do not enable Google Places ingestion until legal review (
-          <DocLink href="/docs/compliance">Compliance</DocLink>). CSV / manual entry is the
-          approved path today.
+          <DocLink href="/docs/compliance">Compliance</DocLink>). CSV / manual
+          entry is the approved path today.
         </li>
       </ol>
 
@@ -340,263 +405,324 @@ export default function LaunchChecklistDocPage() {
         <li>
           <code>OPERATOR_DASHBOARD_PASSWORD</code> set; dashboard login works
         </li>
-        <li>At least one outreach email can send (or clearly mock) with unsubscribe</li>
+        <li>
+          At least one outreach email can send (or clearly mock) with
+          unsubscribe
+        </li>
         <li>Operator can add leads via form or CSV without engineering help</li>
-        <li>Public brand + Colorado postal address present on outbound email</li>
         <li>
-          After a test payment, a deploy handoff appears on the leads dashboard (Convex when
-          configured — see <DocLink href="/docs/production-deploy">Production deploy</DocLink>).
-          Re-deliver the same signed <code>checkout.session.completed</code> and confirm the
-          handoff row still exists (idempotent enqueue). Receipt/DNS emails re-send only when
-          the handoff notes lack a per-session sent-marker (recovery after a partial first
-          delivery); once markers are present they are not resent.
-          If you save a custom domain (or dedicated Vercel project) then complete a second
-          checkout for the same slug (upsell), confirm those operator fields survive the handoff
-          rebuild — and if you already <strong>Mark live</strong>&apos;d, confirm status stays{" "}
-          <code>live</code> (not reset to <code>awaiting_dns</code>). If a fulfillment write fails, the webhook must return <code>500</code> (not{" "}
-          <code>200</code>) so Stripe retries. With Convex configured, webhook fulfillment writes
-          must fail closed on Convex errors (<code>requireConvex</code>) — never ACK after a
-          SQLite-only write that other instances cannot see. The same fail-closed policy applies
-          when creating Checkout Sessions: with Convex configured,{" "}
-          <code>recordCheckoutSessionCreated</code> must succeed (or the checkout API returns{" "}
-          <code>502</code>) so abandoned-recovery queues on other instances can see the open cart.
-          Sending Finish-checkout / Buy now recovery durable-marks <code>recoverySentAt</code> with{" "}
-          <code>requireConvex</code> before the email leaves — a Convex failure surfaces to the
-          operator and skips the send (no unmarked nudge on other instances).
+          Public brand + Colorado postal address present on outbound email
         </li>
         <li>
-          <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,
-          stage funnel, open handoffs, abandoned carts / recovery due, and leads missing email
-          (no row-scanning required). Open handoffs also appear under{" "}
-          <strong>Production handoffs open</strong> in Send daily digest, and leads stuck at{" "}
-          <code>stage=paid</code> with no handoff row at all (e.g. a CSV-imported legacy client)
-          appear separately under <strong>Paid, not yet live</strong>. Email-critical leads
-          with no usable address (site_built / outreach_sent / discovery_call / paid) also list
-          under <strong>Leads missing email</strong> in that digest — the same predicate as the
-          pipeline-health card — so contact gaps that block Email 1 are visible without opening
-          the dashboard.
+          After a test payment, a deploy handoff appears on the leads dashboard
+          (Convex when configured — see{" "}
+          <DocLink href="/docs/production-deploy">Production deploy</DocLink>).
+          Re-deliver the same signed <code>checkout.session.completed</code> and
+          confirm the handoff row still exists (idempotent enqueue). Receipt/DNS
+          emails re-send only when the handoff notes lack a per-session
+          sent-marker (recovery after a partial first delivery); once markers
+          are present they are not resent. If you save a custom domain (or
+          dedicated Vercel project) then complete a second checkout for the same
+          slug (upsell), confirm those operator fields survive the handoff
+          rebuild — and if you already <strong>Mark live</strong>&apos;d,
+          confirm status stays <code>live</code> (not reset to{" "}
+          <code>awaiting_dns</code>). If a fulfillment write fails, the webhook
+          must return <code>500</code> (not <code>200</code>) so Stripe retries.
+          With Convex configured, webhook fulfillment writes must fail closed on
+          Convex errors (<code>requireConvex</code>) — never ACK after a
+          SQLite-only write that other instances cannot see. The same
+          fail-closed policy applies when creating Checkout Sessions: with
+          Convex configured, <code>recordCheckoutSessionCreated</code> must
+          succeed (or the checkout API returns <code>502</code>) so
+          abandoned-recovery queues on other instances can see the open cart.
+          Sending Finish-checkout / Buy now recovery durable-marks{" "}
+          <code>recoverySentAt</code> with <code>requireConvex</code> before the
+          email leaves — a Convex failure surfaces to the operator and skips the
+          send (no unmarked nudge on other instances).
         </li>
         <li>
-          <DocLink href="/dashboard/leads">Work next</DocLink> quality scores prioritize
-          outreach (real contacts above demos; blocked when email is missing; abandoned checkout
-          carts above plain follow-ups)
+          <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows
+          recorded revenue, stage funnel, open handoffs, abandoned carts /
+          recovery due, and leads missing email (no row-scanning required). Open
+          handoffs also appear under <strong>Production handoffs open</strong>{" "}
+          in Send daily digest, and leads stuck at <code>stage=paid</code> with
+          no handoff row at all (e.g. a CSV-imported legacy client) appear
+          separately under <strong>Paid, not yet live</strong>. Email-critical
+          leads with no usable address (site_built / outreach_sent /
+          discovery_call / paid) also list under{" "}
+          <strong>Leads missing email</strong> in that digest — the same
+          predicate as the pipeline-health card — so contact gaps that block
+          Email 1 are visible without opening the dashboard.
         </li>
         <li>
-          Operator can open <strong>Notes</strong> on a lead row, save call outcomes, and find
-          them again via search — notes stay off the public preview site. With Convex
-          configured, Save must fail closed on Convex errors (<code>requireConvex</code>) —
-          never claim success after a SQLite-only write that other instances never see.
+          <DocLink href="/dashboard/leads">Work next</DocLink> quality scores
+          prioritize outreach (real contacts above demos; blocked when email is
+          missing; abandoned checkout carts above plain follow-ups)
         </li>
         <li>
-          Setting stage to <strong>Discovery Call</strong> or sending <strong>Email 3</strong>{" "}
-          auto-opens Notes with a soft prompt; <strong>Skip for now</strong> dismisses without
-          undoing the stage or email
+          Operator can open <strong>Notes</strong> on a lead row, save call
+          outcomes, and find them again via search — notes stay off the public
+          preview site. With Convex configured, Save must fail closed on Convex
+          errors (<code>requireConvex</code>) — never claim success after a
+          SQLite-only write that other instances never see.
         </li>
         <li>
-          From <strong>Work next</strong> or a lead row, snooze 1d / 3d / 7d parks the lead off
-          the queue (score preserved); <strong>Unsnooze</strong> brings it back early. Confirm
-          the pipeline-health <strong>Snoozed</strong> count matches parked rows (and soonest
-          return time). With Convex configured, Snooze / Unsnooze must fail closed on Convex
-          errors (<code>LEAD_SNOOZE_CONVEX_PRIMARY</code>) — never claim success after a
-          SQLite-only write that leaves the lead looking due (or still parked) elsewhere.
+          Setting stage to <strong>Discovery Call</strong> or sending{" "}
+          <strong>Email 3</strong> auto-opens Notes with a soft prompt;{" "}
+          <strong>Skip for now</strong> dismisses without undoing the stage or
+          email
         </li>
         <li>
-          After Email 3 + quiet days, a lead shows as <strong>Cold</strong> — use{" "}
-          <strong>Re-engage</strong> (reset to Discovered for a fresh Email 1–3 cycle) or{" "}
-          <strong>Close</strong> (terminal Closed stage) from the Cold leads panel or row
-          actions. Optionally check <strong>Also send Email 1 when Re-engaging</strong> to fire
-          Email 1 immediately (requires an email on the lead; default remains off so sends stay
-          intentional). With Convex configured, Re-engage/Close must fail closed on Convex
-          errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
-          that leaves cold inventory looking open (or still cold) on other instances.
+          From <strong>Work next</strong> or a lead row, snooze 1d / 3d / 7d
+          parks the lead off the queue (score preserved);{" "}
+          <strong>Unsnooze</strong> brings it back early. Confirm the
+          pipeline-health <strong>Snoozed</strong> count matches parked rows
+          (and soonest return time). With Convex configured, Snooze / Unsnooze
+          must fail closed on Convex errors (
+          <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>) — never claim success after a
+          SQLite-only write that leaves the lead looking due (or still parked)
+          elsewhere.
+        </li>
+        <li>
+          After Email 3 + quiet days, a lead shows as <strong>Cold</strong> —
+          use <strong>Re-engage</strong> (reset to Discovered for a fresh Email
+          1–3 cycle) or <strong>Close</strong> (terminal Closed stage) from the
+          Cold leads panel or row actions. Optionally check{" "}
+          <strong>Also send Email 1 when Re-engaging</strong> to fire Email 1
+          immediately (requires an email on the lead; default remains off so
+          sends stay intentional). With Convex configured, Re-engage/Close must
+          fail closed on Convex errors (<code>requireConvex</code>) — never
+          claim success after a SQLite-only write that leaves cold inventory
+          looking open (or still cold) on other instances.
         </li>
         <li>
           When a lead becomes due for Email 2 or 3, confirm the pipeline-health{" "}
-          <strong>Follow-ups due</strong> count increments (with the oldest-due age) and
-          matches the Due badges shown in the Follow-ups due panel / Work next queue.
+          <strong>Follow-ups due</strong> count increments (with the oldest-due
+          age) and matches the Due badges shown in the Follow-ups due panel /
+          Work next queue.
         </li>
         <li>
-          After <strong>Close</strong> on a Cold lead, confirm the pipeline-health stage funnel
-          footnote shows the closed count (outside the active bars) and the{" "}
-          <strong>Closed</strong> filter on{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the same rows —
-          closed is not a second priority queue.
+          After <strong>Close</strong> on a Cold lead, confirm the
+          pipeline-health stage funnel footnote shows the closed count (outside
+          the active bars) and the <strong>Closed</strong> filter on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the
+          same rows — closed is not a second priority queue.
         </li>
         <li>
-          On a paid/live Starter-only lead, <strong>Upsell</strong> sends a Growth/Complete
-          upgrade email (suppression honored); after a Growth/Complete/Commerce order exists,
-          Upsell disappears and <strong>Billing</strong> appears instead.
+          On a paid/live Starter-only lead, <strong>Upsell</strong> sends a
+          Growth/Complete upgrade email (suppression honored); after a
+          Growth/Complete/Commerce order exists, Upsell disappears and{" "}
+          <strong>Billing</strong> appears instead.
         </li>
         <li>
-          For a paid/live Growth or Complete lead, click <strong>Generate pack</strong> on{" "}
+          For a paid/live Growth or Complete lead, click{" "}
+          <strong>Generate pack</strong> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — confirm{" "}
-          {monthlyMarketingSocialPostCount()} social/GBP posts + {monthlyMarketingEmailCount()}{" "}
-          emails appear for the current UTC month (stub copy without{" "}
-          <code>ANTHROPIC_API_KEY</code>; real copy when the key is set). Until the key is a
-          non-placeholder secret, the teal <code>assessAnthropicEnvReadiness</code> banner
-          surfaces that sold AI quality is stub — set it before fulfilling paid Growth/Complete
-          clients. Regenerating replaces
-          that month. When Convex is configured, Generate pack must fail closed on Convex
-          errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
-          that other instances (Email pack / packs-due) cannot see. With an email on the lead,
-          click <strong>Email pack</strong> — confirm the
-          pack arrives (or a mock send is logged when Resend is unset). Copy/paste or client
-          email works until Buffer/GBP OAuth is configured. Before generating, confirm
-          pipeline-health <strong>Marketing packs due</strong> counts eligible leads missing
+          {monthlyMarketingSocialPostCount()} social/GBP posts +{" "}
+          {monthlyMarketingEmailCount()} emails appear for the current UTC month
+          (stub copy without <code>ANTHROPIC_API_KEY</code>; real copy when the
+          key is set). Until the key is a non-placeholder secret, the teal{" "}
+          <code>assessAnthropicEnvReadiness</code> banner surfaces that sold AI
+          quality is stub — set it before fulfilling paid Growth/Complete
+          clients. Regenerating replaces that month. When Convex is configured,
+          Generate pack must fail closed on Convex errors (
+          <code>requireConvex</code>) — never claim success after a SQLite-only
+          write that other instances (Email pack / packs-due) cannot see. With
+          an email on the lead, click <strong>Email pack</strong> — confirm the
+          pack arrives (or a mock send is logged when Resend is unset).
+          Copy/paste or client email works until Buffer/GBP OAuth is configured.
+          Before generating, confirm pipeline-health{" "}
+          <strong>Marketing packs due</strong> counts eligible leads missing
           this month&apos;s pack (and that the daily digest lists them).
         </li>
         <li>
-          For a paid/live lead with a Commerce add-on order, click <strong>Add catalog</strong>{" "}
-          / <strong>Edit catalog</strong> on{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — save ≤50 SKUs, open{" "}
-          <code>/preview/[slug]</code>, confirm Menu &amp; products renders, and that{" "}
-          <strong>Request order</strong> prefills the contact form (inquiry lands in the
-          operator inbox). Before adding, confirm pipeline-health{" "}
-          <strong>Commerce catalogs missing</strong> counts eligible leads without a catalog
-          (and that the daily digest lists them).
+          For a paid/live lead with a Commerce add-on order, click{" "}
+          <strong>Add catalog</strong> / <strong>Edit catalog</strong> on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — save ≤50
+          SKUs, open <code>/preview/[slug]</code>, confirm Menu &amp; products
+          renders, and that <strong>Request order</strong> prefills the contact
+          form (inquiry lands in the operator inbox). Before adding, confirm
+          pipeline-health <strong>Commerce catalogs missing</strong> counts
+          eligible leads without a catalog (and that the daily digest lists
+          them).
         </li>
         <li>
-          With <code>STRIPE_SECRET_KEY</code> set, click <strong>Sync to Stripe</strong> on a
-          saved catalog — confirm each SKU gets a{" "}
-          <strong>Synced</strong> badge and a real Stripe Product + Price appears in the Stripe
-          dashboard (metadata <code>local_site_studio_key = commerce_sku_&lt;slug&gt;_&lt;skuId&gt;</code>
+          With <code>STRIPE_SECRET_KEY</code> set, click{" "}
+          <strong>Sync to Stripe</strong> on a saved catalog — confirm each SKU
+          gets a <strong>Synced</strong> badge and a real Stripe Product + Price
+          appears in the Stripe dashboard (metadata{" "}
+          <code>
+            local_site_studio_key = commerce_sku_&lt;slug&gt;_&lt;skuId&gt;
+          </code>
           ). Action-level Vitest in{" "}
-          <code>sync-commerce-catalog-to-stripe-action.test.ts</code> locks the dashboard glue
-          (auth, secret gate, empty catalog, requireConvex fail-closed). Re-running Sync to Stripe
-          after editing only a name should not create duplicate
-          Products; changing a price should create a new Price on the same Product. After Sync,
-          edit a SKU name and Save — confirm the Synced badge remains (Stripe ids are preserved
-          server-side; only a price change clears the Price id; action-level Vitest in{" "}
-          <code>save-commerce-catalog-action.test.ts</code>; catalog load for the panel is
-          locked by <code>get-commerce-catalog-action.test.ts</code>). With Convex configured,
-          Save catalog / Sync to Stripe fail closed on Convex errors (<code>requireConvex</code>) —
-          never claim success after a SQLite-only write that other instances would still treat
-          as unsynced (Buy now blocked). Remove a previously synced SKU,
-          Save, then click <strong>Archive orphans</strong> — confirm the removed SKU&apos;s
-          Stripe Product becomes inactive and current SKUs stay active (action-level Vitest in{" "}
-          <code>archive-orphan-commerce-stripe-products-action.test.ts</code> locks the
-          dashboard glue). Before Sync, confirm
-          pipeline-health <strong>Commerce Sync to Stripe</strong> counts saved catalogs with
+          <code>sync-commerce-catalog-to-stripe-action.test.ts</code> locks the
+          dashboard glue (auth, secret gate, empty catalog, requireConvex
+          fail-closed). Re-running Sync to Stripe after editing only a name
+          should not create duplicate Products; changing a price should create a
+          new Price on the same Product. After Sync, edit a SKU name and Save —
+          confirm the Synced badge remains (Stripe ids are preserved
+          server-side; only a price change clears the Price id; action-level
+          Vitest in <code>save-commerce-catalog-action.test.ts</code>; catalog
+          load for the panel is locked by{" "}
+          <code>get-commerce-catalog-action.test.ts</code>). With Convex
+          configured, Save catalog / Sync to Stripe fail closed on Convex errors
+          (<code>requireConvex</code>) — never claim success after a SQLite-only
+          write that other instances would still treat as unsynced (Buy now
+          blocked). Remove a previously synced SKU, Save, then click{" "}
+          <strong>Archive orphans</strong> — confirm the removed SKU&apos;s
+          Stripe Product becomes inactive and current SKUs stay active
+          (action-level Vitest in{" "}
+          <code>archive-orphan-commerce-stripe-products-action.test.ts</code>{" "}
+          locks the dashboard glue). Before Sync, confirm pipeline-health{" "}
+          <strong>Commerce Sync to Stripe</strong> counts saved catalogs with
           unsynced SKUs (and that the daily digest lists them). Reload{" "}
           <code>/preview/[slug]</code> and confirm synced SKUs now show{" "}
-          <strong>Buy now</strong> (routes through <code>/api/commerce/checkout</code>, which
-          resolves the price server-side) instead of Request order. Confirm a Buy now session
-          writes a <code>checkout_sessions</code> row with <code>kind=commerce_sku</code> (and
-          does <em>not</em> appear in the Abandoned checkouts / Work next cart boost — only the
-          Abandoned Buy now panel).
+          <strong>Buy now</strong> (routes through{" "}
+          <code>/api/commerce/checkout</code>, which resolves the price
+          server-side) instead of Request order. Confirm a Buy now session
+          writes a <code>checkout_sessions</code> row with{" "}
+          <code>kind=commerce_sku</code> (and does <em>not</em> appear in the
+          Abandoned checkouts / Work next cart boost — only the Abandoned Buy
+          now panel).
         </li>
         <li>
-          After a real Buy now purchase completes, confirm the inquiry inbox shows the paid-order
-          note AND pipeline-health <strong>Commerce sales (pass-through)</strong> increases by the
-          order amount. With an email on the Commerce lead, confirm they receive (or a mock send
-          logs) the client order notification — SKU, amount, optional customer email, link to
-          preview#catalog. Re-deliver the same Stripe <code>checkout.session.completed</code>{" "}
-          event: if the inquiry was never written, confirm recovery creates it once; if it
-          already exists for that session id (even when the lead has 50+ newer contact /
+          After a real Buy now purchase completes, confirm the inquiry inbox
+          shows the paid-order note AND pipeline-health{" "}
+          <strong>Commerce sales (pass-through)</strong> increases by the order
+          amount. With an email on the Commerce lead, confirm they receive (or a
+          mock send logs) the client order notification — SKU, amount, optional
+          customer email, link to preview#catalog. Re-deliver the same Stripe{" "}
+          <code>checkout.session.completed</code> event: if the inquiry was
+          never written, confirm recovery creates it once; if it already exists
+          for that session id (even when the lead has 50+ newer contact /
           Request-order inquiries — dedup uses uncapped{" "}
-          <code>listCommerceCheckoutInquiriesBySlug</code>), confirm a second inquiry/client
-          email is <em>not</em> created. A commerce session missing <code>metadata.skuId</code> must not create an
-          inquiry or client email either. Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
-          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the lead with the
-          order line and owed total — including older unpaid Buy now rows past the recent-order
-          window (owed reads use <code>listUnpaidCommerceOrders</code>). Confirm{" "}
-          <strong>Send daily digest</strong> lists those
-          clients under Commerce payouts owed when <code>OPERATOR_DIGEST_EMAIL</code> is set.
-          This money is collected for the client, not platform revenue —
-          pay clients manually until Stripe Connect ships (see{" "}
-          <DocLink href="/docs/process">process</DocLink>). After actually paying the client,
-          click <strong>Mark paid out</strong> on that order line and confirm it disappears
-          from the panel&apos;s owed total, from pipeline-health{" "}
-          <strong>Commerce sales (pass-through)</strong>, and from the next digest&apos;s Commerce payouts
-          owed section — this is what prevents double-paying the same order. When Convex is
-          configured, a Convex write failure must surface an error (not silent success) so
-          unpaid owed totals cannot stay split-brain across instances. Action-level Vitest in{" "}
-          <code>mark-commerce-order-paid-out-action.test.ts</code> locks that glue.
+          <code>listCommerceCheckoutInquiriesBySlug</code>), confirm a second
+          inquiry/client email is <em>not</em> created. A commerce session
+          missing <code>metadata.skuId</code> must not create an inquiry or
+          client email either. Confirm the{" "}
+          <strong>Commerce payouts (manual)</strong> panel on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the
+          lead with the order line and owed total — including older unpaid Buy
+          now rows past the recent-order window (owed reads use{" "}
+          <code>listUnpaidCommerceOrders</code>). Confirm{" "}
+          <strong>Send daily digest</strong> lists those clients under Commerce
+          payouts owed when <code>OPERATOR_DIGEST_EMAIL</code> is set. This
+          money is collected for the client, not platform revenue — pay clients
+          manually until Stripe Connect ships (see{" "}
+          <DocLink href="/docs/process">process</DocLink>). After actually
+          paying the client, click <strong>Mark paid out</strong> on that order
+          line and confirm it disappears from the panel&apos;s owed total, from
+          pipeline-health <strong>Commerce sales (pass-through)</strong>, and
+          from the next digest&apos;s Commerce payouts owed section — this is
+          what prevents double-paying the same order. When Convex is configured,
+          a Convex write failure must surface an error (not silent success) so
+          unpaid owed totals cannot stay split-brain across instances.
+          Action-level Vitest in{" "}
+          <code>mark-commerce-order-paid-out-action.test.ts</code> locks that
+          glue.
         </li>
         <li>
-          Optional, dormant by default: each Commerce lead row&apos;s expanded panel has a{" "}
-          <strong>Payouts (Stripe Connect) — scaffold</strong> section for pre-provisioning a
-          client&apos;s Connect Express account ahead of the future payout wiring. It stays
-          inert (buttons hidden behind a message) until you set{" "}
+          Optional, dormant by default: each Commerce lead row&apos;s expanded
+          panel has a <strong>Payouts (Stripe Connect) — scaffold</strong>{" "}
+          section for pre-provisioning a client&apos;s Connect Express account
+          ahead of the future payout wiring. It stays inert (buttons hidden
+          behind a message) until you set{" "}
           <code>ALLOW_STRIPE_CONNECT_ONBOARDING=1</code> alongside{" "}
-          <code>STRIPE_SECRET_KEY</code> — do not flip this on until you are ready to start
-          collecting client KYC/bank details, since <strong>Create Connect account</strong> and{" "}
-          <strong>Get onboarding link</strong> both make real Stripe API calls once enabled.
-          Creating an account is idempotent (re-finds the same account on a retry) and{" "}
-          <strong>Check status</strong> reports live <code>charges_enabled</code> /{" "}
-          <code>payouts_enabled</code> / <code>details_submitted</code> flags. This only
-          provisions the account — no transfer/destination-charge wiring reads it yet, so Buy
-          now money still lands entirely in the platform&apos;s own Stripe account and manual
-          payouts (the bullet above) remain the only way clients get paid until that
-          counsel-reviewed money-movement half ships (see{" "}
+          <code>STRIPE_SECRET_KEY</code> — do not flip this on until you are
+          ready to start collecting client KYC/bank details, since{" "}
+          <strong>Create Connect account</strong> and{" "}
+          <strong>Get onboarding link</strong> both make real Stripe API calls
+          once enabled. Creating an account is idempotent (re-finds the same
+          account on a retry) and <strong>Check status</strong> reports live{" "}
+          <code>charges_enabled</code> / <code>payouts_enabled</code> /{" "}
+          <code>details_submitted</code> flags. This only provisions the account
+          — no transfer/destination-charge wiring reads it yet, so Buy now money
+          still lands entirely in the platform&apos;s own Stripe account and
+          manual payouts (the bullet above) remain the only way clients get paid
+          until that counsel-reviewed money-movement half ships (see{" "}
           <DocLink href="/docs/architecture">architecture</DocLink>).
         </li>
         <li>
-          For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
-          receptionist scripts (greeting, hours, services, booking, after-hours, take-a-message)
-          appear (stub without <code>ANTHROPIC_API_KEY</code>). When Convex is configured,
-          Generate voice must fail closed on Convex errors (<code>requireConvex</code>) — never
-          claim success after a SQLite-only write that other instances (Email voice pack /
-          voice-packs-due) cannot see. With an email on the lead, click{" "}
-          <strong>Email voice pack</strong> — confirm the scripts arrive (or a mock send is
-          logged when Resend is unset). Clients can paste into a temp number / Cal.com until
-          Twilio is provisioned. Regenerating replaces the lead&apos;s pack. Before generating,
-          confirm pipeline-health <strong>Voice packs due</strong> counts eligible Complete leads
-          missing a pack (and that the daily digest lists them).
+          For a paid/live Complete lead, click <strong>Generate voice</strong> —
+          confirm six receptionist scripts (greeting, hours, services, booking,
+          after-hours, take-a-message) appear (stub without{" "}
+          <code>ANTHROPIC_API_KEY</code>). When Convex is configured, Generate
+          voice must fail closed on Convex errors (<code>requireConvex</code>) —
+          never claim success after a SQLite-only write that other instances
+          (Email voice pack / voice-packs-due) cannot see. With an email on the
+          lead, click <strong>Email voice pack</strong> — confirm the scripts
+          arrive (or a mock send is logged when Resend is unset). Clients can
+          paste into a temp number / Cal.com until Twilio is provisioned.
+          Regenerating replaces the lead&apos;s pack. Before generating, confirm
+          pipeline-health <strong>Voice packs due</strong> counts eligible
+          Complete leads missing a pack (and that the daily digest lists them).
         </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>
       <ol>
         <li>
-          Optional: set <code>VERCEL_TOKEN</code> (already flagged by the blue readiness banner
-          when unset) + <code>VERCEL_PROJECT_ID</code> (already flagged by the indigo readiness
-          banner when unset) and <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> (already flagged by
-          the cyan readiness banner when unset) so domain registration is attempted automatically.
+          Optional: set <code>VERCEL_TOKEN</code> (already flagged by the blue
+          readiness banner when unset) + <code>VERCEL_PROJECT_ID</code> (already
+          flagged by the indigo readiness banner when unset) and{" "}
+          <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> (already flagged by the
+          cyan readiness banner when unset) so domain registration is attempted
+          automatically.
         </li>
         <li>
-          Complete DNS from the handoff panel, then <strong>Mark live</strong>. Confirm
-          paid-not-live and open-handoff counts drop on pipeline health. With Convex configured,
-          Mark live / Assign Vercel project / Assign custom domain all fail closed on Convex
-          errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
-          that other instances cannot see; a failure shows a retry message instead. Action-level
-          Vitest (<code>mark-handoff-live-action.test.ts</code>) locks the Mark live path (auth,
-          empty slug, no-handoff, requireConvex fail-closed, success revalidate);{" "}
-          <code>assign-vercel-project-action.test.ts</code> locks Assign Vercel project;{" "}
-          <code>assign-custom-domain-action.test.ts</code> locks Save domain — all beside handoff
-          helpers.
+          Complete DNS from the handoff panel, then <strong>Mark live</strong>.
+          Confirm paid-not-live and open-handoff counts drop on pipeline health.
+          With Convex configured, Mark live / Assign Vercel project / Assign
+          custom domain all fail closed on Convex errors (
+          <code>requireConvex</code>) — never claim success after a SQLite-only
+          write that other instances cannot see; a failure shows a retry message
+          instead. Action-level Vitest (
+          <code>mark-handoff-live-action.test.ts</code>) locks the Mark live
+          path (auth, empty slug, no-handoff, requireConvex fail-closed, success
+          revalidate); <code>assign-vercel-project-action.test.ts</code> locks
+          Assign Vercel project;{" "}
+          <code>assign-custom-domain-action.test.ts</code> locks Save domain —
+          all beside handoff helpers.
         </li>
         <li>
-          Point client site forms at <code>/api/contact/[slug]</code>. Submissions must land in
-          the operator Inquiries panel (persist required — a DB failure returns 503, not a fake
-          Thanks). With Convex configured, contact inserts must fail closed on Convex errors (
-          <code>requireConvex</code>) — never claim success after a SQLite-only write that other
-          instances cannot see. Reply from the panel (Resend), or archive when done. With Convex
-          configured, Reply / Mark read / Archive also fail closed (
-          <code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) and Reply marks <code>replied</code> before
-          the email leaves — never claim success after a SQLite-only replied mark, and never send
-          before the durable mark. Action-level Vitest (
-          <code>reply-to-inquiry-action.test.ts</code>) locks the dashboard Reply path (auth,
-          body / archived / no-email gates, mark-before-Resend, Convex skip-send) beside the
-          reply helper suite; <code>update-inquiry-status-action.test.ts</code> locks Mark read
-          / Archive status-only glue (auth, invalid status, requireConvex fail-closed, null
-          not-found). Stage dropdown moves fail closed (
-          <code>LEAD_STAGE_CONVEX_PRIMARY</code>); <code>update-lead-stage-action.test.ts</code>{" "}
-          locks that glue (including Email 1 mark-before-Resend on{" "}
-          <code>outreach_sent</code>, plus <code>!sent.success</code> when Resend/suppression
-          resolves failure without throwing). Email notify to the business fires only after a successful
-          insert. Confirm unreplied-inquiry count on pipeline health drops after reply (new + read
-          count as unreplied; replied/archived do not).
+          Point client site forms at <code>/api/contact/[slug]</code>.
+          Submissions must land in the operator Inquiries panel (persist
+          required — a DB failure returns 503, not a fake Thanks). With Convex
+          configured, contact inserts must fail closed on Convex errors (
+          <code>requireConvex</code>) — never claim success after a SQLite-only
+          write that other instances cannot see. Reply from the panel (Resend),
+          or archive when done. With Convex configured, Reply / Mark read /
+          Archive also fail closed (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>)
+          and Reply marks <code>replied</code> before the email leaves — never
+          claim success after a SQLite-only replied mark, and never send before
+          the durable mark. Action-level Vitest (
+          <code>reply-to-inquiry-action.test.ts</code>) locks the dashboard
+          Reply path (auth, body / archived / no-email gates,
+          mark-before-Resend, Convex skip-send) beside the reply helper suite;{" "}
+          <code>update-inquiry-status-action.test.ts</code> locks Mark read /
+          Archive status-only glue (auth, invalid status, requireConvex
+          fail-closed, null not-found). Stage dropdown moves fail closed (
+          <code>LEAD_STAGE_CONVEX_PRIMARY</code>);{" "}
+          <code>update-lead-stage-action.test.ts</code> locks that glue
+          (including Email 1 mark-before-Resend on <code>outreach_sent</code>,
+          plus <code>!sent.success</code> when Resend/suppression resolves
+          failure without throwing). Email notify to the business fires only
+          after a successful insert. Confirm unreplied-inquiry count on pipeline
+          health drops after reply (new + read count as unreplied;
+          replied/archived do not).
         </li>
       </ol>
 
       <p>
-        Track engineering backlog in the <DocLink href="/docs/process">process log</DocLink>.
-        Stripe Price bootstrap remains an operator-owned todo until secrets are pasted — when{" "}
-        <code>ALLOW_STRIPE_BOOTSTRAP=1</code>, the checkout-blocked banner offers{" "}
-        <strong>Run bootstrap</strong> and a copyable <code>envSnippet</code>; paste those{" "}
-        <code>STRIPE_PRICE_ID_*</code> values and unset the flag to clear the banner. Without the
-        flag the banner only lists missing env names (API curl still works once the flag is set).
+        Track engineering backlog in the{" "}
+        <DocLink href="/docs/process">process log</DocLink>. Stripe Price
+        bootstrap remains an operator-owned todo until secrets are pasted — when{" "}
+        <code>ALLOW_STRIPE_BOOTSTRAP=1</code>, the checkout-blocked banner
+        offers <strong>Run bootstrap</strong> and a copyable{" "}
+        <code>envSnippet</code>; paste those <code>STRIPE_PRICE_ID_*</code>{" "}
+        values and unset the flag to clear the banner. Without the flag the
+        banner only lists missing env names (API curl still works once the flag
+        is set).
       </p>
     </DocPage>
   );
