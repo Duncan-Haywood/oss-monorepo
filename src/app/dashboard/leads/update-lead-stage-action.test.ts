@@ -186,11 +186,11 @@ describe("updateLeadStageAction", () => {
 
   it("moves a non-outreach stage with LEAD_STAGE_CONVEX_PRIMARY and revalidates", async () => {
     const { updateLeadStageAction } = await import("./actions");
-    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+    const res = await updateLeadStageAction("demo-cafe", "paid");
 
     expect(res).toEqual({ success: true });
     expect(updateLeadStage).toHaveBeenCalledOnce();
-    expect(updateLeadStage).toHaveBeenCalledWith("demo-cafe", "discovery_call", {
+    expect(updateLeadStage).toHaveBeenCalledWith("demo-cafe", "paid", {
       requireConvex: true,
     });
     expect(recordLeadOutreach).not.toHaveBeenCalled();
@@ -199,15 +199,8 @@ describe("updateLeadStageAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/preview/demo-cafe");
   });
 
-  it.each([
-    "discovered",
-    "site_built",
-    "discovery_call",
-    "paid",
-    "live",
-    "closed",
-  ] as LeadPipelineStage[])(
-    "revalidates after a successful %s stage move without Email 1",
+  it.each(["discovered", "site_built", "paid", "live", "closed"] as LeadPipelineStage[])(
+    "revalidates after a successful %s stage move without recording outreach or sending Email 1",
     async (stage) => {
       const { updateLeadStageAction } = await import("./actions");
       expect(await updateLeadStageAction("demo-cafe", stage)).toEqual({
@@ -220,6 +213,58 @@ describe("updateLeadStageAction", () => {
       expect(sendOutreachEmail).not.toHaveBeenCalled();
     },
   );
+
+  it("records outreach cadence step 1 for a move to discovery_call, without sending Email 1 (discovery-call-outreach-cadence-gap)", async () => {
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+
+    expect(res).toEqual({ success: true });
+    expect(updateLeadStage).toHaveBeenCalledWith("demo-cafe", "discovery_call", {
+      requireConvex: true,
+    });
+    expect(recordLeadOutreach).toHaveBeenCalledWith(
+      "demo-cafe",
+      1,
+      undefined,
+      { requireConvex: true },
+    );
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("does not record outreach for a discovery_call move when the lead has no email", async () => {
+    getLeadBySlug.mockResolvedValue({ ...baseLead, email: undefined });
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+
+    expect(res).toEqual({ success: true });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("silently no-ops a discovery_call move when recordLeadOutreach resolves false (already recorded, or a paid/live/closed race)", async () => {
+    recordLeadOutreach.mockResolvedValue(false);
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+
+    // Unlike outreach_sent, a false return here is not an error — there is
+    // no send to have skipped, and recording is best-effort bookkeeping.
+    expect(res).toEqual({ success: true });
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("fails closed on a discovery_call move when the outreach mark rejects Convex primary", async () => {
+    recordLeadOutreach.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Stage saved, but could not record the outreach mark in the shared store. Retry in a moment.",
+    });
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
 
   it("returns the paid/live race-guard error and never records outreach when updateLeadStage resolves false", async () => {
     updateLeadStage.mockResolvedValue(false);

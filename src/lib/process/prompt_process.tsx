@@ -787,4 +787,23 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "business-decisions-archive-09-split",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-ijcc7s",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), fifth iteration in the same session, picked up at origin/main tip 1582ba72 (PR #646, post-644-empty-backlog-spotcheck-agent-verified-clean) — restarted the branch from a freshly-fetched origin/main. Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2660 passed, 198 files). The diff-gate check showed 8 commits with several real product changes since the last full sweep, so dispatched a full tier 1-5 sweep this time (also explicitly verifying PR #645's new bufferPostedVariantKeys marker end to end) rather than another narrow spot-check. It found a real bug directly parallel to this session's own csv-import-outreach-sent-cadence-gap fix: updateLeadStageAction's outreach-cadence block only fired on stage === \"outreach_sent\", never \"discovery_call\" — but isFollowUpDue/isColdLead both treat outreach_sent AND discovery_call as valid due-queue stages gated on outreachStep >= 1, so a lead moved directly to discovery_call (a real, tested dropdown transition) stayed permanently invisible to Follow-ups due / Cold leads. The identical gap existed in importLeadsCsvAction's CSV \"Initial stage\" dropdown too. A concurrent sibling session (claude/upbeat-dijkstra-p3jt56, immediately above) merged its business-decisions-archive-09-split PR while this fix was being written — rebased this iteration's uncommitted changes onto that new tip before committing, resolving the resulting append-append conflict in both process-log files by keeping both entries. Independently re-verified this iteration's own finding by reading both write paths, both outreach-followups.ts predicates, and recordOutreach's monotonic guard before fixing. See discovery-call-outreach-cadence-gap in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts — updateLeadStageAction's outreach-cadence block now also fires on stage === \"discovery_call\" (records step 1, does NOT send Email 1 — only outreach_sent sends); importLeadsCsvAction's stage check widened the same way (record for either stage, send for neither).",
+      "src/app/dashboard/leads/leads-client.tsx — handleStageChange's optimistic UI update now also bumps outreachStep/lastOutreachAt for a discovery_call move.",
+      "src/app/dashboard/leads/update-lead-stage-action.test.ts — retargeted the 'non-outreach stage' test from discovery_call to paid; removed discovery_call from the it.each 'without Email 1' list; added 4 new dedicated discovery_call tests (records without sending, no-op with no email, false-return is not an error, ConvexPrimaryWriteError fails closed).",
+      "src/app/dashboard/leads/import-leads-csv-action.test.ts — 2 new mirror tests for defaultStage: \"discovery_call\".",
+      "src/app/docs/architecture/page.tsx — disclosed the widened discovery_call cadence-record behavior on both the dashboard stage-move path and CSV import.",
+      "src/lib/process/business-decisions.ts — appended discovery-call-outreach-cadence-gap.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items remain operator/legal/infra-blocked; this is a sold-capability wiring-gap bug fix discovered by a full audit sweep, not a resolution of any gated item.",
+      "Verified against the post-archive-09-split tip: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2665 passed, up from 2660 — 5 new, 198 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /docs/architecture all 200; curled the rendered docs HTML confirming the new prose renders; dev server killed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "discovery-call-outreach-cadence-gap",
+    ),
+  },
 ];

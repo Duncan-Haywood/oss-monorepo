@@ -312,7 +312,7 @@ export function LeadsClient({
     if (!current) return;
 
     const optimisticLead: Lead =
-      newStage === "outreach_sent" && current.email
+      (newStage === "outreach_sent" || newStage === "discovery_call") && current.email
         ? {
             ...current,
             stage: newStage,

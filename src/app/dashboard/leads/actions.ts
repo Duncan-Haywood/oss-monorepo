@@ -698,10 +698,21 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
       };
     }
 
-    // If stage is changed to outreach_sent, durably mark Email 1 sent BEFORE
-    // sending (persist-then-notify) so a Convex mutation failure never lets a
-    // real send land unrecorded — see OUTREACH_CADENCE_CONVEX_PRIMARY.
-    if (stage === "outreach_sent") {
+    // If stage is changed to outreach_sent OR discovery_call, durably record
+    // outreach cadence step 1 BEFORE any send (persist-then-notify) — see
+    // OUTREACH_CADENCE_CONVEX_PRIMARY. isFollowUpDue/isColdLead both treat
+    // outreach_sent and discovery_call as valid due-queue stages gated on
+    // outreachStep >= 1 (src/lib/email/outreach-followups.ts) — a lead moved
+    // directly to discovery_call (skipping outreach_sent, a real dropdown
+    // transition — see notes.test.ts's discovered->discovery_call case)
+    // would stay outreachStep=0 forever and become permanently invisible to
+    // both queues (discovery-call-outreach-cadence-gap). recordLeadOutreach
+    // is monotonic (never downgrades a lead already at step >= 1, see
+    // convex/leads.ts's recordOutreach / sqliteRecordLeadOutreach) and
+    // already guards against paid/live/closed, so calling it unconditionally
+    // on every discovery_call move is safe — it silently no-ops for leads
+    // that already came through outreach_sent.
+    if (stage === "outreach_sent" || stage === "discovery_call") {
       if (lead.email) {
         let outreachRecorded: boolean;
         try {
@@ -716,43 +727,51 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
             return {
               success: false as const,
               error:
-                "Stage saved, but could not record the outreach mark in the shared store — Email 1 was not sent. Retry in a moment.",
+                stage === "outreach_sent"
+                  ? "Stage saved, but could not record the outreach mark in the shared store — Email 1 was not sent. Retry in a moment."
+                  : "Stage saved, but could not record the outreach mark in the shared store. Retry in a moment.",
             };
           }
           throw error;
         }
-        if (!outreachRecorded) {
-          // recordLeadOutreach's own paid/live/closed write-time guard fired
-          // (defense in depth for the near-zero-width window between our own
-          // updateLeadStage write above and this call), OR Email 1 was
-          // already recorded by a concurrent call to this same action — a
-          // double-click or a second open tab racing this request
-          // (outreach-step-duplicate-send-guard) — either way Email 1 is not
-          // sent here.
-          return {
-            success: false as const,
-            error:
-              "Stage saved, but the lead went paid/live/closed, or Email 1 was already sent by another request, before this could record it — Email 1 was not sent here",
-          };
-        }
-        // sendOutreachEmail → sendEmail resolves { success: false } on
-        // suppression/Resend failure (never throws). Surface that to the
-        // operator — persist-then-notify keeps the mark; do not pretend Email 1 sent.
-        const sent = await sendOutreachEmail(
-          lead.email,
-          lead.businessName,
-          lead.slug,
-        );
-        if (!sent.success) {
-          return {
-            success: false as const,
-            error:
-              "reason" in sent && sent.reason === "suppressed"
-                ? "Stage saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list"
-                : "error" in sent && typeof sent.error === "string"
-                  ? `Stage saved and marked Outreach Sent, but Email 1 failed to send — ${sent.error}`
-                  : "Stage saved and marked Outreach Sent, but Email 1 failed to send — retry from the dashboard",
-          };
+
+        // Discovery Call is a manual, already-happened move, not an
+        // automated send — the cadence mark above is all it needs. Only
+        // outreach_sent triggers a real Email 1.
+        if (stage === "outreach_sent") {
+          if (!outreachRecorded) {
+            // recordLeadOutreach's own paid/live/closed write-time guard fired
+            // (defense in depth for the near-zero-width window between our own
+            // updateLeadStage write above and this call), OR Email 1 was
+            // already recorded by a concurrent call to this same action — a
+            // double-click or a second open tab racing this request
+            // (outreach-step-duplicate-send-guard) — either way Email 1 is not
+            // sent here.
+            return {
+              success: false as const,
+              error:
+                "Stage saved, but the lead went paid/live/closed, or Email 1 was already sent by another request, before this could record it — Email 1 was not sent here",
+            };
+          }
+          // sendOutreachEmail → sendEmail resolves { success: false } on
+          // suppression/Resend failure (never throws). Surface that to the
+          // operator — persist-then-notify keeps the mark; do not pretend Email 1 sent.
+          const sent = await sendOutreachEmail(
+            lead.email,
+            lead.businessName,
+            lead.slug,
+          );
+          if (!sent.success) {
+            return {
+              success: false as const,
+              error:
+                "reason" in sent && sent.reason === "suppressed"
+                  ? "Stage saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list"
+                  : "error" in sent && typeof sent.error === "string"
+                    ? `Stage saved and marked Outreach Sent, but Email 1 failed to send — ${sent.error}`
+                    : "Stage saved and marked Outreach Sent, but Email 1 failed to send — retry from the dashboard",
+            };
+          }
         }
       }
     }
@@ -1880,18 +1899,24 @@ export async function importLeadsCsvAction(input: {
         existingSlugs.add(lead.slug);
         revalidatePath(leadPreviewPath(lead.slug));
 
-        // A row imported directly into outreach_sent must record cadence
-        // step 1 the same way addLeadAction/updateLeadStageAction do — every
-        // other path into this stage does, and isFollowUpDue/isColdLead both
-        // require outreachStep >= 1 before a lead can ever be surfaced, so a
-        // row that skips this is permanently invisible to the follow-up-due
-        // and cold-lead queues with no operator-visible signal anything is
-        // wrong (see csv-import-outreach-sent-cadence-gap). Deliberately does
-        // NOT call sendOutreachEmail here unlike the single-lead paths: bulk
-        // CSV import is for recording outreach already sent through another
-        // channel, not a request to mass-email up to MAX_ROWS businesses in
-        // one click.
-        if (lead.stage === "outreach_sent" && lead.email) {
+        // A row imported directly into outreach_sent OR discovery_call must
+        // record cadence step 1 the same way addLeadAction/
+        // updateLeadStageAction do — every other path into either stage
+        // does, and isFollowUpDue/isColdLead both require outreachStep >= 1
+        // before a lead can ever be surfaced (both stages are valid due-queue
+        // stages, see src/lib/email/outreach-followups.ts), so a row that
+        // skips this is permanently invisible to the follow-up-due and
+        // cold-lead queues with no operator-visible signal anything is wrong
+        // (see csv-import-outreach-sent-cadence-gap and its discovery_call
+        // twin, discovery-call-outreach-cadence-gap). Deliberately does NOT
+        // call sendOutreachEmail here unlike the single-lead outreach_sent
+        // path: bulk CSV import is for recording outreach already sent
+        // through another channel, not a request to mass-email up to
+        // MAX_ROWS businesses in one click.
+        if (
+          (lead.stage === "outreach_sent" || lead.stage === "discovery_call") &&
+          lead.email
+        ) {
           try {
             await recordLeadOutreach(lead.slug, 1, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
           } catch (error) {
@@ -1899,8 +1924,8 @@ export async function importLeadsCsvAction(input: {
               row: index + 1,
               message:
                 error instanceof ConvexPrimaryWriteError
-                  ? "Lead saved, but could not record the outreach mark in the shared store — retry marking Outreach Sent from the dashboard."
-                  : "Lead saved, but the outreach mark failed to record — retry marking Outreach Sent from the dashboard.",
+                  ? "Lead saved, but could not record the outreach mark in the shared store — retry marking the stage again from the dashboard."
+                  : "Lead saved, but the outreach mark failed to record — retry marking the stage again from the dashboard.",
             });
           }
         }

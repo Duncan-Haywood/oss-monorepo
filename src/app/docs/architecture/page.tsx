@@ -75,15 +75,15 @@ export default function ArchitectureDocPage() {
         existing-slug conflict, requireConvex fail-closed, outreach_sent mark-before-Resend) and{" "}
         <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV (auth, empty /
         invalid CSV, per-row requireConvex, existing-slug skip, partial Convex failure, outreach
-        cadence mark for rows imported directly into outreach_sent) beside
+        cadence mark for rows imported directly into outreach_sent or discovery_call) beside
         upsert-persist helpers. A CSV row whose batch <strong>Initial stage</strong> is set to{" "}
-        <strong>Outreach Sent</strong> records cadence step 1 (
+        <strong>Outreach Sent</strong> or <strong>Discovery Call</strong> records cadence step 1 (
         <code>recordLeadOutreach</code>, same <code>OUTREACH_CADENCE_CONVEX_PRIMARY</code>
         fail-closed contract as Add lead) so it stays reachable by the Follow-ups due / Cold
-        leads queues (both gate on <code>outreachStep &gt;= 1</code>) — deliberately does{" "}
-        <em>not</em> send a live Email 1 the way Add lead does for a single row: CSV import is for
-        recording outreach already sent through another channel, not a request to mass-email up
-        to <code>MAX_ROWS</code> businesses in one click. Dashboard
+        leads queues (both gate on <code>outreachStep &gt;= 1</code> for either stage) —
+        deliberately does <em>not</em> send a live Email 1 the way Add lead does for a single
+        row: CSV import is for recording outreach already sent through another channel, not a
+        request to mass-email up to <code>MAX_ROWS</code> businesses in one click. Dashboard
         stage moves likewise pass{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> (Mark live already fail-closes via{" "}
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>; action-level Vitest in{" "}
@@ -1156,11 +1156,24 @@ export default function ArchitectureDocPage() {
         <code>success: true</code> for a no-op — then passes{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> and, on <code>outreach_sent</code>, marks
         Email 1 before Resend and surfaces <code>!sent.success</code> (suppression / Resend
-        resolve, not only throws) — locked by{" "}
+        resolve, not only throws). A move to <code>discovery_call</code> (a real dropdown
+        transition that can skip <code>outreach_sent</code> entirely) also records cadence
+        step 1 via the same <code>recordLeadOutreach</code> call — without sending Email 1 —
+        because <code>isFollowUpDue</code>/<code>isColdLead</code> both treat{" "}
+        <code>outreach_sent</code> and <code>discovery_call</code> as valid due-queue stages
+        gated on <code>outreachStep &gt;= 1</code>; a lead that reached{" "}
+        <code>discovery_call</code> directly would otherwise stay permanently invisible to
+        Follow-ups due / Cold leads. <code>recordLeadOutreach</code> is monotonic (never
+        downgrades a lead already at step ≥ 1), so this is safe to call unconditionally — it
+        no-ops for leads that already came through <code>outreach_sent</code>. Bulk CSV
+        import (<code>importLeadsCsvAction</code>) mirrors the same record-without-send
+        behavior for a batch whose <strong>Initial stage</strong> is set to either{" "}
+        <code>outreach_sent</code> or <code>discovery_call</code> — locked by{" "}
         <code>update-lead-stage-action.test.ts</code> (auth, unknown-slug not-found before
         any write, requireConvex fail-closed, non-outreach revalidate, mark-before-Resend,
         missing-email skip, outreach-mark Convex skip-send, suppression/Resend{" "}
-        <code>success:false</code>) so stage glue is not left to stage-persist helpers alone.
+        <code>success:false</code>, discovery_call record-without-send) so stage glue is not
+        left to stage-persist helpers alone.
         Work next snooze / Unsnooze (<code>snoozeLeadAction</code>) passes{" "}
         <code>LEAD_SNOOZE_CONVEX_PRIMARY</code> — locked by{" "}
         <code>snooze-lead-action.test.ts</code> (auth, empty slug, missing lead, invalid /

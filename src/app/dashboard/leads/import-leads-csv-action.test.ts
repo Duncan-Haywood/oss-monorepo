@@ -533,7 +533,48 @@ describe("importLeadsCsvAction", () => {
         {
           row: 1,
           message:
-            "Lead saved, but could not record the outreach mark in the shared store — retry marking Outreach Sent from the dashboard.",
+            "Lead saved, but could not record the outreach mark in the shared store — retry marking the stage again from the dashboard.",
+        },
+      ]),
+    );
+  });
+
+  it("records outreach cadence step 1 for a row imported directly into discovery_call, without sending Email 1 (discovery-call-outreach-cadence-gap)", async () => {
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "discovery_call",
+    });
+
+    expect(res).toMatchObject({ success: true, imported: 1 });
+    expect(recordLeadOutreach).toHaveBeenCalledWith(
+      "blue-river-salon",
+      1,
+      undefined,
+      { requireConvex: true },
+    );
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("still counts the row as imported but reports a row error when recordLeadOutreach fails Convex-primary for a discovery_call row", async () => {
+    recordLeadOutreach.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "discovery_call",
+    });
+
+    expect(res).toMatchObject({
+      success: true,
+      imported: 1,
+      slugs: ["blue-river-salon"],
+    });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        {
+          row: 1,
+          message:
+            "Lead saved, but could not record the outreach mark in the shared store — retry marking the stage again from the dashboard.",
         },
       ]),
     );
