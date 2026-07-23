@@ -141,7 +141,9 @@ export default function MarketingAutomationDocPage() {
         </DocLink>{" "}
         gains <strong>Load Buffer profiles</strong> (lists every social profile connected to that
         Buffer account), a per-lead profile picker (<strong>Save profiles for this lead</strong>,
-        persisted as <code>lead.bufferProfileIds</code>), and <strong>Send pack to Buffer</strong>{" "}
+        persisted as <code>lead.bufferProfileIds</code> — deduped before storage, so a repeated
+        profile id in the same selection can never make the schedule loop below post the same
+        variant to that profile twice in one run), and <strong>Send pack to Buffer</strong>{" "}
         (queues every matching <code>facebook_caption</code>/
         <code>instagram_caption</code> variant that month&apos;s pack contains — all 3 of each,
         matching <code>MONTHLY_MARKETING_PACK_TYPES</code> — into each selected profile&apos;s

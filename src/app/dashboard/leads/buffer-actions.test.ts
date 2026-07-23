@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Lead } from "@/lib/leads/types";
 import type { MarketingPack } from "@/lib/marketing/pack";
+import { MAX_BUFFER_PROFILES_PER_LEAD } from "@/lib/marketing/buffer";
 
 class MockConvexPrimaryWriteError extends Error {
   constructor(message = "Convex primary write failed") {
@@ -256,6 +257,37 @@ describe("Buffer scheduling dashboard actions", () => {
       expect(result.error).toMatch(/retry/i);
       expect(revalidatePath).not.toHaveBeenCalled();
     });
+
+    it("dedupes a repeated profile id before persisting (buffer-profile-ids-dedupe-on-save)", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead());
+      const { saveLeadBufferProfilesAction } = await import("./actions");
+      const result = await saveLeadBufferProfilesAction("demo-cafe", ["p1", "p2", "p1"]);
+
+      expect(updateLeadBufferProfileIds).toHaveBeenCalledWith(
+        "demo-cafe",
+        ["p1", "p2"],
+        expect.objectContaining({ requireConvex: true }),
+      );
+      expect(result).toEqual({ success: true, bufferProfileIds: ["p1", "p2"] });
+    });
+
+    it("dedupes before enforcing the max-profiles cap, so duplicates alone don't reject a within-cap selection", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead());
+      const { saveLeadBufferProfilesAction } = await import("./actions");
+      const withDuplicates = [
+        ...Array.from({ length: MAX_BUFFER_PROFILES_PER_LEAD }, (_, i) => `p${i}`),
+        "p0",
+        "p1",
+      ];
+      const result = await saveLeadBufferProfilesAction("demo-cafe", withDuplicates);
+
+      expect(result.success).toBe(true);
+      expect(updateLeadBufferProfileIds).toHaveBeenCalledWith(
+        "demo-cafe",
+        Array.from({ length: MAX_BUFFER_PROFILES_PER_LEAD }, (_, i) => `p${i}`),
+        expect.objectContaining({ requireConvex: true }),
+      );
+    });
   });
 
   describe("scheduleMarketingPackToBufferAction", () => {
@@ -389,6 +421,27 @@ describe("Buffer scheduling dashboard actions", () => {
         profileIds: ["p-ig"],
         text: "IG post 1",
       });
+    });
+
+    it("does not double-post when bufferProfileIds contains a duplicate profile id (buffer-profile-ids-dedupe-on-save defense-in-depth)", async () => {
+      // Simulates a lead row saved before saveLeadBufferProfilesAction started
+      // deduping — the schedule loop must still only post each variant once
+      // per profile, even though nothing upstream prevented the duplicate.
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb", "p-fb"] }));
+      getMarketingPack.mockResolvedValue(
+        fakePack({ variants: [{ contentType: "facebook_caption", body: "FB post 1" }] }),
+      );
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.scheduled).toEqual(["p-fb"]);
+      expect(result.skipped).toEqual(["p-fb: already posted this month"]);
+      expect(createBufferUpdate).toHaveBeenCalledTimes(1);
     });
 
     it("labels only the failed variant when one of several fails for the same profile", async () => {

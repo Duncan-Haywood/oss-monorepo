@@ -3074,10 +3074,18 @@ export async function saveLeadBufferProfilesAction(slug: string, profileIds: str
       return { success: false as const, error: gate.message };
     }
 
-    if (profileIds.length > MAX_BUFFER_PROFILES_PER_LEAD) {
+    // Dedupe before persisting — a duplicate profile id surviving into
+    // storage makes scheduleMarketingPackToBufferAction's for-loop below
+    // process the same profile twice in one run, and its duplicate-post
+    // guard only records a key as posted after the whole loop finishes, so
+    // both passes would queue the same variant to Buffer again
+    // (buffer-profile-ids-dedupe-on-save).
+    const dedupedProfileIds = Array.from(new Set(profileIds));
+
+    if (dedupedProfileIds.length > MAX_BUFFER_PROFILES_PER_LEAD) {
       return { success: false as const, error: "Too many Buffer profiles selected" };
     }
-    if (profileIds.some((id) => !id || id.length > MAX_BUFFER_PROFILE_ID_LENGTH)) {
+    if (dedupedProfileIds.some((id) => !id || id.length > MAX_BUFFER_PROFILE_ID_LENGTH)) {
       return { success: false as const, error: "Invalid Buffer profile id" };
     }
 
@@ -3087,7 +3095,11 @@ export async function saveLeadBufferProfilesAction(slug: string, profileIds: str
     }
 
     try {
-      await updateLeadBufferProfileIds(slug, profileIds, LEAD_BUFFER_PROFILES_CONVEX_PRIMARY);
+      await updateLeadBufferProfileIds(
+        slug,
+        dedupedProfileIds,
+        LEAD_BUFFER_PROFILES_CONVEX_PRIMARY,
+      );
     } catch (error) {
       if (error instanceof ConvexPrimaryWriteError) {
         return {
@@ -3100,7 +3112,7 @@ export async function saveLeadBufferProfilesAction(slug: string, profileIds: str
     }
 
     revalidatePath("/dashboard/leads");
-    return { success: true as const, bufferProfileIds: profileIds };
+    return { success: true as const, bufferProfileIds: dedupedProfileIds };
   } catch (error) {
     console.error("Error in saveLeadBufferProfilesAction:", error);
     return {
@@ -3235,6 +3247,14 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
         if (result.success) {
           scheduled.push(label);
           newlyPostedKeys.push(key);
+          // Defense-in-depth: mark the key posted immediately, not only in
+          // newlyPostedKeys (written back after the whole loop). A
+          // duplicate profileId reaching this loop by any means (a
+          // pre-dedupe row saved before buffer-profile-ids-dedupe-on-save
+          // shipped, a future caller bypassing saveLeadBufferProfilesAction)
+          // would otherwise still see alreadyPostedKeys.has(key) return
+          // false on its second pass within this same run and double-post.
+          alreadyPostedKeys.add(key);
         } else {
           failed.push(`${label}: ${result.error}`);
         }
@@ -3243,7 +3263,11 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
 
     if (newlyPostedKeys.length > 0) {
       try {
-        await updateLeadBufferPostedVariantKeys(slug, [...alreadyPostedKeys, ...newlyPostedKeys]);
+        // alreadyPostedKeys already contains every newlyPostedKeys entry (added
+        // inline above) alongside the pruned pre-existing keys — write it
+        // directly rather than re-appending newlyPostedKeys, which would
+        // duplicate each key in the persisted array.
+        await updateLeadBufferPostedVariantKeys(slug, [...alreadyPostedKeys]);
       } catch (error) {
         // The Buffer posts above already succeeded and cannot be undone — a
         // failure to persist the marker must not turn a successful schedule
