@@ -95,4 +95,16 @@ describe("softCapLeadForPublicSurface", () => {
     expect(capped).not.toHaveProperty("bufferProfileIds");
     expect(JSON.stringify(capped)).not.toContain("buffer_profile_abc123");
   });
+
+  it("strips the operator's Buffer posted-variant markers (they embed the raw profile id)", () => {
+    const capped = softCapLeadForPublicSurface(
+      baseLead({
+        bufferPostedVariantKeys: [
+          "2026-07-01T00:00:00.000Z|buffer_profile_abc123|facebook_caption|0",
+        ],
+      }),
+    );
+    expect(capped).not.toHaveProperty("bufferPostedVariantKeys");
+    expect(JSON.stringify(capped)).not.toContain("buffer_profile_abc123");
+  });
 });

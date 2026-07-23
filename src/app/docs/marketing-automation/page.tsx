@@ -148,8 +148,17 @@ export default function MarketingAutomationDocPage() {
         existing posting schedule — never posts immediately, and never guesses at a channel: a
         profile whose{" "}
         <code>service</code> has no matching pack content type, or that vanished from Buffer, is
-        reported skipped rather than silently dropped). Same recurring-entitlement gate as Email
-        pack: <strong>Send pack to Buffer</strong> re-checks{" "}
+        reported skipped rather than silently dropped). A repeated click within the same pack
+        skips any variant/profile pair already queued — an idempotency marker (
+        <code>lead.bufferPostedVariantKeys</code>, keyed to the pack&apos;s own{" "}
+        <code>generatedAt</code> so a mid-month regenerate is postable again) prevents re-posting
+        the same content. Both <code>lead.bufferProfileIds</code> and{" "}
+        <code>lead.bufferPostedVariantKeys</code> are operator-internal Buffer identifiers — the
+        latter embeds the former inside each marker string — so{" "}
+        <code>softCapLeadForPublicSurface</code> (
+        <DocLink href="/docs/architecture">Architecture</DocLink> § SEO/meta) strips both before a
+        lead ever reaches the public <code>/preview/[slug]</code> surface. Same recurring-entitlement
+        gate as Email pack: <strong>Send pack to Buffer</strong> re-checks{" "}
         <code>orders.recurringCanceledAt</code> before posting, so a paused/canceled subscriber&apos;s
         live social profiles never receive new auto-posted content after cancellation. Google
         Business Profile / Meta stay fully gated — those need a distinct OAuth grant per local
