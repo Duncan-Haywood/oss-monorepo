@@ -97,7 +97,10 @@ export default function ProductionDeployDocPage() {
         <strong>Dedicated Vercel project ID</strong> field on that handoff&apos;s card in{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, and click{" "}
         <strong>Save + provision</strong>. Domain provisioning immediately retries against the new
-        project. This is deliberately manual: creating and configuring a full Vercel project
+        project — and, when the domain was previously registered on a different project (or the
+        shared one), it&apos;s released (DELETE) from there first, since Vercel won&apos;t let the
+        same domain live on two projects at once. This is deliberately manual: creating and
+        configuring a full Vercel project
         (build settings, env vars, deploy source) for a one-off client isn&apos;t something this
         app should do unattended yet — assigning the ID just tells the domain API which project to
         target once the project already exists.
@@ -112,6 +115,10 @@ export default function ProductionDeployDocPage() {
         <code>/preview/[slug]</code> — the client&apos;s domain shows their site, not the{" "}
         {brand.name} marketing page. Saving also retries the best-effort Vercel Domains API call
         against <code>customDomain</code> (falling back to <code>suggestedHost</code> when unset).
+        Changing or clearing the saved domain releases the previous domain (and its www↔apex
+        twin) from the current Vercel project first, so re-saving a corrected domain — or handing
+        the old one back to the client — doesn&apos;t leave it stuck attached to this
+        deployment&apos;s project.
         Only the root path is rewritten; <code>/api/*</code> and <code>/dashboard/*</code> already
         address a lead by slug and are unaffected by Host. Orchestration Vitest in{" "}
         <code>src/proxy.test.ts</code> locks that contract (plus preview-subdomain ordering and

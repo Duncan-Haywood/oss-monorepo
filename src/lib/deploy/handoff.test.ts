@@ -384,6 +384,61 @@ describe("deploy/handoff", () => {
       );
       expect(insertDeployHandoff).toHaveBeenCalledWith(result, DEPLOY_HANDOFF_CONVEX_PRIMARY);
     });
+
+    it("releases the domain from the old project before registering it on the newly assigned one", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      const oldHandoff = baseHandoff({
+        vercelProjectId: "prj_old",
+        customDomain: "www.demo.com",
+      });
+      const afterAssign = baseHandoff({
+        vercelProjectId: "prj_new",
+        customDomain: "www.demo.com",
+      });
+      updateDeployHandoffVercelProject.mockResolvedValue(afterAssign);
+      getDeployHandoffBySlug
+        .mockResolvedValueOnce(oldHandoff) // read before the assign write
+        .mockResolvedValueOnce(afterAssign); // re-read before the final upsert
+      insertDeployHandoff.mockResolvedValue(undefined);
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+      const { assignVercelProjectAndProvision } = await import("./handoff");
+
+      const result = await assignVercelProjectAndProvision("demo-cafe", "prj_new");
+
+      const calls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+      const deleteCalls = calls.filter((call) => call[1]?.method === "DELETE");
+      const postCalls = calls.filter((call) => call[1]?.method === "POST");
+      // www↔apex aliases released from the old project, then registered on the new one.
+      expect(deleteCalls.map((call) => String(call[0]))).toEqual([
+        "https://api.vercel.com/v10/projects/prj_old/domains/www.demo.com",
+        "https://api.vercel.com/v10/projects/prj_old/domains/demo.com",
+      ]);
+      expect(postCalls).toHaveLength(2);
+      expect(
+        result?.notes.some((n) =>
+          n.includes("Released Vercel domain www.demo.com from project prj_old"),
+        ),
+      ).toBe(true);
+    });
+
+    it("does not release anything when the assigned project is unchanged", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      const handoff = baseHandoff({ vercelProjectId: "prj_1", customDomain: "www.demo.com" });
+      updateDeployHandoffVercelProject.mockResolvedValue(handoff);
+      getDeployHandoffBySlug.mockResolvedValue(handoff);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+      const { assignVercelProjectAndProvision } = await import("./handoff");
+
+      await assignVercelProjectAndProvision("demo-cafe", "prj_1");
+
+      const calls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+      expect(calls.some((call) => call[1]?.method === "DELETE")).toBe(false);
+    });
   });
 
   describe("assignCustomDomainAndProvision", () => {
@@ -462,6 +517,111 @@ describe("deploy/handoff", () => {
         "Operator confirmed DNS / publish — lead marked live.",
       );
       expect(insertDeployHandoff).toHaveBeenCalledWith(result, DEPLOY_HANDOFF_CONVEX_PRIMARY);
+    });
+
+    it("releases the old custom domain's aliases before registering the new one", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      const oldHandoff = baseHandoff({ customDomain: "www.old.com" });
+      const afterAssign = baseHandoff({ customDomain: "www.new.com" });
+      updateDeployHandoffCustomDomain.mockResolvedValue(afterAssign);
+      getDeployHandoffBySlug
+        .mockResolvedValueOnce(oldHandoff)
+        .mockResolvedValueOnce(afterAssign);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+      const { assignCustomDomainAndProvision } = await import("./handoff");
+
+      const result = await assignCustomDomainAndProvision("demo-cafe", "www.new.com");
+
+      const calls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+      const deleteCalls = calls.filter((call) => call[1]?.method === "DELETE");
+      expect(deleteCalls.map((call) => String(call[0]))).toEqual([
+        "https://api.vercel.com/v10/projects/prj/domains/www.old.com",
+        "https://api.vercel.com/v10/projects/prj/domains/old.com",
+      ]);
+      expect(
+        result?.notes.some((n) =>
+          n.includes("Released Vercel domain www.old.com from project prj"),
+        ),
+      ).toBe(true);
+    });
+
+    it("releases the old custom domain's aliases when the domain is cleared", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      const oldHandoff = baseHandoff({ customDomain: "www.old.com" });
+      const afterClear = baseHandoff({ customDomain: undefined });
+      updateDeployHandoffCustomDomain.mockResolvedValue(afterClear);
+      getDeployHandoffBySlug
+        .mockResolvedValueOnce(oldHandoff)
+        .mockResolvedValueOnce(afterClear);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+      const { assignCustomDomainAndProvision } = await import("./handoff");
+
+      await assignCustomDomainAndProvision("demo-cafe", null);
+
+      const calls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+      const deleteCalls = calls.filter((call) => call[1]?.method === "DELETE");
+      expect(deleteCalls.map((call) => String(call[0]))).toEqual([
+        "https://api.vercel.com/v10/projects/prj/domains/www.old.com",
+        "https://api.vercel.com/v10/projects/prj/domains/old.com",
+      ]);
+      // Falls back to registering suggestedHost once the custom domain is gone.
+      const postCalls = calls.filter((call) => call[1]?.method === "POST");
+      expect(postCalls.map((call) => JSON.parse(String(call[1]?.body)))).toEqual([
+        { name: "demo-cafe.localsitestudio.com" },
+      ]);
+    });
+
+    it("treats a DELETE 404 as already-released, not an error", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      const oldHandoff = baseHandoff({ customDomain: "www.old.com" });
+      const afterAssign = baseHandoff({ customDomain: "www.new.com" });
+      updateDeployHandoffCustomDomain.mockResolvedValue(afterAssign);
+      getDeployHandoffBySlug
+        .mockResolvedValueOnce(oldHandoff)
+        .mockResolvedValueOnce(afterAssign);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      global.fetch = vi.fn().mockImplementation((_url: string, init?: RequestInit) =>
+        init?.method === "DELETE"
+          ? Promise.resolve({ ok: false, status: 404, text: async () => "" })
+          : Promise.resolve({ ok: true, status: 200, text: async () => "" }),
+      );
+      const { assignCustomDomainAndProvision } = await import("./handoff");
+
+      const result = await assignCustomDomainAndProvision("demo-cafe", "www.new.com");
+
+      expect(
+        result?.notes.some((n) =>
+          n.includes("Released Vercel domain www.old.com from project prj"),
+        ),
+      ).toBe(true);
+      expect(result?.notes.some((n) => n.includes("release failed"))).toBe(false);
+    });
+
+    it("does not release anything when the custom domain is unchanged", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      const handoff = baseHandoff({ customDomain: "www.demo.com" });
+      updateDeployHandoffCustomDomain.mockResolvedValue(handoff);
+      getDeployHandoffBySlug.mockResolvedValue(handoff);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+      const { assignCustomDomainAndProvision } = await import("./handoff");
+
+      await assignCustomDomainAndProvision("demo-cafe", "www.demo.com");
+
+      const calls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
+      expect(calls.some((call) => call[1]?.method === "DELETE")).toBe(false);
     });
   });
 

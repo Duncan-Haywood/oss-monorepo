@@ -230,6 +230,52 @@ async function tryProvisionVercelDomain(
 }
 
 /**
+ * Best-effort Vercel domain release (DELETE) — never throws, failures become
+ * notes on the caller's handoff. A domain can only live on one Vercel project
+ * at a time; without this, reassigning a client to a different dedicated
+ * project (assignVercelProjectAndProvision) or clearing/changing their custom
+ * domain (assignCustomDomainAndProvision) leaves the old registration stuck
+ * on the project/domain it moved off of, with tryProvisionVercelDomain's own
+ * re-POST to the new project rejected by Vercel (still attached elsewhere) —
+ * see vercel-domain-release-on-reassign.
+ */
+async function releaseVercelDomains(
+  token: string,
+  teamId: string | undefined,
+  projectId: string,
+  domains: string[],
+): Promise<string[]> {
+  const query = teamId ? `?teamId=${encodeURIComponent(teamId)}` : "";
+  const notes: string[] = [];
+
+  for (const domain of domains) {
+    const url = `https://api.vercel.com/v10/projects/${encodeURIComponent(projectId)}/domains/${encodeURIComponent(domain)}${query}`;
+    try {
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // 404 means it's already gone (or never registered) — treat as released.
+      if (response.ok || response.status === 404) {
+        notes.push(`Released Vercel domain ${domain} from project ${projectId}.`);
+        continue;
+      }
+      const body = await response.text();
+      notes.push(
+        `Vercel domain release failed (${response.status}) for ${domain} on project ${projectId}: ${body.slice(0, 200)}`,
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "unknown error";
+      notes.push(
+        `Vercel domain release network error for ${domain} on project ${projectId}: ${message}`,
+      );
+    }
+  }
+
+  return notes;
+}
+
+/**
  * Idempotent: if a handoff already exists for this slug + stripe session, return it.
  * Otherwise create, optionally call Vercel, and persist.
  */
@@ -270,6 +316,7 @@ export async function assignVercelProjectAndProvision(
   leadSlug: string,
   vercelProjectId: string | null,
 ): Promise<DeployHandoff | null> {
+  const before = await getDeployHandoffBySlug(leadSlug);
   const updated = await updateDeployHandoffVercelProject(
     leadSlug,
     vercelProjectId,
@@ -277,7 +324,25 @@ export async function assignVercelProjectAndProvision(
   );
   if (!updated) return null;
 
-  const provisioned = await tryProvisionVercelDomain(updated);
+  let toProvision = updated;
+  const token = process.env.VERCEL_TOKEN?.trim();
+  const oldProjectId =
+    before?.vercelProjectId?.trim() || process.env.VERCEL_PROJECT_ID?.trim();
+  const newProjectId =
+    updated.vercelProjectId?.trim() || process.env.VERCEL_PROJECT_ID?.trim();
+  if (token && before && oldProjectId && oldProjectId !== newProjectId) {
+    const releaseNotes = await releaseVercelDomains(
+      token,
+      process.env.VERCEL_TEAM_ID?.trim(),
+      oldProjectId,
+      before.customDomain
+        ? customDomainHostAliases(before.customDomain)
+        : [before.suggestedHost],
+    );
+    toProvision = { ...updated, notes: [...updated.notes, ...releaseNotes] };
+  }
+
+  const provisioned = await tryProvisionVercelDomain(toProvision);
   const fresh = await getDeployHandoffBySlug(leadSlug);
   const toPersist = fresh
     ? mergeProvisionOntoFreshHandoff(fresh, provisioned)
@@ -297,6 +362,7 @@ export async function assignCustomDomainAndProvision(
   leadSlug: string,
   customDomain: string | null,
 ): Promise<DeployHandoff | null> {
+  const before = await getDeployHandoffBySlug(leadSlug);
   const updated = await updateDeployHandoffCustomDomain(
     leadSlug,
     customDomain,
@@ -304,7 +370,29 @@ export async function assignCustomDomainAndProvision(
   );
   if (!updated) return null;
 
-  const provisioned = await tryProvisionVercelDomain(updated);
+  let toProvision = updated;
+  const token = process.env.VERCEL_TOKEN?.trim();
+  const projectId =
+    updated.vercelProjectId?.trim() || process.env.VERCEL_PROJECT_ID?.trim();
+  const oldCustomDomain = before?.customDomain?.trim();
+  const newCustomDomain = updated.customDomain?.trim();
+  if (
+    token &&
+    projectId &&
+    before &&
+    oldCustomDomain &&
+    oldCustomDomain !== newCustomDomain
+  ) {
+    const releaseNotes = await releaseVercelDomains(
+      token,
+      process.env.VERCEL_TEAM_ID?.trim(),
+      projectId,
+      customDomainHostAliases(oldCustomDomain),
+    );
+    toProvision = { ...updated, notes: [...updated.notes, ...releaseNotes] };
+  }
+
+  const provisioned = await tryProvisionVercelDomain(toProvision);
   const fresh = await getDeployHandoffBySlug(leadSlug);
   const toPersist = fresh
     ? mergeProvisionOntoFreshHandoff(fresh, provisioned)
