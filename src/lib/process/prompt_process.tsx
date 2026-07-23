@@ -907,4 +907,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "csv-import-action-rate-limit",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-2znhzl",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip a258809 (PR #678, csv-import-action-rate-limit) — HEAD matched origin/main exactly at session start once the session's initial stale local `origin/main` ref was re-fetched (the exact one-merge-behind pitfall AGENT_PROTOCOL documents). Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2737 passed, 198 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (609 remote heads) and a diff of the newest 23 claude/* branches against origin/main confirmed every one with a nonzero diff carries far more deletions than insertions — content already merged byte-identical under a different SHA. No live fold candidate.\n\nDispatched a foreground research agent to find the next real gap, steered away from every surface fixed today. It found src/lib/docs/routes.ts's DOCS_PAGES array — the single source of truth for /docs/* sub-pages consumed by src/app/docs/page.tsx and src/app/sitemap.ts — had zero structural test verifying it stays in sync with the actual src/app/docs/<slug>/page.tsx directories on disk, the mirror-image of the exact bug DOCS_PAGES was created to fix (2026-07-18: sitemap.ts hand-duplicated a stale subset of docs routes). sitemap.test.ts only asserts the sitemap includes every DOCS_PAGES entry; nothing checks DOCS_PAGES against the filesystem it describes. Confirmed no live orphan today (12 sub-page directories match 12 DOCS_PAGES entries exactly) — pure regression-proofing against a future docs page shipping unlisted. See docs-routes-filesystem-sync-guard in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/docs/routes.test.ts — new structural guard test, mirroring src/lib/db/convex-api-map-audit.ts's pattern: listDocsSubPageSlugs() reads real src/app/docs/<slug> directories via node:fs and asserts the sorted slug set equals DOCS_PAGES's href-derived slug set exactly; a second test asserts every DOCS_PAGES entry has a non-empty title/description and a well-formed href. Verified the guard actually catches drift (not just that it passes) by creating a throwaway orphan docs directory, confirming the test failed with a clear diff, then deleting it and reconfirming green.",
+      "src/lib/process/business-decisions.ts — appended docs-routes-filesystem-sync-guard.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a tier-5 untested-orchestration/regression-proofing fix, not a resolution of any gated item. No production code changed. Diff-gate anchor moves to a258809 (this iteration's own starting tip).",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2739 passed, up from 2737 — 2 new, 199 files up from 198) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "docs-routes-filesystem-sync-guard",
+    ),
+  },
 ];
