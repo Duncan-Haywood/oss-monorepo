@@ -71,6 +71,7 @@ describe("mapCommerceOrderRow", () => {
     refundedAt: null,
     disputedAt: null,
     quantity: null,
+    customerEmail: null,
   };
 
   it("maps a well-formed row and converts null optionals to undefined", () => {
@@ -87,12 +88,26 @@ describe("mapCommerceOrderRow", () => {
       refundedAt: undefined,
       disputedAt: undefined,
       quantity: undefined,
+      customerEmail: undefined,
     });
   });
 
   it("preserves a set quantity", () => {
     const mapped = mapCommerceOrderRow({ ...baseRow, quantity: 3 });
     expect(mapped.quantity).toBe(3);
+  });
+
+  it("preserves a set customerEmail", () => {
+    const mapped = mapCommerceOrderRow({
+      ...baseRow,
+      customerEmail: "shopper@example.com",
+    });
+    expect(mapped.customerEmail).toBe("shopper@example.com");
+  });
+
+  it("normalizes empty-string customerEmail to undefined", () => {
+    const mapped = mapCommerceOrderRow({ ...baseRow, customerEmail: "" });
+    expect(mapped.customerEmail).toBeUndefined();
   });
 
   it("preserves set paidOutAt/clientReceiptEmailSentAt/refundedAt/disputedAt timestamps", () => {

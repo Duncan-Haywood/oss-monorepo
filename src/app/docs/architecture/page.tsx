@@ -1673,7 +1673,15 @@ source). The same digest also lists email-critical leads with no usable address 
         body) as <code>replyTo</code> so hitting <strong>Reply</strong> actually routes to the
         shopper instead of this app&apos;s <code>EMAIL_FROM</code>, mirroring the same
         Reply-To fix already shipped for the Starter contact-form CRM loop; omitted when Stripe
-        Checkout collected no customer email.
+        Checkout collected no customer email.{" "}
+        <code>commerceOrders.customerEmail</code> now persists that same shopper address on the
+        ledger row (SQLite + Convex, threaded through the one <code>insertCommerceOrder</code>{" "}
+        call site and preserved across <code>clearRefunded</code>/<code>clearDisputed</code>&apos;s{" "}
+        <code>ctx.db.replace()</code> field list — the same drop-on-replace risk{" "}
+        <code>quantity</code> already had to guard against) — so the dashboard&apos;s manual{" "}
+        <strong>Resend receipt</strong> action (<code>resendCommerceClientReceiptAction</code>) can
+        pass the same <code>replyTo</code> the live webhook send already does, instead of having no
+        shopper email available at all for a receipt sent after the original webhook delivery.
       </p>
 
       <p>

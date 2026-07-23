@@ -251,6 +251,16 @@ export default defineSchema({
      * a valid quantity.
      */
     quantity: v.optional(v.number()),
+    /**
+     * The shopper's own email (Stripe customer_details.email/customer_email)
+     * — captured so the dashboard's manual "Resend receipt" action can pass
+     * it through as sendCommerceBuyNowClientReceipt's replyTo the same way
+     * the live webhook send already does (see
+     * commerce-buy-now-client-receipt-reply-to-shopper). Optional: absent on
+     * rows recorded before this capture shipped, or when Checkout collected
+     * no customer email.
+     */
+    customerEmail: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"]),

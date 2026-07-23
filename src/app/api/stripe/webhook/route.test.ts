@@ -3787,6 +3787,44 @@ describe("POST /api/stripe/webhook", () => {
       expect(inquiryArg.message).not.toContain("quantity");
     });
 
+    it("records the shopper's customer_details.email on the ledger so a later manual resend can Reply-To them", async () => {
+      constructEvent.mockReturnValue(
+        completedEvent(
+          commerceSession({ customer_details: { email: "shopper@example.com" } }),
+        ),
+      );
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).toHaveBeenCalledWith(
+        expect.objectContaining({ customerEmail: "shopper@example.com" }),
+        { requireConvex: true },
+      );
+    });
+
+    it("omits customerEmail (undefined, not empty string) when Checkout collected no customer email", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).toHaveBeenCalledWith(
+        expect.objectContaining({ customerEmail: undefined }),
+        { requireConvex: true },
+      );
+    });
+
     it("skips ledger/notify when lead is missing (create-path 404 twin)", async () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue(null);

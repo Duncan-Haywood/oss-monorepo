@@ -65,6 +65,17 @@ export interface CommerceOrderRecord {
    * (commerce-order-dispute-closed-resolution); lost keeps/ensures this flag.
    */
   disputedAt?: string;
+  /**
+   * The shopper's own email, read from Stripe's checkout.session.completed
+   * customer_details.email/customer_email (see the Stripe webhook route) —
+   * captured so resendCommerceClientReceiptAction (the dashboard's manual
+   * resend of sendCommerceBuyNowClientReceipt) can pass it through as
+   * replyTo the same way the live webhook send already does (see
+   * commerce-buy-now-client-receipt-reply-to-shopper). Optional: absent on
+   * rows recorded before this capture shipped, or when Stripe Checkout
+   * collected no customer email.
+   */
+  customerEmail?: string;
 }
 
 export interface InsertCommerceOrderInput {
@@ -75,6 +86,8 @@ export interface InsertCommerceOrderInput {
   stripeSessionId: string;
   /** See CommerceOrderRecord.quantity — optional, undefined means unknown. */
   quantity?: number;
+  /** See CommerceOrderRecord.customerEmail — optional, undefined means none collected. */
+  customerEmail?: string;
 }
 
 /**

@@ -158,7 +158,8 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
       amountPaidUsd REAL NOT NULL,
       stripeSessionId TEXT UNIQUE NOT NULL,
       createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-      quantity INTEGER
+      quantity INTEGER,
+      customerEmail TEXT
     );
 
     CREATE INDEX IF NOT EXISTS idx_commerce_orders_slug
@@ -288,6 +289,9 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   }
   if (!commerceOrderCols.includes("quantity")) {
     db.exec("ALTER TABLE commerce_orders ADD COLUMN quantity INTEGER");
+  }
+  if (!commerceOrderCols.includes("customerEmail")) {
+    db.exec("ALTER TABLE commerce_orders ADD COLUMN customerEmail TEXT");
   }
 
   const marketingPackCols = (

@@ -523,6 +523,7 @@ export async function POST(request: Request) {
                 amountPaidUsd,
                 stripeSessionId: session.id,
                 quantity,
+                customerEmail: customerEmail || undefined,
               },
               WEBHOOK_CONVEX_PRIMARY,
             ));

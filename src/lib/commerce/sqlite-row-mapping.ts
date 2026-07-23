@@ -58,6 +58,7 @@ export interface SqliteCommerceOrderRow {
   refundedAt: string | null;
   disputedAt: string | null;
   quantity: number | null;
+  customerEmail: string | null;
 }
 
 /** Map a SQLite `commerce_orders` row back into the app-wide CommerceOrderRecord shape (fallback-read path). */
@@ -78,5 +79,6 @@ export function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderR
     // Empty string must stay undisputed (same SQLite/Convex parity as paidOutAt/refundedAt).
     disputedAt: row.disputedAt || undefined,
     quantity: row.quantity ?? undefined,
+    customerEmail: row.customerEmail || undefined,
   };
 }

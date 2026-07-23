@@ -278,6 +278,7 @@ describe("resendCommerceClientReceiptAction", () => {
       stripeSessionId: "cs_test_commerce_receipt",
       previewUrl: "https://app.example.com/preview/demo-cafe#catalog",
       quantity: undefined,
+      customerEmail: undefined,
     });
     expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledWith(
       "cs_test_commerce_receipt",
@@ -297,6 +298,19 @@ describe("resendCommerceClientReceiptAction", () => {
     expect(res.success).toBe(true);
     expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledWith(
       expect.objectContaining({ quantity: 4 }),
+    );
+  });
+
+  it("passes the order's persisted customerEmail through to the resend as replyTo (so the manual resend can reach the shopper too)", async () => {
+    getCommerceOrderByStripeSessionId.mockResolvedValue({
+      ...missingReceiptOrder,
+      customerEmail: "shopper@example.com",
+    });
+    const { resendCommerceClientReceiptAction } = await import("./actions");
+    const res = await resendCommerceClientReceiptAction("cs_test_commerce_receipt");
+    expect(res.success).toBe(true);
+    expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledWith(
+      expect.objectContaining({ customerEmail: "shopper@example.com" }),
     );
   });
 
