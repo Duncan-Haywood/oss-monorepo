@@ -4,6 +4,7 @@ import {
   createBufferUpdate,
   formatMarketingVariantForBuffer,
   listBufferProfiles,
+  resolveBufferSelection,
 } from "./buffer";
 
 const originalFetch = global.fetch;
@@ -127,5 +128,27 @@ describe("formatMarketingVariantForBuffer", () => {
       body: "Just the body.",
     });
     expect(text).toBe("Just the body.");
+  });
+});
+
+describe("resolveBufferSelection", () => {
+  it("uses the in-memory draft once the operator has toggled a checkbox for this lead", () => {
+    expect(resolveBufferSelection({ "lead-1": ["p1"] }, "lead-1", ["p1", "p2"])).toEqual(["p1"]);
+  });
+
+  it("falls back to the lead's saved mapping when no draft exists yet for this lead", () => {
+    expect(resolveBufferSelection({}, "lead-1", ["p1", "p2"])).toEqual(["p1", "p2"]);
+  });
+
+  it("returns an empty selection when neither a draft nor a saved mapping exists", () => {
+    expect(resolveBufferSelection({}, "lead-1", undefined)).toEqual([]);
+  });
+
+  it("does not fall back to another lead's draft or saved mapping", () => {
+    expect(resolveBufferSelection({ "lead-2": ["p9"] }, "lead-1", undefined)).toEqual([]);
+  });
+
+  it("honors an explicit empty draft as 'operator deselected everything', not a missing draft", () => {
+    expect(resolveBufferSelection({ "lead-1": [] }, "lead-1", ["p1", "p2"])).toEqual([]);
   });
 });

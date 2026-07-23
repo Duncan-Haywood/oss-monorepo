@@ -94,6 +94,7 @@ import {
   oldestMarketingPacksDueAgeHours,
 } from "@/lib/marketing/monthly-pack";
 import { leadEligibleForMarketingPackDelivery } from "@/lib/marketing/deliver-pack";
+import { resolveBufferSelection } from "@/lib/marketing/buffer";
 import {
   FOLLOW_UP_2_AFTER_DAYS,
   FOLLOW_UP_3_AFTER_DAYS,
@@ -976,11 +977,15 @@ export function LeadsClient({
   };
 
   const bufferSelectionForLead = (lead: Lead) =>
-    bufferSelectionByLead[lead.slug] ?? lead.bufferProfileIds ?? [];
+    resolveBufferSelection(bufferSelectionByLead, lead.slug, lead.bufferProfileIds);
 
   const handleToggleBufferProfile = (slug: string, profileId: string) => {
     setBufferSelectionByLead((prev) => {
-      const current = prev[slug] ?? leads.find((l) => l.slug === slug)?.bufferProfileIds ?? [];
+      const current = resolveBufferSelection(
+        prev,
+        slug,
+        leads.find((l) => l.slug === slug)?.bufferProfileIds,
+      );
       const next = current.includes(profileId)
         ? current.filter((id) => id !== profileId)
         : [...current, profileId];
@@ -989,7 +994,11 @@ export function LeadsClient({
   };
 
   const handleSaveBufferProfiles = (slug: string) => {
-    const selected = bufferSelectionByLead[slug] ?? [];
+    const selected = resolveBufferSelection(
+      bufferSelectionByLead,
+      slug,
+      leads.find((l) => l.slug === slug)?.bufferProfileIds,
+    );
     startTransition(async () => {
       const res = await saveLeadBufferProfilesAction(slug, selected);
       if (!res.success) {

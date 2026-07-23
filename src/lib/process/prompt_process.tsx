@@ -625,4 +625,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-636-empty-backlog-spotcheck-agent-verified-clean",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-pyq207",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 41d2ecc (PR #637, post-636-empty-backlog-spotcheck-agent-verified-clean) — this session's local working branch carried unrelated git history with no merge-base against origin/main at all; restarted the branch directly from a freshly-fetched origin/main rather than trusting or rebasing the disconnected history, since no PR existed for it and its own tip content matched origin/main's current tip. Confirmed baseline green from there: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2642 passed, 198 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). mcp__github__actions_list sampled the newest workflow runs — 30/30 conclusion=failure, no runner ever assigned — github-actions-runner-unavailable stays status=todo, unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (576 refs): the 15 most-recently-committed siblings all diffed as content already merged under a different SHA (matches known PRs #620-#637) or small process-log-only entries from abandoned duplicate sessions — no live fold candidate.\n\nWith the free NEXT_STEPS backlog empty (all five remaining items operator/legal/infra-gated), dispatched an independent blind general-purpose subagent, instructed to read AGENT_PROTOCOL + NEXT_STEPS + BUSINESS_DECISIONS first, to hunt for one genuine unflagged gap in the newest-shipped surface (the Buffer scaffold, PR #636). It found a real client-state bug: leads-client.tsx's handleSaveBufferProfiles read the in-memory draft selection with no fallback to the lead's already-saved bufferProfileIds, while the checkbox-render and toggle handlers both do have that fallback — so clicking 'Save profiles for this lead' without first toggling any checkbox silently wipes a previously-saved Buffer profile mapping to empty. Verified directly by reading all three call sites before fixing. See buffer-profile-selection-save-wipe-fix in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/marketing/buffer.ts — added resolveBufferSelection, the single pure fallback-chain helper (draft ?? saved ?? []) all three Buffer-selection call sites now share.",
+      "src/app/dashboard/leads/leads-client.tsx — bufferSelectionForLead, handleToggleBufferProfile, and handleSaveBufferProfiles all now call resolveBufferSelection instead of three independently-drifting inline fallbacks.",
+      "src/lib/marketing/buffer.test.ts — 5 new resolveBufferSelection cases (draft present, draft absent falls back to saved, both absent, no cross-lead leak, explicit empty draft is NOT the same as a missing draft).",
+      "src/lib/process/business-decisions.ts — appended buffer-profile-selection-save-wipe-fix.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a data-integrity bug fix discovered by audit in an already-shipped scaffold, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2647 passed, up from 2642 — 5 new, 198 files unchanged) + npm run build (clean, same 42-route split) + npm run dev sanity check (/, /checkout, /dashboard/leads, /preview/example-bakery, /docs/process, /docs/marketing-automation all 200; server killed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-profile-selection-save-wipe-fix",
+    ),
+  },
 ];

@@ -110,6 +110,25 @@ export function bufferServiceContentType(
   return null;
 }
 
+/**
+ * The dashboard's per-lead Buffer profile checkbox selection: an in-memory
+ * draft (only populated once the operator has toggled at least one checkbox
+ * for that lead this session) falling back to the lead's already-saved
+ * mapping. A single choke point for this fallback chain — every UI call site
+ * that reads "what's currently selected for this lead" (checkbox render,
+ * toggle, and save) must use the exact same resolution, or a call site that
+ * skips the saved-mapping fallback (reading only the in-memory draft) treats
+ * "operator hasn't touched a checkbox yet" as "operator selected nothing",
+ * silently wiping a previously-saved mapping on save (buffer-profile-selection-save-wipe-fix).
+ */
+export function resolveBufferSelection(
+  draftSelectionByLead: Record<string, string[] | undefined>,
+  slug: string,
+  savedProfileIds: string[] | undefined,
+): string[] {
+  return draftSelectionByLead[slug] ?? savedProfileIds ?? [];
+}
+
 /** Join a marketing pack variant's fields into one post body, same shape as the dashboard's own "Copy" button. */
 export function formatMarketingVariantForBuffer(variant: MarketingContentVariant): string {
   return [
