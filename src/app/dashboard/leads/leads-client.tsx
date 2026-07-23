@@ -3383,6 +3383,11 @@ export function LeadsClient({
                           onChange={(e) =>
                             handleStageChange(lead.slug, e.target.value as LeadPipelineStage)
                           }
+                          aria-label={dashboardRowActionAriaLabel(
+                            "Change pipeline stage",
+                            lead.businessName,
+                            lead.slug,
+                          )}
                           className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none transition focus:border-zinc-900"
                         >
                           {STAGES.map((s) => (

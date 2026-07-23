@@ -679,4 +679,19 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: [],
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-tcrehr",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip c4cb37e9 (PR #664, a documented clean 5-tier empty-backlog audit) — HEAD matched origin/main exactly at session start (this designated branch had never been pushed before, so it started as a plain checkout of origin/main rather than a reused stale ref). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). mcp__github__actions_list re-sampled the newest 30 workflow runs — 30/30 conclusion=failure, so github-actions-runner-unavailable stays status=todo, unchanged, still operator-only. Empty-backlog diff-gate against the last full tier 1-5 sweep's anchor (93e8e050) showed only 6 real product commits since, all already individually spot-checked clean by their own originating iterations, so dispatched a fast targeted spot-check via one foreground general-purpose research agent rather than a full re-sweep — explicitly steered away from every surface today's prior iterations had already covered, toward accessibility, performance, untested orchestration, docs staleness, sold-capability wiring gaps, and formatting edge cases instead. See leads-table-stage-select-aria-label in BUSINESS_DECISIONS for the full mechanism of the one real gap it found.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — added aria-label={dashboardRowActionAriaLabel(\"Change pipeline stage\", lead.businessName, lead.slug)} to the per-row Pipeline Stage <select> in the main leads table (line ~3381), matching the same helper's 25+ existing call sites elsewhere in the file. Confirmed the file's other four <select> elements (CSV initial-stage, Add-lead category/tier/stage) are singleton form controls with a proper wrapping <label htmlFor=...> and correctly out of scope.",
+      "src/lib/process/business-decisions.ts — appended leads-table-stage-select-aria-label.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a tier-1 sold-capability wiring-gap fix (accessibility variant), not a resolution of any gated item.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, 198 files, unchanged — React client components have no test harness in this repo) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route split) + npm run dev sanity check (/dashboard/leads, /preview/example-bakery, /docs/process all 200; dev server killed afterward, local.db deleted).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "leads-table-stage-select-aria-label",
+    ),
+  },
 ];
