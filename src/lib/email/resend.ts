@@ -43,6 +43,35 @@ export interface SendEmailParams {
    * Outreach, abandoned recovery, and Starter upsell must leave this unset.
    */
   skipSuppression?: boolean;
+  /**
+   * Optional Reply-To address — use when the recipient's most natural
+   * response (hitting Reply) should route to a third party rather than back
+   * to this app's own EMAIL_FROM (e.g. the contact-form notify to a Starter
+   * client's own inbox should Reply-To the website visitor who submitted the
+   * form, not the platform). Validated via sanitizeReplyToEmail before use:
+   * this flows into Resend's `reply_to` field, which becomes a raw outbound
+   * email header — an unvalidated, visitor-submitted value would be a
+   * header-injection vector, so a malformed or control-character-bearing
+   * value is silently dropped rather than passed through.
+   */
+  replyTo?: string;
+}
+
+const REPLY_TO_EMAIL_PATTERN =
+  /^[^\s<>()[\]:;@,\\"]+@[^\s<>()[\]:;@,\\"]+\.[^\s<>()[\]:;@,\\"]+$/;
+
+/**
+ * A Reply-To value is sent to Resend as plain JSON but becomes a raw
+ * outbound Reply-To email header — validate a plausible, single,
+ * control-character-free address instead of passing arbitrary
+ * visitor-submitted text through (same header-injection class
+ * sanitizeEmailSubject's CR/LF strip guards against for Subject).
+ */
+export function sanitizeReplyToEmail(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed || /[\x00-\x1f\x7f]/.test(trimmed)) return undefined;
+  return REPLY_TO_EMAIL_PATTERN.test(trimmed) ? trimmed : undefined;
 }
 
 /**
@@ -68,9 +97,11 @@ export async function sendEmail({
   html,
   leadSlug,
   skipSuppression = false,
+  replyTo,
 }: SendEmailParams) {
   const safeSubject = sanitizeEmailSubject(subject);
   const normalizedTo = to.toLowerCase().trim();
+  const safeReplyTo = sanitizeReplyToEmail(replyTo);
 
   // 1. Check suppression list (marketing only — see skipSuppression)
   if (!skipSuppression) {
@@ -117,6 +148,7 @@ export async function sendEmail({
   if (!resendApiKey || resendApiKey.startsWith("re_placeholder") || resendApiKey === "re_...") {
     console.log(`[Mock Email Sent]
 To: ${to}
+Reply-To: ${safeReplyTo || "None"}
 Subject: ${safeSubject}
 Lead: ${leadSlug || "None"}
 Content Preview: ${html.substring(0, 150)}...
@@ -137,6 +169,9 @@ Unsubscribe URL: ${unsubscribeUrl}`);
         // EMAIL_FROM (brand.emailFrom) — never hardcode a platform domain.
         from: formatResendFromHeader(brand.name, brand.emailFrom),
         to: [to],
+        // Only set when replyTo passed sanitizeReplyToEmail — omit the field
+        // entirely rather than send an empty/invalid reply_to to Resend.
+        ...(safeReplyTo ? { reply_to: safeReplyTo } : {}),
         subject: safeSubject,
         html: fullHtml,
         // Deliverability/spam-score signal — every send needs a text part,

@@ -820,7 +820,12 @@ export default function ArchitectureDocPage() {
         (<code>CONTACT_FORM_CONVEX_PRIMARY</code> pass-through, persist-required 503, notify only
         after a durable inquiry row, <code>notifySent</code> from inspecting{" "}
         <code>sendEmail</code>&apos;s <code>{"{ success }"}</code> shape — not just the throw path —
-        validation, soft-capped visitor fields via{" "}
+        validation, an optional <code>replyTo</code> (the visitor&apos;s own submitted email,
+        validated by <code>sanitizeReplyToEmail</code> before being sent to Resend as a raw{" "}
+        <code>reply_to</code> header — an unvalidated value would be a header-injection vector,
+        the same reasoning as <code>sanitizeEmailSubject</code>&apos;s CR/LF strip) so hitting{" "}
+        <strong>Reply</strong> on the sold notify email routes back to the customer instead of the
+        platform&apos;s own <code>EMAIL_FROM</code>, soft-capped visitor fields via{" "}
         <code>normalizeContactFormFields</code> / <code>MAX_CONTACT_*</code> so the sold notify
         HTML cannot exceed the CRM row bounds, and{" "}
         <strong>known-lead gate</strong>: CRM <code>getLeadBySlug</code> or curated{" "}

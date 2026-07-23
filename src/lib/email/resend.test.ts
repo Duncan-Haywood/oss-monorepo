@@ -789,3 +789,102 @@ describe("resend.ts — sendStarterUpsellEmail checkout URL single source of tru
     expect(sentHtml).toContain(`href="${expectedHref}"`);
   });
 });
+
+describe("resend.ts — sanitizeReplyToEmail", () => {
+  it("passes through a plausible single email address", async () => {
+    const { sanitizeReplyToEmail } = await import("./resend");
+    expect(sanitizeReplyToEmail("visitor@example.com")).toBe("visitor@example.com");
+  });
+
+  it("trims surrounding whitespace", async () => {
+    const { sanitizeReplyToEmail } = await import("./resend");
+    expect(sanitizeReplyToEmail("  visitor@example.com  ")).toBe("visitor@example.com");
+  });
+
+  it("returns undefined for empty/undefined input", async () => {
+    const { sanitizeReplyToEmail } = await import("./resend");
+    expect(sanitizeReplyToEmail(undefined)).toBeUndefined();
+    expect(sanitizeReplyToEmail("")).toBeUndefined();
+    expect(sanitizeReplyToEmail("   ")).toBeUndefined();
+  });
+
+  it("rejects a value with no @ or no dot in the domain part", async () => {
+    const { sanitizeReplyToEmail } = await import("./resend");
+    expect(sanitizeReplyToEmail("not-an-email")).toBeUndefined();
+    expect(sanitizeReplyToEmail("visitor@localhost")).toBeUndefined();
+  });
+
+  it("rejects a value containing whitespace (a second address, header-folding attempt)", async () => {
+    const { sanitizeReplyToEmail } = await import("./resend");
+    expect(
+      sanitizeReplyToEmail("visitor@example.com, attacker@evil.example"),
+    ).toBeUndefined();
+  });
+
+  it("rejects a CRLF header-injection attempt", async () => {
+    const { sanitizeReplyToEmail } = await import("./resend");
+    expect(
+      sanitizeReplyToEmail("visitor@example.com\r\nBcc: attacker@evil.example"),
+    ).toBeUndefined();
+  });
+});
+
+describe("resend.ts — sendEmail Reply-To", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+  let sentBody: Record<string, unknown>;
+
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    sentBody = {};
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        sentBody = JSON.parse(String(init.body));
+        return {
+          ok: true,
+          json: async () => ({ id: "email_test" }),
+        } as Response;
+      }),
+    );
+  });
+
+  afterEach(() => {
+    process.env.RESEND_API_KEY = originalKey;
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("passes a valid replyTo through to Resend as reply_to", async () => {
+    const { sendEmail } = await import("./resend");
+    await sendEmail({
+      to: "owner@example.com",
+      subject: "New inquiry",
+      html: "<p>hi</p>",
+      replyTo: "visitor@example.com",
+    });
+    expect(sentBody.reply_to).toBe("visitor@example.com");
+  });
+
+  it("omits reply_to entirely when replyTo is not passed", async () => {
+    const { sendEmail } = await import("./resend");
+    await sendEmail({
+      to: "owner@example.com",
+      subject: "New inquiry",
+      html: "<p>hi</p>",
+    });
+    expect(sentBody.reply_to).toBeUndefined();
+    expect("reply_to" in sentBody).toBe(false);
+  });
+
+  it("drops a malformed/CRLF-injected replyTo instead of sending it to Resend", async () => {
+    const { sendEmail } = await import("./resend");
+    await sendEmail({
+      to: "owner@example.com",
+      subject: "New inquiry",
+      html: "<p>hi</p>",
+      replyTo: "visitor@example.com\r\nBcc: attacker@evil.example",
+    });
+    expect(sentBody.reply_to).toBeUndefined();
+    expect("reply_to" in sentBody).toBe(false);
+  });
+});

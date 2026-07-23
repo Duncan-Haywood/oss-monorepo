@@ -40,6 +40,14 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * Visitor success stays tied to the CRM trail, not the notify (operator can
  * still reply from the inbox).
  *
+ * The notify's Reply-To is set to the visitor's own submitted email (when
+ * present) via sendEmail's replyTo param — the business owner has no
+ * per-client CRM login (single OPERATOR_DASHBOARD_PASSWORD gate), so their
+ * only realistic channel is hitting Reply in their inbox; without this the
+ * reply would silently go to the platform's own EMAIL_FROM instead of the
+ * customer. sendEmail validates/drops a malformed value via
+ * sanitizeReplyToEmail before it reaches Resend as a raw header.
+ *
  * Pass skipSuppression: true — this is a Starter sold product notify to
  * lead.email (or support), not cold-outreach marketing. A CAN-SPAM unsub from
  * Email 1–3 must not silence website contact-form delivery (see
@@ -221,11 +229,16 @@ export async function POST(request: Request, context: RouteContext) {
         leadSlug: slug,
         // Product notify (Starter sold contact form), not marketing cadence.
         skipSuppression: true,
+        // The business owner's most natural response is hitting Reply — route
+        // it back to the visitor instead of this app's own EMAIL_FROM.
+        // sendEmail validates/drops this via sanitizeReplyToEmail, so an
+        // empty or malformed visitor-submitted email is never passed through.
+        replyTo: email || undefined,
         html: `
         <h2 style="margin-bottom: 12px;">New contact form submission</h2>
         <p><strong>Business:</strong> ${safeBiz} (<code>${safeSlug}</code>)</p>
         <p><strong>Name:</strong> ${safeName}</p>
-        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Email:</strong> ${email ? `<a href="mailto:${safeEmail}">${safeEmail}</a>` : safeEmail}</p>
         <p><strong>Phone:</strong> ${safePhone}</p>
         <p><strong>Message:</strong></p>
         <p style="white-space: pre-wrap;">${safeMessage}</p>

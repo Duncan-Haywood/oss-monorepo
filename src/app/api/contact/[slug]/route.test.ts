@@ -319,6 +319,66 @@ describe("POST /api/contact/[slug]", () => {
     errorSpy.mockRestore();
   });
 
+  it("sets replyTo to the visitor's submitted email so the business can Reply directly", async () => {
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "Book a table",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(sentEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ replyTo: "visitor@example.com" }),
+    );
+  });
+
+  it("passes replyTo: undefined (not an empty string) when the visitor left email blank", async () => {
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          phone: "555-1234",
+          message: "Call me back",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    const call = sentEmail.mock.calls[0]?.[0];
+    expect(call?.replyTo).toBeUndefined();
+  });
+
+  it("links the visitor's email as a mailto: anchor in the notify HTML", async () => {
+    const { POST } = await import("./route");
+    await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "Book a table",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const sentHtml = sentEmail.mock.calls[0]?.[0]?.html ?? "";
+    expect(sentHtml).toContain('<a href="mailto:visitor@example.com">visitor@example.com</a>');
+  });
+
   it("passes skipSuppression so a marketing-unsub lead still gets inquiry notify", async () => {
     getLeadBySlug.mockResolvedValue({
       slug: "demo-cafe",
