@@ -155,6 +155,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.marketingPacksDueCount > 0}
         />
         <MetricCard
+          label="Marketing packs not emailed"
+          value={String(health.marketingPacksMissingClientSendCount)}
+          hint={
+            health.marketingPacksMissingClientSendCount > 0
+              ? `Generated but never sent to the client${
+                  health.oldestMarketingPacksMissingClientSendAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestMarketingPacksMissingClientSendAgeHours)}`
+                    : ""
+                }`
+              : "Every generated pack has been emailed"
+          }
+          attention={health.marketingPacksMissingClientSendCount > 0}
+        />
+        <MetricCard
           label="MRR paused / canceled"
           value={String(health.recurringEntitlementPausedCount)}
           hint={
@@ -219,6 +233,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
               : "Complete voice packs ready"
           }
           attention={health.clientVoicePacksDueCount > 0}
+        />
+        <MetricCard
+          label="Voice packs not emailed"
+          value={String(health.clientVoicePacksMissingClientSendCount)}
+          hint={
+            health.clientVoicePacksMissingClientSendCount > 0
+              ? `Generated but never sent to the client${
+                  health.oldestClientVoicePacksMissingClientSendAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestClientVoicePacksMissingClientSendAgeHours)}`
+                    : ""
+                }`
+              : "Every generated voice pack has been emailed"
+          }
+          attention={health.clientVoicePacksMissingClientSendCount > 0}
         />
         <MetricCard
           label="Commerce sales (pass-through)"

@@ -591,4 +591,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "buffer-schedule-marker-toctou-merge-guard",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-l5seug",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 93e8e050 (PR #658) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, 198 files) + npm run build (clean, same 42-route split). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Fold-scanned the newest ~9 claude/* remote branches directly against origin/main — every one with a real diff was pure deletions of process-log content already merged under a different SHA; no live fold candidate. Empty-backlog diff-gate (anchor b3ceb4ba) showed 4 real product commits since the last full tier 1-5 sweep — all four already spot-checked by their own immediately-following iterations, but not independently verified by this session — so dispatched a full tier 1-3 sweep (three parallel Explore agents: sold-capability wiring gaps, Convex/SQLite parity, security/injection audit) rather than a narrow spot-check. Convex/SQLite parity and security audits both came back clean. The sold-capability sweep found a real gap directly adjacent to PR #655 (marketing-voice-pack-client-send-visibility): that fix added marketingPacksMissingClientSendCount/clientVoicePacksMissingClientSendCount to PipelineHealth and wired them into the daily digest email and a per-lead dashboard badge, but never added the third planned surface — a MetricCard on the always-on PipelineHealthPanel (/dashboard/leads). Every sibling due/delivery-debt metric already has a card there; these two were the sole omissions, confirmed by grepping every `health.<field>` reference in the panel file. See pipeline-health-panel-missing-client-send-cards in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/components/dashboard/pipeline-health-panel.tsx — added 'Marketing packs not emailed' and 'Voice packs not emailed' MetricCards, mirroring the existing due-queue card pattern (oldest-age hint via formatAbandonedAgeHours, attention=true when count > 0). Pure rendering-layer wiring — no new PipelineHealth fields or logic, so no new Vitest coverage applies (React client components have no test harness in this repo; the underlying counts already have field-computation test coverage in pipeline-health.test.ts).",
+      "src/lib/process/business-decisions.ts — appended pipeline-health-panel-missing-client-send-cards, re-anchoring the empty-backlog diff-gate from b3ceb4ba to this iteration's own starting tip (93e8e050).",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a sold-capability wiring-gap fix discovered by a dispatched tier-1 audit, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, 198 files, unchanged — no test surface for this component) + npm run build (clean, same 42-route split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "pipeline-health-panel-missing-client-send-cards",
+    ),
+  },
 ];
