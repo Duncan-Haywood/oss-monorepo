@@ -627,6 +627,16 @@ export default function ArchitectureDocPage() {
         apart from a new attempt. Malformed/missing keys are validated away silently (checkout
         still works, just without de-dup) rather than rejected — see{" "}
         <code>checkout-session-create-idempotency-key</code> in the{" "}
+        <DocLink href="/docs/process">process log</DocLink>. When a homepage/pricing CTA omits a
+        CRM lead slug, the minted <code>organic-*</code> attribution slug (
+        <code>resolveBundleCheckoutLeadSlug</code>,{" "}
+        <code>src/lib/checkout/organic-attribution.ts</code>) is derived deterministically from
+        the idempotency key when one is present (
+        <code>deriveOrganicCheckoutLeadSlugFromIdempotencyKey</code>) rather than freshly
+        randomized on every call — a same-key retry must send Stripe the same{" "}
+        <code>metadata.slug</code>, or Stripe rejects the reused key as an{" "}
+        <code>idempotency_error</code> (a key must never be reused with different parameters);
+        see <code>organic-checkout-slug-idempotency-key-stability</code> in the{" "}
         <DocLink href="/docs/process">process log</DocLink>.{" "}
         <code>POST /api/stripe/webhook</code> verifies signatures, marks the lead paid, records the
         order, sends a receipt email when Resend is configured, and enqueues a production deploy
