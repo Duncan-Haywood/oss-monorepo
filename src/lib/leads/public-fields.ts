@@ -39,29 +39,38 @@ export function softCapLeadDescription(description: string): string {
  * JSON-LD, OG images) should be passed around, so a future component that
  * takes a "public lead" prop can never widen back to a full Lead by mistake.
  */
-export type PublicLead = Omit<Lead, "notes" | "stripeConnectAccountId">;
+export type PublicLead = Omit<
+  Lead,
+  "notes" | "stripeConnectAccountId" | "bufferProfileIds"
+>;
 
 /**
  * Soft-cap every create-path free-text field on a Lead for public surfaces,
  * and strip fields that must never reach an unauthenticated visitor: `notes`
- * (operator call notes — dashboard only per its own doc comment) and
- * `stripeConnectAccountId` (a Stripe financial identifier). Preserves
- * slug/stage/tier/provenance/outreach fields unchanged — those are read by
- * public-surface callers (e.g. isDemoPreview's dataSource check) by design.
+ * (operator call notes — dashboard only per its own doc comment),
+ * `stripeConnectAccountId` (a Stripe financial identifier), and
+ * `bufferProfileIds` (the operator's connected Buffer social-profile ids —
+ * see marketing-content-scheduling-buffer-scaffold; an operator-internal
+ * third-party account identifier, the same class as stripeConnectAccountId).
+ * Preserves slug/stage/tier/provenance/outreach fields unchanged — those are
+ * read by public-surface callers (e.g. isDemoPreview's dataSource check) by
+ * design.
  *
- * Every current caller only reads individual fields off the result, so
- * `notes`/`stripeConnectAccountId` are not live-exploitable today — but this
- * is the one function whose contract is "safe to hand to a public surface",
- * and at least one caller (CategoryPreview → TierUpsell) already passes the
- * whole result object onward. Omitting these two fields from the return
- * type (rather than relying on every caller reading around them) means a
- * future Client Component boundary added on that path cannot silently
- * serialize an operator's notes or Stripe account id into the RSC payload.
+ * Every current caller only reads individual fields off the result, so none
+ * of these three are live-exploitable today — but this is the one function
+ * whose contract is "safe to hand to a public surface", and at least one
+ * caller (CategoryPreview → TierUpsell) already passes the whole result
+ * object onward. Omitting these fields from the return type (rather than
+ * relying on every caller reading around them) means a future Client
+ * Component boundary added on that path cannot silently serialize an
+ * operator's notes, Stripe account id, or Buffer profile ids into the RSC
+ * payload (public-lead-strip-buffer-profile-ids).
  */
 export function softCapLeadForPublicSurface(lead: Lead): PublicLead {
-  const { notes, stripeConnectAccountId, ...publicLead } = lead;
+  const { notes, stripeConnectAccountId, bufferProfileIds, ...publicLead } = lead;
   void notes;
   void stripeConnectAccountId;
+  void bufferProfileIds;
   const address =
     typeof lead.address === "string"
       ? softCapLeadField(lead.address, MAX_ADDRESS_LENGTH)

@@ -87,4 +87,12 @@ describe("softCapLeadForPublicSurface", () => {
     expect(capped).not.toHaveProperty("stripeConnectAccountId");
     expect(JSON.stringify(capped)).not.toContain("acct_1Example000000");
   });
+
+  it("strips the operator's Buffer profile ids", () => {
+    const capped = softCapLeadForPublicSurface(
+      baseLead({ bufferProfileIds: ["buffer_profile_abc123"] }),
+    );
+    expect(capped).not.toHaveProperty("bufferProfileIds");
+    expect(JSON.stringify(capped)).not.toContain("buffer_profile_abc123");
+  });
 });

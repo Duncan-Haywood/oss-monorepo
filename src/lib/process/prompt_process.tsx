@@ -642,4 +642,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "buffer-profile-selection-save-wipe-fix",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-quu18a",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip dda421a (PR #638, buffer-profile-selection-save-wipe-fix) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2647 passed, 198 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). mcp__github__actions_list sampled the newest 30 workflow runs — 30/30 conclusion=failure, no runner ever assigned — github-actions-runner-unavailable stays status=todo, unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (600+ refs): the newest ~20 claude/* siblings all diffed as pure deletions against origin/main (already-merged-under-a-different-SHA content from PRs #630-#638) — no live fold candidate.\n\nRan the empty-backlog diff-gate against the documented anchor (49ef3151): `git log --oneline 49ef3151..HEAD -- src convex .github/workflows` returned 7 commits including three real product changes since the last full sweep (the Stripe webhook event-types docs disclosure, the Buffer scaffold, and its save-wipe bugfix) — a non-trivial diff per AGENT_PROTOCOL's waste-reduction rule, so dispatched a foreground general-purpose research agent for a full tier 1-5 sweep, briefed on AGENT_PROTOCOL, NEXT_STEPS, and recent BUSINESS_DECISIONS, and steered toward the newest-shipped surface (the Buffer scaffold) on the theory recently-shipped code is statistically likelier to hide a gap. It found a real one: src/lib/leads/public-fields.ts's PublicLead/softCapLeadForPublicSurface choke point — already hardened once to strip notes and stripeConnectAccountId — was never updated when the Buffer scaffold added lead.bufferProfileIds, the same class of operator-internal third-party account identifier. See public-lead-strip-buffer-profile-ids in BUSINESS_DECISIONS for the full finding and fix.",
+    shipped: [
+      "src/lib/leads/public-fields.ts — PublicLead is now Omit<Lead, \"notes\" | \"stripeConnectAccountId\" | \"bufferProfileIds\">; softCapLeadForPublicSurface strips bufferProfileIds alongside the other two (with a matching void bufferProfileIds); doc comments updated to describe all three as one stripped-field class.",
+      "src/lib/leads/public-fields.test.ts — one new test asserting bufferProfileIds is absent from the capped result and a sample profile id never appears in the serialized JSON, mirroring the existing notes/Stripe-Connect-id case.",
+      "src/lib/process/business-decisions.ts — appended public-lead-strip-buffer-profile-ids.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry, and re-anchored the empty-backlog diff-gate from 49ef3151 to this iteration's own starting tip (dda421a), since this iteration performed the full tier 1-5 sweep the anchor is meant to gate against. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a security-hardening fix discovered by audit in an already-shipped scaffold, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2648 passed, up from 2647 — 1 new, 198 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "public-lead-strip-buffer-profile-ids",
+    ),
+  },
 ];
