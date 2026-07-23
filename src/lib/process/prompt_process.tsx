@@ -625,4 +625,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "homepage-pricing-offer-jsonld",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-4q27iq",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 9f53aee (PR #689, homepage-pricing-offer-jsonld) — HEAD matched origin/main exactly at session start (had to reset the local `main` ref, which was stale from an earlier point, to origin/main before diffing any sibling branch). Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2787 passed, 200 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` and a diff of the newest ~15 claude/* branches against origin/main confirmed every one already merged byte-identical — no live fold candidate.\n\nDispatched a foreground research agent (Explore), told to weight tiers 2-6 (concrete code gaps) over tier 7 (growth/SEO) since the prior three iterations in a row had all shipped growth/SEO features. It found a real tier-1/2 sold-capability wiring gap — see daily-digest-recovery-nudge-number in BUSINESS_DECISIONS for the full detail and the two runner-ups it ruled out.",
+    shipped: [
+      "src/lib/digest/daily-digest.ts — added nextNudgeNumber: number to DigestCheckoutRecovery and DigestCommerceCheckoutRecovery (= (session.recoverySentCount ?? 0) + 1, matching the exact expression the dashboard actions already pass as nudgeNumber into the send helpers); recoveryRows/commerceRecoveryRows now append ' (nudge #N)' to each digest row.",
+      "src/app/docs/architecture/page.tsx — extended the recovery-email-escalating-cadence paragraph documenting the digest-side mirror.",
+      "Tests: src/lib/digest/daily-digest.test.ts — new buildDailyDigest case asserting nextNudgeNumber for both bundle and commerce recoveries at different recoverySentCount values, new renderDailyDigestHtml case asserting the exact '(nudge #N)' string on both row types, and an existing case updated to assert the default-to-1 case.",
+      "src/lib/process/business-decisions.ts — appended daily-digest-recovery-nudge-number.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 9f53aee (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2789 passed, up from 2787 — 2 new, 200 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /docs/architecture, /docs/process all 200; grepped the rendered docs HTML confirming the new sentence renders; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "daily-digest-recovery-nudge-number",
+    ),
+  },
 ];

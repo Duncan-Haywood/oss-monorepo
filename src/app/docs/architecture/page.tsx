@@ -1033,7 +1033,13 @@ export default function ArchitectureDocPage() {
         growing new variants indefinitely, since an operator can re-click past the{" "}
         <code>RECOVERY_COOLDOWN_DAYS</code> window as many times as they want. The &quot;last
         nudged&quot; line on both dashboard panels shows the nudge number (e.g. &quot;(#2)&quot;) so
-        an operator can see which tier is about to go out before clicking again.
+        an operator can see which tier is about to go out before clicking again. The daily digest
+        (<code>daily-digest.ts</code>) mirrors this: <code>DigestCheckoutRecovery</code> /{" "}
+        <code>DigestCommerceCheckoutRecovery</code> carry a <code>nextNudgeNumber</code> (
+        <code>recoverySentCount + 1</code>), and each abandoned-checkout / Buy now recovery row
+        renders &quot;(nudge #N)&quot; — an operator reading only the digest email (not the
+        dashboard) can otherwise not tell a session about to get its first reassurance nudge from
+        one about to get its final closing nudge.
       </p>
       <p>
         Growth/Complete/Commerce subscribers manage cards, invoices, and cancellation via Stripe

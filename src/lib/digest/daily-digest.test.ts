@@ -310,7 +310,29 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.checkoutRecoveriesDue).toHaveLength(1);
     expect(digest.checkoutRecoveriesDue[0].businessName).toBe("Test Lead");
+    expect(digest.checkoutRecoveriesDue[0].nextNudgeNumber).toBe(1);
     expect(digest.commerceCheckoutRecoveriesDue).toHaveLength(0);
+  });
+
+  it("computes nextNudgeNumber from recoverySentCount for both bundle and commerce recoveries", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [
+        baseCheckoutSession({ recoverySentCount: 1 }),
+        baseCheckoutSession({
+          stripeSessionId: "cs_commerce",
+          kind: "commerce_sku",
+          skuId: "sku_latte",
+          tier: "",
+          recoverySentCount: 3,
+        }),
+      ],
+      orders: [{ leadSlug: "test-lead", tier: "starter", commerceAddon: true }],
+      nowMs: NOW,
+    });
+    expect(digest.checkoutRecoveriesDue[0].nextNudgeNumber).toBe(2);
+    expect(digest.commerceCheckoutRecoveriesDue[0].nextNudgeNumber).toBe(4);
   });
 
   it("lists abandoned commerce Buy now separately from bundle recoveries", () => {
@@ -2451,6 +2473,28 @@ describe("renderDailyDigestHtml", () => {
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).toContain("Abandoned checkouts (1 · oldest");
     expect(html).toContain("h)");
+  });
+
+  it("shows the upcoming nudge number on abandoned checkout and Buy now recovery rows", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [
+        baseCheckoutSession({ recoverySentCount: 1 }),
+        baseCheckoutSession({
+          stripeSessionId: "cs_commerce",
+          kind: "commerce_sku",
+          skuId: "sku_latte",
+          tier: "",
+          recoverySentCount: 2,
+        }),
+      ],
+      orders: [{ leadSlug: "test-lead", tier: "starter", commerceAddon: true }],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("abandoned starter checkout (nudge #2)");
+    expect(html).toContain("abandoned Buy now (sku_latte) (nudge #3)");
   });
 
   it("shows oldestCommerceAbandonedAgeHours in the Abandoned Buy now header", () => {

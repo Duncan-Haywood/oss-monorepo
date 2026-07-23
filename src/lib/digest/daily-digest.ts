@@ -131,6 +131,8 @@ export interface DigestCheckoutRecovery {
   slug: string;
   businessName: string;
   tier: string;
+  /** 1-indexed nudge about to fire next — see recoveryNudgeTier in resend.ts. */
+  nextNudgeNumber: number;
 }
 
 export interface DigestCommerceCheckoutRecovery {
@@ -138,6 +140,8 @@ export interface DigestCommerceCheckoutRecovery {
   slug: string;
   businessName: string;
   skuId: string;
+  /** 1-indexed nudge about to fire next — see recoveryNudgeTier in resend.ts. */
+  nextNudgeNumber: number;
 }
 
 export interface DigestUnrepliedInquiry {
@@ -683,6 +687,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       slug: session.leadSlug,
       businessName: leadsBySlug.get(session.leadSlug)?.businessName ?? session.leadSlug,
       tier: session.tier,
+      nextNudgeNumber: (session.recoverySentCount ?? 0) + 1,
     }));
 
   const commerceRecoveryEligibleSlugs = leadSlugsEligibleForCommerceAbandonedRecovery(
@@ -705,6 +710,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       slug: session.leadSlug,
       businessName: leadsBySlug.get(session.leadSlug)?.businessName ?? session.leadSlug,
       skuId: session.skuId ?? "sku",
+      nextNudgeNumber: (session.recoverySentCount ?? 0) + 1,
     }));
 
   const unrepliedInquiriesAll = inquiries
@@ -1336,12 +1342,12 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
 
   const recoveryRows = digest.checkoutRecoveriesDue.map(
     (recovery) =>
-      `<strong>${escapeHtmlForEmail(recovery.businessName)}</strong> — abandoned ${escapeHtmlForEmail(recovery.tier)} checkout`,
+      `<strong>${escapeHtmlForEmail(recovery.businessName)}</strong> — abandoned ${escapeHtmlForEmail(recovery.tier)} checkout (nudge #${recovery.nextNudgeNumber})`,
   );
 
   const commerceRecoveryRows = digest.commerceCheckoutRecoveriesDue.map(
     (recovery) =>
-      `<strong>${escapeHtmlForEmail(recovery.businessName)}</strong> — abandoned Buy now (${escapeHtmlForEmail(recovery.skuId)})`,
+      `<strong>${escapeHtmlForEmail(recovery.businessName)}</strong> — abandoned Buy now (${escapeHtmlForEmail(recovery.skuId)}) (nudge #${recovery.nextNudgeNumber})`,
   );
 
   const inquiryRows = digest.unrepliedInquiries.map(
