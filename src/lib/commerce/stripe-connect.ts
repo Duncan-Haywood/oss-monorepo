@@ -167,6 +167,52 @@ export async function fetchConnectAccountStatus(
   };
 }
 
+export type DisplayedConnectStatus = ConnectAccountStatus & {
+  /** ISO timestamp of the check this status came from; null for a same-session live check. */
+  checkedAt: string | null;
+  /** True when this came from a "Check status" click this session; false when read from the persisted cache. */
+  live: boolean;
+};
+
+/**
+ * Resolve what the Payouts panel's "Charges enabled / Payouts enabled /
+ * Details submitted" line should show for a lead — closes a gap in the
+ * stripe-connect-onboarding-pipeline-health-visibility scaffold: that PR
+ * added stripeConnectChargesEnabled/PayoutsEnabled/DetailsSubmitted/
+ * StatusCheckedAt to the Lead record specifically so pipeline-health/digest
+ * could show cached onboarding status without a live Stripe call, but the
+ * Payouts panel itself kept reading only an in-memory, never-persisted
+ * useState populated solely by that session's own "Check status" click —
+ * so the panel showed nothing at all on every fresh page load even though
+ * the record already carried a real cached answer. Prefers a live status
+ * just fetched this session (liveStatus, the direct response of
+ * checkStripeConnectAccountStatusAction) over the persisted cache, but
+ * falls back to the cache so the panel isn't blank until the operator
+ * re-clicks. Returns null only when neither exists yet (account created but
+ * never checked).
+ */
+export function resolveDisplayedConnectStatus(
+  lead: {
+    stripeConnectChargesEnabled?: boolean;
+    stripeConnectPayoutsEnabled?: boolean;
+    stripeConnectDetailsSubmitted?: boolean;
+    stripeConnectStatusCheckedAt?: string;
+  },
+  liveStatus?: ConnectAccountStatus | null,
+): DisplayedConnectStatus | null {
+  if (liveStatus) {
+    return { ...liveStatus, checkedAt: null, live: true };
+  }
+  if (typeof lead.stripeConnectStatusCheckedAt !== "string") return null;
+  return {
+    chargesEnabled: lead.stripeConnectChargesEnabled === true,
+    payoutsEnabled: lead.stripeConnectPayoutsEnabled === true,
+    detailsSubmitted: lead.stripeConnectDetailsSubmitted === true,
+    checkedAt: lead.stripeConnectStatusCheckedAt,
+    live: false,
+  };
+}
+
 /**
  * Pure pipeline-health/digest visibility helpers for the Connect scaffold
  * (stripe-connect-onboarding-pipeline-health-visibility) — closes the gap
