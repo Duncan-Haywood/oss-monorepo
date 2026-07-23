@@ -998,4 +998,17 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "commerce-order-customer-email-ledger-field",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/commerce-order-customer-email-resend-reply-to",
+    summary:
+      "Unattended scheduled routine, branch cut fresh from origin/main tip 4d8517b4 (PR #682) and built the same commerceOrders.customerEmail ledger field commerce-order-customer-email-ledger-field also independently built — a genuine same-minute dual-build collision (this session's branch had pushed no commits yet when a re-fetch showed PR #683 already merged an essentially identical implementation, same touch-list down to the clearRefunded/clearDisputed replace()-preservation detail). Per AGENT_PROTOCOL's dual-build rule, did not push/open a duplicate PR: `git reset --hard origin/main` onto the new tip (b1133c72) and diffed both implementations file-by-file — no complementary test/behavior worth folding, except one real gap: the merged version persists `customerEmail: customerEmail || undefined` with no length bound, unlike the two checkout-create routes (bundle + commerce), which already soft-cap this same field via normalizeCheckoutCustomerEmail before persisting it onto checkout_sessions.customerEmail. Confirmed by reading both create routes' own usage before fixing.",
+    shipped: [
+      "src/app/api/stripe/webhook/route.ts — the commerceOrders insert call now applies the existing normalizeCheckoutCustomerEmail soft-cap to customerEmail before persisting (belt-and-suspenders parity with the checkout-create routes' own bound on the same field; this copy is Stripe-derived rather than client-supplied at this point, but every persisted copy of the same value should share one bound).",
+      "src/app/api/stripe/webhook/route.test.ts — new test asserting an over-length customer_details.email is capped to MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH before reaching insertCommerceOrder.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2765 passed, up from 2757 post-#683 — 1 new, 199 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route split).",
+      "No BUSINESS_DECISIONS entry appended this iteration (kept both live process-log files from growing further) — business-decisions.ts and prompt_process.tsx are now both within ~2-5KB of the 256KB re-archive ceiling (see process-log-archive-scalability-split). The NEXT iteration MUST re-archive both files as its own dedicated pass before appending anything else — this is no longer 'worth doing soon,' it is close to blocking further appends outright. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked.",
+    ],
+    decisions: [],
+  },
 ];

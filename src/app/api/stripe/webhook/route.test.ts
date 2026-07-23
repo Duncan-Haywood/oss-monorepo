@@ -3825,6 +3825,28 @@ describe("POST /api/stripe/webhook", () => {
       );
     });
 
+    it("soft-caps an over-long customer_details.email before persisting (same bound the checkout-create routes already apply to this field)", async () => {
+      const { MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH } = await import(
+        "@/lib/checkout/customer-email"
+      );
+      const overlong = `${"a".repeat(MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH + 40)}@shop.test`;
+      constructEvent.mockReturnValue(
+        completedEvent(commerceSession({ customer_details: { email: overlong } })),
+      );
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      const persisted = insertCommerceOrder.mock.calls[0]?.[0]?.customerEmail as string;
+      expect(persisted.length).toBe(MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH);
+      expect(overlong.length).toBeGreaterThan(MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH);
+    });
+
     it("skips ledger/notify when lead is missing (create-path 404 twin)", async () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue(null);

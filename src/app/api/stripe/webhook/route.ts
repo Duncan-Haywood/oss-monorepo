@@ -21,6 +21,7 @@ import {
   syncOrdersRecurringEntitlementByCustomer,
 } from "@/lib/db";
 import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
+import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import {
   invoicePaidMayRestoreRecurringEntitlement,
@@ -523,7 +524,15 @@ export async function POST(request: Request) {
                 amountPaidUsd,
                 stripeSessionId: session.id,
                 quantity,
-                customerEmail: customerEmail || undefined,
+                // Same soft-cap normalizer the checkout-create routes already
+                // apply to this field on checkout_sessions.customerEmail —
+                // belt-and-suspenders here since this copy is Stripe-derived
+                // (session.customer_details.email) rather than client-
+                // supplied at this point in the flow, but every persisted
+                // copy of the same real-world value shares one bound
+                // regardless of provenance (see
+                // commerce-order-customer-email-size-bound-parity).
+                customerEmail: normalizeCheckoutCustomerEmail(customerEmail),
               },
               WEBHOOK_CONVEX_PRIMARY,
             ));
