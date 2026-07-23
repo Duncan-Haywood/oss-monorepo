@@ -35,13 +35,16 @@ export interface StripeConnectAccountsClient {
       limit: number;
       starting_after?: string;
     }): Promise<{ data: MinimalStripeConnectAccount[]; has_more: boolean }>;
-    create(params: {
-      type: "express";
-      email?: string;
-      business_type?: "company" | "individual";
-      capabilities: { card_payments: { requested: true }; transfers: { requested: true } };
-      metadata: Record<string, string>;
-    }): Promise<MinimalStripeConnectAccount>;
+    create(
+      params: {
+        type: "express";
+        email?: string;
+        business_type?: "company" | "individual";
+        capabilities: { card_payments: { requested: true }; transfers: { requested: true } };
+        metadata: Record<string, string>;
+      },
+      options?: { idempotencyKey?: string },
+    ): Promise<MinimalStripeConnectAccount>;
     retrieve(accountId: string): Promise<MinimalStripeConnectAccount>;
   };
   accountLinks: {
@@ -56,6 +59,24 @@ export interface StripeConnectAccountsClient {
 
 /** Metadata key used to idempotently locate a lead's Connect account across retries. */
 const LEAD_SLUG_METADATA_KEY = "local_site_studio_lead_slug";
+
+/**
+ * Stable Stripe Idempotency-Key for a lead's account.create call — mirrors
+ * commerceSkuStripeKey's stable-metadata-key pattern, but as a real Stripe
+ * idempotency key rather than a post-hoc metadata search. The list-then-create
+ * check in findConnectAccountByLeadSlug is a check-then-act race: two
+ * concurrent createExpressConnectAccount calls for the same lead (a
+ * double-click, or two open dashboard tabs) can both see no existing account
+ * and both call accounts.create, minting two permanently-orphaned Express
+ * accounts under the same lead-slug metadata. Passing this key as the
+ * request's Idempotency-Key closes that race at the Stripe API layer: Stripe
+ * guarantees at most one account is ever created for a given key, and any
+ * replayed request (including a genuinely concurrent one) gets back the
+ * identical first response instead of minting a duplicate.
+ */
+function connectAccountIdempotencyKey(leadSlug: string): string {
+  return `local_site_studio_connect_account_${leadSlug}`;
+}
 
 export type ConnectAccountResult = { accountId: string; created: boolean };
 
@@ -89,19 +110,22 @@ export async function createExpressConnectAccount(
     return { accountId: existing.id, created: false };
   }
 
-  const account = await stripe.accounts.create({
-    type: "express",
-    email: params.email,
-    business_type: "company",
-    capabilities: {
-      card_payments: { requested: true },
-      transfers: { requested: true },
+  const account = await stripe.accounts.create(
+    {
+      type: "express",
+      email: params.email,
+      business_type: "company",
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+      metadata: {
+        [LEAD_SLUG_METADATA_KEY]: params.leadSlug,
+        local_site_studio_business_name: params.businessName,
+      },
     },
-    metadata: {
-      [LEAD_SLUG_METADATA_KEY]: params.leadSlug,
-      local_site_studio_business_name: params.businessName,
-    },
-  });
+    { idempotencyKey: connectAccountIdempotencyKey(params.leadSlug) },
+  );
   return { accountId: account.id, created: true };
 }
 

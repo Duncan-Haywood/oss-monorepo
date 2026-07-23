@@ -784,4 +784,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "buffer-token-header-not-query"),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-7x7cvd",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 4af0a560 (PR #671, buffer-token-header-not-query) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2709 passed, 198 files). A full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (602 remote heads) and a push-time sweep of the newest ~25 claude/* branches confirmed the swarm's dominant pattern — every branch with a nonzero diff against origin/main carries content already merged byte-identical under a different SHA — no live fold candidate. Rather than dispatch a fresh audit, picked up the concrete, well-scoped follow-up the immediately-prior iteration explicitly deferred (see buffer-token-header-not-query's finding #2): src/lib/commerce/stripe-connect.ts's createExpressConnectAccount is a check-then-act pattern (list Stripe accounts by lead-slug metadata, create only if none found) with no Stripe Idempotency-Key on the accounts.create call, so two concurrent invocations for the same lead could each mint a distinct, permanently-orphaned Stripe Express account. Re-read the module and its test file in full before implementing to confirm the gap still held.",
+    shipped: [
+      "src/lib/commerce/stripe-connect.ts — new connectAccountIdempotencyKey(leadSlug) helper (stable per-lead key, `local_site_studio_connect_account_${leadSlug}`, mirroring commerceSkuStripeKey's naming convention) passed as `{ idempotencyKey }` on the accounts.create call inside createExpressConnectAccount; extended StripeConnectAccountsClient's accounts.create signature to accept the optional second `options: { idempotencyKey?: string }` parameter matching the real Stripe SDK's `(params, options)` shape.",
+      "src/lib/commerce/stripe-connect.test.ts — extended createFakeStripe to track and honor idempotencyKey (a repeated key returns the previously-created account instead of minting a second one, mirroring Stripe's real guarantee); 2 new tests — asserts createExpressConnectAccount passes the exact expected stable key, and directly exercises two concurrent accounts.create calls sharing that key to confirm they collapse to one account.",
+      "src/app/docs/architecture/page.tsx — extended the existing Stripe Connect scaffold paragraph to describe the Idempotency-Key fix, cross-referencing the commerce-catalog Sync-to-Stripe/orphan-archive TOCTOU guards already documented on the same page as the established sibling pattern.",
+      "src/lib/process/business-decisions.ts — appended stripe-connect-account-create-idempotency-key.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a Convex/SQLite-parity-adjacent concurrency/idempotency fix (tier 2), not a resolution of any gated item. Diff-gate anchor moves to 4af0a560 (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2711 passed, up from 2709 — 2 new, 198 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-connect-account-create-idempotency-key",
+    ),
+  },
 ];

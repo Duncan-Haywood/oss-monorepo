@@ -1664,7 +1664,14 @@ source). The same digest also lists email-critical leads with no usable address 
         create a per-lead Connect Express account (idempotent — re-finds an existing account by{" "}
         <code>metadata.local_site_studio_lead_slug</code> via{" "}
         <code>createExpressConnectAccount</code>, mirroring <code>bootstrapStripePrices</code>
-        &apos;s idempotency pattern), generate a Stripe-hosted onboarding link for the operator to
+        &apos;s idempotency pattern, <strong>plus</strong> a stable per-lead Stripe{" "}
+        <code>Idempotency-Key</code> (<code>local_​site_​studio_​connect_​account_&#123;leadSlug&#125;</code>)
+        on the <code>accounts.create</code> call itself — the list-then-create metadata search
+        alone is a check-then-act race (two concurrent calls for the same lead can both see no
+        existing account and both call create), and the Idempotency-Key is what actually closes
+        it at the Stripe API layer — the same check-then-act race class as the commerce catalog
+        Sync-to-Stripe / orphan-archive TOCTOU guards elsewhere on this page), generate a
+        Stripe-hosted onboarding link for the operator to
         send the client, and check live{" "}
         <code>charges_enabled</code>/<code>payouts_enabled</code>/<code>details_submitted</code>{" "}
         status. <code>leads.stripeConnectAccountId</code> (Convex + SQLite,{" "}
