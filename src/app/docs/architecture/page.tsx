@@ -846,7 +846,22 @@ export default function ArchitectureDocPage() {
         <code>envSnippet</code> to paste — the API route used to skip that auth check even though
         its dashboard-action twin always required it, letting anyone who knew the (documented)
         route path trigger live Stripe object creation during an operator&rsquo;s bootstrap
-        window; fixed so both paths share the same gate. Route-level Vitest in{" "}
+        window; fixed so both paths share the same gate.{" "}
+        <code>bootstrapStripePrices</code>&apos; metadata-keyed list-then-create lookup (
+        <code>findProductByKey</code> / <code>findMatchingPrice</code>) is the same check-then-act
+        race as the Commerce catalog Sync-to-Stripe and Stripe Connect Express scaffolds above (an
+        operator double-clicking <strong>Run bootstrap</strong>, two open dashboard tabs, or a
+        retried <code>POST /api/stripe/bootstrap-prices</code> request can each see no existing
+        Product/Price and both create one) — each <code>products.create</code> and{" "}
+        <code>prices.create</code> call carries the same class of stable per-spec{" "}
+        <code>Idempotency-Key</code> (
+        <code>local_​site_​studio_&#123;key&#125;_product</code> /{" "}
+        <code>..._price_&#123;unitAmount&#125;</code>, e.g. <code>starter_setup</code>) so Stripe
+        itself collapses a genuinely concurrent pair of create calls to a single Product/Price
+        rather than minting a permanently orphaned duplicate — the third instance of this exact
+        fix in this codebase, see <code>commerce-catalog-sync-idempotency-key</code> and{" "}
+        <code>stripe-connect-account-create-idempotency-key</code> in the{" "}
+        <DocLink href="/docs/process">process log</DocLink>. Route-level Vitest in{" "}
         <code>src/app/api/stripe/bootstrap-prices/route.test.ts</code> plus{" "}
         <code>bootstrap-gate.test.ts</code> lock operator-auth rejection (401), the opt-in{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP</code> gate (403), missing <code>STRIPE_SECRET_KEY</code>{" "}

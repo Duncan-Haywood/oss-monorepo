@@ -5,6 +5,8 @@ import { BUNDLES, COMMERCE_ADDON } from "./bundles";
 function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
   productCount: () => number;
   priceCount: () => number;
+  productCreateCallsByIdempotencyKey: () => Map<string, number>;
+  priceCreateCallsByIdempotencyKey: () => Map<string, number>;
 } {
   const products: Array<{ id: string; metadata: Record<string, string> }> = [];
   const prices: Array<{
@@ -15,6 +17,12 @@ function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
     recurring?: { interval?: string } | null;
   }> = [];
   let nextId = 1;
+
+  /** Real Stripe returns the SAME object for a replayed Idempotency-Key instead of creating a second one. */
+  const productsByIdempotencyKey = new Map<string, (typeof products)[number]>();
+  const productCreateCallsByIdempotencyKey = new Map<string, number>();
+  const pricesByIdempotencyKey = new Map<string, (typeof prices)[number]>();
+  const priceCreateCallsByIdempotencyKey = new Map<string, number>();
 
   /** Real Stripe list endpoints cap a page at `limit` and set has_more/starting_after. */
   function paginate<T extends { id: string }>(
@@ -34,9 +42,19 @@ function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
       async list({ limit, starting_after }) {
         return paginate(products, limit, starting_after);
       },
-      async create({ metadata }) {
+      async create({ metadata }, options) {
+        const idempotencyKey = options?.idempotencyKey;
+        if (idempotencyKey) {
+          productCreateCallsByIdempotencyKey.set(
+            idempotencyKey,
+            (productCreateCallsByIdempotencyKey.get(idempotencyKey) ?? 0) + 1,
+          );
+          const existing = productsByIdempotencyKey.get(idempotencyKey);
+          if (existing) return existing;
+        }
         const product = { id: `prod_${nextId++}`, metadata };
         products.push(product);
+        if (idempotencyKey) productsByIdempotencyKey.set(idempotencyKey, product);
         return product;
       },
     },
@@ -48,7 +66,16 @@ function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
           starting_after,
         );
       },
-      async create({ product, unit_amount, recurring }) {
+      async create({ product, unit_amount, recurring }, options) {
+        const idempotencyKey = options?.idempotencyKey;
+        if (idempotencyKey) {
+          priceCreateCallsByIdempotencyKey.set(
+            idempotencyKey,
+            (priceCreateCallsByIdempotencyKey.get(idempotencyKey) ?? 0) + 1,
+          );
+          const existing = pricesByIdempotencyKey.get(idempotencyKey);
+          if (existing) return existing;
+        }
         const price = {
           id: `price_${nextId++}`,
           product,
@@ -57,11 +84,14 @@ function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
           recurring: recurring ?? null,
         };
         prices.push(price);
+        if (idempotencyKey) pricesByIdempotencyKey.set(idempotencyKey, price);
         return price;
       },
     },
     productCount: () => products.length,
     priceCount: () => prices.length,
+    productCreateCallsByIdempotencyKey: () => productCreateCallsByIdempotencyKey,
+    priceCreateCallsByIdempotencyKey: () => priceCreateCallsByIdempotencyKey,
   };
 }
 
@@ -182,5 +212,72 @@ describe("bootstrapStripePrices", () => {
     ].sort();
 
     expect(envVars).toEqual(expected);
+  });
+
+  it("passes a stable Idempotency-Key on every product.create and price.create call", async () => {
+    const stripe = createFakeStripe();
+    await bootstrapStripePrices(stripe);
+
+    const productCalls = stripe.productCreateCallsByIdempotencyKey();
+    const priceCalls = stripe.priceCreateCallsByIdempotencyKey();
+
+    expect(productCalls.size).toBe(EXPECTED_SPEC_COUNT);
+    expect(priceCalls.size).toBe(EXPECTED_SPEC_COUNT);
+    expect([...productCalls.values()].every((count) => count === 1)).toBe(true);
+    expect([...priceCalls.values()].every((count) => count === 1)).toBe(true);
+    expect([...productCalls.keys()]).toContain("local_site_studio_starter_setup_product");
+  });
+
+  it("never mints a duplicate Product/Price when two concurrent calls both race past the list-based precheck", async () => {
+    // Simulates the exact race findProductByKey/findMatchingPrice cannot close
+    // by itself: both invocations of bootstrapStripePrices see no existing
+    // Product/Price for a spec (list runs before either create lands) and
+    // both call products.create/prices.create — Stripe's Idempotency-Key
+    // guarantee is what actually collapses them to one object, verified here
+    // by calling the fake client's create directly with the same derived key
+    // the module uses, twice, "concurrently".
+    const stripe = createFakeStripe();
+    const key = "starter_setup";
+    const productKey = `local_site_studio_${key}_product`;
+
+    const [firstProduct, secondProduct] = await Promise.all([
+      stripe.products.create(
+        { name: "Starter — setup", metadata: { local_site_studio_key: key } },
+        { idempotencyKey: productKey },
+      ),
+      stripe.products.create(
+        { name: "Starter — setup", metadata: { local_site_studio_key: key } },
+        { idempotencyKey: productKey },
+      ),
+    ]);
+
+    expect(firstProduct.id).toBe(secondProduct.id);
+    expect(stripe.productCount()).toBe(1);
+
+    const unitAmount = 50000;
+    const priceKey = `local_site_studio_${key}_price_${unitAmount}`;
+    const [firstPrice, secondPrice] = await Promise.all([
+      stripe.prices.create(
+        {
+          product: firstProduct.id,
+          currency: "usd",
+          unit_amount: unitAmount,
+          metadata: { local_site_studio_key: key },
+        },
+        { idempotencyKey: priceKey },
+      ),
+      stripe.prices.create(
+        {
+          product: firstProduct.id,
+          currency: "usd",
+          unit_amount: unitAmount,
+          metadata: { local_site_studio_key: key },
+        },
+        { idempotencyKey: priceKey },
+      ),
+    ]);
+
+    expect(firstPrice.id).toBe(secondPrice.id);
+    expect(stripe.priceCount()).toBe(1);
   });
 });

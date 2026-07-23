@@ -25,6 +25,34 @@ export type BootstrapPriceResult = {
   created: boolean;
 };
 
+/**
+ * Stable Stripe Idempotency-Key for a price spec's product.create call —
+ * mirrors stripe-connect.ts's connectAccountIdempotencyKey /
+ * stripe-sync.ts's commerceProductIdempotencyKey pattern.
+ * findProductByKey (list-then-create) is a check-then-act race: an operator
+ * double-clicking the bootstrap button, two open dashboard tabs, or a
+ * client-retried POST /api/stripe/bootstrap-prices request can all race past
+ * the metadata-based list lookup before either create() lands, minting two
+ * permanently-orphaned Products under the identical "stable" metadata key —
+ * the lookup alone cannot prevent this, since neither concurrent call can see
+ * the other's write until it commits. Passing this key as the request's
+ * Idempotency-Key closes the race at the Stripe API layer.
+ */
+function bootstrapProductIdempotencyKey(key: string): string {
+  return `local_site_studio_${key}_product`;
+}
+
+/**
+ * Stable Stripe Idempotency-Key for a price spec's price.create call — same
+ * race as bootstrapProductIdempotencyKey, on the Price axis. Includes
+ * unitAmount so a legitimate later price change (a new, distinct Price
+ * object, since Stripe Prices are immutable) still gets its own key rather
+ * than colliding with an earlier amount's create call.
+ */
+function bootstrapPriceIdempotencyKey(key: string, unitAmount: number): string {
+  return `local_site_studio_${key}_price_${unitAmount}`;
+}
+
 type MinimalStripeProduct = { id: string; metadata?: Record<string, string> };
 type MinimalStripePrice = {
   id: string;
@@ -41,10 +69,13 @@ export interface StripeProductsAndPricesForBootstrap {
       active: boolean;
       starting_after?: string;
     }): Promise<{ data: MinimalStripeProduct[]; has_more: boolean }>;
-    create(params: {
-      name: string;
-      metadata: Record<string, string>;
-    }): Promise<MinimalStripeProduct>;
+    create(
+      params: {
+        name: string;
+        metadata: Record<string, string>;
+      },
+      options?: { idempotencyKey?: string },
+    ): Promise<MinimalStripeProduct>;
   };
   prices: {
     list(params: {
@@ -53,13 +84,16 @@ export interface StripeProductsAndPricesForBootstrap {
       limit: number;
       starting_after?: string;
     }): Promise<{ data: MinimalStripePrice[]; has_more: boolean }>;
-    create(params: {
-      product: string;
-      currency: string;
-      unit_amount: number;
-      recurring?: { interval: "month" };
-      metadata: Record<string, string>;
-    }): Promise<MinimalStripePrice>;
+    create(
+      params: {
+        product: string;
+        currency: string;
+        unit_amount: number;
+        recurring?: { interval: "month" };
+        metadata: Record<string, string>;
+      },
+      options?: { idempotencyKey?: string },
+    ): Promise<MinimalStripePrice>;
   };
 }
 
@@ -154,23 +188,29 @@ export async function bootstrapStripePrices(
     let created = false;
 
     if (!product) {
-      product = await stripe.products.create({
-        name: spec.productName,
-        metadata: { local_site_studio_key: spec.key },
-      });
+      product = await stripe.products.create(
+        {
+          name: spec.productName,
+          metadata: { local_site_studio_key: spec.key },
+        },
+        { idempotencyKey: bootstrapProductIdempotencyKey(spec.key) },
+      );
       created = true;
     }
 
     const unitAmount = Math.round(spec.unitAmountUsd * 100);
     let price = await findMatchingPrice(stripe, product.id, unitAmount, spec.recurring);
     if (!price) {
-      price = await stripe.prices.create({
-        product: product.id,
-        currency: "usd",
-        unit_amount: unitAmount,
-        ...(spec.recurring ? { recurring: { interval: "month" as const } } : {}),
-        metadata: { local_site_studio_key: spec.key },
-      });
+      price = await stripe.prices.create(
+        {
+          product: product.id,
+          currency: "usd",
+          unit_amount: unitAmount,
+          ...(spec.recurring ? { recurring: { interval: "month" as const } } : {}),
+          metadata: { local_site_studio_key: spec.key },
+        },
+        { idempotencyKey: bootstrapPriceIdempotencyKey(spec.key, unitAmount) },
+      );
       created = true;
     }
 
