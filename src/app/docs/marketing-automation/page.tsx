@@ -146,9 +146,12 @@ export default function MarketingAutomationDocPage() {
         <code>instagram_caption</code> variant into each selected profile&apos;s existing posting
         schedule — never posts immediately, and never guesses at a channel: a profile whose{" "}
         <code>service</code> has no matching pack content type, or that vanished from Buffer, is
-        reported skipped rather than silently dropped). Google Business Profile / Meta stay fully
-        gated — those need a distinct OAuth grant per local business, not one operator-level
-        token. See <code>src/lib/marketing/buffer.ts</code>,{" "}
+        reported skipped rather than silently dropped). Same recurring-entitlement gate as Email
+        pack: <strong>Send pack to Buffer</strong> re-checks{" "}
+        <code>orders.recurringCanceledAt</code> before posting, so a paused/canceled subscriber&apos;s
+        live social profiles never receive new auto-posted content after cancellation. Google
+        Business Profile / Meta stay fully gated — those need a distinct OAuth grant per local
+        business, not one operator-level token. See <code>src/lib/marketing/buffer.ts</code>,{" "}
         <code>src/lib/marketing/buffer-gate.ts</code>, and{" "}
         <code>src/app/dashboard/leads/buffer-actions.test.ts</code> for the full contract and test
         coverage; see{" "}

@@ -674,4 +674,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "buffer-schedule-recurring-entitlement-gate",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-kdwftz",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 108a646 (PR #640, buffer-schedule-recurring-entitlement-gate) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green first: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2650 passed, 198 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (same weeks-stale, unrelated human draft). mcp__github__actions_list sampled the newest 30 workflow runs — 30/30 conclusion=failure, no runner ever assigned — github-actions-runner-unavailable stays status=todo, unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`: the newest ~10 claude/* siblings plus two large-diff outliers all confirmed byte-identical to content already merged under a different SHA; the newest codex/* branches have no merge-base with origin/main (orphan history, stale since 2026-07-18) — no live fold candidate.\n\nWith the diff-gate anchor at dda421a and only 2 product commits since, dispatched a foreground general-purpose research agent for a targeted spot-check of the newest-shipped surfaces (Buffer scaffold + entitlement gate + Stripe Connect scaffold) across all five tiers. It found one real, previously-unflagged docs-staleness gap: /docs/architecture's 'Recurring MRR entitlement' list omitted scheduleMarketingPackToBufferAction even though PR #640 (the immediately-preceding commit) added the exact same recurringCanceledAt gate to it, and /docs/marketing-automation's Buffer paragraph never disclosed the protection either. See buffer-entitlement-gate-docs-disclosure in BUSINESS_DECISIONS for the full finding and fix.",
+    shipped: [
+      "src/app/docs/architecture/page.tsx — the recurring-entitlement enumerated list now includes 'Save catalog, and Send pack to Buffer (scheduleMarketingPackToBufferAction)' alongside Generate/Email pack and Generate/Email voice.",
+      "src/app/docs/marketing-automation/page.tsx — Buffer auto-posting paragraph gained a sentence disclosing the same paused/canceled-subscriber rejection Email pack's doc text already describes.",
+      "src/lib/process/business-decisions.ts — appended buffer-entitlement-gate-docs-disclosure.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a docs-clarity fix discovered by audit, not a resolution of any gated item. Diff-gate anchor stays at dda421a (targeted spot-check, not a full tier 1-5 sweep).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2650 passed, unchanged, 198 files) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/docs/architecture, /docs/marketing-automation both 200, both new sentences present in rendered HTML; dev server killed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-entitlement-gate-docs-disclosure",
+    ),
+  },
 ];

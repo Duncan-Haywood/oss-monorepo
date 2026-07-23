@@ -730,10 +730,12 @@ export default function ArchitectureDocPage() {
         <code>orders</code> args with <code>recurringCanceledAt?</code> too —
         structural omit of the CRM pause field is the same silent-reopen class
         as an optional entitlement Set. Dashboard action glue for Generate /
-        Email pack, Generate / Email voice, and Save catalog has action-level
-        Vitest proving <code>recurringCanceledAt</code> fails closed before LLM
-        generate, pack persist, client email, or catalog upsert (lib predicates
-        alone do not lock orchestration).{" "}
+        Email pack, Generate / Email voice, Save catalog, and Send pack to
+        Buffer (<code>scheduleMarketingPackToBufferAction</code>) has
+        action-level Vitest proving <code>recurringCanceledAt</code> fails
+        closed before LLM generate, pack persist, client email, catalog
+        upsert, or Buffer post (lib predicates alone do not lock
+        orchestration).{" "}
         <code>loadCheckoutSuccessSession</code> mirrors the paid gate so
         /checkout/success does not show Payment received before funds clear. Receipt HTML escapes the tier label via{" "}
         <code>escapeHtmlForEmail</code> and prefers the catalog display name. The{" "}
