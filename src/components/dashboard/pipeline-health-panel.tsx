@@ -207,7 +207,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.commerceCatalogsMissingCount > 0}
         />
         <MetricCard
-          label="Commerce Sync to Stripe"
+          label="Commerce Sync to Stripe due"
           value={String(health.commerceCatalogsUnsyncedCount)}
           hint={
             health.commerceCatalogsUnsyncedCount > 0

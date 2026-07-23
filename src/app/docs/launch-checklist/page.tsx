@@ -578,7 +578,8 @@ export default function LaunchChecklistDocPage() {
           (action-level Vitest in{" "}
           <code>archive-orphan-commerce-stripe-products-action.test.ts</code>{" "}
           locks the dashboard glue). Before Sync, confirm pipeline-health{" "}
-          <strong>Commerce Sync to Stripe</strong> counts saved catalogs with
+          <strong>Commerce Sync to Stripe due</strong> counts saved catalogs
+          with
           unsynced SKUs (and that the daily digest lists them). Reload{" "}
           <code>/preview/[slug]</code> and confirm synced SKUs now show{" "}
           <strong>Buy now</strong> (routes through{" "}

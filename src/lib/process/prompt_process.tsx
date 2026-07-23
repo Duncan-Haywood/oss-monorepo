@@ -725,4 +725,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "vercel-domain-release-on-reassign",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-43w96q",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 7aea21aa (PR #667, vercel-domain-release-on-reassign) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2709 passed, 198 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` and a fold-scan of the newest 9 claude/* branches confirmed every one with a nonzero diff against origin/main carries content already merged byte-identical under a different SHA — no live fold candidate. Empty-backlog diff-gate against the prior iteration's anchor (44d562b8) showed only 1 real product commit since (already individually verified), so dispatched a fast targeted spot-check via one foreground general-purpose research agent instead of a full re-sweep, steered away from every surface today's ~15 prior iterations had already covered. It found a real, low-severity gap: the same 'sibling label missing the due suffix' bug class already fixed twice today for the voice-pack cards had one more instance — PipelineHealthPanel's 'Commerce Sync to Stripe' card. See pipeline-health-panel-commerce-sync-label-drift in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/components/dashboard/pipeline-health-panel.tsx — corrected the 'Commerce Sync to Stripe' MetricCard label (line 210) to 'Commerce Sync to Stripe due', matching daily-digest.ts's section title and /docs/architecture's prose verbatim. Pure copy fix — no data/logic change.",
+      "src/app/docs/launch-checklist/page.tsx — corrected the matching prose (line 581) from 'Commerce Sync to Stripe' to 'Commerce Sync to Stripe due' so all four references (panel/digest/architecture/launch-checklist) agree.",
+      "src/lib/process/business-decisions.ts — appended pipeline-health-panel-commerce-sync-label-drift.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a tier-7 docs/UI-copy-consistency fix, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2709 passed, 198 files, unchanged — React client components have no test harness in this repo) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route split) + npm run dev sanity check (/docs/launch-checklist, /docs/architecture, /dashboard/leads all 200; corrected string confirmed present in rendered HTML; dev server killed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "pipeline-health-panel-commerce-sync-label-drift",
+    ),
+  },
 ];
