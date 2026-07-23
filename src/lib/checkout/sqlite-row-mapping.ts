@@ -19,6 +19,7 @@ export interface SqliteCheckoutSessionRow {
   status: string;
   createdAt: string;
   recoverySentAt: string | null;
+  recoverySentCount: number | null;
   kind: string | null;
   skuId: string | null;
 }
@@ -35,6 +36,7 @@ export function mapCheckoutSessionRow(row: SqliteCheckoutSessionRow): CheckoutSe
     status: row.status === "complete" ? "complete" : "open",
     createdAt: row.createdAt,
     recoverySentAt: row.recoverySentAt || undefined,
+    recoverySentCount: row.recoverySentCount ?? undefined,
     kind,
     skuId: row.skuId || undefined,
   };

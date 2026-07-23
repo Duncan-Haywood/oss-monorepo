@@ -940,3 +940,84 @@ describe("resend.ts — sendEmail Reply-To", () => {
     expect("reply_to" in sentBody).toBe(false);
   });
 });
+
+describe("resend.ts — abandoned-checkout recovery escalating cadence (recovery-email-escalating-cadence)", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+  let sentSubject: string;
+  let sentHtml: string;
+
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    sentSubject = "";
+    sentHtml = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const body = JSON.parse(String(init.body));
+        sentSubject = body.subject;
+        sentHtml = body.html;
+        return {
+          ok: true,
+          json: async () => ({ id: "email_test" }),
+        } as Response;
+      }),
+    );
+  });
+
+  afterEach(() => {
+    process.env.RESEND_API_KEY = originalKey;
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("sendCheckoutAbandonedRecovery defaults to the tier-1 (first-nudge) subject/copy when nudgeNumber is omitted", async () => {
+    const { sendCheckoutAbandonedRecovery } = await import("./resend");
+    await sendCheckoutAbandonedRecovery("owner@example.com", "Demo Cafe", "demo-cafe", "starter");
+    expect(sentSubject).toBe("Still want to launch Demo Cafe?");
+    expect(sentHtml).toContain("Your checkout is still open");
+  });
+
+  it("sendCheckoutAbandonedRecovery escalates subject/copy across nudge 1, 2, and 3+", async () => {
+    const { sendCheckoutAbandonedRecovery } = await import("./resend");
+
+    await sendCheckoutAbandonedRecovery("owner@example.com", "Demo Cafe", "demo-cafe", "starter", 1);
+    expect(sentSubject).toBe("Still want to launch Demo Cafe?");
+
+    await sendCheckoutAbandonedRecovery("owner@example.com", "Demo Cafe", "demo-cafe", "starter", 2);
+    expect(sentSubject).toBe("Any questions about launching Demo Cafe?");
+    expect(sentHtml).toContain("no sales call");
+
+    await sendCheckoutAbandonedRecovery("owner@example.com", "Demo Cafe", "demo-cafe", "starter", 3);
+    expect(sentSubject).toBe("Last reminder: your Demo Cafe checkout is still open");
+    expect(sentHtml).toContain("Closing the loop");
+
+    // Nudge 4+ stays on the tier-3 copy rather than growing new variants.
+    await sendCheckoutAbandonedRecovery("owner@example.com", "Demo Cafe", "demo-cafe", "starter", 5);
+    expect(sentSubject).toBe("Last reminder: your Demo Cafe checkout is still open");
+  });
+
+  it("sendCommerceAbandonedRecovery escalates subject/copy across nudge 1, 2, and 3+", async () => {
+    const { sendCommerceAbandonedRecovery } = await import("./resend");
+
+    await sendCommerceAbandonedRecovery("shopper@example.com", "Demo Cafe", "demo-cafe", "Latte", 1);
+    expect(sentSubject).toBe("Still interested in Latte from Demo Cafe?");
+
+    await sendCommerceAbandonedRecovery("shopper@example.com", "Demo Cafe", "demo-cafe", "Latte", 2);
+    expect(sentSubject).toBe("Quick question about your Latte order");
+
+    await sendCommerceAbandonedRecovery("shopper@example.com", "Demo Cafe", "demo-cafe", "Latte", 3);
+    expect(sentSubject).toBe("Last reminder: your Latte order is still open");
+    expect(sentHtml).toContain("Closing the loop");
+  });
+
+  it("escapes businessName in the tier-2 and tier-3 recovery copy, not just tier 1", async () => {
+    const { sendCheckoutAbandonedRecovery } = await import("./resend");
+    await sendCheckoutAbandonedRecovery("owner@example.com", UNSAFE_NAME, "demo-cafe", "starter", 2);
+    expect(sentHtml).toContain(ESCAPED_NAME);
+    expect(sentHtml).not.toContain("<Truck>");
+
+    await sendCheckoutAbandonedRecovery("owner@example.com", UNSAFE_NAME, "demo-cafe", "starter", 3);
+    expect(sentHtml).toContain(ESCAPED_NAME);
+    expect(sentHtml).not.toContain("<Truck>");
+  });
+});

@@ -483,6 +483,22 @@ describe("sqliteRecordCheckoutRecoverySent", () => {
     expect(sqliteRecordCheckoutRecoverySent(db, "missing", "2026-01-01T00:00:00.000Z")).toBe(false);
   });
 
+  it("increments recoverySentCount from unset on first nudge, then again on repeat nudges (recovery-email-escalating-cadence)", () => {
+    const db = freshDb();
+    insertCheckoutSessionDirect(db, "cs_open", "test-lead", "open");
+    sqliteRecordCheckoutRecoverySent(db, "cs_open", "2026-01-01T00:00:00.000Z");
+    let row = db
+      .prepare("SELECT recoverySentCount FROM checkout_sessions WHERE stripeSessionId = ?")
+      .get("cs_open") as { recoverySentCount: number };
+    expect(row.recoverySentCount).toBe(1);
+
+    sqliteRecordCheckoutRecoverySent(db, "cs_open", "2026-01-03T00:00:00.000Z");
+    row = db
+      .prepare("SELECT recoverySentCount FROM checkout_sessions WHERE stripeSessionId = ?")
+      .get("cs_open") as { recoverySentCount: number };
+    expect(row.recoverySentCount).toBe(2);
+  });
+
   it("rejects a session that already completed via a concurrent webhook (checkout-session-recovery-race-guard)", () => {
     const db = freshDb();
     insertCheckoutSessionDirect(db, "cs_complete", "test-lead", "complete");

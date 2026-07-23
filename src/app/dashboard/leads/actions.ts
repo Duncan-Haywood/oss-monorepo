@@ -1308,7 +1308,13 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
       };
     }
 
-    const sent = await sendCheckoutAbandonedRecovery(to, businessName, session.leadSlug, session.tier);
+    const sent = await sendCheckoutAbandonedRecovery(
+      to,
+      businessName,
+      session.leadSlug,
+      session.tier,
+      (session.recoverySentCount ?? 0) + 1,
+    );
 
     if (!sent.success) {
       return {
@@ -1445,6 +1451,7 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
       businessName,
       session.leadSlug,
       skuName,
+      (session.recoverySentCount ?? 0) + 1,
     );
 
     if (!sent.success) {

@@ -343,6 +343,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-anx43p",
   },
+  {
+    id: "recovery-email-escalating-cadence",
+    summary:
+      "Growth-lever fix found by a research agent explicitly steered toward fresh conversion levers rather than another micro defect-fix, after a saturated same-day backlog of 30+ prior iterations. sendCheckoutAbandonedRecovery/sendCommerceAbandonedRecovery sent byte-identical copy on every repeat operator-triggered nudge for the same abandoned session, unlike the cold-outreach cadence (Email 1/2/3) which deliberately varies angle/urgency across touches — a real gap since abandoned-checkout shoppers already showed purchase intent (reached Stripe Checkout) and deserved stronger follow-through than a copy-paste re-send. Shipped a new recoverySentCount field on checkoutSessions (both Convex and SQLite backends, incremented atomically alongside recoverySentAt) and a 3-tier escalating copy split (reassurance → objection-handling → final soft close, capped at tier 3 for nudge 4+) in both recovery email templates, wired through the two dashboard recovery actions and surfaced as a '(#N)' indicator on both dashboard panels. See recovery-email-escalating-cadence in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/nice-euler-wueqtv",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -556,6 +564,28 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "post-685-reply-to-ledger-chain-deep-audit-clean",
+    ),
+  },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-wueqtv",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip e189d195 (PR #686, post-685-reply-to-ledger-chain-deep-audit-clean) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2765 passed, 199 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` and a diff of the newest ~25 claude/* branches against origin/main confirmed every one with a nonzero diff carries only deletions of content already merged byte-identical under a different SHA — no live fold candidate.\n\nGiven a saturated same-day backlog (30+ prior iterations across every AGENT_PROTOCOL tier, several consecutive clean audits), dispatched a research agent explicitly steered toward a genuinely fresh, growth-oriented gap rather than another micro defect-fix. It ranked abandoned-checkout recovery's send-count-blind copy highest leverage over two runner-ups (pricing-section Product/Offer JSON-LD; funnel analytics beyond outreach-attributed preview opens) — see recovery-email-escalating-cadence in BUSINESS_DECISIONS for the full candidate list and implementation detail.",
+    shipped: [
+      "src/lib/checkout/types.ts — new optional recoverySentCount on CheckoutSessionRecord.",
+      "convex/schema.ts, convex/checkoutSessions.ts — recoverySentCount added to the table/return validator/mapper; recordRecoverySent now increments it inside the same race-guarded patch that already sets recoverySentAt.",
+      "src/lib/db/sqlite-schema.ts, src/lib/db/sqlite-queries.ts, src/lib/checkout/sqlite-row-mapping.ts — matching SQLite column (CREATE TABLE + guarded ALTER TABLE migration), UPDATE ... SET recoverySentCount = COALESCE(recoverySentCount, 0) + 1, and row mapping.",
+      "src/lib/email/resend.ts — sendCheckoutAbandonedRecovery/sendCommerceAbandonedRecovery gained an optional nudgeNumber param and a recoveryNudgeTier(1|2|3, capped) helper switching subject/heading/body/CTA across three tiers mirroring the outreach Email 1/2/3 cadence; tier 1 is byte-identical to the prior always-on copy (no behavior change on a session's first nudge).",
+      "src/app/dashboard/leads/actions.ts — both recovery actions now pass (session.recoverySentCount ?? 0) + 1 as nudgeNumber.",
+      "src/app/dashboard/leads/leads-client.tsx — optimistic updates bump recoverySentCount locally; both abandoned-checkout panel rows show a '(#N)' nudge-number suffix next to 'last nudged'.",
+      "src/app/docs/architecture/page.tsx — new paragraph documenting the field and the 3-tier copy split.",
+      "Tests: src/lib/db/sqlite-queries.test.ts, convex/checkoutSessions.test.ts (incl. the system-field-leak allowlist), src/lib/checkout/sqlite-row-mapping.test.ts, src/lib/email/resend.test.ts (new describe block covering exact per-tier subject/copy + tier-4-stays-tier-3 + escaping in tiers 2/3), src/app/dashboard/leads/checkout-recovery-actions.test.ts (updated exact-args assertions + 2 new escalation tests).",
+      "src/lib/process/business-decisions.ts — appended recovery-email-escalating-cadence.",
+      "src/lib/process/prompt_process.tsx — appended a new done NEXT_STEPS entry and this ITERATIONS entry. All five gated NEXT_STEPS items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a growth-lever feature, not a resolution of any gated item. Diff-gate anchor moves to e189d195 (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2774 passed, up from 2765 — 9 new, 199 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /docs/architecture all 200; curled the rendered docs HTML confirming the new sentence renders; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "recovery-email-escalating-cadence",
     ),
   },
 ];

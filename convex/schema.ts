@@ -140,6 +140,8 @@ export default defineSchema({
     createdAt: v.string(),
     /** ISO timestamp of the last operator-triggered abandoned-checkout recovery email. */
     recoverySentAt: v.optional(v.string()),
+    /** How many recovery nudges have been sent — drives escalating email copy. */
+    recoverySentCount: v.optional(v.number()),
     /**
      * "bundle" | "commerce_sku". Optional for legacy rows (treat as bundle).
      * Required when writing new commerce Buy now sessions.

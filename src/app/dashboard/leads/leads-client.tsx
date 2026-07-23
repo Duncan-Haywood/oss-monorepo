@@ -712,7 +712,9 @@ export function LeadsClient({
       const sentAt = new Date().toISOString();
       setCheckoutSessions((prev) =>
         prev.map((s) =>
-          s.stripeSessionId === stripeSessionId ? { ...s, recoverySentAt: sentAt } : s,
+          s.stripeSessionId === stripeSessionId
+            ? { ...s, recoverySentAt: sentAt, recoverySentCount: (s.recoverySentCount ?? 0) + 1 }
+            : s,
         ),
       );
     });
@@ -728,7 +730,9 @@ export function LeadsClient({
       const sentAt = new Date().toISOString();
       setCheckoutSessions((prev) =>
         prev.map((s) =>
-          s.stripeSessionId === stripeSessionId ? { ...s, recoverySentAt: sentAt } : s,
+          s.stripeSessionId === stripeSessionId
+            ? { ...s, recoverySentAt: sentAt, recoverySentCount: (s.recoverySentCount ?? 0) + 1 }
+            : s,
         ),
       );
     });
@@ -1741,7 +1745,7 @@ export function LeadsClient({
                       {session.recoverySentAt
                         ? ` · last nudged ${formatAbandonedAgeHours(
                             deployHandoffAgeHours(session.recoverySentAt, nowMs),
-                          )} ago`
+                          )} ago (#${session.recoverySentCount ?? 1})`
                         : null}
                     </p>
                   </div>
@@ -1818,7 +1822,7 @@ export function LeadsClient({
                         {session.recoverySentAt
                           ? ` · last nudged ${formatAbandonedAgeHours(
                               deployHandoffAgeHours(session.recoverySentAt, nowMs),
-                            )} ago`
+                            )} ago (#${session.recoverySentCount ?? 1})`
                           : null}
                       </p>
                     </div>

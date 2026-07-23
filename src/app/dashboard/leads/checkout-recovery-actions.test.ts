@@ -258,11 +258,27 @@ describe("sendCheckoutRecoveryAction", () => {
       "Demo Cafe",
       "demo-cafe",
       "growth",
+      1,
     );
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
     const markOrder = recordCheckoutRecoverySent.mock.invocationCallOrder[0]!;
     const sendOrder = sendCheckoutAbandonedRecovery.mock.invocationCallOrder[0]!;
     expect(markOrder).toBeLessThan(sendOrder);
+  });
+
+  it("passes an escalated nudge number (recoverySentCount + 1) into sendCheckoutAbandonedRecovery on a repeat send (recovery-email-escalating-cadence)", async () => {
+    listOpenCheckoutSessions.mockResolvedValue([
+      { ...bundleSession, recoverySentAt: "2026-07-13T12:00:00.000Z", recoverySentCount: 2 },
+    ]);
+    const { sendCheckoutRecoveryAction } = await import("./actions");
+    await sendCheckoutRecoveryAction("cs_test_bundle");
+    expect(sendCheckoutAbandonedRecovery).toHaveBeenCalledWith(
+      "buyer@example.com",
+      "Demo Cafe",
+      "demo-cafe",
+      "growth",
+      3,
+    );
   });
 
   it("skips Resend when Convex primary mark fails", async () => {
@@ -451,10 +467,26 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
       "Demo Cafe",
       "demo-cafe",
       "Latte",
+      1,
     );
     const markOrder = recordCheckoutRecoverySent.mock.invocationCallOrder[0]!;
     const sendOrder = sendCommerceAbandonedRecovery.mock.invocationCallOrder[0]!;
     expect(markOrder).toBeLessThan(sendOrder);
+  });
+
+  it("passes an escalated nudge number (recoverySentCount + 1) into sendCommerceAbandonedRecovery on a repeat send (recovery-email-escalating-cadence)", async () => {
+    listOpenCheckoutSessions.mockResolvedValue([
+      { ...commerceSession, recoverySentAt: "2026-07-13T12:00:00.000Z", recoverySentCount: 1 },
+    ]);
+    const { sendCommerceCheckoutRecoveryAction } = await import("./actions");
+    await sendCommerceCheckoutRecoveryAction("cs_test_commerce");
+    expect(sendCommerceAbandonedRecovery).toHaveBeenCalledWith(
+      "shopper@example.com",
+      "Demo Cafe",
+      "demo-cafe",
+      "Latte",
+      2,
+    );
   });
 
   it("skips Resend when Convex primary mark fails", async () => {

@@ -303,27 +303,66 @@ export async function sendOutreachFollowUp3(
 }
 
 /**
+ * Which escalation tier a recovery nudge falls into. Mirrors the outreach
+ * Email 1/2/3 cadence (sendOutreachEmail/FollowUp2/FollowUp3): tier 1 is the
+ * original reassurance framing, tier 2 answers the most common objection
+ * (easy to finish, real human on the other end), tier 3 is a final soft
+ * close. nudgeNumber is 1-indexed (the first nudge ever sent for a session);
+ * anything past 3 stays on the tier-3 copy rather than growing new variants
+ * forever — RECOVERY_COOLDOWN_DAYS lets an operator re-click indefinitely.
+ */
+function recoveryNudgeTier(nudgeNumber: number): 1 | 2 | 3 {
+  if (nudgeNumber <= 1) return 1;
+  if (nudgeNumber === 2) return 2;
+  return 3;
+}
+
+/**
  * Abandoned-checkout recovery nudge — operator-triggered when a Stripe Checkout
  * Session was created but not completed (see src/lib/checkout/abandoned-recovery.ts).
  * Bundle plan checkouts only — commerce Buy now uses sendCommerceAbandonedRecovery.
+ *
+ * nudgeNumber (default 1, see recoveryNudgeTier) varies subject/copy across
+ * repeat sends on the same session so a second or third nudge doesn't read as
+ * a copy-paste of the first — see recovery-email-escalating-cadence.
  */
 export async function sendCheckoutAbandonedRecovery(
   to: string,
   businessName: string,
   slug: string,
   tier: string,
+  nudgeNumber = 1,
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}`;
   const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
+  const safeBiz = escapeHtmlForEmail(businessName);
 
-  const subject = `Still want to launch ${businessName}?`;
+  const nudgeTier = recoveryNudgeTier(nudgeNumber);
+  const subject =
+    nudgeTier === 1
+      ? `Still want to launch ${businessName}?`
+      : nudgeTier === 2
+        ? `Any questions about launching ${businessName}?`
+        : `Last reminder: your ${businessName} checkout is still open`;
+  const heading =
+    nudgeTier === 1
+      ? "Your checkout is still open"
+      : nudgeTier === 2
+        ? "It only takes a couple of minutes"
+        : "Closing the loop";
+  const body =
+    nudgeTier === 1
+      ? `<p style="margin-bottom: 16px;">Looks like you started setting up a plan for <strong>${safeBiz}</strong> but didn't finish. Nothing was charged.</p><p style="margin-bottom: 24px;">Pick up right where you left off — your plan and details are still saved:</p>`
+      : nudgeTier === 2
+        ? `<p style="margin-bottom: 16px;">Your plan for <strong>${safeBiz}</strong> is still saved and nothing has been charged yet. Most owners finish checkout in a couple of minutes — pricing and setup are shown up front, and there's no sales call.</p><p style="margin-bottom: 24px;">If something's unclear, just reply to this email and a real person will answer:</p>`
+        : `<p style="margin-bottom: 16px;">This is our last automated note about the plan we saved for <strong>${safeBiz}</strong>. Nothing was charged.</p><p style="margin-bottom: 16px;">If now isn't the right time, no worries — the link below still works whenever you're ready, or reply if you have questions.</p>`;
+  const cta = nudgeTier === 3 ? "Finish checkout when ready" : "Finish checkout";
   const html = `
-    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your checkout is still open</h2>
-    <p style="margin-bottom: 16px;">Looks like you started setting up a plan for <strong>${escapeHtmlForEmail(businessName)}</strong> but didn't finish. Nothing was charged.</p>
-    <p style="margin-bottom: 24px;">Pick up right where you left off — your plan and details are still saved:</p>
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">${heading}</h2>
+    ${body}
     <div style="margin-bottom: 16px; text-align: center;">
-      <a href="${safeCheckoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Finish checkout</a>
+      <a href="${safeCheckoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">${cta}</a>
     </div>
     <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">Questions first? Just reply to this email.</p>
     <p style="margin-bottom: 8px;">Best regards,</p>
@@ -336,12 +375,16 @@ export async function sendCheckoutAbandonedRecovery(
 /**
  * Commerce Buy now abandoned-cart recovery — links back to the client's preview
  * catalog, never /checkout?tier= (that would pitch a Local Site Studio plan).
+ *
+ * nudgeNumber (default 1, see recoveryNudgeTier) mirrors
+ * sendCheckoutAbandonedRecovery's escalating-cadence copy.
  */
 export async function sendCommerceAbandonedRecovery(
   to: string,
   businessName: string,
   slug: string,
   skuLabel: string,
+  nudgeNumber = 1,
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const catalogUrl = `${leadPreviewAbsoluteUrl(baseUrl, slug)}#catalog`;
@@ -349,13 +392,31 @@ export async function sendCommerceAbandonedRecovery(
   const safeBiz = escapeHtmlForEmail(businessName);
   const safeCatalogUrl = escapeHtmlForEmail(catalogUrl);
 
-  const subject = `Still interested in ${skuLabel} from ${businessName}?`;
+  const nudgeTier = recoveryNudgeTier(nudgeNumber);
+  const subject =
+    nudgeTier === 1
+      ? `Still interested in ${skuLabel} from ${businessName}?`
+      : nudgeTier === 2
+        ? `Quick question about your ${skuLabel} order`
+        : `Last reminder: your ${skuLabel} order is still open`;
+  const heading =
+    nudgeTier === 1
+      ? "Your order is still open"
+      : nudgeTier === 2
+        ? "Still there whenever you're ready"
+        : "Closing the loop";
+  const body =
+    nudgeTier === 1
+      ? `<p style="margin-bottom: 16px;">Looks like you started checking out <strong>${safeSku}</strong> from <strong>${safeBiz}</strong> but didn't finish. Nothing was charged.</p><p style="margin-bottom: 24px;">Jump back to the menu to complete your purchase:</p>`
+      : nudgeTier === 2
+        ? `<p style="margin-bottom: 16px;"><strong>${safeSku}</strong> from <strong>${safeBiz}</strong> is still in your cart and nothing has been charged. If something didn't work at checkout or you have a question, just reply to this email.</p><p style="margin-bottom: 24px;">Otherwise, pick up where you left off:</p>`
+        : `<p style="margin-bottom: 16px;">This is the last automated note about <strong>${safeSku}</strong> from <strong>${safeBiz}</strong>. Nothing was charged.</p><p style="margin-bottom: 16px;">The menu link below still works whenever you're ready, or reply if you have questions.</p>`;
+  const cta = nudgeTier === 3 ? "Return to menu when ready" : "Return to menu";
   const html = `
-    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your order is still open</h2>
-    <p style="margin-bottom: 16px;">Looks like you started checking out <strong>${safeSku}</strong> from <strong>${safeBiz}</strong> but didn't finish. Nothing was charged.</p>
-    <p style="margin-bottom: 24px;">Jump back to the menu to complete your purchase:</p>
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">${heading}</h2>
+    ${body}
     <div style="margin-bottom: 16px; text-align: center;">
-      <a href="${safeCatalogUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Return to menu</a>
+      <a href="${safeCatalogUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">${cta}</a>
     </div>
     <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">Questions? Just reply to this email.</p>
     <p style="margin-bottom: 8px;">Best regards,</p>

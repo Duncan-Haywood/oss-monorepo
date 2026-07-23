@@ -985,6 +985,23 @@ export default function ArchitectureDocPage() {
         recovery-due counts beside paid-not-live, plus separate Buy now cart counts.
       </p>
       <p>
+        Recovery copy escalates across repeat nudges instead of resending the same email
+        (recovery-email-escalating-cadence): every <code>checkoutSessions</code> row also carries a{" "}
+        <code>recoverySentCount</code> (incremented atomically alongside{" "}
+        <code>recoverySentAt</code> by <code>recordRecoverySent</code>/
+        <code>sqliteRecordCheckoutRecoverySent</code> on both backends). The dashboard action
+        passes <code>recoverySentCount + 1</code> as a <code>nudgeNumber</code> into{" "}
+        <code>sendCheckoutAbandonedRecovery</code>/<code>sendCommerceAbandonedRecovery</code>,
+        which pick one of three copy tiers (mirroring the outreach Email 1/2/3 cadence): the first
+        nudge keeps the original reassurance framing, the second answers the most common
+        objection (quick to finish, no sales call, reply if something&apos;s unclear), and the
+        third+ is a final soft close — nudge 4 and beyond stay on the tier-3 copy rather than
+        growing new variants indefinitely, since an operator can re-click past the{" "}
+        <code>RECOVERY_COOLDOWN_DAYS</code> window as many times as they want. The &quot;last
+        nudged&quot; line on both dashboard panels shows the nudge number (e.g. &quot;(#2)&quot;) so
+        an operator can see which tier is about to go out before clicking again.
+      </p>
+      <p>
         Growth/Complete/Commerce subscribers manage cards, invoices, and cancellation via Stripe
         Billing Portal: <code>POST /api/stripe/billing-portal</code> (post-checkout{" "}
         <code>sessionId</code>) and the operator <strong>Billing</strong> action on paid/live

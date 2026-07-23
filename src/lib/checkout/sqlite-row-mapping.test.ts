@@ -11,6 +11,7 @@ const baseRow: SqliteCheckoutSessionRow = {
   status: "open",
   createdAt: "2026-01-01T00:00:00.000Z",
   recoverySentAt: null,
+  recoverySentCount: null,
   kind: null,
   skuId: null,
 };
@@ -26,6 +27,7 @@ describe("mapCheckoutSessionRow", () => {
       status: "open",
       createdAt: "2026-01-01T00:00:00.000Z",
       recoverySentAt: undefined,
+      recoverySentCount: undefined,
       kind: "bundle",
       skuId: undefined,
     });
@@ -59,5 +61,10 @@ describe("mapCheckoutSessionRow", () => {
     const mapped = mapCheckoutSessionRow(row);
     expect(mapped.customerEmail).toBe("buyer@example.com");
     expect(mapped.recoverySentAt).toBe("2026-01-02T00:00:00.000Z");
+  });
+
+  it("preserves recoverySentCount when set, undefined when null", () => {
+    expect(mapCheckoutSessionRow(baseRow).recoverySentCount).toBeUndefined();
+    expect(mapCheckoutSessionRow({ ...baseRow, recoverySentCount: 2 }).recoverySentCount).toBe(2);
   });
 });

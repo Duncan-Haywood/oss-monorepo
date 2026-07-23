@@ -301,7 +301,7 @@ export function sqliteRecordCheckoutRecoverySent(
 ): boolean {
   const result = db
     .prepare(
-      "UPDATE checkout_sessions SET recoverySentAt = ? WHERE stripeSessionId = ? AND status = 'open'",
+      "UPDATE checkout_sessions SET recoverySentAt = ?, recoverySentCount = COALESCE(recoverySentCount, 0) + 1 WHERE stripeSessionId = ? AND status = 'open'",
     )
     .run(sentAt, stripeSessionId);
   return result.changes > 0;

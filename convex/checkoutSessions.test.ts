@@ -23,6 +23,7 @@ interface CheckoutSessionRow {
   skuId?: string;
   customerEmail?: string;
   recoverySentAt?: string;
+  recoverySentCount?: number;
 }
 
 function createArgs(overrides: Partial<Record<string, unknown>> = {}) {
@@ -206,6 +207,29 @@ test("recordRecoverySent stamps recoverySentAt on a known open session and resol
     apiSecret: TEST_API_SECRET,
   });
   expect(rows[0].recoverySentAt).toBe("2026-01-05T00:00:00.000Z");
+  expect(rows[0].recoverySentCount).toBe(1);
+});
+
+test("recordRecoverySent increments recoverySentCount on each repeat send (recovery-email-escalating-cadence)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_repeat" }));
+
+  await t.mutation(api.checkoutSessions.recordRecoverySent, {
+    stripeSessionId: "cs_repeat",
+    sentAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.checkoutSessions.recordRecoverySent, {
+    stripeSessionId: "cs_repeat",
+    sentAt: "2026-01-07T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(rows[0].recoverySentCount).toBe(2);
+  expect(rows[0].recoverySentAt).toBe("2026-01-07T00:00:00.000Z");
 });
 
 test("recordRecoverySent (checkout-session-recovery-race-guard): resolves false and leaves recoverySentAt unset once the session completed (a real payment landing) after the caller's earlier listOpen snapshot", async () => {
@@ -279,6 +303,7 @@ test("listOpen never leaks Convex's own _id/_creationTime system fields onto a C
     "kind",
     "leadSlug",
     "recoverySentAt",
+    "recoverySentCount",
     "skuId",
     "status",
     "stripeSessionId",

@@ -32,6 +32,14 @@ export interface CheckoutSessionRecord {
   /** ISO timestamp of the last operator-triggered abandoned-checkout recovery email. */
   recoverySentAt?: string;
   /**
+   * How many recovery nudges have been sent for this session. Drives
+   * escalating copy in sendCheckoutAbandonedRecovery/sendCommerceAbandonedRecovery
+   * (see recovery-email-escalating-cadence) — nudge 1 stays the original
+   * reassurance framing, nudge 2 answers common objections, nudge 3+ is a
+   * final soft close, mirroring the outreach Email 1/2/3 cadence.
+   */
+  recoverySentCount?: number;
+  /**
    * What this session sells. Omit/undefined = bundle (legacy rows).
    * commerce_sku = end-customer Buy now on a client's catalog.
    */

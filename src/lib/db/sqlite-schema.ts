@@ -106,6 +106,7 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
       status TEXT NOT NULL DEFAULT 'open',
       createdAt TEXT NOT NULL DEFAULT (datetime('now')),
       recoverySentAt TEXT,
+      recoverySentCount INTEGER,
       kind TEXT NOT NULL DEFAULT 'bundle',
       skuId TEXT
     );
@@ -266,6 +267,9 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   }
   if (!checkoutSessionCols.includes("skuId")) {
     db.exec("ALTER TABLE checkout_sessions ADD COLUMN skuId TEXT");
+  }
+  if (!checkoutSessionCols.includes("recoverySentCount")) {
+    db.exec("ALTER TABLE checkout_sessions ADD COLUMN recoverySentCount INTEGER");
   }
 
   const commerceOrderCols = (

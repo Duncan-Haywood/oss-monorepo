@@ -29,6 +29,7 @@ const checkoutSessionReturn = v.object({
   status: v.string(),
   createdAt: v.string(),
   recoverySentAt: v.optional(v.string()),
+  recoverySentCount: v.optional(v.number()),
   kind: v.optional(v.string()),
   skuId: v.optional(v.string()),
 });
@@ -42,6 +43,7 @@ function mapCheckoutSessionRow(row: {
   status: string;
   createdAt: string;
   recoverySentAt?: string;
+  recoverySentCount?: number;
   kind?: string;
   skuId?: string;
 }) {
@@ -54,6 +56,7 @@ function mapCheckoutSessionRow(row: {
     status: row.status,
     createdAt: row.createdAt,
     recoverySentAt: row.recoverySentAt,
+    recoverySentCount: row.recoverySentCount,
     kind: row.kind,
     skuId: row.skuId,
   };
@@ -231,7 +234,10 @@ export const recordRecoverySent = mutation({
     if (!session || session.status !== "open") {
       return false;
     }
-    await ctx.db.patch(session._id, { recoverySentAt: args.sentAt });
+    await ctx.db.patch(session._id, {
+      recoverySentAt: args.sentAt,
+      recoverySentCount: (session.recoverySentCount ?? 0) + 1,
+    });
     return true;
   },
 });
