@@ -638,4 +638,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "convex-patch-undefined-clear-semantics-correction-siblings",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-y9nct5",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip f06d831c (PR #661) — branch reset to origin/main's tip first since this same designated branch had already merged as PR #661 last iteration (fresh restart per this session's branch-reuse-after-merge instructions), so HEAD matched origin/main exactly at session start. Re-fetched all remote heads — no new sibling branch since the prior fold-scan, and the sole open PR remains #202 (unrelated, weeks-stale human draft). Dispatched a second targeted spot-check across six fresh angles (convex test-rigor on the just-fixed clearRefunded/clearDisputed/clearRecurringCanceledByCustomer, Convex/SQLite schema parity, a fresh TOCTOU sweep, /dashboard/login + Buffer profile-mapping accessibility, and docs staleness on /docs/marketing-automation + /docs/architecture). Five angles came back clean; the docs-staleness angle found a real UI-copy/docs-consistency gap: PipelineHealthPanel's Complete-voice-pack delivery-debt MetricCard used label 'Voice packs not emailed' while the matching daily-digest section title and both docs pages all say 'Complete voice packs not emailed' — the same prefix every sibling Complete-tier label in that panel already uses. See pipeline-health-panel-voice-pack-label-drift in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/components/dashboard/pipeline-health-panel.tsx — corrected the MetricCard label from 'Voice packs not emailed' to 'Complete voice packs not emailed', matching daily-digest.ts's voicePackMissingSendTitle and both docs pages verbatim. Pure copy fix — no data/logic change.",
+      "src/lib/process/business-decisions.ts — appended pipeline-health-panel-voice-pack-label-drift.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a tier-7 docs/UI-copy-consistency fix, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, 198 files, unchanged — React client components have no test harness in this repo) + npm run build (clean, same 42-route split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "pipeline-health-panel-voice-pack-label-drift",
+    ),
+  },
 ];

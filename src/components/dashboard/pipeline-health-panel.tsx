@@ -235,7 +235,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.clientVoicePacksDueCount > 0}
         />
         <MetricCard
-          label="Voice packs not emailed"
+          label="Complete voice packs not emailed"
           value={String(health.clientVoicePacksMissingClientSendCount)}
           hint={
             health.clientVoicePacksMissingClientSendCount > 0
