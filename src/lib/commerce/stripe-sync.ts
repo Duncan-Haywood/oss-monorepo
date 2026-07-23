@@ -18,6 +18,34 @@ export function commerceSkuStripeKey(leadSlug: string, skuId: string): string {
   return `commerce_sku_${leadSlug}_${skuId}`;
 }
 
+/**
+ * Stable Stripe Idempotency-Key for a SKU's product.create call — mirrors
+ * stripe-connect.ts's connectAccountIdempotencyKey pattern. findProductByKey
+ * (list-then-create) is a check-then-act race: two concurrent
+ * syncCommerceCatalogToStripe calls for the same lead (an operator
+ * double-clicking "Sync to Stripe," two open dashboard tabs, or a
+ * client-retried request) can both see no existing Product for a SKU and
+ * both call products.create, minting two permanently-orphaned Products under
+ * the identical "stable" metadata key — the metadata-based lookup alone
+ * cannot prevent this, since neither concurrent call can see the other's
+ * write until it commits. Passing this key as the request's Idempotency-Key
+ * closes the race at the Stripe API layer.
+ */
+function commerceProductIdempotencyKey(key: string): string {
+  return `local_site_studio_${key}_product`;
+}
+
+/**
+ * Stable Stripe Idempotency-Key for a SKU's price.create call — same race as
+ * commerceProductIdempotencyKey, on the Price axis. Includes unitAmount so a
+ * legitimate later price change (a new, distinct Price object, since Stripe
+ * Prices are immutable) still gets its own key rather than colliding with an
+ * earlier amount's create call.
+ */
+function commercePriceIdempotencyKey(key: string, unitAmount: number): string {
+  return `local_site_studio_${key}_price_${unitAmount}`;
+}
+
 type MinimalStripeProduct = {
   id: string;
   metadata?: Record<string, string>;
@@ -37,10 +65,13 @@ export interface StripeProductsAndPrices {
       active?: boolean;
       starting_after?: string;
     }): Promise<{ data: MinimalStripeProduct[]; has_more: boolean }>;
-    create(params: {
-      name: string;
-      metadata: Record<string, string>;
-    }): Promise<MinimalStripeProduct>;
+    create(
+      params: {
+        name: string;
+        metadata: Record<string, string>;
+      },
+      options?: { idempotencyKey?: string },
+    ): Promise<MinimalStripeProduct>;
     update(
       id: string,
       params: { active: boolean },
@@ -53,12 +84,15 @@ export interface StripeProductsAndPrices {
       limit: number;
       starting_after?: string;
     }): Promise<{ data: MinimalStripePrice[]; has_more: boolean }>;
-    create(params: {
-      product: string;
-      currency: string;
-      unit_amount: number;
-      metadata: Record<string, string>;
-    }): Promise<MinimalStripePrice>;
+    create(
+      params: {
+        product: string;
+        currency: string;
+        unit_amount: number;
+        metadata: Record<string, string>;
+      },
+      options?: { idempotencyKey?: string },
+    ): Promise<MinimalStripePrice>;
     update(
       id: string,
       params: { active: boolean },
@@ -143,20 +177,26 @@ export async function syncCommerceCatalogToStripe(
     const key = commerceSkuStripeKey(leadSlug, item.id);
     let product = await findProductByKey(stripe, key);
     if (!product) {
-      product = await stripe.products.create({
-        name: `${businessName} — ${item.name}`.slice(0, 250),
-        metadata: { local_site_studio_key: key, leadSlug, skuId: item.id },
-      });
+      product = await stripe.products.create(
+        {
+          name: `${businessName} — ${item.name}`.slice(0, 250),
+          metadata: { local_site_studio_key: key, leadSlug, skuId: item.id },
+        },
+        { idempotencyKey: commerceProductIdempotencyKey(key) },
+      );
     }
 
     let price = await findMatchingPrice(stripe, product.id, item.priceCents);
     if (!price) {
-      price = await stripe.prices.create({
-        product: product.id,
-        currency: "usd",
-        unit_amount: item.priceCents,
-        metadata: { local_site_studio_key: key, leadSlug, skuId: item.id },
-      });
+      price = await stripe.prices.create(
+        {
+          product: product.id,
+          currency: "usd",
+          unit_amount: item.priceCents,
+          metadata: { local_site_studio_key: key, leadSlug, skuId: item.id },
+        },
+        { idempotencyKey: commercePriceIdempotencyKey(key, item.priceCents) },
+      );
     }
 
     synced.push({ ...item, stripeProductId: product.id, stripePriceId: price.id });

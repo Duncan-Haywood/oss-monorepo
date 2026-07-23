@@ -824,4 +824,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "stripe-connect-onboarding-pipeline-health-visibility",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-6d49bg",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip f403aff4 (PR #673, stripe-connect-onboarding-pipeline-health-visibility) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2727 passed, 198 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full git fetch of all remote heads and a push-time fold-scan of the newest 10 claude/* branches confirmed every one with a nonzero diff against origin/main carries content already merged byte-identical under a different SHA — no live fold candidate. The empty-backlog diff-gate against the prior anchor (04fdb295) showed only 1 real commit since (f403aff4 itself, already individually documented), so dispatched one foreground general-purpose research agent for a fast targeted spot-check, steered away from every surface heavily re-audited today. It found a real gap of the same class stripe-connect-account-create-idempotency-key (PR #672) had just fixed on its sibling module, but never touched here: src/lib/commerce/stripe-sync.ts's syncCommerceCatalogToStripe (the repeatable \"Sync to Stripe\" dashboard button) is a check-then-act pattern per SKU with no Stripe Idempotency-Key on either products.create or prices.create — two concurrent invocations for the same lead's catalog (double-click, two open tabs, a client retry) can each see no existing Product/Price and both create one, permanently orphaning a duplicate under the identical 'stable' metadata key (invisible to listOrphanCommerceStripeProducts, since the orphan's skuId is still 'in the catalog'). See commerce-catalog-sync-idempotency-key in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/commerce/stripe-sync.ts — new commerceProductIdempotencyKey/commercePriceIdempotencyKey helpers (mirroring stripe-connect.ts's connectAccountIdempotencyKey); StripeProductsAndPrices' products.create/prices.create now accept an optional `options: { idempotencyKey?: string }` second param matching the real Stripe SDK shape; syncCommerceCatalogToStripe passes the derived key on both create calls.",
+      "src/lib/commerce/stripe-sync.test.ts — extended createFakeStripe to honor a replayed idempotencyKey (returns the existing Product/Price instead of creating a duplicate) and track create-call counts per key; 2 new tests — asserts the exact expected stable keys on a single sync call, and directly exercises two concurrent products.create calls sharing the derived key to confirm they collapse to one Product.",
+      "src/app/docs/architecture/page.tsx — extended the Commerce Products-sync paragraph to describe the new Idempotency-Key protection, cross-referencing the Stripe Connect Express scaffold's own Idempotency-Key section as the established sibling pattern.",
+      "src/lib/process/business-decisions.ts — appended commerce-catalog-sync-idempotency-key.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a Convex/SQLite-parity-adjacent concurrency/idempotency fix (tier 2), not a resolution of any gated item. Diff-gate anchor moves to f403aff4 (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2729 passed, up from 2727 — 2 new, 198 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-catalog-sync-idempotency-key",
+    ),
+  },
 ];

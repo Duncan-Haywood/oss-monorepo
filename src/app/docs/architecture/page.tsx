@@ -1471,7 +1471,16 @@ source). The same digest also lists email-critical leads with no usable address 
         Product + Price per SKU (keyed by <code>commerce_sku_&#123;leadSlug&#125;_&#123;skuId&#125;</code>{" "}
         metadata, reuses <code>STRIPE_SECRET_KEY</code> — no new secrets; product/price list
         lookups paginate via shared <code>listAllPages</code> in{" "}
-        <code>src/lib/stripe/list-all-pages.ts</code> with direct unit coverage) — action-level
+        <code>src/lib/stripe/list-all-pages.ts</code> with direct unit coverage). The
+        metadata-keyed list-then-create lookup alone is a check-then-act race (an operator
+        double-clicking <strong>Sync to Stripe</strong>, two open dashboard tabs, or a
+        client-retried request can each see no existing Product/Price and both create one) — as
+        with the Stripe Connect Express account scaffold below, each <code>products.create</code>{" "}
+        and <code>prices.create</code> call also carries a stable per-SKU{" "}
+        <code>Idempotency-Key</code> (<code>local_​site_​studio_​commerce_​sku_&#123;leadSlug&#125;_&#123;skuId&#125;_product</code>{" "}
+        / <code>..._price_&#123;unitAmount&#125;</code>) so Stripe itself collapses a genuinely
+        concurrent pair of create calls to a single Product/Price instead of minting a permanently
+        orphaned duplicate. Action-level
         Vitest in <code>sync-commerce-catalog-to-stripe-action.test.ts</code> locks auth, secret
         gate, empty catalog, requireConvex persist, and fail-closed Convex errors — then persists
         <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. The Stripe
