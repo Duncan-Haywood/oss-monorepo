@@ -47,6 +47,7 @@ vi.mock("next/headers", () => ({
 const getLeadBySlug = vi.fn();
 const updateLeadBufferProfileIds = vi.fn();
 const getMarketingPack = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 vi.mock("@/lib/db", () => ({
   updateLeadStage: vi.fn(),
   upsertLead: vi.fn(),
@@ -56,7 +57,7 @@ vi.mock("@/lib/db", () => ({
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
-  listOrdersByLeadSlug: vi.fn(),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
   recordLeadOutreach: vi.fn(),
   listOpenCheckoutSessions: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
@@ -141,6 +142,7 @@ describe("Buffer scheduling dashboard actions", () => {
     getLeadBySlug.mockReset();
     updateLeadBufferProfileIds.mockReset().mockResolvedValue(undefined);
     getMarketingPack.mockReset();
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([{ tier: "growth" }]);
     listBufferProfiles.mockReset();
     createBufferUpdate.mockReset();
     revalidatePath.mockReset();
@@ -253,6 +255,33 @@ describe("Buffer scheduling dashboard actions", () => {
   });
 
   describe("scheduleMarketingPackToBufferAction", () => {
+    it("errors when the lead's recurring marketing entitlement has been canceled", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p1"] }));
+      listOrdersByLeadSlug.mockResolvedValue([
+        { tier: "growth", recurringCanceledAt: Date.now() },
+      ]);
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+      expect(result).toEqual({
+        success: false,
+        error: "Marketing packs require a paid/live lead with a Growth or Complete order",
+      });
+      expect(getMarketingPack).not.toHaveBeenCalled();
+      expect(listBufferProfiles).not.toHaveBeenCalled();
+    });
+
+    it("errors when the lead has no Growth/Complete order at all", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p1"] }));
+      listOrdersByLeadSlug.mockResolvedValue([]);
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+      expect(result).toEqual({
+        success: false,
+        error: "Marketing packs require a paid/live lead with a Growth or Complete order",
+      });
+      expect(getMarketingPack).not.toHaveBeenCalled();
+    });
+
     it("errors when the lead has no Buffer profiles selected", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead());
       const { scheduleMarketingPackToBufferAction } = await import("./actions");

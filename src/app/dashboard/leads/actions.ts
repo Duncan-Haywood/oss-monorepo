@@ -3086,6 +3086,15 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
       return { success: false as const, error: "Lead not found" };
     }
 
+    const orders = await listOrdersByLeadSlug(lead.slug);
+    if (!leadEligibleForMarketingPack(lead, orders)) {
+      return {
+        success: false as const,
+        error:
+          "Marketing packs require a paid/live lead with a Growth or Complete order",
+      };
+    }
+
     if (!lead.bufferProfileIds?.length) {
       return {
         success: false as const,

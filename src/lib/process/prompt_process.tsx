@@ -658,4 +658,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "public-lead-strip-buffer-profile-ids",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-1i3dfb",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip d30a356 (PR #639, public-lead-strip-buffer-profile-ids) — this branch started at that exact tip and origin/main matched it exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2648 passed, 198 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated human draft). mcp__github__actions_list sampled the newest 30 workflow runs — 30/30 conclusion=failure — github-actions-runner-unavailable stays status=todo, unchanged. Fold-scanned remote branches after a full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (580+ refs): the newest ~6 claude/* siblings each carry exactly one commit already merged into origin/main under the same SHA (PRs #634-#639) — no live fold candidate.\n\nWith the diff-gate anchor at dda421a and only one product commit since then, dispatched a background research subagent (briefed on AGENT_PROTOCOL + recent ITERATIONS/BUSINESS_DECISIONS) to hunt a fresh gap on the newest-shipped surfaces (Buffer scaffold, Stripe Connect scaffold) rather than run a full tier 1-5 sweep. It found a real one: scheduleMarketingPackToBufferAction never re-checked recurring-entitlement (orders.recurringCanceledAt) before posting a lead's marketing content to Buffer, unlike its sibling sendMarketingPackToClientAction. Independently verified by reading both functions before fixing. See buffer-schedule-recurring-entitlement-gate in BUSINESS_DECISIONS for the full finding and fix.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts — scheduleMarketingPackToBufferAction now fetches listOrdersByLeadSlug(lead.slug) and gates on leadEligibleForMarketingPack(lead, orders) immediately after the lead-not-found check (before the bufferProfileIds check), mirroring generateMarketingPackAction's existing gate. Both helpers were already imported in this file — zero new imports.",
+      "src/app/dashboard/leads/buffer-actions.test.ts — exposed a controllable listOrdersByLeadSlug mock (previously an uncontrollable inline vi.fn()) with a default eligible-order mock in beforeEach; added 2 new tests (canceled-entitlement rejection, zero-orders rejection) to the scheduleMarketingPackToBufferAction describe block.",
+      "src/lib/process/business-decisions.ts — appended buffer-schedule-recurring-entitlement-gate.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a revenue/entitlement-integrity bug fix discovered by audit in an already-shipped scaffold, not a resolution of any gated item. Diff-gate anchor stays at dda421a (targeted spot-check, not a full sweep).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2650 passed, up from 2648 — 2 new, 198 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /preview/example-bakery, /docs/process, /docs/marketing-automation all 200; dev server killed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-schedule-recurring-entitlement-gate",
+    ),
+  },
 ];
