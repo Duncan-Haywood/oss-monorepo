@@ -42,6 +42,7 @@ import {
   getDeployHandoffBySlug,
   updateLeadStripeConnectAccountId,
   updateLeadBufferProfileIds,
+  updateLeadBufferPostedVariantKeys,
   isEmailSuppressed,
   unsuppressEmail,
 } from "@/lib/db";
@@ -120,6 +121,8 @@ import {
   createBufferUpdate,
   bufferServiceContentType,
   formatMarketingVariantForBuffer,
+  bufferPostedVariantKey,
+  pruneBufferPostedVariantKeysForPack,
   MAX_BUFFER_PROFILE_ID_LENGTH,
   MAX_BUFFER_PROFILES_PER_LEAD,
 } from "@/lib/marketing/buffer";
@@ -3139,6 +3142,17 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
     const profiles = await listBufferProfiles(gate.accessToken);
     const profileById = new Map(profiles.map((profile) => [profile.id, profile]));
 
+    // Idempotency guard: a repeated click within the same pack (operator
+    // double-clicks, or clicks again after already sending earlier this
+    // month) must never re-post an already-queued variant to the same
+    // profile. Scoped to this pack's own generatedAt — a mid-month
+    // regenerate naturally makes every prior key stale rather than
+    // permanently blocking the new content (buffer-schedule-duplicate-post-guard).
+    const alreadyPostedKeys = new Set(
+      pruneBufferPostedVariantKeysForPack(lead.bufferPostedVariantKeys ?? [], pack.generatedAt),
+    );
+    const newlyPostedKeys: string[] = [];
+
     const scheduled: string[] = [];
     const skipped: string[] = [];
     const failed: string[] = [];
@@ -3167,15 +3181,36 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
       for (const [index, variant] of variants.entries()) {
         const label =
           variants.length > 1 ? `${profileId} (${index + 1}/${variants.length})` : profileId;
+        const key = bufferPostedVariantKey(pack.generatedAt, profileId, contentType, index);
+        if (alreadyPostedKeys.has(key)) {
+          skipped.push(`${label}: already posted this month`);
+          continue;
+        }
         const result = await createBufferUpdate(gate.accessToken, {
           profileIds: [profileId],
           text: formatMarketingVariantForBuffer(variant),
         });
         if (result.success) {
           scheduled.push(label);
+          newlyPostedKeys.push(key);
         } else {
           failed.push(`${label}: ${result.error}`);
         }
+      }
+    }
+
+    if (newlyPostedKeys.length > 0) {
+      try {
+        await updateLeadBufferPostedVariantKeys(slug, [...alreadyPostedKeys, ...newlyPostedKeys]);
+      } catch (error) {
+        // The Buffer posts above already succeeded and cannot be undone — a
+        // failure to persist the marker must not turn a successful schedule
+        // into a reported error. Worst case on failure: the next click can
+        // re-post these same variants, no worse than before this guard shipped.
+        console.error(
+          `Failed to persist Buffer posted-variant markers for ${slug}:`,
+          error,
+        );
       }
     }
 

@@ -188,6 +188,7 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   addLeadCol("snoozedUntil", "TEXT");
   addLeadCol("stripeConnectAccountId", "TEXT");
   addLeadCol("bufferProfileIds", "TEXT");
+  addLeadCol("bufferPostedVariantKeys", "TEXT");
 
   const handoffCols = (
     db.prepare("PRAGMA table_info(deploy_handoffs)").all() as unknown as Array<{ name: string }>

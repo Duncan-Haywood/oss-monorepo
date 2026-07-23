@@ -46,6 +46,7 @@ vi.mock("next/headers", () => ({
 
 const getLeadBySlug = vi.fn();
 const updateLeadBufferProfileIds = vi.fn();
+const updateLeadBufferPostedVariantKeys = vi.fn();
 const getMarketingPack = vi.fn();
 const listOrdersByLeadSlug = vi.fn();
 vi.mock("@/lib/db", () => ({
@@ -86,6 +87,8 @@ vi.mock("@/lib/db", () => ({
   getDeployHandoffBySlug: vi.fn(),
   updateLeadStripeConnectAccountId: vi.fn(),
   updateLeadBufferProfileIds: (...args: unknown[]) => updateLeadBufferProfileIds(...args),
+  updateLeadBufferPostedVariantKeys: (...args: unknown[]) =>
+    updateLeadBufferPostedVariantKeys(...args),
 }));
 
 const listBufferProfiles = vi.fn();
@@ -141,6 +144,7 @@ describe("Buffer scheduling dashboard actions", () => {
     headerGet.mockReset().mockReturnValue("203.0.113.5");
     getLeadBySlug.mockReset();
     updateLeadBufferProfileIds.mockReset().mockResolvedValue(undefined);
+    updateLeadBufferPostedVariantKeys.mockReset().mockResolvedValue(undefined);
     getMarketingPack.mockReset();
     listOrdersByLeadSlug.mockReset().mockResolvedValue([{ tier: "growth" }]);
     listBufferProfiles.mockReset();
@@ -409,6 +413,137 @@ describe("Buffer scheduling dashboard actions", () => {
       if (!result.success) return;
       expect(result.scheduled).toEqual(["p-fb (1/2)"]);
       expect(result.failed).toEqual(["p-fb (2/2): rate limited"]);
+    });
+
+    it("persists posted-variant markers after a successful schedule (buffer-schedule-duplicate-post-guard)", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb"] }));
+      getMarketingPack.mockResolvedValue(
+        fakePack({
+          variants: [
+            { contentType: "facebook_caption", body: "FB post 1" },
+            { contentType: "facebook_caption", body: "FB post 2" },
+          ],
+        }),
+      );
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.scheduled).toEqual(["p-fb (1/2)", "p-fb (2/2)"]);
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith("demo-cafe", [
+        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0",
+        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|1",
+      ]);
+    });
+
+    it("skips a variant already posted this pack instead of re-posting it", async () => {
+      getLeadBySlug.mockResolvedValue(
+        fakeLead({
+          bufferProfileIds: ["p-fb"],
+          bufferPostedVariantKeys: ["2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0"],
+        }),
+      );
+      getMarketingPack.mockResolvedValue(
+        fakePack({
+          variants: [
+            { contentType: "facebook_caption", body: "FB post 1" },
+            { contentType: "facebook_caption", body: "FB post 2" },
+          ],
+        }),
+      );
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      // Only the second variant is new — the first is already posted.
+      expect(createBufferUpdate).toHaveBeenCalledTimes(1);
+      expect(createBufferUpdate).toHaveBeenCalledWith("tok_test", {
+        profileIds: ["p-fb"],
+        text: "FB post 2",
+      });
+      expect(result.scheduled).toEqual(["p-fb (2/2)"]);
+      expect(result.skipped).toEqual(["p-fb (1/2): already posted this month"]);
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith("demo-cafe", [
+        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0",
+        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|1",
+      ]);
+    });
+
+    it("does not persist markers when every variant was already posted (nothing new to mark)", async () => {
+      getLeadBySlug.mockResolvedValue(
+        fakeLead({
+          bufferProfileIds: ["p-fb"],
+          bufferPostedVariantKeys: ["2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0"],
+        }),
+      );
+      getMarketingPack.mockResolvedValue(
+        fakePack({ variants: [{ contentType: "facebook_caption", body: "FB post 1" }] }),
+      );
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(createBufferUpdate).not.toHaveBeenCalled();
+      expect(result.skipped).toEqual(["p-fb: already posted this month"]);
+      expect(updateLeadBufferPostedVariantKeys).not.toHaveBeenCalled();
+    });
+
+    it("prunes stale posted-variant keys from a prior pack (mid-month regenerate) so new content is postable again", async () => {
+      getLeadBySlug.mockResolvedValue(
+        fakeLead({
+          bufferProfileIds: ["p-fb"],
+          // Stale key from a previous pack generation — different generatedAt.
+          bufferPostedVariantKeys: ["2026-06-01T00:00:00.000Z|p-fb|facebook_caption|0"],
+        }),
+      );
+      getMarketingPack.mockResolvedValue(
+        fakePack({
+          generatedAt: "2026-07-05T00:00:00.000Z",
+          variants: [{ contentType: "facebook_caption", body: "Regenerated FB post" }],
+        }),
+      );
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(createBufferUpdate).toHaveBeenCalledTimes(1);
+      expect(result.scheduled).toEqual(["p-fb"]);
+      expect(result.skipped).toEqual([]);
+      // The stale prior-pack key is dropped, not carried forward.
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith("demo-cafe", [
+        "2026-07-05T00:00:00.000Z|p-fb|facebook_caption|0",
+      ]);
+    });
+
+    it("still reports success when persisting the posted-variant marker fails — the Buffer post already happened", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb"] }));
+      getMarketingPack.mockResolvedValue(fakePack());
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+      updateLeadBufferPostedVariantKeys.mockRejectedValue(new Error("Convex down"));
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.scheduled).toEqual(["p-fb"]);
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalled();
     });
   });
 });

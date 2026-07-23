@@ -31,6 +31,7 @@ import { resolveConvexDeploymentUrl } from "./convex/convex-url-env-readiness";
 import {
   mapSqliteRowToLead,
   serializeLeadBufferProfileIds,
+  serializeLeadBufferPostedVariantKeys,
   type SqliteLeadRow,
 } from "./leads/sqlite-row-mapping";
 import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "./orders/sqlite-row-mapping";
@@ -122,6 +123,7 @@ const api: any = {
     applyColdDisposition: "leads:applyColdDisposition",
     updateStripeConnectAccountId: "leads:updateStripeConnectAccountId",
     updateBufferProfileIds: "leads:updateBufferProfileIds",
+    updateBufferPostedVariantKeys: "leads:updateBufferPostedVariantKeys",
   },
   inquiries: {
     create: "inquiries:create",
@@ -585,6 +587,56 @@ export async function updateLeadBufferProfileIds(
     SET bufferProfileIds = ?, updatedAt = datetime('now')
     WHERE slug = ?
   `).run(serializeLeadBufferProfileIds(bufferProfileIds), slug);
+}
+
+/**
+ * Persist the set of Buffer idempotency markers (bufferPostedVariantKey, see
+ * src/lib/marketing/buffer.ts) scheduleMarketingPackToBufferAction has
+ * already queued for a lead, so a repeated click within the same pack never
+ * re-posts the same variant to the same profile
+ * (buffer-schedule-duplicate-post-guard). Full-replacement semantics, same as
+ * updateLeadBufferProfileIds — the caller computes the pruned+merged set via
+ * pruneBufferPostedVariantKeysForPack before calling this.
+ *
+ * Deliberately does not fail closed on a Convex error the way
+ * updateLeadBufferProfileIds does: this is called automatically right after
+ * a successful Buffer post, which cannot be undone, so a marker-write failure
+ * must not turn an already-succeeded schedule into a reported error — it
+ * falls back to SQLite (or, on total failure, the caller logs and moves on)
+ * rather than throwing.
+ */
+export async function updateLeadBufferPostedVariantKeys(
+  slug: string,
+  bufferPostedVariantKeys: string[],
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.updateBufferPostedVariantKeys, {
+        slug,
+        bufferPostedVariantKeys,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to update Buffer posted-variant markers for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET bufferPostedVariantKeys = ?, updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(serializeLeadBufferPostedVariantKeys(bufferPostedVariantKeys), slug);
 }
 
 /**

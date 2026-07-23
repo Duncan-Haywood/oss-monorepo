@@ -35,6 +35,7 @@ export interface SqliteLeadRow {
   snoozedUntil?: string | null;
   stripeConnectAccountId?: string | null;
   bufferProfileIds?: string | null;
+  bufferPostedVariantKeys?: string | null;
 }
 
 /** Encode LeadHours into the single TEXT column db.ts persists — "weekday · weekend", or bare weekday when weekend is empty. */
@@ -88,6 +89,24 @@ export function parseLeadBufferProfileIds(raw: string | null | undefined): strin
   }
 }
 
+/** Encode Lead.bufferPostedVariantKeys into the JSON TEXT column db.ts persists. */
+export function serializeLeadBufferPostedVariantKeys(bufferPostedVariantKeys: string[]): string {
+  return JSON.stringify(bufferPostedVariantKeys);
+}
+
+/** Inverse of serializeLeadBufferPostedVariantKeys; malformed/absent JSON degrades to undefined. */
+export function parseLeadBufferPostedVariantKeys(
+  raw: string | null | undefined,
+): string[] | undefined {
+  if (!raw) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? (parsed as string[]) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Map a SQLite `leads` row back into the app-wide Lead shape (fallback-read path). */
 export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
   const category = normalizeLeadCategory(row.category);
@@ -124,5 +143,6 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     snoozedUntil: row.snoozedUntil || undefined,
     stripeConnectAccountId: row.stripeConnectAccountId || undefined,
     bufferProfileIds: parseLeadBufferProfileIds(row.bufferProfileIds),
+    bufferPostedVariantKeys: parseLeadBufferPostedVariantKeys(row.bufferPostedVariantKeys),
   };
 }

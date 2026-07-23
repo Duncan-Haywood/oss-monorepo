@@ -129,6 +129,42 @@ export function resolveBufferSelection(
   return draftSelectionByLead[slug] ?? savedProfileIds ?? [];
 }
 
+/**
+ * Stable idempotency key for "this exact pack variant was already queued to
+ * this exact Buffer profile" — scoped to the pack's own generatedAt (not
+ * yearMonth) so a mid-month regenerate (same yearMonth, new content) never
+ * blocks the new content from posting: its generatedAt differs, so none of
+ * the prior month's keys match and every variant is postable again. index is
+ * the position within that profile's own content-type-filtered variant list
+ * (the same indexing scheduleMarketingPackToBufferAction already uses for its
+ * scheduled/failed labels), not the index into pack.variants as a whole. See
+ * buffer-schedule-duplicate-post-guard.
+ */
+export function bufferPostedVariantKey(
+  packGeneratedAt: string,
+  profileId: string,
+  contentType: MarketingContentVariant["contentType"],
+  index: number,
+): string {
+  return `${packGeneratedAt}|${profileId}|${contentType}|${index}`;
+}
+
+/**
+ * Keep only the posted-variant keys that belong to the pack currently being
+ * scheduled against. A key from any other pack (an earlier month, or an
+ * earlier generatedAt from a since-regenerated pack this month) can never
+ * match a bufferPostedVariantKey computed against the current pack again, so
+ * it's dead weight — pruning it here keeps the persisted list bounded instead
+ * of growing forever across a lead's lifetime.
+ */
+export function pruneBufferPostedVariantKeysForPack(
+  keys: readonly string[],
+  packGeneratedAt: string,
+): string[] {
+  const prefix = `${packGeneratedAt}|`;
+  return keys.filter((key) => key.startsWith(prefix));
+}
+
 /** Join a marketing pack variant's fields into one post body, same shape as the dashboard's own "Copy" button. */
 export function formatMarketingVariantForBuffer(variant: MarketingContentVariant): string {
   return [

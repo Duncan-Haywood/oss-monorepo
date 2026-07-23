@@ -85,6 +85,16 @@ export interface Lead {
    * is not set up for this lead yet — operator still copy-pastes manually.
    */
   bufferProfileIds?: string[];
+  /**
+   * Idempotency markers (bufferPostedVariantKey, src/lib/marketing/buffer.ts)
+   * for pack variants scheduleMarketingPackToBufferAction has already queued
+   * to Buffer this pack — prevents a repeated click within the same month
+   * from re-posting the same content to the same profile
+   * (buffer-schedule-duplicate-post-guard). Scoped to the pack's own
+   * generatedAt, so a mid-month regenerate naturally makes every prior key
+   * stale rather than permanently blocking the new content.
+   */
+  bufferPostedVariantKeys?: string[];
 }
 
 /**

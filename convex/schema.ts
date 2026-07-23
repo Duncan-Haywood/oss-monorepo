@@ -48,6 +48,12 @@ export default defineSchema({
      * no per-lead OAuth. Empty/absent means auto-posting is not set up for this lead.
      */
     bufferProfileIds: v.optional(v.array(v.string())),
+    /**
+     * Idempotency markers (bufferPostedVariantKey) for pack variants already
+     * queued to Buffer this pack — prevents a repeated click from re-posting
+     * the same content (buffer-schedule-duplicate-post-guard).
+     */
+    bufferPostedVariantKeys: v.optional(v.array(v.string())),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

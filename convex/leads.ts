@@ -137,6 +137,7 @@ const leadReturn = v.object({
   snoozedUntil: v.optional(v.string()),
   stripeConnectAccountId: v.optional(v.string()),
   bufferProfileIds: v.optional(v.array(v.string())),
+  bufferPostedVariantKeys: v.optional(v.array(v.string())),
 });
 
 function mapLeadRow(row: {
@@ -162,6 +163,7 @@ function mapLeadRow(row: {
   snoozedUntil?: string;
   stripeConnectAccountId?: string;
   bufferProfileIds?: string[];
+  bufferPostedVariantKeys?: string[];
 }) {
   const category = normalizeLeadCategory(row.category);
   return {
@@ -187,6 +189,7 @@ function mapLeadRow(row: {
     snoozedUntil: row.snoozedUntil,
     stripeConnectAccountId: row.stripeConnectAccountId,
     bufferProfileIds: row.bufferProfileIds,
+    bufferPostedVariantKeys: row.bufferPostedVariantKeys,
   };
 }
 
@@ -517,6 +520,30 @@ export const updateBufferProfileIds = mutation({
     }
     await ctx.db.patch(lead._id, {
       bufferProfileIds: args.bufferProfileIds,
+    });
+    return null;
+  },
+});
+
+export const updateBufferPostedVariantKeys = mutation({
+  args: {
+    slug: v.string(),
+    /** Full replacement list — caller computes the pruned+merged set (see pruneBufferPostedVariantKeysForPack). */
+    bufferPostedVariantKeys: v.array(v.string()),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    await ctx.db.patch(lead._id, {
+      bufferPostedVariantKeys: args.bufferPostedVariantKeys,
     });
     return null;
   },
