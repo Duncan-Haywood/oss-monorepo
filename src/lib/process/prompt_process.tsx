@@ -575,4 +575,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-654-empty-backlog-spotcheck-agent-verified-clean",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-lkp2ad",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 287d7961 (PR #655, marketing-voice-pack-client-send-visibility) — HEAD matched origin/main exactly at session start. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). NEXT_STEPS remains fully gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable — all operator/legal/infra-blocked). Instead of a fresh from-scratch tier 1-5 sweep, picked up a concrete lead the immediately-preceding iteration had already found and deliberately left unfixed: a Convex/SQLite parity (tier 2) TOCTOU lost-update race in scheduleMarketingPackToBufferAction's duplicate-post-guard write. Confirmed the race directly by reading the function and its persist helper before touching anything. See buffer-schedule-marker-toctou-merge-guard in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts — scheduleMarketingPackToBufferAction now re-fetches the lead via getLeadBySlug(slug) immediately before its final updateLeadBufferPostedVariantKeys persist call, prunes the freshly-read bufferPostedVariantKeys to the current pack's generatedAt via the existing pruneBufferPostedVariantKeysForPack helper, and merges only newlyPostedKeys onto that fresh set — rather than persisting the in-memory alreadyPostedKeys snapshot computed before the loop's awaited Buffer network calls, which a concurrent invocation could have since overwritten.",
+      "src/app/dashboard/leads/buffer-actions.test.ts — new test simulating getLeadBySlug returning a different bufferPostedVariantKeys snapshot on its pre-persist re-read than on its initial read (a concurrent invocation's marker landing in between), asserting the final persisted array is the union of both invocations' keys rather than one silently overwriting the other.",
+      "src/lib/process/business-decisions.ts — appended buffer-schedule-marker-toctou-merge-guard.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items remain operator/legal/infra-blocked; this is a Convex/SQLite parity data-integrity fix picked up from a previously-flagged lead, not a resolution of any gated item. The actual-Buffer-double-post window (two concurrent invocations both passing their own stale in-loop alreadyPostedKeys check before either persists) remains an accepted residual, same class as the still-open windows AGENT_PROTOCOL documents elsewhere — a real distributed lock would be needed to close it fully and is out of scope for a one-iteration fix.",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2703 passed, up from 2702 — 1 new, 198 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (curled /, /dashboard/leads, /preview/example-bakery, /docs/process — all 200; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-schedule-marker-toctou-merge-guard",
+    ),
+  },
 ];

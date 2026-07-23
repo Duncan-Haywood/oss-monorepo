@@ -3288,11 +3288,32 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
 
     if (newlyPostedKeys.length > 0) {
       try {
-        // alreadyPostedKeys already contains every newlyPostedKeys entry (added
-        // inline above) alongside the pruned pre-existing keys — write it
-        // directly rather than re-appending newlyPostedKeys, which would
-        // duplicate each key in the persisted array.
-        await updateLeadBufferPostedVariantKeys(slug, [...alreadyPostedKeys]);
+        // TOCTOU guard: re-read the lead immediately before this write rather
+        // than persisting alreadyPostedKeys as computed from the read at the
+        // top of this action (before the awaited Buffer network calls
+        // above). A concurrent invocation for the same lead (an operator
+        // double-click, or two open dashboard tabs) can start from that same
+        // initial bufferPostedVariantKeys snapshot, schedule its own
+        // variants, and persist its own marker set in the window between our
+        // read and this write — persisting our stale in-memory snapshot
+        // verbatim would silently discard that concurrent write's markers,
+        // reopening the door to a future duplicate post of variants already
+        // sent. Merge only newlyPostedKeys (what this invocation actually
+        // just posted) onto the freshest persisted state instead (same
+        // re-read-then-merge shape as preserveCommerceStripeIds /
+        // mergeProvisionOntoFreshHandoff — see AGENT_PROTOCOL's TOCTOU
+        // lost-update rule).
+        const freshLead = await getLeadBySlug(slug);
+        const freshAlreadyPostedKeys = new Set(
+          pruneBufferPostedVariantKeysForPack(
+            freshLead?.bufferPostedVariantKeys ?? [],
+            pack.generatedAt,
+          ),
+        );
+        for (const key of newlyPostedKeys) {
+          freshAlreadyPostedKeys.add(key);
+        }
+        await updateLeadBufferPostedVariantKeys(slug, [...freshAlreadyPostedKeys]);
       } catch (error) {
         // The Buffer posts above already succeeded and cannot be undone — a
         // failure to persist the marker must not turn a successful schedule

@@ -583,6 +583,42 @@ describe("Buffer scheduling dashboard actions", () => {
       ]);
     });
 
+    it("merges onto a concurrently-persisted marker set instead of overwriting it (TOCTOU lost-update guard)", async () => {
+      // getLeadBySlug is called twice: once at the top of the action, and
+      // once again immediately before the final persist. Simulate a
+      // concurrent invocation (a second tab / double-click) that scheduled a
+      // different profile and persisted its own marker in between our two
+      // reads — the second read reflects that write, the first does not.
+      getLeadBySlug
+        .mockResolvedValueOnce(fakeLead({ bufferProfileIds: ["p-fb"] }))
+        .mockResolvedValueOnce(
+          fakeLead({
+            bufferProfileIds: ["p-fb"],
+            bufferPostedVariantKeys: [
+              "2026-07-01T00:00:00.000Z|p-ig|instagram_caption|0",
+            ],
+          }),
+        );
+      getMarketingPack.mockResolvedValue(
+        fakePack({ variants: [{ contentType: "facebook_caption", body: "FB post 1" }] }),
+      );
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.scheduled).toEqual(["p-fb"]);
+      // The concurrently-persisted p-ig key survives, alongside our own new
+      // p-fb key — neither invocation's marker is silently dropped.
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith("demo-cafe", [
+        "2026-07-01T00:00:00.000Z|p-ig|instagram_caption|0",
+        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0",
+      ]);
+    });
+
     it("still reports success when persisting the posted-variant marker fails — the Buffer post already happened", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb"] }));
       getMarketingPack.mockResolvedValue(fakePack());
