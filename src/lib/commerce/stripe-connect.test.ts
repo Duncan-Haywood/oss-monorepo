@@ -6,6 +6,7 @@ import {
   connectOnboardingIncomplete,
   listLeadsWithIncompleteConnectOnboarding,
   oldestConnectOnboardingIncompleteAgeHours,
+  resolveDisplayedConnectStatus,
   type StripeConnectAccountsClient,
 } from "./stripe-connect";
 
@@ -314,5 +315,72 @@ describe("oldestConnectOnboardingIncompleteAgeHours", () => {
       nowMs,
     );
     expect(hours).toBe(24);
+  });
+});
+
+describe("resolveDisplayedConnectStatus", () => {
+  it("returns null when there is no live status and the lead has never been checked", () => {
+    expect(resolveDisplayedConnectStatus({})).toBeNull();
+  });
+
+  it("prefers a live status over the persisted cache, marked live with no checkedAt", () => {
+    const result = resolveDisplayedConnectStatus(
+      {
+        stripeConnectChargesEnabled: false,
+        stripeConnectPayoutsEnabled: false,
+        stripeConnectDetailsSubmitted: false,
+        stripeConnectStatusCheckedAt: "2026-07-01T00:00:00.000Z",
+      },
+      { chargesEnabled: true, payoutsEnabled: true, detailsSubmitted: true },
+    );
+    expect(result).toEqual({
+      chargesEnabled: true,
+      payoutsEnabled: true,
+      detailsSubmitted: true,
+      checkedAt: null,
+      live: true,
+    });
+  });
+
+  it("falls back to the persisted cache on a fresh page load with no live check yet", () => {
+    const result = resolveDisplayedConnectStatus({
+      stripeConnectChargesEnabled: true,
+      stripeConnectPayoutsEnabled: false,
+      stripeConnectDetailsSubmitted: true,
+      stripeConnectStatusCheckedAt: "2026-07-20T08:00:00.000Z",
+    });
+    expect(result).toEqual({
+      chargesEnabled: true,
+      payoutsEnabled: false,
+      detailsSubmitted: true,
+      checkedAt: "2026-07-20T08:00:00.000Z",
+      live: false,
+    });
+  });
+
+  it("treats an undefined cached flag as false, not as still-unchecked", () => {
+    const result = resolveDisplayedConnectStatus({
+      stripeConnectStatusCheckedAt: "2026-07-20T08:00:00.000Z",
+    });
+    expect(result).toEqual({
+      chargesEnabled: false,
+      payoutsEnabled: false,
+      detailsSubmitted: false,
+      checkedAt: "2026-07-20T08:00:00.000Z",
+      live: false,
+    });
+  });
+
+  it("ignores an explicit null liveStatus and falls back to the cache", () => {
+    const result = resolveDisplayedConnectStatus(
+      {
+        stripeConnectChargesEnabled: true,
+        stripeConnectPayoutsEnabled: true,
+        stripeConnectDetailsSubmitted: true,
+        stripeConnectStatusCheckedAt: "2026-07-20T08:00:00.000Z",
+      },
+      null,
+    );
+    expect(result?.live).toBe(false);
   });
 });

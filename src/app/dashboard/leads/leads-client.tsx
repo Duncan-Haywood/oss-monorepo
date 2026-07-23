@@ -48,6 +48,7 @@ import { isOrderRefunded, isOrderDisputed } from "@/lib/orders/types";
 import type { MarketingPack } from "@/lib/marketing/pack";
 import type { CommerceCatalog, CommerceSku } from "@/lib/commerce/types";
 import type { CommerceOrderRecord } from "@/lib/commerce/orders";
+import { resolveDisplayedConnectStatus } from "@/lib/commerce/stripe-connect";
 import {
   MAX_COMMERCE_SKUS,
   MIN_SKU_PRICE_CENTS,
@@ -4146,16 +4147,28 @@ export function LeadsClient({
                                 </div>
                               </>
                             )}
-                            {connectOnboardingAllowed && connectStatusByLead[lead.slug] ? (
-                              <p className="mt-2 text-[11px] text-zinc-600">
-                                Charges enabled:{" "}
-                                {connectStatusByLead[lead.slug].chargesEnabled ? "yes" : "no"} ·
-                                Payouts enabled:{" "}
-                                {connectStatusByLead[lead.slug].payoutsEnabled ? "yes" : "no"} ·
-                                Details submitted:{" "}
-                                {connectStatusByLead[lead.slug].detailsSubmitted ? "yes" : "no"}
-                              </p>
-                            ) : null}
+                            {connectOnboardingAllowed
+                              ? (() => {
+                                  const connectStatus = resolveDisplayedConnectStatus(
+                                    lead,
+                                    connectStatusByLead[lead.slug],
+                                  );
+                                  if (!connectStatus) return null;
+                                  return (
+                                    <p className="mt-2 text-[11px] text-zinc-600">
+                                      Charges enabled: {connectStatus.chargesEnabled ? "yes" : "no"}{" "}
+                                      · Payouts enabled:{" "}
+                                      {connectStatus.payoutsEnabled ? "yes" : "no"} · Details
+                                      submitted: {connectStatus.detailsSubmitted ? "yes" : "no"}
+                                      {connectStatus.live
+                                        ? " (just checked)"
+                                        : connectStatus.checkedAt
+                                          ? ` (as of ${new Date(connectStatus.checkedAt).toLocaleDateString()})`
+                                          : ""}
+                                    </p>
+                                  );
+                                })()
+                              : null}
                           </div>
                         </td>
                       </tr>

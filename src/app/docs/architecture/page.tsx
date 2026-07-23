@@ -1733,7 +1733,18 @@ source). The same digest also lists email-critical leads with no usable address 
         revenue still lands entirely in the platform&apos;s own Stripe account until a future,
         counsel-reviewed iteration wires an actual transfer/destination-charge path onto the
         created accounts — <code>commerce-payouts-stripe-connect</code> stays{" "}
-        <code>status: &quot;todo&quot;</code> in <code>NEXT_STEPS</code> for that reason.
+        <code>status: &quot;todo&quot;</code> in <code>NEXT_STEPS</code> for that reason. The
+        Payouts panel&apos;s own &quot;Charges enabled / Payouts enabled / Details submitted&quot;
+        line originally read only an in-memory, never-persisted <code>useState</code> populated
+        solely by that session&apos;s own <strong>Check status</strong> click — so it showed
+        nothing at all on a fresh page load even after{" "}
+        <code>stripe-connect-onboarding-pipeline-health-visibility</code> started persisting the
+        exact same status onto the lead. <code>resolveDisplayedConnectStatus</code>{" "}
+        (src/lib/commerce/stripe-connect.ts) now prefers a live same-session check but falls back
+        to the persisted <code>stripeConnectChargesEnabled</code>/<code>stripeConnectPayoutsEnabled</code>/
+        <code>stripeConnectDetailsSubmitted</code>/<code>stripeConnectStatusCheckedAt</code> cache
+        so the panel shows the last-known answer (labeled &quot;as of &lt;date&gt;&quot;) instead
+        of nothing.
       </p>
 
       <p>
