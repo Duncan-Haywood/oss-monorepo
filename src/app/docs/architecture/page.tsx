@@ -593,7 +593,26 @@ export default function ArchitectureDocPage() {
         when Price IDs / secret key are missing). Route-level Vitest coverage in{" "}
         <code>src/app/api/stripe/checkout/route.test.ts</code> locks organic slug minting, Price ID
         line items, cancel URL attribution, and requireConvex fail-closed session tracking (create-side
-        twin of the webhook orchestration suite).{" "}
+        twin of the webhook orchestration suite). Both this route and{" "}
+        <code>POST /api/commerce/checkout</code> accept an optional client-minted{" "}
+        <code>idempotencyKey</code> (<code>parseClientIdempotencyKey</code>,{" "}
+        <code>src/lib/checkout/idempotency-key.ts</code>) passed through to{" "}
+        <code>stripe.checkout.sessions.create</code> as the request&apos;s{" "}
+        <code>Idempotency-Key</code> — the checkout forms (
+        <code>checkout-form.tsx</code>, <code>BuyNowButton</code> in{" "}
+        <code>commerce-catalog.tsx</code>) mint a UUID client-side and resend the same one on a
+        same-params retry (network error, re-click) so a duplicate submit collapses to one Stripe
+        Session and one <code>checkout_sessions</code> row instead of minting two independently
+        abandoned carts; changing the checkout inputs (tier, Commerce add-on, email) before
+        retrying mints a fresh key instead of reusing the old one, since Stripe itself rejects a
+        key reused with different request parameters. Deliberately NOT a stable server-derived key
+        like the bootstrap/catalog-sync/Connect Idempotency-Keys below — a Checkout Session is
+        meant to be created fresh on every real purchase attempt, so a stable key would replay a
+        stale cached Session for a legitimate second purchase; only the client can tell a retry
+        apart from a new attempt. Malformed/missing keys are validated away silently (checkout
+        still works, just without de-dup) rather than rejected — see{" "}
+        <code>checkout-session-create-idempotency-key</code> in the{" "}
+        <DocLink href="/docs/process">process log</DocLink>.{" "}
         <code>POST /api/stripe/webhook</code> verifies signatures, marks the lead paid, records the
         order, sends a receipt email when Resend is configured, and enqueues a production deploy
         handoff (DNS + contact form). Bundle fulfillment requires a{" "}

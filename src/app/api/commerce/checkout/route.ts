@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
+import { parseClientIdempotencyKey } from "@/lib/checkout/idempotency-key";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
 import {
@@ -53,6 +54,7 @@ interface CommerceCheckoutRequestBody {
   slug?: string;
   skuId?: string;
   customerEmail?: string;
+  idempotencyKey?: string;
 }
 
 function notConfigured(message: string) {
@@ -138,27 +140,33 @@ export async function POST(request: Request) {
   const stripe = new Stripe(secretKey);
   // Soft-cap before Stripe + persist — rate limits blunt count, not size.
   const customerEmail = normalizeCheckoutCustomerEmail(body.customerEmail);
+  // Client-minted per-attempt key — see idempotency-key.ts for why this must
+  // NOT be a stable server-derived key like the catalog/bootstrap/Connect ones.
+  const idempotencyKey = parseClientIdempotencyKey(body.idempotencyKey);
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: [
-        {
-          price: item.stripePriceId,
-          quantity: 1,
-          adjustable_quantity: {
-            enabled: true,
-            minimum: 1,
-            maximum: MAX_COMMERCE_LINE_ITEM_QUANTITY,
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        line_items: [
+          {
+            price: item.stripePriceId,
+            quantity: 1,
+            adjustable_quantity: {
+              enabled: true,
+              minimum: 1,
+              maximum: MAX_COMMERCE_LINE_ITEM_QUANTITY,
+            },
           },
-        },
-      ],
-      customer_email: customerEmail,
-      allow_promotion_codes: true,
-      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${leadPreviewAbsoluteUrl(appUrl, slug)}#catalog`,
-      metadata: { slug, skuId, kind: "commerce_sku" },
-    });
+        ],
+        customer_email: customerEmail,
+        allow_promotion_codes: true,
+        success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${leadPreviewAbsoluteUrl(appUrl, slug)}#catalog`,
+        metadata: { slug, skuId, kind: "commerce_sku" },
+      },
+      idempotencyKey ? { idempotencyKey } : undefined,
+    );
 
     if (!session.url) {
       return NextResponse.json(

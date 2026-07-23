@@ -588,4 +588,24 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "recovery-email-escalating-cadence",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-upcxmx",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 0825bca (PR #687, recovery-email-escalating-cadence) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit (0 errors) + npm run lint (clean) + npm test (2774 passed, 199 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` and a push-time sort of the newest claude/* branches confirmed every recent one is already merged (several as byte-identical squash commits under a new SHA) — no live fold candidate. Dispatched a foreground research agent (Explore) against AGENT_PROTOCOL's priority order since all five NEXT_STEPS items are operator/legal/infra-gated; it confirmed one real gap against current source — see checkout-session-create-idempotency-key in BUSINESS_DECISIONS for the full candidate-elimination list and implementation detail.",
+    shipped: [
+      "src/lib/checkout/idempotency-key.ts (new) — parseClientIdempotencyKey (server-side v4-UUID shape validation before a value reaches Stripe's Idempotency-Key request header) and nextClientIdempotencyKey (client-side pure helper: reuse the previous attempt's key on a same-params retry, mint fresh on changed params — Stripe rejects a key reused with different parameters).",
+      "src/app/api/stripe/checkout/route.ts, src/app/api/commerce/checkout/route.ts — accept optional idempotencyKey, pass `{ idempotencyKey }` as stripe.checkout.sessions.create's options argument when valid.",
+      "src/app/checkout/checkout-form.tsx — mints a UUID via crypto.randomUUID() at click time, cached by serialized request body so param changes correctly mint a fresh key while a same-params retry reuses the last one.",
+      "src/components/preview/commerce-catalog.tsx's BuyNowButton — a useState-once UUID reused across retries (slug/skuId are fixed for the button's lifetime).",
+      "src/app/docs/architecture/page.tsx — new paragraph documenting the pattern and explicitly contrasting it with the stable server-derived keys on bootstrap-stripe-prices.ts/stripe-sync.ts/stripe-connect.ts, so a future agent doesn't copy the wrong pattern here.",
+      "Tests: src/lib/checkout/idempotency-key.test.ts (new), src/app/api/stripe/checkout/route.test.ts + src/app/api/commerce/checkout/route.test.ts (new cases asserting the Stripe SDK's second call argument).",
+      "src/lib/process/business-decisions.ts — appended checkout-session-create-idempotency-key.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 0825bca (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit (0 errors) + npm run lint (clean) + npm test (2786 passed, up from 2774 — 12 new, 200 files, 1 new file) + a full clean rebuild (npm run build, clean, same 42-route split) + npm run dev sanity check (/checkout, /dashboard/leads, /docs/architecture, /docs/process, /preview/demo-cafe all 200; POSTed both checkout create routes with idempotencyKey in the body, confirmed no runtime error and correct 501-without-secret behavior; dev server killed).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "checkout-session-create-idempotency-key",
+    ),
+  },
 ];

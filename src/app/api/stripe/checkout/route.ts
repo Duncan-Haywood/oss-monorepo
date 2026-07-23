@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
+import { parseClientIdempotencyKey } from "@/lib/checkout/idempotency-key";
 import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attribution";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
@@ -23,6 +24,7 @@ interface CheckoutRequestBody {
   commerceAddon?: boolean;
   slug?: string;
   customerEmail?: string;
+  idempotencyKey?: string;
 }
 
 function notConfigured(message: string) {
@@ -113,6 +115,9 @@ export async function POST(request: Request) {
   const { leadSlug, mintedOrganic } = resolveBundleCheckoutLeadSlug(body.slug);
   // Soft-cap before Stripe + persist — rate limits blunt count, not size.
   const customerEmail = normalizeCheckoutCustomerEmail(body.customerEmail);
+  // Client-minted per-attempt key — see idempotency-key.ts for why this must
+  // NOT be a stable server-derived key like the catalog/bootstrap/Connect ones.
+  const idempotencyKey = parseClientIdempotencyKey(body.idempotencyKey);
 
   const cancelParams = new URLSearchParams({ cancelled: "1" });
   cancelParams.set("slug", leadSlug);
@@ -120,20 +125,23 @@ export async function POST(request: Request) {
   if (commerceAddonApplied) cancelParams.set("commerce", "1");
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: hasRecurring ? "subscription" : "payment",
-      line_items: lineItems,
-      customer_email: customerEmail,
-      allow_promotion_codes: true,
-      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/checkout?${cancelParams.toString()}`,
-      metadata: {
-        tier: bundle.id,
-        commerceAddon: String(commerceAddonApplied),
-        slug: leadSlug,
-        ...(mintedOrganic ? { organicAttribution: "1" } : {}),
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: hasRecurring ? "subscription" : "payment",
+        line_items: lineItems,
+        customer_email: customerEmail,
+        allow_promotion_codes: true,
+        success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${appUrl}/checkout?${cancelParams.toString()}`,
+        metadata: {
+          tier: bundle.id,
+          commerceAddon: String(commerceAddonApplied),
+          slug: leadSlug,
+          ...(mintedOrganic ? { organicAttribution: "1" } : {}),
+        },
       },
-    });
+      idempotencyKey ? { idempotencyKey } : undefined,
+    );
 
     if (!session.url) {
       return NextResponse.json(

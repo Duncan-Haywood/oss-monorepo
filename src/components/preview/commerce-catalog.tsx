@@ -35,6 +35,14 @@ type PreviewCommerceCatalogProps = {
 function BuyNowButton({ slug, sku, ctaClass }: { slug: string; sku: CommerceSku; ctaClass: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // slug/sku.id are fixed for this button's lifetime, so a key minted once
+  // and reused on every click (including a network-error retry) is safe —
+  // see idempotency-key.ts for why it must not be a stable server-derived key.
+  const [idempotencyKey] = useState<string | undefined>(() =>
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : undefined,
+  );
 
   const handleBuy = async () => {
     setLoading(true);
@@ -43,7 +51,7 @@ function BuyNowButton({ slug, sku, ctaClass }: { slug: string; sku: CommerceSku;
       const response = await fetch("/api/commerce/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, skuId: sku.id }),
+        body: JSON.stringify({ slug, skuId: sku.id, idempotencyKey }),
       });
       const data = await response.json();
       if (!response.ok || !data.url) {

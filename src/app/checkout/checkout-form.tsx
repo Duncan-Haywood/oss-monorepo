@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import {
+  nextClientIdempotencyKey,
+  type ClientIdempotencyAttempt,
+} from "@/lib/checkout/idempotency-key";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import { BUNDLES, COMMERCE_ADDON, type BundleTier } from "@/lib/pricing/bundles";
 
@@ -30,6 +34,11 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
   const [email, setEmail] = useState(prefill.email ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Reused across a same-params retry (network error, re-click) so it
+  // collapses to one Stripe Checkout Session; a fresh key mints whenever the
+  // shopper changes tier/commerce/email before retrying — see
+  // idempotency-key.ts for why this can't be a stable server-derived key.
+  const idempotencyAttemptRef = useRef<ClientIdempotencyAttempt | null>(null);
 
   const bundle = BUNDLES.find((b) => b.id === tier)!;
   const setupTotal = bundle.setupPriceUsd + (commerceAddon ? COMMERCE_ADDON.setupPriceUsd : 0);
@@ -40,15 +49,25 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
     setLoading(true);
     setError(null);
     try {
+      const requestBody: Record<string, unknown> = {
+        tier,
+        commerceAddon,
+        customerEmail: email || undefined,
+        slug,
+      };
+      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        const attempt = nextClientIdempotencyKey(
+          JSON.stringify(requestBody),
+          idempotencyAttemptRef.current,
+          () => crypto.randomUUID(),
+        );
+        idempotencyAttemptRef.current = attempt;
+        requestBody.idempotencyKey = attempt.idempotencyKey;
+      }
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tier,
-          commerceAddon,
-          customerEmail: email || undefined,
-          slug,
-        }),
+        body: JSON.stringify(requestBody),
       });
       const data = await response.json();
       if (!response.ok || !data.url) {

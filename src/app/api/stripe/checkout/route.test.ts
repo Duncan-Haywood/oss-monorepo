@@ -451,6 +451,42 @@ describe("POST /api/stripe/checkout", () => {
     expect(createArgs.success_url).not.toContain("attacker.example.com");
   });
 
+  it("passes a valid client idempotencyKey through to Stripe as the request options", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_idem",
+      url: "https://checkout.stripe.com/idem",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        slug: "demo-cafe",
+        idempotencyKey: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(sessionsCreate).toHaveBeenCalledOnce();
+    const options = sessionsCreate.mock.calls[0]![1] as
+      | { idempotencyKey?: string }
+      | undefined;
+    expect(options).toEqual({ idempotencyKey: "3fa85f64-5717-4562-b3fc-2c963f66afa6" });
+  });
+
+  it("omits Stripe request options when idempotencyKey is missing or malformed", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_no_idem",
+      url: "https://checkout.stripe.com/no-idem",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", slug: "demo-cafe", idempotencyKey: "not-a-uuid" }),
+    );
+    expect(res.status).toBe(200);
+    expect(sessionsCreate.mock.calls[0]![1]).toBeUndefined();
+  });
+
   it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({

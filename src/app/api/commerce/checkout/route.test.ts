@@ -451,6 +451,33 @@ describe("POST /api/commerce/checkout", () => {
     expect(recordCheckoutSessionCreated).not.toHaveBeenCalled();
   });
 
+  it("passes a valid client idempotencyKey through to Stripe as the request options", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    const { POST } = await import("./route");
+    const res = await POST(
+      commerceRequest({
+        slug: "demo-cafe",
+        skuId: "sku_latte",
+        idempotencyKey: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      }),
+    );
+    expect(res.status).toBe(200);
+    const options = sessionsCreate.mock.calls[0]![1] as
+      | { idempotencyKey?: string }
+      | undefined;
+    expect(options).toEqual({ idempotencyKey: "3fa85f64-5717-4562-b3fc-2c963f66afa6" });
+  });
+
+  it("omits Stripe request options when idempotencyKey is missing or malformed", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    const { POST } = await import("./route");
+    const res = await POST(
+      commerceRequest({ slug: "demo-cafe", skuId: "sku_latte", idempotencyKey: "nope" }),
+    );
+    expect(res.status).toBe(200);
+    expect(sessionsCreate.mock.calls[0]![1]).toBeUndefined();
+  });
+
   it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
     const { POST } = await import("./route");
