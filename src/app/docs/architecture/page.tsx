@@ -382,6 +382,21 @@ export default function ArchitectureDocPage() {
         publishing it verbatim as structured data would misrepresent a placeholder as a real
         address. Also serialized via <code>safeJsonLdScript</code>.
       </p>
+      <p>
+        That same block also carries a <code>makesOffer</code> array — one schema.org{" "}
+        <code>Offer</code> per bundle tier, sourced directly from <code>BUNDLES</code> (
+        <code>src/lib/pricing/bundles.ts</code>), the same single source of truth the checkout
+        UI and docs pricing tables already read from. Each offer&apos;s <code>price</code> is the
+        tier&apos;s one-time setup fee; the recurring portion (Growth/Complete&apos;s monthly fee)
+        is folded into the offer&apos;s <code>description</code> via the existing{" "}
+        <code>bundlePriceHeadingLabel</code> formatter (e.g. &ldquo;$500 + $99/mo&rdquo;) rather
+        than a second <code>priceSpecification</code> object, matching how{" "}
+        <code>commerceOfferCatalogJsonLd</code> already represents a client&apos;s Commerce SKUs.
+        This gives crawlers and AI answer engines machine-readable pricing for the homepage
+        pricing section — previously the only <code>Offer</code>/<code>priceCurrency</code>{" "}
+        schema anywhere on the site described a client&apos;s own Commerce catalog, never the
+        platform&apos;s own plans.
+      </p>
 
       <h2 id="security-headers">2c. Security headers</h2>
       <p>

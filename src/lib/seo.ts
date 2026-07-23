@@ -10,7 +10,7 @@ import type { CategoryLandingPage } from "@/lib/marketing/category-landing";
 import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
-import { minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
+import { BUNDLES, bundlePriceHeadingLabel, minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
 import type { CommerceSku } from "@/lib/commerce/types";
 
 const DEFAULT_SITE_URL = "http://localhost:3000";
@@ -165,6 +165,14 @@ export function homepageOrganizationJsonLd(): Record<string, unknown> {
     legalName: brand.legalEntity,
     url: siteUrl(),
     email: brand.supportEmail,
+    makesOffer: BUNDLES.map((bundle) => ({
+      "@type": "Offer",
+      name: `${bundle.name} website package`,
+      description: bundlePriceHeadingLabel(bundle),
+      price: bundle.setupPriceUsd.toFixed(2),
+      priceCurrency: "USD",
+      url: `${siteUrl()}/#pricing`,
+    })),
   };
 }
 

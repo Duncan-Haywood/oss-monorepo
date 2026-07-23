@@ -608,4 +608,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "checkout-session-create-idempotency-key",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/nice-euler-c4fbft",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip e7c23678 (PR #688, checkout-session-create-idempotency-key) — this session's own designated branch name had already been merged and its remote ref deleted; recreated it from the fresh origin/main tip per the merged-branch-restart pattern. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2786 passed, 200 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` + diff of the newest 5 claude/* branches against origin/main confirmed every one already merged byte-identical — no live fold candidate.\n\nDispatched a foreground research agent (Explore) against AGENT_PROTOCOL's priority order, pointed at the immediately-preceding iteration's own flagged-but-deferred runner-up (recovery-email-escalating-cadence named 'Product/Offer JSON-LD on the pricing section' as a real, ruled-in-scope gap it chose not to ship). It re-verified the gap against current source and confirmed no Offer/priceCurrency schema anywhere describes the platform's own Starter/Growth/Complete pricing. See homepage-pricing-offer-jsonld in BUSINESS_DECISIONS for the full detail and the two runner-ups it ruled out.",
+    shipped: [
+      "src/lib/seo.ts — homepageOrganizationJsonLd() gained a `makesOffer` array, one schema.org Offer per BUNDLES tier (name, description via bundlePriceHeadingLabel, price = setup fee to 2 decimals, priceCurrency USD, url = ${siteUrl()}/#pricing). Imports BUNDLES + bundlePriceHeadingLabel from @/lib/pricing/bundles alongside the existing minBundleSetupPriceUsd import.",
+      "src/app/docs/architecture/page.tsx — extended the existing homepageOrganizationJsonLd paragraph documenting the new makesOffer field and its relationship to commerceOfferCatalogJsonLd.",
+      "Tests: src/lib/seo.test.ts — updated the exact-shape Organization assertion to include makesOffer, added a dedicated test asserting the exact per-tier Offer array; the pre-existing safeJsonLdScript round-trip test now covers makesOffer for free (no separate escaping test needed — the field is static BUNDLES data, not lead/env-supplied free text).",
+      "src/lib/process/business-decisions.ts — appended homepage-pricing-offer-jsonld.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a growth/SEO-lever feature, not a resolution of any gated item. Diff-gate anchor moves to e7c23678 (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2787 passed, up from 2786 — 1 new, 200 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /docs/architecture, /docs/process all 200; grepped the rendered homepage HTML confirming the exact per-tier makesOffer JSON; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "homepage-pricing-offer-jsonld",
+    ),
+  },
 ];

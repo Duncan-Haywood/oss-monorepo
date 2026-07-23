@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { DOCS_PAGES } from "@/lib/docs/routes";
 import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
-import { minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
+import { BUNDLES, bundlePriceHeadingLabel, minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
 import type { CommerceSku } from "@/lib/commerce/types";
 import type { Lead } from "@/lib/leads/types";
 import {
@@ -197,7 +197,23 @@ describe("homepageOrganizationJsonLd", () => {
       legalName: "Acme Labs LLC",
       url: "https://app.example.com",
       email: jsonLd.email,
+      makesOffer: jsonLd.makesOffer,
     });
+  });
+
+  it("includes a makesOffer entry per bundle tier, sourced from BUNDLES", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const jsonLd = homepageOrganizationJsonLd();
+    expect(jsonLd.makesOffer).toEqual(
+      BUNDLES.map((bundle) => ({
+        "@type": "Offer",
+        name: `${bundle.name} website package`,
+        description: bundlePriceHeadingLabel(bundle),
+        price: bundle.setupPriceUsd.toFixed(2),
+        priceCurrency: "USD",
+        url: "https://app.example.com/#pricing",
+      })),
+    );
   });
 
   it("falls back to brand defaults when no env vars are configured", () => {
