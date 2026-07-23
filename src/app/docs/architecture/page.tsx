@@ -74,8 +74,16 @@ export default function ArchitectureDocPage() {
         lead glue (auth, slug/businessName gates, sanitize, field-length soft-caps / hard-reject,
         existing-slug conflict, requireConvex fail-closed, outreach_sent mark-before-Resend) and{" "}
         <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV (auth, empty /
-        invalid CSV, per-row requireConvex, existing-slug skip, partial Convex failure) beside
-        upsert-persist helpers. Dashboard
+        invalid CSV, per-row requireConvex, existing-slug skip, partial Convex failure, outreach
+        cadence mark for rows imported directly into outreach_sent) beside
+        upsert-persist helpers. A CSV row whose batch <strong>Initial stage</strong> is set to{" "}
+        <strong>Outreach Sent</strong> records cadence step 1 (
+        <code>recordLeadOutreach</code>, same <code>OUTREACH_CADENCE_CONVEX_PRIMARY</code>
+        fail-closed contract as Add lead) so it stays reachable by the Follow-ups due / Cold
+        leads queues (both gate on <code>outreachStep &gt;= 1</code>) — deliberately does{" "}
+        <em>not</em> send a live Email 1 the way Add lead does for a single row: CSV import is for
+        recording outreach already sent through another channel, not a request to mass-email up
+        to <code>MAX_ROWS</code> businesses in one click. Dashboard
         stage moves likewise pass{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> (Mark live already fail-closes via{" "}
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>; action-level Vitest in{" "}

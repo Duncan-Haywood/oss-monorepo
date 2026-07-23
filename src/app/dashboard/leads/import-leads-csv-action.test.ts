@@ -30,6 +30,7 @@ vi.mock("next/headers", () => ({
 
 const getLeads = vi.fn();
 const upsertLead = vi.fn();
+const recordLeadOutreach = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -44,7 +45,7 @@ vi.mock("@/lib/db", () => ({
   getLeads: (...args: unknown[]) => getLeads(...args),
   listOrders: vi.fn(),
   listOrdersByLeadSlug: vi.fn(),
-  recordLeadOutreach: vi.fn(),
+  recordLeadOutreach: (...args: unknown[]) => recordLeadOutreach(...args),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
   updateLeadSnooze: vi.fn(),
@@ -62,8 +63,9 @@ vi.mock("@/lib/db", () => ({
   listUnpaidCommerceOrders: vi.fn(),
 }));
 
+const sendOutreachEmail = vi.fn();
 vi.mock("@/lib/email/resend", () => ({
-  sendOutreachEmail: vi.fn(),
+  sendOutreachEmail: (...args: unknown[]) => sendOutreachEmail(...args),
   sendOutreachFollowUp2: vi.fn(),
   sendOutreachFollowUp3: vi.fn(),
   sendInquiryReply: vi.fn(),
@@ -131,6 +133,8 @@ describe("importLeadsCsvAction", () => {
     revalidatePath.mockReset();
     getLeads.mockReset().mockResolvedValue([]);
     upsertLead.mockReset().mockResolvedValue(true);
+    recordLeadOutreach.mockReset().mockResolvedValue(true);
+    sendOutreachEmail.mockReset();
   });
 
   it("returns auth error without parsing or upserting", async () => {
@@ -480,6 +484,58 @@ describe("importLeadsCsvAction", () => {
     });
     expect(res.errors).toEqual(
       expect.arrayContaining([{ row: 1, message: "sqlite locked" }]),
+    );
+  });
+
+  it("records outreach cadence step 1 for a row imported directly into outreach_sent, without sending Email 1 (csv-import-outreach-sent-cadence-gap)", async () => {
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "outreach_sent",
+    });
+
+    expect(res).toMatchObject({ success: true, imported: 1 });
+    expect(recordLeadOutreach).toHaveBeenCalledWith(
+      "blue-river-salon",
+      1,
+      undefined,
+      { requireConvex: true },
+    );
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("does not record outreach cadence for rows imported into a stage other than outreach_sent", async () => {
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "discovered",
+    });
+
+    expect(res).toMatchObject({ success: true, imported: 1 });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+  });
+
+  it("still counts the row as imported but reports a row error when recordLeadOutreach fails Convex-primary for an outreach_sent row", async () => {
+    recordLeadOutreach.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "outreach_sent",
+    });
+
+    expect(res).toMatchObject({
+      success: true,
+      imported: 1,
+      slugs: ["blue-river-salon"],
+    });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        {
+          row: 1,
+          message:
+            "Lead saved, but could not record the outreach mark in the shared store — retry marking Outreach Sent from the dashboard.",
+        },
+      ]),
     );
   });
 });

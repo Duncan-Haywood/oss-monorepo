@@ -1876,6 +1876,31 @@ export async function importLeadsCsvAction(input: {
         // Prevent later rows in the same batch from colliding with earlier inserts.
         existingSlugs.add(lead.slug);
         revalidatePath(leadPreviewPath(lead.slug));
+
+        // A row imported directly into outreach_sent must record cadence
+        // step 1 the same way addLeadAction/updateLeadStageAction do — every
+        // other path into this stage does, and isFollowUpDue/isColdLead both
+        // require outreachStep >= 1 before a lead can ever be surfaced, so a
+        // row that skips this is permanently invisible to the follow-up-due
+        // and cold-lead queues with no operator-visible signal anything is
+        // wrong (see csv-import-outreach-sent-cadence-gap). Deliberately does
+        // NOT call sendOutreachEmail here unlike the single-lead paths: bulk
+        // CSV import is for recording outreach already sent through another
+        // channel, not a request to mass-email up to MAX_ROWS businesses in
+        // one click.
+        if (lead.stage === "outreach_sent" && lead.email) {
+          try {
+            await recordLeadOutreach(lead.slug, 1, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
+          } catch (error) {
+            upsertErrors.push({
+              row: index + 1,
+              message:
+                error instanceof ConvexPrimaryWriteError
+                  ? "Lead saved, but could not record the outreach mark in the shared store — retry marking Outreach Sent from the dashboard."
+                  : "Lead saved, but the outreach mark failed to record — retry marking Outreach Sent from the dashboard.",
+            });
+          }
+        }
       } catch (error) {
         upsertErrors.push({
           row: index + 1,

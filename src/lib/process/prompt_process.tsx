@@ -722,4 +722,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-642-empty-backlog-spotcheck-agent-verified-clean",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-ijcc7s",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), third iteration in the same session, picked up at origin/main tip 3dc8bcd9 (PR #643, post-642-empty-backlog-spotcheck-agent-verified-clean) — restarted the branch from a freshly-fetched origin/main since the prior PR from this session had just merged. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2652 passed, 198 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated human draft). Fold-scanned remote branches — no new sibling activity, no live fold candidate.\n\nWith the Buffer/Stripe Connect scaffolds already twice-audited clean, dispatched a third research agent explicitly steered toward unaudited areas (commerce catalogs, deploy handoffs, outreach cadence, inquiries, digest, CSV import, broader security/a11y). It found a real gap: importLeadsCsvAction lets an operator pick 'Outreach Sent' as a CSV batch's initial stage, but never recorded outreach cadence step 1 the way addLeadAction/updateLeadStageAction do for every other path into that stage — since isFollowUpDue/isColdLead both require outreachStep >= 1, CSV-imported outreach_sent rows were permanently invisible to the Follow-ups due and Cold leads queues with no operator-visible signal. Independently re-verified by reading the CSV loop, both sibling paths' outreach-mark logic, and the follow-up/cold-lead predicates before fixing. See csv-import-outreach-sent-cadence-gap in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts — importLeadsCsvAction now calls recordLeadOutreach(lead.slug, 1, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY) for each freshly-created row with stage === \"outreach_sent\" && email, mirroring addLeadAction/updateLeadStageAction's persist-mark pattern; a ConvexPrimaryWriteError (or other failure) on that call is caught and reported as a per-row error without failing the whole import. Deliberately does NOT also send a live Email 1 for these rows — CSV import can carry up to MAX_ROWS=100 rows, and a silent mass-email side effect would be a materially larger product decision than this fix's scope.",
+      "src/app/dashboard/leads/import-leads-csv-action.test.ts — exposed recordLeadOutreach/sendOutreachEmail as controllable mocks; 3 new tests (records cadence + no send for an outreach_sent row, no-op for other stages, per-row error surfaced on Convex-primary failure while the row still counts as imported).",
+      "src/app/docs/architecture/page.tsx — data-ingestion section now discloses the new CSV outreach-cadence mark and the deliberate no-send decision, alongside the existing Add lead outreach-mark-before-Resend sentence.",
+      "src/lib/process/business-decisions.ts — appended csv-import-outreach-sent-cadence-gap.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a sold-capability wiring-gap / data-integrity bug fix discovered by audit, not a resolution of any gated item.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2655 passed, up from 2652 — 3 new, 198 files unchanged) + a full clean rebuild (`rm -rf .next && npm run build`, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /docs/architecture all 200; curled the rendered docs HTML confirming the new prose renders; dev server killed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "csv-import-outreach-sent-cadence-gap",
+    ),
+  },
 ];
