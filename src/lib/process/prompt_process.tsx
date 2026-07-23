@@ -544,4 +544,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "process-log-second-archive-split-bd10-it12",
     ),
   },
+  {
+    date: "2026-07-23",
+    branch: "claude/upbeat-dijkstra-y09mhk",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip ba8bc41c (PR #685, process-log-second-archive-split-bd10-it12) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2765 passed, 199 files, unchanged from the prior iteration). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Both process-log files reconfirmed well under the 256KB re-archive ceiling post-split (prompt_process.tsx 152,948 bytes, business-decisions.ts 96,377 bytes) — no re-archive needed. Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` and a diff of the newest 12 claude/* branches against origin/main confirmed every one with a nonzero diff carries far more deletions than insertions — content already merged byte-identical under a different SHA (claude/nice-euler-lxl7xy had zero diff at all). No live fold candidate. The empty-backlog diff-gate against the anchor (c4a14781) showed exactly 1 commit since (ba8bc41c itself, process-log-only, already reviewed) — no product-affecting file had changed.\n\nRather than a token spot-check, deep-audited every touch point of today's three-part Reply-To chain and the commerceOrders.customerEmail ledger-field migration that completed it — a fresh schema field touching six write paths (webhook insert, Convex insert mutation, both replace()-based refund/dispute-reversal mutations, SQLite CREATE+ALTER TABLE, dashboard resend action) is exactly the shape of change most likely to have left one path un-migrated. See post-685-reply-to-ledger-chain-deep-audit-clean in BUSINESS_DECISIONS for the full eleven-point verification list (Convex replace() field-list parity, SQLite fresh-vs-migrated schema parity, HTML escaping, rate-limit + no-double-send gating, webhook 5xx retry contract, correctly-scoped-out platform-to-lead templates, uncapped debt-queue list, Buffer scheduling engineering spot-check, dashboard rate-limit coverage re-confirmation, a repo-wide TODO/FIXME sweep, and a repo-wide as-const-success-literal structural scan). All eleven came back clean. Per AGENT_PROTOCOL's explicit warning against inventing a new optional aggregate/metric just to have something to ship, this iteration ships no code change — a documented, independently-verified-clean deep audit.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-685-reply-to-ledger-chain-deep-audit-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. No other files changed — NEXT_STEPS unchanged, all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to ba8bc41c (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2765 passed, unchanged, 199 files) + npm run build (clean, same 42-route ○/ƒ split). No npm run dev smoke check needed — no product/runtime code changed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-685-reply-to-ledger-chain-deep-audit-clean",
+    ),
+  },
 ];
