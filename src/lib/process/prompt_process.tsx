@@ -659,4 +659,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "organic-checkout-slug-idempotency-key-stability",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-bjvkv8",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip bf7a9b28 (PR #691, organic-checkout-slug-idempotency-key-stability) — HEAD matched origin/main exactly at session start; this session's own designated branch name had already been merged, matching the documented merged-branch-restart pattern (reset the local branch to the fresh origin/main tip). Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2794 passed, 200 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` and a push-time sort of the newest claude/* branches confirmed no new activity since this session's own last push — no live fold candidate.\n\nDispatched a foreground research agent (Explore), weighted toward tiers 2-5 and explicitly cross-checked against the last ~15 ITERATIONS/BUSINESS_DECISIONS entries to avoid re-proposing the just-shipped organic-slug fix. It found a real tier-1 gap satisfying the landing-page-parity series' own stated re-opening exception: computePipelineHealth's bundleOrdersRefundedUsd/Count and bundleOrdersDisputedUsd/Count (already surfaced on PipelineHealthPanel and the daily digest) had zero visibility on the dashboard landing page, which showed only the net Revenue figure with no attribution of a shortfall to bundle refunds/chargebacks versus fewer sales. See dashboard-landing-bundle-refund-dispute-cards in BUSINESS_DECISIONS for full detail and the two runner-ups ruled out.",
+    shipped: [
+      "src/app/dashboard/page.tsx — added 'Bundle revenue refunded' and 'Bundle revenue disputed' cards to the landing grid immediately after Revenue, copying PipelineHealthPanel's exact copy/formatting pattern (formatUsd, amber highlight + oldest-age suffix when count > 0). Grid widened from xl:grid-cols-9 to xl:grid-cols-11. No new data loading — health already carried all four fields.",
+      "src/lib/process/business-decisions.ts — appended dashboard-landing-bundle-refund-dispute-cards.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a sold-capability wiring fix, not a resolution of any gated item. Diff-gate anchor moves to bf7a9b28 (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2794 passed, unchanged — no test surface for this server-component page, consistent with the established convention) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (curled /dashboard, grepped the rendered HTML confirming both new card labels and zero-state copy render, and confirmed pre-existing sibling cards show the same double-occurrence RSC flight-data pattern — not a regression; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "dashboard-landing-bundle-refund-dispute-cards",
+    ),
+  },
 ];
