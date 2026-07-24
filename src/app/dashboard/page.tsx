@@ -184,13 +184,63 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         require a signed operator session when auth is configured.
       </p>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-9">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-11">
         <div className="rounded-xl border border-zinc-200 px-4 py-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
             Revenue
           </p>
           <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
             {formatUsd(health.revenueTotalUsd)}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.bundleOrdersRefundedCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Bundle revenue refunded
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {formatUsd(health.bundleOrdersRefundedUsd)}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.bundleOrdersRefundedCount > 0
+              ? `${health.bundleOrdersRefundedCount} Starter/Growth/Complete order${
+                  health.bundleOrdersRefundedCount === 1 ? "" : "s"
+                } refunded${
+                  health.oldestBundleOrdersRefundedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersRefundedAgeHours)}`
+                    : ""
+                }`
+              : "None refunded"}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.bundleOrdersDisputedCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Bundle revenue disputed
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {formatUsd(health.bundleOrdersDisputedUsd)}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.bundleOrdersDisputedCount > 0
+              ? `${health.bundleOrdersDisputedCount} Starter/Growth/Complete order${
+                  health.bundleOrdersDisputedCount === 1 ? "" : "s"
+                } disputed${
+                  health.oldestBundleOrdersDisputedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersDisputedAgeHours)}`
+                    : ""
+                }`
+              : "None disputed"}
           </p>
         </div>
         <div
