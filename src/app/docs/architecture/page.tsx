@@ -1808,8 +1808,7 @@ source). The same digest also lists email-critical leads with no usable address 
         existing account and both call create), and the Idempotency-Key is what actually closes
         it at the Stripe API layer — the same check-then-act race class as the commerce catalog
         Sync-to-Stripe / orphan-archive TOCTOU guards elsewhere on this page), generate a
-        Stripe-hosted onboarding link for the operator to
-        send the client, and check live{" "}
+        Stripe-hosted onboarding link, and check live{" "}
         <code>charges_enabled</code>/<code>payouts_enabled</code>/<code>details_submitted</code>{" "}
         status. <code>leads.stripeConnectAccountId</code> (Convex + SQLite,{" "}
         <code>LEAD_STRIPE_CONNECT_CONVEX_PRIMARY</code> requireConvex fail-closed) is the only
@@ -1853,7 +1852,7 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>softCapLeadForPublicSurface</code> — same dashboard-only class as{" "}
         <code>notes</code>/<code>stripeConnectAccountId</code>. This is operator-awareness only —
         still no money movement — so <code>commerce-payouts-stripe-connect</code> stays{" "}
-        <code>status: &quot;todo&quot;</code>. All three actions are gated behind{" "}
+        <code>status: &quot;todo&quot;</code>. All four actions are gated behind{" "}
         <code>ALLOW_STRIPE_CONNECT_ONBOARDING=1</code> (default off — see{" "}
         <code>stripe-connect-gate.ts</code>, same 403/501 shape as{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP</code>). This scaffold does not move money: Commerce Buy now
@@ -1872,6 +1871,25 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>stripeConnectDetailsSubmitted</code>/<code>stripeConnectStatusCheckedAt</code> cache
         so the panel shows the last-known answer (labeled &quot;as of &lt;date&gt;&quot;) instead
         of nothing.
+      </p>
+
+      <p>
+        Stripe&apos;s <code>account_onboarding</code> Account Links are single-use and expire
+        quickly if unopened — the original <strong>Get onboarding link</strong> flow only copied
+        the freshly-minted URL to the operator&apos;s clipboard with an alert asking them to send
+        it elsewhere, and that manual copy/switch-apps/paste/send hand-off routinely outlasted the
+        link&apos;s live window, handing the client an already-dead URL with no signal anything
+        had expired. As of <code>stripe-connect-onboarding-link-email-delivery</code> (2026-07-24),
+        a fourth action, <code>sendStripeConnectOnboardingLinkToClientAction</code>, closes that
+        race structurally instead of just warning about it: it mints a brand-new link (never
+        reused or cached, so a second click after an expired first attempt just works) and emails
+        it directly to <code>lead.email</code> in the same request via{" "}
+        <code>sendStripeConnectOnboardingLinkEmail</code> (src/lib/email/resend.ts,{" "}
+        <code>skipSuppression: true</code> — same billing-critical class as the dunning/
+        subscription-pause notices, not cold marketing). The Payouts panel exposes this as a
+        second, adjacent <strong>Email onboarding link</strong> button next to the original copy
+        button, which stays available (an operator may prefer to hand-deliver via phone/text) but
+        whose alert copy now points at the email button as the more reliable default.
       </p>
 
       <p>

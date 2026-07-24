@@ -635,16 +635,24 @@ export default function LaunchChecklistDocPage() {
           <code>ALLOW_STRIPE_CONNECT_ONBOARDING=1</code> alongside{" "}
           <code>STRIPE_SECRET_KEY</code> — do not flip this on until you are
           ready to start collecting client KYC/bank details, since{" "}
-          <strong>Create Connect account</strong> and{" "}
-          <strong>Get onboarding link</strong> both make real Stripe API calls
+          <strong>Create Connect account</strong>,{" "}
+          <strong>Get onboarding link</strong>, and{" "}
+          <strong>Email onboarding link</strong> all make real Stripe API calls
           once enabled. Creating an account is idempotent (re-finds the same
           account on a retry) and <strong>Check status</strong> reports live{" "}
           <code>charges_enabled</code> / <code>payouts_enabled</code> /{" "}
-          <code>details_submitted</code> flags. This only provisions the account
-          — no transfer/destination-charge wiring reads it yet, so Buy now money
-          still lands entirely in the platform&apos;s own Stripe account and
-          manual payouts (the bullet above) remain the only way clients get paid
-          until that counsel-reviewed money-movement half ships (see{" "}
+          <code>details_submitted</code> flags. Stripe&apos;s onboarding links
+          are single-use and expire quickly if unopened, so prefer{" "}
+          <strong>Email onboarding link</strong> over the older{" "}
+          <strong>Get onboarding link</strong> copy-to-clipboard button — it
+          mints a fresh link and emails it straight to the lead&apos;s address
+          in the same request, avoiding the copy/switch-apps/paste/send delay
+          that routinely outlasts the link&apos;s live window. This only
+          provisions the account — no transfer/destination-charge wiring reads
+          it yet, so Buy now money still lands entirely in the platform&apos;s
+          own Stripe account and manual payouts (the bullet above) remain the
+          only way clients get paid until that counsel-reviewed money-movement
+          half ships (see{" "}
           <DocLink href="/docs/architecture">architecture</DocLink>).
         </li>
         <li>
