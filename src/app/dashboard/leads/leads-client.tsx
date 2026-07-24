@@ -3055,6 +3055,8 @@ export function LeadsClient({
                 onChange={(e) => setCsvText(e.target.value)}
                 rows={8}
                 spellCheck={false}
+                aria-invalid={Boolean(csvError)}
+                aria-describedby={csvError ? "csv-import-error" : undefined}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-mono text-xs leading-5 outline-none transition focus:border-zinc-900"
               />
             </div>
@@ -3078,7 +3080,7 @@ export function LeadsClient({
           </form>
 
           {csvError && (
-            <p className="mt-4 text-xs font-medium text-red-600" role="alert">
+            <p id="csv-import-error" className="mt-4 text-xs font-medium text-red-600" role="alert">
               {csvError}
             </p>
           )}
@@ -3111,6 +3113,8 @@ export function LeadsClient({
                 onChange={handleNameChange}
                 maxLength={MAX_BUSINESS_NAME_LENGTH}
                 placeholder="e.g. Blue River Salon"
+                aria-invalid={Boolean(formError)}
+                aria-describedby={formError ? "add-lead-form-error" : undefined}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
             </div>
@@ -3127,6 +3131,8 @@ export function LeadsClient({
                 onChange={(e) => setFormSlug(e.target.value)}
                 maxLength={MAX_LEAD_SLUG_LENGTH}
                 placeholder="e.g. blue-river-salon"
+                aria-invalid={Boolean(formError)}
+                aria-describedby={formError ? "add-lead-form-error" : undefined}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
             </div>
@@ -3347,7 +3353,7 @@ export function LeadsClient({
             </div>
           </form>
           {formError && (
-            <p className="mt-4 text-xs font-medium text-red-600" role="alert">
+            <p id="add-lead-form-error" className="mt-4 text-xs font-medium text-red-600" role="alert">
               {formError}
             </p>
           )}
@@ -4400,6 +4406,8 @@ export function LeadsClient({
                             rows={3}
                             maxLength={MAX_OPERATOR_NOTES_LENGTH}
                             placeholder="e.g. Left VM 7/12 — interested in Growth, call back Thursday"
+                            aria-invalid={Boolean(notesError)}
+                            aria-describedby={notesError ? `operator-notes-error-${lead.slug}` : undefined}
                             className="mt-2 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-900"
                             autoFocus={Boolean(notesPromptReason)}
                           />
@@ -4424,7 +4432,11 @@ export function LeadsClient({
                               {notesDraft.trim().length}/{MAX_OPERATOR_NOTES_LENGTH}
                             </span>
                             {notesError ? (
-                              <span className="text-xs font-medium text-red-600" role="alert">
+                              <span
+                                id={`operator-notes-error-${lead.slug}`}
+                                className="text-xs font-medium text-red-600"
+                                role="alert"
+                              >
                                 {notesError}
                               </span>
                             ) : null}
