@@ -843,7 +843,7 @@ export function LeadsClient({
     });
   };
 
-  const handleGenerateMarketingPack = (slug: string) => {
+  const handleGenerateMarketingPack = (slug: string, opts?: { bringIntoView?: boolean }) => {
     startTransition(async () => {
       const res = await generateMarketingPackAction(slug);
       if (!res.success) {
@@ -855,6 +855,23 @@ export function LeadsClient({
         return [res.pack, ...without];
       });
       setMarketingPackOpenSlug(slug);
+      if (opts?.bringIntoView) {
+        // Called from the Marketing packs due panel, which lists leads from
+        // the full unfiltered `leads` array — the generated pack's own
+        // result panel only renders inside filteredLeads.map(), so a lead
+        // excluded by the operator's current stage filter/search would set
+        // marketingPackOpenSlug with no row ever mounting to show it (same
+        // dead-click shape as openCommerceEditor's bringIntoView and
+        // openNotesEditor's queue-prompt scroll above). Clear both so the
+        // row (and its pack panel) actually renders, then bring it into view.
+        setFilterStage("all");
+        setSearchQuery("");
+        requestAnimationFrame(() => {
+          document
+            .getElementById(`lead-pack-${slug}`)
+            ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      }
     });
   };
 
@@ -1124,7 +1141,7 @@ export function LeadsClient({
   const voicePackForLead = (slug: string) =>
     clientVoicePacks.find((p) => p.leadSlug === slug) ?? null;
 
-  const handleGenerateClientVoicePack = (slug: string) => {
+  const handleGenerateClientVoicePack = (slug: string, opts?: { bringIntoView?: boolean }) => {
     startTransition(async () => {
       const res = await generateClientVoicePackAction(slug);
       if (!res.success) {
@@ -1136,6 +1153,19 @@ export function LeadsClient({
         return [res.pack, ...without];
       });
       setClientVoicePackOpenSlug(slug);
+      if (opts?.bringIntoView) {
+        // Same due-queue dead-open fix as handleGenerateMarketingPack above —
+        // the Voice packs due panel lists leads from the full unfiltered
+        // `leads` array, but the result panel only renders inside
+        // filteredLeads.map().
+        setFilterStage("all");
+        setSearchQuery("");
+        requestAnimationFrame(() => {
+          document
+            .getElementById(`lead-voice-${slug}`)
+            ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      }
     });
   };
 
@@ -1681,7 +1711,7 @@ export function LeadsClient({
                   <button
                     type="button"
                     disabled={isPending}
-                    onClick={() => handleGenerateMarketingPack(lead.slug)}
+                    onClick={() => handleGenerateMarketingPack(lead.slug, { bringIntoView: true })}
                     aria-label={dashboardRowActionAriaLabel(
                       "Generate marketing pack",
                       lead.businessName,
@@ -1751,7 +1781,7 @@ export function LeadsClient({
                   <button
                     type="button"
                     disabled={isPending}
-                    onClick={() => handleGenerateClientVoicePack(lead.slug)}
+                    onClick={() => handleGenerateClientVoicePack(lead.slug, { bringIntoView: true })}
                     aria-label={dashboardRowActionAriaLabel(
                       "Generate voice pack",
                       lead.businessName,
