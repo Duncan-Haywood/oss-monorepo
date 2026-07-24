@@ -554,4 +554,19 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "category-default-tier-single-source"),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-xlxm94",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip f823320 (PR #733, category-default-tier-single-source, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2857 passed, 204 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep found three newer unmerged branches (claude/nice-euler-kxfkpf, claude/upbeat-dijkstra-dwoa4r, claude/nice-euler-ih630n) whose tips diffed byte-identical against their already-merged main counterparts (PRs #733/#732/#731) — stale duplicates, no live fold candidate.\n\nDispatched a research agent, explicitly briefed to check the last 12 log entries first to avoid re-proposing already-closed work. It found a real, unaudited gap: SuppressedEmailsPanel (src/components/dashboard/suppressed-emails-panel.tsx) has the same two accessibility bugs the due-queue-panel-aria-live-removals and dashboard-inline-editor-close-focus-restore series already fixed elsewhere — a live-updating removable `<ul>` with no aria-live announcement, and a Remove button that unmounts itself and drops focus to `<body>` — but this file was never in scope of either series (both were scoped to leads-client.tsx only).",
+    shipped: [
+      "src/components/dashboard/suppressed-emails-panel.tsx — added aria-live=\"polite\" aria-relevant=\"removals\" to the suppressed-addresses `<ul>` (matching the convention on all 17 due-queue panels in leads-client.tsx); gave the section `<h2>` a stable id + tabIndex={-1} and focused it via document.getElementById(...)?.focus() after a successful Remove, since this component has no persistent per-row toggle button to return focus to (unlike the dashboard-focus-restore.ts editor-close precedent).",
+      "src/lib/process/business-decisions.ts — appended suppressed-emails-panel-aria-live-focus-restore.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to f823320 (this iteration's own starting tip, post-PR-#733).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2857 passed, unchanged — no test harness for React client components in this repo) + npm run dev smoke check (/dashboard/leads 200, response contains exactly one aria-relevant=\"removals\" match and one id=\"suppressed-emails-heading\" match; dev server killed afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "suppressed-emails-panel-aria-live-focus-restore",
+    ),
+  },
 ];
