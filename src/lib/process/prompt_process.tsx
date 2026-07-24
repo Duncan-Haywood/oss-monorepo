@@ -326,6 +326,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-mz3dnt",
   },
+  {
+    id: "commerce-abandoned-checkout-panel-catalog-lookup-linear-scan-fix",
+    summary:
+      "Follow-up to dashboard-leads-table-per-row-linear-scan-to-map-lookup (PR #724): the Commerce Buy now abandoned checkouts due panel was the one call site that fix's own catalogForLead(slug) helper missed — it still did a raw commerceCatalogs.find()/.find() linear scan per abandoned session instead of using the Map-backed helper already defined earlier in the same file and used correctly at four other call sites. Swapped it to catalogForLead(session.leadSlug)?.items.find(...), identical behavior, O(1) lookup instead of O(catalogs).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-mz3dnt",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -749,6 +757,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "bundle-order-refund-dispute-panel-aria-live-gap-fix",
+    ),
+  },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-mz3dnt",
+    summary:
+      "Same unattended session, immediately after PR #725 (bundle-order-refund-dispute-panel-aria-live-gap-fix) merged onto main as 60c08f18. A second, independent sub-agent research pass — dispatched in parallel with the aria-live gap work, before either result was known — flagged a genuine sibling gap in PR #724 (dashboard-leads-table-per-row-linear-scan-to-map-lookup): the Commerce Buy now abandoned checkouts due panel still ran a raw `commerceCatalogs.find((c) => c.leadSlug === session.leadSlug)?.items.find(...)` linear scan per abandoned session, rather than using the catalogForLead(slug) Map-backed helper that fix introduced and wired into four other call sites in the same file. Not a correctness bug (commerceCatalogs is deliberately uncapped per AGENT_PROTOCOL's debt-list invariant, and session counts are still small), but the exact O(n) pattern PR #724 exists to eliminate, left behind at one call site the refactor pass missed.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — Commerce Buy now abandoned checkouts due panel's skuName lookup now calls catalogForLead(session.leadSlug)?.items.find(...) instead of an inline commerceCatalogs.find()/.find() chain. Identical null/undefined-safe behavior, O(1) instead of O(catalogs) per row rendered, no new state or memoization added.",
+      "src/lib/process/business-decisions.ts — appended commerce-abandoned-checkout-panel-catalog-lookup-linear-scan-fix.",
+      "src/lib/process/prompt_process.tsx — appended a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a follow-on perf-correctness fix to an already-shipped optimization, not a resolution of any gated item. Diff-gate anchor moves to 60c08f18 (this iteration's own starting tip, post-#725).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2853 passed, unchanged, 203 files — pure refactor, no behavior change) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-abandoned-checkout-panel-catalog-lookup-linear-scan-fix",
     ),
   },
 ];

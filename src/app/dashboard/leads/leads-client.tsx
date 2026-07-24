@@ -1903,9 +1903,9 @@ export function LeadsClient({
           <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {commerceAbandonedCheckoutsDue.map((session) => {
               const skuName =
-                commerceCatalogs
-                  .find((c) => c.leadSlug === session.leadSlug)
-                  ?.items.find((item) => item.id === session.skuId)?.name ??
+                catalogForLead(session.leadSlug)?.items.find(
+                  (item) => item.id === session.skuId,
+                )?.name ??
                 session.skuId ??
                 "SKU";
               const sessionAgeHours = oldestCheckoutSessionAgeHours([session], nowMs);
