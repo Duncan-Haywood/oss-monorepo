@@ -4,14 +4,12 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { initializeSqliteSchema } from "./db/sqlite-schema";
 import type { Lead, LeadPipelineStage, OutreachStep } from "./leads/types";
-import { newLeadId } from "./leads/types";
-import { buildPaymentStubLeadFields } from "./leads/payment-stub";
 import type { DeployHandoff, DeployHandoffStatus } from "./deploy/types";
 import type { ClientInquiry, ClientInquiryStatus, CreateClientInquiryInput } from "./inquiries/types";
 import { normalizeContactFormFields } from "./inquiries/contact-fields";
 import { newClientInquiryId } from "./inquiries/inquiry-id";
 import type { OrderRecord } from "./orders/types";
-import { newOrderId, sortOrdersNewestFirst } from "./orders/types";
+import { sortOrdersNewestFirst } from "./orders/types";
 import type { CheckoutSessionRecord } from "./checkout/types";
 import { newCheckoutSessionId } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
@@ -49,6 +47,8 @@ import {
   sqliteMarkMarketingPackSentToClient,
   sqliteMarkClientVoicePackSentToClient,
   sqliteUpdateDeployHandoffCustomDomain,
+  sqliteOrderAlreadyRecorded,
+  sqliteRecordLeadPayment,
 } from "./db/sqlite-queries";
 import { preferAdvancedHandoffStatus } from "./deploy/handoff-preserve";
 import {
@@ -816,66 +816,12 @@ export async function recordLeadPayment(
 
   // SQLite Fallback
   const db = getSqliteDb();
-  const existingOrder = db
-    .prepare("SELECT id FROM orders WHERE stripeSessionId = ?")
-    .get(params.stripeSessionId) as { id: string } | undefined;
-  if (existingOrder) {
+  if (sqliteOrderAlreadyRecorded(db, params.stripeSessionId)) {
     return { alreadyRecorded: true };
   }
 
   const lead = await getLeadBySlug(params.slug);
-  if (!lead) {
-    // Keep field defaults aligned with Convex markLeadPaid stub + payment-stub.ts.
-    const stub = buildPaymentStubLeadFields(params.slug);
-    const id = newLeadId();
-
-    db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, phone, tagline, description, recommendedTier, dataSource, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'paid')
-    `).run(
-      id,
-      stub.slug,
-      stub.businessName,
-      stub.category,
-      stub.city,
-      stub.state,
-      stub.phone,
-      stub.tagline,
-      stub.description,
-      stub.recommendedTier,
-      stub.dataSource,
-    );
-  } else {
-    // Mirrors convex/leads.ts markLeadPaid's live-stage guard: never regress
-    // an already-live lead back to "paid" on a second purchase (e.g. a
-    // Starter upsell to Growth/Complete on a lead whose site is already
-    // deployed). The order INSERT below still runs unconditionally either
-    // way — only the status patch is guarded.
-    const stmt = db.prepare(
-      "UPDATE leads SET status = 'paid', updatedAt = datetime('now') WHERE slug = ? AND status != 'live'",
-    );
-    stmt.run(params.slug);
-  }
-
-  // Get lead ID
-  const leadRow = db.prepare("SELECT id FROM leads WHERE slug = ?").get(params.slug) as { id: string };
-
-  // Insert order
-  const orderId = newOrderId();
-  const createdAt = new Date().toISOString();
-  db.prepare(`
-    INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    orderId,
-    leadRow.id,
-    params.stripeSessionId,
-    params.stripeCustomerId ?? null,
-    params.tier,
-    params.commerceAddon ? 1 : 0,
-    params.amountTotal,
-    createdAt
-  );
+  sqliteRecordLeadPayment(db, params, Boolean(lead));
   return { alreadyRecorded: false };
 }
 

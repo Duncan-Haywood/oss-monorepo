@@ -16,6 +16,8 @@ import {
   sqliteMarkMarketingPackSentToClient,
   sqliteMarkClientVoicePackSentToClient,
   sqliteUpdateDeployHandoffCustomDomain,
+  sqliteOrderAlreadyRecorded,
+  sqliteRecordLeadPayment,
 } from "./sqlite-queries";
 import { CustomDomainConflictError } from "../deploy/custom-domain-routing";
 
@@ -654,5 +656,108 @@ describe("sqliteUpdateDeployHandoffCustomDomain", () => {
       "2026-01-02T00:00:00.000Z",
     );
     expect(result?.customDomain).toBe("client.example.com");
+  });
+});
+
+describe("sqliteOrderAlreadyRecorded", () => {
+  it("returns false when no order exists for this stripeSessionId", () => {
+    const db = freshDb();
+    expect(sqliteOrderAlreadyRecorded(db, "cs_new")).toBe(false);
+  });
+
+  it("returns true once an order for this stripeSessionId exists (webhook redelivery guard)", () => {
+    const db = freshDb();
+    const leadId = insertLeadDirect(db, "test-lead");
+    insertOrderDirect(db, leadId, "cs_recorded", "2026-01-01T00:00:00.000Z");
+    expect(sqliteOrderAlreadyRecorded(db, "cs_recorded")).toBe(true);
+  });
+});
+
+describe("sqliteRecordLeadPayment", () => {
+  function paymentParams(overrides: Partial<{
+    slug: string;
+    stripeSessionId: string;
+    tier: string;
+    commerceAddon: boolean;
+    amountTotal: number;
+    stripeCustomerId?: string;
+  }> = {}) {
+    return {
+      slug: "organic-new-buyer",
+      stripeSessionId: "cs_test_1",
+      tier: "starter",
+      commerceAddon: false,
+      amountTotal: 29900,
+      ...overrides,
+    };
+  }
+
+  it("creates a payment-stub lead and an order when the slug has no existing CRM row", () => {
+    const db = freshDb();
+    sqliteRecordLeadPayment(db, paymentParams(), false);
+
+    const lead = db
+      .prepare("SELECT slug, status, dataSource, businessName FROM leads WHERE slug = ?")
+      .get("organic-new-buyer") as
+      | { slug: string; status: string; dataSource: string; businessName: string }
+      | undefined;
+    expect(lead?.status).toBe("paid");
+    expect(lead?.dataSource).toBe("payment_stub");
+    expect(lead?.businessName).toBe("Organic New Buyer");
+
+    const order = db
+      .prepare("SELECT stripeSessionId, tier, amountPaid, commerceAddon FROM orders WHERE stripeSessionId = ?")
+      .get("cs_test_1") as
+      | { stripeSessionId: string; tier: string; amountPaid: number; commerceAddon: number }
+      | undefined;
+    expect(order?.tier).toBe("starter");
+    expect(order?.amountPaid).toBe(29900);
+    expect(order?.commerceAddon).toBe(0);
+  });
+
+  it("marks an existing discovered lead paid and still inserts the order", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+
+    sqliteRecordLeadPayment(db, paymentParams({ slug: "test-lead", stripeSessionId: "cs_test_2" }), true);
+
+    const lead = db.prepare("SELECT status FROM leads WHERE slug = ?").get("test-lead") as {
+      status: string;
+    };
+    expect(lead.status).toBe("paid");
+    const order = db
+      .prepare("SELECT id FROM orders WHERE stripeSessionId = ?")
+      .get("cs_test_2") as { id: string } | undefined;
+    expect(order).toBeDefined();
+  });
+
+  it("never regresses an already-live lead back to paid on a repurchase (Starter -> Growth upsell), but still inserts the order", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    db.prepare("UPDATE leads SET status = 'live' WHERE slug = ?").run("test-lead");
+
+    sqliteRecordLeadPayment(
+      db,
+      paymentParams({ slug: "test-lead", stripeSessionId: "cs_upsell", tier: "growth" }),
+      true,
+    );
+
+    const lead = db.prepare("SELECT status FROM leads WHERE slug = ?").get("test-lead") as {
+      status: string;
+    };
+    expect(lead.status).toBe("live");
+    const order = db
+      .prepare("SELECT tier FROM orders WHERE stripeSessionId = ?")
+      .get("cs_upsell") as { tier: string } | undefined;
+    expect(order?.tier).toBe("growth");
+  });
+
+  it("stores a null stripeCustomerId as NULL, not the string \"undefined\"", () => {
+    const db = freshDb();
+    sqliteRecordLeadPayment(db, paymentParams({ stripeSessionId: "cs_test_3" }), false);
+    const order = db
+      .prepare("SELECT stripeCustomerId FROM orders WHERE stripeSessionId = ?")
+      .get("cs_test_3") as { stripeCustomerId: string | null };
+    expect(order.stripeCustomerId).toBeNull();
   });
 });
