@@ -683,4 +683,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-719-five-tier-research-agent-plus-csv-slug-collision-spotcheck-clean",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-r73hu7",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip ecc06c4d (PR #718) — mid-session two sibling automations each merged a docs-only clean-audit entry ahead of this one (PR #719, then PR #720); rebased onto the new tip (f09decbd) rather than discarding either sibling entry, per the dual-automation collision handling AGENT_PROTOCOL describes. Confirmed baseline green on the post-rebase tip: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2853 passed, 203 files — matching the prior iterations' own reported count exactly) + a full clean rebuild. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest claude/* branches found the same previously-documented already-merged duplicates plus the long-standing stale nice-euler-to3z0u — no live fold candidate. Rather than repeat any of the now several tiers reconfirmed clean today, this iteration's own dispatched research agent was deliberately steered at the newest, least-battle-tested surface not yet named as its own audit target in the log: the dormant Stripe Connect onboarding scaffold and the dormant Buffer marketing-scheduling scaffold plus unsuppressEmailAction, all shipped behind default-off env flags across several recent iterations.\n\nIt read the actions and their full call graphs directly rather than trusting the log, and came back with an honest, evidence-backed null result. See post-720-stripe-connect-buffer-scaffold-audit-clean in BUSINESS_DECISIONS for the full checklist (existence checks, Stripe idempotency keys, TOCTOU re-read-then-merge, ConvexPrimaryWriteOptions coverage, rate limiting, email escaping, size bounds) plus a follow-up spot check of the Commerce SKU structured-data path (commerceOfferCatalogJsonLd), also clean.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-720-stripe-connect-buffer-scaffold-audit-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. No other files changed — NEXT_STEPS unchanged, all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to f09decbd (this iteration's own starting tip, post double-sibling-collision rebase).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2853 passed, unchanged, 203 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split). No npm run dev smoke check needed — no product/runtime code changed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-720-stripe-connect-buffer-scaffold-audit-clean",
+    ),
+  },
 ];
