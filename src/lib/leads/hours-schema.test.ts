@@ -46,7 +46,7 @@ describe("parseOpeningHoursSegment", () => {
     );
   });
 
-  it("returns null for a wrap-around day range without infinite-looping", () => {
+  it("handles a wrap-around day range without infinite-looping", () => {
     const result = parseOpeningHoursSegment("Fri–Mon 9am–5pm");
     expect(result).not.toBeNull();
     expect(result?.dayOfWeek).toEqual([
@@ -70,6 +70,44 @@ describe("parseOpeningHoursSegment", () => {
 
   it("returns null for an out-of-range time token", () => {
     expect(parseOpeningHoursSegment("Mon 13am–5pm")).toBeNull();
+  });
+
+  it("normalizes lowercase day tokens to a real dayOfWeek (regression: case-insensitive regex previously produced [null])", () => {
+    expect(parseOpeningHoursSegment("mon-fri 7am-3pm")).toEqual({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "https://schema.org/Monday",
+        "https://schema.org/Tuesday",
+        "https://schema.org/Wednesday",
+        "https://schema.org/Thursday",
+        "https://schema.org/Friday",
+      ],
+      opens: "07:00",
+      closes: "15:00",
+    });
+  });
+
+  it("normalizes uppercase day tokens to a real dayOfWeek (regression: case-insensitive regex previously produced [null])", () => {
+    expect(parseOpeningHoursSegment("SAT 9AM-4PM")).toEqual({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["https://schema.org/Saturday"],
+      opens: "09:00",
+      closes: "16:00",
+    });
+  });
+
+  it("normalizes mixed-case day tokens on both ends of a range", () => {
+    expect(parseOpeningHoursSegment("tUE-fRI 9:30am-5:45pm")).toEqual({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "https://schema.org/Tuesday",
+        "https://schema.org/Wednesday",
+        "https://schema.org/Thursday",
+        "https://schema.org/Friday",
+      ],
+      opens: "09:30",
+      closes: "17:45",
+    });
   });
 });
 
