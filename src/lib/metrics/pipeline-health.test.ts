@@ -136,6 +136,8 @@ describe("computePipelineHealth", () => {
     expect(health.oldestStarterUpsellCandidateAgeHours).toBeNull();
     expect(health.connectOnboardingIncompleteCount).toBe(0);
     expect(health.oldestConnectOnboardingIncompleteAgeHours).toBeNull();
+    expect(health.bufferProfileMappingMissingCount).toBe(0);
+    expect(health.oldestBufferProfileMappingMissingAgeHours).toBeNull();
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
@@ -954,6 +956,45 @@ describe("computePipelineHealth", () => {
     });
     expect(health.connectOnboardingIncompleteCount).toBe(2);
     expect(health.oldestConnectOnboardingIncompleteAgeHours).toBe(30);
+  });
+
+  it("counts Growth/Complete leads missing a Buffer profile mapping only when marketingSchedulingEnabled", () => {
+    const missing = makeLead("paid", { slug: "buffer-missing" });
+    const mapped = makeLead("live", {
+      slug: "buffer-mapped",
+      bufferProfileIds: ["p1"],
+    });
+    const orders = [
+      {
+        ...makeOrder(0),
+        id: "o1",
+        leadSlug: "buffer-missing",
+        tier: "growth",
+        createdAt: new Date(NOW - 8 * HOUR_MS).toISOString(),
+      },
+      { ...makeOrder(0), id: "o2", leadSlug: "buffer-mapped", tier: "complete" },
+    ];
+
+    const disabled = computePipelineHealth({
+      leads: [missing, mapped],
+      orders,
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(disabled.bufferProfileMappingMissingCount).toBe(0);
+    expect(disabled.oldestBufferProfileMappingMissingAgeHours).toBeNull();
+
+    const enabled = computePipelineHealth({
+      leads: [missing, mapped],
+      orders,
+      handoffs: [],
+      inquiries: [],
+      marketingSchedulingEnabled: true,
+      nowMs: NOW,
+    });
+    expect(enabled.bufferProfileMappingMissingCount).toBe(1);
+    expect(enabled.oldestBufferProfileMappingMissingAgeHours).toBe(8);
   });
 
   it("counts paid/live commerceAddon leads missing a catalog", () => {

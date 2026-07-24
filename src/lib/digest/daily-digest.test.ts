@@ -98,6 +98,9 @@ describe("buildDailyDigest", () => {
     expect(digest.connectOnboardingIncomplete).toHaveLength(0);
     expect(digest.connectOnboardingIncompleteCount).toBe(0);
     expect(digest.oldestConnectOnboardingIncompleteAgeHours).toBeNull();
+    expect(digest.bufferProfileMappingMissing).toHaveLength(0);
+    expect(digest.bufferProfileMappingMissingCount).toBe(0);
+    expect(digest.oldestBufferProfileMappingMissingAgeHours).toBeNull();
     expect(digest.actionableItemCount).toBe(0);
   });
 
@@ -175,6 +178,7 @@ describe("buildDailyDigest", () => {
       "Missing email",
       "paused/canceled MRR recoveries",
       "Stripe Connect onboarding incomplete",
+      "Buffer profile mapping missing",
     ]);
   });
 
@@ -768,6 +772,59 @@ describe("buildDailyDigest", () => {
     expect(html).toContain("Stripe Connect onboarding incomplete (1 · oldest 12h)");
     expect(html).toContain("Connect Pending Co");
     expect(html).not.toContain("Connect Ready Co");
+  });
+
+  it("lists Growth/Complete leads missing a Buffer profile mapping only when marketingSchedulingEnabled (marketing-scheduling-buffer-profile-mapping-missing-visibility)", () => {
+    const missing = baseLead({
+      slug: "buffer-missing",
+      businessName: "No Buffer Co",
+      stage: "paid",
+    });
+    const mapped = baseLead({
+      slug: "buffer-mapped",
+      businessName: "Buffer Ready Co",
+      stage: "live",
+      bufferProfileIds: ["p1"],
+    });
+    const orders = [
+      {
+        leadSlug: "buffer-missing",
+        tier: "growth",
+        commerceAddon: false,
+        createdAt: new Date(NOW - 12 * 60 * 60 * 1000).toISOString(),
+      },
+      { leadSlug: "buffer-mapped", tier: "complete", commerceAddon: false },
+    ];
+
+    const disabled = buildDailyDigest({
+      leads: [missing, mapped],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders,
+      nowMs: NOW,
+    });
+    expect(disabled.bufferProfileMappingMissingCount).toBe(0);
+    expect(disabled.bufferProfileMappingMissing).toHaveLength(0);
+    expect(disabled.oldestBufferProfileMappingMissingAgeHours).toBeNull();
+
+    const digest = buildDailyDigest({
+      leads: [missing, mapped],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders,
+      marketingSchedulingEnabled: true,
+      nowMs: NOW,
+    });
+    expect(digest.bufferProfileMappingMissingCount).toBe(1);
+    expect(digest.bufferProfileMappingMissing).toHaveLength(1);
+    expect(digest.bufferProfileMappingMissing[0]?.businessName).toBe("No Buffer Co");
+    expect(digest.oldestBufferProfileMappingMissingAgeHours).toBe(12);
+    expect(digest.isEmpty).toBe(false);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Buffer profile mapping missing (1 · oldest 12h)");
+    expect(html).toContain("<strong>No Buffer Co</strong> — no Buffer profiles selected yet");
+    expect(html).not.toContain("<strong>Buffer Ready Co</strong> — no Buffer profiles selected yet");
   });
 
   it("lists Starter → MRR upsell candidates", () => {

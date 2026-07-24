@@ -86,6 +86,10 @@ import {
   listLeadsWithIncompleteConnectOnboarding,
   oldestConnectOnboardingIncompleteAgeHours,
 } from "../commerce/stripe-connect";
+import {
+  listLeadsMissingBufferProfileMapping,
+  oldestBufferProfileMappingMissingAgeHours,
+} from "../marketing/buffer";
 
 const WORK_NEXT_LIMIT = 5;
 const FOLLOW_UPS_LIMIT = 5;
@@ -109,6 +113,7 @@ const PAID_NOT_LIVE_LIMIT = 5;
 const LEADS_MISSING_EMAIL_LIMIT = 5;
 const RECURRING_ENTITLEMENT_PAUSED_LIMIT = 5;
 const CONNECT_ONBOARDING_INCOMPLETE_LIMIT = 5;
+const BUFFER_PROFILE_MAPPING_MISSING_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -341,6 +346,18 @@ export interface DigestConnectOnboardingIncomplete {
   businessName: string;
 }
 
+/**
+ * Paid/live Growth/Complete lead with no saved Buffer profile mapping — same
+ * predicate as pipeline-health bufferProfileMappingMissingCount via
+ * listLeadsMissingBufferProfileMapping. Always empty while
+ * ALLOW_MARKETING_SCHEDULING is off (see
+ * marketing-scheduling-buffer-profile-mapping-missing-visibility).
+ */
+export interface DigestBufferProfileMappingMissing {
+  slug: string;
+  businessName: string;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
@@ -526,6 +543,17 @@ export interface DailyDigest {
   /** Age in whole hours since the oldest incomplete account was created; null when none/unanchored. */
   oldestConnectOnboardingIncompleteAgeHours: number | null;
   /**
+   * Paid/live Growth/Complete leads with no saved Buffer profile mapping —
+   * same predicate as pipeline-health bufferProfileMappingMissingCount (see
+   * marketing-scheduling-buffer-profile-mapping-missing-visibility). Always
+   * empty while ALLOW_MARKETING_SCHEDULING is off.
+   */
+  bufferProfileMappingMissing: DigestBufferProfileMappingMissing[];
+  /** True count before the BUFFER_PROFILE_MAPPING_MISSING_LIMIT slice. */
+  bufferProfileMappingMissingCount: number;
+  /** Age in whole hours since the oldest missing-mapping lead's qualifying order; null when none/disabled. */
+  oldestBufferProfileMappingMissingAgeHours: number | null;
+  /**
    * True pre-slice sum of every actionable section's count (the same fields
    * isEmpty checks) — the single source of truth for "how many items does
    * this digest carry." Callers that need a headline number (e.g. the
@@ -623,6 +651,12 @@ export interface BuildDailyDigestInput {
    * are filtered out; open rows drive the Production handoffs open section.
    */
   handoffs?: ReadonlyArray<DeployHandoff>;
+  /**
+   * Pass isMarketingSchedulingAllowed() (ALLOW_MARKETING_SCHEDULING=1) — gates
+   * bufferProfileMappingMissing so it stays empty while the Buffer scaffold
+   * is dormant, mirroring pipeline-health's marketingSchedulingEnabled input.
+   */
+  marketingSchedulingEnabled?: boolean;
   nowMs: number;
 }
 
@@ -648,6 +682,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceOrdersDisputed = [],
     commerceOrdersMissingClientReceipt: commerceOrdersMissingClientReceiptInput = [],
     handoffs = [],
+    marketingSchedulingEnabled = false,
     nowMs,
   } = input;
   const leadsBySlug = new Map(leads.map((lead) => [lead.slug, lead]));
@@ -1136,6 +1171,21 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         businessName: lead.businessName,
       }));
 
+  const bufferProfileMappingMissingAll = marketingSchedulingEnabled
+    ? listLeadsMissingBufferProfileMapping(leads, orders)
+    : [];
+  const bufferProfileMappingMissingCount = bufferProfileMappingMissingAll.length;
+  const oldestBufferProfileMappingMissingAgeHoursValue = marketingSchedulingEnabled
+    ? oldestBufferProfileMappingMissingAgeHours(bufferProfileMappingMissingAll, orders, nowMs)
+    : null;
+  const bufferProfileMappingMissing: DigestBufferProfileMappingMissing[] =
+    bufferProfileMappingMissingAll
+      .slice(0, BUFFER_PROFILE_MAPPING_MISSING_LIMIT)
+      .map((lead) => ({
+        slug: lead.slug,
+        businessName: lead.businessName,
+      }));
+
   // Pre-slice true count per section (mirrors the *Count fields below, using
   // workNext.length directly since it's a ranked top-N pick list rather than
   // a due-queue with its own separate uncapped count). Single source of
@@ -1169,6 +1219,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "Missing email", count: leadsMissingEmailCount },
     { label: "paused/canceled MRR recoveries", count: recurringEntitlementPausedCount },
     { label: "Stripe Connect onboarding incomplete", count: connectOnboardingIncompleteCount },
+    { label: "Buffer profile mapping missing", count: bufferProfileMappingMissingCount },
   ];
   const actionableItemCount = actionableSections.reduce(
     (sum, section) => sum + section.count,
@@ -1262,6 +1313,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     connectOnboardingIncomplete,
     connectOnboardingIncompleteCount,
     oldestConnectOnboardingIncompleteAgeHours: oldestConnectOnboardingIncompleteAgeHoursValue,
+    bufferProfileMappingMissing,
+    bufferProfileMappingMissingCount,
+    oldestBufferProfileMappingMissingAgeHours: oldestBufferProfileMappingMissingAgeHoursValue,
     isEmpty,
   };
 }
@@ -1469,6 +1523,11 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Stripe Connect account not yet confirmed fully onboarded`,
   );
 
+  const bufferProfileMappingMissingRows = digest.bufferProfileMappingMissing.map(
+    (lead) =>
+      `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — no Buffer profiles selected yet`,
+  );
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -1498,6 +1557,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount}${digest.oldestCommerceCatalogsMissingAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsMissingAgeHours}h` : ""})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount}${digest.oldestCommerceCatalogsUnsyncedAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsUnsyncedAgeHours}h` : ""})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
     ${section(`Stripe Connect onboarding incomplete (${digest.connectOnboardingIncompleteCount}${digest.oldestConnectOnboardingIncompleteAgeHours !== null ? ` · oldest ${digest.oldestConnectOnboardingIncompleteAgeHours}h` : ""})`, connectOnboardingIncompleteRows, "Every Connect account is fully onboarded (or none created yet).")}
+    ${section(`Buffer profile mapping missing (${digest.bufferProfileMappingMissingCount}${digest.oldestBufferProfileMappingMissingAgeHours !== null ? ` · oldest ${digest.oldestBufferProfileMappingMissingAgeHours}h` : ""})`, bufferProfileMappingMissingRows, "Every eligible lead has Buffer profiles mapped (or Buffer scheduling isn't enabled yet).")}
     ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount}${digest.oldestClientVoicePacksDueAgeHours !== null ? ` · oldest ${digest.oldestClientVoicePacksDueAgeHours}h` : ""})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(voicePackMissingSendTitle, voicePackMissingSendRows, "Every generated Complete voice FAQ pack has been emailed to its client.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}

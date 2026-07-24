@@ -4,6 +4,8 @@ import {
   createBufferUpdate,
   formatMarketingVariantForBuffer,
   listBufferProfiles,
+  listLeadsMissingBufferProfileMapping,
+  oldestBufferProfileMappingMissingAgeHours,
   resolveBufferSelection,
 } from "./buffer";
 
@@ -151,5 +153,98 @@ describe("resolveBufferSelection", () => {
 
   it("honors an explicit empty draft as 'operator deselected everything', not a missing draft", () => {
     expect(resolveBufferSelection({ "lead-1": [] }, "lead-1", ["p1", "p2"])).toEqual([]);
+  });
+});
+
+const NOW = Date.parse("2026-07-24T12:00:00.000Z");
+
+describe("listLeadsMissingBufferProfileMapping", () => {
+  it("includes an eligible Growth/Complete lead with no saved profile mapping", () => {
+    const leads = [
+      { slug: "no-mapping", stage: "paid" as const },
+      { slug: "already-mapped", stage: "live" as const, bufferProfileIds: ["p1"] },
+      { slug: "not-eligible", stage: "site_built" as const },
+    ];
+    const orders = [
+      { leadSlug: "no-mapping", tier: "growth" },
+      { leadSlug: "already-mapped", tier: "complete" },
+      { leadSlug: "not-eligible", tier: "growth" },
+    ];
+    expect(listLeadsMissingBufferProfileMapping(leads, orders)).toEqual([
+      leads[0],
+    ]);
+  });
+
+  it("excludes a lead whose saved mapping is an empty array (never mapped, but explicitly saved empty)", () => {
+    const leads = [
+      { slug: "empty-mapping", stage: "paid" as const, bufferProfileIds: [] },
+    ];
+    const orders = [{ leadSlug: "empty-mapping", tier: "growth" }];
+    expect(listLeadsMissingBufferProfileMapping(leads, orders)).toEqual(leads);
+  });
+
+  it("sorts results by slug", () => {
+    const leads = [
+      { slug: "zeta", stage: "paid" as const },
+      { slug: "alpha", stage: "paid" as const },
+    ];
+    const orders = [
+      { leadSlug: "zeta", tier: "growth" },
+      { leadSlug: "alpha", tier: "growth" },
+    ];
+    expect(listLeadsMissingBufferProfileMapping(leads, orders).map((l) => l.slug)).toEqual([
+      "alpha",
+      "zeta",
+    ]);
+  });
+});
+
+describe("oldestBufferProfileMappingMissingAgeHours", () => {
+  it("returns null when there are no candidates", () => {
+    expect(oldestBufferProfileMappingMissingAgeHours([], [], NOW)).toBeNull();
+  });
+
+  it("returns null when no candidate has a qualifying, parseable order", () => {
+    const result = oldestBufferProfileMappingMissingAgeHours(
+      [{ slug: "no-order" }],
+      [],
+      NOW,
+    );
+    expect(result).toBeNull();
+  });
+
+  it("anchors on the oldest qualifying order's createdAt", () => {
+    const candidates = [{ slug: "a" }, { slug: "b" }];
+    const orders = [
+      {
+        leadSlug: "a",
+        tier: "growth",
+        createdAt: new Date(NOW - 5 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        leadSlug: "b",
+        tier: "complete",
+        createdAt: new Date(NOW - 20 * 60 * 60 * 1000).toISOString(),
+      },
+    ];
+    expect(oldestBufferProfileMappingMissingAgeHours(candidates, orders, NOW)).toBe(20);
+  });
+
+  it("ignores a refunded/disputed order even if older than a genuinely active one", () => {
+    const candidates = [{ slug: "a" }];
+    const orders = [
+      {
+        leadSlug: "a",
+        tier: "growth",
+        refundedAt: new Date(NOW - 100 * 60 * 60 * 1000).toISOString(),
+        createdAt: new Date(NOW - 100 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        leadSlug: "a",
+        tier: "growth",
+        createdAt: new Date(NOW - 4 * 60 * 60 * 1000).toISOString(),
+      },
+    ];
+    expect(oldestBufferProfileMappingMissingAgeHours(candidates, orders, NOW)).toBe(4);
   });
 });

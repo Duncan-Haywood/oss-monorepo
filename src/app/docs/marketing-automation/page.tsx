@@ -185,6 +185,20 @@ export default function MarketingAutomationDocPage() {
         <DocLink href="/docs/process">/docs/process</DocLink>{" "}
         <code>marketing-content-scheduling</code> for the still-gated GBP/Meta half.
       </p>
+      <p>
+        <strong>Missing-mapping visibility.</strong> A Growth/Complete lead with no saved{" "}
+        <code>bufferProfileIds</code> makes <strong>Send pack to Buffer</strong> hard-fail with
+        &quot;Select Buffer profiles for this lead first&quot; — but until now nothing surfaced{" "}
+        <em>which</em> or <em>how many</em> leads were stuck in that state short of opening each
+        lead&apos;s own panel. The <code>Buffer profile mapping missing</code> pipeline-health card
+        (<DocLink href="/dashboard/leads">/dashboard/leads</DocLink>) and matching daily-digest
+        section now track this — always zero while{" "}
+        <code>ALLOW_MARKETING_SCHEDULING</code> is off, since every eligible lead would otherwise
+        report &quot;missing&quot; forever with no possible resolution. See{" "}
+        <code>listLeadsMissingBufferProfileMapping</code> /{" "}
+        <code>oldestBufferProfileMappingMissingAgeHours</code> (
+        <code>src/lib/marketing/buffer.ts</code>).
+      </p>
 
       <p>
         Technical module: <DocLink href="/docs/architecture">Architecture</DocLink> § Marketing Engine

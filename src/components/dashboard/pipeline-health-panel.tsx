@@ -235,6 +235,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.connectOnboardingIncompleteCount > 0}
         />
         <MetricCard
+          label="Buffer profile mapping missing"
+          value={String(health.bufferProfileMappingMissingCount)}
+          hint={
+            health.bufferProfileMappingMissingCount > 0
+              ? `Growth/Complete leads with no Buffer profiles selected yet${
+                  health.oldestBufferProfileMappingMissingAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBufferProfileMappingMissingAgeHours)}`
+                    : ""
+                }`
+              : "Every eligible lead has Buffer profiles mapped (or Buffer scheduling isn't enabled yet)"
+          }
+          attention={health.bufferProfileMappingMissingCount > 0}
+        />
+        <MetricCard
           label="Complete voice packs due"
           value={String(health.clientVoicePacksDueCount)}
           hint={

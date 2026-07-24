@@ -77,6 +77,10 @@ import {
   listLeadsWithIncompleteConnectOnboarding,
   oldestConnectOnboardingIncompleteAgeHours,
 } from "@/lib/commerce/stripe-connect";
+import {
+  listLeadsMissingBufferProfileMapping,
+  oldestBufferProfileMappingMissingAgeHours,
+} from "@/lib/marketing/buffer";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -330,6 +334,19 @@ export interface PipelineHealth {
   connectOnboardingIncompleteCount: number;
   /** Age in whole hours since the oldest incomplete account was created; null when none/unanchored. */
   oldestConnectOnboardingIncompleteAgeHours: number | null;
+  /**
+   * Paid/live Growth/Complete leads with no saved Buffer profile mapping —
+   * scheduleMarketingPackToBufferAction hard-fails for every one of these
+   * until the operator maps at least one profile (see
+   * marketing-scheduling-buffer-profile-mapping-missing-visibility). Always 0
+   * while ALLOW_MARKETING_SCHEDULING is off (input.marketingSchedulingEnabled
+   * unset/false) — every eligible lead would otherwise report "missing"
+   * forever with nothing for the operator to act on, since the mapping
+   * action itself is gated behind the same flag.
+   */
+  bufferProfileMappingMissingCount: number;
+  /** Age in whole hours since the oldest missing-mapping lead's qualifying order; null when none/disabled. */
+  oldestBufferProfileMappingMissingAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -532,6 +549,14 @@ export function computePipelineHealth(input: {
   commerceOrdersMissingClientReceipt?: ReadonlyArray<{
     createdAt?: string;
   }>;
+  /**
+   * Pass isMarketingSchedulingAllowed() (ALLOW_MARKETING_SCHEDULING=1) — gates
+   * bufferProfileMappingMissingCount so it stays 0 while the Buffer scaffold
+   * is dormant, rather than flagging every eligible lead with no possible
+   * resolution. Defaults to false (not read from process.env here — this
+   * function stays a pure aggregator like every sibling in this file).
+   */
+  marketingSchedulingEnabled?: boolean;
   nowMs?: number;
 }): PipelineHealth {
   const stageCounts = emptyStageCounts();
@@ -833,6 +858,13 @@ export function computePipelineHealth(input: {
     nowMs,
   );
 
+  const bufferProfileMappingMissing = input.marketingSchedulingEnabled
+    ? listLeadsMissingBufferProfileMapping(input.leads, input.orders)
+    : [];
+  const oldestBufferProfileMappingMissingHours = input.marketingSchedulingEnabled
+    ? oldestBufferProfileMappingMissingAgeHours(bufferProfileMappingMissing, input.orders, nowMs)
+    : null;
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -898,6 +930,8 @@ export function computePipelineHealth(input: {
     oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellAgeHours,
     connectOnboardingIncompleteCount: connectOnboardingIncomplete.length,
     oldestConnectOnboardingIncompleteAgeHours: oldestConnectOnboardingIncompleteHours,
+    bufferProfileMappingMissingCount: bufferProfileMappingMissing.length,
+    oldestBufferProfileMappingMissingAgeHours: oldestBufferProfileMappingMissingHours,
   };
 }
 

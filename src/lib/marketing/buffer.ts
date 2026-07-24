@@ -8,6 +8,9 @@
  * tests mock `global.fetch` the same way handoff.test.ts does.
  */
 
+import type { LeadPipelineStage } from "@/lib/leads/types";
+import { orderGrantsSoldCapabilityEntitlement } from "@/lib/orders/recurring";
+import { isMarketingBundleTier, leadEligibleForMarketingPack } from "./monthly-pack";
 import type { MarketingContentVariant } from "./types";
 
 const BUFFER_API_BASE = "https://api.bufferapp.com/1";
@@ -180,4 +183,97 @@ export function formatMarketingVariantForBuffer(variant: MarketingContentVariant
   ]
     .filter(Boolean)
     .join("\n\n");
+}
+
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * Eligible Growth/Complete lead (leadEligibleForMarketingPack) with no saved
+ * Buffer profile mapping yet — scheduleMarketingPackToBufferAction hard-fails
+ * with "Select Buffer profiles for this lead first" for every such lead, but
+ * until now nothing surfaced which/how-many leads were stuck in that state
+ * (see marketing-scheduling-buffer-profile-mapping-missing-visibility). Only
+ * meaningful once the operator has opted into ALLOW_MARKETING_SCHEDULING —
+ * callers must pass an empty `leads` array (or otherwise suppress this) while
+ * the feature is off, since every eligible lead would otherwise report
+ * "missing" forever with no way for the operator to act on it (this helper
+ * itself takes no env dependency, matching the pure-helper convention every
+ * sibling in pipeline-health.ts/daily-digest.ts follows).
+ */
+export function listLeadsMissingBufferProfileMapping<
+  T extends {
+    slug: string;
+    stage: LeadPipelineStage;
+    bufferProfileIds?: string[];
+  },
+>(
+  leads: readonly T[],
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
+): T[] {
+  return leads
+    .filter((lead) => {
+      if (lead.bufferProfileIds?.length) return false;
+      return leadEligibleForMarketingPack(
+        lead,
+        orders.filter((o) => o.leadSlug === lead.slug),
+      );
+    })
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/**
+ * Age in whole hours since the oldest qualifying Growth/Complete order among
+ * `candidates` (as returned by listLeadsMissingBufferProfileMapping) was
+ * created; null when there are no candidates or none of their orders parse.
+ * Mirrors oldestCommerceCatalogCandidateAgeHours exactly — this is a one-time
+ * setup gap (not month-keyed like oldestMarketingPacksDueAgeHours), so the
+ * anchor is the qualifying order's own createdAt. Must gate on
+ * orderGrantsSoldCapabilityEntitlement (not a raw recurringCanceledAt check)
+ * so an older refunded/disputed order can never pull the reported age earlier
+ * than the entitlement that actually makes the lead eligible (same
+ * refund-dispute-oldest-age-parity contract as every sibling age helper).
+ * Pass nowMs from the caller — never Date.now() inside list/age helpers.
+ */
+export function oldestBufferProfileMappingMissingAgeHours(
+  candidates: ReadonlyArray<{ slug: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+    createdAt?: string;
+  }>,
+  nowMs: number,
+): number | null {
+  const candidateSlugs = new Set(candidates.map((candidate) => candidate.slug));
+  let oldestCreatedAtMs: number | null = null;
+  for (const order of orders) {
+    if (!candidateSlugs.has(order.leadSlug)) continue;
+    if (!isMarketingBundleTier(order.tier)) continue;
+    if (
+      !orderGrantsSoldCapabilityEntitlement({
+        ...order,
+        commerceAddon: Boolean(order.commerceAddon),
+      })
+    ) {
+      continue;
+    }
+    if (typeof order.createdAt !== "string") continue;
+    const createdAtMs = Date.parse(order.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    if (oldestCreatedAtMs === null || createdAtMs < oldestCreatedAtMs) {
+      oldestCreatedAtMs = createdAtMs;
+    }
+  }
+  if (oldestCreatedAtMs === null) return null;
+  return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / HOUR_MS));
 }

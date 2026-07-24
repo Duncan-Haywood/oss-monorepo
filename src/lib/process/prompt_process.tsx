@@ -351,6 +351,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/nice-euler-wueqtv",
   },
+  {
+    id: "marketing-scheduling-buffer-profile-mapping-missing-visibility",
+    summary:
+      "Empty-backlog audit (tier 1 — sold-capability wiring gap, flagged as a likely-parallel gap by buffer-token-header-not-query's own decision text but never picked up until now) found scheduleMarketingPackToBufferAction hard-fails for any eligible Growth/Complete lead with no saved Buffer profile mapping, but nothing anywhere (pipeline-health, digest, dashboard) surfaced which/how-many leads were stuck — same visibility-gap class as stripe-connect-onboarding-pipeline-health-visibility. Unlike that precedent, this metric's polarity meant it would show unactionable noise for every eligible lead while ALLOW_MARKETING_SCHEDULING is off (the default) — gated the new count behind a marketingSchedulingEnabled input on both pipeline-health.ts and daily-digest.ts so it stays 0/empty while the Buffer scaffold is dormant. Shipped new pure helpers in src/lib/marketing/buffer.ts (listLeadsMissingBufferProfileMapping, oldestBufferProfileMappingMissingAgeHours), wired into a new PipelineHealthPanel MetricCard and a matching daily-digest section — deliberately not added to the dashboard landing page (that series is closed per the dashboard-landing-clawback-cards note; this is a due-queue count, not a comparable dollar-loss signal). See marketing-scheduling-buffer-profile-mapping-missing-visibility in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 6 — Marketing automation",
+    owner: "claude/nice-euler-sqwl6z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -707,6 +715,27 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "json-body-streamed-read-bound",
+    ),
+  },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-sqwl6z",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip e003ea93 (PR #694, json-body-streamed-read-bound) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2798 passed, 200 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (622 remote heads) and a diff of the newest ~20 claude/* branches against origin/main confirmed every one already merged — no live fold candidate. The diff-gate against the documented anchor (a663c206) showed exactly 1 commit since (e003ea93 itself, already individually documented), so ran a fast 3-sample spot-check per the waste-reduction rule instead of a full tier 1-5 re-sweep, then dispatched a foreground research agent (Explore) weighted toward tiers 2-5 and explicitly told to avoid re-proposing anything from the last ~15 ITERATIONS entries.\n\nIt found a real tier-1 gap: scheduleMarketingPackToBufferAction hard-fails for any eligible Growth/Complete lead with no saved lead.bufferProfileIds, but nothing surfaced which/how-many leads were stuck in that state anywhere in pipeline-health, the daily digest, or the dashboard. See marketing-scheduling-buffer-profile-mapping-missing-visibility in BUSINESS_DECISIONS for full detail, the critical polarity difference from the Stripe Connect visibility precedent (this metric needed an explicit dormant-flag gate, unlike Connect onboarding which naturally reads 0 while dormant), and the two runner-ups ruled out.",
+    shipped: [
+      "src/lib/marketing/buffer.ts — new pure helpers listLeadsMissingBufferProfileMapping (eligible-lead filter reusing leadEligibleForMarketingPack, slug-sorted) and oldestBufferProfileMappingMissingAgeHours (anchors on the qualifying order's own createdAt, skip-if-no-anchor, refund/dispute-aware entitlement gating — mirrors oldestCommerceCatalogCandidateAgeHours).",
+      "src/lib/metrics/pipeline-health.ts — new optional marketingSchedulingEnabled input (pure pass-through, no process.env read); bufferProfileMappingMissingCount/oldestBufferProfileMappingMissingAgeHours computed only when true, else forced to 0/null.",
+      "src/lib/digest/daily-digest.ts — identical marketingSchedulingEnabled input, DigestBufferProfileMappingMissing type, new fields wired into DailyDigest + actionableSections + a new digest section following the connectOnboardingIncomplete template exactly.",
+      "src/components/dashboard/pipeline-health-panel.tsx — new 'Buffer profile mapping missing' MetricCard after 'Stripe Connect onboarding incomplete', zero-state hint notes the dormant-flag case explicitly.",
+      "src/app/dashboard/leads/page.tsx + src/app/dashboard/leads/actions.ts (sendDailyDigestAction) — both now pass isMarketingSchedulingAllowed() into computePipelineHealth/buildDailyDigest. Deliberately NOT added to the dashboard landing page — that series is closed per AGENT_PROTOCOL's dashboard-landing-clawback-cards note (needs a comparable dollar-loss signal, not a due-queue count).",
+      "src/app/docs/marketing-automation/page.tsx — new paragraph documenting the visibility helper and dormant-flag-gating rationale.",
+      "Tests: src/lib/marketing/buffer.test.ts (7 new), src/lib/metrics/pipeline-health.test.ts (empty-input zeroes + enabled-vs-disabled test), src/lib/digest/daily-digest.test.ts (empty-input zeroes, actionableSectionLabels update, enabled-vs-disabled section test).",
+      "src/lib/process/business-decisions.ts — appended marketing-scheduling-buffer-profile-mapping-missing-visibility.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry + marked NEXT_STEPS marketing-scheduling-buffer-profile-mapping-missing-visibility done. The marketing-content-scheduling NEXT_STEPS item itself stays status=todo — GBP/Meta OAuth remains fully gated; this fix is dormant-scaffold visibility on the already-shipped Buffer half, not a resolution of any gated item. Diff-gate anchor moves to e003ea93 (this iteration's own starting tip).",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2807 passed, up from 2798 — 9 new, 200 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /docs/marketing-automation all 200; curled the rendered /dashboard/leads HTML confirming the new card label renders; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "marketing-scheduling-buffer-profile-mapping-missing-visibility",
     ),
   },
 ];

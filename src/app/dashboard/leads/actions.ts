@@ -121,7 +121,10 @@ import {
   createConnectOnboardingLink,
   fetchConnectAccountStatus,
 } from "@/lib/commerce/stripe-connect";
-import { assessMarketingSchedulingGate } from "@/lib/marketing/buffer-gate";
+import {
+  assessMarketingSchedulingGate,
+  isMarketingSchedulingAllowed,
+} from "@/lib/marketing/buffer-gate";
 import {
   listBufferProfiles,
   createBufferUpdate,
@@ -2262,6 +2265,7 @@ export async function sendDailyDigestAction() {
       commerceOrdersDisputed,
       commerceOrdersMissingClientReceipt,
       handoffs,
+      marketingSchedulingEnabled: isMarketingSchedulingAllowed(),
       nowMs,
     });
     const html = renderDailyDigestHtml(digest, appUrl);
