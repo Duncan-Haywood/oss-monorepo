@@ -2,6 +2,7 @@ import Link from "next/link";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { formatAbandonedAgeHours, formatUsd } from "@/lib/metrics/pipeline-health";
+import { stageFunnelBarWidthClass } from "@/lib/metrics/stage-funnel-bar-width";
 
 interface PipelineHealthPanelProps {
   health: PipelineHealth;
@@ -506,8 +507,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
               </span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-100">
                 <div
-                  className="h-full rounded-full bg-zinc-800 transition-[width]"
-                  style={{ width: `${Math.round((row.count / maxStage) * 100)}%` }}
+                  className={`h-full rounded-full bg-zinc-800 transition-[width] ${stageFunnelBarWidthClass(row.count, maxStage)}`}
                 />
               </div>
               <span className="w-8 text-right text-xs font-semibold tabular-nums text-zinc-900">
