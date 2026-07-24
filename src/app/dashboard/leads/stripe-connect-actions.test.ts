@@ -320,6 +320,7 @@ describe("Stripe Connect dashboard actions", () => {
         "demo-cafe",
         { chargesEnabled: true, payoutsEnabled: false, detailsSubmitted: true },
         expect.any(String),
+        expect.objectContaining({ requireConvex: true }),
       );
     });
 
@@ -331,6 +332,25 @@ describe("Stripe Connect dashboard actions", () => {
         detailsSubmitted: true,
       });
       updateLeadStripeConnectStatus.mockRejectedValue(new Error("Convex down"));
+      const { checkStripeConnectAccountStatusAction } = await import("./actions");
+      const result = await checkStripeConnectAccountStatusAction("demo-cafe");
+
+      expect(result).toEqual({
+        success: true,
+        chargesEnabled: true,
+        payoutsEnabled: true,
+        detailsSubmitted: true,
+      });
+    });
+
+    it("still returns the live status when the persist fails closed (ConvexPrimaryWriteError, not just a generic error)", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      fetchConnectAccountStatus.mockResolvedValue({
+        chargesEnabled: true,
+        payoutsEnabled: true,
+        detailsSubmitted: true,
+      });
+      updateLeadStripeConnectStatus.mockRejectedValue(new MockConvexPrimaryWriteError());
       const { checkStripeConnectAccountStatusAction } = await import("./actions");
       const result = await checkStripeConnectAccountStatusAction("demo-cafe");
 

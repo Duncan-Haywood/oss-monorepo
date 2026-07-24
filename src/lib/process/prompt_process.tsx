@@ -674,4 +674,23 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "dashboard-landing-bundle-refund-dispute-cards",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-j7xltl",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip d23b5a88 (PR #692, dashboard-landing-bundle-refund-dispute-cards) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2794 passed, 200 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` and a diff of the newest ~5 claude/* branches against origin/main confirmed every one already merged — no live fold candidate.\n\nDispatched a foreground research agent (Explore), weighted toward tiers 2-5 since recent iterations skewed toward growth/SEO and landing-page cards. It found a real Convex/SQLite parity gap: updateLeadStripeConnectStatus (src/lib/db.ts) was the one Stripe Connect persist function with no requireConvex fail-closed option, unlike its sibling updateLeadStripeConnectAccountId — and unlike updateLeadBufferPostedVariantKeys (the precedent its own doc comment cited), this status cache IS read cross-instance by connectOnboardingIncompleteCount. See stripe-connect-status-cache-convex-fail-closed in BUSINESS_DECISIONS for the full detail and the two runner-ups ruled out.",
+    shipped: [
+      "src/lib/leads/stripe-connect-persist.ts — new LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY (requireConvex: true).",
+      "src/lib/db.ts — updateLeadStripeConnectStatus gained an optional fourth `options?: ConvexPrimaryWriteOptions` param; on Convex mutation failure it now throws ConvexPrimaryWriteError when the caller opts in (shouldFallbackToSqliteOnConvexFailure gate), mirroring updateLeadStripeConnectAccountId exactly. Doc comment corrected.",
+      "src/app/dashboard/leads/actions.ts — checkStripeConnectAccountStatusAction now passes LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY; the existing try/catch around the persist call (unchanged) still swallows the resulting error so an already-successful live check is never reported as a failure.",
+      "src/app/docs/architecture/page.tsx — rewrote the paragraph describing this cache's persistence contract and why the original best-effort framing was wrong for this field.",
+      "Tests: src/lib/leads/stripe-connect-persist.test.ts (2 new cases for the new constant), src/app/dashboard/leads/stripe-connect-actions.test.ts (updated the existing persist-call assertion to expect the new options arg; 1 new case confirming a ConvexPrimaryWriteError from the persist still returns success to the operator).",
+      "src/lib/process/business-decisions.ts — appended stripe-connect-status-cache-convex-fail-closed.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a Convex/SQLite parity fix (tier 2), not a resolution of any gated item. Diff-gate anchor moves to d23b5a88 (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2797 passed, up from 2794 — 3 new, 200 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /dashboard/leads, /docs/architecture all 200; grepped the rendered docs HTML confirming the new decision-id anchor text renders; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-connect-status-cache-convex-fail-closed",
+    ),
+  },
 ];
