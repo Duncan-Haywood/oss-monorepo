@@ -1,3 +1,4 @@
+import { defaultTierForCategory } from "./category-normalize";
 import type { Lead, LeadPipelineStage } from "./types";
 
 /**
@@ -109,7 +110,7 @@ export function resolvePreviewLead(slug: string): Lead {
     services: ["Core services", "Local service area", "Contact for a quote"],
     hours: { weekday: "Mon–Fri by appointment", weekend: "Weekend by request" },
     stage: "site_built",
-    recommendedTier: category === "trades" ? "starter" : category === "salon" ? "complete" : "growth",
+    recommendedTier: defaultTierForCategory(category),
     dataSource: "slug_inference",
   };
 }

@@ -538,4 +538,20 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "business-decisions-archive-12-split"),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-kxfkpf",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip b0620c2 (PR #732, business-decisions-archive-12-split, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2855 passed, 204 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (654 remote heads) found the newest-pushed branch with no open PR (claude/upbeat-dijkstra-dwoa4r) carries exactly one commit, and its diff matches PR #732's already-merged content verbatim — confirmed stale/superseded, no live fold candidate.\n\nDispatched a research agent to find the next high-leverage item per AGENT_PROTOCOL's empty-backlog priority order. It ran a fresh tier 1-4 sweep (sold-capability wiring, Convex/SQLite parity, security surface, untested orchestration) and came back clean, consistent with the last several iterations, but surfaced one marginal-but-real finding: three independent implementations of the same category→default-recommendedTier mapping (category-normalize.ts's normalizeLeadRecommendedTier, quality-score.ts's CATEGORY_DEFAULT_TIER, demo-catalog.ts's resolvePreviewLead) — currently in agreement, but structurally the exact duplication pattern that caused generic-lead-default-tagline-restaurant-leak (PR #729). Consolidated all three onto one canonical export, defaultTierForCategory (category-normalize.ts), and added a cross-site consistency test so future drift fails immediately.",
+    shipped: [
+      "src/lib/leads/category-normalize.ts — added defaultTierForCategory(category), the canonical trades→starter/salon→complete/else→growth mapping; normalizeLeadRecommendedTier's fallback now calls it instead of its own inline ternary.",
+      "src/lib/leads/quality-score.ts — CATEGORY_DEFAULT_TIER is now derived via Object.fromEntries(BUSINESS_CATEGORIES.map(...)) from defaultTierForCategory instead of a separately hand-written Record literal; exported name/shape unchanged so existing consumers/tests needed no change.",
+      "src/lib/leads/demo-catalog.ts — resolvePreviewLead's recommendedTier now calls defaultTierForCategory(category) instead of its own inline ternary.",
+      "src/lib/leads/category-normalize.test.ts — added a cross-site consistency describe block asserting CATEGORY_DEFAULT_TIER and resolvePreviewLead both agree with defaultTierForCategory for every category.",
+      "src/lib/process/business-decisions.ts — appended category-default-tier-single-source.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to b0620c2 (this iteration's own starting tip, post-PR-#732).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2857 passed — 2 new cases, 204 files, up from 2855) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/dashboard/leads, /preview/example-bakery, /preview/peak-plumbing, /preview/luxe-salon all 200; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "category-default-tier-single-source"),
+  },
 ];

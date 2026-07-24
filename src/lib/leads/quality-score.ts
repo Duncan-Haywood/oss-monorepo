@@ -11,6 +11,7 @@ import {
   isRecoveryDue,
 } from "../checkout/abandoned-recovery";
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
+import { BUSINESS_CATEGORIES, defaultTierForCategory } from "./category-normalize";
 import { isFollowUpDue, normalizeOutreachStep } from "../email/outreach-followups";
 import { isLeadSnoozed } from "./snooze";
 
@@ -46,16 +47,16 @@ export interface LeadScoreOptions {
   openCheckoutSessions?: CheckoutSessionRecord[];
 }
 
-/** Category → default recommended tier (matches demo catalog / slug inference). */
-export const CATEGORY_DEFAULT_TIER: Record<
-  BusinessCategory,
-  Lead["recommendedTier"]
-> = {
-  restaurant: "growth",
-  salon: "complete",
-  trades: "starter",
-  generic: "growth",
-};
+/**
+ * Category → default recommended tier. Derived from the single canonical
+ * mapping in category-normalize.ts (defaultTierForCategory) rather than
+ * re-listing the trades/salon/else split here — see that function's doc
+ * comment for why a second hand-written copy is the bug class to avoid.
+ */
+export const CATEGORY_DEFAULT_TIER: Record<BusinessCategory, Lead["recommendedTier"]> =
+  Object.fromEntries(
+    BUSINESS_CATEGORIES.map((category) => [category, defaultTierForCategory(category)]),
+  ) as Record<BusinessCategory, Lead["recommendedTier"]>;
 
 const STAGE_BASE: Record<LeadPipelineStage, number> = {
   discovered: 28,

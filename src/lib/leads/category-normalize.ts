@@ -50,9 +50,24 @@ export function normalizeLeadCategory(raw: string): BusinessCategory {
 }
 
 /**
+ * Canonical per-category default tier (trades -> starter, salon -> complete,
+ * else growth) — the single source of truth for this mapping. Every other
+ * site that needs a category's default recommendedTier (quality-score.ts's
+ * scoring baseline, demo-catalog.ts's slug-inferred preview leads,
+ * normalizeLeadRecommendedTier below) must call this rather than
+ * re-deriving the mapping, so a future product change to one category's
+ * default can't silently drift out of sync across call sites the way
+ * defaultTagline once did (generic-lead-default-tagline-restaurant-leak).
+ */
+export function defaultTierForCategory(category: BusinessCategory): Lead["recommendedTier"] {
+  if (category === "trades") return "starter";
+  if (category === "salon") return "complete";
+  return "growth";
+}
+
+/**
  * Unrecognized/legacy values fall back to the same per-category default
- * mapSqliteRowToLead has always used (trades -> starter, salon -> complete,
- * else growth) — mirrors CATEGORY_DEFAULT_TIER in quality-score.ts.
+ * mapSqliteRowToLead has always used — see defaultTierForCategory above.
  */
 export function normalizeLeadRecommendedTier(
   raw: string | null | undefined,
@@ -60,9 +75,5 @@ export function normalizeLeadRecommendedTier(
 ): Lead["recommendedTier"] {
   return (RECOMMENDED_TIERS as readonly string[]).includes(raw ?? "")
     ? (raw as Lead["recommendedTier"])
-    : category === "trades"
-      ? "starter"
-      : category === "salon"
-        ? "complete"
-        : "growth";
+    : defaultTierForCategory(category);
 }

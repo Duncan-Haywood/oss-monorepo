@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   BUSINESS_CATEGORIES,
+  defaultTierForCategory,
   normalizeLeadCategory,
   normalizeLeadRecommendedTier,
   RECOMMENDED_TIERS,
 } from "./category-normalize";
+import { CATEGORY_DEFAULT_TIER } from "./quality-score";
+import { resolvePreviewLead } from "./demo-catalog";
 
 describe("normalizeLeadCategory", () => {
   it("passes through every recognized category unchanged", () => {
@@ -34,5 +37,32 @@ describe("normalizeLeadRecommendedTier", () => {
     expect(normalizeLeadRecommendedTier("not-a-real-tier", "generic")).toBe("growth");
     expect(normalizeLeadRecommendedTier(undefined, "trades")).toBe("starter");
     expect(normalizeLeadRecommendedTier(null, "salon")).toBe("complete");
+  });
+});
+
+describe("defaultTierForCategory cross-site consistency", () => {
+  // quality-score.ts's CATEGORY_DEFAULT_TIER and demo-catalog.ts's
+  // resolvePreviewLead both now derive from defaultTierForCategory rather
+  // than re-implementing the trades/salon/else split — pin all three to
+  // agree so a future edit to only one site fails immediately, the same
+  // bug class default-tagline.test.ts guards against for taglines.
+  it("CATEGORY_DEFAULT_TIER matches defaultTierForCategory for every category", () => {
+    for (const category of BUSINESS_CATEGORIES) {
+      expect(CATEGORY_DEFAULT_TIER[category]).toBe(defaultTierForCategory(category));
+    }
+  });
+
+  it("resolvePreviewLead's inferred recommendedTier matches defaultTierForCategory", () => {
+    const slugByCategory = {
+      restaurant: "hearth-bakery",
+      salon: "luxe-salon",
+      trades: "peak-plumbing",
+      generic: "acme-services",
+    } as const;
+    for (const category of BUSINESS_CATEGORIES) {
+      const lead = resolvePreviewLead(slugByCategory[category]);
+      expect(lead.category).toBe(category);
+      expect(lead.recommendedTier).toBe(defaultTierForCategory(category));
+    }
   });
 });
