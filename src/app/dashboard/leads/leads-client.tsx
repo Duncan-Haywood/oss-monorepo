@@ -1948,7 +1948,7 @@ export function LeadsClient({
                     <ul className="mt-2 space-y-1.5 text-xs text-zinc-600">
                       {summary.orders.slice(0, 5).map((row) => (
                         <li key={row.stripeSessionId} className="flex items-center justify-between gap-2">
-                          <span className={row.paidOutAt ? "text-zinc-400 line-through" : undefined}>
+                          <span className={row.paidOutAt ? "text-zinc-500 line-through" : undefined}>
                             {formatUsd(row.amountPaidUsd)} · {row.skuName}
                             {row.quantity && row.quantity > 1 ? ` × ${row.quantity}` : ""} ·{" "}
                             {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
@@ -2752,7 +2752,7 @@ export function LeadsClient({
                         </p>
                       </div>
                     ) : null}
-                    <p className="mt-2 text-[11px] text-zinc-400">
+                    <p className="mt-2 text-[11px] text-zinc-500">
                       {formatAbandonedAgeHours(deployHandoffAgeHours(inq.createdAt, nowMs))} ago
                       {isUnrepliedInquiryStatus(inq.status) ? " · unreplied" : null}
                       {inq.source ? (
@@ -2794,7 +2794,7 @@ export function LeadsClient({
                           >
                             Cancel
                           </button>
-                          <span className="text-[11px] text-zinc-400">
+                          <span className="text-[11px] text-zinc-500">
                             {(replyDrafts[inq.id] ?? "").length}/{MAX_INQUIRY_REPLY_LENGTH}
                           </span>
                         </div>
@@ -2882,7 +2882,7 @@ export function LeadsClient({
             className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 pl-10 text-sm outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
           />
           <svg
-            className="absolute left-3.5 top-3 h-4.5 w-4.5 text-zinc-400"
+            className="absolute left-3.5 top-3 h-4.5 w-4.5 text-zinc-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -3388,7 +3388,7 @@ export function LeadsClient({
                       <td className="px-6 py-4.5">
                         <div>
                           <p className="font-semibold text-zinc-900">{lead.businessName}</p>
-                          <p className="text-xs text-zinc-400 mt-0.5">
+                          <p className="text-xs text-zinc-500 mt-0.5">
                             {lead.city}, {lead.state}
                             {lead.phone && ` · ${lead.phone}`}
                             {lead.email && ` · ${lead.email}`}
@@ -3412,7 +3412,7 @@ export function LeadsClient({
                               {quality.score} · {qualityBandLabel(quality.band)}
                             </span>
                           ) : (
-                            <span className="text-xs text-zinc-400">—</span>
+                            <span className="text-xs text-zinc-500">—</span>
                           )}
                           {snoozed && lead.snoozedUntil ? (
                             <span
@@ -3482,14 +3482,14 @@ export function LeadsClient({
                           ) : null}
                         </p>
                         {lead.lastOutreachAt ? (
-                          <p className="mt-0.5 text-[11px] text-zinc-400">
+                          <p className="mt-0.5 text-[11px] text-zinc-500">
                             {formatAbandonedAgeHours(
                               deployHandoffAgeHours(lead.lastOutreachAt, nowMs),
                             )}{" "}
                             ago
                           </p>
                         ) : (
-                          <p className="mt-0.5 text-[11px] text-zinc-400">No sends yet</p>
+                          <p className="mt-0.5 text-[11px] text-zinc-500">No sends yet</p>
                         )}
                         {lead.lastPreviewOpenAt ? (
                           <p className="mt-0.5 text-[11px] text-sky-700">
@@ -4052,7 +4052,7 @@ export function LeadsClient({
                                   />
                                 </label>
                                 <div className="flex items-end justify-end gap-2 pb-0.5">
-                                  <span className="hidden text-[11px] text-zinc-400 sm:inline">
+                                  <span className="hidden text-[11px] text-zinc-500 sm:inline">
                                     {formatPriceUsd(item.priceCents)}
                                   </span>
                                   {item.stripePriceId ? (
@@ -4336,7 +4336,7 @@ export function LeadsClient({
                             htmlFor={`operator-notes-${lead.slug}`}
                           >
                             Operator notes
-                            <span className="ml-2 font-normal text-zinc-400">
+                            <span className="ml-2 font-normal text-zinc-500">
                               Call outcomes, objections, next steps — not shown on the preview site
                             </span>
                           </label>
@@ -4367,7 +4367,7 @@ export function LeadsClient({
                             >
                               {notesPromptReason ? "Skip for now" : "Cancel"}
                             </button>
-                            <span className="text-[11px] text-zinc-400">
+                            <span className="text-[11px] text-zinc-500">
                               {notesDraft.trim().length}/{MAX_OPERATOR_NOTES_LENGTH}
                             </span>
                             {notesError ? (
