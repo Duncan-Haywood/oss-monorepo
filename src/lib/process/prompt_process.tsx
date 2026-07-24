@@ -683,4 +683,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "brace-expansion-dos-typescript-eslint-scoped-override",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-y2nzyj",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 437eb0cd (PR #741, brace-expansion-dos-typescript-eslint-scoped-override, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green from a fresh checkout: npm ci (409 packages, 9 known high-severity findings — unchanged count, matches the documented eslint-chain root cause) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2858 passed, 204 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, same 42-route ○/ƒ split). mcp__github__list_pull_requests reconfirmed the sole open item is still PR #202 (unrelated, weeks-stale human draft). Reconfirmed all five NEXT_STEPS items remain operator/legal/infra-gated.\n\nDiff-gate (`git log --oneline 7f95a2e8..origin/main -- src convex .github/workflows`) found only PR #741's own already-logged commit since the last verified-clean anchor. A fold-scan of the newest 5 claude/* branches found the branch that produced PR #741 itself (nice-euler-3h25b5) shows a nonzero diff against main by triple-dot purely from the expected squash-merge SHA mismatch — direct grep confirmed its content already exists verbatim on current main; the other four diffed empty. No live fold candidate. Per the waste-reduction rule, ran two fast spot-checks instead of a full five-tier re-dispatch: (1) every process.env var read in src/convex cross-referenced against .env.example — all either documented as a commented placeholder or a deliberate, tested legacy-fallback exclusion; (2) API route CORS headers — none set, which is the correct same-origin default for this app's routes. Both clean, no gap found. See post-741-env-example-docs-and-cors-default-spot-check-clean in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-741-env-example-docs-and-cors-default-spot-check-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 437eb0cd (this iteration's own starting tip, post-PR-#741).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2858 passed, 204 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split). No product/runtime code changed this iteration — docs-only append, so no npm run dev smoke check needed beyond the already-clean build.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-741-env-example-docs-and-cors-default-spot-check-clean",
+    ),
+  },
 ];
