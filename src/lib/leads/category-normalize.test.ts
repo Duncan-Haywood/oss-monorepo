@@ -8,6 +8,7 @@ import {
 } from "./category-normalize";
 import { CATEGORY_DEFAULT_TIER } from "./quality-score";
 import { resolvePreviewLead } from "./demo-catalog";
+import { parseLeadsCsv } from "./csv-import";
 
 describe("normalizeLeadCategory", () => {
   it("passes through every recognized category unchanged", () => {
@@ -63,6 +64,14 @@ describe("defaultTierForCategory cross-site consistency", () => {
       const lead = resolvePreviewLead(slugByCategory[category]);
       expect(lead.category).toBe(category);
       expect(lead.recommendedTier).toBe(defaultTierForCategory(category));
+    }
+  });
+
+  it("CSV import's inferred recommendedTier matches defaultTierForCategory for a blank recommendedTier column", () => {
+    for (const category of BUSINESS_CATEGORIES) {
+      const result = parseLeadsCsv(`businessName,category\nAcme,${category}`);
+      expect(result.leads[0]?.category).toBe(category);
+      expect(result.leads[0]?.recommendedTier).toBe(defaultTierForCategory(category));
     }
   });
 });
