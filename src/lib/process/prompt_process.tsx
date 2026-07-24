@@ -567,4 +567,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "marketing-voice-pack-due-queue-filtered-out-dead-open-fix",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-q3g65m",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 70346445 (PR #713, marketing-voice-pack-due-queue-filtered-out-dead-open-fix) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2842 passed, 202 files — matching the prior iteration's own reported count exactly). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A git for-each-ref sweep of the newest ~9 claude/* branches confirmed each already merged, or (claude/nice-euler-to3z0u) the same stale zero-live-content duplicate multiple prior iterations already documented. The diff-gate against dc0265d2 (the last full tiered sweep's merge commit) showed one product-affecting commit since (c8b04c90, this session's own starting-tip PR #713) — non-empty, so per the waste-reduction rule this session first independently re-verified the dead-click/dead-open due-queue bug class with direct source reads: confirmed all four row-scoped panel states in leads-client.tsx (notesEditSlug, commerceEditSlug, marketingPackOpenSlug, clientVoicePackOpenSlug) now correctly reset filterStage/searchQuery on every due-queue call site while leaving in-row toggles unchanged, closing the class with file:line evidence rather than trusting the log.\n\nDispatched a foreground general-purpose research agent for a fresh tier 1-6 sweep beyond that now-exhausted bug class. Partway through, this session's own worktree directory was unexpectedly reset (cwd flipped from the per-agent worktree to the shared parent checkout, with branch/HEAD/clean-tree state preserved — no data lost) — the dispatched agent hit the identical failure and, unable to run tsc/lint/vitest/build afterward, correctly declined to fabricate a finding and made zero code changes. See post-713-due-queue-bug-class-reconfirmed-exhausted-clean in BUSINESS_DECISIONS for the full detail, the agent's partial pre-failure spot-checks, and a note for future iterations on recovering from this same symptom.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-713-due-queue-bug-class-reconfirmed-exhausted-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a confirmed-still-clean audit entry, not a resolution of any gated item. Diff-gate anchor moves to 70346445 (this iteration's own starting tip).",
+      "Verified under this session's intact toolchain: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2842 passed, unchanged, 202 files). No npm run build / npm run dev smoke check needed — no product/runtime code changed this iteration.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-713-due-queue-bug-class-reconfirmed-exhausted-clean",
+    ),
+  },
 ];
