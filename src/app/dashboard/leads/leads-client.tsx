@@ -2821,7 +2821,7 @@ export function LeadsClient({
                       ) : null}
                     </p>
                     {replyOpenId === inq.id && inquiryCanReceiveReply(inq) ? (
-                      <div className="mt-3 space-y-2">
+                      <div className="mt-3 space-y-2" id={`inquiry-reply-${inq.id}`}>
                         <textarea
                           value={replyDrafts[inq.id] ?? ""}
                           onChange={(e) =>
@@ -2882,6 +2882,8 @@ export function LeadsClient({
                         disabled={isPending}
                         onClick={() => handleToggleReplyComposer(inq)}
                         id={inquiryReplyToggleElementId(inq.id)}
+                        aria-expanded={replyOpenId === inq.id}
+                        aria-controls={`inquiry-reply-${inq.id}`}
                         aria-label={dashboardRowActionAriaLabel(
                           inq.status === "replied" ? "Reply again" : "Reply",
                           inq.businessName,
@@ -3574,6 +3576,8 @@ export function LeadsClient({
                               notesOpen ? closeNotesEditor(lead.slug) : openNotesEditor(lead)
                             }
                             id={leadNotesToggleElementId(lead.slug)}
+                            aria-expanded={notesOpen}
+                            aria-controls={`lead-notes-${lead.slug}`}
                             aria-label={dashboardRowActionAriaLabel(
                               notesOpen ? "Close notes" : leadHasNotes(lead.notes) ? "Edit notes" : "Notes",
                               lead.businessName,
@@ -3721,6 +3725,8 @@ export function LeadsClient({
                                   onClick={() =>
                                     setMarketingPackOpenSlug(packOpen ? null : lead.slug)
                                   }
+                                  aria-expanded={packOpen}
+                                  aria-controls={`lead-pack-${lead.slug}`}
                                   aria-label={dashboardRowActionAriaLabel(
                                     packOpen ? "Hide marketing pack" : "View marketing pack",
                                     lead.businessName,
@@ -3762,6 +3768,8 @@ export function LeadsClient({
                                   : openCommerceEditor(lead)
                               }
                               id={leadCommerceToggleElementId(lead.slug)}
+                              aria-expanded={commerceOpen}
+                              aria-controls={`lead-commerce-${lead.slug}`}
                               aria-label={dashboardRowActionAriaLabel(
                                 commerceOpen
                                   ? "Close catalog"
@@ -3804,6 +3812,8 @@ export function LeadsClient({
                                       voicePackOpen ? null : lead.slug,
                                     )
                                   }
+                                  aria-expanded={voicePackOpen}
+                                  aria-controls={`lead-voice-${lead.slug}`}
                                   aria-label={dashboardRowActionAriaLabel(
                                     voicePackOpen ? "Hide voice pack" : "View voice pack",
                                     lead.businessName,
