@@ -364,7 +364,15 @@ export function LeadsClient({
     setNotesError(null);
     setNotesPromptReason(reason ?? null);
     if (reason) {
-      // Soft prompt from Work next / follow-up queue — bring the row into view.
+      // Soft prompt from a due-queue panel (Follow-ups due / Work next) or a
+      // stage-change/outreach-step milestone — these can fire while the
+      // operator has a stage filter/search active that excludes this lead
+      // from filteredLeads, in which case the row (and this panel) isn't in
+      // the DOM at all and the prompt would silently no-op. Clear both so
+      // the row actually renders, then bring it into view — same fix as
+      // openCommerceEditor's bringIntoView above.
+      setFilterStage("all");
+      setSearchQuery("");
       requestAnimationFrame(() => {
         document
           .getElementById(`lead-notes-${lead.slug}`)
