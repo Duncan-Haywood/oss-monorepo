@@ -542,7 +542,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
               >
                 <span>
                   <span className="font-medium">{lead.businessName}</span>{" "}
-                  <span className="text-zinc-400">({lead.slug})</span> ·{" "}
+                  <span className="text-zinc-500">({lead.slug})</span> ·{" "}
                   <code>{lead.stage}</code>
                 </span>
                 <Link

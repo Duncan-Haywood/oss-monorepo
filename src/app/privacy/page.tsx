@@ -49,7 +49,7 @@ export default function PrivacyPage() {
           Back to home
         </Link>
       </p>
-      <p className="mt-4 text-xs text-zinc-400">{marketingFooterLine()}</p>
+      <p className="mt-4 text-xs text-zinc-500">{marketingFooterLine()}</p>
     </main>
   );
 }

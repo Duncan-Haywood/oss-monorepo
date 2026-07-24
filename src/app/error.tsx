@@ -28,7 +28,7 @@ export default function ErrorBoundary({
       <p className="mt-4 text-lg leading-8 text-zinc-600">
         It&rsquo;s not you — try again, or head back to the homepage.
         {error.digest && (
-          <span className="mt-2 block text-sm text-zinc-400">Reference: {error.digest}</span>
+          <span className="mt-2 block text-sm text-zinc-500">Reference: {error.digest}</span>
         )}
       </p>
       <div className="mt-10 flex flex-col gap-4 sm:flex-row">
