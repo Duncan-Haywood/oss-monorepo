@@ -318,6 +318,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-7rdjcd",
   },
+  {
+    id: "bundle-order-refund-dispute-panel-aria-live-gap-fix",
+    summary:
+      "Found the due-queue-panel-aria-live-removals entry's own claimed coverage was incomplete: its single replace_all edit targeted the literal string `<ul className=\"mt-4 space-y-3\">`, but the Bundle order refunds & disputes panel's `<ul>` (leads-client.tsx:2157) uses `space-y-2` instead — one class name different from every sibling due-queue panel — so it was silently skipped despite being explicitly named as covered in that same entry's rationale. Added aria-live=\"polite\" aria-relevant=\"removals\" to that one `<ul>` (space-y-2 left untouched, out of scope) so all 17 due-queue panels now announce row removals uniformly.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-mz3dnt",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -726,6 +734,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "dashboard-leads-table-per-row-linear-scan-to-map-lookup",
+    ),
+  },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-mz3dnt",
+    summary:
+      "Resumed unattended session, picked up at origin/main tip 850ead5d (PR #724, dashboard-leads-table-per-row-linear-scan-to-map-lookup) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2853 passed, 203 files — matching prior iterations exactly). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, stale human draft). Checked the newest few claude/nice-euler-* / claude/upbeat-dijkstra-* remote branches by commit time for a live fold candidate — all zero-diff against origin/main (already merged under a different squash SHA) — no live fold candidate. Read AGENT_PROTOCOL + the tail of ITERATIONS directly rather than dispatching a fresh research sweep, per the accessibility series' own note that the axis was independently re-verified clean multiple times.\n\nThat direct read turned up a real gap in the series' own prior claim: due-queue-panel-aria-live-removals (this log, above) says a single replace_all on `<ul className=\"mt-4 space-y-3\">` covered all 16 due-queue panels, explicitly naming 'Bundle order refunds & disputes' among them and asserting the string matched exactly 16 times in the file. Reading leads-client.tsx directly (not trusting the count) found that panel's actual `<ul>` (line 2157) uses `space-y-2`, not `space-y-3` — a one-word difference from every sibling that made the replace_all silently skip it. `aria-relevant=\"removals\"` grepped to exactly 16 occurrences pre-fix, confirming the gap.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx:2157 — added aria-live=\"polite\" aria-relevant=\"removals\" to the Bundle order refunds & disputes panel's `<ul>` (kept its pre-existing space-y-2 spacing untouched, unrelated to this fix). This is a genuine due-queue list — a reversed refund/dispute clears refundedAt/disputedAt server-side and drops the row on next refresh, same shrink-in-place shape as the other 16 panels — so the same live-region treatment applies for the same reason.",
+      "src/lib/process/business-decisions.ts — appended bundle-order-refund-dispute-panel-aria-live-gap-fix.",
+      "src/lib/process/prompt_process.tsx — appended a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a gap left by an earlier accessibility fix, not a resolution of any gated item. Diff-gate anchor moves to 850ead5d (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2853 passed, unchanged, 203 files — pure markup attribute addition, no test harness exists for this bug class, same as every prior aria-live fix in this series) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "bundle-order-refund-dispute-panel-aria-live-gap-fix",
     ),
   },
 ];

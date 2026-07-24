@@ -2154,7 +2154,7 @@ export function LeadsClient({
             Recorded revenue. Visibility only (no payout to claw back on this ledger); named here
             so you know which client to follow up with.
           </p>
-          <ul className="mt-4 space-y-2">
+          <ul className="mt-4 space-y-2" aria-live="polite" aria-relevant="removals">
             {bundleOrderRefunds.map((order) => (
               <li
                 key={`refund-${order.stripeSessionId}`}
