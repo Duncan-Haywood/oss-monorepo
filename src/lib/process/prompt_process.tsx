@@ -601,4 +601,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "csv-import-parse-tier-blocked-pr-recovered-plus-nine-angle-clean-audit",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-wzi1ts",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip af6ad939 (PR #736, docs-only) — HEAD matched origin/main exactly at session start. Confirmed baseline green and reconfirmed PR #202 is the sole (unrelated, stale) open PR. A full remote-heads fetch and fold-scan found no live undiffed sibling branch worth folding — every nonzero-ahead branch checked out as stale/superseded content, not real pending work.\n\nDiff-gate found only a docs-only commit since the last full clean-sweep anchor, so per the waste-reduction rule this iteration skipped a full five-tier re-dispatch and instead sent a read-only research agent to independently re-verify the two tier-6/7/8 candidates a prior iteration had named but not yet reconfirmed: dashboard keyboard/screen-reader operability for any panel added after the accessibility series closed, and Convex index coverage for any handler added since the last index audit. Both came back clean against current source (all 7 leads-client.tsx toggles have matching aria-expanded/aria-controls; all 17 due-queue panels have aria-live removals; no true modal/focus-trap surface exists in the app; every Convex lookup-by-key query uses .withIndex; the only bare .collect() scans are the previously-documented uncapped debt lists and the documented leads.list ordering-parity workaround). See dashboard-a11y-and-convex-index-reaudit-clean in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended dashboard-a11y-and-convex-index-reaudit-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to af6ad939 (this iteration's own starting tip, post-PR-#736).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2858 passed, 204 files, unchanged — no product code touched this iteration). No npm run build / npm run dev smoke check needed — no product/runtime code changed in this branch, docs-only append.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "dashboard-a11y-and-convex-index-reaudit-clean",
+    ),
+  },
 ];
