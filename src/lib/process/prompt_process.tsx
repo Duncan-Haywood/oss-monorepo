@@ -615,4 +615,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "dashboard-a11y-and-convex-index-reaudit-clean",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-vrrnzi",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 69609182 (PR #737, dashboard-a11y-and-convex-index-reaudit-clean, merged prior session) — HEAD matched origin/main exactly at session start. Fresh checkout had no node_modules; npm ci completed clean (409 packages, 0 vulnerabilities). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A full remote-heads fetch found seven branches with a nonzero ahead-count against origin/main, but each diffed byte-identical (by commit subject + content) against an already-merged main commit under a different branch name — no live fold candidate.\n\nDiff-gate (`git log --oneline af6ad939..origin/main -- src convex .github/workflows`) found only PR #737's own docs-only commit since the last verified-clean anchor, so per the waste-reduction rule this iteration skipped a full five-tier sweep and instead ran three fast, previously-unlogged spot-checks: npm audit (0 vulnerabilities, re-confirmed post-fresh-install), a repo-wide scan for empty/silent catch blocks in payment-critical files (none — every catch either rethrows, returns a typed error, or records an operator-visible note), and a direct review of every dynamic-URL fetch() call site in src/lib for SSRF risk (Vercel Domains API, Anthropic, Resend, Buffer — all use fixed API bases with only pre-validated/encoded identifiers interpolated in). All three came back clean.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-736-npm-audit-ssrf-catch-block-spot-check-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 69609182 (this iteration's own starting tip, post-PR-#737).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2858 passed, 204 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, same 42-route ○/ƒ split) + npm run dev sanity check (/dashboard/leads 200, /preview/example-bakery 200; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-736-npm-audit-ssrf-catch-block-spot-check-clean",
+    ),
+  },
 ];
