@@ -309,6 +309,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-to3z0u",
   },
+  {
+    id: "operator-login-form-error-aria-invalid-describedby",
+    summary:
+      "Empty-backlog audit — natural sibling gap left by dashboard-form-error-aria-invalid-describedby, which only touched leads-client.tsx. The operator sign-in page (src/app/dashboard/login/page.tsx) has a single password input and a server-rendered 'Incorrect password'/'Too many attempts' error paragraph — the same clean field-to-error shape as the just-fixed Add-Lead/CSV/notes cases, just on a file that pass never scanned. Added aria-invalid + a conditional aria-describedby on the password input, pointing at a new stable id on whichever error paragraph renders. Checked the public checkout form (src/app/checkout/checkout-form.tsx) too and deliberately left it alone: its error banner covers three unrelated failure causes across several inputs with no single field it can be attributed to, so forcing an aria-describedby there would misrepresent which field is 'invalid' rather than fix anything.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-7rdjcd",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -594,6 +602,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "dashboard-form-error-aria-invalid-describedby",
+    ),
+  },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-7rdjcd",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip cffe43f (PR #715, dashboard-form-error-aria-invalid-describedby) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2842 passed, 202 files — matching the prior iteration's own reported count exactly). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (643 remote heads) of the newest ~12 claude/* branches found every one already merged except the same previously-documented stale duplicate (claude/nice-euler-to3z0u, still 1 ahead, its sole commit already merged verbatim as c29a3aa under #705) — no live fold candidate. The empty-backlog diff-gate against the documented anchor (67c4f91e) showed exactly one commit since (16518f72, the prior iteration's own already-documented entry) — a nineteenth consecutive zero-product-diff window, so rather than a from-scratch tier 1-5 sweep, went straight at the natural unaudited sibling of the just-shipped fix: dashboard-form-error-aria-invalid-describedby only scanned leads-client.tsx, but two other real forms in the app render a validation error paragraph next to an input — the operator login page and the public checkout form. Read both directly.",
+    shipped: [
+      "src/app/dashboard/login/page.tsx — added a stable id on whichever error paragraph renders (invalid or rate_limited — mutually exclusive) and aria-invalid + conditional aria-describedby on the password input, mirroring the exact pattern dashboard-form-error-aria-invalid-describedby used.",
+      "src/app/checkout/checkout-form.tsx — deliberately left unchanged: its error banner covers three failure causes (non-2xx response, missing checkout URL, network exception) with no single input it maps to; associating it with one field via aria-describedby would misrepresent which field is 'invalid'. Its existing role=\"alert\" already handles immediate announcement correctly for a form-wide error.",
+      "src/lib/process/business-decisions.ts — appended operator-login-form-error-aria-invalid-describedby.",
+      "src/lib/process/prompt_process.tsx — appended a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is an accessibility-correctness fix, not a resolution of any gated item. Diff-gate anchor moves to cffe43f (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2842 passed, unchanged — no test harness exists for this bug class) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + curl checks of all three login-page states (default/invalid/rate_limited) against OPERATOR_DASHBOARD_PASSWORD=testpass123 npm run dev confirming exact aria-invalid/aria-describedby values + a real-browser Playwright check (globally-installed, /opt/pw-browsers/chromium-1194) confirming the id/describedby pair actually resolves to the rendered error text; noted (but did not investigate — pre-existing, reproduced identically on an untouched page, unrelated to this diff) a batch of dev-mode CSP 'Refused to apply inline style' console warnings; dev server killed, port 3000 confirmed freed, local.db deleted afterward.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "operator-login-form-error-aria-invalid-describedby",
     ),
   },
 ];

@@ -47,6 +47,7 @@ export default async function DashboardLoginPage({ searchParams }: LoginPageProp
 
       {rateLimited ? (
         <p
+          id="operator-login-error"
           className="mt-6 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-800"
           role="alert"
         >
@@ -54,6 +55,7 @@ export default async function DashboardLoginPage({ searchParams }: LoginPageProp
         </p>
       ) : invalid ? (
         <p
+          id="operator-login-error"
           className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
           role="alert"
         >
@@ -70,6 +72,8 @@ export default async function DashboardLoginPage({ searchParams }: LoginPageProp
             name="password"
             required
             autoComplete="current-password"
+            aria-invalid={invalid || rateLimited}
+            aria-describedby={invalid || rateLimited ? "operator-login-error" : undefined}
             className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-zinc-500 focus:outline-none"
           />
         </label>
