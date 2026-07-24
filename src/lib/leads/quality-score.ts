@@ -333,14 +333,6 @@ export function scoreLead(
   };
 }
 
-export function scoreLeads(
-  leads: Lead[],
-  nowMs: number,
-  options?: LeadScoreOptions,
-): LeadQualityResult[] {
-  return leads.map((lead) => scoreLead(lead, nowMs, options));
-}
-
 /** Actionable leads sorted highest score first (operator "Work next" queue). */
 export function rankLeadsForOutreach(
   leads: Lead[],
@@ -348,7 +340,8 @@ export function rankLeadsForOutreach(
   limit = 8,
   options?: LeadScoreOptions,
 ): LeadQualityResult[] {
-  return scoreLeads(leads, nowMs, options)
+  return leads
+    .map((lead) => scoreLead(lead, nowMs, options))
     .filter((r) => r.actionable)
     .sort((a, b) => b.score - a.score || a.slug.localeCompare(b.slug))
     .slice(0, limit);
