@@ -586,4 +586,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "csv-import-parse-tier-fourth-duplicate-fix",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-wr2uqr",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 55eb3f40 (PR #734) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2857 passed, 204 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202. A fold-scan of the newest ~25 remote heads found one genuinely live candidate: claude/nice-euler-jnhgjk (csv-import-parse-tier-fourth-duplicate-fix), a complete, green, fully-documented fix left unmerged only because its originating session hit a bare `500 []` on 11 straight mcp__github__create_pull_request attempts. Re-attempted PR creation for the same branch/base from this session — succeeded immediately as PR #735, confirming the block was transient infra flakiness rather than durable. Merged PR #735, attempted (and failed, 403, no delete permission, as previously documented) to delete the branch ref, then reset to the fresh origin/main tip (9e55dde2) and re-verified baseline green.\n\nDiff-gate found one real product-affecting commit since the prior anchor (this session's own #735 merge), so dispatched a research agent for a fresh audit pass, explicitly briefed on the full closed-axis list from this log and steered at nine previously-unaudited angles: operator session cookie flags, Next.js error/not-found boundaries, startup env-var validation coverage, N+1 patterns outside leads-client.tsx, React list-key correctness, useEffect cleanup, Convex function-level authorization, a possible fifth duplicated-helper instance, and sitemap.ts/robots.ts correctness. It came back clean on all nine with concrete source-level citations for each. See csv-import-parse-tier-blocked-pr-recovered-plus-nine-angle-clean-audit in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "GitHub: merged PR #735 (claude/nice-euler-jnhgjk → main), recovering csv-import-parse-tier-fourth-duplicate-fix — no new code in this branch beyond that merge and this process-log entry.",
+      "src/lib/process/business-decisions.ts — appended csv-import-parse-tier-blocked-pr-recovered-plus-nine-angle-clean-audit.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 9e55dde2 (this iteration's own starting tip, post-PR-#735).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2858 passed, 204 files, matching PR #735's own reported count). No npm run build / npm run dev smoke check needed — no product/runtime code changed in this branch beyond the already-verified #735 merge.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "csv-import-parse-tier-blocked-pr-recovered-plus-nine-angle-clean-audit",
+    ),
+  },
 ];
