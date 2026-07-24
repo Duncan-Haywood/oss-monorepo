@@ -103,6 +103,51 @@ describe("readJsonBodyWithByteLimit", () => {
     const result = await readJsonBodyWithByteLimit(req);
     expect(result).toEqual({ ok: false, reason: "invalid_json" });
   });
+
+  it("stops reading a chunked (no Content-Length) stream as soon as it exceeds the max, instead of buffering the whole body", async () => {
+    // Simulates a chunked-transfer request: no Content-Length header, body
+    // arrives as a stream. A malicious/misbehaving client could keep this
+    // stream open indefinitely; the reader must bail after ~maxBytes rather
+    // than draining every chunk first (the DoS this guards against).
+    const chunkBytes = new TextEncoder().encode("a".repeat(1024));
+    const totalChunksToOffer = 10_000; // far more than needed to cross the cap
+    let chunksPulled = 0;
+    let cancelled = false;
+
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (cancelled || chunksPulled >= totalChunksToOffer) {
+          controller.close();
+          return;
+        }
+        chunksPulled += 1;
+        controller.enqueue(chunkBytes);
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+
+    const req = new Request("http://localhost/api/test", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: stream,
+      // @ts-expect-error - required by undici/Node's fetch impl for streamed bodies
+      duplex: "half",
+    });
+    expect(req.headers.get("content-length")).toBeNull();
+
+    const result = await readJsonBodyWithByteLimit(req);
+
+    expect(result).toEqual({ ok: false, reason: "too_large" });
+    // Must have stopped well short of offering all 10,000 chunks (~10 MiB) —
+    // bounds the number of chunks actually buffered before bailing.
+    const chunksNeededToExceedCap = Math.ceil(
+      MAX_PUBLIC_JSON_BODY_BYTES / chunkBytes.byteLength,
+    );
+    expect(chunksPulled).toBeLessThanOrEqual(chunksNeededToExceedCap + 1);
+    expect(cancelled).toBe(true);
+  });
 });
 
 function formRequest(

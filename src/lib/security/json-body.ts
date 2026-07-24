@@ -7,11 +7,19 @@
  * per-request payload size — a public caller can still force multi-MB parse
  * work under the window.
  *
- * Prefer Content-Length pre-check (cheap reject) + arrayBuffer byteLength
- * (covers missing / understated Content-Length). Soft-cap is wrong (would
- * change parsed fields); fail closed with 400. Stripe webhook stays on
- * unbounded `request.text()` — Stripe signs the raw payload and can exceed
- * this ceiling.
+ * Prefer Content-Length pre-check (cheap reject) for a fast path, but never
+ * rely on it alone: a chunked-transfer request (no Content-Length, or one
+ * that understates the real size) must still be bounded while it's being
+ * read. `request.arrayBuffer()` fully drains the body into memory before
+ * any length check can run, so a single unauthenticated request with no
+ * Content-Length and a multi-GB streamed body would otherwise force
+ * unbounded allocation ahead of the cap — the read loop below streams via
+ * `request.body.getReader()` and cancels as soon as the running total
+ * exceeds maxBytes, so memory use is bounded to ~maxBytes regardless of how
+ * much the client tries to send. Soft-cap is wrong (would change parsed
+ * fields); fail closed with 400. Stripe webhook stays on unbounded
+ * `request.text()` — Stripe signs the raw payload and can exceed this
+ * ceiling.
  *
  * Form-urlencoded / multipart POSTs share the same ceiling via
  * readFormBodyWithByteLimit (public-formdata-body-byte-length-cap) — a
@@ -61,15 +69,37 @@ async function readBoundedArrayBuffer(
     return { ok: false, reason: "too_large" };
   }
 
-  let buf: ArrayBuffer;
+  if (!request.body) {
+    return { ok: true, buf: new ArrayBuffer(0) };
+  }
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+
   try {
-    buf = await request.arrayBuffer();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value) continue;
+
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel("too_large").catch(() => {});
+        return { ok: false, reason: "too_large" };
+      }
+      chunks.push(value);
+    }
   } catch {
     return { ok: false, reason: "read_error" };
   }
 
-  if (buf.byteLength > maxBytes) {
-    return { ok: false, reason: "too_large" };
+  const buf = new ArrayBuffer(total);
+  const out = new Uint8Array(buf);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.byteLength;
   }
   return { ok: true, buf };
 }

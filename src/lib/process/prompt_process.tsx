@@ -693,4 +693,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "stripe-connect-status-cache-convex-fail-closed",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-39nf2o",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip a663c206 (PR #693, stripe-connect-status-cache-convex-fail-closed) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2797 passed, 200 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` plus `git merge-base --is-ancestor` against origin/main for the newest ~8 claude/* branches confirmed every one already merged (squash-merged under a new SHA) — no live fold candidate.\n\nThe immediately preceding iteration shipped a real product change, so the diff-gate called for a full tiered sweep rather than a fast spot-check. Dispatched a foreground research agent (Explore), weighted toward tiers 2-5 since recent iterations skewed toward tier-1 landing cards and growth/SEO. It found a real tier-3 security/resource-exhaustion gap in src/lib/security/json-body.ts — see json-body-streamed-read-bound in BUSINESS_DECISIONS for the full detail and the two runner-ups it ruled out.",
+    shipped: [
+      "src/lib/security/json-body.ts — readBoundedArrayBuffer now streams the request body via request.body.getReader() instead of request.arrayBuffer(), tracking a running byte total and calling reader.cancel() + returning too_large as soon as that total exceeds maxBytes — bounds memory use to ~maxBytes regardless of body size, closing a gap where a chunked-transfer request with no/understated Content-Length was fully buffered into memory before the size check ever ran. Both readJsonBodyWithByteLimit and readFormBodyWithByteLimit (and by extension all six routes that call through them) get the fix with no call-site changes. Removed the now-unreachable post-hoc byteLength check; rewrote the file's top doc comment to describe the streaming contract.",
+      "Tests: src/lib/security/json-body.test.ts — new case using a synthetic ReadableStream (no Content-Length header, far more chunks offered than needed to cross the cap) asserting early too_large rejection, that reader.cancel() fired, and that the number of chunks actually pulled stayed bounded near the cap rather than draining the full stream.",
+      "src/lib/process/business-decisions.ts — appended json-body-streamed-read-bound.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a security hardening fix on an already-shipped shared primitive, not a resolution of any gated item. Diff-gate anchor moves to a663c206 (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2798 passed, up from 2797 — 1 new, 200 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check against the real Next.js/undici runtime (/, /docs/process 200; POSTed a small real JSON body to /api/contact/demo-cafe and confirmed no runtime error reading/parsing the body; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "json-body-streamed-read-bound",
+    ),
+  },
 ];
