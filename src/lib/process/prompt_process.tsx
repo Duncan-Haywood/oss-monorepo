@@ -877,4 +877,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "dashboard-inline-editor-close-focus-restore",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-13ndh0",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip ea5e260 (PR #703, dashboard-inline-editor-close-focus-restore) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2839 passed, 202 files — matching the prior iteration's own reported count exactly). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git for-each-ref --sort=-committerdate refs/remotes/origin` sweep of the newest 10 claude/* branches after origin/main found three with a nonzero diff (upbeat-dijkstra-r2ml1h, nice-euler-sqwl6z, upbeat-dijkstra-39nf2o), each a single commit already merged into origin/main under a different SHA (docs spot-check after #695, the Buffer-mapping feature merged as #695, and the request-body byte-limit fix) — no live fold candidate. The diff-gate against the documented anchor (fbe6665c) showed zero commits since the prior iteration's own already-documented entry — an eighth consecutive zero-product-diff window, so per the waste-reduction rule this skipped a from-scratch tiered sweep and went straight to the third, explicitly-deferred finding named in that same prior entry: missing aria-pressed on the leads dashboard's 'Sort by quality' toggle and the seven Kanban stage-filter cards.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — added aria-pressed={sortByQuality} to the 'Sort by quality' toggle button, and aria-pressed={filterStage === \"all\"} / aria-pressed={filterStage === s.id} to the 'All Stages' card and each STAGES.map() Kanban filter card respectively; also added the missing type=\"button\" to the three Kanban filter card buttons (the sort toggle already had it).",
+      "src/lib/process/business-decisions.ts — appended leads-dashboard-sort-filter-aria-pressed.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is an accessibility hardening fix, not a resolution of any gated item. Diff-gate anchor moves to ea5e260 (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2839 passed, unchanged — no new tests needed, a literal aria-pressed binding has no derivable pure logic to extract) + npm run dev sanity check (curled the rendered /dashboard/leads HTML and grepped aria-pressed attributes: 2 true — Sort by quality + All Stages, both default-active — and 7 false — the six non-active STAGES cards — exactly matching expected default state; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "leads-dashboard-sort-filter-aria-pressed",
+    ),
+  },
 ];

@@ -2896,6 +2896,7 @@ export function LeadsClient({
           <button
             type="button"
             onClick={() => setSortByQuality((v) => !v)}
+            aria-pressed={sortByQuality}
             className={`inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${
               sortByQuality
                 ? "border-rose-300 bg-rose-50 text-rose-900"
@@ -3303,7 +3304,9 @@ export function LeadsClient({
       {/* Kanban Filters */}
       <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
         <button
+          type="button"
           onClick={() => setFilterStage("all")}
+          aria-pressed={filterStage === "all"}
           className={`flex flex-col rounded-xl border p-4 text-left transition ${
             filterStage === "all"
               ? "border-zinc-950 bg-zinc-50 shadow-sm"
@@ -3321,7 +3324,9 @@ export function LeadsClient({
           return (
             <button
               key={s.id}
+              type="button"
               onClick={() => setFilterStage(s.id)}
+              aria-pressed={filterStage === s.id}
               className={`flex flex-col rounded-xl border p-4 text-left transition ${
                 filterStage === s.id
                   ? "border-zinc-950 bg-zinc-50 shadow-sm"
