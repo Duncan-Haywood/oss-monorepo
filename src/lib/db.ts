@@ -567,17 +567,26 @@ export async function updateLeadStripeConnectAccountId(
  * status check (checkStripeConnectAccountStatusAction) — a display cache for
  * pipeline-health/digest visibility (see
  * stripe-connect-onboarding-pipeline-health-visibility), not the source of
- * truth (Stripe's own account object is). Deliberately best-effort, same
- * class as updateLeadBufferPostedVariantKeys: this runs right after a
- * successful live status fetch that has already been returned to the
- * operator, so a persistence failure must not turn that success into a
- * reported error — it falls back to SQLite (or, on total failure, the caller
- * logs and moves on) rather than throwing.
+ * truth (Stripe's own account object is). Pass
+ * LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY (requireConvex: true) so a
+ * Convex mutation failure throws instead of silently caching the fresh
+ * status to instance-local SQLite only — getLeads/getLeadBySlug read
+ * Convex-first, and connectOnboardingIncompleteCount reads this same cache
+ * across every instance, so an unconditional SQLite fallback here would
+ * split-brain the due-queue count until a later check happened to succeed
+ * (see stripe-connect-status-cache-convex-fail-closed). This is NOT the same
+ * class as updateLeadBufferPostedVariantKeys, which has no pipeline-health
+ * consumer to diverge. The caller already wraps this call in a try/catch
+ * that swallows any error (including the ConvexPrimaryWriteError this can
+ * now throw) — an already-successful live status check must never be turned
+ * into a reported error, so failing closed here means "skip persistence,"
+ * not "fail the request."
  */
 export async function updateLeadStripeConnectStatus(
   slug: string,
   status: { chargesEnabled: boolean; payoutsEnabled: boolean; detailsSubmitted: boolean },
   checkedAt: string,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
@@ -591,6 +600,9 @@ export async function updateLeadStripeConnectStatus(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadStripeConnectStatus", e);
+      }
       console.warn(
         `Failed to persist Stripe Connect status for ${slug} on Convex, falling back to SQLite database`,
         e,

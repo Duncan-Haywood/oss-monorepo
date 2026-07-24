@@ -1805,13 +1805,27 @@ source). The same digest also lists email-critical leads with no usable address 
         fail-closed persisted field — <strong>account creation and status-checking carry no
         money-movement risk</strong>. Since{" "}
         <code>stripe-connect-onboarding-pipeline-health-visibility</code> (2026-07-23),{" "}
-        <code>checkStripeConnectAccountStatusAction</code> also best-effort caches its live result
-        onto the lead (<code>stripeConnectChargesEnabled</code>/
-        <code>stripeConnectPayoutsEnabled</code>/<code>stripeConnectDetailsSubmitted</code>/
-        <code>stripeConnectStatusCheckedAt</code>, plus a set-once{" "}
-        <code>stripeConnectAccountCreatedAt</code> written alongside the account id) — a display
-        cache only (Stripe&apos;s own account object stays the source of truth), so a persist
-        failure never turns an already-successful live check into a reported error. This closes a
+        <code>checkStripeConnectAccountStatusAction</code> also caches its live result onto the
+        lead (<code>stripeConnectChargesEnabled</code>/<code>stripeConnectPayoutsEnabled</code>/
+        <code>stripeConnectDetailsSubmitted</code>/<code>stripeConnectStatusCheckedAt</code>,
+        plus a set-once <code>stripeConnectAccountCreatedAt</code> written alongside the account
+        id) — a display cache only (Stripe&apos;s own account object stays the source of truth).
+        This cache write now passes{" "}
+        <code>LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY</code> (requireConvex fail-closed, same
+        shape as <code>LEAD_STRIPE_CONNECT_CONVEX_PRIMARY</code> above) as of{" "}
+        <code>stripe-connect-status-cache-convex-fail-closed</code> (2026-07-24) — originally
+        shipped as an unconditional Convex→SQLite fallback (&quot;best-effort, same class as{" "}
+        <code>updateLeadBufferPostedVariantKeys</code>&quot;), which turned out to be the wrong
+        precedent: unlike the Buffer field, this cache feeds{" "}
+        <code>connectOnboardingIncompleteCount</code>, a cross-instance due-queue metric that
+        reads Convex-first, so a Convex mutation failure previously wrote the freshly checked
+        status to instance-local SQLite only — silently split-braining that count until a later
+        check happened to land on Convex successfully. Failing closed here means{" "}
+        <em>skip persistence</em>, not <em>fail the request</em>:{" "}
+        <code>checkStripeConnectAccountStatusAction</code> still wraps the persist call in a
+        try/catch that swallows the resulting <code>ConvexPrimaryWriteError</code> the same as
+        any other persist failure, so an already-successful live check is never turned into a
+        reported error. This closes a
         real visibility gap flagged by <code>buffer-token-header-not-query</code>: Connect
         onboarding status previously had zero visibility outside each lead&apos;s own Payouts
         panel, unlike every other due-queue signal in this codebase.{" "}

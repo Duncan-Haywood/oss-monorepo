@@ -60,7 +60,10 @@ import { INQUIRY_REPLY_CONVEX_PRIMARY } from "@/lib/inquiries/reply-persist";
 import { COLD_DISPOSITION_CONVEX_PRIMARY } from "@/lib/leads/cold-disposition-persist";
 import { LEAD_NOTES_CONVEX_PRIMARY } from "@/lib/leads/notes-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
-import { LEAD_STRIPE_CONNECT_CONVEX_PRIMARY } from "@/lib/leads/stripe-connect-persist";
+import {
+  LEAD_STRIPE_CONNECT_CONVEX_PRIMARY,
+  LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY,
+} from "@/lib/leads/stripe-connect-persist";
 import { LEAD_BUFFER_PROFILES_CONVEX_PRIMARY } from "@/lib/leads/buffer-profiles-persist";
 import { LEAD_STAGE_CONVEX_PRIMARY } from "@/lib/leads/stage-persist";
 import { LEAD_UPSERT_CONVEX_PRIMARY } from "@/lib/leads/upsert-persist";
@@ -3046,12 +3049,21 @@ export async function checkStripeConnectAccountStatusAction(slug: string) {
     const stripe = new Stripe(secretKey);
     const status = await fetchConnectAccountStatus(stripe, lead.stripeConnectAccountId);
 
-    // Best-effort cache for pipeline-health/digest visibility (see
-    // stripe-connect-onboarding-pipeline-health-visibility) — a persistence
-    // failure here must not turn this already-successful live check into a
-    // reported error; the operator already sees the correct status this call.
+    // Cache for pipeline-health/digest visibility (see
+    // stripe-connect-onboarding-pipeline-health-visibility). Passes
+    // LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY so a Convex failure fails
+    // closed inside updateLeadStripeConnectStatus (skips the SQLite write
+    // rather than split-braining the cache other instances read
+    // Convex-first) — but that failure must still not turn this
+    // already-successful live check into a reported error, so it's caught
+    // and swallowed here same as before.
     try {
-      await updateLeadStripeConnectStatus(slug, status, new Date().toISOString());
+      await updateLeadStripeConnectStatus(
+        slug,
+        status,
+        new Date().toISOString(),
+        LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY,
+      );
     } catch (persistError) {
       console.warn(
         `Failed to persist Stripe Connect status for ${slug}`,

@@ -21,3 +21,27 @@ import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 export const LEAD_STRIPE_CONNECT_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
   requireConvex: true,
 };
+
+/**
+ * Fail-closed write options for the Stripe Connect onboarding status cache
+ * (updateLeadStripeConnectStatus's stripeConnectChargesEnabled/
+ * stripeConnectPayoutsEnabled/stripeConnectDetailsSubmitted/
+ * stripeConnectStatusCheckedAt fields).
+ *
+ * getLeads/getLeadBySlug read Convex-first, and connectOnboardingIncompleteCount
+ * (pipeline-health/digest) reads this cache across every instance. Without
+ * requireConvex, a Convex mutation failure here silently wrote the freshly
+ * checked status to instance-local SQLite only — a Convex-backed deployment's
+ * getLeads() would keep serving the stale pre-check value on every other
+ * instance until the operator happened to re-click "Check status" and Convex
+ * happened to succeed, the same split-brain shape LEAD_STRIPE_CONNECT_CONVEX_PRIMARY
+ * exists to prevent for the account id itself (see
+ * stripe-connect-status-cache-convex-fail-closed). The caller
+ * (checkStripeConnectAccountStatusAction) still wraps the persist call in a
+ * try/catch that swallows any resulting ConvexPrimaryWriteError — an
+ * already-successful live status check must never be reported as an error —
+ * so fail-closed here means "skip persistence," not "fail the request."
+ */
+export const LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
+  requireConvex: true,
+};
