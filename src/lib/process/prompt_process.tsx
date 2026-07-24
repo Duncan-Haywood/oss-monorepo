@@ -334,6 +334,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-mz3dnt",
   },
+  {
+    id: "generic-lead-default-tagline-restaurant-leak",
+    summary:
+      "mapSqliteRowToLead and buildPaymentStubLeadFields (shared by SQLite recordLeadPayment and Convex markLeadPaid) each duplicated csv-import.ts's defaultTagline(category) mapping instead of importing it, and both duplicates collapsed the 4-way BusinessCategory split into 3 — giving category=\"generic\" leads (every organic/no-slug Stripe checkout stub, plus any dashboard-added lead left at the default category with a blank tagline) the same hardcoded restaurant tagline ('Local favorites made fresh daily') as actual restaurants on their live public /preview/[slug] hero. Extracted the mapping into a new shared src/lib/leads/default-tagline.ts (mirroring the category-normalize.ts precedent) and rewired all three call sites through it; fixed two existing tests that had locked the wrong tagline in as spec.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-5wamwy",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -801,6 +809,26 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "post-727-actions-test-coverage-mapping-and-file-size-flag",
+    ),
+  },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-5wamwy",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 8932ece2 / 95d3733a (PR #728, post-727-actions-test-coverage-mapping-and-file-size-flag, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2853 passed, 203 files — matching prior iterations exactly). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep found four unmerged branches with no open PR (claude/nice-euler-mz3dnt, claude/upbeat-dijkstra-4jzslt, claude/nice-euler-kdqxni, claude/upbeat-dijkstra-7rdjcd); diffed each against origin/main and confirmed all four are pure subsets — their own feature content already landed under a different squash SHA via PRs #724-#727, leaving only stale, already-superseded commits. Attempted `git push origin --delete` on all four and hit the same previously-documented 403 (merged-branch-cleanup-verified-no-delete-permission) — logged them again as verified-safe-to-delete for a delete-capable session rather than retrying. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft).\n\nDiff-gate check (`git log --oneline 8932ece2..HEAD -- src convex .github/workflows`) found only the docs-only PR #728 commit — no product-affecting change since the last verified-clean anchor — so per the waste-reduction rule this iteration skipped a full five-tier re-sweep and dispatched a research agent instead, explicitly briefed on the full list of axes this log has already closed (Convex/SQLite parity, security/injection, untested orchestration, money/ledger integrity, docs staleness, dashboard accessibility, O(n) linear-scan-to-map-lookup perf, LLM prompt-injection, Stripe Connect + Buffer scaffolds, USD-cents rounding, non-null assertions, unhandled promise rejections, CSV capacity math, timezone/hydration, responsive layout) and steered at fresh candidate classes (edge cases in newer small files, race conditions, boundary bugs in date/cadence logic, misleading error messages, tests that lock in wrong behavior, duplicated-instead-of-reused helpers).\n\nIt found a real one: mapSqliteRowToLead (src/lib/leads/sqlite-row-mapping.ts) and buildPaymentStubLeadFields (src/lib/leads/payment-stub.ts, shared by SQLite recordLeadPayment AND Convex markLeadPaid) each independently duplicated csv-import.ts's defaultTagline(category) mapping rather than importing it — and both duplicates silently collapsed the 4-way BusinessCategory split (restaurant/salon/trades/generic) into 3, giving category=\"generic\" leads the same hardcoded 'Local favorites made fresh daily' restaurant tagline as actual restaurants. Every organic/no-slug Stripe checkout mints a category:\"generic\" stub lead via buildPaymentStubLeadFields, and the dashboard's own Add-lead form defaults to category=\"generic\" with a blankable tagline field, so a real non-restaurant paying customer's live public /preview/[slug] hero could read that nonsensical restaurant tagline. Two existing Vitest cases had locked the wrong value in as spec rather than catching it. See generic-lead-default-tagline-restaurant-leak in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/leads/default-tagline.ts (new) — extracted defaultTagline(category) as a shared pure helper, mirroring the category-normalize.ts precedent; avoids an import cycle since csv-import.ts already imports FROM sqlite-row-mapping.ts.",
+      "src/lib/leads/csv-import.ts — removed its private defaultTagline in favor of importing the shared one; call site unchanged.",
+      "src/lib/leads/sqlite-row-mapping.ts — mapSqliteRowToLead's tagline fallback now calls defaultTagline(category) instead of a 3-way ternary that collapsed restaurant/generic together.",
+      "src/lib/leads/payment-stub.ts — buildPaymentStubLeadFields's hardcoded restaurant tagline replaced with defaultTagline(\"generic\"); convex/leads.ts's markLeadPaid already imports this same helper, so both backends are fixed by one change.",
+      "src/lib/leads/sqlite-row-mapping.test.ts, src/lib/leads/payment-stub.test.ts — fixed the two assertions that had locked the wrong (restaurant) tagline in as the generic-category default; added explicit restaurant vs. generic cases.",
+      "src/lib/leads/default-tagline.test.ts (new) — asserts all four categories get distinct taglines, in particular that generic's default is never equal to restaurant's, so this bug class fails a test immediately if reintroduced.",
+      "src/lib/process/business-decisions.ts — appended generic-lead-default-tagline-restaurant-leak.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 95d3733a (this iteration's own starting tip).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2855 passed — 2 new cases, 204 files, up from 203) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/dashboard/leads and /preview/example-bakery both 200; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "generic-lead-default-tagline-restaurant-leak",
     ),
   },
 ];

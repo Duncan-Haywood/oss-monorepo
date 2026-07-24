@@ -1,6 +1,7 @@
 import type { Lead, LeadHours, LeadPipelineStage } from "./types";
 import { normalizeOutreachStep } from "../email/outreach-followups";
 import { normalizeLeadCategory, normalizeLeadRecommendedTier } from "./category-normalize";
+import { defaultTagline } from "./default-tagline";
 
 /**
  * Pure SQLite <-> Lead row mapping, split out of src/lib/db.ts (which imports
@@ -137,13 +138,7 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     city: row.city,
     state: row.state || "CO",
     address: row.address || undefined,
-    tagline:
-      row.tagline ||
-      (category === "trades"
-        ? "Professional services you can count on"
-        : category === "salon"
-          ? "Tailored styling and care"
-          : "Local favorites made fresh daily"),
+    tagline: row.tagline || defaultTagline(category),
     description:
       row.description ||
       `This is a preview page generated for ${row.businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,

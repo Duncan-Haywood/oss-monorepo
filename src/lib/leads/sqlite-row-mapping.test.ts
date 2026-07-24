@@ -164,7 +164,7 @@ describe("mapSqliteRowToLead", () => {
     expect(lead.phone).toBe("(555) 000-0000");
     expect(lead.address).toBeUndefined();
     expect(lead.email).toBeUndefined();
-    expect(lead.tagline).toBe("Local favorites made fresh daily");
+    expect(lead.tagline).toBe("Your neighborhood business, online");
     expect(lead.description).toContain("Acme Cafe");
     expect(lead.recommendedTier).toBe("growth");
     expect(lead.services).toEqual([]);
@@ -179,6 +179,12 @@ describe("mapSqliteRowToLead", () => {
     const salon = mapSqliteRowToLead(baseRow({ category: "salon", tagline: null }));
     expect(salon.recommendedTier).toBe("complete");
     expect(salon.tagline).toBe("Tailored styling and care");
+
+    const restaurant = mapSqliteRowToLead(baseRow({ category: "restaurant", tagline: null }));
+    expect(restaurant.tagline).toBe("Local favorites made fresh daily");
+
+    const generic = mapSqliteRowToLead(baseRow({ category: "generic", tagline: null }));
+    expect(generic.tagline).toBe("Your neighborhood business, online");
   });
 
   it("ignores an out-of-range recommendedTier column and falls back to the category default", () => {
