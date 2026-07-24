@@ -797,24 +797,37 @@ export function LeadsClient({
     });
   };
 
+  // Grouped/keyed once per render (not per row) so the leads table stays
+  // O(leads + orders) instead of re-scanning the full orders/catalogs/packs
+  // arrays for every row × every eligibility check (dashboard-leads-table-
+  // per-row-linear-scan-to-map-lookup).
+  const ordersByLeadSlug = new Map<string, OrderRecord[]>();
+  for (const order of orders) {
+    const existing = ordersByLeadSlug.get(order.leadSlug);
+    if (existing) {
+      existing.push(order);
+    } else {
+      ordersByLeadSlug.set(order.leadSlug, [order]);
+    }
+  }
+  const catalogByLeadSlug = new Map(commerceCatalogs.map((c) => [c.leadSlug, c]));
+  const packByLeadSlug = new Map(marketingPacks.map((p) => [p.leadSlug, p]));
+  const voicePackByLeadSlug = new Map(clientVoicePacks.map((p) => [p.leadSlug, p]));
+
   const leadHasBillingPortal = (slug: string) =>
-    orders.some((o) => o.leadSlug === slug && orderEligibleForBillingPortal(o));
+    (ordersByLeadSlug.get(slug) ?? []).some((o) => orderEligibleForBillingPortal(o));
 
   const leadEligibleForUpsell = (lead: Lead) =>
     leadEligibleForStarterUpsell({
       stage: lead.stage,
       email: lead.email,
-      ordersForLead: orders.filter((o) => o.leadSlug === lead.slug),
+      ordersForLead: ordersByLeadSlug.get(lead.slug) ?? [],
     });
 
   const leadHasMarketingPack = (lead: Lead) =>
-    leadEligibleForMarketingPack(
-      lead,
-      orders.filter((o) => o.leadSlug === lead.slug),
-    );
+    leadEligibleForMarketingPack(lead, ordersByLeadSlug.get(lead.slug) ?? []);
 
-  const packForLead = (slug: string) =>
-    marketingPacks.find((p) => p.leadSlug === slug) ?? null;
+  const packForLead = (slug: string) => packByLeadSlug.get(slug) ?? null;
 
   const handleOpenBillingPortal = (slug: string) => {
     startTransition(async () => {
@@ -906,14 +919,10 @@ export function LeadsClient({
     }
   };
 
-  const catalogForLead = (slug: string) =>
-    commerceCatalogs.find((c) => c.leadSlug === slug) ?? null;
+  const catalogForLead = (slug: string) => catalogByLeadSlug.get(slug) ?? null;
 
   const leadHasCommerceCatalog = (lead: Lead) =>
-    leadEligibleForCommerceCatalog(
-      lead,
-      orders.filter((o) => o.leadSlug === lead.slug),
-    );
+    leadEligibleForCommerceCatalog(lead, ordersByLeadSlug.get(lead.slug) ?? []);
 
   const openCommerceEditor = (lead: Lead, opts?: { bringIntoView?: boolean }) => {
     const existing = catalogForLead(lead.slug);
@@ -1133,13 +1142,9 @@ export function LeadsClient({
   };
 
   const leadHasClientVoicePack = (lead: Lead) =>
-    leadEligibleForClientVoicePack(
-      lead,
-      orders.filter((o) => o.leadSlug === lead.slug),
-    );
+    leadEligibleForClientVoicePack(lead, ordersByLeadSlug.get(lead.slug) ?? []);
 
-  const voicePackForLead = (slug: string) =>
-    clientVoicePacks.find((p) => p.leadSlug === slug) ?? null;
+  const voicePackForLead = (slug: string) => voicePackByLeadSlug.get(slug) ?? null;
 
   const handleGenerateClientVoicePack = (slug: string, opts?: { bringIntoView?: boolean }) => {
     startTransition(async () => {
@@ -3729,7 +3734,7 @@ export function LeadsClient({
                               {existingPack &&
                               leadEligibleForMarketingPackDelivery(
                                 lead,
-                                orders.filter((o) => o.leadSlug === lead.slug),
+                                ordersByLeadSlug.get(lead.slug) ?? [],
                               ) ? (
                                 <button
                                   type="button"
@@ -3812,7 +3817,7 @@ export function LeadsClient({
                               {existingVoicePack &&
                               leadEligibleForClientVoicePackDelivery(
                                 lead,
-                                orders.filter((o) => o.leadSlug === lead.slug),
+                                ordersByLeadSlug.get(lead.slug) ?? [],
                               ) ? (
                                 <button
                                   type="button"
