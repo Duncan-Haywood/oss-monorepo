@@ -598,12 +598,12 @@ Two things keep production mode from quietly swallowing the whole system.
 First, it's cost-bounded by design, not just by pedagogy: generative
 assistance (writing code, drafting a CAD change) is the expensive kind of
 AI interaction relative to a Socratic question, and the brief's
-global-access constraint — a learner in Lagos should reach the same
-competence ceiling as one in Boston — depends on keeping the marginal
-cost of that assistance low enough to subsidize at scale (see the brief,
-"Business Principles: Sustainable, Not Extractive"). An architecture that
-lets production mode run unbounded generation for every learner on every
-request doesn't scale to that goal, so the policy engine should reach for
+global-access goal — it would be a genuine win if a learner in Lagos could
+reach the same competence ceiling as one in Boston — depends on keeping the
+marginal cost of that assistance low enough to subsidize at scale (see the
+brief, "Business Principles: Sustainable, Not Extractive"). An architecture
+that lets production mode run unbounded generation for every learner on
+every request doesn't scale to that goal, so the policy engine should reach for
 the cheapest intervention that actually unblocks the learner — a targeted
 answer, a reference snippet, a bounded calculation — before reaching for
 open-ended generation. Second, and pointing the same direction, the

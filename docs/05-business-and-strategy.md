@@ -163,8 +163,9 @@ those programs or build something deeper.
 - The same long-term-customer logic as distributors and fab houses, but
   stronger, because CAD/EDA tools have extremely high switching costs once
   someone is fluent in one ecosystem. Getting a student fluent in a
-  particular CAD package at 16 is a multi-decade customer acquisition play
-  for that vendor, arguably more valuable to them than it is to us.
+  particular CAD package early in their career is a multi-decade customer
+  acquisition play for that vendor, arguably more valuable to them than it
+  is to us.
 - Product feedback from a large, structured population of new users
   working through a consistent project curriculum — a much cleaner signal
   than scattered forum complaints.
@@ -258,10 +259,14 @@ and make it legible. That means layering in, roughly in this order:
 - **Mentor sign-off.** Not a grade — a specific, falsifiable statement.
   "This student independently debugged a real hardware failure in this
   project" is a stronger and more honest signal than "A-." Sign-off should
-  be tied to specific competencies (the ones already defined in the
-  assessment philosophy: functionality, reliability, manufacturability,
-  cost discipline, debugging, communication) rather than a single holistic
-  score, because specific claims are checkable and holistic scores aren't.
+  be tied to the same specific evaluation dimensions used throughout the
+  curriculum (technically correct, economical, manufacturable, reliable,
+  maintainable, competitive — see the AI Evaluation Dimensions in the
+  founding brief) rather than a single holistic score, because specific
+  claims are checkable and holistic scores aren't. Independent debugging
+  performance specifically is also worth calling out on its own, since
+  it's one of the highest-signal artifacts in the assessment pipeline
+  (see doc 03).
 - **Comparison benchmarking against known-good engineers.** Over time, get
   practicing engineers (ideally from partner employers) to review a sample
   of student work blind, alongside samples of junior-engineer work from
@@ -273,33 +278,41 @@ and make it legible. That means layering in, roughly in this order:
   skeptical employer, and a marketing claim that is actually true rather
   than asserted.
 
-### Stage 3: Named tiers, earned through evidence
+### Stage 3: Named credential levels, earned through evidence
 
-Once provenance and mentor sign-off are solid, named competency tiers
+Once provenance and mentor sign-off are solid, named competency levels
 become useful — something with the recognizability of a martial-arts belt
 system or a professional certification level, but earned entirely through
-accumulated, verified evidence rather than a single pass/fail exam. A
-possible shape (naming TBD, avoid cute names that undercut seriousness):
+accumulated, verified evidence rather than a single pass/fail exam. This
+scale is deliberately not called "Tier" here, to avoid colliding with the
+six-tier *project progression* system in doc 03 (Tier 1 Beginner through
+Tier 6 Startup-quality product) — that scale measures how demanding a
+single project's constraints are, while this scale measures accumulated,
+cross-project competence. They're related (you can't reach Credential
+Level 4 without a track record of high-tier projects) but they're not a
+1:1 relabeling of each other, and using "Tier" for both would make a bare
+reference like "Tier 3" genuinely ambiguous. A possible shape (naming TBD,
+avoid cute names that undercut seriousness):
 
-- **Tier 1 — Foundational.** Core competency across a discipline's
-  fundamentals, demonstrated through a defined set of foundational
-  projects.
-- **Tier 2 — Practitioner.** Consistent delivery of useful, working
-  products under real constraints (cost, manufacturability, reliability),
-  independently.
-- **Tier 3 — Advanced.** Capstone-level systems integration, demonstrated
-  ability to make and defend real engineering tradeoffs, mentor sign-off
-  on independent debugging of unfamiliar problems.
-- **Tier 4 — Professional-track.** Benchmarked against practicing
-  engineers, portfolio includes at least one product with real users or
-  revenue, suitable for direct employer evaluation in place of a degree
-  requirement.
+- **Credential Level 1 — Foundational.** Core competency across a
+  discipline's fundamentals, demonstrated through a defined set of
+  foundational projects.
+- **Credential Level 2 — Practitioner.** Consistent delivery of useful,
+  working products under real constraints (cost, manufacturability,
+  reliability), independently.
+- **Credential Level 3 — Advanced.** Capstone-level systems integration,
+  demonstrated ability to make and defend real engineering tradeoffs,
+  mentor sign-off on independent debugging of unfamiliar problems.
+- **Credential Level 4 — Professional-track.** Benchmarked against
+  practicing engineers, portfolio includes at least one product with real
+  users or revenue, suitable for direct employer evaluation in place of a
+  degree requirement.
 
-The value of naming these tiers is legibility — "Tier 3 in Embedded
-Systems" is something a busy hiring manager can develop a prior for over
-time, the same way "senior engineer" or "PE license" carries meaning
-without requiring the listener to review the underlying evidence
-personally. The tiers should always be clickable through to the actual
+The value of naming these levels is legibility — "Credential Level 3 in
+Embedded Systems" is something a busy hiring manager can develop a prior
+for over time, the same way "senior engineer" or "PE license" carries
+meaning without requiring the listener to review the underlying evidence
+personally. The levels should always be clickable through to the actual
 evidence; the label is a shortcut, never a replacement, for the portfolio
 underneath it.
 
@@ -413,8 +426,11 @@ any of them a hard gate on the free tier's mission-critical content.
 - **Revenue share on marketplace sales.** The platform vision already
   includes a marketplace for student-built products (per the founding
   brief). A modest revenue share (in the range of typical marketplace/
-  platform fees, e.g., 10–15%) on actual sales of student-designed
-  products is a small but philosophically important revenue line — it's
+  platform fees, e.g., 10–15% — a starting target based on industry norms
+  elsewhere, not a modeled number, and one to revisit once there's actual
+  marketplace transaction volume to look at) on actual sales of
+  student-designed products is a small but philosophically important
+  revenue line — it's
   the only revenue source directly tied to a learner creating real market
   value, which is the platform's ultimate goal. It won't be a large
   percentage of revenue for a long time, if ever, but it's worth building
@@ -490,7 +506,9 @@ if nobody is holding the line.
 ### Scholarship program
 
 A portion of paid-tier revenue — targeted at 5–10% of net paid-tier
-revenue as a standing commitment, reviewed and adjusted as the business
+revenue as a starting target, not a modeled figure (like the unit-economics
+numbers below, this is a guess dressed up as a target until there's real
+paid-tier revenue to model against), reviewed and adjusted as the business
 matures rather than fixed forever — funds subsidized or fully covered AI
 mentor access and hardware kits for learners who can't afford the paid
 tier even at the regional price. This is the mechanism that closes the gap
@@ -535,8 +553,12 @@ San Francisco can be a serious luxury expense in much of the world, even
 though the underlying cost to serve that learner — tokens, compute — is
 close to identical regardless of where they live. Flat global pricing
 isn't neutral; it's a de facto tax on being born somewhere poorer, and it
-directly contradicts the design constraint that a capable learner's
-ceiling shouldn't depend on geography (see Who This Is For).
+cuts directly against the goal this business model is designed toward: a
+capable learner's ceiling shouldn't depend on geography (see Who This Is
+For). That's a real goal shaping pricing and the scholarship program, not
+a rigid, inviolable rule — but it's one worth taking seriously enough to
+design around rather than treating as an aspiration to state once and
+forget.
 
 Mechanically, this means indexing paid-tier prices to a purchasing-power
 measure (a PPP conversion factor or comparable index, reviewed
@@ -694,7 +716,13 @@ target that second kind of learner deliberately, wherever they live.
 
 At this scale, the goal isn't broad reach — it's finding people who will
 (a) actually finish a project and (b) be excited enough to talk about it
-unprompted. A few concrete approaches:
+unprompted. This first 100 is the true initial beachhead — proof that the
+core loop (project, AI mentor, finished portfolio piece) works at all — not
+a ceiling on Phase 1. The roadmap's larger Phase 1 target (a few hundred to
+low-thousands of highly motivated learners, per doc 06) is the subsequent
+scale-up within that same phase, built on what's learned getting these
+first 100 through a finished project, not a competing or inconsistent
+figure for the same moment. A few concrete approaches:
 
 - **Recruit directly from software-engineers-going-hardware communities**
   — r/AskElectronics, r/PrintedCircuitBoard, r/embedded, career-change-

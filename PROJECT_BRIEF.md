@@ -53,12 +53,15 @@ includes:
   physical engineering (mechanical, electrical, robotics) and already know
   how to learn technical material fast but lack the hands-on foundation.
 - Self-directed adult learners anywhere in the world who are capable and
-  motivated but don't have access to a good engineering program — someone
-  in Lagos should be able to reach the same ceiling of competence as
-  someone in Boston. That parity is a design constraint, not an aspiration:
-  quality does not get diluted for accessibility. Cost gets solved through
-  architecture (simulation-heavy, AI-native, low marginal cost per
-  learner — see Business Principles below), not through teaching less.
+  motivated but don't have access to a good engineering program. It would
+  be a genuine win if someone in Lagos could reach the same ceiling of
+  competence as someone in Boston — that's a goal worth designing toward,
+  not a box-checking diversity line. It doesn't change what the platform
+  fundamentally is; it means quality shouldn't be quietly diluted just
+  because reach is part of the ambition. Cost gets addressed through
+  architecture where practical (simulation-heavy, AI-native, low marginal
+  cost per learner — see Business Principles below), not through teaching
+  less.
 
 This is also, honestly, a tool for its own founder: a working engineer in
 one discipline (software) who wants a credible, structured path into

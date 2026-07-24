@@ -6,10 +6,10 @@ platform buildable: the simulation environments students actually learn in,
 the path from simulation to physical hardware, and the software architecture
 underneath all of it.
 
-The guiding constraint throughout: this has to work for a 15-year-old with a
-laptop and no lab, and it has to work for a 22-year-old building a
-manufacturable product. The architecture has to serve both without forcing
-either into the other's constraints.
+The guiding constraint throughout: this has to work for a self-taught adult
+beginner with a laptop and no lab, and it has to work for a motivated
+learner further along building a manufacturable product. The architecture
+has to serve both without forcing either into the other's constraints.
 
 ---
 
@@ -31,21 +31,33 @@ work — nobody spins a PCB before running SPICE, nobody CNCs a bracket before
 running FEA, nobody flashes firmware to a drone before running it in a
 flight simulator.
 
+For Tier 1 and other early, trivial projects, this gate should be
+near-instant — minutes, not a real checkpoint — precisely so it doesn't
+delay hands-on time. Simulating a simple LED-and-resistor circuit takes
+less time than building it does. The point at this stage is habit
+formation and catching obvious mistakes (a shorted rail, a reversed diode)
+before wasting a real component, not a bureaucratic review that slows a
+beginner down; a student should still be soldering, measuring with a
+multimeter, and reading a scope by week one (see Curriculum and Assessment,
+Tier 1). The gate gets heavier — and genuinely load-bearing — as designs
+get more complex and mistakes get more expensive to make with real parts.
+
 This is also, deliberately, a business decision and not only a pedagogical
 one (see Business Principles in the brief). Simulation is cheap to run at
 scale in a way that shipping physical components to every learner never
 will be — a virtual MOSFET that blows up costs compute, not shipping, and
-not a subsidy. That's the lever that makes genuine global access possible
+not a subsidy. That's part of what makes broad global reach realistic
 without diluting quality: a learner in Lagos gets the same simulate-first
 iteration loop, at the same fidelity, as a learner in Boston, because the
 marginal cost of one more simulation run is close to zero regardless of
 where the request originates. Physical prototyping still matters and still
 happens — see "Where simulation cannot substitute for hardware" below — but
 the architecture should push as much of the iteration loop as it credibly
-can into simulation before a learner needs real hardware, precisely because
-every step moved into simulation is a step that doesn't require the
-platform to subsidize someone's parts, shipping, or lab access to keep the
-ceiling of competence equal across geographies.
+can into simulation before a learner needs real hardware, since every step
+moved into simulation is a step that doesn't require the platform to
+subsidize someone's parts, shipping, or lab access — a helpful side effect
+for the goal of a comparable ceiling of competence across geographies, not
+a requirement that overrides other engineering tradeoffs in this section.
 
 The platform needs four distinct simulation capabilities, because they solve
 different problems and fail in different ways.
@@ -295,20 +307,20 @@ expensive and used occasionally (reflow oven, real oscilloscope, CNC
 mill).** That principle is what makes remote/shared lab access a real
 architectural component rather than a nice-to-have.
 
-This tiering is also the concrete mechanism behind the Lagos-equals-Boston
-parity goal, not just a cost-conscious default. A sub-$50 day-one kit means
-the first-dollar barrier to starting real engineering work is low enough
-that geography and local income shouldn't determine who gets to begin.
-Shared and remote access to the expensive tier — the oscilloscope, the
-reflow oven, the CNC mill — means reaching advanced, manufacturable-product
-work doesn't require a student to personally own capital-intensive
-equipment, which is exactly the requirement that would otherwise re-impose
-the access gap the platform exists to close. A student in Lagos who can
+This tiering also meaningfully supports the goal of comparable reach
+described in the brief — a genuine win worth designing toward, not just a
+cost-conscious default. A sub-$50 day-one kit keeps the first-dollar
+barrier to starting real engineering work low, so geography and local
+income matter less for who gets to begin. Shared and remote access to the
+expensive tier — the oscilloscope, the reflow oven, the CNC mill — means
+reaching advanced, manufacturable-product work doesn't require a student to
+personally own capital-intensive equipment, which helps avoid re-imposing
+the access gap the platform is trying to narrow. A student in Lagos who can
 afford the day-one kit and can book time on a remote scope or a shared fab
-lab should be able to reach the same competence ceiling as a student in
-Boston with a garage full of bench equipment — the tiering is what makes
-that literally true in terms of what hardware a learner is required to
-personally own at each stage, not just an aspiration.
+lab should be able to get much closer to the competence ceiling of a
+student in Boston with a garage full of bench equipment — the tiering is
+what makes that realistic, not a guarantee engineered at the expense of
+every other tradeoff in this document.
 
 ### Distributor, fab, and assembly partnerships
 
@@ -613,18 +625,18 @@ prompt-and-response chat interface. Concretely:
 
 ### Offline and low-bandwidth as a first-class requirement
 
-This is not a minor technical afterthought bolted on for edge cases — it's
-a direct consequence of the Lagos-equals-Boston design constraint stated in
-the brief. "Quality does not get diluted for accessibility" is a hard
-requirement, and connectivity is one of the most common real-world barriers
-between a capable learner and this platform, arguably a bigger day-to-day
-obstacle than hardware cost for a large share of the target audience.
-Reliable high-bandwidth, always-on internet is a Boston assumption, not a
-global one, and an architecture that quietly requires it would recreate
-exactly the geography-determines-outcome gap the platform is supposed to
-eliminate — just moved from "can you afford a lab" to "can you afford
-always-on broadband." So this has to be treated as load-bearing NFR, not a
-line item to revisit later:
+This is not a minor technical afterthought bolted on for edge cases — it
+follows from the brief's global-access goal: quality shouldn't be quietly
+diluted just because reach is part of the ambition, and connectivity is one
+of the most common real-world barriers between a capable learner and this
+platform, arguably a bigger day-to-day obstacle than hardware cost for a
+large share of the target audience. Reliable high-bandwidth, always-on
+internet is a Boston assumption, not a global one, and an architecture that
+quietly requires it would work against the broader-reach goal the platform
+is designing toward — just moving the barrier from "can you afford a lab"
+to "can you afford always-on broadband." So this is worth treating as a
+first-class NFR alongside the others in this section, not a line item to
+revisit later:
 
 - **Simulation runs client-side by default**: in-browser WASM execution
   (the same architectural choice already motivated above for latency and

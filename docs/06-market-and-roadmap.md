@@ -4,8 +4,9 @@
 
 Every major online learning platform of the last twenty years was built to solve
 "how do we deliver content to more people for less money." None of them were
-built to solve "how do we turn a motivated 16-year-old into a world-class
-engineer." That gap is not an oversight — it's a structural consequence of how
+built to solve "how do we turn a capable adult learner — an undergrad, a grad
+student, or a career-changer — into a world-class engineer." That gap is not
+an oversight — it's a structural consequence of how
 each of these businesses makes money and what they were founded to do. Understanding
 that structural gap, company by company, is the point of this section. It is
 easy to say "nobody else does project-first AI-mentored engineering education."
@@ -48,8 +49,10 @@ projects.
 Coursera has grown into a genuine platform business: as of its most recent
 reporting, subscriptions (Coursera Plus and professional certificates) make up
 the majority of revenue, degree programs contribute roughly a quarter, and
-enterprise licensing (Coursera for Business, priced around $399/seat/year for
-teams, custom-quoted for larger enterprise) is a fast-growing third leg.
+enterprise licensing (Coursera for Business — published pricing for its
+Teams tier is $399/seat/year for 5-499 users, with Enterprise custom-quoted,
+commonly reported in the $300-$500/seat/year range before volume discounts)
+is a fast-growing third leg.
 Coursera also operates full online degree programs with accredited university
 partners — for example a hands-on engineering-flavored bachelor's with UC
 Berkeley, and various online master's in engineering management and computer
@@ -82,12 +85,16 @@ early-college math, science, and test prep, delivered as short videos plus
 practice exercises with mastery-based progression. Its AI product, Khanmigo
 (built on GPT-4, with lighter models like Phi-3 for some tasks and Gemini for
 writing), is positioned as a Socratic AI tutor that is supposed to guide
-students to answers rather than give them away. Recent reporting indicates
-Khan Academy has been actively reworking Khanmigo after finding that only
-around 15% of eligible students were engaging with it, moving toward a more
-proactive interface that surfaces help during assignments rather than waiting
-to be asked, with the redesign rolling out to partner school districts in
-mid-2026.
+students to answers rather than give them away. As reported by outlets
+covering Khan Academy's own disclosures (e.g. EdTech Innovation Hub), Khan
+Academy has been actively reworking Khanmigo after finding that only around
+15% of students with access to it were regularly engaging with it, moving
+toward a more proactive interface that surfaces help during assignments
+rather than waiting to be asked. As of this writing (mid-2026), that redesign
+was reported to be rolling out to partner school districts this summer — by
+the time this document is read, that rollout is likely complete or
+well underway, so treat it as a recent data point rather than a
+forward-looking claim.
 
 **What Khan Academy does well:** it is the best free foundational-math and
 early-science resource in the world, has real mastery-tracking mechanics, and
@@ -173,13 +180,15 @@ portfolio; each Nanodegree is a self-contained, few-month unit.
 
 ### Brilliant.org
 
-Brilliant is a subscription STEM platform (roughly $150/year for Premium,
-generating the large majority of its revenue, alongside a free daily-challenge
-tier) that teaches math, physics, computer science, and — increasingly — AI
-and machine learning through interactive, problem-first lessons instead of
-video lectures. It has around 10 million users globally and, by usage
-estimates, sits among the highest-grossing consumer educational apps in the
-world within the interactive-STEM category.
+Brilliant is a subscription STEM platform (its annual Premium plan has been
+reported at roughly $150-165/year depending on when it's checked and whether
+promotional pricing applies, generating the large majority of its revenue,
+alongside a free daily-challenge tier) that teaches math, physics, computer
+science, and — increasingly — AI and machine learning through interactive,
+problem-first lessons instead of video lectures. It has reported around 10
+million cumulative users globally (a figure that has held roughly steady in
+recent reporting) and, by usage estimates, sits among the highest-grossing
+consumer educational apps in the world within the interactive-STEM category.
 
 **What Brilliant does well:** Brilliant is arguably the best existing model
 for building *intuition* — its interactive visualizations for concepts like
@@ -199,15 +208,20 @@ a real system.
 ### Skillshare and Codecademy
 
 Grouped together because they represent a similar "adjacent, but not
-competing" category. Skillshare is a subscription library (roughly $168/year)
-of ~38,000 instructor-led video classes, historically strongest in creative
+competing" category. Skillshare is a subscription library (roughly $168/year,
+consistent across recent reporting) of on the order of 38,000-40,000
+instructor-led video classes — the exact count varies by source and shifts as
+classes are added — historically strongest in creative
 disciplines (design, illustration, writing, and now increasingly generative-AI
 tools) with light project components ("class projects" learners post for peer
 feedback) but no rigorous grading, mentorship, or engineering depth. Codecademy
 (now under Skillsoft) is a hands-on, browser-based coding education platform
-($15–40/month) that has invested heavily in AI features in 2026 — an AI
-learning assistant embedded in exercises, AI-editor-fluency courses (e.g.
-building with Cursor), and a GPT-4-based job-readiness checker.
+($15–40/month) that has, as of recent product updates, invested heavily in AI
+features — an AI learning assistant embedded in exercises, AI-editor-fluency
+courses (e.g. building with Cursor), and an OpenAI-model-based job-readiness
+checker (Codecademy's own documentation describes it as built on OpenAI's
+generative AI rather than naming a specific model version, so treat "GPT-4"
+as illustrative rather than confirmed current).
 
 **What they do well:** Skillshare's peer-project model and Codecademy's
 in-browser interactive coding exercises with instant feedback are both real
@@ -226,8 +240,11 @@ experience level."
 
 ### Maker-education and hardware-project communities (Hackster.io, Instructables)
 
-Hackster.io (a community of roughly 2 million makers and engineers, around
-45,000 open-source hardware projects, recently adding technical
+Hackster.io (a community self-reported at roughly 2 million+ makers and
+engineers and 45,000+ open-source hardware projects — other sources give
+slightly different snapshots, e.g. 2.3 million users and 38,000 projects, so
+treat the precise counts as approximate and current as of recent reporting
+rather than verified live numbers; the platform recently added technical
 certifications) and Instructables (a broader DIY project-sharing site spanning
 electronics, crafts, and cooking) both address the piece every software-first
 competitor is missing: real hardware. They are where hobbyists and engineers
@@ -282,7 +299,7 @@ relationship (Multiverse) to participate at all.
 | Khan Academy / Khanmigo | Video + mastery exercises + AI tutor | Free (nonprofit) | Practice problems, not builds | Yes, but K-12/early-college scope | No | K-12/foundational only |
 | edX (post-2U) | MOOC video + quiz + certificate | Certificates, degrees; parent co. in financial distress | Problem sets | No | No | Broad but shallow |
 | Udacity | Project-based Nanodegrees, human review | Paid programs, increasingly enterprise (Accenture-owned) | Yes, real but narrow (software) | No, human graders | No | Software/data only |
-| Brilliant.org | Interactive problem-first concept lessons | Subscription (~$150/yr) | No | No | No | Concept intuition only, no engineering builds |
+| Brilliant.org | Interactive problem-first concept lessons | Subscription (~$150-165/yr) | No | No | No | Concept intuition only, no engineering builds |
 | Skillshare / Codecademy | Video classes / interactive coding | Subscription | Light peer projects / exercises | Codecademy: embedded AI assistant | No | Creative/software skills only |
 | Hackster.io / Instructables | Community project library | Free, ad/sponsor-supported | Yes, real hardware projects | No | Yes | Unstructured, no curriculum |
 | 42 / Holberton / Multiverse | Project-based, low-lecture, in-person or work-based | Free (42), paid (Holberton), apprenticeship wage (Multiverse) | Yes, real | No | No | Software/office skills only |
@@ -400,12 +417,18 @@ have failed.
   changers (especially software engineers moving into physical engineering),
   and ambitious self-taught builders already active in maker communities like
   Hackster.io — people who are the target audience, not a representative mass
-  market.
+  market. This range is the Phase 1 growth target, not the starting point: it
+  builds outward from the initial ~100-person beachhead cohort described in
+  "Getting the first 100 committed users" in the business strategy document —
+  the first 100 prove the model works at all; the rest of Phase 1 proves it
+  works beyond a hand-picked founding group.
 - Deliberately include learners outside the US and other high-income markets
-  in that founding cohort, not as a later expansion but from day one — global
-  access is a hard constraint on this platform (see Business Principles and
-  "Who This Is For"), and the cost-gate business model (free curriculum,
-  paid only where something genuinely costs money) needs to be tested against
+  in that founding cohort, not as a later expansion but from day one — genuine
+  global access is a goal this platform is designed toward, not a
+  box-checking line (see Business Principles and "Who This Is For"), and it's
+  worth testing early precisely because it's a real priority shaping
+  sequencing decisions like this one. The cost-gate business model (free
+  curriculum, paid only where something genuinely costs money) needs to be tested against
   real ability-to-pay differences early, not discovered as a problem at
   Phase 3 scale. This doesn't require full regional pricing infrastructure
   yet, but it does mean the Year 1 free tier and any early paid tier are
