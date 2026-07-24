@@ -525,4 +525,17 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "iterations-archive-14-split"),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-dwoa4r",
+    summary:
+      "Resumed unattended session, picked up at origin/main tip 8abb6432 (PR #731, iterations-archive-14-split, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2855 passed, 204 files — matching prior iterations exactly). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest unmerged claude/* branches with no open PR found each carries a nonzero diff against origin/main, but a grep of each branch's distinctive new strings (decision ids, new files, new JSX attributes) against current main confirmed every one already landed under a different squash SHA — no live fold candidate. Diff-gate check (`git log --oneline f9c0c93c..HEAD -- src convex .github/workflows`, excluding process-log files) found only the process-log-only PR #731 commit — no product-affecting change since the prior anchor.\n\nActed on the file-size flag carried by iterations-archive-14-split's own entry rather than dispatching another research sweep: business-decisions.ts had grown to 229,230 bytes, at the ~230KB re-archive trigger this file documents. Performed the archive-12 split as its own dedicated maintenance pass — see business-decisions-archive-12-split in BUSINESS_DECISIONS for the full detail, including the AST-based (TypeScript compiler API) extraction approach and the deep-equality verification against the pre-split 765-entry array.",
+    shipped: [
+      "src/lib/process/archive/business-decisions-archive-12.ts (new) — the oldest 28 live BUSINESS_DECISIONS entries, moved verbatim.",
+      "src/lib/process/business-decisions.ts — added the BUSINESS_DECISIONS_ARCHIVE_12 import and spread; removed the now-archived 28 entries from the live array; appended the business-decisions-archive-12-split decision entry. File size: 229,230 → 53,184 bytes (pre-this-entry).",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 8abb6432 (this iteration's own starting tip, post-PR-#731).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2855 passed, unchanged, 204 files — process-log-only change, no product/runtime code touched) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split). No npm run dev smoke check needed for the same reason.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "business-decisions-archive-12-split"),
+  },
 ];
