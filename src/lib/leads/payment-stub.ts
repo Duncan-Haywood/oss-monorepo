@@ -6,6 +6,8 @@
  * `convex/leads.ts` markLeadPaid in sync with these defaults.
  */
 
+import { defaultTagline } from "./default-tagline";
+
 export function businessNameFromPaymentSlug(slug: string): string {
   const name = slug
     .split("-")
@@ -24,7 +26,7 @@ export function buildPaymentStubLeadFields(slug: string) {
     category: "generic" as const,
     city: "Colorado",
     state: "CO",
-    tagline: "Local favorites made fresh daily",
+    tagline: defaultTagline("generic"),
     description: `This is a preview page generated for ${businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
     phone: "(555) 000-0000",
     services: [] as string[],

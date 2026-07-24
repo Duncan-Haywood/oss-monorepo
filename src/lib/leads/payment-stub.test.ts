@@ -29,7 +29,7 @@ describe("buildPaymentStubLeadFields", () => {
       phone: "(555) 000-0000",
       services: [],
     });
-    expect(stub.tagline).toContain("Local favorites");
+    expect(stub.tagline).toBe("Your neighborhood business, online");
     expect(stub.description).toContain("New Bakery");
     expect(stub.hours.weekday).toContain("Mon");
   });

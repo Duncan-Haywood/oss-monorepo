@@ -5,6 +5,7 @@
 
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
 import { parseLeadHours } from "./sqlite-row-mapping";
+import { defaultTagline } from "./default-tagline";
 import { MAX_LEAD_SLUG_LENGTH, sanitizeLeadSlug } from "./slug";
 import {
   MAX_ADDRESS_LENGTH,
@@ -299,23 +300,6 @@ function parseTier(value: string, category: BusinessCategory): Lead["recommended
   if (category === "salon") return "complete";
   if (category === "trades") return "starter";
   return "growth";
-}
-
-function defaultTagline(category: BusinessCategory): string {
-  switch (category) {
-    case "salon":
-      return "Tailored styling and care";
-    case "trades":
-      return "Professional services you can count on";
-    case "restaurant":
-      return "Local favorites made fresh daily";
-    case "generic":
-      return "Your neighborhood business, online";
-    default: {
-      const _exhaustive: never = category;
-      return _exhaustive;
-    }
-  }
 }
 
 /**
