@@ -3886,7 +3886,7 @@ export function LeadsClient({
                                 }
                               >
                                 {existingPack.sentToClientAt
-                                  ? `Emailed to client ${new Date(existingPack.sentToClientAt).toLocaleDateString()}`
+                                  ? `Emailed to client ${formatAbandonedAgeHours(deployHandoffAgeHours(existingPack.sentToClientAt, nowMs))} ago`
                                   : "Not yet emailed to client"}
                               </span>
                             </p>
@@ -4305,7 +4305,7 @@ export function LeadsClient({
                                       {connectStatus.live
                                         ? " (just checked)"
                                         : connectStatus.checkedAt
-                                          ? ` (as of ${new Date(connectStatus.checkedAt).toLocaleDateString()})`
+                                          ? ` (as of ${formatAbandonedAgeHours(deployHandoffAgeHours(connectStatus.checkedAt, nowMs))} ago)`
                                           : ""}
                                     </p>
                                   );
@@ -4336,7 +4336,7 @@ export function LeadsClient({
                                 }
                               >
                                 {existingVoicePack.sentToClientAt
-                                  ? `Emailed to client ${new Date(existingVoicePack.sentToClientAt).toLocaleDateString()}`
+                                  ? `Emailed to client ${formatAbandonedAgeHours(deployHandoffAgeHours(existingVoicePack.sentToClientAt, nowMs))} ago`
                                   : "Not yet emailed to client"}
                               </span>
                             </p>
