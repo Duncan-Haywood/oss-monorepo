@@ -42,6 +42,15 @@ export interface OpeningHoursSpecification {
   closes: string;
 }
 
+/**
+ * Normalizes a regex-captured day token (matched case-insensitively, so it
+ * may arrive as "mon", "MON", or "Mon") to the canonical Title-Case form used
+ * as the DAY_ORDER/DAY_SCHEMA_URL lookup key.
+ */
+function normalizeDayAbbrev(token: string): DayAbbrev {
+  return (token[0].toUpperCase() + token.slice(1).toLowerCase()) as DayAbbrev;
+}
+
 function expandDayRange(start: DayAbbrev, end: DayAbbrev): DayAbbrev[] {
   const startIndex = DAY_ORDER.indexOf(start);
   const endIndex = DAY_ORDER.indexOf(end);
@@ -78,9 +87,8 @@ export function parseOpeningHoursSegment(segment: string): OpeningHoursSpecifica
   const closes = to24Hour(closesRaw);
   if (!opens || !closes) return null;
   const days = expandDayRange(
-    // Regex alternation guarantees these are DayAbbrev values.
-    startDay as DayAbbrev,
-    (endDay as DayAbbrev | undefined) ?? (startDay as DayAbbrev),
+    normalizeDayAbbrev(startDay),
+    normalizeDayAbbrev(endDay ?? startDay),
   );
   return {
     "@type": "OpeningHoursSpecification",
