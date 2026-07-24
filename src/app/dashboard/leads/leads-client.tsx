@@ -1344,7 +1344,7 @@ export function LeadsClient({
             SKUs). Save items here so /preview shows Menu &amp; products and
             Request order notifies the inquiry inbox.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {commerceCatalogsMissing.map((lead) => {
               const catalogMissingAgeHours = oldestCommerceCatalogCandidateAgeHours(
                 [{ slug: lead.slug }],
@@ -1409,7 +1409,7 @@ export function LeadsClient({
             Saved catalogs with at least one SKU missing a Stripe Price — Buy now
             doesn&apos;t work for that item until it&apos;s synced.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {commerceCatalogsUnsynced.map((lead) => {
               const catalogUnsyncedAgeHours = oldestCommerceCatalogCandidateAgeHours(
                 [{ slug: lead.slug }],
@@ -1485,7 +1485,7 @@ export function LeadsClient({
             Paid Starter customers with no Growth/Complete/Commerce yet. Operator-triggered
             upgrade email with a preselected checkout link (honors suppression).
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {starterUpsellCandidates.map((lead) => {
               const targetTier = resolveUpsellTargetTier(lead.recommendedTier);
               const bundle = getBundle(targetTier);
@@ -1562,7 +1562,7 @@ export function LeadsClient({
             currently paused or canceled (card decline, pause_collection, or Stripe
             cancellation). Open Billing Portal to chase recovery.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {recurringEntitlementPaused.map((lead) => {
               const pausedAgeHours = Math.max(
                 0,
@@ -1629,7 +1629,7 @@ export function LeadsClient({
             Paid Growth/Complete leads still missing their {marketingPacksDueMonth} marketing
             pack — the sold monthly fulfillment promise.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {marketingPacksDue.map((lead) => {
               const packDueAgeHours = oldestMarketingPacksDueAgeHours(
                 [{ slug: lead.slug }],
@@ -1700,7 +1700,7 @@ export function LeadsClient({
             Paid/live Complete leads still missing their FAQ voice pack — the sold phone
             fulfillment promise (Twilio stays separate).
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {clientVoicePacksDue.map((lead) => {
               const packDueAgeHours = oldestClientVoicePacksDueAgeHours(
                 [{ slug: lead.slug }],
@@ -1770,7 +1770,7 @@ export function LeadsClient({
             Local Site Studio plan checkout started but not completed after {ABANDONED_AFTER_HOURS}h.
             Operator-triggered recovery email; suppresses honor the unsubscribe list.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {abandonedCheckoutsDue.map((session) => {
               const sessionAgeHours = oldestCheckoutSessionAgeHours([session], nowMs);
               return (
@@ -1842,7 +1842,7 @@ export function LeadsClient({
             Recovery links to the client preview catalog — never a Local Site Studio plan checkout.
             Requires the shopper&apos;s email on the Stripe session.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {commerceAbandonedCheckoutsDue.map((session) => {
               const skuName =
                 commerceCatalogs
@@ -1926,7 +1926,7 @@ export function LeadsClient({
             (claw that back). Use these per-lead totals to reconcile manual payouts; this is not
             Local Site Studio revenue.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {commercePayoutsByLead.map((summary) => (
               <li
                 key={summary.leadSlug}
@@ -2032,7 +2032,7 @@ export function LeadsClient({
             Buy now sales never notified to the client — a permanently-bad lead email or a
             sustained Resend outage. Resend below, or add an email on the lead first.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {commerceOrdersMissingClientReceipt.map((row) => {
               const email = emailBySlug.get(row.leadSlug);
               return (
@@ -2161,7 +2161,7 @@ export function LeadsClient({
             Operator-triggered (not auto-cron): Email 2 after {FOLLOW_UP_2_AFTER_DAYS}d, Email 3
             after {FOLLOW_UP_3_AFTER_DAYS}d more. Suppresses honor the unsubscribe list.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {followUpsDue.map((lead) => {
               const next = nextFollowUpStep(lead.outreachStep);
               return (
@@ -2242,7 +2242,7 @@ export function LeadsClient({
             />
             Also send Email 1 when Re-engaging (requires email on the lead)
           </label>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {coldLeads.map((lead) => (
               <li
                 key={lead.slug}
@@ -2339,7 +2339,7 @@ export function LeadsClient({
               ready.
             </p>
           ) : null}
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {workNext.map((row) => {
               const lead = leads.find((l) => l.slug === row.slug);
               if (!lead) return null;
@@ -2478,7 +2478,7 @@ export function LeadsClient({
             same DNS/Mark live flow the Stripe webhook already queues
             automatically appears in Production deploy handoffs once created.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {paidNotLive.map((lead) => {
               const leadPaidAgeHours = oldestPaidNotLiveAgeHours(
                 [{ slug: lead.slug }],
@@ -2549,7 +2549,7 @@ export function LeadsClient({
           <p className="mt-1 text-xs text-zinc-600">
             Created automatically after Stripe checkout. Confirm DNS, then mark live.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {openHandoffs.map((h) => {
               const handoffAgeHours = deployHandoffAgeHours(h.createdAt, nowMs);
               return (
@@ -2695,7 +2695,7 @@ export function LeadsClient({
             Contact-form posts from <code>/api/contact/[slug]</code> — reply from here (Resend +
             suppression), or archive when done.
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
             {openInquiries.map((inq) => (
               <li
                 key={inq.id}

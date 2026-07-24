@@ -377,6 +377,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-5nlmxr",
   },
+  {
+    id: "due-queue-panel-aria-live-removals",
+    summary:
+      "Empty-backlog audit — closed the last explicitly-deferred finding from the accessibility series (dashboard-inline-editor-close-focus-restore's runner-up, reconfirmed as still deferred by leads-dashboard-sort-filter-aria-pressed): the leads dashboard's 16 due-queue panels (Commerce catalogs missing/unsynced, Starter→MRR upsell, MRR paused/canceled, Marketing/Voice packs due, Abandoned checkouts bundle+Buy now, Commerce payouts manual, Missing client receipt, Bundle order refunds & disputes, Follow-ups due, Cold leads, Work next, Paid-not-live, Production deploy handoffs, Website inquiries) each silently drop a row from the DOM the moment an operator resolves it, with zero screen-reader announcement. Added aria-live=\"polite\" aria-relevant=\"removals\" to all 16 `<ul>` containers in one uniform pass — fixing only some would have left an inconsistent screen-reader experience across sibling panels. See due-queue-panel-aria-live-removals in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-to3z0u",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -891,5 +899,18 @@ export const ITERATIONS: ProcessIteration[] = [
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "leads-dashboard-sort-filter-aria-pressed",
     ),
+  },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-to3z0u",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 76b910b2 (PR #704, leads-dashboard-sort-filter-aria-pressed) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2839 passed, 202 files — matching the prior iteration's own reported count exactly). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (631 remote heads) of the newest ~17 claude/* branches found every one either already merged into origin/main under the same or a different SHA, or a single stale claim-only commit with no feature body — no live fold candidate. The empty-backlog diff-gate against the documented anchor (ea5e260) showed exactly one commit since (76b910b2, the prior iteration's own already-documented entry) — a ninth consecutive zero-product-diff window, so per the waste-reduction rule this skipped a from-scratch tiered sweep and went straight to the one remaining explicitly-deferred finding from the accessibility series: the due-queue aria-live gap named in dashboard-inline-editor-close-focus-restore and reconfirmed as deferred in leads-dashboard-sort-filter-aria-pressed.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — added aria-live=\"polite\" aria-relevant=\"removals\" to all 16 due-queue `<ul>` containers (Commerce catalogs missing/unsynced, Starter→MRR upsell, MRR paused/canceled, Marketing/Voice packs due, Abandoned checkouts bundle+Buy now, Commerce payouts manual, Missing client receipt, Bundle order refunds & disputes, Follow-ups due, Cold leads, Work next, Paid-not-live, Production deploy handoffs, Website inquiries) so a screen-reader user is notified when an operator action removes a handled row from one of these panels.",
+      "src/lib/process/business-decisions.ts — appended due-queue-panel-aria-live-removals.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry and a new done NEXT_STEPS entry closing the accessibility series' last named deferred item. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is an accessibility hardening fix, not a resolution of any gated item. Diff-gate anchor moves to 76b910b2 (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2839 passed, unchanged — no regression, markup-only change) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (curled the rendered /dashboard/leads HTML: seeded demo data populates the 'Work next' panel among the 16, and its `<ul>` renders with the exact aria-live/aria-relevant pair; no console errors; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "due-queue-panel-aria-live-removals"),
   },
 ];
