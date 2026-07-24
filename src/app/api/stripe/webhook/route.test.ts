@@ -3374,6 +3374,38 @@ describe("POST /api/stripe/webhook", () => {
       expect(insertDeployHandoff).not.toHaveBeenCalled();
     });
 
+    it("records payment for a 100%-off allow_promotion_codes redemption (payment_status no_payment_required, amount_total 0 — checkout-session-no-payment-required-fulfillment-gap)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        amount_total: 0,
+        payment_status: "no_payment_required",
+        total_details: {
+          amount_discount: GROWTH_CHECKOUT_AMOUNT_CENTS,
+          amount_shipping: null,
+          amount_tax: 0,
+        },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({ slug: "demo-cafe", tier: "growth", amountTotal: 0 }),
+        { requireConvex: true },
+      );
+      expect(sendReceiptEmail).toHaveBeenCalled();
+    });
+
     it("does not record payment when currency is not usd (create Price twin)", async () => {
       // amount_total matches catalog cents but EUR minor units must not ledger as USD.
       const session = checkoutSession({
@@ -4129,6 +4161,34 @@ describe("POST /api/stripe/webhook", () => {
       expect(insertCommerceOrder).not.toHaveBeenCalled();
       expect(insertClientInquiry).not.toHaveBeenCalled();
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+    });
+
+    it("records ledger/notify for a 100%-off allow_promotion_codes redemption (payment_status no_payment_required, amount_total 0 — checkout-session-no-payment-required-fulfillment-gap)", async () => {
+      constructEvent.mockReturnValue(
+        completedEvent(
+          commerceSession({ amount_total: 0, payment_status: "no_payment_required" }),
+        ),
+      );
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertCommerceOrder).toHaveBeenCalledWith(
+        expect.objectContaining({
+          leadSlug: "demo-cafe",
+          skuId: "sku_1",
+          amountPaidUsd: 0,
+          stripeSessionId: "cs_test_1",
+        }),
+        { requireConvex: true },
+      );
+      expect(insertClientInquiry).toHaveBeenCalledTimes(1);
+      expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
     });
 
     it("skips ledger/notify when amount_total is missing (null) despite catalog SKU match", async () => {

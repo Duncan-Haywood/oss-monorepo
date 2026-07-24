@@ -352,6 +352,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-2gn0oi",
   },
+  {
+    id: "checkout-session-no-payment-required-fulfillment-gap",
+    summary:
+      "A research-agent audit steered at fresh pricing/coupon edge cases found that isStripeCheckoutSessionPaid (shared by webhook fulfillment, /checkout/success, and the public billing-portal Session twin) only ever accepted payment_status === \"paid\", silently and permanently dropping any Checkout Session that settles at exactly $0 via allow_promotion_codes (both checkout create routes enable customer-facing promo codes). Stripe sets payment_status \"no_payment_required\" for a $0 total — a TERMINAL status, unlike \"unpaid\" (async ACH pending), so no later event ever arrives to resolve it. Broadened the predicate to accept \"paid\" OR \"no_payment_required\"; relaxed the commerce_sku webhook branch's amount check to allow amount_total === 0 specifically when payment_status is no_payment_required (kept rejecting amount_total <= 0 for an ordinary \"paid\" session, preserving an existing test); the bundle branch's amount check already tolerated 0 via Math.max(0, expectedCents - discountCents), so only the shared payment_status gate needed fixing there. Added direct regression tests for a 100%-off bundle checkout and a 100%-off commerce_sku Buy-now checkout, plus updated the architecture doc.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-6xbwq8",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -695,6 +703,25 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "post-741-env-example-docs-and-cors-default-spot-check-clean",
+    ),
+  },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-6xbwq8",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 3ed2ed7f (PR #742, post-741-env-example-docs-and-cors-default-spot-check-clean, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings — unchanged count, eslint-chain root cause) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2858 passed, 204 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep found the newest claude/* branches (upbeat-dijkstra-y2nzyj, nice-euler-3h25b5, upbeat-dijkstra-2gn0oi) each diffed non-empty against origin/main by triple-dot purely from the expected squash-merge SHA mismatch — mcp__github__list_pull_requests confirmed each is already merged (PRs #742/#741/#740). No live fold candidate. Diff-gate (`git log --oneline 437eb0cd..HEAD -- src convex .github/workflows`) found only PR #742's own docs-only commit since the prior anchor, so per the waste-reduction rule dispatched a foreground research agent rather than a full five-tier re-sweep, briefed on the entire closed-axis list in this log and steered at seven angles never named before: GDPR-claims-vs-code, pricing/coupon edge cases, email template correctness beyond escaping, Next.js ISR/caching correctness, image optimization, analytics/tracking correctness, and Zod/validation coverage completeness.\n\nIt found a real money-path bug on the pricing/coupon-edge-case angle and this session independently verified it by reading the source directly (not just trusting the report): both Checkout create routes set allow_promotion_codes: true, so a 100%-off promo code settles a Session at amount_total 0, which Stripe marks payment_status \"no_payment_required\" — a TERMINAL status (no later event ever resolves it, unlike \"unpaid\" async-ACH-pending). The shared isStripeCheckoutSessionPaid predicate only ever accepted \"paid\", so a free order silently and permanently never fulfilled in the webhook (bundle: skip recordLeadPayment/handoff/receipt; commerce_sku: skip ledger/inquiry/client receipt), rendered /checkout/success stuck at confirmed: false forever, and made POST /api/stripe/billing-portal reject with 400 for an otherwise-legitimate subscriber. See checkout-session-no-payment-required-fulfillment-gap in BUSINESS_DECISIONS for the full fix detail (why the commerce_sku zero-amount allowance had to be scoped specifically to payment_status === \"no_payment_required\" rather than unconditional, to avoid breaking an existing 'paid session with amount_total 0 is invalid/tampered' test).",
+    shipped: [
+      "src/lib/payments/checkout-payment-status.ts — isStripeCheckoutSessionPaid now accepts payment_status \"paid\" OR \"no_payment_required\"; expanded doc comment explaining the terminal-vs-pending distinction.",
+      "src/lib/payments/checkout-payment-status.test.ts — moved the no_payment_required case from 'rejects' to 'accepts', with an explanatory test name.",
+      "src/app/api/stripe/webhook/route.ts — relaxed the commerce_sku amount_total check to allow exactly 0 when payment_status is no_payment_required (isFreeCheckout ? amountCents !== 0 : amountCents <= 0), keeping the existing invalid/tampered rejection for a \"paid\" session with amount_total 0; updated the file's top doc comment and the inline comments around both amount checks to document the no_payment_required case and why the bundle branch's existing Math.max(0, expectedCents - discountCents) needed no change.",
+      "src/app/api/stripe/webhook/route.test.ts — added a bundle 100%-off checkout test (no_payment_required, amount_total 0, total_details.amount_discount === full catalog price) asserting recordLeadPayment/sendReceiptEmail fire, and a commerce_sku 100%-off Buy-now checkout test asserting insertCommerceOrder/insertClientInquiry/sendCommerceBuyNowClientReceipt fire.",
+      "src/app/docs/architecture/page.tsx — updated both isStripeCheckoutSessionPaid mentions (bundle webhook fulfillment gate + billing-portal Session gate) to document the broadened no_payment_required condition and why it's safe to treat as fulfillable.",
+      "src/lib/process/business-decisions.ts — appended checkout-session-no-payment-required-fulfillment-gap.",
+      "src/lib/process/prompt_process.tsx — appended a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real money-path fulfillment gap, not any of the five gated items. Diff-gate anchor moves to 3ed2ed7f (this iteration's own starting tip, post-PR-#742).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2860 passed — 2 new cases, 204 files, up from 2858) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/dashboard/leads and /preview/example-bakery both 200; dev server killed, port freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "checkout-session-no-payment-required-fulfillment-gap",
     ),
   },
 ];

@@ -664,10 +664,15 @@ export default function ArchitectureDocPage() {
         <code>metadata.commerceAddon</code>), <code>session.currency</code>{" "}
         <code>usd</code> (<code>isStripeCheckoutCurrencyUsd</code> — create path
         charges only USD catalog Prices), <code>session.payment_status</code>{" "}
-        <code>paid</code> (<code>isStripeCheckoutSessionPaid</code> — async ACH/
-        bank methods fire <code>checkout.session.completed</code> while unpaid;
-        ledger waits for paid on that event or{" "}
-        <code>checkout.session.async_payment_succeeded</code>), and{" "}
+        <code>paid</code> or <code>no_payment_required</code> (
+        <code>isStripeCheckoutSessionPaid</code> — async ACH/bank methods fire{" "}
+        <code>checkout.session.completed</code> while unpaid; ledger waits for paid on
+        that event or <code>checkout.session.async_payment_succeeded</code>.{" "}
+        <code>no_payment_required</code> is different: it means{" "}
+        <code>allow_promotion_codes</code> discounted the order to exactly $0, and unlike{" "}
+        <code>unpaid</code> it is terminal — no later event ever arrives to resolve it,
+        so it is treated as fulfillable alongside <code>paid</code> rather than skipped
+        forever), and{" "}
         <code>session.amount_total</code>{" "}
         (integer cents) equal to{" "}
         <code>expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon)</code>{" "}
@@ -1068,10 +1073,12 @@ export default function ArchitectureDocPage() {
         <code>sessionId</code>) and the operator <strong>Billing</strong> action on paid/live
         leads. The session-id path (<code>createBillingPortalForCheckoutSession</code>) requires{" "}
         <code>status === &quot;complete&quot;</code> and{" "}
-        <code>payment_status === &quot;paid&quot;</code> (
+        <code>payment_status === &quot;paid&quot;</code> or{" "}
+        <code>&quot;no_payment_required&quot;</code> (
         <code>isStripeCheckoutSessionPaid</code> — same gate as webhook fulfillment and{" "}
         <code>loadCheckoutSuccessSession</code>; async ACH can leave complete+unpaid, and a
-        client-supplied <code>sessionId</code> must not open Manage billing before funds clear).
+        client-supplied <code>sessionId</code> must not open Manage billing before funds clear;
+        a 100%-off promo redemption is terminal and safe to treat as paid).
         Subscription mode must also prove a create-path catalog recurring Price ID
         (Growth/Complete/Commerce monthly env) on Checkout <code>listLineItems</code> via{" "}
         <code>sessionLineItemsIncludeCatalogRecurringPrice</code> —{" "}

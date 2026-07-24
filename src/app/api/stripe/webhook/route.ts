@@ -141,21 +141,29 @@ import {
  * (still platform-issued, still valid) Price. Matching only the current
  * stripePriceId/priceCents would silently drop that already-paid sale from
  * the ledger. amountPaidUsd is recorded from the Session's actual
- * session.amount_total (a positive integer cents), never from
- * catalogItem.priceCents, so the ledger reflects what was really charged.
- * Unknown/over-long slug/skuId, missing lead, !leadEligibleForCommerceCatalog,
- * no line item Price carrying the expected metadata key, non-USD currency,
- * or a non-positive/non-integer amount_total all skip like missing skuId
- * (session already marked complete; do not 5xx forever). listLineItems
- * failures return 500 so Stripe retries.
+ * session.amount_total (a non-negative integer cents — 0 is valid for a
+ * 100%-off promo redemption, see the no_payment_required note below), never
+ * from catalogItem.priceCents, so the ledger reflects what was really
+ * charged. Unknown/over-long slug/skuId, missing lead,
+ * !leadEligibleForCommerceCatalog, no line item Price carrying the expected
+ * metadata key, non-USD currency, or a negative/non-integer amount_total
+ * all skip like missing skuId (session already marked complete; do not 5xx
+ * forever). listLineItems failures return 500 so Stripe retries.
  *
  * Async payment methods (ACH, bank transfer, etc.) fire
- * checkout.session.completed with payment_status !== "paid" while
+ * checkout.session.completed with payment_status "unpaid" while
  * amount_total/currency can still match catalog. Ledger / handoff / receipt
- * must wait for payment_status === "paid" (same event when card settles
+ * must wait for payment_status "paid" (same event when card settles
  * immediately, or checkout.session.async_payment_succeeded later). Unpaid
  * completed still markCheckoutSessionComplete so abandoned-recovery does
  * not nudge mid-clearing (webhook-checkout-payment-status-paid-gate).
+ * "no_payment_required" (a 100%-off allow_promotion_codes redemption) is
+ * terminal, not pending — no later event ever arrives to resolve it —
+ * so isStripeCheckoutSessionPaid treats it as fulfillable alongside "paid"
+ * (checkout-session-no-payment-required-fulfillment-gap); the bundle
+ * amount check below already tolerates amount_total 0 via
+ * Math.max(0, expectedCents - discountCents), and the commerce_sku amount
+ * check above allows 0 explicitly for the same reason.
  * checkout.session.async_payment_failed must markCheckoutSessionOpen so a
  * failed ACH cart re-enters Finish-checkout / Buy now recovery (recovery
  * links mint a new Checkout Session — the Stripe Session is terminal).
@@ -496,8 +504,20 @@ export async function POST(request: Request) {
           // (see the metadata-key comment above). Recording the catalog's
           // current price here instead of the real charge would misstate
           // both the client receipt and the Commerce payouts ledger.
+          // 0 is legitimate ONLY when Stripe itself marked this session
+          // no_payment_required (a 100%-off allow_promotion_codes redemption
+          // on an otherwise-real charged Price, isStripeCheckoutSessionPaid
+          // above already let it through) — a "paid" session with
+          // amount_total 0 is not a real Stripe outcome and stays rejected
+          // as invalid/tampered (checkout-session-no-payment-required-
+          // fulfillment-gap).
           const amountCents = session.amount_total;
-          if (typeof amountCents !== "number" || !Number.isInteger(amountCents) || amountCents <= 0) {
+          const isFreeCheckout = session.payment_status === "no_payment_required";
+          if (
+            typeof amountCents !== "number" ||
+            !Number.isInteger(amountCents) ||
+            (isFreeCheckout ? amountCents !== 0 : amountCents <= 0)
+          ) {
             console.warn(
               `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} invalid amount_total ${String(
                 amountCents,
