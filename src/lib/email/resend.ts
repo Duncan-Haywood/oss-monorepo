@@ -860,3 +860,44 @@ export async function sendReceiptEmail(to: string, businessName: string, tier: s
 
   return sendEmail({ to, subject, html, skipSuppression: true });
 }
+
+/**
+ * Deliver a freshly-generated Stripe Connect Express onboarding link
+ * directly to the client (stripe-connect-onboarding-link-email-delivery,
+ * closing the tier-6 gap named in AGENT_PROTOCOL — "onboarding-link
+ * expiry/retry handling"). Stripe account_onboarding Account Links are
+ * single-use and expire quickly if not opened, so the prior operator flow
+ * (dashboard "copy to clipboard" + manually pasting into a separate email/
+ * text to the client) routinely handed the client an already-dead link by
+ * the time they clicked it. Emailing the link in the same request that
+ * generates it removes that manual hand-off delay entirely. skipSuppression:
+ * true — this is a post-sale money-onboarding step, same billing-critical
+ * class as the dunning/billing-portal notices, not cold marketing. Callers
+ * must still treat the link as short-lived (createStripeConnectOnboardingLinkAction
+ * mints one immediately before this call, never a cached/stored one) and may
+ * re-send if the client didn't act on it in time.
+ */
+export async function sendStripeConnectOnboardingLinkEmail(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  onboardingUrl: string;
+}) {
+  const { to, businessName, slug, onboardingUrl } = params;
+  const safeBiz = escapeHtmlForEmail(businessName);
+  const safeBrand = escapeHtmlForEmail(brand.name);
+  const safeOnboardingUrl = escapeHtmlForEmail(onboardingUrl);
+
+  const subject = `Action needed: set up payouts for ${businessName}`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Set up your payout account</h2>
+    <p style="margin-bottom: 16px;">Hi <strong>${safeBiz}</strong> — to receive payouts from your Buy now sales, finish setting up your Stripe payout account below.</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${safeOnboardingUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Set up payouts</a>
+    </div>
+    <p style="margin-bottom: 16px; font-size: 14px; color: #52525b;">This link is single-use and expires quickly — please open it now rather than saving it for later. If it's expired by the time you click it, just reply to this email and we'll send a fresh one.</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
+}

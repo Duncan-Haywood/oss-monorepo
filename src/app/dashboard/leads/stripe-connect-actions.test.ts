@@ -98,6 +98,23 @@ vi.mock("@/lib/commerce/stripe-connect", () => ({
   fetchConnectAccountStatus: (...args: unknown[]) => fetchConnectAccountStatus(...args),
 }));
 
+const sendStripeConnectOnboardingLinkEmail = vi.fn();
+vi.mock("@/lib/email/resend", () => ({
+  sendOutreachEmail: vi.fn(),
+  sendOutreachFollowUp2: vi.fn(),
+  sendOutreachFollowUp3: vi.fn(),
+  sendCheckoutAbandonedRecovery: vi.fn(),
+  sendCommerceAbandonedRecovery: vi.fn(),
+  sendInquiryReply: vi.fn(),
+  sendOperatorDailyDigest: vi.fn(),
+  sendStarterUpsellEmail: vi.fn(),
+  sendMarketingPackToClientEmail: vi.fn(),
+  sendClientVoicePackToClientEmail: vi.fn(),
+  sendCommerceBuyNowClientReceipt: vi.fn(),
+  sendStripeConnectOnboardingLinkEmail: (...args: unknown[]) =>
+    sendStripeConnectOnboardingLinkEmail(...args),
+}));
+
 const stripeCtor = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
@@ -138,6 +155,7 @@ describe("Stripe Connect dashboard actions", () => {
     createExpressConnectAccount.mockReset();
     createConnectOnboardingLink.mockReset();
     fetchConnectAccountStatus.mockReset();
+    sendStripeConnectOnboardingLinkEmail.mockReset();
     stripeCtor.mockReset();
     revalidatePath.mockReset();
     process.env = { ...originalEnv };
@@ -272,6 +290,75 @@ describe("Stripe Connect dashboard actions", () => {
         success: true,
         url: "https://connect.stripe.com/setup/e/acct_existing/fake",
       });
+    });
+  });
+
+  describe("sendStripeConnectOnboardingLinkToClientAction", () => {
+    it("errors when the lead has no Connect account yet", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead());
+      const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
+      const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
+      expect(result).toEqual({
+        success: false,
+        error: "Create a Connect account for this lead first",
+      });
+      expect(createConnectOnboardingLink).not.toHaveBeenCalled();
+      expect(sendStripeConnectOnboardingLinkEmail).not.toHaveBeenCalled();
+    });
+
+    it("errors when the lead has no email on file", async () => {
+      getLeadBySlug.mockResolvedValue(
+        fakeLead({ stripeConnectAccountId: "acct_existing", email: undefined }),
+      );
+      const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
+      const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
+      expect(result).toEqual({
+        success: false,
+        error: "Lead has no email on file to send the onboarding link to",
+      });
+      expect(createConnectOnboardingLink).not.toHaveBeenCalled();
+      expect(sendStripeConnectOnboardingLinkEmail).not.toHaveBeenCalled();
+    });
+
+    it("generates a fresh link and emails it to the lead on success", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      createConnectOnboardingLink.mockResolvedValue({
+        url: "https://connect.stripe.com/setup/e/acct_existing/fake",
+      });
+      sendStripeConnectOnboardingLinkEmail.mockResolvedValue({ success: true, mock: false });
+      const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
+      const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
+
+      expect(createConnectOnboardingLink).toHaveBeenCalledWith(
+        expect.anything(),
+        "acct_existing",
+        expect.objectContaining({
+          refreshUrl: expect.stringContaining("/dashboard/leads"),
+          returnUrl: expect.stringContaining("/dashboard/leads"),
+        }),
+      );
+      expect(sendStripeConnectOnboardingLinkEmail).toHaveBeenCalledWith({
+        to: "owner@demo-cafe.example",
+        businessName: "Demo Cafe",
+        slug: "demo-cafe",
+        onboardingUrl: "https://connect.stripe.com/setup/e/acct_existing/fake",
+      });
+      expect(result).toEqual({ success: true, mock: false });
+    });
+
+    it("returns a failure when the send fails (link already minted, delivery is the only failure point)", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      createConnectOnboardingLink.mockResolvedValue({
+        url: "https://connect.stripe.com/setup/e/acct_existing/fake",
+      });
+      sendStripeConnectOnboardingLinkEmail.mockResolvedValue({
+        success: false,
+        error: "Resend API down",
+      });
+      const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
+      const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
+
+      expect(result).toEqual({ success: false, error: "Resend API down" });
     });
   });
 

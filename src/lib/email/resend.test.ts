@@ -555,6 +555,18 @@ describe("resend.ts — href URL HTML escaping", () => {
     expectHrefSafe();
     expect(sentHtml).toMatch(/href="[^"]*\/checkout\/success\?session_id=cs_test_resumed"/);
   });
+
+  it("escapes the onboarding link href in sendStripeConnectOnboardingLinkEmail", async () => {
+    const { sendStripeConnectOnboardingLinkEmail } = await import("./resend");
+    await sendStripeConnectOnboardingLinkEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      onboardingUrl: `https://connect.stripe.com/setup/e/acct_123/fake${UNSAFE_APP_URL}`,
+    });
+    expectHrefSafe();
+    expect(sentHtml).toMatch(/href="https:\/\/connect\.stripe\.com/);
+  });
 });
 
 describe("resend.ts — transactional skipSuppression", () => {
@@ -656,6 +668,18 @@ describe("resend.ts — transactional skipSuppression", () => {
       businessName: "Demo Cafe",
       slug: "demo-cafe",
       stripeSessionId: "cs_test_resumed",
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sendStripeConnectOnboardingLinkEmail still delivers when marketing-suppressed", async () => {
+    const { sendStripeConnectOnboardingLinkEmail } = await import("./resend");
+    const result = await sendStripeConnectOnboardingLinkEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      onboardingUrl: "https://connect.stripe.com/setup/e/acct_123/fake",
     });
     expect(result.success).toBe(true);
     expect(fetchMock).toHaveBeenCalled();

@@ -38,6 +38,7 @@ import {
   sendClientVoicePackToClientAction,
   createStripeConnectAccountAction,
   createStripeConnectOnboardingLinkAction,
+  sendStripeConnectOnboardingLinkToClientAction,
   checkStripeConnectAccountStatusAction,
   listBufferProfilesAction,
   saveLeadBufferProfilesAction,
@@ -956,7 +957,24 @@ export function LeadsClient({
         return;
       }
       await copyMarketingVariant(res.url);
-      alert(`Onboarding link copied — send it to the client:\n${res.url}`);
+      alert(
+        `Onboarding link copied. This link is single-use and expires within minutes — send it to the client right away, or use "Email onboarding link" to skip the copy/paste delay:\n${res.url}`,
+      );
+    });
+  };
+
+  const handleSendStripeConnectOnboardingLink = (slug: string) => {
+    startTransition(async () => {
+      const res = await sendStripeConnectOnboardingLinkToClientAction(slug);
+      if (!res.success) {
+        alert(`Email onboarding link failed: ${res.error}`);
+        return;
+      }
+      alert(
+        res.mock
+          ? "Onboarding link email queued (mock — set RESEND_API_KEY to actually deliver)."
+          : "Onboarding link emailed to the client.",
+      );
     });
   };
 
@@ -4135,6 +4153,16 @@ export function LeadsClient({
                                         className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
                                       >
                                         Get onboarding link
+                                      </button>
+                                      <button
+                                        type="button"
+                                        disabled={isPending}
+                                        onClick={() =>
+                                          handleSendStripeConnectOnboardingLink(lead.slug)
+                                        }
+                                        className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                                      >
+                                        Email onboarding link
                                       </button>
                                       <button
                                         type="button"

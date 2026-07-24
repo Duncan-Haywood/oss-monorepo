@@ -148,6 +148,7 @@ import {
   sendMarketingPackToClientEmail,
   sendClientVoicePackToClientEmail,
   sendCommerceBuyNowClientReceipt,
+  sendStripeConnectOnboardingLinkEmail,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
@@ -2988,6 +2989,108 @@ export async function createStripeConnectOnboardingLinkAction(slug: string) {
     return { success: true as const, url };
   } catch (error) {
     console.error("Error in createStripeConnectOnboardingLinkAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown Stripe error",
+    };
+  }
+}
+
+/**
+ * Generate a fresh Stripe Connect Express onboarding link and email it to
+ * the client directly, in the same request — closes the expiry/retry gap in
+ * createStripeConnectOnboardingLinkAction's "copy to clipboard, then
+ * manually paste into a separate message" flow. Stripe account_onboarding
+ * Account Links are single-use and expire quickly if unopened; a manual
+ * copy-paste hand-off routinely outlasts that window, handing the client a
+ * dead link. Mints a brand-new link on every call (never reuses/caches one)
+ * so a re-send after an expired first attempt just works. Dormant behind
+ * ALLOW_STRIPE_CONNECT_ONBOARDING, same gate as account creation.
+ */
+export async function sendStripeConnectOnboardingLinkToClientAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-connect-onboarding-link-email:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long" ? "Slug is too long" : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
+
+    const gate = assessStripeConnectOnboardingGate();
+    if (!gate.ok) {
+      return { success: false as const, error: gate.message };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+    if (!lead.stripeConnectAccountId) {
+      return {
+        success: false as const,
+        error: "Create a Connect account for this lead first",
+      };
+    }
+    if (!lead.email || !lead.email.trim()) {
+      return {
+        success: false as const,
+        error: "Lead has no email on file to send the onboarding link to",
+      };
+    }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      return {
+        success: false as const,
+        error: "Set STRIPE_SECRET_KEY before generating an onboarding link.",
+      };
+    }
+
+    // Same never-trust-request-Host precedent as billing-portal/checkout
+    // redirects — a server action has no request Host to trust anyway.
+    const appUrl = resolveStripeRedirectAppUrl();
+    const stripe = new Stripe(secretKey);
+    const { url } = await createConnectOnboardingLink(stripe, lead.stripeConnectAccountId, {
+      refreshUrl: `${appUrl}/dashboard/leads`,
+      returnUrl: `${appUrl}/dashboard/leads`,
+    });
+
+    const sent = await sendStripeConnectOnboardingLinkEmail({
+      to: lead.email.trim(),
+      businessName: lead.businessName,
+      slug: lead.slug,
+      onboardingUrl: url,
+    });
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "error" in sent && typeof sent.error === "string"
+            ? sent.error
+            : "Failed to send the onboarding link email",
+      };
+    }
+
+    return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
+  } catch (error) {
+    console.error("Error in sendStripeConnectOnboardingLinkToClientAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
