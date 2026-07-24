@@ -359,6 +359,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 6 — Marketing automation",
     owner: "claude/nice-euler-sqwl6z",
   },
+  {
+    id: "lead-preview-opening-hours-jsonld",
+    summary:
+      "Growth/SEO gap found by a research agent explicitly told to independently re-verify prior clean claims before proposing anything new, after four consecutive zero-product-diff iterations. leadLocalBusinessJsonLd never emitted schema.org openingHoursSpecification even though Lead.hours (weekday/weekend free text) is already public via softCapLeadForPublicSurface and already rendered on the page — a core, Google-surfaced LocalBusiness property directly relevant to Starter's sold 'Basic SEO' deliverable, with zero prior reference anywhere in the repo. Shipped a strict, match-or-omit parser (src/lib/leads/hours-schema.ts, leadOpeningHoursSpecification) rather than a fuzzy one: real hours data spans prose like 'by appointment'/'emergency on-call' that has no parseable time range, and publishing a wrong open/close time into a real customer's Google Knowledge Panel is worse than publishing none — unparseable segments are silently dropped, never guessed. Wired into leadLocalBusinessJsonLd via the same optional-spread pattern hasOfferCatalog already uses. See lead-preview-opening-hours-jsonld in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-q33g6d",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -779,5 +787,21 @@ export const ITERATIONS: ProcessIteration[] = [
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "post-697-actions-runner-job-reconfirm-and-connect-action-audit-clean",
     ),
+  },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-q33g6d",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 58c0f41c (PR #698, post-697-actions-runner-job-reconfirm-and-connect-action-audit-clean) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2807 passed, 200 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (626 remote heads) and a `git merge-base --is-ancestor`/`git diff --stat` sweep of the newest ~11 claude/* branches confirmed every one already merged — no live fold candidate. The empty-backlog diff-gate against the documented anchor (a77af3b9) showed exactly 1 commit since (d3c4c3b6, process-log-only, already documented) — a fourth consecutive zero-product-diff window, so dispatched a foreground research agent instead of a fifth token spot-check, explicitly told to independently re-verify rather than trust prior clean claims before proposing anything new.\n\nIt reconfirmed clean on every axis it re-checked (Convex-primary fail-closed coverage, dashboard-action rate-limit coverage, v.any()/as-const structural scans, the json-body streaming fix, Stripe Connect redirect-URL routing, the new Buffer profile checkbox a11y) and then found a genuinely fresh gap: leadLocalBusinessJsonLd never emitted schema.org openingHoursSpecification — Lead.hours is already public (softCapLeadForPublicSurface) and already rendered on the page, but had zero structured-data representation anywhere in the repo, despite being a core Google-surfaced LocalBusiness property directly relevant to Starter's sold 'Basic SEO' deliverable. See lead-preview-opening-hours-jsonld in BUSINESS_DECISIONS for the full detail, the strict-match-or-omit design rationale (real hours data spans wide-format prose like 'by appointment'/'emergency on-call' that must never be fuzzy-guessed into a wrong published time), and the runner-ups the research agent ruled out.",
+    shipped: [
+      "src/lib/leads/hours-schema.ts (new) — parseOpeningHoursSegment (strict `<Day>[–<Day>] <time>–<time>` matcher, bounded day-range expansion, 24-hour time conversion incl. 12am/12pm boundary; returns null for anything else) and leadOpeningHoursSpecification (splits weekday/weekend on '·', parses each clause independently, keeps only parseable ones, returns undefined when nothing parses).",
+      "src/lib/seo.ts — leadLocalBusinessJsonLd now spreads in `openingHoursSpecification` from the new helper, following the exact same optional-spread pattern hasOfferCatalog already uses; omitted entirely when nothing parses or the lead isn't indexable (unchanged gating via leadPreviewJsonLdIfIndexable).",
+      "src/app/docs/architecture/page.tsx — new paragraph in the SEO section documenting the field and its strict-match-or-omit rationale, so a future agent doesn't 'improve' this into a fuzzy parser.",
+      "Tests: src/lib/leads/hours-schema.test.ts (new, 14 cases), src/lib/seo.test.ts (2 new cases — omitted-by-default on the base fixture, full attached shape on a fixture with parseable hours).",
+      "src/lib/process/business-decisions.ts — appended lead-preview-opening-hours-jsonld.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry and a new done NEXT_STEPS entry. All five gated NEXT_STEPS items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a growth/SEO-lever feature, not a resolution of any gated item. Diff-gate anchor moves to 58c0f41c (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2821 passed, up from 2807 — 14 new, 201 files, 1 new file) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/, /docs/architecture, /preview/example-bakery all 200; curled the rendered /preview/example-bakery HTML confirming the exact expected openingHoursSpecification JSON renders in the LocalBusiness JSON-LD script tag; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "lead-preview-opening-hours-jsonld"),
   },
 ];

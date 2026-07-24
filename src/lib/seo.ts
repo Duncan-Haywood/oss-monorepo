@@ -8,6 +8,7 @@ import { brand } from "@/lib/brand";
 import { DOCS_PAGES } from "@/lib/docs/routes";
 import type { CategoryLandingPage } from "@/lib/marketing/category-landing";
 import { softCapLeadForPublicSurface } from "@/lib/leads/public-fields";
+import { leadOpeningHoursSpecification } from "@/lib/leads/hours-schema";
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { BUNDLES, bundlePriceHeadingLabel, minBundleSetupPriceUsd } from "@/lib/pricing/bundles";
@@ -354,6 +355,7 @@ export function leadLocalBusinessJsonLd(
 ): Record<string, unknown> {
   const capped = softCapLeadForPublicSurface(lead);
   const hasOfferCatalog = commerceOfferCatalogJsonLd(opts.commerceItems ?? []);
+  const openingHoursSpecification = leadOpeningHoursSpecification(capped.hours);
   return {
     "@context": "https://schema.org",
     "@type": SCHEMA_TYPE_BY_CATEGORY[capped.category],
@@ -368,6 +370,7 @@ export function leadLocalBusinessJsonLd(
       addressRegion: capped.state,
     },
     ...(hasOfferCatalog ? { hasOfferCatalog } : {}),
+    ...(openingHoursSpecification ? { openingHoursSpecification } : {}),
   };
 }
 

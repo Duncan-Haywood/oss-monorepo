@@ -487,6 +487,37 @@ describe("leadLocalBusinessJsonLd", () => {
       ],
     });
   });
+
+  it("omits openingHoursSpecification when hours don't contain a recognizable day+time-range segment", () => {
+    const jsonLd = leadLocalBusinessJsonLd(baseLead());
+    expect(jsonLd.openingHoursSpecification).toBeUndefined();
+  });
+
+  it("attaches schema.org OpeningHoursSpecification entries parsed from hours", () => {
+    const jsonLd = leadLocalBusinessJsonLd(
+      baseLead({ hours: { weekday: "Mon–Fri 7am–3pm", weekend: "Sat–Sun 8am–2pm" } }),
+    );
+    expect(jsonLd.openingHoursSpecification).toEqual([
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: [
+          "https://schema.org/Monday",
+          "https://schema.org/Tuesday",
+          "https://schema.org/Wednesday",
+          "https://schema.org/Thursday",
+          "https://schema.org/Friday",
+        ],
+        opens: "07:00",
+        closes: "15:00",
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["https://schema.org/Saturday", "https://schema.org/Sunday"],
+        opens: "08:00",
+        closes: "14:00",
+      },
+    ]);
+  });
 });
 
 describe("safeJsonLdScript", () => {
