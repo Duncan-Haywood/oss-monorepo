@@ -65,6 +65,7 @@ import {
   LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY,
 } from "@/lib/leads/stripe-connect-persist";
 import { LEAD_BUFFER_PROFILES_CONVEX_PRIMARY } from "@/lib/leads/buffer-profiles-persist";
+import { LEAD_BUFFER_POSTED_VARIANT_KEYS_CONVEX_PRIMARY } from "@/lib/marketing/buffer-posted-variant-persist";
 import { LEAD_STAGE_CONVEX_PRIMARY } from "@/lib/leads/stage-persist";
 import { LEAD_UPSERT_CONVEX_PRIMARY } from "@/lib/leads/upsert-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
@@ -3479,7 +3480,11 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
         for (const key of newlyPostedKeys) {
           freshAlreadyPostedKeys.add(key);
         }
-        await updateLeadBufferPostedVariantKeys(slug, [...freshAlreadyPostedKeys]);
+        await updateLeadBufferPostedVariantKeys(
+          slug,
+          [...freshAlreadyPostedKeys],
+          LEAD_BUFFER_POSTED_VARIANT_KEYS_CONVEX_PRIMARY,
+        );
       } catch (error) {
         // The Buffer posts above already succeeded and cannot be undone — a
         // failure to persist the marker must not turn a successful schedule
