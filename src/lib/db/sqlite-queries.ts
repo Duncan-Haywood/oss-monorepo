@@ -17,9 +17,11 @@
 import type { DatabaseSync } from "node:sqlite";
 import type { Lead, LeadPipelineStage, OutreachStep } from "../leads/types";
 import { newLeadId } from "../leads/types";
+import { buildPaymentStubLeadFields } from "../leads/payment-stub";
 import { normalizeOutreachStep } from "../email/outreach-followups";
 import { serializeLeadHours, serializeLeadServices } from "../leads/sqlite-row-mapping";
 import type { OrderRecord } from "../orders/types";
+import { newOrderId } from "../orders/types";
 import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "../orders/sqlite-row-mapping";
 import type { ClientInquiry } from "../inquiries/types";
 import { mapClientInquiryRow, type SqliteClientInquiryRow } from "../inquiries/sqlite-row-mapping";
@@ -446,4 +448,104 @@ export function sqliteUpdateDeployHandoffCustomDomain(
     customDomain: customDomain || undefined,
     updatedAt,
   };
+}
+
+/**
+ * Idempotency check for recordLeadPayment's SQLite branch — Stripe redelivers
+ * checkout.session.completed on retry/timeout, and the caller must skip the
+ * lead/order writes below entirely once a row for this stripeSessionId
+ * already exists. Kept as its own sync function (rather than folded into
+ * sqliteRecordLeadPayment) so db.ts can check it BEFORE the async
+ * getLeadBySlug Convex-first lookup — a redelivered webhook must not pay the
+ * cost of that lookup at all, matching the original inline ordering exactly.
+ */
+export function sqliteOrderAlreadyRecorded(db: DatabaseSync, stripeSessionId: string): boolean {
+  const existingOrder = db
+    .prepare("SELECT id FROM orders WHERE stripeSessionId = ?")
+    .get(stripeSessionId) as { id: string } | undefined;
+  return Boolean(existingOrder);
+}
+
+/**
+ * Records a bundle payment (Starter/Growth/Complete checkout) on the SQLite
+ * fallback path — the single highest-stakes write in this codebase on a
+ * SQLite-fallback deployment. Caller (db.ts's recordLeadPayment) must call
+ * sqliteOrderAlreadyRecorded first and skip this entirely on a redelivery,
+ * then resolve `leadExists` via its own async getLeadBySlug(params.slug)
+ * lookup (which stays in db.ts since it may itself try Convex first) before
+ * calling this. When !leadExists, creates a minimal payment-stub lead
+ * (organic/no-CRM buyer — keep field defaults aligned with Convex
+ * markLeadPaid's stub, see payment-stub.ts). When leadExists, applies the
+ * live-stage-never-downgrades guard (a Starter upsell to Growth/Complete on
+ * an already-live lead must not regress it back to "paid") — mirrors
+ * convex/leads.ts markLeadPaid's identical guard. The order INSERT always
+ * runs, in both branches. Split out of src/lib/db.ts's recordLeadPayment
+ * SQLite-fallback branch (flagged but deliberately left untested by
+ * sqlite-db-injectable-query-extraction, 2026-07-19 — see
+ * sqlite-record-lead-payment-extraction) — pure code move, no behavior
+ * change.
+ */
+export function sqliteRecordLeadPayment(
+  db: DatabaseSync,
+  params: {
+    slug: string;
+    stripeSessionId: string;
+    tier: string;
+    commerceAddon: boolean;
+    amountTotal: number;
+    stripeCustomerId?: string;
+  },
+  leadExists: boolean,
+): void {
+  if (!leadExists) {
+    // Keep field defaults aligned with Convex markLeadPaid stub + payment-stub.ts.
+    const stub = buildPaymentStubLeadFields(params.slug);
+    const id = newLeadId();
+
+    db.prepare(
+      `INSERT INTO leads (id, slug, businessName, category, city, state, phone, tagline, description, recommendedTier, dataSource, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'paid')`,
+    ).run(
+      id,
+      stub.slug,
+      stub.businessName,
+      stub.category,
+      stub.city,
+      stub.state,
+      stub.phone,
+      stub.tagline,
+      stub.description,
+      stub.recommendedTier,
+      stub.dataSource,
+    );
+  } else {
+    // Mirrors convex/leads.ts markLeadPaid's live-stage guard: never regress
+    // an already-live lead back to "paid" on a second purchase (e.g. a
+    // Starter upsell to Growth/Complete on a lead whose site is already
+    // deployed). The order INSERT below still runs unconditionally either
+    // way — only the status patch is guarded.
+    db.prepare(
+      "UPDATE leads SET status = 'paid', updatedAt = datetime('now') WHERE slug = ? AND status != 'live'",
+    ).run(params.slug);
+  }
+
+  const leadRow = db.prepare("SELECT id FROM leads WHERE slug = ?").get(params.slug) as {
+    id: string;
+  };
+
+  const orderId = newOrderId();
+  const createdAt = new Date().toISOString();
+  db.prepare(
+    `INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, createdAt)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    orderId,
+    leadRow.id,
+    params.stripeSessionId,
+    params.stripeCustomerId ?? null,
+    params.tier,
+    params.commerceAddon ? 1 : 0,
+    params.amountTotal,
+    createdAt,
+  );
 }
