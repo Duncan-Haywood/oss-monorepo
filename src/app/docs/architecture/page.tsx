@@ -304,7 +304,18 @@ export default function ArchitectureDocPage() {
         banner via <code>assessAppUrlEnvReadiness</code> (
         <code>src/lib/seo/app-url-env-readiness.ts</code>) — missing / whitespace / localhost /{" "}
         <code>example.com</code> placeholders are flagged (env presence only; distinct from Stripe
-        / Resend / auth banners). Until <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> is a bare
+        / Resend / auth banners). LocalBusiness JSON-LD also attaches an{" "}
+        <code>openingHoursSpecification</code> array when a lead&apos;s free-text{" "}
+        <code>hours.weekday</code>/<code>hours.weekend</code> fields contain a recognizable
+        &ldquo;<code>&lt;Day&gt;[–&lt;Day&gt;] &lt;time&gt;–&lt;time&gt;</code>&rdquo; segment (e.g.
+        &ldquo;Mon–Fri 7am–3pm&rdquo;), via <code>leadOpeningHoursSpecification</code> (
+        <code>src/lib/leads/hours-schema.ts</code>). This is deliberately strict-match-or-omit,
+        never a fuzzy guess: prose like &ldquo;by appointment&rdquo; or &ldquo;emergency
+        on-call&rdquo; is silently dropped rather than mapped to a plausible-looking but wrong
+        time range, since publishing an incorrect open/close time into a real customer&apos;s
+        Google Knowledge Panel is worse than publishing no hours at all. A middot-joined field
+        (e.g. &ldquo;Sat 9am–4pm · Closed Sun–Mon&rdquo;) parses each clause independently and
+        keeps only the ones that match. Until <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> is a bare
         public production root, the same dashboards show a cyan production-root banner via{" "}
         <code>assessProductionDomainEnvReadiness</code> (
         <code>src/lib/deploy/production-domain-env-readiness.ts</code>) — missing / whitespace /
