@@ -655,4 +655,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "buffer-posted-variant-keys-convex-fail-closed",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-n9qx6h",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip ecc06c4d (PR #718, buffer-posted-variant-keys-convex-fail-closed, merged same session) — HEAD matched origin/main exactly at session start (branch recreated from fresh origin/main per the merged-PR restart convention; tip commit re-authored via `git commit --amend --reset-author` after a repo stop-hook flagged the GitHub-generated merge commit's noreply@github.com committer as unverified). Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2853 passed, 203 files — matching the immediately-prior iteration's own reported count exactly). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (646 remote heads) found the same two previously-documented already-merged duplicates (nice-euler-kdqxni as #717, upbeat-dijkstra-7rdjcd as #716) plus the long-standing stale nice-euler-to3z0u duplicate — no live fold candidate. Zero commits since this session's own starting tip, so dispatched a foreground research agent (general-purpose) steered at the highest-value angle first: re-check whether any other db.ts write function shares the pre-fix shape the immediately-prior iteration just found and closed (accepts no ConvexPrimaryWriteOptions, or a caller leaves it unpassed, on a field that's an idempotency guard / entitlement flag / money fact read Convex-first elsewhere).\n\nIt came back with an honest, well-evidenced null result: all 48 write-style exports in db.ts already accept and correctly wire ConvexPrimaryWriteOptions (grep-confirmed, no orphans), and every non-test call site for every idempotency/entitlement/money-class field already passes its correctly-scoped *_CONVEX_PRIMARY constant — the class is genuinely exhausted, updateLeadBufferPostedVariantKeys was the last one. Five fallback tiers (Convex API map completeness, sold-capability wiring, CSP inline-style sweep, dead-click due-queue class, untested-orchestration coverage) were each independently re-verified and found already closed or already correctly ruled out. See post-718-convex-fail-closed-class-reconfirmed-exhausted-clean in BUSINESS_DECISIONS for the full checklist.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-718-convex-fail-closed-class-reconfirmed-exhausted-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. No other files changed — NEXT_STEPS unchanged, all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to ba592e38 (this iteration's own starting tip, post tip-commit re-authoring).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2853 passed, unchanged, 203 files). No npm run build / npm run dev smoke check needed — no product/runtime code changed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-718-convex-fail-closed-class-reconfirmed-exhausted-clean",
+    ),
+  },
 ];
