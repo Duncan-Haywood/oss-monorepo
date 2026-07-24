@@ -10,6 +10,11 @@ import { CSV_LEAD_TEMPLATE, formatCsvImportSummary } from "@/lib/leads/csv-impor
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import { dashboardRowActionAriaLabel } from "@/lib/leads/dashboard-row-aria-labels";
 import {
+  inquiryReplyToggleElementId,
+  leadCommerceToggleElementId,
+  leadNotesToggleElementId,
+} from "@/lib/leads/dashboard-focus-restore";
+import {
   updateLeadStageAction,
   addLeadAction,
   importLeadsCsvAction,
@@ -368,11 +373,19 @@ export function LeadsClient({
     }
   };
 
-  const closeNotesEditor = () => {
+  const closeNotesEditor = (slug?: string) => {
+    const focusSlug = slug ?? notesEditSlug;
     setNotesEditSlug(null);
     setNotesDraft("");
     setNotesError(null);
     setNotesPromptReason(null);
+    // The Save/Cancel button that triggered this close is inside the panel
+    // being unmounted here — without this, focus would silently fall back
+    // to <body>. The toggle button that opened the panel stays mounted for
+    // the row's whole lifetime, so it's always a valid refocus target.
+    if (focusSlug) {
+      document.getElementById(leadNotesToggleElementId(focusSlug))?.focus();
+    }
   };
 
   const handleSaveNotes = (slug: string) => {
@@ -386,7 +399,7 @@ export function LeadsClient({
       setLeads((prev) =>
         prev.map((l) => (l.slug === slug ? { ...l, notes: res.notes } : l)),
       );
-      closeNotesEditor();
+      closeNotesEditor(slug);
     });
   };
 
@@ -646,6 +659,15 @@ export function LeadsClient({
     }
   };
 
+  // Cancel and a successful Send reply both close the composer from a
+  // button *inside* the panel that unmounts on close — same refocus fix as
+  // closeNotesEditor/closeCommerceEditor above, back onto the still-mounted
+  // Reply toggle button rather than letting focus fall to <body>.
+  const closeReplyComposer = (inquiryId: string) => {
+    setReplyOpenId(null);
+    document.getElementById(inquiryReplyToggleElementId(inquiryId))?.focus();
+  };
+
   const handleInquiryReply = (inquiryId: string) => {
     const body = replyDrafts[inquiryId] ?? "";
     startTransition(async () => {
@@ -669,7 +691,7 @@ export function LeadsClient({
         delete next[inquiryId];
         return next;
       });
-      setReplyOpenId(null);
+      closeReplyComposer(inquiryId);
       if (res.mock) {
         alert("Reply sent (mock — RESEND_API_KEY not configured).");
       }
@@ -878,9 +900,15 @@ export function LeadsClient({
     );
   };
 
-  const closeCommerceEditor = () => {
+  const closeCommerceEditor = (slug?: string) => {
+    const focusSlug = slug ?? commerceEditSlug;
     setCommerceEditSlug(null);
     setCommerceDraftItems([]);
+    // Same refocus fix as closeNotesEditor above — the Close/Save button
+    // that triggered this is inside the panel being unmounted here.
+    if (focusSlug) {
+      document.getElementById(leadCommerceToggleElementId(focusSlug))?.focus();
+    }
   };
 
   const handleSaveCommerceCatalog = (slug: string) => {
@@ -894,7 +922,7 @@ export function LeadsClient({
         const without = prev.filter((c) => c.leadSlug !== slug);
         return [res.catalog, ...without];
       });
-      closeCommerceEditor();
+      closeCommerceEditor(slug);
     });
   };
 
@@ -2761,7 +2789,7 @@ export function LeadsClient({
                           <button
                             type="button"
                             disabled={isPending}
-                            onClick={() => setReplyOpenId(null)}
+                            onClick={() => closeReplyComposer(inq.id)}
                             className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-60"
                           >
                             Cancel
@@ -2795,6 +2823,7 @@ export function LeadsClient({
                         type="button"
                         disabled={isPending}
                         onClick={() => handleToggleReplyComposer(inq)}
+                        id={inquiryReplyToggleElementId(inq.id)}
                         aria-label={dashboardRowActionAriaLabel(
                           inq.status === "replied" ? "Reply again" : "Reply",
                           inq.businessName,
@@ -3473,8 +3502,9 @@ export function LeadsClient({
                             type="button"
                             disabled={isPending}
                             onClick={() =>
-                              notesOpen ? closeNotesEditor() : openNotesEditor(lead)
+                              notesOpen ? closeNotesEditor(lead.slug) : openNotesEditor(lead)
                             }
+                            id={leadNotesToggleElementId(lead.slug)}
                             aria-label={dashboardRowActionAriaLabel(
                               notesOpen ? "Close notes" : leadHasNotes(lead.notes) ? "Edit notes" : "Notes",
                               lead.businessName,
@@ -3659,9 +3689,10 @@ export function LeadsClient({
                               disabled={isPending}
                               onClick={() =>
                                 commerceOpen
-                                  ? closeCommerceEditor()
+                                  ? closeCommerceEditor(lead.slug)
                                   : openCommerceEditor(lead)
                               }
+                              id={leadCommerceToggleElementId(lead.slug)}
                               aria-label={dashboardRowActionAriaLabel(
                                 commerceOpen
                                   ? "Close catalog"
@@ -4100,7 +4131,7 @@ export function LeadsClient({
                             <button
                               type="button"
                               disabled={isPending}
-                              onClick={() => closeCommerceEditor()}
+                              onClick={() => closeCommerceEditor(lead.slug)}
                               className="inline-flex h-8 items-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 disabled:opacity-60"
                             >
                               Cancel
@@ -4326,7 +4357,7 @@ export function LeadsClient({
                             <button
                               type="button"
                               disabled={isPending}
-                              onClick={closeNotesEditor}
+                              onClick={() => closeNotesEditor(lead.slug)}
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-60"
                             >
                               {notesPromptReason ? "Skip for now" : "Cancel"}
