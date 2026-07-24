@@ -487,10 +487,14 @@ describe("Buffer scheduling dashboard actions", () => {
       expect(result.success).toBe(true);
       if (!result.success) return;
       expect(result.scheduled).toEqual(["p-fb (1/2)", "p-fb (2/2)"]);
-      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith("demo-cafe", [
-        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0",
-        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|1",
-      ]);
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith(
+        "demo-cafe",
+        [
+          "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0",
+          "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|1",
+        ],
+        expect.objectContaining({ requireConvex: true }),
+      );
     });
 
     it("skips a variant already posted this pack instead of re-posting it", async () => {
@@ -524,10 +528,14 @@ describe("Buffer scheduling dashboard actions", () => {
       });
       expect(result.scheduled).toEqual(["p-fb (2/2)"]);
       expect(result.skipped).toEqual(["p-fb (1/2): already posted this month"]);
-      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith("demo-cafe", [
-        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0",
-        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|1",
-      ]);
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith(
+        "demo-cafe",
+        [
+          "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0",
+          "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|1",
+        ],
+        expect.objectContaining({ requireConvex: true }),
+      );
     });
 
     it("does not persist markers when every variant was already posted (nothing new to mark)", async () => {
@@ -578,9 +586,11 @@ describe("Buffer scheduling dashboard actions", () => {
       expect(result.scheduled).toEqual(["p-fb"]);
       expect(result.skipped).toEqual([]);
       // The stale prior-pack key is dropped, not carried forward.
-      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith("demo-cafe", [
-        "2026-07-05T00:00:00.000Z|p-fb|facebook_caption|0",
-      ]);
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith(
+        "demo-cafe",
+        ["2026-07-05T00:00:00.000Z|p-fb|facebook_caption|0"],
+        expect.objectContaining({ requireConvex: true }),
+      );
     });
 
     it("merges onto a concurrently-persisted marker set instead of overwriting it (TOCTOU lost-update guard)", async () => {
@@ -613,10 +623,30 @@ describe("Buffer scheduling dashboard actions", () => {
       expect(result.scheduled).toEqual(["p-fb"]);
       // The concurrently-persisted p-ig key survives, alongside our own new
       // p-fb key — neither invocation's marker is silently dropped.
-      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith("demo-cafe", [
-        "2026-07-01T00:00:00.000Z|p-ig|instagram_caption|0",
-        "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0",
-      ]);
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith(
+        "demo-cafe",
+        [
+          "2026-07-01T00:00:00.000Z|p-ig|instagram_caption|0",
+          "2026-07-01T00:00:00.000Z|p-fb|facebook_caption|0",
+        ],
+        expect.objectContaining({ requireConvex: true }),
+      );
+    });
+
+    it("passes fail-closed write options so a Convex failure never silently marks the marker on SQLite only (buffer-posted-variant-keys-convex-fail-closed)", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb"] }));
+      getMarketingPack.mockResolvedValue(fakePack());
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalledWith(
+        "demo-cafe",
+        expect.any(Array),
+        expect.objectContaining({ requireConvex: true }),
+      );
     });
 
     it("still reports success when persisting the posted-variant marker fails — the Buffer post already happened", async () => {
@@ -625,6 +655,22 @@ describe("Buffer scheduling dashboard actions", () => {
       listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
       createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
       updateLeadBufferPostedVariantKeys.mockRejectedValue(new Error("Convex down"));
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.scheduled).toEqual(["p-fb"]);
+      expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalled();
+    });
+
+    it("still reports success when the posted-variant marker persist fails closed (ConvexPrimaryWriteError) — the Buffer post already happened", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb"] }));
+      getMarketingPack.mockResolvedValue(fakePack());
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+      updateLeadBufferPostedVariantKeys.mockRejectedValue(new MockConvexPrimaryWriteError());
 
       const { scheduleMarketingPackToBufferAction } = await import("./actions");
       const result = await scheduleMarketingPackToBufferAction("demo-cafe");

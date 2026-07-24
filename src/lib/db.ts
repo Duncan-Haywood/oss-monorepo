@@ -689,16 +689,28 @@ export async function updateLeadBufferProfileIds(
  * updateLeadBufferProfileIds — the caller computes the pruned+merged set via
  * pruneBufferPostedVariantKeysForPack before calling this.
  *
- * Deliberately does not fail closed on a Convex error the way
- * updateLeadBufferProfileIds does: this is called automatically right after
- * a successful Buffer post, which cannot be undone, so a marker-write failure
- * must not turn an already-succeeded schedule into a reported error — it
- * falls back to SQLite (or, on total failure, the caller logs and moves on)
- * rather than throwing.
+ * Must fail closed (LEAD_BUFFER_POSTED_VARIANT_KEYS_CONVEX_PRIMARY,
+ * buffer-posted-variant-keys-convex-fail-closed) rather than falling back to
+ * SQLite on a Convex mutation failure: getLeadBySlug reads
+ * bufferPostedVariantKeys Convex-first, both at the top of
+ * scheduleMarketingPackToBufferAction and in its own TOCTOU re-read
+ * immediately before this call. A silent SQLite-only fallback here would
+ * split-brain the marker — this instance's SQLite row would carry the
+ * just-posted key while every Convex-first reader (including this same
+ * action on its next invocation, possibly from a different instance) would
+ * not see it — reopening the door to a duplicate, irreversible post to the
+ * client's live Buffer/Facebook/Instagram profile. The call site already
+ * wraps this in a try/catch that logs and returns success (the Buffer post
+ * itself already happened and can't be undone), so failing closed here does
+ * not turn a successful schedule into a reported error — it only prevents
+ * the marker from landing somewhere Convex-first readers can't see it; the
+ * documented worst case (a later click can re-post) is unchanged from before
+ * this guard shipped.
  */
 export async function updateLeadBufferPostedVariantKeys(
   slug: string,
   bufferPostedVariantKeys: string[],
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
@@ -709,6 +721,9 @@ export async function updateLeadBufferPostedVariantKeys(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadBufferPostedVariantKeys", e);
+      }
       console.warn(
         `Failed to update Buffer posted-variant markers for ${slug} on Convex, falling back to SQLite database`,
         e,
