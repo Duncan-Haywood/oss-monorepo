@@ -4,6 +4,7 @@
  */
 
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
+import { defaultTierForCategory } from "./category-normalize";
 import { parseLeadHours } from "./sqlite-row-mapping";
 import { defaultTagline } from "./default-tagline";
 import { MAX_LEAD_SLUG_LENGTH, sanitizeLeadSlug } from "./slug";
@@ -297,9 +298,7 @@ function parseTier(value: string, category: BusinessCategory): Lead["recommended
   if (normalized && TIERS.has(normalized as Lead["recommendedTier"])) {
     return normalized as Lead["recommendedTier"];
   }
-  if (category === "salon") return "complete";
-  if (category === "trades") return "starter";
-  return "growth";
+  return defaultTierForCategory(category);
 }
 
 /**

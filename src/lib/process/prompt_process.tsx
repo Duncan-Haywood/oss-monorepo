@@ -569,4 +569,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "suppressed-emails-panel-aria-live-focus-restore",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-jnhgjk",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 55eb3f40 (PR #734, suppressed-emails-panel-aria-live-focus-restore, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2857 passed, 204 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (670+ remote heads) found the newest unmerged branch (claude/upbeat-dijkstra-xlxm94) diffs empty against origin/main — a pure subset already merged as PR #734, no live fold candidate.\n\nDiff-gate check (`git log --oneline f823320..HEAD -- src convex .github/workflows`) found one product-affecting commit since the prior anchor (PR #734's own accessibility fix), so per the waste-reduction rule dispatched a research agent rather than skipping straight to a spot-check. Briefed on every axis this log has already closed, it swept dashboard components beyond the two already covered by the accessibility series, the Stripe webhook refund/dispute twins, the Buffer scaffold, and a TODO/FIXME grep — all clean — then found a real, concrete fourth duplicate of the mapping category-default-tier-single-source (PR #733) had just consolidated three copies of: csv-import.ts's parseTier independently hardcoded the identical trades→starter/salon→complete/else→growth fallback ternary, missed by PR #733's own research pass because csv-import.ts never imported category-normalize.ts. Not a live bug today (all four categories still agreed), but the exact same drift-risk class that caused generic-lead-default-tagline-restaurant-leak (PR #729) for real once already.",
+    shipped: [
+      "src/lib/leads/csv-import.ts — imported defaultTierForCategory from ./category-normalize; parseTier's fallback branch now calls it instead of re-deriving the same three-way ternary. Explicit-value branch (TIERS.has check) unchanged.",
+      "src/lib/leads/category-normalize.test.ts — added a fourth case to the existing 'defaultTierForCategory cross-site consistency' describe block, exercising parseLeadsCsv with a blank recommendedTier column per category so this site is now pinned against drift the same way the other three already are.",
+      "src/lib/process/business-decisions.ts — appended csv-import-parse-tier-fourth-duplicate-fix.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 55eb3f40 (this iteration's own starting tip, post-PR-#734).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2858 passed — 1 new case, 204 files, up from 2857) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev smoke check (/dashboard/leads 200, /preview/example-bakery 200; dev server killed, port 3100 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "csv-import-parse-tier-fourth-duplicate-fix",
+    ),
+  },
 ];
