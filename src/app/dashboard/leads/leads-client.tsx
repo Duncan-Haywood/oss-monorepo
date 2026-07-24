@@ -890,7 +890,7 @@ export function LeadsClient({
       orders.filter((o) => o.leadSlug === lead.slug),
     );
 
-  const openCommerceEditor = (lead: Lead) => {
+  const openCommerceEditor = (lead: Lead, opts?: { bringIntoView?: boolean }) => {
     const existing = catalogForLead(lead.slug);
     setCommerceEditSlug(lead.slug);
     setCommerceDraftItems(
@@ -898,6 +898,21 @@ export function LeadsClient({
         ? existing.items.map((item) => ({ ...item }))
         : [{ id: newCommerceSkuId(), name: "", priceCents: 0 }],
     );
+    if (opts?.bringIntoView) {
+      // Called from the Commerce catalogs missing/unsynced due-queue panels,
+      // which list leads from the full unfiltered `leads` array — the target
+      // row (and its editor panel) may not exist in the DOM if the operator's
+      // current stage filter/search excludes it. Clear both so the row (and
+      // this panel) actually renders, then bring it into view, same as
+      // openNotesEditor's queue-prompt scroll below.
+      setFilterStage("all");
+      setSearchQuery("");
+      requestAnimationFrame(() => {
+        document
+          .getElementById(`lead-commerce-${lead.slug}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+    }
   };
 
   const closeCommerceEditor = (slug?: string) => {
@@ -1372,7 +1387,7 @@ export function LeadsClient({
                     <button
                       type="button"
                       disabled={isPending}
-                      onClick={() => openCommerceEditor(lead)}
+                      onClick={() => openCommerceEditor(lead, { bringIntoView: true })}
                       aria-label={dashboardRowActionAriaLabel("Add catalog", lead.businessName, lead.slug)}
                       className="rounded-lg bg-orange-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-900 disabled:opacity-60"
                     >
@@ -1438,7 +1453,7 @@ export function LeadsClient({
                     <button
                       type="button"
                       disabled={isPending}
-                      onClick={() => openCommerceEditor(lead)}
+                      onClick={() => openCommerceEditor(lead, { bringIntoView: true })}
                       aria-label={dashboardRowActionAriaLabel("Edit catalog", lead.businessName, lead.slug)}
                       className="rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-semibold text-amber-900 transition hover:bg-amber-100 disabled:opacity-60"
                     >
