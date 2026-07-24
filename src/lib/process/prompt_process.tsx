@@ -369,6 +369,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-q33g6d",
   },
+  {
+    id: "dashboard-inline-editor-close-focus-restore",
+    summary:
+      "Empty-backlog audit (tier 6/8 — accessibility, the one candidate left open by the prior iteration's AGENT_PROTOCOL note after the LLM prompt-injection and Stripe Connect onboarding-link candidates both closed). A research agent's deep landmark/keyboard/focus-management pass found landmarks and keyboard operability already correct across the dashboard, but a real, high-leverage focus-loss bug: the operator notes editor, Commerce catalog editor, and inquiry reply composer are each an inline row panel toggled open by a persistent button, but their own Save/Cancel/Close controls live inside the panel — clicking any of them unmounts the focused element and silently drops keyboard/screen-reader focus to <body>, with the next Tab restarting from the top of the page. This is the single most-repeated interaction shape in the dashboard's busiest file. Added src/lib/leads/dashboard-focus-restore.ts (pure toggle-button element-id builders, unit-tested, mirroring the dashboard-row-aria-labels.ts precedent) and wired closeNotesEditor/closeCommerceEditor/a new closeReplyComposer to refocus the still-mounted toggle button after clearing state, at all six close-triggering call sites. See dashboard-inline-editor-close-focus-restore in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-5nlmxr",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -850,6 +858,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "stripe-connect-onboarding-link-email-delivery",
+    ),
+  },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-5nlmxr",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip fbe6665c (PR #702, stripe-connect-onboarding-link-email-delivery) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2833 passed, 201 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (630 remote heads) and a committer-date sweep of the newest ~25 claude/* branches: every one with a nonzero diff against origin/main was checked against current main's actual code (not just diff --stat) and confirmed already shipped under a different SHA — no live fold candidate. The diff-gate against the documented anchor (b6d946e3) showed exactly one commit since (f1ef0867, the prior iteration's own already-documented feature) — a seventh consecutive zero-product-diff window, so per the waste-reduction rule this skipped a from-scratch tiered sweep and dispatched a foreground research agent straight at the one tier-6/8 candidate the prior iteration's AGENT_PROTOCOL note left open: accessibility (screen-reader landmarks, keyboard-only operability, focus management).\n\nLandmarks and keyboard operability both came back clean (single <main> per route, real <button>/<a>/<select> everywhere, no div/span-onClick pattern, no modal/dialog primitives anywhere in the repo since there are no true modals). It found a real, high-leverage gap in focus management instead: see dashboard-inline-editor-close-focus-restore in BUSINESS_DECISIONS for the full detail, the two runner-up findings (aria-live for vanishing due-queue rows; aria-pressed on sort/filter toggles) explicitly deferred as out of scope for this focused fix, and the exact fix pattern applied at all six close-triggering call sites.",
+    shipped: [
+      "src/lib/leads/dashboard-focus-restore.ts (new) — leadNotesToggleElementId, leadCommerceToggleElementId, inquiryReplyToggleElementId: pure element-id builders following the dashboard-row-aria-labels.ts precedent.",
+      "src/lib/leads/dashboard-focus-restore.test.ts (new) — 6 cases (per-builder keying + cross-builder/cross-record id uniqueness).",
+      "src/app/dashboard/leads/leads-client.tsx — imported the three id builders; gave each row's persistent toggle button (notes, commerce catalog, inquiry reply) a matching `id`; closeNotesEditor and closeCommerceEditor now take an optional slug (falling back to the live editing-state slug) and call document.getElementById(...)?.focus() on the matching toggle button after clearing state; extracted a new closeReplyComposer(inquiryId) used by both the Cancel button and handleInquiryReply's success path (previously two bare setReplyOpenId(null) calls with no refocus). All six close-triggering call sites (notes: toggle-as-close, Cancel button, Save-success; commerce: toggle-as-close, Close button, Save-success; reply: Cancel button, Send-success) now pass the slug/inquiry id already in scope from the surrounding per-row map() closure.",
+      "src/lib/process/business-decisions.ts — appended dashboard-inline-editor-close-focus-restore.",
+      "src/lib/process/prompt_process.tsx — appended a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is an accessibility hardening fix, not a resolution of any gated item. Diff-gate anchor moves to fbe6665c (this iteration's own starting tip).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2839 passed, up from 2833 — 6 new, 202 files, 1 new file) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev sanity check (/dashboard, /dashboard/leads both 200; curled the rendered leads page HTML confirming the new lead-notes-toggle-<slug> ids render on every row; dev server killed, port 3000 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "dashboard-inline-editor-close-focus-restore",
     ),
   },
 ];
