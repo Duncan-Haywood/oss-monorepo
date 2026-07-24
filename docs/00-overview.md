@@ -43,7 +43,10 @@ each other in this order:
 
 5. **[Business and Strategy](05-business-and-strategy.md)** — Industry
    partnerships, how portfolio evidence becomes a credential employers
-   trust, the business model and unit economics, and go-to-market strategy.
+   trust, a business model built on cost-gating rather than value-gating
+   (free where it doesn't cost us money, paid only where it genuinely
+   does) with a funded scholarship program and regional pricing, and
+   go-to-market strategy.
 
 6. **[Market Landscape and 10-Year Roadmap](06-market-and-roadmap.md)** —
    Researched competitive analysis (MIT, Coursera, Khan Academy, edX,

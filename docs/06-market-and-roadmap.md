@@ -290,20 +290,43 @@ relationship (Multiverse) to participate at all.
 ### Positioning: the space nobody occupies
 
 Lay these nine models side by side and a clear pattern falls out. Every
-platform picks at most two of these four things — content depth, real
-projects, an AI mentor as the core teaching mechanism, and physical
-hardware/engineering breadth — and none pick all four:
+platform picks at most two or three of these five things — content depth,
+real projects, an AI mentor as the core teaching mechanism, physical
+hardware/engineering breadth, and genuine low-cost global access without
+diluting quality — and none pick more than three:
 
 - **Content depth without projects or hardware**: MIT OCW, edX, Coursera, Brilliant.
 - **Real projects without AI mentorship or hardware**: Udacity, 42, Holberton.
 - **Hardware without curriculum or mentorship**: Hackster.io, Instructables.
 - **An AI tutor without engineering breadth or hardware**: Khanmigo, Codecademy's assistant.
+- **Low-cost global access without the other three**: Khan Academy is free
+  and genuinely global — over 150 million registered learners across 190+
+  countries, content translated into 50+ languages, real usage in India,
+  Africa, and Latin America — but it tops out at K-12/early-college content
+  with no hardware, no portfolio, and no discipline-specific engineering
+  depth. Coursera has real emerging-market mechanisms too — financial aid
+  for certificates, geopricing that adjusts to local purchasing power, and
+  institutional deals like its IFC-backed partnership and Pakistan's HEC
+  agreement giving free access to thousands of learners — but that access
+  sits on top of the same video-lecture, breadth-over-depth model, so what a
+  subsidized learner in a lower-income country actually gets is more free
+  video, not a path to a shipped, portfolio-worthy product.
 
 No competitor combines project-first pedagogy, a persistent AI mentor that
 functions as the primary teacher (not a bolted-on chatbot), real physical
-hardware and manufacturable products, and coverage across multiple engineering
+hardware and manufacturable products, coverage across multiple engineering
 disciplines with a genuine outcome metric — "can this person independently
-design and ship a real system" — rather than course completions or watch time.
+design and ship a real system" — and genuine low-cost global access that
+doesn't dilute quality to get there. The last point is worth being precise
+about: Khan Academy and Coursera both prove that *reaching* emerging-market
+learners is achievable — free tiers and financial aid are not novel ideas.
+What neither proves, because neither is built to, is that a learner in a
+lower-income region can reach the *same ceiling* of engineering competence as
+one in a wealthy one. That requires a cost-gated, not value-gated, business
+model (see Business Principles): the free tier has to be genuinely capable,
+not a stripped-down teaser, and the paid tier has to be priced against local
+purchasing power and backed by a scholarship program, not a flat global rate
+that quietly excludes the learners the free tier was supposed to reach.
 
 That is also not an accident of competitors missing an obvious idea. It's
 downstream of their business models. MOOC platforms are built to distribute
@@ -317,7 +340,10 @@ hardware content precisely because they don't have to build or fund a
 curriculum — they just host what makers already made. And nothing in this
 list ever had a reason to invest in physical hardware logistics (kits,
 shipping, manufacturability review) because none of them were founded around
-physical engineering outcomes in the first place.
+physical engineering outcomes in the first place. None of them, either, had a
+reason to treat global cost parity as a design constraint rather than a nice-
+to-have: a free-content-plus-financial-aid layer bolted onto an expensive-to-
+scale model is a discount, not architecture for low marginal cost.
 
 What makes this position occupiable *now*, and not five years ago, is that
 frontier AI models are for the first time capable of doing the things a good
@@ -326,11 +352,18 @@ calculation, asking "why this component and not a cheaper one," tracking what
 a specific learner has and hasn't mastered over years — at a marginal cost
 close to zero. That's the technological unlock that makes "real AI mentor,
 not a chatbot bolted onto a video library" an actual product, not a slogan.
-Combined with a project-first, outcome-oriented philosophy and a
-willingness to ship physical hardware to students, that's the open space:
-**the place nobody else occupies is project-first, AI-mentored, portfolio-
-building, outcome-oriented engineering education across disciplines, with
-real hardware and real shipped products, at the unit economics of software.**
+It's also what makes real global access to that mentor economically possible
+in the first place, rather than something to be subsidized indefinitely out
+of goodwill — low marginal cost is what a scholarship program and regional
+pricing can actually sustain, as opposed to a discount a platform quietly
+can't afford at scale. Combined with a project-first, outcome-oriented
+philosophy and a willingness to ship physical hardware to students, that's
+the open space: **the place nobody else occupies is project-first,
+AI-mentored, portfolio-building, outcome-oriented engineering education
+across disciplines, with real hardware and real shipped products, at the
+unit economics of software — architected so a learner in Lagos can reach the
+same ceiling as one in Boston, not just audit the same first three weeks for
+free.**
 
 ---
 
@@ -363,9 +396,21 @@ have failed.
 - Ship a portfolio system that turns finished projects into a shareable,
   employer-legible artifact, not just a completion badge.
 - Recruit an initial cohort of a few hundred to low-thousands of highly
-  motivated learners (likely self-taught hobbyists, career-changers, and
-  ambitious students already active in maker communities like Hackster.io) —
-  people who are the target audience, not a representative mass market.
+  motivated learners — engineering undergrads and grad students, career-
+  changers (especially software engineers moving into physical engineering),
+  and ambitious self-taught builders already active in maker communities like
+  Hackster.io — people who are the target audience, not a representative mass
+  market.
+- Deliberately include learners outside the US and other high-income markets
+  in that founding cohort, not as a later expansion but from day one — global
+  access is a hard constraint on this platform (see Business Principles and
+  "Who This Is For"), and the cost-gate business model (free curriculum,
+  paid only where something genuinely costs money) needs to be tested against
+  real ability-to-pay differences early, not discovered as a problem at
+  Phase 3 scale. This doesn't require full regional pricing infrastructure
+  yet, but it does mean the Year 1 free tier and any early paid tier are
+  built and priced with a Lagos-based learner in mind, not retrofitted for
+  one later.
 
 **What must be true to advance to Phase 2**
 
@@ -379,7 +424,14 @@ have failed.
   the first rung.
 - Unit economics for one discipline (AI inference cost, hardware kit cost,
   support cost per learner) are understood well enough to model what
-  discipline #2 will cost.
+  discipline #2 will cost, and well enough to see whether genuinely low-cost
+  global access is economically plausible or just aspirational.
+- Learners in the founding cohort from lower-income regions are finishing
+  projects and being reviewed as capable at rates comparable to learners
+  anywhere else — early, small-sample evidence that quality isn't quietly
+  degrading for the learners the equity mission is supposed to serve,
+  not proof at scale, but a check that has to start now rather than in
+  Phase 3.
 
 **Key risks**
 
@@ -387,6 +439,12 @@ have failed.
   judgment calls that matter most (design tradeoffs, teaching intuition,
   catching subtle misconceptions) — this is the central product risk of the
   entire company and needs to be tested relentlessly in Year 1, not assumed.
+- The cost-gate model depends on AI inference and simulation costs actually
+  being low enough, and staying low enough, to make a genuinely capable free
+  tier and an affordable regional-priced tier both sustainable. If that
+  assumption is wrong, the Lagos-equals-Boston commitment either gets
+  quietly walked back or funded unsustainably — this needs pressure-testing
+  with real usage data in Year 1, not just modeled in a spreadsheet.
 - Hardware logistics (kitting, shipping, component sourcing, defect returns)
   turn out to be a much bigger operational burden than the software side —
   common failure mode for "learn hardware by mail" businesses historically.
@@ -420,6 +478,15 @@ have failed.
 - Begin experimenting with community and marketplace features at small
   scale — peer project reviews, showcases, maybe an early version of
   students selling small-batch products they've designed.
+- Formally launch the scholarship program and regional/PPP-adjusted pricing
+  (see Business Principles): once there's a real paid tier to cross-subsidize
+  from, a portion of that revenue starts funding AI mentor access and
+  hardware kits for learners in lower-income regions, and pricing shifts from
+  a flat rate to one adjusted for local purchasing power. This is a Phase 2
+  milestone, not a Phase 4 aspiration — the Lagos-equals-Boston commitment
+  stated in the mission is only real once it's backed by an actual mechanism,
+  and there's no principled reason to wait until the platform is large to
+  start.
 
 **What must be true to advance to Phase 3**
 
@@ -432,6 +499,12 @@ have failed.
 - The business model (direct-to-learner subscription/pricing, plus any early
   B2B/employer revenue) is sustainable enough to fund the next expansion
   without depending on one-time capital events.
+- The scholarship program and regional pricing are functioning as intended —
+  subsidized and regionally-priced learners are progressing at rates
+  comparable to full-price learners, and the subsidy is sustainable out of
+  paid-tier revenue rather than draining it. If either isn't true, that's a
+  signal to fix the mechanism before scaling it globally in Phase 3, not to
+  scale a broken version faster.
 
 **Key risks**
 
@@ -464,10 +537,13 @@ have failed.
   and contract manufacturers integrated directly into the platform, so a
   student's BOM and manufacturability review connects to real sourcing and
   real quotes, not just theoretical numbers.
-- Localize for major non-English markets, since a global-default engineering
-  education platform cannot be English-only; likely priorities are the
-  largest engineering-talent markets (India, greater China where accessible,
-  Latin America, Southeast Asia, Sub-Saharan Africa where connectivity
+- Localize for major non-English markets, extending the scholarship program
+  and regional pricing launched in Phase 2 from a handful of pilot regions to
+  a genuinely global footprint, since a global-default engineering education
+  platform cannot be English-only or price itself for high-income countries
+  by default; likely priorities are the largest engineering-talent markets
+  (India, greater China where accessible, Latin America, Southeast Asia, and
+  Sub-Saharan Africa — including markets like Nigeria — where connectivity
   allows).
 - Expand employer partnerships from a handful of early believers to a
   structured hiring pipeline — employers actively recruiting directly out of

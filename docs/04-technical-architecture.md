@@ -31,6 +31,22 @@ work — nobody spins a PCB before running SPICE, nobody CNCs a bracket before
 running FEA, nobody flashes firmware to a drone before running it in a
 flight simulator.
 
+This is also, deliberately, a business decision and not only a pedagogical
+one (see Business Principles in the brief). Simulation is cheap to run at
+scale in a way that shipping physical components to every learner never
+will be — a virtual MOSFET that blows up costs compute, not shipping, and
+not a subsidy. That's the lever that makes genuine global access possible
+without diluting quality: a learner in Lagos gets the same simulate-first
+iteration loop, at the same fidelity, as a learner in Boston, because the
+marginal cost of one more simulation run is close to zero regardless of
+where the request originates. Physical prototyping still matters and still
+happens — see "Where simulation cannot substitute for hardware" below — but
+the architecture should push as much of the iteration loop as it credibly
+can into simulation before a learner needs real hardware, precisely because
+every step moved into simulation is a step that doesn't require the
+platform to subsidize someone's parts, shipping, or lab access to keep the
+ceiling of competence equal across geographies.
+
 The platform needs four distinct simulation capabilities, because they solve
 different problems and fail in different ways.
 
@@ -278,6 +294,21 @@ constantly (breadboard, multimeter, hand tools); rent or share what's
 expensive and used occasionally (reflow oven, real oscilloscope, CNC
 mill).** That principle is what makes remote/shared lab access a real
 architectural component rather than a nice-to-have.
+
+This tiering is also the concrete mechanism behind the Lagos-equals-Boston
+parity goal, not just a cost-conscious default. A sub-$50 day-one kit means
+the first-dollar barrier to starting real engineering work is low enough
+that geography and local income shouldn't determine who gets to begin.
+Shared and remote access to the expensive tier — the oscilloscope, the
+reflow oven, the CNC mill — means reaching advanced, manufacturable-product
+work doesn't require a student to personally own capital-intensive
+equipment, which is exactly the requirement that would otherwise re-impose
+the access gap the platform exists to close. A student in Lagos who can
+afford the day-one kit and can book time on a remote scope or a shared fab
+lab should be able to reach the same competence ceiling as a student in
+Boston with a garage full of bench equipment — the tiering is what makes
+that literally true in terms of what hardware a learner is required to
+personally own at each stage, not just an aspiration.
 
 ### Distributor, fab, and assembly partnerships
 
@@ -565,28 +596,52 @@ prompt-and-response chat interface. Concretely:
   re-fetched and re-reasoned-over identically every time); and treating
   "cost per mentor interaction" as a first-class metric the team watches
   continuously, not something discovered after scale becomes a problem.
-- **Safety and moderation for a platform that includes minors**: given the
-  brief's own long-term vision explicitly starts someone "at age 15," the
-  platform has to be built assuming minors from day one, not retrofitted
-  later. This means: age-appropriate moderation on all AI interactions;
-  strict data handling for any account plausibly belonging to a minor
-  (aligned with COPPA and equivalent regimes in other jurisdictions);
-  human-in-the-loop escalation paths for anything the moderation layer
-  flags as concerning; and physical-safety-specific guardrails given that
+- **Safety guardrails around real hazards**: the primary audience is
+  capable adults — undergraduate and graduate engineering students and
+  career-changers, not a K-12 population — so moderation doesn't need to be
+  built around child-safety regimes as a central design axis. What does
+  need to be built from day one is physical-safety guardrails, since
   projects involve real electrical, mechanical, and (later) chemical
-  hazards — the mentor should be able to recognize and flag genuinely
-  unsafe builds (mains-voltage mistakes, structurally unsound load-bearing
-  designs, chemical mishandling) as a hard stop, not a suggestion.
-- **Offline and low-bandwidth considerations**: the platform's mission
-  explicitly aims at producing world-class engineers broadly, which means
-  designing for students without reliable high-bandwidth connections, not
-  just the common case. This argues for: simulation environments that run
-  client-side (in-browser WASM execution) rather than requiring a
-  persistent connection to a server-side simulator; curriculum content
-  that's cacheable/downloadable for offline study; and an AI mentor
-  interaction model that degrades gracefully — batched/asynchronous review
-  when a live round-trip isn't available, rather than the platform being
-  unusable without a constant connection.
+  hazards regardless of the learner's age: the mentor should be able to
+  recognize and flag genuinely unsafe builds (mains-voltage mistakes,
+  structurally unsound load-bearing designs, chemical mishandling) as a
+  hard stop, not a suggestion. A smaller population of younger or
+  under-18 learners will still show up organically (a motivated
+  17-year-old is a plausible early user even if not the target segment),
+  so basic age-appropriate data handling (COPPA-equivalent where
+  applicable) is worth having as a baseline, not a core product axis.
+
+### Offline and low-bandwidth as a first-class requirement
+
+This is not a minor technical afterthought bolted on for edge cases — it's
+a direct consequence of the Lagos-equals-Boston design constraint stated in
+the brief. "Quality does not get diluted for accessibility" is a hard
+requirement, and connectivity is one of the most common real-world barriers
+between a capable learner and this platform, arguably a bigger day-to-day
+obstacle than hardware cost for a large share of the target audience.
+Reliable high-bandwidth, always-on internet is a Boston assumption, not a
+global one, and an architecture that quietly requires it would recreate
+exactly the geography-determines-outcome gap the platform is supposed to
+eliminate — just moved from "can you afford a lab" to "can you afford
+always-on broadband." So this has to be treated as load-bearing NFR, not a
+line item to revisit later:
+
+- **Simulation runs client-side by default**: in-browser WASM execution
+  (the same architectural choice already motivated above for latency and
+  cost) also means a student's core iteration loop — the SPICE run, the
+  firmware simulation, the PID tuning sandbox — doesn't require a
+  round-trip to a server at all, so it keeps working on a slow or
+  intermittent connection the same way it works on a fast one. Fidelity
+  shouldn't degrade based on the learner's bandwidth.
+- **Curriculum content is cacheable and downloadable**: lessons, project
+  briefs, and reference material should be structured for offline study —
+  synced when a connection is available, usable when it isn't — rather than
+  assuming a persistent connection to fetch content on demand.
+- **The AI mentor degrades gracefully instead of failing hard**: when a
+  live round-trip to the mentor isn't available, the platform should fall
+  back to batched or asynchronous review (queue the question or submission,
+  respond when connectivity returns) rather than becoming unusable. A
+  learner without a live connection should lose immediacy, not access.
 
 ### Why this shape, not a simpler one
 

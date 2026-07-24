@@ -38,6 +38,56 @@ This platform optimizes for:
 AI is not an optional feature. AI is the primary mentor throughout the
 learning process.
 
+## Who This Is For
+
+This is not K-12, and it's not trying to replace a bachelor's degree
+wholesale. The target learner is undergraduate- and graduate-level:
+someone who already has (or is building) the mathematical and reasoning
+maturity to engage with real engineering, and who wants practical,
+demonstrable skill rather than another lecture sequence. Concretely, that
+includes:
+
+- Engineering undergrads and grad students who want the practical,
+  build-things competence their coursework doesn't give them.
+- Career-changers — including software engineers who want to move into
+  physical engineering (mechanical, electrical, robotics) and already know
+  how to learn technical material fast but lack the hands-on foundation.
+- Self-directed adult learners anywhere in the world who are capable and
+  motivated but don't have access to a good engineering program — someone
+  in Lagos should be able to reach the same ceiling of competence as
+  someone in Boston. That parity is a design constraint, not an aspiration:
+  quality does not get diluted for accessibility. Cost gets solved through
+  architecture (simulation-heavy, AI-native, low marginal cost per
+  learner — see Business Principles below), not through teaching less.
+
+This is also, honestly, a tool for its own founder: a working engineer in
+one discipline (software) who wants a credible, structured path into
+another (physical/hardware engineering). If it works for that person, it's
+a good signal it'll work for the broader audience.
+
+## Stance on AI: Assisted, Not Anti-AI
+
+The platform is unapologetically AI-heavy — not just as a mentor, but as a
+tool students are taught to use well in their actual engineering work, the
+same way a practicing engineer today uses AI copilots for code, CAD
+assistance, calculation checking, and literature search. Refusing to teach
+AI-assisted engineering would be training people for a version of the job
+that no longer exists.
+
+At the same time, there is real value in a learner being able to do the
+work themselves — not as purism, but because unaided understanding is what
+makes AI-assisted work fast and correct instead of fragile. A learner who
+can't reason about a circuit without an LLM can't tell when the LLM is
+wrong. So the platform draws a clear line:
+
+- **Production work** (building the actual project, iterating, shipping):
+  AI-assisted is normal and encouraged, same as in industry.
+- **Mastery checkpoints** (verifying a learner actually understands a
+  concept): periodically unaided, specifically so the mastery signal in the
+  learner's portfolio means something and isn't just "knows how to prompt."
+
+Both matter. Neither is the enemy of the other.
+
 ## The Core Differentiator
 
 Instead of asking "How do we teach electrical engineering?", ask "How do we
@@ -191,8 +241,13 @@ to real engineering tradeoffs.
 
 ### This naturally teaches entrepreneurship
 
-Not because everyone should found a company, but because engineers benefit
-from understanding the context in which products succeed. For each
+Entrepreneurial capability is a headline outcome here, not a side effect —
+weighted at least as heavily as landing a traditional engineering job, and
+for many learners the more important one. Not because everyone should
+found a company, but because the ability to see a problem, design a
+solution, and get it into someone else's hands is a strictly larger
+capability than the ability to pass a technical interview, and it's
+underserved by every existing engineering education option. For each
 project, students could answer:
 
 - Who is this for?
@@ -266,6 +321,54 @@ Every major project asks:
 - Competitive landscape?
 - Possible improvements?
 
+## Business Principles: Sustainable, Not Extractive
+
+The platform has to be profitable enough to sustain and grow itself — it
+cannot lose money indefinitely — but it is not optimizing to extract
+maximum revenue per user. The mission is to spread capability as widely as
+possible; the business model exists to make that durable, not to maximize
+it.
+
+**Cost-gate, not value-gate.** The dividing line between free and paid is
+not "how valuable is this" — it's "does serving this actually cost us
+money." Concretely:
+
+- **Free, always:** curriculum content, project specifications, the
+  knowledge graph, documentation, community features, and anything else
+  with near-zero marginal cost to serve one more learner. Publishing
+  knowledge should stay free where it doesn't cost us anything to do so —
+  that's a mission goal, not just a growth tactic.
+- **Paid, because it genuinely costs money:** AI mentor usage (LLM tokens),
+  compute-heavy simulation, human-reviewed evaluation at scale, and
+  physical hardware kits. These are gated because they have to be, not
+  because we're trying to squeeze the free tier into uselessness.
+
+**Scholarship program.** A portion of paid-tier revenue subsidizes AI
+mentor access and hardware kits for learners who can't afford them,
+particularly in lower-income regions. This isn't a PR add-on — it's a core
+mechanism for actually achieving the Lagos-equals-Boston access goal stated
+above, since token and hardware costs are the real barrier once content
+itself is free.
+
+**Regional pricing.** Paid tiers should be priced relative to local
+purchasing power, not a flat global rate — the same actual value costs
+very different amounts of "ability to pay" depending on where a learner
+lives.
+
+**Why simulation-heavy is a business decision, not just a pedagogical
+one.** A curriculum that leans on simulation before physical hardware
+(see Technical Architecture) isn't only cheaper to build — it's cheaper to
+*run*, which is what makes low-cost global access possible without
+subsidizing everyone's hardware indefinitely. Physical prototyping still
+matters and still happens, but simulation absorbs as much of the iteration
+loop as it credibly can before a learner needs to touch a soldering iron.
+
+**Self-direction.** Learners choose meaningful direction in what they
+build — the curriculum enforces core competency coverage (see Curriculum)
+but does not lock everyone into an identical project sequence. Motivation
+compounds when someone is building the thing they actually wanted to
+build.
+
 ## Platform Features
 
 - AI mentor
@@ -311,18 +414,25 @@ portfolio generation. Then expand into other disciplines.
 
 ## Long-Term Vision
 
-Imagine someone starting at age 15. By age 22 they have:
+Imagine an undergraduate engineering student, or a software engineer
+switching disciplines, working through this platform seriously over a few
+years, wherever they happen to live. By the end they have:
 
 - hundreds of completed projects
 - strong theoretical knowledge
 - experience with multiple engineering disciplines
 - a substantial design portfolio
-- familiarity with modern engineering tools
+- familiarity with modern engineering tools, AI-assisted and otherwise
 - perhaps a few small products in use or generating modest revenue
+- real practice at the entrepreneurial loop: identify a problem, design a
+  solution, ship it, see if anyone wants it
 
 That portfolio could be highly informative to employers or collaborators
 because it demonstrates what the person has actually built and how they
-think through engineering problems.
+think through engineering problems. Two people with that same portfolio —
+one who started in Boston, one who started in Lagos — should be equally
+credible, because the platform's quality didn't depend on where they were
+born.
 
 The end state isn't "the student completed Mechanical Engineering 401." It's
 "the student can confidently design, build, debug, and improve complex

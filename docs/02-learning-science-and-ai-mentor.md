@@ -249,6 +249,27 @@ number.
    dimensions is Expert-level evidence, and doubles as practice for the
    reviewer.
 
+**A second axis: unaided vs. AI-assisted.** Every evidence source above can
+be gathered in either of the two modes described in §2.4 — production mode
+(AI-assisted, the default while building) or mastery-checkpoint mode
+(unaided, periodic, deliberately gated) — and the mode changes how much a
+given observation is allowed to move the posterior, independent of which
+source it is. The same live debugging session (source #4) is strong
+evidence when it happens unaided at a checkpoint; it's still useful signal
+when it happens during AI-assisted production work, but it's now entangled
+with the AI's contribution, and the mentor genuinely can't fully separate
+"the learner reasoned this out" from "the copilot suggested it and the
+learner accepted it." So checkpoint-mode evidence updates both the point
+estimate and the confidence at full weight; production-mode evidence still
+counts — it's not discarded, an AI-assisted debugging session still shows
+*something* — but it caps the confidence contribution below what the same
+evidence would earn unaided, and a learner cannot reach a high-confidence
+Proficient or Expert rating on production-mode evidence alone. This isn't a
+new mechanism; it's the same principle behind the evidence-source ranking
+above and the gaming guardrail in §2.4, applied to a second dimension:
+evidence strength depends on how the evidence was produced, not just what
+it shows.
+
 **Update mechanism, conceptually:** each skill node maintains a mastery
 estimate with an associated confidence (a Bayesian-style belief, not a
 hard integer — think closer to an Elo rating or a Bayesian Knowledge
@@ -329,6 +350,12 @@ needed to act on it:
 - **Goals and trajectory** — declared interests (e.g., wants to end up
   doing robotics, not analog IC design) that bias project recommendation
   within what the graph says is reachable.
+- **AI-assistance history** — which submissions were produced in
+  production mode (AI-assisted) versus mastery-checkpoint mode (unaided),
+  per node. This is what lets the evidence-weighting logic in §1.5 tell
+  the two apart, and it's what tells the policy engine (§2.4) when a node
+  has accumulated enough AI-assisted "it works" evidence that it's due for
+  an unaided checkpoint before the mastery vector can move any further.
 
 ### 2.2 The domain model
 
@@ -433,6 +460,37 @@ answers" — that collapses under any persistent user ("just tell me,
 please") and produces a mentor that's either useless or trivially
 jailbroken. It needs structure.
 
+That structure starts one level up from the hint ladder itself, with a
+question the policy engine answers before anything else: **is this
+learner doing production work right now, or is this a mastery
+checkpoint?** The platform is AI-assisted, not anti-AI (see the brief,
+"Stance on AI: Assisted, Not Anti-AI") — a learner iterating on the actual
+project, writing the actual firmware, laying out the actual PCB, should
+get a mentor that helps the way a good AI copilot helps a practicing
+engineer: drafting code, checking a calculation, proposing a CAD fix.
+Refusing that would train someone for a version of the job that no longer
+exists, and would make the platform's mentor a worse copilot than the one
+the learner will just use instead the moment they leave it.
+
+But that only works if the learner can still function without the
+copilot — a learner who can't reason about a circuit without an LLM can't
+tell when the LLM is wrong, and "knows how to prompt" is not the mastery
+signal the vector in §1.4 is supposed to represent. So the policy engine
+runs two distinct branches, and everything below should be read as
+belonging to one or the other:
+
+- **Production mode** (the default while building, iterating, shipping a
+  project). The mentor is a collaborator, not a gatekeeper: it can write
+  code, run a calculation, or suggest a CAD change on request, without
+  routing through the hint ladder first. Covered in "Production mode: the
+  mentor as collaborator," at the end of this section.
+- **Mastery-checkpoint mode** (periodic, deliberately unaided, and flagged
+  to the learner as such before it starts). This is where the hint
+  ladder, reasoning-before-verdict, the silence budget, and escalation —
+  everything from here through "Guardrail against gaming" below — apply
+  at full strength, because it's the only mode where the resulting
+  evidence is trustworthy enough to move the mastery vector (§1.5).
+
 **The hint ladder.** Every "I'm stuck" or wrong-submission moment routes
 through an escalating sequence, and the mentor is only allowed to move to
 the next rung after the current one has been tried and evidence gathered
@@ -517,9 +575,47 @@ short time-on-task) that the student model can detect and that caps the
 resulting mastery update — reaching the full explanation via
 transparent avoidance doesn't earn a Competent rating, because the
 evidence-strength of that path is explicitly weighted lower (§1.5,
-evidence source #1 vs. #4). The system is honest with itself about how
-strong its evidence is, and a learner cannot manufacture strong evidence
-by being persistent about wanting the answer.
+evidence source #1 vs. #4) — the same logic that caps production-mode
+evidence below unaided-checkpoint evidence for the AI-assistance axis
+(§1.5). The system is honest with itself about how strong its evidence
+is, and a learner cannot manufacture strong evidence by being persistent
+about wanting the answer, whether the persistence is aimed at the mentor
+or at an external AI tool during a checkpoint.
+
+**Production mode: the mentor as collaborator.** Outside checkpoints, the
+mentor's default posture inverts. Production work isn't where the
+platform is trying to prove what a learner can do unaided — it's where
+the platform is trying to get a real project built, using the same
+AI-assisted workflow a working engineer uses today. The mentor can draft
+a chunk of firmware, run a calculation, propose a component substitution,
+or suggest a CAD fix directly, without first routing through the hint
+ladder. It still asks for the reasoning behind a choice when that's cheap
+and low-friction (the "explain-your-reasoning" pattern above is valuable
+wherever it shows up, not only at checkpoints — it's just not gating
+progress here), but production mode does not withhold help as a default.
+
+Two things keep production mode from quietly swallowing the whole system.
+First, it's cost-bounded by design, not just by pedagogy: generative
+assistance (writing code, drafting a CAD change) is the expensive kind of
+AI interaction relative to a Socratic question, and the brief's
+global-access constraint — a learner in Lagos should reach the same
+competence ceiling as one in Boston — depends on keeping the marginal
+cost of that assistance low enough to subsidize at scale (see the brief,
+"Business Principles: Sustainable, Not Extractive"). An architecture that
+lets production mode run unbounded generation for every learner on every
+request doesn't scale to that goal, so the policy engine should reach for
+the cheapest intervention that actually unblocks the learner — a targeted
+answer, a reference snippet, a bounded calculation — before reaching for
+open-ended generation. Second, and pointing the same direction, the
+mentor models *efficient* AI collaboration rather than just doing the
+work for the learner: specific, well-scoped requests instead of "build
+the whole subsystem," and verifying generated output instead of pasting
+it in blind. That's not a constraint bolted onto good pedagogy — it's the
+actual skill a practicing AI-assisted engineer needs, and it's exactly
+what a learner who only ever saw checkpoint-mode terseness or
+production-mode largesse would never pick up on their own. The knowledge
+graph treats it accordingly: "effective AI-assisted engineering" is a
+skill node like any other, not just an ambient assumption (§3.1).
 
 ---
 
@@ -548,7 +644,13 @@ what §1 and §2 assume the graph provides.
   nodes are what the mastery model (§1.4) actually tracks — concept
   nodes are typically Unseen/Novice/Competent only ("understood the
   idea" caps out below "applies it under novel conditions"), since
-  demonstrating a concept always routes through some skill.
+  demonstrating a concept always routes through some skill. "Effective
+  AI-assisted engineering" — knowing what to delegate to a copilot, how
+  to specify it well, and how to verify the result — is modeled as a
+  skill node like any other, with its own prerequisites (you can't verify
+  a generated circuit you don't understand) and its own misconceptions
+  (trusting fluent-sounding but wrong output), not treated as an
+  ambient assumption or tolerated side effect of production mode (§2.4).
 - **Project nodes** — a bundle of skill nodes exercised together in a
   realistic build, with metadata: which skills it exercises and at what
   target mastery level, what evidence types it produces (code artifact?

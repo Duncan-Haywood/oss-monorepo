@@ -39,9 +39,10 @@ regional players are a natural fit.
 
 **What the distributor gets:**
 - A funnel of future professional customers. A distributor's real business
-  is not selling one $4 order to a 16-year-old — it's being the default
-  supplier when that 16-year-old is a design engineer buying $40,000/year
-  in parts a decade later. Distributors already spend heavily on
+  is not selling one $4 order to a student buying their first MOSFET —
+  it's being the default supplier when that student (or career-changer
+  retraining into hardware) is a design engineer buying $40,000/year in
+  parts a few years later. Distributors already spend heavily on
   "engineer of tomorrow" branding (university sponsorships, student
   competition kits, free-sample programs for EE students); this is a more
   measurable version of the same bet, with usage data attached.
@@ -336,26 +337,68 @@ learners:
 
 ## 3. Business Model
 
+### Sustainable, not extractive
+
+The platform has to be profitable enough to sustain and grow itself — it
+cannot lose money indefinitely, and a mission-driven company that goes
+broke serves nobody. But it is explicitly **not** optimizing to extract
+maximum revenue per user. The mission is to spread engineering capability
+as widely as possible; the business model exists to make that durable, not
+to maximize it. Profitable-but-not-greedy is a real, defensible operating
+target, not a euphemism for "we haven't figured out monetization yet" —
+and it's worth stating plainly because default startup instinct pushes the
+other way, toward squeezing every dollar a market will bear. Everything
+below — the tier structure, the scholarship program, regional pricing — is
+this principle worked out in mechanical detail.
+
+### Cost-gate, not value-gate
+
+This is the single organizing rule for what's free and what's paid, and it
+deserves to be named rather than left implicit in a tier chart: **the
+dividing line is not "how valuable is this to the learner" — it's "does
+serving this specific thing actually cost us money."**
+
+- **Free, always, for anyone:** curriculum content, project specifications,
+  the engineering knowledge graph, documentation, community features, and
+  public portfolio hosting. These have near-zero marginal cost per
+  additional learner — once written, serving them to one more person costs
+  the platform essentially nothing. There is no version of "sustainable
+  business" that requires charging for content that's free to serve;
+  doing so anyway would just be extracting value because we could, which
+  is precisely what this platform commits not to do. This isn't only an
+  accessibility position — it's a mission position. Knowledge gets shared
+  wherever sharing it doesn't cost us anything.
+- **Paid, because it genuinely costs money:** AI mentor usage (LLM
+  tokens), compute-heavy simulation, human-reviewed evaluation at scale,
+  and physical hardware kits. These four are gated because they carry
+  real, variable, per-learner cost — not to upsell, not to manufacture
+  scarcity, and not because the free tier is designed as a sales funnel
+  that happens to also teach engineering.
+
+Every tiering, pricing, and scholarship decision below is downstream of
+this rule. It also resolves a tension that a less careful version of this
+document might otherwise leave hanging: "help as many motivated learners
+as possible" and "build a sustainable business" sound like they're in
+conflict until cost-gating splits them into two different questions that
+don't compete with each other. Sharing knowledge is free because it's free
+to us. The business survives on the narrow slice of things that actually
+cost money to run. Once each goal is pointed at a different line item, the
+apparent tradeoff disappears.
+
 ### Who pays
 
 There isn't one payer — there are several, active at different points in a
-learner's journey, and the model should be built to capture value from
-each without making any of them a hard gate on access to the mission.
+learner's journey, and the model captures value from each without making
+any of them a hard gate on the free tier's mission-critical content.
 
-- **Learners, direct subscription.** The core model for adults and
-  independent learners: a monthly or annual subscription for full AI
-  mentor access, simulation compute, and portfolio tooling. This is the
-  primary, most scalable revenue line and should be priced to be
-  genuinely accessible (see pricing philosophy below), not premium-priced
-  the way bootcamps or universities are.
-- **Parents, for younger learners.** For the under-18 segment — a
-  meaningful part of the long-term vision (the "starting at 15" framing) —
-  the purchasing decision is made by a parent, which changes the sales
-  motion (trust and outcome-visibility matter more than price sensitivity
-  alone) but not the underlying product. This segment should be treated
-  as closer to a tutoring/enrichment purchase decision than a software
-  subscription decision in how it's marketed, even though the product is
-  identical.
+- **Learners, direct subscription.** The core revenue line: undergraduate
+  and graduate engineering students and adult career-changers (see Who
+  This Is For) paying for paid-tier mentor throughput, simulation compute,
+  and hardware kits, priced regionally rather than at a flat global rate
+  (see below). This is the primary, most scalable revenue line, and it
+  should be priced to cover its real costs plus a modest margin — not
+  priced the way bootcamps or universities price a credential, and not
+  optimized to extract the maximum a motivated learner would pay.
 - **Employers, sponsoring training.** Two distinct versions of this: (1)
   an employer sponsors an existing employee's advanced track — reskilling
   or upskilling, similar to how companies already pay for Coursera-for-
@@ -389,9 +432,15 @@ salaries, administration, and athletics/amenities largely unrelated to
 instruction quality. This platform's marginal cost per learner is AI
 inference calls, simulation compute, hardware subsidies, and a much
 smaller layer of human oversight than a university's faculty-to-student
-ratio requires. That cost structure supports pricing that is closer to a
-premium software subscription (tens of dollars a month) than to tuition
-(tens of thousands a year), even accounting for hardware costs.
+ratio requires. That structural gap is real and durable — but the right
+conclusion to draw from it is not "so we should price near what a premium
+software subscription would bear." It's "so the price should track actual
+cost plus a modest, sustainable margin, and that number should be low."
+The founder framing is explicit about this: not optimizing to squeeze
+every last dollar, while still not losing money. Regional/PPP-adjusted
+pricing (below) is what makes that concrete rather than aspirational —
+"low enough to be affordable" means something different in Lagos than in
+Boston, and a single global number can't be low in both places at once.
 
 This is a genuine structural advantage, not a temporary discount to be
 walked back once the product is validated — the pricing philosophy should
@@ -400,39 +449,113 @@ education accessible), not as an initial customer-acquisition tactic.
 
 ### Free vs. paid tiers
 
-The tension the founding brief implicitly creates — "help as many
-motivated learners as possible" vs. "build a sustainable business" — is
-real and shouldn't be resolved by pretending it doesn't exist. The
-resolution is a tier structure where the free tier is genuinely capable,
-not a crippled trial:
+Applying cost-gate-not-value-gate concretely:
 
-- **Free tier:** Full access to foundational projects and core curriculum
-  content, AI mentor access (likely with usage limits — e.g., rate-limited
-  mentor calls per day rather than a paywall on capability), simulation
-  tools, and a public portfolio. A highly motivated learner with no money
-  should be able to complete a meaningful fraction of the curriculum,
-  including some genuinely impressive portfolio pieces, entirely for free.
-  This matters for the mission and it matters for growth (see go-to-market
-  below) — the free tier is simultaneously the accessibility commitment
-  and the demand-generation engine.
-- **Paid tier:** Unlimited/higher-throughput AI mentor access, advanced
-  and capstone project tracks, subsidized or discounted hardware kits,
-  priority access to fab/assembly partnerships, human-mentor office hours
-  or review sessions, and access to the credentialing tiers described
-  above (verified provenance tracking, formal tier sign-off, employer-
-  pipeline visibility). The paid tier is where the "advanced mentorship,
-  hardware kits, credentialing" bundle the brief anticipates lives.
-- **Employer/institutional tier:** Bulk seats, cohort management,
-  reporting, and the sponsorship mechanics described above.
+- **Free tier:** the full curriculum, every project specification, the
+  knowledge graph, all documentation, community features, a public
+  portfolio, and a meaningful — rate-limited, not crippled — amount of AI
+  mentor access and simulation compute. Enough that a highly motivated
+  learner with no money whatsoever can work through a real, substantial
+  fraction of the curriculum end to end, including genuinely
+  portfolio-worthy projects, without paying anything. The limiting factor
+  on the free tier is never curriculum depth — it's throughput on the two
+  things that cost money (mentor tokens, simulation compute), and even
+  there the limit should be generous enough to read as "unlimited
+  foundational learning, metered intensive resources," not "free trial in
+  disguise."
+- **Paid tier:** higher-throughput or unlimited AI mentor access,
+  compute-heavy simulation beyond the free allowance, human-reviewed
+  evaluation at scale (the credentialing sign-off work described in
+  section 2), and physical hardware kits at cost-plus-modest-margin. This
+  is the entire paid product: access to the four things that cost real
+  money, priced to cover that cost plus a modest, sustainable margin — not
+  to maximize what a motivated learner is willing to pay.
+- **Employer/institutional tier:** bulk seats, cohort management,
+  reporting, and the sponsorship mechanics described above. Same
+  underlying cost basis (mentor tokens and compute at volume), different
+  purchasing relationship.
 
-The free tier should not be free of *cost* to the business — real
-inference and compute costs are incurred regardless of tier — so it needs
-deliberate limits (mentor call rate limits, compute-heavy simulation caps,
-hardware subsidy caps) that keep it sustainable without making it feel
-punitive. Framing matters here: "unlimited foundational learning, metered
-intensive resources" is honest and defensible; "free tier is a bait-and-
-switch trial" is not, and would undercut the mission-driven positioning
-that is one of the platform's real advantages over incumbents.
+Framing matters, and it's worth restating precisely because it will be
+tempting, under ordinary business pressure, to quietly creep the free
+tier's limits down to push conversion — the free tier is not "free of
+cost to the business," since inference and compute are real costs
+regardless of who's paying, and that's exactly why cost-gating (not value-
+gating) has to be an enforced discipline, not just a launch-day
+description of the pricing page. If a feature costs us nothing to serve,
+it does not get moved behind a paywall later just because usage data shows
+people would pay for it. That's the difference between cost-gating and
+value-gating in practice, and it's the thing most likely to erode quietly
+if nobody is holding the line.
+
+### Scholarship program
+
+A portion of paid-tier revenue — targeted at 5–10% of net paid-tier
+revenue as a standing commitment, reviewed and adjusted as the business
+matures rather than fixed forever — funds subsidized or fully covered AI
+mentor access and hardware kits for learners who can't afford the paid
+tier even at the regional price. This is the mechanism that closes the gap
+cost-gating leaves open: curriculum and community are free everywhere, but
+tokens and hardware still cost real money, and for a genuinely low-income
+learner even a heavily PPP-adjusted price can be out of reach. The
+scholarship fund is what turns "someone in Lagos should reach the same
+ceiling of competence as someone in Boston" (see Who This Is For) into a
+funded commitment rather than an aspiration stated once and left
+unfunded.
+
+A few things that keep this a real program instead of a token gesture:
+
+- **It's a budgeted line item, not a marketing spend.** It's modeled
+  against the same unit-economics numbers as the rest of the business
+  (below) and reported on, not announced once a year as a donation and
+  otherwise ignored.
+- **It targets the actual bottleneck.** Since curriculum and community are
+  already free to everyone, scholarship dollars go entirely toward the two
+  things that gate out a capable-but-poor learner — mentor tokens and
+  hardware kits — instead of being spread thin across things that were
+  never the barrier in the first place.
+- **Eligibility should be low-friction and non-humiliating.** A heavy-
+  handed means test that requires a poor learner to document their poverty
+  in detail is itself a barrier and a bad look. Regional pricing (below)
+  should do most of the targeting automatically; scholarship funds layer
+  on top for the residual cases regional pricing alone doesn't reach — a
+  learner who is poor despite living somewhere with a high regional price,
+  for instance.
+- **Report on it honestly, including when it's underfunded.** Early on,
+  before there's meaningful paid revenue, the fund will be small. That
+  should be stated plainly rather than oversold, with a clear commitment
+  that it scales as paid revenue scales instead of staying flat — the
+  program should grow with the business, not just exist as a fixed line
+  that becomes proportionally smaller as the platform succeeds.
+
+### Regional, PPP-adjusted pricing
+
+Paid tiers are priced relative to local purchasing power, not at a single
+flat global rate. A subscription that's a minor convenience purchase in
+San Francisco can be a serious luxury expense in much of the world, even
+though the underlying cost to serve that learner — tokens, compute — is
+close to identical regardless of where they live. Flat global pricing
+isn't neutral; it's a de facto tax on being born somewhere poorer, and it
+directly contradicts the design constraint that a capable learner's
+ceiling shouldn't depend on geography (see Who This Is For).
+
+Mechanically, this means indexing paid-tier prices to a purchasing-power
+measure (a PPP conversion factor or comparable index, reviewed
+periodically rather than set once and forgotten) and pricing hardware kits
+with region-aware shipping and duties built in, rather than a single
+US-centric number with fees quietly added at checkout.
+
+**Risk to flag honestly:** regional pricing invites arbitrage — a learner
+in a high-price region paying through a VPN or a foreign payment method to
+access a low-price tier. This is a real, well-known problem for every
+company that does regional pricing (streaming, software, and game
+publishers all deal with it), and there's no perfect technical fix. The
+practical stance: price to make the common, honest case work, use ordinary
+signals (payment method, billing region) rather than aggressive fraud
+tooling to catch the obvious cases, and accept some leakage as a cost of
+the policy rather than building an adversarial verification system whose
+false positives end up punishing legitimate low-income learners. That
+failure mode — a real scholarship candidate getting flagged as a fraud
+risk — is worse than the leakage it would prevent.
 
 ### Unit economics
 
@@ -461,26 +584,35 @@ The rough cost-to-serve model per active learner has three components:
   layer rather than a 1:1 tutoring layer, which is the entire point of
   using AI as the primary mentor.
 
-Against subscription revenue in the tens-of-dollars-per-month range, the
-free tier needs to be inference-cost-capped tightly enough that free
-learners are a manageable cost (funded by paid-tier margin and treated as
-a mission investment / top-of-funnel cost, similar to how a company
-budgets marketing spend), while the paid tier needs to clear a healthy
-margin over its heavier usage pattern. This needs real modeling with
-actual usage data before the exact numbers can be trusted — any number
-put in this document today would be a guess dressed up as a forecast — but
-the shape of the model (cheap, falling marginal AI cost; capped free tier
-funded as growth investment; paid tier carrying the business) is sound and
+The question "how much do we charge" should be answered by adding up these
+three cost lines plus a modest, sustainable margin — not by asking what a
+motivated learner would be willing to pay if pushed. Free learners are a
+manageable, inference-cost-capped cost, funded by paid-tier margin and
+treated as a mission investment (the same way a company budgets marketing
+spend, except the "spend" is directly the accessibility commitment). The
+paid tier needs to clear a margin over its heavier usage pattern, but
+"clear a margin" means enough to keep the business healthy, fund the
+scholarship program (above), and reinvest in the product — not enough to
+maximize what the market will bear. This needs real modeling with actual
+usage data before the exact numbers can be trusted — any number put in
+this document today would be a guess dressed up as a forecast — but the
+shape of the model (cheap, falling marginal AI cost; capped free tier
+funded as growth and mission investment; paid tier carrying the business
+plus the scholarship fund at a modest, not-maximized margin) is sound and
 should be validated with real cohort data as soon as there's a free tier
 to measure.
 
 One more real cost worth naming explicitly: **hardware-related liability
-and safety oversight** is not optional overhead — a platform that has
-teenagers wiring mains-adjacent power electronics or handling batteries
-needs a genuine safety-review layer (parts of the human-oversight cost
-above), and that cost should be budgeted for honestly rather than treated
-as a rounding error. This is a place where the "keep costs near zero"
-instinct has to yield to "get this right or don't do it."
+and safety oversight** is not optional overhead — a platform where
+learners (some of them minors, most not) wire mains-adjacent power
+electronics or handle batteries needs a genuine safety-review layer (parts
+of the human-oversight cost above), and that cost should be budgeted for
+honestly rather than treated as a rounding error. This is a place where
+the "keep costs near zero" instinct has to yield to "get this right or
+don't do it" — and it's also, notably, not something cost-gating touches:
+safety review is bundled into paid-tier cost recovery and scholarship
+funding like any other real cost, never treated as a place to cut corners
+in the name of accessibility.
 
 ## 4. Go-to-Market Strategy
 
@@ -489,44 +621,74 @@ instinct has to yield to "get this right or don't do it."
 The right first audience is not "everyone who wants to learn engineering"
 — it's a specific population that is underserved by existing options,
 motivated enough to push through an early, imperfect product, and likely
-to produce visible results others will notice. A few overlapping segments
-fit that description:
+to produce visible results others will notice. That population is,
+concretely, the same one described in Who This Is For: undergraduate and
+graduate engineering students, adult career-changers, and self-directed
+capable adults without access to a good engineering program — not K-12 or
+homeschoolers as the primary wedge. A few overlapping segments make up
+that population:
 
-- **Ambitious homeschoolers and self-taught teens.** Underserved by
-  traditional schools on rigorous, hands-on engineering; already
-  comfortable with self-directed, non-traditional learning; parents
-  actively searching for exactly this kind of enrichment and often willing
-  to pay for it.
-- **Career-changers.** Adults moving into engineering-adjacent fields
-  (often from software, where "build real projects, get hired on
-  portfolio" is already a normalized, successful pattern via bootcamps)
-  who want a comparable path into hardware/robotics/embedded work.
-  Motivated by career stakes, not curiosity, which makes them a strong
-  early-adopter fit for the credentialing/employer-pipeline story
-  specifically.
-- **Hobbyist makers leveling up.** People already active in the maker
-  community (Arduino/Raspberry Pi tinkerers, hackerspace regulars) who
-  want structured progression toward genuinely professional-grade work
-  rather than another disconnected weekend project. This segment already
-  has the tools, the community, and the intrinsic motivation — the gap
-  they have is structure and mentorship, which is exactly the product.
-- **Students supplementing weak university lab access.** Engineering
-  students at under-resourced programs (limited lab time, outdated
-  equipment, oversubscribed courses) looking for a way to get real,
-  hands-on project experience their program doesn't provide. This segment
-  is valuable because they're already credentialed-track (in a degree
-  program) and using the platform as a supplement, which sidesteps the
-  credentialing cold-start problem entirely and gets the platform into
-  the hands of people who will later be job-market proof points.
+- **Career-changers moving into physical engineering — especially
+  software engineers.** Adults, often from software, where "build real
+  projects, get hired on portfolio" is already a normalized, successful
+  pattern via bootcamps, who want a comparable path into
+  hardware/robotics/embedded work. This is the single strongest early
+  wedge the platform has, and not just strategically: it's the founder's
+  own situation (see Who This Is For) — a working software engineer
+  building a credible, structured path into physical engineering. That
+  kind of first-person authenticity is hard to fake in marketing and easy
+  to fake in a pitch deck; leaning into it honestly ("I built this because
+  I needed it myself") is a stronger go-to-market asset than a generic
+  value proposition. Career-changers are motivated by career stakes, not
+  curiosity, which makes them a strong early-adopter fit for the
+  credentialing/employer-pipeline story specifically, and they already
+  know how to learn technical material fast — the gap is hands-on
+  foundation, which is exactly the product.
+- **Engineering undergrads and grad students, including those supplementing
+  weak university lab access.** Students at under-resourced programs
+  (limited lab time, outdated equipment, oversubscribed courses) looking
+  for real, hands-on project experience their program doesn't provide, as
+  well as students anywhere who simply want the practical, build-things
+  competence coursework doesn't give them. This segment is valuable beyond
+  its size because they're already credentialed-track (in a degree
+  program), which sidesteps the credentialing cold-start problem entirely
+  and puts the platform in front of people who will later be job-market
+  proof points.
+- **Globally distributed, capable-but-underserved adult learners.** Someone
+  self-directed and motivated in a city like Lagos, without access to a
+  good local engineering program, is not a secondary or aspirational
+  market — it's a named primary target, and the platform's own
+  architecture (cost-gated free curriculum, simulation-heavy iteration,
+  regional/PPP pricing, the scholarship program — see Business Model) is
+  built specifically to make that person's ceiling of competence equal to
+  a peer's in Boston. This segment is also a strong early-evangelism fit
+  for reasons beyond mission: capable, underserved learners in fast-
+  growing tech hubs (Lagos, Nairobi, Manila, and similar) are often
+  extremely online, community-connected, and motivated to prove
+  themselves — the same self-motivation property that makes any beachhead
+  segment work, at global scale.
+- **Homeschoolers, self-taught teens, and hobbyist makers leveling up.**
+  A real, engaged secondary segment — homeschool families actively
+  searching for rigorous, hands-on enrichment, and hobbyists already in
+  the maker community (Arduino/Raspberry Pi tinkerers, hackerspace
+  regulars) who want structured progression toward professional-grade
+  work. Both groups already have self-direction and community; the
+  platform supplies the structure and mentorship they're missing. They
+  remain worth serving well — the free tier and community features work
+  for them exactly as they do for anyone — but they are not the primary
+  wedge the way they were in an earlier version of this strategy: the
+  program, the founder-authenticity story, and the credentialing/employer
+  pipeline are all built around adult and post-secondary learners first.
 
-These four segments share the property that matters most for an early
-product: **they will produce a working project even from an imperfect
-platform, because they are self-motivated rather than compliance-motivated
+These segments share the property that matters most for an early product:
+**they will produce a working project even from an imperfect platform,
+because they are self-motivated rather than compliance-motivated
 learners.** A student who's only in a program because a school requires it
-will bail the moment the AI mentor gives a clunky answer. A homeschooler
-who's been wanting to build a real guitar pedal for two years will push
-through a rough UI to get there. Early product-market fit work should
-target the second kind of learner deliberately.
+will bail the moment the AI mentor gives a clunky answer. A career-changer
+who's been wanting a credible path into hardware for years, or a capable
+learner in Lagos who's never had access to a real engineering lab, will
+push through a rough UI to get there. Early product-market fit work should
+target that second kind of learner deliberately, wherever they live.
 
 ### Getting the first 100 committed users
 
@@ -534,20 +696,37 @@ At this scale, the goal isn't broad reach — it's finding people who will
 (a) actually finish a project and (b) be excited enough to talk about it
 unprompted. A few concrete approaches:
 
-- **Recruit directly from existing maker/hobbyist communities** —
-  subreddits (r/AskElectronics, r/PrintedCircuitBoard, r/homeschool,
-  r/robotics), Discord servers built around Arduino/KiCad/Fusion 360,
-  hackerspace mailing lists — with a specific, credible pitch ("build a
-  real guitar pedal / drone / irrigation controller with an AI mentor that
-  reviews your schematic like a senior engineer would"), not a generic
-  "sign up for our platform" post. Communities can smell generic marketing
-  and reward specificity and genuine participation.
-- **Recruit through homeschool and self-directed-education networks**
-  specifically for the teen segment, where parents are already actively
-  searching for exactly this kind of structured-but-non-traditional
-  enrichment program and where word-of-mouth travels fast within tight-
+- **Recruit directly from software-engineers-going-hardware communities**
+  — r/AskElectronics, r/PrintedCircuitBoard, r/embedded, career-change-
+  focused corners of r/cscareerquestions and similar, plus Discord/Slack
+  communities built around Arduino/KiCad/Fusion 360 — with a specific,
+  credible pitch from the founder's own story ("I'm a software engineer
+  building a real path into hardware, and I built the AI mentor I wished
+  existed — it reviews your schematic like a senior engineer would"), not
+  a generic "sign up for our platform" post. Communities can smell generic
+  marketing and reward specificity and genuine participation.
+- **Recruit through channels that reach capable learners outside the
+  US/Europe directly** — regional tech and maker communities in cities
+  like Lagos, Nairobi, or Manila (Twitter/X tech circles, WhatsApp and
+  Telegram maker groups, university engineering-society channels, local
+  hackerspaces and tech hubs), rather than treating global reach as
+  something that happens automatically once the product exists. This
+  needs deliberate outreach, not just an assumption that a good product
+  will be discovered — and it should be framed honestly around the
+  platform's actual value to that learner (real access to mentorship and
+  simulation regardless of local lab infrastructure, regional pricing, the
+  scholarship program) rather than generic "learn to code" messaging that
+  doesn't distinguish this from a hundred other platforms.
+- **Recruit from university engineering programs directly**, especially
+  under-resourced ones — engineering-society mailing lists, professors
+  willing to mention a supplemental resource, campus maker spaces — for
+  the lab-access-supplement segment.
+- **Recruit through homeschool and self-directed-education networks** as a
+  secondary channel, where parents are already searching for structured,
+  non-traditional enrichment and word-of-mouth travels fast within tight-
   knit community groups (co-ops, local homeschool associations, online
-  forums).
+  forums) — worth doing, but not the primary allocation of early
+  go-to-market effort.
 - **Make the first cohort feel like an early-access program, not a mass
   product.** Founding-cohort framing (direct access to the team, input
   into curriculum, visible "founding member" status) increases commitment
@@ -566,16 +745,21 @@ market strategy for this stage is really a product-design constraint:
 (visually or audibly impressive, postable as a video, immediately
 understandable to a non-engineer) even if a slightly less flashy project
 would be marginally more pedagogically efficient. In the earliest stage,
-"my nephew built a drone that flies and I have video of it" does more for
-growth than a perfectly sequenced curriculum.
+"a career-changer built a drone that flies and posted the video" does more
+for growth than a perfectly sequenced curriculum.
 
 ### Channel strategy
 
-- **Maker communities** (as above) — the highest-intent, lowest-cost
-  channel available, and the right place to spend disproportionate early
-  effort because these communities already share the platform's values
-  (build real things, show your work, respect demonstrated skill over
-  credentials).
+- **Career-changer and engineering-community channels** (as above) — the
+  highest-intent, lowest-cost channels available, and the right place to
+  spend disproportionate early effort because these communities already
+  share the platform's values (build real things, show your work, respect
+  demonstrated skill over credentials).
+- **Global/regional community channels** (as above) — the second highest-
+  leverage channel, because a capable learner in an underserved market has
+  fewer competing options and stronger word-of-mouth density within local
+  tech communities than an equivalent learner in a saturated market like
+  the US.
 - **YouTube and content marketing built around real builds.** This is not
   "produce marketing videos about the platform" — it's "the projects
   themselves are the content." A short video of a student's finished
@@ -651,9 +835,21 @@ this stage, the same decision.
   and their completion rates and satisfaction will not generalize cleanly
   to a broader audience. Growth projections built on founding-cohort
   behavior should be treated with real skepticism before being extrapolated.
-- **Community goodwill is fragile.** Maker and homeschool communities are
-  effective precisely because they're skeptical of generic marketing —
-  the same channel that works well with a genuine, specific, low-hype
-  pitch will turn hard against the platform if it starts to feel like it's
-  being farmed for growth. This argues for slow, honest, community-
-  respecting expansion over aggressive early scaling of these channels.
+- **Community goodwill is fragile.** Career-changer, maker, and homeschool
+  communities are effective precisely because they're skeptical of generic
+  marketing — the same channel that works well with a genuine, specific,
+  low-hype pitch will turn hard against the platform if it starts to feel
+  like it's being farmed for growth. This argues for slow, honest,
+  community-respecting expansion over aggressive early scaling of these
+  channels.
+- **Global-first outreach is more operationally demanding than it sounds.**
+  Naming a market like Lagos as a primary beachhead segment (not just a
+  mission talking point) means actually building payment support, regional
+  pricing, and hardware-kit logistics for that region early, not after
+  the US/Europe user base is already large — otherwise the "capable
+  learner in Lagos" segment is being marketed to without being genuinely
+  served, which would be worse than not naming the segment at all. This
+  should be tracked as a concrete build dependency (regional pricing
+  infrastructure, kit shipping/duties handling — see Business Model), not
+  left as an unstated assumption that global reach happens by default once
+  the product exists online.
