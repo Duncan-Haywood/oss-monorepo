@@ -752,4 +752,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "post-695-empty-backlog-fast-spotcheck-clean",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/nice-euler-u4pfzm",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 6b2dc716 (PR #696, post-695-empty-backlog-fast-spotcheck-clean) — HEAD matched origin/main exactly at session start. Confirmed baseline green: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2807 passed, 200 files) — unchanged from the prior two iterations' own reported counts. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Full `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` (622 remote heads) and a committer-date sort of the newest ~25 claude/* branches: every one with a nonzero diff against origin/main is a strictly-older branch missing content main gained later (confirmed via direct `git diff origin/main <branch>` on the two that looked ambiguous in --stat) — no live fold candidate.\n\nThe empty-backlog diff-gate against the documented anchor (096f94a5) showed zero commits touching src/convex/.github-workflows since then (`git log --oneline 096f94a5..HEAD -- src convex .github/workflows`, excluding prompt_process.tsx, was empty — PR #696 itself only touched the process log). Rather than run a third consecutive token spot-check with zero code changes, spent the iteration on a substantive manual review of the newest shipped feature surface (the Buffer profile-mapping visibility series and its dashboard-action neighbors) plus several structural checks. See post-696-empty-backlog-diff-gate-zero-clean in BUSINESS_DECISIONS for the full seven-point verification list (Buffer action auth/rate-limit/TOCTOU coverage, repo-wide TODO/FIXME sweep, v.any() sweep, as-const success-literal sweep, digest header-count-source re-check on the newest section, checkout idempotency-key route symmetry, and commerceOrders.customerEmail Convex+SQLite field parity). All seven came back clean.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-696-empty-backlog-diff-gate-zero-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. No other files changed — NEXT_STEPS unchanged, all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 6b2dc716 (this iteration's own starting tip).",
+      "Verified: fresh npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2807 passed, unchanged, 200 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split). No npm run dev smoke check needed — no product/runtime code changed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-696-empty-backlog-diff-gate-zero-clean",
+    ),
+  },
 ];
