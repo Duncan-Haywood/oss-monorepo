@@ -538,4 +538,18 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "notes-editor-due-queue-filtered-out-dead-open-fix",
     ),
   },
+  {
+    date: "2026-07-24",
+    branch: "claude/upbeat-dijkstra-12eq7y",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 742b63c2 (PR #711, notes-editor-due-queue-filtered-out-dead-open-fix) — HEAD matched origin/main exactly at session start (a `git fetch origin main` forced-updated a stale local `main`/`origin/main` ref from e1df9ea to 742b63c2; a GitHub-API cross-check via mcp__github__list_commits confirmed the true main tip and HEAD are byte-identical). Confirmed baseline green: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2842 passed, 202 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split). mcp__github__list_pull_requests confirmed no existing PR for this branch. A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (639 remote heads) of the newest ~10 claude/* branches found only claude/nice-euler-to3z0u with a nonzero diff (1 ahead, 13 behind), reconfirmed its content already merged verbatim under a different SHA (16 aria-live occurrences already in origin/main's leads-client.tsx) — no live fold candidate. The diff-gate against the anchor (6fc7425c) showed exactly one commit since (ea9ed9ee, the prior iteration's own entry) — a sixteenth consecutive near-zero-product-diff window, so dispatched a foreground research agent (general-purpose) across tiers 1-5 rather than a from-scratch sweep, told to read AGENT_PROTOCOL/NEXT_STEPS/recent BUSINESS_DECISIONS in full first and independently re-verify rather than trust the log.\n\nIt reported back a genuine clean-audit result (48 tool calls, ~5 minutes): every db.ts-level list*/get* export already has a live dashboard/pipeline-health/digest caller (tier 1); every Convex .order()/.collect()/.sort() call matches its SQLite ORDER BY twin with no v.any() survivors (tier 2); the newest email template escapes its interpolated values, dashboard actions all call requireOperatorAuth, and rate-limit keys are collision-free (tier 3); and it correctly ruled out the inquiry-reply composer as a candidate for the dead-click due-queue bug class fixed in the two prior iterations (that panel renders its own composer inline, not inside the filtered leads table, so it can't suffer the same bug). See post-711-tiers-1-5-research-agent-reconfirmed-clean in BUSINESS_DECISIONS for the full checklist.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-711-tiers-1-5-research-agent-reconfirmed-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. No other files changed — NEXT_STEPS unchanged, all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 742b63c2 (this iteration's own starting tip).",
+      "Verified: npm ci (409 packages, 0 vulnerabilities) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2842 passed, unchanged, 202 files) + npm run build (clean, same 42-route ○/ƒ split). No npm run dev smoke check needed — no product/runtime code changed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-711-tiers-1-5-research-agent-reconfirmed-clean",
+    ),
+  },
 ];
