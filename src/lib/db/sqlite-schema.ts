@@ -52,7 +52,8 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
     CREATE TABLE IF NOT EXISTS suppression_list (
       email TEXT PRIMARY KEY,
       createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-      reason TEXT NOT NULL DEFAULT 'unsubscribe'
+      reason TEXT NOT NULL DEFAULT 'unsubscribe',
+      reasonUpdatedAt TEXT
     );
 
     CREATE TABLE IF NOT EXISTS deploy_handoffs (
@@ -332,6 +333,9 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
     db.exec(
       "ALTER TABLE suppression_list ADD COLUMN reason TEXT NOT NULL DEFAULT 'unsubscribe'",
     );
+  }
+  if (!suppressionListCols.includes("reasonUpdatedAt")) {
+    db.exec("ALTER TABLE suppression_list ADD COLUMN reasonUpdatedAt TEXT");
   }
 
   // Seed SQLite database if empty

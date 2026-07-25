@@ -13,6 +13,7 @@ const suppressionReturn = v.object({
   email: v.string(),
   reason: v.optional(suppressionReasonValidator),
   createdAt: v.number(),
+  reasonUpdatedAt: v.optional(v.number()),
 });
 
 export const isSuppressed = query({
@@ -40,7 +41,7 @@ export const suppress = mutation({
     if (existing) {
       const preferred = preferSuppressionReason(existing.reason, args.reason);
       if (preferred !== existing.reason) {
-        await ctx.db.patch(existing._id, { reason: preferred });
+        await ctx.db.patch(existing._id, { reason: preferred, reasonUpdatedAt: Date.now() });
       }
       return null;
     }
@@ -59,6 +60,7 @@ export const list = query({
       email: r.email,
       reason: r.reason,
       createdAt: r._creationTime,
+      reasonUpdatedAt: r.reasonUpdatedAt,
     }));
   },
 });

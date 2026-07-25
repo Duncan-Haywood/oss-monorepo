@@ -21,6 +21,24 @@ export interface SuppressionRecord {
   email: string;
   reason?: SuppressionReason;
   createdAt: number;
+  /**
+   * Epoch ms of the most recent reason *upgrade* (see preferSuppressionReason)
+   * — undefined for a row whose reason has never changed since insert.
+   * createdAt itself can't be used for this: Convex's _creationTime is an
+   * immutable system field, so a later bounce/complaint on an
+   * already-unsubscribed address has no mutable timestamp to record the
+   * upgrade against unless this field exists separately. Recency-based reads
+   * (the 7-day rolling bounce/complaint window) must use
+   * suppressionRecencyMs, never createdAt directly, or an address that
+   * unsubscribed long ago and only just hard-bounced today reads as
+   * long-since-stale.
+   */
+  reasonUpdatedAt?: number;
+}
+
+/** The timestamp recency reads should compare against — see reasonUpdatedAt. */
+export function suppressionRecencyMs(record: SuppressionRecord): number {
+  return record.reasonUpdatedAt ?? record.createdAt;
 }
 
 /** Legacy rows (written before the reason field shipped) display as unsubscribe. */
@@ -77,7 +95,7 @@ export function recentBounceOrComplaintSuppressionCount(
 ): number {
   const cutoffMs = nowMs - windowHours * 60 * 60 * 1000;
   return records.filter(
-    (r) => isBounceOrComplaintSuppression(r) && r.createdAt >= cutoffMs,
+    (r) => isBounceOrComplaintSuppression(r) && suppressionRecencyMs(r) >= cutoffMs,
   ).length;
 }
 
@@ -88,10 +106,10 @@ export function newestBounceOrComplaintSuppressionAgeHours(
 ): number | null {
   const newest = records
     .filter(isBounceOrComplaintSuppression)
-    .reduce<number | null>(
-      (max, r) => (max === null || r.createdAt > max ? r.createdAt : max),
-      null,
-    );
+    .reduce<number | null>((max, r) => {
+      const recency = suppressionRecencyMs(r);
+      return max === null || recency > max ? recency : max;
+    }, null);
   if (newest === null) return null;
   return Math.floor((nowMs - newest) / (60 * 60 * 1000));
 }

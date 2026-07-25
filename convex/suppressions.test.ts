@@ -117,6 +117,41 @@ test("suppress upgrades an existing bounce row to a later complaint", async () =
   ]);
 });
 
+test("suppress records reasonUpdatedAt on an upgrade, but leaves it unset on insert or a same-reason repeat call", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.suppressions.suppress, {
+    email: "later-bounces@example.com",
+    reason: "unsubscribe",
+    apiSecret: TEST_API_SECRET,
+  });
+  const afterInsert = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  expect(afterInsert[0].reasonUpdatedAt).toBeUndefined();
+
+  // A same-reason repeat call must not fabricate an upgrade timestamp — the
+  // reason didn't actually change, so reasonUpdatedAt must stay unset.
+  await t.mutation(api.suppressions.suppress, {
+    email: "later-bounces@example.com",
+    reason: "unsubscribe",
+    apiSecret: TEST_API_SECRET,
+  });
+  const afterRepeat = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  expect(afterRepeat[0].reasonUpdatedAt).toBeUndefined();
+
+  // A real upgrade (unsubscribe -> bounce) must stamp reasonUpdatedAt — this
+  // is the recency signal the pipeline-health/digest bounce/complaint
+  // windows read, since Convex's own _creationTime (createdAt) is immutable
+  // and would otherwise still reflect the original unsubscribe click.
+  await t.mutation(api.suppressions.suppress, {
+    email: "later-bounces@example.com",
+    reason: "bounce",
+    apiSecret: TEST_API_SECRET,
+  });
+  const afterUpgrade = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  expect(afterUpgrade[0].reason).toBe("bounce");
+  expect(typeof afterUpgrade[0].reasonUpdatedAt).toBe("number");
+  expect(afterUpgrade[0].reasonUpdatedAt).toBeGreaterThanOrEqual(afterUpgrade[0].createdAt);
+});
+
 test("list returns every suppressed email with its reason and createdAt", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.suppressions.suppress, {

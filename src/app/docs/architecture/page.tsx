@@ -647,9 +647,15 @@ export default function ArchitectureDocPage() {
         fallback (a conditional <code>UPDATE</code> in place of the original blanket{" "}
         <code>INSERT OR IGNORE</code>, which silently discarded every reason change on an
         existing row in either direction). The row&apos;s <code>createdAt</code> stays untouched
-        on an upgrade, so the 7-day rolling bounce/complaint window above can still miss an
-        old-unsubscribe-then-new-bounce address as &quot;recent&quot; — a known, smaller follow-up
-        distinct from this fix.
+        on an upgrade (Convex&apos;s <code>_creationTime</code> is an immutable system field), so
+        a separate <code>reasonUpdatedAt</code> column/field is stamped with the current time on
+        every upgrade (never on insert or a same-reason repeat call) and{" "}
+        <code>suppressionRecencyMs</code> (<code>src/lib/email/suppression.ts</code>) — falling
+        back to <code>createdAt</code> when a row has never been upgraded — is what{" "}
+        <code>recentBounceOrComplaintSuppressionCount</code> and{" "}
+        <code>newestBounceOrComplaintSuppressionAgeHours</code> actually key their 7-day window
+        off, not <code>createdAt</code> directly, so an old-unsubscribe-then-new-bounce address
+        correctly reads as recent.
         Every
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}

@@ -299,6 +299,9 @@ export default defineSchema({
     reason: v.optional(
       v.union(v.literal("unsubscribe"), v.literal("bounce"), v.literal("complaint")),
     ),
+    // Epoch ms of the most recent reason upgrade — see suppressionRecencyMs
+    // in src/lib/email/suppression.ts. Undefined until the first upgrade.
+    reasonUpdatedAt: v.optional(v.number()),
   }).index("by_email", ["email"]),
 
   /**
