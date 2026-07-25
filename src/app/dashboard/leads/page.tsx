@@ -249,7 +249,13 @@ export default async function LeadsPage() {
 
       <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between border-b border-zinc-200 pb-5">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Lead Pipeline</h1>
+          <h1
+            id="dashboard-leads-heading"
+            tabIndex={-1}
+            className="text-3xl font-bold tracking-tight text-zinc-900 focus:outline-none"
+          >
+            Lead Pipeline
+          </h1>
           <p className="mt-2 text-sm text-zinc-600">
             Monitor, update, and manage outreach leads and Stripe transactions.
           </p>
