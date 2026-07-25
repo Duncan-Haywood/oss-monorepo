@@ -62,6 +62,12 @@ export const humanNotificationLog: HumanNotificationRecord[] = [
     reason:
       "Repeat reminder per shouldNotifyHuman(72)'s throttle, which this session's check crossed (~72.8h since the last notification). The GitHub Actions runner outage (blockers.ts's actions-ci-runner-outage) is unresolved and now ~94h old with zero sign of self-resolving; business remains 100% human-blocked on the same 7 items as the last notification, none changed.",
   },
+  {
+    notifiedAt: "2026-07-25T02:11:00Z",
+    notifiedBy: "claude/dazzling-allen-ru1u38",
+    reason:
+      "Repeat reminder per shouldNotifyHuman(72)'s throttle, crossed by ~2 minutes (~72.02h since the last notification). recentlyConfirmedWithinHours(12) was true (last full pass ~4h earlier) so this session did only the cheap check — independently re-confirmed via the GitHub Actions API (run 30130451157 on main, all 3 jobs runner_id 0 / empty runner_name / ~4-5s duration) that the CI runner outage is unresolved, now ~166h (~6.9 days) old. leads-log.ts/listingAuditLog/loggedInterviewResults still empty, PR #4 still the only open PR (draft/unchanged), nextActionableTasks() still empty (p3-app-scope still gated on p1-run-interviews + p2-first-deliveries, neither done). Business remains 100% human-blocked on the same 7 items as every notification since 2026-07-19; nothing new to report beyond the elapsed time.",
+  },
 ];
 
 /** Hours since the last out-of-band notification was sent. Infinity if none ever sent. */
