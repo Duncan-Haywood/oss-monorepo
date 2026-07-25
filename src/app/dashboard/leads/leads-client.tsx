@@ -216,6 +216,33 @@ const CATEGORIES: { id: BusinessCategory; label: string }[] = [
   { id: "generic", label: "Generic / Other" },
 ];
 
+/**
+ * Due-queue panel heading ids — see src/components/dashboard/suppressed-emails-panel.tsx
+ * for the precedent this mirrors. Each due-queue `<li>` row's own resolve
+ * action (or a conditionally-rendered button within a row that survives)
+ * unmounts on success with no other guaranteed-mounted control nearby, so
+ * the row's/button's handler refocuses the panel's own `<h2>` (id + tabIndex
+ * + focus:outline-none on the heading itself) instead of letting focus
+ * silently fall back to `<body>`.
+ */
+const COMMERCE_CATALOGS_MISSING_HEADING_ID = "commerce-catalogs-missing-heading";
+const COMMERCE_CATALOGS_UNSYNCED_HEADING_ID = "commerce-catalogs-unsynced-heading";
+const STARTER_UPSELL_HEADING_ID = "starter-mrr-upsell-heading";
+const MRR_PAUSED_HEADING_ID = "mrr-paused-canceled-heading";
+const MARKETING_PACKS_DUE_HEADING_ID = "marketing-packs-due-heading";
+const VOICE_PACKS_DUE_HEADING_ID = "voice-packs-due-heading";
+const ABANDONED_CHECKOUTS_HEADING_ID = "abandoned-checkouts-heading";
+const ABANDONED_BUY_NOW_HEADING_ID = "abandoned-buy-now-heading";
+const COMMERCE_PAYOUTS_HEADING_ID = "commerce-payouts-heading";
+const MISSING_CLIENT_RECEIPT_HEADING_ID = "missing-client-receipt-heading";
+const BUNDLE_ORDER_REFUNDS_DISPUTES_HEADING_ID = "bundle-order-refunds-disputes-heading";
+const FOLLOW_UPS_DUE_HEADING_ID = "follow-ups-due-heading";
+const COLD_LEADS_HEADING_ID = "cold-leads-heading";
+const WORK_NEXT_HEADING_ID = "work-next-heading";
+const PAID_NOT_LIVE_HEADING_ID = "paid-not-live-heading";
+const PRODUCTION_DEPLOY_HANDOFFS_HEADING_ID = "production-deploy-handoffs-heading";
+const WEBSITE_INQUIRIES_HEADING_ID = "website-inquiries-heading";
+
 export function LeadsClient({
   initialLeads,
   initialHandoffs = [],
@@ -311,7 +338,11 @@ export function LeadsClient({
     setFormSlug(generated);
   };
 
-  const handleStageChange = async (slug: string, newStage: LeadPipelineStage) => {
+  const handleStageChange = async (
+    slug: string,
+    newStage: LeadPipelineStage,
+    headingId?: string,
+  ) => {
     const current = leads.find((l) => l.slug === slug);
     const previousStage = current?.stage;
     if (!current) return;
@@ -353,6 +384,14 @@ export function LeadsClient({
       shouldAutoOpenNotesEditor(notesEditSlug, slug)
     ) {
       openNotesEditor(current, "discovery_call");
+    }
+    // Work next's "Send Email 1" button is conditionally rendered on
+    // lead.stage === "site_built" — a successful stage change removes that
+    // condition and the just-clicked button unmounts with it, so focus goes
+    // to the due-queue panel heading instead of vanishing to <body>. The
+    // stage <select> in the main leads table (always mounted) omits headingId.
+    if (headingId) {
+      document.getElementById(headingId)?.focus();
     }
   };
 
@@ -409,7 +448,7 @@ export function LeadsClient({
     });
   };
 
-  const handleSnooze = (slug: string, preset: SnoozePresetId) => {
+  const handleSnooze = (slug: string, preset: SnoozePresetId, headingId?: string) => {
     startTransition(async () => {
       const res = await snoozeLeadAction(slug, { preset });
       if (!res.success) {
@@ -421,6 +460,13 @@ export function LeadsClient({
           l.slug === slug ? { ...l, snoozedUntil: res.snoozedUntil } : l,
         ),
       );
+      // Work next's actionable predicate excludes snoozed leads — a
+      // successful snooze removes this row (and the just-clicked button)
+      // from the Work next due-queue entirely. Main-table snooze controls
+      // (always-mounted row) omit headingId.
+      if (headingId) {
+        document.getElementById(headingId)?.focus();
+      }
     });
   };
 
@@ -439,7 +485,11 @@ export function LeadsClient({
     });
   };
 
-  const handleColdDisposition = (slug: string, disposition: ColdLeadDisposition) => {
+  const handleColdDisposition = (
+    slug: string,
+    disposition: ColdLeadDisposition,
+    headingId?: string,
+  ) => {
     startTransition(async () => {
       const sendEmail1 = disposition === "reengage" && reengageSendEmail1;
       const res = await disposeColdLeadAction(slug, disposition, { sendEmail1 });
@@ -476,6 +526,12 @@ export function LeadsClient({
             : l,
         ),
       );
+      // Re-engage/Close both move the lead off isColdLead, so its <li>
+      // unmounts from the Cold leads due-queue with the just-clicked button
+      // still inside it. Main-table Re-engage/Close controls omit headingId.
+      if (headingId) {
+        document.getElementById(headingId)?.focus();
+      }
     });
   };
 
@@ -598,6 +654,10 @@ export function LeadsClient({
       setLeads((prev) =>
         prev.map((l) => (l.slug === slug ? { ...l, stage: "live" } : l)),
       );
+      // Production deploy handoffs filters out status === "live" — the
+      // just-clicked Mark live button's <li> unmounts on success, so focus
+      // goes to the panel heading instead of vanishing to <body>.
+      document.getElementById(PRODUCTION_DEPLOY_HANDOFFS_HEADING_ID)?.focus();
     });
   };
 
@@ -609,6 +669,11 @@ export function LeadsClient({
         return;
       }
       setHandoffs((prev) => [...prev, res.handoff]);
+      // Paid, not live's Create deploy handoff button is conditionally
+      // rendered on !handoffSlugs.has(slug) — a successful create removes
+      // that condition and the just-clicked button unmounts with it, so
+      // focus goes to the panel heading instead of vanishing to <body>.
+      document.getElementById(PAID_NOT_LIVE_HEADING_ID)?.focus();
     });
   };
 
@@ -644,7 +709,11 @@ export function LeadsClient({
     });
   };
 
-  const handleInquiryStatus = (inquiryId: string, status: ClientInquiryStatus) => {
+  const handleInquiryStatus = (
+    inquiryId: string,
+    status: ClientInquiryStatus,
+    headingId?: string,
+  ) => {
     startTransition(async () => {
       const res = await updateInquiryStatusAction(inquiryId, status);
       if (!res.success) {
@@ -654,6 +723,16 @@ export function LeadsClient({
       setInquiries((prev) =>
         prev.map((inq) => (inq.id === inquiryId ? { ...inq, status } : inq)),
       );
+      // Mark read unmounts the just-clicked button (rendered only while
+      // status === "new"); Archive unmounts the whole <li> (openInquiries
+      // filters out status === "archived"). Either way the just-clicked
+      // control disappears from the Website inquiries due-queue, so focus
+      // goes to the panel heading instead of vanishing to <body>. The
+      // internal auto-mark-read call from handleToggleReplyComposer omits
+      // headingId since it isn't triggered by this button.
+      if (headingId) {
+        document.getElementById(headingId)?.focus();
+      }
     });
   };
 
@@ -704,7 +783,7 @@ export function LeadsClient({
     });
   };
 
-  const handleSendFollowUp = (slug: string) => {
+  const handleSendFollowUp = (slug: string, headingId?: string) => {
     const current = leads.find((l) => l.slug === slug);
     const previousStep = current?.outreachStep;
     startTransition(async () => {
@@ -728,6 +807,15 @@ export function LeadsClient({
       ) {
         openNotesEditor(current, "email_3");
       }
+      // Follow-ups due filters on isFollowUpDue (false right after sending)
+      // and Work next's Send Email N button is conditioned on the same
+      // predicate — either way the just-clicked button's row/control
+      // unmounts on success, so focus goes to whichever due-queue panel
+      // heading called this. The main-table row's Send Email N (always
+      // mounted) omits headingId.
+      if (headingId) {
+        document.getElementById(headingId)?.focus();
+      }
     });
   };
 
@@ -746,6 +834,10 @@ export function LeadsClient({
             : s,
         ),
       );
+      // isRecoveryDue starts a cooldown from recoverySentAt, so a
+      // successful send removes this <li> from Abandoned checkouts — the
+      // just-clicked button unmounts with it.
+      document.getElementById(ABANDONED_CHECKOUTS_HEADING_ID)?.focus();
     });
   };
 
@@ -764,6 +856,9 @@ export function LeadsClient({
             : s,
         ),
       );
+      // Same cooldown-driven removal as bundle recovery above, but from the
+      // Abandoned Buy now panel.
+      document.getElementById(ABANDONED_BUY_NOW_HEADING_ID)?.focus();
     });
   };
 
@@ -779,6 +874,12 @@ export function LeadsClient({
           o.stripeSessionId === stripeSessionId ? { ...o, paidOutAt: res.paidOutAt } : o,
         ),
       );
+      // The just-clicked Mark paid out button is conditionally rendered on
+      // !row.paidOutAt and swaps to a "Paid out" status span on success; the
+      // owning lead's outer <li> also unmounts once every owed order for
+      // that lead is resolved. Either way focus goes to the panel heading
+      // instead of vanishing to <body>.
+      document.getElementById(COMMERCE_PAYOUTS_HEADING_ID)?.focus();
     });
   };
 
@@ -792,6 +893,8 @@ export function LeadsClient({
       setCommerceOrdersMissingClientReceipt((prev) =>
         prev.filter((o) => o.stripeSessionId !== stripeSessionId),
       );
+      // The just-clicked Resend receipt button's <li> unmounts on success.
+      document.getElementById(MISSING_CLIENT_RECEIPT_HEADING_ID)?.focus();
     });
   };
 
@@ -854,7 +957,10 @@ export function LeadsClient({
     });
   };
 
-  const handleGenerateMarketingPack = (slug: string, opts?: { bringIntoView?: boolean }) => {
+  const handleGenerateMarketingPack = (
+    slug: string,
+    opts?: { bringIntoView?: boolean; headingId?: string },
+  ) => {
     startTransition(async () => {
       const res = await generateMarketingPackAction(slug);
       if (!res.success) {
@@ -866,6 +972,16 @@ export function LeadsClient({
         return [res.pack, ...without];
       });
       setMarketingPackOpenSlug(slug);
+      // Marketing packs due filters out leads that already have a pack for
+      // the current month — a successful generate removes this <li> (and
+      // the just-clicked button inside it) from the due-queue. The
+      // scrollIntoView below (when bringIntoView) only scrolls the viewport,
+      // it doesn't move DOM focus, so this call is still required even when
+      // that option is set. The main-table "Generate pack" button (always
+      // mounted) omits headingId.
+      if (opts?.headingId) {
+        document.getElementById(opts.headingId)?.focus();
+      }
       if (opts?.bringIntoView) {
         // Called from the Marketing packs due panel, which lists leads from
         // the full unfiltered `leads` array — the generated pack's own
@@ -973,7 +1089,7 @@ export function LeadsClient({
     });
   };
 
-  const handleSyncCommerceCatalogToStripe = (slug: string) => {
+  const handleSyncCommerceCatalogToStripe = (slug: string, headingId?: string) => {
     startTransition(async () => {
       const res = await syncCommerceCatalogToStripeAction(slug);
       if (!res.success) {
@@ -987,6 +1103,14 @@ export function LeadsClient({
       setCommerceDraftItems((prev) =>
         commerceDraftItemsAfterSync(commerceEditSlug, slug, prev, res.catalog.items),
       );
+      // Commerce catalogs unsynced filters out fully-synced catalogs — a
+      // successful sync unmounts this <li> (and the just-clicked "Sync to
+      // Stripe" button) from that due-queue. The Commerce editor's own
+      // "Sync to Stripe" button (inside the always-mounted row editor)
+      // omits headingId.
+      if (headingId) {
+        document.getElementById(headingId)?.focus();
+      }
     });
   };
 
@@ -1144,7 +1268,10 @@ export function LeadsClient({
 
   const voicePackForLead = (slug: string) => voicePackByLeadSlug.get(slug) ?? null;
 
-  const handleGenerateClientVoicePack = (slug: string, opts?: { bringIntoView?: boolean }) => {
+  const handleGenerateClientVoicePack = (
+    slug: string,
+    opts?: { bringIntoView?: boolean; headingId?: string },
+  ) => {
     startTransition(async () => {
       const res = await generateClientVoicePackAction(slug);
       if (!res.success) {
@@ -1156,6 +1283,13 @@ export function LeadsClient({
         return [res.pack, ...without];
       });
       setClientVoicePackOpenSlug(slug);
+      // Same due-queue removal shape as handleGenerateMarketingPack above —
+      // Voice packs due filters out leads that already have a pack, so a
+      // successful generate unmounts this <li>. The main-table "Generate
+      // pack" button (always mounted) omits headingId.
+      if (opts?.headingId) {
+        document.getElementById(opts.headingId)?.focus();
+      }
       if (opts?.bringIntoView) {
         // Same due-queue dead-open fix as handleGenerateMarketingPack above —
         // the Voice packs due panel lists leads from the full unfiltered
@@ -1373,7 +1507,11 @@ export function LeadsClient({
       {commerceCatalogsMissing.length > 0 && (
         <section className="mb-8 rounded-2xl border border-orange-200 bg-orange-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={COMMERCE_CATALOGS_MISSING_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Commerce catalogs missing
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({commerceCatalogsMissing.length}
@@ -1439,7 +1577,11 @@ export function LeadsClient({
       {commerceCatalogsUnsynced.length > 0 && (
         <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={COMMERCE_CATALOGS_UNSYNCED_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Commerce catalogs unsynced
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({commerceCatalogsUnsynced.length}
@@ -1498,7 +1640,12 @@ export function LeadsClient({
                     <button
                       type="button"
                       disabled={isPending}
-                      onClick={() => handleSyncCommerceCatalogToStripe(lead.slug)}
+                      onClick={() =>
+                        handleSyncCommerceCatalogToStripe(
+                          lead.slug,
+                          COMMERCE_CATALOGS_UNSYNCED_HEADING_ID,
+                        )
+                      }
                       aria-label={dashboardRowActionAriaLabel("Sync to Stripe", lead.businessName, lead.slug)}
                       className="rounded-lg bg-amber-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-900 disabled:opacity-60"
                     >
@@ -1515,7 +1662,11 @@ export function LeadsClient({
       {starterUpsellCandidates.length > 0 && (
         <section className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={STARTER_UPSELL_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Starter → MRR upsell
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({starterUpsellCandidates.length}
@@ -1591,7 +1742,11 @@ export function LeadsClient({
       {recurringEntitlementPaused.length > 0 && (
         <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={MRR_PAUSED_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               MRR paused / canceled
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({recurringEntitlementPaused.length}
@@ -1659,7 +1814,11 @@ export function LeadsClient({
       {marketingPacksDue.length > 0 && (
         <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={MARKETING_PACKS_DUE_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Marketing packs due
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({marketingPacksDue.length}
@@ -1709,7 +1868,12 @@ export function LeadsClient({
                   <button
                     type="button"
                     disabled={isPending}
-                    onClick={() => handleGenerateMarketingPack(lead.slug, { bringIntoView: true })}
+                    onClick={() =>
+                      handleGenerateMarketingPack(lead.slug, {
+                        bringIntoView: true,
+                        headingId: MARKETING_PACKS_DUE_HEADING_ID,
+                      })
+                    }
                     aria-label={dashboardRowActionAriaLabel(
                       "Generate marketing pack",
                       lead.businessName,
@@ -1730,7 +1894,11 @@ export function LeadsClient({
       {clientVoicePacksDue.length > 0 && (
         <section className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={VOICE_PACKS_DUE_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Voice packs due
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({clientVoicePacksDue.length}
@@ -1779,7 +1947,12 @@ export function LeadsClient({
                   <button
                     type="button"
                     disabled={isPending}
-                    onClick={() => handleGenerateClientVoicePack(lead.slug, { bringIntoView: true })}
+                    onClick={() =>
+                      handleGenerateClientVoicePack(lead.slug, {
+                        bringIntoView: true,
+                        headingId: VOICE_PACKS_DUE_HEADING_ID,
+                      })
+                    }
                     aria-label={dashboardRowActionAriaLabel(
                       "Generate voice pack",
                       lead.businessName,
@@ -1800,7 +1973,11 @@ export function LeadsClient({
       {abandonedCheckoutsDue.length > 0 && (
         <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={ABANDONED_CHECKOUTS_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Abandoned checkouts
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({abandonedCheckoutsDue.length}
@@ -1871,7 +2048,11 @@ export function LeadsClient({
       {commerceAbandonedCheckoutsDue.length > 0 && (
         <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={ABANDONED_BUY_NOW_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Abandoned Buy now
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({commerceAbandonedCheckoutsDue.length}
@@ -1953,7 +2134,11 @@ export function LeadsClient({
       {commercePayoutsByLead.length > 0 && (
         <section className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={COMMERCE_PAYOUTS_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Commerce payouts (manual)
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({commercePayoutsOrderCount} order{commercePayoutsOrderCount === 1 ? "" : "s"}
@@ -2066,7 +2251,11 @@ export function LeadsClient({
       {commerceOrdersMissingClientReceipt.length > 0 && (
         <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={MISSING_CLIENT_RECEIPT_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Missing client receipt
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({commerceOrdersMissingClientReceipt.length}
@@ -2129,7 +2318,11 @@ export function LeadsClient({
       {(bundleOrderRefunds.length > 0 || bundleOrderDisputes.length > 0) && (
         <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={BUNDLE_ORDER_REFUNDS_DISPUTES_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Bundle order refunds &amp; disputes
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({bundleOrderRefunds.length + bundleOrderDisputes.length}
@@ -2195,7 +2388,11 @@ export function LeadsClient({
       {followUpsDue.length > 0 && (
         <section className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={FOLLOW_UPS_DUE_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Follow-ups due
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({followUpsDue.length}
@@ -2244,7 +2441,7 @@ export function LeadsClient({
                     <button
                       type="button"
                       disabled={isPending || !next}
-                      onClick={() => handleSendFollowUp(lead.slug)}
+                      onClick={() => handleSendFollowUp(lead.slug, FOLLOW_UPS_DUE_HEADING_ID)}
                       aria-label={dashboardRowActionAriaLabel(
                         `Send Email ${next ?? "?"}`,
                         lead.businessName,
@@ -2265,7 +2462,11 @@ export function LeadsClient({
       {coldLeads.length > 0 && (
         <section className="mb-8 rounded-2xl border border-stone-200 bg-stone-50/50 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={COLD_LEADS_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Cold leads
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({coldLeads.length}
@@ -2332,7 +2533,9 @@ export function LeadsClient({
                             ? "Reset cadence and send Email 1 now"
                             : "Reset cadence to Discovered"
                       }
-                      onClick={() => handleColdDisposition(lead.slug, "reengage")}
+                      onClick={() =>
+                        handleColdDisposition(lead.slug, "reengage", COLD_LEADS_HEADING_ID)
+                      }
                       aria-label={dashboardRowActionAriaLabel(
                         reengageSendEmail1 ? "Re-engage + Email 1" : coldLeadDispositionLabel("reengage"),
                         lead.businessName,
@@ -2347,7 +2550,7 @@ export function LeadsClient({
                     <button
                       type="button"
                       disabled={isPending}
-                      onClick={() => handleColdDisposition(lead.slug, "close")}
+                      onClick={() => handleColdDisposition(lead.slug, "close", COLD_LEADS_HEADING_ID)}
                       aria-label={dashboardRowActionAriaLabel(
                         coldLeadDispositionLabel("close"),
                         lead.businessName,
@@ -2368,7 +2571,11 @@ export function LeadsClient({
       {workNext.length > 0 && (
         <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/30 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={WORK_NEXT_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Work next
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 (quality score)
@@ -2452,7 +2659,9 @@ export function LeadsClient({
                         <button
                           type="button"
                           disabled={isPending}
-                          onClick={() => handleStageChange(lead.slug, "outreach_sent")}
+                          onClick={() =>
+                            handleStageChange(lead.slug, "outreach_sent", WORK_NEXT_HEADING_ID)
+                          }
                           aria-label={dashboardRowActionAriaLabel(
                             "Send Email 1",
                             lead.businessName,
@@ -2467,7 +2676,7 @@ export function LeadsClient({
                         <button
                           type="button"
                           disabled={isPending}
-                          onClick={() => handleSendFollowUp(lead.slug)}
+                          onClick={() => handleSendFollowUp(lead.slug, WORK_NEXT_HEADING_ID)}
                           aria-label={dashboardRowActionAriaLabel(
                             `Send Email ${nextFollowUpStep(lead.outreachStep) ?? "?"}`,
                             lead.businessName,
@@ -2485,7 +2694,7 @@ export function LeadsClient({
                             type="button"
                             disabled={isPending}
                             title={`Snooze ${snoozePresetLabel(preset)}`}
-                            onClick={() => handleSnooze(lead.slug, preset)}
+                            onClick={() => handleSnooze(lead.slug, preset, WORK_NEXT_HEADING_ID)}
                             aria-label={dashboardRowActionAriaLabel(
                               `Snooze ${snoozePresetLabel(preset)}`,
                               lead.businessName,
@@ -2509,7 +2718,11 @@ export function LeadsClient({
       {paidNotLive.length > 0 && (
         <section className="mb-8 rounded-2xl border border-red-200 bg-red-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={PAID_NOT_LIVE_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Paid, not live
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({paidNotLive.length}
@@ -2584,7 +2797,11 @@ export function LeadsClient({
       {openHandoffs.length > 0 && (
         <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={PRODUCTION_DEPLOY_HANDOFFS_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Production deploy handoffs
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({openHandoffs.length}
@@ -2728,7 +2945,11 @@ export function LeadsClient({
       {openInquiries.length > 0 && (
         <section className="mb-8 rounded-2xl border border-sky-200 bg-sky-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h2
+              id={WEBSITE_INQUIRIES_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
               Website inquiries
               <span className="ml-2 text-sm font-normal text-zinc-500">
                 ({unrepliedOpenInquiries.length} unreplied
@@ -2861,7 +3082,9 @@ export function LeadsClient({
                       <button
                         type="button"
                         disabled={isPending}
-                        onClick={() => handleInquiryStatus(inq.id, "read")}
+                        onClick={() =>
+                          handleInquiryStatus(inq.id, "read", WEBSITE_INQUIRIES_HEADING_ID)
+                        }
                         aria-label={dashboardRowActionAriaLabel(
                           "Mark read",
                           inq.businessName,
@@ -2895,7 +3118,9 @@ export function LeadsClient({
                     <button
                       type="button"
                       disabled={isPending}
-                      onClick={() => handleInquiryStatus(inq.id, "archived")}
+                      onClick={() =>
+                        handleInquiryStatus(inq.id, "archived", WEBSITE_INQUIRIES_HEADING_ID)
+                      }
                       aria-label={dashboardRowActionAriaLabel(
                         "Archive",
                         inq.businessName,

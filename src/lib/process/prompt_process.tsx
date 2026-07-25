@@ -368,6 +368,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/upbeat-dijkstra-lxzzsa",
   },
+  {
+    id: "due-queue-panel-resolve-button-focus-restore",
+    summary:
+      "Empty-backlog audit closed a gap explicitly named-but-deferred by suppressed-emails-panel-aria-live-focus-restore: none of the 17 due-queue panels' own row-level resolve/action buttons (Mark paid out, Re-engage, Close, Send Email N, Mark live, Create deploy handoff, Mark read, Archive, Sync to Stripe, Generate pack, Send recovery, Resend receipt, Snooze) restored keyboard/screen-reader focus after their own click unmounted the row (or, in several cases, just the conditionally-rendered button itself) — focus silently dropped to <body> on every one of them. Shipped: all 17 panel headings got a stable id + tabIndex={-1} + focus:outline-none (mirroring suppressed-emails-panel.tsx's own precedent), and the 14 handlers that actually remove a row/button on success now refocus the owning panel heading via document.getElementById(headingId)?.focus() — 7 of which are shared with an always-mounted main-table control and took an optional headingId param so that unrelated call site's behavior is unchanged. Four panels' headings got id/tabIndex only, no handler wiring, after confirming they have no row-removing action of their own (Commerce catalogs missing/unsynced's editor-opening buttons already restore focus via the existing dashboard-focus-restore.ts toggle pattern once saved; Starter → MRR upsell and MRR paused/canceled only send an email or open an external Stripe window; Bundle order refunds & disputes is genuinely read-only).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-wlofuf",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -750,6 +758,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "commerce-order-zero-amount-owed-exclusion",
+    ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/nice-euler-wlofuf",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 64944d5c (PR #744, commerce-order-zero-amount-owed-exclusion, merged prior session) — HEAD matched origin/main exactly at session start. A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest claude/* branches found no live fold candidate (each diffed non-empty against origin/main purely from the expected squash-merge SHA mismatch, content already merged). mcp__github__list_pull_requests reconfirmed the sole open item is still PR #202 (unrelated, weeks-stale human draft).\n\nDispatched a research agent steered away from the many already-exhaustively-reconfirmed axes and toward the dormant scaffolds plus a fresh grep sweep. It found a real, concrete, previously-named-but-unshipped gap: suppressed-emails-panel-aria-live-focus-restore's own rationale text explicitly called out the 17 due-queue panels in leads-client.tsx as a known follow-up (\"a distinct, larger-scoped follow-up outside this iteration\") that no later iteration had picked up — none of those panels' own row-level resolve/action buttons restored focus after their own click unmounted the row (or, in several cases, just the conditionally-rendered button), so a keyboard/screen-reader operator's focus silently dropped to <body> on the single most-repeated interaction shape in the dashboard's busiest file. Verified the finding directly by reading the handler bodies and their conditional-render guards before dispatching implementation to a second agent, which followed the exact suppressed-emails-panel.tsx precedent (heading id + tabIndex + focus-restore) across all 17 panels and their 14 row-removing handlers.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — 17 due-queue panel headings each got a stable id constant + tabIndex={-1} + focus:outline-none. 14 handlers (handleStageChange, handleSnooze, handleColdDisposition, handleMarkHandoffLive, handleCreateDeployHandoff, handleInquiryStatus, handleSendFollowUp, handleSendCheckoutRecovery, handleSendCommerceCheckoutRecovery, handleMarkCommerceOrderPaidOut, handleResendCommerceClientReceipt, handleGenerateMarketingPack, handleSyncCommerceCatalogToStripe, handleGenerateClientVoicePack) now call document.getElementById(headingId)?.focus() on the success path that removes a row or unmounts a conditionally-rendered button; 7 of these are shared with an always-mounted main-table control and took an optional headingId param so that call site's behavior is unchanged. Four panels (Commerce catalogs missing/unsynced, Starter → MRR upsell, MRR paused/canceled, plus the read-only Bundle order refunds & disputes) got heading id/tabIndex only, confirmed to need no handler wiring.",
+      "src/lib/process/business-decisions.ts — appended due-queue-panel-resolve-button-focus-restore.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS otherwise unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-named accessibility gap, not any of the five gated items. Diff-gate anchor moves to 64944d5c (this iteration's own starting tip, post-PR-#744).",
+      "Verified: npm install (node_modules absent at session start) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2869 passed, unchanged — no test harness for leads-client.tsx's React rendering, a documented pre-existing gap) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split) + npm run dev smoke check (/dashboard/leads 200 with the new heading ids present in the served HTML, /preview/example-bakery 200; dev server killed, port 3100 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "due-queue-panel-resolve-button-focus-restore",
     ),
   },
 ];
