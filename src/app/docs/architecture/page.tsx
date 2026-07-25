@@ -692,6 +692,32 @@ export default function ArchitectureDocPage() {
         bracket-stub values leave every outreach footer on the documented{" "}
         <code>brand.postalAddress</code> fallback.
       </p>
+      <p>
+        <code>src/lib/db.ts</code> (the Convex-first/SQLite-fallback orchestration layer every
+        surface above ultimately writes and reads through) carries a{" "}
+        <code>&quot;server-only&quot;</code> guard, which throws unconditionally outside a
+        Next.js server render — the reason every consumer test in this repo mocks{" "}
+        <code>@/lib/db</code> away entirely rather than importing it for real. That left the
+        actual <code>if (convexClient) {"{"} try {"{"} ...; return; {"}"} catch {"{"}{" "}
+        ...fallback... {"}"} {"}"} ... SQLite fallback</code> branch-selection code — not the pure
+        helpers it delegates to, which already had isolated coverage — with zero automated
+        coverage of its own, only manual <code>npm run dev</code> smoke checks. A regression
+        there (a missing <code>return;</code> after a Convex success causing a silent
+        double-write, or a flipped <code>shouldFallbackToSqliteOnConvexFailure</code> condition)
+        would pass tsc/lint/the full mocked Vitest suite and a routine dev smoke check, and only
+        surface in production as a split-brain write or a duplicate external side effect.{" "}
+        <code>src/lib/db.test.ts</code> closes the gap for two representative shapes every other
+        db.ts export shares — <code>getLeads</code>/<code>getLeadBySlug</code>/
+        <code>upsertLead</code>&apos;s ordinary soft-fallback reads/writes, and{" "}
+        <code>updateLeadBufferPostedVariantKeys</code>&apos;s <code>requireConvex</code>{" "}
+        fail-closed write — by mocking <code>&quot;server-only&quot;</code> to a no-op and{" "}
+        <code>convex/browser</code>&apos;s <code>ConvexHttpClient</code> to a controllable fake,
+        then importing the real db.ts module (fresh per scenario via{" "}
+        <code>vi.resetModules()</code>) against that fake client and a real but isolated
+        temp-directory SQLite file (<code>process.cwd()</code> spied per test, deleted in{" "}
+        <code>afterEach</code>) — exercising the actual branch-selection code rather than a second
+        reimplementation of its logic.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
