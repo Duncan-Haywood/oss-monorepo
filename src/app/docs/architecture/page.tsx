@@ -1247,7 +1247,14 @@ export default function ArchitectureDocPage() {
         <code>enqueueProductionHandoff</code> re-read the handoff and{" "}
         <code>mergeProvisionOntoFreshHandoff</code> before the final full-row upsert —
         same TOCTOU class as commerce catalog sync / orphan archive — so a concurrent
-        Mark live during the Vercel window is not silently reverted. Bundle webhook
+        Mark live during the Vercel window is not silently reverted. Every Vercel Domains
+        API call (register and release) carries a 15s <code>AbortSignal.timeout</code> (
+        <code>VERCEL_REQUEST_TIMEOUT_MS</code>) so a hung Vercel response fails fast into
+        the existing network-error handling (
+        <code>{'vercelDomainStatus: "error_network"'}</code>) instead of blocking{" "}
+        <code>enqueueProductionHandoff</code>, which is awaited
+        synchronously from the paid-checkout Stripe webhook path — same class as the
+        Anthropic generator fetch timeout below. Bundle webhook
         receipt/DNS sent-markers append notes via{" "}
         <code>updateDeployHandoffStatus</code> after Resend; that write uses{" "}
         <code>preferAdvancedHandoffStatus</code> (never-downgrade:{" "}

@@ -317,6 +317,50 @@ describe("deploy/handoff", () => {
       expect(result.vercelDomainStatus).toBe("error_network");
       expect(result.notes.some((n) => n.includes("ECONNRESET"))).toBe(true);
     });
+
+    it("passes an AbortSignal on the domain-create fetch call so a hung Vercel API response cannot hang forever", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+      getDeployHandoffBySlug.mockResolvedValue(null);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      const { enqueueProductionHandoff } = await import("./handoff");
+
+      await enqueueProductionHandoff({
+        leadSlug: "demo-cafe",
+        businessName: "Demo Cafe",
+        tier: "growth",
+        commerceAddon: false,
+        stripeSessionId: "cs_1",
+        customerEmail: "owner@demo-cafe.test",
+      });
+
+      const init = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0]?.[1] as RequestInit;
+      expect(init.signal).toBeInstanceOf(AbortSignal);
+    });
+
+    it("falls back to error_network (never throws) when the Vercel domain-create call times out", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      global.fetch = vi
+        .fn()
+        .mockRejectedValue(new DOMException("The operation timed out.", "TimeoutError"));
+      getDeployHandoffBySlug.mockResolvedValue(null);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      const { enqueueProductionHandoff } = await import("./handoff");
+
+      const result = await enqueueProductionHandoff({
+        leadSlug: "demo-cafe",
+        businessName: "Demo Cafe",
+        tier: "growth",
+        commerceAddon: false,
+        stripeSessionId: "cs_1",
+        customerEmail: "owner@demo-cafe.test",
+      });
+
+      expect(result.vercelDomainStatus).toBe("error_network");
+      expect(result.notes.some((n) => n.includes("timed out"))).toBe(true);
+    });
   });
 
   describe("assignVercelProjectAndProvision", () => {
@@ -421,6 +465,11 @@ describe("deploy/handoff", () => {
           n.includes("Released Vercel domain www.demo.com from project prj_old"),
         ),
       ).toBe(true);
+      // Both the release (DELETE) and re-register (POST) calls carry an
+      // AbortSignal so a hung Vercel API response cannot hang the request.
+      for (const call of [...deleteCalls, ...postCalls]) {
+        expect((call[1] as RequestInit).signal).toBeInstanceOf(AbortSignal);
+      }
     });
 
     it("does not release anything when the assigned project is unchanged", async () => {

@@ -54,6 +54,18 @@ export function productionRootDomain(): string {
   return preview;
 }
 
+/**
+ * Bounds every Vercel Domains API call (register + release) so a hung/stalled
+ * connection fails fast into the existing network-error handling instead of
+ * blocking the request indefinitely — enqueueProductionHandoff awaits
+ * tryProvisionVercelDomain synchronously from the paid-checkout fulfillment
+ * path, so an unbounded call here risks tying up the Stripe webhook handler
+ * for however long the hosting platform's own function-duration ceiling
+ * allows. Mirrors ANTHROPIC_REQUEST_TIMEOUT_MS in
+ * src/lib/marketing/generators.ts / src/lib/voice/generators.ts.
+ */
+const VERCEL_REQUEST_TIMEOUT_MS = 15_000;
+
 function buildDnsInstructions(suggestedHost: string): DnsInstruction[] {
   const vercelCname = "cname.vercel-dns.com";
   return [
@@ -167,6 +179,7 @@ async function tryProvisionVercelDomain(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name: domain }),
+        signal: AbortSignal.timeout(VERCEL_REQUEST_TIMEOUT_MS),
       });
 
       if (response.ok) {
@@ -254,6 +267,7 @@ async function releaseVercelDomains(
       const response = await fetch(url, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(VERCEL_REQUEST_TIMEOUT_MS),
       });
       // 404 means it's already gone (or never registered) — treat as released.
       if (response.ok || response.status === 404) {
