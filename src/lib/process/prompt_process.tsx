@@ -193,6 +193,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
   },
   {
+    id: "contact-form-success-message-focus-restore",
+    summary:
+      "Fresh-angle empty-backlog audit (research agent steered at TOCTOU races, Convex/TS type drift, public-form accessibility, and swallowed-error paths) found a genuine focus-loss bug in src/components/preview/contact-form.tsx — the Starter-tier sold contact form rendered on every live customer site: a successful submit unmounts the whole <form> (including the focused submit button, on a keyboard-driven Enter/Space submit) and replaces it with a <p role=\"status\"> success message, with no focus() call on that transition, so a keyboard-only/screen-reader visitor's focus silently reset to <body>. Shipped: focus now moves onto the success message itself (ref + tabIndex={-1} + a useEffect keyed on status). Verified with a real Playwright browser check (globally-installed Chromium, repo has no playwright devDependency) — confirmed via document.activeElement that this exact class of regression (undetectable by curl/build/lint/test alone) is fixed. See contact-form-success-message-focus-restore in BUSINESS_DECISIONS.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-ozmixm",
+  },
+  {
     id: "vercel-domain-provisioning-fetch-timeout",
     summary:
       "Fresh-angle empty-backlog audit found tryProvisionVercelDomain/releaseVercelDomains (src/lib/deploy/handoff.ts) had solid error handling (response.ok checks, 409-vs-hard-error distinction, network-error catch, never-downgrade-live) but neither Vercel Domains API fetch call (POST register, DELETE release) passed an AbortSignal — the exact gap anthropic-generator-fetch-timeout closed for the LLM generator fetches one iteration earlier. enqueueProductionHandoff awaits tryProvisionVercelDomain synchronously from the paid-checkout fulfillment path (Stripe webhook), so a hung Vercel connection could tie up that handler indefinitely instead of failing fast into the existing error_network handling. Shipped a VERCEL_REQUEST_TIMEOUT_MS = 15_000 constant and signal: AbortSignal.timeout(...) on both fetch calls, mirroring the just-shipped Anthropic pattern; an aborted call now degrades into the existing catch block's error_network handling unchanged.",
@@ -621,6 +629,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "dashboard-due-queue-section-landmark-names",
+    ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/nice-euler-ozmixm",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 9dfbfe07 (PR #754, dashboard-due-queue-section-landmark-names, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2875 passed, 204 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest ~8 claude/* branches by commit time found each diffed non-empty against origin/main purely from the expected squash-merge SHA mismatch (content already merged, matching PRs #745-#754) — no live fold candidate. Diff-gate (`git log --oneline 6068ee64..HEAD -- src convex .github/workflows`) found only the immediately-preceding iteration's own already-logged commit, so per the waste-reduction rule dispatched one research agent steered at angles the protocol names as still under-explored (TOCTOU races, Convex schema-vs-TS drift, public-form accessibility, swallowed-error/observability gaps) rather than a full five-tier re-sweep.\n\nFour of five angles came back clean with direct citations; the fifth found a real, previously-unaudited gap this session independently re-verified by reading the file directly: src/components/preview/contact-form.tsx's success-state ternary unmounts the entire <form> — including whichever control held focus, the submit button on a keyboard-driven submit — with no focus() call on that transition, silently resetting focus to <body>. Same bug class the dashboard-inline-editor-close-focus-restore/due-queue-panel-resolve-button-focus-restore series just finished eliminating on the operator dashboard, found here on the public storefront's own sold Starter-tier inquiry-form deliverable instead.",
+    shipped: [
+      "src/components/preview/contact-form.tsx — added a successMessageRef (useRef<HTMLParagraphElement>) and a useEffect keyed on status that calls successMessageRef.current?.focus() when status becomes \"success\"; wired ref + tabIndex={-1} onto the existing <p role=\"status\"> success element so it's both announced and where focus lands, mirroring the dashboard focus-restore convention (src/lib/leads/dashboard-focus-restore.ts) applied to a public component for the first time.",
+      "src/lib/process/business-decisions.ts — appended contact-form-success-message-focus-restore.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS otherwise unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real accessibility gap on the sold public inquiry form, not any of the five gated items. Diff-gate anchor moves to 9dfbfe07 (this iteration's own starting tip, post-PR-#754).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2875 passed, unchanged, 204 files — pure focus-management change, no new pure-function logic, matching this repo's no-React-test-harness convention) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + a real Playwright browser check (globally-installed Chromium at /opt/pw-browsers/chromium, since playwright/@playwright/test are not repo devDependencies) against npm run dev's demo lead example-bakery: scripted a keyboard-only submit (focus the submit button, press Enter) and asserted document.activeElement after the success message rendered — confirmed it is the role=\"status\" paragraph, not <body>. Dev server killed, port 3000 confirmed freed, local.db deleted afterward.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "contact-form-success-message-focus-restore",
     ),
   },
 ];
