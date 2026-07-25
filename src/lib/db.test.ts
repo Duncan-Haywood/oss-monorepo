@@ -2773,4 +2773,544 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(matches[0]?.tier).toBe("starter");
     });
   });
+
+  describe("recordLeadPayment (bundle money-ledger write, idempotent, optional requireConvex, live-never-downgrades guard)", () => {
+    it("returns Convex's result directly without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce({ alreadyRecorded: false });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.recordLeadPayment(
+        {
+          slug: "convex-payment-lead",
+          stripeSessionId: "cs_convex_payment",
+          customerEmail: "buyer@example.com",
+          tier: "starter",
+          commerceAddon: false,
+          amountTotal: 99,
+        },
+        { requireConvex: true },
+      );
+      expect(result).toEqual({ alreadyRecorded: false });
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // A missing early-`return` would have also run the SQLite insert below
+      // (sqliteOrderAlreadyRecorded runs before any Convex call) — reading
+      // through the pure-SQLite path confirms no order landed there.
+      const order = await (
+        await loadDb(undefined)
+      ).getOrderByStripeSessionId("cs_convex_payment");
+      expect(order).toBeNull();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordLeadPayment(
+          {
+            slug: "any-lead",
+            stripeSessionId: "cs_any_payment",
+            customerEmail: "buyer@example.com",
+            tier: "starter",
+            commerceAddon: false,
+            amountTotal: 99,
+          },
+          { requireConvex: true },
+        ),
+      ).rejects.toThrow(/recordLeadPayment/);
+    });
+
+    it("SQLite fallback creates a payment-stub lead (organic buyer, no prior CRM row) and the order", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.recordLeadPayment({
+        slug: "stub-payment-lead",
+        stripeSessionId: "cs_stub_payment",
+        customerEmail: "buyer@example.com",
+        tier: "growth",
+        commerceAddon: true,
+        amountTotal: 199,
+      });
+      expect(result).toEqual({ alreadyRecorded: false });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("stub-payment-lead");
+      expect(lead?.stage).toBe("paid");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const order = await db.getOrderByStripeSessionId("cs_stub_payment");
+      expect(order?.tier).toBe("growth");
+      expect(order?.commerceAddon).toBe(true);
+      expect(order?.amountPaid).toBe(199);
+    });
+
+    it("SQLite fallback promotes an existing (non-live) lead to paid", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("existing-payment-lead", { stage: "discovered" }));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      // recordLeadPayment's SQLite branch resolves leadExists via its own
+      // getLeadBySlug(params.slug) call — an unmocked convexQuery resolves
+      // undefined (not a throw), which getLeadBySlug reads as "not found"
+      // without ever falling through to SQLite. Force that read to fail too,
+      // so it actually sees the SQLite-seeded lead above.
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const db = await loadDb(CONVEX_URL);
+      await db.recordLeadPayment({
+        slug: "existing-payment-lead",
+        stripeSessionId: "cs_existing_payment",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 99,
+      });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("existing-payment-lead");
+      expect(lead?.stage).toBe("paid");
+    });
+
+    it("SQLite fallback never regresses an already-live lead's stage back to paid (still records the order)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("live-payment-lead", { stage: "live" }));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const db = await loadDb(CONVEX_URL);
+      await db.recordLeadPayment({
+        slug: "live-payment-lead",
+        stripeSessionId: "cs_live_payment",
+        customerEmail: "buyer@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 149,
+      });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("live-payment-lead");
+      expect(lead?.stage).toBe("live");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const order = await db.getOrderByStripeSessionId("cs_live_payment");
+      expect(order?.tier).toBe("growth");
+    });
+
+    it("SQLite fallback ignores a redelivered stripeSessionId instead of double-recording the sale", async () => {
+      const db = await loadDb(undefined);
+      const first = await db.recordLeadPayment({
+        slug: "dedup-payment-lead",
+        stripeSessionId: "cs_dedup_payment",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 99,
+      });
+      expect(first).toEqual({ alreadyRecorded: false });
+
+      const second = await db.recordLeadPayment({
+        slug: "dedup-payment-lead",
+        stripeSessionId: "cs_dedup_payment",
+        customerEmail: "buyer@example.com",
+        tier: "complete",
+        commerceAddon: true,
+        amountTotal: 299,
+      });
+      expect(second).toEqual({ alreadyRecorded: true });
+
+      const order = await db.getOrderByStripeSessionId("cs_dedup_payment");
+      expect(order?.tier).toBe("starter");
+      expect(order?.amountPaid).toBe(99);
+    });
+  });
+
+  describe("insertCommerceOrder (Commerce Buy now money-ledger write, idempotent, optional requireConvex)", () => {
+    it("returns Convex's result directly without touching SQLite", async () => {
+      // A non-null resolve is Convex's own "row inserted" shape — null means
+      // alreadyRecorded (see the next test) so this proves the fresh-insert
+      // branch specifically returns early without falling through to SQLite.
+      convexMutation.mockResolvedValueOnce({
+        id: "commerce-order-1",
+        leadSlug: "convex-commerce-order-lead",
+        skuId: "sku-1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_convex_commerce_order",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.insertCommerceOrder(
+        {
+          leadSlug: "convex-commerce-order-lead",
+          skuId: "sku-1",
+          skuName: "Test SKU",
+          amountPaidUsd: 25,
+          stripeSessionId: "cs_convex_commerce_order",
+        },
+        { requireConvex: true },
+      );
+      expect(result).toEqual({ alreadyRecorded: false });
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      const order = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_convex_commerce_order");
+      expect(order).toBeNull();
+    });
+
+    it("Convex insert() resolving null (existing by_stripeSessionId row) reports alreadyRecorded true", async () => {
+      convexMutation.mockResolvedValueOnce(null);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.insertCommerceOrder({
+        leadSlug: "convex-dedup-commerce-order-lead",
+        skuId: "sku-1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_convex_dedup_commerce_order",
+      });
+      expect(result).toEqual({ alreadyRecorded: true });
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.insertCommerceOrder(
+          {
+            leadSlug: "any-lead",
+            skuId: "sku-1",
+            skuName: "Test SKU",
+            amountPaidUsd: 25,
+            stripeSessionId: "cs_any_commerce_order",
+          },
+          { requireConvex: true },
+        ),
+      ).rejects.toThrow(/insertCommerceOrder/);
+    });
+
+    it("falls back to a real SQLite insert when requireConvex is not set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.insertCommerceOrder({
+        leadSlug: "fallback-commerce-order-lead",
+        skuId: "sku-2",
+        skuName: "Fallback SKU",
+        amountPaidUsd: 40,
+        stripeSessionId: "cs_fallback_commerce_order",
+        quantity: 2,
+        customerEmail: "shopper@example.com",
+      });
+      expect(result).toEqual({ alreadyRecorded: false });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const order = await db.getCommerceOrderByStripeSessionId("cs_fallback_commerce_order");
+      expect(order?.skuName).toBe("Fallback SKU");
+      expect(order?.amountPaidUsd).toBe(40);
+      expect(order?.quantity).toBe(2);
+      expect(order?.customerEmail).toBe("shopper@example.com");
+    });
+
+    it("SQLite fallback ignores a redelivered stripeSessionId instead of double-recording the sale", async () => {
+      const db = await loadDb(undefined);
+      const first = await db.insertCommerceOrder({
+        leadSlug: "dedup-commerce-order-lead",
+        skuId: "sku-3",
+        skuName: "Dedup SKU",
+        amountPaidUsd: 15,
+        stripeSessionId: "cs_dedup_commerce_order",
+      });
+      expect(first).toEqual({ alreadyRecorded: false });
+
+      const second = await db.insertCommerceOrder({
+        leadSlug: "dedup-commerce-order-lead",
+        skuId: "sku-3",
+        skuName: "Dedup SKU (redelivered)",
+        amountPaidUsd: 999,
+        stripeSessionId: "cs_dedup_commerce_order",
+      });
+      expect(second).toEqual({ alreadyRecorded: true });
+
+      const order = await db.getCommerceOrderByStripeSessionId("cs_dedup_commerce_order");
+      expect(order?.skuName).toBe("Dedup SKU");
+      expect(order?.amountPaidUsd).toBe(15);
+    });
+  });
+
+  describe("upsertMarketingPack (soft Convex-first write, full-row replace, optional requireConvex)", () => {
+    const marketingInput = {
+      leadSlug: "marketing-pack-orchestration-lead",
+      yearMonth: "2026-07",
+      variants: [{ contentType: "gbp_post" as const, body: "Original post" }],
+      generatedAt: "2026-07-01T00:00:00.000Z",
+      generator: "stub" as const,
+    };
+
+    it("returns Convex's resolved pack shape without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      const pack = await db.upsertMarketingPack(marketingInput, { requireConvex: true });
+      expect(pack.leadSlug).toBe("marketing-pack-orchestration-lead");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      const stored = await (
+        await loadDb(undefined)
+      ).getMarketingPack("marketing-pack-orchestration-lead", "2026-07");
+      expect(stored).toBeNull();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.upsertMarketingPack(marketingInput, { requireConvex: true }),
+      ).rejects.toThrow(/upsertMarketingPack/);
+    });
+
+    it("SQLite fallback replaces the whole row on a second save rather than merging", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertMarketingPack(marketingInput);
+      await db.upsertMarketingPack({
+        ...marketingInput,
+        variants: [{ contentType: "facebook_caption", body: "Replaced post" }],
+        generator: "anthropic",
+      });
+
+      const stored = await db.getMarketingPack("marketing-pack-orchestration-lead", "2026-07");
+      expect(stored?.variants).toEqual([
+        { contentType: "facebook_caption", body: "Replaced post" },
+      ]);
+      expect(stored?.generator).toBe("anthropic");
+    });
+
+    it("SQLite fallback clears sentToClientAt on regeneration (marketing-voice-pack-client-send-visibility)", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertMarketingPack(marketingInput);
+      await db.markMarketingPackSentToClient(
+        "marketing-pack-orchestration-lead",
+        "2026-07",
+        "2026-07-02T00:00:00.000Z",
+      );
+      await db.upsertMarketingPack(marketingInput);
+
+      const stored = await db.getMarketingPack("marketing-pack-orchestration-lead", "2026-07");
+      expect(stored?.sentToClientAt).toBeUndefined();
+    });
+  });
+
+  describe("upsertClientVoicePack (soft Convex-first write, full-row replace, optional requireConvex)", () => {
+    const voiceInput = {
+      leadSlug: "voice-pack-orchestration-lead",
+      variants: [{ scriptType: "inbound_greeting" as const, title: "Greeting", body: "Hello!" }],
+      generatedAt: "2026-07-01T00:00:00.000Z",
+      generator: "stub" as const,
+    };
+
+    it("returns Convex's resolved pack shape without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      const pack = await db.upsertClientVoicePack(voiceInput, { requireConvex: true });
+      expect(pack.leadSlug).toBe("voice-pack-orchestration-lead");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      const stored = await (
+        await loadDb(undefined)
+      ).getClientVoicePackByLeadSlug("voice-pack-orchestration-lead");
+      expect(stored).toBeNull();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.upsertClientVoicePack(voiceInput, { requireConvex: true }),
+      ).rejects.toThrow(/upsertClientVoicePack/);
+    });
+
+    it("SQLite fallback replaces the whole row on a second save rather than merging", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertClientVoicePack(voiceInput);
+      await db.upsertClientVoicePack({
+        ...voiceInput,
+        variants: [{ scriptType: "booking_cta", title: "Booking", body: "Let's get you booked." }],
+        generator: "anthropic",
+      });
+
+      const stored = await db.getClientVoicePackByLeadSlug("voice-pack-orchestration-lead");
+      expect(stored?.variants).toEqual([
+        { scriptType: "booking_cta", title: "Booking", body: "Let's get you booked." },
+      ]);
+      expect(stored?.generator).toBe("anthropic");
+    });
+
+    it("SQLite fallback clears sentToClientAt on regeneration (marketing-voice-pack-client-send-visibility)", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertClientVoicePack(voiceInput);
+      await db.markClientVoicePackSentToClient(
+        "voice-pack-orchestration-lead",
+        "2026-07-02T00:00:00.000Z",
+      );
+      await db.upsertClientVoicePack(voiceInput);
+
+      const stored = await db.getClientVoicePackByLeadSlug("voice-pack-orchestration-lead");
+      expect(stored?.sentToClientAt).toBeUndefined();
+    });
+  });
+
+  describe("suppressEmail / unsuppressEmail (CAN-SPAM opt-out list, reason-upgrade-not-downgrade guard, requireConvex fail-closed)", () => {
+    it("suppressEmail returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.suppressEmail("convex-suppress@example.com", "unsubscribe", { requireConvex: true }),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      const suppressed = await (
+        await loadDb(undefined)
+      ).getSuppressedEmails();
+      expect(suppressed.some((s) => s.email === "convex-suppress@example.com")).toBe(false);
+    });
+
+    it("suppressEmail throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.suppressEmail("any@example.com", "unsubscribe", { requireConvex: true }),
+      ).rejects.toThrow(/suppressEmail/);
+    });
+
+    it("suppressEmail SQLite fallback inserts a fresh row (normalized to lowercase/trimmed)", async () => {
+      const db = await loadDb(undefined);
+      await db.suppressEmail("  Fallback-Suppress@Example.com  ", "unsubscribe");
+
+      const suppressed = await db.getSuppressedEmails();
+      const row = suppressed.find((s) => s.email === "fallback-suppress@example.com");
+      expect(row?.reason).toBe("unsubscribe");
+    });
+
+    it("suppressEmail SQLite fallback upgrades unsubscribe -> bounce but never downgrades bounce -> unsubscribe (suppression-reason-upgrade-not-just-downgrade-guard)", async () => {
+      const db = await loadDb(undefined);
+      await db.suppressEmail("upgrade-guard@example.com", "unsubscribe");
+      await db.suppressEmail("upgrade-guard@example.com", "bounce");
+
+      let suppressed = await db.getSuppressedEmails();
+      expect(suppressed.find((s) => s.email === "upgrade-guard@example.com")?.reason).toBe(
+        "bounce",
+      );
+
+      // A later, weaker unsubscribe must not downgrade the stronger bounce reason.
+      await db.suppressEmail("upgrade-guard@example.com", "unsubscribe");
+      suppressed = await db.getSuppressedEmails();
+      expect(suppressed.find((s) => s.email === "upgrade-guard@example.com")?.reason).toBe(
+        "bounce",
+      );
+    });
+
+    it("unsuppressEmail returns Convex's boolean result directly without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.unsuppressEmail("convex-unsuppress@example.com", { requireConvex: true }),
+      ).resolves.toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("unsuppressEmail throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.unsuppressEmail("any@example.com", { requireConvex: true }),
+      ).rejects.toThrow(/unsuppressEmail/);
+    });
+
+    it("unsuppressEmail SQLite fallback removes an existing row and reports true, reports false when nothing matched", async () => {
+      const db = await loadDb(undefined);
+      await db.suppressEmail("removable@example.com", "unsubscribe");
+
+      await expect(db.unsuppressEmail("removable@example.com")).resolves.toBe(true);
+      const suppressed = await db.getSuppressedEmails();
+      expect(suppressed.some((s) => s.email === "removable@example.com")).toBe(false);
+
+      await expect(db.unsuppressEmail("removable@example.com")).resolves.toBe(false);
+    });
+  });
+
+  describe("recordCheckoutRecoverySent (abandoned-recovery send marker, checkout-session-recovery-race-guard, optional requireConvex)", () => {
+    it("returns Convex's boolean result directly without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordCheckoutRecoverySent("cs_convex_recovery", "2026-07-02T00:00:00.000Z", {
+          requireConvex: true,
+        }),
+      ).resolves.toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordCheckoutRecoverySent("cs_any_recovery", "2026-07-02T00:00:00.000Z", {
+          requireConvex: true,
+        }),
+      ).rejects.toThrow(/recordCheckoutRecoverySent/);
+    });
+
+    it("SQLite fallback marks an open session and increments recoverySentCount across repeat sends", async () => {
+      const db = await loadDb(undefined);
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "recovery-lead",
+        stripeSessionId: "cs_recovery_open",
+        tier: "starter",
+        commerceAddon: false,
+      });
+
+      const first = await db.recordCheckoutRecoverySent(
+        "cs_recovery_open",
+        "2026-07-02T00:00:00.000Z",
+      );
+      expect(first).toBe(true);
+
+      let open = await db.listOpenCheckoutSessions();
+      let session = open.find((s) => s.stripeSessionId === "cs_recovery_open");
+      expect(session?.recoverySentAt).toBe("2026-07-02T00:00:00.000Z");
+      expect(session?.recoverySentCount).toBe(1);
+
+      const second = await db.recordCheckoutRecoverySent(
+        "cs_recovery_open",
+        "2026-07-03T00:00:00.000Z",
+      );
+      expect(second).toBe(true);
+
+      open = await db.listOpenCheckoutSessions();
+      session = open.find((s) => s.stripeSessionId === "cs_recovery_open");
+      expect(session?.recoverySentAt).toBe("2026-07-03T00:00:00.000Z");
+      expect(session?.recoverySentCount).toBe(2);
+    });
+
+    it("SQLite fallback race-guard: returns false and writes nothing for a session no longer open (checkout-session-recovery-race-guard)", async () => {
+      const db = await loadDb(undefined);
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "recovery-race-lead",
+        stripeSessionId: "cs_recovery_race",
+        tier: "starter",
+        commerceAddon: false,
+      });
+      await db.markCheckoutSessionComplete("cs_recovery_race");
+
+      const result = await db.recordCheckoutRecoverySent(
+        "cs_recovery_race",
+        "2026-07-02T00:00:00.000Z",
+      );
+      expect(result).toBe(false);
+    });
+
+    it("SQLite fallback returns false for a stripeSessionId that was never tracked", async () => {
+      const db = await loadDb(undefined);
+      const result = await db.recordCheckoutRecoverySent(
+        "cs_never_tracked",
+        "2026-07-02T00:00:00.000Z",
+      );
+      expect(result).toBe(false);
+    });
+  });
 });
