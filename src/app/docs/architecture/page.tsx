@@ -924,6 +924,33 @@ export default function ArchitectureDocPage() {
         <code>updateDeployHandoffCustomDomain</code>&apos;s URL-to-bare-hostname normalization,
         www-alias conflict rejection, and clear-via-null.
       </p>
+      <p>
+        <code>insertClientInquiry</code>/<code>updateClientInquiryStatus</code>/
+        <code>recordClientInquiryReply</code>/<code>recordCheckoutSessionCreated</code> are the
+        contact-form CRM and checkout-session-tracking writes the public contact route, the Stripe
+        checkout routes, and the dashboard reply/status actions call with{" "}
+        <code>requireConvex: true</code> — every consumer test mocks{" "}
+        <code>&quot;@/lib/db&quot;</code> away entirely, so this module&apos;s own orchestration
+        for all four had zero automated coverage until now.{" "}
+        <code>updateClientInquiryStatus</code>/<code>recordClientInquiryReply</code> share a
+        distinct branch neither of the writes above needed: when Convex is configured and
+        <code>requireConvex</code> is set but the mutation resolves <code>null</code> (inquiry not
+        found on the shared store), the code must return <code>null</code> directly rather than
+        inventing an answer from instance-local SQLite — a broken guard there would let one
+        instance silently &quot;find&quot; a row the shared store has already deleted or
+        never had. <code>recordCheckoutSessionCreated</code>&apos;s SQLite fallback also has an{" "}
+        <code>INSERT ... ON CONFLICT(stripeSessionId) DO NOTHING</code> dedup clause that had never
+        been exercised — Stripe can call the checkout-create route more than once for the same
+        session in a retry, and a broken dedup would let a redelivered create silently overwrite an
+        already-tracked session&apos;s tier/customer fields. The new cases cover each
+        function&apos;s Convex-success early-return (without touching SQLite),{" "}
+        <code>requireConvex</code> fail-closed throw, SQLite-fallback not-found guards, and — for{" "}
+        <code>recordClientInquiryReply</code> — the <code>inquiry-reply-archive-race-guard</code>{" "}
+        rejecting a reply against an inquiry a concurrent archive already closed. A fifth case
+        confirms <code>insertClientInquiry</code>&apos;s SQLite-fallback write still soft-caps an
+        over-length message via <code>normalizeContactFormFields</code> rather than persisting it
+        raw.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
