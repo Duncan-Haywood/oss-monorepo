@@ -706,12 +706,16 @@ export default function ArchitectureDocPage() {
         double-write, or a flipped <code>shouldFallbackToSqliteOnConvexFailure</code> condition)
         would pass tsc/lint/the full mocked Vitest suite and a routine dev smoke check, and only
         surface in production as a split-brain write or a duplicate external side effect.{" "}
-        <code>src/lib/db.test.ts</code> closes the gap for three representative shapes every
-        other db.ts export shares — <code>getLeads</code>/<code>getLeadBySlug</code>/
+        <code>src/lib/db.test.ts</code> closes the gap for representative shapes every other
+        db.ts export shares — <code>getLeads</code>/<code>getLeadBySlug</code>/
         <code>upsertLead</code>&apos;s ordinary soft-fallback reads/writes,{" "}
         <code>updateLeadBufferPostedVariantKeys</code>&apos;s <code>requireConvex</code>{" "}
-        fail-closed write, and <code>recordSubscriptionRenewalPayment</code>&apos;s money-ledger
-        write — by mocking <code>&quot;server-only&quot;</code> to a no-op and{" "}
+        fail-closed write, <code>recordSubscriptionRenewalPayment</code>&apos;s money-ledger
+        write, and the recurring-entitlement pause/resume/re-tier trio (
+        <code>markOrdersRecurringCanceledByCustomer</code>/
+        <code>clearOrdersRecurringCanceledByCustomer</code>/
+        <code>syncOrdersRecurringEntitlementByCustomer</code>) — by mocking{" "}
+        <code>&quot;server-only&quot;</code> to a no-op and{" "}
         <code>convex/browser</code>&apos;s <code>ConvexHttpClient</code> to a controllable fake,
         then importing the real db.ts module (fresh per scenario via{" "}
         <code>vi.resetModules()</code>) against that fake client and a real but isolated
@@ -731,6 +735,20 @@ export default function ArchitectureDocPage() {
         Convex-success early-return, the <code>requireConvex</code> fail-closed throw, SQLite
         accrual + invoice-redelivery idempotency, and the SQLite entitlement filter (a
         non-recurring Starter-tier order is correctly skipped).
+      </p>
+      <p>
+        The recurring-entitlement pause/resume/re-tier trio shares that same duplicated-logic
+        risk — each has a Convex mutation with direct coverage in{" "}
+        <code>convex/orders.test.ts</code> and a hand-written SQLite-fallback branch that had
+        never been exercised by any automated test, and together they drive the pause state every
+        &quot;is this lead currently entitled&quot; consumer (Buy now/catalog sync, digest,
+        dashboard) reads. The new cases cover each function&apos;s Convex-success early-return and{" "}
+        <code>requireConvex</code> fail-closed throw, plus SQLite-fallback behavior: canceling
+        only the customer&apos;s recurring-entitlement order (never a Starter-tier sibling on the
+        same customer) and idempotence on a repeat pause event; clearing a paused order and
+        idempotence on a repeat resume event; and re-tiering a Growth order to Complete +
+        Commerce, refusing a non-recurring sync target before touching Convex or SQLite at all,
+        and idempotence once the row already matches the target.
       </p>
 
       <h2>5. Platform voice agent</h2>
