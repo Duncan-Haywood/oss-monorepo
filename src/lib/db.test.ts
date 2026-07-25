@@ -1398,4 +1398,264 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(lead?.stage).toBe("live");
     });
   });
+
+  /**
+   * markCheckoutSessionComplete / markCheckoutSessionOpen /
+   * markCompleteOpenBundleCheckoutSessionsForLead /
+   * markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer (~2383-2559)
+   * are the Stripe webhook's own requireConvex fail-closed writes that flip
+   * checkout_sessions.status — the exact boolean
+   * listOpenCheckoutSessions/listAbandonedCheckoutsDue/
+   * listCommerceAbandonedCheckoutsDue read to decide whether to email a
+   * Finish-checkout / Buy now recovery nudge. Each has a Convex mutation with
+   * direct coverage (convex/checkoutSessions.test.ts) and a hand-written
+   * SQLite-fallback branch that only ever ran in
+   * src/app/api/stripe/webhook/route.test.ts through a full "@/lib/db" mock
+   * — this module's own real Convex-first/SQLite-fallback orchestration for
+   * these four writes had zero automated coverage until now. A regression
+   * here (a missing early-return, a flipped requireConvex guard, or a wrong
+   * WHERE clause) would silently leave an already-paid customer's checkout
+   * session looking "open" — or a still-shopping customer's session marked
+   * "complete" — only on a SQLite-only deployment, with nothing but a manual
+   * dev smoke check to catch it.
+   */
+  describe("markCheckoutSessionComplete / markCheckoutSessionOpen (requireConvex fail-closed writes)", () => {
+    async function seedOpenSession(
+      db: DbModule,
+      stripeSessionId: string,
+      overrides: Partial<{
+        leadSlug: string;
+        tier: string;
+        commerceAddon: boolean;
+        customerEmail: string;
+        kind: "bundle" | "commerce_sku";
+        skuId: string;
+      }> = {},
+    ): Promise<void> {
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "checkout-session-lead",
+        stripeSessionId,
+        tier: "starter",
+        commerceAddon: false,
+        ...overrides,
+      });
+    }
+
+    it("markCheckoutSessionComplete returns after a successful Convex mutation without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedOpenSession(seedDb, "cs_convex_success");
+
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCheckoutSessionComplete("cs_convex_success", { requireConvex: true }),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stillOpen = await db.listOpenCheckoutSessions();
+      expect(stillOpen.some((s) => s.stripeSessionId === "cs_convex_success")).toBe(true);
+    });
+
+    it("markCheckoutSessionComplete throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCheckoutSessionComplete("cs_any", { requireConvex: true }),
+      ).rejects.toThrow(/markCheckoutSessionComplete/);
+    });
+
+    it("markCheckoutSessionComplete falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedOpenSession(seedDb, "cs_fallback_complete");
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(db.markCheckoutSessionComplete("cs_fallback_complete")).resolves.toBeUndefined();
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stillOpen = await db.listOpenCheckoutSessions();
+      expect(stillOpen.some((s) => s.stripeSessionId === "cs_fallback_complete")).toBe(false);
+    });
+
+    it("markCheckoutSessionOpen re-opens a completed session via the pure-SQLite path when no Convex client is configured", async () => {
+      const db = await loadDb(undefined);
+      await seedOpenSession(db, "cs_reopen_me");
+      await db.markCheckoutSessionComplete("cs_reopen_me");
+      expect((await db.listOpenCheckoutSessions()).some((s) => s.stripeSessionId === "cs_reopen_me")).toBe(
+        false,
+      );
+
+      await db.markCheckoutSessionOpen("cs_reopen_me");
+      expect((await db.listOpenCheckoutSessions()).some((s) => s.stripeSessionId === "cs_reopen_me")).toBe(
+        true,
+      );
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("markCheckoutSessionOpen throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCheckoutSessionOpen("cs_any", { requireConvex: true }),
+      ).rejects.toThrow(/markCheckoutSessionOpen/);
+    });
+  });
+
+  describe("markCompleteOpenBundleCheckoutSessionsForLead (orphan-cart cleanup, requireConvex fail-closed)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(3);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCompleteOpenBundleCheckoutSessionsForLead("some-lead", "cs_paid", {
+          requireConvex: true,
+        }),
+      ).resolves.toBe(3);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCompleteOpenBundleCheckoutSessionsForLead("some-lead", "cs_paid", {
+          requireConvex: true,
+        }),
+      ).rejects.toThrow(/markCompleteOpenBundleCheckoutSessionsForLead/);
+    });
+
+    it("closes other open bundle sessions for the same lead but never the excepted session or a commerce_sku session", async () => {
+      const db = await loadDb(undefined);
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "orphan-bundle-lead",
+        stripeSessionId: "cs_bundle_paid",
+        tier: "growth",
+        commerceAddon: false,
+      });
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "orphan-bundle-lead",
+        stripeSessionId: "cs_bundle_orphan",
+        tier: "starter",
+        commerceAddon: false,
+      });
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "orphan-bundle-lead",
+        stripeSessionId: "cs_commerce_untouched",
+        tier: "starter",
+        commerceAddon: true,
+        kind: "commerce_sku",
+        skuId: "sku_1",
+        customerEmail: "shopper@example.com",
+      });
+
+      const closed = await db.markCompleteOpenBundleCheckoutSessionsForLead(
+        "orphan-bundle-lead",
+        "cs_bundle_paid",
+      );
+      expect(closed).toBe(1);
+
+      const open = (await db.listOpenCheckoutSessions()).map((s) => s.stripeSessionId);
+      expect(open).toContain("cs_bundle_paid");
+      expect(open).toContain("cs_commerce_untouched");
+      expect(open).not.toContain("cs_bundle_orphan");
+    });
+  });
+
+  describe("markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer (orphan-cart cleanup, requireConvex fail-closed)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(2);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(
+          "some-lead",
+          "sku_1",
+          "shopper@example.com",
+          "cs_paid",
+          { requireConvex: true },
+        ),
+      ).resolves.toBe(2);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(
+          "some-lead",
+          "sku_1",
+          "shopper@example.com",
+          "cs_paid",
+          { requireConvex: true },
+        ),
+      ).rejects.toThrow(/markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer/);
+    });
+
+    it("returns 0 and never calls Convex/SQLite when customerEmail is blank", async () => {
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(
+          "some-lead",
+          "sku_1",
+          "   ",
+          "cs_paid",
+        ),
+      ).resolves.toBe(0);
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("closes other open commerce_sku sessions for the same lead+sku+customer (case/whitespace-insensitive email), never a different sku, customer, or the excepted session", async () => {
+      const db = await loadDb(undefined);
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "orphan-commerce-lead",
+        stripeSessionId: "cs_commerce_paid",
+        tier: "starter",
+        commerceAddon: true,
+        kind: "commerce_sku",
+        skuId: "sku_1",
+        customerEmail: "Shopper@Example.com",
+      });
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "orphan-commerce-lead",
+        stripeSessionId: "cs_commerce_orphan_same_customer",
+        tier: "starter",
+        commerceAddon: true,
+        kind: "commerce_sku",
+        skuId: "sku_1",
+        customerEmail: " shopper@example.com ",
+      });
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "orphan-commerce-lead",
+        stripeSessionId: "cs_commerce_different_sku",
+        tier: "starter",
+        commerceAddon: true,
+        kind: "commerce_sku",
+        skuId: "sku_2",
+        customerEmail: "shopper@example.com",
+      });
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "orphan-commerce-lead",
+        stripeSessionId: "cs_commerce_different_customer",
+        tier: "starter",
+        commerceAddon: true,
+        kind: "commerce_sku",
+        skuId: "sku_1",
+        customerEmail: "other-shopper@example.com",
+      });
+
+      const closed = await db.markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(
+        "orphan-commerce-lead",
+        "sku_1",
+        "shopper@example.com",
+        "cs_commerce_paid",
+      );
+      expect(closed).toBe(1);
+
+      const open = (await db.listOpenCheckoutSessions()).map((s) => s.stripeSessionId);
+      expect(open).toContain("cs_commerce_paid");
+      expect(open).toContain("cs_commerce_different_sku");
+      expect(open).toContain("cs_commerce_different_customer");
+      expect(open).not.toContain("cs_commerce_orphan_same_customer");
+    });
+  });
 });

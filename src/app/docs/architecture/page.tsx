@@ -820,6 +820,27 @@ export default function ArchitectureDocPage() {
         (the <code>COALESCE</code> set-once semantics the onboarding-incomplete staleness signal
         depends on).
       </p>
+      <p>
+        <code>markCheckoutSessionComplete</code>/<code>markCheckoutSessionOpen</code>/
+        <code>markCompleteOpenBundleCheckoutSessionsForLead</code>/
+        <code>markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer</code> are the Stripe
+        webhook&apos;s own <code>requireConvex</code> fail-closed writes that flip{" "}
+        <code>checkout_sessions.status</code> — the exact boolean{" "}
+        <code>listOpenCheckoutSessions</code>/abandoned-recovery due queues read to decide whether
+        to email a Finish-checkout / Buy now recovery nudge. Each has a Convex mutation with direct
+        coverage (<code>convex/checkoutSessions.test.ts</code>) and a hand-written SQLite-fallback
+        branch that only ever ran through{" "}
+        <code>src/app/api/stripe/webhook/route.test.ts</code>&apos;s full <code>@/lib/db</code>{" "}
+        mock — this module&apos;s own real orchestration for these four writes had no automated
+        coverage until now. The new cases cover each function&apos;s Convex-success early-return
+        (without touching SQLite), <code>requireConvex</code> fail-closed throw, and SQLite-fallback
+        behavior: completing and re-opening a session by id, closing only sibling open{" "}
+        <em>bundle</em> sessions for a lead (never the excepted session or a commerce_sku sibling),
+        and closing only sibling open <em>commerce_sku</em> sessions matching the same lead + SKU +
+        customer email (case/whitespace-insensitive, never a different SKU or customer) — plus the
+        blank-email short-circuit that returns <code>0</code> without calling Convex or SQLite at
+        all.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
