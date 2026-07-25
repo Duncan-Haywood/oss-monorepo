@@ -41,7 +41,10 @@ export function SuppressedEmailsPanel({ emails }: SuppressedEmailsPanelProps) {
   };
 
   return (
-    <section className="mb-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+    <section
+      aria-labelledby={SUPPRESSED_EMAILS_HEADING_ID}
+      className="mb-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2
           id={SUPPRESSED_EMAILS_HEADING_ID}
