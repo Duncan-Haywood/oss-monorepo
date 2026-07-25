@@ -951,6 +951,41 @@ export default function ArchitectureDocPage() {
         over-length message via <code>normalizeContactFormFields</code> rather than persisting it
         raw.
       </p>
+      <p>
+        <code>recordLeadPayment</code> and <code>insertCommerceOrder</code> — the bundle and
+        Commerce Buy now money-ledger writes every Stripe checkout ultimately funnels through —
+        were the last remaining <em>money-critical</em> gap in this series: both are idempotent on{" "}
+        <code>stripeSessionId</code> (a redelivered <code>checkout.session.completed</code> must
+        never double-record a sale) and had zero automated coverage of their own Convex-first/
+        SQLite-fallback orchestration — every consumer test mocks <code>&quot;@/lib/db&quot;</code>{" "}
+        away entirely. <code>recordLeadPayment</code>&apos;s SQLite fallback carries a third risk
+        beyond idempotency: it creates a payment-stub lead for an organic/no-CRM buyer when none
+        exists, but never regresses an already-<code>live</code> lead&apos;s stage back to{" "}
+        <code>paid</code> on a later upsell purchase (mirroring <code>markLeadPaid</code>&apos;s
+        own guard on the Convex side) — the order write itself always runs regardless. The new
+        cases cover both functions&apos; Convex-success early-return,{" "}
+        <code>requireConvex</code> fail-closed throw, SQLite-fallback insert (stub-lead creation,
+        existing-lead promotion, and the live-stage guard for <code>recordLeadPayment</code>;
+        quantity/customerEmail persistence for <code>insertCommerceOrder</code>), and
+        redelivery idempotency (a second call with the same <code>stripeSessionId</code> reports{" "}
+        <code>alreadyRecorded: true</code> and leaves the first row&apos;s fields untouched).
+      </p>
+      <p>
+        <code>upsertMarketingPack</code>/<code>upsertClientVoicePack</code> (full-row{" "}
+        <code>ON CONFLICT</code> replace, not a merge — regenerating always clears{" "}
+        <code>sentToClientAt</code> per <code>marketing-voice-pack-client-send-visibility</code>),{" "}
+        <code>suppressEmail</code>/<code>unsuppressEmail</code> (the CAN-SPAM opt-out list, whose
+        SQLite fallback carries its own <code>preferSuppressionReason</code> upgrade-not-downgrade
+        guard from <code>suppression-reason-upgrade-not-just-downgrade-guard</code> — a later
+        weaker <code>unsubscribe</code> must never overwrite an already-recorded <code>bounce</code>{" "}
+        or <code>complaint</code>), and <code>recordCheckoutRecoverySent</code> (the abandoned-cart
+        recovery send-marker, whose <code>checkout-session-recovery-race-guard</code> must return{" "}
+        <code>false</code> and write nothing once a session is no longer <code>open</code>) close
+        out the remaining <code>requireConvex</code>-gated write family this whole series has been
+        mining — a fresh grep of every <code>requireConvex</code>/
+        <code>ConvexPrimaryWriteError</code> call site in <code>src/lib/db.ts</code> against{" "}
+        <code>db.test.ts</code>&apos;s describe-block list confirms no gap remains as of this pass.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
