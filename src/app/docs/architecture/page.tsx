@@ -2095,14 +2095,31 @@ source). The same digest also lists email-critical leads with no usable address 
         carries no <code>.customer</code> field of its own — so it retrieves the PaymentIntent (
         <code>stripe.paymentIntents.retrieve</code>) to read <em>its</em> <code>.customer</code>{" "}
         before the same correlation. Either way, once a Stripe Customer id is in hand,{" "}
-        <code>getOrdersByStripeCustomerId</code> + <code>orderGrantsSoldCapabilityEntitlement</code>{" "}
-        resolve the customer&apos;s one currently-entitled order — the exact same lookup{" "}
-        <code>recordSubscriptionRenewalPayment</code> already uses — and{" "}
-        <code>markOrderRefunded</code>/<code>markOrderDisputed</code> are called against that
-        order&apos;s own (original signup) <code>stripeSessionId</code>, which is what those
-        mutations are keyed on regardless of which charge in the subscription&apos;s lifetime
-        triggered the event. Both new lookups are required or gate the same money-ledger write as
-        the Session-based path, so a transient failure returns 500 (
+        <code>getOrdersByStripeCustomerId</code> resolves that customer&apos;s order rows and{" "}
+        <code>.find()</code> picks the one to flag. <strong>
+          renewal-charge-refund-dispute-customer-correlation-paused-order-fix
+        </strong>{" "}
+        (a same-day follow-up) corrected the predicate used there from{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code> to <code>orderHadRecurringEntitlement</code>{" "}
+        (tier/<code>commerceAddon</code> only, ignoring <code>recurringCanceledAt</code>/
+        <code>refundedAt</code>/<code>disputedAt</code>) — the original version used the same
+        lookup <code>recordSubscriptionRenewalPayment</code> uses, but that predicate also requires
+        the order&apos;s recurring entitlement to be currently active and not already flagged, so it
+        silently failed to correlate exactly the orders most likely to need it: a subscription
+        already paused (<code>recurringCanceledAt</code> set, e.g. from a prior{" "}
+        <code>invoice.payment_failed</code> — a card problem serious enough to trigger a chargeback
+        often also breaks the next renewal charge) or a second independent refund/dispute on the
+        same customer after the first one already set <code>refundedAt</code>/
+        <code>disputedAt</code>. This is the same bug class{" "}
+        <code>orderEligibleForPauseNotice</code> (below) already exists to avoid — the fallback
+        reused the wrong predicate on first ship. The explicit{" "}
+        <code>recurringOrder.refundedAt</code>/<code>disputedAt</code> check immediately after the{" "}
+        <code>.find()</code> still correctly no-ops a redelivery.{" "}
+        <code>markOrderRefunded</code>/<code>markOrderDisputed</code> are called against the
+        resolved order&apos;s own (original signup) <code>stripeSessionId</code>, which is what
+        those mutations are keyed on regardless of which charge in the subscription&apos;s
+        lifetime triggered the event. Both new lookups are required or gate the same money-ledger
+        write as the Session-based path, so a transient failure returns 500 (
         <code>bundle_order_renewal_customer_lookup</code> /{" "}
         <code>bundle_order_dispute_renewal_payment_intent_lookup</code>) rather than silently
         skipping — Stripe retries. Deliberately not attempted: reducing{" "}

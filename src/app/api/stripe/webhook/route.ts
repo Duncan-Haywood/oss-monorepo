@@ -32,6 +32,7 @@ import {
   invoicePaymentFailedPausesRecurringEntitlement,
   orderEligibleForPauseNotice,
   orderGrantsSoldCapabilityEntitlement,
+  orderHadRecurringEntitlement,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
@@ -1672,17 +1673,28 @@ export async function POST(request: Request) {
         // A subscription renewal charge's PaymentIntent is minted directly by
         // Stripe's billing system, never through a Checkout Session, so the
         // lookup above always misses it — fall back to correlating via the
-        // charge's own Stripe Customer id, the same way invoice.paid /
-        // recordSubscriptionRenewalPayment resolve "the" currently
-        // sold-capability-entitled order for a customer. See
-        // renewal-charge-refund-dispute-customer-correlation.
+        // charge's own Stripe Customer id. Use orderHadRecurringEntitlement
+        // (tier/commerceAddon only), NOT orderGrantsSoldCapabilityEntitlement
+        // — that predicate also requires recurringCanceledAt to be unset and
+        // refundedAt/disputedAt to be absent, which would silently drop this
+        // correlation for exactly the orders most likely to need it: a
+        // subscription already paused (recurringCanceledAt set, e.g. from a
+        // prior invoice.payment_failed — a card problem serious enough to
+        // trigger a chargeback often also breaks the next renewal charge) or
+        // a customer with more than one refund/dispute event on their
+        // renewal charges over time. This is the exact bug class
+        // orderEligibleForPauseNotice's own doc comment already documents
+        // (billing-notice-pause-recipient-write-before-read-fix) — see
+        // renewal-charge-refund-dispute-customer-correlation-paused-order-fix.
+        // The explicit refundedAt idempotency check right below still
+        // correctly no-ops a redelivery.
         const customerId = stripeCustomerIdFromUnknown(charge.customer);
         let recurringOrder: OrderRecord | undefined;
         if (customerId) {
           try {
             const orders = await getOrdersByStripeCustomerId(customerId);
             recurringOrder = orders.find((order) =>
-              orderGrantsSoldCapabilityEntitlement(order),
+              orderHadRecurringEntitlement(order),
             );
           } catch (e) {
             console.error(
@@ -1810,8 +1822,10 @@ export async function POST(request: Request) {
       if (!disputeSession) {
         // Same renewal-cycle gap as charge.refunded above. Unlike Charge,
         // Dispute carries no `.customer` field of its own — retrieve the
-        // PaymentIntent to read its Customer id, then correlate the same way.
-        // See renewal-charge-refund-dispute-customer-correlation.
+        // PaymentIntent to read its Customer id, then correlate the same way
+        // — including the same orderHadRecurringEntitlement (not
+        // orderGrantsSoldCapabilityEntitlement) choice; see the doc comment
+        // on the charge.refunded fallback above for why.
         let disputePaymentIntent: Stripe.PaymentIntent;
         try {
           disputePaymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
@@ -1831,7 +1845,7 @@ export async function POST(request: Request) {
           try {
             const orders = await getOrdersByStripeCustomerId(disputeCustomerId);
             disputeRecurringOrder = orders.find((order) =>
-              orderGrantsSoldCapabilityEntitlement(order),
+              orderHadRecurringEntitlement(order),
             );
           } catch (e) {
             console.error(

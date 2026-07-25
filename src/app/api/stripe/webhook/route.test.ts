@@ -2154,6 +2154,40 @@ describe("POST /api/stripe/webhook", () => {
         );
       });
 
+      it("marks a PAUSED customer's order refunded — regression for renewal-charge-refund-dispute-customer-correlation-paused-order-fix", async () => {
+        // A subscription already paused (recurringCanceledAt set, e.g. from a
+        // prior invoice.payment_failed) must still correlate a renewal-charge
+        // refund to it — orderGrantsSoldCapabilityEntitlement (the predicate
+        // this correlation originally shipped with) requires recurringCanceledAt
+        // to be unset and would silently drop this exact case, the same bug
+        // class orderEligibleForPauseNotice already exists to avoid.
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_paused",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            recurringCanceledAt: 1_720_000_000_000,
+          },
+        ]);
+        constructEvent.mockReturnValue(refundedChargeEvent({ customer: "cus_renewal_paused" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(markOrderRefunded).toHaveBeenCalledWith(
+          "cs_original_signup",
+          expect.any(String),
+          { requireConvex: true },
+        );
+      });
+
       it("skips when the charge has no customer to correlate", async () => {
         listCheckoutSessions.mockResolvedValueOnce({ data: [] });
         constructEvent.mockReturnValue(refundedChargeEvent({ customer: null }));
@@ -2507,6 +2541,38 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(200);
         expect(retrievePaymentIntent).toHaveBeenCalledWith("pi_dispute_1");
         expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_renewal_1");
+        expect(markOrderDisputed).toHaveBeenCalledWith(
+          "cs_original_signup",
+          expect.any(String),
+          { requireConvex: true },
+        );
+      });
+
+      it("marks a PAUSED customer's order disputed — regression for renewal-charge-refund-dispute-customer-correlation-paused-order-fix", async () => {
+        // Same paused-subscription regression as the charge.refunded sibling
+        // test above, for the dispute path's separate PaymentIntent-customer
+        // correlation branch.
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_paused" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_paused",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            recurringCanceledAt: 1_720_000_000_000,
+          },
+        ]);
+        constructEvent.mockReturnValue(disputeCreatedEvent());
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
         expect(markOrderDisputed).toHaveBeenCalledWith(
           "cs_original_signup",
           expect.any(String),
