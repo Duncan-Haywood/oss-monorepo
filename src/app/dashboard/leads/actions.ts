@@ -1529,6 +1529,16 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-order-mark-paid-out:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSessionId = parseCheckoutSessionId(stripeSessionId);
     if (!parsedSessionId.ok) {
       return {
@@ -2644,6 +2654,16 @@ export async function getCommerceCatalogAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-catalog-get:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {

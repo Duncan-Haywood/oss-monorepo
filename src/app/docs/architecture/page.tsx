@@ -1682,7 +1682,15 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>commerce-catalog-save</code>, <code>deploy-handoff-mark-live</code>,{" "}
         <code>inquiry-status-update</code>, <code>lead-notes-update</code>,{" "}
         <code>lead-snooze</code>) immediately after the auth check, matching every other action in
-        the file. Route-level Vitest
+        the file.{" "}
+        <code>dashboard-action-rate-limit-gaps-followup</code> closed the two remaining gaps that
+        pass&apos;s own action-by-action inventory missed: <code>markCommerceOrderPaidOutAction</code>{" "}
+        (a state-changing money-payout write reachable with any client-submitted{" "}
+        <code>stripeSessionId</code>) and <code>getCommerceCatalogAction</code> (a read fired every
+        time the catalog editor opens) — the only two of this file&apos;s ~35 exported actions still
+        missing the standard{" "}
+        <code>checkRateLimit</code> call, now keyed <code>commerce-order-mark-paid-out</code> and{" "}
+        <code>commerce-catalog-get</code> respectively. Route-level Vitest
         coverage in <code>src/app/api/commerce/checkout/route.test.ts</code> locks that
         server-resolved price invariant, over-long slug/skuId 400s, unsynced-SKU 501s,{" "}
         <code>kind=commerce_sku</code> tracking, and requireConvex fail-closed session create

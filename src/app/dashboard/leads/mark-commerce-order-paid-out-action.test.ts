@@ -10,13 +10,17 @@ import { MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH } from "@/lib/billing/checkout-se
  * and unpaid math. This suite locks the dashboard action glue: requireOperatorAuth,
  * missing/empty/over-long session id, not-found, already-paid-out guard,
  * COMMERCE_PAID_OUT_CONVEX_PRIMARY persist, ConvexPrimaryWriteError fail-closed
- * (no revalidate), success revalidate, and the markCommerceOrderPaidOut
+ * (no revalidate), success revalidate, the markCommerceOrderPaidOut
  * false-return race guard (see commerce-order-paid-out-refund-race-guard):
  * markCommerceOrderPaidOut re-checks refundedAt/disputedAt/paidOutAt
  * atomically with its write and returns false when a Stripe webhook
  * refunded/disputed the order in the window between this action's own
  * snapshot read and that write — the action must surface that as a failure,
- * not silently report success on a write that never applied.
+ * not silently report success on a write that never applied — and the
+ * per-IP rate limit (see dashboard-action-rate-limit-gaps; this action is a
+ * state-changing money-payout write and was the last one in this file's
+ * ~29-action set found still missing the standard
+ * requireOperatorAuth() -> checkRateLimit -> work pattern).
  */
 
 const requireOperatorAuth = vi.fn();
@@ -29,9 +33,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getCommerceOrderByStripeSessionId = vi.fn();
 const markCommerceOrderPaidOut = vi.fn();
@@ -100,6 +113,7 @@ describe("markCommerceOrderPaidOutAction", () => {
   beforeEach(() => {
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getCommerceOrderByStripeSessionId.mockReset().mockResolvedValue(unpaidOrder);
     markCommerceOrderPaidOut.mockReset().mockResolvedValue(true);
@@ -118,6 +132,25 @@ describe("markCommerceOrderPaidOutAction", () => {
     });
     expect(getCommerceOrderByStripeSessionId).not.toHaveBeenCalled();
     expect(markCommerceOrderPaidOut).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated mark-paid-out calls from the same IP (auth alone is not a throttle)", async () => {
+    const { markCommerceOrderPaidOutAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    // The mock always resolves the same unpaid snapshot regardless of prior
+    // calls, so every one of the 20 succeeds; only the 21st should be
+    // throttled.
+    for (let i = 0; i < 20; i++) {
+      const res = await markCommerceOrderPaidOutAction("cs_test_commerce_paid");
+      expect(res.success).toBe(true);
+    }
+    getCommerceOrderByStripeSessionId.mockClear();
+    const res = await markCommerceOrderPaidOutAction("cs_test_commerce_paid");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getCommerceOrderByStripeSessionId).not.toHaveBeenCalled();
   });
 
   it("rejects an empty session id", async () => {
