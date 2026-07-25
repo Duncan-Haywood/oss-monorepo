@@ -132,6 +132,22 @@ import type { Lead } from "./leads/types";
  * to closed/discovered on a SQLite-only deployment. Zero automated coverage
  * of this orchestration (only the pure Convex mutation and pure SQLite
  * helper were tested in isolation) until now.
+ *
+ * recordLeadOutreach (~339) shares the same duplicated-logic risk again: its
+ * SQLite fallback (sqliteRecordLeadOutreach, src/lib/db/sqlite-queries.ts)
+ * re-implements both the paid/live/closed revert guard AND a monotonic
+ * outreachStep guard (outreach-step-duplicate-send-guard — a double-click or
+ * two concurrent operator tabs must not re-send the same Email 1/2/3) that
+ * convex/leads.ts's recordOutreach mutation already has direct coverage for;
+ * the SQLite twin's copy of both guards had never been exercised.
+ * recordLeadPreviewOpen / updateLeadNotes / updateLeadSnooze /
+ * updateLeadBufferProfileIds (~369, ~419, ~471, ~626) are the plain
+ * single-field lead-attribute writes in this same requireConvex-fail-closed
+ * family — each just a not-found guard plus one UPDATE (or, for
+ * recordLeadPreviewOpen only, a no-op instead of a throw on a missing slug,
+ * since it fires from an unauthenticated public beacon route for
+ * slug-inferred demo leads) — closed together in one pass since none carries
+ * risk beyond that shared shape, which this suite already established.
  */
 
 vi.mock("server-only", () => ({}));
@@ -1869,6 +1885,318 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(slugs.indexOf("list-catalog-newer")).toBeLessThan(
         slugs.indexOf("list-catalog-older"),
       );
+    });
+  });
+
+  describe("recordLeadOutreach (requireConvex fail-closed write, paid/live/closed + monotonic-step duplicate-send guard)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      // No lead with this slug exists in the fresh SQLite file at all — the
+      // SQLite fallback branch would throw "Lead with slug ... not found" if
+      // the Convex-success path incorrectly fell through to it.
+      await expect(
+        db.recordLeadOutreach("no-sqlite-row-lead", 1, "2026-07-25T00:00:00.000Z", {
+          requireConvex: true,
+        }),
+      ).resolves.toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("trusts Convex's returned boolean directly on success rather than recomputing via SQLite", async () => {
+      // Seed a paid lead via the SQLite-only path — sqliteRecordLeadOutreach
+      // would itself return false for a paid lead, so mocking Convex to
+      // resolve true instead only passes if recordLeadOutreach actually used
+      // Convex's result and returned early.
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("convex-outreach-lead", { stage: "paid" }));
+
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.recordLeadOutreach(
+        "convex-outreach-lead",
+        1,
+        "2026-07-25T00:00:00.000Z",
+      );
+      expect(result).toBe(true);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordLeadOutreach("some-lead", 1, "2026-07-25T00:00:00.000Z", {
+          requireConvex: true,
+        }),
+      ).rejects.toThrow(/recordLeadOutreach/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("outreach-fallback-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordLeadOutreach("outreach-fallback-lead", 2, "2026-07-25T00:00:00.000Z"),
+      ).resolves.toBe(true);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("outreach-fallback-lead");
+      expect(lead?.outreachStep).toBe(2);
+      expect(lead?.lastOutreachAt).toBe("2026-07-25T00:00:00.000Z");
+    });
+
+    it("throws a not-found error via the pure-SQLite path when no Convex client is configured and the slug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.recordLeadOutreach("missing-slug", 1, "2026-07-25T00:00:00.000Z"),
+      ).rejects.toThrow(/not found/i);
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("SQLite fallback skips the write and returns false once a lead has gone paid/live/closed (outreach-step-duplicate-send-guard parity)", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("paid-outreach-lead", { stage: "paid" }));
+
+      const result = await db.recordLeadOutreach(
+        "paid-outreach-lead",
+        1,
+        "2026-07-25T00:00:00.000Z",
+      );
+      expect(result).toBe(false);
+
+      const lead = await db.getLeadBySlug("paid-outreach-lead");
+      expect(lead?.outreachStep ?? 0).toBe(0);
+    });
+
+    it("SQLite fallback skips the write and returns false when the lead's outreachStep already reached or passed the requested step (duplicate-click/double-tab guard)", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("already-emailed-lead"));
+      await db.recordLeadOutreach("already-emailed-lead", 2, "2026-07-25T00:00:00.000Z");
+
+      // A second, concurrent call for the same step 2 (double-click/two tabs)
+      // must not re-send Email 2 or advance lastOutreachAt.
+      const result = await db.recordLeadOutreach(
+        "already-emailed-lead",
+        2,
+        "2026-07-25T01:00:00.000Z",
+      );
+      expect(result).toBe(false);
+
+      const lead = await db.getLeadBySlug("already-emailed-lead");
+      expect(lead?.lastOutreachAt).toBe("2026-07-25T00:00:00.000Z");
+    });
+  });
+
+  describe("recordLeadPreviewOpen (requireConvex fail-closed write, missing-lead no-op instead of throw)", () => {
+    it("returns { recorded: true } after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordLeadPreviewOpen("no-sqlite-row-lead", "2026-07-25T00:00:00.000Z", {
+          requireConvex: true,
+        }),
+      ).resolves.toEqual({ recorded: true });
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordLeadPreviewOpen("some-lead", "2026-07-25T00:00:00.000Z", {
+          requireConvex: true,
+        }),
+      ).rejects.toThrow(/recordLeadPreviewOpen/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("preview-open-fallback-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordLeadPreviewOpen("preview-open-fallback-lead", "2026-07-25T00:00:00.000Z"),
+      ).resolves.toEqual({ recorded: true });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("preview-open-fallback-lead");
+      expect(lead?.lastPreviewOpenAt).toBe("2026-07-25T00:00:00.000Z");
+    });
+
+    it("returns { recorded: false } via the pure-SQLite path instead of throwing when the slug does not exist (slug-inferred demo)", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.recordLeadPreviewOpen("missing-slug", "2026-07-25T00:00:00.000Z"),
+      ).resolves.toEqual({ recorded: false });
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateLeadNotes (requireConvex fail-closed write)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadNotes("no-sqlite-row-lead", "Called, left voicemail.", {
+          requireConvex: true,
+        }),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadNotes("some-lead", "note", { requireConvex: true }),
+      ).rejects.toThrow(/updateLeadNotes/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("notes-fallback-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadNotes("notes-fallback-lead", "Interested, follow up Friday."),
+      ).resolves.toBeUndefined();
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("notes-fallback-lead");
+      expect(lead?.notes).toBe("Interested, follow up Friday.");
+    });
+
+    it("clears notes via the SQLite fallback when passed undefined", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("notes-clear-lead"));
+      await db.updateLeadNotes("notes-clear-lead", "Some note");
+
+      await db.updateLeadNotes("notes-clear-lead", undefined);
+      const lead = await db.getLeadBySlug("notes-clear-lead");
+      expect(lead?.notes).toBeUndefined();
+    });
+
+    it("throws a not-found error via the pure-SQLite path when no Convex client is configured and the slug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.updateLeadNotes("missing-slug", "note"),
+      ).rejects.toThrow(/not found/i);
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateLeadSnooze (requireConvex fail-closed write)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadSnooze("no-sqlite-row-lead", "2026-08-01T00:00:00.000Z", {
+          requireConvex: true,
+        }),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadSnooze("some-lead", "2026-08-01T00:00:00.000Z", { requireConvex: true }),
+      ).rejects.toThrow(/updateLeadSnooze/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("snooze-fallback-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadSnooze("snooze-fallback-lead", "2026-08-01T00:00:00.000Z"),
+      ).resolves.toBeUndefined();
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("snooze-fallback-lead");
+      expect(lead?.snoozedUntil).toBe("2026-08-01T00:00:00.000Z");
+    });
+
+    it("clears snoozedUntil via the SQLite fallback when passed undefined", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("snooze-clear-lead"));
+      await db.updateLeadSnooze("snooze-clear-lead", "2026-08-01T00:00:00.000Z");
+
+      await db.updateLeadSnooze("snooze-clear-lead", undefined);
+      const lead = await db.getLeadBySlug("snooze-clear-lead");
+      expect(lead?.snoozedUntil).toBeUndefined();
+    });
+
+    it("throws a not-found error via the pure-SQLite path when no Convex client is configured and the slug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.updateLeadSnooze("missing-slug", "2026-08-01T00:00:00.000Z"),
+      ).rejects.toThrow(/not found/i);
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateLeadBufferProfileIds (requireConvex fail-closed write)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadBufferProfileIds("no-sqlite-row-lead", ["profile_1"], {
+          requireConvex: true,
+        }),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadBufferProfileIds("some-lead", ["profile_1"], { requireConvex: true }),
+      ).rejects.toThrow(/updateLeadBufferProfileIds/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("buffer-profiles-fallback-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadBufferProfileIds("buffer-profiles-fallback-lead", [
+          "profile_1",
+          "profile_2",
+        ]),
+      ).resolves.toBeUndefined();
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("buffer-profiles-fallback-lead");
+      expect(lead?.bufferProfileIds).toEqual(["profile_1", "profile_2"]);
+    });
+
+    it("clears bufferProfileIds via the SQLite fallback when passed an empty array", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("buffer-profiles-clear-lead"));
+      await db.updateLeadBufferProfileIds("buffer-profiles-clear-lead", ["profile_1"]);
+
+      await db.updateLeadBufferProfileIds("buffer-profiles-clear-lead", []);
+      const lead = await db.getLeadBySlug("buffer-profiles-clear-lead");
+      expect(lead?.bufferProfileIds ?? []).toEqual([]);
+    });
+
+    it("throws a not-found error via the pure-SQLite path when no Convex client is configured and the slug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.updateLeadBufferProfileIds("missing-slug", ["profile_1"]),
+      ).rejects.toThrow(/not found/i);
+      expect(convexMutation).not.toHaveBeenCalled();
     });
   });
 });

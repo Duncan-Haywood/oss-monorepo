@@ -876,6 +876,25 @@ export default function ArchitectureDocPage() {
         <code>live</code> lead while still allowing an ordinary write for a lead in an earlier
         stage.
       </p>
+      <p>
+        <code>recordLeadOutreach</code> shares that same duplicated-logic risk again: its SQLite
+        fallback (<code>sqliteRecordLeadOutreach</code>, <code>src/lib/db/sqlite-queries.ts</code>)
+        re-implements both the paid/live/closed revert guard and a monotonic{" "}
+        <code>outreachStep</code> guard (a double-click or two concurrent operator tabs must not
+        re-send the same Email 1/2/3) that <code>convex/leads.ts</code>&apos;s{" "}
+        <code>recordOutreach</code> mutation already has direct coverage for — the SQLite twin&apos;s
+        copy of both guards had never been exercised. <code>recordLeadPreviewOpen</code>/
+        <code>updateLeadNotes</code>/<code>updateLeadSnooze</code>/
+        <code>updateLeadBufferProfileIds</code> are the plain single-field lead-attribute writes in
+        this same <code>requireConvex</code> fail-closed family — each just a not-found guard plus
+        one <code>UPDATE</code> (or, for <code>recordLeadPreviewOpen</code> only, a no-op instead of
+        a throw on a missing slug, since it fires from an unauthenticated public beacon route for
+        slug-inferred demo leads) — closed together in one pass. The new cases cover each
+        function&apos;s Convex-success early-return, <code>requireConvex</code> fail-closed throw,
+        SQLite-fallback write/clear + not-found (or no-op) guard, and — specific to{" "}
+        <code>recordLeadOutreach</code> — that the SQLite fallback rejects the write for a
+        paid/live/closed lead and for a duplicate/stale outreach step.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>

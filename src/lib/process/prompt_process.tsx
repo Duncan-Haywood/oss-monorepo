@@ -353,6 +353,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/nice-euler-0rps7w",
   },
+  {
+    id: "db-ts-lead-attribute-writes-sqlite-fallback-test-coverage",
+    summary:
+      "Continuation of the db.ts SQLite-fallback test-coverage series. recordLeadOutreach shares updateLeadStage/applyColdLeadDisposition's exact duplicated-logic risk — its SQLite fallback re-implements both a paid/live/closed revert guard and a monotonic outreachStep guard (outreach-step-duplicate-send-guard, preventing a double-click/two-tab duplicate Email 1/2/3 send) that the Convex mutation already has direct test coverage for, but the SQLite twin's copy of both guards had never been exercised. recordLeadPreviewOpen/updateLeadNotes/updateLeadSnooze/updateLeadBufferProfileIds are the plain single-field lead-attribute writes in the same requireConvex-fail-closed family (just a not-found guard, or a no-op for the public preview-open beacon) — closed together in one pass per the prior iteration's own suggestion. Shipped 26 new Vitest cases in src/lib/db.test.ts across five new describe blocks, covering each function's Convex-success early-return, requireConvex fail-closed throw, SQLite-fallback write/clear + not-found (or no-op) guard, and — specific to recordLeadOutreach — that the SQLite fallback rejects the write for a paid/live/closed lead and for a duplicate/stale outreach step. Verified the tests actually catch a regression by temporarily dropping recordLeadOutreach's early return and confirming 2 of 7 cases failed before restoring. See db-ts-lead-attribute-writes-sqlite-fallback-test-coverage in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/upbeat-dijkstra-b0lom9",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -659,6 +667,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "db-ts-cold-lead-disposition-sqlite-fallback-test-coverage",
+    ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/upbeat-dijkstra-b0lom9",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 3367436 (PR #789, db-ts-cold-lead-disposition-sqlite-fallback-test-coverage, merged prior session) — HEAD matched origin/main exactly at session start (this session's designated branch had never been pushed, so it started fresh from main rather than resuming a prior push). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest ~25 remote branches by push time found every one already merged (empty diff against origin/main — including several duplicate single-commit `test(db): cover ...` branches for functions already shipped under a different branch name, the same squash-merge SHA-mismatch/dual-build-collision artifact documented by prior sessions) — no live fold candidate. Confirmed baseline via npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) before any edit.\n\nThe immediately-preceding iteration's own rationale named the remaining candidate list in the db.ts SQLite-fallback test-coverage vein verbatim: recordLeadPreviewOpen, updateLeadNotes, updateLeadSnooze, updateLeadBufferProfileIds, recordClientInquiryReply/updateClientInquiryStatus, recordCheckoutSessionCreated — explicitly suggesting the four plain single-field lead-attribute writes be closed together in one pass. Re-grepping db.test.ts for all db.ts exports found one function missing from every prior session's named list by apparent oversight: recordLeadOutreach (src/lib/db.ts:339) also had zero dedicated coverage, and — unlike its four listed siblings — shares updateLeadStage/applyColdLeadDisposition's exact duplicated-logic risk shape: its SQLite fallback (sqliteRecordLeadOutreach, src/lib/db/sqlite-queries.ts) re-implements both a paid/live/closed revert guard and a monotonic outreachStep guard (convex/leads.ts's own recordOutreach mutation doc-comments this as outreach-step-duplicate-send-guard — a double-click or two concurrent operator tabs must not re-send the same Email 1/2/3) that the Convex mutation already has direct coverage for. Grouped it with the four simpler siblings into one coherent PR since all five live in the same adjacent lead-attribute-write region of db.ts (lines 339-683) and share the identical requireConvex-fail-closed shape.",
+    shipped: [
+      "src/lib/db.test.ts — five new describe blocks: recordLeadOutreach (7 cases, including the Convex-success-trusts-result and both paid/live/closed-guard and duplicate-step-guard SQLite-fallback cases), recordLeadPreviewOpen (4 cases, including the no-op-instead-of-throw missing-slug case), updateLeadNotes (5 cases, including a clear-via-undefined case), updateLeadSnooze (5 cases, same shape), updateLeadBufferProfileIds (5 cases, including a clear-via-empty-array case) — 26 new cases total.",
+      "src/lib/db.test.ts — file-header doc comment extended with a paragraph naming recordLeadOutreach's guard-duplication risk and the four simpler siblings' shared shape.",
+      "src/app/docs/architecture/page.tsx — matching new paragraph in the db.ts dual-backend section.",
+      "src/lib/process/business-decisions.ts — appended db-ts-lead-attribute-writes-sqlite-fallback-test-coverage.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-unaudited untested-orchestration gap on five adjacent lead-attribute writes, not any of the five gated items. Diff-gate anchor moves to 3367436 (this session's own starting tip, post-PR-#789). Remaining candidates in this series: recordClientInquiryReply, updateClientInquiryStatus, recordCheckoutSessionCreated, insertDeployHandoff, updateDeployHandoffStatus (has its own preferAdvancedHandoffStatus never-downgrade guard-duplication risk, same class as this entry), updateDeployHandoffVercelProject, updateDeployHandoffCustomDomain, insertClientInquiry.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run src/lib/db.test.ts (115 passed, up from 89 — 26 new cases) + npx vitest run full suite (3160 passed, up from 3134, 209 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split) + confirmed git status showed only the intended test/docs files changed, no stray local.db. Regression-catching verified empirically: temporarily dropped recordLeadOutreach's early `return` on Convex success, confirmed 2 of 7 new tests failed with the expected symptoms (a 'not found' throw, and the SQLite branch's own false override of Convex's mocked true result), then restored the original file from a pre-edit backup and confirmed git diff --stat showed no changes to src/lib/db.ts. Pure test-infrastructure addition plus a docs paragraph, no product/UI code changed, so Vitest coverage is the bar per AGENT_PROTOCOL's own testing convention — no npm run dev/browser smoke check needed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-ts-lead-attribute-writes-sqlite-fallback-test-coverage",
     ),
   },
 ];
