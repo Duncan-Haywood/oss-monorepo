@@ -1589,10 +1589,9 @@ export async function suppressEmail(
   }
   const preferred = preferSuppressionReason(existing.reason, reason);
   if (preferred !== existing.reason) {
-    db.prepare("UPDATE suppression_list SET reason = ? WHERE email = ?").run(
-      preferred,
-      normalized,
-    );
+    db.prepare(
+      "UPDATE suppression_list SET reason = ?, reasonUpdatedAt = ? WHERE email = ?",
+    ).run(preferred, new Date().toISOString(), normalized);
   }
 }
 
@@ -1609,24 +1608,28 @@ export async function getSuppressedEmails(): Promise<SuppressionRecord[]> {
 
   // SQLite Fallback
   const db = getSqliteDb();
-  const rows = db.prepare("SELECT email, reason, createdAt FROM suppression_list").all() as {
+  const rows = db
+    .prepare("SELECT email, reason, createdAt, reasonUpdatedAt FROM suppression_list")
+    .all() as {
     email: string;
     reason: SuppressionReason;
     createdAt: string;
+    reasonUpdatedAt: string | null;
   }[];
+  // Rows written before this fix relied on SQLite's DEFAULT (datetime('now'))
+  // instead of an explicit ISO createdAt param — that format
+  // ("YYYY-MM-DD HH:MM:SS", always UTC, no timezone marker) parses as LOCAL
+  // time under `new Date(...)` in a non-UTC server timezone, silently
+  // shifting the value. Append Z when the string has no timezone marker so
+  // both the legacy space-separated rows and this fix's own ISO rows parse
+  // correctly as UTC.
+  const parseUtc = (value: string): number =>
+    new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`).getTime();
   return rows.map((r) => ({
     email: r.email,
     reason: r.reason,
-    // Rows written before this fix relied on SQLite's DEFAULT (datetime('now'))
-    // instead of an explicit ISO createdAt param — that format
-    // ("YYYY-MM-DD HH:MM:SS", always UTC, no timezone marker) parses as LOCAL
-    // time under `new Date(...)` in a non-UTC server timezone, silently
-    // shifting the value. Append Z when the string has no timezone marker so
-    // both the legacy space-separated rows and this fix's own ISO rows parse
-    // correctly as UTC.
-    createdAt: new Date(
-      /[zZ]|[+-]\d{2}:?\d{2}$/.test(r.createdAt) ? r.createdAt : `${r.createdAt}Z`,
-    ).getTime(),
+    createdAt: parseUtc(r.createdAt),
+    reasonUpdatedAt: r.reasonUpdatedAt ? parseUtc(r.reasonUpdatedAt) : undefined,
   }));
 }
 

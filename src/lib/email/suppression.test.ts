@@ -5,6 +5,7 @@ import {
   preferSuppressionReason,
   recentBounceOrComplaintSuppressionCount,
   suppressionReasonOrDefault,
+  suppressionRecencyMs,
   type SuppressionRecord,
 } from "./suppression";
 
@@ -69,6 +70,18 @@ describe("preferSuppressionReason", () => {
   });
 });
 
+describe("suppressionRecencyMs", () => {
+  it("falls back to createdAt when the reason has never been upgraded", () => {
+    expect(suppressionRecencyMs({ email: "a@example.com", createdAt: 100 })).toBe(100);
+  });
+
+  it("prefers reasonUpdatedAt when the reason has been upgraded", () => {
+    expect(
+      suppressionRecencyMs({ email: "a@example.com", createdAt: 100, reasonUpdatedAt: 500 }),
+    ).toBe(500);
+  });
+});
+
 const HOUR_MS = 60 * 60 * 1000;
 
 describe("recentBounceOrComplaintSuppressionCount", () => {
@@ -96,6 +109,30 @@ describe("recentBounceOrComplaintSuppressionCount", () => {
     const records: SuppressionRecord[] = [{ email: "legacy@example.com", createdAt: nowMs - HOUR_MS }];
     expect(recentBounceOrComplaintSuppressionCount(records, nowMs, 24 * 7)).toBe(0);
   });
+
+  it("counts a long-ago unsubscribe that only just upgraded to a bounce, using reasonUpdatedAt not createdAt", () => {
+    const records: SuppressionRecord[] = [
+      {
+        email: "old-unsub-new-bounce@example.com",
+        reason: "bounce",
+        createdAt: nowMs - 24 * 30 * HOUR_MS,
+        reasonUpdatedAt: nowMs - HOUR_MS,
+      },
+    ];
+    expect(recentBounceOrComplaintSuppressionCount(records, nowMs, 24 * 7)).toBe(1);
+  });
+
+  it("excludes a bounce whose reasonUpdatedAt upgrade happened outside the window, even though it's still the newest signal on the row", () => {
+    const records: SuppressionRecord[] = [
+      {
+        email: "old-upgrade@example.com",
+        reason: "bounce",
+        createdAt: nowMs - 24 * 20 * HOUR_MS,
+        reasonUpdatedAt: nowMs - 24 * 8 * HOUR_MS,
+      },
+    ];
+    expect(recentBounceOrComplaintSuppressionCount(records, nowMs, 24 * 7)).toBe(0);
+  });
 });
 
 describe("newestBounceOrComplaintSuppressionAgeHours", () => {
@@ -119,5 +156,17 @@ describe("newestBounceOrComplaintSuppressionAgeHours", () => {
       { email: "unsub-newest@example.com", reason: "unsubscribe", createdAt: nowMs - HOUR_MS },
     ];
     expect(newestBounceOrComplaintSuppressionAgeHours(records, nowMs)).toBe(3);
+  });
+
+  it("uses reasonUpdatedAt, not createdAt, for a row whose reason was upgraded long after it was first suppressed", () => {
+    const records: SuppressionRecord[] = [
+      {
+        email: "old-unsub-new-bounce@example.com",
+        reason: "bounce",
+        createdAt: nowMs - 24 * 30 * HOUR_MS,
+        reasonUpdatedAt: nowMs - 5 * HOUR_MS,
+      },
+    ];
+    expect(newestBounceOrComplaintSuppressionAgeHours(records, nowMs)).toBe(5);
   });
 });
