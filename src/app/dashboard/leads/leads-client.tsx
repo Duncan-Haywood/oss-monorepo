@@ -1505,7 +1505,7 @@ export function LeadsClient({
   return (
     <div className="mt-8">
       {commerceCatalogsMissing.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-orange-200 bg-orange-50/40 p-5">
+        <section aria-labelledby={COMMERCE_CATALOGS_MISSING_HEADING_ID} className="mb-8 rounded-2xl border border-orange-200 bg-orange-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={COMMERCE_CATALOGS_MISSING_HEADING_ID}
@@ -1575,7 +1575,7 @@ export function LeadsClient({
         </section>
       )}
       {commerceCatalogsUnsynced.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
+        <section aria-labelledby={COMMERCE_CATALOGS_UNSYNCED_HEADING_ID} className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={COMMERCE_CATALOGS_UNSYNCED_HEADING_ID}
@@ -1660,7 +1660,7 @@ export function LeadsClient({
         </section>
       )}
       {starterUpsellCandidates.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
+        <section aria-labelledby={STARTER_UPSELL_HEADING_ID} className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={STARTER_UPSELL_HEADING_ID}
@@ -1740,7 +1740,7 @@ export function LeadsClient({
       )}
 
       {recurringEntitlementPaused.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
+        <section aria-labelledby={MRR_PAUSED_HEADING_ID} className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={MRR_PAUSED_HEADING_ID}
@@ -1812,7 +1812,7 @@ export function LeadsClient({
       )}
 
       {marketingPacksDue.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
+        <section aria-labelledby={MARKETING_PACKS_DUE_HEADING_ID} className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={MARKETING_PACKS_DUE_HEADING_ID}
@@ -1892,7 +1892,7 @@ export function LeadsClient({
       )}
 
       {clientVoicePacksDue.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
+        <section aria-labelledby={VOICE_PACKS_DUE_HEADING_ID} className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={VOICE_PACKS_DUE_HEADING_ID}
@@ -1971,7 +1971,7 @@ export function LeadsClient({
       )}
 
       {abandonedCheckoutsDue.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
+        <section aria-labelledby={ABANDONED_CHECKOUTS_HEADING_ID} className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={ABANDONED_CHECKOUTS_HEADING_ID}
@@ -2046,7 +2046,7 @@ export function LeadsClient({
       )}
 
       {commerceAbandonedCheckoutsDue.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
+        <section aria-labelledby={ABANDONED_BUY_NOW_HEADING_ID} className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={ABANDONED_BUY_NOW_HEADING_ID}
@@ -2132,7 +2132,7 @@ export function LeadsClient({
       )}
 
       {commercePayoutsByLead.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
+        <section aria-labelledby={COMMERCE_PAYOUTS_HEADING_ID} className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={COMMERCE_PAYOUTS_HEADING_ID}
@@ -2249,7 +2249,7 @@ export function LeadsClient({
       )}
 
       {commerceOrdersMissingClientReceipt.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
+        <section aria-labelledby={MISSING_CLIENT_RECEIPT_HEADING_ID} className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={MISSING_CLIENT_RECEIPT_HEADING_ID}
@@ -2316,7 +2316,7 @@ export function LeadsClient({
       )}
 
       {(bundleOrderRefunds.length > 0 || bundleOrderDisputes.length > 0) && (
-        <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
+        <section aria-labelledby={BUNDLE_ORDER_REFUNDS_DISPUTES_HEADING_ID} className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={BUNDLE_ORDER_REFUNDS_DISPUTES_HEADING_ID}
@@ -2386,7 +2386,7 @@ export function LeadsClient({
       )}
 
       {followUpsDue.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
+        <section aria-labelledby={FOLLOW_UPS_DUE_HEADING_ID} className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={FOLLOW_UPS_DUE_HEADING_ID}
@@ -2460,7 +2460,7 @@ export function LeadsClient({
       )}
 
       {coldLeads.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-stone-200 bg-stone-50/50 p-5">
+        <section aria-labelledby={COLD_LEADS_HEADING_ID} className="mb-8 rounded-2xl border border-stone-200 bg-stone-50/50 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={COLD_LEADS_HEADING_ID}
@@ -2569,7 +2569,7 @@ export function LeadsClient({
       )}
 
       {workNext.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/30 p-5">
+        <section aria-labelledby={WORK_NEXT_HEADING_ID} className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/30 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={WORK_NEXT_HEADING_ID}
@@ -2716,7 +2716,7 @@ export function LeadsClient({
       )}
 
       {paidNotLive.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-red-200 bg-red-50/40 p-5">
+        <section aria-labelledby={PAID_NOT_LIVE_HEADING_ID} className="mb-8 rounded-2xl border border-red-200 bg-red-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={PAID_NOT_LIVE_HEADING_ID}
@@ -2795,7 +2795,7 @@ export function LeadsClient({
       )}
 
       {openHandoffs.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
+        <section aria-labelledby={PRODUCTION_DEPLOY_HANDOFFS_HEADING_ID} className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={PRODUCTION_DEPLOY_HANDOFFS_HEADING_ID}
@@ -2943,7 +2943,7 @@ export function LeadsClient({
       )}
 
       {openInquiries.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-sky-200 bg-sky-50/40 p-5">
+        <section aria-labelledby={WEBSITE_INQUIRIES_HEADING_ID} className="mb-8 rounded-2xl border border-sky-200 bg-sky-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2
               id={WEBSITE_INQUIRIES_HEADING_ID}

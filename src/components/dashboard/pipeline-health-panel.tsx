@@ -8,13 +8,21 @@ interface PipelineHealthPanelProps {
   health: PipelineHealth;
 }
 
+const PIPELINE_HEALTH_HEADING_ID = "pipeline-health-heading";
+
 export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
   const maxStage = Math.max(1, ...health.stageFunnel.map((s) => s.count));
 
   return (
-    <section className="mb-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+    <section
+      aria-labelledby={PIPELINE_HEALTH_HEADING_ID}
+      className="mb-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+        <h2
+          id={PIPELINE_HEALTH_HEADING_ID}
+          className="text-lg font-semibold tracking-tight text-zinc-900"
+        >
           Pipeline health
         </h2>
         <p className="text-xs text-zinc-500">
