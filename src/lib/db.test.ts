@@ -120,6 +120,18 @@ import type { Lead } from "./leads/types";
  * regress a paying or live customer back to an earlier funnel stage on a
  * SQLite-only deployment, which several eligibility predicates (Billing
  * Portal, Starter upsell, paid-not-live) read directly.
+ *
+ * applyColdLeadDisposition (~769) shares updateLeadStage's exact risk shape:
+ * a Convex mutation with direct coverage
+ * (convex/leads.test.ts's cold-lead-disposition-paid-live-race-guard tests)
+ * and a hand-written SQLite fallback (sqliteApplyColdLeadDisposition,
+ * src/lib/db/sqlite-queries.ts) duplicating the same paid/live revert guard —
+ * disposeColdLeadAction's Re-engage/Close actions funnel through this, and a
+ * drift between the two backends' guards would let a stale/racing
+ * disposition write silently revert a paying or live customer's stage back
+ * to closed/discovered on a SQLite-only deployment. Zero automated coverage
+ * of this orchestration (only the pure Convex mutation and pure SQLite
+ * helper were tested in isolation) until now.
  */
 
 vi.mock("server-only", () => ({}));
@@ -312,6 +324,99 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         db.updateLeadBufferPostedVariantKeys("missing-slug", ["k1"]),
       ).rejects.toThrow(/not found/i);
       expect(convexMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("applyColdLeadDisposition (requireConvex fail-closed write, paid/live revert guard)", () => {
+    const dispositionPatch = {
+      stage: "closed" as const,
+      outreachStep: 3 as const,
+      lastOutreachAt: "2026-07-01T00:00:00.000Z",
+      snoozedUntil: undefined,
+    };
+
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      // No lead with this slug exists in the fresh SQLite file at all — the
+      // SQLite fallback branch would throw "Lead with slug ... not found" if
+      // the Convex-success path incorrectly fell through to it.
+      await expect(
+        db.applyColdLeadDisposition("no-sqlite-row-lead", dispositionPatch, {
+          requireConvex: true,
+        }),
+      ).resolves.toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("trusts Convex's returned boolean directly on success rather than recomputing via SQLite", async () => {
+      // Seed a paid lead via the SQLite-only path — sqliteApplyColdLeadDisposition
+      // would itself return false for this patch below, so mocking Convex to
+      // resolve true instead only passes if applyColdLeadDisposition actually
+      // used Convex's result and returned early.
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("convex-disposition-lead", { stage: "paid" }));
+
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.applyColdLeadDisposition("convex-disposition-lead", dispositionPatch);
+      expect(result).toBe(true);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.applyColdLeadDisposition("some-lead", dispositionPatch, { requireConvex: true }),
+      ).rejects.toThrow(/applyColdLeadDisposition/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("disposition-fallback-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.applyColdLeadDisposition("disposition-fallback-lead", dispositionPatch),
+      ).resolves.toBe(true);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("disposition-fallback-lead");
+      expect(lead?.stage).toBe("closed");
+      expect(lead?.outreachStep).toBe(3);
+      expect(lead?.lastOutreachAt).toBe("2026-07-01T00:00:00.000Z");
+    });
+
+    it("throws a not-found error via the pure-SQLite path when no Convex client is configured and the slug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.applyColdLeadDisposition("missing-slug", dispositionPatch),
+      ).rejects.toThrow(/not found/i);
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("SQLite fallback skips the write and returns false when a paid/live lead's stage would be reverted (cold-lead-disposition-paid-live-race-guard parity)", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("paid-disposition-lead", { stage: "paid" }));
+
+      const result = await db.applyColdLeadDisposition("paid-disposition-lead", dispositionPatch);
+      expect(result).toBe(false);
+
+      const lead = await db.getLeadBySlug("paid-disposition-lead");
+      expect(lead?.stage).toBe("paid");
+      expect(lead?.outreachStep).not.toBe(3);
+    });
+
+    it("SQLite fallback also rejects the write for a live lead the same way", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("live-disposition-lead", { stage: "live" }));
+
+      const result = await db.applyColdLeadDisposition("live-disposition-lead", dispositionPatch);
+      expect(result).toBe(false);
+
+      const lead = await db.getLeadBySlug("live-disposition-lead");
+      expect(lead?.stage).toBe("live");
     });
   });
 

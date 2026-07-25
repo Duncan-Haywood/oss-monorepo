@@ -345,6 +345,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/nice-euler-1f16x0",
   },
+  {
+    id: "db-ts-cold-lead-disposition-sqlite-fallback-test-coverage",
+    summary:
+      "Continuation of the db.ts SQLite-fallback test-coverage series. applyColdLeadDisposition (backing disposeColdLeadAction's Re-engage/Close dashboard buttons) shares updateLeadStage's exact duplicated-logic risk: its SQLite fallback re-implements a paid/live stage-revert guard that the Convex mutation already has direct test coverage for, but the SQLite twin's copy had never been exercised. Shipped 7 new Vitest cases in src/lib/db.test.ts covering Convex-success early-return, trusting Convex's returned boolean directly, requireConvex fail-closed throw, SQLite-fallback write + not-found guard, and the SQLite fallback correctly rejecting a stage revert for both a paid and a live lead — verified the tests actually catch a regression by temporarily dropping the early return and confirming 2 of 7 cases failed before restoring. See db-ts-cold-lead-disposition-sqlite-fallback-test-coverage in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/nice-euler-0rps7w",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -635,6 +643,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "db-ts-commerce-catalog-sqlite-fallback-test-coverage",
+    ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/nice-euler-0rps7w",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip f782218 (PR #788, db-ts-commerce-catalog-sqlite-fallback-test-coverage, merged prior session) — HEAD matched origin/main exactly at session start. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest ~15 remote branches by push time found every one already merged (empty diff against origin/main) — no live fold candidate. Confirmed baseline green before any edit: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3127 passed, 209 files, matching the immediately-preceding session's own logged count).\n\nThe immediately-preceding iteration's own rationale named the remaining candidate list in the db.ts SQLite-fallback test-coverage vein verbatim; grepped db.test.ts and confirmed all seven named exports still had zero dedicated coverage (recordCheckoutSessionCreated's existing references are all seeding calls inside an unrelated describe block). Picked applyColdLeadDisposition as the highest-leverage single-function candidate over the four plain single-field lead-attribute writes also on the list: it shares updateLeadStage's exact duplicated-logic risk — a paid/live stage-revert guard duplicated between the Convex mutation (already tested) and the SQLite fallback (never tested) — rather than being a bare not-found-guarded UPDATE.",
+    shipped: [
+      "src/lib/db.test.ts — one new describe block (applyColdLeadDisposition), 7 new test cases: Convex-success early-return without touching SQLite, trusting Convex's returned boolean directly rather than recomputing via SQLite, requireConvex fail-closed throw, SQLite-fallback write + not-found guard, and two guard-specific cases proving the SQLite fallback rejects a stage revert for both a paid and a live lead while still allowing an ordinary write for an earlier-stage lead.",
+      "src/app/docs/architecture/page.tsx — one new paragraph naming the shared risk shape with updateLeadStage.",
+      "src/lib/process/business-decisions.ts — appended db-ts-cold-lead-disposition-sqlite-fallback-test-coverage; flagged the file is now ~248KB, past the ~230KB re-archive trigger, as a future standalone task.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-unaudited untested-orchestration gap on the dashboard's cold-lead disposition write, not any of the five gated items. Diff-gate anchor moves to f782218 (this session's own starting tip, post-PR-#788). Remaining candidates in this series: recordLeadPreviewOpen, updateLeadNotes, updateLeadSnooze, updateLeadBufferProfileIds (the four simplest single-field writes left, closeable together in one future pass), recordClientInquiryReply/updateClientInquiryStatus, recordCheckoutSessionCreated.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run src/lib/db.test.ts (89 passed, up from 82 — 7 new cases) + npx vitest run full suite (3134 passed, up from 3127, 209 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split) + confirmed no stray local.db was committed. Regression-catching verified empirically: temporarily dropped applyColdLeadDisposition's early `return` on Convex success, confirmed 2 of 7 new tests failed with the expected symptoms, restored the original file. Pure test-infrastructure addition plus a docs paragraph, no product/UI code changed, so Vitest coverage is the bar per AGENT_PROTOCOL's own testing convention — no npm run dev/browser smoke check needed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-ts-cold-lead-disposition-sqlite-fallback-test-coverage",
     ),
   },
 ];

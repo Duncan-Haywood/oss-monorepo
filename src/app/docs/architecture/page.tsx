@@ -860,6 +860,22 @@ export default function ArchitectureDocPage() {
         <code>listCommerceCatalogs</code> returns SQLite-fallback-written rows newest{" "}
         <code>updatedAt</code> first.
       </p>
+      <p>
+        <code>applyColdLeadDisposition</code> shares <code>updateLeadStage</code>&apos;s exact
+        risk shape: a Convex mutation with direct coverage (
+        <code>convex/leads.test.ts</code>&apos;s cold-lead-disposition paid/live race-guard tests)
+        and a hand-written SQLite fallback (<code>sqliteApplyColdLeadDisposition</code>,{" "}
+        <code>src/lib/db/sqlite-queries.ts</code>) duplicating the same paid/live revert guard —{" "}
+        <code>disposeColdLeadAction</code>&apos;s Re-engage/Close actions funnel through this, and
+        a drift between the two backends&apos; guards would let a stale/racing disposition write
+        silently revert a paying or live customer&apos;s stage back to closed/discovered on a
+        SQLite-only deployment. The new cases cover the Convex-success early-return (trusting
+        Convex&apos;s returned boolean directly rather than recomputing via SQLite),{" "}
+        <code>requireConvex</code> fail-closed throw, SQLite-fallback write + not-found guard, and
+        that the SQLite fallback rejects a stage revert for both a <code>paid</code> and a{" "}
+        <code>live</code> lead while still allowing an ordinary write for a lead in an earlier
+        stage.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
