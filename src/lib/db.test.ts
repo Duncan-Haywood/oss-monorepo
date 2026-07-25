@@ -48,6 +48,16 @@ import type { Lead } from "./leads/types";
  * isn't mirrored into this SQL branch would silently misstate real
  * subscriber lifetime revenue with nothing to catch it — the same
  * duplicated-logic bug class as convex-orders-recurring-entitlement-duplicate-fix.
+ *
+ * markOrdersRecurringCanceledByCustomer / clearOrdersRecurringCanceledByCustomer /
+ * syncOrdersRecurringEntitlementByCustomer (src/lib/db.ts ~1233-1447) share the
+ * identical duplicated-logic risk: each has a Convex mutation with direct
+ * coverage (convex/orders.test.ts) and a hand-written SQLite-fallback branch
+ * that had never been exercised by any automated test — these three drive the
+ * pause/resume/re-tier entitlement state read by every "is this lead
+ * currently entitled" consumer (Buy now/catalog sync, digest, dashboard), so a
+ * drift here would silently mis-gate paid recurring access on a SQLite-only
+ * deployment.
  */
 
 vi.mock("server-only", () => ({}));
@@ -338,6 +348,192 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         "cus_starter_1",
       );
       expect(order?.lifetimeRevenueUsd).toBeUndefined();
+    });
+  });
+
+  describe("markOrdersRecurringCanceledByCustomer (pause-write, requireConvex fail-closed)", () => {
+    it("returns Convex's updatedCount directly without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce({ updatedCount: 2 });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.markOrdersRecurringCanceledByCustomer("cus_convex_only", Date.now());
+      expect(result).toBe(2);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markOrdersRecurringCanceledByCustomer("cus_1", Date.now(), { requireConvex: true }),
+      ).rejects.toThrow(/markOrdersRecurringCanceledByCustomer/);
+    });
+
+    it("only cancels the recurring-entitlement order and is idempotent on a second call (SQLite fallback)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "pause-growth-lead",
+        stripeSessionId: "cs_pause_growth",
+        customerEmail: "pause@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+        stripeCustomerId: "cus_pause_1",
+      });
+      // A Starter, non-Commerce order for the SAME customer must never be
+      // touched — it never had recurring entitlement in the first place.
+      await seedDb.recordLeadPayment({
+        slug: "pause-starter-lead",
+        stripeSessionId: "cs_pause_starter",
+        customerEmail: "pause@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 29,
+        stripeCustomerId: "cus_pause_1",
+      });
+
+      const canceledAt = Date.now();
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const first = await db.markOrdersRecurringCanceledByCustomer("cus_pause_1", canceledAt);
+      expect(first).toBe(1);
+
+      const readDb = await loadDb(undefined);
+      const orders = await readDb.getOrdersByStripeCustomerId("cus_pause_1");
+      const growthOrder = orders.find((o) => o.tier === "growth");
+      const starterOrder = orders.find((o) => o.tier === "starter");
+      expect(growthOrder?.recurringCanceledAt).toBe(canceledAt);
+      expect(starterOrder?.recurringCanceledAt).toBeUndefined();
+
+      // Idempotent: a redelivered/duplicate pause event must not error or
+      // re-count an already-canceled row.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const second = await (
+        await loadDb(CONVEX_URL)
+      ).markOrdersRecurringCanceledByCustomer("cus_pause_1", Date.now());
+      expect(second).toBe(0);
+    });
+  });
+
+  describe("clearOrdersRecurringCanceledByCustomer (resume-write, requireConvex fail-closed)", () => {
+    it("returns Convex's updatedCount directly without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce({ updatedCount: 1 });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.clearOrdersRecurringCanceledByCustomer("cus_convex_only");
+      expect(result).toBe(1);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.clearOrdersRecurringCanceledByCustomer("cus_1", { requireConvex: true }),
+      ).rejects.toThrow(/clearOrdersRecurringCanceledByCustomer/);
+    });
+
+    it("clears a paused order and is idempotent on a second call (SQLite fallback)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "resume-growth-lead",
+        stripeSessionId: "cs_resume_growth",
+        customerEmail: "resume@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+        stripeCustomerId: "cus_resume_1",
+      });
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (
+        await loadDb(CONVEX_URL)
+      ).markOrdersRecurringCanceledByCustomer("cus_resume_1", Date.now());
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const first = await db.clearOrdersRecurringCanceledByCustomer("cus_resume_1");
+      expect(first).toBe(1);
+
+      const [order] = await (
+        await loadDb(undefined)
+      ).getOrdersByStripeCustomerId("cus_resume_1");
+      expect(order?.recurringCanceledAt).toBeUndefined();
+
+      // Idempotent: a row with no cancel timestamp must not error or re-count.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const second = await (
+        await loadDb(CONVEX_URL)
+      ).clearOrdersRecurringCanceledByCustomer("cus_resume_1");
+      expect(second).toBe(0);
+    });
+  });
+
+  describe("syncOrdersRecurringEntitlementByCustomer (re-tier write, requireConvex fail-closed)", () => {
+    it("returns Convex's updatedCount directly without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce({ updatedCount: 1 });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.syncOrdersRecurringEntitlementByCustomer("cus_convex_only", {
+        tier: "complete",
+        commerceAddon: true,
+      });
+      expect(result).toBe(1);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.syncOrdersRecurringEntitlementByCustomer(
+          "cus_1",
+          { tier: "growth", commerceAddon: false },
+          { requireConvex: true },
+        ),
+      ).rejects.toThrow(/syncOrdersRecurringEntitlementByCustomer/);
+    });
+
+    it("refuses a non-recurring target before touching Convex or SQLite", async () => {
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.syncOrdersRecurringEntitlementByCustomer("cus_refuse", {
+        tier: "starter",
+        commerceAddon: false,
+      });
+      expect(result).toBe(0);
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("re-tiers the recurring-entitlement order and is idempotent once it matches the target (SQLite fallback)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "retier-lead",
+        stripeSessionId: "cs_retier",
+        customerEmail: "retier@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+        stripeCustomerId: "cus_retier_1",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const first = await db.syncOrdersRecurringEntitlementByCustomer("cus_retier_1", {
+        tier: "complete",
+        commerceAddon: true,
+      });
+      expect(first).toBe(1);
+
+      const readDb = await loadDb(undefined);
+      const [order] = await readDb.getOrdersByStripeCustomerId("cus_retier_1");
+      expect(order?.tier).toBe("complete");
+      expect(order?.commerceAddon).toBe(true);
+
+      // Idempotent: a row already matching the target must not re-count.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const second = await (
+        await loadDb(CONVEX_URL)
+      ).syncOrdersRecurringEntitlementByCustomer("cus_retier_1", {
+        tier: "complete",
+        commerceAddon: true,
+      });
+      expect(second).toBe(0);
     });
   });
 });
