@@ -425,6 +425,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/nice-euler-lfte60",
   },
+  {
+    id: "account-updated-connect-status-refresh",
+    summary:
+      "Empty-backlog audit (tier 1/2 — sold-capability wiring gap on the dormant Stripe Connect Express scaffold) found fetchConnectAccountStatus/checkStripeConnectAccountStatusAction was the ONLY code path that ever refreshed a lead's stripeConnectChargesEnabled/PayoutsEnabled/DetailsSubmitted cache — purely an operator manual-click, no webhook listener, no cron. Once an operator stopped re-checking a lead, the 'Stripe Connect onboarding incomplete' due-queue signal (already wired into pipeline-health/digest) could never self-correct even after the client finished onboarding on Stripe's hosted flow. Shipped: a new findLeadSlugByStripeConnectAccountId pure helper (src/lib/commerce/stripe-connect.ts) plus an `account.updated` webhook handler (src/app/api/stripe/webhook/route.ts) that resolves the matching lead via getLeads() and persists the fresh status through the existing updateLeadStripeConnectStatus call (same fail-closed-on-Convex, swallow-and-continue policy the manual check already uses — a display-cache refresh, never a required/5xx-worthy write). Registered the event in STRIPE_WEBHOOK_HANDLED_EVENT_TYPES (src/lib/stripe/webhook-event-types.ts) with a caveat in /docs/launch-checklist + /docs/architecture: this one event also needs the operator to check 'Listen to events on connected accounts' in the Stripe Dashboard, unlike every other type in that list. Still no money movement — commerce-payouts-stripe-connect stays status: \"todo\".",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-r5775w",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -779,6 +787,24 @@ export const ITERATIONS: ProcessIteration[] = [
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "dashboard-action-rate-limit-gaps-followup",
     ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/nice-euler-r5775w",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip f9d8ed0b (PR #762, dashboard-action-rate-limit-gaps-followup, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2914 passed, 204 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (684 remote heads) of the newest ~20 claude/* branches by push time found each either byte-identical to an already-merged PR (#745-#762) or fully superseded — no live fold candidate; newest non-claude/* branches were all 7+ days stale. Diff-gate (`git log --oneline 13dba7ab..HEAD -- src convex .github/workflows`) found only the immediately-preceding iteration's own already-logged PR #762 commit, so per the waste-reduction rule dispatched one research agent instead of a full five-tier re-sweep, steered at the two dormant scaffolds' remaining code paths (Stripe Connect Express onboarding, Buffer marketing scheduling) plus TOCTOU/lifecycle-pairing/email-template angles.\n\nIt found a real, previously-unaudited gap independently re-verified by reading every cited file directly: fetchConnectAccountStatus/checkStripeConnectAccountStatusAction was the ONLY code path anywhere that ever refreshed a lead's Connect status cache — purely operator-triggered, no cron, no webhook listener (confirmed zero references to account.updated anywhere in src/ or convex/). The onboarding-incomplete due-queue signal (already wired into pipeline-health/digest) could never self-correct once an operator stopped re-checking a lead, even after the client finished onboarding on Stripe's hosted flow — the same 'cached signal never invalidates' class AGENT_PROTOCOL already treats as first-class for the refund/dispute and payment-failed/recovered notices.",
+    shipped: [
+      "src/lib/commerce/stripe-connect.ts — new pure helper findLeadSlugByStripeConnectAccountId (linear scan over a lead list for a matching stripeConnectAccountId, mirroring findConnectAccountByLeadSlug's own full-scan shape for the reverse direction — this dormant, low-volume scaffold has no dedicated reverse index).",
+      "src/app/api/stripe/webhook/route.ts — new `account.updated` case: resolves the matching lead via getLeads() + findLeadSlugByStripeConnectAccountId, then persists the fresh charges_enabled/payouts_enabled/details_submitted through the existing updateLeadStripeConnectStatus call with LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY, wrapped in the same try/catch-and-swallow policy checkStripeConnectAccountStatusAction already uses — a display-cache refresh, never a required/5xx-worthy write. No match (account this app never created, or an id write that never succeeded) is a silent no-op.",
+      "src/lib/stripe/webhook-event-types.ts — added \"account.updated\" to STRIPE_WEBHOOK_HANDLED_EVENT_TYPES (the source of truth webhook-event-audit.test.ts locks against route.ts's case labels and /docs/launch-checklist renders its Select-events step from).",
+      "src/app/docs/launch-checklist/page.tsx, src/app/docs/architecture/page.tsx — documented the new handler and its one-checkbox operator caveat: Stripe only forwards account.updated for a connected account when the endpoint also has 'Listen to events on connected accounts' checked (or a second Connect-scoped endpoint) — enabling the event type alone is not enough for this one, unlike every sibling event in the same list.",
+      "src/lib/commerce/stripe-connect.test.ts — 3 new cases for findLeadSlugByStripeConnectAccountId (match found, no match, empty lead list).",
+      "src/app/api/stripe/webhook/route.test.ts — 4 new cases for the account.updated handler (persists on match, no-op on no match, still 200 — never 5xx — when the persist call throws, defaults missing flags to false); widened the @/lib/db mock with getLeads/updateLeadStripeConnectStatus.",
+      "src/lib/process/business-decisions.ts — appended account-updated-connect-status-refresh.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS otherwise unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real cache-staleness/sold-capability-wiring gap on the dormant Connect scaffold, still no money movement. Diff-gate anchor moves to f9d8ed0b (this iteration's own starting tip, post-PR-#762). Flagged (not actioned): business-decisions.ts is at 240,659+ bytes, approaching the ~256KiB read-limit ceiling — the next agent should check with `wc -c` and split into archive/business-decisions-archive-09.ts if grown further.",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2921 passed — 7 new cases, 204 files, up from 2914) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev smoke check (/dashboard/leads, /docs/architecture, /docs/launch-checklist all 200; confirmed the new account.updated and findLeadSlugByStripeConnectAccountId text render in the served HTML of the two docs pages; dev server killed, port 3100 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "account-updated-connect-status-refresh"),
   },
   {
     date: "2026-07-25",

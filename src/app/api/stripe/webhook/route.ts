@@ -7,6 +7,7 @@ import {
   clearOrderRefunded,
   clearOrdersRecurringCanceledByCustomer,
   getCommerceOrderByStripeSessionId,
+  getLeads,
   getOrdersByStripeCustomerId,
   markCheckoutSessionComplete,
   markCheckoutSessionOpen,
@@ -21,7 +22,10 @@ import {
   recordLeadPayment,
   recordSubscriptionRenewalPayment,
   syncOrdersRecurringEntitlementByCustomer,
+  updateLeadStripeConnectStatus,
 } from "@/lib/db";
+import { findLeadSlugByStripeConnectAccountId } from "@/lib/commerce/stripe-connect";
+import { LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY } from "@/lib/leads/stripe-connect-persist";
 import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
@@ -2370,6 +2374,53 @@ export async function POST(request: Request) {
         );
         const failure = webhookFulfillmentFailureResponse("commerce_order_refund_clear");
         return NextResponse.json(failure.body, { status: failure.status });
+      }
+      break;
+    }
+    case "account.updated": {
+      // Webhook-driven refresh for the Stripe Connect onboarding status cache
+      // (account-updated-connect-status-refresh) — closes a gap where the
+      // ONLY way stripeConnectChargesEnabled/PayoutsEnabled/DetailsSubmitted
+      // ever got refreshed was an operator's manual "Check status" click
+      // (checkStripeConnectAccountStatusAction); once an operator stopped
+      // re-checking a lead, the "Stripe Connect onboarding incomplete"
+      // due-queue signal could never self-correct even after the client
+      // actually finished onboarding on Stripe's hosted page. Requires the
+      // operator to enable "Listen to events on connected accounts" for this
+      // webhook endpoint (or add a second Connect-scoped endpoint) in the
+      // Stripe Dashboard — see /docs/launch-checklist; this event never
+      // arrives otherwise. Status-cache refresh only, same class as the
+      // manual check — never a required (5xx-on-failure) write, since this
+      // caches a display value, not a ledger entry, and mirrors
+      // checkStripeConnectAccountStatusAction's own swallow-and-continue
+      // persistence-failure policy. No-op (not an error) when the account id
+      // doesn't match any known lead — a Connect account created outside
+      // this app, or one whose id was never successfully persisted here.
+      const account = event.data.object as Stripe.Account;
+      const leads = await getLeads();
+      const matchedSlug = findLeadSlugByStripeConnectAccountId(leads, account.id);
+      if (!matchedSlug) {
+        console.warn(
+          `webhook: account.updated ${account.id} matched no lead's stripeConnectAccountId, skipping`,
+        );
+        break;
+      }
+      try {
+        await updateLeadStripeConnectStatus(
+          matchedSlug,
+          {
+            chargesEnabled: account.charges_enabled ?? false,
+            payoutsEnabled: account.payouts_enabled ?? false,
+            detailsSubmitted: account.details_submitted ?? false,
+          },
+          new Date().toISOString(),
+          LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY,
+        );
+      } catch (e) {
+        console.warn(
+          `webhook: account.updated ${account.id} failed to persist Connect status cache for lead ${matchedSlug}`,
+          e,
+        );
       }
       break;
     }

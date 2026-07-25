@@ -52,6 +52,8 @@ const syncOrdersRecurringEntitlementByCustomer = vi.fn();
 const recordLeadPayment = vi.fn();
 const recordSubscriptionRenewalPayment = vi.fn();
 const getLeadBySlug = vi.fn();
+const getLeads = vi.fn();
+const updateLeadStripeConnectStatus = vi.fn();
 const getCommerceCatalog = vi.fn();
 const insertClientInquiry = vi.fn();
 const insertCommerceOrder = vi.fn();
@@ -102,6 +104,8 @@ vi.mock("@/lib/db", () => ({
   recordSubscriptionRenewalPayment: (...args: unknown[]) =>
     recordSubscriptionRenewalPayment(...args),
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
+  getLeads: (...args: unknown[]) => getLeads(...args),
+  updateLeadStripeConnectStatus: (...args: unknown[]) => updateLeadStripeConnectStatus(...args),
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
   insertClientInquiry: (...args: unknown[]) => insertClientInquiry(...args),
   insertCommerceOrder: (...args: unknown[]) => insertCommerceOrder(...args),
@@ -298,6 +302,8 @@ describe("POST /api/stripe/webhook", () => {
     recordLeadPayment.mockReset();
     recordSubscriptionRenewalPayment.mockReset().mockResolvedValue({ recorded: true });
     getLeadBySlug.mockReset().mockResolvedValue(null);
+    getLeads.mockReset().mockResolvedValue([]);
+    updateLeadStripeConnectStatus.mockReset().mockResolvedValue(undefined);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
     insertClientInquiry.mockReset().mockResolvedValue({ id: "inq_1" });
     insertCommerceOrder.mockReset();
@@ -5420,6 +5426,93 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(200);
       expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
       expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("account.updated Connect status cache refresh", () => {
+    function accountUpdatedEvent(overrides: Record<string, unknown> = {}) {
+      return {
+        type: "account.updated",
+        data: {
+          object: {
+            id: "acct_connect_1",
+            charges_enabled: true,
+            payouts_enabled: true,
+            details_submitted: true,
+            ...overrides,
+          },
+        },
+      };
+    }
+
+    it("persists the fresh status cache for the lead whose stripeConnectAccountId matches", async () => {
+      getLeads.mockResolvedValueOnce([
+        { slug: "demo-cafe", stripeConnectAccountId: "acct_connect_1" },
+        { slug: "other-lead", stripeConnectAccountId: "acct_other" },
+      ]);
+      constructEvent.mockReturnValue(
+        accountUpdatedEvent({
+          charges_enabled: true,
+          payouts_enabled: false,
+          details_submitted: true,
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(updateLeadStripeConnectStatus).toHaveBeenCalledWith(
+        "demo-cafe",
+        { chargesEnabled: true, payoutsEnabled: false, detailsSubmitted: true },
+        expect.any(String),
+        { requireConvex: true },
+      );
+    });
+
+    it("no-ops (200, no persist) when the account id matches no known lead", async () => {
+      getLeads.mockResolvedValueOnce([{ slug: "other-lead", stripeConnectAccountId: "acct_other" }]);
+      constructEvent.mockReturnValue(accountUpdatedEvent({ id: "acct_unknown" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(updateLeadStripeConnectStatus).not.toHaveBeenCalled();
+    });
+
+    it("still returns 200 (never 5xx — this is a display cache, not a ledger write) when the persist call fails", async () => {
+      getLeads.mockResolvedValueOnce([
+        { slug: "demo-cafe", stripeConnectAccountId: "acct_connect_1" },
+      ]);
+      updateLeadStripeConnectStatus.mockRejectedValueOnce(new Error("Convex write failed"));
+      constructEvent.mockReturnValue(accountUpdatedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(updateLeadStripeConnectStatus).toHaveBeenCalledTimes(1);
+    });
+
+    it("defaults missing charges_enabled/payouts_enabled/details_submitted to false", async () => {
+      getLeads.mockResolvedValueOnce([
+        { slug: "demo-cafe", stripeConnectAccountId: "acct_connect_1" },
+      ]);
+      constructEvent.mockReturnValue(
+        accountUpdatedEvent({
+          charges_enabled: undefined,
+          payouts_enabled: undefined,
+          details_submitted: undefined,
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(updateLeadStripeConnectStatus).toHaveBeenCalledWith(
+        "demo-cafe",
+        { chargesEnabled: false, payoutsEnabled: false, detailsSubmitted: false },
+        expect.any(String),
+        { requireConvex: true },
+      );
     });
   });
 });

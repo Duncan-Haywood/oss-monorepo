@@ -1923,6 +1923,34 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        Until <code>account-updated-connect-status-refresh</code> (2026-07-25), the ONLY code
+        path that ever refreshed <code>stripeConnectChargesEnabled</code>/
+        <code>PayoutsEnabled</code>/<code>DetailsSubmitted</code> was an operator&apos;s manual{" "}
+        <strong>Check status</strong> click — so the &quot;Stripe Connect onboarding
+        incomplete&quot; due-queue signal (<code>connectOnboardingIncomplete</code>) could never
+        self-correct once an operator stopped re-checking a lead, even after the client actually
+        finished onboarding on Stripe&apos;s hosted flow. The webhook route now also handles{" "}
+        <code>account.updated</code>: it looks up the account id against every lead&apos;s{" "}
+        <code>stripeConnectAccountId</code> (a linear scan over <code>getLeads()</code> —
+        this dormant, low-volume scaffold has no dedicated reverse index, mirroring{" "}
+        <code>findConnectAccountByLeadSlug</code>&apos;s own full-scan shape for the opposite
+        direction) via the new <code>findLeadSlugByStripeConnectAccountId</code>{" "}
+        (src/lib/commerce/stripe-connect.ts), and on a match persists the fresh flags through the
+        same <code>updateLeadStripeConnectStatus</code> call{" "}
+        <strong>Check status</strong> already uses, including the same{" "}
+        <code>LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY</code> fail-closed-on-Convex-error,
+        swallow-and-continue policy — this caches a display value, not a ledger entry, so a
+        persist failure never turns a valid Stripe event into a 5xx. No match (an account this app
+        never created, or one whose id write never succeeded) is a silent no-op, not an error.
+        Stripe only forwards Connect account events to the platform&apos;s webhook endpoint when
+        the operator also checks <strong>Listen to events on connected accounts</strong> for that
+        endpoint in the Stripe Dashboard (or adds a second Connect-scoped endpoint) — see{" "}
+        <DocLink href="/docs/launch-checklist">launch checklist</DocLink> for the exact toggle;
+        enabling the event type in <strong>Select events</strong> alone is not enough for this
+        one event, unlike every other type in that same list.
+      </p>
+
+      <p>
         Stripe&apos;s <code>account_onboarding</code> Account Links are single-use and expire
         quickly if unopened — the original <strong>Get onboarding link</strong> flow only copied
         the freshly-minted URL to the operator&apos;s clipboard with an alert asking them to send

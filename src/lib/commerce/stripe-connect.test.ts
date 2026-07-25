@@ -4,6 +4,7 @@ import {
   createConnectOnboardingLink,
   fetchConnectAccountStatus,
   connectOnboardingIncomplete,
+  findLeadSlugByStripeConnectAccountId,
   listLeadsWithIncompleteConnectOnboarding,
   oldestConnectOnboardingIncompleteAgeHours,
   resolveDisplayedConnectStatus,
@@ -267,6 +268,28 @@ describe("connectOnboardingIncomplete", () => {
         stripeConnectPayoutsEnabled: true,
       }),
     ).toBe(false);
+  });
+});
+
+describe("findLeadSlugByStripeConnectAccountId", () => {
+  it("returns the slug of the lead whose stripeConnectAccountId matches", () => {
+    const leads = [
+      { slug: "alpha-cafe", stripeConnectAccountId: "acct_a" },
+      { slug: "beta-trades", stripeConnectAccountId: "acct_b" },
+    ];
+    expect(findLeadSlugByStripeConnectAccountId(leads, "acct_b")).toBe("beta-trades");
+  });
+
+  it("returns null when no lead's stripeConnectAccountId matches (account.updated for an unknown account)", () => {
+    const leads = [
+      { slug: "alpha-cafe", stripeConnectAccountId: "acct_a" },
+      { slug: "no-account-yet" },
+    ];
+    expect(findLeadSlugByStripeConnectAccountId(leads, "acct_unknown")).toBeNull();
+  });
+
+  it("returns null against an empty lead list", () => {
+    expect(findLeadSlugByStripeConnectAccountId([], "acct_a")).toBeNull();
   });
 });
 

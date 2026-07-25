@@ -91,6 +91,16 @@ export default function LaunchChecklistDocPage() {
               </li>
             ))}
           </ul>
+          One of these, <code>account.updated</code>, is different from the
+          rest: it only fires for a Stripe Connect Express account (see the{" "}
+          <strong>Payouts (Stripe Connect) — scaffold</strong> item below), and
+          Stripe only forwards Connect events to your platform endpoint when
+          you also check <strong>Listen to events on connected accounts</strong>{" "}
+          for this endpoint (or add a second, Connect-scoped endpoint) — enabling
+          the event type alone is not enough for this one. Skip that toggle
+          entirely if you have not set <code>ALLOW_STRIPE_CONNECT_ONBOARDING=1</code>{" "}
+          yet; without it no Connect accounts exist and the event never fires
+          anyway.
         </li>
         <li>
           Smoke-test: open a demo preview → Checkout (confirm business name /

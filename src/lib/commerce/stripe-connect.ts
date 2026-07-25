@@ -238,6 +238,29 @@ export function connectOnboardingIncomplete(lead: {
   return !(lead.stripeConnectChargesEnabled === true && lead.stripeConnectPayoutsEnabled === true);
 }
 
+/**
+ * Correlate a Stripe `account.updated` webhook event's account id back to the
+ * lead that owns it (account-updated-connect-status-refresh) — until this,
+ * the ONLY code path that ever refreshed stripeConnectChargesEnabled/
+ * PayoutsEnabled/DetailsSubmitted was an operator's manual "Check status"
+ * click; the cached due-queue signal (connectOnboardingIncomplete /
+ * oldestConnectOnboardingIncompleteAgeHours) could never self-correct once an
+ * operator stopped re-checking a lead, even after the client actually
+ * finished onboarding on Stripe's hosted page. There is no dedicated index
+ * for this lookup (dormant, low-volume scaffold — see the module header) so
+ * this does a linear scan over the full lead list the caller already fetched
+ * via getLeads(), mirroring findConnectAccountByLeadSlug's own full-scan
+ * shape for the reverse direction. Returns null (no-op, not an error) when
+ * the account doesn't belong to any known lead — a Connect account created
+ * outside this app, or one whose id was never successfully persisted.
+ */
+export function findLeadSlugByStripeConnectAccountId<
+  T extends { slug: string; stripeConnectAccountId?: string },
+>(leads: readonly T[], accountId: string): string | null {
+  const match = leads.find((lead) => lead.stripeConnectAccountId === accountId);
+  return match ? match.slug : null;
+}
+
 /** Leads with an incomplete Connect account, slug-sorted (mirrors listCommerceCatalogsMissing). */
 export function listLeadsWithIncompleteConnectOnboarding<
   T extends {

@@ -36,6 +36,7 @@ export const STRIPE_WEBHOOK_HANDLED_EVENT_TYPES = [
   "charge.dispute.created",
   "charge.dispute.closed",
   "refund.updated",
+  "account.updated",
 ] as const;
 
 export type StripeWebhookHandledEventType =
