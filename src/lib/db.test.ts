@@ -58,6 +58,28 @@ import type { Lead } from "./leads/types";
  * currently entitled" consumer (Buy now/catalog sync, digest, dashboard), so a
  * drift here would silently mis-gate paid recurring access on a SQLite-only
  * deployment.
+ *
+ * markOrderRefunded/clearOrderRefunded/markOrderDisputed/clearOrderDisputed
+ * (bundle orders, ~1092-1226) and markCommerceOrderRefunded/
+ * clearCommerceOrderRefunded/markCommerceOrderDisputed/clearCommerceOrderDisputed
+ * (Commerce Buy now orders, ~3269-3419) share the same shape again: each has a
+ * Convex mutation directly covered in convex/orders.test.ts /
+ * convex/commerceOrders.test.ts, and a hand-written single-UPDATE SQLite
+ * fallback with zero automated coverage anywhere (the webhook route test that
+ * calls these mocks "@/lib/db" away entirely). These flip the exact booleans
+ * every refund/dispute/clawback-visibility reader depends on
+ * (isCommerceOrderOwed, orderEligibleForBillingPortal, the bundle/Commerce
+ * refund & dispute due-queue panels) — a broken WHERE clause or a missing
+ * early-return here would silently misstate money already refunded or
+ * disputed on a SQLite-only deployment.
+ *
+ * markCommerceOrderPaidOut (~3189) gets its own describe block: unlike its
+ * seven siblings above, its SQLite fallback (sqliteMarkCommerceOrderPaidOut,
+ * src/lib/db/sqlite-queries.ts) re-verifies refundedAt/disputedAt/paidOutAt
+ * atomically with the write (commerce-order-paid-out-refund-race-guard) —
+ * Convex's own markPaidOut mutation has a direct test proving that same
+ * atomic rejection (convex/commerceOrders.test.ts), but the SQLite twin never
+ * did until now.
  */
 
 vi.mock("server-only", () => ({}));
@@ -534,6 +556,379 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         commerceAddon: true,
       });
       expect(second).toBe(0);
+    });
+  });
+
+  describe("markOrderRefunded / clearOrderRefunded (bundle order refund tracking, optional requireConvex)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "refund-bundle-lead",
+        stripeSessionId: "cs_refund_bundle",
+        customerEmail: "refund@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+      });
+
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await db.markOrderRefunded("cs_refund_bundle");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // A missing early-`return;` would have also run the SQLite UPDATE —
+      // reading through the pure-SQLite path confirms it did not.
+      const order = await (await loadDb(undefined)).getOrderByStripeSessionId(
+        "cs_refund_bundle",
+      );
+      expect(order?.refundedAt).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markOrderRefunded("cs_1", undefined, { requireConvex: true }),
+      ).rejects.toThrow(/markOrderRefunded/);
+    });
+
+    it("marks and clears refundedAt via SQLite, idempotently, on Convex failure", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "refund-bundle-fallback-lead",
+        stripeSessionId: "cs_refund_bundle_fallback",
+        customerEmail: "refund-fallback@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const markDb = await loadDb(CONVEX_URL);
+      await markDb.markOrderRefunded("cs_refund_bundle_fallback", "2026-01-01T00:00:00.000Z");
+
+      const afterMark = await (
+        await loadDb(undefined)
+      ).getOrderByStripeSessionId("cs_refund_bundle_fallback");
+      expect(afterMark?.refundedAt).toBe("2026-01-01T00:00:00.000Z");
+
+      // Redelivered mark with a different timestamp must not overwrite the first.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (
+        await loadDb(CONVEX_URL)
+      ).markOrderRefunded("cs_refund_bundle_fallback", "2026-01-02T00:00:00.000Z");
+      const afterRedelivery = await (
+        await loadDb(undefined)
+      ).getOrderByStripeSessionId("cs_refund_bundle_fallback");
+      expect(afterRedelivery?.refundedAt).toBe("2026-01-01T00:00:00.000Z");
+
+      // clearOrderRefunded reverses it (refund.updated reporting the refund
+      // never actually completed) and is itself idempotent.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (await loadDb(CONVEX_URL)).clearOrderRefunded("cs_refund_bundle_fallback");
+      const afterClear = await (
+        await loadDb(undefined)
+      ).getOrderByStripeSessionId("cs_refund_bundle_fallback");
+      expect(afterClear?.refundedAt).toBeUndefined();
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await expect(
+        (await loadDb(CONVEX_URL)).clearOrderRefunded("cs_refund_bundle_fallback"),
+      ).resolves.toBeUndefined();
+    });
+  });
+
+  describe("markOrderDisputed / clearOrderDisputed (bundle order dispute tracking, optional requireConvex)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "dispute-bundle-lead",
+        stripeSessionId: "cs_dispute_bundle",
+        customerEmail: "dispute@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+      });
+
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await db.markOrderDisputed("cs_dispute_bundle");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      const order = await (await loadDb(undefined)).getOrderByStripeSessionId(
+        "cs_dispute_bundle",
+      );
+      expect(order?.disputedAt).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markOrderDisputed("cs_1", undefined, { requireConvex: true }),
+      ).rejects.toThrow(/markOrderDisputed/);
+    });
+
+    it("marks and clears disputedAt via SQLite, idempotently, on Convex failure", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "dispute-bundle-fallback-lead",
+        stripeSessionId: "cs_dispute_bundle_fallback",
+        customerEmail: "dispute-fallback@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (
+        await loadDb(CONVEX_URL)
+      ).markOrderDisputed("cs_dispute_bundle_fallback", "2026-01-01T00:00:00.000Z");
+
+      const afterMark = await (
+        await loadDb(undefined)
+      ).getOrderByStripeSessionId("cs_dispute_bundle_fallback");
+      expect(afterMark?.disputedAt).toBe("2026-01-01T00:00:00.000Z");
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (await loadDb(CONVEX_URL)).clearOrderDisputed("cs_dispute_bundle_fallback");
+      const afterClear = await (
+        await loadDb(undefined)
+      ).getOrderByStripeSessionId("cs_dispute_bundle_fallback");
+      expect(afterClear?.disputedAt).toBeUndefined();
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await expect(
+        (await loadDb(CONVEX_URL)).clearOrderDisputed("cs_dispute_bundle_fallback"),
+      ).resolves.toBeUndefined();
+    });
+  });
+
+  describe("markCommerceOrderRefunded / clearCommerceOrderRefunded (Commerce Buy now order refund tracking, optional requireConvex)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-refund-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_refund",
+      });
+
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await db.markCommerceOrderRefunded("cs_commerce_refund");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      const order = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_refund");
+      expect(order?.refundedAt).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCommerceOrderRefunded("cs_1", undefined, { requireConvex: true }),
+      ).rejects.toThrow(/markCommerceOrderRefunded/);
+    });
+
+    it("marks and clears refundedAt via SQLite, idempotently, on Convex failure", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-refund-fallback-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_refund_fallback",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (
+        await loadDb(CONVEX_URL)
+      ).markCommerceOrderRefunded("cs_commerce_refund_fallback", "2026-01-01T00:00:00.000Z");
+
+      const afterMark = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_refund_fallback");
+      expect(afterMark?.refundedAt).toBe("2026-01-01T00:00:00.000Z");
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (
+        await loadDb(CONVEX_URL)
+      ).clearCommerceOrderRefunded("cs_commerce_refund_fallback");
+      const afterClear = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_refund_fallback");
+      expect(afterClear?.refundedAt).toBeUndefined();
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await expect(
+        (await loadDb(CONVEX_URL)).clearCommerceOrderRefunded("cs_commerce_refund_fallback"),
+      ).resolves.toBeUndefined();
+    });
+  });
+
+  describe("markCommerceOrderDisputed / clearCommerceOrderDisputed (Commerce Buy now order dispute tracking, optional requireConvex)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-dispute-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_dispute",
+      });
+
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await db.markCommerceOrderDisputed("cs_commerce_dispute");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      const order = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_dispute");
+      expect(order?.disputedAt).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCommerceOrderDisputed("cs_1", undefined, { requireConvex: true }),
+      ).rejects.toThrow(/markCommerceOrderDisputed/);
+    });
+
+    it("marks and clears disputedAt via SQLite, idempotently, on Convex failure", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-dispute-fallback-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_dispute_fallback",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (
+        await loadDb(CONVEX_URL)
+      ).markCommerceOrderDisputed("cs_commerce_dispute_fallback", "2026-01-01T00:00:00.000Z");
+
+      const afterMark = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_dispute_fallback");
+      expect(afterMark?.disputedAt).toBe("2026-01-01T00:00:00.000Z");
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (
+        await loadDb(CONVEX_URL)
+      ).clearCommerceOrderDisputed("cs_commerce_dispute_fallback");
+      const afterClear = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_dispute_fallback");
+      expect(afterClear?.disputedAt).toBeUndefined();
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await expect(
+        (await loadDb(CONVEX_URL)).clearCommerceOrderDisputed("cs_commerce_dispute_fallback"),
+      ).resolves.toBeUndefined();
+    });
+  });
+
+  describe("markCommerceOrderPaidOut (atomic paid-out/refunded/disputed race guard, optional requireConvex)", () => {
+    it("returns Convex's result directly without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-paidout-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_paidout",
+      });
+
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.markCommerceOrderPaidOut("cs_commerce_paidout");
+      expect(result).toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // A missing early-`return` would have also run the SQLite UPDATE.
+      const order = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_paidout");
+      expect(order?.paidOutAt).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCommerceOrderPaidOut("cs_1", undefined, { requireConvex: true }),
+      ).rejects.toThrow(/markCommerceOrderPaidOut/);
+    });
+
+    it("marks paidOutAt via SQLite and is idempotent on a redelivered mark (Convex failure)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-paidout-fallback-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_paidout_fallback",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const first = await (
+        await loadDb(CONVEX_URL)
+      ).markCommerceOrderPaidOut("cs_commerce_paidout_fallback", "2026-01-01T00:00:00.000Z");
+      expect(first).toBe(true);
+
+      const afterFirst = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_paidout_fallback");
+      expect(afterFirst?.paidOutAt).toBe("2026-01-01T00:00:00.000Z");
+
+      // Idempotent: a second mark must not overwrite the original timestamp.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const second = await (
+        await loadDb(CONVEX_URL)
+      ).markCommerceOrderPaidOut("cs_commerce_paidout_fallback", "2026-01-02T00:00:00.000Z");
+      expect(second).toBe(false);
+      const afterSecond = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_paidout_fallback");
+      expect(afterSecond?.paidOutAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+
+    it("atomically refuses to mark paid out an order that is already refunded (commerce-order-paid-out-refund-race-guard)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-paidout-race-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_paidout_race",
+      });
+
+      // Simulate an independent Stripe webhook (charge.refunded) recording a
+      // refund in the window between an operator's stale read and this call.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (
+        await loadDb(CONVEX_URL)
+      ).markCommerceOrderRefunded("cs_commerce_paidout_race");
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const result = await (
+        await loadDb(CONVEX_URL)
+      ).markCommerceOrderPaidOut("cs_commerce_paidout_race");
+      expect(result).toBe(false);
+
+      const order = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_paidout_race");
+      expect(order?.paidOutAt).toBeUndefined();
+      expect(order?.refundedAt).toBeDefined();
     });
   });
 });
