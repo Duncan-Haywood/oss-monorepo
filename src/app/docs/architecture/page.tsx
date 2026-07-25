@@ -750,6 +750,42 @@ export default function ArchitectureDocPage() {
         Commerce, refusing a non-recurring sync target before touching Convex or SQLite at all,
         and idempotence once the row already matches the target.
       </p>
+      <p>
+        The eight refund/dispute mark-and-clear pairs — bundle orders&apos;{" "}
+        <code>markOrderRefunded</code>/<code>clearOrderRefunded</code>/
+        <code>markOrderDisputed</code>/<code>clearOrderDisputed</code> and Commerce Buy now
+        orders&apos; <code>markCommerceOrderRefunded</code>/
+        <code>clearCommerceOrderRefunded</code>/<code>markCommerceOrderDisputed</code>/
+        <code>clearCommerceOrderDisputed</code> — share the identical duplicated-logic risk
+        again: each has a Convex mutation with direct coverage in{" "}
+        <code>convex/orders.test.ts</code>/<code>convex/commerceOrders.test.ts</code>, and a
+        hand-written single-<code>UPDATE</code> SQLite fallback that had never been exercised by
+        any automated test. These flip the exact booleans every refund/dispute/clawback-visibility
+        reader depends on (<code>isCommerceOrderOwed</code>,{" "}
+        <code>orderEligibleForBillingPortal</code>, the bundle and Commerce refund/dispute
+        due-queue panels) — a broken <code>WHERE</code> clause or a missing early-return here
+        would silently misstate money already refunded or disputed on a SQLite-only deployment.
+        The new cases cover each pair&apos;s Convex-success early-return,{" "}
+        <code>requireConvex</code> fail-closed throw, and SQLite-fallback mark/clear idempotency
+        (a redelivered mark must not overwrite an earlier timestamp; a redelivered clear on an
+        already-clear row is a no-op).
+      </p>
+      <p>
+        <code>markCommerceOrderPaidOut</code> gets its own coverage beyond that shape: its SQLite
+        fallback (<code>sqliteMarkCommerceOrderPaidOut</code>,{" "}
+        <code>src/lib/db/sqlite-queries.ts</code>) re-verifies{" "}
+        <code>refundedAt</code>/<code>disputedAt</code>/<code>paidOutAt</code> atomically with
+        the write itself (<code>commerce-order-paid-out-refund-race-guard</code>) so an
+        independent Stripe webhook recording a refund or dispute in the window between an
+        operator&apos;s stale read and this call can never leave an order both paid out and
+        refunded/disputed. Convex&apos;s own <code>markPaidOut</code> mutation already had a
+        direct test proving that same atomic rejection (
+        <code>convex/commerceOrders.test.ts</code>); the new SQLite-fallback case seeds a
+        commerce order, marks it refunded via the SQLite path, then confirms{" "}
+        <code>markCommerceOrderPaidOut</code> returns <code>false</code> and leaves{" "}
+        <code>paidOutAt</code> unset — plus ordinary mark/idempotent-redelivery coverage matching
+        the mark-and-clear pairs above.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
