@@ -94,6 +94,11 @@ import {
   hasBundleReceiptEmailNote,
   isBundleHandoffMissingBuyerEmail,
 } from "../payments/bundle-side-effect-recovery";
+import {
+  newestBounceOrComplaintSuppressionAgeHours,
+  recentBounceOrComplaintSuppressionCount,
+  type SuppressionRecord,
+} from "../email/suppression";
 
 const WORK_NEXT_LIMIT = 5;
 const FOLLOW_UPS_LIMIT = 5;
@@ -553,6 +558,18 @@ export interface DailyDigest {
   /** Whole hours until the soonest snooze expires; null when none snoozed. */
   soonestSnoozeRemainingHours: number | null;
   /**
+   * Count of hard bounces/spam complaints (see src/lib/email/suppression.ts)
+   * in the trailing 7 days — same rolling-window predicate and window as
+   * pipeline-health recentBounceOrComplaintSuppressionCount (see
+   * suppression-reason-visibility). Footnote only, not an action section: a
+   * bounce/complaint rate is a scalar reputation signal, not a per-row queue
+   * with an individual remediation. Always 0 when no suppression records
+   * were passed (input.suppressions unset) or none are bounce/complaint.
+   */
+  recentBounceOrComplaintSuppressionCount: number;
+  /** Hours since the most recent bounce/complaint; null when none in the window. */
+  newestBounceOrComplaintSuppressionAgeHours: number | null;
+  /**
    * Paid/live MRR customers with paused/canceled recurring entitlement — same
    * predicate as pipeline-health recurringEntitlementPausedCount (action section).
    */
@@ -687,6 +704,12 @@ export interface BuildDailyDigestInput {
    * is dormant, mirroring pipeline-health's marketingSchedulingEnabled input.
    */
   marketingSchedulingEnabled?: boolean;
+  /**
+   * Pass getSuppressedEmails() (optional) — powers the bounce/complaint
+   * reputation footnote, same input pipeline-health.ts already takes (see
+   * suppression-reason-visibility).
+   */
+  suppressions?: ReadonlyArray<SuppressionRecord>;
   nowMs: number;
 }
 
@@ -713,6 +736,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceOrdersMissingClientReceipt: commerceOrdersMissingClientReceiptInput = [],
     handoffs = [],
     marketingSchedulingEnabled = false,
+    suppressions = [],
     nowMs,
   } = input;
   const leadsBySlug = new Map(leads.map((lead) => [lead.slug, lead]));
@@ -1151,6 +1175,18 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         missingDnsHandoff: !hasBundleDnsHandoffEmailNote(handoff.notes, handoff.stripeSessionId),
       }));
 
+  // Same 7-day rolling window and pure predicates pipeline-health.ts already
+  // uses — footnote only, see the field's doc comment on DailyDigest.
+  const recentBounceOrComplaintCount = recentBounceOrComplaintSuppressionCount(
+    suppressions,
+    nowMs,
+    24 * 7,
+  );
+  const newestBounceOrComplaintAgeHours = newestBounceOrComplaintSuppressionAgeHours(
+    suppressions,
+    nowMs,
+  );
+
   // Same lead.stage === "paid" predicate as pipeline-health paidNotLiveCount.
   // Distinct set from openHandoffs above — a lead can be marked paid (stage
   // dropdown or CSV import) with no deploy_handoffs row ever created.
@@ -1380,6 +1416,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     bufferProfileMappingMissing,
     bufferProfileMappingMissingCount,
     oldestBufferProfileMappingMissingAgeHours: oldestBufferProfileMappingMissingAgeHoursValue,
+    recentBounceOrComplaintSuppressionCount: recentBounceOrComplaintCount,
+    newestBounceOrComplaintSuppressionAgeHours: newestBounceOrComplaintAgeHours,
     isEmpty,
   };
 }
@@ -1427,6 +1465,22 @@ function coldFootnote(digest: DailyDigest, emptyState: boolean): string {
   return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} also went cold after Email 3${oldestBit} — not actionable above, but worth a manual look.</p>`;
 }
 
+/**
+ * Scalar sender-reputation signal, not a due-queue — same rationale as
+ * snoozedFootnote/coldFootnote for why this is a footnote rather than an
+ * action section (see suppression-reason-visibility for the underlying
+ * pipeline-health MetricCard this mirrors).
+ */
+function bounceComplaintFootnote(digest: DailyDigest): string {
+  if (digest.recentBounceOrComplaintSuppressionCount <= 0) return "";
+  const count = digest.recentBounceOrComplaintSuppressionCount;
+  const mostRecentBit =
+    digest.newestBounceOrComplaintSuppressionAgeHours !== null
+      ? ` · most recent ${digest.newestBounceOrComplaintSuppressionAgeHours}h ago`
+      : "";
+  return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${count} hard bounce${count === 1 ? "" : "s"}/spam complaint${count === 1 ? "" : "s"} suppressed in the last 7 days${mostRecentBit} — sender-reputation risk, see /dashboard/leads.</p>`;
+}
+
 /** Joins items with commas and "and" before the last (Oxford comma for 3+). */
 export function joinWithAnd(items: readonly string[]): string {
   if (items.length === 0) return "";
@@ -1444,6 +1498,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
       ${closedLeadFootnote(digest)}
+      ${bounceComplaintFootnote(digest)}
     `;
   }
 
@@ -1646,5 +1701,6 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
     ${closedLeadFootnote(digest)}
+    ${bounceComplaintFootnote(digest)}
   `;
 }

@@ -42,6 +42,7 @@ const listCommerceOrdersMissingClientReceipt = vi.fn();
 const listClientInquiries = vi.fn();
 const listCommerceOrders = vi.fn();
 const listDeployHandoffs = vi.fn();
+const getSuppressedEmails = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: (...args: unknown[]) =>
@@ -84,6 +85,7 @@ vi.mock("@/lib/db", () => ({
     listCommerceOrdersMissingClientReceipt(...args),
   listCommerceOrders: (...args: unknown[]) => listCommerceOrders(...args),
   listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
+  getSuppressedEmails: (...args: unknown[]) => getSuppressedEmails(...args),
 }));
 
 const sendOperatorDailyDigest = vi.fn();
@@ -133,6 +135,7 @@ describe("sendDailyDigestAction", () => {
     listDeployHandoffs.mockReset().mockResolvedValue([]);
     listClientInquiries.mockReset();
     listCommerceOrders.mockReset();
+    getSuppressedEmails.mockReset().mockResolvedValue([]);
     sendOperatorDailyDigest.mockReset().mockResolvedValue({
       success: true,
       mock: true,
@@ -223,6 +226,7 @@ describe("sendDailyDigestAction", () => {
     expect(listCommerceOrdersMissingClientReceipt).toHaveBeenCalledOnce();
     expect(listDeployHandoffs).toHaveBeenCalledOnce();
     expect(listCommerceOrders).not.toHaveBeenCalled();
+    expect(getSuppressedEmails).toHaveBeenCalledOnce();
 
     expect(sendOperatorDailyDigest).toHaveBeenCalledOnce();
     const [to, html] = sendOperatorDailyDigest.mock.calls[0]!;
@@ -339,6 +343,23 @@ describe("sendDailyDigestAction", () => {
       error: "db unavailable",
     });
     expect(sendOperatorDailyDigest).not.toHaveBeenCalled();
+  });
+
+  it("wires getSuppressedEmails into the digest's bounce/complaint footnote (suppression-reason-visibility follow-up)", async () => {
+    getSuppressedEmails.mockResolvedValue([
+      {
+        email: "bounce@example.com",
+        reason: "bounce",
+        createdAt: Date.now() - 3 * 60 * 60 * 1000,
+      },
+    ]);
+    const { sendDailyDigestAction } = await import("./actions");
+    const res = await sendDailyDigestAction();
+    expect(res.success).toBe(true);
+    if (!res.success) throw new Error("expected success");
+    expect(res.digest.recentBounceOrComplaintSuppressionCount).toBe(1);
+    const html = sendOperatorDailyDigest.mock.calls[0]![1] as string;
+    expect(html).toContain("sender-reputation risk");
   });
 
   it("reports mock:false when Resend actually sends", async () => {

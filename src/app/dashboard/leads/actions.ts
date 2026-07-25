@@ -50,6 +50,7 @@ import {
   updateLeadBufferPostedVariantKeys,
   isEmailSuppressed,
   unsuppressEmail,
+  getSuppressedEmails,
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { OPERATOR_UNSUPPRESS_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
@@ -2425,6 +2426,7 @@ export async function sendDailyDigestAction() {
       commerceOrdersDisputed,
       commerceOrdersMissingClientReceipt,
       handoffs,
+      suppressions,
     ] = await Promise.all([
       getLeads(),
       listUnrepliedInquiries(),
@@ -2438,6 +2440,7 @@ export async function sendDailyDigestAction() {
       listCommerceOrdersDisputed(),
       listCommerceOrdersMissingClientReceipt(),
       listDeployHandoffs(),
+      getSuppressedEmails(),
     ]);
 
     const headerStore = await headers();
@@ -2457,6 +2460,7 @@ export async function sendDailyDigestAction() {
       commerceOrdersMissingClientReceipt,
       handoffs,
       marketingSchedulingEnabled: isMarketingSchedulingAllowed(),
+      suppressions,
       nowMs,
     });
     const html = renderDailyDigestHtml(digest, appUrl);

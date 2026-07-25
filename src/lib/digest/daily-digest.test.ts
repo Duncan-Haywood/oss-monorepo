@@ -634,6 +634,44 @@ describe("buildDailyDigest", () => {
     expect(digest.isEmpty).toBe(true);
   });
 
+  it("counts bounce/complaint suppressions in the last 7 days, ignoring unsubscribes and older events, without affecting isEmpty", () => {
+    const HOUR_MS = 60 * 60 * 1000;
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      suppressions: [
+        { email: "recent-bounce@example.com", reason: "bounce", createdAt: NOW - 3 * HOUR_MS },
+        {
+          email: "recent-complaint@example.com",
+          reason: "complaint",
+          createdAt: NOW - 24 * HOUR_MS,
+        },
+        { email: "recent-unsub@example.com", reason: "unsubscribe", createdAt: NOW - HOUR_MS },
+        {
+          email: "old-bounce@example.com",
+          reason: "bounce",
+          createdAt: NOW - 24 * 8 * HOUR_MS,
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.recentBounceOrComplaintSuppressionCount).toBe(2);
+    expect(digest.newestBounceOrComplaintSuppressionAgeHours).toBe(3);
+    expect(digest.isEmpty).toBe(true);
+  });
+
+  it("reports zero bounce/complaint count and null age when no suppressions are passed", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.recentBounceOrComplaintSuppressionCount).toBe(0);
+    expect(digest.newestBounceOrComplaintSuppressionAgeHours).toBeNull();
+  });
+
   it("lists Growth/Complete leads missing this month's marketing pack", () => {
     const needsPack = baseLead({
       slug: "needs-pack",
@@ -2706,6 +2744,52 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("also went cold after Email 3");
     expect(html).toContain("oldest");
     expect(html).toContain("h");
+  });
+
+  it("shows the bounce/complaint footnote with count and most-recent age in the non-empty render", () => {
+    const HOUR_MS = 60 * 60 * 1000;
+    const digest = buildDailyDigest({
+      leads: [baseLead({ stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      suppressions: [
+        { email: "bounce@example.com", reason: "bounce", createdAt: NOW - 5 * HOUR_MS },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("1 hard bounce/spam complaint suppressed in the last 7 days");
+    expect(html).toContain("most recent 5h ago");
+  });
+
+  it("shows the bounce/complaint footnote (pluralized) in the empty-state render", () => {
+    const HOUR_MS = 60 * 60 * 1000;
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      suppressions: [
+        { email: "bounce@example.com", reason: "bounce", createdAt: NOW - 5 * HOUR_MS },
+        { email: "complaint@example.com", reason: "complaint", createdAt: NOW - HOUR_MS },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.isEmpty).toBe(true);
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Nothing urgent today");
+    expect(html).toContain("2 hard bounces/spam complaints suppressed in the last 7 days");
+    expect(html).toContain("most recent 1h ago");
+  });
+
+  it("omits the bounce/complaint footnote entirely when no recent bounce/complaint exists", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).not.toContain("sender-reputation risk");
   });
 
   it("shows oldestFollowUpDueAgeHours in the follow-ups header", () => {

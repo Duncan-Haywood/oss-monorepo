@@ -627,8 +627,16 @@ export default function ArchitectureDocPage() {
         days) plus <code>newestBounceOrComplaintSuppressionAgeHours</code> from{" "}
         <code>getSuppressedEmails()</code> — a rising count is the thing an operator can actually
         react to (list hygiene, a broken capture form, a compromised sending domain), unlike the
-        permanently-suppressed total which only ever grows. Every
-        dynamic value in outbound HTML — including env-sourced{" "}
+        permanently-suppressed total which only ever grows. The daily digest (
+        <code>buildDailyDigest</code>, <code>src/lib/digest/daily-digest.ts</code>) shares the
+        same two rolling fields — <code>sendDailyDigestAction</code> now calls{" "}
+        <code>getSuppressedEmails()</code> alongside its other uncapped <code>list*</code> feeds
+        and passes the result through as <code>suppressions</code>, which the digest renders as
+        a footnote (not a due-queue action section, since a bounce/complaint rate is a scalar
+        reputation signal rather than a per-row remediation) in both the empty-state and
+        non-empty email bodies — a gap flagged but deliberately left as a follow-up when
+        <code>suppression-reason-visibility</code> shipped the pipeline-health/dashboard half.
+        Every
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}
         <code>brand.postalAddress</code> in signatures and the shared footer, the email
