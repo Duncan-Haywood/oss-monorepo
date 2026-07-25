@@ -841,6 +841,25 @@ export default function ArchitectureDocPage() {
         blank-email short-circuit that returns <code>0</code> without calling Convex or SQLite at
         all.
       </p>
+      <p>
+        <code>upsertCommerceCatalog</code> is the Commerce SKU catalog&apos;s own{" "}
+        <code>requireConvex</code>-optional write — the dashboard&apos;s Save catalog and Sync to
+        Stripe actions&apos; persistence step, and every Buy now / catalog-visibility reader
+        (<code>getCommerceCatalog</code>, <code>listCommerceCatalogs</code>) reads it back
+        Convex-first. It has a Convex mutation with direct coverage (
+        <code>convex/commerceCatalogs.test.ts</code>) and a hand-written SQLite{" "}
+        <code>INSERT ... ON CONFLICT(leadSlug) DO UPDATE</code> fallback that no automated test
+        ever exercised (every action test that calls it mocks <code>@/lib/db</code> away
+        entirely) — a broken fallback here could silently corrupt a client&apos;s SKU list or
+        desync <code>stripeProductId</code>/<code>stripePriceId</code> mappings on a SQLite-only
+        deployment, blocking Buy now entirely. The new cases cover the Convex-success
+        early-return (without touching SQLite), <code>requireConvex</code> fail-closed throw,
+        SQLite-fallback create, that a second SQLite-fallback upsert genuinely{" "}
+        <em>replaces</em> the row&apos;s items and <code>updatedAt</code> rather than merging
+        (a stale SKU must not survive a save that removed it), and that{" "}
+        <code>listCommerceCatalogs</code> returns SQLite-fallback-written rows newest{" "}
+        <code>updatedAt</code> first.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>

@@ -1658,4 +1658,112 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(open).not.toContain("cs_commerce_orphan_same_customer");
     });
   });
+
+  describe("upsertCommerceCatalog (Commerce SKU catalog upsert, optional requireConvex)", () => {
+    it("returns Convex's result directly on success without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.upsertCommerceCatalog({
+        leadSlug: "catalog-lead",
+        items: [{ id: "sku_1", name: "Test SKU", priceCents: 1299 }],
+        updatedAt: "2026-07-01T00:00:00.000Z",
+      });
+      expect(result).toEqual({
+        leadSlug: "catalog-lead",
+        items: [{ id: "sku_1", name: "Test SKU", priceCents: 1299 }],
+        updatedAt: "2026-07-01T00:00:00.000Z",
+      });
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // A missing early-`return;` would have also run the SQLite INSERT —
+      // reading through the pure-SQLite path confirms it did not.
+      const catalog = await (await loadDb(undefined)).getCommerceCatalog("catalog-lead");
+      expect(catalog).toBeNull();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.upsertCommerceCatalog(
+          {
+            leadSlug: "some-lead",
+            items: [{ id: "sku_1", name: "Test SKU", priceCents: 1299 }],
+            updatedAt: "2026-07-01T00:00:00.000Z",
+          },
+          { requireConvex: true },
+        ),
+      ).rejects.toThrow(/upsertCommerceCatalog/);
+    });
+
+    it("creates a new catalog via SQLite on Convex failure", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.upsertCommerceCatalog({
+        leadSlug: "fallback-catalog-lead",
+        items: [{ id: "sku_1", name: "Test SKU", priceCents: 1299 }],
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      });
+      expect(result.items).toEqual([{ id: "sku_1", name: "Test SKU", priceCents: 1299 }]);
+
+      const catalog = await (
+        await loadDb(undefined)
+      ).getCommerceCatalog("fallback-catalog-lead");
+      expect(catalog?.items).toEqual([{ id: "sku_1", name: "Test SKU", priceCents: 1299 }]);
+      expect(catalog?.updatedAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+
+    it("replaces (not merges) an existing catalog's items and updatedAt on a second SQLite-fallback upsert", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertCommerceCatalog({
+        leadSlug: "replace-catalog-lead",
+        items: [
+          { id: "sku_1", name: "First SKU", priceCents: 1000 },
+          { id: "sku_2", name: "Second SKU", priceCents: 2000 },
+        ],
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.upsertCommerceCatalog({
+        leadSlug: "replace-catalog-lead",
+        items: [{ id: "sku_1", name: "First SKU (renamed)", priceCents: 1500 }],
+        updatedAt: "2026-02-01T00:00:00.000Z",
+      });
+      expect(result.items).toEqual([
+        { id: "sku_1", name: "First SKU (renamed)", priceCents: 1500 },
+      ]);
+
+      const catalog = await (
+        await loadDb(undefined)
+      ).getCommerceCatalog("replace-catalog-lead");
+      // sku_2 must be gone entirely — a real upsert replaces the whole row's
+      // items, it does not merge the new array into the old one.
+      expect(catalog?.items).toEqual([
+        { id: "sku_1", name: "First SKU (renamed)", priceCents: 1500 },
+      ]);
+      expect(catalog?.updatedAt).toBe("2026-02-01T00:00:00.000Z");
+    });
+
+    it("listCommerceCatalogs includes SQLite-fallback-written catalogs, newest updatedAt first", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertCommerceCatalog({
+        leadSlug: "list-catalog-older",
+        items: [{ id: "sku_1", name: "Older SKU", priceCents: 500 }],
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      });
+      await db.upsertCommerceCatalog({
+        leadSlug: "list-catalog-newer",
+        items: [{ id: "sku_2", name: "Newer SKU", priceCents: 700 }],
+        updatedAt: "2026-02-01T00:00:00.000Z",
+      });
+
+      const catalogs = await db.listCommerceCatalogs();
+      const slugs = catalogs.map((c) => c.leadSlug);
+      expect(slugs.indexOf("list-catalog-newer")).toBeLessThan(
+        slugs.indexOf("list-catalog-older"),
+      );
+    });
+  });
 });
