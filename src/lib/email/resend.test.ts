@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { DeployHandoff } from "../deploy/types";
 
 // Sending actually hits ../db (isEmailSuppressed) which imports "server-only" —
 // stub it so this stays a pure unit test of the HTML templates.
@@ -15,6 +16,27 @@ const UNSAFE_LEGAL = `Maris & Stella <Labs>`;
 const ESCAPED_LEGAL = "Maris &amp; Stella &lt;Labs&gt;";
 const UNSAFE_ADDRESS = `123 Main St & <Apt> 4`;
 const ESCAPED_ADDRESS = "123 Main St &amp; &lt;Apt&gt; 4";
+
+function sampleHandoff(overrides: Partial<DeployHandoff> = {}): DeployHandoff {
+  return {
+    id: "deploy_demo-cafe_1",
+    leadSlug: "demo-cafe",
+    businessName: "Demo Cafe",
+    tier: "growth",
+    commerceAddon: false,
+    stripeSessionId: "cs_test_1",
+    customerEmail: "owner@demo-cafe.test",
+    previewUrl: "http://localhost:3000/preview/demo-cafe",
+    suggestedHost: "demo-cafe.preview.localsitestudio.com",
+    contactFormUrl: "http://localhost:3000/api/contact/demo-cafe",
+    dnsInstructions: [{ type: "A", host: "@", value: "76.76.21.21", purpose: "Root domain" }],
+    status: "awaiting_dns",
+    notes: [],
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z",
+    ...overrides,
+  };
+}
 
 describe("resend.ts — businessName HTML escaping", () => {
   const originalKey = process.env.RESEND_API_KEY;
@@ -120,6 +142,20 @@ describe("resend.ts — businessName HTML escaping", () => {
     await sendReceiptEmail("owner@example.com", UNSAFE_NAME, "starter", 500);
     expect(sentHtml).toContain(ESCAPED_NAME);
     expect(sentHtml).not.toContain("<Truck>");
+  });
+
+  it("escapes businessName in sendBundleDnsHandoffEmail and includes the DNS instructions", async () => {
+    const { sendBundleDnsHandoffEmail } = await import("./resend");
+    await sendBundleDnsHandoffEmail({
+      to: "owner@example.com",
+      businessName: UNSAFE_NAME,
+      slug: "demo-cafe",
+      handoff: sampleHandoff({ businessName: UNSAFE_NAME }),
+    });
+    expect(sentHtml).toContain(ESCAPED_NAME);
+    expect(sentHtml).not.toContain("<Truck>");
+    expect(sentHtml).toContain("demo-cafe.preview.localsitestudio.com");
+    expect(sentSubject).toContain(`Next steps: go live with ${UNSAFE_NAME}`);
   });
 
   it("escapes free-text tier in sendReceiptEmail and prefers catalog display name", async () => {
@@ -329,6 +365,18 @@ describe("resend.ts — brand.* HTML escaping", () => {
   it("escapes brand.name in sendReceiptEmail signature", async () => {
     const { sendReceiptEmail } = await import("./resend");
     await sendReceiptEmail("owner@example.com", "Demo Cafe", "starter", 500);
+    expect(sentHtml).toContain(`The ${ESCAPED_BRAND} Team`);
+    expect(sentHtml).not.toContain(`The ${UNSAFE_BRAND} Team`);
+  });
+
+  it("escapes brand.name in sendBundleDnsHandoffEmail signature", async () => {
+    const { sendBundleDnsHandoffEmail } = await import("./resend");
+    await sendBundleDnsHandoffEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      handoff: sampleHandoff(),
+    });
     expect(sentHtml).toContain(`The ${ESCAPED_BRAND} Team`);
     expect(sentHtml).not.toContain(`The ${UNSAFE_BRAND} Team`);
   });
@@ -597,6 +645,18 @@ describe("resend.ts — transactional skipSuppression", () => {
   it("sendReceiptEmail still delivers when the address is marketing-suppressed", async () => {
     const { sendReceiptEmail } = await import("./resend");
     const result = await sendReceiptEmail("owner@example.com", "Demo Cafe", "starter", 500);
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sendBundleDnsHandoffEmail still delivers when the address is marketing-suppressed", async () => {
+    const { sendBundleDnsHandoffEmail } = await import("./resend");
+    const result = await sendBundleDnsHandoffEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      handoff: sampleHandoff(),
+    });
     expect(result.success).toBe(true);
     expect(fetchMock).toHaveBeenCalled();
   });

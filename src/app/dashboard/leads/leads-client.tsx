@@ -29,6 +29,7 @@ import {
   sendCommerceCheckoutRecoveryAction,
   markCommerceOrderPaidOutAction,
   resendCommerceClientReceiptAction,
+  resendBundleBuyerEmailAction,
   updateLeadNotesAction,
   snoozeLeadAction,
   disposeColdLeadAction,
@@ -177,7 +178,11 @@ import {
   oldestPaidNotLiveAgeHours,
   oldestUnrepliedInquiryAgeHoursFor,
 } from "@/lib/metrics/pipeline-health";
-import { isBundleHandoffMissingBuyerEmail } from "@/lib/payments/bundle-side-effect-recovery";
+import {
+  isBundleHandoffMissingBuyerEmail,
+  hasBundleReceiptEmailNote,
+  hasBundleDnsHandoffEmailNote,
+} from "@/lib/payments/bundle-side-effect-recovery";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
@@ -897,6 +902,27 @@ export function LeadsClient({
       );
       // The just-clicked Resend receipt button's <li> unmounts on success.
       document.getElementById(MISSING_CLIENT_RECEIPT_HEADING_ID)?.focus();
+    });
+  };
+
+  const handleResendBundleBuyerEmail = (leadSlug: string) => {
+    startTransition(async () => {
+      const res = await resendBundleBuyerEmailAction(leadSlug);
+      if (res.handoff) {
+        const stillMissing = isBundleHandoffMissingBuyerEmail(res.handoff);
+        setHandoffs((prev) =>
+          prev.map((h) => (h.leadSlug === leadSlug ? res.handoff! : h)),
+        );
+        // Only the fully-resolved case unmounts this row's <li> (both emails
+        // now marked sent) — a partial success (one half still missing)
+        // keeps the button in place, so only move focus off it on unmount.
+        if (!stillMissing) {
+          document.getElementById(BUNDLE_MISSING_BUYER_EMAIL_HEADING_ID)?.focus();
+        }
+      }
+      if (!res.success) {
+        alert(`Resend buyer email failed: ${res.error}`);
+      }
     });
   };
 
@@ -2419,26 +2445,56 @@ export function LeadsClient({
           <p className="mt-1 text-xs text-zinc-600">
             Starter/Growth/Complete buyers never sent a receipt and/or DNS go-live email — a
             permanently-bad email or a sustained Resend outage past Stripe&apos;s retry window.
-            Reply to the customer directly to follow up.
+            Resend below, or reply to the customer directly to follow up.
           </p>
           <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
-            {bundleHandoffsMissingBuyerEmail.map((handoff) => (
-              <li
-                key={handoff.stripeSessionId}
-                className="rounded-xl border border-amber-100 bg-white px-4 py-3 text-sm"
-              >
-                <p className="font-semibold text-zinc-900">
-                  {businessNameBySlug.get(handoff.leadSlug) ||
-                    handoff.businessName ||
-                    handoff.leadSlug}{" "}
-                  <span className="font-normal text-zinc-500">({handoff.leadSlug})</span>
-                </p>
-                <p className="mt-1 text-xs text-zinc-600">
-                  {handoff.tier} · {formatAbandonedAgeHours(deployHandoffAgeHours(handoff.createdAt, nowMs))}{" "}
-                  ago · {handoff.customerEmail}
-                </p>
-              </li>
-            ))}
+            {bundleHandoffsMissingBuyerEmail.map((handoff) => {
+              const businessName =
+                businessNameBySlug.get(handoff.leadSlug) ||
+                handoff.businessName ||
+                handoff.leadSlug;
+              const missingReceipt = !hasBundleReceiptEmailNote(
+                handoff.notes,
+                handoff.stripeSessionId,
+              );
+              const missingDns = !hasBundleDnsHandoffEmailNote(
+                handoff.notes,
+                handoff.stripeSessionId,
+              );
+              const missingLabel = [missingReceipt && "receipt", missingDns && "DNS"]
+                .filter(Boolean)
+                .join(" + ");
+              return (
+                <li
+                  key={handoff.stripeSessionId}
+                  className="rounded-xl border border-amber-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {businessName}{" "}
+                        <span className="font-normal text-zinc-500">({handoff.leadSlug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {handoff.tier} · missing {missingLabel} ·{" "}
+                        {formatAbandonedAgeHours(deployHandoffAgeHours(handoff.createdAt, nowMs))}{" "}
+                        ago · {handoff.customerEmail}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleResendBundleBuyerEmail(handoff.leadSlug)}
+                      aria-label={`Resend ${missingLabel} email for ${businessName}`}
+                      className="rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-800 disabled:opacity-60"
+                      title={`Resend the missing ${missingLabel} email`}
+                    >
+                      Resend {missingLabel}
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

@@ -139,6 +139,7 @@ vi.mock("@/lib/db", () => ({
 
 const sendEmail = vi.fn();
 const sendReceiptEmail = vi.fn();
+const sendBundleDnsHandoffEmail = vi.fn();
 const sendCommerceBuyNowClientReceipt = vi.fn();
 const sendPaymentFailedNotice = vi.fn();
 const sendPaymentRecoveredNotice = vi.fn();
@@ -147,6 +148,7 @@ const sendSubscriptionResumedNotice = vi.fn();
 vi.mock("@/lib/email/resend", () => ({
   sendEmail: (...args: unknown[]) => sendEmail(...args),
   sendReceiptEmail: (...args: unknown[]) => sendReceiptEmail(...args),
+  sendBundleDnsHandoffEmail: (...args: unknown[]) => sendBundleDnsHandoffEmail(...args),
   sendCommerceBuyNowClientReceipt: (...args: unknown[]) => sendCommerceBuyNowClientReceipt(...args),
   sendPaymentFailedNotice: (...args: unknown[]) => sendPaymentFailedNotice(...args),
   sendPaymentRecoveredNotice: (...args: unknown[]) => sendPaymentRecoveredNotice(...args),
@@ -340,6 +342,7 @@ describe("POST /api/stripe/webhook", () => {
     updateLeadStage.mockReset();
     sendEmail.mockReset().mockResolvedValue({ success: true });
     sendReceiptEmail.mockReset().mockResolvedValue({ success: true });
+    sendBundleDnsHandoffEmail.mockReset().mockResolvedValue({ success: true });
     sendCommerceBuyNowClientReceipt.mockReset().mockResolvedValue({ success: true });
     sendPaymentFailedNotice.mockReset().mockResolvedValue({ success: true });
     sendPaymentRecoveredNotice.mockReset().mockResolvedValue({ success: true });
@@ -3578,7 +3581,7 @@ describe("POST /api/stripe/webhook", () => {
       expect(recordLeadPayment).not.toHaveBeenCalled();
       expect(insertDeployHandoff).not.toHaveBeenCalled();
       expect(sendReceiptEmail).not.toHaveBeenCalled();
-      expect(sendEmail).not.toHaveBeenCalled();
+      expect(sendBundleDnsHandoffEmail).not.toHaveBeenCalled();
     });
 
     it("completed+unpaid: marks session complete but skips commerce ledger/inquiry/receipt", async () => {
@@ -3961,7 +3964,7 @@ describe("POST /api/stripe/webhook", () => {
         "growth",
         GROWTH_CHECKOUT_AMOUNT_CENTS / 100,
       );
-      expect(sendEmail).toHaveBeenCalledTimes(1);
+      expect(sendBundleDnsHandoffEmail).toHaveBeenCalledTimes(1);
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(2);
     });
 
@@ -3987,7 +3990,7 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(200);
       expect(insertDeployHandoff).not.toHaveBeenCalled();
       expect(sendReceiptEmail).not.toHaveBeenCalled();
-      expect(sendEmail).not.toHaveBeenCalled();
+      expect(sendBundleDnsHandoffEmail).not.toHaveBeenCalled();
       expect(updateDeployHandoffStatus).not.toHaveBeenCalled();
     });
 
@@ -4017,7 +4020,7 @@ describe("POST /api/stripe/webhook", () => {
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(sendReceiptEmail).not.toHaveBeenCalled();
-      expect(sendEmail).toHaveBeenCalledTimes(1);
+      expect(sendBundleDnsHandoffEmail).toHaveBeenCalledTimes(1);
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
     });
 
@@ -4418,7 +4421,7 @@ describe("POST /api/stripe/webhook", () => {
       expect(json.step).toBe("bundle_email_sent_marker");
       expect(sendReceiptEmail).toHaveBeenCalledTimes(1);
       // Best-effort send already happened once; do not re-send DNS email on this failure path.
-      expect(sendEmail).not.toHaveBeenCalled();
+      expect(sendBundleDnsHandoffEmail).not.toHaveBeenCalled();
     });
 
     it("returns 500 after attempting the DNS handoff email when the buyer receipt send throws", async () => {
@@ -4437,10 +4440,10 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_email_send");
-      expect(sendEmail).toHaveBeenCalledTimes(1);
+      expect(sendBundleDnsHandoffEmail).toHaveBeenCalledTimes(1);
     });
 
-    it("returns 500 when unexpected DNS email formatting fails, so Stripe retries missing markers", async () => {
+    it("returns 500 when the DNS handoff email throws unexpectedly, so Stripe retries missing markers", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },
         customer_details: { email: "owner@demo-cafe.test" },
@@ -4448,9 +4451,8 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(session));
       recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
-      getDeployHandoffBySlug.mockResolvedValue(
-        existingHandoff({ dnsInstructions: null as never }),
-      );
+      sendBundleDnsHandoffEmail.mockRejectedValue(new Error("dns formatting failed"));
+      updateDeployHandoffStatus.mockResolvedValue(existingHandoff());
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -4494,7 +4496,7 @@ describe("POST /api/stripe/webhook", () => {
       );
     });
 
-    it("does not mark the DNS handoff email sent when sendEmail resolves success:false, so redelivery retries it", async () => {
+    it("does not mark the DNS handoff email sent when sendBundleDnsHandoffEmail resolves success:false, so redelivery retries it", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },
         customer_details: { email: "owner@demo-cafe.test" },
@@ -4502,7 +4504,7 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(session));
       recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
-      sendEmail.mockResolvedValue({ success: false, error: "Resend API error" });
+      sendBundleDnsHandoffEmail.mockResolvedValue({ success: false, error: "Resend API error" });
       updateDeployHandoffStatus.mockImplementation(
         async (_slug: string, status: string, notes: string[]) => ({
           ...existingHandoff({ status: status as DeployHandoff["status"] }),
@@ -4515,7 +4517,7 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_email_send");
-      expect(sendEmail).toHaveBeenCalledTimes(1);
+      expect(sendBundleDnsHandoffEmail).toHaveBeenCalledTimes(1);
       // Only the receipt marker is written — the failed DNS email never gets one.
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
       expect(updateDeployHandoffStatus).toHaveBeenCalledWith(

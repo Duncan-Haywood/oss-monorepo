@@ -848,7 +848,21 @@ export default function ArchitectureDocPage() {
         buyer email, the webhook appends a durable handoff note embedding the session id;
         marker-write failures or transactional email send failures return <code>500</code> so
         Stripe retries the missing email while the existing per-email marker keeps successful
-        sibling sends from duplicating. If required fulfillment
+        sibling sends from duplicating. Once Stripe&apos;s retry window is exhausted (a
+        permanently-bad <code>customerEmail</code> or a sustained Resend outage),{" "}
+        <code>isBundleHandoffMissingBuyerEmail</code> surfaces that handoff on pipeline-health, the
+        daily digest, and a <strong>Bundle buyer email missing</strong> dashboard panel — and the
+        operator can now act on it directly: <code>resendBundleBuyerEmailAction</code> sends only
+        whichever half (receipt and/or DNS) still lacks its durable sent-marker note, via the same{" "}
+        <code>sendReceiptEmail</code> / <code>sendBundleDnsHandoffEmail</code> templates the webhook
+        itself uses — <code>sendBundleDnsHandoffEmail</code> was extracted out of the webhook
+        route&apos;s inline HTML into a reusable{" "}
+        <code>src/lib/email/resend.ts</code> export specifically so the dashboard action could reuse
+        it instead of duplicating the template (the &ldquo;extract into a reusable helper&rdquo;
+        follow-up <code>bundle-order-missing-buyer-email-visibility</code> deliberately deferred,
+        closed by <code>bundle-dns-handoff-email-manual-resend</code>). A partial failure (one half
+        sends, the other doesn&apos;t) still durably marks the half that succeeded so a second click
+        only retries the outstanding one, never re-sends a duplicate. If required fulfillment
         writes fail (
         <code>recordLeadPayment</code> / handoff enqueue, or commerce{" "}
         <code>insertCommerceOrder</code>), the webhook returns <code>500</code> so Stripe retries —

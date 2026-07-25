@@ -22,6 +22,8 @@ import {
 import { getBundle } from "../pricing/bundles";
 import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "../marketing/monthly-pack";
 import { buildStarterUpsellCheckoutPath } from "../billing/starter-upsell";
+import { formatDnsInstructionsForEmail } from "../deploy/dns-email";
+import type { DeployHandoff } from "../deploy/types";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -859,6 +861,38 @@ export async function sendReceiptEmail(to: string, businessName: string, tier: s
   `;
 
   return sendEmail({ to, subject, html, skipSuppression: true });
+}
+
+/**
+ * Deliver the post-payment DNS / go-live handoff instructions to a bundle
+ * buyer. Extracted out of the checkout.session.completed webhook handler
+ * (which built this HTML inline) so a dashboard "Resend" action can reuse
+ * the exact same template instead of duplicating it — the "extract the DNS
+ * email into a reusable helper" follow-up PR #765 (bundle-order-missing-
+ * buyer-email-visibility) deliberately deferred, closed by
+ * bundle-dns-handoff-email-manual-resend. skipSuppression: true — same
+ * billing-critical class as sendReceiptEmail above (post-payment handoff,
+ * not cold marketing).
+ */
+export async function sendBundleDnsHandoffEmail(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  handoff: DeployHandoff;
+}) {
+  const { to, businessName, slug, handoff } = params;
+  const safeBiz = escapeHtmlForEmail(businessName);
+  const safeBrand = escapeHtmlForEmail(brand.name);
+  const subject = `Next steps: go live with ${businessName} — ${brand.name}`;
+  const html = `
+                <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your site is ready to publish</h2>
+                <p style="margin-bottom: 16px;">Payment received for <strong>${safeBiz}</strong>. Here is your production handoff:</p>
+                ${formatDnsInstructionsForEmail(handoff)}
+                <p style="margin-bottom: 8px;">Reply to this email if you want us to finish DNS for you.</p>
+                <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
+              `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
 }
 
 /**

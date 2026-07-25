@@ -42,6 +42,8 @@ import {
   listDeployHandoffs,
   getLeadSlugByCustomDomain,
   getDeployHandoffBySlug,
+  updateDeployHandoffStatus,
+  getOrderByStripeSessionId,
   updateLeadStripeConnectAccountId,
   updateLeadStripeConnectStatus,
   updateLeadBufferProfileIds,
@@ -150,7 +152,15 @@ import {
   sendClientVoicePackToClientEmail,
   sendCommerceBuyNowClientReceipt,
   sendStripeConnectOnboardingLinkEmail,
+  sendReceiptEmail,
+  sendBundleDnsHandoffEmail,
 } from "@/lib/email/resend";
+import {
+  hasBundleReceiptEmailNote,
+  hasBundleDnsHandoffEmailNote,
+  bundleReceiptEmailSentNote,
+  bundleDnsHandoffEmailSentNote,
+} from "@/lib/payments/bundle-side-effect-recovery";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
 import { parseCheckoutSessionId } from "@/lib/billing/checkout-session-id";
@@ -1736,6 +1746,143 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
     };
   } catch (error) {
     console.error("Error in resendCommerceClientReceiptAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Operator manually resends a bundle (Starter/Growth/Complete/Commerce-addon)
+ * buyer's still-missing receipt and/or DNS go-live email — the row-level
+ * remedy for isBundleHandoffMissingBuyerEmail, mirroring
+ * resendCommerceClientReceiptAction (bundle-dns-handoff-email-manual-resend,
+ * closing the "extract the DNS email into a reusable helper" follow-up PR
+ * #765/bundle-order-missing-buyer-email-visibility deliberately deferred).
+ * Sends only whichever half still lacks its durable sent-marker note — a
+ * second click after a partial failure only retries the outstanding half,
+ * since the marker for any half that already succeeded was already written.
+ */
+export async function resendBundleBuyerEmailAction(leadSlug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`bundle-buyer-email-resend:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const parsedSlug = parseLeadSlugLookup(leadSlug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error: parsedSlug.reason === "too_long" ? "Slug is too long" : "Slug is required",
+      };
+    }
+    const slug = parsedSlug.slug;
+
+    const handoff = await getDeployHandoffBySlug(slug);
+    if (!handoff) {
+      return { success: false as const, error: "No deploy handoff found for this lead" };
+    }
+    const to = handoff.customerEmail.trim();
+    if (!to) {
+      return { success: false as const, error: "No buyer email on file for this handoff" };
+    }
+
+    const needsReceipt = !hasBundleReceiptEmailNote(handoff.notes, handoff.stripeSessionId);
+    const needsDns = !hasBundleDnsHandoffEmailNote(handoff.notes, handoff.stripeSessionId);
+    if (!needsReceipt && !needsDns) {
+      return {
+        success: false as const,
+        error: "Both buyer emails were already sent for this handoff",
+      };
+    }
+
+    const notesToAppend: string[] = [];
+    let sentReceipt = false;
+    let sentDns = false;
+
+    if (needsReceipt) {
+      const order = await getOrderByStripeSessionId(handoff.stripeSessionId);
+      const sent = await sendReceiptEmail(
+        to,
+        handoff.businessName,
+        handoff.tier,
+        order?.amountPaid ?? 0,
+      );
+      if (sent.success) {
+        notesToAppend.push(bundleReceiptEmailSentNote(handoff.stripeSessionId));
+        sentReceipt = true;
+      }
+    }
+
+    if (needsDns) {
+      const sent = await sendBundleDnsHandoffEmail({
+        to,
+        businessName: handoff.businessName,
+        slug,
+        handoff,
+      });
+      if (sent.success) {
+        notesToAppend.push(bundleDnsHandoffEmailSentNote(handoff.stripeSessionId));
+        sentDns = true;
+      }
+    }
+
+    if (notesToAppend.length === 0) {
+      return {
+        success: false as const,
+        error: "Failed to send the buyer email(s) — check Resend delivery status and try again",
+      };
+    }
+
+    let updated;
+    try {
+      updated = await updateDeployHandoffStatus(
+        slug,
+        handoff.status,
+        notesToAppend,
+        DEPLOY_HANDOFF_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Buyer email was sent but the sent-marker could not be recorded in the shared store — it may show as missing again until this is retried.",
+        };
+      }
+      throw error;
+    }
+    if (!updated) {
+      return { success: false as const, error: "No deploy handoff found for this lead" };
+    }
+
+    revalidatePath("/dashboard/leads");
+
+    const allSent = (!needsReceipt || sentReceipt) && (!needsDns || sentDns);
+    if (!allSent) {
+      const sentLabel = [sentReceipt && "receipt", sentDns && "DNS handoff"]
+        .filter(Boolean)
+        .join(" and ");
+      return {
+        success: false as const,
+        error: `Sent the ${sentLabel} email, but the other one failed to send — click Resend again to retry just that one.`,
+        handoff: updated,
+      };
+    }
+    return { success: true as const, handoff: updated };
+  } catch (error) {
+    console.error("Error in resendBundleBuyerEmailAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

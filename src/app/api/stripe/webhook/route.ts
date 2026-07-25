@@ -1006,10 +1006,9 @@ export async function POST(request: Request) {
         // failures return 5xx so Stripe retries (accept one possible duplicate
         // rather than permanently losing a paid notification).
         try {
-          const { sendReceiptEmail, sendEmail } = await import("@/lib/email/resend");
-          const { formatDnsInstructionsForEmail } = await import("@/lib/deploy/handoff");
-          const { brand } = await import("@/lib/brand");
-          const { escapeHtmlForEmail } = await import("@/lib/inquiries/reply");
+          const { sendReceiptEmail, sendBundleDnsHandoffEmail } = await import(
+            "@/lib/email/resend"
+          );
 
           let emailSendFailed = false;
           if (sideEffects.runReceiptEmail && customerEmail) {
@@ -1054,22 +1053,15 @@ export async function POST(request: Request) {
 
           if (sideEffects.runDnsHandoffEmail && customerEmail) {
             try {
-              const safeBiz = escapeHtmlForEmail(businessName);
-              const safeBrand = escapeHtmlForEmail(brand.name);
-              const sent = await sendEmail({
+              // Transactional post-payment handoff — do not honor marketing
+              // suppression (cold-outreach unsubscribe must not block DNS).
+              // sendBundleDnsHandoffEmail also backs the dashboard manual-
+              // resend action (resendBundleBuyerEmailAction) — one template.
+              const sent = await sendBundleDnsHandoffEmail({
                 to: customerEmail,
-                subject: `Next steps: go live with ${businessName} — ${brand.name}`,
-                leadSlug: slug,
-                // Transactional post-payment handoff — do not honor marketing
-                // suppression (cold-outreach unsubscribe must not block DNS).
-                skipSuppression: true,
-                html: `
-                <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your site is ready to publish</h2>
-                <p style="margin-bottom: 16px;">Payment received for <strong>${safeBiz}</strong>. Here is your production handoff:</p>
-                ${formatDnsInstructionsForEmail(handoff)}
-                <p style="margin-bottom: 8px;">Reply to this email if you want us to finish DNS for you.</p>
-                <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
-              `,
+                businessName,
+                slug,
+                handoff,
               });
               if (sent.success) {
                 try {
