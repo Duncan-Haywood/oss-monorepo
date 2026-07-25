@@ -706,17 +706,31 @@ export default function ArchitectureDocPage() {
         double-write, or a flipped <code>shouldFallbackToSqliteOnConvexFailure</code> condition)
         would pass tsc/lint/the full mocked Vitest suite and a routine dev smoke check, and only
         surface in production as a split-brain write or a duplicate external side effect.{" "}
-        <code>src/lib/db.test.ts</code> closes the gap for two representative shapes every other
-        db.ts export shares — <code>getLeads</code>/<code>getLeadBySlug</code>/
-        <code>upsertLead</code>&apos;s ordinary soft-fallback reads/writes, and{" "}
+        <code>src/lib/db.test.ts</code> closes the gap for three representative shapes every
+        other db.ts export shares — <code>getLeads</code>/<code>getLeadBySlug</code>/
+        <code>upsertLead</code>&apos;s ordinary soft-fallback reads/writes,{" "}
         <code>updateLeadBufferPostedVariantKeys</code>&apos;s <code>requireConvex</code>{" "}
-        fail-closed write — by mocking <code>&quot;server-only&quot;</code> to a no-op and{" "}
+        fail-closed write, and <code>recordSubscriptionRenewalPayment</code>&apos;s money-ledger
+        write — by mocking <code>&quot;server-only&quot;</code> to a no-op and{" "}
         <code>convex/browser</code>&apos;s <code>ConvexHttpClient</code> to a controllable fake,
         then importing the real db.ts module (fresh per scenario via{" "}
         <code>vi.resetModules()</code>) against that fake client and a real but isolated
         temp-directory SQLite file (<code>process.cwd()</code> spied per test, deleted in{" "}
         <code>afterEach</code>) — exercising the actual branch-selection code rather than a second
         reimplementation of its logic.
+      </p>
+      <p>
+        <code>recordSubscriptionRenewalPayment</code> specifically closes a distinct risk from the
+        other two: its SQLite-fallback branch is a hand-written duplicate of the
+        accrual/idempotency/entitlement-filtering logic <code>convex/orders.ts</code>&apos;s own
+        mutation already has direct coverage for (<code>convex/orders.test.ts</code>) — the same
+        duplicated-logic bug class as{" "}
+        <code>convex-orders-recurring-entitlement-duplicate-fix</code> — and had never been
+        exercised by any automated test on a SQLite-only deployment (no{" "}
+        <code>NEXT_PUBLIC_CONVEX_URL</code>, a fully supported mode). The new cases cover
+        Convex-success early-return, the <code>requireConvex</code> fail-closed throw, SQLite
+        accrual + invoice-redelivery idempotency, and the SQLite entitlement filter (a
+        non-recurring Starter-tier order is correctly skipped).
       </p>
 
       <h2>5. Platform voice agent</h2>

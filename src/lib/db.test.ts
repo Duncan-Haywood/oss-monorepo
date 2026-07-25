@@ -28,13 +28,26 @@ import type { Lead } from "./leads/types";
  * mock the "server-only" guard to a no-op and mock "convex/browser"'s
  * ConvexHttpClient to a controllable fake, so the REAL db.ts module body
  * runs against a fake Convex client and a real (but isolated, temp-dir)
- * SQLite file — not a second reimplementation of its logic. Only two
+ * SQLite file — not a second reimplementation of its logic. Three
  * representative exports are covered here (getLeads/getLeadBySlug/upsertLead
- * for the ordinary soft-fallback shape, and updateLeadBufferPostedVariantKeys
- * for the `requireConvex` fail-closed shape) rather than all ~76 exports —
- * every other db.ts function shares one of these same two shapes, so this
- * establishes the reusable test scaffold and a first real regression guard
- * rather than a from-scratch rewrite of the whole file's test surface.
+ * for the ordinary soft-fallback shape, updateLeadBufferPostedVariantKeys for
+ * the `requireConvex` fail-closed shape, and recordSubscriptionRenewalPayment
+ * — see below) rather than all ~76 exports — every other db.ts function
+ * shares one of these same shapes, so this establishes the reusable test
+ * scaffold and real regression guards rather than a from-scratch rewrite of
+ * the whole file's test surface.
+ *
+ * recordSubscriptionRenewalPayment specifically closes a gap the other two
+ * exports didn't: its SQLite-fallback branch (src/lib/db.ts ~1494-1533) is a
+ * hand-written duplicate of the accrual/idempotency/entitlement-filtering
+ * logic convex/orders.ts's own mutation already has direct coverage for
+ * (convex/orders.test.ts) — a money-ledger write (lifetimeRevenueUsd) that,
+ * on a SQLite-only deployment (no NEXT_PUBLIC_CONVEX_URL — a fully supported
+ * mode per AGENT_PROTOCOL), had never been exercised by any automated test.
+ * A future edit to the Convex side's accrual math or entitlement filter that
+ * isn't mirrored into this SQL branch would silently misstate real
+ * subscriber lifetime revenue with nothing to catch it — the same
+ * duplicated-logic bug class as convex-orders-recurring-entitlement-duplicate-fix.
  */
 
 vi.mock("server-only", () => ({}));
@@ -227,6 +240,104 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         db.updateLeadBufferPostedVariantKeys("missing-slug", ["k1"]),
       ).rejects.toThrow(/not found/i);
       expect(convexMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("recordSubscriptionRenewalPayment (money-ledger write, optional requireConvex)", () => {
+    it("returns Convex's result directly on success without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce({ recorded: true });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.recordSubscriptionRenewalPayment("cus_convex_only", "in_1", 49);
+      expect(result).toEqual({ recorded: true });
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordSubscriptionRenewalPayment("cus_1", "in_1", 49, { requireConvex: true }),
+      ).rejects.toThrow(/recordSubscriptionRenewalPayment/);
+    });
+
+    it("accrues lifetimeRevenueUsd onto the entitled order and is idempotent on invoiceId (SQLite fallback)", async () => {
+      // Seed a Growth-tier order via the pure-SQLite path (no Convex client).
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "renewal-lead",
+        stripeSessionId: "cs_renewal",
+        customerEmail: "renewal@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+        stripeCustomerId: "cus_renewal_1",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const first = await db.recordSubscriptionRenewalPayment("cus_renewal_1", "in_cycle_1", 49);
+      expect(first).toEqual({ recorded: true });
+
+      const readDb = await loadDb(undefined);
+      const [orderAfterFirst] = await readDb.getOrdersByStripeCustomerId("cus_renewal_1");
+      expect(orderAfterFirst?.lifetimeRevenueUsd).toBe(148);
+      expect(orderAfterFirst?.lastRenewalInvoiceId).toBe("in_cycle_1");
+
+      // Stripe redelivers invoice.paid with the same invoiceId — must not double-count.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const redeliveredDb = await loadDb(CONVEX_URL);
+      const redelivered = await redeliveredDb.recordSubscriptionRenewalPayment(
+        "cus_renewal_1",
+        "in_cycle_1",
+        49,
+      );
+      expect(redelivered).toEqual({ recorded: false });
+      const [orderAfterRedelivery] = await (
+        await loadDb(undefined)
+      ).getOrdersByStripeCustomerId("cus_renewal_1");
+      expect(orderAfterRedelivery?.lifetimeRevenueUsd).toBe(148);
+
+      // A second, distinct renewal invoice accrues on top of the prior base.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const secondDb = await loadDb(CONVEX_URL);
+      const second = await secondDb.recordSubscriptionRenewalPayment(
+        "cus_renewal_1",
+        "in_cycle_2",
+        49,
+      );
+      expect(second).toEqual({ recorded: true });
+      const [orderAfterSecond] = await (
+        await loadDb(undefined)
+      ).getOrdersByStripeCustomerId("cus_renewal_1");
+      expect(orderAfterSecond?.lifetimeRevenueUsd).toBe(197);
+      expect(orderAfterSecond?.lastRenewalInvoiceId).toBe("in_cycle_2");
+    });
+
+    it("skips a customer with no currently sold-capability-entitled order (SQLite fallback)", async () => {
+      // A Starter-tier, non-Commerce-addon order never grants recurring
+      // entitlement (orderGrantsSoldCapabilityEntitlement) regardless of
+      // refund/dispute state — recordSubscriptionRenewalPayment must find no
+      // row to accrue onto rather than crediting an ineligible order.
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "starter-lead",
+        stripeSessionId: "cs_starter",
+        customerEmail: "starter@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 29,
+        stripeCustomerId: "cus_starter_1",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.recordSubscriptionRenewalPayment("cus_starter_1", "in_1", 49);
+      expect(result).toEqual({ recorded: false });
+
+      const [order] = await (await loadDb(undefined)).getOrdersByStripeCustomerId(
+        "cus_starter_1",
+      );
+      expect(order?.lifetimeRevenueUsd).toBeUndefined();
     });
   });
 });
