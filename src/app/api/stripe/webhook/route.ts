@@ -292,6 +292,34 @@ function notConfigured(message: string) {
   );
 }
 
+/**
+ * Resolve a Stripe Customer's currently-recurring-entitled bundle order
+ * (tier=growth|complete or commerceAddon) — the renewal-cycle correlation
+ * fallback shared by all four refund/dispute lifecycle handlers
+ * (charge.refunded, charge.dispute.created, refund.updated,
+ * charge.dispute.closed) when a `stripe.checkout.sessions.list({
+ * payment_intent })` lookup misses. A subscription renewal invoice's
+ * PaymentIntent is minted directly by Stripe's billing system and is never
+ * attached to a Checkout Session, so every event tied to a renewal charge
+ * (the original charge AND any later refund/dispute update on it) misses that
+ * lookup the same way. Uses orderHadRecurringEntitlement (tier/commerceAddon
+ * only), NOT orderGrantsSoldCapabilityEntitlement — see the paused-order-fix
+ * note on that choice in ITERATIONS
+ * (renewal-charge-refund-dispute-customer-correlation-paused-order-fix).
+ * Callers resolve `customerId` themselves (Charge.customer directly for the
+ * refund path; a PaymentIntent retrieve for the dispute path, since Dispute
+ * carries no `.customer` of its own) and must catch/5xx on failure — this
+ * gates the same required money-ledger write as the Session-based lookup it
+ * substitutes for. See renewal-charge-refund-dispute-customer-correlation.
+ */
+async function findRecurringOrderByStripeCustomerId(
+  customerId: string | null,
+): Promise<OrderRecord | undefined> {
+  if (!customerId) return undefined;
+  const orders = await getOrdersByStripeCustomerId(customerId);
+  return orders.find((order) => orderHadRecurringEntitlement(order));
+}
+
 export async function POST(request: Request) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -1690,22 +1718,17 @@ export async function POST(request: Request) {
         // correctly no-ops a redelivery.
         const customerId = stripeCustomerIdFromUnknown(charge.customer);
         let recurringOrder: OrderRecord | undefined;
-        if (customerId) {
-          try {
-            const orders = await getOrdersByStripeCustomerId(customerId);
-            recurringOrder = orders.find((order) =>
-              orderHadRecurringEntitlement(order),
-            );
-          } catch (e) {
-            console.error(
-              `Failed to look up orders for customer ${customerId} after charge.refunded ${charge.id}`,
-              e,
-            );
-            const failure = webhookFulfillmentFailureResponse(
-              "bundle_order_renewal_customer_lookup",
-            );
-            return NextResponse.json(failure.body, { status: failure.status });
-          }
+        try {
+          recurringOrder = await findRecurringOrderByStripeCustomerId(customerId);
+        } catch (e) {
+          console.error(
+            `Failed to look up orders for customer ${customerId} after charge.refunded ${charge.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse(
+            "bundle_order_renewal_customer_lookup",
+          );
+          return NextResponse.json(failure.body, { status: failure.status });
         }
         if (!recurringOrder) {
           console.warn(
@@ -1841,22 +1864,17 @@ export async function POST(request: Request) {
         }
         const disputeCustomerId = stripeCustomerIdFromUnknown(disputePaymentIntent.customer);
         let disputeRecurringOrder: OrderRecord | undefined;
-        if (disputeCustomerId) {
-          try {
-            const orders = await getOrdersByStripeCustomerId(disputeCustomerId);
-            disputeRecurringOrder = orders.find((order) =>
-              orderHadRecurringEntitlement(order),
-            );
-          } catch (e) {
-            console.error(
-              `Failed to look up orders for customer ${disputeCustomerId} after charge.dispute.created ${dispute.id}`,
-              e,
-            );
-            const failure = webhookFulfillmentFailureResponse(
-              "bundle_order_renewal_customer_lookup",
-            );
-            return NextResponse.json(failure.body, { status: failure.status });
-          }
+        try {
+          disputeRecurringOrder = await findRecurringOrderByStripeCustomerId(disputeCustomerId);
+        } catch (e) {
+          console.error(
+            `Failed to look up orders for customer ${disputeCustomerId} after charge.dispute.created ${dispute.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse(
+            "bundle_order_renewal_customer_lookup",
+          );
+          return NextResponse.json(failure.body, { status: failure.status });
         }
         if (!disputeRecurringOrder) {
           console.warn(
@@ -1976,9 +1994,98 @@ export async function POST(request: Request) {
       }
       const closedDisputeSession = closedDisputeSessions.data[0];
       if (!closedDisputeSession) {
-        console.warn(
-          `webhook: charge.dispute.closed ${closedDispute.id} payment_intent=${closedPaymentIntentId} matched no Checkout Session — not one of our commerce orders, skipping`,
+        // Same renewal-cycle gap as charge.dispute.created's own fallback
+        // above: a renewal charge's PaymentIntent is never attached to a
+        // Checkout Session, so this closed event misses the lookup the same
+        // way the opened event does. Dispute carries no `.customer` field of
+        // its own — retrieve the PaymentIntent to read its Customer id, same
+        // as charge.dispute.created. See
+        // renewal-charge-refund-dispute-customer-correlation and
+        // commerce-order-dispute-closed-resolution.
+        let closedDisputePaymentIntent: Stripe.PaymentIntent;
+        try {
+          closedDisputePaymentIntent = await stripe.paymentIntents.retrieve(
+            closedPaymentIntentId,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to retrieve PaymentIntent ${closedPaymentIntentId} for charge.dispute.closed ${closedDispute.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse(
+            "bundle_order_dispute_renewal_payment_intent_lookup",
+          );
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+        const closedDisputeCustomerId = stripeCustomerIdFromUnknown(
+          closedDisputePaymentIntent.customer,
         );
+        let closedDisputeRecurringOrder: OrderRecord | undefined;
+        try {
+          closedDisputeRecurringOrder = await findRecurringOrderByStripeCustomerId(
+            closedDisputeCustomerId,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to look up orders for customer ${closedDisputeCustomerId} after charge.dispute.closed ${closedDispute.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse(
+            "bundle_order_renewal_customer_lookup",
+          );
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+        if (!closedDisputeRecurringOrder) {
+          console.warn(
+            `webhook: charge.dispute.closed ${closedDispute.id} payment_intent=${closedPaymentIntentId} matched no Checkout Session or renewal-cycle order — not one of our commerce orders, skipping`,
+          );
+          break;
+        }
+        if (disputeStatusClearsDisputeFlag(closedDispute.status)) {
+          if (!closedDisputeRecurringOrder.disputedAt) {
+            // Already clear (Stripe redelivery, or created never marked) — idempotent.
+            break;
+          }
+          try {
+            await clearOrderDisputed(
+              closedDisputeRecurringOrder.stripeSessionId,
+              WEBHOOK_CONVEX_PRIMARY,
+            );
+            console.warn(
+              `webhook: charge.dispute.closed ${closedDispute.id} status=${closedDispute.status} cleared renewal-cycle order disputed flag for customer ${closedDisputeCustomerId} (leadSlug=${closedDisputeRecurringOrder.leadSlug}, tier=${closedDisputeRecurringOrder.tier}) via PaymentIntent Customer correlation — no Checkout Session exists for a renewal charge`,
+            );
+          } catch (e) {
+            console.error(
+              `Failed to clear renewal-cycle order disputed for customer ${closedDisputeCustomerId} after charge.dispute.closed ${closedDispute.id}`,
+              e,
+            );
+            const failure = webhookFulfillmentFailureResponse("bundle_order_dispute_clear");
+            return NextResponse.json(failure.body, { status: failure.status });
+          }
+          break;
+        }
+        // lost (or any non-clearing closed status): ensure disputedAt is set —
+        // created may have been missed (out-of-order delivery / prior handler gap).
+        if (closedDisputeRecurringOrder.disputedAt) {
+          break;
+        }
+        try {
+          await markOrderDisputed(
+            closedDisputeRecurringOrder.stripeSessionId,
+            new Date().toISOString(),
+            WEBHOOK_CONVEX_PRIMARY,
+          );
+          console.warn(
+            `webhook: charge.dispute.closed ${closedDispute.id} status=${closedDispute.status} flagged renewal-cycle order disputed for customer ${closedDisputeCustomerId} (leadSlug=${closedDisputeRecurringOrder.leadSlug}, tier=${closedDisputeRecurringOrder.tier}) via PaymentIntent Customer correlation — no Checkout Session exists for a renewal charge`,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to mark renewal-cycle order disputed for customer ${closedDisputeCustomerId} after charge.dispute.closed ${closedDispute.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse("bundle_order_dispute");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
         break;
       }
       const closedDisputeOrder = await getCommerceOrderByStripeSessionId(
@@ -2159,9 +2266,58 @@ export async function POST(request: Request) {
       }
       const reversedRefundSession = reversedRefundSessions.data[0];
       if (!reversedRefundSession) {
-        console.warn(
-          `webhook: refund.updated ${refund.id} payment_intent=${refundPaymentIntentId} matched no Checkout Session — not one of our commerce orders, skipping`,
+        // Same renewal-cycle gap as charge.refunded's own fallback above: a
+        // renewal charge's PaymentIntent is never attached to a Checkout
+        // Session, so this reversal event misses the lookup the same way the
+        // opened event does. refreshedRefundCharge was already re-fetched
+        // above for the aggregate amount_refunded recheck — reuse its
+        // .customer rather than a second Stripe API call. See
+        // renewal-charge-refund-dispute-customer-correlation and
+        // commerce-order-refund-reversal-tracking.
+        const reversedRefundCustomerId = stripeCustomerIdFromUnknown(
+          refreshedRefundCharge.customer,
         );
+        let reversedRecurringOrder: OrderRecord | undefined;
+        try {
+          reversedRecurringOrder = await findRecurringOrderByStripeCustomerId(
+            reversedRefundCustomerId,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to look up orders for customer ${reversedRefundCustomerId} after refund.updated ${refund.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse(
+            "bundle_order_renewal_customer_lookup",
+          );
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+        if (!reversedRecurringOrder) {
+          console.warn(
+            `webhook: refund.updated ${refund.id} payment_intent=${refundPaymentIntentId} matched no Checkout Session or renewal-cycle order — not one of our commerce orders, skipping`,
+          );
+          break;
+        }
+        if (!reversedRecurringOrder.refundedAt) {
+          // Nothing to clear (Stripe redelivery, or refundedAt was never set) — idempotent.
+          break;
+        }
+        try {
+          await clearOrderRefunded(
+            reversedRecurringOrder.stripeSessionId,
+            WEBHOOK_CONVEX_PRIMARY,
+          );
+          console.warn(
+            `webhook: refund.updated ${refund.id} status=${refund.status} cleared renewal-cycle order refunded flag for customer ${reversedRefundCustomerId} (leadSlug=${reversedRecurringOrder.leadSlug}, tier=${reversedRecurringOrder.tier}) via Stripe Customer correlation — no Checkout Session exists for a renewal charge`,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to clear renewal-cycle order refunded for customer ${reversedRefundCustomerId} after refund.updated ${refund.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse("bundle_order_refund_clear");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
         break;
       }
       const reversedCommerceOrder = await getCommerceOrderByStripeSessionId(

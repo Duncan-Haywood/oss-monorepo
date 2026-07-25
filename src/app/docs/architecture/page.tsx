@@ -2153,6 +2153,47 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        The two fixes above shipped the customer-id correlation fallback only for the{" "}
+        <em>opened</em> events (<code>charge.refunded</code>, <code>charge.dispute.created</code>)
+        — their resolution/reversal twins (<code>refund.updated</code>,{" "}
+        <code>charge.dispute.closed</code>) still resolved a Checkout Session only, and simply{" "}
+        <code>break</code>-ed when none matched. Since a renewal charge&apos;s PaymentIntent is
+        never attached to a Checkout Session in the first place, every event tied to that charge —
+        not just the original one — misses that lookup, including a later reversal or closure.
+        Concretely: a renewal-cycle order correctly got <code>refundedAt</code>/
+        <code>disputedAt</code> set via the customer-id fallback when the renewal charge was
+        refunded/disputed, but if that refund then reversed (an ACH/bank refund failure, the
+        exact case <code>commerce-order-refund-reversal-tracking</code> exists for) or the dispute
+        resolved <code>won</code>/<code>warning_closed</code>, the closing handler could not find
+        a Checkout Session and never cleared the flag — a real, non-self-healing revenue-
+        understatement bug with no recovery path short of a manual DB edit, exactly the{" "}
+        &quot;opened&quot; vs &quot;closed/reversed&quot; twin gap the money/ledger integrity rules
+        exist to prevent, reappearing on this newer renewal-charge correlation path. Fixed by{" "}
+        <strong>refund-updated-dispute-closed-customer-correlation-fallback</strong>: both{" "}
+        <code>refund.updated</code> and <code>charge.dispute.closed</code> now fall back to the
+        same customer-id correlation when the Session lookup misses.{" "}
+        <code>refund.updated</code> reuses the <code>Stripe.Charge</code> object it already
+        re-fetched for the <code>refund-reversal-charge-aggregate-recheck</code> aggregate
+        <code>amount_refunded</code> recheck (no second Stripe API call) to read{" "}
+        <code>.customer</code> directly, preserving that invariant — the aggregate recheck still
+        runs and gates the fallback, so a still-in-effect different partial refund on the same
+        charge still blocks the clear regardless of which correlation path resolved the order.{" "}
+        <code>charge.dispute.closed</code> retrieves the PaymentIntent for its{" "}
+        <code>.customer</code> the same way <code>charge.dispute.created</code> already does (
+        Dispute carries no <code>.customer</code> of its own), then branches exactly like its
+        existing Session-based path: <code>won</code>/<code>warning_closed</code> clears{" "}
+        <code>disputedAt</code> (idempotent no-op if already clear); <code>lost</code> ensures it
+        is set (idempotent no-op if already set, covering a missed <code>created</code> event).
+        The customer-order lookup itself (<code>getOrdersByStripeCustomerId</code> +{" "}
+        <code>orderHadRecurringEntitlement</code>) was factored into a single shared{" "}
+        <code>findRecurringOrderByStripeCustomerId</code> helper in route.ts, now called from all
+        four handlers, so a future predicate correction (like the paused-order-fix above) only
+        needs to change one place instead of drifting across up to four duplicated call sites.
+        Both new failure paths are required (500 on failure, Stripe retries) since they gate the
+        same money-ledger write as every other path in this fallback family.
+      </p>
+
+      <p>
         <code>orders.refundedAt</code> / <code>disputedAt</code> (above) only ever fed{" "}
         <em>revenue reporting</em> — <code>PipelineHealth.revenueTotalUsd</code> and the payout
         clawback surfaces — until <strong>refund-dispute-entitlement-gate</strong>. The four sold

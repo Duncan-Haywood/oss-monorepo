@@ -2939,6 +2939,230 @@ describe("POST /api/stripe/webhook", () => {
       expect(json.step).toBe("commerce_order_dispute_clear");
       expect(json.received).toBe(false);
     });
+
+    // A renewal-cycle dispute's PaymentIntent was never attached to a
+    // Checkout Session in the first place — the Session lookup above always
+    // misses a renewal-cycle closed dispute too, the same gap
+    // charge.dispute.created's own fallback closes for the "opened" event.
+    // These cases cover the PaymentIntent-Customer-correlation fallback added
+    // to close the "closed" twin gap. See
+    // refund-updated-dispute-closed-customer-correlation-fallback.
+    describe("renewal-cycle closed dispute (no Checkout Session) via PaymentIntent Customer correlation", () => {
+      it("clears the customer's entitled order disputed when status is won", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            disputedAt: "2026-07-10T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(retrievePaymentIntent).toHaveBeenCalledWith("pi_dispute_1");
+        expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_renewal_1");
+        expect(clearOrderDisputed).toHaveBeenCalledWith("cs_original_signup", {
+          requireConvex: true,
+        });
+      });
+
+      it("marks the customer's entitled order disputed when status is lost and created was missed", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "lost" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(markOrderDisputed).toHaveBeenCalledWith(
+          "cs_original_signup",
+          expect.any(String),
+          { requireConvex: true },
+        );
+        expect(clearOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("is idempotent — does not re-clear when disputedAt is already unset (won)", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(clearOrderDisputed).not.toHaveBeenCalled();
+        expect(markOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("is idempotent — does not re-mark when status is lost and already disputed", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            disputedAt: "2026-07-10T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "lost" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(markOrderDisputed).not.toHaveBeenCalled();
+        expect(clearOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("skips when the retrieved PaymentIntent has no customer to correlate", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: null });
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(getOrdersByStripeCustomerId).not.toHaveBeenCalled();
+        expect(clearOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("skips when the customer has no currently-entitled order", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([]);
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(clearOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("returns 500 bundle_order_dispute_renewal_payment_intent_lookup when the PaymentIntent retrieve fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockRejectedValueOnce(new Error("stripe down"));
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_dispute_renewal_payment_intent_lookup");
+        expect(clearOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("returns 500 bundle_order_renewal_customer_lookup when the customer orders lookup fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockRejectedValueOnce(new Error("convex down"));
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_renewal_customer_lookup");
+        expect(clearOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("returns 500 bundle_order_dispute_clear when the renewal-cycle clear write fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            disputedAt: "2026-07-10T00:00:00.000Z",
+          },
+        ]);
+        clearOrderDisputed.mockRejectedValueOnce(new Error("convex down"));
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "won" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_dispute_clear");
+        expect(json.received).toBe(false);
+      });
+
+      it("returns 500 bundle_order_dispute when the renewal-cycle mark write fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+          },
+        ]);
+        markOrderDisputed.mockRejectedValueOnce(new Error("convex down"));
+        constructEvent.mockReturnValue(disputeClosedEvent({ status: "lost" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_dispute");
+        expect(json.received).toBe(false);
+      });
+    });
   });
 
   describe("refund.updated reversed-refund resolution", () => {
@@ -3200,6 +3424,132 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_refund_clear");
       expect(json.received).toBe(false);
+    });
+
+    // A renewal-cycle refund's PaymentIntent was never attached to a Checkout
+    // Session in the first place — the Session lookup above always misses a
+    // renewal-cycle reversal too, the same gap charge.refunded's own fallback
+    // closes for the "opened" event. These cases cover the Stripe-Customer-
+    // correlation fallback added to close the "closed/reversed" twin gap. See
+    // refund-updated-dispute-closed-customer-correlation-fallback.
+    describe("renewal-cycle reversed refund (no Checkout Session) via Stripe Customer correlation", () => {
+      it("clears the customer's entitled order refundedAt when the Session lookup misses", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrieveCharge.mockResolvedValueOnce({ amount_refunded: 0, customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            refundedAt: "2026-07-01T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(refundUpdatedEvent({ status: "failed" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_renewal_1");
+        expect(clearOrderRefunded).toHaveBeenCalledWith("cs_original_signup", {
+          requireConvex: true,
+        });
+      });
+
+      it("is idempotent — does not clear when refundedAt was never set", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrieveCharge.mockResolvedValueOnce({ amount_refunded: 0, customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(refundUpdatedEvent({ status: "failed" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(clearOrderRefunded).not.toHaveBeenCalled();
+      });
+
+      it("skips when the re-fetched charge has no customer to correlate", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrieveCharge.mockResolvedValueOnce({ amount_refunded: 0, customer: null });
+        constructEvent.mockReturnValue(refundUpdatedEvent({ status: "failed" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(getOrdersByStripeCustomerId).not.toHaveBeenCalled();
+        expect(clearOrderRefunded).not.toHaveBeenCalled();
+      });
+
+      it("skips when the customer has no currently-entitled order", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrieveCharge.mockResolvedValueOnce({ amount_refunded: 0, customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([]);
+        constructEvent.mockReturnValue(refundUpdatedEvent({ status: "failed" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(clearOrderRefunded).not.toHaveBeenCalled();
+      });
+
+      it("returns 500 bundle_order_renewal_customer_lookup when the customer orders lookup fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrieveCharge.mockResolvedValueOnce({ amount_refunded: 0, customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockRejectedValueOnce(new Error("convex down"));
+        constructEvent.mockReturnValue(refundUpdatedEvent({ status: "failed" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_renewal_customer_lookup");
+        expect(clearOrderRefunded).not.toHaveBeenCalled();
+      });
+
+      it("returns 500 bundle_order_refund_clear when the renewal-cycle clear write fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrieveCharge.mockResolvedValueOnce({ amount_refunded: 0, customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            refundedAt: "2026-07-01T00:00:00.000Z",
+          },
+        ]);
+        clearOrderRefunded.mockRejectedValueOnce(new Error("convex down"));
+        constructEvent.mockReturnValue(refundUpdatedEvent({ status: "failed" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_refund_clear");
+        expect(json.received).toBe(false);
+      });
     });
   });
 
