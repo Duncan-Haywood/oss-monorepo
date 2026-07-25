@@ -1664,7 +1664,12 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>normalizeCommerceItems</code> (Save catalog) uses the same opaque-id ceiling
         and hard-rejects over-long operator-supplied SKU ids rather than{" "}
         <code>slice(0, 64)</code> — truncating distinct ids can collide{" "}
-        <code>preserveCommerceStripeIds</code> / Sync-to-Stripe Product keys. Route-level Vitest
+        <code>preserveCommerceStripeIds</code> / Sync-to-Stripe Product keys.{" "}
+        <code>normalizeCommerceItems</code> also hard-rejects a client-submitted id that
+        duplicates an earlier row in the same save — two SKUs sharing an id would sync to
+        the same <code>commerceSkuStripeKey</code> Stripe Product with distinct Prices, and{" "}
+        <code>preserveCommerceStripeIds</code>&apos;s id-keyed map would silently drop one
+        duplicate&apos;s Stripe id association on the next save. Route-level Vitest
         coverage in <code>src/app/api/commerce/checkout/route.test.ts</code> locks that
         server-resolved price invariant, over-long slug/skuId 400s, unsynced-SKU 501s,{" "}
         <code>kind=commerce_sku</code> tracking, and requireConvex fail-closed session create

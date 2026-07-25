@@ -496,6 +496,28 @@ describe("normalizeCommerceItems", () => {
       );
     }
   });
+
+  it("rejects a client-submitted id that duplicates an earlier row in the same submission", () => {
+    const result = normalizeCommerceItems([
+      { id: "sku_dup", name: "First", priceCents: 100 },
+      { id: "sku_dup", name: "Second", priceCents: 200 },
+    ]);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/SKU 2 id must be unique/);
+    }
+  });
+
+  it("allows two blank/missing ids in the same submission (each mints its own distinct id)", () => {
+    const result = normalizeCommerceItems([
+      { name: "First", priceCents: 100 },
+      { name: "Second", priceCents: 200 },
+    ]);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.items[0]?.id).not.toBe(result.items[1]?.id);
+    }
+  });
 });
 
 describe("commerceDraftItemsAfterSync", () => {

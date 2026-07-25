@@ -208,8 +208,13 @@ export type NormalizeCommerceItemsResult =
 /**
  * Validate + normalize operator-submitted SKUs. Caps at MAX_COMMERCE_SKUS,
  * trims strings, drops empty names, rejects non-integer / out-of-range prices,
- * and hard-rejects opaque ids longer than MAX_COMMERCE_SKU_ID_LENGTH (never
- * truncate — truncation can collide Stripe Product / Price preservation keys).
+ * hard-rejects opaque ids longer than MAX_COMMERCE_SKU_ID_LENGTH (never
+ * truncate — truncation can collide Stripe Product / Price preservation keys),
+ * and rejects a client-submitted id that duplicates an earlier row in the same
+ * submission — two SKUs sharing an id sync to the same commerceSkuStripeKey
+ * (stripe-sync.ts), landing both Buy now Prices on one mislabeled Stripe
+ * Product, and preserveCommerceStripeIds's id-keyed Map silently drops one
+ * duplicate's Stripe id association on the next save (duplicate-sku-id-guard).
  */
 export function normalizeCommerceItems(
   raw: ReadonlyArray<{
@@ -272,6 +277,12 @@ export function normalizeCommerceItems(
         return {
           ok: false,
           error: `SKU ${i + 1} id must be ≤${MAX_COMMERCE_SKU_ID_LENGTH} characters`,
+        };
+      }
+      if (items.some((item) => item.id === id)) {
+        return {
+          ok: false,
+          error: `SKU ${i + 1} id must be unique in this catalog`,
         };
       }
     } else {

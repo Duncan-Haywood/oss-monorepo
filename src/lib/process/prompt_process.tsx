@@ -417,6 +417,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/upbeat-dijkstra-5zsawh",
   },
+  {
+    id: "duplicate-sku-id-guard",
+    summary:
+      "Fresh-angle empty-backlog audit (research agent steered at the two 'half shipped, dormant' features — Stripe Connect Express onboarding, Buffer marketing scheduling — plus dual-backend parity and untested orchestration; all came back clean) found src/lib/commerce/catalog.ts's normalizeCommerceItems validated SKU name/price/description/id-length but never rejected a client-submitted id that duplicates an earlier row in the same catalog-save submission. saveCommerceCatalogAction is a Server Action reachable with an arbitrary items array by anything holding the operator's session, not only the dashboard form (which never itself produces a duplicate). Two SKUs sharing an id both key off the same commerceSkuStripeKey in stripe-sync.ts, syncing to one mislabeled shared Stripe Product with distinct Prices, and preserveCommerceStripeIds's id-keyed Map silently drops one duplicate's Stripe id association on the next save — a real bookkeeping-corruption bug, not a customer overcharge (Buy now still charges each row's own resolved Price). Shipped: normalizeCommerceItems now hard-rejects a same-submission duplicate id with the same `SKU {i+1} ...` actionable-error shape every other per-row check in this function already uses; server-minted ids (blank/missing branch) are deliberately excluded from the check since they're never client-controlled and practically collision-free. See duplicate-sku-id-guard in BUSINESS_DECISIONS.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-lfte60",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -707,5 +715,20 @@ export const ITERATIONS: ProcessIteration[] = [
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "renewal-charge-refund-dispute-customer-correlation",
     ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/nice-euler-lfte60",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 5e26d8c4 (PR #758, renewal-charge-refund-dispute-customer-correlation, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green from a fresh checkout: npm ci (409 packages, 9 known high-severity findings, unchanged, documented dev-only eslint-dependency-chain root cause) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2903 passed, 204 files) + a full clean rebuild (rm -rf .next && npm run build, same 42-route ○/ƒ split). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest ~25 remote branches by push time, cross-checked against origin/main via both 3-dot (fork-point) and plain 2-dot (current-tree) diffs, found every one either byte-identical to an already-merged PR or fully superseded — no live fold candidate.\n\nAll five NEXT_STEPS items remain operator/legal/infra-gated, so per AGENT_PROTOCOL's empty-backlog priority order dispatched a research agent steered at tiers 1-5, explicitly told to avoid the many already-exhaustively-audited angles this log documents and instead check less-trodden files and the two 'half shipped, dormant' features (Stripe Connect Express onboarding, Buffer marketing scheduling). Both traced clean; it surfaced one genuine, previously-unaudited gap in src/lib/commerce/catalog.ts's normalizeCommerceItems, which validated SKU name/price/description/id-length but never rejected a client-submitted id duplicating an earlier row in the same catalog-save submission. Verified the bug directly by reading normalizeCommerceItems and its two consumers (saveCommerceCatalogAction, stripe-sync.ts's commerceSkuStripeKey) before implementing, rather than trusting the report at face value.",
+    shipped: [
+      "src/lib/commerce/catalog.ts — normalizeCommerceItems now hard-rejects a client-submitted id that duplicates an id already accepted earlier in the same submission, using the same `SKU {i+1} ...` actionable-error shape every other per-row validation in this function already uses; server-minted ids (blank/missing branch) are deliberately excluded from the check since they're never client-controlled and practically collision-free. Widened the function's doc comment to explain the Stripe Product/preserveCommerceStripeIds collision chain this guard prevents.",
+      "src/lib/commerce/catalog.test.ts — added two cases: rejects a duplicate client-submitted id with the exact per-row error message, and confirms two independently-minted blank-id rows still each get their own distinct id.",
+      "src/app/docs/architecture/page.tsx — added a sentence to the Commerce catalog section describing the new duplicate-id guard and why (shared commerceSkuStripeKey Stripe Product collision, preserveCommerceStripeIds's id-keyed Map silently dropping one duplicate's Stripe id on the next save).",
+      "src/lib/process/business-decisions.ts — appended duplicate-sku-id-guard.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS otherwise unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real data-integrity/bookkeeping-corruption gap, not any of the five gated items. Diff-gate anchor moves to 5e26d8c4 (this iteration's own starting tip, post-PR-#758).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2905 passed, up from 2903, 204 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split). Pure-function/server-action validation change with no new UI surface, so unit-level Vitest coverage is the bar per AGENT_PROTOCOL's own testing convention — no npm run dev/browser smoke check needed beyond that.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "duplicate-sku-id-guard"),
   },
 ];
