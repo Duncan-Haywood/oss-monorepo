@@ -337,6 +337,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/upbeat-dijkstra-tm7xns",
   },
+  {
+    id: "db-ts-stripe-connect-scaffold-sqlite-fallback-test-coverage",
+    summary:
+      "Continuation of the db.ts SQLite-fallback test-coverage series. updateLeadStripeConnectAccountId and updateLeadStripeConnectStatus (the dormant Stripe Connect Express onboarding scaffold's two requireConvex fail-closed writes) had zero runtime coverage of their db.ts orchestration — every consumer test mocked @/lib/db away entirely. Each has a covered Convex mutation counterpart (convex/leads.test.ts) but a hand-written SQLite-fallback branch nothing exercised; getLeads/getLeadBySlug read Convex-first and connectOnboardingIncompleteCount (pipeline-health/digest) reads this same cache cross-instance, so a broken fallback or a regressed set-once accountCreatedAt COALESCE would silently misstate the onboarding-incomplete due-queue on a SQLite-only deployment. Shipped 9 new Vitest cases in src/lib/db.test.ts covering both functions' Convex-success early-return, requireConvex fail-closed throw, SQLite-fallback write + not-found guard, and the account-id function's set-once COALESCE semantics — verified the test actually catches a regression by temporarily removing the early return and confirming the targeted test failed before restoring. See db-ts-stripe-connect-scaffold-sqlite-fallback-test-coverage in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-1f16x0",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -562,6 +570,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "db-ts-sent-marker-sqlite-fallback-test-coverage",
+    ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/nice-euler-1f16x0",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 19e3f567 (PR #784, db-ts-sent-marker-sqlite-fallback-test-coverage, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3094 passed, 209 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route split). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest ~30 remote branches found 15 with unique commits touching src/convex/.github-workflows paths, all matching the exact same-shape stale single-commit duplicates prior sessions already identified — spot-checked two (nice-euler-xkj15a, nice-euler-r5775w) and confirmed both already merged verbatim under different SHAs — no live fold candidate.\n\nDispatched a research agent to continue the db.ts SQLite-fallback test-coverage vein this series has been mining. It first chased recordLeadPayment as a lead but independently re-verified via source that it was already fully closed (PR #700) and correctly ruled it out. It then found the genuine remaining gap: updateLeadStripeConnectAccountId and updateLeadStripeConnectStatus (src/lib/db.ts:525, :589) — the dormant Stripe Connect Express onboarding scaffold's own two requireConvex fail-closed writes — had zero runtime coverage of their db.ts orchestration; every test file that touches them mocks @/lib/db away entirely or only asserts the exported option constants. Each has a covered Convex mutation counterpart (convex/leads.test.ts). The code's own doc comment (db.ts:569-588) already names the risk: getLeads/getLeadBySlug read Convex-first and connectOnboardingIncompleteCount (pipeline-health/digest) reads this same cache cross-instance, so a broken fallback or a regressed set-once accountCreatedAt COALESCE would silently misstate the onboarding-incomplete due-queue on a SQLite-only deployment.",
+    shipped: [
+      "src/lib/db.test.ts — two new describe blocks: updateLeadStripeConnectAccountId (Convex-success early-return, requireConvex fail-closed throw, SQLite-fallback write + not-found guard, and a case proving a second SQLite-fallback call never overwrites an already-set stripeConnectAccountCreatedAt) and updateLeadStripeConnectStatus (the same three shapes, seeding/reading back all three boolean fields plus checkedAt). Verified the missing-early-return detection technique actually works: temporarily removed updateLeadStripeConnectAccountId's `return;` after a successful Convex mutation, reran the targeted test, confirmed it failed with the expected 'Lead with slug ... not found' error, then restored the original file from a pre-edit backup.",
+      "src/app/docs/architecture/page.tsx — new paragraph naming the shared shape and the set-once COALESCE risk.",
+      "src/lib/process/business-decisions.ts — appended db-ts-stripe-connect-scaffold-sqlite-fallback-test-coverage.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS otherwise unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-unaudited untested-orchestration gap on the dormant Stripe Connect scaffold, not any of the five gated items. Diff-gate anchor moves to 19e3f567 (this session's own starting tip, post-PR-#784).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3103 passed, up from 3094 — 9 new cases, 209 files, unchanged file count) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split). Pure test-infrastructure addition plus a docs paragraph, no product/UI code changed, so Vitest coverage is the bar per AGENT_PROTOCOL's own testing convention — no npm run dev/browser smoke check needed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-ts-stripe-connect-scaffold-sqlite-fallback-test-coverage",
     ),
   },
 ];

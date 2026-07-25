@@ -94,6 +94,19 @@ import type { Lead } from "./leads/types";
  * clientVoicePacks.markSentToClient) already has direct coverage; the SQLite
  * fallback branch — including that it stays false, not just a no-op, on a
  * redelivered mark with a different timestamp — never did until now.
+ *
+ * updateLeadStripeConnectAccountId / updateLeadStripeConnectStatus (~525,
+ * ~589) are the dormant Stripe Connect Express scaffold's own two
+ * requireConvex fail-closed writes: each has a Convex mutation with direct
+ * coverage (convex/leads.test.ts's updateStripeConnectAccountId /
+ * updateStripeConnectStatus) and a hand-written SQLite-fallback branch with
+ * zero automated coverage anywhere (every action/webhook test that calls
+ * these mocks "@/lib/db" away entirely). getLeads/getLeadBySlug read
+ * Convex-first and connectOnboardingIncompleteCount (pipeline-health/digest)
+ * reads this same cache cross-instance, so a broken SQLite fallback or a
+ * regressed set-once accountCreatedAt COALESCE would silently misstate the
+ * onboarding-incomplete due-queue on a SQLite-only deployment — never did
+ * until now.
  */
 
 vi.mock("server-only", () => ({}));
@@ -1155,6 +1168,144 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         await loadDb(undefined)
       ).getClientVoicePackByLeadSlug("voice-pack-fallback-lead");
       expect(afterRedelivery?.sentToClientAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+  });
+
+  describe("updateLeadStripeConnectAccountId (requireConvex fail-closed write, set-once accountCreatedAt)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      // No lead with this slug exists in the fresh SQLite file at all — the
+      // SQLite fallback branch would throw "Lead with slug ... not found" if
+      // the Convex-success path incorrectly fell through to it.
+      await expect(
+        db.updateLeadStripeConnectAccountId("no-sqlite-row-lead", "acct_123", {
+          requireConvex: true,
+        }),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadStripeConnectAccountId("some-lead", "acct_123", { requireConvex: true }),
+      ).rejects.toThrow(/updateLeadStripeConnectAccountId/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("connect-account-fallback-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadStripeConnectAccountId(
+          "connect-account-fallback-lead",
+          "acct_456",
+          undefined,
+          "2026-01-01T00:00:00.000Z",
+        ),
+      ).resolves.toBeUndefined();
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("connect-account-fallback-lead");
+      expect(lead?.stripeConnectAccountId).toBe("acct_456");
+      expect(lead?.stripeConnectAccountCreatedAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+
+    it("never overwrites an already-set accountCreatedAt on a later SQLite-fallback call (set-once via COALESCE)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("connect-account-set-once-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const firstDb = await loadDb(CONVEX_URL);
+      await firstDb.updateLeadStripeConnectAccountId(
+        "connect-account-set-once-lead",
+        "acct_first",
+        undefined,
+        "2026-01-01T00:00:00.000Z",
+      );
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const secondDb = await loadDb(CONVEX_URL);
+      await secondDb.updateLeadStripeConnectAccountId(
+        "connect-account-set-once-lead",
+        "acct_first",
+        undefined,
+        "2026-02-01T00:00:00.000Z",
+      );
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await secondDb.getLeadBySlug("connect-account-set-once-lead");
+      expect(lead?.stripeConnectAccountCreatedAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+
+    it("throws a not-found error via the pure-SQLite path when no Convex client is configured and the slug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.updateLeadStripeConnectAccountId("missing-slug", "acct_789"),
+      ).rejects.toThrow(/not found/i);
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateLeadStripeConnectStatus (requireConvex fail-closed write, onboarding-status display cache)", () => {
+    const STATUS = { chargesEnabled: true, payoutsEnabled: false, detailsSubmitted: true };
+
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadStripeConnectStatus(
+          "no-sqlite-row-lead",
+          STATUS,
+          "2026-01-01T00:00:00.000Z",
+          { requireConvex: true },
+        ),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadStripeConnectStatus("some-lead", STATUS, "2026-01-01T00:00:00.000Z", {
+          requireConvex: true,
+        }),
+      ).rejects.toThrow(/updateLeadStripeConnectStatus/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("connect-status-fallback-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadStripeConnectStatus(
+          "connect-status-fallback-lead",
+          STATUS,
+          "2026-01-01T00:00:00.000Z",
+        ),
+      ).resolves.toBeUndefined();
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("connect-status-fallback-lead");
+      expect(lead?.stripeConnectChargesEnabled).toBe(true);
+      expect(lead?.stripeConnectPayoutsEnabled).toBe(false);
+      expect(lead?.stripeConnectDetailsSubmitted).toBe(true);
+      expect(lead?.stripeConnectStatusCheckedAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+
+    it("throws a not-found error via the pure-SQLite path when no Convex client is configured and the slug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.updateLeadStripeConnectStatus("missing-slug", STATUS, "2026-01-01T00:00:00.000Z"),
+      ).rejects.toThrow(/not found/i);
+      expect(convexMutation).not.toHaveBeenCalled();
     });
   });
 });
