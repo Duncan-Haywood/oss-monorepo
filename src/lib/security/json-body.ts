@@ -40,6 +40,10 @@ export type ReadFormBodyResult =
   | { ok: true; value: Record<string, unknown> }
   | { ok: false; reason: "too_large" | "invalid_form" };
 
+export type ReadTextBodyResult =
+  | { ok: true; value: string }
+  | { ok: false; reason: "too_large" };
+
 /**
  * True when Content-Length is present and exceeds maxBytes.
  * Missing / non-numeric headers return false — callers must still bound the
@@ -134,6 +138,35 @@ export async function readJsonBodyWithByteLimit<T = unknown>(
   } catch {
     return { ok: false, reason: "invalid_json" };
   }
+}
+
+/**
+ * Read raw text with a hard byte ceiling, without parsing it — for a route
+ * that needs the exact raw body for HMAC/signature verification (Resend's
+ * svix-style webhook) before it can be JSON.parse'd. Shares the same
+ * streaming-bounded-read as readJsonBodyWithByteLimit (Content-Length
+ * pre-check, then cancel the stream once the running total exceeds
+ * maxBytes) so a chunked-transfer request with no/understated Content-Length
+ * still can't force unbounded allocation ahead of signature verification.
+ * Unlike the Stripe webhook (documented exception above — Stripe signs a
+ * payload that can legitimately exceed this ceiling), Resend delivery-event
+ * payloads are small fixed-shape JSON, so the default 32 KiB ceiling never
+ * rejects legitimate traffic (see resend-webhook-body-byte-limit).
+ */
+export async function readTextBodyWithByteLimit(
+  request: Request,
+  maxBytes: number = MAX_PUBLIC_JSON_BODY_BYTES,
+): Promise<ReadTextBodyResult> {
+  if (!Number.isFinite(maxBytes) || maxBytes < 0) {
+    throw new Error("maxBytes must be a non-negative finite number");
+  }
+
+  const bounded = await readBoundedArrayBuffer(request, maxBytes);
+  if (!bounded.ok) {
+    return { ok: false, reason: "too_large" };
+  }
+
+  return { ok: true, value: new TextDecoder("utf-8").decode(bounded.buf) };
 }
 
 /**

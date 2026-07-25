@@ -2,6 +2,7 @@ import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
 import { RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
+import { MAX_PUBLIC_JSON_BODY_BYTES } from "@/lib/security/json-body";
 
 const suppressEmail = vi.fn();
 
@@ -61,6 +62,28 @@ describe("POST /api/resend/webhook", () => {
     const response = await POST(signedRequest(body));
 
     expect(response.status).toBe(501);
+    expect(suppressEmail).not.toHaveBeenCalled();
+  });
+
+  it("returns 413 and never verifies/suppresses when the body exceeds the byte ceiling", async () => {
+    const { POST } = await import("./route");
+    // Oversized body — signature is deliberately wrong/unrelated since a
+    // body this large is rejected before signature verification runs.
+    const oversized = "a".repeat(MAX_PUBLIC_JSON_BODY_BYTES + 1);
+    const response = await POST(
+      new Request("http://localhost/api/resend/webhook", {
+        method: "POST",
+        body: oversized,
+        headers: {
+          "svix-id": "msg_oversized",
+          "svix-timestamp": String(NOW_SECONDS),
+          "svix-signature": "v1,not-a-real-signature",
+          "x-forwarded-for": "203.0.113.9",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(413);
     expect(suppressEmail).not.toHaveBeenCalled();
   });
 
