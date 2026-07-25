@@ -588,4 +588,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "db-ts-stripe-connect-scaffold-sqlite-fallback-test-coverage",
     ),
   },
+  {
+    date: "2026-07-25",
+    branch: "claude/upbeat-dijkstra-qrcpbi",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 0a36e18 (PR #785, db-ts-stripe-connect-scaffold-sqlite-fallback-test-coverage, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline via npm ci (409 packages, 9 known high-severity findings, unchanged dev-only). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (705 remote heads) found exactly one unmerged branch (nice-euler-xkj15a), confirmed fully superseded (a strict subset of what's already on main) — no live fold candidate; attempted to delete its stale ref and hit the same documented 403 (merged-branch-cleanup-verified-no-delete-permission). Diff-gate showed only the prior session's own already-logged commit since the last anchor — no fresh product diff, so continued the still-fruitful db.ts SQLite-fallback test-coverage vein both prior entries in this series explicitly flagged as having more candidates, rather than dispatching a fresh five-tier sweep.",
+    shipped: [
+      "src/lib/db.test.ts — one new describe block (updateLeadStage): Convex-success early-return, Convex-success trusting the returned boolean directly, requireConvex fail-closed throw, SQLite-fallback write + not-found guard, and two tests specific to this function's own duplicated-logic risk — the SQLite fallback's paid/live stage-revert guard (mirroring convex/leads.test.ts's update-lead-stage-action-paid-live-revert-guard test) correctly blocks a downgrade and correctly still allows paid -> live.",
+      "src/lib/process/business-decisions.ts — appended db-ts-lead-stage-sqlite-fallback-test-coverage.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-unaudited untested-orchestration gap on the app's single most-used lead-stage-transition helper, not any of the five gated items. Diff-gate anchor moves to 0a36e18 (this session's own starting tip, post-PR-#785).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors, after fixing an invalid LeadPipelineStage literal caught immediately by tsc) + npm run lint (clean) + npx vitest run (3110 passed, up from 3103 — 7 new cases, 209 files, unchanged file count) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split). Regression-catching verified empirically: temporarily dropped updateLeadStage's early `return` on Convex success, confirmed 2 of the 7 new tests failed with the expected symptoms, restored the original file. Pure test-infrastructure addition, no product/UI code changed, so Vitest coverage is the bar per AGENT_PROTOCOL's own testing convention — no npm run dev/browser smoke check needed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-ts-lead-stage-sqlite-fallback-test-coverage",
+    ),
+  },
 ];

@@ -107,6 +107,19 @@ import type { Lead } from "./leads/types";
  * regressed set-once accountCreatedAt COALESCE would silently misstate the
  * onboarding-incomplete due-queue on a SQLite-only deployment — never did
  * until now.
+ *
+ * updateLeadStage (~263) is the core pipeline-stage transition every stage
+ * change in the app funnels through (dashboard updateLeadStageAction, Mark
+ * live). It has a Convex mutation with direct coverage (convex/leads.test.ts)
+ * and a hand-written SQLite-fallback branch (sqliteUpdateLeadStage,
+ * src/lib/db/sqlite-queries.ts) that duplicates a business-critical guard —
+ * once a lead reaches paid/live, a stage write cannot silently revert it to
+ * an earlier stage (update-lead-stage-action-paid-live-revert-guard) — with
+ * zero automated coverage of that guard on the SQLite side until now. A drift
+ * between the two backends' guards would let a stale/racing stage write
+ * regress a paying or live customer back to an earlier funnel stage on a
+ * SQLite-only deployment, which several eligibility predicates (Billing
+ * Portal, Starter upsell, paid-not-live) read directly.
  */
 
 vi.mock("server-only", () => ({}));
@@ -1306,6 +1319,83 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         db.updateLeadStripeConnectStatus("missing-slug", STATUS, "2026-01-01T00:00:00.000Z"),
       ).rejects.toThrow(/not found/i);
       expect(convexMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateLeadStage (requireConvex fail-closed write, paid/live revert guard)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      // No lead with this slug exists in the fresh SQLite file at all — the
+      // SQLite fallback branch would throw "Lead with slug ... not found" if
+      // the Convex-success path incorrectly fell through to it.
+      await expect(
+        db.updateLeadStage("no-sqlite-row-lead", "outreach_sent", { requireConvex: true }),
+      ).resolves.toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("trusts Convex's returned boolean directly on success rather than recomputing via SQLite", async () => {
+      // Seed a paid lead via the SQLite-only path — sqliteUpdateLeadStage
+      // would itself return false for a paid -> discovered downgrade below,
+      // so mocking Convex to resolve true instead only passes if
+      // updateLeadStage actually used Convex's result and returned early.
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("convex-stage-lead", { stage: "paid" }));
+
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.updateLeadStage("convex-stage-lead", "discovered");
+      expect(result).toBe(true);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateLeadStage("some-lead", "outreach_sent", { requireConvex: true }),
+      ).rejects.toThrow(/updateLeadStage/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("stage-fallback-lead"));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(db.updateLeadStage("stage-fallback-lead", "outreach_sent")).resolves.toBe(true);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("stage-fallback-lead");
+      expect(lead?.stage).toBe("outreach_sent");
+    });
+
+    it("throws a not-found error via the pure-SQLite path when no Convex client is configured and the slug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(db.updateLeadStage("missing-slug", "outreach_sent")).rejects.toThrow(/not found/i);
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("SQLite fallback skips the write and returns false when a paid/live lead's stage would be reverted (update-lead-stage-action-paid-live-revert-guard parity)", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("paid-stage-lead", { stage: "paid" }));
+
+      const result = await db.updateLeadStage("paid-stage-lead", "discovered");
+      expect(result).toBe(false);
+
+      const lead = await db.getLeadBySlug("paid-stage-lead");
+      expect(lead?.stage).toBe("paid");
+    });
+
+    it("SQLite fallback still allows the normal paid -> live transition from a paid row", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("paid-to-live-lead", { stage: "paid" }));
+
+      const result = await db.updateLeadStage("paid-to-live-lead", "live");
+      expect(result).toBe(true);
+
+      const lead = await db.getLeadBySlug("paid-to-live-lead");
+      expect(lead?.stage).toBe("live");
     });
   });
 });
