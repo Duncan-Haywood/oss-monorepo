@@ -22,9 +22,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeadBySlug = vi.fn();
 const updateLeadSnooze = vi.fn();
@@ -115,12 +124,32 @@ describe("snoozeLeadAction", () => {
     vi.setSystemTime(NOW_MS);
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
+    headersMock.mockReset().mockResolvedValue(headerStore());
     getLeadBySlug.mockReset().mockResolvedValue(baseLead);
     updateLeadSnooze.mockReset().mockResolvedValue(undefined);
   });
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it("rate-limits repeated calls from the same IP (auth alone is not a throttle)", async () => {
+    const { snoozeLeadAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await snoozeLeadAction("demo-cafe", { preset: "1d" });
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    updateLeadSnooze.mockClear();
+    revalidatePath.mockClear();
+    const res = await snoozeLeadAction("demo-cafe", { preset: "1d" });
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(updateLeadSnooze).not.toHaveBeenCalled();
   });
 
   it("returns auth error without loading or snoozing", async () => {

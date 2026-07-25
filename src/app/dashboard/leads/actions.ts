@@ -279,6 +279,14 @@ export async function markHandoffLiveAction(slug: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`deploy-handoff-mark-live:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -471,6 +479,14 @@ export async function updateInquiryStatusAction(
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
+    }
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`inquiry-status-update:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
     }
     const parsedId = parseInquiryId(inquiryId);
     if (!parsedId.ok) {
@@ -814,6 +830,14 @@ export async function updateLeadNotesAction(slug: string, notes: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`lead-notes-update:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
       return {
@@ -872,6 +896,14 @@ export async function snoozeLeadAction(
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
+    }
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`lead-snooze:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
     }
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {
@@ -2526,6 +2558,14 @@ export async function saveCommerceCatalogAction(
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
+    }
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`commerce-catalog-save:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
     }
     const parsedSlug = parseLeadSlugLookup(slug);
     if (!parsedSlug.ok) {

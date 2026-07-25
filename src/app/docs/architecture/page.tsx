@@ -1669,7 +1669,20 @@ source). The same digest also lists email-critical leads with no usable address 
         duplicates an earlier row in the same save — two SKUs sharing an id would sync to
         the same <code>commerceSkuStripeKey</code> Stripe Product with distinct Prices, and{" "}
         <code>preserveCommerceStripeIds</code>&apos;s id-keyed map would silently drop one
-        duplicate&apos;s Stripe id association on the next save. Route-level Vitest
+        duplicate&apos;s Stripe id association on the next save.{" "}
+        <code>saveCommerceCatalogAction</code> itself was, until{" "}
+        <code>dashboard-action-rate-limit-gaps</code>, one of five dashboard server actions
+        (alongside <code>markHandoffLiveAction</code>, <code>updateInquiryStatusAction</code>,{" "}
+        <code>updateLeadNotesAction</code>, and <code>snoozeLeadAction</code>) with no{" "}
+        <code>checkRateLimit</code> call — every sibling write action in{" "}
+        <code>src/app/dashboard/leads/actions.ts</code> already throttles per client IP after{" "}
+        <code>requireOperatorAuth</code>, since auth alone is not a throttle when{" "}
+        <code>OPERATOR_DASHBOARD_PASSWORD</code> is unset (the documented open-demo state). All
+        five now call <code>checkRateLimit</code> with their own key (
+        <code>commerce-catalog-save</code>, <code>deploy-handoff-mark-live</code>,{" "}
+        <code>inquiry-status-update</code>, <code>lead-notes-update</code>,{" "}
+        <code>lead-snooze</code>) immediately after the auth check, matching every other action in
+        the file. Route-level Vitest
         coverage in <code>src/app/api/commerce/checkout/route.test.ts</code> locks that
         server-resolved price invariant, over-long slug/skuId 400s, unsynced-SKU 501s,{" "}
         <code>kind=commerce_sku</code> tracking, and requireConvex fail-closed session create
