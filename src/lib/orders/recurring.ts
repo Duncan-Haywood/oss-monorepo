@@ -218,6 +218,21 @@ export function invoicePaidMayRestoreRecurringEntitlement(invoice: {
 }
 
 /**
+ * True when an invoice.paid event is a subscription-cycle renewal — i.e. NOT
+ * the subscription's first invoice. Stripe's checkout.session.completed
+ * handler already records the first invoice's amount via recordLeadPayment
+ * (OrderRecord.amountPaid); only later "subscription_cycle" invoices need
+ * their own increment into lifetimeRevenueUsd via
+ * recordSubscriptionRenewalPayment, or the first period would be double
+ * counted. See revenue-total-usd-renewal-gap.
+ */
+export function invoiceIsSubscriptionRenewalCharge(invoice: {
+  billing_reason?: string | null;
+}): boolean {
+  return invoice.billing_reason === "subscription_cycle";
+}
+
+/**
  * After subscriptions.retrieve, true when CRM should clear recurringCanceledAt
  * (active|trialing and not pause_collection). Shared by subscription.updated
  * grants path and invoice.paid restore.

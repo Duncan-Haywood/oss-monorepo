@@ -15,6 +15,8 @@ describe("mapSqliteOrderRow", () => {
       createdAt: "2026-01-01T00:00:00.000Z",
       refundedAt: null,
       disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
     };
     expect(mapSqliteOrderRow(row)).toEqual({
       id: "ord_1",
@@ -41,6 +43,8 @@ describe("mapSqliteOrderRow", () => {
       createdAt: "2026-01-01T00:00:00.000Z",
       refundedAt: null,
       disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
     };
     const mapped = mapSqliteOrderRow(row);
     expect(mapped.stripeSessionId).toBe("");
@@ -61,6 +65,8 @@ describe("mapSqliteOrderRow", () => {
       createdAt: "2026-01-01T00:00:00.000Z",
       refundedAt: "2026-01-02T00:00:00.000Z",
       disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
     };
     expect(mapSqliteOrderRow(row).refundedAt).toBe("2026-01-02T00:00:00.000Z");
   });
@@ -78,6 +84,8 @@ describe("mapSqliteOrderRow", () => {
       createdAt: "2026-01-01T00:00:00.000Z",
       refundedAt: null,
       disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
     };
     expect(mapSqliteOrderRow(row).refundedAt).toBeUndefined();
   });
@@ -95,6 +103,8 @@ describe("mapSqliteOrderRow", () => {
       createdAt: "2026-01-01T00:00:00.000Z",
       refundedAt: null,
       disputedAt: "2026-01-03T00:00:00.000Z",
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
     };
     expect(mapSqliteOrderRow(row).disputedAt).toBe("2026-01-03T00:00:00.000Z");
   });
@@ -112,7 +122,51 @@ describe("mapSqliteOrderRow", () => {
       createdAt: "2026-01-01T00:00:00.000Z",
       refundedAt: null,
       disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
     };
     expect(mapSqliteOrderRow(row).disputedAt).toBeUndefined();
+  });
+
+  it("maps a lifetimeRevenueUsd column value through to lifetimeRevenueUsd", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: 297,
+      lastRenewalInvoiceId: "in_last_1",
+    };
+    const mapped = mapSqliteOrderRow(row);
+    expect(mapped.lifetimeRevenueUsd).toBe(297);
+    expect(mapped.lastRenewalInvoiceId).toBe("in_last_1");
+  });
+
+  it("defaults a null lifetimeRevenueUsd/lastRenewalInvoiceId to undefined", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+    };
+    const mapped = mapSqliteOrderRow(row);
+    expect(mapped.lifetimeRevenueUsd).toBeUndefined();
+    expect(mapped.lastRenewalInvoiceId).toBeUndefined();
   });
 });

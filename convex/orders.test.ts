@@ -168,6 +168,124 @@ test("syncRecurringEntitlementByCustomer refuses a non-recurring target and only
   expect(again.updatedCount).toBe(0);
 });
 
+test("recordSubscriptionRenewalPayment accrues lifetimeRevenueUsd and is idempotent on invoiceId", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.orders.createOrder,
+    newOrderArgs({ tier: "growth", stripeSessionId: "cs_growth", amountTotal: 4900 }),
+  );
+
+  const first = await t.mutation(api.orders.recordSubscriptionRenewalPayment, {
+    stripeCustomerId: "cus_test_1",
+    invoiceId: "in_cycle_1",
+    amountUsd: 49,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(first.recorded).toBe(true);
+
+  const row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  // amountTotal (4900 cents) round-trips through db.ts as USD dollars
+  // elsewhere; this mutation operates purely on the USD figures it's given.
+  expect(row?.lifetimeRevenueUsd).toBe(4949);
+  expect(row?.lastRenewalInvoiceId).toBe("in_cycle_1");
+
+  // Stripe redelivers invoice.paid — the same invoiceId must never double-count.
+  const redelivered = await t.mutation(api.orders.recordSubscriptionRenewalPayment, {
+    stripeCustomerId: "cus_test_1",
+    invoiceId: "in_cycle_1",
+    amountUsd: 49,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(redelivered.recorded).toBe(false);
+  const unchanged = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(unchanged?.lifetimeRevenueUsd).toBe(4949);
+
+  // A second, distinct renewal invoice accrues on top.
+  const second = await t.mutation(api.orders.recordSubscriptionRenewalPayment, {
+    stripeCustomerId: "cus_test_1",
+    invoiceId: "in_cycle_2",
+    amountUsd: 49,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(second.recorded).toBe(true);
+  const rowAfterSecond = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(rowAfterSecond?.lifetimeRevenueUsd).toBe(4998);
+  expect(rowAfterSecond?.lastRenewalInvoiceId).toBe("in_cycle_2");
+});
+
+test("recordSubscriptionRenewalPayment skips a canceled/refunded/disputed order (no entitled row)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.orders.createOrder,
+    newOrderArgs({ tier: "growth", stripeSessionId: "cs_canceled" }),
+  );
+  await t.mutation(api.orders.markRecurringCanceledByCustomer, {
+    stripeCustomerId: "cus_test_1",
+    canceledAt: 1_000,
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const result = await t.mutation(api.orders.recordSubscriptionRenewalPayment, {
+    stripeCustomerId: "cus_test_1",
+    invoiceId: "in_cycle_1",
+    amountUsd: 49,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(result.recorded).toBe(false);
+
+  const row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_canceled",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.lifetimeRevenueUsd).toBeUndefined();
+});
+
+test("clearRecurringCanceledByCustomer preserves lifetimeRevenueUsd/lastRenewalInvoiceId across its replace()", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.orders.createOrder,
+    newOrderArgs({ tier: "growth", stripeSessionId: "cs_growth" }),
+  );
+  await t.mutation(api.orders.recordSubscriptionRenewalPayment, {
+    stripeCustomerId: "cus_test_1",
+    invoiceId: "in_cycle_1",
+    amountUsd: 49,
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.orders.markRecurringCanceledByCustomer, {
+    stripeCustomerId: "cus_test_1",
+    canceledAt: 1_000,
+    apiSecret: TEST_API_SECRET,
+  });
+
+  // clearRecurringCanceledByCustomer replaces the whole document (see
+  // convex-patch-undefined-clear-semantics-correction) — a resubscribe must
+  // not silently wipe revenue already recorded for this customer.
+  await t.mutation(api.orders.clearRecurringCanceledByCustomer, {
+    stripeCustomerId: "cus_test_1",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.recurringCanceledAt).toBeUndefined();
+  // newOrderArgs' default amountTotal (9900 cents = $99) is the base the
+  // renewal accrues onto.
+  expect(row?.lifetimeRevenueUsd).toBe(9949);
+  expect(row?.lastRenewalInvoiceId).toBe("in_cycle_1");
+});
+
 test("markRefunded / markDisputed / clearDisputed are idempotent and independent of each other", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.orders.createOrder, newOrderArgs({ stripeSessionId: "cs_1" }));

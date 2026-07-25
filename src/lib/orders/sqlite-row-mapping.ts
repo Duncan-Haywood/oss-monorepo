@@ -20,6 +20,8 @@ export interface SqliteOrderJoinRow {
   createdAt: string;
   refundedAt: string | null;
   disputedAt: string | null;
+  lifetimeRevenueUsd: number | null;
+  lastRenewalInvoiceId: string | null;
 }
 
 /** Map a SQLite `orders` row back into the app-wide OrderRecord shape (fallback-read path). */
@@ -41,5 +43,10 @@ export function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
     createdAt: row.createdAt,
     refundedAt: row.refundedAt || undefined,
     disputedAt: row.disputedAt || undefined,
+    lifetimeRevenueUsd:
+      typeof row.lifetimeRevenueUsd === "number" && Number.isFinite(row.lifetimeRevenueUsd)
+        ? row.lifetimeRevenueUsd
+        : undefined,
+    lastRenewalInvoiceId: row.lastRenewalInvoiceId || undefined,
   };
 }

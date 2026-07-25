@@ -34,6 +34,23 @@ export interface OrderRecord {
    * isOrderDisputed / bundle-order-dispute-tracking.
    */
   disputedAt?: string;
+  /**
+   * Cumulative USD actually collected for this order across its full
+   * lifetime — the initial checkout amount (amountPaid) plus every
+   * subsequent subscription-cycle renewal invoice recorded via
+   * recordSubscriptionRenewalPayment. Absent/undefined means no renewal has
+   * been recorded yet (a brand-new order, a Starter one-time order, or an
+   * order created before this field existed) — use orderLifetimeRevenueUsd
+   * rather than reading this directly. See revenue-total-usd-renewal-gap.
+   */
+  lifetimeRevenueUsd?: number;
+  /**
+   * Stripe Invoice id of the last subscription-cycle renewal counted into
+   * lifetimeRevenueUsd — redelivery idempotency marker so a re-sent
+   * invoice.paid event never double-counts the same renewal. See
+   * revenue-total-usd-renewal-gap.
+   */
+  lastRenewalInvoiceId?: string;
 }
 
 /** True when Stripe has refunded (fully or partially) this bundle order's charge. */
@@ -55,6 +72,24 @@ export function orderCountsTowardRevenue(
   order: Pick<OrderRecord, "refundedAt" | "disputedAt">,
 ): boolean {
   return !isOrderRefunded(order) && !isOrderDisputed(order);
+}
+
+/**
+ * Total USD actually collected for this order — falls back to amountPaid
+ * (the first billing period only) when lifetimeRevenueUsd is absent, so
+ * pre-existing rows and non-recurring (Starter) orders read correctly with
+ * no migration/backfill needed. See revenue-total-usd-renewal-gap: before
+ * this field existed, revenueTotalUsd summed amountPaid directly, which
+ * silently never counted a Growth/Complete/Commerce-addon subscription's
+ * renewal invoices past its first billing cycle.
+ */
+export function orderLifetimeRevenueUsd(
+  order: Pick<OrderRecord, "amountPaid" | "lifetimeRevenueUsd">,
+): number {
+  return typeof order.lifetimeRevenueUsd === "number" &&
+    Number.isFinite(order.lifetimeRevenueUsd)
+    ? order.lifetimeRevenueUsd
+    : order.amountPaid;
 }
 
 /**

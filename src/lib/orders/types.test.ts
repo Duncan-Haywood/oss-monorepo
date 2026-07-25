@@ -4,6 +4,7 @@ import {
   isOrderRefunded,
   newOrderId,
   orderCountsTowardRevenue,
+  orderLifetimeRevenueUsd,
   sortOrdersNewestFirst,
 } from "./types";
 
@@ -38,6 +39,24 @@ describe("orderCountsTowardRevenue", () => {
 
   it("is false when disputed", () => {
     expect(orderCountsTowardRevenue({ disputedAt: "2026-01-01T00:00:00.000Z" })).toBe(false);
+  });
+});
+
+describe("orderLifetimeRevenueUsd", () => {
+  it("falls back to amountPaid when lifetimeRevenueUsd is absent", () => {
+    expect(orderLifetimeRevenueUsd({ amountPaid: 49 })).toBe(49);
+  });
+
+  it("prefers lifetimeRevenueUsd once a renewal has been recorded", () => {
+    // Regression for revenue-total-usd-renewal-gap: pipeline-health must count
+    // every recorded renewal, not just the first billing period.
+    expect(orderLifetimeRevenueUsd({ amountPaid: 49, lifetimeRevenueUsd: 147 })).toBe(147);
+  });
+
+  it("falls back to amountPaid when lifetimeRevenueUsd is not a finite number", () => {
+    expect(
+      orderLifetimeRevenueUsd({ amountPaid: 49, lifetimeRevenueUsd: Number.NaN }),
+    ).toBe(49);
   });
 });
 

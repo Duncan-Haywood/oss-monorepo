@@ -46,6 +46,7 @@ const markOrdersRecurringCanceledByCustomer = vi.fn();
 const clearOrdersRecurringCanceledByCustomer = vi.fn();
 const syncOrdersRecurringEntitlementByCustomer = vi.fn();
 const recordLeadPayment = vi.fn();
+const recordSubscriptionRenewalPayment = vi.fn();
 const getLeadBySlug = vi.fn();
 const getCommerceCatalog = vi.fn();
 const insertClientInquiry = vi.fn();
@@ -94,6 +95,8 @@ vi.mock("@/lib/db", () => ({
   syncOrdersRecurringEntitlementByCustomer: (...args: unknown[]) =>
     syncOrdersRecurringEntitlementByCustomer(...args),
   recordLeadPayment: (...args: unknown[]) => recordLeadPayment(...args),
+  recordSubscriptionRenewalPayment: (...args: unknown[]) =>
+    recordSubscriptionRenewalPayment(...args),
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   getCommerceCatalog: (...args: unknown[]) => getCommerceCatalog(...args),
   insertClientInquiry: (...args: unknown[]) => insertClientInquiry(...args),
@@ -289,6 +292,7 @@ describe("POST /api/stripe/webhook", () => {
     clearOrdersRecurringCanceledByCustomer.mockReset().mockResolvedValue(1);
     syncOrdersRecurringEntitlementByCustomer.mockReset().mockResolvedValue(1);
     recordLeadPayment.mockReset();
+    recordSubscriptionRenewalPayment.mockReset().mockResolvedValue({ recorded: true });
     getLeadBySlug.mockReset().mockResolvedValue(null);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
     insertClientInquiry.mockReset().mockResolvedValue({ id: "inq_1" });
@@ -1630,6 +1634,111 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_reactivated");
+      expect(json.received).toBe(false);
+    });
+  });
+
+  describe("invoice.paid subscription renewal revenue", () => {
+    function activeSubscription(overrides: Record<string, unknown> = {}) {
+      return {
+        id: "sub_renewal",
+        customer: "cus_renewal",
+        status: "active",
+        pause_collection: null,
+        items: catalogSubscriptionItems(GROWTH_MONTHLY_PRICE_ID),
+        ...overrides,
+      };
+    }
+
+    it("records the renewal amount for a subscription_cycle invoice", async () => {
+      retrieveSubscription.mockResolvedValueOnce(activeSubscription());
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_renewal_1",
+            customer: "cus_renewal",
+            subscription: "sub_renewal",
+            billing_reason: "subscription_cycle",
+            amount_paid: 4900,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordSubscriptionRenewalPayment).toHaveBeenCalledWith(
+        "cus_renewal",
+        "in_renewal_1",
+        49,
+        { requireConvex: true },
+      );
+    });
+
+    it("does not record the subscription's own first invoice (already counted at order creation)", async () => {
+      retrieveSubscription.mockResolvedValueOnce(activeSubscription());
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_first_1",
+            customer: "cus_renewal",
+            subscription: "sub_renewal",
+            billing_reason: "subscription_create",
+            amount_paid: 4900,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordSubscriptionRenewalPayment).not.toHaveBeenCalled();
+    });
+
+    it("skips a zero-amount renewal invoice (e.g. a fully-discounted cycle)", async () => {
+      retrieveSubscription.mockResolvedValueOnce(activeSubscription());
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_renewal_zero",
+            customer: "cus_renewal",
+            subscription: "sub_renewal",
+            billing_reason: "subscription_cycle",
+            amount_paid: 0,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordSubscriptionRenewalPayment).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 subscription_renewal_revenue when the ledger write fails", async () => {
+      retrieveSubscription.mockResolvedValueOnce(activeSubscription());
+      recordSubscriptionRenewalPayment.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_renewal_fail",
+            customer: "cus_renewal",
+            subscription: "sub_renewal",
+            billing_reason: "subscription_cycle",
+            amount_paid: 4900,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("subscription_renewal_revenue");
       expect(json.received).toBe(false);
     });
   });

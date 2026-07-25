@@ -2036,6 +2036,49 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        Until <strong>revenue-total-usd-renewal-gap</strong>,{" "}
+        <code>PipelineHealth.revenueTotalUsd</code> summed <code>orders.amountPaid</code> directly
+        — the amount Stripe charged on the Checkout Session that created the order, i.e. the{" "}
+        <em>first billing period only</em>. A Growth/Complete/Commerce-addon subscriber&apos;s
+        monthly renewals never touched that field at all: <code>invoice.paid</code>&apos;s
+        existing handling only restores/syncs recurring entitlement (above) and, even then, only
+        for the notify path when a prior pause actually cleared. So the headline &quot;Recorded
+        revenue&quot; card silently stopped growing for any subscriber past their first cycle,
+        understating real collected revenue more with every billing period a subscriber stayed
+        active. Fixed by adding <code>orders.lifetimeRevenueUsd</code> (cumulative USD collected)
+        and <code>lastRenewalInvoiceId</code> (redelivery idempotency marker) alongside the
+        existing recurring-entitlement handling: on every <code>invoice.paid</code> whose{" "}
+        <code>billing_reason</code> is <code>subscription_cycle</code> (i.e. NOT the
+        subscription&apos;s first invoice, already counted via <code>amountPaid</code> at order
+        creation) with a positive <code>amount_paid</code>,{" "}
+        <code>recordSubscriptionRenewalPayment</code> adds that invoice&apos;s amount onto the
+        customer&apos;s currently sold-capability-entitled order (
+        <code>orderGrantsSoldCapabilityEntitlement</code> — a canceled, refunded, or disputed order
+        must not accrue further recorded revenue), skipping a redelivered invoice whose id already
+        matches. This runs unconditionally (not gated on <code>cleared &gt; 0</code> like the
+        notify path) since an ordinary healthy renewal — the common case — is exactly where
+        revenue needs recording; a write failure returns <code>500</code> /{" "}
+        <code>subscription_renewal_revenue</code> so Stripe retries rather than silently losing a
+        renewal&apos;s revenue count. <code>orderLifetimeRevenueUsd</code> reads{" "}
+        <code>lifetimeRevenueUsd</code>, falling back to <code>amountPaid</code> for a pre-existing
+        row or a non-recurring (Starter) order that has never renewed — no migration/backfill
+        needed. The three Convex mutations that replace-rewrite an{" "}
+        <code>orders</code> row wholesale (<code>clearRecurringCanceledByCustomer</code>,{" "}
+        <code>clearRefunded</code>, <code>clearDisputed</code>) now carry{" "}
+        <code>lifetimeRevenueUsd</code>/<code>lastRenewalInvoiceId</code> forward explicitly, or a
+        resubscribe/refund-reversal/dispute-win would silently wipe previously-recorded renewal
+        revenue the same way an earlier omission would have cleared <code>refundedAt</code>/
+        <code>disputedAt</code>. Not yet covered by this fix: a dispute or refund on a renewal
+        charge itself has no correlation path back to the order at all (
+        <code>charge.refunded</code>/<code>charge.dispute.created</code> resolve via{" "}
+        <code>stripe.checkout.sessions.list({"{ payment_intent }"})</code>, but a renewal
+        invoice&apos;s PaymentIntent is created directly by Stripe&apos;s billing system, never
+        through a Checkout Session) — a renewal-charge refund/dispute today neither reduces{" "}
+        <code>lifetimeRevenueUsd</code> nor sets <code>refundedAt</code>/<code>disputedAt</code>,
+        left as a follow-up rather than folded into this fix.
+      </p>
+
+      <p>
         <code>orders.refundedAt</code> / <code>disputedAt</code> (above) only ever fed{" "}
         <em>revenue reporting</em> — <code>PipelineHealth.revenueTotalUsd</code> and the payout
         clawback surfaces — until <strong>refund-dispute-entitlement-gate</strong>. The four sold

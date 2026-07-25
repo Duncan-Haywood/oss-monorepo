@@ -199,7 +199,15 @@ export type WebhookFulfillmentStep =
    * commerce_order_refund_reversed_session_lookup. See
    * commerce-order-refund-reversal-tracking.
    */
-  | "bundle_order_refund_clear";
+  | "bundle_order_refund_clear"
+  /**
+   * Adding a subscription-cycle renewal invoice's amount to
+   * orders.lifetimeRevenueUsd on invoice.paid — required so Stripe retries
+   * rather than silently leaving a Growth/Complete/Commerce-addon
+   * subscriber's renewal permanently uncounted in revenueTotalUsd. See
+   * revenue-total-usd-renewal-gap.
+   */
+  | "subscription_renewal_revenue";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

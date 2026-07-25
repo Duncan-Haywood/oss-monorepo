@@ -161,6 +161,21 @@ describe("computePipelineHealth", () => {
     expect(health.orderCount).toBe(3);
   });
 
+  it("sums lifetimeRevenueUsd (not just the first-period amountPaid) once a renewal is recorded", () => {
+    // Regression for revenue-total-usd-renewal-gap: a Growth/Complete/
+    // Commerce-addon subscriber's renewal invoices must count past their
+    // first billing cycle, not just amountPaid from the original checkout.
+    const renewed = { ...makeOrder(49), lifetimeRevenueUsd: 147 };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500), renewed],
+      handoffs: [],
+      inquiries: [],
+    });
+    expect(health.revenueTotalUsd).toBe(647);
+    expect(health.orderCount).toBe(2);
+  });
+
   it("excludes refunded bundle orders from revenueTotalUsd but keeps orderCount", () => {
     const refunded = { ...makeOrder(300), refundedAt: "2026-07-01T00:00:00.000Z" };
     const health = computePipelineHealth({

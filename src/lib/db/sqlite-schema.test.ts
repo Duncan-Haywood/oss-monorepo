@@ -71,7 +71,14 @@ describe("initializeSqliteSchema", () => {
     const orderCols = (
       db.prepare("PRAGMA table_info(orders)").all() as Array<{ name: string }>
     ).map((c) => c.name);
-    for (const col of ["stripeCustomerId", "recurringCanceledAt", "refundedAt", "disputedAt"]) {
+    for (const col of [
+      "stripeCustomerId",
+      "recurringCanceledAt",
+      "refundedAt",
+      "disputedAt",
+      "lifetimeRevenueUsd",
+      "lastRenewalInvoiceId",
+    ]) {
       expect(orderCols).toContain(col);
     }
   });

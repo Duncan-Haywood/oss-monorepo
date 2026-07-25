@@ -10,6 +10,7 @@ import { normalizeContactFormFields } from "./inquiries/contact-fields";
 import { newClientInquiryId } from "./inquiries/inquiry-id";
 import type { OrderRecord } from "./orders/types";
 import { sortOrdersNewestFirst } from "./orders/types";
+import { orderGrantsSoldCapabilityEntitlement } from "./orders/recurring";
 import type { CheckoutSessionRecord } from "./checkout/types";
 import { newCheckoutSessionId } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
@@ -150,6 +151,7 @@ const api: any = {
     clearRefunded: "orders:clearRefunded",
     markDisputed: "orders:markDisputed",
     clearDisputed: "orders:clearDisputed",
+    recordSubscriptionRenewalPayment: "orders:recordSubscriptionRenewalPayment",
   },
   checkoutSessions: {
     create: "checkoutSessions:create",
@@ -861,6 +863,8 @@ function mapConvexOrderRow(row: {
   createdAt: number;
   refundedAt?: string;
   disputedAt?: string;
+  lifetimeRevenueUsd?: number;
+  lastRenewalInvoiceId?: string;
 }): OrderRecord {
   return {
     id: row._id,
@@ -879,6 +883,11 @@ function mapConvexOrderRow(row: {
     createdAt: new Date(row.createdAt).toISOString(),
     refundedAt: row.refundedAt || undefined,
     disputedAt: row.disputedAt || undefined,
+    lifetimeRevenueUsd:
+      typeof row.lifetimeRevenueUsd === "number" && Number.isFinite(row.lifetimeRevenueUsd)
+        ? row.lifetimeRevenueUsd
+        : undefined,
+    lastRenewalInvoiceId: row.lastRenewalInvoiceId || undefined,
   };
 }
 
@@ -897,6 +906,8 @@ export async function listOrders(): Promise<OrderRecord[]> {
         createdAt: number;
         refundedAt?: string;
         disputedAt?: string;
+        lifetimeRevenueUsd?: number;
+        lastRenewalInvoiceId?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -934,6 +945,8 @@ export async function listOrdersByLeadSlug(
         createdAt: number;
         refundedAt?: string;
         disputedAt?: string;
+        lifetimeRevenueUsd?: number;
+        lastRenewalInvoiceId?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -973,6 +986,8 @@ export async function getOrderByStripeSessionId(
         createdAt: number;
         refundedAt?: string;
         disputedAt?: string;
+        lifetimeRevenueUsd?: number;
+        lastRenewalInvoiceId?: string;
       } | null;
       return row ? mapConvexOrderRow(row) : null;
     } catch (e) {
@@ -987,7 +1002,8 @@ export async function getOrderByStripeSessionId(
   const row = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE o.stripeSessionId = ?`,
@@ -1028,6 +1044,8 @@ export async function getOrdersByStripeCustomerId(
         createdAt: number;
         refundedAt?: string;
         disputedAt?: string;
+        lifetimeRevenueUsd?: number;
+        lastRenewalInvoiceId?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -1042,7 +1060,8 @@ export async function getOrdersByStripeCustomerId(
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE o.stripeCustomerId = ?
@@ -1423,6 +1442,93 @@ export async function syncOrdersRecurringEntitlementByCustomer(
     if (result.changes > 0) updatedCount += 1;
   }
   return updatedCount;
+}
+
+/**
+ * Adds a subscription-cycle renewal invoice's amount to lifetimeRevenueUsd
+ * on the Stripe Customer's currently sold-capability-entitled order — the
+ * fix for revenue-total-usd-renewal-gap: checkout.session.completed only
+ * ever recorded the first billing period's amount into amountPaid, so
+ * revenueTotalUsd silently never counted a Growth/Complete/Commerce-addon
+ * subscriber's renewals past their first cycle. Only ever applied to the one
+ * order still passing orderGrantsSoldCapabilityEntitlement (canceled,
+ * refunded, or disputed orders must not accrue further recorded revenue).
+ * Idempotent on invoiceId — Stripe redelivers invoice.paid, and a row whose
+ * lastRenewalInvoiceId already matches is left unchanged. requireConvex on
+ * the webhook path (WEBHOOK_CONVEX_PRIMARY) — this is a money-ledger write,
+ * same discipline as recordLeadPayment.
+ */
+export async function recordSubscriptionRenewalPayment(
+  stripeCustomerId: string,
+  invoiceId: string,
+  amountUsd: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<{ recorded: boolean }> {
+  const customerId = stripeCustomerId.trim();
+  const invoice = invoiceId.trim();
+  if (!customerId || !invoice || !(amountUsd > 0)) {
+    return { recorded: false };
+  }
+
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.orders.recordSubscriptionRenewalPayment, {
+        stripeCustomerId: customerId,
+        invoiceId: invoice,
+        amountUsd,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordSubscriptionRenewalPayment", e);
+      }
+      console.warn(
+        `Failed to record subscription renewal payment for customer ${customerId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT id, tier, commerceAddon, recurringCanceledAt, refundedAt, disputedAt, amountPaid, lifetimeRevenueUsd, lastRenewalInvoiceId
+       FROM orders
+       WHERE stripeCustomerId = ?`,
+    )
+    .all(customerId) as Array<{
+    id: string;
+    tier: string;
+    commerceAddon: number;
+    recurringCanceledAt: number | null;
+    refundedAt: string | null;
+    disputedAt: string | null;
+    amountPaid: number;
+    lifetimeRevenueUsd: number | null;
+    lastRenewalInvoiceId: string | null;
+  }>;
+
+  const row = rows.find((r) =>
+    orderGrantsSoldCapabilityEntitlement({
+      tier: r.tier,
+      commerceAddon: r.commerceAddon === 1,
+      recurringCanceledAt: r.recurringCanceledAt ?? undefined,
+      refundedAt: r.refundedAt ?? undefined,
+      disputedAt: r.disputedAt ?? undefined,
+    }),
+  );
+  if (!row || row.lastRenewalInvoiceId === invoice) {
+    return { recorded: false };
+  }
+
+  const base =
+    typeof row.lifetimeRevenueUsd === "number" && Number.isFinite(row.lifetimeRevenueUsd)
+      ? row.lifetimeRevenueUsd
+      : row.amountPaid;
+  db.prepare(
+    `UPDATE orders SET lifetimeRevenueUsd = ?, lastRenewalInvoiceId = ? WHERE id = ?`,
+  ).run(base + amountUsd, invoice, row.id);
+  return { recorded: true };
 }
 
 // --- Suppression List Functions ---

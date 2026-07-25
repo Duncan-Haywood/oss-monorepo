@@ -101,6 +101,20 @@ export default defineSchema({
      * See bundle-order-dispute-tracking.
      */
     disputedAt: v.optional(v.string()),
+    /**
+     * Cumulative USD collected across this order's full lifetime (initial
+     * checkout amount plus every subscription-cycle renewal invoice recorded
+     * via recordSubscriptionRenewalPayment). Absent means no renewal has been
+     * recorded yet — read via orderLifetimeRevenueUsd, which falls back to
+     * amountTotal. See revenue-total-usd-renewal-gap.
+     */
+    lifetimeRevenueUsd: v.optional(v.number()),
+    /**
+     * Stripe Invoice id of the last subscription-cycle renewal counted into
+     * lifetimeRevenueUsd — redelivery idempotency marker. See
+     * revenue-total-usd-renewal-gap.
+     */
+    lastRenewalInvoiceId: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"])

@@ -23,6 +23,7 @@ import {
   isOrderDisputed,
   isOrderRefunded,
   orderCountsTowardRevenue,
+  orderLifetimeRevenueUsd,
   type OrderRecord,
 } from "@/lib/orders/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
@@ -573,11 +574,15 @@ export function computePipelineHealth(input: {
   // A refunded or disputed bundle order is not revenue — exclude it the same
   // way commerce Buy now excludes refunded/disputed orders from its owed
   // total (see bundle-order-refund-tracking / bundle-order-dispute-tracking).
+  // orderLifetimeRevenueUsd (not the first-period-only amountPaid) so a
+  // Growth/Complete/Commerce-addon subscriber's renewal invoices count past
+  // their first billing cycle — see revenue-total-usd-renewal-gap.
   let revenueTotalUsd = 0;
   for (const order of input.orders) {
     if (!orderCountsTowardRevenue(order)) continue;
-    if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
-      revenueTotalUsd += order.amountPaid;
+    const lifetimeUsd = orderLifetimeRevenueUsd(order);
+    if (Number.isFinite(lifetimeUsd)) {
+      revenueTotalUsd += lifetimeUsd;
     }
   }
 

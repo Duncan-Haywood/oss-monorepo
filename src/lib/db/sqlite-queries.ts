@@ -39,7 +39,8 @@ export function sqliteListOrders(db: DatabaseSync): OrderRecord[] {
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        ORDER BY o.createdAt DESC`,
@@ -63,7 +64,8 @@ export function sqliteListOrdersByLeadSlug(db: DatabaseSync, leadSlug: string): 
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE l.slug = ?

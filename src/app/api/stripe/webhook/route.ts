@@ -18,12 +18,14 @@ import {
   markOrderRefunded,
   markOrdersRecurringCanceledByCustomer,
   recordLeadPayment,
+  recordSubscriptionRenewalPayment,
   syncOrdersRecurringEntitlementByCustomer,
 } from "@/lib/db";
 import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import {
+  invoiceIsSubscriptionRenewalCharge,
   invoicePaidMayRestoreRecurringEntitlement,
   invoicePaymentFailedPausesRecurringEntitlement,
   orderEligibleForPauseNotice,
@@ -1555,6 +1557,35 @@ export async function POST(request: Request) {
         );
         const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");
         return NextResponse.json(failure.body, { status: failure.status });
+      }
+
+      // Revenue-total-usd-renewal-gap fix: checkout.session.completed only
+      // ever records the first billing period's amount (OrderRecord.amountPaid),
+      // so an ordinary healthy renewal (the common case — cleared is 0 here)
+      // must still add its own invoice amount into lifetimeRevenueUsd, or
+      // revenueTotalUsd never counts a single dollar past the first cycle.
+      // billing_reason "subscription_cycle" excludes the subscription's first
+      // invoice (already counted at order creation) so this never double-counts.
+      if (invoiceIsSubscriptionRenewalCharge(invoice)) {
+        const amountPaidUsd =
+          typeof invoice.amount_paid === "number" ? invoice.amount_paid / 100 : 0;
+        if (amountPaidUsd > 0 && invoice.id) {
+          try {
+            await recordSubscriptionRenewalPayment(
+              customerId,
+              invoice.id,
+              amountPaidUsd,
+              WEBHOOK_CONVEX_PRIMARY,
+            );
+          } catch (e) {
+            console.error(
+              `Failed to record subscription renewal payment for customer ${customerId} after invoice.paid ${invoice.id}`,
+              e,
+            );
+            const failure = webhookFulfillmentFailureResponse("subscription_renewal_revenue");
+            return NextResponse.json(failure.body, { status: failure.status });
+          }
+        }
       }
 
       // Customer-facing recovery confirmation — best-effort, and only when

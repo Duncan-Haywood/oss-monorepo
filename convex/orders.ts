@@ -1,6 +1,9 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { orderHadRecurringEntitlement } from "../src/lib/orders/recurring";
+import {
+  orderGrantsSoldCapabilityEntitlement,
+  orderHadRecurringEntitlement,
+} from "../src/lib/orders/recurring";
 import { requireApiSecret } from "./lib/apiSecret";
 
 const orderDocValidator = v.object({
@@ -17,6 +20,8 @@ const orderDocValidator = v.object({
   createdAt: v.number(),
   refundedAt: v.optional(v.string()),
   disputedAt: v.optional(v.string()),
+  lifetimeRevenueUsd: v.optional(v.number()),
+  lastRenewalInvoiceId: v.optional(v.string()),
 });
 
 export const createOrder = mutation({
@@ -221,6 +226,12 @@ export const clearRecurringCanceledByCustomer = mutation({
         createdAt: row.createdAt,
         ...(row.refundedAt ? { refundedAt: row.refundedAt } : {}),
         ...(row.disputedAt ? { disputedAt: row.disputedAt } : {}),
+        ...(typeof row.lifetimeRevenueUsd === "number"
+          ? { lifetimeRevenueUsd: row.lifetimeRevenueUsd }
+          : {}),
+        ...(row.lastRenewalInvoiceId
+          ? { lastRenewalInvoiceId: row.lastRenewalInvoiceId }
+          : {}),
       });
       updatedCount += 1;
     }
@@ -352,6 +363,12 @@ export const clearRefunded = mutation({
         ? { recurringCanceledAt: row.recurringCanceledAt }
         : {}),
       ...(row.disputedAt ? { disputedAt: row.disputedAt } : {}),
+      ...(typeof row.lifetimeRevenueUsd === "number"
+        ? { lifetimeRevenueUsd: row.lifetimeRevenueUsd }
+        : {}),
+      ...(row.lastRenewalInvoiceId
+        ? { lastRenewalInvoiceId: row.lastRenewalInvoiceId }
+        : {}),
     });
     return null;
   },
@@ -429,7 +446,59 @@ export const clearDisputed = mutation({
         ? { recurringCanceledAt: row.recurringCanceledAt }
         : {}),
       ...(row.refundedAt ? { refundedAt: row.refundedAt } : {}),
+      ...(typeof row.lifetimeRevenueUsd === "number"
+        ? { lifetimeRevenueUsd: row.lifetimeRevenueUsd }
+        : {}),
+      ...(row.lastRenewalInvoiceId
+        ? { lastRenewalInvoiceId: row.lastRenewalInvoiceId }
+        : {}),
     });
     return null;
+  },
+});
+
+/**
+ * Adds a subscription-cycle renewal invoice's amount to a recurring order's
+ * lifetime revenue total. Only ever applied to the customer's currently
+ * sold-capability-entitled order (orderGrantsSoldCapabilityEntitlement) — a
+ * canceled/refunded/disputed order must not accrue further recorded revenue.
+ * Idempotent on invoiceId (Stripe redelivers invoice.paid): a row whose
+ * lastRenewalInvoiceId already matches is left unchanged. See
+ * revenue-total-usd-renewal-gap.
+ */
+export const recordSubscriptionRenewalPayment = mutation({
+  args: {
+    stripeCustomerId: v.string(),
+    invoiceId: v.string(),
+    amountUsd: v.number(),
+    apiSecret: v.string(),
+  },
+  returns: v.object({ recorded: v.boolean() }),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const customerId = args.stripeCustomerId.trim();
+    const invoiceId = args.invoiceId.trim();
+    if (!customerId || !invoiceId || !(args.amountUsd > 0)) {
+      return { recorded: false };
+    }
+
+    const rows = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeCustomerId", (q) => q.eq("stripeCustomerId", customerId))
+      .collect();
+    const row = rows.find((r) => orderGrantsSoldCapabilityEntitlement(r));
+    if (!row || row.lastRenewalInvoiceId === invoiceId) {
+      return { recorded: false };
+    }
+
+    const base =
+      typeof row.lifetimeRevenueUsd === "number" && Number.isFinite(row.lifetimeRevenueUsd)
+        ? row.lifetimeRevenueUsd
+        : row.amountTotal;
+    await ctx.db.patch(row._id, {
+      lifetimeRevenueUsd: base + args.amountUsd,
+      lastRenewalInvoiceId: invoiceId,
+    });
+    return { recorded: true };
   },
 });

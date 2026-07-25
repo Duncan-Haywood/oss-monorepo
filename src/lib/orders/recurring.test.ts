@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  invoiceIsSubscriptionRenewalCharge,
   invoicePaidMayRestoreRecurringEntitlement,
   invoicePaymentFailedPausesRecurringEntitlement,
   listRecurringEntitlementPaused,
@@ -263,6 +264,28 @@ describe("invoicePaidMayRestoreRecurringEntitlement", () => {
         parent: { subscription_details: { subscription: "sub_nested_paid" } },
       }),
     ).toBe(true);
+  });
+});
+
+describe("invoiceIsSubscriptionRenewalCharge", () => {
+  it("is true only for billing_reason subscription_cycle", () => {
+    expect(invoiceIsSubscriptionRenewalCharge({ billing_reason: "subscription_cycle" })).toBe(
+      true,
+    );
+  });
+
+  it("is false for the subscription's first invoice (already counted at order creation)", () => {
+    expect(invoiceIsSubscriptionRenewalCharge({ billing_reason: "subscription_create" })).toBe(
+      false,
+    );
+  });
+
+  it("is false for other billing reasons and when absent", () => {
+    expect(invoiceIsSubscriptionRenewalCharge({ billing_reason: "subscription_update" })).toBe(
+      false,
+    );
+    expect(invoiceIsSubscriptionRenewalCharge({ billing_reason: "manual" })).toBe(false);
+    expect(invoiceIsSubscriptionRenewalCharge({})).toBe(false);
   });
 });
 
