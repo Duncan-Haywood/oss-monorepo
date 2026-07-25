@@ -20,6 +20,7 @@ const listLineItems = vi.fn();
 const retrieveSubscription = vi.fn();
 const listCheckoutSessions = vi.fn();
 const retrieveCharge = vi.fn();
+const retrievePaymentIntent = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
     webhooks = { constructEvent: (...args: unknown[]) => constructEvent(...args) };
@@ -34,6 +35,9 @@ vi.mock("stripe", () => ({
     };
     charges = {
       retrieve: (...args: unknown[]) => retrieveCharge(...args),
+    };
+    paymentIntents = {
+      retrieve: (...args: unknown[]) => retrievePaymentIntent(...args),
     };
   },
 }));
@@ -317,6 +321,10 @@ describe("POST /api/stripe/webhook", () => {
     // tests override this to simulate a still-refunded charge (a different,
     // still-successful refund on the same charge).
     retrieveCharge.mockReset().mockResolvedValue({ amount_refunded: 0 });
+    // Default: no customer on the retrieved PaymentIntent, so the
+    // charge.dispute.created renewal-cycle correlation fallback finds nothing
+    // and falls through to the existing "not one of our orders" skip path.
+    retrievePaymentIntent.mockReset().mockResolvedValue({ customer: null });
     getDeployHandoffBySlug.mockReset().mockResolvedValue(null);
     insertDeployHandoff.mockReset().mockResolvedValue(undefined);
     listDeployHandoffs.mockReset().mockResolvedValue([]);
@@ -2110,6 +2118,161 @@ describe("POST /api/stripe/webhook", () => {
       expect(json.step).toBe("commerce_order_refund");
       expect(json.received).toBe(false);
     });
+
+    // renewal-charge-refund-dispute-customer-correlation: a subscription
+    // renewal invoice's PaymentIntent is minted directly by Stripe's billing
+    // system and is never attached to a Checkout Session, so the Session
+    // lookup above always misses a renewal-cycle refund. These cases cover
+    // the Stripe-Customer-correlation fallback added to close that gap.
+    describe("renewal-cycle refund (no Checkout Session) via Stripe Customer correlation", () => {
+      it("marks the customer's entitled order refunded when the Session lookup misses", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            lifetimeRevenueUsd: 147,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(refundedChargeEvent({ customer: "cus_renewal_1" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_renewal_1");
+        expect(markOrderRefunded).toHaveBeenCalledWith(
+          "cs_original_signup",
+          expect.any(String),
+          { requireConvex: true },
+        );
+      });
+
+      it("skips when the charge has no customer to correlate", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        constructEvent.mockReturnValue(refundedChargeEvent({ customer: null }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(getOrdersByStripeCustomerId).not.toHaveBeenCalled();
+        expect(markOrderRefunded).not.toHaveBeenCalled();
+      });
+
+      it("skips when the customer has no currently-entitled order", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            refundedAt: "2026-06-01T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(refundedChargeEvent({ customer: "cus_renewal_1" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(markOrderRefunded).not.toHaveBeenCalled();
+      });
+
+      it("is idempotent — does not re-mark an already-refunded entitled order", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            refundedAt: undefined,
+          },
+        ]);
+        markOrderRefunded.mockResolvedValueOnce(undefined);
+        constructEvent.mockReturnValue(refundedChargeEvent({ customer: "cus_renewal_1" }));
+        const { POST: POST1 } = await import("./route");
+        await POST1(webhookRequest());
+        expect(markOrderRefunded).toHaveBeenCalledTimes(1);
+
+        // Redelivery: the order now carries refundedAt from the first delivery.
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            refundedAt: "2026-07-01T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(refundedChargeEvent({ customer: "cus_renewal_1" }));
+        const { POST: POST2 } = await import("./route");
+        const response = await POST2(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(markOrderRefunded).toHaveBeenCalledTimes(1);
+      });
+
+      it("returns 500 bundle_order_renewal_customer_lookup when the customer orders lookup fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        getOrdersByStripeCustomerId.mockRejectedValueOnce(new Error("convex down"));
+        constructEvent.mockReturnValue(refundedChargeEvent({ customer: "cus_renewal_1" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_renewal_customer_lookup");
+        expect(markOrderRefunded).not.toHaveBeenCalled();
+      });
+
+      it("returns 500 bundle_order_refund when the renewal-cycle refund mark write fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+          },
+        ]);
+        markOrderRefunded.mockRejectedValueOnce(new Error("convex down"));
+        constructEvent.mockReturnValue(refundedChargeEvent({ customer: "cus_renewal_1" }));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_refund");
+        expect(json.received).toBe(false);
+      });
+    });
   });
 
   describe("charge.dispute.created commerce order clawback tracking", () => {
@@ -2314,6 +2477,133 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_dispute");
       expect(json.received).toBe(false);
+    });
+
+    // renewal-charge-refund-dispute-customer-correlation: unlike Charge,
+    // Dispute has no `.customer` field of its own, so the fallback must
+    // retrieve the PaymentIntent first to read its Customer id.
+    describe("renewal-cycle dispute (no Checkout Session) via PaymentIntent Customer correlation", () => {
+      it("marks the customer's entitled order disputed when the Session lookup misses", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            lifetimeRevenueUsd: 147,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(disputeCreatedEvent());
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(retrievePaymentIntent).toHaveBeenCalledWith("pi_dispute_1");
+        expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_renewal_1");
+        expect(markOrderDisputed).toHaveBeenCalledWith(
+          "cs_original_signup",
+          expect.any(String),
+          { requireConvex: true },
+        );
+      });
+
+      it("skips when the retrieved PaymentIntent has no customer to correlate", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: null });
+        constructEvent.mockReturnValue(disputeCreatedEvent());
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(getOrdersByStripeCustomerId).not.toHaveBeenCalled();
+        expect(markOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("is idempotent — does not re-mark an already-disputed entitled order", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+            disputedAt: "2026-07-01T00:00:00.000Z",
+          },
+        ]);
+        constructEvent.mockReturnValue(disputeCreatedEvent());
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(markOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("returns 500 bundle_order_dispute_renewal_payment_intent_lookup when the PaymentIntent retrieve fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockRejectedValueOnce(new Error("stripe down"));
+        constructEvent.mockReturnValue(disputeCreatedEvent());
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_dispute_renewal_payment_intent_lookup");
+        expect(markOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("returns 500 bundle_order_renewal_customer_lookup when the customer orders lookup fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockRejectedValueOnce(new Error("convex down"));
+        constructEvent.mockReturnValue(disputeCreatedEvent());
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_renewal_customer_lookup");
+        expect(markOrderDisputed).not.toHaveBeenCalled();
+      });
+
+      it("returns 500 bundle_order_dispute when the renewal-cycle dispute mark write fails", async () => {
+        listCheckoutSessions.mockResolvedValueOnce({ data: [] });
+        retrievePaymentIntent.mockResolvedValueOnce({ customer: "cus_renewal_1" });
+        getOrdersByStripeCustomerId.mockResolvedValueOnce([
+          {
+            id: "ord_1",
+            leadSlug: "demo-cafe",
+            stripeSessionId: "cs_original_signup",
+            stripeCustomerId: "cus_renewal_1",
+            tier: "growth",
+            commerceAddon: false,
+            amountPaid: 49,
+            status: "paid",
+            createdAt: "2026-05-01T00:00:00.000Z",
+          },
+        ]);
+        markOrderDisputed.mockRejectedValueOnce(new Error("convex down"));
+        constructEvent.mockReturnValue(disputeCreatedEvent());
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_order_dispute");
+        expect(json.received).toBe(false);
+      });
     });
   });
 

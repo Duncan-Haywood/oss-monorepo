@@ -2068,14 +2068,45 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>lifetimeRevenueUsd</code>/<code>lastRenewalInvoiceId</code> forward explicitly, or a
         resubscribe/refund-reversal/dispute-win would silently wipe previously-recorded renewal
         revenue the same way an earlier omission would have cleared <code>refundedAt</code>/
-        <code>disputedAt</code>. Not yet covered by this fix: a dispute or refund on a renewal
-        charge itself has no correlation path back to the order at all (
+        <code>disputedAt</code>. Left as a follow-up rather than folded into this fix: a dispute or
+        refund on a renewal charge itself had no correlation path back to the order at all (
         <code>charge.refunded</code>/<code>charge.dispute.created</code> resolve via{" "}
         <code>stripe.checkout.sessions.list({"{ payment_intent }"})</code>, but a renewal
         invoice&apos;s PaymentIntent is created directly by Stripe&apos;s billing system, never
-        through a Checkout Session) — a renewal-charge refund/dispute today neither reduces{" "}
-        <code>lifetimeRevenueUsd</code> nor sets <code>refundedAt</code>/<code>disputedAt</code>,
-        left as a follow-up rather than folded into this fix.
+        through a Checkout Session) — a renewal-charge refund/dispute previously neither reduced{" "}
+        <code>lifetimeRevenueUsd</code> nor set <code>refundedAt</code>/<code>disputedAt</code>,
+        a real revenue-overstatement and clawback-blind-spot gap given{" "}
+        <code>orderCountsTowardRevenue</code> excludes a flagged order&apos;s entire{" "}
+        <code>lifetimeRevenueUsd</code> (not a partial amount) from{" "}
+        <code>revenueTotalUsd</code>.
+      </p>
+
+      <p>
+        Fixed by <strong>renewal-charge-refund-dispute-customer-correlation</strong>: when the
+        Checkout Session lookup on <code>charge.refunded</code> misses, fall back to correlating
+        via the charge&apos;s own Stripe Customer id (<code>charge.customer</code> — present
+        directly on the Charge object, no extra Stripe API call needed) instead of giving up.
+        <code>charge.dispute.created</code> needs one extra step first — unlike Charge, Dispute
+        carries no <code>.customer</code> field of its own — so it retrieves the PaymentIntent (
+        <code>stripe.paymentIntents.retrieve</code>) to read <em>its</em> <code>.customer</code>{" "}
+        before the same correlation. Either way, once a Stripe Customer id is in hand,{" "}
+        <code>getOrdersByStripeCustomerId</code> + <code>orderGrantsSoldCapabilityEntitlement</code>{" "}
+        resolve the customer&apos;s one currently-entitled order — the exact same lookup{" "}
+        <code>recordSubscriptionRenewalPayment</code> already uses — and{" "}
+        <code>markOrderRefunded</code>/<code>markOrderDisputed</code> are called against that
+        order&apos;s own (original signup) <code>stripeSessionId</code>, which is what those
+        mutations are keyed on regardless of which charge in the subscription&apos;s lifetime
+        triggered the event. Both new lookups are required or gate the same money-ledger write as
+        the Session-based path, so a transient failure returns 500 (
+        <code>bundle_order_renewal_customer_lookup</code> /{" "}
+        <code>bundle_order_dispute_renewal_payment_intent_lookup</code>) rather than silently
+        skipping — Stripe retries. Deliberately not attempted: reducing{" "}
+        <code>lifetimeRevenueUsd</code> by only the disputed/refunded charge&apos;s own amount.
+        The existing whole-order exclusion (<code>orderCountsTowardRevenue</code>) already treats
+        any refund/dispute on the <em>original</em> signup charge as a full exclusion, not a
+        partial one — this fix keeps that same approximation for a renewal-charge refund/dispute
+        rather than introducing a second, inconsistent semantics for one specific charge in an
+        order&apos;s lifetime.
       </p>
 
       <p>

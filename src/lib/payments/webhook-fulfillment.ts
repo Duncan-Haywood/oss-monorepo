@@ -136,22 +136,53 @@ export type WebhookFulfillmentStep =
   | "commerce_order_dispute_clear"
   /**
    * Marking orders.refundedAt (bundle Starter/Growth/Complete/Commerce-addon
-   * revenue) after charge.refunded resolves the order's Checkout Session —
-   * required so Stripe retries rather than leaving a refunded bundle order
-   * still counted in revenueTotalUsd with no operator visibility. See
-   * bundle-order-refund-tracking. Session lookup itself reuses
-   * commerce_order_refund_session_lookup (shared correlation call).
+   * revenue) after charge.refunded resolves the order's Checkout Session, OR
+   * (see bundle_order_refund_renewal_customer_lookup below) resolves via
+   * Stripe Customer correlation for a renewal-cycle charge with no Checkout
+   * Session at all — required so Stripe retries rather than leaving a
+   * refunded bundle order still counted in revenueTotalUsd with no operator
+   * visibility. See bundle-order-refund-tracking. Session lookup itself
+   * reuses commerce_order_refund_session_lookup (shared correlation call).
    */
   | "bundle_order_refund"
   /**
+   * Looking up a subscription's currently sold-capability-entitled order via
+   * a Stripe Customer id after the Checkout Session correlation on
+   * charge.refunded or charge.dispute.created found nothing — required for a
+   * renewal-cycle refund/dispute: a renewal invoice's PaymentIntent is minted
+   * directly by Stripe's billing system and is never attached to a Checkout
+   * Session, so commerce_order_refund_session_lookup /
+   * commerce_order_dispute_session_lookup always miss it. Mirrors how
+   * recordSubscriptionRenewalPayment/invoice.paid resolve "the" active order
+   * for a customer. Required (5xx on failure, not best-effort) because it
+   * gates the same money-ledger write as the Session-based path. Shared by
+   * both events — the lookup itself (getOrdersByStripeCustomerId +
+   * orderGrantsSoldCapabilityEntitlement) is identical either way. See
+   * renewal-charge-refund-dispute-customer-correlation.
+   */
+  | "bundle_order_renewal_customer_lookup"
+  /**
    * Marking orders.disputedAt after charge.dispute.created (or dispute.closed
-   * lost) resolves a bundle order's Checkout Session — required so Stripe
-   * retries rather than leaving a disputed bundle order still counted in
-   * revenueTotalUsd. Session lookup reuses commerce_order_dispute_session_lookup
-   * / commerce_order_dispute_closed_session_lookup. See
+   * lost) resolves a bundle order's Checkout Session, OR (see
+   * bundle_order_dispute_renewal_payment_intent_lookup below) resolves via
+   * PaymentIntent Customer correlation for a renewal-cycle charge with no
+   * Checkout Session at all — required so Stripe retries rather than leaving
+   * a disputed bundle order still counted in revenueTotalUsd. Session lookup
+   * reuses commerce_order_dispute_session_lookup /
+   * commerce_order_dispute_closed_session_lookup. See
    * bundle-order-dispute-tracking.
    */
   | "bundle_order_dispute"
+  /**
+   * Retrieving the PaymentIntent behind a disputed charge (via
+   * stripe.paymentIntents.retrieve) to read its Customer id, after the
+   * Checkout Session correlation above found nothing — required for a
+   * renewal-cycle dispute: unlike Charge, Dispute carries no `.customer`
+   * field of its own, and a renewal invoice's PaymentIntent was never
+   * attached to a Checkout Session in the first place. See
+   * renewal-charge-refund-dispute-customer-correlation.
+   */
+  | "bundle_order_dispute_renewal_payment_intent_lookup"
   /**
    * Clearing orders.disputedAt after charge.dispute.closed with status won /
    * warning_closed — required so Stripe retries rather than leaving a won
