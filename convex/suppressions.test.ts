@@ -75,6 +75,48 @@ test("suppress records the reason, and a repeat call does not overwrite it", asy
   ]);
 });
 
+test("suppress upgrades an existing unsubscribe row to a later bounce or complaint", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.suppressions.suppress, {
+    email: "later-bounces@example.com",
+    reason: "unsubscribe",
+    apiSecret: TEST_API_SECRET,
+  });
+  // A later hard bounce for an address that only routinely unsubscribed
+  // before must upgrade the stored reason — silently no-op'ing this (the
+  // original bug) discarded a real sender-reputation signal and left the
+  // dashboard panel mislabeling the row as a low-risk opt-out.
+  await t.mutation(api.suppressions.suppress, {
+    email: "later-bounces@example.com",
+    reason: "bounce",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const rows = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  expect(rows).toEqual([
+    expect.objectContaining({ email: "later-bounces@example.com", reason: "bounce" }),
+  ]);
+});
+
+test("suppress upgrades an existing bounce row to a later complaint", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.suppressions.suppress, {
+    email: "escalates@example.com",
+    reason: "bounce",
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.suppressions.suppress, {
+    email: "escalates@example.com",
+    reason: "complaint",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const rows = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  expect(rows).toEqual([
+    expect.objectContaining({ email: "escalates@example.com", reason: "complaint" }),
+  ]);
+});
+
 test("list returns every suppressed email with its reason and createdAt", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.suppressions.suppress, {
