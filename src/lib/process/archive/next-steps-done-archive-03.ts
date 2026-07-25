@@ -93,4 +93,117 @@ export const NEXT_STEPS_DONE_ARCHIVE_03: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-9y896u",
-  },];
+  },
+  {
+    id: "contact-form-success-message-focus-restore",
+    summary:
+      "Fresh-angle empty-backlog audit (research agent steered at TOCTOU races, Convex/TS type drift, public-form accessibility, and swallowed-error paths) found a genuine focus-loss bug in src/components/preview/contact-form.tsx — the Starter-tier sold contact form rendered on every live customer site: a successful submit unmounts the whole <form> (including the focused submit button, on a keyboard-driven Enter/Space submit) and replaces it with a <p role=\"status\"> success message, with no focus() call on that transition, so a keyboard-only/screen-reader visitor's focus silently reset to <body>. Shipped: focus now moves onto the success message itself (ref + tabIndex={-1} + a useEffect keyed on status). Verified with a real Playwright browser check (globally-installed Chromium, repo has no playwright devDependency) — confirmed via document.activeElement that this exact class of regression (undetectable by curl/build/lint/test alone) is fixed. See contact-form-success-message-focus-restore in BUSINESS_DECISIONS.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-ozmixm",
+  },
+  {
+    id: "vercel-domain-provisioning-fetch-timeout",
+    summary:
+      "Fresh-angle empty-backlog audit found tryProvisionVercelDomain/releaseVercelDomains (src/lib/deploy/handoff.ts) had solid error handling (response.ok checks, 409-vs-hard-error distinction, network-error catch, never-downgrade-live) but neither Vercel Domains API fetch call (POST register, DELETE release) passed an AbortSignal — the exact gap anthropic-generator-fetch-timeout closed for the LLM generator fetches one iteration earlier. enqueueProductionHandoff awaits tryProvisionVercelDomain synchronously from the paid-checkout fulfillment path (Stripe webhook), so a hung Vercel connection could tie up that handler indefinitely instead of failing fast into the existing error_network handling. Shipped a VERCEL_REQUEST_TIMEOUT_MS = 15_000 constant and signal: AbortSignal.timeout(...) on both fetch calls, mirroring the just-shipped Anthropic pattern; an aborted call now degrades into the existing catch block's error_network handling unchanged.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-2lowxy",
+  },
+  {
+    id: "csp-nonce-rollout",
+    summary:
+      "Shipped as a two-tier policy, set per-request from src/proxy.ts (src/lib/security/content-security-policy.ts) rather than next.config.ts's static headers(): routes Next already renders dynamically per request (/dashboard, /checkout, /preview — isNonceCspPath) get the full nonce-scoped script-src/style-src + 'strict-dynamic' tier, following Next's documented proxy-nonce pattern exactly (the nonce is folded into the outgoing request's headers, not just the response, so Next can read it back out during SSR and auto-nonce its own framework scripts); every other route (static marketing/docs pages, /api/*) gets a nonce-free but still-hardened tier (object-src/base-uri/form-action/frame-ancestors) that deliberately leaves script-src/style-src unset so static-page hydration keeps working unchanged — a nonce there would permanently block Next's own framework script on every pre-rendered page. Turned out neither of this app's two inline <script> sinks (both application/ld+json JSON-LD, layout.tsx + preview/[slug]/page.tsx) needed the nonce threaded in at all: script-src only governs elements the browser would execute as script, and a JSON-LD data block never executes — so the 'thread the nonce through every inline script' half of this item's original framing turned out to be unnecessary once verified against the actual sinks in this codebase, not merely deferred. A rewrite (preview-subdomain / custom-domain Host routing) classifies by its /preview/[slug] destination, not the original \"/\" request path.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-ifyjlb",
+  },
+  {
+    id: "csp-nonce-preview-maps-frame-src",
+    summary:
+      "Empty-backlog audit after PR #478 (csp-nonce-rollout) found a real regression it introduced: buildNonceContentSecurityPolicy sets default-src 'self' with no frame-src directive, so the cross-origin Google Maps iframe on every /preview/[slug] page (src/components/preview/maps-embed.tsx) is CSP-blocked in a real browser — invisible to PR #478's own curl-only verification, which checked header presence and script nonce distribution but never rendered the page. Fixed: added frame-src 'self' https://www.google.com https://maps.google.com to the nonce tier.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-yw5xgd",
+  },
+  {
+    id: "commerce-buy-now-client-receipt-visibility",
+    summary:
+      "Found-but-deferred while auditing tier 1 (sold-capability wiring gaps): commerceOrders.clientReceiptEmailSentAt (src/lib/db.ts, CommerceOrderRecord in src/lib/commerce/orders.ts) has zero visibility anywhere in pipeline-health, the daily digest, or the dashboard — there is no listCommerceOrdersMissingClientReceipt() and no manual resend action, so a permanently-bad client email or a sustained Resend outage past Stripe's webhook retry window leaves a local business never told they made a Commerce Buy-now sale, with no operator-visible signal that anything is wrong. Trivially wirable via a copy of the existing listCommerceOrdersRefunded()/listCommerceOrdersDisputed() pattern (src/lib/db.ts) plus a pipeline-health/digest section mirroring commerceCatalogsMissingCount. Left as a todo rather than shipped this round in favor of the higher-severity tier-2 revenue-integrity race fixed in the same iteration (cold-lead-disposition-paid-live-race-guard). Shipped 2026-07-20 — see commerce-buy-now-client-receipt-visibility-shipped in BUSINESS_DECISIONS. Updated 2026-07-20: the aggregate-count-only visibility shipped there turned out to still leave the operator unable to identify or act on which order was stuck (the fetched per-order list was never passed past the page component down to LeadsClient) — see commerce-buy-now-client-receipt-manual-resend in BUSINESS_DECISIONS for the row-level list + resend action that closes the gap for real.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-rpyxre",
+  },
+  {
+    id: "csv-import-text-length-capacity-math",
+    summary:
+      "Empty-backlog audit (tier 3/docs clarity, after a broad tier 1-4 sweep across the Stripe webhook, refund/dispute Convex+SQLite twins, proxy.ts, and OG-image routes turned up nothing else). MAX_CSV_IMPORT_TEXT_LENGTH's own doc comment in src/lib/leads/csv-import.ts claimed 512 KiB 'comfortably fits 100 capped rows (create-path MAX_* per cell)' — false by ~2.6x: a single row with a maximal services cell alone (MAX_SERVICES=100 x MAX_SERVICE_ITEM_LENGTH=100) is already ~10KB, so 100 such rows need ~1.3MB. A services-heavy bulk import (e.g. a trades/repair category CSV using the documented per-field caps) hits the 512KB byte gate well before MAX_ROWS=100, and importLeadsCsvAction returned a flat 'CSV text is too long' with no indication of why or how to fix it. Not raising the cap to actually fit 100 max rows: importLeadsCsvAction is a \"use server\" action and next.config.ts does not override Next's default serverActions.bodySizeLimit (1MB) — raising past that framework ceiling would trade an actionable too_long result for an opaque Next-level body-size rejection on requests between the two limits, a worse outcome. Shipped: corrected the misleading doc comment; the too_long error now says '...(over 512,000 characters) — split it into smaller batches (fewer rows, or shorter services lists) and import each separately'; two new Vitest guards in csv-import.test.ts — one pinning MAX_CSV_IMPORT_TEXT_LENGTH under Next's 1MB default, one recomputing the worst-case fully-capped row size so this exact capacity-math claim can't silently go stale again.",
+    status: "done",
+    phase: "Phase 4 — Data ingestion",
+    owner: "claude/upbeat-dijkstra-v2iugu",
+  },
+  {
+    id: "checkout-page-rate-limit",
+    summary:
+      "Empty-backlog audit found the plain public /checkout entry page (src/app/checkout/page.tsx) was the one page in the preview-page-rate-limit / checkout-success-page-rate-limit family never swept — it calls loadCheckoutPrefillLead(params.slug) unconditionally on every request, which fires a real Convex/SQLite getLeadBySlug round trip for any slug that passes the length gate with no per-IP throttle at all, unlike its two siblings. A scripted loop over guessed/leaked slugs forces unbounded DB round trips plus a full SSR render with zero backoff — the same resource-exhaustion class AGENT_PROTOCOL documents (public, unauthenticated, data-driven GET, no existence short-circuit, an expensive per-request lookup). Shipped: planCheckoutPageAccess + CHECKOUT_PAGE_RATE_LIMIT (src/lib/checkout/checkout-page-access.ts), mirroring planCheckoutSuccessAccess exactly — checks checkRateLimit(`checkout-page:${clientIp}`) BEFORE loadCheckoutPrefillLead; a rate-limited hit falls back to the un-prefilled checkout ({ slug: undefined, lead: null }) rather than erroring, so a throttled caller never gets stranded mid-purchase, same fail-to-cheap-existing-path pattern as the two sibling fixes.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-1xj7hh",
+  },
+  {
+    id: "leads-convex-query-return-validator-system-field-leak",
+    summary:
+      "Tier 2 (Convex/SQLite parity) audit found convex/leads.ts's list/getBySlug and convex/checkoutSessions.ts's listOpen were the last two Convex queries in this app still declared `returns: v.any()`, handing back the raw ctx.db document (which always carries Convex's own _id/_creationTime system fields) straight through — unlike every sibling file (orders/commerceOrders/deployHandoffs/marketingPacks/clientVoicePacks/commerceCatalogs/inquiries), which all define an explicit xReturn validator + mapXRow function naming only their own domain fields. src/lib/db.ts's getLeads()/getLeadBySlug()/listOpenCheckoutSessions() then blindly cast that raw doc as Lead[]/Lead/CheckoutSessionRecord[], so on a Convex-backed deployment every in-memory Lead/CheckoutSessionRecord silently carried two extra properties its own TypeScript type has no field for — a real backend-shape divergence from the SQLite fallback (which builds a clean object literal). Concretely this undermined the immediately-preceding iteration's own security fix (public-lead-strip-notes-and-stripe-connect-id, PR #585): softCapLeadForPublicSurface's `const { notes, stripeConnectAccountId, ...publicLead } = lead` only names two fields to strip, so `_id` would have survived that spread on a Convex-backed instance. Shipped: leadReturn + mapLeadRow (convex/leads.ts), checkoutSessionReturn + mapCheckoutSessionRow (convex/checkoutSessions.ts), mirroring commerceOrders.ts's mapOrderRow pattern — deliberately using schema.ts's own loose v.string() typing for category/stage/recommendedTier/tier/status/kind rather than the stricter write-side literal unions, so a pre-existing row with an unexpected value can't make list/getBySlug/listOpen throw. New Vitest cases in convex/leads.test.ts and convex/checkoutSessions.test.ts assert no _id/_creationTime leak and no unexpected key ever appears.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-nbqcq2",
+  },
+  {
+    id: "suppressed-emails-operator-visibility",
+    summary:
+      "Empty-backlog audit (tier 1 — sold-capability wiring gap) found getSuppressedEmails() (src/lib/db.ts, dual-backend since suppression-convex-parity-fix) had zero callers anywhere in application code — no operator surface could see who had unsubscribed, only a reactive per-send note when a send happened to target an already-suppressed address. Shipped a read-only SuppressedEmailsPanel on /dashboard/leads listing every suppressed address (alphabetically sorted client-side to sidestep the two backends' differing, uncontracted row order). No unsuppress/remove control yet — deliberately left as a follow-up to keep this iteration focused, matching how this same feature's own history has scoped prior passes.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/nice-euler-9bn7gs",
+  },
+  {
+    id: "lead-preview-meta-description-length-cap",
+    summary:
+      "Empty-backlog audit (SEO/growth-lever gap, same class as the just-shipped category-landing-meta-description-length-cap and homepage-meta-description-length-cap) found /preview/[slug]'s generateMetadata was the one meta-description surface those two prior fixes never touched — and the highest-value one, since it's a real paying customer's own live site (Starter sells 'Basic SEO'; see src/lib/seo.ts's file header). leadMetaDescription(lead) returned softCapLeadForPublicSurface(lead).description verbatim, which soft-caps at create-path max (MAX_DESCRIPTION_LENGTH=2000, an on-page-body-rendering bound) rather than Google's ~155-160 char SERP-truncation width — unlike homepageMetadata/docPageMetadata/categoryLandingPageMetadata, this page builds its Metadata object by hand rather than through staticPageMetadata, so it never picked up the shared capMetaDescription cap those three get for free. A real client with more than a one-sentence business description got an uncapped (up to 2000-char) <meta name=\"description\">/openGraph.description/twitter.description on their own indexable preview page, silently defeating the paid SEO deliverable — the existing seo.test.ts test even pinned the bug as spec ('toHaveLength(2000)'). Shipped: leadMetaDescription now applies the same capMetaDescription/MAX_META_DESCRIPTION_LENGTH=155 helper directly (single choke point in seo.ts, no new constant). Updated the stale test to assert the capped behavior instead of the 2000-char bug, plus a new realistic-long-description regression case. Deliberately left alone: leadMetaTitle (title-width SERP truncation is a distinct, narrower bound — ~60 chars vs description's ~155 — and titles were out of scope for both prior fixes in this same series too; a future iteration can pick that up as its own fix rather than folding an unrelated bound into this one).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-c2moyl",
+  },
+  {
+    id: "lead-preview-meta-title-length-cap",
+    summary:
+      "Follow-up flagged by the immediately-preceding iteration (lead-preview-meta-description-length-cap): leadMetaTitle (src/lib/seo.ts) built `${businessName} — ${city}, ${state} | ${tagline}` with no SERP-title-width cap — businessName/tagline soft-cap at create-path max (200 chars each, MAX_BUSINESS_NAME_LENGTH/MAX_TAGLINE_LENGTH) for on-page rendering, not Google's much narrower ~60-char title-truncation width. Same gap class as the just-closed description series, one field over. Widened the fix to the shared choke point too: staticPageMetadata's title (homepage/docs/category-landing) had the identical unbounded-upstream problem via brand.name, confirmed concretely — a realistic long NEXT_PUBLIC_BRAND_NAME renders the homepage <title> past 60 chars with zero existing cap. Shipping both together (not staggering title-then-chokepoint across two more iterations) also surfaced a real, already-shipped-but-oversized static string: two of the three /websites-for-* category-landing seoTitles (restaurant 67 chars, trades 72 chars) were already over the new 60-char cap and would have started silently truncating mid-word the moment staticPageMetadata's title cap shipped — the same 'hand-shorten hardcoded copy' fix category-landing-meta-description-length-cap already applied to these same three pages' descriptions.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-subad7",
+  },
+  {
+    id: "business-decisions-archive-08-split",
+    summary:
+      "Process maintenance flagged by the immediately-preceding iteration (post-commerce-checkout-quantity-empty-backlog-clean-audit): business-decisions.ts had grown to 261,047 bytes, close enough to the 262,144-byte (256KiB) read-limit ceiling that a future append could hit it mid-iteration. Split the oldest 39 of the live tail's 50 entries into a new archive/business-decisions-archive-08.ts (following the same ~200KB-per-file convention as archive files 01-07), leaving the newest 11 entries live at 64,052 bytes. Verified lossless via an AST-level deep-equality check (tsx import + assert.deepStrictEqual of the old vs. new assembled BUSINESS_DECISIONS arrays, 654 entries, identical order) before finalizing, per the archive-scalability-split bullet's own verification requirement.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-anx43p",
+  },
+  {
+    id: "recovery-email-escalating-cadence",
+    summary:
+      "Growth-lever fix found by a research agent explicitly steered toward fresh conversion levers rather than another micro defect-fix, after a saturated same-day backlog of 30+ prior iterations. sendCheckoutAbandonedRecovery/sendCommerceAbandonedRecovery sent byte-identical copy on every repeat operator-triggered nudge for the same abandoned session, unlike the cold-outreach cadence (Email 1/2/3) which deliberately varies angle/urgency across touches — a real gap since abandoned-checkout shoppers already showed purchase intent (reached Stripe Checkout) and deserved stronger follow-through than a copy-paste re-send. Shipped a new recoverySentCount field on checkoutSessions (both Convex and SQLite backends, incremented atomically alongside recoverySentAt) and a 3-tier escalating copy split (reassurance → objection-handling → final soft close, capped at tier 3 for nudge 4+) in both recovery email templates, wired through the two dashboard recovery actions and surfaced as a '(#N)' indicator on both dashboard panels. See recovery-email-escalating-cadence in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/nice-euler-wueqtv",
+  },
+  {
+    id: "marketing-scheduling-buffer-profile-mapping-missing-visibility",
+    summary:
+      "Empty-backlog audit (tier 1 — sold-capability wiring gap, flagged as a likely-parallel gap by buffer-token-header-not-query's own decision text but never picked up until now) found scheduleMarketingPackToBufferAction hard-fails for any eligible Growth/Complete lead with no saved Buffer profile mapping, but nothing anywhere (pipeline-health, digest, dashboard) surfaced which/how-many leads were stuck — same visibility-gap class as stripe-connect-onboarding-pipeline-health-visibility. Unlike that precedent, this metric's polarity meant it would show unactionable noise for every eligible lead while ALLOW_MARKETING_SCHEDULING is off (the default) — gated the new count behind a marketingSchedulingEnabled input on both pipeline-health.ts and daily-digest.ts so it stays 0/empty while the Buffer scaffold is dormant. Shipped new pure helpers in src/lib/marketing/buffer.ts (listLeadsMissingBufferProfileMapping, oldestBufferProfileMappingMissingAgeHours), wired into a new PipelineHealthPanel MetricCard and a matching daily-digest section — deliberately not added to the dashboard landing page (that series is closed per the dashboard-landing-clawback-cards note; this is a due-queue count, not a comparable dollar-loss signal). See marketing-scheduling-buffer-profile-mapping-missing-visibility in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 6 — Marketing automation",
+    owner: "claude/nice-euler-sqwl6z",
+  },
+];
