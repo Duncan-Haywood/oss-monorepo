@@ -655,7 +655,17 @@ export default function ArchitectureDocPage() {
         <code>recentBounceOrComplaintSuppressionCount</code> and{" "}
         <code>newestBounceOrComplaintSuppressionAgeHours</code> actually key their 7-day window
         off, not <code>createdAt</code> directly, so an old-unsubscribe-then-new-bounce address
-        correctly reads as recent.
+        correctly reads as recent. The Convex <code>suppress</code> mutation&apos;s dirty-check
+        compares the computed <code>preferSuppressionReason</code> result against the{" "}
+        <em>defaulted</em> existing reason (via <code>suppressionReasonOrDefault</code>), not the
+        raw schema field — a row written before the <code>reason</code> column existed has{" "}
+        <code>existing.reason === undefined</code>, and comparing the defaulted{" "}
+        <code>&quot;unsubscribe&quot;</code> preferred value against that raw{" "}
+        <code>undefined</code> made every repeat <code>suppress()</code> call for a legacy row
+        look like an upgrade and unconditionally patch <code>reasonUpdatedAt</code>, never
+        converging to a true no-op the way the SQLite fallback already did (its{" "}
+        <code>suppression_list.reason</code> column is <code>NOT NULL DEFAULT &apos;unsubscribe&apos;</code>
+        , so its <code>existing.reason</code> is never undefined for the same scenario).
         Every
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}
