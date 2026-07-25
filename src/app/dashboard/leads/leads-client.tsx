@@ -4367,7 +4367,14 @@ export function LeadsClient({
                               </>
                             )}
                             {marketingSchedulingAllowed && bufferScheduleResultByLead[lead.slug] ? (
-                              <p className="mt-2 text-[11px] text-zinc-600">
+                              <p
+                                className="mt-2 text-[11px] text-zinc-600"
+                                role={
+                                  bufferScheduleResultByLead[lead.slug].failed.length > 0
+                                    ? "alert"
+                                    : "status"
+                                }
+                              >
                                 Scheduled:{" "}
                                 {bufferScheduleResultByLead[lead.slug].scheduled.length} ·
                                 Skipped: {bufferScheduleResultByLead[lead.slug].skipped.length} ·
