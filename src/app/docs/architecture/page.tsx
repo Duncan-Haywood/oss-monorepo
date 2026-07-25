@@ -895,6 +895,35 @@ export default function ArchitectureDocPage() {
         <code>recordLeadOutreach</code> — that the SQLite fallback rejects the write for a
         paid/live/closed lead and for a duplicate/stale outreach step.
       </p>
+      <p>
+        <code>insertDeployHandoff</code>/<code>updateDeployHandoffStatus</code>/
+        <code>updateDeployHandoffVercelProject</code>/<code>updateDeployHandoffCustomDomain</code>{" "}
+        are the deploy-handoff write family every sold bundle checkout funnels through via{" "}
+        <code>src/lib/deploy/handoff.ts</code>, always called with <code>requireConvex: true</code>{" "}
+        — every consumer test (<code>handoff.test.ts</code>, the webhook route test, the dashboard
+        actions test) mocks <code>&quot;@/lib/db&quot;</code> away entirely, so this module&apos;s own
+        orchestration for all four had zero automated coverage until now.{" "}
+        <code>updateDeployHandoffStatus</code> carries its own duplicated-logic risk shared with{" "}
+        <code>updateLeadStage</code>/<code>applyColdLeadDisposition</code>/
+        <code>recordLeadOutreach</code> above: its SQLite fallback re-implements{" "}
+        <code>preferAdvancedHandoffStatus</code>&apos;s never-downgrade guard (a concurrent Mark
+        live during a webhook&apos;s post-Resend status patch must not regress status back to{" "}
+        <code>awaiting_dns</code>) with its own Convex mutation counterpart already covered (
+        <code>convex/deployHandoffs.test.ts</code>) but the SQLite twin never exercised.{" "}
+        <code>updateDeployHandoffCustomDomain</code> carries a second distinct risk: its SQLite
+        fallback (<code>sqliteUpdateDeployHandoffCustomDomain</code>,{" "}
+        <code>src/lib/db/sqlite-queries.ts</code>) re-implements the same www/apex
+        alias-uniqueness conflict check the Convex mutation enforces — a broken SQLite-side check
+        would let two leads silently share one custom domain on a SQLite-only deployment, exactly
+        the split-brain <code>custom-domain-normalize-and-unique</code> exists to prevent. The new
+        cases cover each function&apos;s Convex-success early-return (without touching SQLite),{" "}
+        <code>requireConvex</code> fail-closed throw, SQLite-fallback not-found guard,{" "}
+        <code>insertDeployHandoff</code>&apos;s full-row-replace-on-upsert behavior,{" "}
+        <code>updateDeployHandoffStatus</code>&apos;s never-downgrade-but-still-append-notes case,{" "}
+        <code>updateDeployHandoffVercelProject</code>&apos;s set-then-clear-via-null round trip, and{" "}
+        <code>updateDeployHandoffCustomDomain</code>&apos;s URL-to-bare-hostname normalization,
+        www-alias conflict rejection, and clear-via-null.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>

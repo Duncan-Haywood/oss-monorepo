@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { Lead } from "./leads/types";
+import type { DeployHandoff } from "./deploy/types";
 
 /**
  * Direct coverage for src/lib/db.ts's own Convex-first/SQLite-fallback
@@ -148,6 +149,28 @@ import type { Lead } from "./leads/types";
  * since it fires from an unauthenticated public beacon route for
  * slug-inferred demo leads) — closed together in one pass since none carries
  * risk beyond that shared shape, which this suite already established.
+ *
+ * insertDeployHandoff / updateDeployHandoffStatus /
+ * updateDeployHandoffVercelProject / updateDeployHandoffCustomDomain (~1674,
+ * ~1802, ~1859, ~1906) are the deploy-handoff write family every sold
+ * bundle checkout funnels through via src/lib/deploy/handoff.ts, always
+ * called with requireConvex: true (DEPLOY_HANDOFF_CONVEX_PRIMARY) — every
+ * consumer test (handoff.test.ts, the webhook route test, dashboard
+ * actions.ts's test) mocks "@/lib/db" away entirely, so this module's own
+ * orchestration for all four had zero automated coverage until now.
+ * updateDeployHandoffStatus carries its own duplicated-logic risk shared
+ * with updateLeadStage/applyColdLeadDisposition/recordLeadOutreach above: its
+ * SQLite fallback re-implements preferAdvancedHandoffStatus's never-downgrade
+ * guard (a concurrent Mark live during a webhook's post-Resend status patch
+ * must not regress status back to awaiting_dns) with its own Convex mutation
+ * counterpart already covered (convex/deployHandoffs.test.ts) but the SQLite
+ * twin never exercised. updateDeployHandoffCustomDomain carries a second
+ * distinct risk: its SQLite fallback (sqliteUpdateDeployHandoffCustomDomain,
+ * src/lib/db/sqlite-queries.ts) re-implements the same www/apex
+ * alias-uniqueness conflict check the Convex mutation enforces — a broken
+ * SQLite-side check would let two leads silently share one custom domain on
+ * a SQLite-only deployment, exactly the split-brain
+ * custom-domain-normalize-and-unique exists to prevent.
  */
 
 vi.mock("server-only", () => ({}));
@@ -205,6 +228,28 @@ function testLead(slug: string, overrides: Partial<Lead> = {}): Lead {
     hours: { weekday: "Mon-Fri 9-5", weekend: "Closed" },
     stage: "discovered",
     recommendedTier: "starter",
+    ...overrides,
+  };
+}
+
+function testDeployHandoff(leadSlug: string, overrides: Partial<DeployHandoff> = {}): DeployHandoff {
+  const now = "2026-07-25T00:00:00.000Z";
+  return {
+    id: `handoff-${leadSlug}`,
+    leadSlug,
+    businessName: "Test Business",
+    tier: "starter",
+    commerceAddon: false,
+    stripeSessionId: `cs_${leadSlug}`,
+    customerEmail: "buyer@example.com",
+    previewUrl: `https://example.com/preview/${leadSlug}`,
+    suggestedHost: `${leadSlug}.example.com`,
+    contactFormUrl: `https://example.com/api/contact/${leadSlug}`,
+    dnsInstructions: [],
+    status: "pending",
+    notes: [],
+    createdAt: now,
+    updatedAt: now,
     ...overrides,
   };
 }
@@ -2197,6 +2242,235 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         db.updateLeadBufferProfileIds("missing-slug", ["profile_1"]),
       ).rejects.toThrow(/not found/i);
       expect(convexMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("insertDeployHandoff (requireConvex fail-closed write, full-row upsert)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.insertDeployHandoff(testDeployHandoff("convex-handoff-lead"), { requireConvex: true }),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // No SQLite row was ever written by the Convex-success path.
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const handoff = await db.getDeployHandoffBySlug("convex-handoff-lead");
+      expect(handoff).toBeNull();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.insertDeployHandoff(testDeployHandoff("any-lead"), { requireConvex: true }),
+      ).rejects.toThrow(/insertDeployHandoff/);
+    });
+
+    it("falls back to a real SQLite insert when requireConvex is not set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await db.insertDeployHandoff(testDeployHandoff("fallback-handoff-lead"));
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const handoff = await db.getDeployHandoffBySlug("fallback-handoff-lead");
+      expect(handoff?.businessName).toBe("Test Business");
+      expect(handoff?.status).toBe("pending");
+    });
+
+    it("replaces an existing row's full body on a second SQLite-fallback upsert for the same leadSlug", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(
+        testDeployHandoff("upsert-handoff-lead", { businessName: "Original Name", status: "pending" }),
+      );
+      await db.insertDeployHandoff(
+        testDeployHandoff("upsert-handoff-lead", { businessName: "Updated Name", status: "awaiting_dns" }),
+      );
+
+      const handoff = await db.getDeployHandoffBySlug("upsert-handoff-lead");
+      expect(handoff?.businessName).toBe("Updated Name");
+      expect(handoff?.status).toBe("awaiting_dns");
+    });
+  });
+
+  describe("updateDeployHandoffStatus (requireConvex fail-closed write, never-downgrade guard)", () => {
+    it("returns the Convex mutation's result directly on success, without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertDeployHandoff(testDeployHandoff("convex-status-lead"));
+
+      convexMutation.mockResolvedValueOnce({
+        ...testDeployHandoff("convex-status-lead"),
+        status: "live",
+      });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.updateDeployHandoffStatus("convex-status-lead", "live", [], {
+        requireConvex: true,
+      });
+      expect(result?.status).toBe("live");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // The pure-SQLite row (seeded above, still "pending") proves the
+      // Convex-success path never fell through and wrote SQLite too.
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stillPending = await db.getDeployHandoffBySlug("convex-status-lead");
+      expect(stillPending?.status).toBe("pending");
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateDeployHandoffStatus("some-lead", "live", [], { requireConvex: true }),
+      ).rejects.toThrow(/updateDeployHandoffStatus/);
+    });
+
+    it("returns null via the SQLite fallback when the leadSlug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(db.updateDeployHandoffStatus("missing-lead", "live")).resolves.toBeNull();
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("SQLite fallback advances status and appends notes for an ordinary forward transition", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("advance-status-lead", { notes: ["created"] }));
+
+      const updated = await db.updateDeployHandoffStatus("advance-status-lead", "awaiting_dns", [
+        "dns instructions sent",
+      ]);
+      expect(updated?.status).toBe("awaiting_dns");
+      expect(updated?.notes).toEqual(["created", "dns instructions sent"]);
+
+      const reread = await db.getDeployHandoffBySlug("advance-status-lead");
+      expect(reread?.status).toBe("awaiting_dns");
+      expect(reread?.notes).toEqual(["created", "dns instructions sent"]);
+    });
+
+    it("SQLite fallback never downgrades status but still appends notes (preferAdvancedHandoffStatus parity)", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("no-downgrade-lead", { status: "live" }));
+
+      // A concurrent webhook note-append passing a stale pre-Resend status
+      // must not regress an already-live handoff back to awaiting_dns.
+      const updated = await db.updateDeployHandoffStatus("no-downgrade-lead", "awaiting_dns", [
+        "receipt email sent",
+      ]);
+      expect(updated?.status).toBe("live");
+      expect(updated?.notes).toEqual(["receipt email sent"]);
+    });
+  });
+
+  describe("updateDeployHandoffVercelProject (requireConvex fail-closed write)", () => {
+    it("returns the Convex mutation's result directly on success, without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertDeployHandoff(testDeployHandoff("convex-vercel-lead"));
+
+      convexMutation.mockResolvedValueOnce({
+        ...testDeployHandoff("convex-vercel-lead"),
+        vercelProjectId: "prj_convex",
+      });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.updateDeployHandoffVercelProject("convex-vercel-lead", "prj_convex", {
+        requireConvex: true,
+      });
+      expect(result?.vercelProjectId).toBe("prj_convex");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stillUnset = await db.getDeployHandoffBySlug("convex-vercel-lead");
+      expect(stillUnset?.vercelProjectId).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateDeployHandoffVercelProject("some-lead", "prj_any", { requireConvex: true }),
+      ).rejects.toThrow(/updateDeployHandoffVercelProject/);
+    });
+
+    it("returns null via the SQLite fallback when the leadSlug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.updateDeployHandoffVercelProject("missing-lead", "prj_any"),
+      ).resolves.toBeNull();
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("SQLite fallback sets then clears vercelProjectId via null", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("vercel-project-lead"));
+
+      await db.updateDeployHandoffVercelProject("vercel-project-lead", "prj_dedicated");
+      expect((await db.getDeployHandoffBySlug("vercel-project-lead"))?.vercelProjectId).toBe(
+        "prj_dedicated",
+      );
+
+      await db.updateDeployHandoffVercelProject("vercel-project-lead", null);
+      expect(
+        (await db.getDeployHandoffBySlug("vercel-project-lead"))?.vercelProjectId,
+      ).toBeUndefined();
+    });
+  });
+
+  describe("updateDeployHandoffCustomDomain (requireConvex fail-closed write, www/apex alias uniqueness)", () => {
+    it("returns the Convex mutation's result directly on success, without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertDeployHandoff(testDeployHandoff("convex-domain-lead"));
+
+      convexMutation.mockResolvedValueOnce({
+        ...testDeployHandoff("convex-domain-lead"),
+        customDomain: "client.example",
+      });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.updateDeployHandoffCustomDomain(
+        "convex-domain-lead",
+        "client.example",
+        { requireConvex: true },
+      );
+      expect(result?.customDomain).toBe("client.example");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stillUnset = await db.getDeployHandoffBySlug("convex-domain-lead");
+      expect(stillUnset?.customDomain).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateDeployHandoffCustomDomain("some-lead", "client.example", { requireConvex: true }),
+      ).rejects.toThrow(/updateDeployHandoffCustomDomain/);
+    });
+
+    it("SQLite fallback normalizes a pasted URL down to a bare hostname", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("normalize-domain-lead"));
+
+      const updated = await db.updateDeployHandoffCustomDomain(
+        "normalize-domain-lead",
+        "https://Client.Example/some/path?x=1",
+      );
+      expect(updated?.customDomain).toBe("client.example");
+    });
+
+    it("SQLite fallback rejects a domain already owned by another lead via its www alias (custom-domain-normalize-and-unique parity)", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("owner-lead"));
+      await db.updateDeployHandoffCustomDomain("owner-lead", "www.client.example");
+
+      await db.insertDeployHandoff(testDeployHandoff("challenger-lead"));
+      await expect(
+        db.updateDeployHandoffCustomDomain("challenger-lead", "client.example"),
+      ).rejects.toThrow(/already assigned to lead owner-lead/);
+    });
+
+    it("SQLite fallback clears an existing custom domain via null", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("clear-domain-lead"));
+      await db.updateDeployHandoffCustomDomain("clear-domain-lead", "client.example");
+
+      const cleared = await db.updateDeployHandoffCustomDomain("clear-domain-lead", null);
+      expect(cleared?.customDomain).toBeUndefined();
     });
   });
 });
