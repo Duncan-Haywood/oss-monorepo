@@ -5,6 +5,7 @@ import {
   contentLengthExceedsLimit,
   readFormBodyWithByteLimit,
   readJsonBodyWithByteLimit,
+  readTextBodyWithByteLimit,
 } from "./json-body";
 
 function jsonRequest(
@@ -147,6 +148,54 @@ describe("readJsonBodyWithByteLimit", () => {
     );
     expect(chunksPulled).toBeLessThanOrEqual(chunksNeededToExceedCap + 1);
     expect(cancelled).toBe(true);
+  });
+});
+
+describe("readTextBodyWithByteLimit", () => {
+  it("returns the raw text unmodified for a small body", async () => {
+    const req = jsonRequest("not-json-but-that-is-fine-here");
+    const result = await readTextBodyWithByteLimit(req);
+    expect(result).toEqual({ ok: true, value: "not-json-but-that-is-fine-here" });
+  });
+
+  it("rejects when Content-Length exceeds the max before reading", async () => {
+    const req = jsonRequest("x", {
+      "content-length": String(MAX_PUBLIC_JSON_BODY_BYTES + 50),
+    });
+    const result = await readTextBodyWithByteLimit(req);
+    expect(result).toEqual({ ok: false, reason: "too_large" });
+  });
+
+  it("rejects when the consumed body exceeds the max without Content-Length", async () => {
+    const huge = "a".repeat(MAX_PUBLIC_JSON_BODY_BYTES + 1);
+    const req = jsonRequest(huge);
+    const result = await readTextBodyWithByteLimit(req);
+    expect(result).toEqual({ ok: false, reason: "too_large" });
+  });
+
+  it("accepts a body exactly at the max", async () => {
+    const exact = "b".repeat(MAX_PUBLIC_JSON_BODY_BYTES);
+    const req = jsonRequest(exact, {
+      "content-length": String(MAX_PUBLIC_JSON_BODY_BYTES),
+    });
+    const result = await readTextBodyWithByteLimit(req);
+    expect(result).toEqual({ ok: true, value: exact });
+  });
+
+  it("respects a custom maxBytes override", async () => {
+    const req = jsonRequest("abcdef");
+    const result = await readTextBodyWithByteLimit(req, 3);
+    expect(result).toEqual({ ok: false, reason: "too_large" });
+  });
+
+  it("returns an empty string for an empty body", async () => {
+    const req = new Request("http://localhost/api/test", {
+      method: "POST",
+      headers: { "content-length": "0" },
+      body: "",
+    });
+    const result = await readTextBodyWithByteLimit(req);
+    expect(result).toEqual({ ok: true, value: "" });
   });
 });
 

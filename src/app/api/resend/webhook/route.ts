@@ -9,6 +9,7 @@ import {
 } from "@/lib/email/resend-webhook";
 import { RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
 import { checkRateLimit, clientIpFromHeaders, type RateLimitConfig } from "@/lib/security/rate-limit";
+import { MAX_PUBLIC_JSON_BODY_BYTES, readTextBodyWithByteLimit } from "@/lib/security/json-body";
 
 /**
  * Resend delivery-event webhook — hard bounces (email.bounced, Permanent)
@@ -52,7 +53,20 @@ export async function POST(request: Request) {
     return notConfigured();
   }
 
-  const rawBody = await request.text();
+  // Bound the raw body before it's fully read into memory — unlike the
+  // Stripe webhook (documented exception in json-body.ts: Stripe signs a
+  // payload that can legitimately exceed this ceiling), Resend delivery
+  // events are small fixed-shape JSON, so this never rejects real traffic.
+  // Read before signature verification since verification needs the exact
+  // raw bytes; an over-sized body can never verify against a legitimate
+  // signature anyway (Resend never sends one this large), so gating here
+  // doesn't create a pre-verification oracle for anything an attacker can
+  // act on.
+  const bodyResult = await readTextBodyWithByteLimit(request, MAX_PUBLIC_JSON_BODY_BYTES);
+  if (!bodyResult.ok) {
+    return NextResponse.json({ error: "Request body too large" }, { status: 413 });
+  }
+  const rawBody = bodyResult.value;
   const verified = verifyResendWebhookSignature(
     secret,
     {

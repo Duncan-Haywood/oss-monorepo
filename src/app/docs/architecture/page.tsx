@@ -950,7 +950,13 @@ export default function ArchitectureDocPage() {
         form-urlencoded / multipart posts share the same ceiling via{" "}
         <code>readFormBodyWithByteLimit</code> / <code>MAX_PUBLIC_REQUEST_BODY_BYTES</code>{" "}
         (arrayBuffer bound, not Content-Length alone — missing or understated headers must
-        still fail closed). The Stripe webhook stays on signed <code>request.text()</code>.
+        still fail closed). The Stripe webhook stays on signed <code>request.text()</code> —
+        Stripe payloads can legitimately exceed the ceiling and Stripe itself signs the raw
+        bytes. The Resend delivery-event webhook (<code>POST /api/resend/webhook</code>) is not
+        exempt the same way — its payloads are small, fixed-shape JSON — so it reads its raw
+        signed body via the same-ceiling <code>readTextBodyWithByteLimit</code> (also in{" "}
+        <code>src/lib/security/json-body.ts</code>) before signature verification, returning 413
+        on an over-sized body rather than buffering it first.
         Route-level Vitest in{" "}
         <code>src/app/api/contact/[slug]/route.test.ts</code> locks contact-form orchestration
         (<code>CONTACT_FORM_CONVEX_PRIMARY</code> pass-through, persist-required 503, notify only
