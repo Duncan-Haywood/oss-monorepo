@@ -837,4 +837,18 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "vercel-domain-provisioning-fetch-timeout"),
   },
+  {
+    date: "2026-07-25",
+    branch: "claude/nice-euler-i0a7yq",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 79a59ab2 (PR #748, vercel-domain-provisioning-fetch-timeout, merged prior session) — HEAD matched origin/main exactly at session start. A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep found no live sibling with unmerged, non-superseded content; mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged eslint-chain root cause) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2875 passed, 204 files, matching the prior iteration exactly).\n\nDiff-gate against the last full clean-sweep anchor (e8e6a750) found only the two already-logged fetch-timeout fixes (PRs #747/#748), so per the waste-reduction rule this iteration dispatched a research agent steered at the newest, least-audited surfaces (defaultTierForCategory's and default-tagline.ts's consumers, isCommerceOrderOwed's consumers, the just-shipped VERCEL_REQUEST_TIMEOUT_MS wiring, hours-schema.ts's JSON-LD parser, the dormant Buffer scaffold's dedup/TOCTOU guards) rather than a full five-tier re-sweep. It traced every candidate by direct source read and found all correctly wired with no fifth duplicate, no missed consumer, no unhandled edge case. This session independently re-verified rather than trusting the report: re-grepped isCommerceOrderOwed and defaultTierForCategory call sites directly, confirmed a repo-wide TODO/FIXME/XXX grep outside the process log returns zero hits, and confirmed no .github/pull_request_template.md exists. See post-748-duplicate-helper-and-scaffold-reaudit-clean in BUSINESS_DECISIONS for full detail.",
+    shipped: [
+      "src/lib/process/business-decisions.ts — appended post-748-duplicate-helper-and-scaffold-reaudit-clean.",
+      "src/lib/process/prompt_process.tsx — appended this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 79a59ab2 (this iteration's own starting tip, post-PR-#748). Flagged (not fixed this pass, per the archive-split-is-its-own-iteration convention): prompt_process.tsx is now at/near the ~230KB re-archive trigger post-append — the next agent should check size first and split into archive/iterations-archive-15.ts if past threshold.",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2875 passed, unchanged, 204 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split). No product/runtime code changed this iteration, docs-only append, so no npm run dev smoke check needed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "post-748-duplicate-helper-and-scaffold-reaudit-clean",
+    ),
+  },
 ];
