@@ -802,6 +802,24 @@ export default function ArchitectureDocPage() {
         early-return, <code>requireConvex</code> fail-closed throw, and SQLite-fallback
         mark-then-redeliver idempotency.
       </p>
+      <p>
+        <code>updateLeadStripeConnectAccountId</code>/<code>updateLeadStripeConnectStatus</code> —
+        the dormant Stripe Connect Express onboarding scaffold&apos;s own two{" "}
+        <code>requireConvex</code> fail-closed writes — shared the same previously-uncovered
+        shape: each has a Convex mutation with direct coverage (
+        <code>convex/leads.test.ts</code>&apos;s <code>updateStripeConnectAccountId</code>/
+        <code>updateStripeConnectStatus</code>) and a hand-written SQLite-fallback branch that no
+        automated test ever exercised (every action/webhook test that calls these mocks{" "}
+        <code>@/lib/db</code> away entirely). <code>getLeads</code>/<code>getLeadBySlug</code> read
+        Convex-first, and <code>connectOnboardingIncompleteCount</code> (pipeline-health/digest)
+        reads this same cache cross-instance, so a broken SQLite fallback would silently misstate
+        the onboarding-incomplete due-queue on a SQLite-only deployment. The new cases cover each
+        function&apos;s Convex-success early-return, <code>requireConvex</code> fail-closed throw,
+        SQLite-fallback write + not-found guard, and — specific to the account-id function —
+        that a later call never overwrites an already-set <code>stripeConnectAccountCreatedAt</code>{" "}
+        (the <code>COALESCE</code> set-once semantics the onboarding-incomplete staleness signal
+        depends on).
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
