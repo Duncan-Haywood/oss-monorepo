@@ -1698,7 +1698,12 @@ source). The same digest also lists email-critical leads with no usable address 
         mismatched Stripe amount and still write fulfillment. The alreadyRecorded gate cannot
         run without a bounded slug and a known SKU charged at the catalog USD Price. Pipeline health
         surfaces the total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales
-        (pass-through)&quot;) — unpaid/owed only (rows with <code>paidOutAt</code> are excluded,
+        (pass-through)&quot;) — unpaid/owed only, via the shared{" "}
+        <code>isCommerceOrderOwed</code> predicate (rows with <code>paidOutAt</code>,{" "}
+        <code>refundedAt</code>, or <code>disputedAt</code> set are excluded, and so is any row
+        with <code>amountPaidUsd === 0</code> — a 100%-off promo-code Buy now order settles at{" "}
+        <code>no_payment_required</code> with nothing ever paid to the platform, so there is
+        nothing to hand off; see <code>commerce-order-zero-amount-owed-exclusion</code> —
         matching the payout panel + digest). This money sits in the platform&apos;s own Stripe
         account with no automated payout path to
         the client yet (see <code>commerce-payouts-stripe-connect</code>). Operators reconcile

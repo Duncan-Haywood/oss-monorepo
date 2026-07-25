@@ -65,9 +65,7 @@ import {
 } from "../commerce/catalog";
 import {
   commerceOrderNeedsClawback,
-  isCommerceOrderDisputed,
-  isCommerceOrderPaidOut,
-  isCommerceOrderRefunded,
+  isCommerceOrderOwed,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
 } from "../commerce/orders";
@@ -904,15 +902,11 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       totalUsd: summary.unpaidTotalUsd,
     }));
   // commerceOrders (fed from listUnpaidCommerceOrders) only excludes paidOutAt
-  // — re-filter out refunded/disputed rows too so a still-open refund/dispute
-  // does not anchor the "owed" staleness signal (mirrors the unpaidCommerceOrders
-  // filter in pipeline-health.ts's computePipelineHealth exactly).
-  const commerceOrdersOwed = commerceOrders.filter(
-    (order) =>
-      !isCommerceOrderPaidOut(order) &&
-      !isCommerceOrderRefunded(order) &&
-      !isCommerceOrderDisputed(order),
-  );
+  // — re-filter out refunded/disputed/$0 rows too so a still-open refund,
+  // dispute, or 100%-off promo order does not anchor the "owed" staleness
+  // signal (mirrors the unpaidCommerceOrders filter in pipeline-health.ts's
+  // computePipelineHealth exactly).
+  const commerceOrdersOwed = commerceOrders.filter(isCommerceOrderOwed);
   const oldestCommerceOrdersOwedAgeHoursValue = oldestCommerceOrdersOwedAgeHours(
     commerceOrdersOwed,
     nowMs,

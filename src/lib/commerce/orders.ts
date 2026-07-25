@@ -181,6 +181,36 @@ export function isCommerceOrderDisputed(
 }
 
 /**
+ * True when a commerce order still has a real, unresolved amount owed to the
+ * client — not yet paid out, not refunded, not disputed, AND its
+ * amountPaidUsd is actually positive. A 100%-off promo-code Buy now order
+ * (allow_promotion_codes on both Checkout create routes; see
+ * checkout-session-no-payment-required-fulfillment-gap) settles at
+ * amountPaidUsd === 0 with no money ever having crossed into the platform's
+ * Stripe account to pass through — there is nothing for the operator to
+ * "mark paid out." Before this predicate existed, four separate call sites
+ * (this file's own summarizeCommerceOrdersByLead, pipeline-health.ts's
+ * unpaidCommerceOrders, daily-digest.ts's commerceOrdersOwed, and
+ * leads-client.tsx's commerceOrdersStillOwed) each duplicated the same
+ * paidOutAt/refundedAt/disputedAt-only check with no amount guard, so a $0
+ * order would sit in the "owed" queue forever once #743 made it reachable at
+ * all — see commerce-order-zero-amount-owed-exclusion.
+ */
+export function isCommerceOrderOwed(
+  order: Pick<
+    CommerceOrderRecord,
+    "paidOutAt" | "refundedAt" | "disputedAt" | "amountPaidUsd"
+  >,
+): boolean {
+  return (
+    !isCommerceOrderPaidOut(order) &&
+    !isCommerceOrderRefunded(order) &&
+    !isCommerceOrderDisputed(order) &&
+    order.amountPaidUsd > 0
+  );
+}
+
+/**
  * True when a refunded OR disputed order was already marked paid out to the
  * client — the operator sent the client their cut before Stripe took the
  * money back (returned to the shopper on refund, withdrawn pending review on
@@ -212,10 +242,13 @@ export interface CommerceOrdersByLeadSummary {
   totalUsd: number;
   /**
    * Total still owed to the client — excludes orders with paidOutAt set, orders
-   * with refundedAt set, and orders with disputedAt set. A refunded or disputed
-   * end-customer sale owes the client nothing, so it must not inflate this
-   * operator-facing "owed" total (see commerce-order-refund-clawback-tracking,
-   * commerce-order-dispute-clawback-tracking).
+   * with refundedAt set, orders with disputedAt set, and orders with
+   * amountPaidUsd === 0 (see isCommerceOrderOwed). A refunded, disputed, or
+   * 100%-off free end-customer sale owes the client nothing, so none of them
+   * may inflate this operator-facing "owed" total (see
+   * commerce-order-refund-clawback-tracking,
+   * commerce-order-dispute-clawback-tracking,
+   * commerce-order-zero-amount-owed-exclusion).
    */
   unpaidTotalUsd: number;
   unpaidCount: number;
@@ -244,12 +277,7 @@ export function summarizeCommerceOrdersByLead(
     );
     const latest = sorted[0];
     if (!latest) continue;
-    const unpaid = sorted.filter(
-      (order) =>
-        !isCommerceOrderPaidOut(order) &&
-        !isCommerceOrderRefunded(order) &&
-        !isCommerceOrderDisputed(order),
-    );
+    const unpaid = sorted.filter(isCommerceOrderOwed);
     summaries.push({
       leadSlug,
       orderCount: sorted.length,

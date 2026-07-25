@@ -62,9 +62,7 @@ import {
   commerceMarkPaidOutAriaLabel,
   commerceOrdersByLeadSummaryNeedsAttention,
   formatPriceUsd,
-  isCommerceOrderDisputed,
-  isCommerceOrderPaidOut,
-  isCommerceOrderRefunded,
+  isCommerceOrderOwed,
   leadEligibleForCommerceCatalog,
   listCommerceCatalogsMissing,
   listCommerceCatalogsUnsynced,
@@ -1351,12 +1349,7 @@ export function LeadsClient({
   // header — this per-lead panel previously had per-row ages (`owed Xh ago`)
   // but no header oldest suffix, unlike every sibling due-queue panel (see
   // open-handoff-and-commerce-payouts-header-staleness-signal).
-  const commerceOrdersStillOwed = commerceOrders.filter(
-    (order) =>
-      !isCommerceOrderPaidOut(order) &&
-      !isCommerceOrderRefunded(order) &&
-      !isCommerceOrderDisputed(order),
-  );
+  const commerceOrdersStillOwed = commerceOrders.filter(isCommerceOrderOwed);
   const oldestCommercePayoutsOwedHours = oldestCommerceOrdersOwedAgeHours(
     commerceOrdersStillOwed,
     nowMs,
@@ -2027,6 +2020,10 @@ export function LeadsClient({
                             <span className="shrink-0 text-teal-700">
                               Paid out{" "}
                               {formatAbandonedAgeHours(deployHandoffAgeHours(row.paidOutAt, nowMs))} ago
+                            </span>
+                          ) : row.amountPaidUsd === 0 ? (
+                            <span className="shrink-0 text-zinc-500">
+                              Free order — nothing owed
                             </span>
                           ) : (
                             <span className="flex shrink-0 items-center gap-2">

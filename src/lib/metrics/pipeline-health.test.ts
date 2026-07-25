@@ -1163,6 +1163,22 @@ describe("computePipelineHealth", () => {
     expect(health.commerceOrdersCount).toBe(1);
   });
 
+  it("excludes $0 (100%-off promo) commerce orders from the owed pass-through card", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        { amountPaidUsd: 0 },
+        { amountPaidUsd: 7.25 },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRevenueUsd).toBe(7.25);
+    expect(health.commerceOrdersCount).toBe(1);
+  });
+
   it("excludes refunded commerce orders from the owed pass-through card (never paid out)", () => {
     const health = computePipelineHealth({
       leads: [],

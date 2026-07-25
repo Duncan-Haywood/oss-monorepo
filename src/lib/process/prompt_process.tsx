@@ -360,6 +360,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-6xbwq8",
   },
+  {
+    id: "commerce-order-zero-amount-owed-exclusion",
+    summary:
+      "Empty-backlog audit steered at the just-merged checkout-session-no-payment-required-fulfillment-gap fix (PR #743) as the least-audited surface — newly-reachable code is undertested by definition. Making a $0 100%-off Buy now order reachable at all (previously silently dropped before insertCommerceOrder) exposed a latent bug: four separate call sites (summarizeCommerceOrdersByLead in src/lib/commerce/orders.ts, pipeline-health.ts's unpaidCommerceOrders, daily-digest.ts's commerceOrdersOwed, leads-client.tsx's commerceOrdersStillOwed) each duplicated the same paidOutAt/refundedAt/disputedAt-only 'unpaid' check with no amount guard, so a $0 order would sit in the Commerce payouts (manual) panel, the daily digest, and pipeline-health's owed staleness signal forever with a live 'Mark paid out' button that accomplishes nothing. Shipped a single shared isCommerceOrderOwed predicate replacing all four duplicated filters, plus a per-row UI fix (a $0, unresolved order now renders 'Free order — nothing owed' instead of 'owed ... Mark paid out'). See commerce-order-zero-amount-owed-exclusion in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-lxzzsa",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -722,6 +730,26 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "checkout-session-no-payment-required-fulfillment-gap",
+    ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/upbeat-dijkstra-lxzzsa",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 4397e98b (PR #743, checkout-session-no-payment-required-fulfillment-gap, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2860 passed, 204 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (665 remote heads) of the newest claude/* branches found no live fold candidate — each either diffed empty or diffed non-empty purely from the expected squash-merge SHA mismatch, content already merged.\n\nDispatched two research agents at fresh angles instead of a five-tier re-sweep. One, steered at PR #743's own just-shipped fix as the least-audited surface in the repo, found a real regression it introduced: making a $0 100%-off Buy now order reachable at all exposed a latent bug in every 'unpaid/owed' filter across the app (verified directly by reading the source, not trusting the report) — a $0 order would sit in the Commerce payouts panel, daily digest, and pipeline-health's owed signal forever with a live, useless 'Mark paid out' button. The other, steered at six fresh axes (ISR/caching, image optimization, analytics/tracking, Zod/validation coverage, email templates, GDPR claims-vs-code), came back clean across all six.",
+    shipped: [
+      "src/lib/commerce/orders.ts — new exported pure predicate isCommerceOrderOwed (not paid out, not refunded, not disputed, AND amountPaidUsd > 0); summarizeCommerceOrdersByLead's `unpaid` filter now uses it instead of a bare three-condition inline check.",
+      "src/lib/metrics/pipeline-health.ts, src/lib/digest/daily-digest.ts, src/app/dashboard/leads/leads-client.tsx — each swapped its own duplicated three-condition unpaid/owed filter (unpaidCommerceOrders, commerceOrdersOwed, commerceOrdersStillOwed respectively) to use the shared isCommerceOrderOwed predicate instead.",
+      "src/app/dashboard/leads/leads-client.tsx — the Commerce payouts (manual) panel's per-order row render now shows 'Free order — nothing owed' for a $0 order with no paidOutAt/refundedAt/disputedAt, instead of the 'owed Xh ago' + live 'Mark paid out' button it previously shared with genuinely unpaid orders.",
+      "src/lib/commerce/index.ts — exported isCommerceOrderOwed from the commerce barrel.",
+      "src/app/docs/architecture/page.tsx — updated the Commerce sales (pass-through) paragraph to document isCommerceOrderOwed and the zero-amount exclusion.",
+      "src/lib/commerce/orders.test.ts, src/lib/metrics/pipeline-health.test.ts, src/lib/digest/daily-digest.test.ts — 9 new regression cases covering the $0-order exclusion at every layer (summarizeCommerceOrdersByLead, isCommerceOrderOwed unit cases, pipeline-health, daily digest).",
+      "src/lib/process/business-decisions.ts — appended commerce-order-zero-amount-owed-exclusion.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS otherwise unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 4397e98b (this iteration's own starting tip, post-PR-#743).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2869 passed — 9 new cases, 204 files, up from 2860) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev smoke check (/dashboard/leads, /preview/example-bakery, /, /docs/architecture all 200; dev server killed, port 3100 confirmed freed, local.db deleted afterward).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-order-zero-amount-owed-exclusion",
     ),
   },
 ];

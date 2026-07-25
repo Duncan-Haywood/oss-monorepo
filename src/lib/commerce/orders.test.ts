@@ -4,6 +4,7 @@ import {
   commerceOrderNeedsClawback,
   commerceOrdersByLeadSummaryNeedsAttention,
   isCommerceOrderDisputed,
+  isCommerceOrderOwed,
   isCommerceOrderPaidOut,
   isCommerceOrderRefunded,
   mergeCommerceOrdersForReview,
@@ -316,6 +317,70 @@ describe("summarizeCommerceOrdersByLead excludes disputed orders from owed total
       unpaidTotalUsd: 10,
       unpaidCount: 1,
     });
+  });
+});
+
+describe("summarizeCommerceOrdersByLead excludes $0 (100%-off promo) orders from owed totals", () => {
+  it("drops a free, never-paid-out order from unpaidTotalUsd/unpaidCount", () => {
+    const summaries = summarizeCommerceOrdersByLead([
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 0,
+        createdAt: "2026-07-12T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 10,
+        createdAt: "2026-07-12T10:00:00.000Z",
+      }),
+    ]);
+    expect(summaries).toHaveLength(1);
+    expect(summaries[0]).toMatchObject({
+      leadSlug: "cafe",
+      orderCount: 2,
+      totalUsd: 10,
+      unpaidTotalUsd: 10,
+      unpaidCount: 1,
+    });
+  });
+
+  it("drops the lead's summary entirely when its only order is $0 and nothing else needs attention", () => {
+    const summaries = summarizeCommerceOrdersByLead([
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 0,
+        createdAt: "2026-07-12T09:00:00.000Z",
+      }),
+    ]).filter(commerceOrdersByLeadSummaryNeedsAttention);
+    expect(summaries).toHaveLength(0);
+  });
+});
+
+describe("isCommerceOrderOwed", () => {
+  it("is true for a fresh, positive-amount, unresolved order", () => {
+    expect(isCommerceOrderOwed({ amountPaidUsd: 10 })).toBe(true);
+  });
+
+  it("is false once paidOutAt is set", () => {
+    expect(
+      isCommerceOrderOwed({ amountPaidUsd: 10, paidOutAt: "2026-07-12T10:00:00.000Z" }),
+    ).toBe(false);
+  });
+
+  it("is false once refundedAt is set", () => {
+    expect(
+      isCommerceOrderOwed({ amountPaidUsd: 10, refundedAt: "2026-07-12T10:00:00.000Z" }),
+    ).toBe(false);
+  });
+
+  it("is false once disputedAt is set", () => {
+    expect(
+      isCommerceOrderOwed({ amountPaidUsd: 10, disputedAt: "2026-07-12T10:00:00.000Z" }),
+    ).toBe(false);
+  });
+
+  it("is false for a $0 order even with no paidOutAt/refundedAt/disputedAt set (100%-off promo)", () => {
+    expect(isCommerceOrderOwed({ amountPaidUsd: 0 })).toBe(false);
   });
 });
 

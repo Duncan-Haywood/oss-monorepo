@@ -1113,6 +1113,34 @@ describe("buildDailyDigest", () => {
     expect(digest.oldestCommerceOrdersOwedAgeHours).toBeNull();
   });
 
+  it("excludes $0 (100%-off promo) commerce orders from payouts owed", () => {
+    const cafe = baseLead({
+      slug: "free-order-cafe",
+      businessName: "Free Order Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrders: [
+        {
+          id: "co_1",
+          leadSlug: "free-order-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 0,
+          stripeSessionId: "cs_1",
+          createdAt: "2026-07-12T10:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commercePayoutsOwed).toHaveLength(0);
+    expect(digest.commercePayoutsOwedTotalUsd).toBe(0);
+    expect(digest.oldestCommerceOrdersOwedAgeHours).toBeNull();
+  });
+
   it("excludes refunded commerce orders from payouts owed (never paid out)", () => {
     const cafe = baseLead({
       slug: "refunded-cafe",

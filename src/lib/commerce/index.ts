@@ -59,6 +59,7 @@ export {
   commerceOrderNeedsClawback,
   commerceOrdersByLeadSummaryNeedsAttention,
   isCommerceOrderDisputed,
+  isCommerceOrderOwed,
   isCommerceOrderPaidOut,
   isCommerceOrderRefunded,
   mergeCommerceOrdersForReview,

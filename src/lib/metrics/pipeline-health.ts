@@ -60,9 +60,7 @@ import {
 } from "@/lib/marketing/monthly-pack";
 import {
   commerceOrderNeedsClawback,
-  isCommerceOrderDisputed,
-  isCommerceOrderPaidOut,
-  isCommerceOrderRefunded,
+  isCommerceOrderOwed,
   sumCommerceOrdersRevenueUsd,
 } from "@/lib/commerce/orders";
 import {
@@ -731,15 +729,12 @@ export function computePipelineHealth(input: {
   );
 
   const commerceOrders = input.commerceOrders ?? [];
-  // A refunded or disputed order owes the client nothing — exclude it from
-  // "owed" the same way a paid-out order is excluded (see
-  // commerce-order-refund-clawback-tracking, commerce-order-dispute-clawback-tracking).
-  const unpaidCommerceOrders = commerceOrders.filter(
-    (order) =>
-      !isCommerceOrderPaidOut(order) &&
-      !isCommerceOrderRefunded(order) &&
-      !isCommerceOrderDisputed(order),
-  );
+  // A refunded, disputed, or $0 (100%-off promo) order owes the client
+  // nothing — exclude it from "owed" the same way a paid-out order is
+  // excluded (see commerce-order-refund-clawback-tracking,
+  // commerce-order-dispute-clawback-tracking,
+  // commerce-order-zero-amount-owed-exclusion).
+  const unpaidCommerceOrders = commerceOrders.filter(isCommerceOrderOwed);
   const commerceOrdersRevenueUsd = sumCommerceOrdersRevenueUsd(unpaidCommerceOrders);
   const oldestCommerceOrdersOwedHours = oldestCommerceOrdersOwedAgeHours(
     unpaidCommerceOrders,
