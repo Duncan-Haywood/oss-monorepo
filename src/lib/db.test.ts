@@ -80,6 +80,20 @@ import type { Lead } from "./leads/types";
  * Convex's own markPaidOut mutation has a direct test proving that same
  * atomic rejection (convex/commerceOrders.test.ts), but the SQLite twin never
  * did until now.
+ *
+ * markMarketingPackSentToClient / markCommerceOrderClientReceiptSent /
+ * markClientVoicePackSentToClient (~2759, ~3228, ~3547) share a third shape:
+ * a single-field sent-marker guarded by `WHERE ... IS NULL OR ... = ''`
+ * (sqliteMarkMarketingPackSentToClient / sqliteMarkCommerceOrderClientReceiptSent /
+ * sqliteMarkClientVoicePackSentToClient, src/lib/db/sqlite-queries.ts) that
+ * returns whether the row was actually (re-)marked rather than void — the
+ * exact boolean the webhook/dashboard redelivery-recovery contract
+ * (AGENT_PROTOCOL's "durable recovery marker" rule) depends on to decide
+ * whether a send actually needs to happen. Each Convex mutation
+ * (marketingPacks.markSentToClient / commerceOrders.markClientReceiptSent /
+ * clientVoicePacks.markSentToClient) already has direct coverage; the SQLite
+ * fallback branch — including that it stays false, not just a no-op, on a
+ * redelivered mark with a different timestamp — never did until now.
  */
 
 vi.mock("server-only", () => ({}));
@@ -929,6 +943,218 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       ).getCommerceOrderByStripeSessionId("cs_commerce_paidout_race");
       expect(order?.paidOutAt).toBeUndefined();
       expect(order?.refundedAt).toBeDefined();
+    });
+  });
+
+  describe("markMarketingPackSentToClient (sent-marker idempotency, optional requireConvex)", () => {
+    it("returns Convex's result directly without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertMarketingPack({
+        leadSlug: "marketing-pack-lead",
+        yearMonth: "2026-07",
+        variants: [{ contentType: "gbp_post", body: "Test post" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.markMarketingPackSentToClient("marketing-pack-lead", "2026-07");
+      expect(result).toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // A missing early-`return;` would have also run the SQLite UPDATE —
+      // reading through the pure-SQLite path confirms it did not.
+      const pack = await (
+        await loadDb(undefined)
+      ).getMarketingPack("marketing-pack-lead", "2026-07");
+      expect(pack?.sentToClientAt).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markMarketingPackSentToClient("some-lead", "2026-07", undefined, {
+          requireConvex: true,
+        }),
+      ).rejects.toThrow(/markMarketingPackSentToClient/);
+    });
+
+    it("marks sentToClientAt via SQLite, idempotently, on Convex failure", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertMarketingPack({
+        leadSlug: "marketing-pack-fallback-lead",
+        yearMonth: "2026-07",
+        variants: [{ contentType: "gbp_post", body: "Test post" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const markDb = await loadDb(CONVEX_URL);
+      const firstResult = await markDb.markMarketingPackSentToClient(
+        "marketing-pack-fallback-lead",
+        "2026-07",
+        "2026-01-01T00:00:00.000Z",
+      );
+      expect(firstResult).toBe(true);
+
+      const afterMark = await (
+        await loadDb(undefined)
+      ).getMarketingPack("marketing-pack-fallback-lead", "2026-07");
+      expect(afterMark?.sentToClientAt).toBe("2026-01-01T00:00:00.000Z");
+
+      // Redelivered mark with a different timestamp must not overwrite the
+      // first, and must report it did not change the row.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const secondResult = await (
+        await loadDb(CONVEX_URL)
+      ).markMarketingPackSentToClient(
+        "marketing-pack-fallback-lead",
+        "2026-07",
+        "2026-01-02T00:00:00.000Z",
+      );
+      expect(secondResult).toBe(false);
+
+      const afterRedelivery = await (
+        await loadDb(undefined)
+      ).getMarketingPack("marketing-pack-fallback-lead", "2026-07");
+      expect(afterRedelivery?.sentToClientAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+  });
+
+  describe("markCommerceOrderClientReceiptSent (sent-marker idempotency, optional requireConvex)", () => {
+    it("returns Convex's result directly without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-receipt-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_receipt",
+      });
+
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.markCommerceOrderClientReceiptSent("cs_commerce_receipt");
+      expect(result).toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      const order = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_receipt");
+      expect(order?.clientReceiptEmailSentAt).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markCommerceOrderClientReceiptSent("cs_1", undefined, { requireConvex: true }),
+      ).rejects.toThrow(/markCommerceOrderClientReceiptSent/);
+    });
+
+    it("marks clientReceiptEmailSentAt via SQLite, idempotently, on Convex failure", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-receipt-fallback-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_receipt_fallback",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const firstResult = await (
+        await loadDb(CONVEX_URL)
+      ).markCommerceOrderClientReceiptSent(
+        "cs_commerce_receipt_fallback",
+        "2026-01-01T00:00:00.000Z",
+      );
+      expect(firstResult).toBe(true);
+
+      const afterMark = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_receipt_fallback");
+      expect(afterMark?.clientReceiptEmailSentAt).toBe("2026-01-01T00:00:00.000Z");
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const secondResult = await (
+        await loadDb(CONVEX_URL)
+      ).markCommerceOrderClientReceiptSent(
+        "cs_commerce_receipt_fallback",
+        "2026-01-02T00:00:00.000Z",
+      );
+      expect(secondResult).toBe(false);
+
+      const afterRedelivery = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_receipt_fallback");
+      expect(afterRedelivery?.clientReceiptEmailSentAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+  });
+
+  describe("markClientVoicePackSentToClient (sent-marker idempotency, optional requireConvex)", () => {
+    it("returns Convex's result directly without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertClientVoicePack({
+        leadSlug: "voice-pack-lead",
+        variants: [{ scriptType: "inbound_greeting", title: "Greeting", body: "Hello!" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.markClientVoicePackSentToClient("voice-pack-lead");
+      expect(result).toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      const pack = await (
+        await loadDb(undefined)
+      ).getClientVoicePackByLeadSlug("voice-pack-lead");
+      expect(pack?.sentToClientAt).toBeUndefined();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markClientVoicePackSentToClient("some-lead", undefined, { requireConvex: true }),
+      ).rejects.toThrow(/markClientVoicePackSentToClient/);
+    });
+
+    it("marks sentToClientAt via SQLite, idempotently, on Convex failure", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertClientVoicePack({
+        leadSlug: "voice-pack-fallback-lead",
+        variants: [{ scriptType: "inbound_greeting", title: "Greeting", body: "Hello!" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const firstResult = await (
+        await loadDb(CONVEX_URL)
+      ).markClientVoicePackSentToClient("voice-pack-fallback-lead", "2026-01-01T00:00:00.000Z");
+      expect(firstResult).toBe(true);
+
+      const afterMark = await (
+        await loadDb(undefined)
+      ).getClientVoicePackByLeadSlug("voice-pack-fallback-lead");
+      expect(afterMark?.sentToClientAt).toBe("2026-01-01T00:00:00.000Z");
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const secondResult = await (
+        await loadDb(CONVEX_URL)
+      ).markClientVoicePackSentToClient("voice-pack-fallback-lead", "2026-01-02T00:00:00.000Z");
+      expect(secondResult).toBe(false);
+
+      const afterRedelivery = await (
+        await loadDb(undefined)
+      ).getClientVoicePackByLeadSlug("voice-pack-fallback-lead");
+      expect(afterRedelivery?.sentToClientAt).toBe("2026-01-01T00:00:00.000Z");
     });
   });
 });

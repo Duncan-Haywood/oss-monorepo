@@ -786,6 +786,22 @@ export default function ArchitectureDocPage() {
         <code>paidOutAt</code> unset — plus ordinary mark/idempotent-redelivery coverage matching
         the mark-and-clear pairs above.
       </p>
+      <p>
+        <code>markMarketingPackSentToClient</code>/<code>markCommerceOrderClientReceiptSent</code>/
+        <code>markClientVoicePackSentToClient</code> share a third shape: a single-field sent-marker
+        guarded by <code>WHERE ... IS NULL OR ... = &apos;&apos;</code> (
+        <code>sqliteMarkMarketingPackSentToClient</code>/
+        <code>sqliteMarkCommerceOrderClientReceiptSent</code>/
+        <code>sqliteMarkClientVoicePackSentToClient</code>,{" "}
+        <code>src/lib/db/sqlite-queries.ts</code>) that returns whether the row was actually
+        (re-)marked rather than <code>void</code> — the exact boolean the webhook/dashboard
+        redelivery-recovery contract depends on to decide whether a send still needs to happen.
+        Each Convex mutation already had direct coverage; the SQLite fallback branch — including
+        that it resolves <code>false</code>, not just a silent no-op, on a redelivered mark with a
+        different timestamp — had none. The new cases cover each function&apos;s Convex-success
+        early-return, <code>requireConvex</code> fail-closed throw, and SQLite-fallback
+        mark-then-redeliver idempotency.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
