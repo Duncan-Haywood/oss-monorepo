@@ -63,7 +63,7 @@ async function verifyAndSuppress(
   }
 
   try {
-    await suppressEmail(email, UNSUBSCRIBE_CONVEX_PRIMARY);
+    await suppressEmail(email, "unsubscribe", UNSUBSCRIBE_CONVEX_PRIMARY);
     return { email };
   } catch (error) {
     console.error("Unsubscribe error:", error);

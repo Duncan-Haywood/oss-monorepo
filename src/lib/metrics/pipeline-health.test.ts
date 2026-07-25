@@ -377,6 +377,44 @@ describe("computePipelineHealth", () => {
     expect(health.oldestBundleOrdersMissingBuyerEmailAgeHours).toBe(30);
   });
 
+  it("counts bounce/complaint suppressions in the last 7 days, ignoring unsubscribes and older events", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      suppressions: [
+        { email: "recent-bounce@example.com", reason: "bounce", createdAt: NOW - 3 * HOUR_MS },
+        {
+          email: "recent-complaint@example.com",
+          reason: "complaint",
+          createdAt: NOW - 24 * HOUR_MS,
+        },
+        { email: "recent-unsub@example.com", reason: "unsubscribe", createdAt: NOW - HOUR_MS },
+        {
+          email: "old-bounce@example.com",
+          reason: "bounce",
+          createdAt: NOW - 24 * 8 * HOUR_MS,
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.recentBounceOrComplaintSuppressionCount).toBe(2);
+    expect(health.newestBounceOrComplaintSuppressionAgeHours).toBe(3);
+  });
+
+  it("reports zero bounce/complaint count and null age when no suppressions are passed", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.recentBounceOrComplaintSuppressionCount).toBe(0);
+    expect(health.newestBounceOrComplaintSuppressionAgeHours).toBeNull();
+  });
+
   it("counts unreplied inquiries (new+read) with oldest age; ignores replied/archived", () => {
     const health = computePipelineHealth({
       leads: [],

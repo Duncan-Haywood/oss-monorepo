@@ -2,6 +2,18 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireApiSecret } from "./lib/apiSecret";
 
+const suppressionReasonValidator = v.union(
+  v.literal("unsubscribe"),
+  v.literal("bounce"),
+  v.literal("complaint"),
+);
+
+const suppressionReturn = v.object({
+  email: v.string(),
+  reason: v.optional(suppressionReasonValidator),
+  createdAt: v.number(),
+});
+
 export const isSuppressed = query({
   args: { email: v.string(), apiSecret: v.string() },
   returns: v.boolean(),
@@ -16,7 +28,7 @@ export const isSuppressed = query({
 });
 
 export const suppress = mutation({
-  args: { email: v.string(), apiSecret: v.string() },
+  args: { email: v.string(), reason: suppressionReasonValidator, apiSecret: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
@@ -25,18 +37,22 @@ export const suppress = mutation({
       .withIndex("by_email", (q) => q.eq("email", args.email))
       .unique();
     if (existing) return null;
-    await ctx.db.insert("suppressions", { email: args.email });
+    await ctx.db.insert("suppressions", { email: args.email, reason: args.reason });
     return null;
   },
 });
 
 export const list = query({
   args: { apiSecret: v.string() },
-  returns: v.array(v.string()),
+  returns: v.array(suppressionReturn),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
     const rows = await ctx.db.query("suppressions").collect();
-    return rows.map((r) => r.email);
+    return rows.map((r) => ({
+      email: r.email,
+      reason: r.reason,
+      createdAt: r._creationTime,
+    }));
   },
 });
 

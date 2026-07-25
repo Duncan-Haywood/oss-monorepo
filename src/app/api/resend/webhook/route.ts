@@ -93,11 +93,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
   }
 
-  if (isPermanentBounceEvent(event) || isComplaintEvent(event)) {
+  const isComplaint = isComplaintEvent(event);
+  if (isPermanentBounceEvent(event) || isComplaint) {
     const email = resendWebhookRecipientEmail(event);
     if (email) {
       try {
-        await suppressEmail(email, RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY);
+        await suppressEmail(
+          email,
+          isComplaint ? "complaint" : "bounce",
+          RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY,
+        );
       } catch (e) {
         console.error(`Resend webhook: failed to suppress ${event.type} recipient`, e);
         return NextResponse.json(

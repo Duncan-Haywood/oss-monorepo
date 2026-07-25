@@ -51,7 +51,8 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
 
     CREATE TABLE IF NOT EXISTS suppression_list (
       email TEXT PRIMARY KEY,
-      createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+      reason TEXT NOT NULL DEFAULT 'unsubscribe'
     );
 
     CREATE TABLE IF NOT EXISTS deploy_handoffs (
@@ -320,6 +321,17 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   ).map((c) => c.name);
   if (!clientVoicePackCols.includes("sentToClientAt")) {
     db.exec("ALTER TABLE client_voice_packs ADD COLUMN sentToClientAt TEXT");
+  }
+
+  const suppressionListCols = (
+    db.prepare("PRAGMA table_info(suppression_list)").all() as unknown as Array<{
+      name: string;
+    }>
+  ).map((c) => c.name);
+  if (!suppressionListCols.includes("reason")) {
+    db.exec(
+      "ALTER TABLE suppression_list ADD COLUMN reason TEXT NOT NULL DEFAULT 'unsubscribe'",
+    );
   }
 
   // Seed SQLite database if empty

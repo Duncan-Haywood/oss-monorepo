@@ -12,6 +12,7 @@ import type { OrderRecord } from "./orders/types";
 import { sortOrdersNewestFirst } from "./orders/types";
 import { orderGrantsSoldCapabilityEntitlement } from "./orders/recurring";
 import type { CheckoutSessionRecord } from "./checkout/types";
+import type { SuppressionReason, SuppressionRecord } from "./email/suppression";
 import { newCheckoutSessionId } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
 import type { CommerceCatalog, UpsertCommerceCatalogInput } from "./commerce/types";
@@ -1554,6 +1555,7 @@ export async function isEmailSuppressed(email: string): Promise<boolean> {
 
 export async function suppressEmail(
   email: string,
+  reason: SuppressionReason,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   const normalized = email.toLowerCase().trim();
@@ -1561,6 +1563,7 @@ export async function suppressEmail(
     try {
       await convexClient.mutation(api.suppressions.suppress, {
         email: normalized,
+        reason,
         apiSecret: convexApiSecret,
       });
       return;
@@ -1574,15 +1577,17 @@ export async function suppressEmail(
 
   // SQLite Fallback
   const db = getSqliteDb();
-  db.prepare("INSERT OR IGNORE INTO suppression_list (email) VALUES (?)").run(normalized);
+  db.prepare(
+    "INSERT OR IGNORE INTO suppression_list (email, reason, createdAt) VALUES (?, ?, ?)",
+  ).run(normalized, reason, new Date().toISOString());
 }
 
-export async function getSuppressedEmails(): Promise<string[]> {
+export async function getSuppressedEmails(): Promise<SuppressionRecord[]> {
   if (convexClient) {
     try {
       return (await convexClient.query(api.suppressions.list, {
         apiSecret: convexApiSecret,
-      })) as string[];
+      })) as SuppressionRecord[];
     } catch (e) {
       console.warn("Failed to list suppressions from Convex, falling back to SQLite database", e);
     }
@@ -1590,8 +1595,25 @@ export async function getSuppressedEmails(): Promise<string[]> {
 
   // SQLite Fallback
   const db = getSqliteDb();
-  const rows = db.prepare("SELECT email FROM suppression_list").all() as { email: string }[];
-  return rows.map((r) => r.email);
+  const rows = db.prepare("SELECT email, reason, createdAt FROM suppression_list").all() as {
+    email: string;
+    reason: SuppressionReason;
+    createdAt: string;
+  }[];
+  return rows.map((r) => ({
+    email: r.email,
+    reason: r.reason,
+    // Rows written before this fix relied on SQLite's DEFAULT (datetime('now'))
+    // instead of an explicit ISO createdAt param — that format
+    // ("YYYY-MM-DD HH:MM:SS", always UTC, no timezone marker) parses as LOCAL
+    // time under `new Date(...)` in a non-UTC server timezone, silently
+    // shifting the value. Append Z when the string has no timezone marker so
+    // both the legacy space-separated rows and this fix's own ISO rows parse
+    // correctly as UTC.
+    createdAt: new Date(
+      /[zZ]|[+-]\d{2}:?\d{2}$/.test(r.createdAt) ? r.createdAt : `${r.createdAt}Z`,
+    ).getTime(),
+  }));
 }
 
 /**

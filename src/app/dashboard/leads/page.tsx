@@ -148,6 +148,7 @@ async function loadLeadsPipelineHealth(): Promise<{
       commerceOrdersDisputed,
       commerceOrdersMissingClientReceipt,
       marketingSchedulingEnabled: isMarketingSchedulingAllowed(),
+      suppressions: suppressedEmails,
       nowMs,
     }),
   };

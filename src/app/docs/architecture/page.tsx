@@ -617,7 +617,17 @@ export default function ArchitectureDocPage() {
         failure so Resend/Svix&apos;s own backoff-retry contract — the same one Stripe&apos;s
         webhook relies on — actually recovers the suppression instead of silently dropping it.
         Every other event type (delivered, opened, clicked, delivery_delayed, …) is acknowledged
-        with <code>200</code> and ignored. Every
+        with <code>200</code> and ignored. Every suppression row now carries a{" "}
+        <code>reason</code> (<code>unsubscribe</code> / <code>bounce</code> / <code>complaint</code>
+        ; legacy rows written before this field shipped read as <code>unsubscribe</code>) so a
+        routine CAN-SPAM opt-out is never conflated with a deliverability signal —{" "}
+        <code>SuppressedEmailsPanel</code> shows a badge per reason with reason-specific removal
+        guidance, and <code>computePipelineHealth</code> derives a rolling{" "}
+        <code>recentBounceOrComplaintSuppressionCount</code> (bounces/complaints in the last 7
+        days) plus <code>newestBounceOrComplaintSuppressionAgeHours</code> from{" "}
+        <code>getSuppressedEmails()</code> — a rising count is the thing an operator can actually
+        react to (list hygiene, a broken capture form, a compromised sending domain), unlike the
+        permanently-suppressed total which only ever grows. Every
         dynamic value in outbound HTML — including env-sourced{" "}
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}

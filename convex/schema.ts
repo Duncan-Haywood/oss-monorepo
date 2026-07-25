@@ -282,12 +282,23 @@ export default defineSchema({
     .index("by_stripeSessionId", ["stripeSessionId"]),
 
   /**
-   * CAN-SPAM unsubscribe suppression list — every automated send (outreach,
-   * follow-ups, digest, marketing/voice pack email) must check this before
-   * sending. One row per suppressed email address.
+   * CAN-SPAM unsubscribe + deliverability suppression list — every automated
+   * send (outreach, follow-ups, digest, marketing/voice pack email) must
+   * check this before sending. One row per suppressed email address.
+   *
+   * `reason` distinguishes a routine CAN-SPAM opt-out (customer preference,
+   * safe to reconsider) from a Resend delivery-event hard bounce/spam
+   * complaint (a deliverability/sender-reputation signal — see
+   * suppression-reason-visibility) — before this field existed the two were
+   * indistinguishable in both the data model and the operator dashboard.
+   * Optional so rows written before this field shipped (reason always
+   * undefined) keep loading; every new write always sets it.
    */
   suppressions: defineTable({
     email: v.string(),
+    reason: v.optional(
+      v.union(v.literal("unsubscribe"), v.literal("bounce"), v.literal("complaint")),
+    ),
   }).index("by_email", ["email"]),
 
   /**

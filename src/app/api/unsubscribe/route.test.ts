@@ -82,7 +82,7 @@ describe("GET /api/unsubscribe", () => {
     const response = await GET(request);
 
     expect(response.status).toBe(200);
-    expect(suppressEmail).toHaveBeenCalledWith(email, UNSUBSCRIBE_CONVEX_PRIMARY);
+    expect(suppressEmail).toHaveBeenCalledWith(email, "unsubscribe", UNSUBSCRIBE_CONVEX_PRIMARY);
   });
 
   it("returns 400 and never verifies/suppresses when the token exceeds MAX_UNSUBSCRIBE_TOKEN_LENGTH", async () => {
@@ -167,7 +167,7 @@ describe("GET /api/unsubscribe", () => {
     const response = await GET(request);
 
     expect(response.status).toBe(200);
-    expect(suppressEmail).toHaveBeenCalledWith("pat@example.com", UNSUBSCRIBE_CONVEX_PRIMARY);
+    expect(suppressEmail).toHaveBeenCalledWith("pat@example.com", "unsubscribe", UNSUBSCRIBE_CONVEX_PRIMARY);
   });
 
   it("returns a fail-closed 500 with a retry message when suppressEmail throws ConvexPrimaryWriteError", async () => {
@@ -279,7 +279,7 @@ describe("POST /api/unsubscribe (RFC 8058 one-click)", () => {
     const text = await response.text();
 
     expect(response.status).toBe(200);
-    expect(suppressEmail).toHaveBeenCalledWith("pat@example.com", UNSUBSCRIBE_CONVEX_PRIMARY);
+    expect(suppressEmail).toHaveBeenCalledWith("pat@example.com", "unsubscribe", UNSUBSCRIBE_CONVEX_PRIMARY);
     // RFC 8058 callers never render a body — plain-text ack, not the GET
     // handler's full HTML confirmation page.
     expect(text).not.toContain("<!DOCTYPE html>");
@@ -295,7 +295,7 @@ describe("POST /api/unsubscribe (RFC 8058 one-click)", () => {
     const response = await POST(request);
 
     expect(response.status).toBe(200);
-    expect(suppressEmail).toHaveBeenCalledWith("pat@example.com", UNSUBSCRIBE_CONVEX_PRIMARY);
+    expect(suppressEmail).toHaveBeenCalledWith("pat@example.com", "unsubscribe", UNSUBSCRIBE_CONVEX_PRIMARY);
   });
 
   it("400s and never suppresses when the token does not match the email", async () => {

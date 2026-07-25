@@ -14,7 +14,8 @@
  * + recurring-entitlement-paused-pipeline-digest
  * + marketing-voice-pack-client-send-visibility
  * + stripe-connect-onboarding-pipeline-health-visibility
- * + bundle-order-missing-buyer-email-visibility).
+ * + bundle-order-missing-buyer-email-visibility
+ * + suppression-reason-visibility).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -53,6 +54,11 @@ import {
   oldestLastOutreachAgeHours,
 } from "@/lib/email/outreach-followups";
 import { isLeadSnoozed } from "@/lib/leads/snooze";
+import {
+  newestBounceOrComplaintSuppressionAgeHours,
+  recentBounceOrComplaintSuppressionCount,
+  type SuppressionRecord,
+} from "@/lib/email/suppression";
 import {
   listMarketingPacksDue,
   marketingMonthKey,
@@ -360,6 +366,17 @@ export interface PipelineHealth {
   bundleOrdersMissingBuyerEmailCount: number;
   /** Age in whole hours since the oldest such handoff was created; null when none. */
   oldestBundleOrdersMissingBuyerEmailAgeHours: number | null;
+  /**
+   * Count of hard bounces/spam complaints (see src/lib/email/suppression.ts)
+   * recorded in the last 7 days — a rolling sender-reputation signal, unlike
+   * the permanently-suppressed total which only ever grows and is never
+   * actionable on its own (see suppression-reason-visibility). Always 0 when
+   * no suppression records were passed (input.suppressions unset) or none
+   * are bounce/complaint.
+   */
+  recentBounceOrComplaintSuppressionCount: number;
+  /** Hours since the most recent bounce/complaint; null when there has never been one. */
+  newestBounceOrComplaintSuppressionAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -570,6 +587,8 @@ export function computePipelineHealth(input: {
    * function stays a pure aggregator like every sibling in this file).
    */
   marketingSchedulingEnabled?: boolean;
+  /** Pass getSuppressedEmails() (optional) — powers the bounce/complaint reputation signal. */
+  suppressions?: ReadonlyArray<SuppressionRecord>;
   nowMs?: number;
 }): PipelineHealth {
   const stageCounts = emptyStageCounts();
@@ -885,6 +904,17 @@ export function computePipelineHealth(input: {
     nowMs,
   );
 
+  const suppressions = input.suppressions ?? [];
+  const recentBounceOrComplaintCount = recentBounceOrComplaintSuppressionCount(
+    suppressions,
+    nowMs,
+    24 * 7,
+  );
+  const newestBounceOrComplaintAgeHours = newestBounceOrComplaintSuppressionAgeHours(
+    suppressions,
+    nowMs,
+  );
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -954,6 +984,8 @@ export function computePipelineHealth(input: {
     oldestBufferProfileMappingMissingAgeHours: oldestBufferProfileMappingMissingHours,
     bundleOrdersMissingBuyerEmailCount: bundleOrdersMissingBuyerEmail.length,
     oldestBundleOrdersMissingBuyerEmailAgeHours: oldestBundleOrdersMissingBuyerEmailHours,
+    recentBounceOrComplaintSuppressionCount: recentBounceOrComplaintCount,
+    newestBounceOrComplaintSuppressionAgeHours: newestBounceOrComplaintAgeHours,
   };
 }
 

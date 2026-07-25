@@ -25,6 +25,7 @@ test("isSuppressed is false for an unknown email and true once suppress has run"
 
   await t.mutation(api.suppressions.suppress, {
     email: "buyer@example.com",
+    reason: "unsubscribe",
     apiSecret: TEST_API_SECRET,
   });
   expect(
@@ -39,30 +40,63 @@ test("suppress is idempotent — a repeat call for the same email does not inser
   const t = convexTest(schema, modules);
   await t.mutation(api.suppressions.suppress, {
     email: "buyer@example.com",
+    reason: "unsubscribe",
     apiSecret: TEST_API_SECRET,
   });
   await t.mutation(api.suppressions.suppress, {
     email: "buyer@example.com",
+    reason: "unsubscribe",
     apiSecret: TEST_API_SECRET,
   });
 
-  const rows: string[] = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
-  expect(rows).toEqual(["buyer@example.com"]);
+  const rows = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  expect(rows.map((r: { email: string }) => r.email)).toEqual(["buyer@example.com"]);
 });
 
-test("list returns every suppressed email", async () => {
+test("suppress records the reason, and a repeat call does not overwrite it", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.suppressions.suppress, {
+    email: "bounced@example.com",
+    reason: "bounce",
+    apiSecret: TEST_API_SECRET,
+  });
+  // A later unsubscribe click for an address that already hard-bounced must
+  // not downgrade the reason back to "unsubscribe" — the existing-row check
+  // in the mutation already guards this, this pins it as a regression test.
+  await t.mutation(api.suppressions.suppress, {
+    email: "bounced@example.com",
+    reason: "unsubscribe",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const rows = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  expect(rows).toEqual([
+    expect.objectContaining({ email: "bounced@example.com", reason: "bounce" }),
+  ]);
+});
+
+test("list returns every suppressed email with its reason and createdAt", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.suppressions.suppress, {
     email: "a@example.com",
+    reason: "unsubscribe",
     apiSecret: TEST_API_SECRET,
   });
   await t.mutation(api.suppressions.suppress, {
     email: "b@example.com",
+    reason: "complaint",
     apiSecret: TEST_API_SECRET,
   });
 
-  const rows: string[] = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
-  expect(rows.sort()).toEqual(["a@example.com", "b@example.com"]);
+  const rows = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  const sorted = [...rows].sort((r1, r2) => r1.email.localeCompare(r2.email));
+  expect(sorted).toEqual([
+    expect.objectContaining({ email: "a@example.com", reason: "unsubscribe" }),
+    expect.objectContaining({ email: "b@example.com", reason: "complaint" }),
+  ]);
+  for (const row of sorted) {
+    expect(typeof row.createdAt).toBe("number");
+  }
 });
 
 test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SECRET configured", async () => {
@@ -71,7 +105,11 @@ test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SEC
     t.query(api.suppressions.isSuppressed, { email: "x@example.com", apiSecret: "wrong" }),
   ).rejects.toThrow(/Unauthorized/);
   await expect(
-    t.mutation(api.suppressions.suppress, { email: "x@example.com", apiSecret: "wrong" }),
+    t.mutation(api.suppressions.suppress, {
+      email: "x@example.com",
+      reason: "unsubscribe",
+      apiSecret: "wrong",
+    }),
   ).rejects.toThrow(/Unauthorized/);
   await expect(
     t.query(api.suppressions.list, { apiSecret: "wrong" }),
@@ -85,7 +123,11 @@ test("every function rejects any caller (even a correct-looking guess) when CONV
     t.query(api.suppressions.isSuppressed, { email: "x@example.com", apiSecret: "" }),
   ).rejects.toThrow(/Unauthorized/);
   await expect(
-    t.mutation(api.suppressions.suppress, { email: "x@example.com", apiSecret: "" }),
+    t.mutation(api.suppressions.suppress, {
+      email: "x@example.com",
+      reason: "unsubscribe",
+      apiSecret: "",
+    }),
   ).rejects.toThrow(/Unauthorized/);
 });
 
@@ -93,6 +135,7 @@ test("unsuppress removes a suppressed email and reports true", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.suppressions.suppress, {
     email: "buyer@example.com",
+    reason: "unsubscribe",
     apiSecret: TEST_API_SECRET,
   });
 
@@ -117,7 +160,7 @@ test("unsuppress on an address that was never suppressed reports false and stays
   });
   expect(removed).toBe(false);
 
-  const rows: string[] = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  const rows = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
   expect(rows).toEqual([]);
 });
 
@@ -125,10 +168,12 @@ test("unsuppress only removes the matching row, leaving sibling suppressions int
   const t = convexTest(schema, modules);
   await t.mutation(api.suppressions.suppress, {
     email: "a@example.com",
+    reason: "unsubscribe",
     apiSecret: TEST_API_SECRET,
   });
   await t.mutation(api.suppressions.suppress, {
     email: "b@example.com",
+    reason: "unsubscribe",
     apiSecret: TEST_API_SECRET,
   });
 
@@ -137,8 +182,8 @@ test("unsuppress only removes the matching row, leaving sibling suppressions int
     apiSecret: TEST_API_SECRET,
   });
 
-  const rows: string[] = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
-  expect(rows).toEqual(["b@example.com"]);
+  const rows = await t.query(api.suppressions.list, { apiSecret: TEST_API_SECRET });
+  expect(rows.map((r: { email: string }) => r.email)).toEqual(["b@example.com"]);
 });
 
 test("unsuppress rejects a missing/wrong apiSecret, even with CONVEX_API_SECRET configured", async () => {

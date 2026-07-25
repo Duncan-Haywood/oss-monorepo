@@ -95,6 +95,7 @@ describe("POST /api/resend/webhook", () => {
     expect(json).toEqual({ received: true });
     expect(suppressEmail).toHaveBeenCalledWith(
       "bounced@example.com",
+      "bounce",
       RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY,
     );
   });
@@ -107,6 +108,7 @@ describe("POST /api/resend/webhook", () => {
     expect(response.status).toBe(200);
     expect(suppressEmail).toHaveBeenCalledWith(
       "bounced@example.com",
+      "bounce",
       RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY,
     );
   });
@@ -131,6 +133,7 @@ describe("POST /api/resend/webhook", () => {
     expect(response.status).toBe(200);
     expect(suppressEmail).toHaveBeenCalledWith(
       "angry@example.com",
+      "complaint",
       RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY,
     );
   });

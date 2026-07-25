@@ -383,6 +383,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.bundleOrdersMissingBuyerEmailCount > 0}
         />
+        <MetricCard
+          label="Bounces/complaints (7d)"
+          value={String(health.recentBounceOrComplaintSuppressionCount)}
+          hint={
+            health.recentBounceOrComplaintSuppressionCount > 0
+              ? `Hard bounce${health.recentBounceOrComplaintSuppressionCount === 1 ? "" : "s"}/spam complaints suppressed in the last 7 days — sender-reputation risk${
+                  health.newestBounceOrComplaintSuppressionAgeHours !== null
+                    ? ` · most recent ${formatAbandonedAgeHours(health.newestBounceOrComplaintSuppressionAgeHours)} ago`
+                    : ""
+                }`
+              : "No bounces or complaints in the last 7 days"
+          }
+          attention={health.recentBounceOrComplaintSuppressionCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (
