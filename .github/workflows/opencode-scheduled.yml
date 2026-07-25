@@ -112,7 +112,14 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Run OpenCode (GitHub Copilot subscription OAuth)
-        uses: anomalyco/opencode/github@latest
+        # Pinned to the anomalyco/opencode v1.18.5 tag's commit SHA, not
+        # @latest — this step hands GITHUB_TOKEN (contents/pull-requests/
+        # issues: write) to third-party code on an unattended hourly cron
+        # with no human review; @latest would let a repointed tag or
+        # compromised upstream account execute arbitrary code with that
+        # token on the very next scheduled run. Bump the SHA (and this
+        # comment) deliberately when upgrading, never float again.
+        uses: anomalyco/opencode/github@e5cc278dec9294a627a7b05f47ce6a564408c1a2 # v1.18.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
