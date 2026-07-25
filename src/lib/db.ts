@@ -12,6 +12,7 @@ import type { OrderRecord } from "./orders/types";
 import { sortOrdersNewestFirst } from "./orders/types";
 import { orderGrantsSoldCapabilityEntitlement } from "./orders/recurring";
 import type { CheckoutSessionRecord } from "./checkout/types";
+import { preferSuppressionReason } from "./email/suppression";
 import type { SuppressionReason, SuppressionRecord } from "./email/suppression";
 import { newCheckoutSessionId } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
@@ -1577,9 +1578,22 @@ export async function suppressEmail(
 
   // SQLite Fallback
   const db = getSqliteDb();
-  db.prepare(
-    "INSERT OR IGNORE INTO suppression_list (email, reason, createdAt) VALUES (?, ?, ?)",
-  ).run(normalized, reason, new Date().toISOString());
+  const existing = db
+    .prepare("SELECT reason FROM suppression_list WHERE email = ?")
+    .get(normalized) as { reason: SuppressionReason } | undefined;
+  if (!existing) {
+    db.prepare(
+      "INSERT INTO suppression_list (email, reason, createdAt) VALUES (?, ?, ?)",
+    ).run(normalized, reason, new Date().toISOString());
+    return;
+  }
+  const preferred = preferSuppressionReason(existing.reason, reason);
+  if (preferred !== existing.reason) {
+    db.prepare("UPDATE suppression_list SET reason = ? WHERE email = ?").run(
+      preferred,
+      normalized,
+    );
+  }
 }
 
 export async function getSuppressedEmails(): Promise<SuppressionRecord[]> {

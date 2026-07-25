@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireApiSecret } from "./lib/apiSecret";
+import { preferSuppressionReason } from "../src/lib/email/suppression";
 
 const suppressionReasonValidator = v.union(
   v.literal("unsubscribe"),
@@ -36,7 +37,13 @@ export const suppress = mutation({
       .query("suppressions")
       .withIndex("by_email", (q) => q.eq("email", args.email))
       .unique();
-    if (existing) return null;
+    if (existing) {
+      const preferred = preferSuppressionReason(existing.reason, args.reason);
+      if (preferred !== existing.reason) {
+        await ctx.db.patch(existing._id, { reason: preferred });
+      }
+      return null;
+    }
     await ctx.db.insert("suppressions", { email: args.email, reason: args.reason });
     return null;
   },

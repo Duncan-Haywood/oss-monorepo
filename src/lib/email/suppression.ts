@@ -28,6 +28,36 @@ export function suppressionReasonOrDefault(reason: SuppressionReason | undefined
   return reason ?? "unsubscribe";
 }
 
+const SUPPRESSION_REASON_RANK: Record<SuppressionReason, number> = {
+  unsubscribe: 0,
+  bounce: 1,
+  complaint: 2,
+};
+
+/**
+ * An address already suppressed for one reason can later trigger a
+ * different reason event (e.g. a routine unsubscribe click, then a later
+ * hard bounce or spam complaint for that same address). Never downgrade a
+ * bounce/complaint back to a routine unsubscribe (the original intent of
+ * this table's idempotency, see suppression-reason-visibility), but DO
+ * upgrade from unsubscribe/legacy(undefined) to bounce, and from bounce to
+ * complaint — a write that only no-ops on an existing row (as both
+ * convex/suppressions.ts's `suppress` mutation and db.ts's SQLite fallback
+ * originally did) silently discards the more severe, actionable signal and
+ * leaves the dashboard panel's badge/copy misrepresenting the address as a
+ * low-risk routine opt-out. Mirrors the never-downgrade pattern
+ * preferAdvancedHandoffStatus (src/lib/deploy/handoff-preserve.ts) already
+ * uses for deploy handoff status.
+ */
+export function preferSuppressionReason(
+  existing: SuppressionReason | undefined,
+  incoming: SuppressionReason,
+): SuppressionReason {
+  const existingRank = SUPPRESSION_REASON_RANK[suppressionReasonOrDefault(existing)];
+  const incomingRank = SUPPRESSION_REASON_RANK[incoming];
+  return incomingRank > existingRank ? incoming : suppressionReasonOrDefault(existing);
+}
+
 export function isBounceOrComplaintSuppression(record: SuppressionRecord): boolean {
   const reason = suppressionReasonOrDefault(record.reason);
   return reason === "bounce" || reason === "complaint";

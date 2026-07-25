@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   isBounceOrComplaintSuppression,
   newestBounceOrComplaintSuppressionAgeHours,
+  preferSuppressionReason,
   recentBounceOrComplaintSuppressionCount,
   suppressionReasonOrDefault,
   type SuppressionRecord,
@@ -34,6 +35,37 @@ describe("isBounceOrComplaintSuppression", () => {
     expect(
       isBounceOrComplaintSuppression({ email: "a@example.com", reason: "complaint", createdAt: 0 }),
     ).toBe(true);
+  });
+});
+
+describe("preferSuppressionReason", () => {
+  it("upgrades a legacy (undefined) or unsubscribe row to a later bounce", () => {
+    expect(preferSuppressionReason(undefined, "bounce")).toBe("bounce");
+    expect(preferSuppressionReason("unsubscribe", "bounce")).toBe("bounce");
+  });
+
+  it("upgrades a legacy or unsubscribe row to a later complaint", () => {
+    expect(preferSuppressionReason(undefined, "complaint")).toBe("complaint");
+    expect(preferSuppressionReason("unsubscribe", "complaint")).toBe("complaint");
+  });
+
+  it("upgrades an existing bounce to a later complaint", () => {
+    expect(preferSuppressionReason("bounce", "complaint")).toBe("complaint");
+  });
+
+  it("never downgrades an existing bounce/complaint back to unsubscribe", () => {
+    expect(preferSuppressionReason("bounce", "unsubscribe")).toBe("bounce");
+    expect(preferSuppressionReason("complaint", "unsubscribe")).toBe("complaint");
+  });
+
+  it("never downgrades an existing complaint to a later bounce", () => {
+    expect(preferSuppressionReason("complaint", "bounce")).toBe("complaint");
+  });
+
+  it("no-ops when the reason is unchanged", () => {
+    expect(preferSuppressionReason("unsubscribe", "unsubscribe")).toBe("unsubscribe");
+    expect(preferSuppressionReason("bounce", "bounce")).toBe("bounce");
+    expect(preferSuppressionReason("complaint", "complaint")).toBe("complaint");
   });
 });
 

@@ -636,6 +636,20 @@ export default function ArchitectureDocPage() {
         reputation signal rather than a per-row remediation) in both the empty-state and
         non-empty email bodies — a gap flagged but deliberately left as a follow-up when
         <code>suppression-reason-visibility</code> shipped the pipeline-health/dashboard half.
+        A repeat suppression write for an already-suppressed address never downgrades{" "}
+        <code>bounce</code>/<code>complaint</code> back to <code>unsubscribe</code>, but it{" "}
+        <em>does</em> upgrade the other direction — an address that unsubscribed normally and
+        later hard-bounces or draws a spam complaint gets its stored reason promoted via{" "}
+        <code>preferSuppressionReason</code> (<code>src/lib/email/suppression.ts</code>, a
+        rank-based <code>unsubscribe</code> &lt; <code>bounce</code> &lt; <code>complaint</code>{" "}
+        helper mirroring <code>preferAdvancedHandoffStatus</code>&apos;s never-downgrade pattern),
+        applied on both the Convex mutation (a conditional <code>patch</code>) and the SQLite
+        fallback (a conditional <code>UPDATE</code> in place of the original blanket{" "}
+        <code>INSERT OR IGNORE</code>, which silently discarded every reason change on an
+        existing row in either direction). The row&apos;s <code>createdAt</code> stays untouched
+        on an upgrade, so the 7-day rolling bounce/complaint window above can still miss an
+        old-unsubscribe-then-new-bounce address as &quot;recent&quot; — a known, smaller follow-up
+        distinct from this fix.
         Every
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}
