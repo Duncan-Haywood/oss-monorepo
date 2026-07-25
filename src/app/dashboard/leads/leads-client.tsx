@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import type { Lead, LeadPipelineStage, BusinessCategory } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
@@ -297,6 +297,42 @@ export function LeadsClient({
   const [replyOpenId, setReplyOpenId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  // Row-scoped toggle buttons used as refocus anchors (Notes/Commerce/Reply
+  // toggles — see dashboard-focus-restore.ts) are `disabled={isPending}`,
+  // same as the row action buttons that trigger these closes. A close
+  // triggered from inside a `startTransition(async () => ...)` callback
+  // (e.g. a successful Save) calls this focus-restore logic before React has
+  // committed `isPending` back to false — React keeps an async transition's
+  // `isPending` true for the whole awaited operation, not just its
+  // synchronous portion, so the anchor button is still disabled (and
+  // therefore unfocusable) at the exact moment a same-tick `.focus()` call
+  // would run, and the browser silently drops it: focus falls back to
+  // <body> instead of the intended anchor. A direct (non-transition) close,
+  // e.g. clicking Cancel, has no such race — isPending is already false.
+  // Route every toggle-button-target refocus through this queued mechanism
+  // instead of a same-tick `document.getElementById(id)?.focus()` so both
+  // cases resolve correctly: the effect below fires as soon as isPending is
+  // (or becomes) false, whichever happens first (dashboard-focus-restore-async-transition-race).
+  // The pending id lives in a ref (not state) so the effect can clear it
+  // without a react-hooks/set-state-in-effect violation; focusToken is a
+  // monotonic counter (not the id itself) so re-queuing the SAME anchor id
+  // twice in a row (e.g. snooze, unsnooze, snooze again) still re-triggers
+  // the effect — a repeated identical state value would otherwise bail out
+  // of the dependency change entirely and silently skip the second focus.
+  const pendingFocusElementIdRef = useRef<string | null>(null);
+  const [focusToken, setFocusToken] = useState(0);
+  const queueFocusElement = (id: string) => {
+    pendingFocusElementIdRef.current = id;
+    setFocusToken((t) => t + 1);
+  };
+  useEffect(() => {
+    if (isPending) return;
+    const id = pendingFocusElementIdRef.current;
+    if (!id) return;
+    document.getElementById(id)?.focus();
+    pendingFocusElementIdRef.current = null;
+  }, [isPending, focusToken]);
+
   // Form State
   const [formName, setFormName] = useState("");
   const [formSlug, setFormSlug] = useState("");
@@ -435,8 +471,12 @@ export function LeadsClient({
     // being unmounted here — without this, focus would silently fall back
     // to <body>. The toggle button that opened the panel stays mounted for
     // the row's whole lifetime, so it's always a valid refocus target.
+    // Queued via pendingFocusElementId (not a same-tick .focus() call) so
+    // the Save path — which calls this from inside startTransition, while
+    // the toggle button is still disabled={isPending} — resolves correctly
+    // too; see the pendingFocusElementId effect above.
     if (focusSlug) {
-      document.getElementById(leadNotesToggleElementId(focusSlug))?.focus();
+      queueFocusElement(leadNotesToggleElementId(focusSlug));
     }
   };
 
@@ -469,11 +509,22 @@ export function LeadsClient({
       );
       // Work next's actionable predicate excludes snoozed leads — a
       // successful snooze removes this row (and the just-clicked button)
-      // from the Work next due-queue entirely. Main-table snooze controls
-      // (always-mounted row) omit headingId.
+      // from the Work next due-queue entirely.
       if (headingId) {
         document.getElementById(headingId)?.focus();
+        return;
       }
+      // Main-table snooze controls stay in a mounted <tr>, but the
+      // just-clicked preset button itself is inside a
+      // `snoozed ? <Unsnooze/> : <PresetButtons/>` ternary that flips on
+      // success, unmounting the exact button that had focus — the <tr>
+      // staying mounted does not mean the clicked element does. Refocus the
+      // row's Notes toggle (always mounted for the row's whole lifetime,
+      // same anchor closeNotesEditor already uses) instead of letting focus
+      // silently fall back to <body>. Queued (not a same-tick .focus() call)
+      // since the Notes toggle is itself disabled={isPending} and this runs
+      // from inside startTransition — see the pendingFocusElementId effect.
+      queueFocusElement(leadNotesToggleElementId(slug));
     });
   };
 
@@ -489,6 +540,13 @@ export function LeadsClient({
           l.slug === slug ? { ...l, snoozedUntil: undefined } : l,
         ),
       );
+      // Unsnooze only ever renders in the main table (no due-queue
+      // equivalent) and sits inside the same snoozed-ternary as the preset
+      // buttons above — clicking it unmounts itself and swaps the preset
+      // buttons back in. Refocus the row's Notes toggle, the same
+      // always-mounted anchor handleSnooze's main-table path uses (queued
+      // for the same disabled={isPending} reason as above).
+      queueFocusElement(leadNotesToggleElementId(slug));
     });
   };
 
@@ -535,10 +593,18 @@ export function LeadsClient({
       );
       // Re-engage/Close both move the lead off isColdLead, so its <li>
       // unmounts from the Cold leads due-queue with the just-clicked button
-      // still inside it. Main-table Re-engage/Close controls omit headingId.
+      // still inside it.
       if (headingId) {
         document.getElementById(headingId)?.focus();
+        return;
       }
+      // Main-table Re-engage/Close controls are inside a `cold ? <>...</> :
+      // null` fragment that unmounts entirely once the lead moves off
+      // isColdLead — worse than the snoozed case above (no sibling stays in
+      // its place), so focus would otherwise fall straight to <body>.
+      // Refocus the row's Notes toggle, the same always-mounted anchor used
+      // for the snooze handlers' main-table path (queued — see above).
+      queueFocusElement(leadNotesToggleElementId(slug));
     });
   };
 
@@ -754,10 +820,13 @@ export function LeadsClient({
   // Cancel and a successful Send reply both close the composer from a
   // button *inside* the panel that unmounts on close — same refocus fix as
   // closeNotesEditor/closeCommerceEditor above, back onto the still-mounted
-  // Reply toggle button rather than letting focus fall to <body>.
+  // Reply toggle button rather than letting focus fall to <body>. Queued
+  // (not a same-tick .focus() call) for the same disabled={isPending} race
+  // as closeNotesEditor when the Send-reply path calls this from inside
+  // startTransition — see the pendingFocusElementId effect above.
   const closeReplyComposer = (inquiryId: string) => {
     setReplyOpenId(null);
-    document.getElementById(inquiryReplyToggleElementId(inquiryId))?.focus();
+    queueFocusElement(inquiryReplyToggleElementId(inquiryId));
   };
 
   const handleInquiryReply = (inquiryId: string) => {
@@ -1096,9 +1165,11 @@ export function LeadsClient({
     setCommerceEditSlug(null);
     setCommerceDraftItems([]);
     // Same refocus fix as closeNotesEditor above — the Close/Save button
-    // that triggered this is inside the panel being unmounted here.
+    // that triggered this is inside the panel being unmounted here. Queued
+    // (not a same-tick .focus() call) for the same disabled={isPending}
+    // race as closeNotesEditor — see the pendingFocusElementId effect above.
     if (focusSlug) {
-      document.getElementById(leadCommerceToggleElementId(focusSlug))?.focus();
+      queueFocusElement(leadCommerceToggleElementId(focusSlug));
     }
   };
 
@@ -1173,6 +1244,15 @@ export function LeadsClient({
       setLeads((prev) =>
         prev.map((l) => (l.slug === slug ? { ...l, stripeConnectAccountId: res.accountId } : l)),
       );
+      // The just-clicked "Create Connect account" button is inside a
+      // `lead.stripeConnectAccountId ? <span>Account: ...</span> : <button>`
+      // ternary in the still-open commerce editor panel — a successful
+      // create flips that ternary and unmounts the button. Refocus the
+      // panel's own toggle button (leadCommerceToggleElementId, always
+      // mounted for the row's whole lifetime, same anchor
+      // closeCommerceEditor already uses on full-panel close). Queued (not
+      // a same-tick .focus() call) — see the pendingFocusElementId effect.
+      queueFocusElement(leadCommerceToggleElementId(slug));
     });
   };
 
