@@ -583,7 +583,42 @@ export default function ArchitectureDocPage() {
         <code>unsuppressEmail</code> in <code>src/lib/db.ts</code>, both passing{" "}
         <code>requireConvex</code> so the removal is never silently SQLite-only) — this is a
         correction path, not a way to re-permit contact after a genuine opt-out; removal does not
-        constitute renewed consent. Every
+        constitute renewed consent.
+      </p>
+      <p>
+        A CAN-SPAM click is not the only way an address should stop receiving mail — a hard bounce
+        (invalid/nonexistent mailbox) or a spam complaint damages sender reputation for every
+        future send on the domain if the app keeps trying that address forever. <code>POST /api/
+        resend/webhook</code> (<code>src/lib/email/resend-webhook.ts</code>) closes that gap:
+        Resend signs delivery-event webhooks using the Svix scheme (<code>svix-id</code> /{" "}
+        <code>svix-timestamp</code> / <code>svix-signature</code> headers, secret shaped{" "}
+        <code>whsec_&lt;base64&gt;</code>, signed content{" "}
+        <code>{"${id}.${timestamp}.${rawBody}"}</code> HMAC-SHA256&apos;d and compared via{" "}
+        <code>timingSafeEqual</code> against every <code>v1,&lt;base64&gt;</code> entry in the
+        (possibly multi-version, space-separated) signature header — same constant-time-compare
+        discipline as <code>src/lib/auth/operator.ts</code> and the unsubscribe token above).
+        Dormant (endpoint returns <code>501</code>) until an operator sets{" "}
+        <code>RESEND_WEBHOOK_SECRET</code> — no <code>ALLOW_*</code> flag needed, since an unset
+        secret alone makes the route refuse to process anything. Signature verification runs{" "}
+        <em>before</em> rate limiting, mirroring{" "}
+        <code>stripe-webhook-rate-limit-post-verify</code>&apos;s exact rationale: a
+        pre-verification, IP-keyed gate would let an attacker impersonate Resend&apos;s sending
+        IPs and burn out the bucket before a real redelivery from that IP ever reaches signature
+        verification. On a verified <code>email.bounced</code> event, <code>
+        isPermanentBounceEvent</code> suppresses unless the payload carries an explicit non-
+        <code>Permanent</code> <code>bounce.type</code> (<code>Transient</code>/
+        <code>Undetermined</code>) — a missing <code>bounce.type</code> is treated as permanent
+        too, since Resend&apos;s own docs describe this event as firing only when the mail server
+        permanently rejected the message. A verified <code>email.complained</code> event always
+        suppresses (no sub-type to weigh). The suppression write passes{" "}
+        <code>RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY</code> (
+        <code>src/lib/email/suppression-persist.ts</code>, same <code>requireConvex</code>{" "}
+        reasoning as <code>UNSUBSCRIBE_CONVEX_PRIMARY</code>) and returns <code>500</code> on
+        failure so Resend/Svix&apos;s own backoff-retry contract — the same one Stripe&apos;s
+        webhook relies on — actually recovers the suppression instead of silently dropping it.
+        Every other event type (delivered, opened, clicked, delivery_delayed, …) is acknowledged
+        with <code>200</code> and ignored. Every
+        dynamic value in outbound HTML — including env-sourced{" "}
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}
         <code>brand.postalAddress</code> in signatures and the shared footer, the email

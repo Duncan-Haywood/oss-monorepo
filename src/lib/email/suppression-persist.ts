@@ -31,3 +31,18 @@ export const UNSUBSCRIBE_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
 export const OPERATOR_UNSUPPRESS_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
   requireConvex: true,
 };
+
+/**
+ * Fail-closed write options for the Resend delivery-event webhook's
+ * bounce/complaint suppression insert (POST /api/resend/webhook). Same
+ * requireConvex reasoning as UNSUBSCRIBE_CONVEX_PRIMARY: isEmailSuppressed
+ * reads Convex-first, so a soft-fallback here would let this handler return
+ * 200 (Resend stops retrying) while other instances keep sending to an
+ * address that just hard-bounced or complained. Resend/Svix redeliver a
+ * non-2xx response with backoff — a required-write failure here returns 5xx
+ * so that retry actually recovers the suppression, mirroring the Stripe
+ * webhook's WebhookFulfillmentStep contract for its own required writes.
+ */
+export const RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
+  requireConvex: true,
+};

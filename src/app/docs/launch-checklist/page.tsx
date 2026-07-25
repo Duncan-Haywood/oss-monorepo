@@ -240,6 +240,23 @@ export default function LaunchChecklistDocPage() {
         </li>
         <li>Configure SPF / DKIM / DMARC on the sending domain.</li>
         <li>
+          Point a Resend webhook at <code>/api/resend/webhook</code>. In the
+          Resend dashboard: <strong>Webhooks → Add Endpoint</strong>, enter
+          this URL, select <code>email.bounced</code> and{" "}
+          <code>email.complained</code>, then copy the{" "}
+          <strong>Signing Secret</strong> into <code>RESEND_WEBHOOK_SECRET</code>
+          . Until set, the endpoint returns <code>501</code> and does nothing —
+          a hard bounce or spam complaint otherwise leaves that address able
+          to keep receiving outreach/receipts/packs forever, which drags down
+          inbox placement for every future send on the domain (the same
+          deliverability risk SPF/DKIM/DMARC above exists to manage). Once
+          live, a permanent bounce or complaint suppresses the recipient the
+          same way a CAN-SPAM unsubscribe click does — check{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>&rsquo;s
+          Suppressed emails panel after a real bounce/complaint to confirm it
+          landed.
+        </li>
+        <li>
           Import a small operator-owned CSV on the leads dashboard (or add one
           lead manually with email), move stage to <code>outreach_sent</code>,
           confirm the email (or mock log) and unsubscribe path (
