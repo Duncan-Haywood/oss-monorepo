@@ -1470,9 +1470,12 @@ source). The same digest also lists email-critical leads with no usable address 
       <p>
         Monthly packs: <code>src/lib/marketing/</code> builds an 8-post + 2-email pack via{" "}
         <code>StubMarketingGenerator</code> or <code>AnthropicMarketingGenerator</code> when{" "}
-        <code>ANTHROPIC_API_KEY</code> is set (direct Vitest coverage in{" "}
+        <code>ANTHROPIC_API_KEY</code> is set. The Anthropic <code>fetch</code> carries a 30s{" "}
+        <code>AbortSignal.timeout</code> so a hung/stalled connection fails fast into the stub
+        fallback like any other error, rather than tying up the request for the hosting
+        platform&apos;s own function-duration ceiling (direct Vitest coverage in{" "}
         <code>generators.test.ts</code> for stub edge branches + Anthropic blank-key / HTTP /
-        parse / length-mismatch fallbacks and <code>packageTier</code>;{" "}
+        parse / length-mismatch / timeout fallbacks and <code>packageTier</code>;{" "}
         <code>build-request.test.ts</code> for empty services/hours defaults, growth vs
         complete <code>automationLevel</code>, and soft-capped business context via{" "}
         <code>normalizeMarketingGenerateBusiness</code>). Until the key is a non-placeholder
@@ -1528,9 +1531,10 @@ source). The same digest also lists email-critical leads with no usable address 
       <p>
         FAQ/script packs: <code>src/lib/voice/</code> builds a 6-script receptionist pack via{" "}
         <code>StubClientVoiceGenerator</code> or <code>AnthropicClientVoiceGenerator</code> when{" "}
-        <code>ANTHROPIC_API_KEY</code> is set (direct Vitest coverage in{" "}
+        <code>ANTHROPIC_API_KEY</code> is set — same 30s <code>AbortSignal.timeout</code> on the
+        Anthropic <code>fetch</code> as the marketing generator above (direct Vitest coverage in{" "}
         <code>src/lib/voice/generators.test.ts</code> for stub edge branches + Anthropic blank-key /
-        HTTP / parse / length-mismatch fallbacks, title fallback, and title/body/cta soft-caps on
+        HTTP / parse / length-mismatch / timeout fallbacks, title fallback, and title/body/cta soft-caps on
         both Anthropic <code>parseVariantsJson</code> and stub emit via shared{" "}
         <code>src/lib/packs/variant-fields.ts</code> — stub <code>services.join</code> at create-path
         max alone exceeds body max). The same <code>softCapPackVariantFields</code> helper also

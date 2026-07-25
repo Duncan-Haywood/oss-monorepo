@@ -279,6 +279,46 @@ describe("AnthropicClientVoiceGenerator", () => {
     expect(errorSpy).toHaveBeenCalled();
   });
 
+  it("passes an AbortSignal request timeout to fetch", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [
+            { type: "text", text: JSON.stringify([{ scriptType: "inbound_greeting", title: "t", body: "hi" }]) },
+          ],
+        }),
+      })),
+    );
+
+    await new AnthropicClientVoiceGenerator("sk-test").generate(
+      request({ scriptTypes: ["inbound_greeting"] }),
+    );
+
+    const [, init] = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
+    expect((init as RequestInit).signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("falls back when the request times out (AbortError)", async () => {
+    const fallback = new StubClientVoiceGenerator();
+    const spy = vi.spyOn(fallback, "generate");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new DOMException("The operation was aborted.", "TimeoutError");
+      }),
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await new AnthropicClientVoiceGenerator("sk-test", fallback).generate(
+      request(),
+    );
+    expect(spy).toHaveBeenCalledOnce();
+    expect(errorSpy).toHaveBeenCalled();
+    expect(result.leadId).toBe(request().leadId);
+  });
+
   it("falls back when response has no text content", async () => {
     const fallback = new StubClientVoiceGenerator();
     const spy = vi.spyOn(fallback, "generate");

@@ -16,6 +16,11 @@ import type {
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
+// No application-layer timeout meant a hung/stalled Anthropic connection tied up the
+// request for however long the hosting platform's own function-duration ceiling allows,
+// instead of failing fast into the existing stub fallback like every other failure mode
+// (HTTP error, malformed JSON) already does. See anthropic-generator-fetch-timeout.
+const ANTHROPIC_REQUEST_TIMEOUT_MS = 30_000;
 
 /**
  * Placeholder client-voice generator — structured stubs until LLM keys are set.
@@ -189,6 +194,7 @@ export class AnthropicClientVoiceGenerator implements ClientVoiceGenerator {
         system,
         messages: [{ role: "user", content: user }],
       }),
+      signal: AbortSignal.timeout(ANTHROPIC_REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
