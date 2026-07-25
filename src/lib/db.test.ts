@@ -171,6 +171,25 @@ import type { DeployHandoff } from "./deploy/types";
  * SQLite-side check would let two leads silently share one custom domain on
  * a SQLite-only deployment, exactly the split-brain
  * custom-domain-normalize-and-unique exists to prevent.
+ *
+ * insertClientInquiry / updateClientInquiryStatus / recordClientInquiryReply
+ * (~2001, ~2200, ~2281) and recordCheckoutSessionCreated (~2322) are the
+ * contact-form CRM and checkout-session-tracking writes the public contact
+ * route, both Stripe checkout routes, and the dashboard reply/status actions
+ * call with requireConvex: true — every consumer test mocks "@/lib/db" away
+ * entirely, so this orchestration had zero automated coverage until now.
+ * updateClientInquiryStatus / recordClientInquiryReply share a branch none of
+ * the writes above needed: a requireConvex Convex mutation resolving null
+ * (not found on the shared store) must return null directly rather than
+ * inventing an answer from instance-local SQLite. recordClientInquiryReply's
+ * SQLite fallback also re-checks status !== "archived" atomically
+ * (inquiry-reply-archive-race-guard) via the already-isolated-tested
+ * sqliteRecordClientInquiryReply helper (src/lib/db/sqlite-queries.ts) — this
+ * suite exercises db.ts's own Convex-first wiring around that call, not a
+ * second copy of the guard itself. recordCheckoutSessionCreated's SQLite
+ * fallback has an INSERT ... ON CONFLICT(stripeSessionId) DO NOTHING dedup
+ * clause (Stripe can call checkout-create more than once for the same
+ * session on retry) that had never been exercised either.
  */
 
 vi.mock("server-only", () => ({}));
@@ -2471,6 +2490,287 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
 
       const cleared = await db.updateDeployHandoffCustomDomain("clear-domain-lead", null);
       expect(cleared?.customDomain).toBeUndefined();
+    });
+  });
+
+  describe("insertClientInquiry (requireConvex fail-closed write, contact-form field caps)", () => {
+    function testInquiryInput(
+      leadSlug: string,
+      overrides: Partial<Parameters<DbModule["insertClientInquiry"]>[0]> = {},
+    ) {
+      return {
+        leadSlug,
+        businessName: "Test Business",
+        name: "Visitor",
+        email: "visitor@example.com",
+        phone: "(303) 555-0199",
+        message: "Do you have a table for four on Friday?",
+        source: "preview",
+        ...overrides,
+      };
+    }
+
+    it("returns the built inquiry after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      const inquiry = await db.insertClientInquiry(
+        testInquiryInput("convex-inquiry-lead"),
+        { requireConvex: true },
+      );
+      expect(inquiry.leadSlug).toBe("convex-inquiry-lead");
+      expect(inquiry.status).toBe("new");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stored = await db.getClientInquiryById(inquiry.id);
+      expect(stored).toBeNull();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.insertClientInquiry(testInquiryInput("any-lead"), { requireConvex: true }),
+      ).rejects.toThrow(/insertClientInquiry/);
+    });
+
+    it("falls back to a real SQLite insert when requireConvex is not set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const inquiry = await db.insertClientInquiry(testInquiryInput("fallback-inquiry-lead"));
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stored = await db.getClientInquiryById(inquiry.id);
+      expect(stored?.leadSlug).toBe("fallback-inquiry-lead");
+      expect(stored?.message).toBe("Do you have a table for four on Friday?");
+    });
+
+    it("SQLite-fallback write soft-caps an over-length message via normalizeContactFormFields", async () => {
+      const db = await loadDb(undefined);
+      const overlong = "x".repeat(6000);
+      const inquiry = await db.insertClientInquiry(
+        testInquiryInput("capped-inquiry-lead", { message: overlong }),
+      );
+      expect(inquiry.message.length).toBe(5000);
+
+      const stored = await db.getClientInquiryById(inquiry.id);
+      expect(stored?.message.length).toBe(5000);
+    });
+  });
+
+  describe("updateClientInquiryStatus (requireConvex fail-closed write)", () => {
+    it("returns the Convex mutation's result directly on success, without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      const seeded = await seedDb.insertClientInquiry({
+        leadSlug: "convex-status-inquiry-lead",
+        businessName: "Test Business",
+        message: "Hello",
+      });
+
+      convexMutation.mockResolvedValueOnce({ ...seeded, status: "read" });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.updateClientInquiryStatus(seeded.id, "read", {
+        requireConvex: true,
+      });
+      expect(result?.status).toBe("read");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stillNew = await db.getClientInquiryById(seeded.id);
+      expect(stillNew?.status).toBe("new");
+    });
+
+    it("returns null without inventing a SQLite fallback when Convex resolves null and requireConvex is set", async () => {
+      convexMutation.mockResolvedValueOnce(null);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateClientInquiryStatus("missing-inquiry", "read", { requireConvex: true }),
+      ).resolves.toBeNull();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.updateClientInquiryStatus("some-inquiry", "read", { requireConvex: true }),
+      ).rejects.toThrow(/updateClientInquiryStatus/);
+    });
+
+    it("returns null via the SQLite fallback when the inquiryId does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(db.updateClientInquiryStatus("missing-inquiry", "read")).resolves.toBeNull();
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("SQLite fallback updates status and updatedAt for an existing inquiry", async () => {
+      const db = await loadDb(undefined);
+      const seeded = await db.insertClientInquiry({
+        leadSlug: "sqlite-status-inquiry-lead",
+        businessName: "Test Business",
+        message: "Hello",
+      });
+
+      const updated = await db.updateClientInquiryStatus(seeded.id, "archived");
+      expect(updated?.status).toBe("archived");
+
+      const reread = await db.getClientInquiryById(seeded.id);
+      expect(reread?.status).toBe("archived");
+    });
+  });
+
+  describe("recordClientInquiryReply (requireConvex fail-closed write, archive-race guard)", () => {
+    it("returns the Convex mutation's result directly on success, without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      const seeded = await seedDb.insertClientInquiry({
+        leadSlug: "convex-reply-inquiry-lead",
+        businessName: "Test Business",
+        message: "Hello",
+      });
+
+      convexMutation.mockResolvedValueOnce({
+        ...seeded,
+        status: "replied",
+        operatorReply: "Thanks!",
+      });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.recordClientInquiryReply(seeded.id, "Thanks!", {
+        requireConvex: true,
+      });
+      expect(result?.status).toBe("replied");
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stillNew = await db.getClientInquiryById(seeded.id);
+      expect(stillNew?.status).toBe("new");
+    });
+
+    it("returns null without inventing a SQLite fallback when Convex resolves null and requireConvex is set", async () => {
+      convexMutation.mockResolvedValueOnce(null);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordClientInquiryReply("missing-inquiry", "Thanks!", { requireConvex: true }),
+      ).resolves.toBeNull();
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordClientInquiryReply("some-inquiry", "Thanks!", { requireConvex: true }),
+      ).rejects.toThrow(/recordClientInquiryReply/);
+    });
+
+    it("SQLite fallback returns null for a missing inquiry", async () => {
+      const db = await loadDb(undefined);
+      await expect(db.recordClientInquiryReply("missing-inquiry", "Thanks!")).resolves.toBeNull();
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("SQLite fallback rejects a reply against an already-archived inquiry (inquiry-reply-archive-race-guard)", async () => {
+      const db = await loadDb(undefined);
+      const seeded = await db.insertClientInquiry({
+        leadSlug: "archived-reply-inquiry-lead",
+        businessName: "Test Business",
+        message: "Hello",
+      });
+      await db.updateClientInquiryStatus(seeded.id, "archived");
+
+      await expect(db.recordClientInquiryReply(seeded.id, "Too late")).resolves.toBeNull();
+    });
+
+    it("SQLite fallback persists status=replied + operatorReply + repliedAt", async () => {
+      const db = await loadDb(undefined);
+      const seeded = await db.insertClientInquiry({
+        leadSlug: "sqlite-reply-inquiry-lead",
+        businessName: "Test Business",
+        message: "Hello",
+      });
+
+      const updated = await db.recordClientInquiryReply(seeded.id, "Thanks for reaching out!");
+      expect(updated?.status).toBe("replied");
+      expect(updated?.operatorReply).toBe("Thanks for reaching out!");
+      expect(updated?.repliedAt).toBeTruthy();
+
+      const reread = await db.getClientInquiryById(seeded.id);
+      expect(reread?.status).toBe("replied");
+      expect(reread?.operatorReply).toBe("Thanks for reaching out!");
+    });
+  });
+
+  describe("recordCheckoutSessionCreated (requireConvex fail-closed write, ON CONFLICT DO NOTHING dedup)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordCheckoutSessionCreated(
+          {
+            leadSlug: "convex-checkout-lead",
+            stripeSessionId: "cs_convex_create",
+            tier: "starter",
+            commerceAddon: false,
+          },
+          { requireConvex: true },
+        ),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const open = await db.listOpenCheckoutSessions();
+      expect(open.some((s) => s.stripeSessionId === "cs_convex_create")).toBe(false);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordCheckoutSessionCreated(
+          {
+            leadSlug: "any-lead",
+            stripeSessionId: "cs_any",
+            tier: "starter",
+            commerceAddon: false,
+          },
+          { requireConvex: true },
+        ),
+      ).rejects.toThrow(/recordCheckoutSessionCreated/);
+    });
+
+    it("falls back to a real SQLite insert when requireConvex is not set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "fallback-checkout-lead",
+        stripeSessionId: "cs_fallback_create",
+        tier: "growth",
+        commerceAddon: true,
+      });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const open = await db.listOpenCheckoutSessions();
+      const created = open.find((s) => s.stripeSessionId === "cs_fallback_create");
+      expect(created?.leadSlug).toBe("fallback-checkout-lead");
+      expect(created?.tier).toBe("growth");
+    });
+
+    it("SQLite fallback ignores a redelivered create for a stripeSessionId already on record (ON CONFLICT DO NOTHING)", async () => {
+      const db = await loadDb(undefined);
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "dedup-checkout-lead",
+        stripeSessionId: "cs_dedup",
+        tier: "starter",
+        commerceAddon: false,
+      });
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "dedup-checkout-lead",
+        stripeSessionId: "cs_dedup",
+        tier: "complete",
+        commerceAddon: true,
+      });
+
+      const open = await db.listOpenCheckoutSessions();
+      const matches = open.filter((s) => s.stripeSessionId === "cs_dedup");
+      expect(matches).toHaveLength(1);
+      expect(matches[0]?.tier).toBe("starter");
     });
   });
 });
