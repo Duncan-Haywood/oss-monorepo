@@ -1,7 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireApiSecret } from "./lib/apiSecret";
-import { preferSuppressionReason } from "../src/lib/email/suppression";
+import { preferSuppressionReason, suppressionReasonOrDefault } from "../src/lib/email/suppression";
 
 const suppressionReasonValidator = v.union(
   v.literal("unsubscribe"),
@@ -39,8 +39,22 @@ export const suppress = mutation({
       .withIndex("by_email", (q) => q.eq("email", args.email))
       .unique();
     if (existing) {
+      // Compare against the *defaulted* existing reason, not the raw
+      // (possibly-undefined) schema field — a row written before the
+      // `reason` column existed has existing.reason === undefined, which
+      // preferSuppressionReason also treats as "unsubscribe" internally.
+      // Comparing the defaulted `preferred` value against the raw
+      // `existing.reason` made every repeat suppress() call for a legacy
+      // row (even a same-category unsubscribe) look like an "upgrade" —
+      // "unsubscribe" !== undefined is always true — so it patched the row
+      // and fabricated a reasonUpdatedAt timestamp on every single call,
+      // never converging to a true no-op the way the SQLite fallback
+      // (suppression_list.reason is NOT NULL DEFAULT 'unsubscribe', so its
+      // existing.reason is never undefined) already does. See
+      // suppression-legacy-row-idempotency-guard.
+      const existingReason = suppressionReasonOrDefault(existing.reason);
       const preferred = preferSuppressionReason(existing.reason, args.reason);
-      if (preferred !== existing.reason) {
+      if (preferred !== existingReason) {
         await ctx.db.patch(existing._id, { reason: preferred, reasonUpdatedAt: Date.now() });
       }
       return null;
