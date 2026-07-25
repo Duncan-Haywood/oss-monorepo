@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { leadContactApiPath } from "@/lib/leads/slug-path";
 import {
   COMMERCE_ORDER_EVENT,
@@ -49,12 +49,27 @@ export function PreviewContactForm({
   const [message, setMessage] = useState(() => readPendingCommerceOrder(slug));
   const [status, setStatus] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const messageFieldRef = useRef<HTMLTextAreaElement>(null);
+  const hadPendingOrderOnMount = useRef(message.length > 0);
+
+  // "Request order" only scrolls the browser to #contact (native hash-jump on
+  // the <a> in commerce-catalog.tsx) — it never moves programmatic focus, so a
+  // keyboard-only or screen-reader shopper gets no indication they landed on a
+  // new section with a message already filled in. Move focus to the message
+  // field ourselves, both for the same-page event below and for this
+  // cross-navigation (sessionStorage) case on first mount.
+  useEffect(() => {
+    if (hadPendingOrderOnMount.current) {
+      messageFieldRef.current?.focus();
+    }
+  }, []);
 
   useEffect(() => {
     const onOrderRequest = (event: Event) => {
       const detail = (event as CustomEvent<CommerceOrderEventDetail>).detail;
       if (!detail || detail.slug !== slug || !detail.message) return;
       setMessage(detail.message);
+      messageFieldRef.current?.focus();
     };
     window.addEventListener(COMMERCE_ORDER_EVENT, onOrderRequest);
     return () => window.removeEventListener(COMMERCE_ORDER_EVENT, onOrderRequest);
@@ -153,6 +168,7 @@ export function PreviewContactForm({
           <label className="block text-sm text-zinc-700">
             <span className="font-medium text-zinc-900">Message</span>
             <textarea
+              ref={messageFieldRef}
               name="message"
               rows={4}
               required

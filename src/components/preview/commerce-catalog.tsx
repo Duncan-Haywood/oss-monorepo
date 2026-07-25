@@ -143,7 +143,25 @@ export function PreviewCommerceCatalog({
                     href="#contact"
                     aria-label={commerceRequestOrderAriaLabel(sku)}
                     className={`inline-flex h-10 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors ${ctaClass}`}
-                    onClick={() => {
+                    onClick={(event) => {
+                      // Open-in-new-tab / middle-click gestures keep the native
+                      // hash-navigation behavior untouched.
+                      if (
+                        event.button !== 0 ||
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey
+                      ) {
+                        return;
+                      }
+                      // Prevent the native #contact hash-jump: it resets focus
+                      // to <body> (the target section has no tabindex) *after*
+                      // this handler runs, silently discarding the
+                      // COMMERCE_ORDER_EVENT listener's own focus() call below
+                      // — the message field must be the thing that ends up
+                      // focused, not the section it lives in.
+                      event.preventDefault();
                       try {
                         sessionStorage.setItem(
                           commerceOrderStorageKey(slug),

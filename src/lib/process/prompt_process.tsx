@@ -392,6 +392,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-wlofuf",
   },
+  {
+    id: "commerce-request-order-contact-form-focus-restore",
+    summary:
+      "Empty-backlog audit found the public storefront's Commerce 'Request order' link (src/components/preview/commerce-catalog.tsx, shown for any SKU not yet synced to Stripe) stored a prefilled message and hash-jumped to #contact with no programmatic focus management — the contact form (src/components/preview/contact-form.tsx) updated its message textarea's value but never moved DOM focus there, leaving a keyboard-only or screen-reader shopper with a silent scroll and no indication their message was pre-filled. A first fix attempt (ref + focus() call) looked correct by code review but failed a real Playwright check: the native #contact hash-navigation resets focus to <body> *after* the click handler runs (the target section has no tabindex), silently discarding the JS focus() call. Fixed by having the link's onClick preventDefault() (only for unmodified primary clicks — ctrl/cmd/shift/alt/middle-click still open a new tab natively) before the existing sessionStorage/CustomEvent logic, so the native refocus never fires; a ref-based .focus() on the message textarea then reliably lands focus there both for the same-page click and the cross-navigation (sessionStorage) mount case. Verified end-to-end with Playwright against a locally seeded lead (paid stage + commerceAddon order) — click, cross-navigation reload, and ctrl+click-opens-new-tab all confirmed in a real browser, since this repo has no component test harness to catch a pure client-side focus bug otherwise.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-devka5",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -849,6 +857,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "post-748-duplicate-helper-and-scaffold-reaudit-clean",
+    ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/upbeat-dijkstra-devka5",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip efaa0586 (PR #749, post-748-duplicate-helper-and-scaffold-reaudit-clean, merged prior session) — HEAD matched origin/main exactly at session start. A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest ~4 remote claude/* branches found each diffed as a tiny process-log-only delta whose content exactly matched an already-merged main commit (PRs #746-#749) — no live sibling mid-feature. All five NEXT_STEPS todo items remain operator/legal-gated, so per AGENT_PROTOCOL's empty-backlog tier order this iteration dispatched a research agent explicitly steered toward less-trodden corners of the codebase (cron workflow files, convex/*.ts, rarely-mentioned src/lib subdirectories, money-ledger edge cases, untested orchestration modules) rather than the ~750-PR history of already-swept angles.\n\nIt found a real, reachable, previously-unaudited accessibility gap on the public storefront: the Commerce catalog's 'Request order' link prefills the contact form's message field via a same-page CustomEvent (or sessionStorage across a navigation) but never moves DOM focus, so a keyboard-only or screen-reader shopper gets a silent scroll with no indication of the new section or the pre-filled message. Verified directly by reading both files before touching anything. A first fix attempt (ref + focus() call inside the event listener) looked correct by code review but failed real Playwright verification — document.activeElement resolved to <body>, not the textarea — because the anchor's native #contact hash-navigation runs *after* the click handler and resets focus (the target section has no tabindex), silently discarding the JS focus() call. This is the same 'a curl/build/lint/test pass cannot catch this' lesson AGENT_PROTOCOL already documents for CSP regressions (csp-nonce-preview-maps-frame-src), now confirmed for a second, distinct bug class.",
+    shipped: [
+      "src/components/preview/commerce-catalog.tsx — the 'Request order' link's onClick now calls event.preventDefault() for unmodified primary clicks (ctrl/cmd/shift/alt/middle-click still navigate natively, preserving open-in-new-tab) before the existing sessionStorage-write + CustomEvent-dispatch logic, so the browser's own hash-navigation-driven refocus-to-<body> never fires and a JS-driven focus() call downstream actually sticks.",
+      "src/components/preview/contact-form.tsx — added a useRef<HTMLTextAreaElement> on the message field; the COMMERCE_ORDER_EVENT listener now calls messageFieldRef.current?.focus() after setMessage (same-page click case), and a new mount-time effect does the same when sessionStorage already had a pending message on load (cross-navigation case) — mirroring the existing src/lib/leads/dashboard-focus-restore.ts convention, applied to the public storefront rather than the operator dashboard for the first time.",
+      "src/lib/process/business-decisions.ts — appended commerce-request-order-contact-form-focus-restore.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS otherwise unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real accessibility/conversion-funnel gap on a revenue-adjacent public page, not any of the five gated items. Diff-gate anchor moves to efaa0586 (this iteration's own starting tip, post-PR-#749). prompt_process.tsx is at roughly 230KB post-append, at the documented re-archive trigger — flagged (not actioned, per the archive-split-is-its-own-dedicated-iteration convention already deferred once by the prior iteration) for the next agent to check with `wc -c` and split into archive/iterations-archive-15.ts if past threshold.",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged eslint-dependency-chain root cause) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npm test (2875 passed, 204 files, unchanged — no vitest coverage added since this repo has no component test harness for a pure client-side focus bug) + npm run build (clean, same 42-route ○/ƒ split) + a real-browser Playwright check against npm run dev with a locally seeded lead (paid stage + commerceAddon order, so the catalog and its unsynced-SKU 'Request order' link actually render): confirmed focus lands on the message textarea with the correct prefilled text for both the same-page click and the cross-navigation sessionStorage-reload case, and confirmed a ctrl+click still opens '#contact' in a new tab natively. Dev server killed and local.db deleted afterward.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-request-order-contact-form-focus-restore",
     ),
   },
 ];
