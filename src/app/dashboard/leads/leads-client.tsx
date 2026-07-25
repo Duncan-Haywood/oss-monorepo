@@ -250,6 +250,22 @@ const PAID_NOT_LIVE_HEADING_ID = "paid-not-live-heading";
 const PRODUCTION_DEPLOY_HANDOFFS_HEADING_ID = "production-deploy-handoffs-heading";
 const WEBSITE_INQUIRIES_HEADING_ID = "website-inquiries-heading";
 
+// Every due-queue panel above is itself conditionally rendered on its own
+// list being non-empty (`{list.length > 0 && <section>...}`) — when the
+// row a handler just resolved was the LAST row in that queue, the same
+// state update that removes the row also empties the list and unmounts the
+// whole section, heading included. A same-tick `document.getElementById`
+// call transiently finds the still-current (pre-commit) DOM and succeeds,
+// then React commits the empty state and silently reverts focus to <body>
+// — a different root cause from the disabled-anchor race
+// dashboard-focus-restore-async-transition-race already fixed (that fix
+// left heading targets as same-tick calls on the assumption headings are
+// "never disabled", which is true but doesn't cover them unmounting
+// entirely). This stable, always-mounted page heading (src/app/dashboard/leads/page.tsx)
+// is the fallback every queued due-queue-panel-heading focus falls back to
+// when its own primary target no longer exists post-commit.
+const DASHBOARD_HEADING_FALLBACK_ID = "dashboard-leads-heading";
+
 export function LeadsClient({
   initialLeads,
   initialHandoffs = [],
@@ -313,23 +329,31 @@ export function LeadsClient({
   // instead of a same-tick `document.getElementById(id)?.focus()` so both
   // cases resolve correctly: the effect below fires as soon as isPending is
   // (or becomes) false, whichever happens first (dashboard-focus-restore-async-transition-race).
-  // The pending id lives in a ref (not state) so the effect can clear it
+  // The pending target lives in a ref (not state) so the effect can clear it
   // without a react-hooks/set-state-in-effect violation; focusToken is a
   // monotonic counter (not the id itself) so re-queuing the SAME anchor id
   // twice in a row (e.g. snooze, unsnooze, snooze again) still re-triggers
   // the effect — a repeated identical state value would otherwise bail out
   // of the dependency change entirely and silently skip the second focus.
-  const pendingFocusElementIdRef = useRef<string | null>(null);
+  // An optional fallbackId covers a due-queue panel heading that may itself
+  // unmount (the whole panel is gated on its list being non-empty) — the
+  // effect runs post-commit, so it can reliably tell whether the primary
+  // target survived and fall back to a stable anchor when it didn't
+  // (dashboard-due-queue-panel-heading-unmount-focus-restore).
+  const pendingFocusElementIdRef = useRef<{ id: string; fallbackId?: string } | null>(null);
   const [focusToken, setFocusToken] = useState(0);
-  const queueFocusElement = (id: string) => {
-    pendingFocusElementIdRef.current = id;
+  const queueFocusElement = (id: string, fallbackId?: string) => {
+    pendingFocusElementIdRef.current = { id, fallbackId };
     setFocusToken((t) => t + 1);
   };
   useEffect(() => {
     if (isPending) return;
-    const id = pendingFocusElementIdRef.current;
-    if (!id) return;
-    document.getElementById(id)?.focus();
+    const target = pendingFocusElementIdRef.current;
+    if (!target) return;
+    const el =
+      document.getElementById(target.id) ??
+      (target.fallbackId ? document.getElementById(target.fallbackId) : null);
+    el?.focus();
     pendingFocusElementIdRef.current = null;
   }, [isPending, focusToken]);
 
@@ -432,9 +456,11 @@ export function LeadsClient({
     // lead.stage === "site_built" — a successful stage change removes that
     // condition and the just-clicked button unmounts with it, so focus goes
     // to the due-queue panel heading instead of vanishing to <body>. The
-    // stage <select> in the main leads table (always mounted) omits headingId.
+    // stage <select> in the main leads table (always mounted) omits
+    // headingId. Queued with a fallback since this was the last row in the
+    // queue can unmount the heading itself too (see DASHBOARD_HEADING_FALLBACK_ID).
     if (headingId) {
-      document.getElementById(headingId)?.focus();
+      queueFocusElement(headingId, DASHBOARD_HEADING_FALLBACK_ID);
     }
   };
 
@@ -509,9 +535,10 @@ export function LeadsClient({
       );
       // Work next's actionable predicate excludes snoozed leads — a
       // successful snooze removes this row (and the just-clicked button)
-      // from the Work next due-queue entirely.
+      // from the Work next due-queue entirely. Queued with a fallback since
+      // being the last row in the queue can unmount the heading itself too.
       if (headingId) {
-        document.getElementById(headingId)?.focus();
+        queueFocusElement(headingId, DASHBOARD_HEADING_FALLBACK_ID);
         return;
       }
       // Main-table snooze controls stay in a mounted <tr>, but the
@@ -593,9 +620,10 @@ export function LeadsClient({
       );
       // Re-engage/Close both move the lead off isColdLead, so its <li>
       // unmounts from the Cold leads due-queue with the just-clicked button
-      // still inside it.
+      // still inside it. Queued with a fallback since being the last row in
+      // the queue can unmount the heading itself too.
       if (headingId) {
-        document.getElementById(headingId)?.focus();
+        queueFocusElement(headingId, DASHBOARD_HEADING_FALLBACK_ID);
         return;
       }
       // Main-table Re-engage/Close controls are inside a `cold ? <>...</> :
@@ -729,8 +757,10 @@ export function LeadsClient({
       );
       // Production deploy handoffs filters out status === "live" — the
       // just-clicked Mark live button's <li> unmounts on success, so focus
-      // goes to the panel heading instead of vanishing to <body>.
-      document.getElementById(PRODUCTION_DEPLOY_HANDOFFS_HEADING_ID)?.focus();
+      // goes to the panel heading instead of vanishing to <body>. Queued
+      // with a fallback since being the last row in the queue can unmount
+      // the heading itself too (dashboard-due-queue-panel-heading-unmount-focus-restore).
+      queueFocusElement(PRODUCTION_DEPLOY_HANDOFFS_HEADING_ID, DASHBOARD_HEADING_FALLBACK_ID);
     });
   };
 
@@ -802,9 +832,11 @@ export function LeadsClient({
       // control disappears from the Website inquiries due-queue, so focus
       // goes to the panel heading instead of vanishing to <body>. The
       // internal auto-mark-read call from handleToggleReplyComposer omits
-      // headingId since it isn't triggered by this button.
+      // headingId since it isn't triggered by this button. Queued with a
+      // fallback since being the last row in the queue can unmount the
+      // heading itself too.
       if (headingId) {
-        document.getElementById(headingId)?.focus();
+        queueFocusElement(headingId, DASHBOARD_HEADING_FALLBACK_ID);
       }
     });
   };
@@ -888,9 +920,10 @@ export function LeadsClient({
       // predicate — either way the just-clicked button's row/control
       // unmounts on success, so focus goes to whichever due-queue panel
       // heading called this. The main-table row's Send Email N (always
-      // mounted) omits headingId.
+      // mounted) omits headingId. Queued with a fallback since being the
+      // last row in the queue can unmount the heading itself too.
       if (headingId) {
-        document.getElementById(headingId)?.focus();
+        queueFocusElement(headingId, DASHBOARD_HEADING_FALLBACK_ID);
       }
     });
   };
@@ -912,8 +945,9 @@ export function LeadsClient({
       );
       // isRecoveryDue starts a cooldown from recoverySentAt, so a
       // successful send removes this <li> from Abandoned checkouts — the
-      // just-clicked button unmounts with it.
-      document.getElementById(ABANDONED_CHECKOUTS_HEADING_ID)?.focus();
+      // just-clicked button unmounts with it. Queued with a fallback since
+      // being the last row in the queue can unmount the heading itself too.
+      queueFocusElement(ABANDONED_CHECKOUTS_HEADING_ID, DASHBOARD_HEADING_FALLBACK_ID);
     });
   };
 
@@ -933,8 +967,9 @@ export function LeadsClient({
         ),
       );
       // Same cooldown-driven removal as bundle recovery above, but from the
-      // Abandoned Buy now panel.
-      document.getElementById(ABANDONED_BUY_NOW_HEADING_ID)?.focus();
+      // Abandoned Buy now panel. Queued with a fallback since being the
+      // last row in the queue can unmount the heading itself too.
+      queueFocusElement(ABANDONED_BUY_NOW_HEADING_ID, DASHBOARD_HEADING_FALLBACK_ID);
     });
   };
 
@@ -954,8 +989,9 @@ export function LeadsClient({
       // !row.paidOutAt and swaps to a "Paid out" status span on success; the
       // owning lead's outer <li> also unmounts once every owed order for
       // that lead is resolved. Either way focus goes to the panel heading
-      // instead of vanishing to <body>.
-      document.getElementById(COMMERCE_PAYOUTS_HEADING_ID)?.focus();
+      // instead of vanishing to <body>. Queued with a fallback since being
+      // the last row in the queue can unmount the heading itself too.
+      queueFocusElement(COMMERCE_PAYOUTS_HEADING_ID, DASHBOARD_HEADING_FALLBACK_ID);
     });
   };
 
@@ -970,7 +1006,9 @@ export function LeadsClient({
         prev.filter((o) => o.stripeSessionId !== stripeSessionId),
       );
       // The just-clicked Resend receipt button's <li> unmounts on success.
-      document.getElementById(MISSING_CLIENT_RECEIPT_HEADING_ID)?.focus();
+      // Queued with a fallback since being the last row in the queue can
+      // unmount the heading itself too.
+      queueFocusElement(MISSING_CLIENT_RECEIPT_HEADING_ID, DASHBOARD_HEADING_FALLBACK_ID);
     });
   };
 
@@ -985,8 +1023,10 @@ export function LeadsClient({
         // Only the fully-resolved case unmounts this row's <li> (both emails
         // now marked sent) — a partial success (one half still missing)
         // keeps the button in place, so only move focus off it on unmount.
+        // Queued with a fallback since being the last row in the queue can
+        // unmount the heading itself too.
         if (!stillMissing) {
-          document.getElementById(BUNDLE_MISSING_BUYER_EMAIL_HEADING_ID)?.focus();
+          queueFocusElement(BUNDLE_MISSING_BUYER_EMAIL_HEADING_ID, DASHBOARD_HEADING_FALLBACK_ID);
         }
       }
       if (!res.success) {
@@ -1075,9 +1115,10 @@ export function LeadsClient({
       // scrollIntoView below (when bringIntoView) only scrolls the viewport,
       // it doesn't move DOM focus, so this call is still required even when
       // that option is set. The main-table "Generate pack" button (always
-      // mounted) omits headingId.
+      // mounted) omits headingId. Queued with a fallback since being the
+      // last row in the queue can unmount the heading itself too.
       if (opts?.headingId) {
-        document.getElementById(opts.headingId)?.focus();
+        queueFocusElement(opts.headingId, DASHBOARD_HEADING_FALLBACK_ID);
       }
       if (opts?.bringIntoView) {
         // Called from the Marketing packs due panel, which lists leads from
@@ -1206,9 +1247,10 @@ export function LeadsClient({
       // successful sync unmounts this <li> (and the just-clicked "Sync to
       // Stripe" button) from that due-queue. The Commerce editor's own
       // "Sync to Stripe" button (inside the always-mounted row editor)
-      // omits headingId.
+      // omits headingId. Queued with a fallback since being the last row in
+      // the queue can unmount the heading itself too.
       if (headingId) {
-        document.getElementById(headingId)?.focus();
+        queueFocusElement(headingId, DASHBOARD_HEADING_FALLBACK_ID);
       }
     });
   };
@@ -1394,9 +1436,11 @@ export function LeadsClient({
       // Same due-queue removal shape as handleGenerateMarketingPack above —
       // Voice packs due filters out leads that already have a pack, so a
       // successful generate unmounts this <li>. The main-table "Generate
-      // pack" button (always mounted) omits headingId.
+      // pack" button (always mounted) omits headingId. Queued with a
+      // fallback since being the last row in the queue can unmount the
+      // heading itself too.
       if (opts?.headingId) {
-        document.getElementById(opts.headingId)?.focus();
+        queueFocusElement(opts.headingId, DASHBOARD_HEADING_FALLBACK_ID);
       }
       if (opts?.bringIntoView) {
         // Same due-queue dead-open fix as handleGenerateMarketingPack above —
