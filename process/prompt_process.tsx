@@ -129,6 +129,13 @@ Each session:
 6. Check other branches (git ls-remote origin) before starting, since
    other agents may be working the same repo concurrently — prefer
    additive changes over ones likely to conflict with in-flight PRs.
+   If your clone is shallow (a fresh add_repo clone starts this way —
+   check with 'git rev-parse --is-shallow-repository'), run
+   'git fetch --unshallow origin' before trusting 'git merge-base
+   --is-ancestor' or 'git log origin/main..origin/BRANCH' to conclude a
+   branch is unmerged: against a shallow history both give false-positive
+   "unmerged" results (confirmed 2026-07-25 — several long-since-merged
+   branches wrongly looked unmerged until unshallowing).
 7. Build docs-site and research before committing (npm run build in each
    that you touched); run npm test in pipeline/ if you touched it. Push to
    your assigned branch, open a PR, and merge it once it's green — this

@@ -325,4 +325,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-dco74e",
     relatedTaskIds: ["p2-blocker-recheck-throttle", "p2-human-notification-throttle"],
   },
+  {
+    date: "2026-07-25",
+    title: "Document that a shallow clone gives false-positive 'unmerged branch' results",
+    decision:
+      "Added a note to prompt_process.tsx's step 6 (and blockers.ts's stale-branch-cleanup entry): before concluding a branch has no unmerged content via `git merge-base --is-ancestor` or `git log origin/main..origin/<branch>`, check `git rev-parse --is-shallow-repository` and run `git fetch --unshallow origin` first if it's shallow.",
+    rationale:
+      "This session's fresh `add_repo` clone started shallow. Auditing all 58 non-main branches against that shallow history, several already-merged branches (e.g. claude/dazzling-allen-7i8o70, claude/dazzling-allen-rkmj0x, cursor/docs-cloudflare-access-4a7e/5df0, cursor/setup-dev-environment-2314) wrongly showed unmerged commits — up to 11 for one branch — purely because the shallow boundary made `merge-base` compute the wrong ancestry. `git fetch --unshallow origin` fixed it immediately (verified against GitHub's own PR history via `list_pull_requests` state=closed: PRs #1-#16 confirmed merged/closed, matching the corrected local result). Left unfixed, this could eventually cost a future session real wasted effort (or worse, a bad merge/cherry-pick attempt) chasing branches that were never actually unmerged. No other findings changed this session: all 7 human blockers re-confirmed unchanged with fresh evidence (CI outage run 30155979952, ~179h and counting; only PR #4 open; all data logs still empty; nextActionableTasks() still empty); shouldNotifyHuman(72) returned false (~13h since the last push) so no repeat notification was sent.",
+    madeBy: "claude/dazzling-allen-lfyv1d",
+    relatedTaskIds: ["stale-branch-cleanup", "p2-blocker-recheck-throttle"],
+  },
 ];

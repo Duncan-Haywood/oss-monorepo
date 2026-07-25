@@ -562,4 +562,21 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): a full pass on actions-ci-runner-outage should now just overwrite the 'most recent run' / 'duration as of' facts in blockers.ts in place, not append another paragraph — same pattern already established for stale-branch-cleanup.",
     ],
   },
+  {
+    date: "2026-07-25",
+    agent: "claude/dazzling-allen-lfyv1d",
+    summary:
+      "recentlyConfirmedWithinHours(12) was true (last full pass ~4h earlier at 11:10Z) but did a full independent re-verification anyway while auditing branches for cooperation with other concurrent agent sessions, and found a real methodology bug in that audit process worth fixing: this session's fresh clone was shallow, which made `git merge-base --is-ancestor`/`git log origin/main..origin/<branch>` falsely report several long-merged branches as having unmerged commits (up to 11 for one). Ran `git fetch --unshallow origin`, re-checked, and cross-verified against GitHub's own PR history (list_pull_requests) — confirmed all 58 non-main branches are either fully merged (PRs #1-#16 and everything since, per prior sessions' finding) or the two known pre-existing abandoned-scaffolding branches; only PR #4 remains open and still human-blocked. All 7 human blockers re-confirmed unchanged with fresh evidence (CI outage run 30155979952 on main @ 31a9a47, same runner_id:0/empty-runner_name/~2-3s signature, now ~179h/~7.5 days; all data logs still empty; nextActionableTasks() still empty).",
+    changes: [
+      "prompt_process.tsx: step 6 now tells a session to check for a shallow clone and unshallow before trusting branch-ancestry checks, to avoid future sessions being misled the way this one briefly was.",
+      "blockers.ts: bumped lastConfirmed/lastConfirmedAt/confirmedByCount on all 7 entries with this session's fresh evidence; stale-branch-cleanup's branch count corrected to 58 (up 1) with the shallow-clone caveat noted; actions-ci-runner-outage's 'most recent run' data overwritten in place per the existing convention (now run 30155979952, ~179h).",
+      "decisions-log.ts: new entry documenting the shallow-clone finding and fix.",
+      "No roadmap.ts task status changed and no product/business decision made — process rigor only, per prompt_process.tsx step 4 (nothing else was agent-actionable this session).",
+      "Verified: docs-site/ `npm run build` passes clean (type-checks blockers.ts/decisions-log.ts/progress-log.ts via prompt_process.tsx's import chain); pipeline/ and research/ untouched, not rebuilt. shouldNotifyHuman(72) returned false (~13h since the 2026-07-25T02:11Z push) — no repeat out-of-band notification sent this session, consistent with the throttle.",
+    ],
+    nextUp: [
+      "Human: same seven items remain the highest-leverage next steps — see blockers.ts. The CI outage (now ~7.5 days, still the single most time-sensitive item) and the cron-cadence reconsideration are the two most worth a direct look.",
+      "Agent (next session): if your clone is shallow, unshallow before doing a branch audit (see prompt_process.tsx step 6) — this session's false-positive scare should not repeat.",
+    ],
+  },
 ];
