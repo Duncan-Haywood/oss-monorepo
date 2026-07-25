@@ -433,6 +433,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/nice-euler-r5775w",
   },
+  {
+    id: "bundle-order-missing-buyer-email-visibility",
+    summary:
+      "Empty-backlog audit (tier 1 — sold-capability wiring gap) found the bundle (Starter/Growth/Complete/Commerce-addon) buyer receipt + DNS/go-live handoff emails — already redelivery-safe via src/lib/payments/bundle-side-effect-recovery.ts's sent-marker notes since the very first archived iteration — had zero operator-facing visibility anywhere: no listBundleOrdersMissingBuyerEmail-style helper, no pipeline-health/digest signal, no dashboard panel. Same visibility-gap class already closed for Commerce Buy now via commerce-buy-now-client-receipt-visibility, never applied to the bundle ledger. Once Stripe's redelivery window is exhausted against a persistently-bad customerEmail or a sustained Resend outage, the buyer never gets notified and the operator has zero signal. Shipped: isBundleHandoffMissingBuyerEmail pure predicate, wired into pipeline-health.ts (count + staleness age, from the existing required handoffs input) and daily-digest.ts (a capped section naming which email — receipt and/or DNS — is still missing per row, from the existing optional handoffs input), plus a read-only due-queue panel on /dashboard/leads. Visibility only, matching the two-PR precedent commerce-buy-now-client-receipt-visibility itself set — a manual resend action needs the DNS-handoff email body extracted out of the webhook route into a reusable helper first, left as a scoped follow-up. See bundle-order-missing-buyer-email-visibility in BUSINESS_DECISIONS.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-xl4gog",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -822,6 +830,39 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "refund-updated-dispute-closed-customer-correlation-fallback",
+    ),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/upbeat-dijkstra-xl4gog",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip ca19f7be (PR #764, account-updated-connect-status-refresh, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2945 passed, 204 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A git fetch of all remote heads and a diff of the newest ~7 claude/* branches against origin/main found each already merged (squash-merge SHA mismatch, tip commit messages matching already-merged PR titles #758-#764) — no live fold candidate. All five NEXT_STEPS items remained operator/legal/infra-gated, so measured business-decisions.ts per the standing flag left by the immediately-preceding session (240,659 bytes, split-if-grown-further): now 255,377 bytes, within ~6.8KB of the 262,144-byte hard ceiling. Did the archive split as its own dedicated step before any feature work, per process-log-archive-scalability-split's explicit instruction not to bundle it with a drive-by edit.",
+    shipped: [
+      "src/lib/process/archive/business-decisions-archive-13.ts — new file, the oldest 32 of the live tail's 43 BUSINESS_DECISIONS entries, mirroring archive-12.ts's shape exactly.",
+      "src/lib/process/business-decisions.ts — added the BUSINESS_DECISIONS_ARCHIVE_13 import + spread; live tail now 11 entries at 81,179 bytes.",
+      "Verified losslessness: a tsx script imported the pre-split BUSINESS_DECISIONS (via a git-stash-restored checkout) to JSON, then re-imported the post-split array and ran assert.deepStrictEqual — both sides exactly 798 entries, byte-for-byte equal. decisions-link-audit.test.ts still passes (10/10) with no blanket Prettier pass run over the split files, per this same rule's own quote-normalization warning.",
+      "src/lib/process/business-decisions.ts — appended business-decisions-archive-13-split.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "business-decisions-archive-13-split"),
+  },
+  {
+    date: "2026-07-25",
+    branch: "claude/upbeat-dijkstra-xl4gog",
+    summary:
+      "Same session as the immediately-preceding archive-split iteration, origin/main tip still ca19f7be (no PRs merged between the two). Dispatched a background research agent (general-purpose) briefed on AGENT_PROTOCOL's empty-backlog tiers 1-4 and told to read the tail of ITERATIONS/BUSINESS_DECISIONS first so it would not re-propose an already-closed finding. It found bundle (Starter/Growth/Complete/Commerce-addon) buyer receipt + DNS/go-live handoff emails — already redelivery-safe since the very first archived iteration (bundle-webhook-side-effect-recovery-on-redelivery) — had zero operator-facing visibility anywhere (pipeline-health, digest, dashboard), the same sold-capability-visibility-gap class already closed for Commerce Buy now via commerce-buy-now-client-receipt-visibility but never applied to the bundle ledger. Independently re-verified by reading src/lib/payments/bundle-side-effect-recovery.ts, the webhook route's bundle receipt/DNS send blocks, and every pipeline-health.ts/daily-digest.ts/leads-client.tsx call site before implementing.",
+    shipped: [
+      "src/lib/payments/bundle-side-effect-recovery.ts — new pure predicate isBundleHandoffMissingBuyerEmail(handoff): true when customerEmail is non-blank and either the receipt or DNS sent-marker note is missing.",
+      "src/lib/metrics/pipeline-health.ts — computePipelineHealth gains bundleOrdersMissingBuyerEmailCount / oldestBundleOrdersMissingBuyerEmailAgeHours, derived from the existing required `handoffs` input (no new param, no new DB round trip) via isBundleHandoffMissingBuyerEmail + the existing oldestOpenHandoffAgeHours helper.",
+      "src/components/dashboard/pipeline-health-panel.tsx — new 'Bundle buyer email missing' MetricCard beside the existing bundle refund/dispute cards.",
+      "src/lib/digest/daily-digest.ts — new DigestBundleOrderMissingBuyerEmail type + bundleOrdersMissingBuyerEmail/-Count/oldest-age fields, computed from the existing optional `handoffs` input; a capped 5-row email section with per-row missingReceipt/missingDnsHandoff flags; folded into the single-source-of-truth actionableSections array (not a hand-duplicated isEmpty check).",
+      "src/app/dashboard/leads/leads-client.tsx — new read-only 'Bundle buyer email missing' due-queue panel (no action button, matching the read-only Bundle order refunds & disputes precedent), computed client-side from the existing handoffs state array.",
+      "src/lib/payments/bundle-side-effect-recovery.test.ts, src/lib/metrics/pipeline-health.test.ts, src/lib/digest/daily-digest.test.ts — new unit coverage for the predicate and both aggregations, plus an updated actionableSectionLabels regression-list assertion.",
+      "src/lib/process/business-decisions.ts — appended bundle-order-missing-buyer-email-visibility.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS otherwise unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real sold-capability-wiring visibility gap on an already-shipped, already-redelivery-safe bundle email path, not any of the five gated items. Diff-gate anchor moves to ca19f7be (this session's own starting tip, post-PR-#764).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (2945 passed, +12 over the pre-feature 2933 post-archive-split baseline, 204 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 42-route ○/ƒ split) + npm run dev smoke check (/dashboard/leads and / both 200; confirmed the new MetricCard renders its zero-state copy against seeded demo data with no matching handoffs, and the row-level panel correctly stays unmounted at zero; dev server killed, port freed).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "bundle-order-missing-buyer-email-visibility",
     ),
   },
 ];

@@ -369,6 +369,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.bundleOrdersDisputedCount > 0}
         />
+        <MetricCard
+          label="Bundle buyer email missing"
+          value={String(health.bundleOrdersMissingBuyerEmailCount)}
+          hint={
+            health.bundleOrdersMissingBuyerEmailCount > 0
+              ? `Bundle order${health.bundleOrdersMissingBuyerEmailCount === 1 ? "" : "s"} never sent a receipt and/or DNS go-live email${
+                  health.oldestBundleOrdersMissingBuyerEmailAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersMissingBuyerEmailAgeHours)}`
+                    : ""
+                }`
+              : "Every bundle order has notified the buyer"
+          }
+          attention={health.bundleOrdersMissingBuyerEmailCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (

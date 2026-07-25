@@ -15,7 +15,8 @@
  * + recurring-entitlement-paused-pipeline-digest
  * + commerce-order-refund-clawback-tracking
  * + marketing-voice-pack-client-send-visibility
- * + stripe-connect-onboarding-pipeline-health-visibility).
+ * + stripe-connect-onboarding-pipeline-health-visibility
+ * + bundle-order-missing-buyer-email-visibility).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -88,6 +89,11 @@ import {
   listLeadsMissingBufferProfileMapping,
   oldestBufferProfileMappingMissingAgeHours,
 } from "../marketing/buffer";
+import {
+  hasBundleDnsHandoffEmailNote,
+  hasBundleReceiptEmailNote,
+  isBundleHandoffMissingBuyerEmail,
+} from "../payments/bundle-side-effect-recovery";
 
 const WORK_NEXT_LIMIT = 5;
 const FOLLOW_UPS_LIMIT = 5;
@@ -112,6 +118,7 @@ const LEADS_MISSING_EMAIL_LIMIT = 5;
 const RECURRING_ENTITLEMENT_PAUSED_LIMIT = 5;
 const CONNECT_ONBOARDING_INCOMPLETE_LIMIT = 5;
 const BUFFER_PROFILE_MAPPING_MISSING_LIMIT = 5;
+const BUNDLE_ORDERS_MISSING_BUYER_EMAIL_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -257,6 +264,25 @@ export interface DigestCommerceOrderMissingClientReceipt {
   createdAt: string;
   /** See CommerceOrderRecord.quantity — optional, undefined means unknown (never assumed as 1). */
   quantity?: number;
+}
+
+/**
+ * A bundle (Starter/Growth/Complete/Commerce-addon) deploy handoff with a
+ * customer email on file but missing at least one durable buyer-email
+ * sent-marker note (receipt and/or DNS handoff) — see
+ * bundle-order-missing-buyer-email-visibility. Same visibility-gap class as
+ * DigestCommerceOrderMissingClientReceipt above, on the bundle ledger.
+ */
+export interface DigestBundleOrderMissingBuyerEmail {
+  slug: string;
+  businessName: string;
+  tier: string;
+  stripeSessionId: string;
+  createdAt: string;
+  /** True when the buyer receipt email itself (not just DNS) is missing. */
+  missingReceipt: boolean;
+  /** True when the DNS / go-live handoff email itself is missing. */
+  missingDnsHandoff: boolean;
 }
 
 /**
@@ -437,6 +463,12 @@ export interface DailyDigest {
   commerceOrdersMissingClientReceiptCount: number;
   /** Age in whole hours since the oldest order still missing a client receipt; null when none. */
   oldestCommerceOrdersMissingClientReceiptAgeHours: number | null;
+  /** Bundle handoffs with a customer email but a missing receipt and/or DNS handoff sent-marker (visibility section). */
+  bundleOrdersMissingBuyerEmail: DigestBundleOrderMissingBuyerEmail[];
+  /** True count before the BUNDLE_ORDERS_MISSING_BUYER_EMAIL_LIMIT slice — use for the section header. */
+  bundleOrdersMissingBuyerEmailCount: number;
+  /** Age in whole hours since the oldest such handoff was created; null when none. */
+  oldestBundleOrdersMissingBuyerEmailAgeHours: number | null;
   /**
    * Bundle (Starter/Growth/Complete/Commerce-addon) orders Stripe refunded —
    * visibility footnote, not an action section (no clawback owed on this
@@ -1085,6 +1117,40 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       tier: handoff.tier,
     }));
 
+  // Buyer-email visibility — independent axis from handoff status; a
+  // permanently-bad customerEmail or sustained Resend outage leaves this
+  // unset forever with nothing else surfacing the gap (see
+  // bundle-order-missing-buyer-email-visibility).
+  const bundleOrdersMissingBuyerEmailAll = handoffs
+    .filter(isBundleHandoffMissingBuyerEmail)
+    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
+  const bundleOrdersMissingBuyerEmailCount = bundleOrdersMissingBuyerEmailAll.length;
+  const oldestBundleOrdersMissingBuyerEmailAgeHours: number | null = (() => {
+    if (bundleOrdersMissingBuyerEmailAll.length === 0) return null;
+    let oldestMs = Infinity;
+    for (const handoff of bundleOrdersMissingBuyerEmailAll) {
+      const parsed = Date.parse(handoff.createdAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
+  const bundleOrdersMissingBuyerEmail: DigestBundleOrderMissingBuyerEmail[] =
+    bundleOrdersMissingBuyerEmailAll
+      .slice(0, BUNDLE_ORDERS_MISSING_BUYER_EMAIL_LIMIT)
+      .map((handoff) => ({
+        slug: handoff.leadSlug,
+        businessName:
+          leadsBySlug.get(handoff.leadSlug)?.businessName ||
+          handoff.businessName ||
+          handoff.leadSlug,
+        tier: handoff.tier,
+        stripeSessionId: handoff.stripeSessionId,
+        createdAt: handoff.createdAt,
+        missingReceipt: !hasBundleReceiptEmailNote(handoff.notes, handoff.stripeSessionId),
+        missingDnsHandoff: !hasBundleDnsHandoffEmailNote(handoff.notes, handoff.stripeSessionId),
+      }));
+
   // Same lead.stage === "paid" predicate as pipeline-health paidNotLiveCount.
   // Distinct set from openHandoffs above — a lead can be marked paid (stage
   // dropdown or CSV import) with no deploy_handoffs row ever created.
@@ -1206,6 +1272,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "Refund clawback", count: commerceOrdersRefundClawbackCount },
     { label: "Dispute clawback", count: commerceOrdersDisputeClawbackCount },
     { label: "Missing client receipt", count: commerceOrdersMissingClientReceiptCount },
+    { label: "Bundle buyer email missing", count: bundleOrdersMissingBuyerEmailCount },
     { label: "Bundle refunds", count: bundleOrdersRefundedCount },
     { label: "Bundle disputes", count: bundleOrdersDisputedCount },
     { label: "production handoffs", count: openHandoffsCount },
@@ -1275,6 +1342,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceOrdersMissingClientReceiptCount,
     oldestCommerceOrdersMissingClientReceiptAgeHours:
       oldestCommerceOrdersMissingClientReceiptAgeHoursValue,
+    bundleOrdersMissingBuyerEmail,
+    bundleOrdersMissingBuyerEmailCount,
+    oldestBundleOrdersMissingBuyerEmailAgeHours,
     bundleOrdersRefunded,
     bundleOrdersRefundedCount,
     bundleOrdersRefundedTotalUsd,
@@ -1473,6 +1543,15 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   );
   const missingClientReceiptTitle = `Missing client receipt (${digest.commerceOrdersMissingClientReceiptCount}${digest.oldestCommerceOrdersMissingClientReceiptAgeHours !== null ? ` · oldest ${digest.oldestCommerceOrdersMissingClientReceiptAgeHours}h` : ""})`;
 
+  const bundleMissingBuyerEmailRows = digest.bundleOrdersMissingBuyerEmail.map((row) => {
+    const missing = [
+      row.missingReceipt ? "receipt" : null,
+      row.missingDnsHandoff ? "DNS handoff" : null,
+    ].filter((label): label is string => label !== null);
+    return `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — ${escapeHtmlForEmail(row.tier)} buyer never got their ${missing.join(" and ")} email`;
+  });
+  const bundleMissingBuyerEmailTitle = `Bundle buyer email missing (${digest.bundleOrdersMissingBuyerEmailCount}${digest.oldestBundleOrdersMissingBuyerEmailAgeHours !== null ? ` · oldest ${digest.oldestBundleOrdersMissingBuyerEmailAgeHours}h` : ""})`;
+
   const bundleRefundRows = digest.bundleOrdersRefunded.map(
     (row) =>
       `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.amountPaidUsd.toFixed(2)} (${escapeHtmlForEmail(row.tier)}) refunded by Stripe — already excluded from revenue, no action needed`,
@@ -1558,6 +1637,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(clawbackTitle, clawbackRows, "No Commerce payouts have been refunded after the fact.")}
     ${section(disputeClawbackTitle, disputeClawbackRows, "No Commerce payouts have been disputed after the fact.")}
     ${section(missingClientReceiptTitle, missingClientReceiptRows, "Every Commerce Buy now sale has notified the client.")}
+    ${section(bundleMissingBuyerEmailTitle, bundleMissingBuyerEmailRows, "Every bundle order has notified the buyer.")}
     ${section(bundleRefundTitle, bundleRefundRows, "No bundle orders refunded.")}
     ${section(bundleDisputeTitle, bundleDisputeRows, "No bundle orders disputed.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount}${digest.oldestOpenHandoffAgeHours !== null ? ` · oldest ${digest.oldestOpenHandoffAgeHours}h` : ""})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}

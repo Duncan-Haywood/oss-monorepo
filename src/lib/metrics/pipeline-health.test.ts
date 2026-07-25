@@ -18,6 +18,10 @@ import type { ClientInquiry } from "../inquiries/types";
 import type { OrderRecord } from "../orders/types";
 import type { CheckoutSessionRecord } from "../checkout/types";
 import { ABANDONED_AFTER_HOURS } from "../checkout/abandoned-recovery";
+import {
+  bundleDnsHandoffEmailSentNote,
+  bundleReceiptEmailSentNote,
+} from "../payments/bundle-side-effect-recovery";
 
 const NOW = Date.parse("2026-07-12T12:00:00.000Z");
 const HOUR_MS = 60 * 60 * 1000;
@@ -329,6 +333,48 @@ describe("computePipelineHealth", () => {
     });
     expect(noneOpen.openHandoffCount).toBe(0);
     expect(noneOpen.oldestOpenHandoffAgeHours).toBeNull();
+  });
+
+  it("counts bundle handoffs missing a buyer receipt and/or DNS handoff email", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [
+        // No markers at all — missing both.
+        makeHandoff("pending", {
+          id: "h_missing_both",
+          stripeSessionId: "sess_missing_both",
+          createdAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+        }),
+        // Only the receipt marker — DNS still missing.
+        makeHandoff("awaiting_dns", {
+          id: "h_missing_dns",
+          stripeSessionId: "sess_missing_dns",
+          notes: [bundleReceiptEmailSentNote("sess_missing_dns")],
+          createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+        }),
+        // Both markers present — fully notified, must not count.
+        makeHandoff("live", {
+          id: "h_notified",
+          stripeSessionId: "sess_notified",
+          notes: [
+            bundleReceiptEmailSentNote("sess_notified"),
+            bundleDnsHandoffEmailSentNote("sess_notified"),
+          ],
+        }),
+        // No customer email on file — planBundleWebhookSideEffects never
+        // attempts either send, so this must not count as "missing".
+        makeHandoff("pending", {
+          id: "h_no_email",
+          stripeSessionId: "sess_no_email",
+          customerEmail: "",
+        }),
+      ],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.bundleOrdersMissingBuyerEmailCount).toBe(2);
+    expect(health.oldestBundleOrdersMissingBuyerEmailAgeHours).toBe(30);
   });
 
   it("counts unreplied inquiries (new+read) with oldest age; ignores replied/archived", () => {

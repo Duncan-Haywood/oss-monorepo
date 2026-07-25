@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { ClientInquiry } from "../inquiries/types";
 import type { CheckoutSessionRecord } from "../checkout/types";
+import type { DeployHandoff } from "../deploy/types";
 import type { Lead } from "../leads/types";
+import {
+  bundleDnsHandoffEmailSentNote,
+  bundleReceiptEmailSentNote,
+} from "../payments/bundle-side-effect-recovery";
 import {
   buildDailyDigest,
   formatSnoozeRemainingHours,
@@ -29,6 +34,27 @@ function baseLead(overrides: Partial<Lead> = {}): Lead {
     recommendedTier: "growth",
     dataSource: "manual_entry",
     outreachStep: 0,
+    ...overrides,
+  };
+}
+
+function makeHandoff(overrides: Partial<DeployHandoff> = {}): DeployHandoff {
+  return {
+    id: "dh_1",
+    leadSlug: "handoff-lead",
+    businessName: "Handoff Co",
+    tier: "growth",
+    commerceAddon: false,
+    stripeSessionId: "cs_handoff_1",
+    customerEmail: "buyer@example.com",
+    previewUrl: "https://example.com/preview/handoff-lead",
+    suggestedHost: "handoff-lead.example.com",
+    contactFormUrl: "https://example.com/api/contact/handoff-lead",
+    dnsInstructions: [],
+    status: "awaiting_dns",
+    notes: [],
+    createdAt: "2026-07-11T00:00:00.000Z",
+    updatedAt: "2026-07-11T00:00:00.000Z",
     ...overrides,
   };
 }
@@ -171,6 +197,7 @@ describe("buildDailyDigest", () => {
       "Refund clawback",
       "Dispute clawback",
       "Missing client receipt",
+      "Bundle buyer email missing",
       "Bundle refunds",
       "Bundle disputes",
       "production handoffs",
@@ -1828,6 +1855,64 @@ describe("buildDailyDigest", () => {
     expect(digest.paidNotLive).toHaveLength(5);
     expect(digest.openHandoffsCount).toBe(6);
     expect(digest.openHandoffs).toHaveLength(5);
+  });
+
+  it("flags bundle handoffs missing a buyer receipt and/or DNS handoff email", () => {
+    const missingBoth = makeHandoff({
+      id: "dh_missing_both",
+      leadSlug: "missing-both",
+      businessName: "Missing Both Co",
+      stripeSessionId: "cs_missing_both",
+      createdAt: "2026-07-10T00:00:00.000Z",
+    });
+    const missingDnsOnly = makeHandoff({
+      id: "dh_missing_dns",
+      leadSlug: "missing-dns",
+      businessName: "Missing Dns Co",
+      stripeSessionId: "cs_missing_dns",
+      notes: [bundleReceiptEmailSentNote("cs_missing_dns")],
+      createdAt: "2026-07-11T00:00:00.000Z",
+    });
+    const fullyNotified = makeHandoff({
+      id: "dh_notified",
+      leadSlug: "notified",
+      stripeSessionId: "cs_notified",
+      notes: [
+        bundleReceiptEmailSentNote("cs_notified"),
+        bundleDnsHandoffEmailSentNote("cs_notified"),
+      ],
+    });
+    const noCustomerEmail = makeHandoff({
+      id: "dh_no_email",
+      leadSlug: "no-email",
+      stripeSessionId: "cs_no_email",
+      customerEmail: "",
+    });
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [missingBoth, missingDnsOnly, fullyNotified, noCustomerEmail],
+      nowMs: NOW,
+    });
+    expect(digest.bundleOrdersMissingBuyerEmailCount).toBe(2);
+    expect(digest.bundleOrdersMissingBuyerEmail).toHaveLength(2);
+    // Sorted oldest first, same convention as openHandoffs.
+    expect(digest.bundleOrdersMissingBuyerEmail.map((row) => row.slug)).toEqual([
+      "missing-both",
+      "missing-dns",
+    ]);
+    expect(digest.bundleOrdersMissingBuyerEmail[0]).toMatchObject({
+      businessName: "Missing Both Co",
+      missingReceipt: true,
+      missingDnsHandoff: true,
+    });
+    expect(digest.bundleOrdersMissingBuyerEmail[1]).toMatchObject({
+      businessName: "Missing Dns Co",
+      missingReceipt: false,
+      missingDnsHandoff: true,
+    });
+    expect(digest.oldestBundleOrdersMissingBuyerEmailAgeHours).not.toBeNull();
   });
 
   it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {

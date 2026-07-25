@@ -177,6 +177,7 @@ import {
   oldestPaidNotLiveAgeHours,
   oldestUnrepliedInquiryAgeHoursFor,
 } from "@/lib/metrics/pipeline-health";
+import { isBundleHandoffMissingBuyerEmail } from "@/lib/payments/bundle-side-effect-recovery";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
@@ -236,6 +237,7 @@ const ABANDONED_BUY_NOW_HEADING_ID = "abandoned-buy-now-heading";
 const COMMERCE_PAYOUTS_HEADING_ID = "commerce-payouts-heading";
 const MISSING_CLIENT_RECEIPT_HEADING_ID = "missing-client-receipt-heading";
 const BUNDLE_ORDER_REFUNDS_DISPUTES_HEADING_ID = "bundle-order-refunds-disputes-heading";
+const BUNDLE_MISSING_BUYER_EMAIL_HEADING_ID = "bundle-missing-buyer-email-heading";
 const FOLLOW_UPS_DUE_HEADING_ID = "follow-ups-due-heading";
 const COLD_LEADS_HEADING_ID = "cold-leads-heading";
 const WORK_NEXT_HEADING_ID = "work-next-heading";
@@ -1495,6 +1497,11 @@ export function LeadsClient({
     bundleOrderDisputes,
     nowMs,
   );
+  const bundleHandoffsMissingBuyerEmail = handoffs.filter(isBundleHandoffMissingBuyerEmail);
+  const oldestBundleHandoffsMissingBuyerEmailHours = oldestOpenHandoffAgeHours(
+    bundleHandoffsMissingBuyerEmail,
+    nowMs,
+  );
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
   const emailBySlug = new Map(leads.map((l) => [l.slug, l.email]));
   const oldestCommerceOrdersMissingClientReceiptHours = oldestCommerceOrdersOwedAgeHours(
@@ -2379,6 +2386,57 @@ export function LeadsClient({
                   )}{" "}
                   ago
                 </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {bundleHandoffsMissingBuyerEmail.length > 0 && (
+        <section aria-labelledby={BUNDLE_MISSING_BUYER_EMAIL_HEADING_ID} className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2
+              id={BUNDLE_MISSING_BUYER_EMAIL_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
+              Bundle buyer email missing
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({bundleHandoffsMissingBuyerEmail.length}
+                {oldestBundleHandoffsMissingBuyerEmailHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestBundleHandoffsMissingBuyerEmailHours)}`
+                  : ""}
+                )
+              </span>
+            </h2>
+            <Link
+              href="/docs/architecture#payments"
+              className="text-xs font-medium text-amber-800 underline underline-offset-2"
+            >
+              Payments
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Starter/Growth/Complete buyers never sent a receipt and/or DNS go-live email — a
+            permanently-bad email or a sustained Resend outage past Stripe&apos;s retry window.
+            Reply to the customer directly to follow up.
+          </p>
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
+            {bundleHandoffsMissingBuyerEmail.map((handoff) => (
+              <li
+                key={handoff.stripeSessionId}
+                className="rounded-xl border border-amber-100 bg-white px-4 py-3 text-sm"
+              >
+                <p className="font-semibold text-zinc-900">
+                  {businessNameBySlug.get(handoff.leadSlug) ||
+                    handoff.businessName ||
+                    handoff.leadSlug}{" "}
+                  <span className="font-normal text-zinc-500">({handoff.leadSlug})</span>
+                </p>
+                <p className="mt-1 text-xs text-zinc-600">
+                  {handoff.tier} · {formatAbandonedAgeHours(deployHandoffAgeHours(handoff.createdAt, nowMs))}{" "}
+                  ago · {handoff.customerEmail}
+                </p>
               </li>
             ))}
           </ul>

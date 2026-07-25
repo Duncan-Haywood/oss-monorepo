@@ -13,7 +13,8 @@
  * + commerce-pipeline-health-unpaid-owed
  * + recurring-entitlement-paused-pipeline-digest
  * + marketing-voice-pack-client-send-visibility
- * + stripe-connect-onboarding-pipeline-health-visibility).
+ * + stripe-connect-onboarding-pipeline-health-visibility
+ * + bundle-order-missing-buyer-email-visibility).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -80,6 +81,7 @@ import {
   listLeadsMissingBufferProfileMapping,
   oldestBufferProfileMappingMissingAgeHours,
 } from "@/lib/marketing/buffer";
+import { isBundleHandoffMissingBuyerEmail } from "@/lib/payments/bundle-side-effect-recovery";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -346,6 +348,18 @@ export interface PipelineHealth {
   bufferProfileMappingMissingCount: number;
   /** Age in whole hours since the oldest missing-mapping lead's qualifying order; null when none/disabled. */
   oldestBufferProfileMappingMissingAgeHours: number | null;
+  /**
+   * Bundle (Starter/Growth/Complete/Commerce-addon) deploy handoffs with a
+   * customer email on file but no durable buyer-receipt-sent and/or
+   * DNS-handoff-sent note — the buyer was never notified their payment
+   * succeeded and/or never got go-live instructions (see
+   * bundle-order-missing-buyer-email-visibility). Same visibility-gap class
+   * already closed for Commerce Buy now via
+   * commerceOrdersMissingClientReceiptCount above.
+   */
+  bundleOrdersMissingBuyerEmailCount: number;
+  /** Age in whole hours since the oldest such handoff was created; null when none. */
+  oldestBundleOrdersMissingBuyerEmailAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -865,6 +879,12 @@ export function computePipelineHealth(input: {
     ? oldestBufferProfileMappingMissingAgeHours(bufferProfileMappingMissing, input.orders, nowMs)
     : null;
 
+  const bundleOrdersMissingBuyerEmail = input.handoffs.filter(isBundleHandoffMissingBuyerEmail);
+  const oldestBundleOrdersMissingBuyerEmailHours = oldestOpenHandoffAgeHours(
+    bundleOrdersMissingBuyerEmail,
+    nowMs,
+  );
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -932,6 +952,8 @@ export function computePipelineHealth(input: {
     oldestConnectOnboardingIncompleteAgeHours: oldestConnectOnboardingIncompleteHours,
     bufferProfileMappingMissingCount: bufferProfileMappingMissing.length,
     oldestBufferProfileMappingMissingAgeHours: oldestBufferProfileMappingMissingHours,
+    bundleOrdersMissingBuyerEmailCount: bundleOrdersMissingBuyerEmail.length,
+    oldestBundleOrdersMissingBuyerEmailAgeHours: oldestBundleOrdersMissingBuyerEmailHours,
   };
 }
 
