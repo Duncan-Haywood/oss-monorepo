@@ -29,7 +29,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  issues: write
   id-token: write
 
 jobs:
@@ -113,8 +112,8 @@ jobs:
 
       - name: Run OpenCode (GitHub Copilot subscription OAuth)
         # Pinned to the anomalyco/opencode v1.18.5 tag's commit SHA, not
-        # @latest — this step hands GITHUB_TOKEN (contents/pull-requests/
-        # issues: write) to third-party code on an unattended hourly cron
+        # @latest — this step hands GITHUB_TOKEN (contents/pull-requests:
+        # write) to third-party code on an unattended hourly cron
         # with no human review; @latest would let a repointed tag or
         # compromised upstream account execute arbitrary code with that
         # token on the very next scheduled run. Bump the SHA (and this
