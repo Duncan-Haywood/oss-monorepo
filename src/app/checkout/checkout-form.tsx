@@ -121,29 +121,44 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
         {BUNDLES.map((b) => (
           <label
             key={b.id}
-            className={`flex cursor-pointer items-center justify-between rounded-2xl border p-4 ${
+            className={`block cursor-pointer rounded-2xl border p-4 ${
               tier === b.id ? "border-zinc-900" : "border-zinc-200"
             }`}
           >
-            <span className="flex items-center gap-3">
-              <input
-                type="radio"
-                name="tier"
-                value={b.id}
-                checked={tier === b.id}
-                onChange={() => setTier(b.id)}
-              />
-              <span className="font-medium">{b.name}</span>
-              {prefill.recommendedTier === b.id ? (
-                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-600">
-                  Recommended
+            <span className="flex items-center justify-between">
+              <span className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  name="tier"
+                  value={b.id}
+                  checked={tier === b.id}
+                  onChange={() => setTier(b.id)}
+                />
+                <span>
+                  <span className="font-medium">{b.name}</span>
+                  {prefill.recommendedTier === b.id ? (
+                    <span className="ml-2 rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-600">
+                      Recommended
+                    </span>
+                  ) : null}
+                  <span className="block text-xs text-zinc-500">{b.tagline}</span>
                 </span>
-              ) : null}
+              </span>
+              <span className="shrink-0 text-sm text-zinc-600">
+                ${b.setupPriceUsd}
+                {b.monthlyPriceUsd ? ` + $${b.monthlyPriceUsd}/mo` : ""}
+              </span>
             </span>
-            <span className="text-sm text-zinc-600">
-              ${b.setupPriceUsd}
-              {b.monthlyPriceUsd ? ` + $${b.monthlyPriceUsd}/mo` : ""}
-            </span>
+            {tier === b.id ? (
+              <ul className="mt-3 space-y-1.5 pl-7 text-sm text-zinc-700">
+                {b.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2">
+                    <span className="text-zinc-500">✓</span>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </label>
         ))}
 
