@@ -1911,7 +1911,6 @@ export default function ArchitectureDocPage() {
         marks pass <code>requireConvex</code> (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) and
         Reply durably marks <code>replied</code> before Resend (persist-then-notify) so
         unreplied metrics on other instances cannot miss a successful reply or risk a
-        unreplied metrics on other instances cannot miss a successful reply or risk a
         duplicate send. The operator <code>replyToInquiryAction</code> path has its own
         action-level Vitest in <code>reply-to-inquiry-action.test.ts</code> — auth, body /
         archived / no-email gates, mark-before-Resend, email trim, ConvexPrimaryWriteError
