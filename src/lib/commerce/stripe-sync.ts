@@ -49,6 +49,7 @@ function commercePriceIdempotencyKey(key: string, unitAmount: number): string {
 type MinimalStripeProduct = {
   id: string;
   name?: string;
+  description?: string | null;
   metadata?: Record<string, string>;
   active?: boolean;
 };
@@ -69,13 +70,14 @@ export interface StripeProductsAndPrices {
     create(
       params: {
         name: string;
+        description?: string;
         metadata: Record<string, string>;
       },
       options?: { idempotencyKey?: string },
     ): Promise<MinimalStripeProduct>;
     update(
       id: string,
-      params: { active?: boolean; name?: string },
+      params: { active?: boolean; name?: string; description?: string },
     ): Promise<MinimalStripeProduct>;
   };
   prices: {
@@ -177,21 +179,26 @@ export async function syncCommerceCatalogToStripe(
   for (const item of items) {
     const key = commerceSkuStripeKey(leadSlug, item.id);
     const desiredName = `${businessName} — ${item.name}`.slice(0, 250);
+    const desiredDescription = item.description?.trim() || undefined;
     let product = await findProductByKey(stripe, key);
     if (!product) {
       product = await stripe.products.create(
         {
           name: desiredName,
+          ...(desiredDescription ? { description: desiredDescription } : {}),
           metadata: { local_site_studio_key: key, leadSlug, skuId: item.id },
         },
         { idempotencyKey: commerceProductIdempotencyKey(key) },
       );
-    } else if (product.name !== desiredName) {
-      // A SKU name (or the lead's businessName) can change after the Product
-      // was first created — Stripe Products are mutable, unlike Prices, so
-      // resync the display name in place rather than leaving Stripe
-      // permanently showing the name at first-sync time forever after.
-      product = await stripe.products.update(product.id, { name: desiredName });
+    } else if (product.name !== desiredName || (product.description ?? undefined) !== desiredDescription) {
+      // A SKU name/description (or the lead's businessName) can change after
+      // the Product was first created — Stripe Products are mutable, unlike
+      // Prices, so resync both display fields in place rather than leaving
+      // Stripe permanently showing whatever was true at first-sync time.
+      product = await stripe.products.update(product.id, {
+        name: desiredName,
+        description: desiredDescription ?? "",
+      });
     }
 
     let price = await findMatchingPrice(stripe, product.id, item.priceCents);

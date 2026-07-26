@@ -18,6 +18,7 @@ function createFakeStripe(): StripeProductsAndPrices & {
   const products: Array<{
     id: string;
     name?: string;
+    description?: string;
     active: boolean;
     metadata: Record<string, string>;
   }> = [];
@@ -48,7 +49,7 @@ function createFakeStripe(): StripeProductsAndPrices & {
         const matching = products.filter((p) => (active ? p.active : true));
         return paginate(matching, limit, starting_after);
       },
-      async create({ name, metadata }, options) {
+      async create({ name, description, metadata }, options) {
         const idempotencyKey = options?.idempotencyKey;
         if (idempotencyKey) {
           productCreateCallsByIdempotencyKey.set(
@@ -58,7 +59,7 @@ function createFakeStripe(): StripeProductsAndPrices & {
           const existing = productsByIdempotencyKey.get(idempotencyKey);
           if (existing) return existing;
         }
-        const product = { id: `prod_${nextId++}`, name, metadata, active: true };
+        const product = { id: `prod_${nextId++}`, name, description, metadata, active: true };
         products.push(product);
         if (idempotencyKey) productsByIdempotencyKey.set(idempotencyKey, product);
         return product;
@@ -68,6 +69,7 @@ function createFakeStripe(): StripeProductsAndPrices & {
         if (!product) throw new Error(`Product ${id} not found`);
         if (params.active !== undefined) product.active = params.active;
         if (params.name !== undefined) product.name = params.name;
+        if (params.description !== undefined) product.description = params.description;
         return product;
       },
     },
@@ -183,7 +185,61 @@ describe("syncCommerceCatalogToStripe", () => {
     expect(renamedProduct?.name).toBe("Acme Coffee Roasters — Latte");
   });
 
-  it("does not call products.update when the name is unchanged on re-sync", async () => {
+  it("includes the SKU description on the Stripe Product when present", async () => {
+    const stripe = createFakeStripe();
+    const withDescription = [
+      { ...items[0]!, description: "60-minute deep tissue, includes hot towel" },
+      items[1]!,
+    ];
+    const result = await syncCommerceCatalogToStripe(
+      stripe,
+      "acme-cafe",
+      "Acme Cafe",
+      withDescription,
+    );
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const product = products.find((p) => p.id === result[0]!.stripeProductId);
+    expect(product?.description).toBe("60-minute deep tissue, includes hot towel");
+  });
+
+  it("omits description on the Stripe Product when the SKU has none", async () => {
+    const stripe = createFakeStripe();
+    const result = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const product = products.find((p) => p.id === result[0]!.stripeProductId);
+    expect(product?.description).toBeUndefined();
+  });
+
+  it("resyncs the Stripe Product description in place when it changes (keeping the same Product/Price ids)", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", [
+      { ...items[0]!, description: "Original description" },
+      items[1]!,
+    ]);
+
+    const redescribed = [
+      { ...items[0]!, description: "Updated description" },
+      items[1]!,
+    ];
+    const second = await syncCommerceCatalogToStripe(
+      stripe,
+      "acme-cafe",
+      "Acme Cafe",
+      redescribed,
+    );
+
+    expect(second[0]?.stripeProductId).toBe(first[0]?.stripeProductId);
+    expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
+    expect(stripe.productCount()).toBe(2); // no duplicate created
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const redescribedProduct = products.find((p) => p.id === first[0]!.stripeProductId);
+    expect(redescribedProduct?.description).toBe("Updated description");
+  });
+
+  it("does not call products.update when neither name nor description changed on re-sync", async () => {
     const stripe = createFakeStripe();
     await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
 

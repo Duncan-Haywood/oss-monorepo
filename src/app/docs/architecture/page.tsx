@@ -2270,7 +2270,17 @@ source). The same digest also lists email-critical leads with no usable address 
         comparing the found Product&apos;s <code>name</code> to the freshly-computed{" "}
         <code>businessName — item.name</code> string and calling <code>products.update</code> with
         the new name when they differ (a no-op comparison, not an unconditional call, so a
-        no-rename re-sync makes zero extra Stripe API calls). Action-level
+        no-rename re-sync makes zero extra Stripe API calls). The same gap existed for the SKU{" "}
+        <code>description</code> field until{" "}
+        <code>commerce-sku-stripe-product-description-sync</code>: it was captured, length-capped,
+        and shown on the public storefront card, but <code>syncCommerceCatalogToStripe</code> never
+        forwarded it to Stripe at all — the Buy now Checkout Session Stripe itself renders (built
+        from the Product) showed only the bare name/price, silently dropping whatever helpful detail
+        the operator wrote right before the shopper paid. Fixed the same way as the name resync:{" "}
+        <code>products.create</code> now includes <code>description</code> when present, and the
+        existing name-diff check was widened to also diff description and call{" "}
+        <code>products.update</code> with both fields when either changed (still a no-op comparison,
+        not an unconditional call). Action-level
         Vitest in <code>sync-commerce-catalog-to-stripe-action.test.ts</code> locks auth, secret
         gate, empty catalog, requireConvex persist, and fail-closed Convex errors — then persists
         <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. The Stripe
