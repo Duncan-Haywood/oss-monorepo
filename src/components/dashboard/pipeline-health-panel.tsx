@@ -576,6 +576,13 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <h3 className="text-sm font-semibold text-zinc-800">Stage funnel</h3>
         <p className="mt-0.5 text-xs text-zinc-500">
           {health.leadCount} lead{health.leadCount === 1 ? "" : "s"} total
+          {health.leadWinRatePercent !== null ? (
+            <>
+              {" "}
+              · Win rate {health.leadWinRatePercent}% ({health.leadWinRateDecidedCount} decided
+              paid/live vs. closed)
+            </>
+          ) : null}
         </p>
         <ul className="mt-3 space-y-2">
           {health.stageFunnel.map((row) => (

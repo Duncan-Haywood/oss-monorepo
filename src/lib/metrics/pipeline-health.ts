@@ -15,7 +15,8 @@
  * + marketing-voice-pack-client-send-visibility
  * + stripe-connect-onboarding-pipeline-health-visibility
  * + bundle-order-missing-buyer-email-visibility
- * + suppression-reason-visibility).
+ * + suppression-reason-visibility
+ * + lead-win-rate-conversion-metric).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -212,6 +213,18 @@ export interface PipelineHealth {
    * Same value as stageCounts.closed — surfaced for funnel footnotes, not a second queue.
    */
   closedLeadCount: number;
+  /**
+   * Win rate among leads that reached a sales decision: (paid + live) as a
+   * percentage of (paid + live + closed), one decimal place. Excludes
+   * discovered/site_built/outreach_sent/discovery_call — those leads
+   * haven't reached a decision yet and would dilute the rate toward zero
+   * for a young, still-working pipeline. Null when zero leads have been
+   * decided (a 0%/100% rate off a denominator of zero is a false signal).
+   * See lead-win-rate-conversion-metric.
+   */
+  leadWinRatePercent: number | null;
+  /** Denominator behind leadWinRatePercent (paid + live + closed) — lets the operator judge how much signal a small rate is based on. */
+  leadWinRateDecidedCount: number;
   /**
    * Paid/live Growth/Complete leads missing this UTC month's marketing pack.
    * Fulfillment debt for sold MRR — not a second priority queue.
@@ -474,6 +487,25 @@ export function emptyStageCounts(): Record<LeadPipelineStage, number> {
     live: 0,
     closed: 0,
   };
+}
+
+/**
+ * Win rate among leads that reached a sales decision: (paid + live) as a
+ * percentage of (paid + live + closed), rounded to one decimal place. Takes
+ * a structural subset (not the full stage record) so digest.ts — which
+ * tracks paid/live/closed counts independently rather than a full
+ * stageCounts record — can call this directly. Returns null when the
+ * denominator is zero (no leads have reached a decision yet).
+ */
+export function leadWinRatePercent(counts: {
+  paid: number;
+  live: number;
+  closed: number;
+}): number | null {
+  const decided = counts.paid + counts.live + counts.closed;
+  if (decided <= 0) return null;
+  const won = counts.paid + counts.live;
+  return Math.round((won / decided) * 1000) / 10;
 }
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -1006,6 +1038,8 @@ export function computePipelineHealth(input: {
     followUpsDueCount: followUpsDue.length,
     oldestFollowUpDueAgeHours,
     closedLeadCount: stageCounts.closed,
+    leadWinRatePercent: leadWinRatePercent(stageCounts),
+    leadWinRateDecidedCount: stageCounts.paid + stageCounts.live + stageCounts.closed,
     marketingPacksDueCount: marketingPacksDue.length,
     marketingPacksDueMonth,
     oldestMarketingPacksDueAgeHours: oldestMarketingPacksDueHours,

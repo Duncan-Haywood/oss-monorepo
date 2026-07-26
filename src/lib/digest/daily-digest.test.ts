@@ -615,6 +615,35 @@ describe("buildDailyDigest", () => {
     expect(digest.isEmpty).toBe(true);
   });
 
+  it("computes leadWinRatePercent/leadWinRateDecidedCount from paid+live vs. closed", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({ slug: "paid-a", stage: "paid" }),
+        baseLead({ slug: "live-a", stage: "live" }),
+        baseLead({ slug: "live-b", stage: "live" }),
+        baseLead({ slug: "closed-a", stage: "closed" }),
+        baseLead({ slug: "discovered-a", stage: "discovered" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    // 3 won (1 paid + 2 live) of 4 decided = 75%; discovered stays out of the denominator.
+    expect(digest.leadWinRateDecidedCount).toBe(4);
+    expect(digest.leadWinRatePercent).toBe(75);
+  });
+
+  it("reports leadWinRatePercent null when no lead has reached a decision", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ stage: "discovered" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.leadWinRateDecidedCount).toBe(0);
+    expect(digest.leadWinRatePercent).toBeNull();
+  });
+
   it("counts currently-snoozed leads and soonest remaining hours without making isEmpty false", () => {
     const snoozedSoon = baseLead({
       slug: "snoozed-soon",
@@ -2203,6 +2232,32 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("Nothing urgent today");
     expect(html).toContain("currently snoozed off Work next");
     expect(html).toContain("soonest returns in");
+  });
+
+  it("mentions win rate as a footnote once a lead has reached a decision", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({ slug: "paid-a", stage: "paid" }),
+        baseLead({ slug: "closed-a", stage: "closed" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Win rate: 50%");
+    expect(html).toContain("2 leads decided");
+  });
+
+  it("omits the win-rate footnote when no lead has reached a decision", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ stage: "discovered" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).not.toContain("Win rate:");
   });
 
   it("escapes business names and lists sections when there is work to do", () => {

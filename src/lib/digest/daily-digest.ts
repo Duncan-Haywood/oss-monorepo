@@ -17,7 +17,8 @@
  * + marketing-voice-pack-client-send-visibility
  * + stripe-connect-onboarding-pipeline-health-visibility
  * + bundle-order-missing-buyer-email-visibility
- * + vercel-domain-provisioning-failure-digest-visibility).
+ * + vercel-domain-provisioning-failure-digest-visibility
+ * + lead-win-rate-conversion-metric).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -44,6 +45,7 @@ import { isLeadSnoozed } from "../leads/snooze";
 import {
   isUnrepliedInquiryStatus,
   leadIsMissingCriticalEmail,
+  leadWinRatePercent,
   oldestCommerceOrdersOwedAgeHours,
   oldestPaidNotLiveAgeHours,
 } from "../metrics/pipeline-health";
@@ -622,6 +624,14 @@ export interface DailyDigest {
   coldLeadCount: number;
   /** Leads at terminal closed stage — same predicate as pipeline-health closedLeadCount. */
   closedLeadCount: number;
+  /**
+   * Win rate among leads that reached a sales decision — same
+   * leadWinRatePercent predicate as pipeline-health.ts. Footnote only, not
+   * an action section (see lead-win-rate-conversion-metric).
+   */
+  leadWinRatePercent: number | null;
+  /** Denominator behind leadWinRatePercent (paid + live + closed). */
+  leadWinRateDecidedCount: number;
   /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
    * pipeline-health snoozedLeadCount). Footnote only — not a digest action section.
@@ -1353,6 +1363,14 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
   const coldLeadCount = coldLeads.length;
   const oldestColdLeadAgeHours = oldestLastOutreachAgeHours(coldLeads, nowMs);
   const closedLeadCount = leads.filter((lead) => lead.stage === "closed").length;
+  const liveLeadCountForWinRate = leads.filter((lead) => lead.stage === "live").length;
+  const leadWinRatePercentValue = leadWinRatePercent({
+    paid: paidNotLiveAll.length,
+    live: liveLeadCountForWinRate,
+    closed: closedLeadCount,
+  });
+  const leadWinRateDecidedCount =
+    paidNotLiveAll.length + liveLeadCountForWinRate + closedLeadCount;
 
   const snoozedLeads = leads.filter((lead) =>
     isLeadSnoozed(lead.snoozedUntil, nowMs),
@@ -1572,6 +1590,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     oldestColdLeadAgeHours,
     coldLeadCount,
     closedLeadCount,
+    leadWinRatePercent: leadWinRatePercentValue,
+    leadWinRateDecidedCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
     recurringEntitlementPaused,
@@ -1644,6 +1664,11 @@ function closedLeadFootnote(digest: DailyDigest): string {
   return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.closedLeadCount} lead${digest.closedLeadCount === 1 ? "" : "s"} marked closed — settled inventory, not actionable above.</p>`;
 }
 
+function winRateFootnote(digest: DailyDigest): string {
+  if (digest.leadWinRatePercent === null) return "";
+  return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">Win rate: ${digest.leadWinRatePercent}% (${digest.leadWinRateDecidedCount} lead${digest.leadWinRateDecidedCount === 1 ? "" : "s"} decided paid/live vs. closed) — trend signal, not actionable above.</p>`;
+}
+
 function coldFootnote(digest: DailyDigest, emptyState: boolean): string {
   if (digest.coldLeadCount <= 0) return "";
   const oldestBit = digest.oldestColdLeadAgeHours !== null ? ` · oldest ${digest.oldestColdLeadAgeHours}h` : "";
@@ -1686,6 +1711,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
       ${closedLeadFootnote(digest)}
+      ${winRateFootnote(digest)}
       ${bounceComplaintFootnote(digest)}
     `;
   }
@@ -1914,6 +1940,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
     ${closedLeadFootnote(digest)}
+    ${winRateFootnote(digest)}
     ${bounceComplaintFootnote(digest)}
   `;
 }

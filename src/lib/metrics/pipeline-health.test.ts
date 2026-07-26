@@ -6,6 +6,7 @@ import {
   formatAbandonedAgeHours,
   formatUsd,
   isUnrepliedInquiryStatus,
+  leadWinRatePercent,
   oldestBundleOrderRefundOrDisputeAgeHours,
   oldestCommerceOrdersOwedAgeHours,
   oldestOpenHandoffAgeHours,
@@ -1656,6 +1657,57 @@ describe("computePipelineHealth", () => {
     expect(health.stageCounts.closed).toBe(2);
     expect(health.stageFunnel.map((s) => s.stage)).not.toContain("closed");
     expect(health.stageFunnel.find((s) => s.stage === "live")?.count).toBe(1);
+  });
+
+  it("reports leadWinRatePercent/leadWinRateDecidedCount from the same stage counts", () => {
+    const health = computePipelineHealth({
+      leads: [
+        makeLead("discovered"),
+        makeLead("outreach_sent"),
+        makeLead("paid", { slug: "paid-a" }),
+        makeLead("live", { slug: "live-a" }),
+        makeLead("live", { slug: "live-b" }),
+        makeLead("closed", { slug: "closed-a" }),
+      ],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    // 3 won (1 paid + 2 live) of 4 decided (won + 1 closed) = 75%.
+    // discovered/outreach_sent are still in progress and must not dilute the rate.
+    expect(health.leadWinRateDecidedCount).toBe(4);
+    expect(health.leadWinRatePercent).toBe(75);
+  });
+
+  it("reports leadWinRatePercent null when no lead has reached a decision", () => {
+    const health = computePipelineHealth({
+      leads: [makeLead("discovered"), makeLead("outreach_sent")],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.leadWinRateDecidedCount).toBe(0);
+    expect(health.leadWinRatePercent).toBeNull();
+  });
+});
+
+describe("leadWinRatePercent", () => {
+  it("returns null when paid+live+closed is zero", () => {
+    expect(leadWinRatePercent({ paid: 0, live: 0, closed: 0 })).toBeNull();
+  });
+
+  it("computes a one-decimal percentage of won vs. decided", () => {
+    expect(leadWinRatePercent({ paid: 1, live: 0, closed: 2 })).toBeCloseTo(33.3);
+    expect(leadWinRatePercent({ paid: 2, live: 0, closed: 0 })).toBe(100);
+    expect(leadWinRatePercent({ paid: 0, live: 0, closed: 3 })).toBe(0);
+  });
+
+  it("ignores in-progress stages entirely (they are not part of the signature)", () => {
+    expect(leadWinRatePercent({ paid: 1, live: 1, closed: 1 })).toBeCloseTo(66.7);
   });
 });
 
