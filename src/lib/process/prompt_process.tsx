@@ -393,6 +393,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-40jcrk",
   },
+  {
+    id: "db-ts-commerce-order-list-family-sqlite-fallback-test-coverage",
+    summary:
+      "Empty-backlog audit — tiers 1-3 (sold-capability wiring gap, Convex/SQLite parity, security/injection) all came back clean this round; the tier-4 backstop (cross-referencing all 76 db.ts exports against db.test.ts's describe-block titles) found the remaining gap was 5 READ/list functions in the commerce-order money-visibility cluster (listCommerceOrders, listUnpaidCommerceOrders, listCommerceOrdersRefunded, listCommerceOrdersDisputed, listCommerceOrdersMissingClientReceipt), not another write path. Each has its own hand-written SQLite WHERE-clause filter whose doc comments name the exact risk — a refund/dispute/missing-receipt row silently dropping off the operator-visible clawback/receipt-gap lists — that had never been directly exercised by an automated test. Shipped 5 new Vitest cases proving each filter's subset is correct, including the clawback-visibility case (a refunded/disputed order that was ALSO already paid out still appears in its list, with paidOutAt intact). Coverage gap only, not a live bug — filter semantics already matched convex/commerceOrders.ts. See db-ts-commerce-order-list-family-sqlite-fallback-test-coverage in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-tkb9ac",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -818,6 +826,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "vercel-domain-provisioning-failure-digest-visibility",
+    ),
+  },
+  {
+    date: "2026-07-26",
+    branch: "claude/nice-euler-tkb9ac",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip f7dd1539 (PR #795, vercel-domain-provisioning-failure-visibility, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3236 passed, 209 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A git fetch sweep of the newest non-opencode remote branches found each already merged (content matches an existing origin/main commit under a different SHA, the documented squash-merge artifact) — no live fold candidate. All five NEXT_STEPS items remained operator/legal/infra-gated, so followed AGENT_PROTOCOL's standard empty-backlog priority order end-to-end this round rather than stopping at the first tier.\n\nDispatched research agents in priority order, each told to stop at the first genuine finding: tier 1 (sold-capability wiring gap) checked whether Stripe Connect Express / Buffer marketing-scheduling — both shipped-but-dormant behind their own ALLOW_* flags — had the same visibility gap the immediately-preceding iteration found for Vercel domains, and came back clean (both already fully wired through pipeline-health/digest/dashboard). Tier 2 (Convex/SQLite parity) line-compared several non-trivial db.ts SQLite-fallback writes against their Convex counterparts and found one apparent mismatch that resolved to a false positive on closer inspection (different field names for the same value on each backend's own row shape). Tier 3 (security/injection audit) came back clean. The tier-4 backstop — cross-referencing all 76 db.ts exports against db.test.ts's describe-block titles, continuing the method the now-closed write-family test-coverage series established — found the real gap: 5 commerce-order READ/list functions (listCommerceOrders, listUnpaidCommerceOrders, listCommerceOrdersRefunded, listCommerceOrdersDisputed, listCommerceOrdersMissingClientReceipt) whose SQLite-fallback WHERE-clause filters had never been directly exercised by a test, despite each one's own doc comment naming a real money-visibility risk (a refund/dispute/missing-receipt row silently dropping off an operator-facing list) a broken filter would cause.",
+    shipped: [
+      "src/lib/db.test.ts — one new describe block, 5 new test cases covering listCommerceOrders/listUnpaidCommerceOrders/listCommerceOrdersRefunded/listCommerceOrdersDisputed/listCommerceOrdersMissingClientReceipt's SQLite-fallback filter correctness, using loadDb(undefined) plus the existing insertCommerceOrder/mark*/clear* seed helpers — including the clawback-visibility case (a refunded/disputed order that was also already paid out still appears in its list, with paidOutAt intact).",
+      "src/lib/process/business-decisions.ts — appended db-ts-commerce-order-list-family-sqlite-fallback-test-coverage.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-unaudited coverage gap on the commerce-order money-visibility read paths, not any of the five gated items. Diff-gate anchor moves to f7dd1539 (this session's own starting tip, post-PR-#795). With the sold-capability-wiring, Convex/SQLite-parity, and security-audit tiers all independently re-confirmed clean this round, and the db.ts requireConvex write-family series plus this read-family gap both now closed, a future iteration hitting an empty backlog should treat 'grep every db.ts export against db.test.ts describe-block titles' as fully exhausted for both writes and reads — the next housekeeping/audit angle should be a fresh one (e.g. Convex query functions' own direct test coverage, or an /docs page accuracy pass) rather than re-running this same grep a third time expecting a new result.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run src/lib/db.test.ts -t listCommerceOrders (5 passed) + npx vitest run full suite (3241 passed, up from 3236 — 5 new cases, 209 files unchanged). Pure test-infrastructure addition, no product/UI code changed, so Vitest coverage is the bar per AGENT_PROTOCOL's own testing convention — no npm run dev/browser smoke check or full rebuild needed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-ts-commerce-order-list-family-sqlite-fallback-test-coverage",
     ),
   },
 ];

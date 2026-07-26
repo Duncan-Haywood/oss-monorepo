@@ -3034,6 +3034,133 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     });
   });
 
+  describe("listCommerceOrders / listUnpaidCommerceOrders / listCommerceOrdersRefunded / listCommerceOrdersDisputed / listCommerceOrdersMissingClientReceipt (SQLite fallback WHERE-filter correctness, no Convex configured)", () => {
+    it("listCommerceOrders returns every order regardless of paid-out/refund/dispute/receipt state", async () => {
+      const db = await loadDb(undefined);
+      await db.insertCommerceOrder({
+        leadSlug: "list-commerce-orders-lead",
+        skuId: "sku_1",
+        skuName: "Plain SKU",
+        amountPaidUsd: 10,
+        stripeSessionId: "cs_list_plain",
+      });
+      await db.insertCommerceOrder({
+        leadSlug: "list-commerce-orders-lead",
+        skuId: "sku_2",
+        skuName: "Paid-out SKU",
+        amountPaidUsd: 20,
+        stripeSessionId: "cs_list_paidout",
+      });
+      await db.markCommerceOrderPaidOut("cs_list_paidout");
+
+      const orders = await db.listCommerceOrders();
+      expect(orders.map((o) => o.stripeSessionId).sort()).toEqual(
+        ["cs_list_paidout", "cs_list_plain"].sort(),
+      );
+    });
+
+    it("listUnpaidCommerceOrders excludes paid-out orders but keeps unpaid ones", async () => {
+      const db = await loadDb(undefined);
+      await db.insertCommerceOrder({
+        leadSlug: "unpaid-commerce-orders-lead",
+        skuId: "sku_1",
+        skuName: "Unpaid SKU",
+        amountPaidUsd: 10,
+        stripeSessionId: "cs_unpaid_open",
+      });
+      await db.insertCommerceOrder({
+        leadSlug: "unpaid-commerce-orders-lead",
+        skuId: "sku_2",
+        skuName: "Paid-out SKU",
+        amountPaidUsd: 20,
+        stripeSessionId: "cs_unpaid_paidout",
+      });
+      await db.markCommerceOrderPaidOut("cs_unpaid_paidout");
+
+      const unpaid = await db.listUnpaidCommerceOrders();
+      expect(unpaid.map((o) => o.stripeSessionId)).toEqual(["cs_unpaid_open"]);
+    });
+
+    it("listCommerceOrdersRefunded returns refunded orders even after payout (clawback visibility)", async () => {
+      const db = await loadDb(undefined);
+      await db.insertCommerceOrder({
+        leadSlug: "refunded-commerce-orders-lead",
+        skuId: "sku_1",
+        skuName: "Untouched SKU",
+        amountPaidUsd: 10,
+        stripeSessionId: "cs_refunded_untouched",
+      });
+      await db.insertCommerceOrder({
+        leadSlug: "refunded-commerce-orders-lead",
+        skuId: "sku_2",
+        skuName: "Refunded-after-payout SKU",
+        amountPaidUsd: 20,
+        stripeSessionId: "cs_refunded_after_payout",
+      });
+      await db.markCommerceOrderPaidOut("cs_refunded_after_payout");
+      await db.markCommerceOrderRefunded("cs_refunded_after_payout");
+
+      const refunded = await db.listCommerceOrdersRefunded();
+      expect(refunded.map((o) => o.stripeSessionId)).toEqual([
+        "cs_refunded_after_payout",
+      ]);
+      // The whole point of this list is surfacing clawback debt — a refunded
+      // row that already paid out must still carry paidOutAt so the operator
+      // can see the client owes money back, not just that it was refunded.
+      expect(refunded[0]?.paidOutAt).toBeDefined();
+    });
+
+    it("listCommerceOrdersDisputed returns disputed orders even after payout (clawback visibility)", async () => {
+      const db = await loadDb(undefined);
+      await db.insertCommerceOrder({
+        leadSlug: "disputed-commerce-orders-lead",
+        skuId: "sku_1",
+        skuName: "Untouched SKU",
+        amountPaidUsd: 10,
+        stripeSessionId: "cs_disputed_untouched",
+      });
+      await db.insertCommerceOrder({
+        leadSlug: "disputed-commerce-orders-lead",
+        skuId: "sku_2",
+        skuName: "Disputed-after-payout SKU",
+        amountPaidUsd: 20,
+        stripeSessionId: "cs_disputed_after_payout",
+      });
+      await db.markCommerceOrderPaidOut("cs_disputed_after_payout");
+      await db.markCommerceOrderDisputed("cs_disputed_after_payout");
+
+      const disputed = await db.listCommerceOrdersDisputed();
+      expect(disputed.map((o) => o.stripeSessionId)).toEqual([
+        "cs_disputed_after_payout",
+      ]);
+      expect(disputed[0]?.paidOutAt).toBeDefined();
+    });
+
+    it("listCommerceOrdersMissingClientReceipt excludes orders once the receipt marker is set", async () => {
+      const db = await loadDb(undefined);
+      await db.insertCommerceOrder({
+        leadSlug: "receipt-commerce-orders-lead",
+        skuId: "sku_1",
+        skuName: "Receipt-sent SKU",
+        amountPaidUsd: 10,
+        stripeSessionId: "cs_receipt_sent",
+      });
+      await db.insertCommerceOrder({
+        leadSlug: "receipt-commerce-orders-lead",
+        skuId: "sku_2",
+        skuName: "Receipt-missing SKU",
+        amountPaidUsd: 20,
+        stripeSessionId: "cs_receipt_missing",
+      });
+      await db.markCommerceOrderClientReceiptSent("cs_receipt_sent");
+
+      const missing = await db.listCommerceOrdersMissingClientReceipt();
+      expect(missing.map((o) => o.stripeSessionId)).toEqual([
+        "cs_receipt_missing",
+      ]);
+    });
+  });
+
   describe("upsertMarketingPack (soft Convex-first write, full-row replace, optional requireConvex)", () => {
     const marketingInput = {
       leadSlug: "marketing-pack-orchestration-lead",
