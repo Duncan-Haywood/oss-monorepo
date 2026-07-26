@@ -79,12 +79,17 @@ export default function BusinessModelDocPage() {
       <ol>
         <li>Discover business (API/CSV)</li>
         <li>Auto-generate preview site</li>
-        <li>Email with preview link (+ optional outbound voice)</li>
-        <li>Customer views preview or calls AI assistant</li>
-        <li>Voice discovery updates preview (optional)</li>
+        <li>Email with preview link</li>
+        <li>Customer views preview, self-serve checkouts, or replies for tweaks</li>
         <li>Stripe checkout — self-serve</li>
         <li>Automated production deploy + DNS handoff</li>
       </ol>
+      <p>
+        No sales calls: platform voice (an AI assistant that calls or answers for{" "}
+        {brand.name} itself) is unbuilt — see{" "}
+        <DocLink href="/docs/roadmap">Roadmap</DocLink> and{" "}
+        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>.
+      </p>
 
       <h2>Outreach — Email 1</h2>
       <p>
@@ -94,7 +99,6 @@ export default function BusinessModelDocPage() {
       </p>
       <ol>
         <li>Preview link on subdomain</li>
-        <li>Callback number for AI assistant</li>
         <li>Checkout on preview — bundles from ${minBundleSetupPriceUsd()}</li>
         <li>CAN-SPAM footer: public brand + {brand.legalEntity} address</li>
       </ol>
@@ -228,7 +232,6 @@ export default function BusinessModelDocPage() {
       <h2>Bundle upsell touchpoints</h2>
       <ul>
         <li>Preview site tier comparison cards</li>
-        <li>Platform voice after customization</li>
         <li>
           Post-purchase upgrade emails — operator <strong>Upsell</strong> on paid/live Starter
           leads (<code>/dashboard/leads</code> panel + row action) → Growth/Complete checkout;

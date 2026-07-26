@@ -169,7 +169,11 @@ export default function ProductBundlesDocPage() {
       </p>
 
       <h2>Upsell path</h2>
-      <p>Preview tier cards → self-serve Stripe, or platform voice explains tiers → checkout link via SMS.</p>
+      <p>
+        Preview tier comparison cards → self-serve Stripe checkout. (No SMS send capability
+        exists in this codebase; platform voice explaining tiers is unbuilt — see{" "}
+        <DocLink href="/docs/roadmap">Roadmap</DocLink>.)
+      </p>
     </DocPage>
   );
 }
