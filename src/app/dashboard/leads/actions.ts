@@ -3383,6 +3383,17 @@ export async function checkStripeConnectAccountStatusAction(slug: string) {
         new Date().toISOString(),
         LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY,
       );
+      // Only when the cache write actually landed — pipeline-health's
+      // connectOnboardingIncompleteCount MetricCard and the daily digest are
+      // both computed server-side from getLeads() on /dashboard/leads, and
+      // without this the SSR'd count/oldest-age stayed stale until an
+      // unrelated action revalidated the same path or the operator did a
+      // hard reload — the same missing-revalidatePath-after-a-persisting-
+      // write bug class buffer-schedule-action-revalidate-path just closed
+      // for scheduleMarketingPackToBufferAction one session earlier. A
+      // failed persist changed nothing in the store, so there is nothing to
+      // invalidate on that branch.
+      revalidatePath("/dashboard/leads");
     } catch (persistError) {
       console.warn(
         `Failed to persist Stripe Connect status for ${slug}`,
