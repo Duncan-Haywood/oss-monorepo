@@ -3032,9 +3032,35 @@ describe("renderDailyDigestHtml", () => {
       nowMs: NOW,
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
-    expect(html).toContain("also went cold after Email 3");
+    // This lead is the digest's only input and is well past COLD_AFTER_DAYS
+    // (outreach-cold-quality-score-threshold-drift), so it's excluded from
+    // Work next and there's nothing else actionable — the empty-state
+    // wording applies ("went cold", not "also went cold").
+    expect(html).toContain("Nothing urgent today");
+    expect(html).toContain("went cold after Email 3");
+    expect(html).not.toContain("also went cold after Email 3");
     expect(html).toContain("oldest");
     expect(html).toContain("h");
+  });
+
+  it("uses the 'also went cold' wording when a cold lead coexists with other actionable items", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "cold",
+          stage: "outreach_sent",
+          outreachStep: 3,
+          lastOutreachAt: "2026-06-01T00:00:00.000Z",
+        }),
+        baseLead({ slug: "fresh", stage: "site_built" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).not.toContain("Nothing urgent today");
+    expect(html).toContain("also went cold after Email 3");
   });
 
   it("shows the bounce/complaint footnote with count and most-recent age in the non-empty render", () => {
