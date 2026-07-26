@@ -2260,6 +2260,51 @@ describe("renderDailyDigestHtml", () => {
     expect(html).not.toContain("Win rate:");
   });
 
+  it("mentions the top acquisition source as a footnote once an order carries one", () => {
+    // Regression for acquisition-source-digest-footnote: the dashboard's
+    // "Revenue by acquisition source" panel had no digest-email counterpart.
+    const digest = buildDailyDigest({
+      leads: [baseLead({ slug: "outreach-cafe", stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "outreach-cafe",
+          tier: "growth",
+          commerceAddon: false,
+          amountPaid: 200,
+          acquisitionSource: "outreach-email",
+        },
+        {
+          leadSlug: "outreach-cafe",
+          tier: "starter",
+          commerceAddon: false,
+          amountPaid: 50,
+          acquisitionSource: "home",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.topAcquisitionSourceLabel).toBe("Outreach email");
+    expect(digest.topAcquisitionSourceRevenueUsd).toBe(200);
+    expect(digest.topAcquisitionSourceOrderCount).toBe(1);
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Top acquisition source: Outreach email");
+    expect(html).toContain("$200.00 across 1 order");
+  });
+
+  it("omits the acquisition-source footnote when no order counts toward revenue yet", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ stage: "discovered" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.topAcquisitionSourceLabel).toBeNull();
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).not.toContain("Top acquisition source:");
+  });
+
   it("escapes business names and lists sections when there is work to do", () => {
     const digest = buildDailyDigest({
       leads: [baseLead({ businessName: "<Script>Bakery" })],

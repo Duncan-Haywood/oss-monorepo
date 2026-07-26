@@ -18,7 +18,8 @@
  * + stripe-connect-onboarding-pipeline-health-visibility
  * + bundle-order-missing-buyer-email-visibility
  * + vercel-domain-provisioning-failure-digest-visibility
- * + lead-win-rate-conversion-metric).
+ * + lead-win-rate-conversion-metric
+ * + acquisition-source-digest-footnote).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -43,6 +44,7 @@ import {
 } from "../checkout/abandoned-recovery";
 import { isLeadSnoozed } from "../leads/snooze";
 import {
+  acquisitionSourceBreakdown,
   isUnrepliedInquiryStatus,
   leadIsMissingCriticalEmail,
   leadWinRatePercent,
@@ -633,6 +635,20 @@ export interface DailyDigest {
   /** Denominator behind leadWinRatePercent (paid + live + closed). */
   leadWinRateDecidedCount: number;
   /**
+   * Human-readable label of the highest-revenue row from
+   * acquisitionSourceBreakdown (pipeline-health.ts) — same predicate/sort,
+   * revenue-descending. Footnote only, not an action section: this answers
+   * "which marketing surface converts best" for an operator who otherwise
+   * only sees this on the dashboard's Pipeline health panel. Null when no
+   * bundle order counts toward revenue yet. See
+   * acquisition-source-digest-footnote.
+   */
+  topAcquisitionSourceLabel: string | null;
+  /** Revenue behind topAcquisitionSourceLabel. */
+  topAcquisitionSourceRevenueUsd: number;
+  /** Order count behind topAcquisitionSourceLabel. */
+  topAcquisitionSourceOrderCount: number;
+  /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
    * pipeline-health snoozedLeadCount). Footnote only — not a digest action section.
    */
@@ -758,6 +774,10 @@ export interface BuildDailyDigestInput {
     disputedAt?: string;
     lastBillingNoticeSendFailedAt?: number | null;
     lastBillingNoticeSendFailedType?: BillingNoticeType | null;
+    /** topAcquisitionSourceLabel reads this — see acquisition-source-checkout-attribution. */
+    acquisitionSource?: string;
+    /** topAcquisitionSourceRevenueUsd reads this via acquisitionSourceBreakdown. */
+    lifetimeRevenueUsd?: number;
   }>;
   marketingPacksThisMonth?: ReadonlyArray<{
     leadSlug: string;
@@ -1372,6 +1392,14 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
   const leadWinRateDecidedCount =
     paidNotLiveAll.length + liveLeadCountForWinRate + closedLeadCount;
 
+  const acquisitionSourceRows = acquisitionSourceBreakdown(
+    orders.map((order) => ({
+      ...order,
+      amountPaid: typeof order.amountPaid === "number" ? order.amountPaid : 0,
+    })),
+  );
+  const topAcquisitionSourceRow = acquisitionSourceRows[0] ?? null;
+
   const snoozedLeads = leads.filter((lead) =>
     isLeadSnoozed(lead.snoozedUntil, nowMs),
   );
@@ -1592,6 +1620,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     closedLeadCount,
     leadWinRatePercent: leadWinRatePercentValue,
     leadWinRateDecidedCount,
+    topAcquisitionSourceLabel: topAcquisitionSourceRow?.label ?? null,
+    topAcquisitionSourceRevenueUsd: topAcquisitionSourceRow?.revenueUsd ?? 0,
+    topAcquisitionSourceOrderCount: topAcquisitionSourceRow?.orderCount ?? 0,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
     recurringEntitlementPaused,
@@ -1669,6 +1700,11 @@ function winRateFootnote(digest: DailyDigest): string {
   return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">Win rate: ${digest.leadWinRatePercent}% (${digest.leadWinRateDecidedCount} lead${digest.leadWinRateDecidedCount === 1 ? "" : "s"} decided paid/live vs. closed) — trend signal, not actionable above.</p>`;
 }
 
+function acquisitionSourceFootnote(digest: DailyDigest): string {
+  if (digest.topAcquisitionSourceLabel === null) return "";
+  return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">Top acquisition source: ${escapeHtmlForEmail(digest.topAcquisitionSourceLabel)} — $${digest.topAcquisitionSourceRevenueUsd.toFixed(2)} across ${digest.topAcquisitionSourceOrderCount} order${digest.topAcquisitionSourceOrderCount === 1 ? "" : "s"} — trend signal, not actionable above. See /dashboard/leads for the full breakdown.</p>`;
+}
+
 function coldFootnote(digest: DailyDigest, emptyState: boolean): string {
   if (digest.coldLeadCount <= 0) return "";
   const oldestBit = digest.oldestColdLeadAgeHours !== null ? ` · oldest ${digest.oldestColdLeadAgeHours}h` : "";
@@ -1712,6 +1748,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ${snoozedFootnote(digest)}
       ${closedLeadFootnote(digest)}
       ${winRateFootnote(digest)}
+      ${acquisitionSourceFootnote(digest)}
       ${bounceComplaintFootnote(digest)}
     `;
   }
@@ -1941,6 +1978,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${snoozedFootnote(digest)}
     ${closedLeadFootnote(digest)}
     ${winRateFootnote(digest)}
+    ${acquisitionSourceFootnote(digest)}
     ${bounceComplaintFootnote(digest)}
   `;
 }

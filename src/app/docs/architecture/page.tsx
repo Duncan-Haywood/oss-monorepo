@@ -1757,6 +1757,20 @@ export default function ArchitectureDocPage() {
         <code>?source=</code> on the way back in, so no read-side change was needed.
       </p>
       <p>
+        <code>acquisition-source-digest-footnote</code>: the three attribution passes above wired{" "}
+        <code>acquisitionSourceBreakdown</code> into the dashboard&apos;s Pipeline health panel
+        only — an operator whose daily habit is reading the digest email rather than opening{" "}
+        <code>/dashboard/leads</code> never saw the one number that system exists to answer.{" "}
+        <code>buildDailyDigest</code> (<code>src/lib/digest/daily-digest.ts</code>) now calls the
+        same <code>acquisitionSourceBreakdown</code> helper over its existing{" "}
+        <code>orders</code> input and surfaces the highest-revenue row as a{" "}
+        <code>topAcquisitionSourceLabel</code>/<code>topAcquisitionSourceRevenueUsd</code>/
+        <code>topAcquisitionSourceOrderCount</code> footnote — same &quot;trend signal, not
+        actionable above&quot; treatment as the existing win-rate footnote, rendered in both the
+        empty-state and normal digest bodies. Null (omitted) when no order yet counts toward
+        revenue, mirroring the dashboard panel&apos;s own hidden-when-empty behavior.
+      </p>
+      <p>
         Recovery copy escalates across repeat nudges instead of resending the same email
         (recovery-email-escalating-cadence): every <code>checkoutSessions</code> row also carries a{" "}
         <code>recoverySentCount</code> (incremented atomically alongside{" "}
