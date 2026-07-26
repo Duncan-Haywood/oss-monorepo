@@ -258,6 +258,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.bufferProfileMappingMissingCount > 0}
         />
         <MetricCard
+          label="Buffer packs not posted"
+          value={String(health.marketingPacksMissingBufferPostCount)}
+          hint={
+            health.marketingPacksMissingBufferPostCount > 0
+              ? `Buffer-mapped leads whose current pack was never posted${
+                  health.oldestMarketingPacksMissingBufferPostAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestMarketingPacksMissingBufferPostAgeHours)}`
+                    : ""
+                }`
+              : "Every Buffer-mapped lead's pack this month has been posted"
+          }
+          attention={health.marketingPacksMissingBufferPostCount > 0}
+        />
+        <MetricCard
           label="Complete voice packs due"
           value={String(health.clientVoicePacksDueCount)}
           hint={

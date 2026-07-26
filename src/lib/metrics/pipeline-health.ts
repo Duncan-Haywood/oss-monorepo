@@ -86,6 +86,8 @@ import {
 import {
   listLeadsMissingBufferProfileMapping,
   oldestBufferProfileMappingMissingAgeHours,
+  listMarketingPacksMissingBufferPost,
+  oldestMarketingPackMissingBufferPostAgeHours,
 } from "@/lib/marketing/buffer";
 import { isBundleHandoffMissingBuyerEmail } from "@/lib/payments/bundle-side-effect-recovery";
 import { isVercelDomainProvisioningFailed } from "@/lib/deploy/handoff-preserve";
@@ -355,6 +357,17 @@ export interface PipelineHealth {
   bufferProfileMappingMissingCount: number;
   /** Age in whole hours since the oldest missing-mapping lead's qualifying order; null when none/disabled. */
   oldestBufferProfileMappingMissingAgeHours: number | null;
+  /**
+   * Current month's marketing packs generated for a lead who HAS mapped
+   * Buffer profiles but whose pack was never actually posted (see
+   * marketing-buffer-pack-post-visibility) — the counterpart to
+   * marketingPacksMissingClientSendCount for the Buffer-posting flow instead
+   * of email. Always 0 while ALLOW_MARKETING_SCHEDULING is off (same gate as
+   * bufferProfileMappingMissingCount).
+   */
+  marketingPacksMissingBufferPostCount: number;
+  /** Age in whole hours since the oldest such pack was generated; null when none/disabled. */
+  oldestMarketingPacksMissingBufferPostAgeHours: number | null;
   /**
    * Bundle (Starter/Growth/Complete/Commerce-addon) deploy handoffs with a
    * customer email on file but no durable buyer-receipt-sent and/or
@@ -910,6 +923,13 @@ export function computePipelineHealth(input: {
     ? oldestBufferProfileMappingMissingAgeHours(bufferProfileMappingMissing, input.orders, nowMs)
     : null;
 
+  const marketingPacksMissingBufferPost = input.marketingSchedulingEnabled
+    ? listMarketingPacksMissingBufferPost(packsThisMonth, input.leads, input.orders)
+    : [];
+  const oldestMarketingPacksMissingBufferPostHours = input.marketingSchedulingEnabled
+    ? oldestMarketingPackMissingBufferPostAgeHours(marketingPacksMissingBufferPost, nowMs)
+    : null;
+
   const bundleOrdersMissingBuyerEmail = input.handoffs.filter(isBundleHandoffMissingBuyerEmail);
   const oldestBundleOrdersMissingBuyerEmailHours = oldestOpenHandoffAgeHours(
     bundleOrdersMissingBuyerEmail,
@@ -1000,6 +1020,8 @@ export function computePipelineHealth(input: {
     oldestConnectOnboardingIncompleteAgeHours: oldestConnectOnboardingIncompleteHours,
     bufferProfileMappingMissingCount: bufferProfileMappingMissing.length,
     oldestBufferProfileMappingMissingAgeHours: oldestBufferProfileMappingMissingHours,
+    marketingPacksMissingBufferPostCount: marketingPacksMissingBufferPost.length,
+    oldestMarketingPacksMissingBufferPostAgeHours: oldestMarketingPacksMissingBufferPostHours,
     bundleOrdersMissingBuyerEmailCount: bundleOrdersMissingBuyerEmail.length,
     oldestBundleOrdersMissingBuyerEmailAgeHours: oldestBundleOrdersMissingBuyerEmailHours,
     vercelDomainProvisioningFailedCount: vercelDomainProvisioningFailed.length,

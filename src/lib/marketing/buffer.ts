@@ -277,3 +277,95 @@ export function oldestBufferProfileMappingMissingAgeHours(
   if (oldestCreatedAtMs === null) return null;
   return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / HOUR_MS));
 }
+
+/**
+ * Current month's marketing packs generated for a lead who HAS opted into
+ * Buffer auto-posting (a non-empty saved bufferProfileIds mapping) but whose
+ * current pack has no matching posted-variant marker at all — the same
+ * "generated ≠ delivered" gap listMarketingPacksMissingClientSend already
+ * closes for the email-pack flow, applied to the Buffer-posting flow
+ * instead. Prunes each lead's bufferPostedVariantKeys against the pack's own
+ * generatedAt (pruneBufferPostedVariantKeysForPack) before checking
+ * emptiness, so a mid-month regenerate correctly reports "not posted yet"
+ * even though the lead still carries stale keys from a prior pack. Gated on
+ * leadEligibleForMarketingPack (mirroring listMarketingPacksMissingClientSend)
+ * so a lead whose entitlement has since lapsed doesn't chase a post that's no
+ * longer this lead's active promise. Distinct from
+ * listLeadsMissingBufferProfileMapping: that tracks leads who never opted in
+ * at all; this tracks leads who DID opt in but whose current pack silently
+ * never made it to Buffer (a forgotten click or a failed createBufferUpdate
+ * call, see scheduleMarketingPackToBufferAction). Only meaningful once the
+ * operator has opted into ALLOW_MARKETING_SCHEDULING — callers must pass an
+ * empty `packsThisMonth`/`leads` (or otherwise suppress this) while the
+ * feature is off (this helper itself takes no env dependency). See
+ * marketing-buffer-pack-post-visibility.
+ */
+export function listMarketingPacksMissingBufferPost<
+  T extends { leadSlug: string; generatedAt?: string },
+>(
+  packsThisMonth: ReadonlyArray<T>,
+  leads: ReadonlyArray<{
+    slug: string;
+    stage: LeadPipelineStage;
+    bufferProfileIds?: string[];
+    bufferPostedVariantKeys?: string[];
+  }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
+): T[] {
+  const leadsBySlug = new Map(leads.map((lead) => [lead.slug, lead]));
+  return packsThisMonth
+    .filter((pack) => {
+      const lead = leadsBySlug.get(pack.leadSlug);
+      if (!lead?.bufferProfileIds?.length) return false;
+      if (typeof pack.generatedAt !== "string") return false;
+      if (
+        !leadEligibleForMarketingPack(
+          lead,
+          orders.filter((o) => o.leadSlug === lead.slug),
+        )
+      ) {
+        return false;
+      }
+      const postedKeys = pruneBufferPostedVariantKeysForPack(
+        lead.bufferPostedVariantKeys ?? [],
+        pack.generatedAt,
+      );
+      return postedKeys.length === 0;
+    })
+    .sort((a, b) => a.leadSlug.localeCompare(b.leadSlug));
+}
+
+/**
+ * Age in whole hours since the oldest of `candidates` (as returned by
+ * listMarketingPacksMissingBufferPost) was generated; null when there are no
+ * candidates or none of their generatedAt values parse. Anchored to
+ * generatedAt (not a qualifying order), mirroring
+ * oldestMarketingPackMissingClientSendAgeHours exactly — the debt is "this
+ * specific pack hasn't been posted yet," not "this lead's entitlement has
+ * been active for N hours." Pass nowMs from the caller — never Date.now()
+ * inside list/age helpers.
+ */
+export function oldestMarketingPackMissingBufferPostAgeHours(
+  candidates: ReadonlyArray<{ generatedAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldestMs: number | null = null;
+  for (const candidate of candidates) {
+    if (typeof candidate.generatedAt !== "string") continue;
+    const generatedAtMs = Date.parse(candidate.generatedAt);
+    if (Number.isNaN(generatedAtMs)) continue;
+    if (oldestMs === null || generatedAtMs < oldestMs) {
+      oldestMs = generatedAtMs;
+    }
+  }
+  if (oldestMs === null) return null;
+  if (nowMs < oldestMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+}

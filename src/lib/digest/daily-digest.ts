@@ -89,6 +89,8 @@ import {
 import {
   listLeadsMissingBufferProfileMapping,
   oldestBufferProfileMappingMissingAgeHours,
+  listMarketingPacksMissingBufferPost,
+  oldestMarketingPackMissingBufferPostAgeHours,
 } from "../marketing/buffer";
 import {
   hasBundleDnsHandoffEmailNote,
@@ -125,6 +127,7 @@ const LEADS_MISSING_EMAIL_LIMIT = 5;
 const RECURRING_ENTITLEMENT_PAUSED_LIMIT = 5;
 const CONNECT_ONBOARDING_INCOMPLETE_LIMIT = 5;
 const BUFFER_PROFILE_MAPPING_MISSING_LIMIT = 5;
+const MARKETING_PACKS_MISSING_BUFFER_POST_LIMIT = 5;
 const BUNDLE_ORDERS_MISSING_BUYER_EMAIL_LIMIT = 5;
 const VERCEL_DOMAIN_PROVISIONING_FAILED_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
@@ -414,6 +417,19 @@ export interface DigestBufferProfileMappingMissing {
   businessName: string;
 }
 
+/**
+ * Current month's marketing pack generated for a lead who HAS mapped Buffer
+ * profiles but whose pack was never actually posted — same predicate as
+ * pipeline-health marketingPacksMissingBufferPostCount via
+ * listMarketingPacksMissingBufferPost. Always empty while
+ * ALLOW_MARKETING_SCHEDULING is off. See marketing-buffer-pack-post-visibility.
+ */
+export interface DigestMarketingPackMissingBufferPost {
+  slug: string;
+  businessName: string;
+  yearMonth: string;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
@@ -639,6 +655,18 @@ export interface DailyDigest {
   bufferProfileMappingMissingCount: number;
   /** Age in whole hours since the oldest missing-mapping lead's qualifying order; null when none/disabled. */
   oldestBufferProfileMappingMissingAgeHours: number | null;
+  /**
+   * Current month's marketing packs generated for a Buffer-mapped lead but
+   * never actually posted — same predicate as pipeline-health
+   * marketingPacksMissingBufferPostCount (see
+   * marketing-buffer-pack-post-visibility). Always empty while
+   * ALLOW_MARKETING_SCHEDULING is off.
+   */
+  marketingPacksMissingBufferPost: DigestMarketingPackMissingBufferPost[];
+  /** True count before the MARKETING_PACKS_MISSING_BUFFER_POST_LIMIT slice. */
+  marketingPacksMissingBufferPostCount: number;
+  /** Age in whole hours since the oldest such pack was generated; null when none/disabled. */
+  oldestMarketingPacksMissingBufferPostAgeHours: number | null;
   /**
    * True pre-slice sum of every actionable section's count (the same fields
    * isEmpty checks) — the single source of truth for "how many items does
@@ -1355,6 +1383,22 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         businessName: lead.businessName,
       }));
 
+  const marketingPacksMissingBufferPostAll = marketingSchedulingEnabled
+    ? listMarketingPacksMissingBufferPost(marketingPacksThisMonth, leads, orders)
+    : [];
+  const marketingPacksMissingBufferPostCount = marketingPacksMissingBufferPostAll.length;
+  const marketingPacksMissingBufferPost: DigestMarketingPackMissingBufferPost[] =
+    marketingPacksMissingBufferPostAll
+      .slice(0, MARKETING_PACKS_MISSING_BUFFER_POST_LIMIT)
+      .map((pack) => ({
+        slug: pack.leadSlug,
+        businessName: leadsBySlug.get(pack.leadSlug)?.businessName ?? pack.leadSlug,
+        yearMonth: pack.yearMonth,
+      }));
+  const oldestMarketingPacksMissingBufferPostAgeHoursValue = marketingSchedulingEnabled
+    ? oldestMarketingPackMissingBufferPostAgeHours(marketingPacksMissingBufferPostAll, nowMs)
+    : null;
+
   // Pre-slice true count per section (mirrors the *Count fields below, using
   // workNext.length directly since it's a ranked top-N pick list rather than
   // a due-queue with its own separate uncapped count). Single source of
@@ -1391,6 +1435,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "paused/canceled MRR recoveries", count: recurringEntitlementPausedCount },
     { label: "Stripe Connect onboarding incomplete", count: connectOnboardingIncompleteCount },
     { label: "Buffer profile mapping missing", count: bufferProfileMappingMissingCount },
+    { label: "Buffer packs not posted", count: marketingPacksMissingBufferPostCount },
   ];
   const actionableItemCount = actionableSections.reduce(
     (sum, section) => sum + section.count,
@@ -1493,6 +1538,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     bufferProfileMappingMissing,
     bufferProfileMappingMissingCount,
     oldestBufferProfileMappingMissingAgeHours: oldestBufferProfileMappingMissingAgeHoursValue,
+    marketingPacksMissingBufferPost,
+    marketingPacksMissingBufferPostCount,
+    oldestMarketingPacksMissingBufferPostAgeHours: oldestMarketingPacksMissingBufferPostAgeHoursValue,
     recentBounceOrComplaintSuppressionCount: recentBounceOrComplaintCount,
     newestBounceOrComplaintSuppressionAgeHours: newestBounceOrComplaintAgeHours,
     isEmpty,
@@ -1743,6 +1791,12 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — no Buffer profiles selected yet`,
   );
 
+  const marketingPacksMissingBufferPostRows = digest.marketingPacksMissingBufferPost.map(
+    (pack) =>
+      `<strong>${escapeHtmlForEmail(pack.businessName)}</strong> — ${escapeHtmlForEmail(pack.yearMonth)} pack generated but never posted to Buffer`,
+  );
+  const marketingPacksMissingBufferPostTitle = `Buffer packs not posted (${digest.marketingPacksMissingBufferPostCount}${digest.oldestMarketingPacksMissingBufferPostAgeHours !== null ? ` · oldest ${digest.oldestMarketingPacksMissingBufferPostAgeHours}h` : ""})`;
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -1773,6 +1827,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount}${digest.oldestCommerceCatalogsUnsyncedAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsUnsyncedAgeHours}h` : ""})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
     ${section(`Stripe Connect onboarding incomplete (${digest.connectOnboardingIncompleteCount}${digest.oldestConnectOnboardingIncompleteAgeHours !== null ? ` · oldest ${digest.oldestConnectOnboardingIncompleteAgeHours}h` : ""})`, connectOnboardingIncompleteRows, "Every Connect account is fully onboarded (or none created yet).")}
     ${section(`Buffer profile mapping missing (${digest.bufferProfileMappingMissingCount}${digest.oldestBufferProfileMappingMissingAgeHours !== null ? ` · oldest ${digest.oldestBufferProfileMappingMissingAgeHours}h` : ""})`, bufferProfileMappingMissingRows, "Every eligible lead has Buffer profiles mapped (or Buffer scheduling isn't enabled yet).")}
+    ${section(marketingPacksMissingBufferPostTitle, marketingPacksMissingBufferPostRows, "Every Buffer-mapped lead's pack this month has been posted.")}
     ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount}${digest.oldestClientVoicePacksDueAgeHours !== null ? ` · oldest ${digest.oldestClientVoicePacksDueAgeHours}h` : ""})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(voicePackMissingSendTitle, voicePackMissingSendRows, "Every generated Complete voice FAQ pack has been emailed to its client.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}

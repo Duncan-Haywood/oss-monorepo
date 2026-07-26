@@ -5,7 +5,9 @@ import {
   formatMarketingVariantForBuffer,
   listBufferProfiles,
   listLeadsMissingBufferProfileMapping,
+  listMarketingPacksMissingBufferPost,
   oldestBufferProfileMappingMissingAgeHours,
+  oldestMarketingPackMissingBufferPostAgeHours,
   resolveBufferSelection,
 } from "./buffer";
 
@@ -246,5 +248,114 @@ describe("oldestBufferProfileMappingMissingAgeHours", () => {
       },
     ];
     expect(oldestBufferProfileMappingMissingAgeHours(candidates, orders, NOW)).toBe(4);
+  });
+});
+
+describe("listMarketingPacksMissingBufferPost", () => {
+  it("flags a generated pack for a Buffer-mapped lead with no posted keys", () => {
+    const leads = [{ slug: "mapped", stage: "paid" as const, bufferProfileIds: ["p1"] }];
+    const orders = [{ leadSlug: "mapped", tier: "growth" }];
+    const packs = [
+      { leadSlug: "mapped", yearMonth: "2026-07", generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(
+      listMarketingPacksMissingBufferPost(packs, leads, orders).map((p) => p.leadSlug),
+    ).toEqual(["mapped"]);
+  });
+
+  it("excludes a lead who never mapped Buffer profiles", () => {
+    const leads = [{ slug: "unmapped", stage: "paid" as const }];
+    const orders = [{ leadSlug: "unmapped", tier: "growth" }];
+    const packs = [
+      { leadSlug: "unmapped", yearMonth: "2026-07", generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(listMarketingPacksMissingBufferPost(packs, leads, orders)).toEqual([]);
+  });
+
+  it("excludes a pack already posted to Buffer this generation", () => {
+    const leads = [
+      {
+        slug: "posted",
+        stage: "paid" as const,
+        bufferProfileIds: ["p1"],
+        bufferPostedVariantKeys: ["2026-07-01T00:00:00.000Z|p1|facebook_caption|0"],
+      },
+    ];
+    const orders = [{ leadSlug: "posted", tier: "growth" }];
+    const packs = [
+      { leadSlug: "posted", yearMonth: "2026-07", generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(listMarketingPacksMissingBufferPost(packs, leads, orders)).toEqual([]);
+  });
+
+  it("still flags a mid-month regenerate whose posted keys belong to the prior generation", () => {
+    const leads = [
+      {
+        slug: "regenerated",
+        stage: "paid" as const,
+        bufferProfileIds: ["p1"],
+        // Posted against an earlier generatedAt, before this month's regenerate.
+        bufferPostedVariantKeys: ["2026-07-01T00:00:00.000Z|p1|facebook_caption|0"],
+      },
+    ];
+    const orders = [{ leadSlug: "regenerated", tier: "growth" }];
+    const packs = [
+      { leadSlug: "regenerated", yearMonth: "2026-07", generatedAt: "2026-07-15T00:00:00.000Z" },
+    ];
+    expect(
+      listMarketingPacksMissingBufferPost(packs, leads, orders).map((p) => p.leadSlug),
+    ).toEqual(["regenerated"]);
+  });
+
+  it("excludes a pack whose lead is no longer eligible (e.g. Starter-only)", () => {
+    const leads = [{ slug: "starter-only", stage: "paid" as const, bufferProfileIds: ["p1"] }];
+    const orders = [{ leadSlug: "starter-only", tier: "starter" }];
+    const packs = [
+      { leadSlug: "starter-only", yearMonth: "2026-07", generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(listMarketingPacksMissingBufferPost(packs, leads, orders)).toEqual([]);
+  });
+
+  it("sorts results by leadSlug", () => {
+    const leads = [
+      { slug: "zeta", stage: "paid" as const, bufferProfileIds: ["p1"] },
+      { slug: "alpha", stage: "paid" as const, bufferProfileIds: ["p1"] },
+    ];
+    const orders = [
+      { leadSlug: "zeta", tier: "growth" },
+      { leadSlug: "alpha", tier: "growth" },
+    ];
+    const packs = [
+      { leadSlug: "zeta", yearMonth: "2026-07", generatedAt: "2026-07-01T00:00:00.000Z" },
+      { leadSlug: "alpha", yearMonth: "2026-07", generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(
+      listMarketingPacksMissingBufferPost(packs, leads, orders).map((p) => p.leadSlug),
+    ).toEqual(["alpha", "zeta"]);
+  });
+});
+
+describe("oldestMarketingPackMissingBufferPostAgeHours", () => {
+  it("returns null when there are no candidates", () => {
+    expect(oldestMarketingPackMissingBufferPostAgeHours([], NOW)).toBeNull();
+  });
+
+  it("computes hours since the oldest candidate's generatedAt", () => {
+    const nowMs = Date.parse("2026-07-10T00:00:00.000Z");
+    const candidates = [
+      { generatedAt: "2026-07-05T00:00:00.000Z" },
+      { generatedAt: "2026-07-08T00:00:00.000Z" },
+    ];
+    expect(oldestMarketingPackMissingBufferPostAgeHours(candidates, nowMs)).toBe(5 * 24);
+  });
+
+  it("skips a candidate with no parseable generatedAt", () => {
+    const nowMs = Date.parse("2026-07-10T00:00:00.000Z");
+    expect(
+      oldestMarketingPackMissingBufferPostAgeHours(
+        [{ generatedAt: undefined }, { generatedAt: "not-a-date" }],
+        nowMs,
+      ),
+    ).toBeNull();
   });
 });

@@ -199,6 +199,24 @@ export default function MarketingAutomationDocPage() {
         <code>oldestBufferProfileMappingMissingAgeHours</code> (
         <code>src/lib/marketing/buffer.ts</code>).
       </p>
+      <p>
+        <strong>Not-posted visibility.</strong> Mapping Buffer profiles opts a lead into
+        auto-posting, but it does not guarantee the current month&apos;s pack actually reached
+        Buffer — the operator could forget to click <strong>Send pack to Buffer</strong>, or
+        every <code>createBufferUpdate</code> call could fail (a revoked token, a disconnected
+        profile) with nothing persisted anywhere except the ephemeral scheduled/skipped/failed
+        result of that one click. The same &quot;generated ≠ delivered&quot; gap{" "}
+        <strong>Marketing packs not emailed</strong> already closes for the email-pack flow now
+        has a Buffer-posting twin: the <code>Buffer packs not posted</code> pipeline-health card
+        and matching daily-digest section flag a Buffer-mapped lead&apos;s current-month pack
+        whenever it has no matching entry in <code>lead.bufferPostedVariantKeys</code> (pruned
+        against the pack&apos;s own <code>generatedAt</code>, so a mid-month regenerate is
+        correctly flagged again even though the lead still carries stale keys from the prior
+        generation) — also always zero while <code>ALLOW_MARKETING_SCHEDULING</code> is off. See{" "}
+        <code>listMarketingPacksMissingBufferPost</code> /{" "}
+        <code>oldestMarketingPackMissingBufferPostAgeHours</code> (
+        <code>src/lib/marketing/buffer.ts</code>).
+      </p>
 
       <p>
         Technical module: <DocLink href="/docs/architecture">Architecture</DocLink> § Marketing Engine

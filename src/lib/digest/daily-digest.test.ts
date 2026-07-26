@@ -127,6 +127,9 @@ describe("buildDailyDigest", () => {
     expect(digest.bufferProfileMappingMissing).toHaveLength(0);
     expect(digest.bufferProfileMappingMissingCount).toBe(0);
     expect(digest.oldestBufferProfileMappingMissingAgeHours).toBeNull();
+    expect(digest.marketingPacksMissingBufferPost).toHaveLength(0);
+    expect(digest.marketingPacksMissingBufferPostCount).toBe(0);
+    expect(digest.oldestMarketingPacksMissingBufferPostAgeHours).toBeNull();
     expect(digest.actionableItemCount).toBe(0);
   });
 
@@ -207,6 +210,7 @@ describe("buildDailyDigest", () => {
       "paused/canceled MRR recoveries",
       "Stripe Connect onboarding incomplete",
       "Buffer profile mapping missing",
+      "Buffer packs not posted",
     ]);
   });
 
@@ -891,6 +895,74 @@ describe("buildDailyDigest", () => {
     expect(html).toContain("Buffer profile mapping missing (1 · oldest 12h)");
     expect(html).toContain("<strong>No Buffer Co</strong> — no Buffer profiles selected yet");
     expect(html).not.toContain("<strong>Buffer Ready Co</strong> — no Buffer profiles selected yet");
+  });
+
+  it("lists Buffer-mapped leads whose current pack was never posted only when marketingSchedulingEnabled (marketing-buffer-pack-post-visibility)", () => {
+    const notPosted = baseLead({
+      slug: "buffer-not-posted",
+      businessName: "Not Posted Co",
+      stage: "paid",
+      bufferProfileIds: ["p1"],
+    });
+    const posted = baseLead({
+      slug: "buffer-posted",
+      businessName: "Posted Co",
+      stage: "live",
+      bufferProfileIds: ["p1"],
+      bufferPostedVariantKeys: ["2026-07-01T00:00:00.000Z|p1|facebook_caption|0"],
+    });
+    const orders = [
+      { leadSlug: "buffer-not-posted", tier: "growth", commerceAddon: false },
+      { leadSlug: "buffer-posted", tier: "complete", commerceAddon: false },
+    ];
+    const marketingPacksThisMonth = [
+      {
+        leadSlug: "buffer-not-posted",
+        yearMonth: "2026-07",
+        generatedAt: new Date(NOW - 6 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        leadSlug: "buffer-posted",
+        yearMonth: "2026-07",
+        generatedAt: "2026-07-01T00:00:00.000Z",
+      },
+    ];
+
+    const disabled = buildDailyDigest({
+      leads: [notPosted, posted],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders,
+      marketingPacksThisMonth,
+      nowMs: NOW,
+    });
+    expect(disabled.marketingPacksMissingBufferPostCount).toBe(0);
+    expect(disabled.marketingPacksMissingBufferPost).toHaveLength(0);
+    expect(disabled.oldestMarketingPacksMissingBufferPostAgeHours).toBeNull();
+
+    const digest = buildDailyDigest({
+      leads: [notPosted, posted],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders,
+      marketingPacksThisMonth,
+      marketingSchedulingEnabled: true,
+      nowMs: NOW,
+    });
+    expect(digest.marketingPacksMissingBufferPostCount).toBe(1);
+    expect(digest.marketingPacksMissingBufferPost).toHaveLength(1);
+    expect(digest.marketingPacksMissingBufferPost[0]?.businessName).toBe("Not Posted Co");
+    expect(digest.oldestMarketingPacksMissingBufferPostAgeHours).toBe(6);
+    expect(digest.isEmpty).toBe(false);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Buffer packs not posted (1 · oldest 6h)");
+    expect(html).toContain(
+      "<strong>Not Posted Co</strong> — 2026-07 pack generated but never posted to Buffer",
+    );
+    expect(html).not.toContain(
+      "<strong>Posted Co</strong> — 2026-07 pack generated but never posted to Buffer",
+    );
   });
 
   it("lists Starter → MRR upsell candidates", () => {

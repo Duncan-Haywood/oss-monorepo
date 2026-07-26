@@ -142,6 +142,8 @@ describe("computePipelineHealth", () => {
     expect(health.oldestConnectOnboardingIncompleteAgeHours).toBeNull();
     expect(health.bufferProfileMappingMissingCount).toBe(0);
     expect(health.oldestBufferProfileMappingMissingAgeHours).toBeNull();
+    expect(health.marketingPacksMissingBufferPostCount).toBe(0);
+    expect(health.oldestMarketingPacksMissingBufferPostAgeHours).toBeNull();
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
@@ -1130,6 +1132,57 @@ describe("computePipelineHealth", () => {
     });
     expect(enabled.bufferProfileMappingMissingCount).toBe(1);
     expect(enabled.oldestBufferProfileMappingMissingAgeHours).toBe(8);
+  });
+
+  it("counts Buffer-mapped leads whose current pack was never posted only when marketingSchedulingEnabled", () => {
+    const notPosted = makeLead("paid", {
+      slug: "buffer-not-posted",
+      bufferProfileIds: ["p1"],
+    });
+    const posted = makeLead("live", {
+      slug: "buffer-posted",
+      bufferProfileIds: ["p1"],
+      bufferPostedVariantKeys: ["2026-07-01T00:00:00.000Z|p1|facebook_caption|0"],
+    });
+    const orders = [
+      { ...makeOrder(0), id: "o1", leadSlug: "buffer-not-posted", tier: "growth" },
+      { ...makeOrder(0), id: "o2", leadSlug: "buffer-posted", tier: "complete" },
+    ];
+    const marketingPacksThisMonth = [
+      {
+        leadSlug: "buffer-not-posted",
+        yearMonth: "2026-07",
+        generatedAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "buffer-posted",
+        yearMonth: "2026-07",
+        generatedAt: "2026-07-01T00:00:00.000Z",
+      },
+    ];
+
+    const disabled = computePipelineHealth({
+      leads: [notPosted, posted],
+      orders,
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth,
+      nowMs: NOW,
+    });
+    expect(disabled.marketingPacksMissingBufferPostCount).toBe(0);
+    expect(disabled.oldestMarketingPacksMissingBufferPostAgeHours).toBeNull();
+
+    const enabled = computePipelineHealth({
+      leads: [notPosted, posted],
+      orders,
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth,
+      marketingSchedulingEnabled: true,
+      nowMs: NOW,
+    });
+    expect(enabled.marketingPacksMissingBufferPostCount).toBe(1);
+    expect(enabled.oldestMarketingPacksMissingBufferPostAgeHours).toBe(10);
   });
 
   it("counts paid/live commerceAddon leads missing a catalog", () => {
