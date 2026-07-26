@@ -28,9 +28,9 @@ export default function ProductBundlesDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Bundle</th>
-            <th>Tagline</th>
-            <th>Best for</th>
+            <th scope="col">Bundle</th>
+            <th scope="col">Tagline</th>
+            <th scope="col">Best for</th>
           </tr>
         </thead>
         <tbody>

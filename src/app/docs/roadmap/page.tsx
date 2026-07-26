@@ -29,9 +29,9 @@ export default function RoadmapDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Phase</th>
-            <th>Delivers</th>
-            <th>Tier</th>
+            <th scope="col">Phase</th>
+            <th scope="col">Delivers</th>
+            <th scope="col">Tier</th>
           </tr>
         </thead>
         <tbody>

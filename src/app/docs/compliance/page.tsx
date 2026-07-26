@@ -29,8 +29,8 @@ export default function ComplianceDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Platform</th>
-            <th>Notes</th>
+            <th scope="col">Platform</th>
+            <th scope="col">Notes</th>
           </tr>
         </thead>
         <tbody>
@@ -132,8 +132,8 @@ export default function ComplianceDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Data</th>
-            <th>Retention</th>
+            <th scope="col">Data</th>
+            <th scope="col">Retention</th>
           </tr>
         </thead>
         <tbody>

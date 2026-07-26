@@ -324,6 +324,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/nice-euler-tkb9ac",
   },
+  {
+    id: "dashboard-and-docs-table-header-scope-col-a11y",
+    summary:
+      "Fresh-angle accessibility audit (table header semantics, distinct from the two completed focus-restore sweeps) found the operator dashboard's Leads table (src/app/dashboard/leads/leads-client.tsx — the only <table> under src/app/dashboard or src/components/dashboard) had none of its 7 <th> header cells marked scope=\"col\", so a screen-reader user navigating cell-by-cell does not reliably hear the column header announced (WCAG 1.3.1). The same defect (zero scope=\"col\" anywhere) was present in all ten /docs/** pages rendering a <table>. Shipped scope=\"col\" on all 52 <th> cells across all 11 files — pure markup addition, no logic/content change. See dashboard-and-docs-table-header-scope-col-a11y in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-srocpv",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -542,6 +550,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "convex-leads-buffer-mutations-direct-test-coverage",
+    ),
+  },
+  {
+    date: "2026-07-26",
+    branch: "claude/upbeat-dijkstra-srocpv",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 1a3edd3 (PR #799, convex-leads-buffer-mutations-direct-test-coverage, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3247 passed, 209 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (719 remote heads) ranked the newest 15 claude/* branches by push time via `git rev-list --left-right --count`: every one showed the documented ahead<=1/behind>=1 squash-merge-artifact pattern — no live fold candidate.\n\nDispatched a research agent across AGENT_PROTOCOL's priority tiers, explicitly pointed at the prior iteration's own suggested fresh angles (an accessibility sweep not covered by the two completed focus-restore series, or a /docs accuracy pass) and told not to re-propose anything already closed. Tiers 1-4 (sold-capability wiring, Convex/SQLite parity, security/injection, untested orchestration) all came back independently clean. Tier 5 found a real, verified gap: the Leads table in src/app/dashboard/leads/leads-client.tsx — the only <table> anywhere under src/app/dashboard or src/components/dashboard, and the operator's primary daily data grid — had none of its 7 <th> header cells marked scope=\"col\", a WCAG 1.3.1 gap distinct from the already-closed focus-management sweeps. Extended the fix to all ten /docs/** pages rendering a <table> once the identical defect (zero scope=\"col\" anywhere) was confirmed present in each — all single-header-row tables of plain <th>Text</th> cells, so the fix applies mechanically and safely everywhere in one coherent, single-theme iteration (mirroring the 17-panel due-queue-panel-resolve-button-focus-restore sweep precedent).",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — added scope=\"col\" to all 7 <th> cells in the Leads table header row (Business/Quality/Category/Recommended Tier/Pipeline Stage/Outreach/Actions).",
+      "src/app/docs/{process,marketing-automation,compliance,voice-agent-flow,legal,business-model,roadmap,product-bundles,cli-agents,architecture}/page.tsx — added scope=\"col\" to all 45 remaining <th>Text</th> cells across the ten docs pages with a <table> (compliance has two tables); verified via a grep-count match (plain <th> occurrences before == scope=\"col\" occurrences after) in every file before shipping.",
+      "src/app/docs/architecture/page.tsx — new paragraph (right after the Buffer-mutations Convex test-coverage paragraph) naming the gap and the fix.",
+      "src/lib/process/business-decisions.ts — appended dashboard-and-docs-table-header-scope-col-a11y.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-unaudited accessibility gap on the operator dashboard's primary data table and every docs page's tables, not any of the five gated items. Diff-gate anchor moves to 1a3edd3 (this session's own starting tip, post-PR-#799). A future iteration hitting an empty backlog in the accessibility vein should look at a fresh angle beyond table-header scope (dialog/modal focus-trapping, form validation error announcements, color-contrast) rather than re-checking this same axis.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean, jsx-a11y rules included) + npx vitest run full suite (3247 passed, unchanged — no test harness exercises this markup, per AGENT_PROTOCOL's own client-component-testing note) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split) + npm run dev smoke check curling /dashboard/leads and /docs/architecture (200 on both; grep confirmed exactly 7 and 2 scope=\"col\" occurrences respectively in the rendered HTML, no error-boundary/500 text) since this touches dashboard UI, per AGENT_PROTOCOL's UI-touching-change testing convention — killed the dev server and deleted the gitignored local.db it created before confirming git status showed only the intended 11 files changed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "dashboard-and-docs-table-header-scope-col-a11y",
     ),
   },
 ];

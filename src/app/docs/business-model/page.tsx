@@ -36,9 +36,9 @@ export default function BusinessModelDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Bundle</th>
-            <th>Price</th>
-            <th>Includes</th>
+            <th scope="col">Bundle</th>
+            <th scope="col">Price</th>
+            <th scope="col">Includes</th>
           </tr>
         </thead>
         <tbody>

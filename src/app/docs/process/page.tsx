@@ -70,10 +70,10 @@ export default function ProcessDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Item</th>
-            <th>Phase</th>
-            <th>Status</th>
-            <th>Owner</th>
+            <th scope="col">Item</th>
+            <th scope="col">Phase</th>
+            <th scope="col">Status</th>
+            <th scope="col">Owner</th>
           </tr>
         </thead>
         <tbody>

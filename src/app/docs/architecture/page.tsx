@@ -21,8 +21,8 @@ export default function ArchitectureDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Stakeholder</th>
-            <th>Goal</th>
+            <th scope="col">Stakeholder</th>
+            <th scope="col">Goal</th>
           </tr>
         </thead>
         <tbody>
@@ -843,6 +843,21 @@ export default function ArchitectureDocPage() {
         full-replacement patch (including that a shorter follow-up call actually shrinks the stored
         list rather than merging with the prior value), and the <code>apiSecret</code>-rejection
         case for both mutations.
+      </p>
+      <p>
+        <code>src/app/dashboard/leads/leads-client.tsx</code>&apos;s Leads table — the only{" "}
+        <code>&lt;table&gt;</code> anywhere under <code>src/app/dashboard</code> or{" "}
+        <code>src/components/dashboard</code>, and the operator&apos;s primary daily data grid —
+        had none of its 7 <code>&lt;th&gt;</code> header cells marked <code>scope=&quot;col&quot;</code>.
+        Without it, a screen-reader user navigating the table cell-by-cell (NVDA/JAWS table mode,
+        VoiceOver&apos;s table rotor) does not get the column header reliably announced when
+        landing on a data cell — a WCAG 1.3.1 (Info and Relationships) gap distinct from the
+        already-shipped focus-restore sweeps above, which addressed keyboard focus after
+        row-removing actions, never table header/data-cell association. The same defect (zero{" "}
+        <code>scope=&quot;col&quot;</code> anywhere) was present in every one of the ten{" "}
+        <code>/docs/**</code> pages that render a <code>&lt;table&gt;</code> (this page included)
+        — all single-header-row tables of plain <code>&lt;th&gt;Text&lt;/th&gt;</code> cells —
+        and got the identical fix in the same pass.
       </p>
       <p>
         <code>markCheckoutSessionComplete</code>/<code>markCheckoutSessionOpen</code>/

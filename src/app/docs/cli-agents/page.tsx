@@ -53,11 +53,11 @@ export default function CliAgentsDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Workflow</th>
-            <th>CLI</th>
-            <th>Model</th>
-            <th>Auth</th>
-            <th>Cron (UTC)</th>
+            <th scope="col">Workflow</th>
+            <th scope="col">CLI</th>
+            <th scope="col">Model</th>
+            <th scope="col">Auth</th>
+            <th scope="col">Cron (UTC)</th>
           </tr>
         </thead>
         <tbody>

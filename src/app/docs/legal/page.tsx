@@ -20,9 +20,9 @@ export default function LegalDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Layer</th>
-            <th>Name</th>
-            <th>Used for</th>
+            <th scope="col">Layer</th>
+            <th scope="col">Name</th>
+            <th scope="col">Used for</th>
           </tr>
         </thead>
         <tbody>

@@ -33,9 +33,9 @@ export default function MarketingAutomationDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Type</th>
-            <th>Channel</th>
-            <th>Included per monthly pack</th>
+            <th scope="col">Type</th>
+            <th scope="col">Channel</th>
+            <th scope="col">Included per monthly pack</th>
           </tr>
         </thead>
         <tbody>

@@ -24,10 +24,10 @@ export default function VoiceAgentFlowDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Layer</th>
-            <th>Audience</th>
-            <th>Purpose</th>
-            <th>Tier</th>
+            <th scope="col">Layer</th>
+            <th scope="col">Audience</th>
+            <th scope="col">Purpose</th>
+            <th scope="col">Tier</th>
           </tr>
         </thead>
         <tbody>

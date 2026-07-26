@@ -3889,13 +3889,13 @@ export function LeadsClient({
           <table className="w-full border-collapse text-left text-sm text-zinc-600">
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-50/50 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                <th className="px-6 py-4">Business</th>
-                <th className="px-6 py-4">Quality</th>
-                <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Recommended Tier</th>
-                <th className="px-6 py-4">Pipeline Stage</th>
-                <th className="px-6 py-4">Outreach</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th scope="col" className="px-6 py-4">Business</th>
+                <th scope="col" className="px-6 py-4">Quality</th>
+                <th scope="col" className="px-6 py-4">Category</th>
+                <th scope="col" className="px-6 py-4">Recommended Tier</th>
+                <th scope="col" className="px-6 py-4">Pipeline Stage</th>
+                <th scope="col" className="px-6 py-4">Outreach</th>
+                <th scope="col" className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200">
