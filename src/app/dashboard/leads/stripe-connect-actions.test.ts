@@ -393,7 +393,7 @@ describe("Stripe Connect dashboard actions", () => {
       });
     });
 
-    it("persists the checked status for pipeline-health/digest visibility", async () => {
+    it("persists the checked status for pipeline-health/digest visibility and revalidates the leads dashboard", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
       fetchConnectAccountStatus.mockResolvedValue({
         chargesEnabled: true,
@@ -409,9 +409,16 @@ describe("Stripe Connect dashboard actions", () => {
         expect.any(String),
         expect.objectContaining({ requireConvex: true }),
       );
+      // Without this, pipeline-health's connectOnboardingIncompleteCount
+      // MetricCard and the daily digest (both computed server-side from
+      // getLeads() on /dashboard/leads) stay stale after a status check
+      // flips charges_enabled/payouts_enabled true — the same
+      // missing-revalidatePath bug class buffer-schedule-action-revalidate-path
+      // closed for the Buffer scheduling action one session earlier.
+      expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
     });
 
-    it("still returns the live status when persisting it fails (best-effort, never surfaces as an error)", async () => {
+    it("still returns the live status when persisting it fails (best-effort, never surfaces as an error) but does not revalidate a stale cache", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
       fetchConnectAccountStatus.mockResolvedValue({
         chargesEnabled: true,
@@ -428,9 +435,13 @@ describe("Stripe Connect dashboard actions", () => {
         payoutsEnabled: true,
         detailsSubmitted: true,
       });
+      // The store write never landed, so there is nothing new for the
+      // SSR'd pipeline-health/digest read to pick up — revalidating here
+      // would just be a wasted re-render, not a correctness fix.
+      expect(revalidatePath).not.toHaveBeenCalled();
     });
 
-    it("still returns the live status when the persist fails closed (ConvexPrimaryWriteError, not just a generic error)", async () => {
+    it("still returns the live status when the persist fails closed (ConvexPrimaryWriteError, not just a generic error) and does not revalidate", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
       fetchConnectAccountStatus.mockResolvedValue({
         chargesEnabled: true,
@@ -447,6 +458,7 @@ describe("Stripe Connect dashboard actions", () => {
         payoutsEnabled: true,
         detailsSubmitted: true,
       });
+      expect(revalidatePath).not.toHaveBeenCalled();
     });
   });
 });

@@ -2609,6 +2609,25 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>checkStripeConnectAccountStatusAction</code> itself had a matching, narrower gap
+        (<code>check-stripe-connect-status-action-revalidate-path</code>, 2026-07-26): it correctly
+        persisted the fresh flags via <code>updateLeadStripeConnectStatus</code>, the exact same
+        write <code>account.updated</code> above now also performs, but never called{" "}
+        <code>revalidatePath(&quot;/dashboard/leads&quot;)</code> afterward — unlike every other
+        mutating action in src/app/dashboard/leads/actions.ts. Pipeline-health&apos;s{" "}
+        <code>connectOnboardingIncompleteCount</code> MetricCard and the daily digest are both
+        computed server-side from <code>getLeads()</code> on <code>/dashboard/leads</code>, so an
+        operator&apos;s <strong>Check status</strong> click that flipped{" "}
+        <code>charges_enabled</code>/<code>payouts_enabled</code> true left that due-queue count
+        stale on the same page until an unrelated action revalidated the same path or the operator
+        did a hard reload — the identical missing-revalidatePath-after-a-persisting-write bug class{" "}
+        <code>buffer-schedule-action-revalidate-path</code> closed for the Buffer scheduling
+        action one session earlier. Fixed by calling <code>revalidatePath</code> immediately after
+        a successful persist (skipped on a failed/fail-closed persist, since nothing changed in the
+        store on that branch — there is nothing to invalidate).
+      </p>
+
+      <p>
         Stripe&apos;s <code>account_onboarding</code> Account Links are single-use and expire
         quickly if unopened — the original <strong>Get onboarding link</strong> flow only copied
         the freshly-minted URL to the operator&apos;s clipboard with an alert asking them to send
