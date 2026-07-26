@@ -31,6 +31,8 @@ interface LeadRow {
   stripeConnectPayoutsEnabled?: boolean;
   stripeConnectDetailsSubmitted?: boolean;
   stripeConnectStatusCheckedAt?: string;
+  bufferProfileIds?: string[];
+  bufferPostedVariantKeys?: string[];
 }
 
 function newLeadArgs(overrides: Partial<Record<string, unknown>> = {}) {
@@ -712,6 +714,111 @@ test("updateStripeConnectStatus throws on an unknown slug and patches the cached
   expect(row?.stripeConnectPayoutsEnabled).toBe(false);
   expect(row?.stripeConnectDetailsSubmitted).toBe(true);
   expect(row?.stripeConnectStatusCheckedAt).toBe("2026-07-23T00:00:00.000Z");
+});
+
+test("updateBufferProfileIds throws on an unknown slug, patches the mapped profile ids, and an empty array clears them", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.leads.updateBufferProfileIds, {
+      slug: "no-such-lead",
+      bufferProfileIds: ["profile_1"],
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).rejects.toThrow("Lead with slug no-such-lead not found");
+
+  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe" }));
+  await t.mutation(api.leads.updateBufferProfileIds, {
+    slug: "demo-cafe",
+    bufferProfileIds: ["profile_1", "profile_2"],
+    apiSecret: TEST_API_SECRET,
+  });
+  let row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.bufferProfileIds).toEqual(["profile_1", "profile_2"]);
+
+  // Full replacement, not a merge — the caller (dashboard action) computes
+  // the complete desired set, so a shorter follow-up call must actually
+  // shrink the stored list rather than union with the prior value.
+  await t.mutation(api.leads.updateBufferProfileIds, {
+    slug: "demo-cafe",
+    bufferProfileIds: [],
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.leads.getBySlug, { slug: "demo-cafe", apiSecret: TEST_API_SECRET });
+  expect(row?.bufferProfileIds).toEqual([]);
+});
+
+test("updateBufferProfileIds rejects a missing/wrong apiSecret without patching", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe" }));
+  await expect(
+    t.mutation(api.leads.updateBufferProfileIds, {
+      slug: "demo-cafe",
+      bufferProfileIds: ["profile_1"],
+      apiSecret: "wrong-secret",
+    }),
+  ).rejects.toThrow(/Unauthorized/);
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.bufferProfileIds).toBeUndefined();
+});
+
+test("updateBufferPostedVariantKeys throws on an unknown slug, patches the posted-variant set, and an empty array clears it", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.leads.updateBufferPostedVariantKeys, {
+      slug: "no-such-lead",
+      bufferPostedVariantKeys: ["2026-07:facebook_caption"],
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).rejects.toThrow("Lead with slug no-such-lead not found");
+
+  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe" }));
+  await t.mutation(api.leads.updateBufferPostedVariantKeys, {
+    slug: "demo-cafe",
+    bufferPostedVariantKeys: ["2026-07:facebook_caption", "2026-07:instagram_caption"],
+    apiSecret: TEST_API_SECRET,
+  });
+  let row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.bufferPostedVariantKeys).toEqual([
+    "2026-07:facebook_caption",
+    "2026-07:instagram_caption",
+  ]);
+
+  // Full replacement (the caller computes the pruned+merged set via
+  // pruneBufferPostedVariantKeysForPack) — a shorter follow-up call must
+  // shrink the stored set, e.g. once a new month's pack prunes stale keys.
+  await t.mutation(api.leads.updateBufferPostedVariantKeys, {
+    slug: "demo-cafe",
+    bufferPostedVariantKeys: [],
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.leads.getBySlug, { slug: "demo-cafe", apiSecret: TEST_API_SECRET });
+  expect(row?.bufferPostedVariantKeys).toEqual([]);
+});
+
+test("updateBufferPostedVariantKeys rejects a missing/wrong apiSecret without patching", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe" }));
+  await expect(
+    t.mutation(api.leads.updateBufferPostedVariantKeys, {
+      slug: "demo-cafe",
+      bufferPostedVariantKeys: ["2026-07:facebook_caption"],
+      apiSecret: "wrong-secret",
+    }),
+  ).rejects.toThrow(/Unauthorized/);
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.bufferPostedVariantKeys).toBeUndefined();
 });
 
 test("applyColdDisposition throws on an unknown slug and patches stage/outreach/snooze together, clearing via empty string", async () => {

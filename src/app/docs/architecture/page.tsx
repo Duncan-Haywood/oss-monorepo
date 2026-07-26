@@ -821,6 +821,30 @@ export default function ArchitectureDocPage() {
         depends on).
       </p>
       <p>
+        <code>convex/leads.ts</code>&apos;s <code>updateBufferProfileIds</code>/
+        <code>updateBufferPostedVariantKeys</code> mutations — backing the dormant Buffer
+        marketing-scheduling scaffold&apos;s own Convex-first writes (an operator&apos;s chosen
+        Buffer profile mapping for a lead, and the set of marketing-pack variant keys already
+        auto-posted so a repeat click never double-posts) — had a different gap than every other
+        <code>convex/leads.ts</code> mutation: their SQLite-fallback branches (
+        <code>updateLeadBufferProfileIds</code>/<code>updateLeadBufferPostedVariantKeys</code>,{" "}
+        <code>src/lib/db.ts</code>) already had direct <code>db.test.ts</code> coverage from the
+        earlier write-family series, but the Convex mutation handlers themselves — the{" "}
+        <code>requireApiSecret</code> check, the <code>by_slug</code> not-found throw, and the
+        actual <code>ctx.db.patch</code> write — were never exercised directly in{" "}
+        <code>convex/leads.test.ts</code>; every reference to either mutation name elsewhere in the
+        test suite goes through a mock that replaces Convex entirely. Structurally identical
+        sibling mutations in the same file (<code>updateStripeConnectAccountId</code>/
+        <code>updateStripeConnectStatus</code>) already had this direct coverage, so the gap was an
+        oversight rather than a deliberate omission — a broken <code>apiSecret</code> check here
+        would let any caller rewrite another lead&apos;s Buffer wiring, and a broken not-found guard
+        or field-name drift would silently no-op a save the operator&apos;s dashboard shows as
+        successful. The new <code>convex/leads.test.ts</code> cases cover the not-found throw, a
+        full-replacement patch (including that a shorter follow-up call actually shrinks the stored
+        list rather than merging with the prior value), and the <code>apiSecret</code>-rejection
+        case for both mutations.
+      </p>
+      <p>
         <code>markCheckoutSessionComplete</code>/<code>markCheckoutSessionOpen</code>/
         <code>markCompleteOpenBundleCheckoutSessionsForLead</code>/
         <code>markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer</code> are the Stripe
