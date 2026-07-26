@@ -396,16 +396,36 @@ type BillingNoticeFailureOrder = {
  * urgent — the customer has gone longest without a billing update reaching
  * them).
  *
- * Also requires orderGrantsSoldCapabilityEntitlement — a fully canceled,
- * refunded, or disputed order can never again trigger a billing-notice send
- * (no further subscription-lifecycle webhook event will ever fire for a dead
- * subscription), so a marker left over from before the churn would otherwise
- * surface on this due-queue forever with no way to clear, permanently
- * inflating the count and training the operator to ignore it. See
- * billing-notice-failed-list-entitlement-guard. The stored marker itself is
- * intentionally left untouched by cancellation/refund/dispute (per
- * billing-notice-send-failure-visibility's own convex/orders.ts replace()
- * field-preservation fix) — only this surfaced list needs the extra gate.
+ * The entitlement gate is notice-type-specific — a single shared predicate
+ * cannot work here, see billing-notice-failed-pause-gate-terminal-clear:
+ * - payment_failed / subscription_paused: gated by orderEligibleForPauseNotice
+ *   (ignores recurringCanceledAt), matching the exact predicate the webhook
+ *   itself uses to pick a recipient for these two notices
+ *   (orderEligibleForPauseNotice's own doc comment). The webhook always calls
+ *   markOrdersRecurringCanceledByCustomer BEFORE writing this failure marker
+ *   for these two types, so recurringCanceledAt is *always* freshly non-null
+ *   on the very order the marker describes — orderGrantsSoldCapabilityEntitlement
+ *   would therefore reject every such order immediately, from the moment the
+ *   marker is written, hiding it for the entire (potentially weeks-long)
+ *   dunning/pause period this due-queue exists to surface.
+ * - payment_recovered / subscription_resumed: gated by
+ *   orderGrantsSoldCapabilityEntitlement (unchanged) — these two are only
+ *   ever written once recurringCanceledAt has just been cleared, so a
+ *   still-set recurringCanceledAt here means the order was re-paused (or
+ *   never truly recovered) since, and should not surface a stale recovery
+ *   marker.
+ *
+ * A subscription that is fully, terminally deleted (customer.subscription.
+ * deleted — as opposed to a recoverable past_due/unpaid/pause_collection
+ * pause) will never fire another subscription-lifecycle webhook event, so a
+ * stale payment_failed/subscription_paused marker on such an order would
+ * otherwise surface here forever. That case is handled at the source, not by
+ * this list: the customer.subscription.deleted handler itself clears any
+ * live marker for the customer's orders (nothing will ever "succeed" to clear
+ * it naturally), so a genuinely dead order stops appearing here without this
+ * function needing to re-derive terminal-vs-recoverable cancellation from
+ * fields that don't distinguish the two. Refunded/disputed orders are still
+ * excluded regardless of notice type (both gate predicates check them).
  */
 export function listOrdersWithFailedBillingNotice(
   leads: ReadonlyArray<{ slug: string; businessName: string }>,
@@ -416,7 +436,12 @@ export function listOrdersWithFailedBillingNotice(
   for (const order of orders) {
     if (!orderHasFailedBillingNotice(order)) continue;
     if (!order.lastBillingNoticeSendFailedType) continue;
-    if (!orderGrantsSoldCapabilityEntitlement(order)) continue;
+    const entitled =
+      order.lastBillingNoticeSendFailedType === "payment_failed" ||
+      order.lastBillingNoticeSendFailedType === "subscription_paused"
+        ? orderEligibleForPauseNotice(order)
+        : orderGrantsSoldCapabilityEntitlement(order);
+    if (!entitled) continue;
     failed.push({
       slug: order.leadSlug,
       businessName: businessNameBySlug.get(order.leadSlug) ?? order.leadSlug,

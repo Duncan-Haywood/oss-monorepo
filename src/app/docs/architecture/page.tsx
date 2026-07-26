@@ -1556,6 +1556,37 @@ export default function ArchitectureDocPage() {
         needed the extra gate.
       </p>
       <p>
+        That entitlement guard itself hid exactly the two notice types it exists to surface (
+        <code>billing-notice-failed-pause-gate-terminal-clear</code>): the webhook always calls{" "}
+        <code>markOrdersRecurringCanceledByCustomer</code> BEFORE writing the failure marker for the
+        <code>payment_failed</code> (dunning) and <code>subscription_paused</code> notices — so{" "}
+        <code>recurringCanceledAt</code> is <em>always</em> freshly non-null on the very order the
+        marker describes, and <code>orderGrantsSoldCapabilityEntitlement</code> (which requires it
+        unset) rejected every such order from the instant the marker was written, hiding a live
+        payment-failure signal for the entire — potentially weeks-long — dunning/pause window this
+        due-queue exists to surface. This is exactly why <code>orderEligibleForPauseNotice</code>{" "}
+        already exists as the webhook&apos;s own recipient-selection gate for these two notice
+        types; the read side had simply never been given the matching predicate. Fixed by branching{" "}
+        <code>listOrdersWithFailedBillingNotice</code>&apos;s gate on{" "}
+        <code>lastBillingNoticeSendFailedType</code>: <code>payment_failed</code>/
+        <code>subscription_paused</code> now use <code>orderEligibleForPauseNotice</code> (ignores{" "}
+        <code>recurringCanceledAt</code>, still excludes refunded/disputed);{" "}
+        <code>payment_recovered</code>/<code>subscription_resumed</code> keep{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code> unchanged, since those two are only ever
+        written once <code>recurringCanceledAt</code> has just been cleared. That reopened the
+        original churn-visibility gap for a subscription that is fully, terminally deleted (as
+        opposed to a recoverable <code>past_due</code>/<code>unpaid</code>/<code>pause_collection</code>{" "}
+        pause) — no further subscription-lifecycle webhook event will ever fire for it, so a stale{" "}
+        <code>payment_failed</code>/<code>subscription_paused</code> marker would otherwise surface
+        forever with the new, looser gate. Closed at the source instead of on the list: the{" "}
+        <code>customer.subscription.deleted</code> handler now clears any live marker on that
+        customer&apos;s orders by re-calling the existing{" "}
+        <code>recordBillingNoticeSendOutcome(..., success: true)</code> — its documented clear path —
+        for each order still carrying one, rather than adding a new mutation. Best-effort, same as
+        every other notify-side-effect in this handler: a cleanup failure logs and stays{" "}
+        <code>200</code>, never a retry loop.
+      </p>
+      <p>
         Every Checkout Session is tracked in <code>checkout_sessions</code> (
         <code>src/lib/checkout/</code>) as <code>open</code> until the completed webhook flips it
         to <code>complete</code>. Create-path tracking (

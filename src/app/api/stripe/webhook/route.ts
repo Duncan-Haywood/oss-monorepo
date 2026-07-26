@@ -30,6 +30,7 @@ import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 import type { OrderRecord } from "@/lib/orders/types";
+import { orderHasFailedBillingNotice } from "@/lib/orders/types";
 import {
   invoiceIsSubscriptionRenewalCharge,
   invoicePaidMayRestoreRecurringEntitlement,
@@ -1171,6 +1172,39 @@ export async function POST(request: Request) {
         );
         const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
         return NextResponse.json(failure.body, { status: failure.status });
+      }
+
+      // Clear any live payment_failed/subscription_paused billing-notice
+      // failure marker for this customer's orders — a fully deleted
+      // Subscription will never fire another subscription-lifecycle webhook
+      // event, so a marker from a pre-cancellation dunning/pause-notice
+      // failure would otherwise never get a success:true send to clear it,
+      // surfacing on the billing-notice-failed due-queue forever (see
+      // billing-notice-failed-pause-gate-terminal-clear). Reuses
+      // recordBillingNoticeSendOutcome's existing success:true clear path —
+      // no new mutation needed. Best-effort: never turn this cleanup into a
+      // 5xx/retry loop, same as every other notify-only side effect here.
+      try {
+        const { getOrdersByStripeCustomerId, recordBillingNoticeSendOutcome } = await import(
+          "@/lib/db"
+        );
+        const orders = await getOrdersByStripeCustomerId(customerId);
+        for (const order of orders) {
+          if (!orderHasFailedBillingNotice(order) || !order.lastBillingNoticeSendFailedType) {
+            continue;
+          }
+          await recordBillingNoticeSendOutcome(
+            order.stripeSessionId,
+            order.lastBillingNoticeSendFailedType,
+            true,
+            canceledAt,
+          );
+        }
+      } catch (e) {
+        console.error(
+          `Failed to clear stale billing-notice failure marker(s) for customer ${customerId} after subscription ${subscription.id} deleted`,
+          e,
+        );
       }
       break;
     }

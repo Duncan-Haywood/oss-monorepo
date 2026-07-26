@@ -517,6 +517,75 @@ describe("POST /api/stripe/webhook", () => {
       expect(json.step).toBe("orders_recurring_canceled");
       expect(json.received).toBe(false);
     });
+
+    it("clears a live payment_failed/subscription_paused billing-notice marker for this customer's orders — see billing-notice-failed-pause-gate-terminal-clear", async () => {
+      // A fully deleted Subscription will never fire another lifecycle event,
+      // so a marker left over from a pre-cancellation dunning/pause-notice
+      // failure would never otherwise get a success:true send to clear it.
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "churned-cafe",
+          stripeSessionId: "cs_churned",
+          tier: "growth",
+          commerceAddon: false,
+          lastBillingNoticeSendFailedAt: 1_720_000_000_000,
+          lastBillingNoticeSendFailedType: "payment_failed",
+        },
+        {
+          leadSlug: "clean-cafe",
+          stripeSessionId: "cs_clean",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ]);
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: {
+          object: { id: "sub_test_2", customer: "cus_test_2", ended_at: 1_720_000_500 },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getOrdersByStripeCustomerId).toHaveBeenCalledWith("cus_test_2");
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledTimes(1);
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_churned",
+        "payment_failed",
+        true,
+        1_720_000_500_000,
+      );
+    });
+
+    it("does not throw/5xx and skips the clear when no order has a live marker", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        { leadSlug: "clean-cafe", stripeSessionId: "cs_clean", tier: "growth", commerceAddon: false },
+      ]);
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: { object: { id: "sub_test_3", customer: "cus_test_3" } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordBillingNoticeSendOutcome).not.toHaveBeenCalled();
+    });
+
+    it("stays 200 even when the marker-clear cleanup itself throws (best-effort, never retried)", async () => {
+      getOrdersByStripeCustomerId.mockRejectedValueOnce(new Error("read failed"));
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: { object: { id: "sub_test_4", customer: "cus_test_4" } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(200);
+      expect(json).toEqual({ received: true });
+    });
   });
 
   describe("customer.subscription.created|updated CRM reactivate", () => {

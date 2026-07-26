@@ -440,6 +440,10 @@ describe("listOrdersWithFailedBillingNotice", () => {
   const failedAt = 1_720_000_000_000;
 
   it("lists orders whose most recent billing-notice send failed (oldest failure first)", () => {
+    // recurringCanceledAt is set on both — realistic for payment_failed /
+    // subscription_paused, since the webhook always marks recurring-canceled
+    // BEFORE writing this marker for these two types (see the doc comment on
+    // listOrdersWithFailedBillingNotice) — and must not exclude either row.
     const failed = listOrdersWithFailedBillingNotice(
       [
         { slug: "newer", businessName: "Newer Cafe" },
@@ -451,6 +455,7 @@ describe("listOrdersWithFailedBillingNotice", () => {
           stripeSessionId: "cs_new",
           tier: "growth",
           commerceAddon: false,
+          recurringCanceledAt: failedAt + 10_000,
           lastBillingNoticeSendFailedAt: failedAt + 10_000,
           lastBillingNoticeSendFailedType: "payment_failed",
         },
@@ -459,6 +464,7 @@ describe("listOrdersWithFailedBillingNotice", () => {
           stripeSessionId: "cs_old",
           tier: "complete",
           commerceAddon: false,
+          recurringCanceledAt: failedAt,
           lastBillingNoticeSendFailedAt: failedAt,
           lastBillingNoticeSendFailedType: "subscription_paused",
         },
@@ -515,20 +521,15 @@ describe("listOrdersWithFailedBillingNotice", () => {
     expect(failed[0]?.businessName).toBe("unmatched");
   });
 
-  it("excludes a fully canceled, refunded, or disputed order even with a live failure marker", () => {
+  it("excludes a refunded or disputed order even with a live payment_failed/subscription_paused marker", () => {
     const baseFailure = {
       stripeSessionId: "cs_gone",
       tier: "growth" as const,
       commerceAddon: false,
+      recurringCanceledAt: failedAt + 1_000,
       lastBillingNoticeSendFailedAt: failedAt,
       lastBillingNoticeSendFailedType: "payment_failed" as const,
     };
-    expect(
-      listOrdersWithFailedBillingNotice(
-        [{ slug: "canceled", businessName: "Canceled Cafe" }],
-        [{ leadSlug: "canceled", ...baseFailure, recurringCanceledAt: failedAt + 1_000 }],
-      ),
-    ).toEqual([]);
     expect(
       listOrdersWithFailedBillingNotice(
         [{ slug: "refunded", businessName: "Refunded Cafe" }],
@@ -543,8 +544,14 @@ describe("listOrdersWithFailedBillingNotice", () => {
     ).toEqual([]);
   });
 
-  it("still surfaces an order mid-dunning that has not been canceled/refunded/disputed", () => {
-    const failed = listOrdersWithFailedBillingNotice(
+  it("still surfaces a payment_failed/subscription_paused order whose pause write already ran (recurringCanceledAt set) and is not refunded/disputed", () => {
+    // The webhook always marks recurring-canceled BEFORE writing the failure
+    // marker for these two notice types, so recurringCanceledAt is *always*
+    // non-null on a real mid-dunning/mid-pause order — the prior fixture
+    // shape (omitting recurringCanceledAt) never occurs in production and
+    // would not have caught the entitlement gate rejecting every such order
+    // outright. See billing-notice-failed-pause-gate-terminal-clear.
+    const failedPaymentFailed = listOrdersWithFailedBillingNotice(
       [{ slug: "mid-dunning", businessName: "Mid Dunning Cafe" }],
       [
         {
@@ -552,13 +559,70 @@ describe("listOrdersWithFailedBillingNotice", () => {
           stripeSessionId: "cs_dunning",
           tier: "complete",
           commerceAddon: false,
+          recurringCanceledAt: failedAt,
           lastBillingNoticeSendFailedAt: failedAt,
           lastBillingNoticeSendFailedType: "payment_failed",
         },
       ],
     );
-    expect(failed).toHaveLength(1);
-    expect(failed[0]?.slug).toBe("mid-dunning");
+    expect(failedPaymentFailed).toHaveLength(1);
+    expect(failedPaymentFailed[0]?.slug).toBe("mid-dunning");
+
+    const failedSubscriptionPaused = listOrdersWithFailedBillingNotice(
+      [{ slug: "mid-pause", businessName: "Mid Pause Cafe" }],
+      [
+        {
+          leadSlug: "mid-pause",
+          stripeSessionId: "cs_pause",
+          tier: "growth",
+          commerceAddon: true,
+          recurringCanceledAt: failedAt,
+          lastBillingNoticeSendFailedAt: failedAt,
+          lastBillingNoticeSendFailedType: "subscription_paused",
+        },
+      ],
+    );
+    expect(failedSubscriptionPaused).toHaveLength(1);
+    expect(failedSubscriptionPaused[0]?.slug).toBe("mid-pause");
+  });
+
+  it("excludes a recurring-canceled order with a live payment_recovered/subscription_resumed marker", () => {
+    // Unlike payment_failed/subscription_paused, these two types are only
+    // ever written once recurringCanceledAt was just cleared — a still-set
+    // recurringCanceledAt here means the order was re-paused since, so this
+    // stays gated by orderGrantsSoldCapabilityEntitlement (unchanged).
+    const baseFailure = {
+      stripeSessionId: "cs_recovered_then_paused",
+      tier: "growth" as const,
+      commerceAddon: false,
+      recurringCanceledAt: failedAt + 1_000,
+      lastBillingNoticeSendFailedAt: failedAt,
+    };
+    expect(
+      listOrdersWithFailedBillingNotice(
+        [{ slug: "re-paused", businessName: "Re-paused Cafe" }],
+        [
+          {
+            leadSlug: "re-paused",
+            ...baseFailure,
+            lastBillingNoticeSendFailedType: "payment_recovered",
+          },
+        ],
+      ),
+    ).toEqual([]);
+    expect(
+      listOrdersWithFailedBillingNotice(
+        [{ slug: "re-paused-2", businessName: "Re-paused Cafe 2" }],
+        [
+          {
+            leadSlug: "re-paused-2",
+            ...baseFailure,
+            stripeSessionId: "cs_resumed_then_paused",
+            lastBillingNoticeSendFailedType: "subscription_resumed",
+          },
+        ],
+      ),
+    ).toEqual([]);
   });
 
   it("excludes a Starter-only (non-recurring) order even with a stray failure marker", () => {
