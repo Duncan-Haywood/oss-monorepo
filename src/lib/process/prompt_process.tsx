@@ -583,4 +583,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "process-log-archive-15-19-resplit",
     ),
   },
+  {
+    date: "2026-07-26",
+    branch: "claude/upbeat-dijkstra-k8zkvl",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip b4ffa3d9 (PR #823, process-log-archive-15-19-resplit, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green (npm ci, npm run build, npm run lint, npm test — 3325/3325 passed, 209 files). A fold-scan of the newest ~15 claude/* remote branches by push time found only the documented squash-merge-artifact pattern (already-merged content under different SHAs) — no live fold candidate — and mcp__github__list_pull_requests confirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). Given tiers 1-8 have gone clean across dozens of same-day iterations, dispatched a research agent explicitly steered toward business-value/conversion levers (pricing/checkout copy, upsell messaging, SEO content depth) rather than another correctness micro-nit, since the swarm has been grinding the correctness axis very hard already and the user's explicit goal is a 'profitable and growing business'.",
+    shipped: [
+      "src/lib/pricing/bundles.ts — added `tagline`/`features` to BundleDefinition and each BUNDLES entry, making bundle marketing copy single-sourced the same way price figures already are (see bundle-features-single-source-of-truth in BUSINESS_DECISIONS for the full gap description and fix rationale).",
+      "src/app/page.tsx — bundleMarketingCopy now holds only page-specific display state (id + highlighted); tagline/features render from getBundle(copy.id) instead of a second hand-typed copy.",
+      "src/components/preview/tier-upsell.tsx — the /preview/[slug] tier-upsell cards (the actual page a warm, already-interested lead lands on) now render each bundle's tagline and full feature-bullet list, plus a 'Full tier details' link to /docs/product-bundles — previously showed only name + price with no feature copy and no link anywhere.",
+      "src/lib/pricing/bundles.test.ts — two new cases: every tier has a non-empty tagline and non-empty feature strings; Growth/Complete's first feature is the literal 'Everything in Starter'/'Everything in Growth' tier-comparison chain.",
+      "Verified: npm run lint (clean, includes tsc via next lint's type-aware rules) + npx vitest run src/lib/pricing (39 passed, up from 37) + full suite (3327 passed, up from 3325, 209 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split) + npm run dev smoke check: curled /preview/example-bakery and confirmed the new feature bullets and 'Full tier details' link are present (previously absent), and curled / to confirm the homepage's pricing cards render unchanged. Killed the dev server afterward.",
+      "Deliberately left out of scope: checkout-form.tsx's tier radio list is price-only but already links to /docs/product-bundles (a smaller gap than TierUpsell's total absence of both copy and link) — a future iteration can add inline bullets there if warranted. /docs/product-bundles' own longer prose was left untouched. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a conversion-copy fix on the highest-intent acquisition surface, not any of the five gated items. Diff-gate anchor moves to b4ffa3d9 (this session's own starting tip, post-PR-#823).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "bundle-features-single-source-of-truth",
+    ),
+  },
 ];
