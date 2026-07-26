@@ -3573,6 +3573,39 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     });
   });
 
+  describe("isEmailSuppressed (CAN-SPAM opt-out gate read at every outbound send)", () => {
+    it("goes straight to SQLite when no Convex client is configured, normalizing case/whitespace", async () => {
+      const db = await loadDb(undefined);
+      await db.suppressEmail("normalized-gate@example.com", "unsubscribe");
+
+      expect(convexQuery).not.toHaveBeenCalled();
+      await expect(
+        db.isEmailSuppressed("  Normalized-Gate@Example.com  "),
+      ).resolves.toBe(true);
+      await expect(db.isEmailSuppressed("never-suppressed@example.com")).resolves.toBe(
+        false,
+      );
+    });
+
+    it("returns Convex's boolean result directly on success", async () => {
+      convexQuery.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      await expect(db.isEmailSuppressed("convex-gate@example.com")).resolves.toBe(true);
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls back to SQLite and still reports correctly when the Convex query throws", async () => {
+      const fallback = await loadDb(undefined);
+      await fallback.suppressEmail("convex-outage-gate@example.com", "bounce");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(db.isEmailSuppressed("convex-outage-gate@example.com")).resolves.toBe(
+        true,
+      );
+    });
+  });
+
   describe("suppressEmail / unsuppressEmail (CAN-SPAM opt-out list, reason-upgrade-not-downgrade guard, requireConvex fail-closed)", () => {
     it("suppressEmail returns after a successful Convex mutation without touching SQLite", async () => {
       convexMutation.mockResolvedValueOnce(undefined);
