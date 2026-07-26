@@ -379,6 +379,11 @@ export interface OrderBillingNoticeSendFailure {
 type BillingNoticeFailureOrder = {
   leadSlug: string;
   stripeSessionId?: string;
+  tier: string;
+  commerceAddon: boolean;
+  recurringCanceledAt?: number | null;
+  refundedAt?: string;
+  disputedAt?: string;
   lastBillingNoticeSendFailedAt?: number | null;
   lastBillingNoticeSendFailedType?: BillingNoticeType | null;
 };
@@ -390,6 +395,17 @@ type BillingNoticeFailureOrder = {
  * billing-notice-send-failure-visibility. Sorted oldest failure first (most
  * urgent — the customer has gone longest without a billing update reaching
  * them).
+ *
+ * Also requires orderGrantsSoldCapabilityEntitlement — a fully canceled,
+ * refunded, or disputed order can never again trigger a billing-notice send
+ * (no further subscription-lifecycle webhook event will ever fire for a dead
+ * subscription), so a marker left over from before the churn would otherwise
+ * surface on this due-queue forever with no way to clear, permanently
+ * inflating the count and training the operator to ignore it. See
+ * billing-notice-failed-list-entitlement-guard. The stored marker itself is
+ * intentionally left untouched by cancellation/refund/dispute (per
+ * billing-notice-send-failure-visibility's own convex/orders.ts replace()
+ * field-preservation fix) — only this surfaced list needs the extra gate.
  */
 export function listOrdersWithFailedBillingNotice(
   leads: ReadonlyArray<{ slug: string; businessName: string }>,
@@ -400,6 +416,7 @@ export function listOrdersWithFailedBillingNotice(
   for (const order of orders) {
     if (!orderHasFailedBillingNotice(order)) continue;
     if (!order.lastBillingNoticeSendFailedType) continue;
+    if (!orderGrantsSoldCapabilityEntitlement(order)) continue;
     failed.push({
       slug: order.leadSlug,
       businessName: businessNameBySlug.get(order.leadSlug) ?? order.leadSlug,

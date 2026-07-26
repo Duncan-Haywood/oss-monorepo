@@ -449,12 +449,16 @@ describe("listOrdersWithFailedBillingNotice", () => {
         {
           leadSlug: "newer",
           stripeSessionId: "cs_new",
+          tier: "growth",
+          commerceAddon: false,
           lastBillingNoticeSendFailedAt: failedAt + 10_000,
           lastBillingNoticeSendFailedType: "payment_failed",
         },
         {
           leadSlug: "older",
           stripeSessionId: "cs_old",
+          tier: "complete",
+          commerceAddon: false,
           lastBillingNoticeSendFailedAt: failedAt,
           lastBillingNoticeSendFailedType: "subscription_paused",
         },
@@ -474,7 +478,7 @@ describe("listOrdersWithFailedBillingNotice", () => {
     expect(
       listOrdersWithFailedBillingNotice(
         [{ slug: "clean", businessName: "Clean Cafe" }],
-        [{ leadSlug: "clean", stripeSessionId: "cs_1" }],
+        [{ leadSlug: "clean", stripeSessionId: "cs_1", tier: "growth", commerceAddon: false }],
       ),
     ).toEqual([]);
     expect(
@@ -484,6 +488,8 @@ describe("listOrdersWithFailedBillingNotice", () => {
           {
             leadSlug: "cleared",
             stripeSessionId: "cs_2",
+            tier: "growth",
+            commerceAddon: false,
             lastBillingNoticeSendFailedAt: null,
             lastBillingNoticeSendFailedType: null,
           },
@@ -499,12 +505,81 @@ describe("listOrdersWithFailedBillingNotice", () => {
         {
           leadSlug: "unmatched",
           stripeSessionId: "cs_3",
+          tier: "growth",
+          commerceAddon: false,
           lastBillingNoticeSendFailedAt: failedAt,
           lastBillingNoticeSendFailedType: "payment_recovered",
         },
       ],
     );
     expect(failed[0]?.businessName).toBe("unmatched");
+  });
+
+  it("excludes a fully canceled, refunded, or disputed order even with a live failure marker", () => {
+    const baseFailure = {
+      stripeSessionId: "cs_gone",
+      tier: "growth" as const,
+      commerceAddon: false,
+      lastBillingNoticeSendFailedAt: failedAt,
+      lastBillingNoticeSendFailedType: "payment_failed" as const,
+    };
+    expect(
+      listOrdersWithFailedBillingNotice(
+        [{ slug: "canceled", businessName: "Canceled Cafe" }],
+        [{ leadSlug: "canceled", ...baseFailure, recurringCanceledAt: failedAt + 1_000 }],
+      ),
+    ).toEqual([]);
+    expect(
+      listOrdersWithFailedBillingNotice(
+        [{ slug: "refunded", businessName: "Refunded Cafe" }],
+        [{ leadSlug: "refunded", ...baseFailure, refundedAt: "2026-01-01T00:00:00.000Z" }],
+      ),
+    ).toEqual([]);
+    expect(
+      listOrdersWithFailedBillingNotice(
+        [{ slug: "disputed", businessName: "Disputed Cafe" }],
+        [{ leadSlug: "disputed", ...baseFailure, disputedAt: "2026-01-01T00:00:00.000Z" }],
+      ),
+    ).toEqual([]);
+  });
+
+  it("still surfaces an order mid-dunning that has not been canceled/refunded/disputed", () => {
+    const failed = listOrdersWithFailedBillingNotice(
+      [{ slug: "mid-dunning", businessName: "Mid Dunning Cafe" }],
+      [
+        {
+          leadSlug: "mid-dunning",
+          stripeSessionId: "cs_dunning",
+          tier: "complete",
+          commerceAddon: false,
+          lastBillingNoticeSendFailedAt: failedAt,
+          lastBillingNoticeSendFailedType: "payment_failed",
+        },
+      ],
+    );
+    expect(failed).toHaveLength(1);
+    expect(failed[0]?.slug).toBe("mid-dunning");
+  });
+
+  it("excludes a Starter-only (non-recurring) order even with a stray failure marker", () => {
+    // Starter is a one-time payment with no subscription lifecycle, so it can
+    // never legitimately carry one of these four notice types in practice —
+    // orderGrantsSoldCapabilityEntitlement correctly rejects it as belt-and-suspenders.
+    expect(
+      listOrdersWithFailedBillingNotice(
+        [{ slug: "starter", businessName: "Starter Cafe" }],
+        [
+          {
+            leadSlug: "starter",
+            stripeSessionId: "cs_starter",
+            tier: "starter",
+            commerceAddon: false,
+            lastBillingNoticeSendFailedAt: failedAt,
+            lastBillingNoticeSendFailedType: "payment_failed",
+          },
+        ],
+      ),
+    ).toEqual([]);
   });
 });
 

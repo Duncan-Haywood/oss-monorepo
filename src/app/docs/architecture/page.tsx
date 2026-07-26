@@ -1534,6 +1534,28 @@ export default function ArchitectureDocPage() {
         <code>lifetimeRevenueUsd</code>/<code>lastRenewalInvoiceId</code>.
       </p>
       <p>
+        <code>listOrdersWithFailedBillingNotice</code> itself had a follow-on gap (
+        <code>billing-notice-failed-list-entitlement-guard</code>): it never excluded an order that
+        had since fully canceled, been refunded, or been disputed. Because the marker is
+        deliberately preserved across those three mutations (see the paragraph above), a subscriber
+        who churned right after a billing-notice send failure — card declined, dunning email failed
+        to send, customer then canceled — left a stale failure marker with no way to ever clear: no
+        further subscription-lifecycle webhook event fires for a dead subscription, so{" "}
+        <code>success: true</code> never arrives to clear it. That order surfaced on the
+        pipeline-health MetricCard and daily digest section permanently, inflating the actionable
+        count forever and risking training the operator to ignore the whole due-queue — masking a
+        genuinely-actionable failure for a still-active paying customer. Fixed by widening{" "}
+        <code>listOrdersWithFailedBillingNotice</code>&apos;s order parameter type to include{" "}
+        <code>tier</code>/<code>commerceAddon</code>/<code>recurringCanceledAt</code>/
+        <code>refundedAt</code>/<code>disputedAt</code> (already present on the full order records
+        both call sites already pass — no new plumbing) and gating each candidate on{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code>, the same &quot;is this still a live
+        paying relationship&quot; predicate its two closest siblings (
+        <code>listMarketingPacksMissingClientSend</code>, <code>listMarketingPacksMissingBufferPost</code>
+        ) already use. The stored marker itself stays untouched — only the surfaced due-queue list
+        needed the extra gate.
+      </p>
+      <p>
         Every Checkout Session is tracked in <code>checkout_sessions</code> (
         <code>src/lib/checkout/</code>) as <code>open</code> until the completed webhook flips it
         to <code>complete</code>. Create-path tracking (
