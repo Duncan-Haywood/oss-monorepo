@@ -232,11 +232,86 @@ describe("markCommerceOrderPaidOutAction", () => {
     expect(markCommerceOrderPaidOut).not.toHaveBeenCalled();
   });
 
-  it("reports failure (and still revalidates) when a refund/dispute lands in the race window between read and write", async () => {
+  it("reports the ACTUAL reason (refund) when a refund lands in the race window between read and write", async () => {
     // The action's own read sees a clean order (no refundedAt/disputedAt), so
     // the pre-write guards above pass — but markCommerceOrderPaidOut's own
-    // atomic re-check finds the order was refunded/disputed a moment later
-    // (an independent Stripe webhook) and returns false without writing.
+    // atomic re-check finds the order was refunded a moment later (an
+    // independent Stripe webhook) and returns false without writing. The
+    // action re-fetches to report the real current state rather than a
+    // generic guess.
+    getCommerceOrderByStripeSessionId
+      .mockReset()
+      .mockResolvedValueOnce(unpaidOrder)
+      .mockResolvedValueOnce({
+        ...unpaidOrder,
+        refundedAt: "2026-07-14T09:05:00.000Z",
+      });
+    markCommerceOrderPaidOut.mockResolvedValue(false);
+    const { markCommerceOrderPaidOutAction } = await import("./actions");
+    const res = await markCommerceOrderPaidOutAction("cs_test_commerce_paid");
+
+    expect(res).toEqual({
+      success: false,
+      error: "Order was refunded to the customer — nothing is owed to the client",
+    });
+    expect(markCommerceOrderPaidOut).toHaveBeenCalledOnce();
+    expect(getCommerceOrderByStripeSessionId).toHaveBeenCalledTimes(2);
+    // Revalidate anyway — the underlying order state genuinely changed
+    // (the refund that caused the false return), so the dashboard
+    // should reflect it rather than keep showing stale "owed" state.
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("reports the ACTUAL reason (dispute) when a dispute lands in the race window between read and write", async () => {
+    getCommerceOrderByStripeSessionId
+      .mockReset()
+      .mockResolvedValueOnce(unpaidOrder)
+      .mockResolvedValueOnce({
+        ...unpaidOrder,
+        disputedAt: "2026-07-14T09:05:00.000Z",
+      });
+    markCommerceOrderPaidOut.mockResolvedValue(false);
+    const { markCommerceOrderPaidOutAction } = await import("./actions");
+    const res = await markCommerceOrderPaidOutAction("cs_test_commerce_paid");
+
+    expect(res).toEqual({
+      success: false,
+      error: "Order is disputed with Stripe — nothing is owed to the client",
+    });
+    expect(getCommerceOrderByStripeSessionId).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports 'already paid out' — not refund/dispute — when a concurrent duplicate click (two tabs) wins the race", async () => {
+    // Neither refundedAt nor disputedAt is set on re-fetch — the OTHER call's
+    // own markCommerceOrderPaidOut succeeded first and set paidOutAt, so this
+    // call's atomic guard fails on the paidOutAt clause, not refund/dispute.
+    // Before this fix, the action reported a false "refunded or disputed"
+    // message for this exact case.
+    getCommerceOrderByStripeSessionId
+      .mockReset()
+      .mockResolvedValueOnce(unpaidOrder)
+      .mockResolvedValueOnce({
+        ...unpaidOrder,
+        paidOutAt: "2026-07-14T09:05:00.000Z",
+      });
+    markCommerceOrderPaidOut.mockResolvedValue(false);
+    const { markCommerceOrderPaidOutAction } = await import("./actions");
+    const res = await markCommerceOrderPaidOutAction("cs_test_commerce_paid");
+
+    expect(res).toEqual({
+      success: false,
+      error:
+        "This order was already marked paid out (likely from another tab or a duplicate click) — no action needed",
+    });
+    expect(getCommerceOrderByStripeSessionId).toHaveBeenCalledTimes(2);
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("falls back to the generic race message when the re-fetch is inconclusive (e.g. order vanished)", async () => {
+    getCommerceOrderByStripeSessionId
+      .mockReset()
+      .mockResolvedValueOnce(unpaidOrder)
+      .mockResolvedValueOnce(null);
     markCommerceOrderPaidOut.mockResolvedValue(false);
     const { markCommerceOrderPaidOutAction } = await import("./actions");
     const res = await markCommerceOrderPaidOutAction("cs_test_commerce_paid");
@@ -246,11 +321,6 @@ describe("markCommerceOrderPaidOutAction", () => {
       error:
         "Order was refunded or disputed after this page loaded — refresh and check its status; nothing was paid out",
     });
-    expect(markCommerceOrderPaidOut).toHaveBeenCalledOnce();
-    // Revalidate anyway — the underlying order state genuinely changed
-    // (the refund/dispute that caused the false return), so the dashboard
-    // should reflect it rather than keep showing stale "owed" state.
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
   it("persists paidOutAt with COMMERCE_PAID_OUT_CONVEX_PRIMARY and revalidates", async () => {

@@ -787,6 +787,19 @@ export default function ArchitectureDocPage() {
         the mark-and-clear pairs above.
       </p>
       <p>
+        That atomic guard fails closed for three distinct causes — a refund, a dispute, or a
+        concurrent duplicate <em>Mark paid out</em> click (two dashboard tabs open, or a click
+        landing before the button&apos;s pending-disabled state takes effect) — but{" "}
+        <code>markCommerceOrderPaidOutAction</code> used to report a single hardcoded
+        &quot;refunded or disputed&quot; message for all three (
+        <code>commerce-order-paid-out-race-message-accuracy</code>). An operator who won the race
+        against their own other tab would see a false claim that Stripe reversed money on an
+        order that was, in fact, successfully paid out — by the other click — with no refund or
+        dispute involved. The action now re-fetches the order after a failed write and reports
+        the actual current state: already paid out, refunded, or disputed, falling back to the
+        original generic wording only if none of those fields explain the failure.
+      </p>
+      <p>
         <code>markMarketingPackSentToClient</code>/<code>markCommerceOrderClientReceiptSent</code>/
         <code>markClientVoicePackSentToClient</code> share a third shape: a single-field sent-marker
         guarded by <code>WHERE ... IS NULL OR ... = &apos;&apos;</code> (
