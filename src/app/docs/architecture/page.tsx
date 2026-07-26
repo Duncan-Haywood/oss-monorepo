@@ -1067,6 +1067,27 @@ export default function ArchitectureDocPage() {
         new tests before being reverted.
       </p>
       <p>
+        <code>listClientInquiries</code>/<code>listUnrepliedInquiries</code>/
+        <code>listClientInquiriesBySlug</code>/<code>listCommerceCheckoutInquiriesBySlug</code> and{" "}
+        <code>listMarketingPacksForMonth</code>/<code>listClientVoicePacks</code> closed out the
+        remaining read-family candidates named by the prior iteration. Each shares the same
+        untested-SQLite-fallback shape: an <code>ORDER BY createdAt</code>/<code>generatedAt DESC</code>{" "}
+        that must stay newest-first to match its Convex twin, and — for the slug/status/
+        source-scoped functions — a <code>WHERE</code> clause that must not leak another lead&apos;s
+        inquiries or a non-<code>commerce_checkout</code> inquiry into a money-adjacent dedup list (
+        <code>listCommerceCheckoutInquiriesBySlug</code> backs Commerce Buy now webhook session
+        dedup). <code>insertClientInquiry</code> always stamps <code>createdAt</code> from the real
+        clock with no override parameter, so the four inquiry-list ordering tests backdate a seeded
+        row via a second raw <code>node:sqlite</code> connection to the same temp-dir database file
+        rather than a lower-level pure-helper extraction —{" "}
+        <code>upsertMarketingPack</code>/<code>upsertClientVoicePack</code> already accept{" "}
+        <code>generatedAt</code> as a plain input field, so their ordering tests needed no such
+        workaround. A dropped <code>DESC</code> sort was verified to fail the new{" "}
+        <code>listClientInquiries</code> test before being reverted. With this pass, every read
+        function named across the db-ts SQLite-fallback test-coverage series has direct
+        orchestration coverage.
+      </p>
+      <p>
         <code>recordLeadPayment</code> and <code>insertCommerceOrder</code> — the bundle and
         Commerce Buy now money-ledger writes every Stripe checkout ultimately funnels through —
         were the last remaining <em>money-critical</em> gap in this series: both are idempotent on{" "}

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import type { Lead } from "./leads/types";
 import type { DeployHandoff } from "./deploy/types";
 
@@ -206,6 +207,25 @@ import type { DeployHandoff } from "./deploy/types";
  * customer's own domain, with nothing in the test suite to catch it.
  * listDeployHandoffs shares the family's SQLite fallback (`ORDER BY
  * createdAt DESC`) with no automated proof it actually sorts newest-first.
+ *
+ * listClientInquiries / listUnrepliedInquiries / listClientInquiriesBySlug /
+ * listCommerceCheckoutInquiriesBySlug (~2154, ~2184, ~2207, ~2245) and
+ * listMarketingPacksForMonth / listClientVoicePacks (~2801, ~3593) are the
+ * remaining read-family candidates the db-ts-deploy-handoff-read-family
+ * iteration named as still open. Each has the same untested hand-written
+ * SQLite-fallback `.all()` shape: an ORDER BY createdAt/generatedAt DESC that
+ * must stay newest-first to match its Convex twin, and — for the
+ * slug/status/source-scoped ones — a WHERE clause that must not leak another
+ * lead's inquiries or a non-commerce_checkout inquiry into a money-adjacent
+ * dedup list (listCommerceCheckoutInquiriesBySlug backs Commerce Buy now
+ * webhook session dedup). insertClientInquiry always stamps createdAt from
+ * the real clock with no override parameter, so the ordering tests for the
+ * four inquiry list functions backdate a seeded row's createdAt via a second
+ * raw node:sqlite connection to the same temp-dir database file
+ * (backdateClientInquiryCreatedAt) rather than a lower-level pure-helper
+ * extraction — upsertMarketingPack/upsertClientVoicePack already accept
+ * generatedAt as a plain input field, so their ordering tests need no such
+ * workaround.
  */
 
 vi.mock("server-only", () => ({}));
@@ -287,6 +307,22 @@ function testDeployHandoff(leadSlug: string, overrides: Partial<DeployHandoff> =
     updatedAt: now,
     ...overrides,
   };
+}
+
+/**
+ * insertClientInquiry always stamps createdAt from `new Date().toISOString()`
+ * with no override parameter, so an ordering test needs a second raw
+ * node:sqlite connection to the same temp-dir database file to backdate a
+ * seeded row after the fact — mirrors this suite's real-module-plus-real-file
+ * approach rather than reimplementing db.ts's insert logic a second time.
+ */
+function backdateClientInquiryCreatedAt(createdAt: string, id: string) {
+  const raw = new DatabaseSync(path.join(tmpDir, "local.db"));
+  try {
+    raw.prepare("UPDATE client_inquiries SET createdAt = ? WHERE id = ?").run(createdAt, id);
+  } finally {
+    raw.close();
+  }
 }
 
 describe("db.ts dual-backend orchestration (real module, mocked Convex client)", () => {
@@ -3621,6 +3657,284 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         "2026-07-02T00:00:00.000Z",
       );
       expect(result).toBe(false);
+    });
+  });
+
+  describe("listClientInquiries (SQLite fallback newest-first ordering, capped page)", () => {
+    function testInquiryInput(
+      leadSlug: string,
+      overrides: Partial<Parameters<DbModule["insertClientInquiry"]>[0]> = {},
+    ) {
+      return { leadSlug, businessName: "Test Business", message: "Hello", ...overrides };
+    }
+
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.insertClientInquiry(testInquiryInput("list-inquiries-lead"));
+      const inquiries = await db.listClientInquiries();
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(inquiries.map((i) => i.leadSlug)).toContain("list-inquiries-lead");
+    });
+
+    it("returns Convex's result directly on success, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([{ leadSlug: "convex-only-inquiry" }]);
+      const db = await loadDb(CONVEX_URL);
+      const inquiries = await db.listClientInquiries();
+      expect(inquiries).toEqual([{ leadSlug: "convex-only-inquiry" }]);
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls back to SQLite and orders newest createdAt first when Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      const older = await seedDb.insertClientInquiry(testInquiryInput("older-inquiry-lead"));
+      const newer = await seedDb.insertClientInquiry(testInquiryInput("newer-inquiry-lead"));
+      backdateClientInquiryCreatedAt("2026-07-01T00:00:00.000Z", older.id);
+      backdateClientInquiryCreatedAt("2026-07-20T00:00:00.000Z", newer.id);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const inquiries = await db.listClientInquiries();
+      const slugs = inquiries.map((i) => i.leadSlug);
+      expect(slugs.indexOf("newer-inquiry-lead")).toBeLessThan(
+        slugs.indexOf("older-inquiry-lead"),
+      );
+    });
+  });
+
+  describe("listUnrepliedInquiries (SQLite fallback status filter + uncapped newest-first ordering)", () => {
+    function testInquiryInput(
+      leadSlug: string,
+      overrides: Partial<Parameters<DbModule["insertClientInquiry"]>[0]> = {},
+    ) {
+      return { leadSlug, businessName: "Test Business", message: "Hello", ...overrides };
+    }
+
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.insertClientInquiry(testInquiryInput("unreplied-inquiries-lead"));
+      const inquiries = await db.listUnrepliedInquiries();
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(inquiries.map((i) => i.leadSlug)).toContain("unreplied-inquiries-lead");
+    });
+
+    it("returns Convex's result directly on success, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([{ leadSlug: "convex-only-unreplied" }]);
+      const db = await loadDb(CONVEX_URL);
+      const inquiries = await db.listUnrepliedInquiries();
+      expect(inquiries).toEqual([{ leadSlug: "convex-only-unreplied" }]);
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("SQLite fallback excludes replied/archived inquiries and orders new/read newest first", async () => {
+      const db = await loadDb(undefined);
+      const older = await db.insertClientInquiry(testInquiryInput("older-unreplied-lead"));
+      const newer = await db.insertClientInquiry(testInquiryInput("newer-unreplied-lead"));
+      const read = await db.insertClientInquiry(testInquiryInput("read-unreplied-lead"));
+      const replied = await db.insertClientInquiry(testInquiryInput("replied-lead"));
+      backdateClientInquiryCreatedAt("2026-07-01T00:00:00.000Z", older.id);
+      backdateClientInquiryCreatedAt("2026-07-20T00:00:00.000Z", newer.id);
+      await db.updateClientInquiryStatus(read.id, "read");
+      await db.updateClientInquiryStatus(replied.id, "replied");
+
+      const inquiries = await db.listUnrepliedInquiries();
+      const slugs = inquiries.map((i) => i.leadSlug);
+      expect(slugs).toContain("older-unreplied-lead");
+      expect(slugs).toContain("newer-unreplied-lead");
+      expect(slugs).toContain("read-unreplied-lead");
+      expect(slugs).not.toContain("replied-lead");
+      expect(slugs.indexOf("newer-unreplied-lead")).toBeLessThan(
+        slugs.indexOf("older-unreplied-lead"),
+      );
+    });
+  });
+
+  describe("listClientInquiriesBySlug (SQLite fallback per-lead scoping + newest-first ordering)", () => {
+    function testInquiryInput(
+      leadSlug: string,
+      overrides: Partial<Parameters<DbModule["insertClientInquiry"]>[0]> = {},
+    ) {
+      return { leadSlug, businessName: "Test Business", message: "Hello", ...overrides };
+    }
+
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.insertClientInquiry(testInquiryInput("by-slug-lead"));
+      const inquiries = await db.listClientInquiriesBySlug("by-slug-lead");
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(inquiries.map((i) => i.leadSlug)).toEqual(["by-slug-lead"]);
+    });
+
+    it("returns Convex's result directly on success, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([{ leadSlug: "convex-only-by-slug" }]);
+      const db = await loadDb(CONVEX_URL);
+      const inquiries = await db.listClientInquiriesBySlug("convex-only-by-slug");
+      expect(inquiries).toEqual([{ leadSlug: "convex-only-by-slug" }]);
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("SQLite fallback scopes to the requested lead and orders newest createdAt first", async () => {
+      const db = await loadDb(undefined);
+      const older = await db.insertClientInquiry(testInquiryInput("scoped-lead-a"));
+      const newer = await db.insertClientInquiry(testInquiryInput("scoped-lead-a"));
+      await db.insertClientInquiry(testInquiryInput("scoped-lead-b"));
+      backdateClientInquiryCreatedAt("2026-07-01T00:00:00.000Z", older.id);
+      backdateClientInquiryCreatedAt("2026-07-20T00:00:00.000Z", newer.id);
+
+      const inquiries = await db.listClientInquiriesBySlug("scoped-lead-a");
+      expect(inquiries).toHaveLength(2);
+      expect(inquiries[0]?.id).toBe(newer.id);
+      expect(inquiries[1]?.id).toBe(older.id);
+    });
+  });
+
+  describe("listCommerceCheckoutInquiriesBySlug (SQLite fallback source-scoped + uncapped newest-first ordering)", () => {
+    function testInquiryInput(
+      leadSlug: string,
+      overrides: Partial<Parameters<DbModule["insertClientInquiry"]>[0]> = {},
+    ) {
+      return { leadSlug, businessName: "Test Business", message: "Hello", ...overrides };
+    }
+
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.insertClientInquiry(
+        testInquiryInput("commerce-checkout-lead", { source: "commerce_checkout" }),
+      );
+      const inquiries = await db.listCommerceCheckoutInquiriesBySlug("commerce-checkout-lead");
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(inquiries.map((i) => i.leadSlug)).toEqual(["commerce-checkout-lead"]);
+    });
+
+    it("returns Convex's result directly on success, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([{ leadSlug: "convex-only-commerce-checkout" }]);
+      const db = await loadDb(CONVEX_URL);
+      const inquiries = await db.listCommerceCheckoutInquiriesBySlug(
+        "convex-only-commerce-checkout",
+      );
+      expect(inquiries).toEqual([{ leadSlug: "convex-only-commerce-checkout" }]);
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("SQLite fallback excludes non-commerce_checkout inquiries for the same lead and orders newest first", async () => {
+      const db = await loadDb(undefined);
+      await db.insertClientInquiry(
+        testInquiryInput("commerce-checkout-scope-lead", { source: "preview" }),
+      );
+      const older = await db.insertClientInquiry(
+        testInquiryInput("commerce-checkout-scope-lead", { source: "commerce_checkout" }),
+      );
+      const newer = await db.insertClientInquiry(
+        testInquiryInput("commerce-checkout-scope-lead", { source: "commerce_checkout" }),
+      );
+      backdateClientInquiryCreatedAt("2026-07-01T00:00:00.000Z", older.id);
+      backdateClientInquiryCreatedAt("2026-07-20T00:00:00.000Z", newer.id);
+
+      const inquiries = await db.listCommerceCheckoutInquiriesBySlug(
+        "commerce-checkout-scope-lead",
+      );
+      expect(inquiries.map((i) => i.id)).toEqual([newer.id, older.id]);
+    });
+  });
+
+  describe("listMarketingPacksForMonth (SQLite fallback month-scoped newest-first ordering)", () => {
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertMarketingPack({
+        leadSlug: "marketing-month-lead",
+        yearMonth: "2026-07",
+        variants: [{ contentType: "gbp_post", body: "Post" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+      const packs = await db.listMarketingPacksForMonth("2026-07");
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(packs.map((p) => p.leadSlug)).toContain("marketing-month-lead");
+    });
+
+    it("returns Convex's result directly on success, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([
+        { leadSlug: "convex-only-marketing-pack", variants: [] },
+      ]);
+      const db = await loadDb(CONVEX_URL);
+      const packs = await db.listMarketingPacksForMonth("2026-07");
+      expect(packs).toEqual([{ leadSlug: "convex-only-marketing-pack", variants: [] }]);
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("SQLite fallback scopes to the requested month and orders newest generatedAt first", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertMarketingPack({
+        leadSlug: "older-marketing-pack-lead",
+        yearMonth: "2026-07",
+        variants: [{ contentType: "gbp_post", body: "Post" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+      await db.upsertMarketingPack({
+        leadSlug: "newer-marketing-pack-lead",
+        yearMonth: "2026-07",
+        variants: [{ contentType: "gbp_post", body: "Post" }],
+        generatedAt: "2026-07-20T00:00:00.000Z",
+        generator: "stub",
+      });
+      await db.upsertMarketingPack({
+        leadSlug: "other-month-marketing-pack-lead",
+        yearMonth: "2026-06",
+        variants: [{ contentType: "gbp_post", body: "Post" }],
+        generatedAt: "2026-06-15T00:00:00.000Z",
+        generator: "stub",
+      });
+
+      const packs = await db.listMarketingPacksForMonth("2026-07");
+      expect(packs.map((p) => p.leadSlug)).toEqual([
+        "newer-marketing-pack-lead",
+        "older-marketing-pack-lead",
+      ]);
+    });
+  });
+
+  describe("listClientVoicePacks (SQLite fallback newest-first ordering)", () => {
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertClientVoicePack({
+        leadSlug: "voice-pack-list-lead",
+        variants: [{ scriptType: "inbound_greeting", title: "Greeting", body: "Hello!" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+      const packs = await db.listClientVoicePacks();
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(packs.map((p) => p.leadSlug)).toContain("voice-pack-list-lead");
+    });
+
+    it("returns Convex's result directly on success, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([{ leadSlug: "convex-only-voice-pack", variants: [] }]);
+      const db = await loadDb(CONVEX_URL);
+      const packs = await db.listClientVoicePacks();
+      expect(packs).toEqual([{ leadSlug: "convex-only-voice-pack", variants: [] }]);
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("SQLite fallback orders newest generatedAt first", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertClientVoicePack({
+        leadSlug: "older-voice-pack-lead",
+        variants: [{ scriptType: "inbound_greeting", title: "Greeting", body: "Hello!" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+      await db.upsertClientVoicePack({
+        leadSlug: "newer-voice-pack-lead",
+        variants: [{ scriptType: "inbound_greeting", title: "Greeting", body: "Hello!" }],
+        generatedAt: "2026-07-20T00:00:00.000Z",
+        generator: "stub",
+      });
+
+      const packs = await db.listClientVoicePacks();
+      const slugs = packs.map((p) => p.leadSlug);
+      expect(slugs.indexOf("newer-voice-pack-lead")).toBeLessThan(
+        slugs.indexOf("older-voice-pack-lead"),
+      );
     });
   });
 });
