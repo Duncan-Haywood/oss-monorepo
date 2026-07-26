@@ -1049,6 +1049,24 @@ export default function ArchitectureDocPage() {
         raw.
       </p>
       <p>
+        <code>listDeployHandoffs</code> and <code>getLeadSlugByCustomDomain</code> extended this
+        series to READ functions for the first time — every function above has a Convex mutation
+        with direct coverage and an untested SQLite-fallback <em>write</em> branch, while these two
+        instead have an untested SQLite-fallback <em>read</em> branch (a raw{" "}
+        <code>db.prepare(...).all()</code>/<code>.get()</code>, never delegated to a tested pure
+        helper). <code>getLeadSlugByCustomDomain</code> is <code>src/proxy.ts</code>&apos;s
+        Host-based routing identity lookup for every sold custom domain — its www/apex alias loop
+        (<code>customDomainHostAliases</code>) runs independently on the Convex path (one query per
+        alias until a hit) and the SQLite path (one <code>.get()</code> per alias); a broken loop on
+        either side would silently misroute a visitor to the wrong client&apos;s storefront (or no
+        storefront at all) under a real paying customer&apos;s own domain, with nothing in the test
+        suite to catch it before now. <code>listDeployHandoffs</code> shares the family&apos;s{" "}
+        <code>ORDER BY createdAt DESC</code> SQLite fallback with no prior automated proof it
+        actually sorts newest-first. Both regressions (an alias loop that only checks the first
+        candidate; an <code>ASC</code> instead of <code>DESC</code> sort) were verified to fail the
+        new tests before being reverted.
+      </p>
+      <p>
         <code>recordLeadPayment</code> and <code>insertCommerceOrder</code> — the bundle and
         Commerce Buy now money-ledger writes every Stripe checkout ultimately funnels through —
         were the last remaining <em>money-critical</em> gap in this series: both are idempotent on{" "}

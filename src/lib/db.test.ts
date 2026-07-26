@@ -190,6 +190,22 @@ import type { DeployHandoff } from "./deploy/types";
  * fallback has an INSERT ... ON CONFLICT(stripeSessionId) DO NOTHING dedup
  * clause (Stripe can call checkout-create more than once for the same
  * session on retry) that had never been exercised either.
+ *
+ * listDeployHandoffs / getLeadSlugByCustomDomain (~1781, ~1960) are the first
+ * READ (not write) functions this series covers: every function above has a
+ * Convex mutation with direct coverage and a hand-written SQLite-fallback
+ * write branch that was untested; these two instead have a hand-written
+ * SQLite-fallback READ branch (a raw `db.prepare(...).all()`/`.get()`, never
+ * delegated to a tested pure helper in sqlite-queries.ts) that was equally
+ * untested. getLeadSlugByCustomDomain is src/proxy.ts's Host-based routing
+ * identity lookup for every sold custom domain — its www/apex alias loop
+ * (customDomainHostAliases) runs independently on both the Convex path (a
+ * query per alias until one hits) and the SQLite path (a `.get()` per alias);
+ * a broken loop on either side would silently misroute a visitor to the
+ * wrong client's storefront (or no storefront at all) under a real paying
+ * customer's own domain, with nothing in the test suite to catch it.
+ * listDeployHandoffs shares the family's SQLite fallback (`ORDER BY
+ * createdAt DESC`) with no automated proof it actually sorts newest-first.
  */
 
 vi.mock("server-only", () => ({}));
@@ -2568,6 +2584,95 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
 
       const cleared = await db.updateDeployHandoffCustomDomain("clear-domain-lead", null);
       expect(cleared?.customDomain).toBeUndefined();
+    });
+  });
+
+  describe("listDeployHandoffs (SQLite fallback newest-first ordering)", () => {
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("list-handoff-lead"));
+      const handoffs = await db.listDeployHandoffs();
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(handoffs.map((h) => h.leadSlug)).toContain("list-handoff-lead");
+    });
+
+    it("returns Convex's result directly on success, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([{ leadSlug: "convex-only-handoff" }]);
+      const db = await loadDb(CONVEX_URL);
+      const handoffs = await db.listDeployHandoffs();
+      expect(handoffs).toEqual([{ leadSlug: "convex-only-handoff" }]);
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls back to SQLite and orders newest createdAt first when Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertDeployHandoff(
+        testDeployHandoff("older-handoff", { createdAt: "2026-07-01T00:00:00.000Z" }),
+      );
+      await seedDb.insertDeployHandoff(
+        testDeployHandoff("newer-handoff", { createdAt: "2026-07-20T00:00:00.000Z" }),
+      );
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const handoffs = await db.listDeployHandoffs();
+      const slugs = handoffs.map((h) => h.leadSlug);
+      expect(slugs.indexOf("newer-handoff")).toBeLessThan(slugs.indexOf("older-handoff"));
+    });
+  });
+
+  describe("getLeadSlugByCustomDomain (proxy.ts Host-based routing lookup, www/apex alias loop)", () => {
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("custom-domain-lead"));
+      await db.updateDeployHandoffCustomDomain("custom-domain-lead", "client.example");
+
+      const slug = await db.getLeadSlugByCustomDomain("client.example");
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(slug).toBe("custom-domain-lead");
+    });
+
+    it("returns Convex's result directly on success, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce({ leadSlug: "convex-only-domain-lead" });
+      const db = await loadDb(CONVEX_URL);
+      const slug = await db.getLeadSlugByCustomDomain("client.example");
+      expect(slug).toBe("convex-only-domain-lead");
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
+
+    it("Convex path tries the www alias when the exact-host query comes back empty", async () => {
+      convexQuery.mockResolvedValueOnce(null); // exact-host query misses
+      convexQuery.mockResolvedValueOnce({ leadSlug: "convex-www-alias-lead" }); // www-alias query hits
+      const db = await loadDb(CONVEX_URL);
+      const slug = await db.getLeadSlugByCustomDomain("client.example");
+      expect(slug).toBe("convex-www-alias-lead");
+      expect(convexQuery).toHaveBeenCalledTimes(2);
+      expect(convexQuery.mock.calls[0]?.[1]).toMatchObject({ customDomain: "client.example" });
+      expect(convexQuery.mock.calls[1]?.[1]).toMatchObject({ customDomain: "www.client.example" });
+    });
+
+    it("falls back to SQLite and finds a www-stored domain via its apex alias when Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertDeployHandoff(testDeployHandoff("www-owner-lead"));
+      await seedDb.updateDeployHandoffCustomDomain("www-owner-lead", "www.client.example");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const slug = await db.getLeadSlugByCustomDomain("client.example");
+      expect(slug).toBe("www-owner-lead");
+    });
+
+    it("returns null on both backends when no handoff owns the domain", async () => {
+      const db = await loadDb(undefined);
+      const slug = await db.getLeadSlugByCustomDomain("nobody-owns-this.example");
+      expect(slug).toBeNull();
+    });
+
+    it("rejects an implausible host before ever calling Convex or SQLite", async () => {
+      const db = await loadDb(CONVEX_URL);
+      const slug = await db.getLeadSlugByCustomDomain("localhost");
+      expect(slug).toBeNull();
+      expect(convexQuery).not.toHaveBeenCalled();
     });
   });
 
