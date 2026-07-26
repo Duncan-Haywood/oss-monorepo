@@ -200,6 +200,22 @@ export default function MarketingAutomationDocPage() {
         <code>src/lib/marketing/buffer.ts</code>).
       </p>
       <p>
+        <strong>Postable-profile guard.</strong> <code>bufferServiceContentType</code> only maps{" "}
+        <code>facebook</code>/<code>instagram</code> Buffer profile services onto a postable
+        content type — every other connected service (LinkedIn, Twitter, Pinterest, …) is skipped
+        at post time. <strong>Save profiles for this lead</strong> re-fetches the operator&apos;s
+        connected profiles and rejects a save whose selection contains zero Facebook/Instagram
+        profiles, so a lead can never be persisted into a state where it reads as
+        &quot;mapped&quot; (clearing the missing-mapping card above) while every{" "}
+        <strong>Send pack to Buffer</strong> click skips every variant forever with no durable
+        marker ever written — which had made the <code>Buffer packs not posted</code> card below
+        permanently, unresolvably stuck for that lead. A mixed selection (one postable profile
+        plus others) still saves normally; only an all-unpostable selection is rejected. Clearing
+        a lead&apos;s mapping entirely (an empty selection) is unaffected. See{" "}
+        <code>saveLeadBufferProfilesAction</code> (
+        <code>src/app/dashboard/leads/actions.ts</code>).
+      </p>
+      <p>
         <strong>Not-posted visibility.</strong> Mapping Buffer profiles opts a lead into
         auto-posting, but it does not guarantee the current month&apos;s pack actually reached
         Buffer — the operator could forget to click <strong>Send pack to Buffer</strong>, or
