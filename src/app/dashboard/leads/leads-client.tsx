@@ -295,6 +295,7 @@ export function LeadsClient({
     useState<CommerceCatalog[]>(initialCommerceCatalogs);
   const [commerceEditSlug, setCommerceEditSlug] = useState<string | null>(null);
   const [commerceDraftItems, setCommerceDraftItems] = useState<CommerceSku[]>([]);
+  const [commerceCatalogError, setCommerceCatalogError] = useState<string | null>(null);
   const [clientVoicePacks, setClientVoicePacks] =
     useState<ClientVoicePack[]>(initialClientVoicePacks);
   const [clientVoicePackOpenSlug, setClientVoicePackOpenSlug] = useState<string | null>(
@@ -312,6 +313,7 @@ export function LeadsClient({
   const [showCsvImport, setShowCsvImport] = useState(false);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [replyOpenId, setReplyOpenId] = useState<string | null>(null);
+  const [replyError, setReplyError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   // Row-scoped toggle buttons used as refocus anchors (Notes/Commerce/Reply
@@ -782,13 +784,22 @@ export function LeadsClient({
   };
 
   const [vercelProjectInputs, setVercelProjectInputs] = useState<Record<string, string>>({});
+  const [vercelProjectErrors, setVercelProjectErrors] = useState<Record<string, string>>({});
 
   const handleAssignVercelProject = (slug: string) => {
     const value = vercelProjectInputs[slug] ?? "";
+    setVercelProjectErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await assignVercelProjectAction(slug, value);
       if (!res.success) {
-        alert(`Error assigning Vercel project: ${res.error}`);
+        setVercelProjectErrors((prev) => ({
+          ...prev,
+          [slug]: res.error ?? "Failed to assign Vercel project",
+        }));
         return;
       }
       setHandoffs((prev) =>
@@ -798,13 +809,22 @@ export function LeadsClient({
   };
 
   const [customDomainInputs, setCustomDomainInputs] = useState<Record<string, string>>({});
+  const [customDomainErrors, setCustomDomainErrors] = useState<Record<string, string>>({});
 
   const handleAssignCustomDomain = (slug: string) => {
     const value = customDomainInputs[slug] ?? "";
+    setCustomDomainErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await assignCustomDomainAction(slug, value);
       if (!res.success) {
-        alert(`Error saving custom domain: ${res.error}`);
+        setCustomDomainErrors((prev) => ({
+          ...prev,
+          [slug]: res.error ?? "Failed to save custom domain",
+        }));
         return;
       }
       setHandoffs((prev) =>
@@ -845,6 +865,7 @@ export function LeadsClient({
   const handleToggleReplyComposer = (inq: ClientInquiry) => {
     const isOpening = replyOpenId !== inq.id;
     setReplyOpenId((prev) => (prev === inq.id ? null : inq.id));
+    setReplyError(null);
     if (inquiryShouldAutoMarkRead(inq, isOpening)) {
       handleInquiryStatus(inq.id, "read");
     }
@@ -859,11 +880,13 @@ export function LeadsClient({
   // startTransition — see the pendingFocusElementId effect above.
   const closeReplyComposer = (inquiryId: string) => {
     setReplyOpenId(null);
+    setReplyError(null);
     queueFocusElement(inquiryReplyToggleElementId(inquiryId));
   };
 
   const handleInquiryReply = (inquiryId: string) => {
     const body = replyDrafts[inquiryId] ?? "";
+    setReplyError(null);
     startTransition(async () => {
       const res = await replyToInquiryAction(inquiryId, body);
       if (!res.success) {
@@ -874,7 +897,7 @@ export function LeadsClient({
             prev.map((inq) => (inq.id === inquiryId ? res.inquiry! : inq)),
           );
         }
-        alert(`Reply failed: ${res.error}`);
+        setReplyError(res.error ?? "Failed to send reply");
         return;
       }
       setInquiries((prev) =>
@@ -1185,6 +1208,7 @@ export function LeadsClient({
         ? existing.items.map((item) => ({ ...item }))
         : [{ id: newCommerceSkuId(), name: "", priceCents: 0 }],
     );
+    setCommerceCatalogError(null);
     if (opts?.bringIntoView) {
       // Called from the Commerce catalogs missing/unsynced due-queue panels,
       // which list leads from the full unfiltered `leads` array — the target
@@ -1206,6 +1230,7 @@ export function LeadsClient({
     const focusSlug = slug ?? commerceEditSlug;
     setCommerceEditSlug(null);
     setCommerceDraftItems([]);
+    setCommerceCatalogError(null);
     // Same refocus fix as closeNotesEditor above — the Close/Save button
     // that triggered this is inside the panel being unmounted here. Queued
     // (not a same-tick .focus() call) for the same disabled={isPending}
@@ -1216,10 +1241,11 @@ export function LeadsClient({
   };
 
   const handleSaveCommerceCatalog = (slug: string) => {
+    setCommerceCatalogError(null);
     startTransition(async () => {
       const res = await saveCommerceCatalogAction(slug, commerceDraftItems);
       if (!res.success) {
-        alert(`Commerce catalog failed: ${res.error}`);
+        setCommerceCatalogError(res.error ?? "Failed to save commerce catalog");
         return;
       }
       setCommerceCatalogs((prev) => {
@@ -3134,6 +3160,12 @@ export function LeadsClient({
                               [h.leadSlug]: e.target.value,
                             }))
                           }
+                          aria-invalid={Boolean(vercelProjectErrors[h.leadSlug])}
+                          aria-describedby={
+                            vercelProjectErrors[h.leadSlug]
+                              ? `vercel-project-error-${h.leadSlug}`
+                              : undefined
+                          }
                           className="w-72 max-w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none transition focus:border-zinc-900"
                         />
                         <button
@@ -3150,6 +3182,15 @@ export function LeadsClient({
                           Save + provision
                         </button>
                       </div>
+                      {vercelProjectErrors[h.leadSlug] ? (
+                        <p
+                          id={`vercel-project-error-${h.leadSlug}`}
+                          className="mt-1 text-xs font-medium text-red-600"
+                          role="alert"
+                        >
+                          {vercelProjectErrors[h.leadSlug]}
+                        </p>
+                      ) : null}
                       <div className="mt-2 flex items-center gap-2">
                         <input
                           type="text"
@@ -3160,6 +3201,12 @@ export function LeadsClient({
                               ...prev,
                               [h.leadSlug]: e.target.value,
                             }))
+                          }
+                          aria-invalid={Boolean(customDomainErrors[h.leadSlug])}
+                          aria-describedby={
+                            customDomainErrors[h.leadSlug]
+                              ? `custom-domain-error-${h.leadSlug}`
+                              : undefined
                           }
                           className="w-72 max-w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none transition focus:border-zinc-900"
                         />
@@ -3177,6 +3224,15 @@ export function LeadsClient({
                           Save domain
                         </button>
                       </div>
+                      {customDomainErrors[h.leadSlug] ? (
+                        <p
+                          id={`custom-domain-error-${h.leadSlug}`}
+                          className="mt-1 text-xs font-medium text-red-600"
+                          role="alert"
+                        >
+                          {customDomainErrors[h.leadSlug]}
+                        </p>
+                      ) : null}
                     </div>
                     <button
                       type="button"
@@ -3304,6 +3360,8 @@ export function LeadsClient({
                           rows={4}
                           maxLength={MAX_INQUIRY_REPLY_LENGTH}
                           placeholder="Write a reply to the inquirer…"
+                          aria-invalid={Boolean(replyError)}
+                          aria-describedby={replyError ? `inquiry-reply-error-${inq.id}` : undefined}
                           className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-900"
                         />
                         <div className="flex flex-wrap items-center gap-2">
@@ -3327,6 +3385,15 @@ export function LeadsClient({
                             {(replyDrafts[inq.id] ?? "").length}/{MAX_INQUIRY_REPLY_LENGTH}
                           </span>
                         </div>
+                        {replyError ? (
+                          <p
+                            id={`inquiry-reply-error-${inq.id}`}
+                            className="text-xs font-medium text-red-600"
+                            role="alert"
+                          >
+                            {replyError}
+                          </p>
+                        ) : null}
                       </div>
                     ) : null}
                   </div>
@@ -4698,6 +4765,15 @@ export function LeadsClient({
                               Cancel
                             </button>
                           </div>
+                          {commerceCatalogError ? (
+                            <p
+                              id={`commerce-catalog-error-${lead.slug}`}
+                              className="mt-2 text-xs font-medium text-red-600"
+                              role="alert"
+                            >
+                              {commerceCatalogError}
+                            </p>
+                          ) : null}
                           <div className="mt-4 border-t border-orange-100 pt-3">
                             <h4 className="text-xs font-semibold text-zinc-900">
                               Payouts (Stripe Connect) — scaffold, dormant by default

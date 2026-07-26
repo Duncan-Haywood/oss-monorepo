@@ -332,6 +332,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-srocpv",
   },
+  {
+    id: "leads-client-form-error-inline-aria-announcement",
+    summary:
+      "Fresh-angle accessibility audit (form validation error announcements, distinct from the completed table-header-scope and focus-restore sweeps; dialog/modal focus-trapping ruled out — no real modals exist in this codebase) found five leads-client.tsx operator actions routing a failed action through a bare alert() instead of the established inline-error pattern (aria-invalid/aria-describedby/role=\"alert\") already used correctly by Operator notes and the add-lead/CSV-import forms: the Commerce catalog SKU editor's Save catalog action, the Production deploy handoffs panel's Vercel project ID and custom domain assignment inputs, and the Website inquiries reply composer. Shipped per-surface error state mirroring notesError's shape (commerceCatalogError single-string; vercelProjectErrors/customDomainErrors keyed by lead slug since multiple handoff cards render at once; replyError single-string since only one reply composer can be open at a time), wired via aria-invalid/aria-describedby onto each input/textarea (the catalog error is announced but not input-associated, since it can name a specific SKU row rather than the whole editor) with a role=\"alert\" message replacing each alert() call. See leads-client-form-error-inline-aria-announcement in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-h2u27a",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -567,6 +575,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "dashboard-and-docs-table-header-scope-col-a11y",
+    ),
+  },
+  {
+    date: "2026-07-26",
+    branch: "claude/nice-euler-h2u27a",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 476fbc0 (PR #800, dashboard-and-docs-table-header-scope-col-a11y, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3247 passed, 209 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (720 remote heads) ranked the newest ~30 claude/* branches by push time: the two newest already-merged branches (claude/upbeat-dijkstra-srocpv, claude/nice-euler-db4onh) and every other recently-pushed branch checked showed the documented squash-merge-artifact pattern — no live fold candidate.\n\nDispatched a research agent pointed at the prior iteration's own named fresh angles (dialog/modal focus-trapping, form validation error announcements, color contrast), told to independently re-verify by reading code. Dialog/modal focus-trapping: not applicable — zero real modal components exist anywhere in the codebase (grep for <dialog/role=\"dialog\"/aria-modal/Modal found nothing; the dashboard/preview UI uses inline disclosure panels exclusively), reconfirming three prior sweep entries. Color contrast: clean (error text consistently red-600/700/800 on light backgrounds; the only literal zinc-300/400 hits are marketing copy on dark cards, not error/disabled critical UI). Form validation announcements: a real, verified gap — five leads-client.tsx operator actions (Commerce catalog Save, Vercel project ID assign, custom domain assign, inquiry reply send) routed a failure through a bare alert() rather than the established aria-invalid/aria-describedby/role=\"alert\" pattern already correctly used by Operator notes and the add-lead/CSV-import forms.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — added commerceCatalogError (single-string, cleared on open/close/save-attempt, rendered as a role=\"alert\" paragraph after the Commerce catalog editor's Save/Cancel row); vercelProjectErrors/customDomainErrors (Record<string,string> keyed by lead slug, since multiple Production deploy handoff cards render simultaneously — each wires aria-invalid/aria-describedby onto its own input plus a matching role=\"alert\" paragraph); replyError (single-string, since replyOpenId is itself a single value — only one inquiry's reply composer can be open at once — wired onto the reply textarea via aria-invalid/aria-describedby with a role=\"alert\" paragraph below the button row). Removed the four alert() calls this replaced (Commerce catalog failed / Error assigning Vercel project / Error saving custom domain / Reply failed); success-path behavior is unchanged.",
+      "src/app/docs/architecture/page.tsx — new paragraph right after the table-header-scope-col-a11y paragraph, naming the gap and the fix.",
+      "src/lib/process/business-decisions.ts — appended leads-client-form-error-inline-aria-announcement.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-unaudited accessibility gap on five operator-facing forms, not any of the five gated items. Diff-gate anchor moves to 476fbc0 (this session's own starting tip, post-PR-#800). A future iteration hitting an empty backlog in the accessibility vein should look at a fresh angle beyond form-error announcements, dialog focus-trapping (ruled out), table-header scope, and row-action focus-restore (all now closed) — e.g. a heading-hierarchy/landmark-structure audit, or return to AGENT_PROTOCOL's standard tiers 1-4 first.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean, jsx-a11y rules included) + npx vitest run full suite (3247 passed, unchanged — no test harness exercises this markup, per AGENT_PROTOCOL's own client-component-testing note) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split) + npm run dev smoke check curling /dashboard/leads (200, rendered demo leads including a Commerce-catalog-eligible row, no error-boundary/500 text) since this touches dashboard UI — the seeded demo data has no paid/live lead so the Production deploy handoffs and Website inquiries panels (housing three of the five fixed inputs) don't render in this smoke check; their markup was verified by direct code read against the identical, already-proven notesError pattern instead. Killed the dev server and confirmed git status showed only the intended files changed, no stray local.db.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "leads-client-form-error-inline-aria-announcement",
     ),
   },
 ];

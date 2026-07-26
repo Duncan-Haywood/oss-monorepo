@@ -860,6 +860,28 @@ export default function ArchitectureDocPage() {
         and got the identical fix in the same pass.
       </p>
       <p>
+        A fresh-angle accessibility audit (form validation error announcements, distinct from
+        the completed table-header-scope and focus-restore sweeps) found five{" "}
+        <code>leads-client.tsx</code> forms that routed a failed operator action through a bare{" "}
+        <code>alert()</code> popup instead of the established inline-error pattern already used
+        by Operator notes (<code>notesError</code>) — the Commerce catalog SKU editor&apos;s
+        Save catalog action, the Vercel project ID and custom domain assignment inputs on the
+        Production deploy handoffs panel, and the Website inquiries reply composer. A blocking{" "}
+        <code>alert()</code> is announced to screen readers, but it interrupts the whole page
+        rather than surfacing a persistent, input-associated message the operator can review
+        while correcting the field — and unlike the notes/add-lead/CSV-import forms, none of the
+        five associated their error with the failing control via <code>aria-invalid</code>/
+        <code>aria-describedby</code>. Fixed by giving each its own error state (
+        <code>commerceCatalogError</code>, <code>vercelProjectErrors</code>/
+        <code>customDomainErrors</code> keyed by lead slug since multiple handoff cards render at
+        once, and a single <code>replyError</code> since only one reply composer can be open at a
+        time) and rendering a <code>role=&quot;alert&quot;</code> message wired via{" "}
+        <code>aria-describedby</code> to the Vercel project ID input, the custom domain input,
+        and the reply textarea; the Commerce catalog error is announced the same way but not
+        input-associated, since a save failure names a specific SKU row rather than the editor as
+        a whole. No behavior changed for a successful save/send — only the failure path.
+      </p>
+      <p>
         <code>markCheckoutSessionComplete</code>/<code>markCheckoutSessionOpen</code>/
         <code>markCompleteOpenBundleCheckoutSessionsForLead</code>/
         <code>markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer</code> are the Stripe
