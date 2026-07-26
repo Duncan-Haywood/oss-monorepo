@@ -1,10 +1,6 @@
 import Link from "next/link";
 import { brand } from "@/lib/brand";
 import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
-import {
-  monthlyMarketingEmailCount,
-  monthlyMarketingSocialPostCount,
-} from "@/lib/marketing/monthly-pack";
 import { COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 
 const steps = [
@@ -25,50 +21,18 @@ const steps = [
   },
 ];
 
-// Marketing-only copy (tagline/features/highlighted) — name and USD prices are
-// deliberately NOT duplicated here. They render straight from BUNDLES
-// (src/lib/pricing/bundles.ts), the single source of truth Stripe checkout
-// also reads, so a future price change (BUSINESS_DECISIONS) can't leave this,
-// the highest-traffic page, advertising a stale number while checkout charges
-// the new one (homepage-bundle-pricing-single-source-of-truth). The Growth
-// feature's post/email counts are likewise derived from
-// MONTHLY_MARKETING_PACK_TYPES (monthlyMarketingSocialPostCount /
-// monthlyMarketingEmailCount) rather than hand-typed, so a future change to
-// the pack composition can't leave this copy silently stale either.
+// Only page-specific display state (which card gets the "recommended" treatment)
+// lives here — name, USD prices, tagline, and feature bullets all render
+// straight from BUNDLES (src/lib/pricing/bundles.ts), the single source of
+// truth Stripe checkout AND the /preview/[slug] tier upsell also read, so a
+// future price or feature change (BUSINESS_DECISIONS) can't leave this, the
+// highest-traffic page, advertising stale copy while checkout/preview show
+// something else (homepage-bundle-pricing-single-source-of-truth,
+// bundle-features-single-source-of-truth).
 const bundleMarketingCopy = [
-  {
-    id: "starter" as const,
-    tagline: "Your site, live in days",
-    features: [
-      "Professional landing page",
-      "Contact form and Google Maps embed",
-      "Basic SEO and fast hosting",
-      "Preview subdomain → custom domain handoff",
-    ],
-    highlighted: false,
-  },
-  {
-    id: "growth" as const,
-    tagline: "Site + customers on autopilot",
-    features: [
-      "Everything in Starter",
-      `${monthlyMarketingSocialPostCount()} social/GBP posts + ${monthlyMarketingEmailCount()} emails per month`,
-      "Ready-to-post packs for Google, Facebook, Instagram",
-      "Brand voice from your site data",
-    ],
-    highlighted: true,
-  },
-  {
-    id: "complete" as const,
-    tagline: "Never miss a call or a customer",
-    features: [
-      "Everything in Growth",
-      "Full marketing — seasonal promos, A/B variants",
-      "AI phone agent for your business line",
-      "Appointment booking and lead capture",
-    ],
-    highlighted: false,
-  },
+  { id: "starter" as const, highlighted: false },
+  { id: "growth" as const, highlighted: true },
+  { id: "complete" as const, highlighted: false },
 ];
 
 const commerceFeatures = [
@@ -198,7 +162,7 @@ export default function Home() {
                     copy.highlighted ? "text-zinc-300" : "text-zinc-600"
                   }`}
                 >
-                  {copy.tagline}
+                  {bundle.tagline}
                 </p>
                 <p className="mt-4 text-4xl font-semibold tracking-tight">
                   ${bundle.setupPriceUsd}
@@ -221,7 +185,7 @@ export default function Home() {
                   </p>
                 )}
                 <ul className="mt-6 flex-1 space-y-3 text-sm">
-                  {copy.features.map((feature) => (
+                  {bundle.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2">
                       <span className={copy.highlighted ? "text-zinc-400" : "text-zinc-500"}>
                         ✓

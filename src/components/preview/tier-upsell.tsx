@@ -44,12 +44,23 @@ export function TierUpsell({ lead }: TierUpsellProps) {
                 {bundle.name}
                 {recommended ? " · recommended" : ""}
               </p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight">${bundle.setupPriceUsd}</p>
+              <p className={`mt-1 text-sm ${recommended ? "text-zinc-300" : "text-zinc-600"}`}>
+                {bundle.tagline}
+              </p>
+              <p className="mt-3 text-3xl font-semibold tracking-tight">${bundle.setupPriceUsd}</p>
               <p className={`mt-1 text-sm ${recommended ? "text-zinc-300" : "text-zinc-600"}`}>
                 {bundle.monthlyPriceUsd
                   ? `+ $${bundle.monthlyPriceUsd}/mo after go-live`
                   : "One-time"}
               </p>
+              <ul className="mt-4 flex-1 space-y-2 text-sm">
+                {bundle.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2">
+                    <span className={recommended ? "text-zinc-400" : "text-zinc-500"}>✓</span>
+                    <span className={recommended ? "text-zinc-200" : "text-zinc-700"}>{feature}</span>
+                  </li>
+                ))}
+              </ul>
               <Link
                 href={`/checkout?slug=${encodeURIComponent(lead.slug)}&tier=${bundle.id}`}
                 className={`mt-6 inline-flex h-11 items-center justify-center rounded-full text-sm font-medium transition-colors ${
@@ -67,7 +78,11 @@ export function TierUpsell({ lead }: TierUpsellProps) {
 
       <p className="mt-6 text-sm text-zinc-500">
         Optional Commerce add-on (+${COMMERCE_ADDON.setupPriceUsd} + ${COMMERCE_ADDON.monthlyPriceUsd}
-        /mo) can be selected at checkout for online orders or deposits.
+        /mo) can be selected at checkout for online orders or deposits.{" "}
+        <Link href="/docs/product-bundles" className="underline underline-offset-2">
+          Full tier details
+        </Link>
+        .
       </p>
     </section>
   );

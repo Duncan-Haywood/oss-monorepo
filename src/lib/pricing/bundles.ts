@@ -4,6 +4,8 @@
  * (test vs live) and referenced here by env var name, never hardcoded IDs.
  */
 
+import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "@/lib/marketing/monthly-pack";
+
 export type BundleTier = "starter" | "growth" | "complete";
 
 export interface BundleDefinition {
@@ -15,6 +17,10 @@ export interface BundleDefinition {
   setupPriceIdEnv: string;
   /** Env var holding the Stripe Price ID for the recurring fee (null tiers have none). */
   monthlyPriceIdEnv: string | null;
+  /** One-line pitch — homepage pricing cards and /preview/[slug] tier upsell. */
+  tagline: string;
+  /** Short bullet list — same two acquisition surfaces as `tagline`. */
+  features: readonly string[];
 }
 
 export const BUNDLES: readonly BundleDefinition[] = [
@@ -25,6 +31,13 @@ export const BUNDLES: readonly BundleDefinition[] = [
     monthlyPriceUsd: null,
     setupPriceIdEnv: "STRIPE_PRICE_ID_STARTER_SETUP",
     monthlyPriceIdEnv: null,
+    tagline: "Your site, live in days",
+    features: [
+      "Professional landing page",
+      "Contact form and Google Maps embed",
+      "Basic SEO and fast hosting",
+      "Preview subdomain → custom domain handoff",
+    ],
   },
   {
     id: "growth",
@@ -33,6 +46,13 @@ export const BUNDLES: readonly BundleDefinition[] = [
     monthlyPriceUsd: 99,
     setupPriceIdEnv: "STRIPE_PRICE_ID_GROWTH_SETUP",
     monthlyPriceIdEnv: "STRIPE_PRICE_ID_GROWTH_MONTHLY",
+    tagline: "Site + customers on autopilot",
+    features: [
+      "Everything in Starter",
+      `${monthlyMarketingSocialPostCount()} social/GBP posts + ${monthlyMarketingEmailCount()} emails per month`,
+      "Ready-to-post packs for Google, Facebook, Instagram",
+      "Brand voice from your site data",
+    ],
   },
   {
     id: "complete",
@@ -41,6 +61,13 @@ export const BUNDLES: readonly BundleDefinition[] = [
     monthlyPriceUsd: 199,
     setupPriceIdEnv: "STRIPE_PRICE_ID_COMPLETE_SETUP",
     monthlyPriceIdEnv: "STRIPE_PRICE_ID_COMPLETE_MONTHLY",
+    tagline: "Never miss a call or a customer",
+    features: [
+      "Everything in Growth",
+      "Full marketing — seasonal promos, A/B variants",
+      "AI phone agent for your business line",
+      "Appointment booking and lead capture",
+    ],
   },
 ] as const;
 

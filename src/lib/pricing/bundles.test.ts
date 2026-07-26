@@ -50,6 +50,21 @@ describe("BUNDLES", () => {
     expect(starter?.monthlyPriceUsd).toBeNull();
     expect(starter?.monthlyPriceIdEnv).toBeNull();
   });
+
+  it("gives every tier a non-empty tagline and feature list — the homepage pricing cards and the /preview/[slug] tier upsell both render these fields directly, so an empty value would ship a blank card", () => {
+    for (const bundle of BUNDLES) {
+      expect(bundle.tagline.length).toBeGreaterThan(0);
+      expect(bundle.features.length).toBeGreaterThan(0);
+      for (const feature of bundle.features) {
+        expect(feature.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("chains each paid tier's feature list from the one below it, matching /docs/product-bundles' 'Everything in X plus...' framing", () => {
+    expect(getBundle("growth")?.features[0]).toBe("Everything in Starter");
+    expect(getBundle("complete")?.features[0]).toBe("Everything in Growth");
+  });
 });
 
 describe("COMMERCE_ADDON", () => {
