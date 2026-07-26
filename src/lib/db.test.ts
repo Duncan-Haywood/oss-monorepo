@@ -5,6 +5,7 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type { Lead } from "./leads/types";
 import type { DeployHandoff } from "./deploy/types";
+import type { CommerceOrderRecord } from "./commerce/orders";
 
 /**
  * Direct coverage for src/lib/db.ts's own Convex-first/SQLite-fallback
@@ -3449,6 +3450,227 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       const missing = await db.listCommerceOrdersMissingClientReceipt();
       expect(missing.map((o) => o.stripeSessionId)).toEqual([
         "cs_receipt_missing",
+      ]);
+    });
+  });
+
+  describe("listCommerceOrders / listUnpaidCommerceOrders / listCommerceOrdersRefunded / listCommerceOrdersDisputed / listCommerceOrdersMissingClientReceipt (Convex mapping + Convex-failure SQLite fallback)", () => {
+    function convexCommerceOrderRow(overrides: Partial<CommerceOrderRecord> = {}) {
+      return {
+        id: "corder_convex_row",
+        leadSlug: "convex-commerce-orders-lead",
+        skuId: "sku_1",
+        skuName: "Convex SKU",
+        amountPaidUsd: 15,
+        stripeSessionId: "cs_convex_row",
+        createdAt: "2026-07-20T00:00:00.000Z",
+        ...overrides,
+      };
+    }
+
+    it("listCommerceOrders returns Convex's rows newest-first sorted, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([
+        convexCommerceOrderRow({
+          id: "corder_older",
+          stripeSessionId: "cs_convex_older",
+          createdAt: "2026-07-01T00:00:00.000Z",
+        }),
+        convexCommerceOrderRow({
+          id: "corder_newer",
+          stripeSessionId: "cs_convex_newer",
+          createdAt: "2026-07-20T00:00:00.000Z",
+        }),
+      ]);
+      const db = await loadDb(CONVEX_URL);
+      const orders = await db.listCommerceOrders();
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+      // Convex returned oldest-first above; listCommerceOrders must still sort newest-first.
+      expect(orders.map((o) => o.stripeSessionId)).toEqual([
+        "cs_convex_newer",
+        "cs_convex_older",
+      ]);
+      expect(orders[0]).toMatchObject({
+        id: "corder_newer",
+        amountPaidUsd: 15,
+      });
+    });
+
+    it("listCommerceOrders falls back to SQLite and still filters/sorts correctly when Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "convex-failure-commerce-orders-lead",
+        skuId: "sku_1",
+        skuName: "Fallback SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_convex_failure_fallback",
+      });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const orders = await db.listCommerceOrders();
+      expect(orders.map((o) => o.stripeSessionId)).toContain(
+        "cs_convex_failure_fallback",
+      );
+    });
+
+    it("listUnpaidCommerceOrders excludes a Convex row already marked paid out", async () => {
+      convexQuery.mockResolvedValueOnce([
+        convexCommerceOrderRow({
+          stripeSessionId: "cs_convex_unpaid",
+          createdAt: "2026-07-01T00:00:00.000Z",
+        }),
+      ]);
+      const db = await loadDb(CONVEX_URL);
+      const unpaid = await db.listUnpaidCommerceOrders();
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+      expect(unpaid.map((o) => o.stripeSessionId)).toEqual(["cs_convex_unpaid"]);
+    });
+
+    it("listUnpaidCommerceOrders falls back to SQLite and excludes paid-out orders when Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "convex-failure-unpaid-lead",
+        skuId: "sku_1",
+        skuName: "Still unpaid SKU",
+        amountPaidUsd: 10,
+        stripeSessionId: "cs_convex_failure_unpaid",
+      });
+      await seedDb.insertCommerceOrder({
+        leadSlug: "convex-failure-unpaid-lead",
+        skuId: "sku_2",
+        skuName: "Already paid-out SKU",
+        amountPaidUsd: 20,
+        stripeSessionId: "cs_convex_failure_paidout",
+      });
+      await seedDb.markCommerceOrderPaidOut("cs_convex_failure_paidout");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const unpaid = await db.listUnpaidCommerceOrders();
+      expect(unpaid.map((o) => o.stripeSessionId)).toEqual([
+        "cs_convex_failure_unpaid",
+      ]);
+    });
+
+    it("listCommerceOrdersRefunded returns a Convex row carrying refundedAt", async () => {
+      convexQuery.mockResolvedValueOnce([
+        convexCommerceOrderRow({
+          stripeSessionId: "cs_convex_refunded",
+          refundedAt: "2026-07-21T00:00:00.000Z",
+        }),
+      ]);
+      const db = await loadDb(CONVEX_URL);
+      const refunded = await db.listCommerceOrdersRefunded();
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+      expect(refunded.map((o) => o.stripeSessionId)).toEqual([
+        "cs_convex_refunded",
+      ]);
+      expect(refunded[0]?.refundedAt).toBe("2026-07-21T00:00:00.000Z");
+    });
+
+    it("listCommerceOrdersRefunded falls back to SQLite and excludes untouched orders when Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "convex-failure-refunded-lead",
+        skuId: "sku_1",
+        skuName: "Untouched SKU",
+        amountPaidUsd: 10,
+        stripeSessionId: "cs_convex_failure_untouched",
+      });
+      await seedDb.insertCommerceOrder({
+        leadSlug: "convex-failure-refunded-lead",
+        skuId: "sku_2",
+        skuName: "Refunded SKU",
+        amountPaidUsd: 20,
+        stripeSessionId: "cs_convex_failure_refunded",
+      });
+      await seedDb.markCommerceOrderRefunded("cs_convex_failure_refunded");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const refunded = await db.listCommerceOrdersRefunded();
+      expect(refunded.map((o) => o.stripeSessionId)).toEqual([
+        "cs_convex_failure_refunded",
+      ]);
+    });
+
+    it("listCommerceOrdersDisputed returns a Convex row carrying disputedAt", async () => {
+      convexQuery.mockResolvedValueOnce([
+        convexCommerceOrderRow({
+          stripeSessionId: "cs_convex_disputed",
+          disputedAt: "2026-07-21T00:00:00.000Z",
+        }),
+      ]);
+      const db = await loadDb(CONVEX_URL);
+      const disputed = await db.listCommerceOrdersDisputed();
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+      expect(disputed.map((o) => o.stripeSessionId)).toEqual([
+        "cs_convex_disputed",
+      ]);
+      expect(disputed[0]?.disputedAt).toBe("2026-07-21T00:00:00.000Z");
+    });
+
+    it("listCommerceOrdersDisputed falls back to SQLite and excludes untouched orders when Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "convex-failure-disputed-lead",
+        skuId: "sku_1",
+        skuName: "Untouched SKU",
+        amountPaidUsd: 10,
+        stripeSessionId: "cs_convex_failure_disputed_untouched",
+      });
+      await seedDb.insertCommerceOrder({
+        leadSlug: "convex-failure-disputed-lead",
+        skuId: "sku_2",
+        skuName: "Disputed SKU",
+        amountPaidUsd: 20,
+        stripeSessionId: "cs_convex_failure_disputed",
+      });
+      await seedDb.markCommerceOrderDisputed("cs_convex_failure_disputed");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const disputed = await db.listCommerceOrdersDisputed();
+      expect(disputed.map((o) => o.stripeSessionId)).toEqual([
+        "cs_convex_failure_disputed",
+      ]);
+    });
+
+    it("listCommerceOrdersMissingClientReceipt excludes a Convex row already carrying clientReceiptEmailSentAt", async () => {
+      convexQuery.mockResolvedValueOnce([
+        convexCommerceOrderRow({ stripeSessionId: "cs_convex_missing_receipt" }),
+      ]);
+      const db = await loadDb(CONVEX_URL);
+      const missing = await db.listCommerceOrdersMissingClientReceipt();
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+      expect(missing.map((o) => o.stripeSessionId)).toEqual([
+        "cs_convex_missing_receipt",
+      ]);
+    });
+
+    it("listCommerceOrdersMissingClientReceipt falls back to SQLite and excludes receipt-sent orders when Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "convex-failure-receipt-lead",
+        skuId: "sku_1",
+        skuName: "Receipt-sent SKU",
+        amountPaidUsd: 10,
+        stripeSessionId: "cs_convex_failure_receipt_sent",
+      });
+      await seedDb.insertCommerceOrder({
+        leadSlug: "convex-failure-receipt-lead",
+        skuId: "sku_2",
+        skuName: "Receipt-missing SKU",
+        amountPaidUsd: 20,
+        stripeSessionId: "cs_convex_failure_receipt_missing",
+      });
+      await seedDb.markCommerceOrderClientReceiptSent("cs_convex_failure_receipt_sent");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const missing = await db.listCommerceOrdersMissingClientReceipt();
+      expect(missing.map((o) => o.stripeSessionId)).toEqual([
+        "cs_convex_failure_receipt_missing",
       ]);
     });
   });
