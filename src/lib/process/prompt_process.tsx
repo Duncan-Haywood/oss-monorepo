@@ -406,6 +406,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 6 — Marketing automation",
     owner: "claude/nice-euler-674mrt",
   },
+  {
+    id: "stripe-connect-onboarding-link-client-facing-redirect",
+    summary:
+      "Empty-backlog audit (tier 1 — sold-capability wiring gap) found both Stripe Connect Express onboarding-link actions (createStripeConnectOnboardingLinkAction / sendStripeConnectOnboardingLinkToClientAction, src/app/dashboard/leads/actions.ts) minted an Account Link whose refresh_url/return_url pointed at /dashboard/leads — but this link is routinely handed off to the external client (emailed directly by the send action, or pasted elsewhere by the operator via the manual action), never opened only in the operator's own browser. /dashboard/leads is operator-auth gated, so a client landing there after finishing/refreshing the Stripe flow either bounced to /dashboard/login with no confirmation, or — on an open-demo deployment with no password set — loaded the operator's internal Leads CRM outright, leaking every other lead's data. Shipped: both actions now point refresh_url/return_url at the lead's own public preview page via the already-imported leadPreviewAbsoluteUrl instead. See stripe-connect-onboarding-link-client-facing-redirect in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-xtxzfb",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -773,6 +781,24 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "acquisition-source-checkout-attribution",
+    ),
+  },
+  {
+    date: "2026-07-26",
+    branch: "claude/nice-euler-xtxzfb",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip f74d1ccc (PR #832, db-ts-is-email-suppressed-test-coverage, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3377 passed, 210 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep diffed the newest ~12 claude/* branches by push time against origin/main — every non-empty diff spot-checked (e.g. claude/nice-euler-ii39tq's resendBundleBuyerEmailAction change) confirmed byte-identical to already-merged content on main under a different SHA, the documented squash-merge-artifact pattern; no live fold candidate.\n\nDispatched a research agent (general-purpose, read-only) briefed on AGENT_PROTOCOL's full text and everything closed across this whole same-day series, asked to find one concrete, previously-unaddressed, small-to-medium-scoped gap per the standard priority order. It found a real tier-1 sold-capability wiring gap, independently re-verified by reading both call sites and src/proxy.ts's dashboardAuthGate directly before implementing anything: createStripeConnectOnboardingLinkAction and sendStripeConnectOnboardingLinkToClientAction (src/app/dashboard/leads/actions.ts) both minted a Stripe Connect Express account_onboarding Account Link with refresh_url/return_url pointed at `${appUrl}/dashboard/leads` — but this link is routinely handed off to the external local-business client completing Stripe's own hosted KYC flow (the email-delivery sibling sends it directly to lead.email; the manual action's own UI names 'send it elsewhere' as the expected use), never opened only in the operator's own browser. /dashboard/leads is operator-auth gated via proxy.ts's dashboardAuthGate. Concrete failure: a client finishing (or needing to refresh) the Stripe flow gets redirected there and either bounces to /dashboard/login with zero confirmation their onboarding was accepted, or — on an open-demo deployment with OPERATOR_DASHBOARD_PASSWORD unset, a real documented deployment state elsewhere in this codebase — loads the operator's internal Leads CRM outright, leaking every other lead's business name/email/phone/notes/revenue to a third party who was only supposed to complete their own onboarding. Distinct from every prior fix that touched this exact scaffold (account-updated-connect-status-refresh, check-stripe-connect-status-action-revalidate-path, stripe-connect-onboarding-link-email-delivery) — all of those addressed the link's creation, caching, delivery, or status-refresh, never where Stripe sends the client's browser back to.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts — both onboarding-link actions now build a clientFacingUrl via the already-imported leadPreviewAbsoluteUrl(appUrl, lead.slug) and pass it as both refresh_url and return_url instead of `${appUrl}/dashboard/leads`. No new import needed — leadPreviewAbsoluteUrl was already imported in this file for other client-facing links (checkout recovery, commerce catalog previewUrl).",
+      "src/app/dashboard/leads/stripe-connect-actions.test.ts — updated the two existing action-level tests that asserted refreshUrl/returnUrl contained '/dashboard/leads' to instead assert '/preview/demo-cafe' (the fixture lead's slug), and added an explicit not-called-with-a-dashboard-path assertion to the manual (copy-link) action's test as a belt-and-suspenders regression guard.",
+      "src/app/docs/architecture/page.tsx — new paragraph directly after the existing stripe-connect-onboarding-link-email-delivery writeup naming the gap and the fix.",
+      "src/lib/process/business-decisions.ts — appended stripe-connect-onboarding-link-client-facing-redirect.",
+      "src/lib/process/prompt_process.tsx — one new NEXT_STEPS-done entry (stripe-connect-onboarding-link-client-facing-redirect, owner claude/nice-euler-xtxzfb, phase 8 — Commerce) and this ITERATIONS entry. All five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a sold-capability wiring gap on an already-shipped, still-dormant scaffold, not any of the five gated items. Diff-gate anchor moves to f74d1ccc (this session's own starting tip, post-PR-#832).",
+      "Verified the new/updated tests actually catch the regression: git stash'd actions.ts alone (test file kept) and re-ran stripe-connect-actions.test.ts — both updated assertions failed with the exact pre-fix symptom (received 'http://localhost:3000/dashboard/leads' instead of a /preview/demo-cafe URL) before restoring via git stash pop and confirming a clean, intended-only diff.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run src/app/dashboard/leads/stripe-connect-actions.test.ts (18 passed) + npx vitest run full suite (3377 passed, unchanged count — existing cases updated/extended, no new cases, 210 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split, no new warnings). No dev-server smoke test needed beyond the existing Vitest coverage: this changes only which URL is sent TO Stripe when minting an Account Link (fully mocked in every test), not the dashboard/preview pages' own rendering.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-connect-onboarding-link-client-facing-redirect",
     ),
   },
 ];

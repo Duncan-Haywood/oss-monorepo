@@ -282,8 +282,18 @@ describe("Stripe Connect dashboard actions", () => {
         expect.anything(),
         "acct_existing",
         expect.objectContaining({
-          refreshUrl: expect.stringContaining("/dashboard/leads"),
-          returnUrl: expect.stringContaining("/dashboard/leads"),
+          refreshUrl: expect.stringContaining("/preview/demo-cafe"),
+          returnUrl: expect.stringContaining("/preview/demo-cafe"),
+        }),
+      );
+      // Never the operator-auth-gated dashboard — this link is routinely
+      // handed off to the external client (stripe-connect-onboarding-link-
+      // client-facing-redirect).
+      expect(createConnectOnboardingLink).not.toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({
+          refreshUrl: expect.stringContaining("/dashboard"),
         }),
       );
       expect(result).toEqual({
@@ -333,8 +343,8 @@ describe("Stripe Connect dashboard actions", () => {
         expect.anything(),
         "acct_existing",
         expect.objectContaining({
-          refreshUrl: expect.stringContaining("/dashboard/leads"),
-          returnUrl: expect.stringContaining("/dashboard/leads"),
+          refreshUrl: expect.stringContaining("/preview/demo-cafe"),
+          returnUrl: expect.stringContaining("/preview/demo-cafe"),
         }),
       );
       expect(sendStripeConnectOnboardingLinkEmail).toHaveBeenCalledWith({
