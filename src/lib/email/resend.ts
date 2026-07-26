@@ -220,7 +220,7 @@ Unsubscribe URL: ${unsubscribeUrl}`);
 export async function sendOutreachEmail(to: string, businessName: string, slug: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const previewUrl = previewUrlWithOutreachTracking(leadPreviewAbsoluteUrl(baseUrl, slug));
-  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&source=outreach-email`;
   const safePreviewUrl = escapeHtmlForEmail(previewUrl);
   const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
 
@@ -250,7 +250,7 @@ export async function sendOutreachFollowUp2(
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const previewUrl = previewUrlWithOutreachTracking(leadPreviewAbsoluteUrl(baseUrl, slug));
-  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&source=outreach-email`;
   const safePreviewUrl = escapeHtmlForEmail(previewUrl);
   const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
 
@@ -282,7 +282,7 @@ export async function sendOutreachFollowUp3(
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const previewUrl = previewUrlWithOutreachTracking(leadPreviewAbsoluteUrl(baseUrl, slug));
-  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&source=outreach-email`;
   const safePreviewUrl = escapeHtmlForEmail(previewUrl);
   const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
 
@@ -336,7 +336,7 @@ export async function sendCheckoutAbandonedRecovery(
   nudgeNumber = 1,
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}`;
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}&source=outreach-email`;
   const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
   const safeBiz = escapeHtmlForEmail(businessName);
 
