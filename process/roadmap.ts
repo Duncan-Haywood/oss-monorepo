@@ -352,6 +352,16 @@ export const roadmap: RoadmapPhase[] = [
           "prompt_process.tsx's step 0a calls recentlyConfirmedWithinHours(12) instead of (3), with a doc note explaining why and pointing at this decision. See process/blockers.ts's cron-cadence-too-frequent entry and decisions-log.ts.",
       },
       {
+        id: "p2-blocker-recheck-window-widen-24h",
+        title: "Widen the recheck-throttle window from 12h to 24h — 20-34 confirmations with zero variance each",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "By 2026-07-26, every one of the 7 tracked human blockers had confirmedByCount in the 21-34 range with zero exceptions — the CI outage stable for 8+ days, the other six for 6+ weeks — and the 12-hour window (set 2026-07-18) had started firing right at its own boundary: this session's own recentlyConfirmedWithinHours(12) check landed ~29 seconds past the 12h mark from the prior full pass, triggering a full re-verification pass that found literally nothing new (same CI signature, same empty logs, same single open PR, no new branches). A window that borderline-fires for zero new information is the same waste p2-blocker-recheck-window-widen fixed at the 3h->12h step, one notch further.",
+        doneWhen:
+          "prompt_process.tsx's step 0a calls recentlyConfirmedWithinHours(24) instead of (12), with a doc note explaining why and pointing at this decision. The separate 72h shouldNotifyHuman() out-of-band throttle (step 0a-2) is unchanged — this only affects in-repo branch/commit/PR churn, not when Duncan gets pinged directly. See process/blockers.ts's cron-cadence-too-frequent entry and decisions-log.ts.",
+      },
+      {
         id: "p2-human-notification-throttle",
         title: "Throttle out-of-band (push/email) reminders to Duncan, separate from in-repo blocker rechecks",
         status: "done",
