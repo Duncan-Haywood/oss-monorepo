@@ -115,6 +115,15 @@ export default defineSchema({
      * revenue-total-usd-renewal-gap.
      */
     lastRenewalInvoiceId: v.optional(v.string()),
+    /**
+     * Unix ms of the most recent best-effort billing-notice send (dunning /
+     * payment-recovered / subscription-paused / subscription-resumed) that
+     * resolved success:false. Cleared the next time any of the four sends
+     * for this order succeeds. See billing-notice-send-failure-visibility.
+     */
+    lastBillingNoticeSendFailedAt: v.optional(v.number()),
+    /** Which of the four notice types most recently failed. */
+    lastBillingNoticeSendFailedType: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"])

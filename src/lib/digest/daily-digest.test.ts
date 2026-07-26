@@ -107,6 +107,9 @@ describe("buildDailyDigest", () => {
     expect(digest.recurringEntitlementPaused).toHaveLength(0);
     expect(digest.recurringEntitlementPausedCount).toBe(0);
     expect(digest.oldestRecurringEntitlementPausedAgeHours).toBeNull();
+    expect(digest.billingNoticeSendFailed).toHaveLength(0);
+    expect(digest.billingNoticeSendFailedCount).toBe(0);
+    expect(digest.oldestBillingNoticeSendFailedAgeHours).toBeNull();
     expect(digest.starterUpsellCandidates).toHaveLength(0);
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
     expect(digest.oldestCommerceCatalogsMissingAgeHours).toBeNull();
@@ -208,6 +211,7 @@ describe("buildDailyDigest", () => {
       "Paid, not live",
       "Missing email",
       "paused/canceled MRR recoveries",
+      "Billing notice send failed",
       "Stripe Connect onboarding incomplete",
       "Buffer profile mapping missing",
       "Buffer packs not posted",
@@ -808,6 +812,54 @@ describe("buildDailyDigest", () => {
     expect(html).toContain("MRR paused / canceled (1 · oldest 3h)");
     expect(html).toContain("Paused Growth Co");
     expect(html).toContain("Manage billing / Billing Portal");
+  });
+
+  it("lists orders whose most recent billing-notice send failed (billing-notice-send-failure-visibility)", () => {
+    const failedLead = baseLead({
+      slug: "notice-failed",
+      businessName: "Dunning Failed Co",
+      stage: "paid",
+    });
+    const cleanLead = baseLead({
+      slug: "notice-clean",
+      businessName: "Notice Clean Co",
+      stage: "live",
+    });
+    const failedAt = NOW - 6 * 60 * 60 * 1000;
+    const digest = buildDailyDigest({
+      leads: [failedLead, cleanLead],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        {
+          leadSlug: "notice-failed",
+          tier: "growth",
+          commerceAddon: false,
+          stripeSessionId: "cs_failed",
+          lastBillingNoticeSendFailedAt: failedAt,
+          lastBillingNoticeSendFailedType: "payment_failed",
+        },
+        {
+          leadSlug: "notice-clean",
+          tier: "complete",
+          commerceAddon: false,
+          stripeSessionId: "cs_clean",
+        },
+      ],
+      marketingPacksThisMonth: [{ leadSlug: "notice-clean", yearMonth: "2026-07" }],
+      nowMs: NOW,
+    });
+    expect(digest.billingNoticeSendFailedCount).toBe(1);
+    expect(digest.billingNoticeSendFailed).toHaveLength(1);
+    expect(digest.billingNoticeSendFailed[0]?.businessName).toBe("Dunning Failed Co");
+    expect(digest.billingNoticeSendFailed[0]?.noticeType).toBe("payment_failed");
+    expect(digest.oldestBillingNoticeSendFailedAgeHours).toBe(6);
+    expect(digest.isEmpty).toBe(false);
+
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Billing notice send failed (1 · oldest 6h)");
+    expect(html).toContain("Dunning Failed Co");
+    expect(html).toContain("payment-failed (dunning)");
   });
 
   it("lists leads with an incomplete Stripe Connect account (stripe-connect-onboarding-pipeline-health-visibility)", () => {

@@ -51,7 +51,30 @@ export interface OrderRecord {
    * revenue-total-usd-renewal-gap.
    */
   lastRenewalInvoiceId?: string;
+  /**
+   * Unix ms of the most recent best-effort billing-notice send (dunning /
+   * payment-recovered / subscription-paused / subscription-resumed — see
+   * src/app/api/stripe/webhook/route.ts) that resolved `{ success: false }`.
+   * Cleared the next time ANY of the four sends for this order succeeds —
+   * this is a "is billing communication currently reaching this customer"
+   * signal, not a per-notice-type ledger. Absent means either no send has
+   * ever failed, or the most recent attempt succeeded. These four notices
+   * have no other durable "sent" marker (Stripe's own retry/redelivery is
+   * the recovery path, not a stored idempotency flag), so a sustained Resend
+   * outage or a persistently-bad email address had zero operator-facing
+   * signal before this field existed — see billing-notice-send-failure-visibility.
+   */
+  lastBillingNoticeSendFailedAt?: number;
+  /** Which of the four notice types most recently failed. Paired with lastBillingNoticeSendFailedAt. */
+  lastBillingNoticeSendFailedType?: BillingNoticeType;
 }
+
+/** The four best-effort, customer-facing Stripe billing-status emails. */
+export type BillingNoticeType =
+  | "payment_failed"
+  | "payment_recovered"
+  | "subscription_paused"
+  | "subscription_resumed";
 
 /** True when Stripe has refunded (fully or partially) this bundle order's charge. */
 export function isOrderRefunded(order: Pick<OrderRecord, "refundedAt">): boolean {
@@ -61,6 +84,18 @@ export function isOrderRefunded(order: Pick<OrderRecord, "refundedAt">): boolean
 /** True when Stripe has an open or lost dispute on this bundle order's charge. */
 export function isOrderDisputed(order: Pick<OrderRecord, "disputedAt">): boolean {
   return Boolean(order.disputedAt);
+}
+
+/**
+ * True when the most recent billing-notice send attempt for this order
+ * failed and no later attempt has succeeded since. See
+ * billing-notice-send-failure-visibility.
+ */
+export function orderHasFailedBillingNotice(order: {
+  lastBillingNoticeSendFailedAt?: number | null;
+}): boolean {
+  const at = order.lastBillingNoticeSendFailedAt;
+  return typeof at === "number" && Number.isFinite(at) && at > 0;
 }
 
 /**

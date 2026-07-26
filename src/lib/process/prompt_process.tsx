@@ -364,6 +364,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 6 — Marketing automation",
     owner: "claude/upbeat-dijkstra-6lj0n5",
   },
+  {
+    id: "billing-notice-send-failure-visibility",
+    summary:
+      "Empty-backlog audit (tier 1 — sold-capability wiring gap) found the four best-effort Stripe billing-status emails (dunning, payment-recovered, subscription-paused, subscription-resumed — src/app/api/stripe/webhook/route.ts) had zero operator-facing signal on send failure — a resolved `{ success: false }` only ever reached a console.warn server log, and none of the four has any durable recovery marker. A subscriber whose card was declined could go indefinitely without ever learning why, and the operator had no way to know the automated notice never reached them. Shipped orders.lastBillingNoticeSendFailedAt/lastBillingNoticeSendFailedType (both backends, one combined marker cleared by any later successful send of the four) via a new recordBillingNoticeSendOutcome db.ts/convex mutation, wired into pipeline-health.ts + daily-digest.ts + a dashboard MetricCard. Also fixed an adjacent landmine found while wiring the schema change: three convex/orders.ts replace()-based mutations needed the two new fields added to their conditional-spread field lists, or an unrelated refund/dispute/resubscribe write would have silently wiped a live marker. See billing-notice-send-failure-visibility in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/nice-euler-hlw4ms",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -669,6 +677,29 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "quality-score-factor-disclosure-accessibility",
+    ),
+  },
+  {
+    date: "2026-07-26",
+    branch: "claude/nice-euler-hlw4ms",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip 1d81970 (PR #804, quality-score-factor-disclosure-accessibility, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3258 passed, 209 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest ~30 claude/* branches (each diffed directly against origin/main) showed every one carrying the documented empty/negative squash-merge-artifact pattern — no live fold candidate.\n\nDispatched a research agent across AGENT_PROTOCOL's standard tiers 1-4, explicitly told the accessibility vein (table scope, focus-restore ×2, form-error announcements, heading hierarchy, quality-score disclosure, reduced-motion, zoom/reflow, color contrast, dialog focus-trapping) and the db.ts/convex.ts test-coverage series were both exhausted for this pass. Tier 1 found a real, verified gap: the four best-effort billing-status webhook emails (sendPaymentFailedNotice, sendPaymentRecoveredNotice, sendSubscriptionPausedNotice, sendSubscriptionResumedNotice) each follow an identical console.warn-only pattern on send failure, with zero durable recovery marker and zero references anywhere in pipeline-health.ts or daily-digest.ts — the same 'generated/attempted ≠ delivered' gap class already closed for bundle receipts, Commerce client receipts, and the Buffer marketing-pack scaffold, never applied to this billing-notice quartet.",
+    shipped: [
+      "src/lib/orders/types.ts — added BillingNoticeType, OrderRecord.lastBillingNoticeSendFailedAt/lastBillingNoticeSendFailedType, and orderHasFailedBillingNotice.",
+      "src/lib/orders/recurring.ts — listOrdersWithFailedBillingNotice / oldestBillingNoticeSendFailedAgeHours, mirroring listRecurringEntitlementPaused's exact shape.",
+      "convex/schema.ts + convex/orders.ts — added the two fields to the orders table + orderDocValidator; new recordBillingNoticeSendOutcome mutation (patch to record, patch-with-undefined to clear — see convex-patch-undefined-clear-semantics-correction); added the two fields to clearRecurringCanceledByCustomer/clearRefunded/clearDisputed's replace()-based conditional-spread field lists, or an unrelated write would have silently wiped a live marker (same landmine class as revenue-total-usd-renewal-gap).",
+      "src/lib/db.ts — registered orders:recordBillingNoticeSendOutcome on the static Convex API map (convex-api-map-audit.test.ts caught the omission before it could split-brain); mapConvexOrderRow, the four order-list Convex/SQLite call sites, and recordBillingNoticeSendOutcome itself (never throws — Convex failure falls back to SQLite; SQLite failure is only console.error'd, since this is a display-only marker on an already-best-effort send).",
+      "src/lib/db/sqlite-schema.ts + src/lib/db/sqlite-queries.ts + src/lib/orders/sqlite-row-mapping.ts — additive ALTER TABLE columns + SELECT/mapping updates for the two new fields.",
+      "src/app/api/stripe/webhook/route.ts — call recordBillingNoticeSendOutcome at all four notice-send sites, right after the existing `if (!sent.success) console.warn(...)` block, reusing each site's existing dynamic `await import(\"@/lib/db\")` destructure.",
+      "src/lib/metrics/pipeline-health.ts + src/lib/digest/daily-digest.ts + src/components/dashboard/pipeline-health-panel.tsx — billingNoticeSendFailedCount/oldestBillingNoticeSendFailedAgeHours, a new digest section + actionableSections entry (updated the actionableSectionLabels pinned-list test), and a new MetricCard right after the sibling 'MRR paused / canceled' card.",
+      "src/app/docs/architecture/page.tsx — new paragraph directly after the existing four-notice description, naming the gap, the fix, and the replace()-landmine fix.",
+      "Tests: src/lib/orders/types.test.ts, src/lib/orders/recurring.test.ts, src/lib/orders/sqlite-row-mapping.test.ts, src/lib/metrics/pipeline-health.test.ts, src/lib/digest/daily-digest.test.ts, convex/orders.test.ts (including a dedicated regression test proving the three replace()-based mutations preserve the new marker), src/lib/db.test.ts (following this file's own real-module/mocked-Convex-client scaffold), and src/app/api/stripe/webhook/route.test.ts (wired the mock, added assertions on all four notice types' success paths plus three of the four existing send-failure tests).",
+      "src/lib/process/business-decisions.ts — appended billing-notice-send-failure-visibility.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged otherwise — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-unaudited sold-capability visibility gap on a live (not dormant) billing-notice surface, not any of the five gated items. Diff-gate anchor moves to 1d81970 (this session's own starting tip, post-PR-#804).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3277 passed, up from 3258, 209 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split) + npm run dev smoke check curling /dashboard/leads and /docs/architecture (200 on both; grep confirmed the new 'Billing notice send failed' MetricCard renders with value 0 and hint 'Every billing-status email reached the customer', and the docs paragraph's billing-notice-send-failure-visibility id string is present; no error-boundary/500 text on either) since this touches database schema, webhook orchestration, and dashboard UI. Killed the dev server and confirmed git status showed only the 20 intended files changed, no stray local.db.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "billing-notice-send-failure-visibility",
     ),
   },
 ];

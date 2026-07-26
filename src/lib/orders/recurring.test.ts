@@ -3,7 +3,9 @@ import {
   invoiceIsSubscriptionRenewalCharge,
   invoicePaidMayRestoreRecurringEntitlement,
   invoicePaymentFailedPausesRecurringEntitlement,
+  listOrdersWithFailedBillingNotice,
   listRecurringEntitlementPaused,
+  oldestBillingNoticeSendFailedAgeHours,
   oldestRecurringEntitlementPausedAgeHours,
   orderEligibleForPauseNotice,
   orderGrantsSoldCapabilityEntitlement,
@@ -428,6 +430,90 @@ describe("oldestRecurringEntitlementPausedAgeHours", () => {
     expect(
       oldestRecurringEntitlementPausedAgeHours(
         [{ pausedAtMs: 1_720_000_000_000 }],
+        1_720_003_600_000,
+      ),
+    ).toBe(1);
+  });
+});
+
+describe("listOrdersWithFailedBillingNotice", () => {
+  const failedAt = 1_720_000_000_000;
+
+  it("lists orders whose most recent billing-notice send failed (oldest failure first)", () => {
+    const failed = listOrdersWithFailedBillingNotice(
+      [
+        { slug: "newer", businessName: "Newer Cafe" },
+        { slug: "older", businessName: "Older Bakery" },
+      ],
+      [
+        {
+          leadSlug: "newer",
+          stripeSessionId: "cs_new",
+          lastBillingNoticeSendFailedAt: failedAt + 10_000,
+          lastBillingNoticeSendFailedType: "payment_failed",
+        },
+        {
+          leadSlug: "older",
+          stripeSessionId: "cs_old",
+          lastBillingNoticeSendFailedAt: failedAt,
+          lastBillingNoticeSendFailedType: "subscription_paused",
+        },
+      ],
+    );
+    expect(failed.map((row) => row.slug)).toEqual(["older", "newer"]);
+    expect(failed[0]).toEqual({
+      slug: "older",
+      businessName: "Older Bakery",
+      stripeSessionId: "cs_old",
+      noticeType: "subscription_paused",
+      failedAtMs: failedAt,
+    });
+  });
+
+  it("excludes orders with no failure, a cleared failure, or a missing notice type", () => {
+    expect(
+      listOrdersWithFailedBillingNotice(
+        [{ slug: "clean", businessName: "Clean Cafe" }],
+        [{ leadSlug: "clean", stripeSessionId: "cs_1" }],
+      ),
+    ).toEqual([]);
+    expect(
+      listOrdersWithFailedBillingNotice(
+        [{ slug: "cleared", businessName: "Cleared Cafe" }],
+        [
+          {
+            leadSlug: "cleared",
+            stripeSessionId: "cs_2",
+            lastBillingNoticeSendFailedAt: null,
+            lastBillingNoticeSendFailedType: null,
+          },
+        ],
+      ),
+    ).toEqual([]);
+  });
+
+  it("falls back to the lead slug when no matching lead businessName is found", () => {
+    const failed = listOrdersWithFailedBillingNotice(
+      [],
+      [
+        {
+          leadSlug: "unmatched",
+          stripeSessionId: "cs_3",
+          lastBillingNoticeSendFailedAt: failedAt,
+          lastBillingNoticeSendFailedType: "payment_recovered",
+        },
+      ],
+    );
+    expect(failed[0]?.businessName).toBe("unmatched");
+  });
+});
+
+describe("oldestBillingNoticeSendFailedAgeHours", () => {
+  it("returns null when empty and whole hours for the oldest failure", () => {
+    expect(oldestBillingNoticeSendFailedAgeHours([], 1_720_003_600_000)).toBeNull();
+    expect(
+      oldestBillingNoticeSendFailedAgeHours(
+        [{ failedAtMs: 1_720_000_000_000 }],
         1_720_003_600_000,
       ),
     ).toBe(1);

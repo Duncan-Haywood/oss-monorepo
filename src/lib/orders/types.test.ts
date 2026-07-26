@@ -4,6 +4,7 @@ import {
   isOrderRefunded,
   newOrderId,
   orderCountsTowardRevenue,
+  orderHasFailedBillingNotice,
   orderLifetimeRevenueUsd,
   sortOrdersNewestFirst,
 } from "./types";
@@ -25,6 +26,26 @@ describe("isOrderDisputed", () => {
 
   it("is true when disputedAt is set", () => {
     expect(isOrderDisputed({ disputedAt: "2026-01-01T00:00:00.000Z" })).toBe(true);
+  });
+});
+
+describe("orderHasFailedBillingNotice", () => {
+  it("is false when lastBillingNoticeSendFailedAt is absent", () => {
+    expect(orderHasFailedBillingNotice({})).toBe(false);
+  });
+
+  it("is false when lastBillingNoticeSendFailedAt is null", () => {
+    expect(orderHasFailedBillingNotice({ lastBillingNoticeSendFailedAt: null })).toBe(false);
+  });
+
+  it("is false when lastBillingNoticeSendFailedAt is 0", () => {
+    expect(orderHasFailedBillingNotice({ lastBillingNoticeSendFailedAt: 0 })).toBe(false);
+  });
+
+  it("is true when lastBillingNoticeSendFailedAt is a positive timestamp", () => {
+    expect(orderHasFailedBillingNotice({ lastBillingNoticeSendFailedAt: 1700000000000 })).toBe(
+      true,
+    );
   });
 });
 

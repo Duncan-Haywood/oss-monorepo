@@ -62,6 +62,7 @@ const listOrdersByLeadSlug = vi.fn();
 const getCommerceOrderByStripeSessionId = vi.fn();
 const getOrderByStripeSessionId = vi.fn();
 const getOrdersByStripeCustomerId = vi.fn();
+const recordBillingNoticeSendOutcome = vi.fn();
 const markCommerceOrderClientReceiptSent = vi.fn();
 const markCommerceOrderRefunded = vi.fn();
 const markOrderRefunded = vi.fn();
@@ -116,6 +117,7 @@ vi.mock("@/lib/db", () => ({
     getCommerceOrderByStripeSessionId(...args),
   getOrderByStripeSessionId: (...args: unknown[]) => getOrderByStripeSessionId(...args),
   getOrdersByStripeCustomerId: (...args: unknown[]) => getOrdersByStripeCustomerId(...args),
+  recordBillingNoticeSendOutcome: (...args: unknown[]) => recordBillingNoticeSendOutcome(...args),
   markCommerceOrderClientReceiptSent: (...args: unknown[]) =>
     markCommerceOrderClientReceiptSent(...args),
   markCommerceOrderRefunded: (...args: unknown[]) => markCommerceOrderRefunded(...args),
@@ -314,6 +316,7 @@ describe("POST /api/stripe/webhook", () => {
     getCommerceOrderByStripeSessionId.mockReset().mockResolvedValue(null);
     getOrderByStripeSessionId.mockReset().mockResolvedValue(null);
     getOrdersByStripeCustomerId.mockReset().mockResolvedValue([]);
+    recordBillingNoticeSendOutcome.mockReset().mockResolvedValue(undefined);
     markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(true);
     markCommerceOrderRefunded.mockReset().mockResolvedValue(undefined);
     markOrderRefunded.mockReset().mockResolvedValue(undefined);
@@ -847,6 +850,12 @@ describe("POST /api/stripe/webhook", () => {
         slug: "demo-cafe",
         stripeSessionId: "cs_paused_1",
       });
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_paused_1",
+        "subscription_paused",
+        true,
+        expect.any(Number),
+      );
     });
 
     it("does not re-send when pause_collection was already set (no previous_attributes change)", async () => {
@@ -1025,6 +1034,12 @@ describe("POST /api/stripe/webhook", () => {
         slug: "demo-cafe",
         stripeSessionId: "cs_resumed_1",
       });
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_resumed_1",
+        "subscription_resumed",
+        true,
+        expect.any(Number),
+      );
     });
 
     it("does not send the resumed notice for an ordinary catalog-Price restore (no pause_collection change)", async () => {
@@ -1158,6 +1173,14 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      // See billing-notice-send-failure-visibility: a suppressed/failed send
+      // must still record a durable, operator-visible marker.
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_paused_2",
+        "subscription_paused",
+        false,
+        expect.any(Number),
+      );
     });
   });
 
@@ -1399,6 +1422,12 @@ describe("POST /api/stripe/webhook", () => {
         slug: "demo-cafe",
         stripeSessionId: "cs_notice_1",
       });
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_notice_1",
+        "payment_failed",
+        true,
+        expect.any(Number),
+      );
     });
 
     it("skips the notice when the customer has no recurring order", async () => {
@@ -1492,6 +1521,14 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      // See billing-notice-send-failure-visibility: a suppressed/failed send
+      // must still record a durable, operator-visible marker.
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_notice_3",
+        "payment_failed",
+        false,
+        expect.any(Number),
+      );
     });
   });
 
@@ -1811,6 +1848,12 @@ describe("POST /api/stripe/webhook", () => {
         slug: "demo-cafe",
         stripeSessionId: "cs_recovered_1",
       });
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_recovered_1",
+        "payment_recovered",
+        true,
+        expect.any(Number),
+      );
     });
 
     it("skips the notice when nothing was actually cleared (ordinary healthy renewal)", async () => {
@@ -1911,6 +1954,14 @@ describe("POST /api/stripe/webhook", () => {
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
+      // See billing-notice-send-failure-visibility: a suppressed/failed send
+      // must still record a durable, operator-visible marker.
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_recovered_4",
+        "payment_recovered",
+        false,
+        expect.any(Number),
+      );
     });
   });
 

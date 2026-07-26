@@ -1463,6 +1463,38 @@ export default function ArchitectureDocPage() {
         <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
       </p>
       <p>
+        The four billing-notice sends above (<code>sendPaymentFailedNotice</code>,{" "}
+        <code>sendPaymentRecoveredNotice</code>, <code>sendSubscriptionPausedNotice</code>,{" "}
+        <code>sendSubscriptionResumedNotice</code>) are best-effort by design — a notify failure
+        must never turn an already-durable pause/restore write into a webhook retry loop — but
+        until <code>billing-notice-send-failure-visibility</code> shipped, a resolved{" "}
+        <code>{"{ success: false }"}</code> (a sustained Resend outage, or a customer&apos;s email
+        permanently bouncing) reached only a <code>console.warn</code> server log with zero
+        operator-facing signal. A subscriber whose card was declined could go indefinitely without
+        ever learning why their site&apos;s paid features paused, and the operator had no way to
+        know the automated notice never reached them (<code>recurringEntitlementPausedCount</code>{" "}
+        only reports the paused *state*, never whether the customer was told). Fixed by adding{" "}
+        <code>orders.lastBillingNoticeSendFailedAt</code> /{" "}
+        <code>lastBillingNoticeSendFailedType</code> (both backends) and a new{" "}
+        <code>recordBillingNoticeSendOutcome</code> call (<code>src/lib/db.ts</code>, keyed on{" "}
+        <code>stripeSessionId</code>) at each of the four send sites in the webhook route — one
+        combined &quot;is billing communication currently reaching this customer&quot; marker, not
+        a per-notice-type ledger, so a later successful send of any of the four notices clears it.
+        Deliberately never throws (Convex or SQLite failure alike): this is a display-only marker
+        on an already-best-effort send, not a required write. <code>listOrdersWithFailedBillingNotice</code>{" "}
+        / <code>oldestBillingNoticeSendFailedAgeHours</code> (<code>src/lib/orders/recurring.ts</code>)
+        feed a new pipeline-health <code>billingNoticeSendFailedCount</code> MetricCard and a daily
+        digest section, mirroring the visibility-only precedent{" "}
+        <code>vercel-domain-provisioning-failure-visibility</code> set for a different best-effort
+        automation. The three sibling mutations that replace the whole{" "}
+        <code>orders</code> document (<code>clearRecurringCanceledByCustomer</code>,{" "}
+        <code>clearRefunded</code>, <code>clearDisputed</code>) needed the two new fields added to
+        their conditional-spread field lists, or an unrelated resubscribe/refund-reversal/dispute-win
+        would have silently wiped a still-live send-failure marker — the same landmine{" "}
+        <code>revenue-total-usd-renewal-gap</code> already flagged for{" "}
+        <code>lifetimeRevenueUsd</code>/<code>lastRenewalInvoiceId</code>.
+      </p>
+      <p>
         Every Checkout Session is tracked in <code>checkout_sessions</code> (
         <code>src/lib/checkout/</code>) as <code>open</code> until the completed webhook flips it
         to <code>complete</code>. Create-path tracking (

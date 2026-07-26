@@ -22,6 +22,8 @@ export interface SqliteOrderJoinRow {
   disputedAt: string | null;
   lifetimeRevenueUsd: number | null;
   lastRenewalInvoiceId: string | null;
+  lastBillingNoticeSendFailedAt: number | null;
+  lastBillingNoticeSendFailedType: string | null;
 }
 
 /** Map a SQLite `orders` row back into the app-wide OrderRecord shape (fallback-read path). */
@@ -48,5 +50,13 @@ export function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
         ? row.lifetimeRevenueUsd
         : undefined,
     lastRenewalInvoiceId: row.lastRenewalInvoiceId || undefined,
+    lastBillingNoticeSendFailedAt:
+      typeof row.lastBillingNoticeSendFailedAt === "number" &&
+      Number.isFinite(row.lastBillingNoticeSendFailedAt) &&
+      row.lastBillingNoticeSendFailedAt > 0
+        ? row.lastBillingNoticeSendFailedAt
+        : undefined,
+    lastBillingNoticeSendFailedType: (row.lastBillingNoticeSendFailedType ||
+      undefined) as OrderRecord["lastBillingNoticeSendFailedType"],
   };
 }

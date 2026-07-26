@@ -1284,7 +1284,8 @@ export async function POST(request: Request) {
         // 5xx/retry loop.
         if (cleared > 0 && pauseCollectionJustChanged) {
           try {
-            const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
+            const { getOrdersByStripeCustomerId, getLeadBySlug, recordBillingNoticeSendOutcome } =
+              await import("@/lib/db");
             const orders = await getOrdersByStripeCustomerId(customerId);
             const recurringOrder = orders.find((order) =>
               orderGrantsSoldCapabilityEntitlement(order),
@@ -1304,6 +1305,12 @@ export async function POST(request: Request) {
                     `webhook: ${event.type} ${subscription.id} subscription-resumed notice not sent for ${recurringOrder.leadSlug} (${sent.reason ?? sent.error ?? "unknown"})`,
                   );
                 }
+                await recordBillingNoticeSendOutcome(
+                  recurringOrder.stripeSessionId,
+                  "subscription_resumed",
+                  sent.success,
+                  Date.now(),
+                );
               }
             }
           } catch (e) {
@@ -1356,7 +1363,8 @@ export async function POST(request: Request) {
       // pause write has already gone through and the row is no longer NULL.
       if (collectionPaused && pauseCollectionJustChanged && updated > 0) {
         try {
-          const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
+          const { getOrdersByStripeCustomerId, getLeadBySlug, recordBillingNoticeSendOutcome } =
+            await import("@/lib/db");
           const orders = await getOrdersByStripeCustomerId(customerId);
           const recurringOrder = orders.find((order) => orderEligibleForPauseNotice(order));
           if (recurringOrder) {
@@ -1374,6 +1382,12 @@ export async function POST(request: Request) {
                   `webhook: ${event.type} ${subscription.id} subscription-paused notice not sent for ${recurringOrder.leadSlug} (${sent.reason ?? sent.error ?? "unknown"})`,
                 );
               }
+              await recordBillingNoticeSendOutcome(
+                recurringOrder.stripeSessionId,
+                "subscription_paused",
+                sent.success,
+                Date.now(),
+              );
             }
           }
         } catch (e) {
@@ -1456,7 +1470,8 @@ export async function POST(request: Request) {
       // Stripe fires a new invoice.payment_failed per Smart Retry attempt, so
       // this naturally sends once per attempt without its own dedup marker.
       try {
-        const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
+        const { getOrdersByStripeCustomerId, getLeadBySlug, recordBillingNoticeSendOutcome } =
+          await import("@/lib/db");
         const orders = await getOrdersByStripeCustomerId(customerId);
         const recurringOrder = orders.find((order) => orderEligibleForPauseNotice(order));
         if (recurringOrder) {
@@ -1474,6 +1489,12 @@ export async function POST(request: Request) {
                 `webhook: invoice.payment_failed ${invoice.id} payment-failed notice not sent for ${recurringOrder.leadSlug} (${sent.reason ?? sent.error ?? "unknown"})`,
               );
             }
+            await recordBillingNoticeSendOutcome(
+              recurringOrder.stripeSessionId,
+              "payment_failed",
+              sent.success,
+              Date.now(),
+            );
           }
         }
       } catch (e) {
@@ -1625,7 +1646,8 @@ export async function POST(request: Request) {
       // restore twin of recurring-payment-failed-dunning-notice).
       if (cleared > 0) {
         try {
-          const { getOrdersByStripeCustomerId, getLeadBySlug } = await import("@/lib/db");
+          const { getOrdersByStripeCustomerId, getLeadBySlug, recordBillingNoticeSendOutcome } =
+            await import("@/lib/db");
           const orders = await getOrdersByStripeCustomerId(customerId);
           const recurringOrder = orders.find((order) =>
             orderGrantsSoldCapabilityEntitlement(order),
@@ -1645,6 +1667,12 @@ export async function POST(request: Request) {
                   `webhook: invoice.paid ${invoice.id} payment-recovered notice not sent for ${recurringOrder.leadSlug} (${sent.reason ?? sent.error ?? "unknown"})`,
                 );
               }
+              await recordBillingNoticeSendOutcome(
+                recurringOrder.stripeSessionId,
+                "payment_recovered",
+                sent.success,
+                Date.now(),
+              );
             }
           }
         } catch (e) {

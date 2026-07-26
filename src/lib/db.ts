@@ -8,7 +8,7 @@ import type { DeployHandoff, DeployHandoffStatus } from "./deploy/types";
 import type { ClientInquiry, ClientInquiryStatus, CreateClientInquiryInput } from "./inquiries/types";
 import { normalizeContactFormFields } from "./inquiries/contact-fields";
 import { newClientInquiryId } from "./inquiries/inquiry-id";
-import type { OrderRecord } from "./orders/types";
+import type { BillingNoticeType, OrderRecord } from "./orders/types";
 import { sortOrdersNewestFirst } from "./orders/types";
 import { orderGrantsSoldCapabilityEntitlement } from "./orders/recurring";
 import type { CheckoutSessionRecord } from "./checkout/types";
@@ -154,6 +154,7 @@ const api: any = {
     markDisputed: "orders:markDisputed",
     clearDisputed: "orders:clearDisputed",
     recordSubscriptionRenewalPayment: "orders:recordSubscriptionRenewalPayment",
+    recordBillingNoticeSendOutcome: "orders:recordBillingNoticeSendOutcome",
   },
   checkoutSessions: {
     create: "checkoutSessions:create",
@@ -867,6 +868,8 @@ function mapConvexOrderRow(row: {
   disputedAt?: string;
   lifetimeRevenueUsd?: number;
   lastRenewalInvoiceId?: string;
+  lastBillingNoticeSendFailedAt?: number;
+  lastBillingNoticeSendFailedType?: string;
 }): OrderRecord {
   return {
     id: row._id,
@@ -890,6 +893,14 @@ function mapConvexOrderRow(row: {
         ? row.lifetimeRevenueUsd
         : undefined,
     lastRenewalInvoiceId: row.lastRenewalInvoiceId || undefined,
+    lastBillingNoticeSendFailedAt:
+      typeof row.lastBillingNoticeSendFailedAt === "number" &&
+      Number.isFinite(row.lastBillingNoticeSendFailedAt) &&
+      row.lastBillingNoticeSendFailedAt > 0
+        ? row.lastBillingNoticeSendFailedAt
+        : undefined,
+    lastBillingNoticeSendFailedType: (row.lastBillingNoticeSendFailedType ||
+      undefined) as OrderRecord["lastBillingNoticeSendFailedType"],
   };
 }
 
@@ -910,6 +921,8 @@ export async function listOrders(): Promise<OrderRecord[]> {
         disputedAt?: string;
         lifetimeRevenueUsd?: number;
         lastRenewalInvoiceId?: string;
+        lastBillingNoticeSendFailedAt?: number;
+        lastBillingNoticeSendFailedType?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -949,6 +962,8 @@ export async function listOrdersByLeadSlug(
         disputedAt?: string;
         lifetimeRevenueUsd?: number;
         lastRenewalInvoiceId?: string;
+        lastBillingNoticeSendFailedAt?: number;
+        lastBillingNoticeSendFailedType?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -990,6 +1005,8 @@ export async function getOrderByStripeSessionId(
         disputedAt?: string;
         lifetimeRevenueUsd?: number;
         lastRenewalInvoiceId?: string;
+        lastBillingNoticeSendFailedAt?: number;
+        lastBillingNoticeSendFailedType?: string;
       } | null;
       return row ? mapConvexOrderRow(row) : null;
     } catch (e) {
@@ -1005,7 +1022,8 @@ export async function getOrderByStripeSessionId(
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
               o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
-              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE o.stripeSessionId = ?`,
@@ -1048,6 +1066,8 @@ export async function getOrdersByStripeCustomerId(
         disputedAt?: string;
         lifetimeRevenueUsd?: number;
         lastRenewalInvoiceId?: string;
+        lastBillingNoticeSendFailedAt?: number;
+        lastBillingNoticeSendFailedType?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -1063,7 +1083,8 @@ export async function getOrdersByStripeCustomerId(
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
               o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
-              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE o.stripeCustomerId = ?
@@ -1531,6 +1552,65 @@ export async function recordSubscriptionRenewalPayment(
     `UPDATE orders SET lifetimeRevenueUsd = ?, lastRenewalInvoiceId = ? WHERE id = ?`,
   ).run(base + amountUsd, invoice, row.id);
   return { recorded: true };
+}
+
+/**
+ * Records the outcome of a best-effort billing-notice send (dunning /
+ * payment-recovered / subscription-paused / subscription-resumed —
+ * src/app/api/stripe/webhook/route.ts) so a sustained Resend outage or a
+ * persistently-bad customer email is visible to the operator instead of only
+ * reaching a server log via console.warn (see
+ * billing-notice-send-failure-visibility). success:true clears any prior
+ * failure marker; success:false records this attempt. Deliberately never
+ * throws — this is a display-only marker on an already-best-effort send, not
+ * a required write; a failure here must never turn the webhook's 200
+ * response into a 5xx/retry loop, so both the Convex and SQLite paths are
+ * wrapped and merely logged.
+ */
+export async function recordBillingNoticeSendOutcome(
+  stripeSessionId: string,
+  noticeType: BillingNoticeType,
+  success: boolean,
+  atMs: number,
+): Promise<void> {
+  const sessionId = stripeSessionId.trim();
+  if (!sessionId) return;
+
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.recordBillingNoticeSendOutcome, {
+        stripeSessionId: sessionId,
+        noticeType,
+        success,
+        atMs,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to record billing notice ${noticeType} send outcome for ${sessionId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  try {
+    const db = getSqliteDb();
+    if (success) {
+      db.prepare(
+        `UPDATE orders SET lastBillingNoticeSendFailedAt = NULL, lastBillingNoticeSendFailedType = NULL WHERE stripeSessionId = ?`,
+      ).run(sessionId);
+    } else {
+      db.prepare(
+        `UPDATE orders SET lastBillingNoticeSendFailedAt = ?, lastBillingNoticeSendFailedType = ? WHERE stripeSessionId = ?`,
+      ).run(atMs, noticeType, sessionId);
+    }
+  } catch (e) {
+    console.error(
+      `Failed to record billing notice ${noticeType} send outcome for ${sessionId} on SQLite`,
+      e,
+    );
+  }
 }
 
 // --- Suppression List Functions ---

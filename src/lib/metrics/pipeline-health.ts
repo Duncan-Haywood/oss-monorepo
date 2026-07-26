@@ -74,6 +74,8 @@ import {
 import {
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
+  listOrdersWithFailedBillingNotice,
+  oldestBillingNoticeSendFailedAgeHours,
 } from "@/lib/orders/recurring";
 import {
   listStarterUpsellCandidates,
@@ -323,6 +325,17 @@ export interface PipelineHealth {
   recurringEntitlementPausedCount: number;
   /** Age in whole hours of the oldest recurring entitlement pause; null when none. */
   oldestRecurringEntitlementPausedAgeHours: number | null;
+  /**
+   * Bundle/Commerce orders whose most recent best-effort billing-notice send
+   * (dunning / payment-recovered / subscription-paused / subscription-resumed)
+   * resolved success:false and hasn't since been superseded by a successful
+   * one — a sustained Resend outage or a persistently-bad customer email
+   * leaves the customer with zero signal their billing status changed. See
+   * billing-notice-send-failure-visibility.
+   */
+  billingNoticeSendFailedCount: number;
+  /** Age in whole hours since the oldest still-failing billing-notice send; null when none. */
+  oldestBillingNoticeSendFailedAgeHours: number | null;
   /**
    * Paid/live Starter-only leads with a usable email and no Growth/Complete/
    * Commerce order yet — the MRR upsell nudge queue (see
@@ -903,6 +916,12 @@ export function computePipelineHealth(input: {
     nowMs,
   );
 
+  const billingNoticeSendFailed = listOrdersWithFailedBillingNotice(input.leads, input.orders);
+  const oldestBillingNoticeSendFailedHours = oldestBillingNoticeSendFailedAgeHours(
+    billingNoticeSendFailed,
+    nowMs,
+  );
+
   const starterUpsellCandidates = listStarterUpsellCandidates(input.leads, input.orders);
   const oldestStarterUpsellAgeHours = oldestStarterUpsellCandidateAgeHours(
     starterUpsellCandidates,
@@ -1014,6 +1033,8 @@ export function computePipelineHealth(input: {
       oldestCommerceOrdersMissingClientReceiptAgeHoursValue,
     recurringEntitlementPausedCount,
     oldestRecurringEntitlementPausedAgeHours: oldestRecurringPausedAgeHours,
+    billingNoticeSendFailedCount: billingNoticeSendFailed.length,
+    oldestBillingNoticeSendFailedAgeHours: oldestBillingNoticeSendFailedHours,
     starterUpsellCandidatesCount: starterUpsellCandidates.length,
     oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellAgeHours,
     connectOnboardingIncompleteCount: connectOnboardingIncomplete.length,

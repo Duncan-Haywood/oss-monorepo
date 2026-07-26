@@ -40,7 +40,8 @@ export function sqliteListOrders(db: DatabaseSync): OrderRecord[] {
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
               o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
-              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        ORDER BY o.createdAt DESC`,
@@ -65,7 +66,8 @@ export function sqliteListOrdersByLeadSlug(db: DatabaseSync, leadSlug: string): 
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
               o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
-              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE l.slug = ?

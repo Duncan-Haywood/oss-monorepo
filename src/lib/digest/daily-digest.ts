@@ -80,8 +80,11 @@ import {
 import {
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
+  listOrdersWithFailedBillingNotice,
+  oldestBillingNoticeSendFailedAgeHours,
   type RecurringEntitlementPausedStage,
 } from "../orders/recurring";
+import type { BillingNoticeType } from "../orders/types";
 import {
   listLeadsWithIncompleteConnectOnboarding,
   oldestConnectOnboardingIncompleteAgeHours,
@@ -125,6 +128,7 @@ const OPEN_HANDOFFS_LIMIT = 5;
 const PAID_NOT_LIVE_LIMIT = 5;
 const LEADS_MISSING_EMAIL_LIMIT = 5;
 const RECURRING_ENTITLEMENT_PAUSED_LIMIT = 5;
+const BILLING_NOTICE_SEND_FAILED_LIMIT = 5;
 const CONNECT_ONBOARDING_INCOMPLETE_LIMIT = 5;
 const BUFFER_PROFILE_MAPPING_MISSING_LIMIT = 5;
 const MARKETING_PACKS_MISSING_BUFFER_POST_LIMIT = 5;
@@ -394,6 +398,19 @@ export interface DigestRecurringEntitlementPaused {
 }
 
 /**
+ * A bundle/Commerce order whose most recent best-effort billing-notice send
+ * (dunning / payment-recovered / subscription-paused / subscription-resumed)
+ * resolved success:false — same predicate as pipeline-health
+ * billingNoticeSendFailedCount via listOrdersWithFailedBillingNotice. See
+ * billing-notice-send-failure-visibility.
+ */
+export interface DigestBillingNoticeSendFailed {
+  slug: string;
+  businessName: string;
+  noticeType: BillingNoticeType;
+}
+
+/**
  * Lead with a Stripe Connect Express account created but not yet confirmed
  * fully onboarded (see stripe-connect-onboarding-pipeline-health-visibility)
  * — same predicate as pipeline-health connectOnboardingIncompleteCount via
@@ -634,6 +651,16 @@ export interface DailyDigest {
   /** Age in whole hours of the oldest recurring entitlement pause; null when none. */
   oldestRecurringEntitlementPausedAgeHours: number | null;
   /**
+   * Orders whose most recent billing-notice send failed — same predicate as
+   * pipeline-health billingNoticeSendFailedCount (action section). See
+   * billing-notice-send-failure-visibility.
+   */
+  billingNoticeSendFailed: DigestBillingNoticeSendFailed[];
+  /** True count before the BILLING_NOTICE_SEND_FAILED_LIMIT slice. */
+  billingNoticeSendFailedCount: number;
+  /** Age in whole hours since the oldest still-failing billing-notice send; null when none. */
+  oldestBillingNoticeSendFailedAgeHours: number | null;
+  /**
    * Leads with a Stripe Connect Express account not yet confirmed fully
    * onboarded — same predicate as pipeline-health
    * connectOnboardingIncompleteCount (see
@@ -709,6 +736,8 @@ export interface BuildDailyDigestInput {
     commerceAddon: boolean;
     recurringCanceledAt?: number | null;
     stripeCustomerId?: string | null;
+    /** Billing notice send-failure sections read this — see billing-notice-send-failure-visibility. */
+    stripeSessionId?: string;
     /** ISO timestamp. Marketing/catalog/voice-pack oldest-age sections read this. */
     createdAt?: string;
     /** USD dollars. Bundle refunded/disputed sections read this. */
@@ -717,6 +746,8 @@ export interface BuildDailyDigestInput {
     refundedAt?: string;
     /** ISO timestamp when charge.dispute.created flagged this order — see bundle-order-dispute-tracking. */
     disputedAt?: string;
+    lastBillingNoticeSendFailedAt?: number | null;
+    lastBillingNoticeSendFailedType?: BillingNoticeType | null;
   }>;
   marketingPacksThisMonth?: ReadonlyArray<{
     leadSlug: string;
@@ -1354,6 +1385,20 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         hasStripeCustomerId: lead.hasStripeCustomerId,
       }));
 
+  const billingNoticeSendFailedAll = listOrdersWithFailedBillingNotice(leads, orders);
+  const billingNoticeSendFailedCount = billingNoticeSendFailedAll.length;
+  const oldestBillingNoticeSendFailedAgeHoursValue = oldestBillingNoticeSendFailedAgeHours(
+    billingNoticeSendFailedAll,
+    nowMs,
+  );
+  const billingNoticeSendFailed: DigestBillingNoticeSendFailed[] = billingNoticeSendFailedAll
+    .slice(0, BILLING_NOTICE_SEND_FAILED_LIMIT)
+    .map((order) => ({
+      slug: order.slug,
+      businessName: order.businessName,
+      noticeType: order.noticeType,
+    }));
+
   const connectOnboardingIncompleteAll = listLeadsWithIncompleteConnectOnboarding(leads);
   const connectOnboardingIncompleteCount = connectOnboardingIncompleteAll.length;
   const oldestConnectOnboardingIncompleteAgeHoursValue = oldestConnectOnboardingIncompleteAgeHours(
@@ -1433,6 +1478,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "Paid, not live", count: paidNotLiveCount },
     { label: "Missing email", count: leadsMissingEmailCount },
     { label: "paused/canceled MRR recoveries", count: recurringEntitlementPausedCount },
+    { label: "Billing notice send failed", count: billingNoticeSendFailedCount },
     { label: "Stripe Connect onboarding incomplete", count: connectOnboardingIncompleteCount },
     { label: "Buffer profile mapping missing", count: bufferProfileMappingMissingCount },
     { label: "Buffer packs not posted", count: marketingPacksMissingBufferPostCount },
@@ -1532,6 +1578,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     recurringEntitlementPausedCount,
     oldestRecurringEntitlementPausedAgeHours:
       oldestRecurringEntitlementPausedAgeHoursValue,
+    billingNoticeSendFailed,
+    billingNoticeSendFailedCount,
+    oldestBillingNoticeSendFailedAgeHours: oldestBillingNoticeSendFailedAgeHoursValue,
     connectOnboardingIncomplete,
     connectOnboardingIncompleteCount,
     oldestConnectOnboardingIncompleteAgeHours: oldestConnectOnboardingIncompleteAgeHoursValue,
@@ -1554,6 +1603,20 @@ export function formatSnoozeRemainingHours(hours: number | null): string {
   const days = Math.floor(hours / 24);
   const rem = hours % 24;
   return rem === 0 ? `${days}d` : `${days}d ${rem}h`;
+}
+
+/** Human-readable label for a BillingNoticeType — used in digest rows. */
+function billingNoticeTypeLabel(noticeType: BillingNoticeType): string {
+  switch (noticeType) {
+    case "payment_failed":
+      return "payment-failed (dunning)";
+    case "payment_recovered":
+      return "payment-recovered";
+    case "subscription_paused":
+      return "subscription-paused";
+    case "subscription_resumed":
+      return "subscription-resumed";
+  }
 }
 
 function section(title: string, rows: string[], emptyNote: string): string {
@@ -1781,6 +1844,12 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     return `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — ${escapeHtmlForEmail(lead.stage)} MRR paused/canceled${billingHint}`;
   });
 
+  const billingNoticeSendFailedRows = digest.billingNoticeSendFailed.map(
+    (order) =>
+      `<strong>${escapeHtmlForEmail(order.businessName)}</strong> — ${escapeHtmlForEmail(billingNoticeTypeLabel(order.noticeType))} email never reached the customer`,
+  );
+  const billingNoticeSendFailedTitle = `Billing notice send failed (${digest.billingNoticeSendFailedCount}${digest.oldestBillingNoticeSendFailedAgeHours !== null ? ` · oldest ${digest.oldestBillingNoticeSendFailedAgeHours}h` : ""})`;
+
   const connectOnboardingIncompleteRows = digest.connectOnboardingIncomplete.map(
     (lead) =>
       `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Stripe Connect account not yet confirmed fully onboarded`,
@@ -1822,6 +1891,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       recurringPausedRows,
       "No paused or canceled Growth/Complete/Commerce subscribers need recovery.",
     )}
+    ${section(billingNoticeSendFailedTitle, billingNoticeSendFailedRows, "Every billing-status email reached its customer.")}
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount}${digest.oldestStarterUpsellCandidateAgeHours !== null ? ` · oldest ${digest.oldestStarterUpsellCandidateAgeHours}h` : ""})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount}${digest.oldestCommerceCatalogsMissingAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsMissingAgeHours}h` : ""})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount}${digest.oldestCommerceCatalogsUnsyncedAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsUnsyncedAgeHours}h` : ""})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}

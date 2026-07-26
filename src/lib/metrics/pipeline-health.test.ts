@@ -136,6 +136,8 @@ describe("computePipelineHealth", () => {
     expect(health.oldestClientVoicePacksDueAgeHours).toBeNull();
     expect(health.recurringEntitlementPausedCount).toBe(0);
     expect(health.oldestRecurringEntitlementPausedAgeHours).toBeNull();
+    expect(health.billingNoticeSendFailedCount).toBe(0);
+    expect(health.oldestBillingNoticeSendFailedAgeHours).toBeNull();
     expect(health.starterUpsellCandidatesCount).toBe(0);
     expect(health.oldestStarterUpsellCandidateAgeHours).toBeNull();
     expect(health.connectOnboardingIncompleteCount).toBe(0);
@@ -1021,6 +1023,49 @@ describe("computePipelineHealth", () => {
     expect(health.marketingPacksDueCount).toBe(1);
     expect(health.recurringEntitlementPausedCount).toBe(1);
     expect(health.oldestRecurringEntitlementPausedAgeHours).toBe(5);
+  });
+
+  it("counts orders whose most recent billing-notice send failed, oldest first", () => {
+    const failedAt = NOW - 3 * HOUR_MS;
+    const health = computePipelineHealth({
+      leads: [makeLead("paid", { slug: "notice-failed", businessName: "Notice Failed Co" })],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "o1",
+          leadSlug: "notice-failed",
+          tier: "growth",
+          lastBillingNoticeSendFailedAt: failedAt,
+          lastBillingNoticeSendFailedType: "payment_failed",
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    expect(health.billingNoticeSendFailedCount).toBe(1);
+    expect(health.oldestBillingNoticeSendFailedAgeHours).toBe(3);
+  });
+
+  it("excludes orders whose most recent billing-notice send succeeded (marker cleared)", () => {
+    const health = computePipelineHealth({
+      leads: [makeLead("paid", { slug: "notice-clean" })],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "o1",
+          leadSlug: "notice-clean",
+          tier: "growth",
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    expect(health.billingNoticeSendFailedCount).toBe(0);
+    expect(health.oldestBillingNoticeSendFailedAgeHours).toBeNull();
   });
 
   it("counts paid/live Starter-only leads ready for a Growth/Complete upsell nudge", () => {

@@ -22,7 +22,16 @@ const orderDocValidator = v.object({
   disputedAt: v.optional(v.string()),
   lifetimeRevenueUsd: v.optional(v.number()),
   lastRenewalInvoiceId: v.optional(v.string()),
+  lastBillingNoticeSendFailedAt: v.optional(v.number()),
+  lastBillingNoticeSendFailedType: v.optional(v.string()),
 });
+
+const billingNoticeTypeValidator = v.union(
+  v.literal("payment_failed"),
+  v.literal("payment_recovered"),
+  v.literal("subscription_paused"),
+  v.literal("subscription_resumed"),
+);
 
 export const createOrder = mutation({
   args: {
@@ -232,6 +241,12 @@ export const clearRecurringCanceledByCustomer = mutation({
         ...(row.lastRenewalInvoiceId
           ? { lastRenewalInvoiceId: row.lastRenewalInvoiceId }
           : {}),
+        ...(typeof row.lastBillingNoticeSendFailedAt === "number"
+          ? { lastBillingNoticeSendFailedAt: row.lastBillingNoticeSendFailedAt }
+          : {}),
+        ...(row.lastBillingNoticeSendFailedType
+          ? { lastBillingNoticeSendFailedType: row.lastBillingNoticeSendFailedType }
+          : {}),
       });
       updatedCount += 1;
     }
@@ -369,6 +384,12 @@ export const clearRefunded = mutation({
       ...(row.lastRenewalInvoiceId
         ? { lastRenewalInvoiceId: row.lastRenewalInvoiceId }
         : {}),
+      ...(typeof row.lastBillingNoticeSendFailedAt === "number"
+        ? { lastBillingNoticeSendFailedAt: row.lastBillingNoticeSendFailedAt }
+        : {}),
+      ...(row.lastBillingNoticeSendFailedType
+        ? { lastBillingNoticeSendFailedType: row.lastBillingNoticeSendFailedType }
+        : {}),
     });
     return null;
   },
@@ -452,6 +473,12 @@ export const clearDisputed = mutation({
       ...(row.lastRenewalInvoiceId
         ? { lastRenewalInvoiceId: row.lastRenewalInvoiceId }
         : {}),
+      ...(typeof row.lastBillingNoticeSendFailedAt === "number"
+        ? { lastBillingNoticeSendFailedAt: row.lastBillingNoticeSendFailedAt }
+        : {}),
+      ...(row.lastBillingNoticeSendFailedType
+        ? { lastBillingNoticeSendFailedType: row.lastBillingNoticeSendFailedType }
+        : {}),
     });
     return null;
   },
@@ -500,5 +527,56 @@ export const recordSubscriptionRenewalPayment = mutation({
       lastRenewalInvoiceId: invoiceId,
     });
     return { recorded: true };
+  },
+});
+
+/**
+ * Records the outcome of a best-effort billing-notice send (dunning /
+ * payment-recovered / subscription-paused / subscription-resumed —
+ * src/app/api/stripe/webhook/route.ts) so a sustained Resend outage or a
+ * persistently-bad customer email is visible to the operator (see
+ * billing-notice-send-failure-visibility) instead of only reaching a server
+ * log via console.warn. success:true clears any prior failure marker
+ * (db.patch() with an explicit undefined removes the field — see
+ * convex-patch-undefined-clear-semantics-correction in business-decisions.ts
+ * — not a workaround, the documented mechanism); success:false records this
+ * attempt. Never throws on a missing row — this is a display-only marker,
+ * not a required write, and the caller's send is already best-effort.
+ */
+export const recordBillingNoticeSendOutcome = mutation({
+  args: {
+    stripeSessionId: v.string(),
+    noticeType: billingNoticeTypeValidator,
+    success: v.boolean(),
+    atMs: v.number(),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const row = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId)
+      )
+      .unique();
+    if (!row) {
+      return null;
+    }
+    if (args.success) {
+      if (!row.lastBillingNoticeSendFailedAt) {
+        return null;
+      }
+      await ctx.db.patch(row._id, {
+        lastBillingNoticeSendFailedAt: undefined,
+        lastBillingNoticeSendFailedType: undefined,
+      });
+      return null;
+    }
+    await ctx.db.patch(row._id, {
+      lastBillingNoticeSendFailedAt: args.atMs,
+      lastBillingNoticeSendFailedType: args.noticeType,
+    });
+    return null;
   },
 });

@@ -598,6 +598,84 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     });
   });
 
+  describe("recordBillingNoticeSendOutcome (display-only marker, never throws)", () => {
+    it("calls Convex and returns without touching SQLite on success", async () => {
+      convexMutation.mockResolvedValueOnce(null);
+      const db = await loadDb(CONVEX_URL);
+      await db.recordBillingNoticeSendOutcome("cs_convex_only", "payment_failed", false, 1_700_000_000_000);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls back to SQLite (never throws) when Convex fails, even without an explicit options arg", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "notice-lead",
+        stripeSessionId: "cs_notice",
+        customerEmail: "notice@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+        stripeCustomerId: "cus_notice_1",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordBillingNoticeSendOutcome("cs_notice", "payment_failed", false, 1_700_000_000_000),
+      ).resolves.toBeUndefined();
+
+      const order = await (await loadDb(undefined)).getOrderByStripeSessionId("cs_notice");
+      expect(order?.lastBillingNoticeSendFailedAt).toBe(1_700_000_000_000);
+      expect(order?.lastBillingNoticeSendFailedType).toBe("payment_failed");
+    });
+
+    it("records a failure and clears it on a later success (SQLite fallback)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "notice-lead-2",
+        stripeSessionId: "cs_notice_2",
+        customerEmail: "notice2@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+        stripeCustomerId: "cus_notice_2",
+      });
+
+      const failDb = await loadDb(undefined);
+      await failDb.recordBillingNoticeSendOutcome(
+        "cs_notice_2",
+        "subscription_paused",
+        false,
+        1_700_000_000_000,
+      );
+      const afterFail = await (await loadDb(undefined)).getOrderByStripeSessionId("cs_notice_2");
+      expect(afterFail?.lastBillingNoticeSendFailedAt).toBe(1_700_000_000_000);
+      expect(afterFail?.lastBillingNoticeSendFailedType).toBe("subscription_paused");
+
+      const successDb = await loadDb(undefined);
+      await successDb.recordBillingNoticeSendOutcome(
+        "cs_notice_2",
+        "subscription_resumed",
+        true,
+        1_700_000_100_000,
+      );
+      const afterSuccess = await (await loadDb(undefined)).getOrderByStripeSessionId("cs_notice_2");
+      expect(afterSuccess?.lastBillingNoticeSendFailedAt).toBeUndefined();
+      expect(afterSuccess?.lastBillingNoticeSendFailedType).toBeUndefined();
+    });
+
+    it("no-ops silently for an unknown stripeSessionId or a blank id (SQLite fallback)", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.recordBillingNoticeSendOutcome("cs_does_not_exist", "payment_failed", false, Date.now()),
+      ).resolves.toBeUndefined();
+      await expect(
+        db.recordBillingNoticeSendOutcome("  ", "payment_failed", false, Date.now()),
+      ).resolves.toBeUndefined();
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+  });
+
   describe("markOrdersRecurringCanceledByCustomer (pause-write, requireConvex fail-closed)", () => {
     it("returns Convex's updatedCount directly without touching SQLite", async () => {
       convexMutation.mockResolvedValueOnce({ updatedCount: 2 });

@@ -14,7 +14,12 @@
  * Subscription also pauses — status alone would wrongly clear.
  */
 
-import { isOrderDisputed, isOrderRefunded } from "./types";
+import {
+  isOrderDisputed,
+  isOrderRefunded,
+  orderHasFailedBillingNotice,
+  type BillingNoticeType,
+} from "./types";
 
 /** True when the order ever carried a Growth/Complete/Commerce recurring Price. */
 export function orderHadRecurringEntitlement(order: {
@@ -361,4 +366,67 @@ export function oldestRecurringEntitlementPausedAgeHours(
     return 0;
   }
   return Math.max(0, Math.floor((nowMs - oldest.pausedAtMs) / (60 * 60 * 1000)));
+}
+
+export interface OrderBillingNoticeSendFailure {
+  slug: string;
+  businessName: string;
+  stripeSessionId: string;
+  noticeType: BillingNoticeType;
+  failedAtMs: number;
+}
+
+type BillingNoticeFailureOrder = {
+  leadSlug: string;
+  stripeSessionId?: string;
+  lastBillingNoticeSendFailedAt?: number | null;
+  lastBillingNoticeSendFailedType?: BillingNoticeType | null;
+};
+
+/**
+ * Bundle/Commerce orders whose most recent billing-notice send (dunning /
+ * payment-recovered / subscription-paused / subscription-resumed) failed and
+ * hasn't since been superseded by a successful one — see
+ * billing-notice-send-failure-visibility. Sorted oldest failure first (most
+ * urgent — the customer has gone longest without a billing update reaching
+ * them).
+ */
+export function listOrdersWithFailedBillingNotice(
+  leads: ReadonlyArray<{ slug: string; businessName: string }>,
+  orders: ReadonlyArray<BillingNoticeFailureOrder>,
+): OrderBillingNoticeSendFailure[] {
+  const businessNameBySlug = new Map(leads.map((lead) => [lead.slug, lead.businessName]));
+  const failed: OrderBillingNoticeSendFailure[] = [];
+  for (const order of orders) {
+    if (!orderHasFailedBillingNotice(order)) continue;
+    if (!order.lastBillingNoticeSendFailedType) continue;
+    failed.push({
+      slug: order.leadSlug,
+      businessName: businessNameBySlug.get(order.leadSlug) ?? order.leadSlug,
+      stripeSessionId: order.stripeSessionId ?? "",
+      noticeType: order.lastBillingNoticeSendFailedType,
+      failedAtMs: order.lastBillingNoticeSendFailedAt as number,
+    });
+  }
+  return failed.sort((a, b) => a.failedAtMs - b.failedAtMs);
+}
+
+/**
+ * Age in whole hours since the oldest still-failing billing-notice send;
+ * null when none. Pass nowMs from the caller — never Date.now() inside list
+ * helpers.
+ */
+export function oldestBillingNoticeSendFailedAgeHours(
+  failed: ReadonlyArray<{ failedAtMs: number }>,
+  nowMs: number,
+): number | null {
+  if (failed.length === 0) return null;
+  const oldest = failed[0];
+  if (!oldest || !Number.isFinite(oldest.failedAtMs) || oldest.failedAtMs <= 0) {
+    return null;
+  }
+  if (!Number.isFinite(nowMs) || nowMs < oldest.failedAtMs) {
+    return 0;
+  }
+  return Math.max(0, Math.floor((nowMs - oldest.failedAtMs) / (60 * 60 * 1000)));
 }

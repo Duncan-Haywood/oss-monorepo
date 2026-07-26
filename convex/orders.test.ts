@@ -286,6 +286,147 @@ test("clearRecurringCanceledByCustomer preserves lifetimeRevenueUsd/lastRenewalI
   expect(row?.lastRenewalInvoiceId).toBe("in_cycle_1");
 });
 
+test("clearRecurringCanceledByCustomer / clearRefunded / clearDisputed preserve lastBillingNoticeSendFailedAt/Type across their replace()", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.orders.createOrder,
+    newOrderArgs({ tier: "growth", stripeSessionId: "cs_growth" }),
+  );
+  await t.mutation(api.orders.recordBillingNoticeSendOutcome, {
+    stripeSessionId: "cs_growth",
+    noticeType: "payment_failed",
+    success: false,
+    atMs: 1_700_000_000_000,
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.orders.markRecurringCanceledByCustomer, {
+    stripeCustomerId: "cus_test_1",
+    canceledAt: 1_000,
+    apiSecret: TEST_API_SECRET,
+  });
+
+  // Each of these three mutations replaces the whole document (see
+  // convex-patch-undefined-clear-semantics-correction) — none of them is
+  // about billing-notice sends, so none should silently wipe an unrelated
+  // send-failure marker (see billing-notice-send-failure-visibility).
+  await t.mutation(api.orders.clearRecurringCanceledByCustomer, {
+    stripeCustomerId: "cus_test_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  let row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.lastBillingNoticeSendFailedAt).toBe(1_700_000_000_000);
+  expect(row?.lastBillingNoticeSendFailedType).toBe("payment_failed");
+
+  await t.mutation(api.orders.markRefunded, {
+    stripeSessionId: "cs_growth",
+    refundedAt: "2026-02-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.orders.clearRefunded, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.lastBillingNoticeSendFailedAt).toBe(1_700_000_000_000);
+  expect(row?.lastBillingNoticeSendFailedType).toBe("payment_failed");
+
+  await t.mutation(api.orders.markDisputed, {
+    stripeSessionId: "cs_growth",
+    disputedAt: "2026-03-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.orders.clearDisputed, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.lastBillingNoticeSendFailedAt).toBe(1_700_000_000_000);
+  expect(row?.lastBillingNoticeSendFailedType).toBe("payment_failed");
+});
+
+test("recordBillingNoticeSendOutcome records a failure, clears it on success, and no-ops for an unknown session", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.orders.createOrder, newOrderArgs({ stripeSessionId: "cs_1" }));
+
+  await t.mutation(api.orders.recordBillingNoticeSendOutcome, {
+    stripeSessionId: "cs_1",
+    noticeType: "subscription_paused",
+    success: false,
+    atMs: 1_700_000_000_000,
+    apiSecret: TEST_API_SECRET,
+  });
+  let row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.lastBillingNoticeSendFailedAt).toBe(1_700_000_000_000);
+  expect(row?.lastBillingNoticeSendFailedType).toBe("subscription_paused");
+
+  // A later failure of a different notice type overwrites which type/when —
+  // this is a single "is billing communication reaching this customer"
+  // signal, not a per-notice-type ledger.
+  await t.mutation(api.orders.recordBillingNoticeSendOutcome, {
+    stripeSessionId: "cs_1",
+    noticeType: "payment_failed",
+    success: false,
+    atMs: 1_700_000_100_000,
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.lastBillingNoticeSendFailedAt).toBe(1_700_000_100_000);
+  expect(row?.lastBillingNoticeSendFailedType).toBe("payment_failed");
+
+  // A success clears the marker via patch(undefined) — see
+  // convex-patch-undefined-clear-semantics-correction.
+  await t.mutation(api.orders.recordBillingNoticeSendOutcome, {
+    stripeSessionId: "cs_1",
+    noticeType: "subscription_resumed",
+    success: true,
+    atMs: 1_700_000_200_000,
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.lastBillingNoticeSendFailedAt).toBeUndefined();
+  expect(row?.lastBillingNoticeSendFailedType).toBeUndefined();
+
+  // Idempotent no-op when there's nothing to clear.
+  await expect(
+    t.mutation(api.orders.recordBillingNoticeSendOutcome, {
+      stripeSessionId: "cs_1",
+      noticeType: "subscription_resumed",
+      success: true,
+      atMs: 1_700_000_300_000,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBeNull();
+
+  // Unknown session id: no matching row, no throw.
+  await expect(
+    t.mutation(api.orders.recordBillingNoticeSendOutcome, {
+      stripeSessionId: "cs_does_not_exist",
+      noticeType: "payment_failed",
+      success: false,
+      atMs: 1_700_000_400_000,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBeNull();
+});
+
 test("markRefunded / markDisputed / clearDisputed are idempotent and independent of each other", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.orders.createOrder, newOrderArgs({ stripeSessionId: "cs_1" }));

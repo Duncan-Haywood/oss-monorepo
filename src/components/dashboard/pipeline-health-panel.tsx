@@ -190,6 +190,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.recurringEntitlementPausedCount > 0}
         />
         <MetricCard
+          label="Billing notice send failed"
+          value={String(health.billingNoticeSendFailedCount)}
+          hint={
+            health.billingNoticeSendFailedCount > 0
+              ? `Dunning/paused/resumed email never reached the customer${
+                  health.oldestBillingNoticeSendFailedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBillingNoticeSendFailedAgeHours)}`
+                    : ""
+                }`
+              : "Every billing-status email reached the customer"
+          }
+          attention={health.billingNoticeSendFailedCount > 0}
+        />
+        <MetricCard
           label="Starter → MRR upsell"
           value={String(health.starterUpsellCandidatesCount)}
           hint={
