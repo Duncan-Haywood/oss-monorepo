@@ -326,6 +326,13 @@ export interface DigestOpenHandoff {
   /** customDomain when set, otherwise suggestedHost. */
   host: string;
   tier: string;
+  /**
+   * Best-effort Vercel domain API result, when configured — surfaced here so
+   * a hard automation failure (starts with "error_") is visible from the
+   * email digest, not only by opening the dashboard (see
+   * vercel-domain-provisioning-failure-visibility).
+   */
+  vercelDomainStatus?: string;
 }
 
 /**
@@ -1139,6 +1146,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       status: handoff.status,
       host: handoff.customDomain?.trim() || handoff.suggestedHost,
       tier: handoff.tier,
+      vercelDomainStatus: handoff.vercelDomainStatus,
     }));
 
   // Buyer-email visibility — independent axis from handoff status; a
@@ -1625,10 +1633,14 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ? `Bundle revenue disputed ($${digest.bundleOrdersDisputedTotalUsd.toFixed(2)} · ${digest.bundleOrdersDisputedCount} order${digest.bundleOrdersDisputedCount === 1 ? "" : "s"}${digest.oldestBundleOrdersDisputedAgeHours !== null ? ` · oldest ${digest.oldestBundleOrdersDisputedAgeHours}h` : ""})`
       : "Bundle revenue disputed (0)";
 
-  const handoffRows = digest.openHandoffs.map(
-    (handoff) =>
-      `<strong>${escapeHtmlForEmail(handoff.businessName)}</strong> — ${escapeHtmlForEmail(handoff.status)} · ${escapeHtmlForEmail(handoff.host)} (${escapeHtmlForEmail(handoff.tier)})`,
-  );
+  const handoffRows = digest.openHandoffs.map((handoff) => {
+    const vercelFailed = handoff.vercelDomainStatus?.startsWith("error_") ?? false;
+    return `<strong>${escapeHtmlForEmail(handoff.businessName)}</strong> — ${escapeHtmlForEmail(handoff.status)} · ${escapeHtmlForEmail(handoff.host)} (${escapeHtmlForEmail(handoff.tier)})${
+      vercelFailed
+        ? ` — <strong>Vercel domain automation failed (${escapeHtmlForEmail(handoff.vercelDomainStatus ?? "")})</strong>, fix in the Vercel console`
+        : ""
+    }`;
+  });
 
   const paidNotLiveRows = digest.paidNotLive.map(
     (lead) => `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — stage is Paid`,

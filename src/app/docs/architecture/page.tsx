@@ -1651,7 +1651,16 @@ export default function ArchitectureDocPage() {
         <code>{'vercelDomainStatus: "error_network"'}</code>) instead of blocking{" "}
         <code>enqueueProductionHandoff</code>, which is awaited
         synchronously from the paid-checkout Stripe webhook path — same class as the
-        Anthropic generator fetch timeout below. Bundle webhook
+        Anthropic generator fetch timeout below. A hard <code>tryProvisionVercelDomain</code>{" "}
+        failure (any <code>vercelDomainStatus</code> starting with <code>error_</code>) is
+        deliberately never reflected in <code>status</code> itself, so it looked identical
+        to an ordinary handoff still awaiting the customer&apos;s own DNS change with zero
+        operator visibility — <code>isVercelDomainProvisioningFailed</code>{" "}
+        (<code>src/lib/deploy/handoff-preserve.ts</code>) now feeds a dedicated
+        pipeline-health metric card and daily-digest row flag so a broken automated
+        domain registration surfaces distinctly and gets a manual Vercel-console fix
+        instead of silently waiting on DNS that will never arrive (see{" "}
+        vercel-domain-provisioning-failure-visibility). Bundle webhook
         receipt/DNS sent-markers append notes via{" "}
         <code>updateDeployHandoffStatus</code> after Resend; that write uses{" "}
         <code>preferAdvancedHandoffStatus</code> (never-downgrade:{" "}

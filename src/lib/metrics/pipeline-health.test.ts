@@ -377,6 +377,42 @@ describe("computePipelineHealth", () => {
     expect(health.oldestBundleOrdersMissingBuyerEmailAgeHours).toBe(30);
   });
 
+  it("counts handoffs whose Vercel domain provisioning hard-failed, distinct from ordinary awaiting_dns", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [
+        // Hard HTTP error from the Domains API, not yet live.
+        makeHandoff("awaiting_dns", {
+          id: "h_error_http",
+          vercelDomainStatus: "error_500",
+          createdAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+        }),
+        // Network/timeout error, still pending.
+        makeHandoff("pending", {
+          id: "h_error_network",
+          vercelDomainStatus: "error_network",
+          createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+        }),
+        // Later marked live despite a stale error status — must not count.
+        makeHandoff("live", {
+          id: "h_recovered",
+          vercelDomainStatus: "error_500",
+          createdAt: new Date(NOW - 400 * HOUR_MS).toISOString(),
+        }),
+        // Ordinary awaiting_dns with no automation failure — must not count.
+        makeHandoff("awaiting_dns", {
+          id: "h_ordinary",
+          vercelDomainStatus: "created",
+        }),
+      ],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.vercelDomainProvisioningFailedCount).toBe(2);
+    expect(health.oldestVercelDomainProvisioningFailedAgeHours).toBe(20);
+  });
+
   it("counts bounce/complaint suppressions in the last 7 days, ignoring unsubscribes and older events", () => {
     const health = computePipelineHealth({
       leads: [],

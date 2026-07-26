@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   isProgressedHandoffStatus,
+  isVercelDomainProvisioningFailed,
   mergeProvisionOntoFreshHandoff,
   preferAdvancedHandoffStatus,
   preserveDeployHandoffOperatorFields,
@@ -35,6 +36,48 @@ describe("isProgressedHandoffStatus", () => {
     expect(isProgressedHandoffStatus("awaiting_dns")).toBe(false);
     expect(isProgressedHandoffStatus("pending")).toBe(false);
     expect(isProgressedHandoffStatus("failed")).toBe(false);
+  });
+});
+
+describe("isVercelDomainProvisioningFailed", () => {
+  it("is true for a hard HTTP error while not yet live", () => {
+    expect(
+      isVercelDomainProvisioningFailed({ status: "awaiting_dns", vercelDomainStatus: "error_500" }),
+    ).toBe(true);
+  });
+
+  it("is true for a network/timeout error while not yet live", () => {
+    expect(
+      isVercelDomainProvisioningFailed({ status: "pending", vercelDomainStatus: "error_network" }),
+    ).toBe(true);
+  });
+
+  it("is false once the handoff is marked live, even with a stale error status", () => {
+    expect(
+      isVercelDomainProvisioningFailed({ status: "live", vercelDomainStatus: "error_500" }),
+    ).toBe(false);
+  });
+
+  it("is false for ordinary non-error statuses", () => {
+    expect(
+      isVercelDomainProvisioningFailed({ status: "awaiting_dns", vercelDomainStatus: "created" }),
+    ).toBe(false);
+    expect(
+      isVercelDomainProvisioningFailed({
+        status: "awaiting_dns",
+        vercelDomainStatus: "already_exists",
+      }),
+    ).toBe(false);
+    expect(
+      isVercelDomainProvisioningFailed({
+        status: "awaiting_dns",
+        vercelDomainStatus: "skipped_unconfigured",
+      }),
+    ).toBe(false);
+  });
+
+  it("is false when vercelDomainStatus is unset", () => {
+    expect(isVercelDomainProvisioningFailed({ status: "awaiting_dns" })).toBe(false);
   });
 });
 

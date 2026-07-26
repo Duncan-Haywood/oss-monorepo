@@ -377,6 +377,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-5og6b0",
   },
+  {
+    id: "vercel-domain-provisioning-failure-visibility",
+    summary:
+      "Empty-backlog audit (tier 1 — sold-capability wiring gap). tryProvisionVercelDomain (src/lib/deploy/handoff.ts) deliberately never downgrades a handoff's status on a hard Vercel Domains API failure (an intentional invariant protecting a concurrent Mark live), but sets vercelDomainStatus to error_<http-status>/error_network — and status alone drives every existing due-queue signal, so a hard automation failure rendered byte-identical to an ordinary handoff simply awaiting the customer's own DNS change everywhere except one buried, unstyled inline string in a single dashboard panel; zero references existed in pipeline-health.ts or daily-digest.ts. Shipped isVercelDomainProvisioningFailed (src/lib/deploy/handoff-preserve.ts, the pure db-free module already used for this file's testable logic) wired into a new pipeline-health MetricCard, a daily-digest per-row flag (DigestOpenHandoff.vercelDomainStatus), and red-highlighted inline text on the dashboard's Production deploy handoffs panel. Visibility only — the never-downgrade status logic itself is untouched. See vercel-domain-provisioning-failure-visibility in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/nice-euler-3cn4k0",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -766,5 +774,25 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3228 passed, unchanged, 209 files — pure docs/data restructuring, no logic touched) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split) + confirmed no stray local.db was left in the repo root and that git status showed only the intended new archive file plus the two process-log edits changed. No product/runtime code changed this iteration, so no npm run dev smoke check needed beyond the already-clean build.",
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "business-decisions-archive-14-split"),
+  },
+  {
+    date: "2026-07-26",
+    branch: "claude/nice-euler-3cn4k0",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done\"), picked up at origin/main tip e31841a (PR #794, business-decisions-archive-14-split, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit (0 errors) + npm run lint (clean) + npx vitest run (3228 passed, 209 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (714 remote heads) checked the newest 8 claude/* branches by push time via `git rev-list --count`: every one showed ahead<=1/behind>=1 with the ahead commit's content already on main under a different SHA (documented squash-merge artifact) — no live fold candidate. With both the db.ts write-family series and the archive split already closed by the prior two iterations, returned to AGENT_PROTOCOL's standard empty-backlog priority order rather than assuming another housekeeping task by default.\n\nDispatched a research agent across the first four priority tiers, told to stop at the first genuine finding. Convex/SQLite parity, security/injection, and untested-orchestration/fresh-bug angles all came back independently exhausted this round. Tier 1 (sold-capability wiring gap) found a genuine, independently-re-verified defect: tryProvisionVercelDomain's hard-failure signal (vercelDomainStatus: error_<status>/error_network) is invisible everywhere except one buried inline string in the dashboard's Production deploy handoffs panel — pipeline-health.ts and daily-digest.ts had zero references to vercelDomainStatus at all, so an operator had no way to distinguish 'our own automation broke, go fix it in the Vercel console' from 'customer hasn't pointed DNS yet' short of reading every row's raw status text.",
+    shipped: [
+      "src/lib/deploy/handoff-preserve.ts (+ test) — isVercelDomainProvisioningFailed(handoff): true when status !== \"live\" and vercelDomainStatus starts with \"error_\"; re-exported from handoff.ts. 5 new Vitest cases (hard HTTP error, network/timeout error, false once live despite a stale error status, false for created/already_exists/skipped_unconfigured, false when vercelDomainStatus is unset).",
+      "src/lib/metrics/pipeline-health.ts (+ test) — vercelDomainProvisioningFailedCount + oldestVercelDomainProvisioningFailedAgeHours (reusing the existing oldestOpenHandoffAgeHours helper), computed via input.handoffs.filter(isVercelDomainProvisioningFailed). 1 new test case covering two genuine failures counted, a since-recovered live row excluded despite a stale error status, and an ordinary non-error row excluded.",
+      "src/components/dashboard/pipeline-health-panel.tsx — new \"Vercel domain provisioning failed\" MetricCard, mirroring the adjacent \"Bundle buyer email missing\" card's attention-styling pattern exactly.",
+      "src/lib/digest/daily-digest.ts (+ test) — added vercelDomainStatus to DigestOpenHandoff (cheap passthrough from the existing handoffs input) and flagged a failing row inline in the digest email's handoffRows rendering, escaped via the existing escapeHtmlForEmail call. 2 new renderDailyDigestHtml test cases (a failing row's vercelDomainStatus value escaped through a literal <script> payload; an ordinary row rendering with no flag).",
+      "src/app/dashboard/leads/leads-client.tsx — the existing inline Vercel status detail line now renders in bold red plus a \"— fix in Vercel console\" suffix when isVercelDomainProvisioningFailed(h) is true, reusing the shared predicate rather than re-deriving the error_-prefix check a third time.",
+      "src/app/docs/architecture/page.tsx — new paragraph naming the gap and the fix, right after the existing AbortSignal.timeout/Vercel-network-error paragraph.",
+      "src/lib/process/business-decisions.ts — appended vercel-domain-provisioning-failure-visibility.",
+      "src/lib/process/prompt_process.tsx — added a new done NEXT_STEPS entry and this ITERATIONS entry. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes a real, previously-unaudited sold-capability visibility gap on the production deploy handoff automation, not any of the five gated items. Diff-gate anchor moves to e31841a (this session's own starting tip, post-PR-#794).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run src/lib/deploy/handoff-preserve.test.ts src/lib/metrics/pipeline-health.test.ts src/lib/digest/daily-digest.test.ts (214 passed) + npx vitest run full suite (3236 passed, up from 3228 — 8 new cases, 209 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split) + npm run dev smoke check (curl'd /dashboard/leads: 200, HTML contains the new MetricCard label, no error-boundary text; /preview/demo-cafe: 200) since this touches dashboard UI, per AGENT_PROTOCOL's database/UI-touching-change testing convention — killed the dev server and deleted the gitignored local.db it created before confirming git status showed only the intended files changed.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "vercel-domain-provisioning-failure-visibility",
+    ),
   },
 ];

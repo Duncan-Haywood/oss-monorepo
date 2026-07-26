@@ -13,6 +13,23 @@ export function isProgressedHandoffStatus(
 }
 
 /**
+ * True when tryProvisionVercelDomain's own automated domain registration hard
+ * failed (a non-2xx/non-409 Vercel Domains API response, or a network/timeout
+ * error — both recorded as vercelDomainStatus starting with "error_") and the
+ * handoff hasn't since been marked live. Deliberately does not downgrade
+ * `status` itself (see tryProvisionVercelDomain's never-downgrade comment) —
+ * this predicate exists only to surface that failure separately from an
+ * ordinary handoff still awaiting the customer's own DNS change, which look
+ * identical in `status` alone. See vercel-domain-provisioning-failure-visibility.
+ */
+export function isVercelDomainProvisioningFailed(handoff: {
+  status: DeployHandoffStatus;
+  vercelDomainStatus?: string;
+}): boolean {
+  return handoff.status !== "live" && (handoff.vercelDomainStatus?.startsWith("error_") ?? false);
+}
+
+/**
  * Progress rank for deploy handoff status. Higher = further along fulfillment.
  * Used so note-only writes (bundle receipt/DNS email sent-markers) cannot
  * regress a concurrent Mark live / provisioned state — see

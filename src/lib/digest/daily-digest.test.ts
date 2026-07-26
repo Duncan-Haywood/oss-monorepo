@@ -2551,6 +2551,71 @@ describe("renderDailyDigestHtml", () => {
     expect(html).not.toContain("DNS <Cafe>");
   });
 
+  it("flags a handoff whose Vercel domain automation hard-failed, escaped, distinct from an ordinary awaiting_dns row", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ slug: "vercel-fail-cafe", businessName: "Vercel Fail Cafe", stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [
+        {
+          id: "dh_vercel_fail",
+          leadSlug: "vercel-fail-cafe",
+          businessName: "Vercel Fail Cafe",
+          tier: "starter",
+          commerceAddon: false,
+          stripeSessionId: "cs_vercel_fail",
+          customerEmail: "cafe@example.com",
+          previewUrl: "https://example.com/preview/vercel-fail-cafe",
+          suggestedHost: "vercel-fail-cafe.example.com",
+          contactFormUrl: "https://example.com/api/contact/vercel-fail-cafe",
+          dnsInstructions: [],
+          status: "awaiting_dns",
+          vercelDomainStatus: "error_500<script>",
+          notes: [],
+          createdAt: "2026-07-10T00:00:00.000Z",
+          updatedAt: "2026-07-10T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.openHandoffs[0]?.vercelDomainStatus).toBe("error_500<script>");
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Vercel domain automation failed");
+    expect(html).toContain("error_500&lt;script&gt;");
+    expect(html).not.toContain("error_500<script>");
+  });
+
+  it("does not flag an ordinary awaiting_dns handoff with no Vercel automation failure", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ slug: "ordinary-cafe", businessName: "Ordinary Cafe", stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [
+        {
+          id: "dh_ordinary",
+          leadSlug: "ordinary-cafe",
+          businessName: "Ordinary Cafe",
+          tier: "starter",
+          commerceAddon: false,
+          stripeSessionId: "cs_ordinary",
+          customerEmail: "cafe@example.com",
+          previewUrl: "https://example.com/preview/ordinary-cafe",
+          suggestedHost: "ordinary-cafe.example.com",
+          contactFormUrl: "https://example.com/api/contact/ordinary-cafe",
+          dnsInstructions: [],
+          status: "awaiting_dns",
+          vercelDomainStatus: "created",
+          notes: [],
+          createdAt: "2026-07-10T00:00:00.000Z",
+          updatedAt: "2026-07-10T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).not.toContain("Vercel domain automation failed");
+  });
+
   it("renders paid-not-live leads with an escaped business name, even with no handoff row", () => {
     const digest = buildDailyDigest({
       leads: [

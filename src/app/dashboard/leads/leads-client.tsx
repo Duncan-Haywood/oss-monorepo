@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import type { Lead, LeadPipelineStage, BusinessCategory } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
+import { isVercelDomainProvisioningFailed } from "@/lib/deploy/handoff-preserve";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import { CSV_LEAD_TEMPLATE, formatCsvImportSummary } from "@/lib/leads/csv-import";
@@ -3079,7 +3080,21 @@ export function LeadsClient({
                         {h.vercelDomainStatus ? (
                           <>
                             {" "}
-                            · Vercel: <code>{h.vercelDomainStatus}</code>
+                            · Vercel:{" "}
+                            <code
+                              className={
+                                isVercelDomainProvisioningFailed(h)
+                                  ? "font-semibold text-red-700"
+                                  : undefined
+                              }
+                            >
+                              {h.vercelDomainStatus}
+                            </code>
+                            {isVercelDomainProvisioningFailed(h) ? (
+                              <span className="ml-1 font-semibold text-red-700">
+                                — fix in Vercel console
+                              </span>
+                            ) : null}
                           </>
                         ) : null}
                       </p>

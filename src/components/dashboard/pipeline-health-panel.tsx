@@ -384,6 +384,20 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.bundleOrdersMissingBuyerEmailCount > 0}
         />
         <MetricCard
+          label="Vercel domain provisioning failed"
+          value={String(health.vercelDomainProvisioningFailedCount)}
+          hint={
+            health.vercelDomainProvisioningFailedCount > 0
+              ? `Handoff${health.vercelDomainProvisioningFailedCount === 1 ? "" : "s"} where our own Vercel domain automation hard-failed — needs a manual fix in the Vercel console, will never self-resolve from DNS${
+                  health.oldestVercelDomainProvisioningFailedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestVercelDomainProvisioningFailedAgeHours)}`
+                    : ""
+                } — see the Production deploy handoffs panel`
+              : "No Vercel domain provisioning failures"
+          }
+          attention={health.vercelDomainProvisioningFailedCount > 0}
+        />
+        <MetricCard
           label="Bounces/complaints (7d)"
           value={String(health.recentBounceOrComplaintSuppressionCount)}
           hint={

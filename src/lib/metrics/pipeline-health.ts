@@ -88,6 +88,7 @@ import {
   oldestBufferProfileMappingMissingAgeHours,
 } from "@/lib/marketing/buffer";
 import { isBundleHandoffMissingBuyerEmail } from "@/lib/payments/bundle-side-effect-recovery";
+import { isVercelDomainProvisioningFailed } from "@/lib/deploy/handoff-preserve";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -366,6 +367,17 @@ export interface PipelineHealth {
   bundleOrdersMissingBuyerEmailCount: number;
   /** Age in whole hours since the oldest such handoff was created; null when none. */
   oldestBundleOrdersMissingBuyerEmailAgeHours: number | null;
+  /**
+   * Deploy handoffs whose own tryProvisionVercelDomain automation hard-failed
+   * (vercelDomainStatus starting with "error_") and haven't since been marked
+   * live — distinct from an ordinary handoff still awaiting the customer's
+   * own DNS change, which looks identical in `status` alone (see
+   * vercel-domain-provisioning-failure-visibility). An operator needs to fix
+   * this in the Vercel console; it will never self-resolve from DNS.
+   */
+  vercelDomainProvisioningFailedCount: number;
+  /** Age in whole hours since the oldest such handoff was created; null when none. */
+  oldestVercelDomainProvisioningFailedAgeHours: number | null;
   /**
    * Count of hard bounces/spam complaints (see src/lib/email/suppression.ts)
    * recorded in the last 7 days — a rolling sender-reputation signal, unlike
@@ -904,6 +916,12 @@ export function computePipelineHealth(input: {
     nowMs,
   );
 
+  const vercelDomainProvisioningFailed = input.handoffs.filter(isVercelDomainProvisioningFailed);
+  const oldestVercelDomainProvisioningFailedHours = oldestOpenHandoffAgeHours(
+    vercelDomainProvisioningFailed,
+    nowMs,
+  );
+
   const suppressions = input.suppressions ?? [];
   const recentBounceOrComplaintCount = recentBounceOrComplaintSuppressionCount(
     suppressions,
@@ -984,6 +1002,8 @@ export function computePipelineHealth(input: {
     oldestBufferProfileMappingMissingAgeHours: oldestBufferProfileMappingMissingHours,
     bundleOrdersMissingBuyerEmailCount: bundleOrdersMissingBuyerEmail.length,
     oldestBundleOrdersMissingBuyerEmailAgeHours: oldestBundleOrdersMissingBuyerEmailHours,
+    vercelDomainProvisioningFailedCount: vercelDomainProvisioningFailed.length,
+    oldestVercelDomainProvisioningFailedAgeHours: oldestVercelDomainProvisioningFailedHours,
     recentBounceOrComplaintSuppressionCount: recentBounceOrComplaintCount,
     newestBounceOrComplaintSuppressionAgeHours: newestBounceOrComplaintAgeHours,
   };

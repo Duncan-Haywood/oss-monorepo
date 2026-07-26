@@ -27,6 +27,7 @@ import { customDomainHostAliases } from "./custom-domain-routing";
 export { formatDnsInstructionsForEmail } from "./dns-email";
 export {
   isProgressedHandoffStatus,
+  isVercelDomainProvisioningFailed,
   mergeProvisionOntoFreshHandoff,
   preserveDeployHandoffOperatorFields,
 } from "./handoff-preserve";
