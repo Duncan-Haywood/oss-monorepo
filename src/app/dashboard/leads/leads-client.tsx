@@ -250,6 +250,7 @@ const WORK_NEXT_HEADING_ID = "work-next-heading";
 const PAID_NOT_LIVE_HEADING_ID = "paid-not-live-heading";
 const PRODUCTION_DEPLOY_HANDOFFS_HEADING_ID = "production-deploy-handoffs-heading";
 const WEBSITE_INQUIRIES_HEADING_ID = "website-inquiries-heading";
+const ALL_LEADS_HEADING_ID = "all-leads-heading";
 
 // Every due-queue panel above is itself conditionally rendered on its own
 // list being non-empty (`{list.length > 0 && <section>...}`) — when the
@@ -3909,8 +3910,16 @@ export function LeadsClient({
         </div>
       )}
 
+      <h2
+        id={ALL_LEADS_HEADING_ID}
+        tabIndex={-1}
+        className="mt-10 text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+      >
+        All leads
+      </h2>
+
       {/* Kanban Filters */}
-      <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
         <button
           type="button"
           onClick={() => setFilterStage("all")}

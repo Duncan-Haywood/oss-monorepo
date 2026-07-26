@@ -882,6 +882,24 @@ export default function ArchitectureDocPage() {
         a whole. No behavior changed for a successful save/send — only the failure path.
       </p>
       <p>
+        A fresh-angle accessibility audit (heading hierarchy / landmark structure, distinct from
+        the completed table-header-scope, focus-restore, and form-error-announcement sweeps)
+        confirmed landmarks and heading order are clean everywhere except one gap: the Leads
+        table itself — the operator dashboard&apos;s busiest content region — had no{" "}
+        <code>&lt;h2&gt;</code> of its own. It sat directly after the due-queue panels&apos; own{" "}
+        <code>&lt;h2&gt;</code> sections, and each row&apos;s expandable detail panels used{" "}
+        <code>&lt;h3&gt;</code>/<code>&lt;h4&gt;</code> (Marketing pack, Commerce catalog, Client
+        voice FAQ pack, Auto-post to Buffer) with no governing <code>&lt;h2&gt;</code> to nest
+        under. A screen reader user navigating by heading (NVDA/JAWS &quot;H&quot; key, VoiceOver&apos;s
+        rotor) got an outline that silently omitted the leads table and mis-nested every row-panel
+        heading under whichever due-queue panel or form happened to render last — a WCAG 1.3.1 /
+        2.4.6 gap. Fixed by adding <code>&lt;h2 id=&quot;all-leads-heading&quot;&gt;All
+        leads&lt;/h2&gt;</code> immediately before the Kanban stage-filter buttons and table,
+        mirroring the id + <code>tabIndex=&#123;-1&#125;</code> +{" "}
+        <code>focus:outline-none</code> convention every due-queue panel&apos;s own heading
+        already uses. Purely additive — no layout, landmark, or behavior change otherwise.
+      </p>
+      <p>
         <code>markCheckoutSessionComplete</code>/<code>markCheckoutSessionOpen</code>/
         <code>markCompleteOpenBundleCheckoutSessionsForLead</code>/
         <code>markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer</code> are the Stripe
