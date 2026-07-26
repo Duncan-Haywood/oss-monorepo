@@ -1608,11 +1608,35 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
     revalidatePath("/dashboard/leads");
     if (!applied) {
       // The refunded/disputed/already-paid-out check above ran against a
-      // snapshot read; markCommerceOrderPaidOut re-verifies the same fields
-      // atomically with the write and found one had changed underneath us
-      // (most likely a Stripe refund/dispute webhook landed in that window).
-      // Revalidate so the dashboard shows the up-to-date reason instead of
-      // silently reporting success on a write that never happened.
+      // snapshot read; markCommerceOrderPaidOut re-verifies all three fields
+      // atomically with the write and found one had changed underneath us.
+      // That's not always a refund/dispute webhook — a concurrent duplicate
+      // Mark paid out click (two dashboard tabs open, or a click landing
+      // before the button's isPending-disabled state takes effect) fails
+      // this same guard once the other call's write lands first, and in
+      // that case the order is genuinely fine: it WAS paid out, just by the
+      // other call. Re-fetch and report the actual current reason instead
+      // of assuming refund/dispute (commerce-order-paid-out-race-message-accuracy).
+      const current = await getCommerceOrderByStripeSessionId(sessionId);
+      if (current?.paidOutAt) {
+        return {
+          success: false as const,
+          error:
+            "This order was already marked paid out (likely from another tab or a duplicate click) — no action needed",
+        };
+      }
+      if (current?.refundedAt) {
+        return {
+          success: false as const,
+          error: "Order was refunded to the customer — nothing is owed to the client",
+        };
+      }
+      if (current?.disputedAt) {
+        return {
+          success: false as const,
+          error: "Order is disputed with Stripe — nothing is owed to the client",
+        };
+      }
       return {
         success: false as const,
         error:
