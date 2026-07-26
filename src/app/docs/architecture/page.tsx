@@ -3162,6 +3162,30 @@ source). The same digest also lists email-critical leads with no usable address 
         write actually produces.
       </p>
 
+      <p>
+        A fresh-angle accessibility audit (2026-07-26,{" "}
+        <code>checkout-tier-radiogroup-fieldset-legend</code>) found{" "}
+        <code>/checkout</code> — the single highest-commitment page in the funnel, the page a
+        shopper lands on right before entering payment — rendered its three bundle-tier{" "}
+        <code>&lt;input type=&quot;radio&quot; name=&quot;tier&quot;&gt;</code> controls
+        (<code>checkout-form.tsx</code>) inside a bare <code>&lt;div&gt;</code> with no{" "}
+        <code>&lt;fieldset&gt;</code>/<code>&lt;legend&gt;</code> and no{" "}
+        <code>aria-label</code>/<code>aria-labelledby</code> tying the group to the descriptive
+        copy above it. A screen-reader user who jumps straight to the form controls (NVDA/JAWS
+        form-navigation, VoiceOver&apos;s rotor) instead of reading the whole page linearly heard
+        only &quot;radio button, checked/not checked&quot; with no indication these three controls
+        are mutually exclusive pricing tiers — this codebase&apos;s only radio group, so the gap
+        had no precedent to have been caught by. <code>eslint-plugin-jsx-a11y</code> has no rule
+        requiring fieldset/legend grouping for a same-<code>name</code> radio set, so{" "}
+        <code>npm run lint</code> never flagged it across the ~40 prior same-day accessibility
+        passes. Fixed by wrapping just the three tier <code>&lt;label&gt;</code>s (not the
+        separate Commerce add-on checkbox below them, which is an independent control) in a{" "}
+        <code>&lt;fieldset&gt;</code> reset to <code>border-0 p-0 m-0</code> so no default browser
+        chrome changes the visual layout, with a <code>sr-only</code> <code>&lt;legend&gt;</code>{" "}
+        (&quot;Choose your bundle&quot;) — the existing visible descriptive paragraph above is left
+        exactly as-is.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
