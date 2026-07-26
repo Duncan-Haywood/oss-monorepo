@@ -298,6 +298,13 @@ export function LeadsClient({
   const [commerceDraftItems, setCommerceDraftItems] = useState<CommerceSku[]>([]);
   const [commerceCatalogError, setCommerceCatalogError] = useState<string | null>(null);
   const [stripeConnectError, setStripeConnectError] = useState<string | null>(null);
+  // Errors from the main table's per-row Kanban actions (stage change,
+  // snooze/unsnooze, cold-lead disposition) — these fire from both the main
+  // table AND the due-queue panels below, but are always rendered inline in
+  // the main table row (the one place every affected lead is guaranteed to
+  // be mounted), keyed by slug since multiple rows' actions can be in
+  // flight/failed independently at once.
+  const [leadActionErrors, setLeadActionErrors] = useState<Record<string, string>>({});
   const [clientVoicePacks, setClientVoicePacks] =
     useState<ClientVoicePack[]>(initialClientVoicePacks);
   const [clientVoicePackOpenSlug, setClientVoicePackOpenSlug] = useState<string | null>(
@@ -419,6 +426,12 @@ export function LeadsClient({
     const previousStage = current?.stage;
     if (!current) return;
 
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
+
     const optimisticLead: Lead =
       (newStage === "outreach_sent" || newStage === "discovery_call") && current.email
         ? {
@@ -434,7 +447,10 @@ export function LeadsClient({
 
     const res = await updateLeadStageAction(slug, newStage);
     if (!res.success) {
-      alert(`Error updating stage: ${res.error}`);
+      setLeadActionErrors((prev) => ({
+        ...prev,
+        [slug]: `Error updating stage: ${res.error}`,
+      }));
       // Revert only this row's optimistic change back to its pre-update
       // snapshot — resetting to the full initialLeads page-load prop would
       // silently wipe every other in-session optimistic edit (other stage
@@ -527,10 +543,18 @@ export function LeadsClient({
   };
 
   const handleSnooze = (slug: string, preset: SnoozePresetId, headingId?: string) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await snoozeLeadAction(slug, { preset });
       if (!res.success) {
-        alert(res.error ?? "Failed to snooze lead");
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: res.error ?? "Failed to snooze lead",
+        }));
         return;
       }
       setLeads((prev) =>
@@ -561,10 +585,18 @@ export function LeadsClient({
   };
 
   const handleClearSnooze = (slug: string) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await snoozeLeadAction(slug, { clear: true });
       if (!res.success) {
-        alert(res.error ?? "Failed to clear snooze");
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: res.error ?? "Failed to clear snooze",
+        }));
         return;
       }
       setLeads((prev) =>
@@ -587,6 +619,11 @@ export function LeadsClient({
     disposition: ColdLeadDisposition,
     headingId?: string,
   ) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const sendEmail1 = disposition === "reengage" && reengageSendEmail1;
       const res = await disposeColdLeadAction(slug, disposition, { sendEmail1 });
@@ -607,7 +644,10 @@ export function LeadsClient({
             ),
           );
         }
-        alert(res.error ?? "Failed to update cold lead");
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: res.error ?? "Failed to update cold lead",
+        }));
         return;
       }
       setLeads((prev) =>
@@ -4093,6 +4133,12 @@ export function LeadsClient({
                             lead.businessName,
                             lead.slug,
                           )}
+                          aria-invalid={Boolean(leadActionErrors[lead.slug])}
+                          aria-describedby={
+                            leadActionErrors[lead.slug]
+                              ? `lead-action-error-${lead.slug}`
+                              : undefined
+                          }
                           className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-semibold outline-none transition focus:border-zinc-900"
                         >
                           {STAGES.map((s) => (
@@ -4439,6 +4485,15 @@ export function LeadsClient({
                             Preview Site
                           </Link>
                         </div>
+                        {leadActionErrors[lead.slug] ? (
+                          <p
+                            id={`lead-action-error-${lead.slug}`}
+                            className="mt-1.5 text-right text-xs font-medium text-red-600"
+                            role="alert"
+                          >
+                            {leadActionErrors[lead.slug]}
+                          </p>
+                        ) : null}
                       </td>
                     </tr>
                     {packOpen && existingPack ? (

@@ -3186,6 +3186,32 @@ source). The same digest also lists email-critical leads with no usable address 
         exactly as-is.
       </p>
 
+      <p>
+        A fresh-angle accessibility audit (2026-07-26,{" "}
+        <code>leads-client-kanban-action-inline-aria-announcement</code>) found the two prior
+        alert()-to-inline-aria passes on this page (
+        <code>leads-client-form-error-inline-aria-announcement</code> and{" "}
+        <code>stripe-connect-payouts-panel-form-error-inline-aria-announcement</code>) had each
+        closed only the specific surfaces they named — a direct grep for <code>alert(</code> in{" "}
+        <code>leads-client.tsx</code> still found 33 call sites, including the highest-traffic
+        controls on the main Kanban board itself: the pipeline-stage <code>&lt;select&gt;</code>,
+        the snooze/unsnooze buttons, and the cold-lead Re-engage/Close buttons — every one of them
+        run far more often per day than the Payouts-panel or Commerce-catalog surfaces the earlier
+        two passes fixed. Scoped this pass to those four highest-traffic handlers (
+        <code>handleStageChange</code>, <code>handleSnooze</code>, <code>handleClearSnooze</code>,{" "}
+        <code>handleColdDisposition</code>) rather than all 33 remaining call sites, to keep the
+        diff reviewable; the rest are a documented follow-up for a future pass. Fixed by adding a{" "}
+        <code>leadActionErrors</code> state keyed by lead slug (these four handlers, unlike{" "}
+        <code>stripeConnectError</code>&apos;s single-panel scope, can each fire independently on
+        any visible row, and some are triggered from the due-queue panels above the table as well
+        as the table itself) — cleared at the start of each handler for that slug, and rendered as
+        a single <code>role=&quot;alert&quot;</code> paragraph beneath the row&apos;s action
+        buttons in the main table (the one place every affected lead is always mounted, matching
+        the existing convention of refocusing back to this row&apos;s Notes toggle after a
+        due-queue action). The stage <code>&lt;select&gt;</code> additionally gained{" "}
+        <code>aria-invalid</code>/<code>aria-describedby</code> pointing at that paragraph.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
