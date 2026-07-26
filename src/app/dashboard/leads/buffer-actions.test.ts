@@ -234,6 +234,10 @@ describe("Buffer scheduling dashboard actions", () => {
 
     it("saves the profile ids and revalidates on success", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead());
+      listBufferProfiles.mockResolvedValue([
+        { id: "p1", service: "facebook" },
+        { id: "p2", service: "instagram" },
+      ]);
       const { saveLeadBufferProfilesAction } = await import("./actions");
       const result = await saveLeadBufferProfilesAction("demo-cafe", ["p1", "p2"]);
 
@@ -246,8 +250,83 @@ describe("Buffer scheduling dashboard actions", () => {
       expect(result).toEqual({ success: true, bufferProfileIds: ["p1", "p2"] });
     });
 
+    it("saves an empty selection (un-mapping a lead) without calling listBufferProfiles", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p1"] }));
+      const { saveLeadBufferProfilesAction } = await import("./actions");
+      const result = await saveLeadBufferProfilesAction("demo-cafe", []);
+
+      expect(listBufferProfiles).not.toHaveBeenCalled();
+      expect(updateLeadBufferProfileIds).toHaveBeenCalledWith(
+        "demo-cafe",
+        [],
+        expect.objectContaining({ requireConvex: true }),
+      );
+      expect(result).toEqual({ success: true, bufferProfileIds: [] });
+    });
+
+    it("rejects a selection with no Facebook/Instagram profile (buffer-profile-mapping-postable-guard)", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead());
+      listBufferProfiles.mockResolvedValue([
+        { id: "p-li", service: "linkedin" },
+        { id: "p-tw", service: "twitter" },
+      ]);
+      const { saveLeadBufferProfilesAction } = await import("./actions");
+      const result = await saveLeadBufferProfilesAction("demo-cafe", ["p-li", "p-tw"]);
+
+      expect(result).toEqual({
+        success: false,
+        error:
+          "None of the selected profiles can receive posts yet — Buffer auto-posting only supports Facebook and Instagram profiles.",
+      });
+      expect(updateLeadBufferProfileIds).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
+
+    it("rejects a selection of profile ids that don't resolve to any connected profile", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead());
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      const { saveLeadBufferProfilesAction } = await import("./actions");
+      const result = await saveLeadBufferProfilesAction("demo-cafe", ["p-stale"]);
+
+      expect(result.success).toBe(false);
+      if (result.success) return;
+      expect(result.error).toMatch(/Facebook and Instagram/);
+      expect(updateLeadBufferProfileIds).not.toHaveBeenCalled();
+    });
+
+    it("allows a mixed selection as long as at least one profile is postable", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead());
+      listBufferProfiles.mockResolvedValue([
+        { id: "p-fb", service: "facebook" },
+        { id: "p-li", service: "linkedin" },
+      ]);
+      const { saveLeadBufferProfilesAction } = await import("./actions");
+      const result = await saveLeadBufferProfilesAction("demo-cafe", ["p-fb", "p-li"]);
+
+      expect(result).toEqual({ success: true, bufferProfileIds: ["p-fb", "p-li"] });
+      expect(updateLeadBufferProfileIds).toHaveBeenCalledWith(
+        "demo-cafe",
+        ["p-fb", "p-li"],
+        expect.objectContaining({ requireConvex: true }),
+      );
+    });
+
+    it("fails closed when listBufferProfiles itself errors", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead());
+      listBufferProfiles.mockRejectedValue(new Error("Buffer profile list failed (500)"));
+      const { saveLeadBufferProfilesAction } = await import("./actions");
+      const result = await saveLeadBufferProfilesAction("demo-cafe", ["p1"]);
+
+      expect(result).toEqual({
+        success: false,
+        error: "Buffer profile list failed (500)",
+      });
+      expect(updateLeadBufferProfileIds).not.toHaveBeenCalled();
+    });
+
     it("fails closed with a retry message when the Convex persist throws", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead());
+      listBufferProfiles.mockResolvedValue([{ id: "p1", service: "facebook" }]);
       updateLeadBufferProfileIds.mockRejectedValue(new MockConvexPrimaryWriteError());
       const { saveLeadBufferProfilesAction } = await import("./actions");
       const result = await saveLeadBufferProfilesAction("demo-cafe", ["p1"]);
@@ -260,6 +339,10 @@ describe("Buffer scheduling dashboard actions", () => {
 
     it("dedupes a repeated profile id before persisting (buffer-profile-ids-dedupe-on-save)", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead());
+      listBufferProfiles.mockResolvedValue([
+        { id: "p1", service: "facebook" },
+        { id: "p2", service: "instagram" },
+      ]);
       const { saveLeadBufferProfilesAction } = await import("./actions");
       const result = await saveLeadBufferProfilesAction("demo-cafe", ["p1", "p2", "p1"]);
 
@@ -273,6 +356,7 @@ describe("Buffer scheduling dashboard actions", () => {
 
     it("dedupes before enforcing the max-profiles cap, so duplicates alone don't reject a within-cap selection", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead());
+      listBufferProfiles.mockResolvedValue([{ id: "p0", service: "facebook" }]);
       const { saveLeadBufferProfilesAction } = await import("./actions");
       const withDuplicates = [
         ...Array.from({ length: MAX_BUFFER_PROFILES_PER_LEAD }, (_, i) => `p${i}`),

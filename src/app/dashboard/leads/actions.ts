@@ -3497,6 +3497,41 @@ export async function saveLeadBufferProfilesAction(slug: string, profileIds: str
       return { success: false as const, error: "Lead not found" };
     }
 
+    // A non-empty selection must include at least one profile Buffer can
+    // actually post to (bufferServiceContentType only maps facebook/
+    // instagram) — otherwise scheduleMarketingPackToBufferAction skips every
+    // variant on every call, no bufferPostedVariantKey ever gets written, and
+    // listLeadsMissingBufferProfileMapping treats the lead as "mapped" while
+    // listMarketingPacksMissingBufferPost reports it "not posted" forever
+    // with no way for the operator to clear the due-queue signal (an
+    // empty selection is a valid un-map and skips this check entirely).
+    if (dedupedProfileIds.length > 0) {
+      let connectedProfiles: Awaited<ReturnType<typeof listBufferProfiles>>;
+      try {
+        connectedProfiles = await listBufferProfiles(gate.accessToken);
+      } catch (error) {
+        return {
+          success: false as const,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Could not verify Buffer profiles — retry in a moment.",
+        };
+      }
+      const connectedById = new Map(connectedProfiles.map((profile) => [profile.id, profile]));
+      const hasPostableProfile = dedupedProfileIds.some((id) => {
+        const profile = connectedById.get(id);
+        return profile ? bufferServiceContentType(profile.service) !== null : false;
+      });
+      if (!hasPostableProfile) {
+        return {
+          success: false as const,
+          error:
+            "None of the selected profiles can receive posts yet — Buffer auto-posting only supports Facebook and Instagram profiles.",
+        };
+      }
+    }
+
     try {
       await updateLeadBufferProfileIds(
         slug,
