@@ -16,7 +16,8 @@
  * + commerce-order-refund-clawback-tracking
  * + marketing-voice-pack-client-send-visibility
  * + stripe-connect-onboarding-pipeline-health-visibility
- * + bundle-order-missing-buyer-email-visibility).
+ * + bundle-order-missing-buyer-email-visibility
+ * + vercel-domain-provisioning-failure-digest-visibility).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -94,6 +95,7 @@ import {
   hasBundleReceiptEmailNote,
   isBundleHandoffMissingBuyerEmail,
 } from "../payments/bundle-side-effect-recovery";
+import { isVercelDomainProvisioningFailed } from "../deploy/handoff-preserve";
 import {
   newestBounceOrComplaintSuppressionAgeHours,
   recentBounceOrComplaintSuppressionCount,
@@ -124,6 +126,7 @@ const RECURRING_ENTITLEMENT_PAUSED_LIMIT = 5;
 const CONNECT_ONBOARDING_INCOMPLETE_LIMIT = 5;
 const BUFFER_PROFILE_MAPPING_MISSING_LIMIT = 5;
 const BUNDLE_ORDERS_MISSING_BUYER_EMAIL_LIMIT = 5;
+const VERCEL_DOMAIN_PROVISIONING_FAILED_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -336,6 +339,23 @@ export interface DigestOpenHandoff {
 }
 
 /**
+ * A deploy handoff whose own tryProvisionVercelDomain call hard-failed (see
+ * isVercelDomainProvisioningFailed) — same predicate as pipeline-health
+ * vercelDomainProvisioningFailedCount. Surfaced as its own uncapped-count
+ * section (not only the inline flag on openHandoffs rows) because
+ * openHandoffs is sliced to OPEN_HANDOFFS_LIMIT oldest-first; a failure on a
+ * newer handoff would otherwise never appear in the digest at all. See
+ * vercel-domain-provisioning-failure-digest-visibility.
+ */
+export interface DigestVercelDomainProvisioningFailed {
+  slug: string;
+  businessName: string;
+  host: string;
+  tier: string;
+  vercelDomainStatus: string;
+}
+
+/**
  * Lead whose stage is "paid" (same predicate as pipeline-health
  * paidNotLiveCount) — distinct from openHandoffs: a lead can be moved to
  * stage=paid (dashboard stage dropdown or CSV import) with no deploy_handoffs
@@ -516,6 +536,18 @@ export interface DailyDigest {
    * long a paid site has been awaiting DNS / Mark live.
    */
   oldestOpenHandoffAgeHours: number | null;
+  /**
+   * Handoffs whose own Vercel domain automation hard-failed (see
+   * isVercelDomainProvisioningFailed) — computed over the full handoffs
+   * input, not the openHandoffs slice above, so a failure on a handoff
+   * outside the OPEN_HANDOFFS_LIMIT oldest-first window still surfaces (see
+   * DigestVercelDomainProvisioningFailed's doc comment).
+   */
+  vercelDomainProvisioningFailed: DigestVercelDomainProvisioningFailed[];
+  /** True count before the VERCEL_DOMAIN_PROVISIONING_FAILED_LIMIT slice — use for the section header. */
+  vercelDomainProvisioningFailedCount: number;
+  /** Age in whole hours of the oldest such failure; null when none. */
+  oldestVercelDomainProvisioningFailedAgeHours: number | null;
   /**
    * Leads with stage="paid" — same predicate as pipeline-health
    * paidNotLiveCount (action section). Not the same set as openHandoffs: a
@@ -1149,6 +1181,39 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       vercelDomainStatus: handoff.vercelDomainStatus,
     }));
 
+  // Same predicate as pipeline-health vercelDomainProvisioningFailedCount —
+  // computed over the full handoffs input (not openHandoffsAll's capped
+  // slice above) so a failure on a handoff outside OPEN_HANDOFFS_LIMIT still
+  // reaches the digest email, and so it counts toward actionableItemCount /
+  // the empty-state gate rather than only appearing as an inline flag on a
+  // row that may not even be included (see
+  // vercel-domain-provisioning-failure-digest-visibility).
+  const vercelDomainProvisioningFailedAll = handoffs.filter(isVercelDomainProvisioningFailed);
+  const vercelDomainProvisioningFailedCount = vercelDomainProvisioningFailedAll.length;
+  const oldestVercelDomainProvisioningFailedAgeHoursValue: number | null = (() => {
+    if (vercelDomainProvisioningFailedAll.length === 0) return null;
+    let oldestMs = Infinity;
+    for (const handoff of vercelDomainProvisioningFailedAll) {
+      const parsed = Date.parse(handoff.createdAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
+  const vercelDomainProvisioningFailed: DigestVercelDomainProvisioningFailed[] =
+    vercelDomainProvisioningFailedAll
+      .slice(0, VERCEL_DOMAIN_PROVISIONING_FAILED_LIMIT)
+      .map((handoff) => ({
+        slug: handoff.leadSlug,
+        businessName:
+          leadsBySlug.get(handoff.leadSlug)?.businessName ||
+          handoff.businessName ||
+          handoff.leadSlug,
+        host: handoff.customDomain?.trim() || handoff.suggestedHost,
+        tier: handoff.tier,
+        vercelDomainStatus: handoff.vercelDomainStatus ?? "",
+      }));
+
   // Buyer-email visibility — independent axis from handoff status; a
   // permanently-bad customerEmail or sustained Resend outage leaves this
   // unset forever with nothing else surfacing the gap (see
@@ -1320,6 +1385,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "Bundle refunds", count: bundleOrdersRefundedCount },
     { label: "Bundle disputes", count: bundleOrdersDisputedCount },
     { label: "production handoffs", count: openHandoffsCount },
+    { label: "Vercel domain provisioning failed", count: vercelDomainProvisioningFailedCount },
     { label: "Paid, not live", count: paidNotLiveCount },
     { label: "Missing email", count: leadsMissingEmailCount },
     { label: "paused/canceled MRR recoveries", count: recurringEntitlementPausedCount },
@@ -1400,6 +1466,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     openHandoffs,
     openHandoffsCount,
     oldestOpenHandoffAgeHours,
+    vercelDomainProvisioningFailed,
+    vercelDomainProvisioningFailedCount,
+    oldestVercelDomainProvisioningFailedAgeHours: oldestVercelDomainProvisioningFailedAgeHoursValue,
     paidNotLive,
     paidNotLiveCount,
     oldestPaidNotLiveAgeHours: oldestPaidNotLiveAgeHoursValue,
@@ -1642,6 +1711,12 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     }`;
   });
 
+  const vercelDomainProvisioningFailedRows = digest.vercelDomainProvisioningFailed.map(
+    (handoff) =>
+      `<strong>${escapeHtmlForEmail(handoff.businessName)}</strong> — ${escapeHtmlForEmail(handoff.host)} (${escapeHtmlForEmail(handoff.tier)}) — <strong>Vercel domain automation failed (${escapeHtmlForEmail(handoff.vercelDomainStatus)})</strong>, fix in the Vercel console`,
+  );
+  const vercelDomainProvisioningFailedTitle = `Vercel domain provisioning failed (${digest.vercelDomainProvisioningFailedCount}${digest.oldestVercelDomainProvisioningFailedAgeHours !== null ? ` · oldest ${digest.oldestVercelDomainProvisioningFailedAgeHours}h` : ""})`;
+
   const paidNotLiveRows = digest.paidNotLive.map(
     (lead) => `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — stage is Paid`,
   );
@@ -1708,6 +1783,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(bundleRefundTitle, bundleRefundRows, "No bundle orders refunded.")}
     ${section(bundleDisputeTitle, bundleDisputeRows, "No bundle orders disputed.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount}${digest.oldestOpenHandoffAgeHours !== null ? ` · oldest ${digest.oldestOpenHandoffAgeHours}h` : ""})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
+    ${section(vercelDomainProvisioningFailedTitle, vercelDomainProvisioningFailedRows, "No Vercel domain automation failures.")}
     ${section(`Paid, not yet live (${digest.paidNotLiveCount}${digest.oldestPaidNotLiveAgeHours !== null ? ` · oldest ${digest.oldestPaidNotLiveAgeHours}h` : ""})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}
     ${coldFootnote(digest, false)}

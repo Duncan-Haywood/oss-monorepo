@@ -1660,7 +1660,18 @@ export default function ArchitectureDocPage() {
         pipeline-health metric card and daily-digest row flag so a broken automated
         domain registration surfaces distinctly and gets a manual Vercel-console fix
         instead of silently waiting on DNS that will never arrive (see{" "}
-        vercel-domain-provisioning-failure-visibility). Bundle webhook
+        vercel-domain-provisioning-failure-visibility). The initial digest wiring only
+        added the per-row flag inside the open-handoffs list, which is sorted
+        oldest-first and capped at 5 — a failure on a newer handoff could fall outside
+        that window and never reach the email, and the signal was never added to{" "}
+        <code>actionableSections</code> (the single source of truth for{" "}
+        <code>actionableItemCount</code> and the &quot;Nothing urgent today&quot;
+        empty-state gate), so a digest whose only actionable item was a provisioning
+        failure could misreport as empty — the same{" "}
+        <code>daily-digest-empty-state-copy-drift</code> bug class the digest&apos;s own
+        section-list refactor exists to prevent. Fixed by giving it its own uncapped
+        count/age aggregate and dedicated digest section (see{" "}
+        vercel-domain-provisioning-failure-digest-visibility). Bundle webhook
         receipt/DNS sent-markers append notes via{" "}
         <code>updateDeployHandoffStatus</code> after Resend; that write uses{" "}
         <code>preferAdvancedHandoffStatus</code> (never-downgrade:{" "}

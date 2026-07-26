@@ -201,6 +201,7 @@ describe("buildDailyDigest", () => {
       "Bundle refunds",
       "Bundle disputes",
       "production handoffs",
+      "Vercel domain provisioning failed",
       "Paid, not live",
       "Missing email",
       "paused/canceled MRR recoveries",
@@ -2614,6 +2615,107 @@ describe("renderDailyDigestHtml", () => {
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).not.toContain("Vercel domain automation failed");
+  });
+
+  it("counts a Vercel domain provisioning failure toward actionableItemCount and isEmpty, and renders its own section", () => {
+    // Regression for vercel-domain-provisioning-failure-digest-visibility:
+    // the inline per-row flag on openHandoffs (tested above) never fed
+    // actionableSections, so a digest whose only actionable item was a
+    // Vercel automation failure reported actionableItemCount === 0 and
+    // rendered "Nothing urgent today" — the exact daily-digest-empty-state-copy-drift
+    // bug class, reintroduced by the feature that shipped this predicate.
+    const digest = buildDailyDigest({
+      leads: [baseLead({ slug: "vercel-fail-cafe", businessName: "Vercel Fail Cafe", stage: "paid" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [
+        {
+          id: "dh_vercel_fail",
+          leadSlug: "vercel-fail-cafe",
+          businessName: "Vercel Fail Cafe",
+          tier: "starter",
+          commerceAddon: false,
+          stripeSessionId: "cs_vercel_fail",
+          customerEmail: "cafe@example.com",
+          previewUrl: "https://example.com/preview/vercel-fail-cafe",
+          suggestedHost: "vercel-fail-cafe.example.com",
+          contactFormUrl: "https://example.com/api/contact/vercel-fail-cafe",
+          dnsInstructions: [],
+          status: "awaiting_dns",
+          vercelDomainStatus: "error_500",
+          notes: [],
+          createdAt: "2026-07-10T00:00:00.000Z",
+          updatedAt: "2026-07-10T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.vercelDomainProvisioningFailedCount).toBe(1);
+    expect(digest.oldestVercelDomainProvisioningFailedAgeHours).toBe(60);
+    expect(digest.isEmpty).toBe(false);
+    expect(digest.actionableItemCount).toBeGreaterThanOrEqual(1);
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Vercel domain provisioning failed (1 · oldest 60h)");
+    expect(html).not.toContain("Nothing urgent today");
+  });
+
+  it("surfaces a Vercel domain provisioning failure even when it falls outside the openHandoffs cap", () => {
+    // openHandoffs is sorted oldest-first and sliced to OPEN_HANDOFFS_LIMIT
+    // (5) — a failure on the 6th (newest) handoff must still reach the
+    // digest via its own uncapped section, not only the inline flag on a
+    // row that may never be included.
+    const oldHandoffs = Array.from({ length: 5 }, (_, i) => ({
+      id: `dh_old_${i}`,
+      leadSlug: `old-cafe-${i}`,
+      businessName: `Old Cafe ${i}`,
+      tier: "starter",
+      commerceAddon: false,
+      stripeSessionId: `cs_old_${i}`,
+      customerEmail: "cafe@example.com",
+      previewUrl: `https://example.com/preview/old-cafe-${i}`,
+      suggestedHost: `old-cafe-${i}.example.com`,
+      contactFormUrl: `https://example.com/api/contact/old-cafe-${i}`,
+      dnsInstructions: [],
+      status: "awaiting_dns" as const,
+      notes: [],
+      createdAt: "2026-07-01T00:00:00.000Z",
+      updatedAt: "2026-07-01T00:00:00.000Z",
+    }));
+    const newestFailedHandoff = {
+      id: "dh_newest_fail",
+      leadSlug: "newest-fail-cafe",
+      businessName: "Newest Fail Cafe",
+      tier: "starter",
+      commerceAddon: false,
+      stripeSessionId: "cs_newest_fail",
+      customerEmail: "cafe@example.com",
+      previewUrl: "https://example.com/preview/newest-fail-cafe",
+      suggestedHost: "newest-fail-cafe.example.com",
+      contactFormUrl: "https://example.com/api/contact/newest-fail-cafe",
+      dnsInstructions: [],
+      status: "awaiting_dns" as const,
+      vercelDomainStatus: "error_network",
+      notes: [],
+      createdAt: "2026-07-12T00:00:00.000Z",
+      updatedAt: "2026-07-12T00:00:00.000Z",
+    };
+    const digest = buildDailyDigest({
+      leads: [
+        ...oldHandoffs.map((h) => baseLead({ slug: h.leadSlug, businessName: h.businessName, stage: "paid" })),
+        baseLead({ slug: "newest-fail-cafe", businessName: "Newest Fail Cafe", stage: "paid" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [...oldHandoffs, newestFailedHandoff],
+      nowMs: NOW,
+    });
+    // The newest handoff (the failed one) is not among the 5 oldest shown.
+    expect(digest.openHandoffs.map((h) => h.slug)).not.toContain("newest-fail-cafe");
+    expect(digest.vercelDomainProvisioningFailedCount).toBe(1);
+    expect(digest.vercelDomainProvisioningFailed[0]?.slug).toBe("newest-fail-cafe");
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Newest Fail Cafe");
+    expect(html).toContain("Vercel domain provisioning failed (1");
   });
 
   it("renders paid-not-live leads with an escaped business name, even with no handoff row", () => {
