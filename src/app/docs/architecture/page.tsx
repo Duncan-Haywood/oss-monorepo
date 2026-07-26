@@ -1999,7 +1999,16 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>closedLeadCount</code> (settled-inventory footnote, same class as cold/snoozed — not
         an action section). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
-        (Work next queue + Quality column). Preview opens record{" "}
+        (Work next queue + Quality column). Once a lead&apos;s 3-email sequence is exhausted,{" "}
+        <code>scoreLead</code> reuses <code>isColdLead</code> — the same predicate the Cold
+        leads due-queue (<code>listColdLeads</code>) is built from — rather than its own
+        separate staleness cutoff: a lead that panel already flags for Re-engage/Close is
+        forced to band <code>&quot;cold&quot;</code> and <code>actionable: false</code> so it
+        cannot also occupy one of the (limited) Work next slots. Before{" "}
+        <code>outreach-cold-quality-score-threshold-drift</code>, scoring used a hardcoded
+        14-day cutoff while <code>isColdLead</code> fires at <code>COLD_AFTER_DAYS</code> (4
+        days), so a lead already prompting Re-engage/Close on the Cold leads panel could still
+        score hot and rank in Work next for up to 10 more days. Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when
         outreach emails use <code>?src=outreach</code> (or the lead is already in outreach /
         discovery stages). When Convex is configured that beacon passes{" "}

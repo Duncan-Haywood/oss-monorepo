@@ -316,6 +316,47 @@ describe("rankLeadsForOutreach", () => {
     expect(scored.band).toBe("cold");
   });
 
+  it("keeps a step-3 lead hot/actionable before the Cold leads due-queue threshold", () => {
+    const notYetCold = baseLead({
+      slug: "not-yet-cold",
+      stage: "outreach_sent",
+      outreachStep: 3,
+      // 3 days of silence — under COLD_AFTER_DAYS (4), isColdLead is false.
+      lastOutreachAt: "2026-07-09T00:00:00.000Z",
+      lastPreviewOpenAt: "2026-07-09T01:00:00.000Z",
+      dataSource: "csv_import",
+    });
+    const result = scoreLead(notYetCold, NOW);
+    expect(result.factors.some((f) => f.id === "stale_exhausted")).toBe(false);
+    expect(result.band).toBe("hot");
+    expect(result.actionable).toBe(true);
+  });
+
+  it("marks a step-3 lead cold/not-actionable once it matches the Cold leads due-queue's own isColdLead threshold", () => {
+    // Previously this used a hardcoded 14-day STALE_OUTREACH_MS cutoff, so a
+    // lead the Cold leads panel already flagged (isColdLead fires at
+    // COLD_AFTER_DAYS = 4 days) could still score "hot" and occupy a Work
+    // next slot for up to 10 more days — the two panels disagreed on the
+    // same lead. See outreach-cold-quality-score-threshold-drift.
+    const cold = baseLead({
+      slug: "now-cold",
+      stage: "outreach_sent",
+      outreachStep: 3,
+      // 5 days of silence — over COLD_AFTER_DAYS (4), isColdLead is true.
+      lastOutreachAt: "2026-07-07T00:00:00.000Z",
+      lastPreviewOpenAt: "2026-07-07T01:00:00.000Z",
+      dataSource: "csv_import",
+    });
+    const result = scoreLead(cold, NOW);
+    expect(result.factors.some((f) => f.id === "stale_exhausted")).toBe(true);
+    expect(result.band).toBe("cold");
+    expect(result.actionable).toBe(false);
+
+    const ready = baseLead({ slug: "ready", stage: "site_built" });
+    const ranked = rankLeadsForOutreach([cold, ready], NOW, 10);
+    expect(ranked.map((r) => r.slug)).toEqual(["ready"]);
+  });
+
   it("returns expired-snooze leads to the queue", () => {
     const expired = baseLead({
       slug: "was-snoozed",
@@ -335,8 +376,12 @@ describe("band helpers", () => {
   });
 
   it("bandForScore prefers fulfillment and blocked", () => {
-    expect(bandForScore(90, "paid", false)).toBe("fulfillment");
-    expect(bandForScore(90, "site_built", true)).toBe("blocked");
-    expect(bandForScore(85, "site_built", false)).toBe("hot");
+    expect(bandForScore(90, "paid", false, false)).toBe("fulfillment");
+    expect(bandForScore(90, "site_built", true, false)).toBe("blocked");
+    expect(bandForScore(85, "site_built", false, false)).toBe("hot");
+  });
+
+  it("bandForScore forces cold once the outreach sequence is exhausted, even at a hot score", () => {
+    expect(bandForScore(90, "outreach_sent", false, true)).toBe("cold");
   });
 });

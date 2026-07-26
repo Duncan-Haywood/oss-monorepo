@@ -12,7 +12,12 @@ import {
 } from "../checkout/abandoned-recovery";
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
 import { BUSINESS_CATEGORIES, defaultTierForCategory } from "./category-normalize";
-import { isFollowUpDue, normalizeOutreachStep } from "../email/outreach-followups";
+import {
+  COLD_AFTER_DAYS,
+  isColdLead,
+  isFollowUpDue,
+  normalizeOutreachStep,
+} from "../email/outreach-followups";
 import { isLeadSnoozed } from "./snooze";
 
 /** 0–100; higher = work this lead sooner among active pipeline rows. */
@@ -68,8 +73,6 @@ const STAGE_BASE: Record<LeadPipelineStage, number> = {
   closed: 8,
 };
 
-const STALE_OUTREACH_MS = 14 * 24 * 60 * 60 * 1000;
-
 function hasText(value: string | undefined | null): boolean {
   return Boolean(value && value.trim().length > 0);
 }
@@ -78,11 +81,17 @@ export function bandForScore(
   score: LeadQualityScore,
   stage: LeadPipelineStage,
   blocked: boolean,
+  coldExhausted: boolean,
 ): LeadQualityBand {
   if (stage === "paid" || stage === "live") return "fulfillment";
   // Closed is a terminal operator choice — not blocked by missing email.
   if (stage === "closed") return "cold";
   if (blocked) return "blocked";
+  // A lead the Cold leads due-queue already flags (isColdLead — outreach
+  // sequence exhausted and quiet for COLD_AFTER_DAYS) must never still read
+  // as hot/warm here — the two panels would give the operator contradictory
+  // guidance on the same lead (see outreach-cold-quality-score-threshold-drift).
+  if (coldExhausted) return "cold";
   if (score >= 80) return "hot";
   if (score >= 60) return "warm";
   return "cold";
@@ -182,6 +191,11 @@ export function scoreLead(
   }
 
   const step = normalizeOutreachStep(lead.outreachStep);
+  // Same predicate the Cold leads due-queue uses — computed once and reused
+  // below for the scoring penalty, band, and actionable gate, so all three
+  // agree with that panel instead of drifting on separate thresholds (see
+  // outreach-cold-quality-score-threshold-drift).
+  const coldExhausted = isColdLead(lead, nowMs);
   if (
     (lead.stage === "outreach_sent" || lead.stage === "discovery_call") &&
     emailOk
@@ -193,16 +207,18 @@ export function scoreLead(
         label: "Follow-up due now",
         delta: 12,
       });
-    } else if (lead.lastOutreachAt) {
-      const last = Date.parse(lead.lastOutreachAt);
-      if (!Number.isNaN(last) && nowMs - last >= STALE_OUTREACH_MS && step >= 3) {
-        score -= 8;
-        factors.push({
-          id: "stale_exhausted",
-          label: "Outreach sequence complete and stale (14d+)",
-          delta: -8,
-        });
-      }
+    } else if (coldExhausted) {
+      // Previously this used a hardcoded 14-day cutoff while isColdLead (the
+      // Cold leads due-queue's own predicate) fires at COLD_AFTER_DAYS (4) —
+      // a lead already flagged cold and prompting Re-engage/Close on that
+      // panel could still score "hot" and occupy a Work next slot for up to
+      // 10 more days.
+      score -= 8;
+      factors.push({
+        id: "stale_exhausted",
+        label: `Outreach sequence complete and stale (${COLD_AFTER_DAYS}d+)`,
+        delta: -8,
+      });
     }
   }
 
@@ -319,7 +335,11 @@ export function scoreLead(
     lead.stage !== "paid" &&
     lead.stage !== "live" &&
     lead.stage !== "closed" &&
-    !snoozed;
+    !snoozed &&
+    // A lead the Cold leads due-queue already flags for Re-engage/Close must
+    // not also occupy one of the (limited) Work next slots — see
+    // outreach-cold-quality-score-threshold-drift.
+    !coldExhausted;
 
   // Clamp after summing absolute stage base already in score — stage_base was
   // both the starting value AND listed as a factor; factors[0].delta equals start.
@@ -328,7 +348,7 @@ export function scoreLead(
   return {
     slug: lead.slug,
     score: clamped,
-    band: bandForScore(clamped, lead.stage, blocked),
+    band: bandForScore(clamped, lead.stage, blocked, coldExhausted),
     factors,
     actionable,
   };
