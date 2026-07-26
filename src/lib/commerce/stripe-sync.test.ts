@@ -66,7 +66,8 @@ function createFakeStripe(): StripeProductsAndPrices & {
       async update(id, params) {
         const product = products.find((p) => p.id === id);
         if (!product) throw new Error(`Product ${id} not found`);
-        product.active = params.active;
+        if (params.active !== undefined) product.active = params.active;
+        if (params.name !== undefined) product.name = params.name;
         return product;
       },
     },
@@ -153,6 +154,48 @@ describe("syncCommerceCatalogToStripe", () => {
     expect(second[0]?.stripePriceId).not.toBe(first[0]?.stripePriceId);
     expect(stripe.productCount()).toBe(2);
     expect(stripe.priceCount()).toBe(3);
+  });
+
+  it("renames the Stripe Product in place when the SKU name changes (keeping the same Product/Price ids)", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    const renamed = [{ ...items[0]!, name: "Oat Milk Latte" }, items[1]!];
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", renamed);
+
+    expect(second[0]?.stripeProductId).toBe(first[0]?.stripeProductId);
+    expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
+    expect(stripe.productCount()).toBe(2); // no duplicate created
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const renamedProduct = products.find((p) => p.id === first[0]!.stripeProductId);
+    expect(renamedProduct?.name).toBe("Acme Cafe — Oat Milk Latte");
+  });
+
+  it("renames the Stripe Product when the lead's businessName changes, even with the SKU name unchanged", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Coffee Roasters", items);
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const renamedProduct = products.find((p) => p.id === first[0]!.stripeProductId);
+    expect(renamedProduct?.name).toBe("Acme Coffee Roasters — Latte");
+  });
+
+  it("does not call products.update when the name is unchanged on re-sync", async () => {
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    let updateCalls = 0;
+    const originalUpdate = stripe.products.update.bind(stripe.products);
+    stripe.products.update = async (id, params) => {
+      updateCalls++;
+      return originalUpdate(id, params);
+    };
+
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+    expect(updateCalls).toBe(0);
   });
 
   it("scopes Products per lead so two leads never collide on the same SKU id", async () => {

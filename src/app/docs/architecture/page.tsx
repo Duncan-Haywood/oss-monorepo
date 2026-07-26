@@ -2249,7 +2249,19 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>Idempotency-Key</code> (<code>local_​site_​studio_​commerce_​sku_&#123;leadSlug&#125;_&#123;skuId&#125;_product</code>{" "}
         / <code>..._price_&#123;unitAmount&#125;</code>) so Stripe itself collapses a genuinely
         concurrent pair of create calls to a single Product/Price instead of minting a permanently
-        orphaned duplicate. Action-level
+        orphaned duplicate. Finding an existing Product by key only ever reused it as-is until{" "}
+        <code>commerce-sku-stripe-product-name-resync</code>: Stripe Prices are immutable (hence the
+        create-a-new-Price-on-change behavior above) but Products are mutable, and{" "}
+        <code>syncCommerceCatalogToStripe</code> was never diffing the found Product&apos;s name
+        against the current <code>businessName</code>/SKU name — an operator renaming a SKU (or the
+        lead&apos;s business name changing) and clicking <strong>Sync to Stripe</strong> again left
+        the live Stripe Product name frozen at whatever it was first created as, forever, even
+        though the catalog/storefront correctly showed the new name — a shopper&apos;s Buy now
+        Checkout Session and email receipt would keep reading the stale name indefinitely. Fixed by
+        comparing the found Product&apos;s <code>name</code> to the freshly-computed{" "}
+        <code>businessName — item.name</code> string and calling <code>products.update</code> with
+        the new name when they differ (a no-op comparison, not an unconditional call, so a
+        no-rename re-sync makes zero extra Stripe API calls). Action-level
         Vitest in <code>sync-commerce-catalog-to-stripe-action.test.ts</code> locks auth, secret
         gate, empty catalog, requireConvex persist, and fail-closed Convex errors — then persists
         <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. The Stripe

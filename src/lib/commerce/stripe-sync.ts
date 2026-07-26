@@ -48,6 +48,7 @@ function commercePriceIdempotencyKey(key: string, unitAmount: number): string {
 
 type MinimalStripeProduct = {
   id: string;
+  name?: string;
   metadata?: Record<string, string>;
   active?: boolean;
 };
@@ -74,7 +75,7 @@ export interface StripeProductsAndPrices {
     ): Promise<MinimalStripeProduct>;
     update(
       id: string,
-      params: { active: boolean },
+      params: { active?: boolean; name?: string },
     ): Promise<MinimalStripeProduct>;
   };
   prices: {
@@ -175,15 +176,22 @@ export async function syncCommerceCatalogToStripe(
 
   for (const item of items) {
     const key = commerceSkuStripeKey(leadSlug, item.id);
+    const desiredName = `${businessName} — ${item.name}`.slice(0, 250);
     let product = await findProductByKey(stripe, key);
     if (!product) {
       product = await stripe.products.create(
         {
-          name: `${businessName} — ${item.name}`.slice(0, 250),
+          name: desiredName,
           metadata: { local_site_studio_key: key, leadSlug, skuId: item.id },
         },
         { idempotencyKey: commerceProductIdempotencyKey(key) },
       );
+    } else if (product.name !== desiredName) {
+      // A SKU name (or the lead's businessName) can change after the Product
+      // was first created — Stripe Products are mutable, unlike Prices, so
+      // resync the display name in place rather than leaving Stripe
+      // permanently showing the name at first-sync time forever after.
+      product = await stripe.products.update(product.id, { name: desiredName });
     }
 
     let price = await findMatchingPrice(stripe, product.id, item.priceCents);
