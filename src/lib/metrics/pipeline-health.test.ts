@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  acquisitionSourceBreakdown,
   computePipelineHealth,
   deployHandoffAgeHours,
   emptyStageCounts,
@@ -1693,6 +1694,28 @@ describe("computePipelineHealth", () => {
     expect(health.leadWinRateDecidedCount).toBe(0);
     expect(health.leadWinRatePercent).toBeNull();
   });
+
+  it("exposes acquisitionSourceBreakdown computed from the same orders input", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [
+        { ...makeOrder(500), acquisitionSource: "home" },
+        { ...makeOrder(100), acquisitionSource: "cat-trades" },
+      ],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.acquisitionSourceBreakdown).toEqual([
+      { source: "home", label: "Homepage", orderCount: 1, revenueUsd: 500 },
+      { source: "cat-trades", label: "Trades landing page", orderCount: 1, revenueUsd: 100 },
+    ]);
+  });
+
+  it("returns an empty acquisitionSourceBreakdown when there are no orders", () => {
+    const health = computePipelineHealth({ leads: [], orders: [], handoffs: [], inquiries: [] });
+    expect(health.acquisitionSourceBreakdown).toEqual([]);
+  });
 });
 
 describe("leadWinRatePercent", () => {
@@ -1708,6 +1731,59 @@ describe("leadWinRatePercent", () => {
 
   it("ignores in-progress stages entirely (they are not part of the signature)", () => {
     expect(leadWinRatePercent({ paid: 1, live: 1, closed: 1 })).toBeCloseTo(66.7);
+  });
+});
+
+describe("acquisitionSourceBreakdown", () => {
+  it("returns an empty array for no orders", () => {
+    expect(acquisitionSourceBreakdown([])).toEqual([]);
+  });
+
+  it("groups by source, sums revenue, and sorts revenue-descending", () => {
+    const rows = acquisitionSourceBreakdown([
+      { ...makeOrder(100), acquisitionSource: "home" },
+      { ...makeOrder(100), acquisitionSource: "cat-restaurant" },
+      { ...makeOrder(200), acquisitionSource: "cat-restaurant" },
+    ]);
+    expect(rows).toEqual([
+      { source: "cat-restaurant", label: "Restaurants landing page", orderCount: 2, revenueUsd: 300 },
+      { source: "home", label: "Homepage", orderCount: 1, revenueUsd: 100 },
+    ]);
+  });
+
+  it("groups orders with no acquisitionSource under 'unknown' / 'Unknown / direct'", () => {
+    const rows = acquisitionSourceBreakdown([makeOrder(150)]);
+    expect(rows).toEqual([
+      { source: "unknown", label: "Unknown / direct", orderCount: 1, revenueUsd: 150 },
+    ]);
+  });
+
+  it("excludes refunded and disputed orders from the count and revenue", () => {
+    const rows = acquisitionSourceBreakdown([
+      { ...makeOrder(500), acquisitionSource: "home" },
+      {
+        ...makeOrder(300),
+        acquisitionSource: "home",
+        refundedAt: "2026-07-01T00:00:00.000Z",
+      },
+      {
+        ...makeOrder(200),
+        acquisitionSource: "home",
+        disputedAt: "2026-07-02T00:00:00.000Z",
+      },
+    ]);
+    expect(rows).toEqual([
+      { source: "home", label: "Homepage", orderCount: 1, revenueUsd: 500 },
+    ]);
+  });
+
+  it("uses orderLifetimeRevenueUsd (renewals), not just the first-period amountPaid", () => {
+    const rows = acquisitionSourceBreakdown([
+      { ...makeOrder(50), acquisitionSource: "cat-salon", lifetimeRevenueUsd: 350 },
+    ]);
+    expect(rows).toEqual([
+      { source: "cat-salon", label: "Salons landing page", orderCount: 1, revenueUsd: 350 },
+    ]);
   });
 });
 

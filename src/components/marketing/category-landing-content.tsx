@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CategoryLandingPage } from "@/lib/marketing/category-landing";
+import type { CheckoutAcquisitionSource } from "@/lib/checkout/acquisition-source";
 import { getBundle } from "@/lib/pricing/bundles";
 import { getCategoryTheme } from "@/lib/previews/themes";
 import { categoryLandingServiceJsonLd, safeJsonLdScript } from "@/lib/seo";
@@ -11,10 +12,35 @@ import { categoryLandingServiceJsonLd, safeJsonLdScript } from "@/lib/seo";
  * across categories, only the copy and theme differ. Keeps the 3 landing
  * pages from drifting into 3 independently-maintained layouts.
  */
+
+// Maps this landing page's category to its checkout acquisition-source token
+// (see acquisition-source-checkout-attribution) — undefined for a category
+// with no landing page (defensive; CATEGORY_LANDING_PAGES today only ever
+// supplies restaurant/salon/trades entries), in which case the CTA omits
+// ?source= entirely rather than sending an unrecognized token.
+function acquisitionSourceForCategory(
+  category: CategoryLandingPage["category"],
+): CheckoutAcquisitionSource | undefined {
+  switch (category) {
+    case "restaurant":
+      return "cat-restaurant";
+    case "salon":
+      return "cat-salon";
+    case "trades":
+      return "cat-trades";
+    default:
+      return undefined;
+  }
+}
+
 export function CategoryLandingContent({ page }: { page: CategoryLandingPage }) {
   const theme = getCategoryTheme(page.category);
   const bundle = getBundle(page.recommendedTier);
   const jsonLd = categoryLandingServiceJsonLd(page);
+  const acquisitionSource = acquisitionSourceForCategory(page.category);
+  const checkoutHref = `/checkout?tier=${page.recommendedTier}${
+    acquisitionSource ? `&source=${acquisitionSource}` : ""
+  }`;
 
   return (
     <main className={theme.shellClass}>
@@ -34,7 +60,7 @@ export function CategoryLandingContent({ page }: { page: CategoryLandingPage }) 
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
           <Link
-            href={`/checkout?tier=${page.recommendedTier}`}
+            href={checkoutHref}
             className={`inline-flex h-12 items-center justify-center rounded-full px-8 font-medium transition-colors ${theme.ctaClass}`}
           >
             Get started{bundle ? ` — ${bundle.name} from $${bundle.setupPriceUsd}` : ""}
@@ -95,7 +121,7 @@ export function CategoryLandingContent({ page }: { page: CategoryLandingPage }) 
         </dl>
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
           <Link
-            href={`/checkout?tier=${page.recommendedTier}`}
+            href={checkoutHref}
             className={`inline-flex h-12 items-center justify-center rounded-full px-8 font-medium transition-colors ${theme.ctaClass}`}
           >
             Get started{bundle ? ` — ${bundle.name} from $${bundle.setupPriceUsd}` : ""}

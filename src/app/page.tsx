@@ -197,7 +197,7 @@ export default function Home() {
                   ))}
                 </ul>
                 <Link
-                  href={`/checkout?tier=${bundle.id}`}
+                  href={`/checkout?tier=${bundle.id}&source=home`}
                   className={`mt-8 inline-flex h-11 w-full items-center justify-center rounded-full font-medium transition-colors ${
                     copy.highlighted
                       ? "bg-white text-zinc-900 hover:bg-zinc-100"
@@ -252,7 +252,7 @@ export default function Home() {
                 One-time setup + ${COMMERCE_ADDON.monthlyPriceUsd}/mo · stacks on any bundle
               </p>
               <Link
-                href="/checkout?commerce=1"
+                href="/checkout?commerce=1&source=home"
                 className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full border border-zinc-300 font-medium text-zinc-900 transition-colors hover:border-zinc-400"
               >
                 Add at checkout

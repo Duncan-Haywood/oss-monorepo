@@ -24,6 +24,7 @@ const orderDocValidator = v.object({
   lastRenewalInvoiceId: v.optional(v.string()),
   lastBillingNoticeSendFailedAt: v.optional(v.number()),
   lastBillingNoticeSendFailedType: v.optional(v.string()),
+  acquisitionSource: v.optional(v.string()),
 });
 
 const billingNoticeTypeValidator = v.union(
@@ -247,6 +248,7 @@ export const clearRecurringCanceledByCustomer = mutation({
         ...(row.lastBillingNoticeSendFailedType
           ? { lastBillingNoticeSendFailedType: row.lastBillingNoticeSendFailedType }
           : {}),
+        ...(row.acquisitionSource ? { acquisitionSource: row.acquisitionSource } : {}),
       });
       updatedCount += 1;
     }
@@ -390,6 +392,7 @@ export const clearRefunded = mutation({
       ...(row.lastBillingNoticeSendFailedType
         ? { lastBillingNoticeSendFailedType: row.lastBillingNoticeSendFailedType }
         : {}),
+      ...(row.acquisitionSource ? { acquisitionSource: row.acquisitionSource } : {}),
     });
     return null;
   },
@@ -479,6 +482,7 @@ export const clearDisputed = mutation({
       ...(row.lastBillingNoticeSendFailedType
         ? { lastBillingNoticeSendFailedType: row.lastBillingNoticeSendFailedType }
         : {}),
+      ...(row.acquisitionSource ? { acquisitionSource: row.acquisitionSource } : {}),
     });
     return null;
   },

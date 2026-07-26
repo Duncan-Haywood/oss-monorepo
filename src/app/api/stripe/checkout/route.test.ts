@@ -399,6 +399,49 @@ describe("POST /api/stripe/checkout", () => {
     expect(createArgs.metadata.organicAttribution).toBe("1");
   });
 
+  it("includes a valid acquisitionSource in Stripe Checkout metadata", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_source",
+      url: "https://checkout.stripe.com/source",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", slug: "demo-cafe", acquisitionSource: "cat-salon" }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata.acquisitionSource).toBe("cat-salon");
+  });
+
+  it("drops an unrecognized acquisitionSource rather than passing it through", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_bad_source",
+      url: "https://checkout.stripe.com/bad-source",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        slug: "demo-cafe",
+        acquisitionSource: "<script>alert(1)</script>",
+      }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata).toEqual({
+      tier: "starter",
+      commerceAddon: "false",
+      slug: "demo-cafe",
+    });
+    expect(createArgs.metadata.acquisitionSource).toBeUndefined();
+  });
+
   it("returns 502 when Stripe session has no checkout URL", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({ id: "cs_test_nourl", url: null });

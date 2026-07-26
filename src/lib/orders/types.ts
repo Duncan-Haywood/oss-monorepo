@@ -67,6 +67,16 @@ export interface OrderRecord {
   lastBillingNoticeSendFailedAt?: number;
   /** Which of the four notice types most recently failed. Paired with lastBillingNoticeSendFailedAt. */
   lastBillingNoticeSendFailedType?: BillingNoticeType;
+  /**
+   * Which marketing surface (homepage vs. a /websites-for-* category landing
+   * page) drove this bundle checkout — captured from the Stripe Checkout
+   * Session's metadata.acquisitionSource at recordLeadPayment time, already
+   * validated against the CheckoutAcquisitionSource allowlist. Absent means
+   * either the checkout predates this field or the shopper arrived via a
+   * link with no ?source= (e.g. a direct /checkout visit, an outreach email
+   * link). See acquisition-source-checkout-attribution.
+   */
+  acquisitionSource?: string;
 }
 
 /** The four best-effort, customer-facing Stripe billing-status emails. */

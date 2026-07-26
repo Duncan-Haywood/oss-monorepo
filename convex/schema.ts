@@ -124,6 +124,14 @@ export default defineSchema({
     lastBillingNoticeSendFailedAt: v.optional(v.number()),
     /** Which of the four notice types most recently failed. */
     lastBillingNoticeSendFailedType: v.optional(v.string()),
+    /**
+     * Which marketing surface (homepage vs. a /websites-for-* category
+     * landing page) drove this bundle checkout — validated against the
+     * CheckoutAcquisitionSource allowlist before being set. Absent means the
+     * checkout predates this field or arrived with no ?source= at all. See
+     * acquisition-source-checkout-attribution.
+     */
+    acquisitionSource: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"])

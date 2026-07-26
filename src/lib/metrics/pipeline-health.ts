@@ -23,6 +23,10 @@ import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 import {
+  checkoutAcquisitionSourceLabel,
+  type CheckoutAcquisitionSource,
+} from "@/lib/checkout/acquisition-source";
+import {
   isOrderDisputed,
   isOrderRefunded,
   orderCountsTowardRevenue,
@@ -117,6 +121,13 @@ export interface PipelineHealth {
    */
   revenueTotalUsd: number;
   orderCount: number;
+  /**
+   * Bundle order count + revenue grouped by which marketing surface drove
+   * the checkout (homepage vs. a /websites-for-* category landing page),
+   * sorted revenue-descending. Empty when there are no bundle orders at all.
+   * See acquisition-source-checkout-attribution.
+   */
+  acquisitionSourceBreakdown: AcquisitionSourceBreakdownRow[];
   /**
    * Count of bundle (Starter/Growth/Complete/Commerce-addon) orders Stripe
    * has refunded (charge.refunded, full or partial) — already excluded from
@@ -508,6 +519,61 @@ export function leadWinRatePercent(counts: {
   return Math.round((won / decided) * 1000) / 10;
 }
 
+/** Per-source aggregate row for the acquisition-source revenue breakdown. */
+export interface AcquisitionSourceBreakdownRow {
+  /** Allowlisted CheckoutAcquisitionSource token, or "unknown" for a bundle order with no recorded source. */
+  source: string;
+  /** Human-readable label for dashboard display. */
+  label: string;
+  orderCount: number;
+  /** Sum of orderLifetimeRevenueUsd across this source's still-counting (non-refunded/disputed) orders. */
+  revenueUsd: number;
+}
+
+/**
+ * Groups bundle orders by which marketing surface (homepage vs. a
+ * /websites-for-* category landing page) drove the checkout — answers "is
+ * the restaurants/salons/trades page, or the homepage, actually converting?"
+ * for an operator who has invested in dedicated SEO landing pages with no
+ * other way to compare their performance (no analytics tool is integrated in
+ * this app). Excludes refunded/disputed orders from revenue the same way
+ * revenueTotalUsd does. Orders predating this field (or arriving with no
+ * ?source= — a direct /checkout visit, an outreach email link) group under
+ * "unknown". Sorted by revenue descending so the dashboard's top row is the
+ * best-performing surface. See acquisition-source-checkout-attribution.
+ */
+export function acquisitionSourceBreakdown(
+  orders: ReadonlyArray<
+    Pick<OrderRecord, "acquisitionSource" | "refundedAt" | "disputedAt" | "lifetimeRevenueUsd"> & {
+      amountPaid: number;
+    }
+  >,
+): AcquisitionSourceBreakdownRow[] {
+  const totals = new Map<string, { orderCount: number; revenueUsd: number }>();
+  for (const order of orders) {
+    if (!orderCountsTowardRevenue(order)) continue;
+    const key = order.acquisitionSource ?? "unknown";
+    const existing = totals.get(key) ?? { orderCount: 0, revenueUsd: 0 };
+    existing.orderCount += 1;
+    const lifetimeUsd = orderLifetimeRevenueUsd(order);
+    if (Number.isFinite(lifetimeUsd)) {
+      existing.revenueUsd += lifetimeUsd;
+    }
+    totals.set(key, existing);
+  }
+  return [...totals.entries()]
+    .map(([source, agg]) => ({
+      source,
+      label:
+        source === "unknown"
+          ? "Unknown / direct"
+          : checkoutAcquisitionSourceLabel(source as CheckoutAcquisitionSource),
+      orderCount: agg.orderCount,
+      revenueUsd: Math.round(agg.revenueUsd * 100) / 100,
+    }))
+    .sort((a, b) => b.revenueUsd - a.revenueUsd);
+}
+
 const HOUR_MS = 60 * 60 * 1000;
 
 /**
@@ -688,6 +754,7 @@ export function computePipelineHealth(input: {
       revenueTotalUsd += lifetimeUsd;
     }
   }
+  const acquisitionSourceRows = acquisitionSourceBreakdown(input.orders);
 
   const leadsMissingEmail: MissingEmailLead[] = input.leads
     .filter(leadIsMissingCriticalEmail)
@@ -1007,6 +1074,7 @@ export function computePipelineHealth(input: {
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
+    acquisitionSourceBreakdown: acquisitionSourceRows,
     bundleOrdersRefundedCount: bundleOrdersRefunded.length,
     bundleOrdersRefundedUsd,
     oldestBundleOrdersRefundedAgeHours,

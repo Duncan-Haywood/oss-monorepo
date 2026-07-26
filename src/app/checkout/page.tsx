@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
+import { parseCheckoutAcquisitionSource } from "@/lib/checkout/acquisition-source";
 import { cancelledCheckoutBanner } from "@/lib/checkout/cancelled-banner";
 import { planCheckoutPageAccess } from "@/lib/checkout/checkout-page-access";
 import { loadCheckoutPrefillLead } from "@/lib/checkout/prefill-slug";
@@ -23,6 +24,7 @@ type CheckoutPageProps = {
     tier?: string;
     commerce?: string;
     cancelled?: string;
+    source?: string;
   }>;
 };
 
@@ -57,6 +59,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     recommendedTier: lead?.recommendedTier,
     initialTier: parseTier(params.tier) ?? lead?.recommendedTier,
     initialCommerce: params.commerce === "1" || params.commerce === "true",
+    acquisitionSource: parseCheckoutAcquisitionSource(params.source),
   };
 
   const banner = cancelledCheckoutBanner(lead);

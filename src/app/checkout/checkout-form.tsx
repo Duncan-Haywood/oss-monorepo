@@ -6,6 +6,7 @@ import {
   nextClientIdempotencyKey,
   type ClientIdempotencyAttempt,
 } from "@/lib/checkout/idempotency-key";
+import type { CheckoutAcquisitionSource } from "@/lib/checkout/acquisition-source";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import { BUNDLES, COMMERCE_ADDON, type BundleTier } from "@/lib/pricing/bundles";
 
@@ -16,6 +17,12 @@ export interface CheckoutPrefill {
   recommendedTier?: BundleTier;
   initialTier?: BundleTier;
   initialCommerce?: boolean;
+  /** Which marketing surface (homepage / a category landing page) sent this
+   * shopper to Checkout — already validated against a fixed allowlist by
+   * parseCheckoutAcquisitionSource before this prop is set (checkout/page.tsx
+   * is the only caller). Captured once from the initial page load, not a
+   * user-editable form field — see acquisition-source-checkout-attribution. */
+  acquisitionSource?: CheckoutAcquisitionSource;
 }
 
 function parseTier(value: string | undefined): BundleTier {
@@ -54,6 +61,7 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
         commerceAddon,
         customerEmail: email || undefined,
         slug,
+        acquisitionSource: prefill.acquisitionSource,
       };
       if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
         const attempt = nextClientIdempotencyKey(
