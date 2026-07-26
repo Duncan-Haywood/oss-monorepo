@@ -3161,6 +3161,11 @@ export function LeadsClient({
                               [h.leadSlug]: e.target.value,
                             }))
                           }
+                          aria-label={dashboardRowActionAriaLabel(
+                            "Dedicated Vercel project ID",
+                            h.businessName,
+                            h.leadSlug,
+                          )}
                           aria-invalid={Boolean(vercelProjectErrors[h.leadSlug])}
                           aria-describedby={
                             vercelProjectErrors[h.leadSlug]
@@ -3203,6 +3208,11 @@ export function LeadsClient({
                               [h.leadSlug]: e.target.value,
                             }))
                           }
+                          aria-label={dashboardRowActionAriaLabel(
+                            "Client's own domain",
+                            h.businessName,
+                            h.leadSlug,
+                          )}
                           aria-invalid={Boolean(customDomainErrors[h.leadSlug])}
                           aria-describedby={
                             customDomainErrors[h.leadSlug]
@@ -3361,6 +3371,12 @@ export function LeadsClient({
                           rows={4}
                           maxLength={MAX_INQUIRY_REPLY_LENGTH}
                           placeholder="Write a reply to the inquirer…"
+                          aria-label={dashboardRowActionAriaLabel(
+                            "Reply to inquiry",
+                            inq.businessName,
+                            inq.leadSlug,
+                            inq.name || inq.email || undefined,
+                          )}
                           aria-invalid={Boolean(replyError)}
                           aria-describedby={replyError ? `inquiry-reply-error-${inq.id}` : undefined}
                           className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-900"
