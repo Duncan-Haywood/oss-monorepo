@@ -14,7 +14,12 @@ import type { DeployHandoff } from "@/lib/deploy/types";
  * sends only the still-missing half (receipt and/or DNS), writes only the
  * marker(s) for the half(s) that actually succeeded, partial-failure
  * reporting, DEPLOY_HANDOFF_CONVEX_PRIMARY persist + ConvexPrimaryWriteError
- * fail-closed, and success revalidate.
+ * fail-closed, success revalidate, and the TOCTOU race guard
+ * (bundle-buyer-email-resend-race-guard): a fresh re-read immediately before
+ * persisting each sent-marker detects a concurrent invocation (a second tab,
+ * or a double-click) that already recorded that marker first, and reports
+ * success: false with an explicit duplicate-send warning instead of a false
+ * success — mirroring resendCommerceClientReceiptAction's own race handling.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -348,5 +353,69 @@ describe("resendBundleBuyerEmailAction", () => {
     const res = await resendBundleBuyerEmailAction("demo-cafe");
     expect(res).toEqual({ success: false, error: "disk full" });
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("reports a possible duplicate send when a concurrent request already recorded the receipt marker", async () => {
+    // Initial read: both missing. Fresh re-check (after both sends complete):
+    // a concurrent invocation already wrote the receipt marker in between.
+    getDeployHandoffBySlug
+      .mockResolvedValueOnce(missingBothHandoff)
+      .mockResolvedValueOnce(
+        sampleHandoff({ notes: ["Buyer receipt email sent — Stripe session cs_test_1"] }),
+      );
+    const { resendBundleBuyerEmailAction } = await import("./actions");
+    const res = await resendBundleBuyerEmailAction("demo-cafe");
+    expect(res.success).toBe(false);
+    if (res.success) throw new Error("expected failure");
+    expect(res.error).toContain("receipt");
+    expect(res.error).toContain("duplicate notification email");
+    // Both emails really were sent by this call — only the DNS marker (the
+    // one NOT already present on the fresh read) gets persisted; writing the
+    // receipt marker again would just double it up in the notes array.
+    expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
+      "demo-cafe",
+      "awaiting_dns",
+      ["DNS handoff email sent — Stripe session cs_test_1"],
+      { requireConvex: true },
+    );
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("reports a possible duplicate send when a concurrent request already recorded the DNS marker", async () => {
+    getDeployHandoffBySlug
+      .mockResolvedValueOnce(missingBothHandoff)
+      .mockResolvedValueOnce(
+        sampleHandoff({ notes: ["DNS handoff email sent — Stripe session cs_test_1"] }),
+      );
+    const { resendBundleBuyerEmailAction } = await import("./actions");
+    const res = await resendBundleBuyerEmailAction("demo-cafe");
+    expect(res.success).toBe(false);
+    if (res.success) throw new Error("expected failure");
+    expect(res.error).toContain("DNS handoff");
+    expect(res.error).toContain("duplicate notification email");
+    expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
+      "demo-cafe",
+      "awaiting_dns",
+      ["Buyer receipt email sent — Stripe session cs_test_1"],
+      { requireConvex: true },
+    );
+  });
+
+  it("skips the marker write entirely and still reports the duplicate when both markers lost the race", async () => {
+    const fresh = sampleHandoff({
+      notes: [
+        "Buyer receipt email sent — Stripe session cs_test_1",
+        "DNS handoff email sent — Stripe session cs_test_1",
+      ],
+    });
+    getDeployHandoffBySlug.mockResolvedValueOnce(missingBothHandoff).mockResolvedValueOnce(fresh);
+    const { resendBundleBuyerEmailAction } = await import("./actions");
+    const res = await resendBundleBuyerEmailAction("demo-cafe");
+    expect(res.success).toBe(false);
+    if (res.success) throw new Error("expected failure");
+    expect(res.error).toContain("receipt and DNS handoff");
+    expect(res.handoff).toEqual(fresh);
+    expect(updateDeployHandoffStatus).not.toHaveBeenCalled();
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 });

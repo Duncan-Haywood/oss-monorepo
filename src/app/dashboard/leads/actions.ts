@@ -1788,6 +1788,15 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
  * Sends only whichever half still lacks its durable sent-marker note — a
  * second click after a partial failure only retries the outstanding half,
  * since the marker for any half that already succeeded was already written.
+ *
+ * Re-reads the handoff immediately before persisting each sent-marker and
+ * reports success: false with an explicit duplicate-send warning if a
+ * concurrent invocation (a second tab, or a double-click before the button's
+ * isPending-disabled state takes effect) already recorded that marker first —
+ * this action's initial needsReceipt/needsDns check alone is not atomic, and
+ * without this re-check both concurrent calls would send a real duplicate
+ * email and both would silently report success: true (see
+ * bundle-buyer-email-resend-race-guard).
  */
 export async function resendBundleBuyerEmailAction(leadSlug: string) {
   try {
@@ -1832,7 +1841,6 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
       };
     }
 
-    const notesToAppend: string[] = [];
     let sentReceipt = false;
     let sentDns = false;
 
@@ -1845,7 +1853,6 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
         order?.amountPaid ?? 0,
       );
       if (sent.success) {
-        notesToAppend.push(bundleReceiptEmailSentNote(handoff.stripeSessionId));
         sentReceipt = true;
       }
     }
@@ -1858,38 +1865,77 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
         handoff,
       });
       if (sent.success) {
-        notesToAppend.push(bundleDnsHandoffEmailSentNote(handoff.stripeSessionId));
         sentDns = true;
       }
     }
 
-    if (notesToAppend.length === 0) {
+    if (!sentReceipt && !sentDns) {
       return {
         success: false as const,
         error: "Failed to send the buyer email(s) — check Resend delivery status and try again",
       };
     }
 
-    let updated;
-    try {
-      updated = await updateDeployHandoffStatus(
-        slug,
-        handoff.status,
-        notesToAppend,
-        DEPLOY_HANDOFF_CONVEX_PRIMARY,
-      );
-    } catch (error) {
-      if (error instanceof ConvexPrimaryWriteError) {
-        return {
-          success: false as const,
-          error:
-            "Buyer email was sent but the sent-marker could not be recorded in the shared store — it may show as missing again until this is retried.",
-        };
+    // TOCTOU race guard: re-read the handoff immediately before persisting the
+    // sent-marker(s), mirroring markCommerceOrderClientReceiptSent /
+    // scheduleMarketingPackToBufferAction's re-read-then-merge pattern. A
+    // concurrent invocation (a second open dashboard tab, or a double-click
+    // landing before the button's isPending-disabled state takes effect) can
+    // read this same stale "not yet sent" snapshot above, send its own real
+    // email, and persist its own marker in the window between our initial
+    // read and this write — this function's own doc comment claims to mirror
+    // resendCommerceClientReceiptAction, but only copied its sequential-retry
+    // behavior, not its atomic race guard. We cannot un-send a duplicate email
+    // already in flight, but re-checking against a fresh read lets us avoid
+    // double-appending the same marker note and tell the operator a duplicate
+    // notification may have gone out, instead of silently reporting an
+    // unconditional success (same class as commerce-order-paid-out-race-message-accuracy).
+    const freshHandoff = await getDeployHandoffBySlug(slug);
+    const freshNotes = freshHandoff?.notes ?? handoff.notes;
+    const notesToAppend: string[] = [];
+    let receiptRaceLost = false;
+    let dnsRaceLost = false;
+    if (sentReceipt) {
+      if (hasBundleReceiptEmailNote(freshNotes, handoff.stripeSessionId)) {
+        receiptRaceLost = true;
+      } else {
+        notesToAppend.push(bundleReceiptEmailSentNote(handoff.stripeSessionId));
       }
-      throw error;
     }
-    if (!updated) {
-      return { success: false as const, error: "No deploy handoff found for this lead" };
+    if (sentDns) {
+      if (hasBundleDnsHandoffEmailNote(freshNotes, handoff.stripeSessionId)) {
+        dnsRaceLost = true;
+      } else {
+        notesToAppend.push(bundleDnsHandoffEmailSentNote(handoff.stripeSessionId));
+      }
+    }
+
+    let updated = handoff;
+    if (notesToAppend.length > 0) {
+      let writeResult;
+      try {
+        writeResult = await updateDeployHandoffStatus(
+          slug,
+          handoff.status,
+          notesToAppend,
+          DEPLOY_HANDOFF_CONVEX_PRIMARY,
+        );
+      } catch (error) {
+        if (error instanceof ConvexPrimaryWriteError) {
+          return {
+            success: false as const,
+            error:
+              "Buyer email was sent but the sent-marker could not be recorded in the shared store — it may show as missing again until this is retried.",
+          };
+        }
+        throw error;
+      }
+      if (!writeResult) {
+        return { success: false as const, error: "No deploy handoff found for this lead" };
+      }
+      updated = writeResult;
+    } else if (freshHandoff) {
+      updated = freshHandoff;
     }
 
     revalidatePath("/dashboard/leads");
@@ -1902,6 +1948,17 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
       return {
         success: false as const,
         error: `Sent the ${sentLabel} email, but the other one failed to send — click Resend again to retry just that one.`,
+        handoff: updated,
+      };
+    }
+
+    if (receiptRaceLost || dnsRaceLost) {
+      const raceLabel = [receiptRaceLost && "receipt", dnsRaceLost && "DNS handoff"]
+        .filter(Boolean)
+        .join(" and ");
+      return {
+        success: false as const,
+        error: `The ${raceLabel} email was already marked sent by a concurrent request (e.g. a second tab or a duplicate click) — this click may have sent a duplicate notification email.`,
         handoff: updated,
       };
     }

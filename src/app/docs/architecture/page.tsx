@@ -1388,8 +1388,27 @@ export default function ArchitectureDocPage() {
         follow-up <code>bundle-order-missing-buyer-email-visibility</code> deliberately deferred,
         closed by <code>bundle-dns-handoff-email-manual-resend</code>). A partial failure (one half
         sends, the other doesn&apos;t) still durably marks the half that succeeded so a second click
-        only retries the outstanding one, never re-sends a duplicate. If required fulfillment
-        writes fail (
+        only retries the outstanding one, never re-sends a duplicate.
+      </p>
+      <p>
+        That initial &ldquo;which half is missing&rdquo; check alone is not atomic, though — a
+        concurrent invocation (a second open dashboard tab, or a double-click landing before the
+        button&apos;s pending-disabled state takes effect) can read the same stale
+        &ldquo;not yet sent&rdquo; snapshot, send its own real duplicate email, and persist its own
+        marker in the window between that read and the write (
+        <code>bundle-buyer-email-resend-race-guard</code>).{" "}
+        <code>resendBundleBuyerEmailAction</code> re-reads the handoff immediately before
+        persisting each marker and, if the fresh read already shows a marker this call itself just
+        sent, skips writing a duplicate note for that half and reports{" "}
+        <code>success: false</code> with an explicit &ldquo;may have sent a duplicate notification
+        email&rdquo; warning instead of a false success — the same message-accuracy discipline as{" "}
+        <code>commerce-order-paid-out-race-message-accuracy</code> above, applied to this sibling
+        resend action, whose own doc comment had claimed to mirror{" "}
+        <code>resendCommerceClientReceiptAction</code> but had only copied its sequential-retry
+        behavior, not its atomic race guard.
+      </p>
+      <p>
+        If required fulfillment writes fail (
         <code>recordLeadPayment</code> / handoff enqueue, or commerce{" "}
         <code>insertCommerceOrder</code>), the webhook returns <code>500</code> so Stripe retries —
         never ACK <code>200</code> after swallowing those errors. When{" "}
