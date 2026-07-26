@@ -297,6 +297,7 @@ export function LeadsClient({
   const [commerceEditSlug, setCommerceEditSlug] = useState<string | null>(null);
   const [commerceDraftItems, setCommerceDraftItems] = useState<CommerceSku[]>([]);
   const [commerceCatalogError, setCommerceCatalogError] = useState<string | null>(null);
+  const [stripeConnectError, setStripeConnectError] = useState<string | null>(null);
   const [clientVoicePacks, setClientVoicePacks] =
     useState<ClientVoicePack[]>(initialClientVoicePacks);
   const [clientVoicePackOpenSlug, setClientVoicePackOpenSlug] = useState<string | null>(
@@ -1210,6 +1211,7 @@ export function LeadsClient({
         : [{ id: newCommerceSkuId(), name: "", priceCents: 0 }],
     );
     setCommerceCatalogError(null);
+    setStripeConnectError(null);
     if (opts?.bringIntoView) {
       // Called from the Commerce catalogs missing/unsynced due-queue panels,
       // which list leads from the full unfiltered `leads` array — the target
@@ -1232,6 +1234,7 @@ export function LeadsClient({
     setCommerceEditSlug(null);
     setCommerceDraftItems([]);
     setCommerceCatalogError(null);
+    setStripeConnectError(null);
     // Same refocus fix as closeNotesEditor above — the Close/Save button
     // that triggered this is inside the panel being unmounted here. Queued
     // (not a same-tick .focus() call) for the same disabled={isPending}
@@ -1305,10 +1308,11 @@ export function LeadsClient({
   >({});
 
   const handleCreateStripeConnectAccount = (slug: string) => {
+    setStripeConnectError(null);
     startTransition(async () => {
       const res = await createStripeConnectAccountAction(slug);
       if (!res.success) {
-        alert(`Create Connect account failed: ${res.error}`);
+        setStripeConnectError(`Create Connect account failed: ${res.error}`);
         return;
       }
       setLeads((prev) =>
@@ -1327,10 +1331,11 @@ export function LeadsClient({
   };
 
   const handleGetStripeConnectOnboardingLink = (slug: string) => {
+    setStripeConnectError(null);
     startTransition(async () => {
       const res = await createStripeConnectOnboardingLinkAction(slug);
       if (!res.success) {
-        alert(`Get onboarding link failed: ${res.error}`);
+        setStripeConnectError(`Get onboarding link failed: ${res.error}`);
         return;
       }
       await copyMarketingVariant(res.url);
@@ -1341,10 +1346,11 @@ export function LeadsClient({
   };
 
   const handleSendStripeConnectOnboardingLink = (slug: string) => {
+    setStripeConnectError(null);
     startTransition(async () => {
       const res = await sendStripeConnectOnboardingLinkToClientAction(slug);
       if (!res.success) {
-        alert(`Email onboarding link failed: ${res.error}`);
+        setStripeConnectError(`Email onboarding link failed: ${res.error}`);
         return;
       }
       alert(
@@ -1356,10 +1362,11 @@ export function LeadsClient({
   };
 
   const handleCheckStripeConnectStatus = (slug: string) => {
+    setStripeConnectError(null);
     startTransition(async () => {
       const res = await checkStripeConnectAccountStatusAction(slug);
       if (!res.success) {
-        alert(`Check status failed: ${res.error}`);
+        setStripeConnectError(`Check status failed: ${res.error}`);
         return;
       }
       setConnectStatusByLead((prev) => ({
@@ -4880,6 +4887,15 @@ export function LeadsClient({
                                 </div>
                               </>
                             )}
+                            {stripeConnectError ? (
+                              <p
+                                id={`stripe-connect-error-${lead.slug}`}
+                                className="mt-2 text-xs font-medium text-red-600"
+                                role="alert"
+                              >
+                                {stripeConnectError}
+                              </p>
+                            ) : null}
                             {connectOnboardingAllowed
                               ? (() => {
                                   const connectStatus = resolveDisplayedConnectStatus(

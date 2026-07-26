@@ -612,4 +612,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "db-ts-commerce-order-list-family-convex-branch-test-coverage",
     ),
   },
+  {
+    date: "2026-07-26",
+    branch: "claude/nice-euler-m9w1j2",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip 12e68545 (PR #838, db-ts-commerce-order-list-family-convex-branch-test-coverage, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3396 passed, 210 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A branch fold-scan found no live sibling ahead of main (claude/upbeat-dijkstra-l5t07t and claude/nice-euler-mceesi both showed the documented squash-merge-artifact pattern). A diff-gate check (6c59df15..HEAD) found one test-only commit since the last verified-clean anchor, so this iteration dispatched a research agent directly for a fresh gap.\n\nThe agent found a real, previously-unaddressed accessibility gap: the Stripe Connect Payouts panel in src/app/dashboard/leads/leads-client.tsx (shipped 2026-07-20, after the leads-client-form-error-inline-aria-announcement sweep had already closed its five named targets) still routed all four of its action handlers' failures through a bare alert() — the one alert()-only operator-action surface left over from that otherwise-closed a11y series, sitting two elements below the already-fixed commerceCatalogError paragraph in the same JSX block.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — added stripeConnectError state mirroring commerceCatalogError's shape (single string, not slug-keyed — only one commerce editor/Payouts panel can be open at a time); cleared in openCommerceEditor/closeCommerceEditor and at the start of each of the four handlers; each handler's alert() error branch replaced with setStripeConnectError(...) using the identical message text; rendered as a role=\"alert\" paragraph beneath the panel's button row. Success-path alert() calls (copied-link instructions, queued/sent confirmation) are unchanged — out of scope, matching this series' error-only fix boundary.",
+      "src/app/docs/architecture/page.tsx — new paragraph directly after the existing stripe-connect-onboarding-link-client-facing-redirect writeup naming the gap and the fix.",
+      "src/lib/process/business-decisions.ts — appended stripe-connect-payouts-panel-form-error-inline-aria-announcement.",
+      "src/lib/process/prompt_process.tsx — this ITERATIONS entry. No new NEXT_STEPS entry (an a11y fix on an already-shipped dormant scaffold, not a new capability) — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 12e68545 (this session's own starting tip, post-PR-#838).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean, jsx-a11y rules included) + npx vitest run full suite (3396 passed, unchanged — no test harness exercises this markup, per AGENT_PROTOCOL's own client-component-testing note) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split, no new warnings) + npm run dev smoke check curling /dashboard/leads (200, page content present, no error-boundary/500 text). Killed the dev server and confirmed git status showed only the intended files changed, no stray local.db.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-connect-payouts-panel-form-error-inline-aria-announcement",
+    ),
+  },
 ];

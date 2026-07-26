@@ -2785,6 +2785,26 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        A fresh-angle accessibility audit (2026-07-26,{" "}
+        <code>stripe-connect-payouts-panel-form-error-inline-aria-announcement</code>) found the
+        Payouts panel&apos;s four action buttons — <strong>Create Connect account</strong>,{" "}
+        <strong>Get onboarding link</strong>, <strong>Email onboarding link</strong>, and{" "}
+        <strong>Check status</strong> — still routed every failure through a bare{" "}
+        <code>alert()</code>, unlike the Commerce catalog editor&apos;s{" "}
+        <code>commerceCatalogError</code> two elements above them in the same panel (fixed by the
+        earlier <code>leads-client-form-error-inline-aria-announcement</code> pass, which shipped
+        before this Payouts scaffold&apos;s own error paths existed and so never covered them).
+        Fixed by adding a <code>stripeConnectError</code> state — mirroring{" "}
+        <code>commerceCatalogError</code>&apos;s shape exactly, since only one commerce
+        editor/Payouts panel can be open at a time — cleared whenever the shared editor opens or
+        closes and rendered as a <code>role=&quot;alert&quot;</code> message beneath the button
+        row instead of interrupting the page. Only the four failure branches changed; the
+        existing success-path <code>alert()</code> calls (copied onboarding link, queued/sent
+        confirmation) are unchanged, matching this series&apos; scope of fixing error
+        announcements only.
+      </p>
+
+      <p>
         Until Stripe Connect ships, a refunded or disputed Commerce Buy now charge is a real
         payout-safety exposure: the operator could <strong>Mark paid out</strong> an order Stripe
         had already returned to the shopper (refund) or already debited from the platform pending
