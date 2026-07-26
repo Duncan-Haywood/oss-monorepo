@@ -579,4 +579,21 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): if your clone is shallow, unshallow before doing a branch audit (see prompt_process.tsx step 6) — this session's false-positive scare should not repeat.",
     ],
   },
+  {
+    date: "2026-07-26",
+    agent: "claude/dazzling-allen-42ohts",
+    summary:
+      "recentlyConfirmedWithinHours(12) came back false by only ~29 seconds (last full pass 2026-07-26T04:10:00Z), which forced a full re-verification pass that then found nothing new: all 7 human blockers unchanged, CI outage re-confirmed on the newest main run (30187482944, identical runner_id:0/empty-runner_name/~3s signature, now ~204h/8.5 days), leads-log.ts/listingAuditLog/loggedInterviewResults still empty, PR #4 still the only open PR (draft/unchanged since 2026-06-15), and a fresh full-pagination list_branches call confirmed still exactly 60 non-main branches with no new ones. Since a full pass was mechanically triggered for literally zero new information, used the session to push the recheck-throttle window one notch further (12h -> 24h) rather than just re-stating the same facts again — same reasoning that justified 3h->12h on 2026-07-18, now applied at 22-34 confirmations per blocker with zero exceptions.",
+    changes: [
+      "process/blockers.ts: bumped lastConfirmed/lastConfirmedAt/confirmedByCount on all 7 entries with fresh evidence; actions-ci-runner-outage's 'most recent run'/'duration as of' data overwritten in place (now run 30187482944, ~204h) per the existing convention; cron-cadence-too-frequent's whatsNeeded updated to mention the 12h->24h widening.",
+      "process/prompt_process.tsx: step 0a's recentlyConfirmedWithinHours(12) call is now recentlyConfirmedWithinHours(24), with a doc note explaining why (every blocker stable 6+ weeks to 8.5 days with 22-34 zero-exception confirmations; the 12h window was firing right at its own boundary for no new information; the separate 72h shouldNotifyHuman() out-of-band throttle is unchanged and remains the real mechanism for making sure Duncan hears about anything time-sensitive promptly).",
+      "process/roadmap.ts: added p2-blocker-recheck-window-widen-24h (done) documenting this change, alongside the existing p2-blocker-recheck-window-widen task.",
+      "decisions-log.ts: new entry documenting the 12h->24h widening and its rationale.",
+      "Verified: docs-site/ `npm run build` passes clean (type-checks blockers.ts/decisions-log.ts/progress-log.ts/roadmap.ts via prompt_process.tsx's import chain). pipeline/ and research/ untouched, not rebuilt. shouldNotifyHuman(72) returned false (~38h since the 2026-07-25T02:11Z push) — no repeat out-of-band notification sent this session, consistent with the throttle.",
+    ],
+    nextUp: [
+      "Human: same seven items remain the highest-leverage next steps — see blockers.ts. The CI outage (now ~8.5 days, still the single most time-sensitive item) and the cron-cadence reconsideration are the two most worth a direct look.",
+      "Agent (next session): with the window now 24h, expect a full pass to actually be due roughly once a day; if recentlyConfirmedWithinHours(24) returns true, do only the cheap check per step 0a and skip the branch/commit/PR entirely if nothing's different.",
+    ],
+  },
 ];

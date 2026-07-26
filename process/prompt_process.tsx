@@ -47,8 +47,8 @@ agent session should move that forward by a bounded, honest increment.
 
 Each session:
 0a. Before doing a full from-scratch re-verification pass, call
-   recentlyConfirmedWithinHours(12) from blockers.ts. If it returns true,
-   every blocker was already re-checked within the last 12 hours by some
+   recentlyConfirmedWithinHours(24) from blockers.ts. If it returns true,
+   every blocker was already re-checked within the last 24 hours by some
    other session — don't repeat that work. Instead do a *cheap* check only
    (leads-log.ts/listingAuditLog/loggedInterviewResults still empty? any
    new merged PRs since the last progress-log.ts entry, via git log
@@ -58,7 +58,7 @@ Each session:
    changed" branch adds a CI run and a stale ref for zero new information
    (see blockers.ts's 2026-07-13 doc comment — three near-duplicate
    recheck branches in one day is what this guards against). If the
-   12-hour window has elapsed, or the cheap check finds something new,
+   24-hour window has elapsed, or the cheap check finds something new,
    proceed to a full pass below.
    (Widened from 3 to 12 hours on 2026-07-18: list_triggers confirmed
    this repo's own agent session is bound to an hourly cron, and every
@@ -69,8 +69,18 @@ Each session:
    already argued would catch a resolved blocker just as fast in practice
    — implemented at the code level instead of waiting on a human to change
    the cron schedule, since none of the 6 blockers here resolve on
-   anything faster than a human choosing to do a real-world action. See
-   decisions-log.ts.)
+   anything faster than a human choosing to do a real-world action. Widened
+   again from 12 to 24 hours on 2026-07-26: by this point every blocker had
+   held for 8+ days (the CI outage) to 6+ weeks (the other five) with zero
+   hour-to-hour or same-day variance across 20-34 independent re-checks
+   each, and the 12-hour window was itself starting to fire right at its
+   own boundary (a session landing within seconds of the prior 12h mark
+   would still trigger a full pass for literally nothing new). A 24-hour
+   ("once a human's likely to look at this today") window can't plausibly
+   delay noticing a real resolution by more than data that stale already
+   implies; the actual notification path for something time-sensitive is
+   shouldNotifyHuman()'s separate 72h out-of-band throttle in step 0a-2,
+   which this doesn't change. See decisions-log.ts.)
 0a-2. If your harness can send an out-of-band notification (push/email)
    straight to Duncan, separate from anything committed here: that is
    worth doing when it carries genuinely new information (a blocker

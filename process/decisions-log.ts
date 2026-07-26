@@ -335,4 +335,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-lfyv1d",
     relatedTaskIds: ["stale-branch-cleanup", "p2-blocker-recheck-throttle"],
   },
+  {
+    date: "2026-07-26",
+    title: "Widen the recheck-throttle window from 12h to 24h — the 12h window was now firing on its own boundary for zero new information",
+    decision:
+      "prompt_process.tsx's step 0a now calls recentlyConfirmedWithinHours(24) instead of (12) before a full from-scratch blocker re-verification pass, with a doc note explaining the change. blockers.ts's cron-cadence-too-frequent and actions-ci-runner-outage entries updated to reference the new window.",
+    rationale:
+      "This session's own recentlyConfirmedWithinHours(12) check came back false by roughly 29 seconds (last full pass 2026-07-26T04:10:00Z, this check at 2026-07-26T16:10:29Z) — the window elapsing by a hair triggered a full re-verification pass that then found nothing new whatsoever: the CI outage showed the identical runner_id:0/empty-runner_name/~3s-duration signature on the newest main run (30187482944, now ~204h/8.5 days), all 6 other blockers unchanged, leads-log.ts/listingAuditLog/loggedInterviewResults still empty, PR #4 still the only open PR (draft/unchanged since 2026-06-15), and a fresh `list_branches` call confirmed still exactly 60 non-main branches with no new ones beyond the two already accounted for in blockers.ts. Every blocker's confirmedByCount is now in the 22-34 range with zero exceptions across 6+ weeks (the CI outage: 8.5 days) — the same reasoning that justified 3h->12h on 2026-07-18 applies again one notch further: a 24-hour window ('once a human is likely to look at this today') can't plausibly delay noticing a real resolution any later than a human would already notice it, and the separate 72h shouldNotifyHuman() out-of-band throttle (unchanged) is the actual mechanism for making sure Duncan hears about it promptly regardless of this window's width. This reduces in-repo branch/commit churn further without changing when Duncan gets pinged directly.",
+    madeBy: "claude/dazzling-allen-42ohts",
+    relatedTaskIds: ["p2-blocker-recheck-window-widen-24h", "cron-cadence-too-frequent"],
+  },
 ];
