@@ -390,6 +390,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/nice-euler-ii39tq",
   },
+  {
+    id: "db-ts-order-list-family-sqlite-fallback-test-coverage",
+    summary:
+      "Continuation of the db.ts SQLite-fallback test-coverage series. listOrders and listOrdersByLeadSlug — the two order-list functions AGENT_PROTOCOL itself names as the highest-stakes newest-first-sort invariant in the codebase — had zero direct test coverage of their own Convex-success row mapping (mapConvexOrderRow + sortOrdersNewestFirst) or Convex-failure-to-SQLite fallback branch; every consumer test mocks @/lib/db away entirely, and the lower-level sqliteListOrders/sqliteListOrdersByLeadSlug SQL had its own coverage but proved nothing about db.ts's branch selection or field mapping. Shipped a backdateOrderCreatedAt test helper (mirroring the existing backdateClientInquiryCreatedAt precedent) plus 6 new Vitest cases across two new describe blocks in src/lib/db.test.ts, covering both functions' no-Convex/Convex-success/Convex-failure branches and listOrdersByLeadSlug's slug-scoping. Verified the tests actually catch a regression by temporarily removing the sortOrdersNewestFirst() wrapper and confirming the targeted test failed before restoring. See db-ts-order-list-family-sqlite-fallback-test-coverage in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-whvfz6",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -701,6 +709,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "bundle-buyer-email-resend-race-guard",
+    ),
+  },
+  {
+    date: "2026-07-26",
+    branch: "claude/upbeat-dijkstra-whvfz6",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip 71254338 (PR #829, bundle-buyer-email-resend-race-guard, merged prior session) — HEAD matched origin/main exactly at session start (after unshallowing this session's shallow clone to restore full ancestry with origin/main; the shallow clone had made `git merge-base HEAD origin/main` fail with no common ancestor, which would otherwise have looked like an unrelated-history problem rather than a fetch-depth artifact). Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3345 passed, 209 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route split) — all matching the immediately preceding iteration's own reported numbers exactly. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (751+ remote heads) diffed the newest ~6 claude/* branches by push time against origin/main — every one came back negative-only (pure deletions relative to current main), the documented squash-merge-artifact pattern; no live fold candidate.\n\nDispatched a research agent (general-purpose, read-only) briefed on AGENT_PROTOCOL's full text and the last ~15 same-day ITERATIONS entries, asked to find one concrete, previously-unaddressed, small-scope gap per the established empty-backlog priority order. It found a tier-4 (untested orchestration) gap: listOrders and listOrdersByLeadSlug (src/lib/db.ts) — the two functions AGENT_PROTOCOL's own dual-backend rules name explicitly as the highest-stakes newest-first-sort invariant in the codebase — had zero direct test coverage in src/lib/db.test.ts of their Convex-success mapping (mapConvexOrderRow + sortOrdersNewestFirst), their Convex-failure-to-SQLite fallback branch, or listOrdersByLeadSlug's slug-scoping, confirmed by grepping db.test.ts for both function names (0 hits, versus every sibling list function already having its own describe block) and by every db.ts consumer test file mocking the module away entirely.",
+    shipped: [
+      "src/lib/db.test.ts — added a backdateOrderCreatedAt test helper (mirrors the existing backdateClientInquiryCreatedAt precedent, since recordLeadPayment stamps createdAt from the real clock with no override parameter) and two new describe blocks totaling 6 new Vitest cases: listOrders (no-Convex skips straight to SQLite; Convex success is mapped through mapConvexOrderRow and re-sorted newest-first even when Convex itself returned oldest-first; Convex failure falls back to SQLite and still orders newest-first) and listOrdersByLeadSlug (same three shapes, plus proving the SQLite fallback scopes strictly to the requested lead slug and excludes a second lead's own orders).",
+      "src/lib/process/business-decisions.ts — appended db-ts-order-list-family-sqlite-fallback-test-coverage.",
+      "src/lib/process/prompt_process.tsx — this ITERATIONS entry. No new NEXT_STEPS entry (a test-coverage gap on already-shipped functions, not a new capability) — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this closes an untested-orchestration coverage gap, not any of the five. Diff-gate anchor moves to 71254338 (this session's own starting tip, post-PR-#829).",
+      "Verified the new tests actually catch a regression: temporarily removed the sortOrdersNewestFirst() wrapper from listOrders' Convex-success branch (returning rows.map(mapConvexOrderRow) unsorted) and confirmed the new 'mapped through mapConvexOrderRow and newest-first sorted' case failed with the exact expected-vs-actual mismatch (Convex's own oldest-first order came through unsorted) before restoring db.ts via a byte-for-byte copy-back and confirming git diff showed zero change to db.ts itself — this iteration is purely additive test coverage.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run src/lib/db.test.ts (225 passed, up from 219) + npx vitest run full suite (3351 passed, up from 3345, 209 files unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split, no new warnings). No dev-server smoke test beyond the existing Vitest coverage: test-only change to server-only db.ts orchestration behind a mocked Convex client, no production code or new UI/route surface touched.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-ts-order-list-family-sqlite-fallback-test-coverage",
     ),
   },
 ];
