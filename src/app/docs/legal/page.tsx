@@ -8,7 +8,7 @@ export const metadata: Metadata = docPageMetadata("/docs/legal");
 export default function LegalDocPage() {
   return (
     <DocPage
-      title="Legal — Maris Stella Labs"
+      title={`Legal — ${brand.legalEntity}`}
       subtitle="Operational guidance, not legal advice. Have counsel review before launch."
       related={[
         { href: "/docs/compliance", label: "Compliance" },
