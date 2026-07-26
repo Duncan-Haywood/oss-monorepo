@@ -62,7 +62,7 @@ export function TierUpsell({ lead }: TierUpsellProps) {
                 ))}
               </ul>
               <Link
-                href={`/checkout?slug=${encodeURIComponent(lead.slug)}&tier=${bundle.id}`}
+                href={`/checkout?slug=${encodeURIComponent(lead.slug)}&tier=${bundle.id}&source=preview`}
                 className={`mt-6 inline-flex h-11 items-center justify-center rounded-full text-sm font-medium transition-colors ${
                   recommended
                     ? "bg-white text-zinc-900 hover:bg-zinc-100"

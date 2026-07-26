@@ -1,17 +1,31 @@
 /**
- * Which marketing surface drove a bundle checkout — homepage pricing grid vs.
- * one of the three /websites-for-* SEO category landing pages. Fixed
- * allowlist, never free text: this value rides through an unauthenticated
- * client query param -> Stripe Checkout Session metadata -> the persisted
- * `orders` row an operator dashboard later renders, so a client-supplied
- * value must be validated against a closed set at every hop rather than
- * trusted as an opaque label (see acquisition-source-checkout-attribution).
+ * Which marketing surface drove a bundle checkout — homepage pricing grid,
+ * one of the three /websites-for-* SEO category landing pages, a lead's own
+ * /preview/[slug] page (tier-upsell cards + hero "Claim this site" CTA), or
+ * an outreach email (Email 1/2/3 + abandoned-checkout recovery nudges).
+ * Fixed allowlist, never free text: this value rides through an
+ * unauthenticated client query param -> Stripe Checkout Session metadata ->
+ * the persisted `orders` row an operator dashboard later renders, so a
+ * client-supplied value must be validated against a closed set at every hop
+ * rather than trusted as an opaque label (see
+ * acquisition-source-checkout-attribution).
+ *
+ * "preview" and "outreach-email" were added by
+ * acquisition-source-preview-and-outreach-attribution after the original
+ * four-token allowlist (homepage + the three SEO landing pages) shipped: the
+ * lead's own preview page and the outreach-email sequence are this
+ * cold-outbound business's dominant conversion path, and neither tagged its
+ * checkout links, so most real revenue was bucketing under "Unknown /
+ * direct" in acquisitionSourceBreakdown — the opposite of what that panel
+ * exists to answer.
  */
 export const CHECKOUT_ACQUISITION_SOURCES = [
   "home",
   "cat-restaurant",
   "cat-salon",
   "cat-trades",
+  "preview",
+  "outreach-email",
 ] as const;
 
 export type CheckoutAcquisitionSource = (typeof CHECKOUT_ACQUISITION_SOURCES)[number];
@@ -45,5 +59,9 @@ export function checkoutAcquisitionSourceLabel(source: CheckoutAcquisitionSource
       return "Salons landing page";
     case "cat-trades":
       return "Trades landing page";
+    case "preview":
+      return "Lead preview page";
+    case "outreach-email":
+      return "Outreach email";
   }
 }

@@ -1724,6 +1724,26 @@ export default function ArchitectureDocPage() {
         Pipeline health dashboard panel — hidden entirely when there are no bundle orders yet.
       </p>
       <p>
+        <code>acquisition-source-preview-and-outreach-attribution</code>: the original four-token
+        allowlist above only tagged the homepage and the three SEO landing pages — but this
+        cold-outbound business&apos;s dominant conversion path is a lead&apos;s own{" "}
+        <code>/preview/[slug]</code> page (reached via an outreach email) and the outreach-email
+        sequence itself, and neither tagged its checkout links at all. Every such conversion
+        silently bucketed under &quot;Unknown / direct&quot; in{" "}
+        <code>acquisitionSourceBreakdown</code>, understating the outreach funnel and
+        overstating how &quot;mysterious&quot; most revenue looked — the opposite of what that
+        panel exists to answer. Added two more allowlisted tokens: <code>preview</code> (the
+        preview page&apos;s tier-upsell cards and hero &quot;Claim this site&quot; CTA,{" "}
+        <code>TierUpsell</code> / <code>CategoryPreview</code>) and{" "}
+        <code>outreach-email</code> (Email 1/2/3 and abandoned-checkout recovery nudges,{" "}
+        <code>src/lib/email/resend.ts</code>). <code>sendCommerceAbandonedRecovery</code> was
+        deliberately left untagged — it links to the client&apos;s own preview catalog, never{" "}
+        <code>/checkout</code>, so there is no bundle acquisition to attribute. The Starter →
+        Growth/Complete upsell email&apos;s checkout link (
+        <code>buildStarterUpsellCheckoutPath</code>) was also left out of scope: that is an
+        existing paying customer changing tiers, not a new-customer acquisition event.
+      </p>
+      <p>
         Recovery copy escalates across repeat nudges instead of resending the same email
         (recovery-email-escalating-cadence): every <code>checkoutSessions</code> row also carries a{" "}
         <code>recoverySentCount</code> (incremented atomically alongside{" "}

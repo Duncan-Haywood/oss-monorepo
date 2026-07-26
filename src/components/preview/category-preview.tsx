@@ -55,7 +55,7 @@ export function CategoryPreview({
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
           <Link
-            href={`/checkout?slug=${encodeURIComponent(displayLead.slug)}&tier=${displayLead.recommendedTier}`}
+            href={`/checkout?slug=${encodeURIComponent(displayLead.slug)}&tier=${displayLead.recommendedTier}&source=preview`}
             className={`inline-flex h-12 items-center justify-center rounded-full px-8 font-medium transition-colors ${theme.ctaClass}`}
           >
             Claim this site — from ${minBundleSetupPriceUsd()}

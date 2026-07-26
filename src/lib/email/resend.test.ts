@@ -1105,3 +1105,69 @@ describe("resend.ts — abandoned-checkout recovery escalating cadence (recovery
     expect(sentHtml).not.toContain("<Truck>");
   });
 });
+
+// Guards against the exact gap acquisition-source-preview-and-outreach-
+// attribution closed: the outreach-email checkout links (Email 1/2/3 +
+// abandoned-checkout recovery nudges) previously carried no ?source= token at
+// all, so every outreach-driven conversion bucketed under "Unknown / direct"
+// in the dashboard's acquisitionSourceBreakdown panel even though this
+// cold-outbound business's outreach sequence is its dominant conversion
+// path. Each checkout link must now carry &source=outreach-email (escaped to
+// &amp;source=outreach-email in the sent HTML, same as every other query
+// param already asserted elsewhere in this file).
+describe("resend.ts — outreach checkout links carry acquisition-source attribution (acquisition-source-preview-and-outreach-attribution)", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+  let sentHtml: string;
+
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    sentHtml = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const body = JSON.parse(String(init.body));
+        sentHtml = body.html;
+        return {
+          ok: true,
+          json: async () => ({ id: "email_test" }),
+        } as Response;
+      }),
+    );
+  });
+
+  afterEach(() => {
+    process.env.RESEND_API_KEY = originalKey;
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("tags sendOutreachEmail's (Email 1) checkout link", async () => {
+    const { sendOutreachEmail } = await import("./resend");
+    await sendOutreachEmail("owner@example.com", "Demo Cafe", "demo-cafe");
+    expect(sentHtml).toContain("&amp;source=outreach-email");
+  });
+
+  it("tags sendOutreachFollowUp2's (Email 2) checkout link", async () => {
+    const { sendOutreachFollowUp2 } = await import("./resend");
+    await sendOutreachFollowUp2("owner@example.com", "Demo Cafe", "demo-cafe");
+    expect(sentHtml).toContain("&amp;source=outreach-email");
+  });
+
+  it("tags sendOutreachFollowUp3's (Email 3) checkout link", async () => {
+    const { sendOutreachFollowUp3 } = await import("./resend");
+    await sendOutreachFollowUp3("owner@example.com", "Demo Cafe", "demo-cafe");
+    expect(sentHtml).toContain("&amp;source=outreach-email");
+  });
+
+  it("tags sendCheckoutAbandonedRecovery's checkout link, alongside its existing &tier= param", async () => {
+    const { sendCheckoutAbandonedRecovery } = await import("./resend");
+    await sendCheckoutAbandonedRecovery("owner@example.com", "Demo Cafe", "demo-cafe", "starter");
+    expect(sentHtml).toContain("&amp;tier=starter&amp;source=outreach-email");
+  });
+
+  it("does NOT tag sendCommerceAbandonedRecovery's checkout link — that flow links to the client's own preview/catalog, not /checkout, and has no bundle acquisition to attribute", async () => {
+    const { sendCommerceAbandonedRecovery } = await import("./resend");
+    await sendCommerceAbandonedRecovery("shopper@example.com", "Demo Cafe", "demo-cafe", "Latte");
+    expect(sentHtml).not.toContain("source=outreach-email");
+  });
+});
