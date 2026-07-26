@@ -306,7 +306,7 @@ describe("importLeadsCsvAction", () => {
     );
   });
 
-  it("skips existing slugs without calling upsertLead for collisions", async () => {
+  it("skips existing slugs without calling upsertLead for collisions, reporting the real CSV row (not a hardcoded 0)", async () => {
     getLeads.mockResolvedValue([{ slug: "blue-river-salon" }]);
     const { existingLeadSlugConflictMessage } = await import(
       "@/lib/leads/csv-import"
@@ -322,10 +322,14 @@ describe("importLeadsCsvAction", () => {
       slugs: ["demo-cafe"],
       skipped: 1,
     });
+    // blue-river-salon is CSV data row 1 — see
+    // csv-import-row-number-mislabel-after-drop (this used to be hardcoded
+    // to row: 0 for every collision, giving the operator no way to tell
+    // which CSV row a collision came from when a batch had more than one).
     expect(res.errors).toEqual(
       expect.arrayContaining([
         {
-          row: 0,
+          row: 1,
           message: existingLeadSlugConflictMessage("blue-river-salon"),
         },
       ]),
@@ -334,6 +338,55 @@ describe("importLeadsCsvAction", () => {
     expect(upsertLead).toHaveBeenCalledWith(
       expect.objectContaining({ slug: "demo-cafe" }),
       { requireConvex: true },
+    );
+  });
+
+  it("reports the correct original CSV row for a fresh-row upsert failure even after an earlier row was dropped by parse validation (csv-import-row-number-mislabel-after-drop)", async () => {
+    // Row 1 (invalid category) never enters `leads`/`fresh` at all — it's
+    // dropped by parseLeadsCsv with its own row:1 error. Row 2 (salonRow) is
+    // the only fresh row, but its position in `fresh` is *array index 0*.
+    // The old index+1 numbering would have mislabeled its own upsert
+    // failure as "row 1" — the very row that was already dropped for an
+    // unrelated reason — instead of its real CSV row, 2.
+    const invalidCategoryRow = [...salonRow];
+    invalidCategoryRow[1] = "not-a-real-category";
+    upsertLead.mockRejectedValueOnce(new Error("sqlite locked"));
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(invalidCategoryRow, cafeRow),
+    });
+
+    expect(res).toMatchObject({ success: false, imported: 0 });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        { row: 1, message: expect.stringMatching(/Invalid category/) },
+        { row: 2, message: "sqlite locked" },
+      ]),
+    );
+  });
+
+  it("reports distinct real CSV rows for multiple collisions in one batch, not all row: 0", async () => {
+    getLeads.mockResolvedValue([
+      { slug: "blue-river-salon" },
+      { slug: "demo-cafe" },
+    ]);
+    const { existingLeadSlugConflictMessage } = await import(
+      "@/lib/leads/csv-import"
+    );
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow, cafeRow),
+    });
+
+    expect(res).toMatchObject({ success: false, imported: 0, skipped: 2 });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        {
+          row: 1,
+          message: existingLeadSlugConflictMessage("blue-river-salon"),
+        },
+        { row: 2, message: existingLeadSlugConflictMessage("demo-cafe") },
+      ]),
     );
   });
 

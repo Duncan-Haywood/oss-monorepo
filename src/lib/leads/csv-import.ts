@@ -66,6 +66,14 @@ export interface CsvImportRowError {
 
 export interface CsvImportResult {
   leads: Lead[];
+  // 1-based original CSV data row for leads[i] — same index alignment as
+  // `leads`, NOT the same as leads[i]'s position in any later-filtered
+  // subset (e.g. after dropping slug collisions). A dropped/invalid row
+  // (businessName missing, bad category, etc.) never gets a `leads` entry
+  // at all, so without this parallel array a caller left reconstructing a
+  // row number from array position would silently mislabel every row after
+  // the first drop (see csv-import-row-number-mislabel-after-drop).
+  leadRows: number[];
   errors: CsvImportRowError[];
   skipped: number;
 }
@@ -314,12 +322,18 @@ export function parseLeadsCsv(
   const defaultStage = options?.defaultStage ?? "discovered";
   const errors: CsvImportRowError[] = [];
   const leads: Lead[] = [];
+  const leadRows: number[] = [];
   const seenSlugs = new Set<string>();
 
   const lines = splitCsvIntoLines(csvText);
 
   if (lines.length === 0) {
-    return { leads: [], errors: [{ row: 0, message: "CSV is empty" }], skipped: 0 };
+    return {
+      leads: [],
+      leadRows: [],
+      errors: [{ row: 0, message: "CSV is empty" }],
+      skipped: 0,
+    };
   }
 
   const headerCells = parseCsvLine(lines[0] ?? "").map(normalizeHeader);
@@ -328,6 +342,7 @@ export function parseLeadsCsv(
   if (indexOf("businessName") < 0) {
     return {
       leads: [],
+      leadRows: [],
       errors: [
         {
           row: 0,
@@ -342,6 +357,7 @@ export function parseLeadsCsv(
   if (dataLines.length > MAX_ROWS) {
     return {
       leads: [],
+      leadRows: [],
       errors: [
         {
           row: 0,
@@ -480,9 +496,10 @@ export function parseLeadsCsv(
       recommendedTier,
       dataSource,
     });
+    leadRows.push(rowNumber);
   });
 
-  return { leads, errors, skipped };
+  return { leads, leadRows, errors, skipped };
 }
 
 /**

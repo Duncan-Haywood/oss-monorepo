@@ -2119,16 +2119,31 @@ export async function importLeadsCsvAction(input: {
     const existingSlugs = new Set((await getLeads()).map((l) => l.slug));
     const { fresh, collisions } = partitionLeadsByExistingSlugs(parsed.leads, existingSlugs);
 
+    // Map each parsed lead's slug back to its original 1-based CSV data row.
+    // Slugs are guaranteed unique within one parse batch (parseLeadsCsv's
+    // seenSlugs auto-suffixes any in-batch duplicate), so this lookup is safe
+    // across the fresh/collisions partition below. Without it, a row-error's
+    // `row` number was reconstructed from `fresh`'s own array position
+    // (fresh.entries()'s index) or hardcoded to 0 for collisions — both wrong
+    // as soon as ANY earlier CSV row was invalid/dropped-by-parse or was
+    // itself a collision, since every later row's position in `leads`/`fresh`
+    // shifts left of its real CSV line the moment a row ahead of it is
+    // filtered out. See csv-import-row-number-mislabel-after-drop.
+    const rowBySlug = new Map(
+      parsed.leads.map((lead, i) => [lead.slug, parsed.leadRows[i] ?? 0]),
+    );
+
     const importedSlugs: string[] = [];
     const upsertErrors: Array<{ row: number; message: string }> = [...parsed.errors];
     for (const lead of collisions) {
       upsertErrors.push({
-        row: 0,
+        row: rowBySlug.get(lead.slug) ?? 0,
         message: existingLeadSlugConflictMessage(lead.slug),
       });
     }
 
-    for (const [index, lead] of fresh.entries()) {
+    for (const lead of fresh) {
+      const row = rowBySlug.get(lead.slug) ?? 0;
       try {
         const created = await upsertLead(lead, LEAD_UPSERT_CONVEX_PRIMARY);
         if (!created) {
@@ -2139,7 +2154,7 @@ export async function importLeadsCsvAction(input: {
           // lead-upsert-create-only-race-guard) — never resurface a false
           // "imported" for a row that was actually refused.
           upsertErrors.push({
-            row: index + 1,
+            row,
             message: existingLeadSlugConflictMessage(lead.slug),
           });
           continue;
@@ -2171,7 +2186,7 @@ export async function importLeadsCsvAction(input: {
             await recordLeadOutreach(lead.slug, 1, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
           } catch (error) {
             upsertErrors.push({
-              row: index + 1,
+              row,
               message:
                 error instanceof ConvexPrimaryWriteError
                   ? "Lead saved, but could not record the outreach mark in the shared store — retry marking the stage again from the dashboard."
@@ -2181,7 +2196,7 @@ export async function importLeadsCsvAction(input: {
         }
       } catch (error) {
         upsertErrors.push({
-          row: index + 1,
+          row,
           message:
             error instanceof ConvexPrimaryWriteError
               ? "Could not save this lead in the shared store — other instances may not see it. Retry import for this row."
