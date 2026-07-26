@@ -26,6 +26,7 @@ import {
 } from "@/lib/db";
 import { findLeadSlugByStripeConnectAccountId } from "@/lib/commerce/stripe-connect";
 import { LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY } from "@/lib/leads/stripe-connect-persist";
+import { parseCheckoutAcquisitionSource } from "@/lib/checkout/acquisition-source";
 import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
@@ -395,6 +396,10 @@ export async function POST(request: Request) {
       const metadataCommerceAddon = session.metadata?.commerceAddon === "true";
       const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
       const stripeCustomerId = stripeCustomerIdFromUnknown(session.customer) ?? undefined;
+      // Re-validate against the fixed allowlist rather than trusting the
+      // metadata value verbatim — same paranoia as every other metadata field
+      // on this path (see acquisition-source-checkout-attribution).
+      const acquisitionSource = parseCheckoutAcquisitionSource(session.metadata?.acquisitionSource);
 
       // Commerce catalog "Buy now" purchase (stripe-commerce-products-sync) —
       // a paid order for a client's shop item, not a Local Site Studio bundle
@@ -912,6 +917,7 @@ export async function POST(request: Request) {
               commerceAddon,
               amountTotal,
               stripeCustomerId,
+              acquisitionSource,
             },
             WEBHOOK_CONVEX_PRIMARY,
           ));

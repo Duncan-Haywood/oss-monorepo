@@ -3079,6 +3079,62 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(order?.amountPaid).toBe(199);
     });
 
+    it("passes acquisitionSource through to the Convex mutation args", async () => {
+      convexMutation.mockResolvedValueOnce({ alreadyRecorded: false });
+      const db = await loadDb(CONVEX_URL);
+      await db.recordLeadPayment(
+        {
+          slug: "convex-source-lead",
+          stripeSessionId: "cs_convex_source",
+          customerEmail: "buyer@example.com",
+          tier: "starter",
+          commerceAddon: false,
+          amountTotal: 99,
+          acquisitionSource: "cat-trades",
+        },
+        { requireConvex: true },
+      );
+      expect(convexMutation).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ acquisitionSource: "cat-trades" }),
+      );
+    });
+
+    it("SQLite fallback persists acquisitionSource onto the order row", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await db.recordLeadPayment({
+        slug: "sqlite-source-lead",
+        stripeSessionId: "cs_sqlite_source",
+        customerEmail: "buyer@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 149,
+        acquisitionSource: "home",
+      });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const order = await db.getOrderByStripeSessionId("cs_sqlite_source");
+      expect(order?.acquisitionSource).toBe("home");
+    });
+
+    it("SQLite fallback persists no acquisitionSource as undefined, not null/empty-string", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await db.recordLeadPayment({
+        slug: "no-source-lead",
+        stripeSessionId: "cs_no_source",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 99,
+      });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const order = await db.getOrderByStripeSessionId("cs_no_source");
+      expect(order?.acquisitionSource).toBeUndefined();
+    });
+
     it("SQLite fallback promotes an existing (non-live) lead to paid", async () => {
       const seedDb = await loadDb(undefined);
       await seedDb.upsertLead(testLead("existing-payment-lead", { stage: "discovered" }));

@@ -4088,6 +4088,54 @@ describe("POST /api/stripe/webhook", () => {
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(2);
     });
 
+    it("passes a valid metadata.acquisitionSource through to recordLeadPayment", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth", acquisitionSource: "cat-restaurant" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({ acquisitionSource: "cat-restaurant" }),
+        { requireConvex: true },
+      );
+    });
+
+    it("drops an unrecognized metadata.acquisitionSource rather than passing it through", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth", acquisitionSource: "google-ads" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({ acquisitionSource: undefined }),
+        { requireConvex: true },
+      );
+    });
+
     it("redelivery with both emails already marked sent: skips both, no duplicate send", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },

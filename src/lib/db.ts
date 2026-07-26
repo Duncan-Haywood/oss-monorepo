@@ -817,6 +817,7 @@ export async function recordLeadPayment(
     commerceAddon: boolean;
     amountTotal: number;
     stripeCustomerId?: string;
+    acquisitionSource?: string;
   },
   options?: ConvexPrimaryWriteOptions,
 ): Promise<{ alreadyRecorded: boolean }> {
@@ -870,6 +871,7 @@ function mapConvexOrderRow(row: {
   lastRenewalInvoiceId?: string;
   lastBillingNoticeSendFailedAt?: number;
   lastBillingNoticeSendFailedType?: string;
+  acquisitionSource?: string;
 }): OrderRecord {
   return {
     id: row._id,
@@ -901,6 +903,7 @@ function mapConvexOrderRow(row: {
         : undefined,
     lastBillingNoticeSendFailedType: (row.lastBillingNoticeSendFailedType ||
       undefined) as OrderRecord["lastBillingNoticeSendFailedType"],
+    acquisitionSource: row.acquisitionSource || undefined,
   };
 }
 
@@ -923,6 +926,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
         lastRenewalInvoiceId?: string;
         lastBillingNoticeSendFailedAt?: number;
         lastBillingNoticeSendFailedType?: string;
+        acquisitionSource?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -964,6 +968,7 @@ export async function listOrdersByLeadSlug(
         lastRenewalInvoiceId?: string;
         lastBillingNoticeSendFailedAt?: number;
         lastBillingNoticeSendFailedType?: string;
+        acquisitionSource?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -1007,6 +1012,7 @@ export async function getOrderByStripeSessionId(
         lastRenewalInvoiceId?: string;
         lastBillingNoticeSendFailedAt?: number;
         lastBillingNoticeSendFailedType?: string;
+        acquisitionSource?: string;
       } | null;
       return row ? mapConvexOrderRow(row) : null;
     } catch (e) {
@@ -1023,7 +1029,8 @@ export async function getOrderByStripeSessionId(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
               o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
               o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
-              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType,
+              o.acquisitionSource
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE o.stripeSessionId = ?`,
@@ -1068,6 +1075,7 @@ export async function getOrdersByStripeCustomerId(
         lastRenewalInvoiceId?: string;
         lastBillingNoticeSendFailedAt?: number;
         lastBillingNoticeSendFailedType?: string;
+        acquisitionSource?: string;
       }>;
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
@@ -1084,7 +1092,8 @@ export async function getOrdersByStripeCustomerId(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
               o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
               o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
-              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType,
+              o.acquisitionSource
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE o.stripeCustomerId = ?

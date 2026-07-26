@@ -24,6 +24,7 @@ export interface SqliteOrderJoinRow {
   lastRenewalInvoiceId: string | null;
   lastBillingNoticeSendFailedAt: number | null;
   lastBillingNoticeSendFailedType: string | null;
+  acquisitionSource: string | null;
 }
 
 /** Map a SQLite `orders` row back into the app-wide OrderRecord shape (fallback-read path). */
@@ -58,5 +59,6 @@ export function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
         : undefined,
     lastBillingNoticeSendFailedType: (row.lastBillingNoticeSendFailedType ||
       undefined) as OrderRecord["lastBillingNoticeSendFailedType"],
+    acquisitionSource: row.acquisitionSource || undefined,
   };
 }
