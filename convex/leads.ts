@@ -310,6 +310,7 @@ export const markLeadPaid = mutation({
     commerceAddon: v.boolean(),
     amountTotal: v.float64(),
     stripeCustomerId: v.optional(v.string()),
+    acquisitionSource: v.optional(v.string()),
     apiSecret: v.string(),
   },
   // Returns whether this call recorded a *new* order — false means Stripe
@@ -370,6 +371,7 @@ export const markLeadPaid = mutation({
       amountTotal: args.amountTotal,
       customerEmail: args.customerEmail,
       createdAt: Date.now(),
+      acquisitionSource: args.acquisitionSource,
     });
     return { alreadyRecorded: false };
   },

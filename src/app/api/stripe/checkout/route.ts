@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { parseCheckoutAcquisitionSource } from "@/lib/checkout/acquisition-source";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { parseClientIdempotencyKey } from "@/lib/checkout/idempotency-key";
 import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attribution";
@@ -25,6 +26,7 @@ interface CheckoutRequestBody {
   slug?: string;
   customerEmail?: string;
   idempotencyKey?: string;
+  acquisitionSource?: string;
 }
 
 function notConfigured(message: string) {
@@ -123,6 +125,10 @@ export async function POST(request: Request) {
   });
   // Soft-cap before Stripe + persist — rate limits blunt count, not size.
   const customerEmail = normalizeCheckoutCustomerEmail(body.customerEmail);
+  // Never trust a client-supplied acquisition-source string — validate
+  // against the fixed allowlist and silently drop anything else (see
+  // acquisition-source-checkout-attribution).
+  const acquisitionSource = parseCheckoutAcquisitionSource(body.acquisitionSource);
 
   const cancelParams = new URLSearchParams({ cancelled: "1" });
   cancelParams.set("slug", leadSlug);
@@ -143,6 +149,7 @@ export async function POST(request: Request) {
           commerceAddon: String(commerceAddonApplied),
           slug: leadSlug,
           ...(mintedOrganic ? { organicAttribution: "1" } : {}),
+          ...(acquisitionSource ? { acquisitionSource } : {}),
         },
       },
       idempotencyKey ? { idempotencyKey } : undefined,

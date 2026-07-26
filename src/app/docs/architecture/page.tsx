@@ -1695,6 +1695,35 @@ export default function ArchitectureDocPage() {
         recovery-due counts beside paid-not-live, plus separate Buy now cart counts.
       </p>
       <p>
+        <code>acquisition-source-checkout-attribution</code>: the homepage pricing grid and each
+        of the three <code>/websites-for-*</code> SEO category landing pages funneled to the same{" "}
+        <code>/checkout</code> page with no way to tell which surface actually converted — no
+        analytics tool is integrated in this app, and Stripe metadata carried no channel marker.
+        Each CTA now appends an allowlisted <code>?source=</code> token (<code>home</code>,{" "}
+        <code>cat-restaurant</code>, <code>cat-salon</code>, <code>cat-trades</code> —{" "}
+        <code>CHECKOUT_ACQUISITION_SOURCES</code>,{" "}
+        <code>src/lib/checkout/acquisition-source.ts</code>); <code>/checkout</code> parses it via{" "}
+        <code>parseCheckoutAcquisitionSource</code> (unknown/missing values silently drop rather
+        than blocking checkout — an optional attribution field, not a required one) and threads it
+        through <code>CheckoutForm</code>&apos;s POST body as{" "}
+        <code>acquisitionSource</code>. <code>POST /api/stripe/checkout</code> re-validates
+        against the same fixed allowlist before writing{" "}
+        <code>metadata.acquisitionSource</code> onto the Stripe Checkout Session — never trusting
+        the client value verbatim, since it is client-visible and technically tamperable. The
+        webhook re-validates a third time when reading{" "}
+        <code>session.metadata.acquisitionSource</code> before passing it to{" "}
+        <code>recordLeadPayment</code>, which persists it onto the new <code>orders</code> row
+        (both backends; the three <code>replace()</code>-based Convex mutations —{" "}
+        <code>clearRecurringCanceledByCustomer</code> / <code>clearRefunded</code> /{" "}
+        <code>clearDisputed</code> — carry it forward in their conditional-spread field lists, the
+        same landmine every prior optional <code>orders</code> field has needed). Commerce Buy now
+        orders are unaffected — this is bundle-checkout-only attribution.{" "}
+        <code>acquisitionSourceBreakdown</code> (<code>src/lib/metrics/pipeline-health.ts</code>)
+        groups still-counting (non-refunded/disputed) orders by source and sums{" "}
+        <code>orderLifetimeRevenueUsd</code>, rendered as a revenue-descending table on the
+        Pipeline health dashboard panel — hidden entirely when there are no bundle orders yet.
+      </p>
+      <p>
         Recovery copy escalates across repeat nudges instead of resending the same email
         (recovery-email-escalating-cadence): every <code>checkoutSessions</code> row also carries a{" "}
         <code>recoverySentCount</code> (incremented atomically alongside{" "}

@@ -358,6 +358,38 @@ test("markLeadPaid is idempotent on stripeSessionId and inserts a paid stub lead
   expect(stub.dataSource).toBe("payment_stub");
 });
 
+test("markLeadPaid persists acquisitionSource onto the new order, and leaves it undefined when omitted", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.leads.markLeadPaid, {
+    slug: "with-source",
+    stripeSessionId: "cs_test_source_1",
+    customerEmail: "buyer@example.com",
+    tier: "starter",
+    commerceAddon: false,
+    amountTotal: 500,
+    acquisitionSource: "cat-restaurant",
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.leads.markLeadPaid, {
+    slug: "no-source",
+    stripeSessionId: "cs_test_source_2",
+    customerEmail: "buyer2@example.com",
+    tier: "starter",
+    commerceAddon: false,
+    amountTotal: 500,
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const orders: Array<{ stripeSessionId: string; acquisitionSource?: string }> = await t.query(
+    api.orders.list,
+    { apiSecret: TEST_API_SECRET },
+  );
+  const withSource = orders.find((o) => o.stripeSessionId === "cs_test_source_1");
+  const noSource = orders.find((o) => o.stripeSessionId === "cs_test_source_2");
+  expect(withSource?.acquisitionSource).toBe("cat-restaurant");
+  expect(noSource?.acquisitionSource).toBeUndefined();
+});
+
 test("markLeadPaid moves an existing lead's stage to paid rather than inserting a stub", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe", stage: "outreach_sent" }));

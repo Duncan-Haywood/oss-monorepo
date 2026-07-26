@@ -614,6 +614,30 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         ) : null}
       </div>
 
+      {health.acquisitionSourceBreakdown.length > 0 ? (
+        <div className="mt-6 border-t border-zinc-100 pt-4">
+          <h3 className="text-sm font-semibold text-zinc-800">Revenue by acquisition source</h3>
+          <p className="mt-0.5 text-xs text-zinc-500">
+            Which marketing surface drove each paid bundle order — compare the homepage against
+            the /websites-for-* landing pages.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            {health.acquisitionSourceBreakdown.map((row) => (
+              <li
+                key={row.source}
+                className="flex items-center justify-between gap-3 text-sm text-zinc-700"
+              >
+                <span>{row.label}</span>
+                <span className="tabular-nums text-zinc-900">
+                  {formatUsd(row.revenueUsd)} · {row.orderCount} order
+                  {row.orderCount === 1 ? "" : "s"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       {health.leadsMissingEmail.length > 0 ? (
         <div className="mt-6 border-t border-zinc-100 pt-4">
           <h3 className="text-sm font-semibold text-amber-900">

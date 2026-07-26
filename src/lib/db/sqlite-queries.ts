@@ -41,7 +41,8 @@ export function sqliteListOrders(db: DatabaseSync): OrderRecord[] {
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
               o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
               o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
-              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType,
+              o.acquisitionSource
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        ORDER BY o.createdAt DESC`,
@@ -67,7 +68,8 @@ export function sqliteListOrdersByLeadSlug(db: DatabaseSync, leadSlug: string): 
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
               o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
               o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
-              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType,
+              o.acquisitionSource
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
        WHERE l.slug = ?
@@ -498,6 +500,7 @@ export function sqliteRecordLeadPayment(
     commerceAddon: boolean;
     amountTotal: number;
     stripeCustomerId?: string;
+    acquisitionSource?: string;
   },
   leadExists: boolean,
 ): void {
@@ -540,8 +543,8 @@ export function sqliteRecordLeadPayment(
   const orderId = newOrderId();
   const createdAt = new Date().toISOString();
   db.prepare(
-    `INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, createdAt)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, createdAt, acquisitionSource)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     orderId,
     leadRow.id,
@@ -551,5 +554,6 @@ export function sqliteRecordLeadPayment(
     params.commerceAddon ? 1 : 0,
     params.amountTotal,
     createdAt,
+    params.acquisitionSource ?? null,
   );
 }

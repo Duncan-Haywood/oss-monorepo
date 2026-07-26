@@ -353,6 +353,69 @@ test("clearRecurringCanceledByCustomer / clearRefunded / clearDisputed preserve 
   expect(row?.lastBillingNoticeSendFailedType).toBe("payment_failed");
 });
 
+test("clearRecurringCanceledByCustomer / clearRefunded / clearDisputed preserve acquisitionSource across their replace()", async () => {
+  const t = convexTest(schema, modules);
+  // createOrder (this file's test-seeding helper) has no acquisitionSource
+  // param — markLeadPaid is the real production write path that sets it, so
+  // seed through that instead.
+  await t.mutation(api.leads.markLeadPaid, {
+    slug: "acquisition-source-lead",
+    stripeSessionId: "cs_source_growth",
+    customerEmail: "buyer@example.com",
+    tier: "growth",
+    commerceAddon: false,
+    amountTotal: 9900,
+    stripeCustomerId: "cus_source_test",
+    acquisitionSource: "cat-salon",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  await t.mutation(api.orders.markRecurringCanceledByCustomer, {
+    stripeCustomerId: "cus_source_test",
+    canceledAt: 1_000,
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.orders.clearRecurringCanceledByCustomer, {
+    stripeCustomerId: "cus_source_test",
+    apiSecret: TEST_API_SECRET,
+  });
+  let row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_source_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.acquisitionSource).toBe("cat-salon");
+
+  await t.mutation(api.orders.markRefunded, {
+    stripeSessionId: "cs_source_growth",
+    refundedAt: "2026-02-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.orders.clearRefunded, {
+    stripeSessionId: "cs_source_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_source_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.acquisitionSource).toBe("cat-salon");
+
+  await t.mutation(api.orders.markDisputed, {
+    stripeSessionId: "cs_source_growth",
+    disputedAt: "2026-03-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  await t.mutation(api.orders.clearDisputed, {
+    stripeSessionId: "cs_source_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  row = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_source_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.acquisitionSource).toBe("cat-salon");
+});
+
 test("recordBillingNoticeSendOutcome records a failure, clears it on success, and no-ops for an unknown session", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.orders.createOrder, newOrderArgs({ stripeSessionId: "cs_1" }));

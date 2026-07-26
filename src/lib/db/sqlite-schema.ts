@@ -235,6 +235,9 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   if (!orderCols.includes("lastBillingNoticeSendFailedType")) {
     db.exec("ALTER TABLE orders ADD COLUMN lastBillingNoticeSendFailedType TEXT");
   }
+  if (!orderCols.includes("acquisitionSource")) {
+    db.exec("ALTER TABLE orders ADD COLUMN acquisitionSource TEXT");
+  }
   // Stripe redelivers checkout.session.completed on retry/timeout; unlike
   // checkout_sessions/commerce_orders, `orders` had no uniqueness guard, so a
   // retry double-counted revenueTotalUsd and resent receipt/handoff emails.
