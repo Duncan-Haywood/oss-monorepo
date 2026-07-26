@@ -270,10 +270,11 @@ gh secret set CLAUDE_CODE_OAUTH_TOKEN
 
       <h2>Permissions</h2>
       <p>
-        Workflows request <code>contents: write</code>, <code>pull-requests: write</code>,
-        and <code>issues: write</code> so agents can push branches and open PRs with{" "}
+        Scheduled workflows request <code>contents: write</code> and{" "}
+        <code>pull-requests: write</code> so agents can push branches and open PRs with{" "}
         <code>GITHUB_TOKEN</code>. OpenCode also requests <code>id-token: write</code> for
-        its GitHub Action.
+        its GitHub Action. No workflow requests <code>issues: write</code> — none of them
+        call the Issues API.
       </p>
 
       <p>
