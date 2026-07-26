@@ -134,6 +134,11 @@ export async function POST(request: Request) {
   cancelParams.set("slug", leadSlug);
   cancelParams.set("tier", bundle.id);
   if (commerceAddonApplied) cancelParams.set("commerce", "1");
+  // Carry the validated acquisition source back onto /checkout so a
+  // shopper who backs out of Stripe and retries doesn't lose attribution
+  // (checkout-cancel-url-acquisition-source-round-trip) — CheckoutPage
+  // already re-parses ?source= into prefill.acquisitionSource.
+  if (acquisitionSource) cancelParams.set("source", acquisitionSource);
 
   try {
     const session = await stripe.checkout.sessions.create(

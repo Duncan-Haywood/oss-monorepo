@@ -1744,6 +1744,19 @@ export default function ArchitectureDocPage() {
         existing paying customer changing tiers, not a new-customer acquisition event.
       </p>
       <p>
+        <code>checkout-cancel-url-acquisition-source-round-trip</code>: the two attribution passes
+        above tagged every checkout entry point, but a shopper who opens Stripe Checkout and then
+        clicks Stripe&apos;s own back/cancel button lands back on <code>/checkout</code> via{" "}
+        <code>cancel_url</code> — which never carried <code>source</code> at all. A common real
+        flow (back out once to double-check pricing, then retry) lost the original{" "}
+        <code>?source=</code> token entirely on that retry, and the resulting paid order silently
+        attributed to &quot;Unknown / direct&quot; even though the shopper&apos;s original visit
+        was tagged. Fixed by appending the validated <code>acquisitionSource</code> onto{" "}
+        <code>cancelParams</code> as <code>source</code> in{" "}
+        <code>POST /api/stripe/checkout</code> — <code>CheckoutPage</code> already re-parses{" "}
+        <code>?source=</code> on the way back in, so no read-side change was needed.
+      </p>
+      <p>
         Recovery copy escalates across repeat nudges instead of resending the same email
         (recovery-email-escalating-cadence): every <code>checkoutSessions</code> row also carries a{" "}
         <code>recoverySentCount</code> (incremented atomically alongside{" "}

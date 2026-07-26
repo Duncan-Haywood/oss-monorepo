@@ -442,6 +442,38 @@ describe("POST /api/stripe/checkout", () => {
     expect(createArgs.metadata.acquisitionSource).toBeUndefined();
   });
 
+  it("carries a valid acquisitionSource onto cancel_url so a Stripe back-out/retry doesn't lose attribution", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_source_cancel",
+      url: "https://checkout.stripe.com/source-cancel",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", slug: "demo-cafe", acquisitionSource: "outreach-email" }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      cancel_url: string;
+    };
+    expect(createArgs.cancel_url).toContain("source=outreach-email");
+  });
+
+  it("omits source from cancel_url when acquisitionSource is absent or unrecognized", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_no_source_cancel",
+      url: "https://checkout.stripe.com/no-source-cancel",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      cancel_url: string;
+    };
+    expect(createArgs.cancel_url).not.toContain("source=");
+  });
+
   it("returns 502 when Stripe session has no checkout URL", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({ id: "cs_test_nourl", url: null });
