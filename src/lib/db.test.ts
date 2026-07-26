@@ -325,6 +325,23 @@ function backdateClientInquiryCreatedAt(createdAt: string, id: string) {
   }
 }
 
+/**
+ * recordLeadPayment always stamps createdAt from `new Date().toISOString()`
+ * with no override parameter (same constraint as insertClientInquiry above)
+ * — mirrors backdateClientInquiryCreatedAt to backdate a seeded order after
+ * the fact, keyed on stripeSessionId (unique per order) rather than id.
+ */
+function backdateOrderCreatedAt(createdAt: string, stripeSessionId: string) {
+  const raw = new DatabaseSync(path.join(tmpDir, "local.db"));
+  try {
+    raw
+      .prepare("UPDATE orders SET createdAt = ? WHERE stripeSessionId = ?")
+      .run(createdAt, stripeSessionId);
+  } finally {
+    raw.close();
+  }
+}
+
 describe("db.ts dual-backend orchestration (real module, mocked Convex client)", () => {
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "lss-db-orchestration-test-"));
@@ -3935,6 +3952,161 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(slugs.indexOf("newer-voice-pack-lead")).toBeLessThan(
         slugs.indexOf("older-voice-pack-lead"),
       );
+    });
+  });
+
+  describe("listOrders (SQLite fallback + Convex mapping, newest-first ordering)", () => {
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.recordLeadPayment({
+        slug: "list-orders-lead",
+        stripeSessionId: "cs_list_orders",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 500,
+      });
+      const orders = await db.listOrders();
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(orders.map((o) => o.leadSlug)).toContain("list-orders-lead");
+    });
+
+    it("returns Convex's rows mapped through mapConvexOrderRow and newest-first sorted, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([
+        {
+          _id: "order_older",
+          leadSlug: "convex-older",
+          stripeSessionId: "cs_convex_older",
+          tier: "starter",
+          commerceAddon: false,
+          amountTotal: 500,
+          createdAt: new Date("2026-07-01T00:00:00.000Z").getTime(),
+        },
+        {
+          _id: "order_newer",
+          leadSlug: "convex-newer",
+          stripeSessionId: "cs_convex_newer",
+          tier: "growth",
+          commerceAddon: false,
+          amountTotal: 2500,
+          createdAt: new Date("2026-07-20T00:00:00.000Z").getTime(),
+        },
+      ]);
+      const db = await loadDb(CONVEX_URL);
+      const orders = await db.listOrders();
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+      // Convex returned oldest-first above; listOrders must still sort newest-first.
+      expect(orders.map((o) => o.leadSlug)).toEqual(["convex-newer", "convex-older"]);
+      // mapConvexOrderRow field mapping: id from _id, amountPaid from amountTotal, createdAt as ISO string.
+      expect(orders[0]).toMatchObject({
+        id: "order_newer",
+        amountPaid: 2500,
+        createdAt: "2026-07-20T00:00:00.000Z",
+      });
+    });
+
+    it("falls back to SQLite and orders newest createdAt first when Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "older-order-lead",
+        stripeSessionId: "cs_older_order",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 500,
+      });
+      await seedDb.recordLeadPayment({
+        slug: "newer-order-lead",
+        stripeSessionId: "cs_newer_order",
+        customerEmail: "buyer@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 2500,
+      });
+      backdateOrderCreatedAt("2026-07-01T00:00:00.000Z", "cs_older_order");
+      backdateOrderCreatedAt("2026-07-20T00:00:00.000Z", "cs_newer_order");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const orders = await db.listOrders();
+      const slugs = orders.map((o) => o.leadSlug);
+      expect(slugs.indexOf("newer-order-lead")).toBeLessThan(slugs.indexOf("older-order-lead"));
+    });
+  });
+
+  describe("listOrdersByLeadSlug (SQLite fallback scoping + newest-first ordering)", () => {
+    it("goes straight to SQLite and never calls Convex when no client is configured", async () => {
+      const db = await loadDb(undefined);
+      await db.recordLeadPayment({
+        slug: "by-slug-lead",
+        stripeSessionId: "cs_by_slug",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 500,
+      });
+      const orders = await db.listOrdersByLeadSlug("by-slug-lead");
+      expect(convexQuery).not.toHaveBeenCalled();
+      expect(orders.map((o) => o.stripeSessionId)).toEqual(["cs_by_slug"]);
+    });
+
+    it("returns Convex's result directly on success, without falling through to SQLite", async () => {
+      convexQuery.mockResolvedValueOnce([
+        {
+          _id: "order_convex_scoped",
+          leadSlug: "convex-scoped-lead",
+          stripeSessionId: "cs_convex_scoped",
+          tier: "starter",
+          commerceAddon: false,
+          amountTotal: 500,
+          createdAt: new Date("2026-07-10T00:00:00.000Z").getTime(),
+        },
+      ]);
+      const db = await loadDb(CONVEX_URL);
+      const orders = await db.listOrdersByLeadSlug("convex-scoped-lead");
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+      expect(orders).toEqual([
+        expect.objectContaining({ leadSlug: "convex-scoped-lead", id: "order_convex_scoped" }),
+      ]);
+    });
+
+    it("falls back to SQLite, scopes to the requested lead only, and orders newest first", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "scoped-lead-a",
+        stripeSessionId: "cs_scoped_a_old",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 500,
+      });
+      await seedDb.recordLeadPayment({
+        slug: "scoped-lead-a",
+        stripeSessionId: "cs_scoped_a_new",
+        customerEmail: "buyer@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 2500,
+      });
+      await seedDb.recordLeadPayment({
+        slug: "scoped-lead-b",
+        stripeSessionId: "cs_scoped_b",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 500,
+      });
+      backdateOrderCreatedAt("2026-07-01T00:00:00.000Z", "cs_scoped_a_old");
+      backdateOrderCreatedAt("2026-07-20T00:00:00.000Z", "cs_scoped_a_new");
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      const ordersForA = await db.listOrdersByLeadSlug("scoped-lead-a");
+      expect(ordersForA.map((o) => o.stripeSessionId)).toEqual([
+        "cs_scoped_a_new",
+        "cs_scoped_a_old",
+      ]);
+      expect(ordersForA.every((o) => o.leadSlug === "scoped-lead-a")).toBe(true);
     });
   });
 });
