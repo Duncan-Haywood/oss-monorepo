@@ -2718,6 +2718,26 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        Both onboarding-link actions had a distinct, unrelated defect in the link&apos;s own{" "}
+        <code>refresh_url</code>/<code>return_url</code>{" "}
+        (<code>stripe-connect-onboarding-link-client-facing-redirect</code>, 2026-07-26): both
+        pointed at <code>/dashboard/leads</code> — but this link is routinely handed off to the
+        external local business completing Stripe&apos;s own hosted KYC flow, whether pasted by
+        the operator or emailed directly via the button above, never opened only in the
+        operator&apos;s own browser. <code>/dashboard/leads</code> is operator-auth gated (
+        <code>proxy.ts</code>&apos;s <code>dashboardAuthGate</code>): a client landing there after
+        finishing or refreshing the Stripe flow either bounced to{" "}
+        <code>/dashboard/login</code> with no confirmation their onboarding was accepted, or — on
+        an open-demo deployment with <code>OPERATOR_DASHBOARD_PASSWORD</code> unset — loaded the
+        operator&apos;s internal Leads CRM outright, leaking every other lead&apos;s name/email/
+        notes/revenue to a third party who was only supposed to complete their own onboarding.
+        Both actions now point <code>refresh_url</code> and <code>return_url</code> at the
+        lead&apos;s own public preview page (<code>leadPreviewAbsoluteUrl</code>) instead — a
+        real, reachable, single-lead-scoped page every lead already has, even though it has no
+        dedicated onboarding-status confirmation state of its own.
+      </p>
+
+      <p>
         Until Stripe Connect ships, a refunded or disputed Commerce Buy now charge is a real
         payout-safety exposure: the operator could <strong>Mark paid out</strong> an order Stripe
         had already returned to the shopper (refund) or already debited from the platform pending

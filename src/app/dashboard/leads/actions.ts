@@ -3289,9 +3289,22 @@ export async function createStripeConnectOnboardingLinkAction(slug: string) {
     // redirects — a server action has no request Host to trust anyway.
     const appUrl = resolveStripeRedirectAppUrl();
     const stripe = new Stripe(secretKey);
+    // refresh_url/return_url must be a page the CLIENT can actually reach —
+    // this link is routinely handed off (pasted or emailed) to the external
+    // local business completing Stripe's own hosted KYC flow, never opened
+    // only in the operator's own browser. /dashboard/leads is operator-auth
+    // gated (proxy.ts's dashboardAuthGate): a real client landing there either
+    // bounces to /dashboard/login with no confirmation their onboarding was
+    // accepted, or — on an open-demo deployment with no password set — loads
+    // the operator's internal CRM, leaking every other lead's data to a third
+    // party (stripe-connect-onboarding-link-client-facing-redirect). The
+    // lead's own public preview page is the correct client-facing landing
+    // spot; it has no per-status confirmation state, but it's a real,
+    // reachable, single-lead-scoped page instead of a wrong or leaky one.
+    const clientFacingUrl = leadPreviewAbsoluteUrl(appUrl, lead.slug);
     const { url } = await createConnectOnboardingLink(stripe, lead.stripeConnectAccountId, {
-      refreshUrl: `${appUrl}/dashboard/leads`,
-      returnUrl: `${appUrl}/dashboard/leads`,
+      refreshUrl: clientFacingUrl,
+      returnUrl: clientFacingUrl,
     });
 
     return { success: true as const, url };
@@ -3375,9 +3388,14 @@ export async function sendStripeConnectOnboardingLinkToClientAction(slug: string
     // redirects — a server action has no request Host to trust anyway.
     const appUrl = resolveStripeRedirectAppUrl();
     const stripe = new Stripe(secretKey);
+    // See createStripeConnectOnboardingLinkAction's comment above — this link
+    // is emailed directly to the client, so refresh_url/return_url must be
+    // their own public preview page, never the operator-auth-gated dashboard
+    // (stripe-connect-onboarding-link-client-facing-redirect).
+    const clientFacingUrl = leadPreviewAbsoluteUrl(appUrl, lead.slug);
     const { url } = await createConnectOnboardingLink(stripe, lead.stripeConnectAccountId, {
-      refreshUrl: `${appUrl}/dashboard/leads`,
-      returnUrl: `${appUrl}/dashboard/leads`,
+      refreshUrl: clientFacingUrl,
+      returnUrl: clientFacingUrl,
     });
 
     const sent = await sendStripeConnectOnboardingLinkEmail({
