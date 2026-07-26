@@ -3708,6 +3708,7 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
       }
     }
 
+    revalidatePath("/dashboard/leads");
     return { success: true as const, scheduled, skipped, failed };
   } catch (error) {
     console.error("Error in scheduleMarketingPackToBufferAction:", error);

@@ -304,6 +304,7 @@ describe("Buffer scheduling dashboard actions", () => {
       });
       expect(getMarketingPack).not.toHaveBeenCalled();
       expect(listBufferProfiles).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
     });
 
     it("errors when the lead has no Growth/Complete order at all", async () => {
@@ -371,6 +372,12 @@ describe("Buffer scheduling dashboard actions", () => {
         profileIds: ["p-fb"],
         text: "Come visit us!",
       });
+      // dashboard-buffer-schedule-action-revalidate-path: this was the one
+      // mutating action in actions.ts missing revalidatePath after a
+      // successful write — the pipeline-health "Buffer packs not posted"
+      // MetricCard (computed server-side from this same lead row) kept
+      // showing the pre-schedule count until a full page reload.
+      expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
     });
 
     it("queues every matching variant for a content type, not just the first (buffer-schedule-all-matching-variants)", async () => {
@@ -558,6 +565,10 @@ describe("Buffer scheduling dashboard actions", () => {
       expect(createBufferUpdate).not.toHaveBeenCalled();
       expect(result.skipped).toEqual(["p-fb: already posted this month"]);
       expect(updateLeadBufferPostedVariantKeys).not.toHaveBeenCalled();
+      // revalidatePath fires unconditionally on success, even when nothing
+      // new was scheduled — the operator's click still needs the page to
+      // stop showing the pre-click due-queue state.
+      expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
     });
 
     it("prunes stale posted-variant keys from a prior pack (mid-month regenerate) so new content is postable again", async () => {
