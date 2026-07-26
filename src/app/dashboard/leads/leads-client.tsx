@@ -4020,14 +4020,22 @@ export function LeadsClient({
                       <td className="px-6 py-4.5">
                         <div className="flex flex-col items-start gap-1">
                           {quality ? (
-                            <span
-                              className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${qualityBandClass(quality.band)}`}
-                              title={quality.factors
-                                .map((f) => `${f.delta >= 0 ? "+" : ""}${f.delta} ${f.label}`)
-                                .join("\n")}
-                            >
-                              {quality.score} · {qualityBandLabel(quality.band)}
-                            </span>
+                            <details>
+                              <summary
+                                className={`inline-flex cursor-pointer items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${qualityBandClass(quality.band)}`}
+                                aria-label={`${quality.score} · ${qualityBandLabel(quality.band)} quality score — show factors`}
+                              >
+                                {quality.score} · {qualityBandLabel(quality.band)}
+                              </summary>
+                              <ul className="mt-1 space-y-0.5 text-[11px] text-zinc-500">
+                                {quality.factors.map((f) => (
+                                  <li key={f.id}>
+                                    {f.delta >= 0 ? "+" : ""}
+                                    {f.delta} {f.label}
+                                  </li>
+                                ))}
+                              </ul>
+                            </details>
                           ) : (
                             <span className="text-xs text-zinc-500">—</span>
                           )}

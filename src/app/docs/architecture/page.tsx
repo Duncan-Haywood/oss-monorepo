@@ -900,6 +900,24 @@ export default function ArchitectureDocPage() {
         already uses. Purely additive — no layout, landmark, or behavior change otherwise.
       </p>
       <p>
+        A fresh-angle accessibility audit (distinct from table scope, focus-restore, form-error
+        announcements, dialog focus-trapping — ruled out, no real modals exist — heading hierarchy,
+        and color contrast, all already closed) found the Leads table&apos;s Quality column badge
+        exposed the score&apos;s factor breakdown (e.g. &quot;Missing email — cannot outreach&quot;)
+        exclusively through the native <code>title</code> attribute on a plain, non-interactive{" "}
+        <code>&lt;span&gt;</code>. A native title tooltip only fires on mouse hover for a
+        non-focusable element, so a keyboard-only operator tabbing through the table, a screen
+        reader user, and a touch/mobile operator could see the bare score and band but never the
+        factors explaining it — the only place in the app that surface renders. Fixed by replacing
+        the span with a native <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code> disclosure:
+        the summary carries the same score/band badge styling and an{" "}
+        <code>aria-label</code> naming it as a factor-revealing control, and the factor list renders
+        as a visible <code>&lt;ul&gt;</code> once expanded — keyboard-focusable and
+        toggleable with Enter/Space natively, with no new client-side state needed. The Work next
+        due-queue panel&apos;s own quality badge already lists its top factors inline as visible
+        text (never hidden behind title), so this fix was scoped to the one remaining gap.
+      </p>
+      <p>
         <code>markCheckoutSessionComplete</code>/<code>markCheckoutSessionOpen</code>/
         <code>markCompleteOpenBundleCheckoutSessionsForLead</code>/
         <code>markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer</code> are the Stripe
