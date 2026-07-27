@@ -4067,6 +4067,45 @@ source). The same digest also lists email-critical leads with no usable address 
         fresh collisions. See <code>category-substring-collision-audit-05</code>.
       </p>
 
+      <p>
+        <code>category-substring-collision-audit-06</code>: a sixth round, this time found via a
+        systematic reasoning pass over every bare (non-word-boundary) keyword still in the chain
+        rather than ad hoc guessing, again turned up multiple fresh collisions — six, across six
+        different keyword pairs never touched by rounds 1-5. Bare <code>kitchen</code> matched
+        inside <code>kitchenware</code>/<code>kitchenaid</code> (a kitchenware retailer and a
+        KitchenAid appliance-repair shop, both misrouted to <code>restaurant</code>); bare{" "}
+        <code>beauty</code> matched inside the mattress brand <code>beautyrest</code>; bare{" "}
+        <code>health</code> matched inside <code>healthy</code> (e.g. an eco-friendly
+        &quot;Healthy Home Cleaning&quot; business, misrouted to <code>health</code> instead of{" "}
+        <code>cleaning</code> since the health branch runs first). All three are now word-boundary
+        scoped, mirroring the established pattern. Two more needed compound-exclusion guards
+        instead, since a full word boundary would have broken a genuine suffix form:{" "}
+        <code>isCraftOrHobbyWorkshop</code> excludes bare <code>shop</code> matching inside{" "}
+        <code>workshop</code> (a pottery/woodworking workshop teaches or crafts, it doesn&apos;t
+        sell off a shelf — falls through to <code>generic</code>), and{" "}
+        <code>isDisasterRestorationService</code> excludes bare <code>store</code> matching inside{" "}
+        <code>restore</code> only when a disaster/damage marker (storm/flood/water/fire/disaster/
+        mold) is also present — scoped narrowly so the real-world &quot;ReStore&quot; secondhand/
+        home-improvement thrift store naming convention still correctly resolves to{" "}
+        <code>retail</code>. The sixth, <code>trade</code> matching inside <code>trader</code>,
+        needed a different tool than every prior fix: a full <code>\btrade\b</code> boundary would
+        have also broken the genuine <code>tradesman</code> suffix form (a real trades-business
+        naming convention with no analogous false-positive risk), so the fix is a negative
+        lookahead, <code>trade(?!r)</code> — excludes only the trailing &quot;r&quot; that makes{" "}
+        <code>trader</code>, mirroring <code>roof</code>&apos;s own suffix-preserving
+        left-boundary-only precedent from audit-05 rather than either a blanket boundary or a
+        two-marker compound guard. Verified every existing category-inference test slug (all 133
+        distinct slugs referenced across this file&apos;s test suite) still resolves unchanged,
+        added regression tests for all six new cases plus the <code>tradesman</code>/
+        &quot;ReStore&quot; sanity checks, and confirmed each new test fails against the pre-fix
+        logic before restoring the fix. Per audit-05&apos;s own hand-off note, a sixth manual round
+        turning up multiple fresh collisions was named as the trigger for building a
+        corpus-driven, data-table-based systematic test instead of continuing incrementally — that
+        condition is now met, and a future session should weigh that structural refactor rather
+        than treating this pattern as an indefinitely repeatable incremental fix. See{" "}
+        <code>category-substring-collision-audit-06</code>.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
