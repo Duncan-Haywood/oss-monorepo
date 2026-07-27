@@ -2434,6 +2434,46 @@ export async function sendStarterUpsellAction(slug: string) {
       return { success: false as const, error: "Upsell tier is missing monthly pricing" };
     }
 
+    // Durable mark before send (persist-then-notify, mirroring
+    // checkout-recovery-send-race-guard) — a concurrency guard only, not a
+    // one-shot "already sent" gate (see starter-upsell-persist.ts): a
+    // Starter upsell nudge has no monthly regenerate step to reset
+    // eligibility, so an operator may legitimately re-send it to a still
+    // Starter-only lead weeks later. expectedStarterUpsellSentCount is this
+    // action's own pre-write snapshot — recordStarterUpsellSent rejects the
+    // write (and this call skips the send entirely) if the row's current
+    // count has already moved past it, so a second concurrent call (another
+    // tab, a fast double-click) can never both send the real email
+    // (starter-upsell-send-race-guard — previously mark-after-send, which
+    // let both concurrent calls send before either could detect the other).
+    const sentAt = new Date().toISOString();
+    const expectedStarterUpsellSentCount = lead.starterUpsellSentCount ?? 0;
+    let marked: boolean;
+    try {
+      marked = await recordStarterUpsellSent(
+        lead.slug,
+        sentAt,
+        expectedStarterUpsellSentCount,
+        STARTER_UPSELL_SENT_CONVEX_PRIMARY,
+      );
+    } catch (markError) {
+      if (markError instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record Starter upsell send in the shared store — email was not sent. Retry in a moment.",
+        };
+      }
+      throw markError;
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Starter upsell was already sent moments ago by a concurrent request — skipped duplicate send",
+      };
+    }
+
     const sent = await sendStarterUpsellEmail({
       to: email,
       businessName: lead.businessName,
@@ -2446,51 +2486,10 @@ export async function sendStarterUpsellAction(slug: string) {
         success: false as const,
         error:
           "reason" in sent && sent.reason === "suppressed"
-            ? "Email is on the suppression list"
+            ? "Email is on the suppression list (sent-marker was recorded — click Send Starter upsell again to retry)"
             : "error" in sent && typeof sent.error === "string"
-              ? sent.error
-              : "Failed to send upsell email",
-      };
-    }
-
-    // Durable sent-marker after a confirmed successful send — this is a
-    // concurrency guard only, not a one-shot "already sent" gate (see
-    // starter-upsell-persist.ts): a Starter upsell nudge has no monthly
-    // regenerate step to reset eligibility, so an operator may legitimately
-    // re-send it to a still Starter-only lead weeks later. Best-effort on a
-    // thrown write error: the email already went out, so a marker-*persist*
-    // failure must not turn a successful send into a reported failure — the
-    // marker just stays at its previous count for the next click's CAS
-    // check, which is safe (worst case: a slightly stale expected-count
-    // comparison, never a missed send). recordStarterUpsellSent's atomic CAS
-    // write can also resolve `false` (not throw) when a concurrent
-    // request — a second tab, a double-click before the button's
-    // isPending-disabled state applied — already advanced the count first;
-    // that's proof this click's send was a genuine duplicate email, so
-    // unlike the exception case above it must not be silently discarded
-    // (see starter-upsell-send-race-guard, mirroring
-    // resendCommerceClientReceiptAction's own race-guard check).
-    const sentAt = new Date().toISOString();
-    const expectedStarterUpsellSentCount = lead.starterUpsellSentCount ?? 0;
-    let marked = true;
-    try {
-      marked = await recordStarterUpsellSent(
-        lead.slug,
-        sentAt,
-        expectedStarterUpsellSentCount,
-        STARTER_UPSELL_SENT_CONVEX_PRIMARY,
-      );
-    } catch (markError) {
-      console.error(
-        `Failed to record Starter upsell sent-marker for ${lead.slug}:`,
-        markError,
-      );
-    }
-    if (!marked) {
-      return {
-        success: false as const,
-        error:
-          "Starter upsell was already sent moments ago by a concurrent request — this click may have sent a duplicate email.",
+              ? `${sent.error} (sent-marker was recorded — click Send Starter upsell again to retry)`
+              : "Failed to send upsell email (sent-marker was recorded — click Send Starter upsell again to retry)",
       };
     }
 
@@ -3510,6 +3509,47 @@ export async function sendStripeConnectOnboardingLinkToClientAction(slug: string
       returnUrl: clientFacingUrl,
     });
 
+    // Durable mark before send (persist-then-notify, mirroring
+    // checkout-recovery-send-race-guard) — a concurrency guard only, not a
+    // one-shot "already sent" gate (mirrors starter-upsell-send-race-guard):
+    // an operator may legitimately re-send a fresh onboarding link after an
+    // earlier one expired unused. expectedStripeConnectOnboardingLinkSentCount
+    // is this action's own pre-write snapshot — recordStripeConnectOnboardingLinkSent
+    // rejects the write (and this call skips the send entirely) if the row's
+    // current count has already moved past it, so a second concurrent call
+    // (another tab, a fast double-click) can never both send the real email
+    // (stripe-connect-onboarding-link-send-race-guard — previously
+    // mark-after-send, which let both concurrent calls send before either
+    // could detect the other).
+    const sentAt = new Date().toISOString();
+    const expectedStripeConnectOnboardingLinkSentCount =
+      lead.stripeConnectOnboardingLinkSentCount ?? 0;
+    let marked: boolean;
+    try {
+      marked = await recordStripeConnectOnboardingLinkSent(
+        lead.slug,
+        sentAt,
+        expectedStripeConnectOnboardingLinkSentCount,
+        STRIPE_CONNECT_ONBOARDING_LINK_SENT_CONVEX_PRIMARY,
+      );
+    } catch (markError) {
+      if (markError instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record onboarding-link send in the shared store — email was not sent. Retry in a moment.",
+        };
+      }
+      throw markError;
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "The onboarding link was already sent moments ago by a concurrent request — skipped duplicate send",
+      };
+    }
+
     const sent = await sendStripeConnectOnboardingLinkEmail({
       to: lead.email.trim(),
       businessName: lead.businessName,
@@ -3521,46 +3561,8 @@ export async function sendStripeConnectOnboardingLinkToClientAction(slug: string
         success: false as const,
         error:
           "error" in sent && typeof sent.error === "string"
-            ? sent.error
-            : "Failed to send the onboarding link email",
-      };
-    }
-
-    // Durable sent-marker after a confirmed successful send — a concurrency
-    // guard only, not a one-shot "already sent" gate (mirrors
-    // starter-upsell-send-race-guard): an operator may legitimately re-send a
-    // fresh onboarding link after an earlier one expired unused. Best-effort
-    // on a thrown write error: the email already went out, so a marker-
-    // *persist* failure must not turn a successful send into a reported
-    // failure. recordStripeConnectOnboardingLinkSent's atomic CAS write can
-    // also resolve `false` (not throw) when a concurrent request — a second
-    // tab, a double-click before the button's isPending-disabled state
-    // applied — already advanced the count first; that's proof this click's
-    // send was a genuine duplicate email, so it must surface as
-    // success:false rather than be silently discarded (see
-    // stripe-connect-onboarding-link-send-race-guard).
-    const sentAt = new Date().toISOString();
-    const expectedStripeConnectOnboardingLinkSentCount =
-      lead.stripeConnectOnboardingLinkSentCount ?? 0;
-    let marked = true;
-    try {
-      marked = await recordStripeConnectOnboardingLinkSent(
-        lead.slug,
-        sentAt,
-        expectedStripeConnectOnboardingLinkSentCount,
-        STRIPE_CONNECT_ONBOARDING_LINK_SENT_CONVEX_PRIMARY,
-      );
-    } catch (markError) {
-      console.error(
-        `Failed to record Stripe Connect onboarding-link sent-marker for ${lead.slug}:`,
-        markError,
-      );
-    }
-    if (!marked) {
-      return {
-        success: false as const,
-        error:
-          "The onboarding link was already sent moments ago by a concurrent request — this click may have sent a duplicate email.",
+            ? `${sent.error} (sent-marker was recorded — click Send onboarding link again to retry)`
+            : "Failed to send the onboarding link email (sent-marker was recorded — click Send onboarding link again to retry)",
       };
     }
 

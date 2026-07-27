@@ -24,7 +24,10 @@ vi.mock("@/lib/payments/convex-primary", () => ({
  * alone is not a throttle), gate 403/501, lead-not-found, idempotent no-op
  * when an account already exists, ConvexPrimaryWriteError fail-closed (no
  * revalidate), success shapes, and missing-account errors on the link/status
- * actions.
+ * actions. sendStripeConnectOnboardingLinkToClientAction's sent-marker runs
+ * BEFORE the send (persist-then-notify, mirroring
+ * checkout-recovery-send-race-guard) — a lost CAS or a thrown mark error both
+ * skip the send entirely, never a duplicate real email.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -366,7 +369,7 @@ describe("Stripe Connect dashboard actions", () => {
       expect(result).toEqual({ success: true, mock: false });
     });
 
-    it("returns a failure when the send fails (link already minted, delivery is the only failure point)", async () => {
+    it("returns a failure when the send fails, but the mark was already recorded before the send attempt (persist-then-notify)", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
       createConnectOnboardingLink.mockResolvedValue({
         url: "https://connect.stripe.com/setup/e/acct_existing/fake",
@@ -378,8 +381,20 @@ describe("Stripe Connect dashboard actions", () => {
       const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
       const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
 
-      expect(result).toEqual({ success: false, error: "Resend API down" });
-      expect(recordStripeConnectOnboardingLinkSent).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        success: false,
+        error:
+          "Resend API down (sent-marker was recorded — click Send onboarding link again to retry)",
+      });
+      // The CAS mark runs before the send (persist-then-notify), so it's
+      // already recorded by the time the send fails — never gated on send
+      // success.
+      expect(recordStripeConnectOnboardingLinkSent).toHaveBeenCalledWith(
+        "demo-cafe",
+        expect.any(String),
+        0,
+        expect.objectContaining({ requireConvex: true }),
+      );
     });
 
     it("passes the lead's current stripeConnectOnboardingLinkSentCount as the CAS expected value on a repeat send", async () => {
@@ -405,13 +420,15 @@ describe("Stripe Connect dashboard actions", () => {
       );
     });
 
-    it("reports a likely duplicate when a concurrent request already advanced the sent count (stripe-connect-onboarding-link-send-race-guard)", async () => {
+    it("skips the send entirely when a concurrent request already advanced the sent count (stripe-connect-onboarding-link-send-race-guard)", async () => {
       // recordStripeConnectOnboardingLinkSent's atomic CAS write resolves
       // false (not throw) when a second tab or a double-click before the
       // button's isPending-disabled state applied already advanced this
-      // exact count — the email above already sent, so this must surface as
-      // a distinct duplicate-risk error, not silent success, mirroring
-      // starter-upsell-send-race-guard's own check.
+      // exact count. The mark runs BEFORE the send (persist-then-notify,
+      // mirroring checkout-recovery-send-race-guard), so a lost CAS means
+      // this call's own send never fires — a real duplicate email is only
+      // ever sent by the concurrent call that actually won the race, never
+      // by both.
       getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
       createConnectOnboardingLink.mockResolvedValue({
         url: "https://connect.stripe.com/setup/e/acct_existing/fake",
@@ -424,22 +441,37 @@ describe("Stripe Connect dashboard actions", () => {
       expect(result).toEqual({
         success: false,
         error:
-          "The onboarding link was already sent moments ago by a concurrent request — this click may have sent a duplicate email.",
+          "The onboarding link was already sent moments ago by a concurrent request — skipped duplicate send",
       });
-      expect(sendStripeConnectOnboardingLinkEmail).toHaveBeenCalledOnce();
+      expect(sendStripeConnectOnboardingLinkEmail).not.toHaveBeenCalled();
     });
 
-    it("stays best-effort success when the sent-marker write throws (unlike the false-return race case above)", async () => {
+    it("skips the send and reports a not-sent error when the mark write fails closed on Convex (ConvexPrimaryWriteError)", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
       createConnectOnboardingLink.mockResolvedValue({
         url: "https://connect.stripe.com/setup/e/acct_existing/fake",
       });
-      sendStripeConnectOnboardingLinkEmail.mockResolvedValue({ success: true, mock: false });
+      recordStripeConnectOnboardingLinkSent.mockRejectedValue(new MockConvexPrimaryWriteError());
+      const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
+      const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
+
+      expect(result.success).toBe(false);
+      if (result.success) return;
+      expect(result.error).toMatch(/shared store/);
+      expect(sendStripeConnectOnboardingLinkEmail).not.toHaveBeenCalled();
+    });
+
+    it("fails closed (does not send) when the sent-marker write throws a non-Convex error", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      createConnectOnboardingLink.mockResolvedValue({
+        url: "https://connect.stripe.com/setup/e/acct_existing/fake",
+      });
       recordStripeConnectOnboardingLinkSent.mockRejectedValue(new Error("disk full"));
       const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
       const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
 
-      expect(result).toEqual({ success: true, mock: false });
+      expect(result).toEqual({ success: false, error: "disk full" });
+      expect(sendStripeConnectOnboardingLinkEmail).not.toHaveBeenCalled();
     });
   });
 
