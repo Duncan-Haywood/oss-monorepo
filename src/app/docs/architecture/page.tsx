@@ -238,12 +238,13 @@ export default function ArchitectureDocPage() {
 
       <h2>2. Site generation</h2>
       <p>
-        Category templates (restaurant, salon, trades, retail, health, automotive, generic) render at{" "}
+        Category templates (restaurant, salon, trades, retail, health, automotive, cleaning,
+        generic) render at{" "}
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
         <code>serene-salon</code>, <code>mountain-plumbing</code>,{" "}
         <code>corner-mercantile</code>, <code>clearview-wellness-clinic</code>,{" "}
-        <code>trailhead-auto-repair</code>. Commerce catalog
+        <code>trailhead-auto-repair</code>, <code>brightside-cleaning-co</code>. Commerce catalog
         items load via <code>loadPreviewCommerceItems</code> (
         <code>@/lib/commerce/preview-commerce</code> — not re-exported from the{" "}
         <code>@/lib/commerce</code> barrel, which <code>leads-client</code> imports
@@ -3708,6 +3709,30 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>joes-auto-repair</code>, <code>smiths-auto-repair-shop</code>,{" "}
         <code>quick-fix-auto-repair-center</code>) were added to{" "}
         <code>demo-catalog.test.ts</code> that fail against the pre-fix ordering.
+      </p>
+      <p>
+        <code>cleaning-category-landing-page</code>: added <code>cleaning</code> as an eighth
+        purely-additive <code>BusinessCategory</code> literal and a seventh{" "}
+        <code>/websites-for-*</code> landing page, mirroring the retail/health/automotive series
+        above end to end — <code>convex/leads.ts</code>&apos;s <code>categoryValidator</code>{" "}
+        gained <code>v.literal(&quot;cleaning&quot;)</code>, every{" "}
+        <code>Record&lt;BusinessCategory, …&gt;</code> map gained a <code>cleaning</code> entry
+        (an emerald theme; schema.org has no dedicated cleaning-service subtype, so the JSON-LD{" "}
+        <code>@type</code> reuses <code>HomeAndConstructionBusiness</code>, the same real
+        schema.org type <code>trades</code> uses, rather than inventing a nonexistent one), and
+        every exhaustive switch (<code>defaultTagline</code>,{" "}
+        <code>acquisitionSourceForCategory</code>) gained a <code>cleaning</code> case, forced by
+        the same <code>never</code>-check compile safety net as every prior vertical in this
+        series. A new curated demo lead (<code>brightside-cleaning-co</code>, a Louisville, CO
+        residential/commercial cleaning company) backs the new page&apos;s live example, and{" "}
+        <code>resolvePreviewLead</code>&apos;s slug-inference chain gained a{" "}
+        <code>clean|maid|janitorial|housekeep|spotless</code> branch — chosen to share no keyword
+        with any of the seven existing branches. <code>cat-cleaning</code> was added to{" "}
+        <code>CHECKOUT_ACQUISITION_SOURCES</code> for CTA attribution. Sitemap listing and
+        OG/Twitter card images again needed zero new wiring (both stay generically derived from{" "}
+        <code>CATEGORY_LANDING_PAGES</code>), and a clean production build plus a{" "}
+        <code>npm run dev</code> smoke check confirmed <code>/websites-for-cleaning</code> and its
+        two image routes prerender statically and serve 200s alongside the existing six.
       </p>
 
       <h2>Tech stack</h2>

@@ -370,6 +370,24 @@ test("categoryValidator accepts the automotive category end to end (automotive-c
   expect(bySlug?.category).toBe("automotive");
 });
 
+test("categoryValidator accepts the cleaning category end to end (cleaning-category-landing-page)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({
+      slug: "brightside-cleaning-co",
+      businessName: "Brightside Cleaning Co.",
+      category: "cleaning",
+    }),
+  );
+
+  const bySlug: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "brightside-cleaning-co",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(bySlug?.category).toBe("cleaning");
+});
+
 test("markLeadPaid is idempotent on stripeSessionId and inserts a paid stub lead using the canonical payment-stub defaults when none exists", async () => {
   const t = convexTest(schema, modules);
   const first = await t.mutation(api.leads.markLeadPaid, {

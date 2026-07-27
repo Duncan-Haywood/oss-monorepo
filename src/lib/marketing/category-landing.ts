@@ -308,6 +308,47 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
       },
     ],
   },
+  {
+    category: "cleaning",
+    href: "/websites-for-cleaning",
+    navLabel: "Cleaning services",
+    seoTitle: "Website for Cleaning Services — quotes & booking",
+    metaDescription:
+      `A cleaning company website with your services, service area, and a quote form — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that turns quote requests into booked cleans",
+    heroSubhead:
+      "Services, service area, and a quote-request form — built from your public business details and previewed for free. Add recurring-customer outreach when you're ready.",
+    painPoints: [
+      "Homeowners and offices searching \"cleaning service near me\" bounce off a slow or missing website",
+      "Your only online presence is a directory listing or a Facebook page you don't control",
+      "You need recurring bookings and trust signals, not a shopping cart",
+    ],
+    features: [
+      "Services and service area up front",
+      "Quote-request contact form and map",
+      "Basic SEO for local \"near me\" cleaning searches",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "brightside-cleaning-co",
+    faq: [
+      {
+        question: "Can customers request a quote online?",
+        answer:
+          "Yes — the contact form routes straight to your inbox with the customer's address and job details, so you can follow up with a quote or booking link.",
+      },
+      {
+        question: "Do you write the recurring-customer outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your company's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for after-hours booking calls?",
+        answer:
+          "Complete adds an AI phone agent for your business line so a missed call after hours doesn't become a lost booking.",
+      },
+    ],
+  },
 ] as const;
 
 export function categoryLandingPageByHref(href: string): CategoryLandingPage | undefined {

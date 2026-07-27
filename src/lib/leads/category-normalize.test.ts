@@ -61,6 +61,7 @@ describe("defaultTierForCategory cross-site consistency", () => {
       retail: "corner-mercantile",
       health: "riverside-wellness-clinic",
       automotive: "riverside-auto-garage",
+      cleaning: "riverside-cleaning-co",
       generic: "acme-services",
     } as const;
     for (const category of BUSINESS_CATEGORIES) {

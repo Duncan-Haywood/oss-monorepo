@@ -15,6 +15,7 @@ describe("CATEGORY_LANDING_PAGES", () => {
     expect(new Set(categories).size).toBe(categories.length);
     expect(categories.sort()).toEqual([
       "automotive",
+      "cleaning",
       "health",
       "restaurant",
       "retail",

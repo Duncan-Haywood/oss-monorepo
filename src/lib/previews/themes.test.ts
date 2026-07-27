@@ -16,6 +16,7 @@ const CATEGORIES: BusinessCategory[] = [
   "retail",
   "health",
   "automotive",
+  "cleaning",
   "generic",
 ];
 
@@ -62,6 +63,12 @@ describe("CATEGORY_THEMES", () => {
       heroEyebrow: "Auto shop preview",
       accentTextClass: "text-red-800",
       ctaClass: "bg-red-950 text-red-50 hover:bg-red-900",
+    });
+    expect(CATEGORY_THEMES.cleaning).toMatchObject({
+      label: "Cleaning services",
+      heroEyebrow: "Cleaning service preview",
+      accentTextClass: "text-emerald-800",
+      ctaClass: "bg-emerald-950 text-emerald-50 hover:bg-emerald-900",
     });
     expect(CATEGORY_THEMES.generic).toMatchObject({
       label: "Local business",

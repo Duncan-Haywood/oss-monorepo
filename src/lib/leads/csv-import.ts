@@ -85,6 +85,7 @@ const CATEGORIES = new Set<BusinessCategory>([
   "retail",
   "health",
   "automotive",
+  "cleaning",
   "generic",
 ]);
 const TIERS = new Set(["starter", "growth", "complete"] as const);
@@ -406,7 +407,7 @@ export function parseLeadsCsv(
     if (!category) {
       errors.push({
         row: rowNumber,
-        message: `Invalid category "${get("category")}" (use restaurant|salon|trades|retail|health|automotive|generic)`,
+        message: `Invalid category "${get("category")}" (use restaurant|salon|trades|retail|health|automotive|cleaning|generic)`,
       });
       skipped += 1;
       return;

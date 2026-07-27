@@ -60,9 +60,10 @@ describe("leadOgImageAccentHex", () => {
     const retail = leadOgImageAccentHex("retail");
     const health = leadOgImageAccentHex("health");
     const automotive = leadOgImageAccentHex("automotive");
+    const cleaning = leadOgImageAccentHex("cleaning");
     const generic = leadOgImageAccentHex("generic");
-    const values = new Set([restaurant, salon, trades, retail, health, automotive, generic]);
-    expect(values.size).toBe(7);
+    const values = new Set([restaurant, salon, trades, retail, health, automotive, cleaning, generic]);
+    expect(values.size).toBe(8);
     for (const hex of values) {
       expect(hex).toMatch(/^#[0-9a-f]{6}$/i);
     }

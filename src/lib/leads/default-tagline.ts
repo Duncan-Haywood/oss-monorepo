@@ -27,6 +27,8 @@ export function defaultTagline(category: BusinessCategory): string {
       return "Care your patients can count on";
     case "automotive":
       return "Honest repairs, done right the first time";
+    case "cleaning":
+      return "A spotless space, every visit";
     case "generic":
       return "Your neighborhood business, online";
     default: {

@@ -45,6 +45,7 @@ const CATEGORY_ACCENT_HEX: Record<BusinessCategory, string> = {
   retail: "#8b5cf6",
   health: "#38bdf8",
   automotive: "#ef4444",
+  cleaning: "#10b981",
   generic: "#a1a1aa",
 };
 

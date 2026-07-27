@@ -114,6 +114,24 @@ export const DEMO_LEADS: readonly Lead[] = [
     recommendedTier: "growth",
     dataSource: "demo_catalog",
   },
+  {
+    slug: "brightside-cleaning-co",
+    businessName: "Brightside Cleaning Co.",
+    category: "cleaning",
+    city: "Louisville",
+    state: "CO",
+    address: "88 S McCaslin Blvd",
+    tagline: "A spotless space, every visit",
+    description:
+      "Bonded and insured residential and commercial cleaning crew serving the Denver-Boulder corridor, with recurring weekly/biweekly plans and one-time deep cleans.",
+    phone: "(303) 555-0193",
+    email: "hello@brightsidecleaning.example",
+    services: ["Recurring house cleaning", "Move-in/move-out deep clean", "Office & commercial cleaning", "Post-construction cleanup"],
+    hours: { weekday: "Mon–Fri 8am–6pm", weekend: "Sat 9am–2pm · Closed Sun" },
+    stage: "discovered",
+    recommendedTier: "growth",
+    dataSource: "demo_catalog",
+  },
 ] as const;
 
 export function getLeadBySlug(slug: string): Lead | undefined {
@@ -158,6 +176,8 @@ export function resolvePreviewLead(slug: string): Lead {
     category = "retail";
   } else if (/dental|dentist|chiro|clinic|wellness|therapy|medical|health|physio/.test(lower)) {
     category = "health";
+  } else if (/clean|maid|janitorial|housekeep|spotless/.test(lower)) {
+    category = "cleaning";
   }
 
   return {

@@ -283,6 +283,12 @@ const SCHEMA_TYPE_BY_CATEGORY: Record<BusinessCategory, string> = {
   retail: "Store",
   health: "MedicalBusiness",
   automotive: "AutoRepair",
+  // schema.org has no dedicated "cleaning service" LocalBusiness subtype —
+  // HomeAndConstructionBusiness is the closest real (not invented) type,
+  // matching trades' own @type; duplicating a sibling category's schema
+  // type is acceptable (schema.org doesn't require category-to-@type to be
+  // 1:1), unlike inventing a nonexistent type would be.
+  cleaning: "HomeAndConstructionBusiness",
   generic: "LocalBusiness",
 };
 

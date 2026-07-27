@@ -14,6 +14,7 @@ const categoryValidator = v.union(
   v.literal("retail"),
   v.literal("health"),
   v.literal("automotive"),
+  v.literal("cleaning"),
   v.literal("generic"),
 );
 

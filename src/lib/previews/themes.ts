@@ -66,6 +66,15 @@ export const CATEGORY_THEMES: Record<BusinessCategory, CategoryTheme> = {
     panelClass: "border-red-200/80 bg-white/70",
     heroEyebrow: "Auto shop preview",
   },
+  cleaning: {
+    category: "cleaning",
+    label: "Cleaning services",
+    shellClass: "min-h-screen bg-[radial-gradient(ellipse_at_top,_#ecfeff_0%,_#ffffff_55%,_#ecfdf5_100%)]",
+    accentTextClass: "text-emerald-800",
+    ctaClass: "bg-emerald-950 text-emerald-50 hover:bg-emerald-900",
+    panelClass: "border-emerald-200/80 bg-white/70",
+    heroEyebrow: "Cleaning service preview",
+  },
   generic: {
     category: "generic",
     label: "Local business",

@@ -15,7 +15,7 @@ import {
  */
 
 describe("DEMO_LEADS", () => {
-  it("ships the six stable marketing deep-link demos", () => {
+  it("ships the seven stable marketing deep-link demos", () => {
     expect(DEMO_LEADS.map((lead) => lead.slug)).toEqual([
       "example-bakery",
       "serene-salon",
@@ -23,6 +23,7 @@ describe("DEMO_LEADS", () => {
       "corner-mercantile",
       "clearview-wellness-clinic",
       "trailhead-auto-repair",
+      "brightside-cleaning-co",
     ]);
   });
 
@@ -59,6 +60,11 @@ describe("DEMO_LEADS", () => {
       category: "automotive",
       recommendedTier: "growth",
       stage: "outreach_sent",
+    });
+    expect(getLeadBySlug("brightside-cleaning-co")).toMatchObject({
+      category: "cleaning",
+      recommendedTier: "growth",
+      stage: "discovered",
     });
   });
 });
@@ -183,6 +189,21 @@ describe("resolvePreviewLead", () => {
     }
   });
 
+  it("infers cleaning category and growth tier from cleaning-service keywords", () => {
+    for (const slug of [
+      "brightside-cleaning",
+      "shine-maid-service",
+      "downtown-janitorial",
+      "spotless-housekeeping-co",
+    ]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "cleaning",
+        recommendedTier: "growth",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",
@@ -200,13 +221,14 @@ describe("resolvePreviewLead", () => {
     expect(resolvePreviewLead("Corner-BOUTIQUE").category).toBe("retail");
     expect(resolvePreviewLead("Family-CLINIC").category).toBe("health");
     expect(resolvePreviewLead("Downtown-GARAGE").category).toBe("automotive");
+    expect(resolvePreviewLead("Shine-MAID-Service").category).toBe("cleaning");
   });
 });
 
 describe("countLeadsByStage", () => {
   it("counts every pipeline stage for the demo catalog", () => {
     expect(countLeadsByStage()).toEqual({
-      discovered: 1,
+      discovered: 2,
       site_built: 2,
       outreach_sent: 2,
       discovery_call: 1,

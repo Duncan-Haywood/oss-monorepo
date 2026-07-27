@@ -654,4 +654,28 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "automotive-repair-keyword-priority-fix",
     ),
   },
+  {
+    date: "2026-07-27",
+    branch: "claude/nice-euler-s028tu",
+    summary:
+      "Unattended scheduled routine, HEAD matched origin/main exactly at session start (post-automotive-repair-keyword-priority-fix). Read AGENT_PROTOCOL in full plus the tail of ITERATIONS/BUSINESS_DECISIONS. A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (widened to a 60-branch for-each-ref scan) found only single-commit siblings ahead of origin/main, every one confirmed an already-landed squash-merge artifact by direct grep against origin/main's current content — no live fold candidate. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). NEXT_STEPS remained fully gated (five operator/legal/infra-blocked items), so continued the organic-acquisition SEO-landing-page series.",
+    shipped: [
+      "src/lib/leads/types.ts, convex/leads.ts, src/lib/leads/category-normalize.ts — BusinessCategory gained \"cleaning\"; convex's categoryValidator and BUSINESS_CATEGORIES both updated to match.",
+      "src/lib/previews/themes.ts, src/lib/og/lead-preview-image.tsx, src/lib/seo.ts — CATEGORY_THEMES/CATEGORY_ACCENT_HEX/SCHEMA_TYPE_BY_CATEGORY each gained a cleaning entry (emerald theme, #10b981, schema.org \"HomeAndConstructionBusiness\" — no dedicated cleaning-service subtype exists, so this reuses trades' own real type rather than inventing one).",
+      "src/lib/leads/default-tagline.ts, src/lib/checkout/acquisition-source.ts, src/components/marketing/category-landing-content.tsx — every exhaustive category switch gained a cleaning case (defaultTagline, checkoutAcquisitionSourceLabel + CHECKOUT_ACQUISITION_SOURCES' new cat-cleaning token, acquisitionSourceForCategory).",
+      "src/lib/leads/csv-import.ts — CATEGORIES set and the invalid-category error message both include cleaning.",
+      "src/lib/leads/demo-catalog.ts — new curated demo lead brightside-cleaning-co (Louisville, CO residential/commercial cleaning company, stage=discovered); resolvePreviewLead's slug-inference regex chain gained a cleaning branch (clean|maid|janitorial|housekeep|spotless), mechanically verified against all seven other branches' keyword lists for collisions (caught and fixed one: a draft test slug \"sparkle-maid-service\" collided with salon's own \"spa\" substring).",
+      "src/lib/marketing/category-landing.ts — new CATEGORY_LANDING_PAGES entry (/websites-for-cleaning, recommendedTier=growth, exampleLeadSlug=brightside-cleaning-co), copy framed around quote requests and recurring bookings; seoTitle/metaDescription verified under their SERP-truncation caps (the first seoTitle draft was 1 char over the cap and was shortened).",
+      "src/app/websites-for-cleaning/{page,opengraph-image,twitter-image}.tsx — new route mirroring the automotive page's structure.",
+      "src/app/dashboard/leads/leads-client.tsx — dashboard CATEGORIES array gained cleaning.",
+      "src/app/docs/architecture/page.tsx, src/app/docs/roadmap/page.tsx — both current-state category lists updated (restaurant, salon, trades, retail, health, automotive, cleaning, generic) plus a new dated historical-narrative paragraph in architecture/page.tsx.",
+      "src/lib/process/business-decisions.ts — appended cleaning-category-landing-page with the full touch-point list.",
+      "src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change (a new organic-acquisition capability, not one of the five gated items) — stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, and github-actions-runner-unavailable remain operator/legal/infra-blocked, unchanged.",
+      "Test coverage extended in category-normalize.test.ts, demo-catalog.test.ts, csv-import.test.ts, themes.test.ts, lead-preview-image.test.ts, seo.test.ts, category-landing.test.ts, and convex/leads.test.ts (one new end-to-end test proving categoryValidator accepts \"cleaning\").",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3420 passed, 210 files) + a full clean rebuild (rm -rf .next && npm run build, clean — /websites-for-cleaning and its two image routes prerender ○ Static alongside the existing six category pages) + npm run dev smoke check curling /websites-for-cleaning, /preview/brightside-cleaning-co, /websites-for-cleaning/opengraph-image, /dashboard/leads, / (homepage's category grid auto-picked up the new card), and /sitemap.xml (cleaning route listed) — all 200 with expected content present, zero code change needed in sitemap.ts or the homepage. Killed the dev server, removed the stray gitignored local.db it created, and confirmed git status showed only the intended files changed before this commit.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "cleaning-category-landing-page",
+    ),
+  },
 ];
