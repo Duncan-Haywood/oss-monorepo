@@ -374,6 +374,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 6 — Marketing automation",
     owner: "claude/upbeat-dijkstra-temte9",
   },
+  {
+    id: "error-boundary-heading-focus-on-mount",
+    summary:
+      "Empty-backlog audit (fresh accessibility angle: dynamic-content focus management on error.tsx/global-error.tsx, distinct from the closed table-header/alert-to-aria/focus-restore/reduced-motion/zoom-reflow/heading-hierarchy/form-autocomplete series). Next's built-in route announcer only fires on a navigation; both error boundaries can also mount with no navigation at all (a client-side interaction throwing mid-page), leaving a screen reader user with no cue the page swapped to the fallback UI. Fixed by adding a focusable (tabIndex=-1) heading ref to each boundary and calling .focus() on it inside the existing error-logging useEffect. Verified in a real Chromium browser via the globally-installed Playwright binary against a temporary throwing route (removed before commit) — document.activeElement was confirmed to be the boundary's own heading after mount. not-found.tsx deliberately out of scope (a plain Server Component reached only via normal route resolution, already covered by Next's announcer). See error-boundary-heading-focus-on-mount in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-wkjf8x",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -766,6 +774,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "docs-legal-pages-typography-plugin-missing",
+    ),
+  },
+  {
+    date: "2026-07-27",
+    branch: "claude/upbeat-dijkstra-wkjf8x",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 870ea5dd (PR #887, docs-legal-pages-typography-plugin-missing, merged prior session) — HEAD matched origin/main exactly at session start (this session's own designated branch had already merged and been pruned remotely, so it restarted clean from the current default-branch tip rather than stacking on stale history, per the branch-handling instructions). Confirmed baseline green: npm ci (413 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3511 passed, 210 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A full git fetch of all remote heads + a merge-base ancestor check on the newest ~30 claude/*-family branches by push time found every one already fully merged — no live fold candidate.\n\nContinued the accessibility-audit series with a fresh angle: dynamic-content focus management on the two React error boundaries, src/app/error.tsx and src/app/global-error.tsx. Re-read node_modules/next/dist/docs/03-architecture/accessibility.md directly (this Next version's own docs, per AGENTS.md) — Next's built-in route announcer only fires on a page navigation (inspects document.title, then <h1>, then the URL). Both error boundaries can mount with no navigation at all — a client-side interaction throwing mid-page swaps the segment (or, for global-error.tsx, the whole document) to the fallback UI in place — leaving a screen reader user with zero cue that \"Something went wrong\" replaced the page they were using. Grepped the full process log and confirmed this specific angle was untouched by any of the prior seven accessibility-audit rounds.",
+    shipped: [
+      "src/app/error.tsx and src/app/global-error.tsx — added a useRef<HTMLHeadingElement> to each boundary, tabIndex={-1} + outline-none on the heading, and a .focus() call inside each boundary's existing error-logging useEffect (the standard React error-boundary focus-management pattern: programmatically focusable, not tab-reachable). src/app/not-found.tsx deliberately left alone — a plain Server Component reached only via normal route resolution, already covered by Next's own route announcer, not a React error boundary that can mount mid-interaction.",
+      "src/app/docs/architecture/page.tsx — new paragraph before 'Tech stack' naming the gap, why Next's route announcer doesn't cover it, the fix, and why not-found.tsx was out of scope.",
+      "src/lib/process/business-decisions.ts — appended error-boundary-heading-focus-on-mount.",
+      "src/lib/process/prompt_process.tsx — this ITERATIONS entry plus a new NEXT_STEPS done entry. No change to the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable), which remain operator/legal/infra-blocked. Diff-gate anchor moves to 870ea5dd (this session's own starting tip, post-PR-#887).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: business-decisions.ts 118,260 bytes, prompt_process.tsx 226,307 bytes at session start (both via wc -c) — both comfortably under the 256KB trigger, no re-archive needed this round.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3511 passed, 210 files, unchanged — neither file has Vitest coverage, per AGENT_PROTOCOL's own note that React client components have no test harness in this repo) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + a real browser check: built a temporary throwing route (src/app/dev-throw/page.tsx), ran npm run dev, and drove Chromium via the globally-installed Playwright binary (invoked via NODE_PATH at the global npm root — not a project dependency, added solely as a one-off manual-check tool and not committed) to confirm document.activeElement was the boundary's own <h1> (\"This page hit a snag\", tabIndex \"-1\") after mount. Deleted the temporary route, killed the dev server (confirmed port 3000 free), and removed the stray gitignored local.db/local.db-shm/local.db-wal it created; confirmed git status showed only the intended files changed before this commit.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "error-boundary-heading-focus-on-mount",
     ),
   },
 ];

@@ -4164,6 +4164,35 @@ source). The same digest also lists email-critical leads with no usable address 
         full <code>.prose</code> rule set.
       </p>
 
+      <p>
+        <code>error-boundary-heading-focus-on-mount</code>: a fresh-angle accessibility audit
+        (dynamic-content focus management, distinct from the closed table-header/alert-to-aria/
+        focus-restore/reduced-motion/zoom-reflow/heading-hierarchy/form-autocomplete series) found{" "}
+        <code>src/app/error.tsx</code> and <code>src/app/global-error.tsx</code> — the two React
+        error boundaries that catch an unexpected runtime error — never moved focus to their own
+        fallback UI when they mounted. Next&apos;s built-in route announcer (see{" "}
+        <code>node_modules/next/dist/docs/03-architecture/accessibility.md</code>) only fires on a
+        page navigation — it inspects <code>document.title</code>/<code>&lt;h1&gt;</code> after a
+        route transition completes — but these boundaries can also mount with{" "}
+        <em>no navigation at all</em>: a client-side interaction throwing mid-page swaps the
+        segment (or, for <code>global-error.tsx</code>, the whole document) to the fallback UI in
+        place. In that case a screen reader user got no cue whatsoever that &quot;Something went
+        wrong&quot; had replaced the page they were just using — focus stayed wherever it was, and
+        nothing was announced. Fixed by adding a <code>ref</code> plus a <code>tabIndex</code> of{" "}
+        <code>-1</code> to each boundary&apos;s heading and calling{" "}
+        <code>.focus()</code> on it inside the existing{" "}
+        <code>useEffect</code> that already logs the error — mirroring the standard React error-
+        boundary accessibility pattern (a programmatically-focusable, non-tabbable heading).
+        Verified in a real browser (no React component test harness exists in this repo, per{" "}
+        AGENT_PROTOCOL): a temporary throwing route + a Playwright script confirmed{" "}
+        <code>document.activeElement</code> was the boundary&apos;s <code>&lt;h1&gt;</code> after
+        mount, both removed before committing. <code>src/app/not-found.tsx</code> was deliberately
+        left alone — it is a plain Server Component reached only via an actual route resolution
+        (initial load or a <code>next/link</code> transition), a case Next&apos;s route announcer
+        already covers, unlike the two boundaries above which can trigger mid-interaction with no
+        navigation event at all.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

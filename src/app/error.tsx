@@ -1,6 +1,6 @@
 "use client"; // Error boundaries must be Client Components (Next.js 16 app router convention)
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 
 export default function ErrorBoundary({
@@ -10,11 +10,20 @@ export default function ErrorBoundary({
   error: Error & { digest?: string };
   unstable_retry: () => void;
 }) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
   useEffect(() => {
     // Server Component errors already get a generic message + digest here (Next.js
     // scrubs details in production) — logging client-side still surfaces the digest
     // for matching against server logs without leaking anything new.
     console.error(error);
+    // Next's built-in route announcer (docs/03-architecture/accessibility.md)
+    // only fires on a route transition — it inspects document.title/<h1> after
+    // a navigation completes. This boundary can also mount with no navigation
+    // at all (a client-side interaction throws mid-page), so a screen reader
+    // user gets no cue that the page swapped to this fallback UI unless focus
+    // is moved here explicitly (error-boundary-heading-focus-on-mount).
+    headingRef.current?.focus();
   }, [error]);
 
   return (
@@ -22,7 +31,11 @@ export default function ErrorBoundary({
       <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
         Something went wrong
       </p>
-      <h1 className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
+      <h1
+        ref={headingRef}
+        tabIndex={-1}
+        className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 outline-none sm:text-4xl"
+      >
         This page hit a snag
       </h1>
       <p className="mt-4 text-lg leading-8 text-zinc-600">
