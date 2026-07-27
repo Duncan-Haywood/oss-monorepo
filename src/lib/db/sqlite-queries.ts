@@ -301,17 +301,28 @@ export function sqliteRecordClientInquiryReply(
  * window (checkout-session-recovery-race-guard). Split out of
  * src/lib/db.ts's recordCheckoutRecoverySent SQLite-fallback branch — pure
  * code move, no behavior change.
+ *
+ * expectedRecoverySentCount (the caller's own pre-write snapshot — the same
+ * value recovery-email-escalating-cadence uses to pick nudge copy) is
+ * compared atomically in the same UPDATE's WHERE clause. Without this, two
+ * concurrent calls for the same still-open session (two tabs, a fast
+ * double-click) would both pass the status check and both increment the
+ * count, sending a real duplicate email with identical stale nudge-tier
+ * copy. Only the write whose expected count still matches the current row
+ * applies; the other returns false so the caller can report a duplicate-send
+ * message instead of emailing twice (checkout-recovery-send-race-guard).
  */
 export function sqliteRecordCheckoutRecoverySent(
   db: DatabaseSync,
   stripeSessionId: string,
   sentAt: string,
+  expectedRecoverySentCount: number,
 ): boolean {
   const result = db
     .prepare(
-      "UPDATE checkout_sessions SET recoverySentAt = ?, recoverySentCount = COALESCE(recoverySentCount, 0) + 1 WHERE stripeSessionId = ? AND status = 'open'",
+      "UPDATE checkout_sessions SET recoverySentAt = ?, recoverySentCount = ? WHERE stripeSessionId = ? AND status = 'open' AND COALESCE(recoverySentCount, 0) = ?",
     )
-    .run(sentAt, stripeSessionId);
+    .run(sentAt, expectedRecoverySentCount + 1, stripeSessionId, expectedRecoverySentCount);
   return result.changes > 0;
 }
 

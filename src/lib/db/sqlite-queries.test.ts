@@ -470,10 +470,12 @@ describe("sqliteRecordClientInquiryReply", () => {
 });
 
 describe("sqliteRecordCheckoutRecoverySent", () => {
-  it("marks an open session's recoverySentAt and returns true", () => {
+  it("marks an open session's recoverySentAt and returns true when expectedRecoverySentCount matches (0 on first send)", () => {
     const db = freshDb();
     insertCheckoutSessionDirect(db, "cs_open", "test-lead", "open");
-    expect(sqliteRecordCheckoutRecoverySent(db, "cs_open", "2026-01-01T00:00:00.000Z")).toBe(true);
+    expect(sqliteRecordCheckoutRecoverySent(db, "cs_open", "2026-01-01T00:00:00.000Z", 0)).toBe(
+      true,
+    );
     const row = db.prepare("SELECT recoverySentAt FROM checkout_sessions WHERE stripeSessionId = ?").get(
       "cs_open",
     ) as { recoverySentAt: string };
@@ -482,19 +484,21 @@ describe("sqliteRecordCheckoutRecoverySent", () => {
 
   it("returns false for a missing session", () => {
     const db = freshDb();
-    expect(sqliteRecordCheckoutRecoverySent(db, "missing", "2026-01-01T00:00:00.000Z")).toBe(false);
+    expect(sqliteRecordCheckoutRecoverySent(db, "missing", "2026-01-01T00:00:00.000Z", 0)).toBe(
+      false,
+    );
   });
 
-  it("increments recoverySentCount from unset on first nudge, then again on repeat nudges (recovery-email-escalating-cadence)", () => {
+  it("increments recoverySentCount from unset on first nudge, then again on repeat nudges when each call passes the current count (recovery-email-escalating-cadence)", () => {
     const db = freshDb();
     insertCheckoutSessionDirect(db, "cs_open", "test-lead", "open");
-    sqliteRecordCheckoutRecoverySent(db, "cs_open", "2026-01-01T00:00:00.000Z");
+    sqliteRecordCheckoutRecoverySent(db, "cs_open", "2026-01-01T00:00:00.000Z", 0);
     let row = db
       .prepare("SELECT recoverySentCount FROM checkout_sessions WHERE stripeSessionId = ?")
       .get("cs_open") as { recoverySentCount: number };
     expect(row.recoverySentCount).toBe(1);
 
-    sqliteRecordCheckoutRecoverySent(db, "cs_open", "2026-01-03T00:00:00.000Z");
+    sqliteRecordCheckoutRecoverySent(db, "cs_open", "2026-01-03T00:00:00.000Z", 1);
     row = db
       .prepare("SELECT recoverySentCount FROM checkout_sessions WHERE stripeSessionId = ?")
       .get("cs_open") as { recoverySentCount: number };
@@ -504,13 +508,47 @@ describe("sqliteRecordCheckoutRecoverySent", () => {
   it("rejects a session that already completed via a concurrent webhook (checkout-session-recovery-race-guard)", () => {
     const db = freshDb();
     insertCheckoutSessionDirect(db, "cs_complete", "test-lead", "complete");
-    expect(sqliteRecordCheckoutRecoverySent(db, "cs_complete", "2026-01-01T00:00:00.000Z")).toBe(
-      false,
-    );
+    expect(
+      sqliteRecordCheckoutRecoverySent(db, "cs_complete", "2026-01-01T00:00:00.000Z", 0),
+    ).toBe(false);
     const row = db
       .prepare("SELECT recoverySentAt FROM checkout_sessions WHERE stripeSessionId = ?")
       .get("cs_complete") as { recoverySentAt: string | null };
     expect(row.recoverySentAt).toBeNull();
+  });
+
+  it("rejects a second concurrent call whose expectedRecoverySentCount is stale, leaving the row exactly as the winning call left it (checkout-recovery-send-race-guard)", () => {
+    const db = freshDb();
+    insertCheckoutSessionDirect(db, "cs_dup", "test-lead", "open");
+
+    // First call (e.g. tab A) wins the race.
+    expect(sqliteRecordCheckoutRecoverySent(db, "cs_dup", "2026-01-01T00:00:00.000Z", 0)).toBe(
+      true,
+    );
+
+    // Second concurrent call (e.g. tab B) read the same pre-write snapshot
+    // (expectedRecoverySentCount: 0) before tab A's write landed — must be
+    // rejected, not silently apply a second increment that would send a
+    // real duplicate email with stale nudge-tier copy.
+    expect(sqliteRecordCheckoutRecoverySent(db, "cs_dup", "2026-01-01T00:00:01.000Z", 0)).toBe(
+      false,
+    );
+
+    const row = db
+      .prepare(
+        "SELECT recoverySentAt, recoverySentCount FROM checkout_sessions WHERE stripeSessionId = ?",
+      )
+      .get("cs_dup") as { recoverySentAt: string; recoverySentCount: number };
+    // Still reflects only tab A's write.
+    expect(row.recoverySentAt).toBe("2026-01-01T00:00:00.000Z");
+    expect(row.recoverySentCount).toBe(1);
+
+    // A genuine next nudge (correctly reading the now-current count) still
+    // succeeds — the guard only rejects a stale snapshot, not legitimate
+    // re-nudges across cadence tiers.
+    expect(sqliteRecordCheckoutRecoverySent(db, "cs_dup", "2026-01-02T00:00:00.000Z", 1)).toBe(
+      true,
+    );
   });
 });
 

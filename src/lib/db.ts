@@ -2656,10 +2656,24 @@ export async function markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer
  * landing), and the calling action must skip sending a "finish your
  * purchase" recovery email once this returns false
  * (checkout-session-recovery-race-guard).
+ *
+ * expectedRecoverySentCount is the caller's own pre-write recoverySentCount
+ * snapshot (the same value used to pick the recovery-email-escalating-cadence
+ * nudge tier) — both backends apply the write only when the row's CURRENT
+ * count still matches it. This closes a second, distinct race the status
+ * check above does not: two concurrent calls for the same still-open session
+ * (two dashboard tabs, or a click landing before the button's
+ * isPending-disabled state takes effect) both read the identical stale
+ * snapshot, so without this guard both would pass the status check and both
+ * send a real duplicate email to the customer with identical, stale
+ * nudge-tier copy. Only the write that "wins" applies; the loser returns
+ * false so the caller can report a duplicate-send message instead of
+ * emailing twice (checkout-recovery-send-race-guard).
  */
 export async function recordCheckoutRecoverySent(
   stripeSessionId: string,
-  sentAt: string = new Date().toISOString(),
+  sentAt: string,
+  expectedRecoverySentCount: number,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<boolean> {
   if (convexClient) {
@@ -2667,6 +2681,7 @@ export async function recordCheckoutRecoverySent(
       return await convexClient.mutation(api.checkoutSessions.recordRecoverySent, {
         stripeSessionId,
         sentAt,
+        expectedRecoverySentCount,
         apiSecret: convexApiSecret,
       });
     } catch (e) {
@@ -2680,7 +2695,12 @@ export async function recordCheckoutRecoverySent(
     }
   }
 
-  return sqliteRecordCheckoutRecoverySent(getSqliteDb(), stripeSessionId, sentAt);
+  return sqliteRecordCheckoutRecoverySent(
+    getSqliteDb(),
+    stripeSessionId,
+    sentAt,
+    expectedRecoverySentCount,
+  );
 }
 
 /** All checkout sessions still "open" (not yet completed) — the abandoned-recovery due queue's input. */
