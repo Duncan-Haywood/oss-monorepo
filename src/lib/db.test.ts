@@ -2201,6 +2201,102 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     });
   });
 
+  describe("recordStarterUpsellSent (starter-upsell-send-race-guard: expected-count CAS, optional requireConvex)", () => {
+    it("returns Convex's boolean result directly without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      // No lead with this slug exists in the fresh SQLite file at all — the
+      // SQLite fallback branch would return false if the Convex-success path
+      // incorrectly fell through to it.
+      await expect(
+        db.recordStarterUpsellSent("no-sqlite-row-lead", "2026-07-27T00:00:00.000Z", 0, {
+          requireConvex: true,
+        }),
+      ).resolves.toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+      expect(convexMutation).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ expectedStarterUpsellSentCount: 0 }),
+      );
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordStarterUpsellSent("some-lead", "2026-07-27T00:00:00.000Z", 0, {
+          requireConvex: true,
+        }),
+      ).rejects.toThrow(/recordStarterUpsellSent/);
+    });
+
+    it("falls back to a real SQLite write when requireConvex is not set and Convex fails", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("upsell-fallback-lead", { stage: "paid" }));
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordStarterUpsellSent("upsell-fallback-lead", "2026-07-27T00:00:00.000Z", 0),
+      ).resolves.toBe(true);
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("upsell-fallback-lead");
+      expect(lead?.starterUpsellSentCount).toBe(1);
+      expect(lead?.lastStarterUpsellSentAt).toBe("2026-07-27T00:00:00.000Z");
+    });
+
+    it("returns false via the pure-SQLite path when no Convex client is configured and the slug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.recordStarterUpsellSent("missing-slug", "2026-07-27T00:00:00.000Z", 0),
+      ).resolves.toBe(false);
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("SQLite fallback rejects a second concurrent call whose expected count is stale, but allows a later, deliberate resend with the fresh count", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("race-upsell-lead", { stage: "paid" }));
+
+      // First call (e.g. tab A) wins the race.
+      const first = await db.recordStarterUpsellSent(
+        "race-upsell-lead",
+        "2026-07-27T00:00:00.000Z",
+        0,
+      );
+      expect(first).toBe(true);
+
+      // Second concurrent call (e.g. tab B) read the same pre-write snapshot
+      // (expectedStarterUpsellSentCount: 0) before tab A's write landed —
+      // must be rejected, not silently apply a second increment that would
+      // send a real duplicate email.
+      const second = await db.recordStarterUpsellSent(
+        "race-upsell-lead",
+        "2026-07-27T00:00:01.000Z",
+        0,
+      );
+      expect(second).toBe(false);
+
+      let lead = await db.getLeadBySlug("race-upsell-lead");
+      expect(lead?.starterUpsellSentCount).toBe(1);
+      expect(lead?.lastStarterUpsellSentAt).toBe("2026-07-27T00:00:00.000Z");
+
+      // A genuine later, deliberate resend (operator re-reads the lead,
+      // sees the current count, clicks Send again weeks later) must still
+      // succeed — this guard only rejects an exact concurrent duplicate.
+      const third = await db.recordStarterUpsellSent(
+        "race-upsell-lead",
+        "2026-08-01T00:00:00.000Z",
+        1,
+      );
+      expect(third).toBe(true);
+
+      lead = await db.getLeadBySlug("race-upsell-lead");
+      expect(lead?.starterUpsellSentCount).toBe(2);
+      expect(lead?.lastStarterUpsellSentAt).toBe("2026-08-01T00:00:00.000Z");
+    });
+  });
+
   describe("recordLeadPreviewOpen (requireConvex fail-closed write, missing-lead no-op instead of throw)", () => {
     it("returns { recorded: true } after a successful Convex mutation without touching SQLite", async () => {
       convexMutation.mockResolvedValueOnce(undefined);

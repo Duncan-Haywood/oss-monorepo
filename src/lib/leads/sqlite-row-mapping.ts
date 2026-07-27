@@ -42,6 +42,8 @@ export interface SqliteLeadRow {
   stripeConnectStatusCheckedAt?: string | null;
   bufferProfileIds?: string | null;
   bufferPostedVariantKeys?: string | null;
+  starterUpsellSentCount?: number | null;
+  lastStarterUpsellSentAt?: string | null;
 }
 
 /** Encode LeadHours into the single TEXT column db.ts persists — "weekday · weekend", or bare weekday when weekend is empty. */
@@ -162,5 +164,8 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     stripeConnectStatusCheckedAt: row.stripeConnectStatusCheckedAt || undefined,
     bufferProfileIds: parseLeadBufferProfileIds(row.bufferProfileIds),
     bufferPostedVariantKeys: parseLeadBufferPostedVariantKeys(row.bufferPostedVariantKeys),
+    starterUpsellSentCount:
+      typeof row.starterUpsellSentCount === "number" ? row.starterUpsellSentCount : undefined,
+    lastStarterUpsellSentAt: row.lastStarterUpsellSentAt || undefined,
   };
 }

@@ -3764,6 +3764,33 @@ source). The same digest also lists email-critical leads with no usable address 
         200s alongside the existing seven.
       </p>
 
+      <p>
+        Every other client-facing send action with a durable &quot;already sent&quot; marker —
+        marketing/voice pack email, bundle buyer resend, checkout recovery — has a concurrency
+        guard against a second dashboard tab or a double-click sending a real duplicate email.{" "}
+        <code>sendStarterUpsellAction</code> (the paid Starter → Growth/Complete MRR nudge) had
+        none at all: no <code>starterUpsell*SentAt</code> field, no mark/check helper,{" "}
+        <code>sendStarterUpsellEmail</code> a plain unguarded <code>sendEmail()</code> call. Two
+        open tabs on the same lead could both pass the identical eligibility check and both send
+        the upgrade pitch, both silently reporting success. Unlike the marketing/voice pack
+        marker (a one-shot &quot;already sent, never again&quot; gate reset by regenerating the
+        pack), a Starter upsell nudge has no monthly regenerate step — an operator can
+        legitimately re-send it to a still Starter-only lead weeks later, so a permanent
+        already-sent gate would incorrectly block that. Shipped a plain expected-count
+        compare-and-swap instead, mirroring <code>recordCheckoutRecoverySent</code>&apos;s shape
+        rather than <code>markMarketingPackSentToClient</code>&apos;s: <code>leads</code> gained{" "}
+        <code>starterUpsellSentCount</code>/<code>lastStarterUpsellSentAt</code> (both backends),
+        and <code>recordStarterUpsellSent</code> (Convex <code>requireConvex: true</code>, mirroring{" "}
+        <code>getLeadBySlug</code>&apos;s Convex-first reads) only advances the count when the
+        caller&apos;s <code>expectedStarterUpsellSentCount</code> still matches the row&apos;s
+        current count — an exact concurrent duplicate (same stale expected count) is rejected,
+        but a later request that re-reads the lead first and passes the fresh count always
+        succeeds. <code>sendStarterUpsellAction</code> sends first, then marks (best-effort on a
+        thrown write error — the email already went out; a race-guard <code>false</code> return
+        surfaces as a reported duplicate-send warning instead) — see{" "}
+        <code>starter-upsell-send-race-guard</code>.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

@@ -214,6 +214,39 @@ export function sqliteRecordLeadOutreach(
 }
 
 /**
+ * CAS marker for sendStarterUpsellAction, mirroring
+ * sqliteRecordCheckoutRecoverySent's expected-count pattern rather than a
+ * one-shot "already sent" gate — a Starter upsell nudge has no monthly
+ * regenerate step to reset eligibility, so an operator may legitimately
+ * re-send it to a still Starter-only lead weeks later. The atomic
+ * `AND COALESCE(starterUpsellSentCount, 0) = ?` clause only rejects a write
+ * whose expected count no longer matches the current row — an exact
+ * concurrent duplicate (a second dashboard tab, or a double-click before the
+ * button's isPending-disabled state applies), never a later, deliberate
+ * resend. Missing slug is a false no-op (mirrors the caller's own prior
+ * getLeadBySlug existence check — this helper is never called for an
+ * unknown slug in practice). See starter-upsell-send-race-guard.
+ */
+export function sqliteRecordStarterUpsellSent(
+  db: DatabaseSync,
+  slug: string,
+  sentAt: string,
+  expectedStarterUpsellSentCount: number,
+): boolean {
+  const result = db
+    .prepare(
+      "UPDATE leads SET starterUpsellSentCount = ?, lastStarterUpsellSentAt = ?, updatedAt = datetime('now') WHERE slug = ? AND COALESCE(starterUpsellSentCount, 0) = ?",
+    )
+    .run(
+      expectedStarterUpsellSentCount + 1,
+      sentAt,
+      slug,
+      expectedStarterUpsellSentCount,
+    );
+  return result.changes > 0;
+}
+
+/**
  * Persist a cold-lead disposition patch (re-engage or close) in one write.
  * Throws on an unknown slug (db-convex-sqlite-not-found-parity). Returns
  * false when the lead has already moved to paid/live by write time — the

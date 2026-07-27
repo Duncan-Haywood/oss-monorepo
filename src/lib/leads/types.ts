@@ -131,6 +131,21 @@ export interface Lead {
    * stale rather than permanently blocking the new content.
    */
   bufferPostedVariantKeys?: string[];
+  /**
+   * Monotonic count of Starter→Growth/Complete upsell emails sent to this
+   * lead via sendStarterUpsellAction — a concurrency guard, not a
+   * one-shot "already sent" gate: unlike marketing/voice pack sent-markers,
+   * a Starter upsell nudge has no monthly regenerate step to reset
+   * eligibility, and an operator may legitimately re-nudge a still
+   * Starter-only lead weeks later. recordStarterUpsellSent only rejects a
+   * write whose expected count no longer matches the current row (an exact
+   * concurrent duplicate — a second tab or a double-click before the
+   * button's isPending-disabled state applies), never a later, deliberate
+   * resend. Absent/0 means never sent. See starter-upsell-send-race-guard.
+   */
+  starterUpsellSentCount?: number;
+  /** ISO timestamp of the most recent Starter upsell send. */
+  lastStarterUpsellSentAt?: string;
 }
 
 /**

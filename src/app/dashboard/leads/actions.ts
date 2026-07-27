@@ -15,6 +15,7 @@ import {
   listOrders,
   listOrdersByLeadSlug,
   recordLeadOutreach,
+  recordStarterUpsellSent,
   listOpenCheckoutSessions,
   listUnrepliedInquiries,
   recordCheckoutRecoverySent,
@@ -72,6 +73,7 @@ import { LEAD_BUFFER_POSTED_VARIANT_KEYS_CONVEX_PRIMARY } from "@/lib/marketing/
 import { LEAD_STAGE_CONVEX_PRIMARY } from "@/lib/leads/stage-persist";
 import { LEAD_UPSERT_CONVEX_PRIMARY } from "@/lib/leads/upsert-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
+import { STARTER_UPSELL_SENT_CONVEX_PRIMARY } from "@/lib/leads/starter-upsell-persist";
 import { MARKETING_PACK_CONVEX_PRIMARY } from "@/lib/marketing/pack-persist";
 import { CLIENT_VOICE_PACK_CONVEX_PRIMARY } from "@/lib/voice/pack-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
@@ -2434,6 +2436,47 @@ export async function sendStarterUpsellAction(slug: string) {
             : "error" in sent && typeof sent.error === "string"
               ? sent.error
               : "Failed to send upsell email",
+      };
+    }
+
+    // Durable sent-marker after a confirmed successful send — this is a
+    // concurrency guard only, not a one-shot "already sent" gate (see
+    // starter-upsell-persist.ts): a Starter upsell nudge has no monthly
+    // regenerate step to reset eligibility, so an operator may legitimately
+    // re-send it to a still Starter-only lead weeks later. Best-effort on a
+    // thrown write error: the email already went out, so a marker-*persist*
+    // failure must not turn a successful send into a reported failure — the
+    // marker just stays at its previous count for the next click's CAS
+    // check, which is safe (worst case: a slightly stale expected-count
+    // comparison, never a missed send). recordStarterUpsellSent's atomic CAS
+    // write can also resolve `false` (not throw) when a concurrent
+    // request — a second tab, a double-click before the button's
+    // isPending-disabled state applied — already advanced the count first;
+    // that's proof this click's send was a genuine duplicate email, so
+    // unlike the exception case above it must not be silently discarded
+    // (see starter-upsell-send-race-guard, mirroring
+    // resendCommerceClientReceiptAction's own race-guard check).
+    const sentAt = new Date().toISOString();
+    const expectedStarterUpsellSentCount = lead.starterUpsellSentCount ?? 0;
+    let marked = true;
+    try {
+      marked = await recordStarterUpsellSent(
+        lead.slug,
+        sentAt,
+        expectedStarterUpsellSentCount,
+        STARTER_UPSELL_SENT_CONVEX_PRIMARY,
+      );
+    } catch (markError) {
+      console.error(
+        `Failed to record Starter upsell sent-marker for ${lead.slug}:`,
+        markError,
+      );
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Starter upsell was already sent moments ago by a concurrent request — this click may have sent a duplicate email.",
       };
     }
 

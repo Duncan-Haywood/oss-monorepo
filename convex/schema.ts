@@ -70,6 +70,17 @@ export default defineSchema({
      * the same content (buffer-schedule-duplicate-post-guard).
      */
     bufferPostedVariantKeys: v.optional(v.array(v.string())),
+    /**
+     * Monotonic count of Starter→Growth/Complete upsell emails sent to this
+     * lead — CAS guard for sendStarterUpsellAction (recordStarterUpsellSent),
+     * mirroring checkoutSessions.recoverySentCount rather than
+     * marketingPacks.sentToClientAt's one-shot gate: this does NOT block a
+     * later, deliberate resend, only an exact concurrent duplicate (see
+     * starter-upsell-send-race-guard). Absent/0 means never sent.
+     */
+    starterUpsellSentCount: v.optional(v.number()),
+    /** ISO timestamp of the most recent Starter upsell send. */
+    lastStarterUpsellSentAt: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

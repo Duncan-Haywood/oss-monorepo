@@ -33,6 +33,8 @@ interface LeadRow {
   stripeConnectStatusCheckedAt?: string;
   bufferProfileIds?: string[];
   bufferPostedVariantKeys?: string[];
+  starterUpsellSentCount?: number;
+  lastStarterUpsellSentAt?: string;
 }
 
 function newLeadArgs(overrides: Partial<Record<string, unknown>> = {}) {
@@ -669,6 +671,94 @@ test("recordOutreach returns false and skips the write when the lead's outreachS
   // either later loser.
   expect(row?.outreachStep).toBe(2);
   expect(row?.lastOutreachAt).toBe("2026-02-01T00:00:00.000Z");
+});
+
+test("recordStarterUpsellSent returns false (not throw) on an unknown slug", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.leads.recordStarterUpsellSent, {
+      slug: "no-such-lead",
+      sentAt: "2026-01-01T00:00:00.000Z",
+      expectedStarterUpsellSentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+});
+
+test("recordStarterUpsellSent increments the count and stamps lastStarterUpsellSentAt on a matching expected count", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "upsell-cafe", stage: "paid" }),
+  );
+
+  const applied = await t.mutation(api.leads.recordStarterUpsellSent, {
+    slug: "upsell-cafe",
+    sentAt: "2026-02-01T00:00:00.000Z",
+    expectedStarterUpsellSentCount: 0,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(applied).toBe(true);
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "upsell-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.starterUpsellSentCount).toBe(1);
+  expect(row?.lastStarterUpsellSentAt).toBe("2026-02-01T00:00:00.000Z");
+});
+
+test("recordStarterUpsellSent rejects a concurrent duplicate (stale expected count) but allows a later, deliberate resend (starter-upsell-send-race-guard)", async () => {
+  // Unlike recordOutreach's monotonic step guard, this is a plain
+  // expected-count CAS: a genuinely later resend (a fresh read, a fresh
+  // expected count) must succeed — a Starter upsell nudge has no monthly
+  // regenerate step to reset eligibility, so the operator can legitimately
+  // re-send it to a still Starter-only lead weeks later. Only an exact
+  // concurrent duplicate (two calls racing on the same stale expected count)
+  // is rejected.
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "race-upsell-cafe", stage: "paid" }),
+  );
+
+  // The winner of the race advances count 0 -> 1.
+  await expect(
+    t.mutation(api.leads.recordStarterUpsellSent, {
+      slug: "race-upsell-cafe",
+      sentAt: "2026-02-01T00:00:00.000Z",
+      expectedStarterUpsellSentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+
+  // The loser of the race replays the same stale expected count (0) — must
+  // be rejected, not double-counted.
+  await expect(
+    t.mutation(api.leads.recordStarterUpsellSent, {
+      slug: "race-upsell-cafe",
+      sentAt: "2026-02-01T00:00:05.000Z",
+      expectedStarterUpsellSentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+
+  // A later, deliberate resend (operator re-reads the lead, sees count=1,
+  // and clicks Send again weeks later) must succeed.
+  await expect(
+    t.mutation(api.leads.recordStarterUpsellSent, {
+      slug: "race-upsell-cafe",
+      sentAt: "2026-03-01T00:00:00.000Z",
+      expectedStarterUpsellSentCount: 1,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "race-upsell-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.starterUpsellSentCount).toBe(2);
+  expect(row?.lastStarterUpsellSentAt).toBe("2026-03-01T00:00:00.000Z");
 });
 
 test("recordPreviewOpen no-ops (never throws) on an unknown slug, unlike every other lead mutation", async () => {

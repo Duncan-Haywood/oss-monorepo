@@ -42,6 +42,7 @@ import {
   sqliteUpsertLead,
   sqliteUpdateLeadStage,
   sqliteRecordLeadOutreach,
+  sqliteRecordStarterUpsellSent,
   sqliteApplyColdLeadDisposition,
   sqliteRecordClientInquiryReply,
   sqliteRecordCheckoutRecoverySent,
@@ -122,6 +123,7 @@ const api: any = {
     seed: "leads:seed",
     markLeadPaid: "leads:markLeadPaid",
     recordOutreach: "leads:recordOutreach",
+    recordStarterUpsellSent: "leads:recordStarterUpsellSent",
     recordPreviewOpen: "leads:recordPreviewOpen",
     updateNotes: "leads:updateNotes",
     updateSnooze: "leads:updateSnooze",
@@ -367,6 +369,49 @@ export async function recordLeadOutreach(
   }
 
   return sqliteRecordLeadOutreach(getSqliteDb(), slug, outreachStep, lastOutreachAt);
+}
+
+/**
+ * CAS marker for sendStarterUpsellAction. Unlike recordLeadOutreach's
+ * monotonic step guard, this is a plain expected-count compare-and-swap
+ * (mirroring recordCheckoutRecoverySent) — the caller passes the count it
+ * last read (expectedStarterUpsellSentCount), and the write only applies
+ * when the row's current count still matches, so a later, deliberate resend
+ * (a fresh read, a fresh expected count) always succeeds and only an exact
+ * concurrent duplicate (same stale expected count) is rejected. See
+ * starter-upsell-send-race-guard.
+ */
+export async function recordStarterUpsellSent(
+  slug: string,
+  sentAt: string,
+  expectedStarterUpsellSentCount: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.leads.recordStarterUpsellSent, {
+        slug,
+        sentAt,
+        expectedStarterUpsellSentCount,
+        apiSecret: convexApiSecret,
+      })) as boolean;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordStarterUpsellSent", e);
+      }
+      console.warn(
+        `Failed to record Starter upsell send for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  return sqliteRecordStarterUpsellSent(
+    getSqliteDb(),
+    slug,
+    sentAt,
+    expectedStarterUpsellSentCount,
+  );
 }
 
 /**

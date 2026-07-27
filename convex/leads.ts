@@ -148,6 +148,8 @@ const leadReturn = v.object({
   stripeConnectStatusCheckedAt: v.optional(v.string()),
   bufferProfileIds: v.optional(v.array(v.string())),
   bufferPostedVariantKeys: v.optional(v.array(v.string())),
+  starterUpsellSentCount: v.optional(v.number()),
+  lastStarterUpsellSentAt: v.optional(v.string()),
 });
 
 function mapLeadRow(row: {
@@ -179,6 +181,8 @@ function mapLeadRow(row: {
   stripeConnectStatusCheckedAt?: string;
   bufferProfileIds?: string[];
   bufferPostedVariantKeys?: string[];
+  starterUpsellSentCount?: number;
+  lastStarterUpsellSentAt?: string;
 }) {
   const category = normalizeLeadCategory(row.category);
   return {
@@ -210,6 +214,8 @@ function mapLeadRow(row: {
     stripeConnectStatusCheckedAt: row.stripeConnectStatusCheckedAt,
     bufferProfileIds: row.bufferProfileIds,
     bufferPostedVariantKeys: row.bufferPostedVariantKeys,
+    starterUpsellSentCount: row.starterUpsellSentCount,
+    lastStarterUpsellSentAt: row.lastStarterUpsellSentAt,
   };
 }
 
@@ -419,6 +425,46 @@ export const recordOutreach = mutation({
     await ctx.db.patch(lead._id, {
       outreachStep: args.outreachStep,
       lastOutreachAt: args.lastOutreachAt,
+    });
+    return true;
+  },
+});
+
+/**
+ * CAS marker for sendStarterUpsellAction — mirrors
+ * checkoutSessions.recordRecoverySent's expected-count pattern, not
+ * markMarketingPackSentToClient's one-shot "already sent" gate: a Starter
+ * upsell nudge has no monthly regenerate step to reset eligibility, so an
+ * operator may legitimately re-send it to a still Starter-only lead weeks
+ * later. This only rejects a write whose expectedStarterUpsellSentCount no
+ * longer matches the row's current count — an exact concurrent duplicate (a
+ * second dashboard tab, or a double-click before the button's
+ * isPending-disabled state applies), never a later, deliberate resend. See
+ * starter-upsell-send-race-guard.
+ */
+export const recordStarterUpsellSent = mutation({
+  args: {
+    slug: v.string(),
+    sentAt: v.string(),
+    expectedStarterUpsellSentCount: v.number(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      return false;
+    }
+    if ((lead.starterUpsellSentCount ?? 0) !== args.expectedStarterUpsellSentCount) {
+      return false;
+    }
+    await ctx.db.patch(lead._id, {
+      starterUpsellSentCount: args.expectedStarterUpsellSentCount + 1,
+      lastStarterUpsellSentAt: args.sentAt,
     });
     return true;
   },

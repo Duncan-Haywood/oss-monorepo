@@ -9,7 +9,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * action glue: requireOperatorAuth, empty slug, missing lead, eligibility
  * (paid/live Starter-only + email, no Growth/Complete/Commerce), target
  * tier from recommendedTier, suppression / send failure (no revalidate),
- * mock send flag, leadSlug order filtering, and success revalidate.
+ * mock send flag, leadSlug order filtering, success revalidate, and the
+ * recordStarterUpsellSent CAS sent-marker (starter-upsell-send-race-guard) —
+ * best-effort on a thrown write error, but a `false` CAS return (a
+ * concurrent duplicate) must surface as success:false, not silent success.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -37,6 +40,7 @@ function headerStore(entries: Record<string, string | null> = {}) {
 
 const getLeadBySlug = vi.fn();
 const listOrdersByLeadSlug = vi.fn();
+const recordStarterUpsellSent = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -52,6 +56,7 @@ vi.mock("@/lib/db", () => ({
   listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
   listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
+  recordStarterUpsellSent: (...args: unknown[]) => recordStarterUpsellSent(...args),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
   updateLeadSnooze: vi.fn(),
@@ -127,6 +132,7 @@ describe("sendStarterUpsellAction", () => {
       success: true,
       id: "email_1",
     });
+    recordStarterUpsellSent.mockReset().mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -276,6 +282,58 @@ describe("sendStarterUpsellAction", () => {
       targetTier: "growth",
       monthlyPriceUsd: 99,
     });
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(recordStarterUpsellSent).toHaveBeenCalledWith(
+      "demo-cafe",
+      expect.any(String),
+      0,
+      expect.objectContaining({ requireConvex: true }),
+    );
+  });
+
+  it("passes the lead's current starterUpsellSentCount as the CAS expected value on a repeat nudge", async () => {
+    getLeadBySlug.mockResolvedValue({
+      ...eligibleLead,
+      starterUpsellSentCount: 2,
+    });
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res.success).toBe(true);
+    expect(recordStarterUpsellSent).toHaveBeenCalledWith(
+      "demo-cafe",
+      expect.any(String),
+      2,
+      expect.objectContaining({ requireConvex: true }),
+    );
+  });
+
+  it("reports a likely duplicate when a concurrent request already advanced the sent count (starter-upsell-send-race-guard)", async () => {
+    // recordStarterUpsellSent's atomic CAS write resolves false (not throw)
+    // when a second tab or a double-click before the button's
+    // isPending-disabled state applied already advanced this exact count —
+    // the email above already sent, so this must surface as a distinct
+    // duplicate-risk error, not silent success, mirroring
+    // resendCommerceClientReceiptAction's / marketing-voice-pack-client-send-
+    // race-guard's own race-guard checks. This is a concurrency guard only —
+    // it does NOT block a later, deliberate resend (see the CAS-expected-
+    // count test above), unlike the one-shot marketing/voice-pack gate.
+    recordStarterUpsellSent.mockResolvedValue(false);
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Starter upsell was already sent moments ago by a concurrent request — this click may have sent a duplicate email.",
+    });
+    expect(sendStarterUpsellEmail).toHaveBeenCalledOnce();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("stays best-effort success when the sent-marker write throws (unlike the false-return race case above)", async () => {
+    recordStarterUpsellSent.mockRejectedValue(new Error("disk full"));
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res.success).toBe(true);
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
