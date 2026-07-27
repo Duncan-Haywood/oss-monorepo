@@ -795,6 +795,23 @@ export default function ArchitectureDocPage() {
         logic, for the one genuinely different (pre-await optimistic) reason documented above.
       </p>
       <p>
+        That bespoke <code>leads</code> in-flight tracker itself carried a race: it was a bare{" "}
+        <code>Set&lt;string&gt;</code> of slugs (presence/absence), not a reference count. The
+        main-table stage <code>&lt;select&gt;</code> and a due-queue action button (e.g. &quot;Send
+        Email 1&quot;) can both target the same visible lead without either disabling itself while
+        pending, so two overlapping <code>handleStageChange</code> calls on one slug were
+        reachable. The first call to resolve unconditionally deleted the slug from the set even
+        though the second call was still in flight — a <code>revalidatePath</code> landing in that
+        window (an unrelated lead&apos;s edit, a webhook, a second tab) then read the slug as
+        settled and overwrote the row with the fresh prop, silently discarding the second
+        call&apos;s still-pending optimistic edit before it had even resolved. Fixed by turning the
+        tracker into a per-slug reference count (
+        <code>incrementInFlightCount</code>/<code>decrementInFlightCount</code>,{" "}
+        <code>src/lib/leads/optimistic-updates.ts</code>): a slug now reads as in-flight, and is
+        protected from being overwritten by <code>mergeFreshLeadsPreservingInFlightEdits</code>,
+        until every overlapping call on it has settled, not just the first one.
+      </p>
+      <p>
         <code>src/lib/db.ts</code> (the Convex-first/SQLite-fallback orchestration layer every
         surface above ultimately writes and reads through) carries a{" "}
         <code>&quot;server-only&quot;</code> guard, which throws unconditionally outside a

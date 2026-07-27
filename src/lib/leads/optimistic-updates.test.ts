@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Lead } from "./types";
 import {
+  decrementInFlightCount,
+  incrementInFlightCount,
   mergeFreshLeadsPreservingInFlightEdits,
   revertSingleLeadOptimisticUpdate,
   upsertSavedLeadBySlug,
@@ -154,7 +156,7 @@ describe("mergeFreshLeadsPreservingInFlightEdits", () => {
     const current = [makeLead({ slug: "a-diner", stage: "discovered" })];
     const fresh = [makeLead({ slug: "a-diner", stage: "paid" })];
 
-    const result = mergeFreshLeadsPreservingInFlightEdits(current, fresh, new Set());
+    const result = mergeFreshLeadsPreservingInFlightEdits(current, fresh, new Map());
 
     expect(result).toBe(fresh);
   });
@@ -168,7 +170,7 @@ describe("mergeFreshLeadsPreservingInFlightEdits", () => {
     const result = mergeFreshLeadsPreservingInFlightEdits(
       current,
       fresh,
-      new Set(["target-lead"]),
+      new Map([["target-lead", 1]]),
     );
 
     expect(result).toEqual([inFlightLocal]);
@@ -186,7 +188,7 @@ describe("mergeFreshLeadsPreservingInFlightEdits", () => {
     const result = mergeFreshLeadsPreservingInFlightEdits(
       current,
       fresh,
-      new Set(["target-lead"]),
+      new Map([["target-lead", 1]]),
     );
 
     expect(result).toEqual([untouchedFresh, inFlightLocal]);
@@ -200,7 +202,7 @@ describe("mergeFreshLeadsPreservingInFlightEdits", () => {
     const result = mergeFreshLeadsPreservingInFlightEdits(
       current,
       fresh,
-      new Set(["brand-new-lead"]),
+      new Map([["brand-new-lead", 1]]),
     );
 
     expect(result).toEqual([addedLocally]);
@@ -215,9 +217,67 @@ describe("mergeFreshLeadsPreservingInFlightEdits", () => {
     const result = mergeFreshLeadsPreservingInFlightEdits(
       current,
       fresh,
-      new Set(["brand-new-lead"]),
+      new Map([["brand-new-lead", 1]]),
     );
 
     expect(result).toEqual([existingFresh, addedLocally]);
+  });
+
+  it("treats a slug with a zero/absent count as not in flight", () => {
+    // A slug present in the map with count 0 shouldn't normally occur
+    // (decrementInFlightCount deletes at zero), but the merge must not
+    // treat it as in-flight if it ever does.
+    const staleLocal = makeLead({ slug: "target-lead", stage: "outreach_sent" });
+    const fresh = [makeLead({ slug: "target-lead", stage: "paid" })];
+
+    const result = mergeFreshLeadsPreservingInFlightEdits(
+      [staleLocal],
+      fresh,
+      new Map([["target-lead", 0]]),
+    );
+
+    expect(result).toEqual(fresh);
+  });
+});
+
+describe("incrementInFlightCount / decrementInFlightCount", () => {
+  it("starts a slug at 1 on first increment and removes it once decremented to 0", () => {
+    let counts = incrementInFlightCount(new Map(), "target-lead");
+    expect(counts.get("target-lead")).toBe(1);
+
+    counts = decrementInFlightCount(counts, "target-lead");
+    expect(counts.has("target-lead")).toBe(false);
+  });
+
+  it("keeps a slug in flight across two overlapping calls until both settle", () => {
+    // Regression for stage-change-in-flight-refcount-race: the main-table
+    // stage <select> and a due-queue action button can both fire an
+    // overlapping handleStageChange for the same lead. The first call's
+    // completion must not make the slug read as settled while the second
+    // is still pending.
+    let counts = incrementInFlightCount(new Map(), "target-lead"); // call A starts
+    counts = incrementInFlightCount(counts, "target-lead"); // call B starts
+    expect(counts.get("target-lead")).toBe(2);
+
+    counts = decrementInFlightCount(counts, "target-lead"); // call A settles first
+    expect(counts.get("target-lead")).toBe(1);
+    // Call B is still in flight — a resync landing here must still preserve
+    // the local optimistic row per mergeFreshLeadsPreservingInFlightEdits.
+    expect((counts.get("target-lead") ?? 0) > 0).toBe(true);
+
+    counts = decrementInFlightCount(counts, "target-lead"); // call B settles
+    expect(counts.has("target-lead")).toBe(false);
+  });
+
+  it("decrementing an untracked slug is a safe no-op", () => {
+    const counts = decrementInFlightCount(new Map(), "never-started");
+    expect(counts.has("never-started")).toBe(false);
+  });
+
+  it("does not mutate the input map (pure, for React state updater use)", () => {
+    const original = new Map([["a", 1]]);
+    incrementInFlightCount(original, "b");
+    decrementInFlightCount(original, "a");
+    expect(original).toEqual(new Map([["a", 1]]));
   });
 });

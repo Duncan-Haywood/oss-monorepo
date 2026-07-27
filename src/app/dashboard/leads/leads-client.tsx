@@ -160,6 +160,8 @@ import {
   type NotesPromptReason,
 } from "@/lib/leads/notes";
 import {
+  decrementInFlightCount,
+  incrementInFlightCount,
   mergeFreshLeadsPreservingInFlightEdits,
   revertSingleLeadOptimisticUpdate,
   upsertSavedLeadBySlug,
@@ -320,16 +322,20 @@ export function LeadsClient({
   marketingSchedulingAllowed = false,
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
-  // Slugs whose optimistic stage-change edit (handleStageChange) has been
-  // applied locally but not yet confirmed by that call's own server
-  // response — every other setLeads call site in this component only
+  // Per-slug reference count of optimistic stage-change edits
+  // (handleStageChange) applied locally but not yet confirmed by their own
+  // server response — every other setLeads call site in this component only
   // patches a row after its own server action already resolved
   // successfully, so this is the only edit that can still be "ahead of" a
   // freshly re-rendered initialLeads prop (see
   // leads-client-stale-prop-resync / mergeFreshLeadsPreservingInFlightEdits).
-  const [stageChangeInFlightSlugs, setStageChangeInFlightSlugs] = useState<
-    ReadonlySet<string>
-  >(() => new Set());
+  // A count rather than a presence flag: two overlapping calls on the same
+  // slug (e.g. the main-table stage <select> and a due-queue action button,
+  // both visible for the same lead) must keep the slug in-flight until BOTH
+  // settle, not just the first (see stage-change-in-flight-refcount-race).
+  const [stageChangeInFlightCounts, setStageChangeInFlightCounts] = useState<
+    ReadonlyMap<string, number>
+  >(() => new Map());
   // `initialLeads` is a fresh server-fetched prop on every RSC re-render —
   // nearly every handler in actions.ts calls
   // revalidatePath("/dashboard/leads"), and so does a Stripe/Resend webhook
@@ -345,7 +351,7 @@ export function LeadsClient({
   if (prevInitialLeads !== initialLeads) {
     setPrevInitialLeads(initialLeads);
     setLeads((prev) =>
-      mergeFreshLeadsPreservingInFlightEdits(prev, initialLeads, stageChangeInFlightSlugs),
+      mergeFreshLeadsPreservingInFlightEdits(prev, initialLeads, stageChangeInFlightCounts),
     );
   }
   // Same stale-prop bug as `leads` above — fed by an external actor rather
@@ -577,16 +583,11 @@ export function LeadsClient({
     // revalidatePath, a webhook, or a second tab) can't clobber this
     // not-yet-confirmed edit back to stale server data (see
     // leads-client-stale-prop-resync / mergeFreshLeadsPreservingInFlightEdits).
-    setStageChangeInFlightSlugs((prev) => new Set(prev).add(slug));
+    setStageChangeInFlightCounts((prev) => incrementInFlightCount(prev, slug));
     setLeads((prev) => prev.map((l) => (l.slug === slug ? optimisticLead : l)));
 
     const res = await updateLeadStageAction(slug, newStage);
-    setStageChangeInFlightSlugs((prev) => {
-      if (!prev.has(slug)) return prev;
-      const next = new Set(prev);
-      next.delete(slug);
-      return next;
-    });
+    setStageChangeInFlightCounts((prev) => decrementInFlightCount(prev, slug));
     if (!res.success) {
       setLeadActionErrors((prev) => ({
         ...prev,
