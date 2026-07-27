@@ -1,5 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+class MockConvexPrimaryWriteError extends Error {
+  constructor(message = "Convex primary write failed") {
+    super(message);
+    this.name = "ConvexPrimaryWriteError";
+  }
+}
+
+// Mocked (not imported from the real module) so the class reference stays
+// identical across this suite's per-test vi.resetModules() calls — the real
+// module would be re-instantiated on each dynamic `await import("./actions")`,
+// breaking `instanceof` checks against a top-level import taken before reset
+// (mirrors checkout-recovery-actions.test.ts / stripe-connect-actions.test.ts).
+vi.mock("@/lib/payments/convex-primary", () => ({
+  ConvexPrimaryWriteError: MockConvexPrimaryWriteError,
+}));
+
 /**
  * Action-level orchestration for sendStarterUpsellAction — the operator
  * Starter → MRR Upsell path (eligibility inverse of billing portal + Resend).
@@ -11,8 +27,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * tier from recommendedTier, suppression / send failure (no revalidate),
  * mock send flag, leadSlug order filtering, success revalidate, and the
  * recordStarterUpsellSent CAS sent-marker (starter-upsell-send-race-guard) —
- * best-effort on a thrown write error, but a `false` CAS return (a
- * concurrent duplicate) must surface as success:false, not silent success.
+ * the mark runs BEFORE the send (persist-then-notify, mirroring
+ * checkout-recovery-send-race-guard), so a `false` CAS return (a concurrent
+ * duplicate) or a thrown write error both skip the send entirely and surface
+ * as success:false, never silent success or a duplicate real email.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -307,34 +325,47 @@ describe("sendStarterUpsellAction", () => {
     );
   });
 
-  it("reports a likely duplicate when a concurrent request already advanced the sent count (starter-upsell-send-race-guard)", async () => {
+  it("skips the send entirely when a concurrent request already advanced the sent count (starter-upsell-send-race-guard)", async () => {
     // recordStarterUpsellSent's atomic CAS write resolves false (not throw)
     // when a second tab or a double-click before the button's
-    // isPending-disabled state applied already advanced this exact count —
-    // the email above already sent, so this must surface as a distinct
-    // duplicate-risk error, not silent success, mirroring
-    // resendCommerceClientReceiptAction's / marketing-voice-pack-client-send-
-    // race-guard's own race-guard checks. This is a concurrency guard only —
-    // it does NOT block a later, deliberate resend (see the CAS-expected-
-    // count test above), unlike the one-shot marketing/voice-pack gate.
+    // isPending-disabled state applied already advanced this exact count.
+    // The mark runs BEFORE the send (persist-then-notify, mirroring
+    // checkout-recovery-send-race-guard), so a lost CAS means this call's
+    // own send never fires — a real duplicate email is only ever sent by
+    // the concurrent call that actually won the race, never by both. This
+    // is a concurrency guard only — it does NOT block a later, deliberate
+    // resend (see the CAS-expected-count test above), unlike the one-shot
+    // marketing/voice-pack gate.
     recordStarterUpsellSent.mockResolvedValue(false);
     const { sendStarterUpsellAction } = await import("./actions");
     const res = await sendStarterUpsellAction("demo-cafe");
     expect(res).toEqual({
       success: false,
       error:
-        "Starter upsell was already sent moments ago by a concurrent request — this click may have sent a duplicate email.",
+        "Starter upsell was already sent moments ago by a concurrent request — skipped duplicate send",
     });
-    expect(sendStarterUpsellEmail).toHaveBeenCalledOnce();
+    expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("stays best-effort success when the sent-marker write throws (unlike the false-return race case above)", async () => {
+  it("skips the send and reports a not-sent error when the mark write fails closed on Convex (ConvexPrimaryWriteError)", async () => {
+    recordStarterUpsellSent.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res.success).toBe(false);
+    if (res.success) return;
+    expect(res.error).toMatch(/shared store/);
+    expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("fails closed (does not send) when the sent-marker write throws a non-Convex error", async () => {
     recordStarterUpsellSent.mockRejectedValue(new Error("disk full"));
     const { sendStarterUpsellAction } = await import("./actions");
     const res = await sendStarterUpsellAction("demo-cafe");
-    expect(res.success).toBe(true);
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(res).toEqual({ success: false, error: "disk full" });
+    expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("targets Complete when recommendedTier is complete", async () => {
@@ -368,7 +399,8 @@ describe("sendStarterUpsellAction", () => {
     const res = await sendStarterUpsellAction("demo-cafe");
     expect(res).toEqual({
       success: false,
-      error: "Email is on the suppression list",
+      error:
+        "Email is on the suppression list (sent-marker was recorded — click Send Starter upsell again to retry)",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
   });
@@ -382,7 +414,8 @@ describe("sendStarterUpsellAction", () => {
     const res = await sendStarterUpsellAction("demo-cafe");
     expect(res).toEqual({
       success: false,
-      error: "Resend 429",
+      error:
+        "Resend 429 (sent-marker was recorded — click Send Starter upsell again to retry)",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
   });

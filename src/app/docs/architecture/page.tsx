@@ -4193,6 +4193,28 @@ source). The same digest also lists email-critical leads with no usable address 
         navigation event at all.
       </p>
 
+      <p>
+        <code>starter-upsell-stripe-connect-send-race-guard-ordering-fix</code>: a Convex/SQLite
+        idempotency-class audit found that two of the CAS (compare-and-swap) duplicate-send guards
+        added in earlier sessions — <code>sendStarterUpsellAction</code> and{" "}
+        <code>sendStripeConnectOnboardingLinkToClientAction</code> (both in{" "}
+        <code>src/app/dashboard/leads/actions.ts</code>) — recorded their sent-marker{" "}
+        <em>after</em> the real email send instead of before it, unlike every sibling guard in the
+        same family (checkout-recovery, outreach, inquiry reply), which all persist the mark first.
+        Marking after the send means the CAS check runs too late to actually prevent a duplicate:
+        two concurrent requests (a second open dashboard tab, or a double-click before the
+        button&apos;s <code>isPending</code>-disabled state applies) both read the same starting
+        count, both pass eligibility, and <em>both send the real email</em> before either call
+        reaches the mark — the guard only detected the collision afterward and reported{" "}
+        <code>success: false</code> for the losing call, by which point the duplicate had already
+        gone out. Fixed by moving the CAS mark to run immediately before the send in both actions
+        (mirroring <code>recordCheckoutRecoverySent</code>&apos;s persist-then-notify ordering): a
+        lost CAS or a fail-closed <code>ConvexPrimaryWriteError</code> on the mark now skips the
+        send entirely, and a genuine send failure after a successful mark is reported with a note
+        that the marker was already recorded (safe, since this marker is a concurrency guard only,
+        not a one-shot gate — a deliberate resend still succeeds).
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
