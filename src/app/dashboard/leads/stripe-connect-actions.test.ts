@@ -47,6 +47,7 @@ vi.mock("next/headers", () => ({
 const getLeadBySlug = vi.fn();
 const updateLeadStripeConnectAccountId = vi.fn();
 const updateLeadStripeConnectStatus = vi.fn();
+const recordStripeConnectOnboardingLinkSent = vi.fn();
 vi.mock("@/lib/db", () => ({
   updateLeadStage: vi.fn(),
   upsertLead: vi.fn(),
@@ -87,6 +88,8 @@ vi.mock("@/lib/db", () => ({
     updateLeadStripeConnectAccountId(...args),
   updateLeadStripeConnectStatus: (...args: unknown[]) =>
     updateLeadStripeConnectStatus(...args),
+  recordStripeConnectOnboardingLinkSent: (...args: unknown[]) =>
+    recordStripeConnectOnboardingLinkSent(...args),
 }));
 
 const createExpressConnectAccount = vi.fn();
@@ -156,6 +159,7 @@ describe("Stripe Connect dashboard actions", () => {
     createConnectOnboardingLink.mockReset();
     fetchConnectAccountStatus.mockReset();
     sendStripeConnectOnboardingLinkEmail.mockReset();
+    recordStripeConnectOnboardingLinkSent.mockReset().mockResolvedValue(true);
     stripeCtor.mockReset();
     revalidatePath.mockReset();
     process.env = { ...originalEnv };
@@ -353,6 +357,12 @@ describe("Stripe Connect dashboard actions", () => {
         slug: "demo-cafe",
         onboardingUrl: "https://connect.stripe.com/setup/e/acct_existing/fake",
       });
+      expect(recordStripeConnectOnboardingLinkSent).toHaveBeenCalledWith(
+        "demo-cafe",
+        expect.any(String),
+        0,
+        expect.objectContaining({ requireConvex: true }),
+      );
       expect(result).toEqual({ success: true, mock: false });
     });
 
@@ -369,6 +379,67 @@ describe("Stripe Connect dashboard actions", () => {
       const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
 
       expect(result).toEqual({ success: false, error: "Resend API down" });
+      expect(recordStripeConnectOnboardingLinkSent).not.toHaveBeenCalled();
+    });
+
+    it("passes the lead's current stripeConnectOnboardingLinkSentCount as the CAS expected value on a repeat send", async () => {
+      getLeadBySlug.mockResolvedValue(
+        fakeLead({
+          stripeConnectAccountId: "acct_existing",
+          stripeConnectOnboardingLinkSentCount: 3,
+        }),
+      );
+      createConnectOnboardingLink.mockResolvedValue({
+        url: "https://connect.stripe.com/setup/e/acct_existing/fake",
+      });
+      sendStripeConnectOnboardingLinkEmail.mockResolvedValue({ success: true, mock: false });
+      const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
+      const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      expect(recordStripeConnectOnboardingLinkSent).toHaveBeenCalledWith(
+        "demo-cafe",
+        expect.any(String),
+        3,
+        expect.objectContaining({ requireConvex: true }),
+      );
+    });
+
+    it("reports a likely duplicate when a concurrent request already advanced the sent count (stripe-connect-onboarding-link-send-race-guard)", async () => {
+      // recordStripeConnectOnboardingLinkSent's atomic CAS write resolves
+      // false (not throw) when a second tab or a double-click before the
+      // button's isPending-disabled state applied already advanced this
+      // exact count — the email above already sent, so this must surface as
+      // a distinct duplicate-risk error, not silent success, mirroring
+      // starter-upsell-send-race-guard's own check.
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      createConnectOnboardingLink.mockResolvedValue({
+        url: "https://connect.stripe.com/setup/e/acct_existing/fake",
+      });
+      sendStripeConnectOnboardingLinkEmail.mockResolvedValue({ success: true, mock: false });
+      recordStripeConnectOnboardingLinkSent.mockResolvedValue(false);
+      const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
+      const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
+
+      expect(result).toEqual({
+        success: false,
+        error:
+          "The onboarding link was already sent moments ago by a concurrent request — this click may have sent a duplicate email.",
+      });
+      expect(sendStripeConnectOnboardingLinkEmail).toHaveBeenCalledOnce();
+    });
+
+    it("stays best-effort success when the sent-marker write throws (unlike the false-return race case above)", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      createConnectOnboardingLink.mockResolvedValue({
+        url: "https://connect.stripe.com/setup/e/acct_existing/fake",
+      });
+      sendStripeConnectOnboardingLinkEmail.mockResolvedValue({ success: true, mock: false });
+      recordStripeConnectOnboardingLinkSent.mockRejectedValue(new Error("disk full"));
+      const { sendStripeConnectOnboardingLinkToClientAction } = await import("./actions");
+      const result = await sendStripeConnectOnboardingLinkToClientAction("demo-cafe");
+
+      expect(result).toEqual({ success: true, mock: false });
     });
   });
 

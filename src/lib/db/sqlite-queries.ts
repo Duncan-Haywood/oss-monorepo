@@ -247,6 +247,38 @@ export function sqliteRecordStarterUpsellSent(
 }
 
 /**
+ * CAS marker for sendStripeConnectOnboardingLinkToClientAction, mirroring
+ * sqliteRecordStarterUpsellSent's expected-count pattern rather than a
+ * one-shot "already sent" gate — an operator may legitimately re-send a
+ * fresh onboarding link after an earlier one expired unused. The atomic
+ * `AND COALESCE(stripeConnectOnboardingLinkSentCount, 0) = ?` clause only
+ * rejects a write whose expected count no longer matches the current row —
+ * an exact concurrent duplicate (a second dashboard tab, or a double-click
+ * before the button's isPending-disabled state applies), never a later,
+ * deliberate resend. Missing slug is a false no-op (mirrors the caller's own
+ * prior getLeadBySlug existence check). See
+ * stripe-connect-onboarding-link-send-race-guard.
+ */
+export function sqliteRecordStripeConnectOnboardingLinkSent(
+  db: DatabaseSync,
+  slug: string,
+  sentAt: string,
+  expectedStripeConnectOnboardingLinkSentCount: number,
+): boolean {
+  const result = db
+    .prepare(
+      "UPDATE leads SET stripeConnectOnboardingLinkSentCount = ?, lastStripeConnectOnboardingLinkSentAt = ?, updatedAt = datetime('now') WHERE slug = ? AND COALESCE(stripeConnectOnboardingLinkSentCount, 0) = ?",
+    )
+    .run(
+      expectedStripeConnectOnboardingLinkSentCount + 1,
+      sentAt,
+      slug,
+      expectedStripeConnectOnboardingLinkSentCount,
+    );
+  return result.changes > 0;
+}
+
+/**
  * Persist a cold-lead disposition patch (re-engage or close) in one write.
  * Throws on an unknown slug (db-convex-sqlite-not-found-parity). Returns
  * false when the lead has already moved to paid/live by write time — the
