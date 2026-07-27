@@ -3212,6 +3212,43 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>aria-invalid</code>/<code>aria-describedby</code> pointing at that paragraph.
       </p>
 
+      <p>
+        A follow-up fresh-angle pass (2026-07-27,{" "}
+        <code>commerce-catalog-sync-archive-inline-aria-announcement</code>) found the same{" "}
+        <code>alert()</code>-on-failure gap immediately adjacent to the Commerce editor row that{" "}
+        <code>leads-client-form-error-inline-aria-announcement</code> had already fixed for the
+        &quot;Save catalog&quot; button: the two buttons right next to it in the same row —
+        &quot;Sync to Stripe&quot; (<code>handleSyncCommerceCatalogToStripe</code>) and
+        &quot;Archive orphans&quot; (<code>handleArchiveOrphanCommerceStripeProducts</code>) —
+        still routed their failure branches through a bare, modal{" "}
+        <code>alert()</code> instead of the row&apos;s existing{" "}
+        <code>commerceCatalogError</code> inline banner, missed because the earlier pass only
+        covered the handler it named. <code>handleSyncCommerceCatalogToStripe</code> has a second
+        call site with no adjacent inline-error surface at all: the &quot;Commerce catalogs
+        unsynced&quot; due-queue panel&apos;s own quick-action button, which renders in a
+        standalone <code>&lt;li&gt;</code> even when the full Commerce editor isn&apos;t open for
+        that lead (the editor block — and{" "}
+        <code>commerceCatalogError</code>&apos;s render site — is gated behind{" "}
+        <code>commerceEditSlug === lead.slug</code>), so routing that call through{" "}
+        <code>commerceCatalogError</code> would have silently swallowed the error rather than
+        improving on <code>alert()</code>. The handler already distinguishes its two call sites by
+        whether a <code>headingId</code> argument is passed (only the due-queue button passes
+        one, for post-sync focus management) — reused that same signal to pick the right error
+        surface: the due-queue call sets a new <code>commerceSyncQueueErrors</code> record keyed
+        by slug, rendered as its own <code>role=&quot;alert&quot;</code> paragraph inside that{" "}
+        <code>&lt;li&gt;</code> with the button&apos;s <code>aria-describedby</code> pointing at
+        it (no <code>aria-invalid</code> — <code>eslint-plugin-jsx-a11y</code>&apos;s{" "}
+        <code>role-supports-aria-props</code> rule correctly flags that attribute as unsupported
+        on a native <code>button</code>, unlike the <code>&lt;select&gt;</code>/
+        <code>&lt;input&gt;</code> elements the two prior passes added it to); the editor-panel
+        call for both handlers now sets <code>commerceCatalogError</code>, matching &quot;Save
+        catalog&quot; exactly. The success-path <code>alert()</code> calls in{" "}
+        <code>handleArchiveOrphanCommerceStripeProducts</code> (archived-count confirmation,
+        zero-orphans notice) were left untouched, matching this series&apos; established
+        failure-only scope boundary — dozens of other <code>alert()</code> call sites remain a
+        documented follow-up for a future pass.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

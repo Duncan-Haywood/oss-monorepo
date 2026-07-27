@@ -297,6 +297,14 @@ export function LeadsClient({
   const [commerceEditSlug, setCommerceEditSlug] = useState<string | null>(null);
   const [commerceDraftItems, setCommerceDraftItems] = useState<CommerceSku[]>([]);
   const [commerceCatalogError, setCommerceCatalogError] = useState<string | null>(null);
+  // Sync-to-Stripe failures from the "Commerce catalogs unsynced" due-queue
+  // panel's own quick-action button — that <li> renders even when the full
+  // Commerce editor isn't open for the lead, so it can't reuse
+  // commerceCatalogError (which only renders inside the editor block).
+  // Keyed by slug since multiple due-queue rows can fail independently.
+  const [commerceSyncQueueErrors, setCommerceSyncQueueErrors] = useState<
+    Record<string, string>
+  >({});
   const [stripeConnectError, setStripeConnectError] = useState<string | null>(null);
   // Errors from the main table's per-row Kanban actions (stage change,
   // snooze/unsnooze, cold-lead disposition) — these fire from both the main
@@ -1301,10 +1309,29 @@ export function LeadsClient({
   };
 
   const handleSyncCommerceCatalogToStripe = (slug: string, headingId?: string) => {
+    // headingId is only passed from the due-queue panel's own button (see
+    // its call site below) — the editor's identical button omits it, and
+    // that distinction is what decides which error surface below can
+    // actually render for this call (the editor block is unmounted unless
+    // commerceEditSlug === slug).
+    if (headingId) {
+      setCommerceSyncQueueErrors((prev) => {
+        const next = { ...prev };
+        delete next[slug];
+        return next;
+      });
+    } else {
+      setCommerceCatalogError(null);
+    }
     startTransition(async () => {
       const res = await syncCommerceCatalogToStripeAction(slug);
       if (!res.success) {
-        alert(`Stripe sync failed: ${res.error}`);
+        const message = `Stripe sync failed: ${res.error}`;
+        if (headingId) {
+          setCommerceSyncQueueErrors((prev) => ({ ...prev, [slug]: message }));
+        } else {
+          setCommerceCatalogError(message);
+        }
         return;
       }
       setCommerceCatalogs((prev) => {
@@ -1327,10 +1354,11 @@ export function LeadsClient({
   };
 
   const handleArchiveOrphanCommerceStripeProducts = (slug: string) => {
+    setCommerceCatalogError(null);
     startTransition(async () => {
       const res = await archiveOrphanCommerceStripeProductsAction(slug);
       if (!res.success) {
-        alert(`Archive orphans failed: ${res.error}`);
+        setCommerceCatalogError(`Archive orphans failed: ${res.error}`);
         return;
       }
       if (res.archivedCount === 0) {
@@ -1879,12 +1907,26 @@ export function LeadsClient({
                         )
                       }
                       aria-label={dashboardRowActionAriaLabel("Sync to Stripe", lead.businessName, lead.slug)}
+                      aria-describedby={
+                        commerceSyncQueueErrors[lead.slug]
+                          ? `commerce-sync-queue-error-${lead.slug}`
+                          : undefined
+                      }
                       className="rounded-lg bg-amber-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-900 disabled:opacity-60"
                     >
                       Sync to Stripe
                     </button>
                   </div>
                 </div>
+                {commerceSyncQueueErrors[lead.slug] ? (
+                  <p
+                    id={`commerce-sync-queue-error-${lead.slug}`}
+                    className="mt-2 text-xs font-medium text-red-600"
+                    role="alert"
+                  >
+                    {commerceSyncQueueErrors[lead.slug]}
+                  </p>
+                ) : null}
               </li>
               );
             })}
