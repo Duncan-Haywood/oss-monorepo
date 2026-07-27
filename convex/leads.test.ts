@@ -410,6 +410,24 @@ test("categoryValidator accepts the fitness category end to end (fitness-categor
   expect(bySlug?.category).toBe("fitness");
 });
 
+test("categoryValidator accepts the legal category end to end (legal-category-landing-page)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({
+      slug: "westbrook-law-group",
+      businessName: "Westbrook Law Group",
+      category: "legal",
+    }),
+  );
+
+  const bySlug: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "westbrook-law-group",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(bySlug?.category).toBe("legal");
+});
+
 test("markLeadPaid is idempotent on stripeSessionId and inserts a paid stub lead using the canonical payment-stub defaults when none exists", async () => {
   const t = convexTest(schema, modules);
   const first = await t.mutation(api.leads.markLeadPaid, {

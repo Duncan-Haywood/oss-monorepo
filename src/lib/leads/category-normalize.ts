@@ -38,6 +38,7 @@ export const BUSINESS_CATEGORIES: readonly BusinessCategory[] = [
   "automotive",
   "cleaning",
   "fitness",
+  "legal",
   "generic",
 ];
 

@@ -18,6 +18,7 @@ const CATEGORIES: BusinessCategory[] = [
   "automotive",
   "cleaning",
   "fitness",
+  "legal",
   "generic",
 ];
 
@@ -76,6 +77,12 @@ describe("CATEGORY_THEMES", () => {
       heroEyebrow: "Gym & studio preview",
       accentTextClass: "text-indigo-800",
       ctaClass: "bg-indigo-950 text-indigo-50 hover:bg-indigo-900",
+    });
+    expect(CATEGORY_THEMES.legal).toMatchObject({
+      label: "Legal & attorneys",
+      heroEyebrow: "Law firm preview",
+      accentTextClass: "text-blue-900",
+      ctaClass: "bg-blue-950 text-blue-50 hover:bg-blue-900",
     });
     expect(CATEGORY_THEMES.generic).toMatchObject({
       label: "Local business",

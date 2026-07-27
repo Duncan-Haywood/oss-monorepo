@@ -31,6 +31,8 @@ export function defaultTagline(category: BusinessCategory): string {
       return "A spotless space, every visit";
     case "fitness":
       return "Train hard, right in your neighborhood";
+    case "legal":
+      return "Trusted counsel when it matters most";
     case "generic":
       return "Your neighborhood business, online";
     default: {

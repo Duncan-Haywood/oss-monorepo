@@ -434,6 +434,9 @@ describe("leadLocalBusinessJsonLd", () => {
     expect(leadLocalBusinessJsonLd(baseLead({ category: "fitness" }))["@type"]).toBe(
       "ExerciseGym",
     );
+    expect(leadLocalBusinessJsonLd(baseLead({ category: "legal" }))["@type"]).toBe(
+      "LegalService",
+    );
     expect(leadLocalBusinessJsonLd(baseLead({ category: "generic" }))["@type"]).toBe(
       "LocalBusiness",
     );

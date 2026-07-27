@@ -84,6 +84,15 @@ export const CATEGORY_THEMES: Record<BusinessCategory, CategoryTheme> = {
     panelClass: "border-indigo-200/80 bg-white/70",
     heroEyebrow: "Gym & studio preview",
   },
+  legal: {
+    category: "legal",
+    label: "Legal & attorneys",
+    shellClass: "min-h-screen bg-[radial-gradient(ellipse_at_top,_#eff6ff_0%,_#ffffff_55%,_#dbeafe_100%)]",
+    accentTextClass: "text-blue-900",
+    ctaClass: "bg-blue-950 text-blue-50 hover:bg-blue-900",
+    panelClass: "border-blue-200/80 bg-white/70",
+    heroEyebrow: "Law firm preview",
+  },
   generic: {
     category: "generic",
     label: "Local business",

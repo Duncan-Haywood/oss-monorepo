@@ -33,7 +33,9 @@
  * cleaning-category-landing-page in BUSINESS_DECISIONS). "cat-fitness" was
  * added the same way when the fitness vertical's /websites-for-fitness
  * landing page shipped (see fitness-category-landing-page in
- * BUSINESS_DECISIONS).
+ * BUSINESS_DECISIONS). "cat-legal" was added the same way when the legal
+ * vertical's /websites-for-legal landing page shipped (see
+ * legal-category-landing-page in BUSINESS_DECISIONS).
  */
 export const CHECKOUT_ACQUISITION_SOURCES = [
   "home",
@@ -45,6 +47,7 @@ export const CHECKOUT_ACQUISITION_SOURCES = [
   "cat-automotive",
   "cat-cleaning",
   "cat-fitness",
+  "cat-legal",
   "preview",
   "outreach-email",
 ] as const;
@@ -90,6 +93,8 @@ export function checkoutAcquisitionSourceLabel(source: CheckoutAcquisitionSource
       return "Cleaning services landing page";
     case "cat-fitness":
       return "Fitness landing page";
+    case "cat-legal":
+      return "Legal landing page";
     case "preview":
       return "Lead preview page";
     case "outreach-email":
