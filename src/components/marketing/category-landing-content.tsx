@@ -32,6 +32,8 @@ function acquisitionSourceForCategory(
       return "cat-retail";
     case "health":
       return "cat-health";
+    case "automotive":
+      return "cat-automotive";
     default:
       return undefined;
   }

@@ -96,6 +96,24 @@ export const DEMO_LEADS: readonly Lead[] = [
     recommendedTier: "growth",
     dataSource: "demo_catalog",
   },
+  {
+    slug: "trailhead-auto-repair",
+    businessName: "Trailhead Auto Repair",
+    category: "automotive",
+    city: "Golden",
+    state: "CO",
+    address: "620 Ford St",
+    tagline: "Honest repairs, done right the first time",
+    description:
+      "Family-owned auto repair shop offering diagnostics, brakes, and routine maintenance for domestic and import vehicles, with free loaner cars for same-day service.",
+    phone: "(303) 555-0155",
+    email: "service@trailheadauto.example",
+    services: ["Brakes & suspension", "Check-engine diagnostics", "Oil changes", "Pre-purchase inspections"],
+    hours: { weekday: "Mon–Fri 7:30am–5:30pm", weekend: "Sat 8am–1pm · Closed Sun" },
+    stage: "outreach_sent",
+    recommendedTier: "growth",
+    dataSource: "demo_catalog",
+  },
 ] as const;
 
 export function getLeadBySlug(slug: string): Lead | undefined {
@@ -135,6 +153,8 @@ export function resolvePreviewLead(slug: string): Lead {
     category = "retail";
   } else if (/dental|dentist|chiro|clinic|wellness|therapy|medical|health|physio/.test(lower)) {
     category = "health";
+  } else if (/auto|mechanic|garage|tire|transmission|collision|motor/.test(lower)) {
+    category = "automotive";
   }
 
   return {

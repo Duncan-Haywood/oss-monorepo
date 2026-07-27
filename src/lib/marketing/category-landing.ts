@@ -267,6 +267,47 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
       },
     ],
   },
+  {
+    category: "automotive",
+    href: "/websites-for-automotive",
+    navLabel: "Automotive & auto repair",
+    seoTitle: "Website for Auto Repair Shops — services, hours, booking",
+    metaDescription:
+      `An auto repair shop website with your services, hours, and location — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that earns driver trust before the first visit",
+    heroSubhead:
+      "Services, hours, location, and a contact form for scheduling — built from your public shop details and previewed for free. Add monthly customer outreach when you're ready.",
+    painPoints: [
+      "Drivers search for a repair shop online before they ever call — a missing or dated website costs you the job",
+      "A phone number alone doesn't explain your specialties, warranty, or what to expect from a visit",
+      "A custom website from an agency costs thousands and takes months, longer than most drivers will wait",
+    ],
+    features: [
+      "Services, specialties, and hours laid out clearly",
+      "Contact form and Google Maps embed for easy directions",
+      "Basic SEO so \"near me\" repair searches find you",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "trailhead-auto-repair",
+    faq: [
+      {
+        question: "Can customers request an appointment online?",
+        answer:
+          "Yes — the contact form routes straight to your inbox with the customer's vehicle and issue details, so you can call back to confirm a time.",
+      },
+      {
+        question: "Do you write the customer outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your shop's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for after-hours calls?",
+        answer:
+          "Complete adds an AI phone agent for your shop line so a missed call after hours doesn't become a lost job.",
+      },
+    ],
+  },
 ] as const;
 
 export function categoryLandingPageByHref(href: string): CategoryLandingPage | undefined {

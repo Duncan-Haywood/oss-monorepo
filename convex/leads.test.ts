@@ -352,6 +352,24 @@ test("categoryValidator accepts the health category end to end (health-category-
   expect(bySlug?.category).toBe("health");
 });
 
+test("categoryValidator accepts the automotive category end to end (automotive-category-landing-page)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({
+      slug: "trailhead-auto-repair",
+      businessName: "Trailhead Auto Repair",
+      category: "automotive",
+    }),
+  );
+
+  const bySlug: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "trailhead-auto-repair",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(bySlug?.category).toBe("automotive");
+});
+
 test("markLeadPaid is idempotent on stripeSessionId and inserts a paid stub lead using the canonical payment-stub defaults when none exists", async () => {
   const t = convexTest(schema, modules);
   const first = await t.mutation(api.leads.markLeadPaid, {

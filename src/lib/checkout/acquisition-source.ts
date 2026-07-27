@@ -24,7 +24,10 @@
  * silently omits ?source= (see acquisitionSourceForCategory's fallback in
  * category-landing-content.tsx). "cat-health" was added the same way when
  * the health & wellness vertical's /websites-for-health landing page shipped
- * (see health-category-landing-page in BUSINESS_DECISIONS).
+ * (see health-category-landing-page in BUSINESS_DECISIONS). "cat-automotive"
+ * was added the same way when the automotive vertical's
+ * /websites-for-automotive landing page shipped (see
+ * automotive-category-landing-page in BUSINESS_DECISIONS).
  */
 export const CHECKOUT_ACQUISITION_SOURCES = [
   "home",
@@ -33,6 +36,7 @@ export const CHECKOUT_ACQUISITION_SOURCES = [
   "cat-trades",
   "cat-retail",
   "cat-health",
+  "cat-automotive",
   "preview",
   "outreach-email",
 ] as const;
@@ -72,6 +76,8 @@ export function checkoutAcquisitionSourceLabel(source: CheckoutAcquisitionSource
       return "Retail landing page";
     case "cat-health":
       return "Health & wellness landing page";
+    case "cat-automotive":
+      return "Automotive landing page";
     case "preview":
       return "Lead preview page";
     case "outreach-email":
