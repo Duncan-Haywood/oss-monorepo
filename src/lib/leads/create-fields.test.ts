@@ -144,6 +144,40 @@ describe("normalizeLeadCreateFields", () => {
     expect(result.fields.tagline).toBe("Coffee");
     expect(result.fields.description).toBe("A neighborhood cafe");
   });
+
+  it("rejects an unrecognized category instead of silently persisting it", () => {
+    const result = normalizeLeadCreateFields({
+      ...base,
+      // Server Actions don't enforce their declared parameter type at
+      // runtime against an arbitrary caller — same class of input CSV
+      // import's parseCategory already rejects.
+      category: "not-a-real-category" as unknown as typeof base.category,
+    });
+    expect(result).toEqual({
+      ok: false,
+      error:
+        "Invalid category \"not-a-real-category\" (use restaurant|salon|trades|retail|health|automotive|cleaning|fitness|legal|generic)",
+    });
+  });
+
+  it("accepts every category in the canonical allowlist", () => {
+    const categories = [
+      "restaurant",
+      "salon",
+      "trades",
+      "retail",
+      "health",
+      "automotive",
+      "cleaning",
+      "fitness",
+      "legal",
+      "generic",
+    ] as const;
+    for (const category of categories) {
+      const result = normalizeLeadCreateFields({ ...base, category });
+      expect(result.ok).toBe(true);
+    }
+  });
 });
 
 describe("normalizeLeadDataSource", () => {

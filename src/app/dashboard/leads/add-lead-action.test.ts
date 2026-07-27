@@ -219,6 +219,21 @@ describe("addLeadAction", () => {
     expect(upsertLead).not.toHaveBeenCalled();
   });
 
+  it("rejects an unrecognized category before upsert (CSV parity, add-lead-category-validation-parity)", async () => {
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      category: "not-a-real-category" as unknown as typeof baseLeadInput.category,
+    });
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Invalid category \"not-a-real-category\" (use restaurant|salon|trades|retail|health|automotive|cleaning|fitness|legal|generic)",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(upsertLead).not.toHaveBeenCalled();
+  });
+
   it("soft-caps optional create fields before upsert (CSV parity)", async () => {
     const {
       MAX_CITY_LENGTH,

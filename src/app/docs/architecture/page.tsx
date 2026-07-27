@@ -3917,6 +3917,32 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>inquiry-reply-send-race-guard</code>.
       </p>
 
+      <p>
+        Manual <strong>Add lead</strong> (<code>addLeadAction</code>) was the one lead-creation
+        path that never validated <code>category</code> against the same allowlist CSV import has
+        always enforced (<code>parseCategory</code> hard-rejects an unrecognized value with a
+        clear, row-level operator error). A Server Action&apos;s declared parameter type is not
+        enforced at runtime against an arbitrary caller — the dashboard&apos;s own{" "}
+        <code>&lt;select&gt;</code> only ever offers a valid category, but a raw POST to the
+        action did not have to. An invalid category did not crash anything (both backends&apos;
+        read paths already run <code>normalizeLeadCategory</code>, which falls back to{" "}
+        <code>&quot;generic&quot;</code> for an unrecognized stored value — see{" "}
+        <code>leads-category-tier-read-normalize-parity</code>), but it silently persisted the bad
+        value and coerced it to <code>&quot;generic&quot;</code> on every later read with zero
+        operator feedback, unlike CSV import&apos;s clear rejection. Fixed by adding the same
+        allowlist check to <code>normalizeLeadCreateFields</code> (shared by both create paths),
+        returning the same style of error CSV import already gives. While fixing this, also found
+        that <code>csv-import.ts</code> maintained its own hand-written duplicate of the category
+        list rather than importing the canonical <code>BUSINESS_CATEGORIES</code> array from{" "}
+        <code>category-normalize.ts</code> — the exact kind of drift risk (three lists to update
+        by hand: this one, the Convex validator, and category-normalize.ts&apos;s own array) that
+        let this validation gap go unnoticed for as long as it did. Deduped it to import{" "}
+        <code>BUSINESS_CATEGORIES</code> directly, including the error message text, so a future
+        category addition only needs to update one source of truth for this pair of checks (the
+        Convex-side <code>categoryValidator</code> stays a separate, differently-shaped literal
+        union by necessity). See <code>add-lead-category-validation-parity</code>.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
