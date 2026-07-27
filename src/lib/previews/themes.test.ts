@@ -14,11 +14,12 @@ const CATEGORIES: BusinessCategory[] = [
   "salon",
   "trades",
   "retail",
+  "health",
   "generic",
 ];
 
 describe("CATEGORY_THEMES", () => {
-  it("defines exactly the four BusinessCategory keys", () => {
+  it("defines exactly the five BusinessCategory keys", () => {
     expect(Object.keys(CATEGORY_THEMES).sort()).toEqual(
       [...CATEGORIES].sort(),
     );

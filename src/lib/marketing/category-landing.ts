@@ -226,6 +226,47 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
       },
     ],
   },
+  {
+    category: "health",
+    href: "/websites-for-health",
+    navLabel: "Health & wellness",
+    seoTitle: "Website for Health & Wellness Clinics — booking, services",
+    metaDescription:
+      `A health & wellness clinic website with your services, hours, and booking info — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that earns patient trust before the first visit",
+    heroSubhead:
+      "Services, hours, location, and a booking-ready contact form — built from your public practice details and previewed for free. Add monthly patient outreach when you're ready.",
+    painPoints: [
+      "New patients research a provider online before ever calling — a missing or dated website costs you the visit",
+      "A booking app alone doesn't explain your services, specialties, or what a first visit looks like",
+      "A custom healthcare-compliant website from an agency costs thousands and takes months",
+    ],
+    features: [
+      "Services, specialties, and hours laid out clearly",
+      "Contact form and Google Maps embed for easy directions",
+      "Basic SEO so \"near me\" searches for your specialty find you",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "clearview-wellness-clinic",
+    faq: [
+      {
+        question: "Can I keep using my existing scheduling/EHR system?",
+        answer:
+          "Yes — the site links out to whatever booking or patient-portal tool you already use; we don't force a migration.",
+      },
+      {
+        question: "Do you write the patient outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your practice's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for appointment calls?",
+        answer:
+          "Complete adds an AI phone agent for your practice line so a missed call after hours doesn't become a lost patient.",
+      },
+    ],
+  },
 ] as const;
 
 export function categoryLandingPageByHref(href: string): CategoryLandingPage | undefined {

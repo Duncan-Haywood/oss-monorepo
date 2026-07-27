@@ -23,6 +23,8 @@ export function defaultTagline(category: BusinessCategory): string {
       return "Local favorites made fresh daily";
     case "retail":
       return "Curated goods, picked with care";
+    case "health":
+      return "Care your patients can count on";
     case "generic":
       return "Your neighborhood business, online";
     default: {

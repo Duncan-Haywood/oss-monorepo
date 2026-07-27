@@ -3,7 +3,7 @@
  * Persisted via Convex when configured, otherwise SQLite fallback (see /docs/process).
  */
 
-export type BusinessCategory = "restaurant" | "salon" | "trades" | "retail" | "generic";
+export type BusinessCategory = "restaurant" | "salon" | "trades" | "retail" | "health" | "generic";
 
 export type LeadPipelineStage =
   | "discovered"

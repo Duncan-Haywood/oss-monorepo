@@ -22,7 +22,9 @@
  * retail-category-landing-page in BUSINESS_DECISIONS) — every new
  * CATEGORY_LANDING_PAGES entry needs a matching token here or its CTA link
  * silently omits ?source= (see acquisitionSourceForCategory's fallback in
- * category-landing-content.tsx).
+ * category-landing-content.tsx). "cat-health" was added the same way when
+ * the health & wellness vertical's /websites-for-health landing page shipped
+ * (see health-category-landing-page in BUSINESS_DECISIONS).
  */
 export const CHECKOUT_ACQUISITION_SOURCES = [
   "home",
@@ -30,6 +32,7 @@ export const CHECKOUT_ACQUISITION_SOURCES = [
   "cat-salon",
   "cat-trades",
   "cat-retail",
+  "cat-health",
   "preview",
   "outreach-email",
 ] as const;
@@ -67,6 +70,8 @@ export function checkoutAcquisitionSourceLabel(source: CheckoutAcquisitionSource
       return "Trades landing page";
     case "cat-retail":
       return "Retail landing page";
+    case "cat-health":
+      return "Health & wellness landing page";
     case "preview":
       return "Lead preview page";
     case "outreach-email":

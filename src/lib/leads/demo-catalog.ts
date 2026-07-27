@@ -78,6 +78,24 @@ export const DEMO_LEADS: readonly Lead[] = [
     recommendedTier: "growth",
     dataSource: "demo_catalog",
   },
+  {
+    slug: "clearview-wellness-clinic",
+    businessName: "Clearview Wellness Clinic",
+    category: "health",
+    city: "Lafayette",
+    state: "CO",
+    address: "955 S Public Rd",
+    tagline: "Care your patients can count on",
+    description:
+      "Chiropractic and physical therapy clinic offering same-week appointments, insurance-friendly billing, and a calm, welcoming office for patients of all ages.",
+    phone: "(303) 555-0184",
+    email: "front-desk@clearviewwellness.example",
+    services: ["Chiropractic adjustments", "Physical therapy", "Sports injury care", "Wellness consultations"],
+    hours: { weekday: "Mon–Fri 8am–5pm", weekend: "Closed Sat–Sun" },
+    stage: "site_built",
+    recommendedTier: "growth",
+    dataSource: "demo_catalog",
+  },
 ] as const;
 
 export function getLeadBySlug(slug: string): Lead | undefined {
@@ -115,6 +133,8 @@ export function resolvePreviewLead(slug: string): Lead {
     category = "trades";
   } else if (/shop|store|boutique|mercantile|market|retail|goods/.test(lower)) {
     category = "retail";
+  } else if (/dental|dentist|chiro|clinic|wellness|therapy|medical|health|physio/.test(lower)) {
+    category = "health";
   }
 
   return {
