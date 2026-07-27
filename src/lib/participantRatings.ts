@@ -6,6 +6,7 @@ export type RatedItem = {
   slug: string;
   label: string;
   category: string | null;
+  dimensions: string[];
   rating: number;
   rd: number;
   volatility: number;
@@ -20,7 +21,7 @@ export async function loadRatedItems(participantId: string, surveyId: string): P
   const [items, ratings] = await Promise.all([
     prisma.item.findMany({
       where: { surveyId },
-      select: { id: true, slug: true, label: true, category: true },
+      select: { id: true, slug: true, label: true, category: true, dimensions: true },
     }),
     prisma.participantItemRating.findMany({
       where: { participantId },
@@ -36,6 +37,7 @@ export async function loadRatedItems(participantId: string, surveyId: string): P
       slug: item.slug,
       label: item.label,
       category: item.category,
+      dimensions: item.dimensions ?? [],
       rating: r?.rating ?? DEFAULT_GLICKO_STATE.rating,
       rd: r?.rd ?? DEFAULT_GLICKO_STATE.rd,
       volatility: r?.volatility ?? DEFAULT_GLICKO_STATE.volatility,

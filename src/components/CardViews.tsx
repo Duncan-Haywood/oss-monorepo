@@ -194,13 +194,13 @@ function ActionBar({
           <span aria-hidden="true">↓</span> Bottom
         </button>
       </div>
-      {/* Deliberately small and secondary: an escape hatch for a genuinely
-          hard pair, not a default. Recorded as a real tie, which the rating
-          model uses — so it costs nothing statistically to take the out. */}
+      {/* Secondary by weight, not by being a link: an escape hatch for a
+          genuinely hard pair, not a default. Recorded as a real tie, which
+          the rating model uses — taking the out costs nothing. */}
       <button
         onClick={onEqual}
         disabled={disabled}
-        className="self-center px-4 py-1.5 text-xs font-medium text-neutral-500 underline underline-offset-2 disabled:opacity-40 dark:text-neutral-400"
+        className="w-full rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50 py-2.5 text-sm font-semibold text-neutral-600 transition active:scale-[0.98] disabled:opacity-40 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
       >
         Too close to call
       </button>

@@ -4,10 +4,11 @@ import { loadRatedItems } from "@/lib/participantRatings";
 import { confidenceInterval95 } from "@/lib/glicko2";
 import { levelForAnswers, unlockedInsights, nextInsight, swipesUntilNextInsight, INSIGHTS } from "@/lib/insights";
 import { RANGES } from "@/lib/financialProfiles";
+import { describeDimensions, scoreDimensions } from "@/lib/dimensions";
 
 const MAX_ENTRIES = 20;
 
-type RankedItem = { label: string; category: string | null; rating: number; rd: number; lo: number; hi: number };
+type RankedItem = { label: string; category: string | null; rating: number; rd: number; lo: number; hi: number; dimensions: string[] };
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
         for (const i of items) {
           if (i.rd >= 349) continue;
           const [lo, hi] = confidenceInterval95(i.rating, i.rd);
-          ranked.push({ label: i.label, category: i.category, rating: i.rating, rd: i.rd, lo, hi });
+          ranked.push({ label: i.label, category: i.category, rating: i.rating, rd: i.rd, lo, hi, dimensions: i.dimensions ?? [] });
         }
       } else {
         const answered = await prisma.financialTrial.count({
@@ -91,6 +92,12 @@ export async function POST(req: NextRequest) {
         .map(([name, v]) => ({ name, avg: v.sum / v.n, n: v.n }))
         .sort((a, b) => b.avg - a.avg);
       if (cats.length) content["category-lean"] = cats;
+    }
+    if (unlocked.has("value-profile") && ranked.length) {
+      const scores = scoreDimensions(ranked);
+      if (scores.length >= 2) {
+        content["value-profile"] = { scores, summary: describeDimensions(scores, totalAnswers) };
+      }
     }
     if (unlocked.has("confidence-map") && ranked.length) {
       content["confidence-map"] = [...ranked].sort((a, b) => b.rd - a.rd).slice(0, 5);

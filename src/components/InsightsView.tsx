@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { INSIGHTS, InsightDef, SWIPES_PER_LEVEL } from "@/lib/insights";
+import { InsightFeedback } from "@/components/FeedbackWidget";
 
 const LS_KEY = "survey:unified:session";
 
@@ -137,11 +138,14 @@ export function InsightsView() {
                 )}
               </div>
               {isUnlocked ? (
-                body ?? (
-                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                    Unlocked — needs a few more answers in this area to say anything solid.
-                  </p>
-                )
+                <>
+                  {body ?? (
+                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                      Unlocked — needs a few more answers in this area to say anything solid.
+                    </p>
+                  )}
+                  {body && <InsightFeedback subject={def.key} />}
+                </>
               ) : (
                 <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{def.teaser}</p>
               )}
@@ -215,6 +219,50 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
           </li>
         ))}
       </ol>
+    );
+  }
+
+  if (key === "value-profile") {
+    const v = value as {
+      scores: { key: string; label: string; score: number; delta: number; n: number; se: number }[];
+      summary: string | null;
+    };
+    const solid = v.scores.filter((s) => s.n >= 2);
+    if (!solid.length) return null;
+    const maxAbs = Math.max(...solid.map((s) => Math.abs(s.delta)), 1);
+    return (
+      <div className="mt-2">
+        {v.summary && <p className="mb-3 text-sm font-medium">{v.summary}</p>}
+        <ul className="flex flex-col gap-2">
+          {solid.map((s) => {
+            const pct = (Math.abs(s.delta) / maxAbs) * 50;
+            const positive = s.delta >= 0;
+            return (
+              <li key={s.key} className="flex items-center gap-2 text-xs">
+                <span className="w-28 shrink-0 truncate text-neutral-600 dark:text-neutral-400">{s.label}</span>
+                <span className="relative h-3 flex-1 rounded-full bg-neutral-200 dark:bg-neutral-800">
+                  <span className="absolute inset-y-0 left-1/2 w-px bg-neutral-400 dark:bg-neutral-600" />
+                  <span
+                    className={`absolute inset-y-0 rounded-full ${positive ? "bg-amber-500" : "bg-neutral-400 dark:bg-neutral-500"}`}
+                    style={
+                      positive
+                        ? { left: "50%", width: `${pct}%` }
+                        : { right: "50%", width: `${pct}%` }
+                    }
+                  />
+                </span>
+                <span className="w-8 shrink-0 text-right tabular-nums text-neutral-400">
+                  {s.delta >= 0 ? "+" : ""}
+                  {Math.round(s.delta)}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-2 text-[11px] text-neutral-400">
+          Relative to your own average. Bars right = you value it more.
+        </p>
+      </div>
     );
   }
 

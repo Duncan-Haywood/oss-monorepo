@@ -1,7 +1,46 @@
+/**
+ * Underlying dimensions an item signals. Items are tagged with these so the
+ * dashboard can say "you value warmth over status" rather than only listing
+ * items — the ratings roll up into dimension scores, which is what people
+ * actually want to know about themselves.
+ */
+export const DIMENSIONS = [
+  "warmth",
+  "ambition",
+  "status",
+  "adventure",
+  "stability",
+  "intellect",
+  "creativity",
+  "service",
+  "physicality",
+  "spirituality",
+  "family",
+  "independence",
+] as const;
+export type Dimension = (typeof DIMENSIONS)[number];
+
+export const DIMENSION_LABELS: Record<Dimension, string> = {
+  warmth: "Warmth & kindness",
+  ambition: "Drive & ambition",
+  status: "Status & prestige",
+  adventure: "Adventure & risk",
+  stability: "Stability & reliability",
+  intellect: "Intellect & curiosity",
+  creativity: "Creativity & expression",
+  service: "Service & duty",
+  physicality: "Physicality & health",
+  spirituality: "Spirituality & meaning",
+  family: "Family orientation",
+  independence: "Independence & self-direction",
+};
+
 export type SeedItem = {
   slug: string;
   label: string;
   category?: string;
+  /** Dimensions this item signals, strongest first. */
+  dimensions?: Dimension[];
 };
 
 export type SeedSurvey = {
@@ -119,6 +158,93 @@ const PROFESSIONS: SeedItem[] = [
   { slug: "humanitarian-aid-leader", label: "Humanitarian aid leader", category: "Charity and leadership" },
 ];
 
+/**
+ * Character traits. Phrased as things a person IS, so the comparison is
+ * about disposition rather than achievement.
+ */
+const TRAITS: SeedItem[] = [
+  { slug: "kind", label: "Deeply kind", category: "Character", dimensions: ["warmth"] },
+  { slug: "honest", label: "Honest, even when it costs them", category: "Character", dimensions: ["stability", "service"] },
+  { slug: "loyal", label: "Fiercely loyal", category: "Character", dimensions: ["warmth", "stability"] },
+  { slug: "calm-under-pressure", label: "Calm under pressure", category: "Character", dimensions: ["stability"] },
+  { slug: "emotionally-open", label: "Emotionally open", category: "Character", dimensions: ["warmth"] },
+  { slug: "self-aware", label: "Genuinely self-aware", category: "Character", dimensions: ["intellect", "warmth"] },
+  { slug: "patient", label: "Patient", category: "Character", dimensions: ["warmth", "stability"] },
+  { slug: "generous", label: "Generous with what they have", category: "Character", dimensions: ["warmth", "service"] },
+  { slug: "humble", label: "Humble about their success", category: "Character", dimensions: ["warmth"] },
+  { slug: "principled", label: "Strong moral principles", category: "Character", dimensions: ["service", "spirituality"] },
+  { slug: "funny", label: "Genuinely funny", category: "Character", dimensions: ["creativity", "warmth"] },
+  { slug: "curious", label: "Endlessly curious", category: "Character", dimensions: ["intellect"] },
+  { slug: "disciplined", label: "Highly disciplined", category: "Character", dimensions: ["ambition", "stability"] },
+  { slug: "ambitious-trait", label: "Deeply ambitious", category: "Character", dimensions: ["ambition"] },
+  { slug: "decisive", label: "Decisive", category: "Character", dimensions: ["ambition", "independence"] },
+  { slug: "protective", label: "Protective of the people they love", category: "Character", dimensions: ["warmth", "family"] },
+  { slug: "adventurous-trait", label: "Adventurous", category: "Character", dimensions: ["adventure"] },
+  { slug: "steady-moods", label: "Even-tempered", category: "Character", dimensions: ["stability"] },
+  { slug: "socially-confident", label: "Socially confident", category: "Character", dimensions: ["status", "independence"] },
+  { slug: "independent-trait", label: "Independent-minded", category: "Character", dimensions: ["independence", "intellect"] },
+  { slug: "affectionate", label: "Openly affectionate", category: "Character", dimensions: ["warmth"] },
+  { slug: "hardworking", label: "Relentlessly hardworking", category: "Character", dimensions: ["ambition"] },
+  { slug: "forgiving", label: "Quick to forgive", category: "Character", dimensions: ["warmth", "spirituality"] },
+  { slug: "attentive", label: "Notices the small things", category: "Character", dimensions: ["warmth"] },
+];
+
+/** What a person orients their life around. */
+const VALUES: SeedItem[] = [
+  { slug: "family-first", label: "Family comes before everything", category: "Values", dimensions: ["family"] },
+  { slug: "personal-freedom", label: "Personal freedom above all", category: "Values", dimensions: ["independence"] },
+  { slug: "faith-centered", label: "A life centred on faith", category: "Values", dimensions: ["spirituality"] },
+  { slug: "achievement", label: "Achieving something significant", category: "Values", dimensions: ["ambition", "status"] },
+  { slug: "financial-security", label: "Financial security", category: "Values", dimensions: ["stability"] },
+  { slug: "helping-others", label: "Leaving people better than they found them", category: "Values", dimensions: ["service", "warmth"] },
+  { slug: "lifelong-learning", label: "Never stopping learning", category: "Values", dimensions: ["intellect"] },
+  { slug: "health-longevity", label: "Health and longevity", category: "Values", dimensions: ["physicality", "stability"] },
+  { slug: "experiences-over-things", label: "Experiences over possessions", category: "Values", dimensions: ["adventure"] },
+  { slug: "community-roots", label: "Deep roots in a community", category: "Values", dimensions: ["family", "service"] },
+  { slug: "creative-legacy", label: "Making something that outlasts them", category: "Values", dimensions: ["creativity", "ambition"] },
+  { slug: "honesty-value", label: "Honesty, even when inconvenient", category: "Values", dimensions: ["stability"] },
+  { slug: "self-mastery", label: "Mastery over themselves", category: "Values", dimensions: ["ambition", "spirituality"] },
+  { slug: "beauty-craft", label: "Beauty and craftsmanship", category: "Values", dimensions: ["creativity"] },
+  { slug: "tradition", label: "Honouring tradition", category: "Values", dimensions: ["family", "spirituality"] },
+  { slug: "justice", label: "Standing up for what's right", category: "Values", dimensions: ["service"] },
+];
+
+/** Concrete things a partner DOES. Behaviour, not adjectives. */
+const BEHAVIORS: SeedItem[] = [
+  { slug: "listens-fully", label: "Puts the phone down and actually listens", category: "Behaviour", dimensions: ["warmth"] },
+  { slug: "plans-dates", label: "Plans thoughtful dates without being asked", category: "Behaviour", dimensions: ["warmth", "creativity"] },
+  { slug: "handles-logistics", label: "Quietly handles the boring logistics", category: "Behaviour", dimensions: ["service", "stability"] },
+  { slug: "cooks-for-you", label: "Cooks for you", category: "Behaviour", dimensions: ["warmth", "service"] },
+  { slug: "remembers-details", label: "Remembers the small things you mentioned once", category: "Behaviour", dimensions: ["warmth"] },
+  { slug: "defends-you", label: "Defends you in front of others", category: "Behaviour", dimensions: ["warmth", "family"] },
+  { slug: "apologises-well", label: "Apologises properly when wrong", category: "Behaviour", dimensions: ["warmth", "stability"] },
+  { slug: "makes-you-laugh", label: "Makes you laugh when you're upset", category: "Behaviour", dimensions: ["creativity", "warmth"] },
+  { slug: "encourages-goals", label: "Pushes you toward your own goals", category: "Behaviour", dimensions: ["ambition", "warmth"] },
+  { slug: "keeps-fit-together", label: "Trains or stays active with you", category: "Behaviour", dimensions: ["physicality"] },
+  { slug: "protects-your-time", label: "Protects your rest and your time", category: "Behaviour", dimensions: ["warmth", "service"] },
+  { slug: "handles-conflict", label: "Stays in the room during hard conversations", category: "Behaviour", dimensions: ["stability", "warmth"] },
+  { slug: "surprises-you", label: "Surprises you for no reason", category: "Behaviour", dimensions: ["creativity", "warmth"] },
+  { slug: "includes-your-family", label: "Makes an effort with your family", category: "Behaviour", dimensions: ["family"] },
+  { slug: "shares-plans", label: "Includes you in big decisions", category: "Behaviour", dimensions: ["stability", "family"] },
+  { slug: "fixes-things", label: "Fixes things around the house", category: "Behaviour", dimensions: ["service", "stability"] },
+];
+
+/** Love-language concretes — the specific gesture, not the abstract category. */
+const AFFECTION: SeedItem[] = [
+  { slug: "says-proud", label: "Tells you they're proud of you", category: "Affection", dimensions: ["warmth"] },
+  { slug: "long-hug", label: "A long hug when you walk in the door", category: "Affection", dimensions: ["warmth", "physicality"] },
+  { slug: "handwritten-note", label: "Leaves a handwritten note", category: "Affection", dimensions: ["warmth", "creativity"] },
+  { slug: "undivided-evening", label: "An evening with no phones, just you two", category: "Affection", dimensions: ["warmth"] },
+  { slug: "thoughtful-gift", label: "A small gift that shows they were paying attention", category: "Affection", dimensions: ["warmth"] },
+  { slug: "brings-coffee", label: "Brings you coffee in the morning", category: "Affection", dimensions: ["service", "warmth"] },
+  { slug: "says-i-love-you", label: "Says 'I love you' out of nowhere", category: "Affection", dimensions: ["warmth"] },
+  { slug: "holds-hand-public", label: "Holds your hand in public", category: "Affection", dimensions: ["physicality", "warmth"] },
+  { slug: "takes-a-task", label: "Takes a task off your plate unprompted", category: "Affection", dimensions: ["service"] },
+  { slug: "compliments-specific", label: "Compliments something specific, not generic", category: "Affection", dimensions: ["warmth"] },
+  { slug: "checks-in-day", label: "Texts to check in during the day", category: "Affection", dimensions: ["warmth"] },
+  { slug: "physical-closeness", label: "Sits close to you without needing to talk", category: "Affection", dimensions: ["physicality", "warmth"] },
+];
+
 export const SEED_SURVEYS: SeedSurvey[] = [
   {
     slug: "activities",
@@ -133,12 +259,40 @@ export const SEED_SURVEYS: SeedSurvey[] = [
     items: PROFESSIONS,
   },
   {
+    slug: "traits",
+    title: "Character",
+    description: "Which of these two matters more to you?",
+    items: TRAITS,
+  },
+  {
+    slug: "values",
+    title: "Values",
+    description: "Which of these two would you rather they built their life around?",
+    items: VALUES,
+  },
+  {
+    slug: "behaviors",
+    title: "What they do",
+    description: "Which of these two would mean more to you day to day?",
+    items: BEHAVIORS,
+  },
+  {
+    slug: "affection",
+    title: "How they show it",
+    description: "Which of these two would you rather receive?",
+    items: AFFECTION,
+  },
+  {
     slug: "combined",
-    title: "Activities vs. professions",
-    description: "Mixing hobbies and professions together — which matters more?",
+    title: "Everything together",
+    description: "Across all of it — what actually matters most?",
     items: [
       ...ACTIVITIES.map((i) => ({ ...i, slug: `act-${i.slug}` })),
       ...PROFESSIONS.map((i) => ({ ...i, slug: `prof-${i.slug}` })),
+      ...TRAITS.map((i) => ({ ...i, slug: `trait-${i.slug}` })),
+      ...VALUES.map((i) => ({ ...i, slug: `val-${i.slug}` })),
+      ...BEHAVIORS.map((i) => ({ ...i, slug: `beh-${i.slug}` })),
+      ...AFFECTION.map((i) => ({ ...i, slug: `aff-${i.slug}` })),
     ],
   },
 ];

@@ -546,23 +546,12 @@ export function UnifiedRunner() {
             )}
             <span className="text-xs font-bold text-amber-600 dark:text-amber-400">⭐ Level {level}</span>
           </div>
-          <div className="flex shrink-0 items-center gap-3">
-            <a
-              href="/insights"
-              className="rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300"
-            >
-              ✨ Insights
-            </a>
-            <a href="/couple" className="text-xs font-semibold text-amber-600 dark:text-amber-400">
-              💞
-            </a>
-            <button
-              onClick={() => setPhase("thanks")}
-              className="text-xs font-medium text-neutral-500 underline underline-offset-2 dark:text-neutral-400"
-            >
-              Stop
-            </button>
-          </div>
+          <button
+            onClick={() => setPhase("thanks")}
+            className="shrink-0 rounded-full border border-neutral-300 px-3 py-1 text-xs font-semibold text-neutral-600 transition active:scale-95 dark:border-neutral-700 dark:text-neutral-300"
+          >
+            Pause
+          </button>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
           <div

@@ -39,6 +39,43 @@ CREATE TABLE "UserSession" (
 );
 
 -- CreateTable
+CREATE TABLE "InsightFeedback" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT,
+    "subject" TEXT NOT NULL,
+    "usefulness" INTEGER,
+    "enjoyment" INTEGER,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "InsightFeedback_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GeneratedInsight" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "perspective" TEXT NOT NULL,
+    "nAnswers" INTEGER NOT NULL,
+    "headline" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "model" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "GeneratedInsight_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LlmUsage" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "LlmUsage_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "LoginAttempt" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -70,6 +107,7 @@ CREATE TABLE "Item" (
     "label" TEXT NOT NULL,
     "category" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "dimensions" TEXT[] DEFAULT ARRAY[]::TEXT[],
 
     CONSTRAINT "Item_pkey" PRIMARY KEY ("id")
 );
@@ -200,6 +238,18 @@ CREATE INDEX "UserSession_userId_idx" ON "UserSession"("userId");
 
 -- CreateIndex
 CREATE INDEX "UserSession_expiresAt_idx" ON "UserSession"("expiresAt");
+
+-- CreateIndex
+CREATE INDEX "InsightFeedback_subject_createdAt_idx" ON "InsightFeedback"("subject", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "InsightFeedback_userId_idx" ON "InsightFeedback"("userId");
+
+-- CreateIndex
+CREATE INDEX "GeneratedInsight_userId_createdAt_idx" ON "GeneratedInsight"("userId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "LlmUsage_userId_createdAt_idx" ON "LlmUsage"("userId", "createdAt");
 
 -- CreateIndex
 CREATE INDEX "LoginAttempt_email_createdAt_idx" ON "LoginAttempt"("email", "createdAt");

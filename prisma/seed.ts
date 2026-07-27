@@ -19,13 +19,14 @@ async function main() {
       const item = survey.items[i];
       await prisma.item.upsert({
         where: { surveyId_slug: { surveyId: existing.id, slug: item.slug } },
-        update: { label: item.label, category: item.category, sortOrder: i },
+        update: { label: item.label, category: item.category, sortOrder: i, dimensions: item.dimensions ?? [] },
         create: {
           surveyId: existing.id,
           slug: item.slug,
           label: item.label,
           category: item.category,
           sortOrder: i,
+          dimensions: item.dimensions ?? [],
         },
       });
     }

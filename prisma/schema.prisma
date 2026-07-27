@@ -81,6 +81,53 @@ model UserSession {
   @@index([expiresAt])
 }
 
+/// Did an insight actually land? This is the product's real scoreboard —
+/// if people don't find the output useful or the swiping enjoyable, the
+/// data collection isn't earning its keep.
+model InsightFeedback {
+  id         String   @id @default(cuid())
+  userId     String?
+  /// Insight key (e.g. "top-pick"), or "session" for the periodic pulse.
+  subject    String
+  /// 1..5. Kept separate because they come apart: a boring survey can
+  /// still be useful, and a fun one can be useless.
+  usefulness Int?
+  enjoyment  Int?
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@index([subject, createdAt])
+  @@index([userId])
+}
+
+/// An LLM-written narrative read of someone's own ranking data. Cached
+/// rather than regenerated per view, both for cost and so the wording
+/// doesn't churn between visits.
+model GeneratedInsight {
+  id          String   @id @default(cuid())
+  userId      String
+  perspective String
+  /// Number of answers the narrative was generated from — used to decide
+  /// when it's stale enough to be worth regenerating.
+  nAnswers    Int
+  headline    String
+  body        String
+  model       String
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+/// Rate limiting for LLM calls (generation and chat), keyed by user.
+model LlmUsage {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
 /// Failed sign-in attempts, keyed by email and IP, for rate limiting.
 model LoginAttempt {
   id        String   @id @default(cuid())
@@ -116,13 +163,16 @@ model Survey {
 /// rating state lives per-respondent in ParticipantItemRating, so one
 /// person's answers can never move another person's ranking.
 model Item {
-  id        String  @id @default(cuid())
-  surveyId  String
-  survey    Survey  @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  slug      String
-  label     String
-  category  String?
-  sortOrder Int     @default(0)
+  id         String   @id @default(cuid())
+  surveyId   String
+  survey     Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  slug       String
+  label      String
+  category   String?
+  sortOrder  Int      @default(0)
+  /// Underlying dimensions this item signals (warmth, ambition, …). Ratings
+  /// roll up into per-dimension scores for the "what you value" dashboard.
+  dimensions String[] @default([])
 
   trialsAsA Trial[] @relation("ItemA")
   trialsAsB Trial[] @relation("ItemB")
