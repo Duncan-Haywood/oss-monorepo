@@ -2,14 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadRatedItems } from "@/lib/participantRatings";
 import { confidenceInterval95 } from "@/lib/glicko2";
-import { levelForAnswers, unlockedInsights, nextInsight, swipesUntilNextInsight, INSIGHTS } from "@/lib/insights";
+import { answersUntilNextLevel, INSIGHTS, levelForAnswers } from "@/lib/insights";
 import { RANGES } from "@/lib/financialProfiles";
 import { describeDimensions, scoreDimensions } from "@/lib/dimensions";
 import { computeTradeOffs, describeTradeOff, HeadToHead } from "@/lib/tradeoffs";
 
 const MAX_ENTRIES = 20;
 
-type RankedItem = { label: string; category: string | null; rating: number; rd: number; lo: number; hi: number; dimensions: string[] };
+type RankedItem = {
+  label: string;
+  category: string | null;
+  rating: number;
+  rd: number;
+  lo: number;
+  hi: number;
+  dimensions: string[];
+};
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -23,7 +31,6 @@ export async function POST(req: NextRequest) {
   if (entries.length === 0) return NextResponse.json({ error: "no participants" }, { status: 400 });
 
   try {
-    // Rank items across every ITEMS survey this person has answered.
     let ranked: RankedItem[] = [];
     let totalAnswers = 0;
     let fitParams: { name: string; value: number; se: number }[] | null = null;
@@ -52,18 +59,25 @@ export async function POST(req: NextRequest) {
           }),
         ]);
         totalAnswers += answered;
+        for (const i of items) {
+          if (i.rd >= 349) continue; // never actually shown — no signal
+          const [lo, hi] = confidenceInterval95(i.rating, i.rd);
+          ranked.push({
+            label: i.label,
+            category: i.category,
+            rating: i.rating,
+            rd: i.rd,
+            lo,
+            hi,
+            dimensions: i.dimensions ?? [],
+          });
+        }
         for (const t of decided) {
           headToHead.push({
             aDimensions: t.itemA.dimensions,
             bDimensions: t.itemB.dimensions,
             result: t.result!,
           });
-        }
-        // Only items this person has actually been shown carry signal.
-        for (const i of items) {
-          if (i.rd >= 349) continue;
-          const [lo, hi] = confidenceInterval95(i.rating, i.rd);
-          ranked.push({ label: i.label, category: i.category, rating: i.rating, rd: i.rd, lo, hi, dimensions: i.dimensions ?? [] });
         }
       } else {
         const answered = await prisma.financialTrial.count({
@@ -78,8 +92,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // De-duplicate labels (the "combined" survey repeats items from the others),
-    // keeping whichever copy is most certain.
+    // De-duplicate labels (the "combined" survey repeats items from the
+    // others), keeping whichever copy is most certain.
     const byLabel = new Map<string, RankedItem>();
     for (const r of ranked) {
       const prev = byLabel.get(r.label);
@@ -87,16 +101,30 @@ export async function POST(req: NextRequest) {
     }
     ranked = [...byLabel.values()].sort((a, b) => b.rating - a.rating);
 
-    const level = levelForAnswers(totalAnswers);
-    const unlocked = new Set(unlockedInsights(level).map((i) => i.key));
+    // ---------------------------------------------------------------------
+    // Everything below is computed unconditionally. An insight appears the
+    // moment its OWN data supports it — there is no level gate. Each block
+    // carries its own readiness test, so nothing is withheld that the
+    // numbers could already answer.
+    // ---------------------------------------------------------------------
     const content: Record<string, unknown> = {};
 
-    if (unlocked.has("top-pick") && ranked.length) content["top-pick"] = ranked[0];
-    if (unlocked.has("bottom-pick") && ranked.length) content["bottom-pick"] = ranked[ranked.length - 1];
-    if (unlocked.has("top-three") && ranked.length) {
-      content["top-three"] = ranked.slice(0, level >= 16 ? 5 : 3);
+    if (ranked.length >= 2) {
+      // A "#1" is only meaningful if the leader is measurably clear of the
+      // runner-up; otherwise it's just whichever way the noise fell.
+      const [first, second] = ranked;
+      if (first.rating - second.rating > 0.5 * first.rd) content["top-pick"] = first;
+
+      const last = ranked[ranked.length - 1];
+      const penultimate = ranked[ranked.length - 2];
+      if (penultimate.rating - last.rating > 0.5 * last.rd) content["bottom-pick"] = last;
     }
-    if (unlocked.has("category-lean") && ranked.length) {
+
+    if (ranked.length >= 5) {
+      content["top-three"] = ranked.slice(0, ranked.length >= 12 ? 5 : 3);
+    }
+
+    if (ranked.length >= 4) {
       const byCat = new Map<string, { sum: number; n: number }>();
       for (const r of ranked) {
         if (!r.category) continue;
@@ -109,66 +137,72 @@ export async function POST(req: NextRequest) {
         .filter(([, v]) => v.n >= 2)
         .map(([name, v]) => ({ name, avg: v.sum / v.n, n: v.n }))
         .sort((a, b) => b.avg - a.avg);
-      if (cats.length) content["category-lean"] = cats;
+      if (cats.length >= 2) content["category-lean"] = cats;
     }
-    if (unlocked.has("value-profile") && ranked.length) {
+
+    if (ranked.length) {
       const scores = scoreDimensions(ranked);
       if (scores.length >= 2) {
         content["value-profile"] = { scores, summary: describeDimensions(scores, totalAnswers) };
       }
     }
-    if (unlocked.has("tradeoffs") && headToHead.length) {
+
+    if (headToHead.length) {
+      // computeTradeOffs enforces its own minimum observations per pairing.
       const tradeoffs = computeTradeOffs(headToHead);
       if (tradeoffs.length) {
         content["tradeoffs"] = { tradeoffs: tradeoffs.slice(0, 8), summary: describeTradeOff(tradeoffs[0]) };
       }
     }
-    if (unlocked.has("confidence-map") && ranked.length) {
+
+    if (ranked.length >= 8) {
+      // "Still torn on" only means something once things have been narrowed;
+      // before that it just lists whatever was asked about least.
       content["confidence-map"] = [...ranked].sort((a, b) => b.rd - a.rd).slice(0, 5);
     }
-    if (unlocked.has("full-ranking") && ranked.length) content["full-ranking"] = ranked;
+
+    if (ranked.length >= 12) content["full-ranking"] = ranked;
 
     if (fitParams) {
       const get = (n: string) => fitParams!.find((p) => p.name === n);
-      if (unlocked.has("hours-price")) {
-        const hours = get("weeklyHours");
-        const income = get("income");
-        if (hours && income && Math.abs(income.value) > 0.05) {
-          // Both features are normalised 0-1 over their range, so the ratio of
-          // coefficients converts one full hours-range into income-range units.
-          const hoursSpan = RANGES.weeklyHours.max - RANGES.weeklyHours.min;
-          const incomeLogSpan = Math.log(RANGES.income.max / RANGES.income.min);
-          const perHourLogIncome = (-hours.value / income.value) * (incomeLogSpan / hoursSpan);
-          content["hours-price"] = {
-            pctPerHour: (Math.exp(perHourLogIncome) - 1) * 100,
-            hoursCoef: hours.value,
-            hoursSe: hours.se,
-            incomeCoef: income.value,
-          };
-        }
+
+      const hours = get("weeklyHours");
+      const income = get("income");
+      // The conversion divides by the income coefficient, so it's only
+      // meaningful once that coefficient is distinguishable from zero.
+      if (hours && income && income.se > 0 && Math.abs(income.value) > 2 * income.se) {
+        const hoursSpan = RANGES.weeklyHours.max - RANGES.weeklyHours.min;
+        const incomeLogSpan = Math.log(RANGES.income.max / RANGES.income.min);
+        const perHourLogIncome = (-hours.value / income.value) * (incomeLogSpan / hoursSpan);
+        content["hours-price"] = {
+          pctPerHour: (Math.exp(perHourLogIncome) - 1) * 100,
+          hoursCoef: hours.value,
+          hoursSe: hours.se,
+          incomeCoef: income.value,
+        };
       }
-      if (unlocked.has("money-vs-identity")) {
-        const identity = get("identityWeight");
-        if (identity) {
-          const moneyMag = ["income", "netWorth", "futurePotential"]
-            .map((n) => Math.abs(get(n)?.value ?? 0))
-            .reduce((a, b) => a + b, 0);
-          content["money-vs-identity"] = {
-            identity: Math.abs(identity.value),
-            identitySe: identity.se,
-            money: moneyMag,
-          };
-        }
+
+      const identity = get("identityWeight");
+      if (identity && identity.se > 0 && Math.abs(identity.value) > identity.se) {
+        const moneyMag = ["income", "netWorth", "futurePotential"]
+          .map((n) => Math.abs(get(n)?.value ?? 0))
+          .reduce((a, b) => a + b, 0);
+        content["money-vs-identity"] = {
+          identity: Math.abs(identity.value),
+          identitySe: identity.se,
+          money: moneyMag,
+        };
       }
     }
 
+    const ready = INSIGHTS.filter((i) => content[i.key]).map((i) => i.key);
+
     return NextResponse.json({
-      level,
+      level: levelForAnswers(totalAnswers),
       totalAnswers,
-      swipesUntilNext: swipesUntilNextInsight(totalAnswers),
-      next: nextInsight(level),
+      answersUntilNextLevel: answersUntilNextLevel(totalAnswers),
       catalogue: INSIGHTS,
-      unlocked: [...unlocked],
+      ready,
       content,
       itemsRated: ranked.length,
     });

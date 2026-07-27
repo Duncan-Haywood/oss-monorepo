@@ -4,13 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Celebration } from "@/components/Celebration";
 import { cuteBreakForCount } from "@/lib/cuteMessages";
 import { DomainState, pickNextDomain, randomStreakTarget } from "@/lib/domainScheduler";
-import {
-  answersIntoLevel,
-  levelForAnswers,
-  nextInsight,
-  swipesUntilNextInsight,
-  SWIPES_PER_LEVEL,
-} from "@/lib/insights";
+import { answersIntoLevel, answersUntilNextLevel, levelForAnswers, SWIPES_PER_LEVEL } from "@/lib/insights";
 import {
   CenteredNote,
   FinancialTrialView,
@@ -531,8 +525,7 @@ export function UnifiedRunner() {
   const totalPoints = domains.reduce((s, d) => s + d.answeredCount, 0);
   const level = levelForAnswers(totalPoints);
   const levelProgressPct = Math.round((answersIntoLevel(totalPoints) / SWIPES_PER_LEVEL) * 100);
-  const upcoming = nextInsight(level);
-  const swipesLeft = swipesUntilNextInsight(totalPoints);
+  const toNextLevel = answersUntilNextLevel(totalPoints);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -574,9 +567,9 @@ export function UnifiedRunner() {
           </p>
         )}
 
-        {swipesLeft === 0 && upcoming && (
+        {toNextLevel === SWIPES_PER_LEVEL && totalPoints > 0 && (
           <p className="text-center text-[11px] font-bold text-amber-700 dark:text-amber-300">
-            🔓 “{upcoming.title}” unlocked — tap Insights
+            ⭐ Level {level} — new insights may be ready
           </p>
         )}
         {cuteNote && (

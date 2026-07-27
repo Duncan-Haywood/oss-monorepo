@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { INSIGHTS, InsightDef, SWIPES_PER_LEVEL } from "@/lib/insights";
+import { INSIGHTS, SWIPES_PER_LEVEL } from "@/lib/insights";
 import { InsightFeedback } from "@/components/FeedbackWidget";
 
 const LS_KEY = "survey:unified:session";
@@ -12,9 +12,8 @@ type RankedItem = { label: string; category: string | null; rating: number; rd: 
 type InsightsData = {
   level: number;
   totalAnswers: number;
-  swipesUntilNext: number | null;
-  next: InsightDef | null;
-  unlocked: string[];
+  answersUntilNextLevel: number;
+  ready: string[];
   content: Record<string, unknown>;
   itemsRated: number;
 };
@@ -75,6 +74,7 @@ export function InsightsView() {
 
   const intoLevel = data.totalAnswers % SWIPES_PER_LEVEL;
   const pct = Math.round((intoLevel / SWIPES_PER_LEVEL) * 100);
+  const readyCount = data.ready?.length ?? 0;
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-5 py-6">
@@ -90,7 +90,7 @@ export function InsightsView() {
           <div className="flex items-baseline justify-between">
             <span className="text-lg font-bold text-amber-700 dark:text-amber-300">⭐ Level {data.level}</span>
             <span className="text-xs font-medium text-amber-800/80 dark:text-amber-300/70">
-              {data.totalAnswers} answered
+              {readyCount} of {INSIGHTS.length} insights ready
             </span>
           </div>
           <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-amber-200/70 dark:bg-amber-900/50">
@@ -99,55 +99,40 @@ export function InsightsView() {
               style={{ width: `${Math.max(pct, 4)}%` }}
             />
           </div>
-          {data.next && data.swipesUntilNext !== null ? (
-            <p className="mt-2 text-sm font-medium text-amber-900 dark:text-amber-200">
-              {data.swipesUntilNext === 0
-                ? `“${data.next.title}” is ready to unlock!`
-                : `${data.swipesUntilNext} more to unlock “${data.next.title}”`}
-            </p>
-          ) : (
-            <p className="mt-2 text-sm font-medium text-amber-900 dark:text-amber-200">
-              Everything unlocked 💛 keep going to sharpen it.
-            </p>
-          )}
+          <p className="mt-2 text-sm font-medium text-amber-900 dark:text-amber-200">
+            {data.totalAnswers} answered · {data.answersUntilNextLevel} to level {data.level + 1}
+          </p>
         </div>
       </header>
 
       <ul className="flex flex-col gap-3">
-        {INSIGHTS.map((def, idx) => {
-          const isUnlocked = def.level <= data.level;
+        {INSIGHTS.map((def) => {
           const body = renderInsight(def.key, data.content);
+          const isReady = !!body;
           return (
             <li
-              key={`${def.key}-${idx}`}
+              key={def.key}
               className={`rounded-2xl border p-4 ${
-                isUnlocked
+                isReady
                   ? "border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900"
                   : "border-dashed border-neutral-300 bg-neutral-100/60 dark:border-neutral-700 dark:bg-neutral-900/40"
               }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <h2 className={`font-semibold ${isUnlocked ? "" : "text-neutral-500 dark:text-neutral-400"}`}>
-                  {isUnlocked ? "" : "🔒 "}
-                  {def.title}
-                </h2>
-                {!isUnlocked && (
-                  <span className="shrink-0 rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
-                    Level {def.level}
-                  </span>
-                )}
-              </div>
-              {isUnlocked ? (
+              <h2
+                className={`font-semibold ${isReady ? "" : "text-neutral-500 dark:text-neutral-400"}`}
+              >
+                {def.title}
+              </h2>
+              {isReady ? (
                 <>
-                  {body ?? (
-                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                      Unlocked — needs a few more answers in this area to say anything solid.
-                    </p>
-                  )}
-                  {body && <InsightFeedback subject={def.key} />}
+                  {body}
+                  <InsightFeedback subject={def.key} />
                 </>
               ) : (
-                <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{def.teaser}</p>
+                <>
+                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{def.teaser}</p>
+                  <p className="mt-1.5 text-[11px] text-neutral-400">Not yet — {def.needs.toLowerCase()}</p>
+                </>
               )}
             </li>
           );
@@ -158,7 +143,7 @@ export function InsightsView() {
         href="/"
         className="mt-1 rounded-2xl bg-amber-500 px-4 py-4 text-center text-base font-semibold text-neutral-950 shadow-sm active:scale-[0.98]"
       >
-        {data.next ? `Swipe ${data.swipesUntilNext ?? ""} more to unlock the next one` : "Keep swiping"}
+{readyCount === INSIGHTS.length ? "Keep swiping to sharpen these" : "Keep swiping — more will open up"}
       </Link>
     </main>
   );
