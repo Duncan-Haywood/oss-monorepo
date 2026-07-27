@@ -306,6 +306,17 @@ export function LeadsClient({
     Record<string, string>
   >({});
   const [stripeConnectError, setStripeConnectError] = useState<string | null>(null);
+  // Errors from five independent due-queue panels (Abandoned checkouts,
+  // Abandoned Buy now, Commerce payouts, Missing client receipt, Bundle
+  // buyer email missing) — one shared map since each panel's rows are
+  // always mounted whether or not any other panel/editor is open, unlike
+  // commerceCatalogError/commerceSyncQueueErrors' editor-vs-queue split
+  // above. Keyed with a per-panel prefix (not just the row id alone) as
+  // defense in depth against two different queues' row ids ever coinciding
+  // — see the dual-panel id-collision hazard documented on
+  // handoffActionErrors below for why this codebase treats that as a real
+  // risk rather than a theoretical one.
+  const [queueActionErrors, setQueueActionErrors] = useState<Record<string, string>>({});
   // Errors from the main table's per-row Kanban actions (stage change,
   // snooze/unsnooze, cold-lead disposition) — these fire from both the main
   // table AND the due-queue panels below, but are always rendered inline in
@@ -1043,10 +1054,19 @@ export function LeadsClient({
   };
 
   const handleSendCheckoutRecovery = (stripeSessionId: string) => {
+    const errorKey = `checkout-recovery:${stripeSessionId}`;
+    setQueueActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[errorKey];
+      return next;
+    });
     startTransition(async () => {
       const res = await sendCheckoutRecoveryAction(stripeSessionId);
       if (!res.success) {
-        alert(`Recovery email failed: ${res.error}`);
+        setQueueActionErrors((prev) => ({
+          ...prev,
+          [errorKey]: `Recovery email failed: ${res.error}`,
+        }));
         return;
       }
       const sentAt = new Date().toISOString();
@@ -1066,10 +1086,19 @@ export function LeadsClient({
   };
 
   const handleSendCommerceCheckoutRecovery = (stripeSessionId: string) => {
+    const errorKey = `commerce-recovery:${stripeSessionId}`;
+    setQueueActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[errorKey];
+      return next;
+    });
     startTransition(async () => {
       const res = await sendCommerceCheckoutRecoveryAction(stripeSessionId);
       if (!res.success) {
-        alert(`Buy now recovery failed: ${res.error}`);
+        setQueueActionErrors((prev) => ({
+          ...prev,
+          [errorKey]: `Buy now recovery failed: ${res.error}`,
+        }));
         return;
       }
       const sentAt = new Date().toISOString();
@@ -1088,10 +1117,19 @@ export function LeadsClient({
   };
 
   const handleMarkCommerceOrderPaidOut = (stripeSessionId: string) => {
+    const errorKey = `payout:${stripeSessionId}`;
+    setQueueActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[errorKey];
+      return next;
+    });
     startTransition(async () => {
       const res = await markCommerceOrderPaidOutAction(stripeSessionId);
       if (!res.success) {
-        alert(`Mark paid out failed: ${res.error}`);
+        setQueueActionErrors((prev) => ({
+          ...prev,
+          [errorKey]: `Mark paid out failed: ${res.error}`,
+        }));
         return;
       }
       setCommerceOrders((prev) =>
@@ -1110,10 +1148,19 @@ export function LeadsClient({
   };
 
   const handleResendCommerceClientReceipt = (stripeSessionId: string) => {
+    const errorKey = `receipt:${stripeSessionId}`;
+    setQueueActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[errorKey];
+      return next;
+    });
     startTransition(async () => {
       const res = await resendCommerceClientReceiptAction(stripeSessionId);
       if (!res.success) {
-        alert(`Resend client receipt failed: ${res.error}`);
+        setQueueActionErrors((prev) => ({
+          ...prev,
+          [errorKey]: `Resend client receipt failed: ${res.error}`,
+        }));
         return;
       }
       setCommerceOrdersMissingClientReceipt((prev) =>
@@ -1127,6 +1174,12 @@ export function LeadsClient({
   };
 
   const handleResendBundleBuyerEmail = (leadSlug: string) => {
+    const errorKey = `buyer-email:${leadSlug}`;
+    setQueueActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[errorKey];
+      return next;
+    });
     startTransition(async () => {
       const res = await resendBundleBuyerEmailAction(leadSlug);
       if (res.handoff) {
@@ -1144,7 +1197,10 @@ export function LeadsClient({
         }
       }
       if (!res.success) {
-        alert(`Resend buyer email failed: ${res.error}`);
+        setQueueActionErrors((prev) => ({
+          ...prev,
+          [errorKey]: `Resend buyer email failed: ${res.error}`,
+        }));
       }
     });
   };
@@ -2347,11 +2403,25 @@ export function LeadsClient({
                       session.leadSlug,
                       `${session.tier} plan`,
                     )}
+                    aria-describedby={
+                      queueActionErrors[`checkout-recovery:${session.stripeSessionId}`]
+                        ? `checkout-recovery-error-${session.stripeSessionId}`
+                        : undefined
+                    }
                     className="rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-800 disabled:opacity-60"
                   >
                     Send recovery email
                   </button>
                 </div>
+                {queueActionErrors[`checkout-recovery:${session.stripeSessionId}`] ? (
+                  <p
+                    id={`checkout-recovery-error-${session.stripeSessionId}`}
+                    role="alert"
+                    className="mt-2 text-xs font-medium text-red-600"
+                  >
+                    {queueActionErrors[`checkout-recovery:${session.stripeSessionId}`]}
+                  </p>
+                ) : null}
               </li>
               );
             })}
@@ -2428,6 +2498,11 @@ export function LeadsClient({
                         session.leadSlug,
                         skuName,
                       )}
+                      aria-describedby={
+                        queueActionErrors[`commerce-recovery:${session.stripeSessionId}`]
+                          ? `commerce-recovery-error-${session.stripeSessionId}`
+                          : undefined
+                      }
                       className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
                       title={
                         session.customerEmail
@@ -2438,6 +2513,15 @@ export function LeadsClient({
                       Send Buy now recovery
                     </button>
                   </div>
+                  {queueActionErrors[`commerce-recovery:${session.stripeSessionId}`] ? (
+                    <p
+                      id={`commerce-recovery-error-${session.stripeSessionId}`}
+                      role="alert"
+                      className="mt-2 text-xs font-medium text-red-600"
+                    >
+                      {queueActionErrors[`commerce-recovery:${session.stripeSessionId}`]}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}
@@ -2497,52 +2581,68 @@ export function LeadsClient({
                     </p>
                     <ul className="mt-2 space-y-1.5 text-xs text-zinc-600">
                       {summary.orders.slice(0, 5).map((row) => (
-                        <li key={row.stripeSessionId} className="flex items-center justify-between gap-2">
-                          <span className={row.paidOutAt ? "text-zinc-500 line-through" : undefined}>
-                            {formatUsd(row.amountPaidUsd)} · {row.skuName}
-                            {row.quantity && row.quantity > 1 ? ` × ${row.quantity}` : ""} ·{" "}
-                            {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
-                          </span>
-                          {row.refundedAt ? (
-                            <span className="shrink-0 font-semibold text-red-700">
-                              {row.paidOutAt
-                                ? "Refunded after payout — claw back from client"
-                                : "Refunded — nothing owed"}
+                        <li key={row.stripeSessionId} className="flex flex-col gap-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className={row.paidOutAt ? "text-zinc-500 line-through" : undefined}>
+                              {formatUsd(row.amountPaidUsd)} · {row.skuName}
+                              {row.quantity && row.quantity > 1 ? ` × ${row.quantity}` : ""} ·{" "}
+                              {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
                             </span>
-                          ) : row.disputedAt ? (
-                            <span className="shrink-0 font-semibold text-red-700">
-                              {row.paidOutAt
-                                ? "Disputed after payout — claw back from client"
-                                : "Disputed — nothing owed"}
-                            </span>
-                          ) : row.paidOutAt ? (
-                            <span className="shrink-0 text-teal-700">
-                              Paid out{" "}
-                              {formatAbandonedAgeHours(deployHandoffAgeHours(row.paidOutAt, nowMs))} ago
-                            </span>
-                          ) : row.amountPaidUsd === 0 ? (
-                            <span className="shrink-0 text-zinc-500">
-                              Free order — nothing owed
-                            </span>
-                          ) : (
-                            <span className="flex shrink-0 items-center gap-2">
-                              <span className="text-zinc-500">
-                                owed {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
+                            {row.refundedAt ? (
+                              <span className="shrink-0 font-semibold text-red-700">
+                                {row.paidOutAt
+                                  ? "Refunded after payout — claw back from client"
+                                  : "Refunded — nothing owed"}
                               </span>
-                              <button
-                                type="button"
-                                disabled={isPending}
-                                onClick={() => handleMarkCommerceOrderPaidOut(row.stripeSessionId)}
-                                aria-label={commerceMarkPaidOutAriaLabel(
-                                  row,
-                                  businessNameBySlug.get(summary.leadSlug) || summary.leadSlug,
-                                )}
-                                className="rounded-lg border border-teal-700 px-2 py-0.5 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60"
-                              >
-                                Mark paid out
-                              </button>
-                            </span>
-                          )}
+                            ) : row.disputedAt ? (
+                              <span className="shrink-0 font-semibold text-red-700">
+                                {row.paidOutAt
+                                  ? "Disputed after payout — claw back from client"
+                                  : "Disputed — nothing owed"}
+                              </span>
+                            ) : row.paidOutAt ? (
+                              <span className="shrink-0 text-teal-700">
+                                Paid out{" "}
+                                {formatAbandonedAgeHours(deployHandoffAgeHours(row.paidOutAt, nowMs))} ago
+                              </span>
+                            ) : row.amountPaidUsd === 0 ? (
+                              <span className="shrink-0 text-zinc-500">
+                                Free order — nothing owed
+                              </span>
+                            ) : (
+                              <span className="flex shrink-0 items-center gap-2">
+                                <span className="text-zinc-500">
+                                  owed {formatAbandonedAgeHours(deployHandoffAgeHours(row.createdAt, nowMs))} ago
+                                </span>
+                                <button
+                                  type="button"
+                                  disabled={isPending}
+                                  onClick={() => handleMarkCommerceOrderPaidOut(row.stripeSessionId)}
+                                  aria-label={commerceMarkPaidOutAriaLabel(
+                                    row,
+                                    businessNameBySlug.get(summary.leadSlug) || summary.leadSlug,
+                                  )}
+                                  aria-describedby={
+                                    queueActionErrors[`payout:${row.stripeSessionId}`]
+                                      ? `payout-error-${row.stripeSessionId}`
+                                      : undefined
+                                  }
+                                  className="rounded-lg border border-teal-700 px-2 py-0.5 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60"
+                                >
+                                  Mark paid out
+                                </button>
+                              </span>
+                            )}
+                          </div>
+                          {queueActionErrors[`payout:${row.stripeSessionId}`] ? (
+                            <p
+                              id={`payout-error-${row.stripeSessionId}`}
+                              role="alert"
+                              className="text-xs font-medium text-red-600"
+                            >
+                              {queueActionErrors[`payout:${row.stripeSessionId}`]}
+                            </p>
+                          ) : null}
                         </li>
                       ))}
                       {summary.orders.length > 5 ? (
@@ -2616,12 +2716,26 @@ export function LeadsClient({
                       disabled={isPending || !email}
                       onClick={() => handleResendCommerceClientReceipt(row.stripeSessionId)}
                       aria-label={`Resend receipt for ${businessNameBySlug.get(row.leadSlug) || row.leadSlug}`}
+                      aria-describedby={
+                        queueActionErrors[`receipt:${row.stripeSessionId}`]
+                          ? `receipt-error-${row.stripeSessionId}`
+                          : undefined
+                      }
                       className="rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-800 disabled:opacity-60"
                       title={email ? "Resend the order notification email" : "No email on file for this lead"}
                     >
                       Resend receipt
                     </button>
                   </div>
+                  {queueActionErrors[`receipt:${row.stripeSessionId}`] ? (
+                    <p
+                      id={`receipt-error-${row.stripeSessionId}`}
+                      role="alert"
+                      className="mt-2 text-xs font-medium text-red-600"
+                    >
+                      {queueActionErrors[`receipt:${row.stripeSessionId}`]}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}
@@ -2767,12 +2881,26 @@ export function LeadsClient({
                       disabled={isPending}
                       onClick={() => handleResendBundleBuyerEmail(handoff.leadSlug)}
                       aria-label={`Resend ${missingLabel} email for ${businessName}`}
+                      aria-describedby={
+                        queueActionErrors[`buyer-email:${handoff.leadSlug}`]
+                          ? `buyer-email-error-${handoff.leadSlug}`
+                          : undefined
+                      }
                       className="rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-800 disabled:opacity-60"
                       title={`Resend the missing ${missingLabel} email`}
                     >
                       Resend {missingLabel}
                     </button>
                   </div>
+                  {queueActionErrors[`buyer-email:${handoff.leadSlug}`] ? (
+                    <p
+                      id={`buyer-email-error-${handoff.leadSlug}`}
+                      role="alert"
+                      className="mt-2 text-xs font-medium text-red-600"
+                    >
+                      {queueActionErrors[`buyer-email:${handoff.leadSlug}`]}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}

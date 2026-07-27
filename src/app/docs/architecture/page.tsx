@@ -3298,6 +3298,39 @@ source). The same digest also lists email-critical leads with no usable address 
         future pass.
       </p>
 
+      <p>
+        A further follow-up pass (2026-07-27,{" "}
+        <code>checkout-recovery-payouts-inline-aria-announcement</code>) converted the next five
+        nearest-the-top <code>alert()</code>-on-failure call sites, all in due-queue panels below
+        the main table: <code>handleSendCheckoutRecovery</code> (Abandoned checkouts),{" "}
+        <code>handleSendCommerceCheckoutRecovery</code> (Abandoned Buy now),{" "}
+        <code>handleMarkCommerceOrderPaidOut</code> (Commerce payouts (manual)),{" "}
+        <code>handleResendCommerceClientReceipt</code> (Missing client receipt), and{" "}
+        <code>handleResendBundleBuyerEmail</code> (Bundle buyer email missing). Unlike the{" "}
+        <code>leadActionErrors</code>/<code>handoffActionErrors</code> precedents above, these five
+        panels never render the same row twice across panels, so a single shared{" "}
+        <code>queueActionErrors</code> state (rather than five separate states) was safe to use —
+        but each key is still namespaced with a per-panel prefix (
+        <code>checkout-recovery:</code>, <code>commerce-recovery:</code>, <code>payout:</code>,{" "}
+        <code>receipt:</code>, <code>buyer-email:</code>) as defense in depth against two
+        different queues&apos; row ids ever coinciding, matching the id-prefix precedent already
+        used for the dual-panel handoff fix. <code>handleMarkCommerceOrderPaidOut</code>&apos;s row
+        is keyed by <code>stripeSessionId</code>, nested inside a per-lead summary <code>
+          &lt;li&gt;
+        </code>{" "}
+        keyed by slug — its compact single-row flex layout was restructured into a small{" "}
+        <code>flex flex-col</code> wrapper so the new error paragraph could render on its own line
+        without breaking the existing amount/status flex row.{" "}
+        <code>handleResendBundleBuyerEmail</code>&apos;s success path already re-reads and applies
+        a partial-success <code>res.handoff</code> update even when <code>res.success</code> is{" "}
+        <code>false</code> (one of receipt/DNS sent, the other failed) — the new error state is set
+        alongside that existing update, not in place of it. 18{" "}
+        <code>alert()</code> call sites remain in this file (mock-reply notice, billing portal,
+        upsell email, marketing/client-voice pack generation and email, Buffer profile
+        load/save/send, Stripe orphan-product archive, and a few success-only confirmations) as a
+        documented follow-up for a future pass.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
