@@ -15,13 +15,14 @@ import {
  */
 
 describe("DEMO_LEADS", () => {
-  it("ships the five stable marketing deep-link demos", () => {
+  it("ships the six stable marketing deep-link demos", () => {
     expect(DEMO_LEADS.map((lead) => lead.slug)).toEqual([
       "example-bakery",
       "serene-salon",
       "mountain-plumbing",
       "corner-mercantile",
       "clearview-wellness-clinic",
+      "trailhead-auto-repair",
     ]);
   });
 
@@ -48,6 +49,16 @@ describe("DEMO_LEADS", () => {
       category: "retail",
       recommendedTier: "growth",
       stage: "discovery_call",
+    });
+    expect(getLeadBySlug("clearview-wellness-clinic")).toMatchObject({
+      category: "health",
+      recommendedTier: "growth",
+      stage: "site_built",
+    });
+    expect(getLeadBySlug("trailhead-auto-repair")).toMatchObject({
+      category: "automotive",
+      recommendedTier: "growth",
+      stage: "outreach_sent",
     });
   });
 });
@@ -149,6 +160,16 @@ describe("resolvePreviewLead", () => {
     }
   });
 
+  it("infers automotive category and growth tier from auto-repair keywords", () => {
+    for (const slug of ["riverside-auto-center", "downtown-mechanic", "trailhead-garage", "peak-tire-co"]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "automotive",
+        recommendedTier: "growth",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",
@@ -165,6 +186,7 @@ describe("resolvePreviewLead", () => {
     expect(resolvePreviewLead("Peak-PLUMB").category).toBe("trades");
     expect(resolvePreviewLead("Corner-BOUTIQUE").category).toBe("retail");
     expect(resolvePreviewLead("Family-CLINIC").category).toBe("health");
+    expect(resolvePreviewLead("Downtown-GARAGE").category).toBe("automotive");
   });
 });
 
@@ -173,7 +195,7 @@ describe("countLeadsByStage", () => {
     expect(countLeadsByStage()).toEqual({
       discovered: 1,
       site_built: 2,
-      outreach_sent: 1,
+      outreach_sent: 2,
       discovery_call: 1,
       paid: 0,
       live: 0,

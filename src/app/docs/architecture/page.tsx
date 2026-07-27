@@ -238,11 +238,12 @@ export default function ArchitectureDocPage() {
 
       <h2>2. Site generation</h2>
       <p>
-        Category templates (restaurant, salon, trades, retail, health, generic) render at{" "}
+        Category templates (restaurant, salon, trades, retail, health, automotive, generic) render at{" "}
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
         <code>serene-salon</code>, <code>mountain-plumbing</code>,{" "}
-        <code>corner-mercantile</code>, <code>clearview-wellness-clinic</code>. Commerce catalog
+        <code>corner-mercantile</code>, <code>clearview-wellness-clinic</code>,{" "}
+        <code>trailhead-auto-repair</code>. Commerce catalog
         items load via <code>loadPreviewCommerceItems</code> (
         <code>@/lib/commerce/preview-commerce</code> — not re-exported from the{" "}
         <code>@/lib/commerce</code> barrel, which <code>leads-client</code> imports
@@ -3668,6 +3669,30 @@ source). The same digest also lists email-critical leads with no usable address 
         production build plus a <code>npm run dev</code> smoke check confirmed{" "}
         <code>/websites-for-health</code> and its two image routes prerender statically and serve
         200s alongside the existing four.
+      </p>
+      <p>
+        <code>automotive-category-landing-page</code>: added <code>automotive</code> as a seventh
+        purely-additive <code>BusinessCategory</code> literal and a sixth{" "}
+        <code>/websites-for-*</code> landing page, mirroring{" "}
+        <code>retail-category-landing-page</code> and{" "}
+        <code>health-category-landing-page</code> above end to end —{" "}
+        <code>convex/leads.ts</code>&apos;s <code>categoryValidator</code> gained{" "}
+        <code>v.literal(&quot;automotive&quot;)</code>, every <code>Record&lt;BusinessCategory,
+        …&gt;</code> map gained an <code>automotive</code> entry (a red/amber theme, schema.org{" "}
+        <code>AutoRepair</code> for the JSON-LD <code>@type</code>), and every exhaustive{" "}
+        <code>switch</code> gained an <code>automotive</code> case, caught mechanically by{" "}
+        <code>tsc</code> the same way the retail and health additions were. A new curated demo
+        lead (<code>trailhead-auto-repair</code>, a Golden, CO auto repair shop) backs{" "}
+        <code>/websites-for-automotive</code>&apos;s <code>exampleLeadSlug</code>;{" "}
+        <code>resolvePreviewLead</code>&apos;s slug-keyword inference gained an automotive branch
+        (<code>auto|mechanic|garage|tire|transmission|collision|motor</code>) chosen to share no
+        keywords with the existing restaurant/salon/trades/retail/health branches.{" "}
+        <code>cat-automotive</code> was added to <code>CHECKOUT_ACQUISITION_SOURCES</code> for CTA
+        attribution. Sitemap listing and OG/Twitter card images again needed zero new wiring
+        (both stay generically derived from <code>CATEGORY_LANDING_PAGES</code>), and a clean
+        production build plus a <code>npm run dev</code> smoke check confirmed{" "}
+        <code>/websites-for-automotive</code> and its two image routes prerender statically and
+        serve 200s alongside the existing five.
       </p>
 
       <h2>Tech stack</h2>

@@ -15,11 +15,12 @@ const CATEGORIES: BusinessCategory[] = [
   "trades",
   "retail",
   "health",
+  "automotive",
   "generic",
 ];
 
 describe("CATEGORY_THEMES", () => {
-  it("defines exactly the five BusinessCategory keys", () => {
+  it("defines exactly the BusinessCategory keys", () => {
     expect(Object.keys(CATEGORY_THEMES).sort()).toEqual(
       [...CATEGORIES].sort(),
     );
@@ -55,6 +56,12 @@ describe("CATEGORY_THEMES", () => {
       heroEyebrow: "Retail preview",
       accentTextClass: "text-violet-800",
       ctaClass: "bg-violet-950 text-violet-50 hover:bg-violet-900",
+    });
+    expect(CATEGORY_THEMES.automotive).toMatchObject({
+      label: "Automotive & auto repair",
+      heroEyebrow: "Auto shop preview",
+      accentTextClass: "text-red-800",
+      ctaClass: "bg-red-950 text-red-50 hover:bg-red-900",
     });
     expect(CATEGORY_THEMES.generic).toMatchObject({
       label: "Local business",
