@@ -766,6 +766,35 @@ export default function ArchitectureDocPage() {
         an external actor) is the suggested next pick.
       </p>
       <p>
+        Closed out the remaining <code>leads-client-stale-prop-resync</code> follow-ups in one
+        pass, immediately after a same-day sibling session merged the <code>handoffs</code> fix
+        above: <code>inquiries</code>, <code>checkoutSessions</code>,{" "}
+        <code>marketingPacks</code>, <code>commerceCatalogs</code>, <code>clientVoicePacks</code>,{" "}
+        <code>commerceOrders</code>, and <code>commerceOrdersMissingClientReceipt</code> — plus a
+        ninth array, the bundle-revenue <code>orders</code> ledger, which the original scoping
+        pass hadn&apos;t named (it has no local setter at all, just{" "}
+        <code>const [orders] = useState(initialOrders)</code>, so it was easy to miss, but it
+        drives Starter-upsell eligibility, recurring-entitlement-paused detection, and the
+        refund/dispute lists — all just as capable of silently drifting stale as any array with a
+        setter). Traced every remaining <code>setX</code> call site across all seven setter-backed
+        arrays (18 total) and confirmed every one patches only after its own <code>await</code>{" "}
+        resolves, matching <code>handoffs</code> — none needed the in-flight-edit merge{" "}
+        <code>leads</code> alone requires. Rather than copy the{" "}
+        <code>prevInitialHandoffs</code>-style reference-check idiom eight more times by hand (the
+        exact kind of repeated boilerplate that risks a future ninth array copying it wrong), factored
+        it into a shared <code>useResyncedState&lt;T&gt;</code> hook defined once in{" "}
+        <code>leads-client.tsx</code> — still an in-render adjustment (never a{" "}
+        <code>useEffect</code>, which this repo&apos;s <code>react-hooks/set-state-in-effect</code>{" "}
+        rule rejects), just generic over the array type so each of the nine call sites is a
+        one-line <code>useResyncedState(initialX)</code> instead of a five-line block. Folded the
+        sibling session&apos;s already-merged inline <code>handoffs</code> fix into the same shared
+        hook for consistency (same behavior, same dual-build-collision fold pattern this log
+        documents elsewhere) rather than leaving one array fixed inline and eight fixed via a
+        helper. Every array <code>LeadsClient</code> receives as an <code>initialX</code> prop now
+        resyncs on a fresh server render; only <code>leads</code> keeps its own bespoke merge
+        logic, for the one genuinely different (pre-await optimistic) reason documented above.
+      </p>
+      <p>
         <code>src/lib/db.ts</code> (the Convex-first/SQLite-fallback orchestration layer every
         surface above ultimately writes and reads through) carries a{" "}
         <code>&quot;server-only&quot;</code> guard, which throws unconditionally outside a

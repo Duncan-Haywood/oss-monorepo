@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useTransition } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import Link from "next/link";
 import type { Lead, LeadPipelineStage, BusinessCategory } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
@@ -269,6 +276,34 @@ const ALL_LEADS_HEADING_ID = "all-leads-heading";
 // when its own primary target no longer exists post-commit.
 const DASHBOARD_HEADING_FALLBACK_ID = "dashboard-leads-heading";
 
+/**
+ * Resync a piece of local state to a fresh server-provided `initialX` prop
+ * whenever revalidatePath (from any of this component's own actions, an
+ * unrelated concurrent action in the same tab, a second tab, or a
+ * Stripe/Resend webhook) delivers a new prop reference — adjusted during
+ * render, not inside a useEffect, since this repo's
+ * react-hooks/set-state-in-effect rule rejects a synchronous setState call
+ * there (the same "adjust state when a prop changes" pattern
+ * suppressed-emails-panel-prop-resync established). Safe to fully adopt the
+ * fresh prop (no merge needed) ONLY because every local write to the arrays
+ * this hook backs happens AFTER that write's own server action has already
+ * resolved successfully — by the time it runs, the very same round trip's
+ * revalidate has already produced a fresh, agreeing prop, so there is
+ * nothing local to preserve. `leads` is the one exception in this file
+ * (handleStageChange applies a pre-await optimistic edit) and keeps its own
+ * bespoke mergeFreshLeadsPreservingInFlightEdits resync instead of this
+ * hook — see leads-client-stale-prop-resync.
+ */
+function useResyncedState<T>(initial: T): [T, Dispatch<SetStateAction<T>>] {
+  const [value, setValue] = useState(initial);
+  const [prevInitial, setPrevInitial] = useState(initial);
+  if (prevInitial !== initial) {
+    setPrevInitial(initial);
+    setValue(initial);
+  }
+  return [value, setValue];
+}
+
 export function LeadsClient({
   initialLeads,
   initialHandoffs = [],
@@ -313,28 +348,25 @@ export function LeadsClient({
       mergeFreshLeadsPreservingInFlightEdits(prev, initialLeads, stageChangeInFlightSlugs),
     );
   }
-  const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
-  // Same stale-prop bug as `leads` above, fed by an external actor rather
-  // than only this component's own handlers: the Stripe checkout.session.completed
-  // webhook calls enqueueProductionHandoff to create/upsert a deploy handoff
-  // server-side, independent of anything this tab does. All 5 setHandoffs
-  // call sites in this component patch a row only after their own await
-  // resolves (never optimistically before), so a wholesale adopt-on-prop-change
-  // is safe here — no in-flight-edit merge needed, unlike `leads`.
-  const [prevInitialHandoffs, setPrevInitialHandoffs] = useState(initialHandoffs);
-  if (prevInitialHandoffs !== initialHandoffs) {
-    setPrevInitialHandoffs(initialHandoffs);
-    setHandoffs(initialHandoffs);
-  }
-  const [inquiries, setInquiries] = useState<ClientInquiry[]>(initialInquiries);
+  // Same stale-prop bug as `leads` above — fed by an external actor rather
+  // than only this component's own handlers for `handoffs` specifically: the
+  // Stripe checkout.session.completed webhook calls enqueueProductionHandoff
+  // to create/upsert a deploy handoff server-side, independent of anything
+  // this tab does. All setter call sites for every array below patch a row
+  // only after their own await resolves (never optimistically before), so a
+  // wholesale adopt-on-prop-change via the shared useResyncedState helper
+  // above is safe for all of them — no in-flight-edit merge needed, unlike
+  // `leads`.
+  const [handoffs, setHandoffs] = useResyncedState<DeployHandoff[]>(initialHandoffs);
+  const [inquiries, setInquiries] = useResyncedState<ClientInquiry[]>(initialInquiries);
   const [checkoutSessions, setCheckoutSessions] =
-    useState<CheckoutSessionRecord[]>(initialCheckoutSessions);
-  const [orders] = useState<OrderRecord[]>(initialOrders);
+    useResyncedState<CheckoutSessionRecord[]>(initialCheckoutSessions);
+  const [orders] = useResyncedState<OrderRecord[]>(initialOrders);
   const [marketingPacks, setMarketingPacks] =
-    useState<MarketingPack[]>(initialMarketingPacks);
+    useResyncedState<MarketingPack[]>(initialMarketingPacks);
   const [marketingPackOpenSlug, setMarketingPackOpenSlug] = useState<string | null>(null);
   const [commerceCatalogs, setCommerceCatalogs] =
-    useState<CommerceCatalog[]>(initialCommerceCatalogs);
+    useResyncedState<CommerceCatalog[]>(initialCommerceCatalogs);
   const [commerceEditSlug, setCommerceEditSlug] = useState<string | null>(null);
   const [commerceDraftItems, setCommerceDraftItems] = useState<CommerceSku[]>([]);
   const [commerceCatalogError, setCommerceCatalogError] = useState<string | null>(null);
@@ -396,13 +428,14 @@ export function LeadsClient({
   // exists; Mark live only exists on an already-created handoff row).
   const [handoffActionErrors, setHandoffActionErrors] = useState<Record<string, string>>({});
   const [clientVoicePacks, setClientVoicePacks] =
-    useState<ClientVoicePack[]>(initialClientVoicePacks);
+    useResyncedState<ClientVoicePack[]>(initialClientVoicePacks);
   const [clientVoicePackOpenSlug, setClientVoicePackOpenSlug] = useState<string | null>(
     null,
   );
-  const [commerceOrders, setCommerceOrders] = useState<CommerceOrderRecord[]>(initialCommerceOrders);
+  const [commerceOrders, setCommerceOrders] =
+    useResyncedState<CommerceOrderRecord[]>(initialCommerceOrders);
   const [commerceOrdersMissingClientReceipt, setCommerceOrdersMissingClientReceipt] =
-    useState<CommerceOrderRecord[]>(initialCommerceOrdersMissingClientReceipt);
+    useResyncedState<CommerceOrderRecord[]>(initialCommerceOrdersMissingClientReceipt);
   /** Snapshot clock for due-queue math — avoid Date.now() during render (react-hooks/purity). */
   const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
