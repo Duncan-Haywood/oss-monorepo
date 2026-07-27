@@ -2953,6 +2953,28 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>sendStripeConnectOnboardingLinkToClientAction</code> had one more gap
+        (<code>stripe-connect-onboarding-link-send-race-guard</code>): unlike every sibling
+        client-facing send action in this file — Starter upsell, the marketing/voice pack client
+        sends, checkout-recovery nudges — it had zero duplicate-send protection at all, no sent
+        marker and no compare-and-swap guard. A second dashboard tab, or a double-click before the
+        button&apos;s <code>isPending</code>-disabled state applied, could mint two separate
+        onboarding links and email both to the client with no operator-visible signal that a
+        duplicate went out. Fixed the same way as{" "}
+        <code>starter-upsell-send-race-guard</code>: a new{" "}
+        <code>stripeConnectOnboardingLinkSentCount</code>/
+        <code>lastStripeConnectOnboardingLinkSentAt</code> pair (both backends) tracks a monotonic
+        send count, and <code>recordStripeConnectOnboardingLinkSent</code> only applies its write
+        when the caller&apos;s <code>expectedStripeConnectOnboardingLinkSentCount</code> still
+        matches the row&apos;s current count — an exact concurrent duplicate is rejected and
+        surfaces as <code>success: false</code>, while a later, deliberate resend (an operator
+        emailing a fresh link after an earlier one expired) always succeeds since it reads the
+        current count first. The marker write is best-effort on a thrown error (the email already
+        sent, so a persistence failure must not turn a successful send into a reported failure)
+        but a resolved <code>false</code> — proof of a genuine race — is not discarded.
+      </p>
+
+      <p>
         A fresh-angle accessibility audit (2026-07-26,{" "}
         <code>stripe-connect-payouts-panel-form-error-inline-aria-announcement</code>) found the
         Payouts panel&apos;s four action buttons — <strong>Create Connect account</strong>,{" "}

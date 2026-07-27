@@ -151,6 +151,8 @@ const leadReturn = v.object({
   bufferPostedVariantKeys: v.optional(v.array(v.string())),
   starterUpsellSentCount: v.optional(v.number()),
   lastStarterUpsellSentAt: v.optional(v.string()),
+  stripeConnectOnboardingLinkSentCount: v.optional(v.number()),
+  lastStripeConnectOnboardingLinkSentAt: v.optional(v.string()),
 });
 
 function mapLeadRow(row: {
@@ -184,6 +186,8 @@ function mapLeadRow(row: {
   bufferPostedVariantKeys?: string[];
   starterUpsellSentCount?: number;
   lastStarterUpsellSentAt?: string;
+  stripeConnectOnboardingLinkSentCount?: number;
+  lastStripeConnectOnboardingLinkSentAt?: string;
 }) {
   const category = normalizeLeadCategory(row.category);
   return {
@@ -217,6 +221,8 @@ function mapLeadRow(row: {
     bufferPostedVariantKeys: row.bufferPostedVariantKeys,
     starterUpsellSentCount: row.starterUpsellSentCount,
     lastStarterUpsellSentAt: row.lastStarterUpsellSentAt,
+    stripeConnectOnboardingLinkSentCount: row.stripeConnectOnboardingLinkSentCount,
+    lastStripeConnectOnboardingLinkSentAt: row.lastStripeConnectOnboardingLinkSentAt,
   };
 }
 
@@ -466,6 +472,49 @@ export const recordStarterUpsellSent = mutation({
     await ctx.db.patch(lead._id, {
       starterUpsellSentCount: args.expectedStarterUpsellSentCount + 1,
       lastStarterUpsellSentAt: args.sentAt,
+    });
+    return true;
+  },
+});
+
+/**
+ * CAS marker for sendStripeConnectOnboardingLinkToClientAction — mirrors
+ * recordStarterUpsellSent's expected-count pattern, not
+ * markMarketingPackSentToClient's one-shot "already sent" gate: an operator
+ * may legitimately re-send a fresh onboarding link after an earlier one
+ * expired unused. This only rejects a write whose
+ * expectedStripeConnectOnboardingLinkSentCount no longer matches the row's
+ * current count — an exact concurrent duplicate (a second dashboard tab, or
+ * a double-click before the button's isPending-disabled state applies),
+ * never a later, deliberate resend. See
+ * stripe-connect-onboarding-link-send-race-guard.
+ */
+export const recordStripeConnectOnboardingLinkSent = mutation({
+  args: {
+    slug: v.string(),
+    sentAt: v.string(),
+    expectedStripeConnectOnboardingLinkSentCount: v.number(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      return false;
+    }
+    if (
+      (lead.stripeConnectOnboardingLinkSentCount ?? 0) !==
+      args.expectedStripeConnectOnboardingLinkSentCount
+    ) {
+      return false;
+    }
+    await ctx.db.patch(lead._id, {
+      stripeConnectOnboardingLinkSentCount: args.expectedStripeConnectOnboardingLinkSentCount + 1,
+      lastStripeConnectOnboardingLinkSentAt: args.sentAt,
     });
     return true;
   },

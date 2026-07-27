@@ -147,6 +147,22 @@ export interface Lead {
   starterUpsellSentCount?: number;
   /** ISO timestamp of the most recent Starter upsell send. */
   lastStarterUpsellSentAt?: string;
+  /**
+   * Monotonic count of Stripe Connect onboarding-link emails sent to this
+   * lead's client via sendStripeConnectOnboardingLinkToClientAction — a
+   * concurrency guard only, not a one-shot "already sent" gate: mirrors
+   * starterUpsellSentCount's CAS shape, not marketingPacks.sentToClientAt's
+   * one-shot gate, since an operator may legitimately re-send a fresh
+   * onboarding link after an earlier one expired unused.
+   * recordStripeConnectOnboardingLinkSent only rejects a write whose expected
+   * count no longer matches the current row (an exact concurrent duplicate —
+   * a second tab or a double-click before the button's isPending-disabled
+   * state applies), never a later, deliberate resend. Absent/0 means never
+   * sent. See stripe-connect-onboarding-link-send-race-guard.
+   */
+  stripeConnectOnboardingLinkSentCount?: number;
+  /** ISO timestamp of the most recent Stripe Connect onboarding-link send. */
+  lastStripeConnectOnboardingLinkSentAt?: string;
 }
 
 /**
