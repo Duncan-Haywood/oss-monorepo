@@ -338,6 +338,7 @@ export function LeadsClient({
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [replyOpenId, setReplyOpenId] = useState<string | null>(null);
   const [replyError, setReplyError] = useState<string | null>(null);
+  const [inquiryActionErrors, setInquiryActionErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
 
   // Row-scoped toggle buttons used as refocus anchors (Notes/Commerce/Reply
@@ -911,10 +912,18 @@ export function LeadsClient({
     status: ClientInquiryStatus,
     headingId?: string,
   ) => {
+    setInquiryActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[inquiryId];
+      return next;
+    });
     startTransition(async () => {
       const res = await updateInquiryStatusAction(inquiryId, status);
       if (!res.success) {
-        alert(`Error updating inquiry: ${res.error}`);
+        setInquiryActionErrors((prev) => ({
+          ...prev,
+          [inquiryId]: `Error updating inquiry: ${res.error}`,
+        }));
         return;
       }
       setInquiries((prev) =>
@@ -991,10 +1000,18 @@ export function LeadsClient({
   const handleSendFollowUp = (slug: string, headingId?: string) => {
     const current = leads.find((l) => l.slug === slug);
     const previousStep = current?.outreachStep;
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await sendFollowUpAction(slug);
       if (!res.success) {
-        alert(`Follow-up failed: ${res.error}`);
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: `Follow-up failed: ${res.error}`,
+        }));
         return;
       }
       const sentAt = new Date().toISOString();
@@ -3509,6 +3526,15 @@ export function LeadsClient({
                         </>
                       ) : null}
                     </p>
+                    {inquiryActionErrors[inq.id] ? (
+                      <p
+                        id={`inquiry-action-error-${inq.id}`}
+                        className="mt-1 text-xs font-medium text-red-600"
+                        role="alert"
+                      >
+                        {inquiryActionErrors[inq.id]}
+                      </p>
+                    ) : null}
                     {replyOpenId === inq.id && inquiryCanReceiveReply(inq) ? (
                       <div className="mt-3 space-y-2" id={`inquiry-reply-${inq.id}`}>
                         <textarea
@@ -3579,6 +3605,9 @@ export function LeadsClient({
                           inq.leadSlug,
                           inq.name || inq.email || undefined,
                         )}
+                        aria-describedby={
+                          inquiryActionErrors[inq.id] ? `inquiry-action-error-${inq.id}` : undefined
+                        }
                         className="rounded-lg bg-sky-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-800 disabled:opacity-60"
                       >
                         Mark read
@@ -3615,6 +3644,9 @@ export function LeadsClient({
                         inq.leadSlug,
                         inq.name || inq.email || undefined,
                       )}
+                      aria-describedby={
+                        inquiryActionErrors[inq.id] ? `inquiry-action-error-${inq.id}` : undefined
+                      }
                       className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-60"
                     >
                       Archive

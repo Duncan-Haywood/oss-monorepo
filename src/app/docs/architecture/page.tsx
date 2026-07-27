@@ -3275,6 +3275,29 @@ source). The same digest also lists email-critical leads with no usable address 
         future change loosens that guard.
       </p>
 
+      <p>
+        A further follow-up pass (2026-07-27,{" "}
+        <code>website-inquiries-followup-inline-aria-announcement</code>) picked the next two
+        nearest-the-top <code>alert()</code>-on-failure call sites in{" "}
+        <code>leads-client.tsx</code>: <code>handleInquiryStatus</code> (&quot;Mark
+        read&quot;/&quot;Archive&quot; in the Website inquiries panel) and{" "}
+        <code>handleSendFollowUp</code> (&quot;Send Email 2/3&quot;, called from the Follow-ups
+        due panel, the Work next panel, and the main table). <code>handleSendFollowUp</code>{" "}
+        already matched the exact three-call-site shape (two due-queue panels plus an
+        always-mounted main-table row) that <code>handleStageChange</code>/
+        <code>handleSnooze</code> established the <code>leadActionErrors</code> convention for, so
+        it was wired into that same slug-keyed map and paragraph rather than inventing a new one.{" "}
+        <code>handleInquiryStatus</code> has no main-table analogue — each inquiry renders in
+        exactly one always-mounted <code>&lt;li&gt;</code> in the Website inquiries panel, never
+        duplicated across panels the way lead rows are — so it got its own{" "}
+        <code>inquiryActionErrors</code> state keyed by inquiry id, rendered as a{" "}
+        <code>role=&quot;alert&quot;</code> paragraph in that <code>&lt;li&gt;</code> (visible
+        whether or not the reply composer is open, since Mark read/Archive don&apos;t require the
+        composer), with both buttons&apos; <code>aria-describedby</code> pointing at it. Roughly
+        20 <code>alert()</code> call sites remain in this file as a documented follow-up for a
+        future pass.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
