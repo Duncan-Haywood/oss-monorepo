@@ -4004,6 +4004,42 @@ source). The same digest also lists email-critical leads with no usable address 
         union by necessity). See <code>add-lead-category-validation-parity</code>.
       </p>
 
+      <p>
+        <code>category-substring-collision-audit-04</code>: a fourth audit found three more live
+        collisions using keywords the prior three rounds never touched (<code>trade</code>,{" "}
+        <code>maid</code>, <code>clean</code>). A bare <code>trade</code> matches inside{" "}
+        <code>trademark</code> and inside the standalone token pair{" "}
+        <code>trade</code>/<code>secrets</code> (e.g. <code>trademark-law-group</code>,{" "}
+        <code>trade-secrets-law-firm</code> — both real-world IP law firm naming conventions),
+        misrouting them into <code>trades</code> before <code>legal</code>&apos;s own keywords
+        ever run. A bare <code>maid</code> matches inside a place name/surname like{" "}
+        <code>Maidenhead</code> (e.g. <code>maidenhead-legal-attorney</code>), misrouting it into{" "}
+        <code>cleaning</code> before <code>legal</code>&apos;s <code>\blegal\b</code> keyword ever
+        runs. A bare <code>clean</code> matches the &quot;clean eating&quot;/&quot;eat
+        clean&quot; nutrition and meal-prep branding pattern (e.g.{" "}
+        <code>clean-eatz-nutrition</code>), misrouting a nutrition business into{" "}
+        <code>cleaning</code>. This preview page is not a demo-only surface — it&apos;s{" "}
+        <code>resolvePreviewLead</code>&apos;s slug-inference fallback shown to cold, unconverted
+        prospects at <code>/preview/&lt;their-business-name&gt;</code>, the core sales artifact
+        this product uses to close deals, so a misclassified category flows straight into the
+        wrong theme, the wrong <code>LocalBusiness</code> JSON-LD subtype, and the wrong tagline.
+        Fixed with the same two patterns already established: <code>maid</code> is now
+        word-boundary scoped (<code>\bmaid\b</code>), mirroring <code>spa</code>/<code>hair</code>
+        /<code>law</code>/<code>legal</code>/<code>auto</code>/<code>tire</code>; word-boundary
+        scoping can&apos;t help <code>trade</code> (embedded with no boundary inside{" "}
+        <code>trademark</code>) or <code>clean</code> (a genuine whole token in both meanings), so
+        two new compound-exclusion guards — <code>isTrademarkOrTradeSecretsLaw</code> and{" "}
+        <code>isCleanEatingNutrition</code> — mirror <code>isKitchenRemodelingContractor</code>/
+        <code>isGarageSaleOrThriftShop</code>&apos;s existing pattern, excluding the match from{" "}
+        <code>trades</code>/<code>cleaning</code> respectively. The trademark/trade-secrets case
+        falls through to <code>legal</code>; the clean-eating case matches no other branch&apos;s
+        keywords either, so it falls through to <code>generic</code>, the same safe default every
+        prior audit&apos;s unmatched false positives resolved to. Verified every existing
+        category-inference test slug still resolves unchanged, added regression tests for all
+        three new cases, and confirmed each fails against the pre-fix logic before restoring the
+        fix. See <code>category-substring-collision-audit-04</code>.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

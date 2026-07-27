@@ -337,6 +337,44 @@ describe("resolvePreviewLead", () => {
     });
   });
 
+  it("does not mistake 'trademark'/'trade secrets' law firms for trades (category-substring-collision-audit-04)", () => {
+    // Bare "trade" previously matched inside "trademark" and "trade-secrets"
+    // — real-world IP law firm naming conventions — before ever reaching
+    // legal's own keywords.
+    expect(resolvePreviewLead("trademark-law-group")).toMatchObject({
+      category: "legal",
+      recommendedTier: "growth",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("trade-secrets-law-firm")).toMatchObject({
+      category: "legal",
+      recommendedTier: "growth",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake a 'Maidenhead' business name for a maid service (category-substring-collision-audit-04)", () => {
+    // Bare "maid" previously matched inside "Maidenhead" — a real place
+    // name/surname a legal or other business could plausibly use — before
+    // ever reaching legal's own keywords.
+    expect(resolvePreviewLead("maidenhead-legal-attorney")).toMatchObject({
+      category: "legal",
+      recommendedTier: "growth",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake 'clean eating' nutrition branding for a cleaning service (category-substring-collision-audit-04)", () => {
+    // Bare "clean" previously matched the whole-word "clean eating"/"eat
+    // clean" nutrition and meal-prep branding pattern — no other branch's
+    // keywords apply, so this falls through to generic rather than being
+    // wrongly typed as a janitorial cleaning service.
+    expect(resolvePreviewLead("clean-eatz-nutrition")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",

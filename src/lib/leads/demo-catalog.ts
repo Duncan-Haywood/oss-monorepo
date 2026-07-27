@@ -211,6 +211,25 @@ export function resolvePreviewLead(slug: string): Lead {
   // and let it fall through to retail's own "shop"/"store" keywords when
   // present (category-substring-collision-audit-03).
   const isGarageSaleOrThriftShop = /garage/.test(lower) && /sale|thrift/.test(lower);
+  // "Trademark"/"trade secrets" law firms are a common, plausible real
+  // business name — trades' own bare "trade" keyword would otherwise
+  // misroute them before legal's keywords ever run (word-boundary scoping
+  // "trade" alone wouldn't help, since "trademark" embeds it with no
+  // boundary, and "trade-secrets" is a genuine standalone token). Exclude
+  // this compound from trades so it falls through to legal's own
+  // law/attorney/legal/lawyer keywords instead (category-substring-collision-audit-04).
+  const isTrademarkOrTradeSecretsLaw =
+    /trademark|trade-secrets|trade secrets/.test(lower) &&
+    /\blaw\b|attorney|\blegal\b|lawyer/.test(lower);
+  // "Clean eating"/"eat clean" nutrition and meal-prep branding (e.g.
+  // "clean-eatz-nutrition") is a genuine standalone use of "clean" that has
+  // nothing to do with janitorial services — word-boundary scoping wouldn't
+  // help here either, since it's a real whole token. Exclude it from
+  // cleaning and let it fall through (no other branch's keywords apply, so
+  // it lands on generic, same as an unmatched slug) rather than
+  // miscategorizing a nutrition business as a cleaning service
+  // (category-substring-collision-audit-04).
+  const isCleanEatingNutrition = /clean/.test(lower) && /eat|nutrition|food|meal|diet/.test(lower);
   let category: Lead["category"] = "generic";
   if (
     !isKitchenRemodelingContractor &&
@@ -244,6 +263,7 @@ export function resolvePreviewLead(slug: string): Lead {
     // category-substring-collision-audit-02.
     category = "salon";
   } else if (
+    !isTrademarkOrTradeSecretsLaw &&
     /plumb|hvac|electric|roof|paint|landscap|contractor|trade|repair|remodel|renovat/.test(
       lower,
     )
@@ -253,7 +273,15 @@ export function resolvePreviewLead(slug: string): Lead {
     category = "retail";
   } else if (/dental|dentist|chiro|clinic|wellness|therapy|medical|health|physio/.test(lower)) {
     category = "health";
-  } else if (/clean|maid|janitorial|housekeep|spotless/.test(lower)) {
+  } else if (
+    !isCleanEatingNutrition &&
+    /clean|\bmaid\b|janitorial|housekeep|spotless/.test(lower)
+  ) {
+    // "maid" is word-boundary scoped (\b) — a bare "maid" matches inside a
+    // town/surname like "Maidenhead" (e.g. "maidenhead-legal-attorney"),
+    // which should resolve to legal via its own \blegal\b keyword instead.
+    // Mirrors the word-boundary fix already applied to salon's/legal's own
+    // bare keywords (category-substring-collision-audit-04).
     category = "cleaning";
   } else if (/gym|fitness|yoga|pilates|crossfit|martial-arts|personal-train/.test(lower)) {
     // Mechanically verified to share no keyword substring with any of the
