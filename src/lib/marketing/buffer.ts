@@ -173,12 +173,24 @@ export function pruneBufferPostedVariantKeysForPack(
   return keys.filter((key) => key.startsWith(prefix));
 }
 
-/** Join a marketing pack variant's fields into one post body, same shape as the dashboard's own "Copy" button. */
+/**
+ * Join a marketing pack variant's fields into one post body for Buffer's
+ * unreviewed auto-post path — this text is published verbatim to the lead's
+ * live Facebook/Instagram profile with no operator review step in between
+ * (scheduleMarketingPackToBufferAction passes the return value straight into
+ * createBufferUpdate's `text`). It intentionally does NOT match the
+ * dashboard's "Copy" button / the emailed pack deliverable, which both
+ * prefix the call to action with a literal "CTA:" label — that label reads
+ * naturally in an operator-facing copy buffer or a client-facing pack email
+ * (both human-reviewed before anything goes out), but published unedited to
+ * a real customer's public feed it reads as leftover template text (see
+ * buffer-auto-post-cta-label-leak). Fold the CTA in as its own line instead.
+ */
 export function formatMarketingVariantForBuffer(variant: MarketingContentVariant): string {
   return [
     variant.title,
     variant.body,
-    variant.cta ? `CTA: ${variant.cta}` : null,
+    variant.cta || null,
     variant.hashtags?.length ? variant.hashtags.join(" ") : null,
   ]
     .filter(Boolean)
