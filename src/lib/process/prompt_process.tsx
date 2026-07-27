@@ -595,4 +595,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "category-substring-collision-audit-03",
     ),
   },
+  {
+    date: "2026-07-27",
+    branch: "claude/upbeat-dijkstra-ortbny",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip 8dd78200 (PR #877, add-lead-category-validation-parity, merged prior session) — HEAD matched origin/main exactly at session start. Briefed to run the archive-split as this session's first action, per the prior session's own hand-off note. Measured directly before touching anything: prompt_process.tsx was 264,469 bytes — 27 live ITERATIONS entries beyond the 22 existing archive spreads, past the re-archive trigger. business-decisions.ts (216,288 bytes) and NEXT_STEPS' 21 live done entries were both still within headroom and left untouched.",
+    shipped: [
+      "src/lib/process/archive/iterations-archive-23.ts — new archive file holding the oldest 17 of the 27 live ITERATIONS entries, moved via exact line-span extraction (not regex/prettier rewrite) mirroring iterations-archive-22.ts's header/import/export shape.",
+      "src/lib/process/prompt_process.tsx — added the ITERATIONS_ARCHIVE_23 import + spread in the same position the moved entries previously occupied, keeping the most recent 10 ITERATIONS entries live (matching AGENT_PROTOCOL's stated '~10' convention).",
+      "src/lib/process/business-decisions.ts — appended process-log-archive-23-iterations-resplit with full before/after byte counts, the losslessness-verification method, and a note that the second briefed task (a documentation backfill for commit 74ca7f37) was found unnecessary on inspection — that commit already shipped its own business-decisions.ts + ITERATIONS entries (add-lead-category-validation-parity) in the same commit, so no backfill was added.",
+      "Losslessness verified end-to-end before committing: a scratch Node script (via `npx tsx`, not committed) imported ITERATIONS/NEXT_STEPS from a `git show HEAD:...`-materialized copy of the pre-split tree and from the live post-split prompt_process.tsx, then ran `assert.deepStrictEqual` element-by-element across the full 859-entry ITERATIONS array and the full 461-entry NEXT_STEPS array — both matched exactly in order. Result: prompt_process.tsx down from 264,469 to 175,054 bytes; archive/iterations-archive-23.ts holds the 17 moved entries (90,432 bytes).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only — node_modules was absent at session start) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3474 passed, 210 files, unchanged — pure data relocation) + a full clean rebuild (rm -rf .next && npm run build, clean, same 61-route split) + npm run dev smoke check curling /docs/process (200, tail content renders correctly) and /dashboard/leads (200, no error-boundary text). Killed the dev server, removed the stray gitignored local.db it created, and confirmed git status showed only the intended process files changed before each commit. NEXT_STEPS unchanged — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked; this is a process-log maintenance pass, not a NEXT_STEPS item.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "process-log-archive-23-iterations-resplit",
+    ),
+  },
 ];
