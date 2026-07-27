@@ -596,4 +596,19 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): with the window now 24h, expect a full pass to actually be due roughly once a day; if recentlyConfirmedWithinHours(24) returns true, do only the cheap check per step 0a and skip the branch/commit/PR entirely if nothing's different.",
     ],
   },
+  {
+    date: "2026-07-27",
+    agent: "claude/dazzling-allen-v5cz6k",
+    summary:
+      "recentlyConfirmedWithinHours(24) had just elapsed (last full pass 2026-07-26T16:15:00Z, ~25h earlier), so did a full re-verification pass: all 7 human blockers re-confirmed unchanged (real-data logs — leads-log.ts, listingAuditLog, loggedInterviewResults — still empty; nextActionableTasks() still empty, p3-app-scope still correctly gated; PR #4 still the only open PR, draft/unchanged since 2026-06-15; a fresh full-pagination list_branches call confirmed still exactly 60 non-main branches, no new ones, so no per-branch re-audit was needed). Went one step further than prior sessions on the CI outage specifically: instead of only checking the newest run's job metadata (runner_id/duration), tried downloading that run's actual job logs via get_job_logs and got a flat HTTP 404 — proof no runner ever picked up the job at all (not a step that failed and left logs), which rules out a workflow-file-level misconfiguration and confirms this is purely an account/org-level Actions issue, exactly as prior sessions suspected but hadn't directly verified. Also spot-checked ci.yml itself (plain `runs-on: ubuntu-latest`, nothing self-hosted or custom) to double-check there's no fixable repo-side cause. shouldNotifyHuman(72) returned false (~63h since the 2026-07-25T02:11Z push, due ~2026-07-28T02:11Z) — no repeat out-of-band notification sent this session, consistent with the throttle.",
+    changes: [
+      "process/blockers.ts: bumped lastConfirmed/lastConfirmedAt/confirmedByCount on all 7 entries with fresh evidence. actions-ci-runner-outage's 'most recent run'/'duration as of' data overwritten in place (now run 30210058863, ~229h/9.5 days) plus a new sentence documenting the job-log-404 finding and the ci.yml spot-check, so a future session doesn't need to re-derive that the workflow file itself is fine. stale-branch-cleanup's branch-count evidence simplified now that the count (60) is unchanged from last session — no new branch, so no per-branch ancestry re-audit was needed this time.",
+      "No roadmap.ts or decisions-log.ts change — no task status flipped and no new product/business decision made; the job-log-404 check strengthens existing evidence for an already-tracked blocker rather than surfacing a new one.",
+      "Verified: docs-site/ `npm run build` passes clean (type-checks blockers.ts/progress-log.ts via prompt_process.tsx's import chain). pipeline/ and research/ untouched, not rebuilt.",
+    ],
+    nextUp: [
+      "Human: same seven items remain the highest-leverage next steps — see blockers.ts. The CI outage (now ~9.5 days, confirmed account/org-level via the job-log-404 check, not a workflow bug — still the single most time-sensitive item) and the cron-cadence reconsideration are the two most worth a direct look.",
+      "Agent (next session): if recentlyConfirmedWithinHours(24) is true, do only the cheap check per step 0a and skip the branch/commit/PR entirely if nothing's different. For the CI blocker specifically, pulling the newest run's job list (runner_id:0/empty-runner_name/~2-4s duration) is sufficient re-verification — no need to re-fetch job logs again since the 404 finding is now a permanent, one-time diagnosis (ci.yml isn't going to change on its own).",
+    ],
+  },
 ];
