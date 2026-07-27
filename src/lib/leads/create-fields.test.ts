@@ -25,6 +25,7 @@ const base = {
   description: "A neighborhood cafe",
   services: ["Coffee", "Pastries"],
   hours: { weekday: "Mon–Fri 7am–3pm", weekend: "Sat 8am–2pm" },
+  category: "restaurant" as const,
 };
 
 describe("normalizeLeadCreateFields", () => {
@@ -106,6 +107,42 @@ describe("normalizeLeadCreateFields", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.fields.services).toEqual(["Custom digital setup"]);
+  });
+
+  it("defaults a blank phone to the shared placeholder", () => {
+    const result = normalizeLeadCreateFields({ ...base, phone: "   " });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.fields.phone).toBe("(555) 000-0000");
+  });
+
+  it("defaults a blank tagline to the category default", () => {
+    const result = normalizeLeadCreateFields({
+      ...base,
+      tagline: "",
+      category: "salon",
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.fields.tagline).toBe("Tailored styling and care");
+  });
+
+  it("defaults a blank description to a business-name-derived placeholder", () => {
+    const result = normalizeLeadCreateFields({ ...base, description: "  " });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.fields.description).toBe(
+      "Preview site generated for Demo Cafe. Claim it to connect your domain and go live.",
+    );
+  });
+
+  it("keeps an explicit phone/tagline/description instead of the defaults", () => {
+    const result = normalizeLeadCreateFields(base);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.fields.phone).toBe("(512) 555-0100");
+    expect(result.fields.tagline).toBe("Coffee");
+    expect(result.fields.description).toBe("A neighborhood cafe");
   });
 });
 
