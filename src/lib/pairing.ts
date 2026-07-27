@@ -14,13 +14,33 @@ export type PairItem = {
   id: string;
   rating: number;
   rd: number;
+  category?: string | null;
 };
 
 export type PairingInput = {
   items: PairItem[];
   timesShown: Map<string, number>;
   recentPairKeys: Set<string>;
+  /** How many questions this person has already answered in this survey. */
+  answeredCount?: number;
 };
+
+/**
+ * Coarse-to-fine progression. Early on, pair items from DIFFERENT
+ * categories: a handful of cross-category comparisons pins down the broad
+ * shape of someone's taste far faster than the same number of within-category
+ * ones. Once that structure exists, switch to same-category pairs, which are
+ * the genuinely hard discriminations and where the remaining uncertainty is.
+ */
+const COARSE_PHASE_ANSWERS = 12;
+const FINE_PHASE_ANSWERS = 30;
+
+export function sameCategoryBias(answeredCount: number): number {
+  if (answeredCount <= COARSE_PHASE_ANSWERS) return 0.1;
+  if (answeredCount >= FINE_PHASE_ANSWERS) return 0.8;
+  const t = (answeredCount - COARSE_PHASE_ANSWERS) / (FINE_PHASE_ANSWERS - COARSE_PHASE_ANSWERS);
+  return 0.1 + t * 0.7;
+}
 
 export function pairKey(aId: string, bId: string): string {
   return [aId, bId].sort().join("::");
@@ -37,7 +57,12 @@ function weightedPick<T>(items: T[], weight: (item: T) => number): T {
   return items[items.length - 1];
 }
 
-export function selectNextPair({ items, timesShown, recentPairKeys }: PairingInput): [string, string] {
+export function selectNextPair({
+  items,
+  timesShown,
+  recentPairKeys,
+  answeredCount = 0,
+}: PairingInput): [string, string] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
 
   const shownCounts = items.map((i) => timesShown.get(i.id) ?? 0);
@@ -52,13 +77,21 @@ export function selectNextPair({ items, timesShown, recentPairKeys }: PairingInp
   const first = weightedPick(items, priority);
   const candidates = items.filter((i) => i.id !== first.id);
 
+  // Early: reward crossing categories (broad structure). Later: reward
+  // staying inside one (fine discrimination).
+  const bias = sameCategoryBias(answeredCount);
+
   const score = (other: PairItem) => {
     const ratingDiff = Math.abs(other.rating - first.rating);
     const closeness = 1 / (1 + ratingDiff / 100);
     const uncertaintyBonus = other.rd / 350;
+
+    const sameCategory = !!first.category && first.category === other.category;
+    const phaseFactor = sameCategory ? bias : 1 - bias;
+
     const key = pairKey(first.id, other.id);
     const repeatPenalty = recentPairKeys.has(key) ? 0.05 : 1;
-    return (closeness * 2 + uncertaintyBonus) * repeatPenalty;
+    return (closeness * 2 + uncertaintyBonus) * (0.25 + 1.75 * phaseFactor) * repeatPenalty;
   };
 
   const second = weightedPick(candidates, score);

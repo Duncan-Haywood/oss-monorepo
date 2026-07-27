@@ -2,7 +2,7 @@
 CREATE TYPE "SurveyKind" AS ENUM ('ITEMS', 'FINANCIAL', 'CONJOINED');
 
 -- CreateEnum
-CREATE TYPE "Perspective" AS ENUM ('SELF', 'PARTNER');
+CREATE TYPE "Perspective" AS ENUM ('SELF', 'PARTNER', 'PARTNER_GUESS');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -13,6 +13,18 @@ CREATE TABLE "User" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Couple" (
+    "id" TEXT NOT NULL,
+    "inviteCode" TEXT NOT NULL,
+    "creatorId" TEXT NOT NULL,
+    "joinerId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "joinedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Couple_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -172,6 +184,15 @@ CREATE TABLE "AdminLoginAttempt" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Couple_inviteCode_key" ON "Couple"("inviteCode");
+
+-- CreateIndex
+CREATE INDEX "Couple_creatorId_idx" ON "Couple"("creatorId");
+
+-- CreateIndex
+CREATE INDEX "Couple_joinerId_idx" ON "Couple"("joinerId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "UserSession_tokenHash_key" ON "UserSession"("tokenHash");
 
 -- CreateIndex
@@ -230,6 +251,12 @@ CREATE INDEX "SurveyFit_surveyId_idx" ON "SurveyFit"("surveyId");
 
 -- CreateIndex
 CREATE INDEX "AdminLoginAttempt_ip_createdAt_idx" ON "AdminLoginAttempt"("ip", "createdAt");
+
+-- AddForeignKey
+ALTER TABLE "Couple" ADD CONSTRAINT "Couple_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Couple" ADD CONSTRAINT "Couple_joinerId_fkey" FOREIGN KEY ("joinerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserSession" ADD CONSTRAINT "UserSession_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

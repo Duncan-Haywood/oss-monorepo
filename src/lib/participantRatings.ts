@@ -3,6 +3,7 @@ import { DEFAULT_GLICKO_STATE, GlickoState } from "@/lib/glicko2";
 
 export type RatedItem = {
   id: string;
+  slug: string;
   label: string;
   category: string | null;
   rating: number;
@@ -19,7 +20,7 @@ export async function loadRatedItems(participantId: string, surveyId: string): P
   const [items, ratings] = await Promise.all([
     prisma.item.findMany({
       where: { surveyId },
-      select: { id: true, label: true, category: true },
+      select: { id: true, slug: true, label: true, category: true },
     }),
     prisma.participantItemRating.findMany({
       where: { participantId },
@@ -32,6 +33,7 @@ export async function loadRatedItems(participantId: string, surveyId: string): P
     const r = byItem.get(item.id);
     return {
       id: item.id,
+      slug: item.slug,
       label: item.label,
       category: item.category,
       rating: r?.rating ?? DEFAULT_GLICKO_STATE.rating,

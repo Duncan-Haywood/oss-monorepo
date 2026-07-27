@@ -78,6 +78,45 @@ const PROFESSIONS: SeedItem[] = [
   { slug: "police-officer", label: "Police officer", category: "Public service" },
   { slug: "military-officer", label: "Military officer", category: "Public service" },
   { slug: "charity-founder-director", label: "Founder of a charity", category: "Charity and leadership" },
+  // Finance / investing
+  { slug: "venture-capitalist", label: "Venture capitalist", category: "Business and finance" },
+  { slug: "private-equity-investor", label: "Private equity investor", category: "Business and finance" },
+  { slug: "hedge-fund-manager", label: "Hedge fund portfolio manager", category: "Business and finance" },
+  { slug: "investment-banker", label: "Investment banker", category: "Business and finance" },
+  // Engineering / technology
+  { slug: "ai-ml-engineer", label: "AI / machine learning engineer", category: "Engineering and technology" },
+  { slug: "aerospace-engineer", label: "Aerospace engineer", category: "Engineering and technology" },
+  { slug: "mechanical-engineer", label: "Mechanical engineer", category: "Engineering and technology" },
+  { slug: "engineering-manager", label: "Engineering manager", category: "Engineering and technology" },
+  // Medicine
+  { slug: "general-physician", label: "General physician", category: "Medicine" },
+  { slug: "anesthesiologist", label: "Anesthesiologist", category: "Medicine" },
+  { slug: "psychiatrist", label: "Psychiatrist", category: "Medicine" },
+  { slug: "dentist", label: "Dentist", category: "Medicine" },
+  { slug: "physician-assistant", label: "Physician assistant", category: "Medicine" },
+  // Aviation & maritime
+  { slug: "military-pilot", label: "Military pilot", category: "Aviation" },
+  { slug: "bush-pilot", label: "Bush / backcountry pilot", category: "Aviation" },
+  { slug: "helicopter-pilot-pro", label: "Helicopter pilot", category: "Aviation" },
+  { slug: "ship-captain", label: "Ship captain", category: "Aviation" },
+  // Emergency services
+  { slug: "paramedic", label: "Paramedic", category: "Emergency services" },
+  { slug: "sar-professional", label: "Search-and-rescue professional", category: "Emergency services" },
+  // Public service
+  { slug: "detective", label: "Detective", category: "Public service" },
+  { slug: "intelligence-officer", label: "Intelligence officer", category: "Public service" },
+  { slug: "diplomat", label: "Diplomat", category: "Public service" },
+  // Academia & science
+  { slug: "research-scientist", label: "Research scientist", category: "Academia" },
+  { slug: "physicist", label: "Physicist", category: "Academia" },
+  { slug: "mathematician", label: "Mathematician", category: "Academia" },
+  // Law & government
+  { slug: "lawyer", label: "Lawyer", category: "Law and government" },
+  { slug: "judge", label: "Judge", category: "Law and government" },
+  { slug: "politician", label: "Politician", category: "Law and government" },
+  // Charity
+  { slug: "nonprofit-director", label: "Director of a nonprofit", category: "Charity and leadership" },
+  { slug: "humanitarian-aid-leader", label: "Humanitarian aid leader", category: "Charity and leadership" },
 ];
 
 export const SEED_SURVEYS: SeedSurvey[] = [

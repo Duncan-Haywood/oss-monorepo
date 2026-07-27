@@ -24,8 +24,14 @@ enum SurveyKind {
 /// what you want in a romantic partner — and the two never share rating
 /// state, so they can be compared against each other afterwards.
 enum Perspective {
+  /// What I want for myself / who I want to be.
   SELF
+  /// What I want in a romantic partner.
   PARTNER
+  /// What I THINK my partner wants in a partner. Comparing this against
+  /// their real PARTNER ranking is where the sharpest insight comes from:
+  /// not what you each want, but where you're wrong about each other.
+  PARTNER_GUESS
 }
 
 /// A registered account. Owns every Participant session it created, so
@@ -37,8 +43,27 @@ model User {
   firstName    String
   createdAt    DateTime @default(now())
 
-  sessions     UserSession[]
-  participants Participant[]
+  sessions       UserSession[]
+  participants   Participant[]
+  couplesCreated Couple[]      @relation("CoupleCreator")
+  couplesJoined  Couple[]      @relation("CoupleJoiner")
+}
+
+/// Two linked accounts. Either side can see the comparison once both have
+/// answered enough; neither can see the other's raw answers, only the
+/// aggregate comparison, so it stays a conversation rather than a audit.
+model Couple {
+  id         String    @id @default(cuid())
+  inviteCode String    @unique
+  creatorId  String
+  creator    User      @relation("CoupleCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  joinerId   String?
+  joiner     User?     @relation("CoupleJoiner", fields: [joinerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  joinedAt   DateTime?
+
+  @@index([creatorId])
+  @@index([joinerId])
 }
 
 /// A logged-in browser session. The raw token lives only in an HTTP-only

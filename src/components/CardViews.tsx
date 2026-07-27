@@ -7,8 +7,8 @@ export type SurveyKind = "ITEMS" | "FINANCIAL" | "CONJOINED";
 
 export type ItemsTrial = {
   trialId: string;
-  itemA: { id: string; label: string; category?: string | null };
-  itemB: { id: string; label: string; category?: string | null };
+  itemA: { id: string; label: string; category?: string | null; slug?: string | null };
+  itemB: { id: string; label: string; category?: string | null; slug?: string | null };
   answeredCount: number;
   confidence: number;
 };
@@ -44,9 +44,9 @@ const SLOT_EMOJI: Record<SlotLine["icon"], string> = {
 };
 
 export const INSTRUCTIONS: Record<SurveyKind, string> = {
-  ITEMS: "Swipe the one you prefer away — up or down",
-  FINANCIAL: "Swipe the situation you'd prefer away — up or down",
-  CONJOINED: "Swipe the one you'd prefer away — up or down",
+  ITEMS: "Which is more attractive?",
+  FINANCIAL: "Which situation is more attractive?",
+  CONJOINED: "Which overall is more attractive?",
 };
 
 export function CenteredNote({ children }: { children: React.ReactNode }) {
@@ -151,45 +151,12 @@ function PickStamp({ progress, position }: { progress: number; position: "top" |
 const cardBase =
   "relative flex flex-1 items-center justify-center overflow-hidden rounded-3xl border border-neutral-200 bg-white px-6 py-4 text-center shadow-lg disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 select-none";
 
-/** Tinder-style circular action button. */
-function ActionButton({
-  onClick,
-  disabled,
-  label,
-  glyph,
-  tone,
-  size = "md",
-}: {
-  onClick: () => void;
-  disabled: boolean;
-  label: string;
-  glyph: React.ReactNode;
-  tone: "amber" | "neutral";
-  size?: "md" | "lg";
-}) {
-  const dims = size === "lg" ? "h-16 w-16 text-2xl" : "h-12 w-12 text-lg";
-  const toneClass =
-    tone === "amber"
-      ? "border-amber-400 text-amber-500 active:bg-amber-50 dark:active:bg-amber-950/40"
-      : "border-neutral-300 text-neutral-500 active:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-400 dark:active:bg-neutral-800";
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      title={label}
-      className={`flex ${dims} shrink-0 items-center justify-center rounded-full border-2 bg-white shadow-md transition active:scale-90 disabled:opacity-40 dark:bg-neutral-900 ${toneClass}`}
-    >
-      {glyph}
-    </button>
-  );
-}
-
 /**
- * The action row under the deck: pick-top, undo, pick-bottom. There is
- * deliberately no "equal" option — forcing a choice keeps the pace up and
- * the decision cheap. (The API still accepts a tie, so it can be brought
- * back without a schema change.)
+ * The action row under the deck. Buttons are explicitly labelled ("Top" /
+ * "Bottom") rather than bare arrows, which read ambiguously — an arrow
+ * could mean "move the card" or "rank it higher". There is deliberately no
+ * "equal" option: forcing a choice keeps the pace up. (The API still
+ * accepts a tie, so it can be brought back without a schema change.)
  */
 function ActionBar({
   onUp,
@@ -204,13 +171,27 @@ function ActionBar({
   canUndo: boolean;
   disabled: boolean;
 }) {
+  const pickClass =
+    "flex flex-1 items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400 bg-white py-3 text-sm font-bold text-amber-600 shadow-sm transition active:scale-95 active:bg-amber-50 disabled:opacity-40 dark:bg-neutral-900 dark:text-amber-400 dark:active:bg-amber-950/40";
   return (
-    <div className="flex shrink-0 items-center justify-center gap-6 py-3">
-      <ActionButton onClick={onUp} disabled={disabled} label="Pick the top one" glyph="▲" tone="amber" size="lg" />
+    <div className="flex shrink-0 items-center gap-3 py-3">
+      <button onClick={onUp} disabled={disabled} className={pickClass}>
+        <span aria-hidden="true">↑</span> Top
+      </button>
       {onUndo && (
-        <ActionButton onClick={onUndo} disabled={disabled || !canUndo} label="Undo last answer" glyph="↺" tone="neutral" />
+        <button
+          onClick={onUndo}
+          disabled={disabled || !canUndo}
+          aria-label="Undo last answer"
+          title="Undo last answer"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-neutral-300 bg-white text-lg text-neutral-500 transition active:scale-90 disabled:opacity-30 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400"
+        >
+          ↺
+        </button>
       )}
-      <ActionButton onClick={onDown} disabled={disabled} label="Pick the bottom one" glyph="▼" tone="amber" size="lg" />
+      <button onClick={onDown} disabled={disabled} className={pickClass}>
+        <span aria-hidden="true">↓</span> Bottom
+      </button>
     </div>
   );
 }
@@ -240,20 +221,20 @@ export function ItemsTrialView({
           style={topStyle}
           onClick={() => commit("up")}
           disabled={submitting}
-          className={`${cardBase} flex-col gap-3 text-2xl font-bold leading-snug text-neutral-900 dark:text-neutral-50`}
+          className={`${cardBase} flex-col gap-4 text-2xl font-bold leading-snug text-neutral-900 dark:text-neutral-50`}
         >
           <PickStamp progress={progressUp} position="top" />
-          <CategoryIcon category={trial.itemA.category} />
+          <CategoryIcon category={trial.itemA.category} slug={trial.itemA.slug} size="lg" />
           {trial.itemA.label}
         </button>
         <button
           style={bottomStyle}
           onClick={() => commit("down")}
           disabled={submitting}
-          className={`${cardBase} flex-col gap-3 text-2xl font-bold leading-snug text-neutral-900 dark:text-neutral-50`}
+          className={`${cardBase} flex-col gap-4 text-2xl font-bold leading-snug text-neutral-900 dark:text-neutral-50`}
         >
           <PickStamp progress={progressDown} position="bottom" />
-          <CategoryIcon category={trial.itemB.category} />
+          <CategoryIcon category={trial.itemB.category} slug={trial.itemB.slug} size="lg" />
           {trial.itemB.label}
         </button>
       </div>

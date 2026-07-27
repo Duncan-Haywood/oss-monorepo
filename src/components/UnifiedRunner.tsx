@@ -32,6 +32,13 @@ type IntroForm = {
   countryOfResidence: string;
 };
 
+/** Always on screen while swiping, so it's never ambiguous who you're rating for. */
+const PERSPECTIVE_LABEL: Record<"SELF" | "PARTNER" | "PARTNER_GUESS", string> = {
+  SELF: "⭐ Rating: for myself",
+  PARTNER: "💞 Rating: in a partner",
+  PARTNER_GUESS: "🔮 Rating: what I think they want",
+};
+
 /** Blank by default — no personal data baked into the client bundle. */
 const DEFAULT_INTRO: IntroForm = {
   firstName: "",
@@ -45,13 +52,14 @@ const DEFAULT_INTRO: IntroForm = {
 
 type SessionBundle = {
   firstName: string;
+  perspective?: "SELF" | "PARTNER" | "PARTNER_GUESS";
   participants: Record<string, string>;
   domains: { slug: string; title: string; kind: DomainState["kind"] }[];
 };
 
 export function UnifiedRunner() {
   const [phase, setPhase] = useState<"loading" | "welcome" | "name-entry" | "running" | "thanks">("loading");
-  const [perspective, setPerspective] = useState<"SELF" | "PARTNER">("PARTNER");
+  const [perspective, setPerspective] = useState<"SELF" | "PARTNER" | "PARTNER_GUESS">("PARTNER");
   const [intro, setIntro] = useState<IntroForm>(DEFAULT_INTRO);
   const [firstName, setFirstName] = useState("");
   const [participants, setParticipants] = useState<Record<string, string>>({});
@@ -108,6 +116,7 @@ export function UnifiedRunner() {
           bundle.participants &&
           bundle.domains.some((d) => bundle.participants[d.slug]);
         if (usable) {
+          if (bundle.perspective) setPerspective(bundle.perspective);
           setFirstName(bundle.firstName);
           setParticipants(bundle.participants);
           const initialDomains = bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 }));
@@ -173,6 +182,48 @@ export function UnifiedRunner() {
     if (pid && domain) fetchNext(slug, pid, domain.kind);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, trial, domains.length, currentSlug, retryTick]);
+
+  /**
+   * Straight from the welcome screen into swiping — no form first. Details
+   * are asked for later (or never), because the fastest possible path to
+   * the first card is what makes people actually start.
+   */
+  async function beginSwiping(p: "SELF" | "PARTNER" | "PARTNER_GUESS") {
+    setPerspective(p);
+    setError(null);
+    const name = accountName ?? "Anonymous";
+    try {
+      const res = await fetch("/api/session/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ perspective: p, firstName: name }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.surveys?.length || !data?.participants) {
+        setError("Couldn't start. Try again.");
+        return;
+      }
+      const bundle: SessionBundle = {
+        firstName: name,
+        perspective: p,
+        participants: data.participants,
+        domains: data.surveys,
+      };
+      localStorage.setItem(LS_KEY, JSON.stringify(bundle));
+      setFirstName(name);
+      setParticipants(data.participants);
+      setDomains(
+        data.surveys.map((s: { slug: string; title: string; kind: DomainState["kind"] }) => ({
+          ...s,
+          confidence: 0,
+          answeredCount: 0,
+        }))
+      );
+      setPhase("running");
+    } catch {
+      setError("Couldn't start. Try again.");
+    }
+  }
 
   async function handleStart(e: React.FormEvent) {
     e.preventDefault();
@@ -326,23 +377,24 @@ export function UnifiedRunner() {
             What are we figuring out?
           </p>
           <button
-            onClick={() => {
-              setPerspective("PARTNER");
-              setPhase("name-entry");
-            }}
+            onClick={() => beginSwiping("PARTNER")}
             className="rounded-2xl bg-amber-500 px-4 py-4 text-base font-semibold text-neutral-950 shadow-sm transition active:scale-[0.98]"
           >
             What I want in a partner
           </button>
           <button
-            onClick={() => {
-              setPerspective("SELF");
-              setPhase("name-entry");
-            }}
+            onClick={() => beginSwiping("SELF")}
             className="rounded-2xl border-2 border-neutral-300 px-4 py-4 text-base font-semibold text-neutral-800 transition active:scale-[0.98] dark:border-neutral-700 dark:text-neutral-200"
           >
             What I want for myself
           </button>
+          <button
+            onClick={() => beginSwiping("PARTNER_GUESS")}
+            className="rounded-2xl border-2 border-neutral-300 px-4 py-4 text-base font-semibold text-neutral-800 transition active:scale-[0.98] dark:border-neutral-700 dark:text-neutral-200"
+          >
+            What I think my partner wants
+          </button>
+          {error && <p className="text-center text-sm font-medium text-red-500">{error}</p>}
           {accountName ? (
             <p className="text-center text-xs text-neutral-500 dark:text-neutral-400">Signed in as {accountName}</p>
           ) : (
@@ -501,6 +553,9 @@ export function UnifiedRunner() {
             >
               ✨ Insights
             </a>
+            <a href="/couple" className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+              💞
+            </a>
             <button
               onClick={() => setPhase("thanks")}
               className="text-xs font-medium text-neutral-500 underline underline-offset-2 dark:text-neutral-400"
@@ -515,6 +570,9 @@ export function UnifiedRunner() {
             style={{ width: `${Math.max(levelProgressPct, 4)}%` }}
           />
         </div>
+        <p className="rounded-lg bg-neutral-200/70 px-2 py-1 text-center text-[11px] font-bold uppercase tracking-wide text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+          {PERSPECTIVE_LABEL[perspective]}
+        </p>
         {upcoming && swipesLeft !== null && (
           <p className="text-center text-xs font-semibold text-amber-700 dark:text-amber-300">
             {swipesLeft === 0

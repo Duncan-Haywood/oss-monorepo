@@ -50,9 +50,10 @@ export async function POST(req: NextRequest) {
   const recentPairKeys = new Set(recentTrials.map((t) => pairKey(t.itemAId, t.itemBId)));
 
   const [pickedA, pickedB] = selectNextPair({
-    items: items.map((i) => ({ id: i.id, rating: i.rating, rd: i.rd })),
+    items: items.map((i) => ({ id: i.id, rating: i.rating, rd: i.rd, category: i.category })),
     timesShown,
     recentPairKeys,
+    answeredCount,
   });
   // Randomize which slot (A/B, i.e. top/bottom on screen) each pick lands in,
   // so a real position bias can't creep into the ratings.
@@ -66,8 +67,8 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     trialId: trial.id,
-    itemA: { id: itemA.id, label: itemA.label, category: itemA.category },
-    itemB: { id: itemB.id, label: itemB.label, category: itemB.category },
+    itemA: { id: itemA.id, label: itemA.label, category: itemA.category, slug: itemA.slug },
+    itemB: { id: itemB.id, label: itemB.label, category: itemB.category, slug: itemB.slug },
     answeredCount,
     confidence: surveyConfidence(items),
   });

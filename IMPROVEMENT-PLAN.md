@@ -103,6 +103,29 @@ count a trial as "shown" once it's actually been displayed for a moment. ~2 hour
 
 ---
 
+## Auth roadmap
+
+Email + password is built (bcrypt, hashed session tokens in HTTP-only cookies,
+per-email and per-IP rate limiting). The remaining methods each need setup only you
+can do, listed in the order I'd add them:
+
+1. **Google OAuth** — you create a Google Cloud project, configure the OAuth consent
+   screen, and hand me a client ID + secret; redirect URI must point at the final
+   deployed domain. Cheapest big win: most users have a Google account and it removes
+   password friction entirely. ~3 hours once credentials exist.
+2. **Passwordless email magic links** — needs an email service (Resend is the easiest;
+   free tier is fine) plus DNS records if you want to send from your own domain.
+   Also unlocks password reset, which the current password login lacks. ~4 hours.
+3. **Sign in with Apple** — Apple Developer Program ($99/yr), a Services ID, a private
+   key, and domain verification. Worth it mainly if this becomes a real iOS app, where
+   Apple requires it alongside other social logins. ~4 hours after enrolment.
+4. **Optional TOTP 2FA** — pure JS (`otpauth` + `qrcode`), no external service, no cost.
+   Opt-in from settings, with single-use recovery codes. ~3 hours, can be done anytime.
+
+Account linking matters here: whichever methods get added should attach to the same
+`User` row by verified email, so signing in with Google and with a password lands you
+in the same account rather than silently creating a duplicate.
+
 ## P2 — Missing pieces you've already asked for.
 
 ### 10. The admin portal does not exist
