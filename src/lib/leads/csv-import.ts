@@ -4,7 +4,7 @@
  */
 
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
-import { defaultTierForCategory } from "./category-normalize";
+import { BUSINESS_CATEGORIES, defaultTierForCategory } from "./category-normalize";
 import { parseLeadHours } from "./sqlite-row-mapping";
 import { defaultTagline } from "./default-tagline";
 import { MAX_LEAD_SLUG_LENGTH, sanitizeLeadSlug } from "./slug";
@@ -78,18 +78,11 @@ export interface CsvImportResult {
   skipped: number;
 }
 
-const CATEGORIES = new Set<BusinessCategory>([
-  "restaurant",
-  "salon",
-  "trades",
-  "retail",
-  "health",
-  "automotive",
-  "cleaning",
-  "fitness",
-  "legal",
-  "generic",
-]);
+// Single source of truth is category-normalize.ts's BUSINESS_CATEGORIES —
+// this used to be a hand-maintained duplicate list, which is exactly the
+// kind of drift risk that let addLeadAction go without the same validation
+// this module already had (see add-lead-category-validation-parity).
+const CATEGORIES = new Set<BusinessCategory>(BUSINESS_CATEGORIES);
 const TIERS = new Set(["starter", "growth", "complete"] as const);
 const MAX_ROWS = 100;
 
@@ -409,7 +402,7 @@ export function parseLeadsCsv(
     if (!category) {
       errors.push({
         row: rowNumber,
-        message: `Invalid category "${get("category")}" (use restaurant|salon|trades|retail|health|automotive|cleaning|fitness|legal|generic)`,
+        message: `Invalid category "${get("category")}" (use ${BUSINESS_CATEGORIES.join("|")})`,
       });
       skipped += 1;
       return;

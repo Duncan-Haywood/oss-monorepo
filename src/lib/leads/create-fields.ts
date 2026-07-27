@@ -10,6 +10,7 @@ import {
   MAX_CONTACT_PHONE_LENGTH,
 } from "@/lib/inquiries/contact-fields";
 import { defaultTagline } from "./default-tagline";
+import { BUSINESS_CATEGORIES } from "./category-normalize";
 import type { BusinessCategory } from "./types";
 
 /** Hard-reject — empty/over-long name cannot form a useful lead row. */
@@ -112,6 +113,20 @@ export function normalizeLeadCreateFields(
     return {
       ok: false,
       error: `Business Name must be ${MAX_BUSINESS_NAME_LENGTH} characters or fewer`,
+    };
+  }
+
+  // A Server Action's declared parameter type (BusinessCategory) is not
+  // enforced at runtime against an arbitrary caller — csv-import.ts's
+  // parseCategory already hard-rejects an unrecognized value with a clear
+  // operator-facing error; this was the one lead-creation path that instead
+  // let an invalid category through to persistence, silently coerced back to
+  // "generic" on every later read by normalizeLeadCategory with zero
+  // feedback (add-lead-category-validation-parity).
+  if (!(BUSINESS_CATEGORIES as readonly string[]).includes(input.category)) {
+    return {
+      ok: false,
+      error: `Invalid category "${input.category}" (use ${BUSINESS_CATEGORIES.join("|")})`,
     };
   }
 
