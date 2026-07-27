@@ -75,6 +75,15 @@ export const CATEGORY_THEMES: Record<BusinessCategory, CategoryTheme> = {
     panelClass: "border-emerald-200/80 bg-white/70",
     heroEyebrow: "Cleaning service preview",
   },
+  fitness: {
+    category: "fitness",
+    label: "Fitness & gyms",
+    shellClass: "min-h-screen bg-[radial-gradient(ellipse_at_top,_#eef2ff_0%,_#ffffff_55%,_#e0e7ff_100%)]",
+    accentTextClass: "text-indigo-800",
+    ctaClass: "bg-indigo-950 text-indigo-50 hover:bg-indigo-900",
+    panelClass: "border-indigo-200/80 bg-white/70",
+    heroEyebrow: "Gym & studio preview",
+  },
   generic: {
     category: "generic",
     label: "Local business",

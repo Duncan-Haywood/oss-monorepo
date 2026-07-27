@@ -234,6 +234,7 @@ const CATEGORIES: { id: BusinessCategory; label: string }[] = [
   { id: "health", label: "Health / Wellness" },
   { id: "automotive", label: "Automotive / Auto Repair" },
   { id: "cleaning", label: "Cleaning Services" },
+  { id: "fitness", label: "Fitness / Gyms" },
   { id: "generic", label: "Generic / Other" },
 ];
 

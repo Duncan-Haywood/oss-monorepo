@@ -349,6 +349,47 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
       },
     ],
   },
+  {
+    category: "fitness",
+    href: "/websites-for-fitness",
+    navLabel: "Fitness & gyms",
+    seoTitle: "Website for Gyms & Fitness Studios — schedules, sign-ups",
+    metaDescription:
+      `A gym or studio website with class schedules, memberships, and a signup form — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that turns class schedules into member signups",
+    heroSubhead:
+      "Class schedule, membership tiers, and a signup-ready contact form — built from your public gym details and previewed for free. Add monthly member outreach when you're ready.",
+    painPoints: [
+      "Prospective members can't find your class schedule or membership pricing without calling",
+      "Your only online presence is a class-booking app with no real website behind it",
+      "A custom website from an agency costs thousands and takes months, longer than a trial-membership window",
+    ],
+    features: [
+      "Class schedule and membership tiers laid out clearly",
+      "Signup / trial-membership contact form and map",
+      "Basic SEO so \"gym near me\" and \"yoga studio near me\" searches find you",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "ironclad-fitness-studio",
+    faq: [
+      {
+        question: "Can I keep using my existing class-booking or membership app?",
+        answer:
+          "Yes — the site links out to whatever booking or membership-management tool you already use; we don't force a migration.",
+      },
+      {
+        question: "Do you write the member outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your gym's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for membership calls?",
+        answer:
+          "Complete adds an AI phone agent for your front desk line so a missed call after hours doesn't become a lost membership.",
+      },
+    ],
+  },
 ] as const;
 
 export function categoryLandingPageByHref(href: string): CategoryLandingPage | undefined {

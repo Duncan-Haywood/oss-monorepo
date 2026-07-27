@@ -289,6 +289,12 @@ const SCHEMA_TYPE_BY_CATEGORY: Record<BusinessCategory, string> = {
   // type is acceptable (schema.org doesn't require category-to-@type to be
   // 1:1), unlike inventing a nonexistent type would be.
   cleaning: "HomeAndConstructionBusiness",
+  // schema.org's real, dedicated LocalBusiness subtype for gyms/fitness
+  // studios (a SportsActivityLocation sibling of HealthClub) — distinct
+  // from health's own MedicalBusiness, since a gym/personal-trainer/yoga
+  // studio is membership + class-schedule focused, not patient/booking
+  // focused healthcare.
+  fitness: "ExerciseGym",
   generic: "LocalBusiness",
 };
 

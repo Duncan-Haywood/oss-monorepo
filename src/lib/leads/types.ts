@@ -11,6 +11,7 @@ export type BusinessCategory =
   | "health"
   | "automotive"
   | "cleaning"
+  | "fitness"
   | "generic";
 
 export type LeadPipelineStage =

@@ -36,6 +36,8 @@ function acquisitionSourceForCategory(
       return "cat-automotive";
     case "cleaning":
       return "cat-cleaning";
+    case "fitness":
+      return "cat-fitness";
     default:
       return undefined;
   }

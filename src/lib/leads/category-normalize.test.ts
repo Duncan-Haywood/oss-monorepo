@@ -62,6 +62,7 @@ describe("defaultTierForCategory cross-site consistency", () => {
       health: "riverside-wellness-clinic",
       automotive: "riverside-auto-garage",
       cleaning: "riverside-cleaning-co",
+      fitness: "riverside-fitness-gym",
       generic: "acme-services",
     } as const;
     for (const category of BUSINESS_CATEGORIES) {

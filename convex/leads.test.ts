@@ -388,6 +388,24 @@ test("categoryValidator accepts the cleaning category end to end (cleaning-categ
   expect(bySlug?.category).toBe("cleaning");
 });
 
+test("categoryValidator accepts the fitness category end to end (fitness-category-landing-page)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({
+      slug: "ironclad-fitness-studio",
+      businessName: "Ironclad Fitness Studio",
+      category: "fitness",
+    }),
+  );
+
+  const bySlug: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "ironclad-fitness-studio",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(bySlug?.category).toBe("fitness");
+});
+
 test("markLeadPaid is idempotent on stripeSessionId and inserts a paid stub lead using the canonical payment-stub defaults when none exists", async () => {
   const t = convexTest(schema, modules);
   const first = await t.mutation(api.leads.markLeadPaid, {

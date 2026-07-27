@@ -15,7 +15,7 @@ import {
  */
 
 describe("DEMO_LEADS", () => {
-  it("ships the seven stable marketing deep-link demos", () => {
+  it("ships the eight stable marketing deep-link demos", () => {
     expect(DEMO_LEADS.map((lead) => lead.slug)).toEqual([
       "example-bakery",
       "serene-salon",
@@ -24,6 +24,7 @@ describe("DEMO_LEADS", () => {
       "clearview-wellness-clinic",
       "trailhead-auto-repair",
       "brightside-cleaning-co",
+      "ironclad-fitness-studio",
     ]);
   });
 
@@ -63,6 +64,11 @@ describe("DEMO_LEADS", () => {
     });
     expect(getLeadBySlug("brightside-cleaning-co")).toMatchObject({
       category: "cleaning",
+      recommendedTier: "growth",
+      stage: "discovered",
+    });
+    expect(getLeadBySlug("ironclad-fitness-studio")).toMatchObject({
+      category: "fitness",
       recommendedTier: "growth",
       stage: "discovered",
     });
@@ -204,6 +210,23 @@ describe("resolvePreviewLead", () => {
     }
   });
 
+  it("infers fitness category and growth tier from gym/studio keywords", () => {
+    for (const slug of [
+      "riverside-fitness-studio",
+      "downtown-gym",
+      "elite-personal-training",
+      "sunrise-yoga-studio",
+      "crossfit-summit",
+      "west-end-martial-arts-academy",
+    ]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "fitness",
+        recommendedTier: "growth",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",
@@ -222,13 +245,14 @@ describe("resolvePreviewLead", () => {
     expect(resolvePreviewLead("Family-CLINIC").category).toBe("health");
     expect(resolvePreviewLead("Downtown-GARAGE").category).toBe("automotive");
     expect(resolvePreviewLead("Shine-MAID-Service").category).toBe("cleaning");
+    expect(resolvePreviewLead("Peak-CROSSFIT").category).toBe("fitness");
   });
 });
 
 describe("countLeadsByStage", () => {
   it("counts every pipeline stage for the demo catalog", () => {
     expect(countLeadsByStage()).toEqual({
-      discovered: 2,
+      discovered: 3,
       site_built: 2,
       outreach_sent: 2,
       discovery_call: 1,

@@ -239,12 +239,13 @@ export default function ArchitectureDocPage() {
       <h2>2. Site generation</h2>
       <p>
         Category templates (restaurant, salon, trades, retail, health, automotive, cleaning,
-        generic) render at{" "}
+        fitness, generic) render at{" "}
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
         <code>serene-salon</code>, <code>mountain-plumbing</code>,{" "}
         <code>corner-mercantile</code>, <code>clearview-wellness-clinic</code>,{" "}
-        <code>trailhead-auto-repair</code>, <code>brightside-cleaning-co</code>. Commerce catalog
+        <code>trailhead-auto-repair</code>, <code>brightside-cleaning-co</code>,{" "}
+        <code>ironclad-fitness-studio</code>. Commerce catalog
         items load via <code>loadPreviewCommerceItems</code> (
         <code>@/lib/commerce/preview-commerce</code> — not re-exported from the{" "}
         <code>@/lib/commerce</code> barrel, which <code>leads-client</code> imports
@@ -3733,6 +3734,34 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>CATEGORY_LANDING_PAGES</code>), and a clean production build plus a{" "}
         <code>npm run dev</code> smoke check confirmed <code>/websites-for-cleaning</code> and its
         two image routes prerender statically and serve 200s alongside the existing six.
+      </p>
+      <p>
+        <code>fitness-category-landing-page</code>: added <code>fitness</code> as a ninth
+        purely-additive <code>BusinessCategory</code> literal and an eighth{" "}
+        <code>/websites-for-*</code> landing page, mirroring the retail/health/automotive/cleaning
+        series above end to end — <code>convex/leads.ts</code>&apos;s <code>categoryValidator</code>{" "}
+        gained <code>v.literal(&quot;fitness&quot;)</code>, every{" "}
+        <code>Record&lt;BusinessCategory, …&gt;</code> map gained a <code>fitness</code> entry (an
+        indigo theme, hex <code>#6366f1</code>; schema.org&apos;s dedicated{" "}
+        <code>ExerciseGym</code> subtype, distinct from <code>health</code>&apos;s
+        patient/booking-focused <code>MedicalBusiness</code> — gyms, personal trainers, and
+        yoga/pilates/martial-arts studios are membership + class-schedule focused, a distinct
+        vertical), and every exhaustive switch (<code>defaultTagline</code>,{" "}
+        <code>acquisitionSourceForCategory</code>) gained a <code>fitness</code> case, forced by the
+        same <code>never</code>-check compile safety net as every prior vertical in this series. A
+        new curated demo lead (<code>ironclad-fitness-studio</code>, an Erie, CO strength and
+        conditioning gym) backs the new page&apos;s live example, and{" "}
+        <code>resolvePreviewLead</code>&apos;s slug-inference chain gained a{" "}
+        <code>gym|fitness|yoga|pilates|crossfit|martial-arts|personal-train</code> branch —
+        mechanically checked in both directions against all seven existing branches&apos; keyword
+        lists (not just the one-directional check <code>automotive-repair-keyword-priority-fix</code>
+        {" "}found insufficient) and confirmed to share no substring with any of them.{" "}
+        <code>cat-fitness</code> was added to <code>CHECKOUT_ACQUISITION_SOURCES</code> for CTA
+        attribution. Sitemap listing and OG/Twitter card images again needed zero new wiring (both
+        stay generically derived from <code>CATEGORY_LANDING_PAGES</code>), and a clean production
+        build plus a <code>npm run dev</code> smoke check confirmed{" "}
+        <code>/websites-for-fitness</code> and its two image routes prerender statically and serve
+        200s alongside the existing seven.
       </p>
 
       <h2>Tech stack</h2>

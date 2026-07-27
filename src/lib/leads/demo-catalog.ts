@@ -132,6 +132,24 @@ export const DEMO_LEADS: readonly Lead[] = [
     recommendedTier: "growth",
     dataSource: "demo_catalog",
   },
+  {
+    slug: "ironclad-fitness-studio",
+    businessName: "Ironclad Fitness Studio",
+    category: "fitness",
+    city: "Erie",
+    state: "CO",
+    address: "1450 Co Rd 5",
+    tagline: "Strength, conditioning, and coaching that keeps you coming back",
+    description:
+      "Locally owned strength and conditioning gym offering personal training, small-group classes, and open gym access for members of every fitness level, with a member portal for booking and class schedules.",
+    phone: "(303) 555-0179",
+    email: "hello@ironcladfitness.example",
+    services: ["Personal training", "Small-group classes", "Open gym access", "Nutrition coaching"],
+    hours: { weekday: "Mon–Fri 5am–9pm", weekend: "Sat–Sun 7am–2pm" },
+    stage: "discovered",
+    recommendedTier: "growth",
+    dataSource: "demo_catalog",
+  },
 ] as const;
 
 export function getLeadBySlug(slug: string): Lead | undefined {
@@ -178,6 +196,14 @@ export function resolvePreviewLead(slug: string): Lead {
     category = "health";
   } else if (/clean|maid|janitorial|housekeep|spotless/.test(lower)) {
     category = "cleaning";
+  } else if (/gym|fitness|yoga|pilates|crossfit|martial-arts|personal-train/.test(lower)) {
+    // Mechanically verified to share no keyword substring with any of the
+    // seven branches above (checked in both directions: none of their
+    // keyword lists contain gym/fitness/yoga/pilates/crossfit/martial-arts/
+    // personal-train, and none of these fitness keywords match an earlier
+    // branch's regex) — see automotive-repair-keyword-priority-fix for why
+    // a one-directional check alone isn't sufficient.
+    category = "fitness";
   }
 
   return {

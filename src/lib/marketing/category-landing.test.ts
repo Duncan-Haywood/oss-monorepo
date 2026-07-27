@@ -16,6 +16,7 @@ describe("CATEGORY_LANDING_PAGES", () => {
     expect(categories.sort()).toEqual([
       "automotive",
       "cleaning",
+      "fitness",
       "health",
       "restaurant",
       "retail",
