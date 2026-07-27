@@ -3885,6 +3885,38 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>starter-upsell-send-race-guard</code>.
       </p>
 
+      <p>
+        <code>replyToInquiryAction</code> (the CRM reply-to-visitor flow) was the one send action
+        in this family still missing a duplicate-send race guard — and the one send in the whole
+        set that reaches an actual end customer rather than the operator&apos;s own paid client.
+        Its persist-then-notify design (mark <code>status=replied</code> in{" "}
+        <code>recordClientInquiryReply</code> before Resend, so a Convex failure never lets an
+        unrecorded send land) already re-checks <code>status !== &quot;archived&quot;</code>{" "}
+        atomically at write time (<code>inquiry-reply-archive-race-guard</code>), but had no
+        equivalent guard against an exact concurrent duplicate — two open tabs on the same
+        inquiry&apos;s reply composer, or a double-click before the button&apos;s{" "}
+        <code>isPending</code>-disabled state applies, could both pass the stale{" "}
+        <code>inquiryCanReceiveReply</code> check, both persist, and both fire a real duplicate
+        reply email to the visitor who submitted the contact form. Since{" "}
+        <code>inquiryCanReceiveReply</code> deliberately allows replying to an
+        already-replied inquiry (a legitimate follow-up is a real feature — unlike the
+        marketing/voice pack marker, there is no one-shot &quot;already sent&quot; gate here
+        either), the fix mirrors <code>recordStarterUpsellSent</code>&apos;s plain expected-count
+        compare-and-swap rather than a permanent block:{" "}
+        <code>clientInquiries</code> gained <code>replySentCount</code> (both backends), and{" "}
+        <code>recordClientInquiryReply</code>/Convex <code>recordReply</code> take an{" "}
+        <code>expectedReplySentCount</code> that must still match the row&apos;s current count at
+        write time — a stale duplicate is rejected (returns <code>null</code>, the same signal as
+        the archive-race guard), while a later, deliberate follow-up reply using a fresh read
+        always succeeds. Because <code>null</code> from the mutation is now ambiguous (missing
+        row, archived race, or duplicate-send race),{" "}
+        <code>replyToInquiryAction</code> re-fetches the inquiry on a <code>null</code> result and
+        branches to report the accurate current reason, the same re-fetch-and-branch approach as{" "}
+        <code>commerce-order-paid-out-race-message-accuracy</code>, instead of one hardcoded
+        message covering three different causes. See{" "}
+        <code>inquiry-reply-send-race-guard</code>.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

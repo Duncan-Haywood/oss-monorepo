@@ -606,15 +606,21 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
     // Durably mark replied BEFORE Resend (persist-then-notify) so a Convex
     // mutation failure never lets a real visitor reply land unrecorded —
     // see INQUIRY_REPLY_CONVEX_PRIMARY. recordClientInquiryReply also
-    // atomically re-checks status !== "archived" on the row it patches
-    // (inquiry-reply-archive-race-guard) — the inquiryCanReceiveReply check
-    // above ran against a stale read, so null here can also mean a
-    // concurrent archive landed after that read, not only a missing row.
+    // atomically re-checks status !== "archived" (inquiry-reply-archive-race-guard)
+    // AND expectedReplySentCount against the row it patches
+    // (inquiry-reply-send-race-guard) — the inquiryCanReceiveReply check
+    // above and the captured expectedReplySentCount both ran against the
+    // same stale read, so null here can mean a concurrent archive, a
+    // concurrent duplicate reply send, or a genuinely missing row. Re-fetch
+    // to report the accurate current reason instead of guessing, mirroring
+    // commerce-order-paid-out-race-message-accuracy's re-fetch-and-branch.
+    const expectedReplySentCount = inquiry.replySentCount ?? 0;
     let updated;
     try {
       updated = await recordClientInquiryReply(
         parsedId.inquiryId,
         normalized.body,
+        expectedReplySentCount,
         INQUIRY_REPLY_CONVEX_PRIMARY,
       );
     } catch (error) {
@@ -628,10 +634,15 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
       throw error;
     }
     if (!updated) {
+      const current = await getClientInquiryById(parsedId.inquiryId);
       return {
         success: false as const,
         error:
-          "Inquiry not found or was archived after this page loaded — refresh and check its status",
+          !current
+            ? "Inquiry not found — it may have been deleted"
+            : current.status === "archived"
+              ? "Inquiry was archived after this page loaded — refresh and check its status"
+              : "This inquiry was already replied to moments ago by a concurrent request — this click may have sent a duplicate reply email.",
       };
     }
 

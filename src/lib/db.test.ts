@@ -3073,7 +3073,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         operatorReply: "Thanks!",
       });
       const db = await loadDb(CONVEX_URL);
-      const result = await db.recordClientInquiryReply(seeded.id, "Thanks!", {
+      const result = await db.recordClientInquiryReply(seeded.id, "Thanks!", 0, {
         requireConvex: true,
       });
       expect(result?.status).toBe("replied");
@@ -3088,7 +3088,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       convexMutation.mockResolvedValueOnce(null);
       const db = await loadDb(CONVEX_URL);
       await expect(
-        db.recordClientInquiryReply("missing-inquiry", "Thanks!", { requireConvex: true }),
+        db.recordClientInquiryReply("missing-inquiry", "Thanks!", 0, { requireConvex: true }),
       ).resolves.toBeNull();
     });
 
@@ -3096,13 +3096,15 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       convexMutation.mockRejectedValueOnce(new Error("convex outage"));
       const db = await loadDb(CONVEX_URL);
       await expect(
-        db.recordClientInquiryReply("some-inquiry", "Thanks!", { requireConvex: true }),
+        db.recordClientInquiryReply("some-inquiry", "Thanks!", 0, { requireConvex: true }),
       ).rejects.toThrow(/recordClientInquiryReply/);
     });
 
     it("SQLite fallback returns null for a missing inquiry", async () => {
       const db = await loadDb(undefined);
-      await expect(db.recordClientInquiryReply("missing-inquiry", "Thanks!")).resolves.toBeNull();
+      await expect(
+        db.recordClientInquiryReply("missing-inquiry", "Thanks!", 0),
+      ).resolves.toBeNull();
       expect(convexMutation).not.toHaveBeenCalled();
     });
 
@@ -3115,7 +3117,34 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       });
       await db.updateClientInquiryStatus(seeded.id, "archived");
 
-      await expect(db.recordClientInquiryReply(seeded.id, "Too late")).resolves.toBeNull();
+      await expect(db.recordClientInquiryReply(seeded.id, "Too late", 0)).resolves.toBeNull();
+    });
+
+    it("SQLite fallback rejects a reply whose expectedReplySentCount is stale (inquiry-reply-send-race-guard)", async () => {
+      const db = await loadDb(undefined);
+      const seeded = await db.insertClientInquiry({
+        leadSlug: "duplicate-reply-inquiry-lead",
+        businessName: "Test Business",
+        message: "Hello",
+      });
+
+      // First reply succeeds against expected count 0.
+      const first = await db.recordClientInquiryReply(seeded.id, "First reply", 0);
+      expect(first?.status).toBe("replied");
+      expect(first?.replySentCount).toBe(1);
+
+      // A concurrent duplicate call captured the same stale expected count (0)
+      // before the first call's write landed — it must be rejected, not send
+      // a second real reply email.
+      await expect(
+        db.recordClientInquiryReply(seeded.id, "Duplicate reply", 0),
+      ).resolves.toBeNull();
+
+      // A later, deliberate follow-up reply using the fresh count succeeds.
+      const followUp = await db.recordClientInquiryReply(seeded.id, "Follow-up reply", 1);
+      expect(followUp?.status).toBe("replied");
+      expect(followUp?.operatorReply).toBe("Follow-up reply");
+      expect(followUp?.replySentCount).toBe(2);
     });
 
     it("SQLite fallback persists status=replied + operatorReply + repliedAt", async () => {
@@ -3126,7 +3155,11 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         message: "Hello",
       });
 
-      const updated = await db.recordClientInquiryReply(seeded.id, "Thanks for reaching out!");
+      const updated = await db.recordClientInquiryReply(
+        seeded.id,
+        "Thanks for reaching out!",
+        0,
+      );
       expect(updated?.status).toBe("replied");
       expect(updated?.operatorReply).toBe("Thanks for reaching out!");
       expect(updated?.repliedAt).toBeTruthy();

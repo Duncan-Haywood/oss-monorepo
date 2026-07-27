@@ -277,6 +277,9 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   if (!inquiryCols.includes("repliedAt")) {
     db.exec("ALTER TABLE client_inquiries ADD COLUMN repliedAt TEXT");
   }
+  if (!inquiryCols.includes("replySentCount")) {
+    db.exec("ALTER TABLE client_inquiries ADD COLUMN replySentCount INTEGER");
+  }
 
   const checkoutSessionCols = (
     db.prepare("PRAGMA table_info(checkout_sessions)").all() as unknown as Array<{
