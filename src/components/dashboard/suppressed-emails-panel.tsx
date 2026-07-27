@@ -42,9 +42,44 @@ const REASON_BADGE_CLASS: Record<ReturnType<typeof suppressionReasonOrDefault>, 
 };
 
 export function SuppressedEmailsPanel({ emails }: SuppressedEmailsPanelProps) {
-  const [list, setList] = useState(emails);
+  // `emails` is a fresh server-fetched prop on every RSC re-render (e.g. the
+  // dozens of revalidatePath("/dashboard/leads") calls across actions.ts, or
+  // a Resend webhook recording a new bounce/complaint between renders). A
+  // prior version of this component mirrored it into `useState(emails)`,
+  // which only seeds the initial value and never re-syncs — this panel (the
+  // sole operator-facing CAN-SPAM audit view of the suppression list) froze
+  // at whatever it showed on first mount, silently hiding any suppression
+  // added or removed by something other than this panel's own handleRemove
+  // clicks. Deriving the list from `emails` directly and tracking only this
+  // panel's own optimistic removals (a Set, pruned once a fresh `emails`
+  // prop confirms the removal server-side) always reflects the latest
+  // server state without a state-sync effect.
+  const [removedEmails, setRemovedEmails] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  // Once a fresh `emails` prop confirms a removal (the address is no longer
+  // present server-side), drop it from `removedEmails` — otherwise a later
+  // re-suppression of that same address (e.g. a new bounce after the
+  // operator's earlier "Remove") would stay hidden for the rest of this
+  // mounted session even though the server now has it suppressed again.
+  // Adjusting state during render (not inside an effect) is the pattern
+  // React recommends for this "derive from a prop change" case; a useEffect
+  // that calls setState synchronously is rejected by this repo's
+  // react-hooks/set-state-in-effect lint rule.
+  const [prevEmails, setPrevEmails] = useState(emails);
+  if (prevEmails !== emails) {
+    setPrevEmails(emails);
+    if (removedEmails.size > 0) {
+      const stillSuppressed = new Set(emails.map((r) => r.email));
+      setRemovedEmails((prev) => {
+        const next = new Set([...prev].filter((email) => stillSuppressed.has(email)));
+        return next.size === prev.size ? prev : next;
+      });
+    }
+  }
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const list = emails.filter((r) => !removedEmails.has(r.email));
   const sorted = [...list].sort((a, b) => a.email.localeCompare(b.email));
   const bounceOrComplaintCount = sorted.filter(
     (r) => suppressionReasonOrDefault(r.reason) !== "unsubscribe",
@@ -58,7 +93,7 @@ export function SuppressedEmailsPanel({ emails }: SuppressedEmailsPanelProps) {
         setError(res.error ?? "Failed to remove address");
         return;
       }
-      setList((prev) => prev.filter((r) => r.email !== email));
+      setRemovedEmails((prev) => new Set(prev).add(email));
       // The just-clicked Remove button unmounts with its <li>; no other
       // control in this list is guaranteed to stay mounted (unlike the
       // toggle-button pattern in dashboard-focus-restore.ts), so focus

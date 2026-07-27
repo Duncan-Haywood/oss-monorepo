@@ -665,7 +665,23 @@ export default function ArchitectureDocPage() {
         look like an upgrade and unconditionally patch <code>reasonUpdatedAt</code>, never
         converging to a true no-op the way the SQLite fallback already did (its{" "}
         <code>suppression_list.reason</code> column is <code>NOT NULL DEFAULT &apos;unsubscribe&apos;</code>
-        , so its <code>existing.reason</code> is never undefined for the same scenario).
+        , so its <code>existing.reason</code> is never undefined for the same scenario).{" "}
+        <code>SuppressedEmailsPanel</code> originally mirrored its <code>emails</code> prop into{" "}
+        <code>useState(emails)</code>, which only seeds the initial value — every one of the
+        dozens of <code>revalidatePath(&quot;/dashboard/leads&quot;)</code> calls across{" "}
+        <code>actions.ts</code>, or a Resend webhook recording a fresh bounce/complaint while the
+        dashboard sat open, re-rendered the server component with an updated{" "}
+        <code>emails</code> list that this already-mounted client component never picked up,
+        silently freezing the operator&apos;s sole CAN-SPAM audit view at whatever it showed on
+        first mount. Fixed by deriving the rendered list directly from the{" "}
+        <code>emails</code> prop and tracking only this panel&apos;s own optimistic{" "}
+        <code>handleRemove</code> clicks in a small <code>removedEmails</code> set, pruned during
+        render (not inside a <code>useEffect</code>, which the repo&apos;s{" "}
+        <code>react-hooks/set-state-in-effect</code> lint rule rejects for a synchronous{" "}
+        <code>setState</code>) once a fresh <code>emails</code> prop confirms the removal — so a
+        later re-suppression of the same address (e.g. a new bounce after the operator&apos;s
+        earlier &quot;Remove&quot;) surfaces immediately instead of staying hidden for the rest of
+        the mounted session.
         Every
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}
