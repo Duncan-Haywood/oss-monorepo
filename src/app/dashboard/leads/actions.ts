@@ -2051,6 +2051,7 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
       description: leadData.description,
       services: leadData.services,
       hours: leadData.hours,
+      category: leadData.category,
     });
     if (!capped.ok) {
       return { success: false as const, error: capped.error };

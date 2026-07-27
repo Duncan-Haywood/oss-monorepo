@@ -179,6 +179,25 @@ export default function ArchitectureDocPage() {
         scraping.
       </p>
       <p>
+        <code>add-lead-empty-field-defaults</code>: every other lead-creation path — CSV import&apos;s{" "}
+        <code>parseLeadsCsv</code> and the Stripe payment-stub builder — already defaulted a blank
+        phone/tagline/description rather than persisting an empty string, but{" "}
+        <code>normalizeLeadCreateFields</code> (the manual <strong>Add lead</strong> path) never
+        picked up the same convention, even though it already defaulted an empty{" "}
+        <code>services</code> list. An operator filling in only Business Name/Slug/Category could
+        save a lead with all three fields blank, which rendered broken on the public preview page
+        (empty hero subtext, a dead <code>tel:</code> link, a &quot;Call &quot; button with no
+        number) and, once the lead reached <code>paid</code>/<code>live</code>, shipped empty{" "}
+        <code>telephone</code>/<code>description</code> fields in the paid deliverable&apos;s
+        LocalBusiness JSON-LD. Fixed by adding the same fallbacks
+        <code>normalizeLeadCreateFields</code> already had for <code>services</code>: phone falls
+        back to the shared <code>DEFAULT_LEAD_PHONE</code> placeholder, tagline to{" "}
+        <code>defaultTagline(category)</code>, and description to a business-name-derived
+        placeholder sentence (mirroring CSV import&apos;s own wording) — all applied before the
+        existing soft-cap, so an over-long default still truncates the same way an operator-typed
+        value would.
+      </p>
+      <p>
         <code>src/lib/db.ts</code> imports <code>&quot;server-only&quot;</code>, so it cannot be
         imported directly by Vitest (mirrors the <code>stripe-sync.ts</code> testability pattern:
         every existing test mocks <code>@/lib/db</code> wholesale rather than exercising its real

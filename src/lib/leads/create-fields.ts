@@ -9,6 +9,8 @@ import {
   MAX_CONTACT_EMAIL_LENGTH,
   MAX_CONTACT_PHONE_LENGTH,
 } from "@/lib/inquiries/contact-fields";
+import { defaultTagline } from "./default-tagline";
+import type { BusinessCategory } from "./types";
 
 /** Hard-reject — empty/over-long name cannot form a useful lead row. */
 export const MAX_BUSINESS_NAME_LENGTH = 200;
@@ -32,6 +34,22 @@ export const MAX_LEAD_DATA_SOURCE_LENGTH = 64;
 export const MAX_LEAD_PHONE_LENGTH = MAX_CONTACT_PHONE_LENGTH;
 export const MAX_LEAD_EMAIL_LENGTH = MAX_CONTACT_EMAIL_LENGTH;
 
+/**
+ * Shared empty-field fallbacks — every other lead-creation path (CSV import's
+ * parseLeadsCsv, the Stripe payment-stub builder) already defaults a blank
+ * phone/tagline/description rather than persisting an empty string, since an
+ * empty value renders broken on the public preview page (dead "Call " button
+ * with no number, blank hero subtext) and ships empty telephone/description
+ * fields in the paid preview's LocalBusiness JSON-LD. normalizeLeadCreateFields
+ * is the manual Add-lead path and had never picked up this same convention
+ * (see add-lead-empty-field-defaults).
+ */
+export const DEFAULT_LEAD_PHONE = "(555) 000-0000";
+
+export function defaultLeadDescription(businessName: string): string {
+  return `Preview site generated for ${businessName}. Claim it to connect your domain and go live.`;
+}
+
 export function softCapLeadField(value: string, max: number): string {
   return value.length > max ? value.slice(0, max) : value;
 }
@@ -52,7 +70,7 @@ export function normalizeLeadDataSource(
   return softCapLeadField(trimmed, MAX_LEAD_DATA_SOURCE_LENGTH);
 }
 
-export type LeadCreateFieldInput = {
+export type LeadCreateFieldOutput = {
   businessName: string;
   city: string;
   state: string;
@@ -65,8 +83,17 @@ export type LeadCreateFieldInput = {
   hours: { weekday: string; weekend: string };
 };
 
+/**
+ * `category` is input-only — it feeds defaultTagline's empty-tagline
+ * fallback below but is never itself transformed, and the caller (Lead)
+ * already carries its own category field, so it is not echoed in the output.
+ */
+export type LeadCreateFieldInput = LeadCreateFieldOutput & {
+  category: BusinessCategory;
+};
+
 export type NormalizeLeadCreateFieldsResult =
-  | { ok: true; fields: LeadCreateFieldInput }
+  | { ok: true; fields: LeadCreateFieldOutput }
   | { ok: false; error: string };
 
 /**
@@ -118,18 +145,22 @@ export function normalizeLeadCreateFields(
         ? { address: softCapLeadField(addressRaw, MAX_ADDRESS_LENGTH) }
         : {}),
       phone: softCapLeadField(
-        typeof input.phone === "string" ? input.phone.trim() : "",
+        (typeof input.phone === "string" ? input.phone.trim() : "") ||
+          DEFAULT_LEAD_PHONE,
         MAX_LEAD_PHONE_LENGTH,
       ),
       ...(emailRaw
         ? { email: softCapLeadField(emailRaw, MAX_LEAD_EMAIL_LENGTH) }
         : {}),
       tagline: softCapLeadField(
-        typeof input.tagline === "string" ? input.tagline.trim() : "",
+        (typeof input.tagline === "string" ? input.tagline.trim() : "") ||
+          defaultTagline(input.category),
         MAX_TAGLINE_LENGTH,
       ),
       description: softCapLeadField(
-        typeof input.description === "string" ? input.description.trim() : "",
+        (typeof input.description === "string"
+          ? input.description.trim()
+          : "") || defaultLeadDescription(businessName),
         MAX_DESCRIPTION_LENGTH,
       ),
       services:
