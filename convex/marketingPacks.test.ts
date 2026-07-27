@@ -225,3 +225,87 @@ test("upsert (regenerate) clears a previously-set sentToClientAt", async () => {
   });
   expect(row?.sentToClientAt).toBeUndefined();
 });
+
+test("clearSentToClient releases a reservation matching the expected value, and returns true", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.marketingPacks.upsert, upsertArgs());
+  await t.mutation(api.marketingPacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const cleared = await t.mutation(api.marketingPacks.clearSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    expectedSentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(cleared).toBe(true);
+
+  const row = await t.query(api.marketingPacks.getByLeadMonth, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.sentToClientAt).toBeUndefined();
+
+  // A cleared marker can be re-reserved by a legitimate later send attempt.
+  const reMarked = await t.mutation(api.marketingPacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    sentToClientAt: "2026-01-06T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(reMarked).toBe(true);
+});
+
+test("clearSentToClient is a safe no-op when the marker no longer matches the expected value (already regenerated, already cleared, or unknown pack)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.marketingPacks.upsert, upsertArgs());
+  await t.mutation(api.marketingPacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  // Wrong expected value — must not clear the real marker.
+  const wrongValue = await t.mutation(api.marketingPacks.clearSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    expectedSentToClientAt: "2026-01-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(wrongValue).toBe(false);
+  const stillMarked = await t.query(api.marketingPacks.getByLeadMonth, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(stillMarked?.sentToClientAt).toBe("2026-01-05T00:00:00.000Z");
+
+  // Unknown lead+month combination.
+  const unknown = await t.mutation(api.marketingPacks.clearSentToClient, {
+    leadSlug: "no-such-lead",
+    yearMonth: "2026-01",
+    expectedSentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(unknown).toBe(false);
+
+  // Already cleared (e.g. a regenerate landed first) — a stale release call
+  // must not throw or clobber the now-different (unset) state.
+  await t.mutation(
+    api.marketingPacks.upsert,
+    upsertArgs({ packId: "mp_demo-cafe_2026-01_v2", generatedAt: "2026-01-10T00:00:00.000Z" }),
+  );
+  const alreadyCleared = await t.mutation(api.marketingPacks.clearSentToClient, {
+    leadSlug: "demo-cafe",
+    yearMonth: "2026-01",
+    expectedSentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(alreadyCleared).toBe(false);
+});

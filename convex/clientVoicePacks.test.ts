@@ -189,3 +189,73 @@ test("upsert (regenerate) clears a previously-set sentToClientAt", async () => {
   });
   expect(row?.sentToClientAt).toBeUndefined();
 });
+
+test("clearSentToClient releases a reservation matching the expected value, and returns true", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.clientVoicePacks.upsert, upsertArgs());
+  await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const cleared = await t.mutation(api.clientVoicePacks.clearSentToClient, {
+    leadSlug: "demo-cafe",
+    expectedSentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(cleared).toBe(true);
+
+  const row = await t.query(api.clientVoicePacks.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.sentToClientAt).toBeUndefined();
+
+  const reMarked = await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    sentToClientAt: "2026-01-06T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(reMarked).toBe(true);
+});
+
+test("clearSentToClient is a safe no-op when the marker no longer matches the expected value (already regenerated, already cleared, or unknown lead)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.clientVoicePacks.upsert, upsertArgs());
+  await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const wrongValue = await t.mutation(api.clientVoicePacks.clearSentToClient, {
+    leadSlug: "demo-cafe",
+    expectedSentToClientAt: "2026-01-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(wrongValue).toBe(false);
+  const stillMarked = await t.query(api.clientVoicePacks.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(stillMarked?.sentToClientAt).toBe("2026-01-05T00:00:00.000Z");
+
+  const unknown = await t.mutation(api.clientVoicePacks.clearSentToClient, {
+    leadSlug: "no-such-lead",
+    expectedSentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(unknown).toBe(false);
+
+  await t.mutation(
+    api.clientVoicePacks.upsert,
+    upsertArgs({ packId: "cvp_demo-cafe_v2", generatedAt: "2026-01-10T00:00:00.000Z" }),
+  );
+  const alreadyCleared = await t.mutation(api.clientVoicePacks.clearSentToClient, {
+    leadSlug: "demo-cafe",
+    expectedSentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(alreadyCleared).toBe(false);
+});

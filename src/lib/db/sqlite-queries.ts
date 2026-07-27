@@ -487,6 +487,45 @@ export function sqliteMarkClientVoicePackSentToClient(
 }
 
 /**
+ * Releases a reservation made by sqliteMarkMarketingPackSentToClient when the
+ * send it was guarding failed — see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix. Only clears when
+ * the row still holds the exact value this caller wrote (expectedSentToClientAt),
+ * a safe no-op otherwise (e.g. a regenerate already cleared it).
+ */
+export function sqliteClearMarketingPackSentToClient(
+  db: DatabaseSync,
+  leadSlug: string,
+  yearMonth: string,
+  expectedSentToClientAt: string,
+): boolean {
+  const result = db
+    .prepare(
+      "UPDATE marketing_packs SET sentToClientAt = NULL WHERE leadSlug = ? AND yearMonth = ? AND sentToClientAt = ?",
+    )
+    .run(leadSlug, yearMonth, expectedSentToClientAt);
+  return result.changes > 0;
+}
+
+/**
+ * Releases a reservation made by sqliteMarkClientVoicePackSentToClient when
+ * the send it was guarding failed. Mirrors
+ * sqliteClearMarketingPackSentToClient's exact-match CAS release.
+ */
+export function sqliteClearClientVoicePackSentToClient(
+  db: DatabaseSync,
+  leadSlug: string,
+  expectedSentToClientAt: string,
+): boolean {
+  const result = db
+    .prepare(
+      "UPDATE client_voice_packs SET sentToClientAt = NULL WHERE leadSlug = ? AND sentToClientAt = ?",
+    )
+    .run(leadSlug, expectedSentToClientAt);
+  return result.changes > 0;
+}
+
+/**
  * Set (or clear) a lead's custom domain, atomically re-checking ownership
  * (by exact host and its www/apex alias) immediately before the write — the
  * same guard as the Convex twin (convex/deployHandoffs.ts's updateCustomDomain

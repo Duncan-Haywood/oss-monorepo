@@ -11,7 +11,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * preview URL from NEXT_PUBLIC_APP_URL, and revalidate on success. A suppressed
  * helper return is defense-in-depth only — sendMarketingPackToClientEmail now
  * passes skipSuppression: true (marketing-voice-pack-skip-suppression).
+ *
+ * The sent-marker reservation now runs BEFORE the send, and is released on a
+ * failed send (marketing-voice-pack-client-send-race-guard-ordering-fix) —
+ * see the "reserves the sent-marker before sending" / "skips the send" /
+ * "releases the reservation" tests below for the ordering this closes.
  */
+
+class MockConvexPrimaryWriteError extends Error {
+  constructor(message = "Convex primary write failed") {
+    super(message);
+    this.name = "ConvexPrimaryWriteError";
+  }
+}
+
+// Mocked (not imported from the real module) so the class reference stays
+// identical across this suite's per-test vi.resetModules() calls — mirrors
+// send-starter-upsell-action.test.ts / stripe-connect-actions.test.ts.
+vi.mock("@/lib/payments/convex-primary", () => ({
+  ConvexPrimaryWriteError: MockConvexPrimaryWriteError,
+}));
 
 const requireOperatorAuth = vi.fn();
 vi.mock("@/lib/auth/operator", () => ({
@@ -40,6 +59,7 @@ const getLeadBySlug = vi.fn();
 const listOrdersByLeadSlug = vi.fn();
 const getMarketingPack = vi.fn();
 const markMarketingPackSentToClient = vi.fn();
+const clearMarketingPackSentToClient = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -72,6 +92,8 @@ vi.mock("@/lib/db", () => ({
   listUnpaidCommerceOrders: vi.fn(),
   markMarketingPackSentToClient: (...args: unknown[]) =>
     markMarketingPackSentToClient(...args),
+  clearMarketingPackSentToClient: (...args: unknown[]) =>
+    clearMarketingPackSentToClient(...args),
 }));
 
 const sendMarketingPackToClientEmail = vi.fn();
@@ -157,6 +179,7 @@ describe("sendMarketingPackToClientAction", () => {
       id: "email_1",
     });
     markMarketingPackSentToClient.mockReset().mockResolvedValue(true);
+    clearMarketingPackSentToClient.mockReset().mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -274,8 +297,17 @@ describe("sendMarketingPackToClientAction", () => {
     expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
   });
 
-  it("sends the pack with preview URL and revalidates on success", async () => {
+  it("reserves the sent-marker before sending, and revalidates on success", async () => {
     process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const callOrder: string[] = [];
+    markMarketingPackSentToClient.mockImplementation(async () => {
+      callOrder.push("mark");
+      return true;
+    });
+    sendMarketingPackToClientEmail.mockImplementation(async () => {
+      callOrder.push("send");
+      return { success: true, id: "email_1" };
+    });
     const { sendMarketingPackToClientAction } = await import("./actions");
     const res = await sendMarketingPackToClientAction("demo-cafe");
 
@@ -285,6 +317,7 @@ describe("sendMarketingPackToClientAction", () => {
       mock: false,
       sentToClientAt: expect.any(String),
     });
+    expect(callOrder).toEqual(["mark", "send"]);
     expect(sendMarketingPackToClientEmail).toHaveBeenCalledOnce();
     expect(sendMarketingPackToClientEmail).toHaveBeenCalledWith({
       to: "hello@demo-cafe.example",
@@ -301,33 +334,74 @@ describe("sendMarketingPackToClientAction", () => {
       expect.any(String),
       expect.objectContaining({ requireConvex: true }),
     );
+    expect(clearMarketingPackSentToClient).not.toHaveBeenCalled();
   });
 
-  it("reports a likely duplicate when a concurrent request already set the marker (marketing-voice-pack-client-send-race-guard)", async () => {
+  it("skips the send entirely and reports a duplicate-risk error when a concurrent request already reserved the marker (marketing-voice-pack-client-send-race-guard-ordering-fix)", async () => {
     // markMarketingPackSentToClient's atomic CAS write resolves false (not
     // throw) when a second tab or a double-click before the button's
-    // isPending-disabled state applied already recorded this exact marker —
-    // the email above already sent, so this must surface as a distinct
-    // duplicate-risk error, not silent success, mirroring
-    // resendCommerceClientReceiptAction's own race-guard check.
+    // isPending-disabled state applied already reserved this exact marker —
+    // since the reservation now runs BEFORE the send, this must skip the
+    // send entirely rather than detect the duplicate only after a real
+    // second email already went out.
     markMarketingPackSentToClient.mockResolvedValue(false);
     const { sendMarketingPackToClientAction } = await import("./actions");
     const res = await sendMarketingPackToClientAction("demo-cafe");
     expect(res).toEqual({
       success: false,
       error:
-        "Marketing pack was already marked sent by a concurrent request — this click may have sent a duplicate email.",
+        "Marketing pack was already marked sent by a concurrent request — skipped duplicate send.",
     });
-    expect(sendMarketingPackToClientEmail).toHaveBeenCalledOnce();
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("stays best-effort success when the marker write throws (unlike the false-return race case above)", async () => {
-    markMarketingPackSentToClient.mockRejectedValue(new Error("disk full"));
+  it("skips the send and reports a not-sent error when the reservation write fails closed on Convex (ConvexPrimaryWriteError)", async () => {
+    markMarketingPackSentToClient.mockRejectedValue(new MockConvexPrimaryWriteError());
     const { sendMarketingPackToClientAction } = await import("./actions");
     const res = await sendMarketingPackToClientAction("demo-cafe");
-    expect(res.success).toBe(true);
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Could not reserve the marketing pack sent-to-client marker in the shared store — email was not sent. Retry in a moment.",
+    });
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("re-throws a non-ConvexPrimaryWriteError from the reservation write (unexpected bug, not a fail-closed guard)", async () => {
+    markMarketingPackSentToClient.mockRejectedValue(new Error("unexpected bug"));
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({ success: false, error: "unexpected bug" });
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("releases the reservation and reports the send failure when the email fails after a successful reservation", async () => {
+    sendMarketingPackToClientEmail.mockResolvedValue({
+      success: false,
+      error: "Resend 429",
+    });
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({ success: false, error: "Resend 429" });
+    expect(clearMarketingPackSentToClient).toHaveBeenCalledWith(
+      "demo-cafe",
+      yearMonth,
+      expect.any(String),
+    );
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("still reports the original send failure when the release itself also fails (logged, not thrown)", async () => {
+    sendMarketingPackToClientEmail.mockResolvedValue({
+      success: false,
+      error: "Resend 429",
+    });
+    clearMarketingPackSentToClient.mockRejectedValue(new Error("convex outage"));
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({ success: false, error: "Resend 429" });
   });
 
   it("defaults preview base URL to localhost when NEXT_PUBLIC_APP_URL is unset", async () => {

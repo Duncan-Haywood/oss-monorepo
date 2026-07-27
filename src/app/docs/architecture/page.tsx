@@ -4215,6 +4215,36 @@ source). The same digest also lists email-critical leads with no usable address 
         not a one-shot gate — a deliberate resend still succeeds).
       </p>
 
+      <p>
+        <code>marketing-voice-pack-client-send-race-guard-ordering-fix</code>: the ordering bug
+        the entry above fixed for <code>sendStarterUpsellAction</code> /{" "}
+        <code>sendStripeConnectOnboardingLinkToClientAction</code> also existed in{" "}
+        <code>sendMarketingPackToClientAction</code> and{" "}
+        <code>sendClientVoicePackToClientAction</code> — both sent the email first and only
+        recorded <code>markMarketingPackSentToClient</code> /{" "}
+        <code>markClientVoicePackSentToClient</code>&apos;s CAS marker afterward, so two
+        concurrent requests could both pass eligibility and both send a real duplicate
+        marketing-pack or voice-FAQ-pack email before either reached the mark. Unlike the
+        Starter-upsell/Stripe-Connect markers (an incrementing counter that a later, deliberate
+        resend can always advance past), these two markers are <em>one-shot</em> gates —{" "}
+        <code>sentToClientAt</code> is only ever cleared by regenerating the pack — so a naive
+        mark-before-send reorder would permanently mark a pack &quot;sent&quot; even when the send
+        that reservation was guarding then failed (a suppression hit, a Resend API error),
+        defeating <code>listMarketingPacksMissingClientSend</code>&apos;s &quot;generated but
+        never emailed&quot; visibility. Fixed with a reserve-then-send-then-release pattern
+        instead of a blind reorder: the marker is written <em>before</em> the send (closing the
+        concurrency window — a lost reservation or a fail-closed{" "}
+        <code>ConvexPrimaryWriteError</code> skips the send entirely), and a new{" "}
+        <code>clearMarketingPackSentToClient</code> / <code>clearClientVoicePackSentToClient</code>{" "}
+        mutation (Convex <code>clearSentToClient</code>, plus the SQLite-fallback twin) releases
+        the reservation — via an exact-match compare-and-swap on the timestamp this call itself
+        wrote, a safe no-op if a regenerate already cleared it — only if the send then fails. The
+        release call is itself best-effort (not <code>requireConvex</code>-gated): on the rare
+        double-failure where the release also fails, the marker stays stuck showing
+        &quot;sent&quot;, and regenerating the pack (which always clears{" "}
+        <code>sentToClientAt</code>) is the documented manual recovery.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
