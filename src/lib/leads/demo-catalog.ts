@@ -196,17 +196,43 @@ export function resolvePreviewLead(slug: string): Lead {
     .join(" ");
 
   const lower = slug.toLowerCase();
+  // "Kitchen and bath remodeling" is a common real-world contractor naming
+  // convention (e.g. "ABC Kitchen Bath Remodeling") — bare "kitchen" would
+  // otherwise misroute it into restaurant before trades' own keywords ever
+  // run (category-substring-collision-audit-02). Scope restaurant's kitchen
+  // match out when a remodeling-contractor marker is also present, and route
+  // it to trades via the "remodel"/"renovat" keywords added there instead.
+  const isKitchenRemodelingContractor =
+    /kitchen/.test(lower) && /bath|remodel|renovat/.test(lower);
   let category: Lead["category"] = "generic";
-  if (/bakery|bistro|cafe|restaurant|pizza|grill|diner|kitchen/.test(lower)) {
+  if (
+    !isKitchenRemodelingContractor &&
+    /bakery|bistro|cafe|restaurant|pizza|grill|diner|kitchen/.test(lower)
+  ) {
     category = "restaurant";
-  } else if (/salon|spa|barber|nails|beauty|hair/.test(lower)) {
-    category = "salon";
   } else if (/auto|mechanic|garage|tire|transmission|collision|motor/.test(lower)) {
-    // Checked before "trades" — trades' own bare "repair" keyword would
-    // otherwise swallow the dominant real-world auto-repair naming
-    // convention ("joes-auto-repair") before this branch ever runs.
+    // Checked before both "salon" and "trades" — salon's own bare "spa"
+    // keyword and trades' own bare "repair" keyword would otherwise swallow
+    // two dominant real-world automotive naming conventions ("auto-spa"
+    // detailing shops, "joes-auto-repair") before this branch ever runs
+    // (category-substring-collision-audit-02 extended this precedent, first
+    // established against trades alone, to salon too).
     category = "automotive";
-  } else if (/plumb|hvac|electric|roof|paint|landscap|contractor|trade|repair/.test(lower)) {
+  } else if (/salon|\bspa\b|barber|nails|beauty|\bhair\b/.test(lower)) {
+    // "spa" and "hair" are word-boundary scoped (\b) rather than bare
+    // substrings — a bare "spa" matches inside "crawlspace" (a home-services
+    // business name with no other category keyword) and a bare "hair"
+    // matches inside a surname like "Hairston" (e.g. "hairston-roofing-llc",
+    // which should resolve to trades via "roof" instead). Mirrors the
+    // word-boundary fix already applied to legal's "law"/"legal" keywords
+    // (legal-category-lawn-substring-collision-fix) — see
+    // category-substring-collision-audit-02.
+    category = "salon";
+  } else if (
+    /plumb|hvac|electric|roof|paint|landscap|contractor|trade|repair|remodel|renovat/.test(
+      lower,
+    )
+  ) {
     category = "trades";
   } else if (/shop|store|boutique|mercantile|market|retail|goods/.test(lower)) {
     category = "retail";
