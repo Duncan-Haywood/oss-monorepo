@@ -91,6 +91,33 @@ export const markSentToClient = mutation({
   },
 });
 
+/**
+ * Releases a reservation made by markSentToClient when the send that
+ * reservation was guarding turned out to fail — see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix. Mirrors
+ * marketingPacks.clearSentToClient's exact-match CAS release.
+ */
+export const clearSentToClient = mutation({
+  args: {
+    leadSlug: v.string(),
+    expectedSentToClientAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const existing = await ctx.db
+      .query("clientVoicePacks")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .unique();
+    if (!existing || existing.sentToClientAt !== args.expectedSentToClientAt) {
+      return false;
+    }
+    await ctx.db.patch(existing._id, { sentToClientAt: undefined });
+    return true;
+  },
+});
+
 export const getByLeadSlug = query({
   args: {
     leadSlug: v.string(),

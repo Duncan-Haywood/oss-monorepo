@@ -110,6 +110,39 @@ export const markSentToClient = mutation({
   },
 });
 
+/**
+ * Releases a reservation made by markSentToClient when the send that
+ * reservation was guarding turned out to fail — see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix. Only clears the
+ * marker when it still holds the exact value this caller itself just wrote
+ * (expectedSentToClientAt); if it has since changed — a regenerate already
+ * cleared it, or (impossible under the reserve-before-send ordering, but
+ * checked anyway) a different value was written — this is a safe no-op
+ * rather than clobbering someone else's state.
+ */
+export const clearSentToClient = mutation({
+  args: {
+    leadSlug: v.string(),
+    yearMonth: v.string(),
+    expectedSentToClientAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const candidates = await ctx.db
+      .query("marketingPacks")
+      .withIndex("by_lead_month", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    const existing = candidates.find((row) => row.yearMonth === args.yearMonth);
+    if (!existing || existing.sentToClientAt !== args.expectedSentToClientAt) {
+      return false;
+    }
+    await ctx.db.patch(existing._id, { sentToClientAt: undefined });
+    return true;
+  },
+});
+
 export const getByLeadMonth = query({
   args: {
     leadSlug: v.string(),

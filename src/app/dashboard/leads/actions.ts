@@ -27,6 +27,7 @@ import {
   listMarketingPacksForMonth,
   getMarketingPack,
   markMarketingPackSentToClient,
+  clearMarketingPackSentToClient,
   upsertCommerceCatalog,
   getCommerceCatalog,
   listCommerceCatalogs,
@@ -37,6 +38,7 @@ import {
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
   markClientVoicePackSentToClient,
+  clearClientVoicePackSentToClient,
   listUnpaidCommerceOrders,
   listCommerceOrdersRefunded,
   listCommerceOrdersDisputed,
@@ -2835,6 +2837,45 @@ export async function sendMarketingPackToClientAction(slug: string) {
     const email = lead.email!.trim();
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const previewUrl = leadPreviewAbsoluteUrl(baseUrl, lead.slug);
+
+    // Reserve the one-shot sent-marker BEFORE sending (mirroring
+    // recordCheckoutRecoverySent's persist-then-notify placement) — closes
+    // the window where two concurrent requests (a second tab, a double-click
+    // before the button's isPending-disabled state applied) both read the
+    // pack as not-yet-sent and both send a real duplicate email before
+    // either reaches a mark-after-send check (see
+    // marketing-voice-pack-client-send-race-guard-ordering-fix, the same fix
+    // already applied to sendStarterUpsellAction /
+    // sendStripeConnectOnboardingLinkToClientAction). A lost reservation
+    // (marked === false) or a fail-closed reservation write skips the send
+    // entirely — no email goes out on the losing side.
+    const sentToClientAt = new Date().toISOString();
+    let marked: boolean;
+    try {
+      marked = await markMarketingPackSentToClient(
+        lead.slug,
+        pack.yearMonth,
+        sentToClientAt,
+        MARKETING_PACK_CONVEX_PRIMARY,
+      );
+    } catch (markError) {
+      if (markError instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not reserve the marketing pack sent-to-client marker in the shared store — email was not sent. Retry in a moment.",
+        };
+      }
+      throw markError;
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Marketing pack was already marked sent by a concurrent request — skipped duplicate send.",
+      };
+    }
+
     const sent = await sendMarketingPackToClientEmail({
       to: email,
       businessName: lead.businessName,
@@ -2844,6 +2885,22 @@ export async function sendMarketingPackToClientAction(slug: string) {
       previewUrl,
     });
     if (!sent.success) {
+      // Release the reservation so the pack correctly reappears as
+      // not-yet-sent (listMarketingPacksMissingClientSend / pipeline-health /
+      // digest) and a retry click isn't blocked by the one-shot gate this
+      // marker enforces. Unlike the reservation write above, this release is
+      // best-effort at the call site: on the rare double-failure where the
+      // release itself also fails, the marker stays stuck showing "sent" —
+      // regenerating the pack (which always clears sentToClientAt) is the
+      // documented manual recovery.
+      try {
+        await clearMarketingPackSentToClient(lead.slug, pack.yearMonth, sentToClientAt);
+      } catch (clearError) {
+        console.error(
+          `Failed to release marketing pack sent-to-client reservation for ${lead.slug} after a failed send:`,
+          clearError,
+        );
+      }
       return {
         success: false as const,
         error:
@@ -2852,44 +2909,6 @@ export async function sendMarketingPackToClientAction(slug: string) {
             : "error" in sent && typeof sent.error === "string"
               ? sent.error
               : "Failed to send marketing pack email",
-      };
-    }
-
-    // Durable sent-marker after a confirmed successful send — closes the
-    // "generated but never emailed" visibility gap (see
-    // marketing-voice-pack-client-send-visibility). Best-effort on a thrown
-    // write error: the email already went out, so a marker-*persist* failure
-    // must not turn a successful send into a reported failure; the pack just
-    // stays flagged as not-yet-sent for the next digest/pipeline-health read,
-    // which is safe (worst case: a harmless "resend" nudge, never a missed
-    // delivery). markMarketingPackSentToClient's atomic CAS write can also
-    // resolve `false` (not throw) when a concurrent request — a second tab,
-    // a double-click before the button's isPending-disabled state applied —
-    // already set this exact marker first; that's proof this click's send
-    // was a genuine duplicate email, not a persistence failure, so unlike
-    // the exception case above it must not be silently discarded (see
-    // marketing-voice-pack-client-send-race-guard, mirroring
-    // resendCommerceClientReceiptAction's own race-guard check).
-    const sentToClientAt = new Date().toISOString();
-    let marked = true;
-    try {
-      marked = await markMarketingPackSentToClient(
-        lead.slug,
-        pack.yearMonth,
-        sentToClientAt,
-        MARKETING_PACK_CONVEX_PRIMARY,
-      );
-    } catch (markError) {
-      console.error(
-        `Failed to record marketing pack sent-to-client marker for ${lead.slug}:`,
-        markError,
-      );
-    }
-    if (!marked) {
-      return {
-        success: false as const,
-        error:
-          "Marketing pack was already marked sent by a concurrent request — this click may have sent a duplicate email.",
       };
     }
 
@@ -4174,6 +4193,40 @@ export async function sendClientVoicePackToClientAction(slug: string) {
     const email = lead.email!.trim();
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const previewUrl = leadPreviewAbsoluteUrl(baseUrl, lead.slug);
+
+    // Reserve the one-shot sent-marker BEFORE sending — mirrors
+    // sendMarketingPackToClientAction's reserve-then-send-then-release-on-failure
+    // ordering (see marketing-voice-pack-client-send-race-guard-ordering-fix).
+    // A lost reservation or a fail-closed reservation write skips the send
+    // entirely, closing the window where two concurrent requests could both
+    // send a real duplicate email before either reached a mark-after-send
+    // check.
+    const sentToClientAt = new Date().toISOString();
+    let marked: boolean;
+    try {
+      marked = await markClientVoicePackSentToClient(
+        lead.slug,
+        sentToClientAt,
+        CLIENT_VOICE_PACK_CONVEX_PRIMARY,
+      );
+    } catch (markError) {
+      if (markError instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not reserve the client voice pack sent-to-client marker in the shared store — email was not sent. Retry in a moment.",
+        };
+      }
+      throw markError;
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Client voice pack was already marked sent by a concurrent request — skipped duplicate send.",
+      };
+    }
+
     const sent = await sendClientVoicePackToClientEmail({
       to: email,
       businessName: lead.businessName,
@@ -4182,6 +4235,17 @@ export async function sendClientVoicePackToClientAction(slug: string) {
       previewUrl,
     });
     if (!sent.success) {
+      // Release the reservation so the pack reappears as not-yet-sent and a
+      // retry click isn't blocked by the one-shot gate — best-effort at the
+      // call site, mirroring sendMarketingPackToClientAction's release step.
+      try {
+        await clearClientVoicePackSentToClient(lead.slug, sentToClientAt);
+      } catch (clearError) {
+        console.error(
+          `Failed to release client voice pack sent-to-client reservation for ${lead.slug} after a failed send:`,
+          clearError,
+        );
+      }
       return {
         success: false as const,
         error:
@@ -4190,38 +4254,6 @@ export async function sendClientVoicePackToClientAction(slug: string) {
             : "error" in sent && typeof sent.error === "string"
               ? sent.error
               : "Failed to send voice pack email",
-      };
-    }
-
-    // Durable sent-marker after a confirmed successful send — mirrors
-    // sendMarketingPackToClientAction's marker write (see
-    // marketing-voice-pack-client-send-visibility). Best-effort on a thrown
-    // write error: the email already went out, so a marker-*persist*
-    // failure must not report a failed send. markClientVoicePackSentToClient's
-    // atomic CAS write can also resolve `false` (not throw) when a
-    // concurrent request already set this exact marker first — proof this
-    // click's send was a genuine duplicate email, which must surface rather
-    // than be silently discarded (see marketing-voice-pack-client-send-race-guard,
-    // the same fix applied to sendMarketingPackToClientAction).
-    const sentToClientAt = new Date().toISOString();
-    let marked = true;
-    try {
-      marked = await markClientVoicePackSentToClient(
-        lead.slug,
-        sentToClientAt,
-        CLIENT_VOICE_PACK_CONVEX_PRIMARY,
-      );
-    } catch (markError) {
-      console.error(
-        `Failed to record client voice pack sent-to-client marker for ${lead.slug}:`,
-        markError,
-      );
-    }
-    if (!marked) {
-      return {
-        success: false as const,
-        error:
-          "Client voice pack was already marked sent by a concurrent request — this click may have sent a duplicate email.",
       };
     }
 

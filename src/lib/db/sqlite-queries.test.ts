@@ -17,6 +17,8 @@ import {
   sqliteMarkCommerceOrderClientReceiptSent,
   sqliteMarkMarketingPackSentToClient,
   sqliteMarkClientVoicePackSentToClient,
+  sqliteClearMarketingPackSentToClient,
+  sqliteClearClientVoicePackSentToClient,
   sqliteUpdateDeployHandoffCustomDomain,
   sqliteOrderAlreadyRecorded,
   sqliteRecordLeadPayment,
@@ -232,6 +234,94 @@ describe("sqliteMarkClientVoicePackSentToClient", () => {
     const db = freshDb();
     expect(
       sqliteMarkClientVoicePackSentToClient(db, "missing", "2026-07-05T00:00:00.000Z"),
+    ).toBe(false);
+  });
+});
+
+describe("sqliteClearMarketingPackSentToClient", () => {
+  it("releases a reservation matching the expected value, and returns true", () => {
+    const db = freshDb();
+    insertMarketingPackDirect(db, "test-lead", "2026-07", "2026-07-05T00:00:00.000Z");
+    expect(
+      sqliteClearMarketingPackSentToClient(db, "test-lead", "2026-07", "2026-07-05T00:00:00.000Z"),
+    ).toBe(true);
+    const row = db
+      .prepare("SELECT sentToClientAt FROM marketing_packs WHERE leadSlug = ? AND yearMonth = ?")
+      .get("test-lead", "2026-07") as { sentToClientAt: string | null };
+    expect(row.sentToClientAt).toBeNull();
+
+    // A cleared marker can be re-reserved by a legitimate later send.
+    expect(
+      sqliteMarkMarketingPackSentToClient(db, "test-lead", "2026-07", "2026-07-06T00:00:00.000Z"),
+    ).toBe(true);
+  });
+
+  it("is a safe no-op when the marker no longer matches the expected value (already regenerated, already cleared, or unknown pack)", () => {
+    const db = freshDb();
+    insertMarketingPackDirect(db, "test-lead", "2026-07", "2026-07-05T00:00:00.000Z");
+
+    expect(
+      sqliteClearMarketingPackSentToClient(db, "test-lead", "2026-07", "2026-07-01T00:00:00.000Z"),
+    ).toBe(false);
+    const stillMarked = db
+      .prepare("SELECT sentToClientAt FROM marketing_packs WHERE leadSlug = ? AND yearMonth = ?")
+      .get("test-lead", "2026-07") as { sentToClientAt: string };
+    expect(stillMarked.sentToClientAt).toBe("2026-07-05T00:00:00.000Z");
+
+    expect(
+      sqliteClearMarketingPackSentToClient(db, "missing", "2026-07", "2026-07-05T00:00:00.000Z"),
+    ).toBe(false);
+
+    const unsentDb = freshDb();
+    insertMarketingPackDirect(unsentDb, "test-lead", "2026-07");
+    expect(
+      sqliteClearMarketingPackSentToClient(
+        unsentDb,
+        "test-lead",
+        "2026-07",
+        "2026-07-05T00:00:00.000Z",
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("sqliteClearClientVoicePackSentToClient", () => {
+  it("releases a reservation matching the expected value, and returns true", () => {
+    const db = freshDb();
+    insertClientVoicePackDirect(db, "test-lead", "2026-07-05T00:00:00.000Z");
+    expect(
+      sqliteClearClientVoicePackSentToClient(db, "test-lead", "2026-07-05T00:00:00.000Z"),
+    ).toBe(true);
+    const row = db
+      .prepare("SELECT sentToClientAt FROM client_voice_packs WHERE leadSlug = ?")
+      .get("test-lead") as { sentToClientAt: string | null };
+    expect(row.sentToClientAt).toBeNull();
+
+    expect(
+      sqliteMarkClientVoicePackSentToClient(db, "test-lead", "2026-07-06T00:00:00.000Z"),
+    ).toBe(true);
+  });
+
+  it("is a safe no-op when the marker no longer matches the expected value (already regenerated, already cleared, or unknown lead)", () => {
+    const db = freshDb();
+    insertClientVoicePackDirect(db, "test-lead", "2026-07-05T00:00:00.000Z");
+
+    expect(
+      sqliteClearClientVoicePackSentToClient(db, "test-lead", "2026-07-01T00:00:00.000Z"),
+    ).toBe(false);
+    const stillMarked = db
+      .prepare("SELECT sentToClientAt FROM client_voice_packs WHERE leadSlug = ?")
+      .get("test-lead") as { sentToClientAt: string };
+    expect(stillMarked.sentToClientAt).toBe("2026-07-05T00:00:00.000Z");
+
+    expect(
+      sqliteClearClientVoicePackSentToClient(db, "missing", "2026-07-05T00:00:00.000Z"),
+    ).toBe(false);
+
+    const unsentDb = freshDb();
+    insertClientVoicePackDirect(unsentDb, "test-lead");
+    expect(
+      sqliteClearClientVoicePackSentToClient(unsentDb, "test-lead", "2026-07-05T00:00:00.000Z"),
     ).toBe(false);
   });
 });

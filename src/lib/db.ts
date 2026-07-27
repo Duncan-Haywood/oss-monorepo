@@ -51,6 +51,8 @@ import {
   sqliteMarkCommerceOrderClientReceiptSent,
   sqliteMarkMarketingPackSentToClient,
   sqliteMarkClientVoicePackSentToClient,
+  sqliteClearMarketingPackSentToClient,
+  sqliteClearClientVoicePackSentToClient,
   sqliteUpdateDeployHandoffCustomDomain,
   sqliteOrderAlreadyRecorded,
   sqliteRecordLeadPayment,
@@ -175,6 +177,7 @@ const api: any = {
     getByLeadMonth: "marketingPacks:getByLeadMonth",
     listByMonth: "marketingPacks:listByMonth",
     markSentToClient: "marketingPacks:markSentToClient",
+    clearSentToClient: "marketingPacks:clearSentToClient",
   },
   commerceCatalogs: {
     upsert: "commerceCatalogs:upsert",
@@ -186,6 +189,7 @@ const api: any = {
     getByLeadSlug: "clientVoicePacks:getByLeadSlug",
     list: "clientVoicePacks:list",
     markSentToClient: "clientVoicePacks:markSentToClient",
+    clearSentToClient: "clientVoicePacks:clearSentToClient",
   },
   commerceOrders: {
     insert: "commerceOrders:insert",
@@ -2998,6 +3002,48 @@ export async function markMarketingPackSentToClient(
   return sqliteMarkMarketingPackSentToClient(getSqliteDb(), leadSlug, yearMonth, sentToClientAt);
 }
 
+/**
+ * Releases a reservation made by markMarketingPackSentToClient when the send
+ * it was guarding failed — see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix. Best-effort by
+ * design at the call site (a failed release leaves the pack showing as sent
+ * even though it wasn't; regenerating the pack is the documented manual
+ * recovery, since upsertMarketingPack always clears sentToClientAt). Not
+ * requireConvex-gated: a caller in this situation already knows the send
+ * failed and is trying to clean up, not trying to prove a durable state
+ * change succeeded — silently leaving SQLite unreleased on a Convex-primary
+ * outage is an acceptable degraded fallback here, unlike the reservation
+ * write itself.
+ */
+export async function clearMarketingPackSentToClient(
+  leadSlug: string,
+  yearMonth: string,
+  expectedSentToClientAt: string,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.marketingPacks.clearSentToClient, {
+        leadSlug,
+        yearMonth,
+        expectedSentToClientAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      console.warn(
+        `Failed to clear marketing pack sent-to-client marker for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  return sqliteClearMarketingPackSentToClient(
+    getSqliteDb(),
+    leadSlug,
+    yearMonth,
+    expectedSentToClientAt,
+  );
+}
+
 // --- Commerce catalogs (≤50 SKUs for commerceAddon leads) ---
 
 /**
@@ -3782,4 +3828,32 @@ export async function markClientVoicePackSentToClient(
   }
 
   return sqliteMarkClientVoicePackSentToClient(getSqliteDb(), leadSlug, sentToClientAt);
+}
+
+/**
+ * Releases a reservation made by markClientVoicePackSentToClient when the
+ * send it was guarding failed. Mirrors clearMarketingPackSentToClient's
+ * best-effort, non-requireConvex-gated shape (see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix).
+ */
+export async function clearClientVoicePackSentToClient(
+  leadSlug: string,
+  expectedSentToClientAt: string,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.clientVoicePacks.clearSentToClient, {
+        leadSlug,
+        expectedSentToClientAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      console.warn(
+        `Failed to clear client voice pack sent-to-client marker for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  return sqliteClearClientVoicePackSentToClient(getSqliteDb(), leadSlug, expectedSentToClientAt);
 }
