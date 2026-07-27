@@ -222,13 +222,22 @@ export function resolvePreviewLead(slug: string): Lead {
     // branch's regex) — see automotive-repair-keyword-priority-fix for why
     // a one-directional check alone isn't sufficient.
     category = "fitness";
-  } else if (/law|attorney|legal|lawyer/.test(lower)) {
+  } else if (/\blaw\b|attorney|\blegal\b|lawyer/.test(lower)) {
     // Mechanically verified to share no keyword substring with any of the
     // eight branches above in either direction — none of their keyword
     // lists contain law/attorney/legal/lawyer, and none of these legal
     // keywords match an earlier branch's regex (see
     // automotive-repair-keyword-priority-fix for why a one-directional
-    // check alone isn't sufficient).
+    // check alone isn't sufficient). "law" and "legal" are word-boundary
+    // scoped (\b) rather than bare substrings — a bare "law" matches inside
+    // "lawn" (a real-world lawn-care/landscaping business name, this app's
+    // own trades-adjacent target market — "green-lawn-care" incorrectly
+    // resolved to "legal" before this fix) and a bare "legal" matches
+    // inside "illegal" (e.g. a Colorado business literally named "Illegal
+    // Pete's" — plausible given every demo lead in this catalog is
+    // Colorado-based). "attorney" and "lawyer" are long/distinctive enough
+    // that no equivalent false-positive substring risk exists, so they stay
+    // bare. See legal-category-lawn-substring-collision-fix.
     category = "legal";
   }
 

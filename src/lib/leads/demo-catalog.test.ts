@@ -248,6 +248,18 @@ describe("resolvePreviewLead", () => {
     }
   });
 
+  it("does not mistake a lawn-care/landscaping business for a law firm (legal-category-lawn-substring-collision-fix)", () => {
+    // Bare "law"/"legal" substrings previously matched inside "lawn" and
+    // "illegal" — these slugs have no earlier-branch keyword either, so they
+    // must fall through to generic rather than being miscategorized as legal.
+    for (const slug of ["green-lawn-care", "lawn-ranger-mowing", "illegal-petes-burritos"]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "generic",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",

@@ -3830,6 +3830,33 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>/websites-for-legal</code> and its two image routes prerender statically and serve
         200s alongside the existing eight.
       </p>
+      <p>
+        <code>legal-category-lawn-substring-collision-fix</code>: that same-session mechanical
+        keyword-collision check compared the legal branch&apos;s keyword list against every other
+        branch&apos;s keyword list — but never against ordinary English words that are not
+        themselves a keyword anywhere. The bare <code>law</code> alternative matches inside{" "}
+        <code>lawn</code>, so a lawn-care or landscaping business (a plausible local-service
+        customer for this product, and this app&apos;s own <code>trades</code> branch already
+        covers landscaping) — e.g. <code>green-lawn-care</code> or{" "}
+        <code>lawn-ranger-mowing</code>, neither of which contains <code>trades</code>&apos;s own{" "}
+        <code>landscap</code> keyword — was misclassified as <code>legal</code> instead of falling
+        through to <code>generic</code>. The bare <code>legal</code> alternative has the same
+        problem: it matches inside <code>illegal</code>, and every demo lead in this catalog is
+        Colorado-based, where <code>Illegal Pete&apos;s</code> is a real, well-known restaurant
+        chain — <code>illegal-petes-burritos</code> would have been misclassified as{" "}
+        <code>legal</code> too (its slug matches no <code>restaurant</code> keyword, since{" "}
+        &quot;burritos&quot; isn&apos;t one of them). Fixed by scoping <code>law</code> and{" "}
+        <code>legal</code> to a regex word boundary (<code>\blaw\b</code>,{" "}
+        <code>\blegal\b</code>) so they only match as a distinct token, not as a substring of a
+        longer word — <code>attorney</code> and <code>lawyer</code> are long/distinctive enough
+        that no equivalent risk exists, so they stay bare. Verified every existing legal-category
+        test slug (<code>westbrook-law-group</code>, <code>eastview-law-group</code>,{" "}
+        <code>downtown-attorney</code>, <code>summit-legal-services</code>,{" "}
+        <code>jane-doe-lawyer</code>) still matches after the change, and added a new regression
+        test asserting <code>green-lawn-care</code>, <code>lawn-ranger-mowing</code>, and{" "}
+        <code>illegal-petes-burritos</code> all resolve to <code>generic</code> — confirmed it
+        fails against the pre-fix bare-substring regex before restoring the fix.
+      </p>
 
       <p>
         Every other client-facing send action with a durable &quot;already sent&quot; marker —
