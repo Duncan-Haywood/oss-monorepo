@@ -297,6 +297,13 @@ export function LeadsClient({
   const [commerceEditSlug, setCommerceEditSlug] = useState<string | null>(null);
   const [commerceDraftItems, setCommerceDraftItems] = useState<CommerceSku[]>([]);
   const [commerceCatalogError, setCommerceCatalogError] = useState<string | null>(null);
+  // Success/no-op informational notices for the Commerce editor's "Archive
+  // orphans" action (archived-count confirmation, zero-orphans notice) —
+  // single string like commerceCatalogError since only one Commerce editor
+  // can be open at a time; role="status" (not "alert") since neither
+  // message is a failure. Cleared/set alongside commerceCatalogError so the
+  // two never show stale/contradictory text at once.
+  const [commerceCatalogNotice, setCommerceCatalogNotice] = useState<string | null>(null);
   // Sync-to-Stripe failures from the "Commerce catalogs unsynced" due-queue
   // panel's own quick-action button — that <li> renders even when the full
   // Commerce editor isn't open for the lead, so it can't reuse
@@ -306,6 +313,12 @@ export function LeadsClient({
     Record<string, string>
   >({});
   const [stripeConnectError, setStripeConnectError] = useState<string | null>(null);
+  // Success/informational notices for the Stripe Connect onboarding-link
+  // actions (link-copied confirmation, link-emailed confirmation) — single
+  // string like stripeConnectError since only one lead's Commerce editor
+  // (and thus Payouts panel) can be open at a time; role="status" since
+  // neither message is a failure. Cleared/set alongside stripeConnectError.
+  const [stripeConnectNotice, setStripeConnectNotice] = useState<string | null>(null);
   // Errors from five independent due-queue panels (Abandoned checkouts,
   // Abandoned Buy now, Commerce payouts, Missing client receipt, Bundle
   // buyer email missing) — one shared map since each panel's rows are
@@ -324,6 +337,16 @@ export function LeadsClient({
   // be mounted), keyed by slug since multiple rows' actions can be in
   // flight/failed independently at once.
   const [leadActionErrors, setLeadActionErrors] = useState<Record<string, string>>({});
+  // Success/informational notices for the same per-row action cluster as
+  // leadActionErrors above (Starter upsell send, Email marketing pack, Email
+  // voice pack, and the marketing/voice pack variant Copy buttons' clipboard
+  // failure — the one genuine failure in this group, still routed through
+  // leadActionErrors, not here) — same Record<string, string>-keyed-by-slug
+  // shape, cleared alongside leadActionErrors at the start of each handler so
+  // the two never show stale/contradictory text for the same lead at once.
+  // role="status" (not "alert") since every message here is a success/no-op
+  // confirmation, never a failure.
+  const [leadActionNotices, setLeadActionNotices] = useState<Record<string, string>>({});
   // Errors from Paid, not live's Create deploy handoff and Production deploy
   // handoffs' Mark live — two distinct actions from two distinct due-queue
   // panels, sharing one keyed-by-slug map (same convention as
@@ -350,6 +373,12 @@ export function LeadsClient({
   const [replyOpenId, setReplyOpenId] = useState<string | null>(null);
   const [replyError, setReplyError] = useState<string | null>(null);
   const [inquiryActionErrors, setInquiryActionErrors] = useState<Record<string, string>>({});
+  // The mock-reply informational notice ("Reply sent (mock — RESEND_API_KEY
+  // not configured)") from handleInquiryReply — keyed by inquiry id like
+  // inquiryActionErrors, rendered in the same always-mounted <li> since the
+  // reply composer itself unmounts on send (closeReplyComposer) before this
+  // message would show. role="status" since it's a success confirmation.
+  const [inquiryActionNotices, setInquiryActionNotices] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
 
   // Row-scoped toggle buttons used as refocus anchors (Notes/Commerce/Reply
@@ -928,6 +957,11 @@ export function LeadsClient({
       delete next[inquiryId];
       return next;
     });
+    setInquiryActionNotices((prev) => {
+      const next = { ...prev };
+      delete next[inquiryId];
+      return next;
+    });
     startTransition(async () => {
       const res = await updateInquiryStatusAction(inquiryId, status);
       if (!res.success) {
@@ -980,6 +1014,11 @@ export function LeadsClient({
   const handleInquiryReply = (inquiryId: string) => {
     const body = replyDrafts[inquiryId] ?? "";
     setReplyError(null);
+    setInquiryActionNotices((prev) => {
+      const next = { ...prev };
+      delete next[inquiryId];
+      return next;
+    });
     startTransition(async () => {
       const res = await replyToInquiryAction(inquiryId, body);
       if (!res.success) {
@@ -1003,7 +1042,10 @@ export function LeadsClient({
       });
       closeReplyComposer(inquiryId);
       if (res.mock) {
-        alert("Reply sent (mock — RESEND_API_KEY not configured).");
+        setInquiryActionNotices((prev) => ({
+          ...prev,
+          [inquiryId]: "Reply sent (mock — RESEND_API_KEY not configured).",
+        }));
       }
     });
   };
@@ -1262,6 +1304,11 @@ export function LeadsClient({
       delete next[slug];
       return next;
     });
+    setLeadActionNotices((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await sendStarterUpsellAction(slug);
       if (!res.success) {
@@ -1272,11 +1319,12 @@ export function LeadsClient({
         return;
       }
       const label = res.targetTier === "complete" ? "Complete" : "Growth";
-      alert(
-        res.mock
+      setLeadActionNotices((prev) => ({
+        ...prev,
+        [slug]: res.mock
           ? `Mock upsell email logged (Resend unset) — ${label} checkout link`
           : `Upsell email sent — ${label} checkout link`,
-      );
+      }));
     });
   };
 
@@ -1340,6 +1388,11 @@ export function LeadsClient({
       delete next[slug];
       return next;
     });
+    setLeadActionNotices((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await sendMarketingPackToClientAction(slug);
       if (!res.success) {
@@ -1357,20 +1410,48 @@ export function LeadsClient({
           ),
         );
       }
-      alert(
-        res.mock
+      setLeadActionNotices((prev) => ({
+        ...prev,
+        [slug]: res.mock
           ? `Mock marketing pack email logged (Resend unset) — ${res.yearMonth}`
           : `Marketing pack emailed to client — ${res.yearMonth}`,
-      );
+      }));
     });
   };
 
-  const copyMarketingVariant = async (text: string) => {
+  // The one genuine failure in this alert()-conversion pass (clipboard API
+  // threw) — role="alert", not "status". Called from three places with two
+  // different existing error-state shapes (the marketing/voice pack variant
+  // Copy buttons share the per-row leadActionErrors map; the Stripe Connect
+  // onboarding-link copy flow uses the single-string stripeConnectError), so
+  // it takes the caller's setter as a parameter rather than owning its own
+  // state or guessing which map to write into.
+  const copyMarketingVariant = async (text: string, onError: (message: string) => void) => {
     try {
       await navigator.clipboard.writeText(text);
     } catch {
-      alert("Could not copy to clipboard");
+      onError("Could not copy to clipboard");
     }
+  };
+
+  // Shared by the marketing pack and client voice pack variant Copy buttons
+  // (both per-lead, both already routing their panel's other action failures
+  // through leadActionErrors) — clears any stale error/notice for this lead
+  // first, matching every other leadActionErrors-writing handler's shape.
+  const handleCopyLeadVariant = (slug: string, text: string) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
+    setLeadActionNotices((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
+    void copyMarketingVariant(text, (message) =>
+      setLeadActionErrors((prev) => ({ ...prev, [slug]: message })),
+    );
   };
 
   const catalogForLead = (slug: string) => catalogByLeadSlug.get(slug) ?? null;
@@ -1387,7 +1468,9 @@ export function LeadsClient({
         : [{ id: newCommerceSkuId(), name: "", priceCents: 0 }],
     );
     setCommerceCatalogError(null);
+    setCommerceCatalogNotice(null);
     setStripeConnectError(null);
+    setStripeConnectNotice(null);
     if (opts?.bringIntoView) {
       // Called from the Commerce catalogs missing/unsynced due-queue panels,
       // which list leads from the full unfiltered `leads` array — the target
@@ -1410,7 +1493,9 @@ export function LeadsClient({
     setCommerceEditSlug(null);
     setCommerceDraftItems([]);
     setCommerceCatalogError(null);
+    setCommerceCatalogNotice(null);
     setStripeConnectError(null);
+    setStripeConnectNotice(null);
     // Same refocus fix as closeNotesEditor above — the Close/Save button
     // that triggered this is inside the panel being unmounted here. Queued
     // (not a same-tick .focus() call) for the same disabled={isPending}
@@ -1483,6 +1568,7 @@ export function LeadsClient({
 
   const handleArchiveOrphanCommerceStripeProducts = (slug: string) => {
     setCommerceCatalogError(null);
+    setCommerceCatalogNotice(null);
     startTransition(async () => {
       const res = await archiveOrphanCommerceStripeProductsAction(slug);
       if (!res.success) {
@@ -1490,10 +1576,10 @@ export function LeadsClient({
         return;
       }
       if (res.archivedCount === 0) {
-        alert("No orphan Stripe Products for this lead.");
+        setCommerceCatalogNotice("No orphan Stripe Products for this lead.");
         return;
       }
-      alert(
+      setCommerceCatalogNotice(
         `Archived ${res.archivedCount} orphan Stripe Product${res.archivedCount === 1 ? "" : "s"} (removed SKUs).`,
       );
     });
@@ -1505,6 +1591,7 @@ export function LeadsClient({
 
   const handleCreateStripeConnectAccount = (slug: string) => {
     setStripeConnectError(null);
+    setStripeConnectNotice(null);
     startTransition(async () => {
       const res = await createStripeConnectAccountAction(slug);
       if (!res.success) {
@@ -1528,14 +1615,19 @@ export function LeadsClient({
 
   const handleGetStripeConnectOnboardingLink = (slug: string) => {
     setStripeConnectError(null);
+    setStripeConnectNotice(null);
     startTransition(async () => {
       const res = await createStripeConnectOnboardingLinkAction(slug);
       if (!res.success) {
         setStripeConnectError(`Get onboarding link failed: ${res.error}`);
         return;
       }
-      await copyMarketingVariant(res.url);
-      alert(
+      // A clipboard failure here does not block the notice below — the
+      // notice text includes the full link as a manual-copy fallback, same
+      // as the alert() this replaced always showed the link regardless of
+      // whether the copy itself succeeded.
+      await copyMarketingVariant(res.url, (message) => setStripeConnectError(message));
+      setStripeConnectNotice(
         `Onboarding link copied. This link is single-use and expires within minutes — send it to the client right away, or use "Email onboarding link" to skip the copy/paste delay:\n${res.url}`,
       );
     });
@@ -1543,13 +1635,14 @@ export function LeadsClient({
 
   const handleSendStripeConnectOnboardingLink = (slug: string) => {
     setStripeConnectError(null);
+    setStripeConnectNotice(null);
     startTransition(async () => {
       const res = await sendStripeConnectOnboardingLinkToClientAction(slug);
       if (!res.success) {
         setStripeConnectError(`Email onboarding link failed: ${res.error}`);
         return;
       }
-      alert(
+      setStripeConnectNotice(
         res.mock
           ? "Onboarding link email queued (mock — set RESEND_API_KEY to actually deliver)."
           : "Onboarding link emailed to the client.",
@@ -1559,6 +1652,7 @@ export function LeadsClient({
 
   const handleCheckStripeConnectStatus = (slug: string) => {
     setStripeConnectError(null);
+    setStripeConnectNotice(null);
     startTransition(async () => {
       const res = await checkStripeConnectAccountStatusAction(slug);
       if (!res.success) {
@@ -1711,6 +1805,11 @@ export function LeadsClient({
       delete next[slug];
       return next;
     });
+    setLeadActionNotices((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await sendClientVoicePackToClientAction(slug);
       if (!res.success) {
@@ -1726,11 +1825,12 @@ export function LeadsClient({
           prev.map((p) => (p.leadSlug === slug ? { ...p, sentToClientAt } : p)),
         );
       }
-      alert(
-        res.mock
+      setLeadActionNotices((prev) => ({
+        ...prev,
+        [slug]: res.mock
           ? "Mock voice pack email logged (Resend unset)"
           : "Voice pack emailed to client",
-      );
+      }));
     });
   };
 
@@ -2156,7 +2256,9 @@ export function LeadsClient({
                       aria-describedby={
                         leadActionErrors[lead.slug]
                           ? `starter-upsell-action-error-${lead.slug}`
-                          : undefined
+                          : leadActionNotices[lead.slug]
+                            ? `starter-upsell-action-notice-${lead.slug}`
+                            : undefined
                       }
                       className="rounded-lg bg-teal-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
                     >
@@ -2170,6 +2272,15 @@ export function LeadsClient({
                       role="alert"
                     >
                       {leadActionErrors[lead.slug]}
+                    </p>
+                  ) : null}
+                  {leadActionNotices[lead.slug] ? (
+                    <p
+                      id={`starter-upsell-action-notice-${lead.slug}`}
+                      className="mt-2 text-xs font-medium text-emerald-700"
+                      role="status"
+                    >
+                      {leadActionNotices[lead.slug]}
                     </p>
                   ) : null}
                 </li>
@@ -3775,6 +3886,11 @@ export function LeadsClient({
                         {inquiryActionErrors[inq.id]}
                       </p>
                     ) : null}
+                    {inquiryActionNotices[inq.id] ? (
+                      <p className="mt-1 text-xs font-medium text-emerald-700" role="status">
+                        {inquiryActionNotices[inq.id]}
+                      </p>
+                    ) : null}
                     {replyOpenId === inq.id && inquiryCanReceiveReply(inq) ? (
                       <div className="mt-3 space-y-2" id={`inquiry-reply-${inq.id}`}>
                         <textarea
@@ -4710,7 +4826,9 @@ export function LeadsClient({
                               aria-describedby={
                                 leadActionErrors[lead.slug]
                                   ? `lead-action-error-${lead.slug}`
-                                  : undefined
+                                  : leadActionNotices[lead.slug]
+                                    ? `lead-action-notice-${lead.slug}`
+                                    : undefined
                               }
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 px-3 text-xs font-semibold text-teal-900 transition hover:border-teal-300 hover:bg-teal-100 disabled:opacity-60"
                             >
@@ -4773,7 +4891,9 @@ export function LeadsClient({
                                   aria-describedby={
                                     leadActionErrors[lead.slug]
                                       ? `lead-action-error-${lead.slug}`
-                                      : undefined
+                                      : leadActionNotices[lead.slug]
+                                        ? `lead-action-notice-${lead.slug}`
+                                        : undefined
                                   }
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-900 transition hover:border-sky-300 hover:bg-sky-100 disabled:opacity-60"
                                 >
@@ -4870,7 +4990,9 @@ export function LeadsClient({
                                   aria-describedby={
                                     leadActionErrors[lead.slug]
                                       ? `lead-action-error-${lead.slug}`
-                                      : undefined
+                                      : leadActionNotices[lead.slug]
+                                        ? `lead-action-notice-${lead.slug}`
+                                        : undefined
                                   }
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
                                 >
@@ -4898,6 +5020,15 @@ export function LeadsClient({
                             role="alert"
                           >
                             {leadActionErrors[lead.slug]}
+                          </p>
+                        ) : null}
+                        {leadActionNotices[lead.slug] ? (
+                          <p
+                            id={`lead-action-notice-${lead.slug}`}
+                            className="mt-1.5 text-right text-xs font-medium text-emerald-700"
+                            role="status"
+                          >
+                            {leadActionNotices[lead.slug]}
                           </p>
                         ) : null}
                       </td>
@@ -4957,10 +5088,15 @@ export function LeadsClient({
                                     </p>
                                     <button
                                       type="button"
-                                      onClick={() => void copyMarketingVariant(copyText)}
+                                      onClick={() => handleCopyLeadVariant(lead.slug, copyText)}
                                       aria-label={`Copy variant ${index + 1}: ${contentTypeLabel(
                                         variant.contentType,
                                       )}`}
+                                      aria-describedby={
+                                        leadActionErrors[lead.slug]
+                                          ? `lead-action-error-${lead.slug}`
+                                          : undefined
+                                      }
                                       className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-50"
                                     >
                                       Copy
@@ -5299,6 +5435,11 @@ export function LeadsClient({
                               {commerceCatalogError}
                             </p>
                           ) : null}
+                          {commerceCatalogNotice ? (
+                            <p className="mt-2 text-xs font-medium text-emerald-700" role="status">
+                              {commerceCatalogNotice}
+                            </p>
+                          ) : null}
                           <div className="mt-4 border-t border-orange-100 pt-3">
                             <h4 className="text-xs font-semibold text-zinc-900">
                               Payouts (Stripe Connect) — scaffold, dormant by default
@@ -5381,6 +5522,14 @@ export function LeadsClient({
                                 {stripeConnectError}
                               </p>
                             ) : null}
+                            {stripeConnectNotice ? (
+                              <p
+                                className="mt-2 whitespace-pre-wrap text-xs font-medium text-emerald-700"
+                                role="status"
+                              >
+                                {stripeConnectNotice}
+                              </p>
+                            ) : null}
                             {connectOnboardingAllowed
                               ? (() => {
                                   const connectStatus = resolveDisplayedConnectStatus(
@@ -5453,10 +5602,15 @@ export function LeadsClient({
                                     </p>
                                     <button
                                       type="button"
-                                      onClick={() => void copyMarketingVariant(copyText)}
+                                      onClick={() => handleCopyLeadVariant(lead.slug, copyText)}
                                       aria-label={`Copy variant ${index + 1}: ${scriptTypeLabel(
                                         variant.scriptType,
                                       )}`}
+                                      aria-describedby={
+                                        leadActionErrors[lead.slug]
+                                          ? `lead-action-error-${lead.slug}`
+                                          : undefined
+                                      }
                                       className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-50"
                                     >
                                       Copy

@@ -3396,6 +3396,58 @@ source). The same digest also lists email-critical leads with no usable address 
         closing, as a documented follow-up for a future pass.
       </p>
 
+      <p>
+        A final pass (2026-07-27,{" "}
+        <code>leads-client-remaining-alert-informational-status-announcement</code>) closed out
+        the last 9 <code>alert()</code> call sites in this file. 8 were success/informational
+        notices, not failures — the mock-reply confirmation
+        (<code>handleInquiryReply</code>), the Starter upsell/marketing-pack/voice-pack email
+        confirmations (<code>handleSendStarterUpsell</code>, <code>handleEmailMarketingPack</code>
+        , <code>handleEmailClientVoicePack</code>), the orphan-Stripe-Product archive
+        no-op/archived-count confirmations (<code>handleArchiveOrphanCommerceStripeProducts</code>
+        ), and the two Stripe Connect onboarding-link confirmations (
+        <code>handleGetStripeConnectOnboardingLink</code>,{" "}
+        <code>handleSendStripeConnectOnboardingLink</code>). Those are rendered with{" "}
+        <code>role=&quot;status&quot;</code>, not <code>role=&quot;alert&quot;</code> — this
+        codebase reserves <code>role=&quot;alert&quot;</code> (an assertive live region) for
+        failures, and <code>role=&quot;status&quot;</code> (a polite live region, the same role
+        the CSV-import success message and the Buffer scaffold&apos;s own outcome paragraph
+        already use) for a success/no-op confirmation that does not need to interrupt. The 9th,{" "}
+        <code>copyMarketingVariant</code>&apos;s clipboard-write <code>catch</code> block, is a
+        genuine failure and kept <code>role=&quot;alert&quot;</code>.
+      </p>
+      <p>
+        State shape followed each site&apos;s existing context rather than inventing a new
+        pattern: <code>handleSendStarterUpsell</code>, <code>handleEmailMarketingPack</code>, and{" "}
+        <code>handleEmailClientVoicePack</code> already route their failure branch through the
+        slug-keyed <code>leadActionErrors</code> map, so their success branch now writes a
+        parallel <code>leadActionNotices</code> map (same shape, cleared alongside{" "}
+        <code>leadActionErrors</code> at the start of each handler so the two never show
+        stale/contradictory text for one lead at once) rendered next to the existing paragraph in
+        both the always-mounted main-table row and — for{" "}
+        <code>handleSendStarterUpsell</code>, also called from the Starter upsell due-queue panel
+        — that panel too. The Commerce editor&apos;s Archive-orphans confirmations and the Stripe
+        Connect onboarding-link confirmations each got a single-string sibling —{" "}
+        <code>commerceCatalogNotice</code> next to <code>commerceCatalogError</code>, and{" "}
+        <code>stripeConnectNotice</code> next to <code>stripeConnectError</code> — matching those
+        two single-panel-open error states&apos; own existing shape rather than a keyed map.{" "}
+        <code>handleInquiryReply</code>&apos;s mock-reply notice got its own
+        <code>inquiryActionNotices</code> map keyed by inquiry id, mirroring{" "}
+        <code>inquiryActionErrors</code>, rendered in the inquiry&apos;s always-mounted{" "}
+        <code>&lt;li&gt;</code> rather than inside the reply composer — the composer itself
+        unmounts on a successful send (<code>closeReplyComposer</code>) before this message would
+        show. <code>copyMarketingVariant</code> is called from three places with two different
+        existing error shapes (the marketing/voice-pack variant Copy buttons share the per-lead{" "}
+        <code>leadActionErrors</code> map; the Stripe Connect onboarding-link flow uses the
+        single-string <code>stripeConnectError</code>), so it now takes the caller&apos;s error
+        setter as a parameter instead of owning state or guessing which map to write into; the two
+        Copy buttons were wired through a new <code>handleCopyLeadVariant(slug, text)</code> helper
+        that clears the row&apos;s stale error/notice first, matching every other{" "}
+        <code>leadActionErrors</code>-writing handler&apos;s shape. This closes the alert()-to-
+        inline-announcement conversion series entirely — zero blocking <code>alert()</code> calls
+        remain in this file.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

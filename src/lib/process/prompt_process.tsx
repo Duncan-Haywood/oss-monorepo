@@ -353,6 +353,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/nice-euler-1dz45a",
   },
+  {
+    id: "leads-client-remaining-alert-informational-status-announcement",
+    summary:
+      "Follow-up to billing-upsell-marketing-voice-pack-inline-aria-announcement (PR #847, merged prior session), closing out the alert()-to-inline-announcement conversion series over leads-client.tsx. Converted the last 9 alert() call sites: 8 were success/informational notices (mock-reply, Starter upsell/marketing-pack/voice-pack email confirmations, orphan-Stripe-Product archive no-op/archived-count, Stripe Connect onboarding-link copy/email confirmations), rendered role=\"status\" (not \"alert\", reserved for failures) via new leadActionNotices/commerceCatalogNotice/stripeConnectNotice/inquiryActionNotices state mirroring each site's existing error-state shape. The 9th, copyMarketingVariant's clipboard-write catch, is a genuine failure and kept role=\"alert\" — it now takes the caller's error setter as a parameter since its three call sites use two different existing error shapes (per-lead leadActionErrors vs single-string stripeConnectError). Zero blocking alert() calls remain in leads-client.tsx. See leads-client-remaining-alert-informational-status-announcement in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-vq5l0e",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -770,6 +778,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "billing-upsell-marketing-voice-pack-inline-aria-announcement",
+    ),
+  },
+  {
+    date: "2026-07-27",
+    branch: "claude/upbeat-dijkstra-vq5l0e",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip c90a922 (PR #847, billing-upsell-marketing-voice-pack-inline-aria-announcement, merged prior session) — HEAD matched origin/main exactly at session start. Read AGENT_PROTOCOL and the tail of ITERATIONS/BUSINESS_DECISIONS directly (no dispatched research agent needed — the immediately preceding entry explicitly named and classified the last 9 alert() call sites in leads-client.tsx as a documented follow-up: 8 informational/success notices plus 1 genuine clipboard failure). `grep -n \"alert(\" src/app/dashboard/leads/leads-client.tsx | grep -v 'role=\"alert\"'` reconfirmed exactly those 9 sites, so this pass finished the already-scoped follow-up rather than re-deriving it.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — converted all 8 informational/success alert() calls to inline role=\"status\" announcements, each using the state shape that already matched its handler's failure branch: handleSendStarterUpsell/handleEmailMarketingPack/handleEmailClientVoicePack (already write slug-keyed leadActionErrors on failure) got a parallel leadActionNotices Record<string, string>, cleared alongside leadActionErrors at the start of each handler and rendered next to the existing paragraph in the main-table row (plus the Starter upsell due-queue panel for handleSendStarterUpsell, the only one of the three also called from a due-queue panel). handleArchiveOrphanCommerceStripeProducts and the two Stripe Connect onboarding-link handlers (already write single-string commerceCatalogError/stripeConnectError, since only one Commerce editor/Payouts panel can be open at once) got matching single-string commerceCatalogNotice/stripeConnectNotice siblings instead of an unneeded keyed map — both also cleared in openCommerceEditor/closeCommerceEditor and every sibling Connect handler so switching leads never shows a stale notice. handleInquiryReply's mock-reply notice got its own inquiryActionNotices map keyed by inquiry id (mirroring inquiryActionErrors) because closeReplyComposer unmounts the reply composer on send success before the notice would show — it renders in the inquiry's own always-mounted <li> instead. The 9th and only genuine failure — copyMarketingVariant's clipboard-write catch — stays role=\"alert\"; since its three call sites (two per-lead variant Copy buttons using leadActionErrors, one inside the Stripe Connect flow using stripeConnectError) don't share a state shape, the function now takes the caller's error setter as a parameter instead of owning state, with a new handleCopyLeadVariant(slug, text) helper wrapping the two Copy buttons. handleGetStripeConnectOnboardingLink's copy-then-notify flow preserves its original always-show-the-link behavior: a copy failure sets stripeConnectError alongside the unconditional stripeConnectNotice (which carries the link as a manual-copy fallback) — both can render together, matching the original alert()'s own no-check-on-copy-success behavior.",
+      "src/app/docs/architecture/page.tsx — two new paragraphs directly before the closing 'Tech stack' section naming the gap, the role=\"status\" vs role=\"alert\" distinction, and each of the four state-shape choices.",
+      "src/lib/process/business-decisions.ts — appended leads-client-remaining-alert-informational-status-announcement.",
+      "src/lib/process/prompt_process.tsx — one new NEXT_STEPS-done entry (leads-client-remaining-alert-informational-status-announcement, owner claude/upbeat-dijkstra-vq5l0e) and this ITERATIONS entry. This closes out the documented follow-up every prior session in this series (starting with leads-client-form-error-inline-aria-announcement) explicitly deferred — zero blocking alert() calls remain in leads-client.tsx. No new NEXT_STEPS capability entry (an accessibility/UX fix on already-shipped dashboard controls, not a new capability) — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked, unchanged.",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean, jsx-a11y rules included) + npx vitest run full suite (3396 passed, 210 files, unchanged — no test harness exercises this client-component markup, per AGENT_PROTOCOL's own note) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split, no new warnings) + npm run dev smoke check curling /dashboard/leads (200, full page content present, no error-boundary/500 text — the only '500' substrings are literal $500 price text — and zero stray role=\"alert\" or role=\"status\" markup from this change rendered since the demo dataset has no failed/succeeded actions to display; the 14 pre-existing role=\"status\" hits are unrelated readiness banners). Killed the dev server and confirmed git status showed only the intended source files changed before this process-log append. Diff-gate anchor moves to c90a922 (this session's own starting tip, post-PR-#847).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "leads-client-remaining-alert-informational-status-announcement",
     ),
   },
 ];
