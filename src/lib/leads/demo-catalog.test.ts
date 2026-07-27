@@ -260,6 +260,83 @@ describe("resolvePreviewLead", () => {
     }
   });
 
+  it("routes 'auto-spa' detailing shops to automotive, not salon (category-substring-collision-audit-02)", () => {
+    // Bare "spa" previously matched before automotive's own "auto" keyword
+    // ever ran, misrouting the dominant real-world auto-detailing naming
+    // convention ("auto-spa") into salon.
+    for (const slug of ["auto-spa-car-wash", "the-auto-spa"]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "automotive",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
+  it("does not mistake 'crawlspace' or a 'Hairston' surname for salon keywords (category-substring-collision-audit-02)", () => {
+    // Bare "spa"/"hair" previously matched inside "crawlspace" and
+    // "Hairston" — these must fall through past salon (to trades' "roof"
+    // keyword for the roofing business, and to generic for crawlspace,
+    // which has no other category keyword).
+    expect(resolvePreviewLead("crawlspace-solutions")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("hairston-roofing-llc")).toMatchObject({
+      category: "trades",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("routes kitchen-and-bath remodeling contractors to trades, not restaurant (category-substring-collision-audit-02)", () => {
+    // Bare "kitchen" previously matched restaurant before trades' keywords
+    // ever ran, misrouting the common real-world "kitchen and bath
+    // remodeling" contractor naming convention into restaurant.
+    for (const slug of ["abc-kitchen-bath-remodeling", "valley-kitchen-renovation-co"]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "trades",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
+  it("does not mistake 'attire'/'autograph' retailers for automotive (category-substring-collision-audit-03)", () => {
+    // Bare "tire"/"auto" previously matched inside "attire" and "autograph"
+    // — real-world clothing-retailer and memorabilia-retailer naming
+    // conventions — before ever reaching retail's own keywords.
+    expect(resolvePreviewLead("elegant-attire-boutique")).toMatchObject({
+      category: "retail",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("autograph-collectibles-store")).toMatchObject({
+      category: "retail",
+      dataSource: "slug_inference",
+    });
+    // Neither contains a retail keyword, so — like the lawn/crawlspace
+    // false positives before them — these fall through to generic rather
+    // than being wrongly typed as automotive.
+    expect(resolvePreviewLead("mens-attire-outlet")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake a 'garage sale' business for an auto garage (category-substring-collision-audit-03)", () => {
+    // "garage" is a genuine standalone token in both an auto-repair garage
+    // and a garage-sale/thrift shop — word-boundary scoping alone can't
+    // disambiguate them, so a garage+sale/thrift combination is excluded
+    // from automotive and falls through to retail's own keywords instead.
+    expect(resolvePreviewLead("vintage-garage-sale-shop")).toMatchObject({
+      category: "retail",
+      dataSource: "slug_inference",
+    });
+    // No retail keyword present either, so this falls through to generic
+    // rather than being wrongly typed as automotive.
+    expect(resolvePreviewLead("garage-sale-treasures")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",
