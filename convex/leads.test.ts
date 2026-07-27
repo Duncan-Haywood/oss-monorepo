@@ -334,6 +334,24 @@ test("categoryValidator accepts the retail category end to end (retail-category-
   expect(bySlug?.category).toBe("retail");
 });
 
+test("categoryValidator accepts the health category end to end (health-category-landing-page)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({
+      slug: "clearview-wellness-clinic",
+      businessName: "Clearview Wellness Clinic",
+      category: "health",
+    }),
+  );
+
+  const bySlug: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "clearview-wellness-clinic",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(bySlug?.category).toBe("health");
+});
+
 test("markLeadPaid is idempotent on stripeSessionId and inserts a paid stub lead using the canonical payment-stub defaults when none exists", async () => {
   const t = convexTest(schema, modules);
   const first = await t.mutation(api.leads.markLeadPaid, {

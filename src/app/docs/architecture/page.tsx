@@ -3645,6 +3645,29 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>/websites-for-retail</code> and its two image routes prerender statically
         alongside the existing three.
       </p>
+      <p>
+        <code>health-category-landing-page</code>: added <code>health</code> as a sixth
+        purely-additive <code>BusinessCategory</code> literal and a fifth{" "}
+        <code>/websites-for-*</code> landing page, mirroring{" "}
+        <code>retail-category-landing-page</code> above end to end —{" "}
+        <code>convex/leads.ts</code>&apos;s <code>categoryValidator</code> gained{" "}
+        <code>v.literal(&quot;health&quot;)</code>, every <code>Record&lt;BusinessCategory,
+        …&gt;</code> map gained a <code>health</code> entry (a sky-blue theme, schema.org{" "}
+        <code>MedicalBusiness</code> for the JSON-LD <code>@type</code>), and every exhaustive{" "}
+        <code>switch</code> gained a <code>health</code> case, caught mechanically by{" "}
+        <code>tsc</code> the same way the retail addition was. A new curated demo lead (
+        <code>clearview-wellness-clinic</code>, a Lafayette, CO chiropractic/physical-therapy
+        clinic) backs <code>/websites-for-health</code>&apos;s <code>exampleLeadSlug</code>;{" "}
+        <code>resolvePreviewLead</code>&apos;s slug-keyword inference gained a health branch (
+        <code>dental|dentist|chiro|clinic|wellness|therapy|medical|health|physio</code>) chosen to
+        share no keywords with the existing restaurant/salon/trades/retail branches.{" "}
+        <code>cat-health</code> was added to <code>CHECKOUT_ACQUISITION_SOURCES</code> for CTA
+        attribution. Sitemap listing and OG/Twitter card images again needed zero new wiring
+        (both stay generically derived from <code>CATEGORY_LANDING_PAGES</code>), and a clean
+        production build plus a <code>npm run dev</code> smoke check confirmed{" "}
+        <code>/websites-for-health</code> and its two image routes prerender statically and serve
+        200s alongside the existing four.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

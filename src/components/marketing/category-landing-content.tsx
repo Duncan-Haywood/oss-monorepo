@@ -30,6 +30,8 @@ function acquisitionSourceForCategory(
       return "cat-trades";
     case "retail":
       return "cat-retail";
+    case "health":
+      return "cat-health";
     default:
       return undefined;
   }

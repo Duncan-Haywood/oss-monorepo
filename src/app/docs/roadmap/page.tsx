@@ -78,8 +78,8 @@ export default function RoadmapDocPage() {
 
       <h2 id="phase-1">Phase 1 — Website foundation</h2>
       <p>
-        Category templates + tier cards on preview: shipped (restaurant / salon / trades +
-        generic fallback). Convex + SQLite-fallback persistence and manual lead entry: shipped
+        Category templates + tier cards on preview: shipped (restaurant / salon / trades / retail
+        / health + generic fallback). Convex + SQLite-fallback persistence and manual lead entry: shipped
         (see <DocLink href="/docs/process">process log</DocLink>). Operator auth on{" "}
         <code>/dashboard</code> (shared-secret session via{" "}
         <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped — action-level Vitest in{" "}

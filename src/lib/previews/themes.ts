@@ -48,6 +48,15 @@ export const CATEGORY_THEMES: Record<BusinessCategory, CategoryTheme> = {
     panelClass: "border-violet-200/80 bg-white/70",
     heroEyebrow: "Retail preview",
   },
+  health: {
+    category: "health",
+    label: "Health & wellness",
+    shellClass: "min-h-screen bg-[radial-gradient(ellipse_at_top,_#f0f9ff_0%,_#ffffff_55%,_#e0f2fe_100%)]",
+    accentTextClass: "text-sky-800",
+    ctaClass: "bg-sky-950 text-sky-50 hover:bg-sky-900",
+    panelClass: "border-sky-200/80 bg-white/70",
+    heroEyebrow: "Wellness preview",
+  },
   generic: {
     category: "generic",
     label: "Local business",
