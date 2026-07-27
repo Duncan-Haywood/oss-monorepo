@@ -147,6 +147,7 @@ describe("sendClientVoicePackToClientAction", () => {
       success: true,
       id: "email_1",
     });
+    markClientVoicePackSentToClient.mockReset().mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -286,6 +287,34 @@ describe("sendClientVoicePackToClientAction", () => {
       expect.any(String),
       expect.objectContaining({ requireConvex: true }),
     );
+  });
+
+  it("reports a likely duplicate when a concurrent request already set the marker (marketing-voice-pack-client-send-race-guard)", async () => {
+    // markClientVoicePackSentToClient's atomic CAS write resolves false (not
+    // throw) when a second tab or a double-click before the button's
+    // isPending-disabled state applied already recorded this exact marker —
+    // the email above already sent, so this must surface as a distinct
+    // duplicate-risk error, not silent success, mirroring
+    // resendCommerceClientReceiptAction's own race-guard check and
+    // sendMarketingPackToClientAction's twin fix.
+    markClientVoicePackSentToClient.mockResolvedValue(false);
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Client voice pack was already marked sent by a concurrent request — this click may have sent a duplicate email.",
+    });
+    expect(sendClientVoicePackToClientEmail).toHaveBeenCalledOnce();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("stays best-effort success when the marker write throws (unlike the false-return race case above)", async () => {
+    markClientVoicePackSentToClient.mockRejectedValue(new Error("disk full"));
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res.success).toBe(true);
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
   it("defaults preview base URL to localhost when NEXT_PUBLIC_APP_URL is unset", async () => {

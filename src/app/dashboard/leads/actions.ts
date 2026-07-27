@@ -2801,14 +2801,23 @@ export async function sendMarketingPackToClientAction(slug: string) {
 
     // Durable sent-marker after a confirmed successful send — closes the
     // "generated but never emailed" visibility gap (see
-    // marketing-voice-pack-client-send-visibility). Best-effort: the email
-    // already went out, so a marker-write failure must not turn a successful
-    // send into a reported failure; the pack just stays flagged as
-    // not-yet-sent for the next digest/pipeline-health read, which is safe
-    // (worst case: a harmless "resend" nudge, never a missed delivery).
+    // marketing-voice-pack-client-send-visibility). Best-effort on a thrown
+    // write error: the email already went out, so a marker-*persist* failure
+    // must not turn a successful send into a reported failure; the pack just
+    // stays flagged as not-yet-sent for the next digest/pipeline-health read,
+    // which is safe (worst case: a harmless "resend" nudge, never a missed
+    // delivery). markMarketingPackSentToClient's atomic CAS write can also
+    // resolve `false` (not throw) when a concurrent request — a second tab,
+    // a double-click before the button's isPending-disabled state applied —
+    // already set this exact marker first; that's proof this click's send
+    // was a genuine duplicate email, not a persistence failure, so unlike
+    // the exception case above it must not be silently discarded (see
+    // marketing-voice-pack-client-send-race-guard, mirroring
+    // resendCommerceClientReceiptAction's own race-guard check).
     const sentToClientAt = new Date().toISOString();
+    let marked = true;
     try {
-      await markMarketingPackSentToClient(
+      marked = await markMarketingPackSentToClient(
         lead.slug,
         pack.yearMonth,
         sentToClientAt,
@@ -2819,6 +2828,13 @@ export async function sendMarketingPackToClientAction(slug: string) {
         `Failed to record marketing pack sent-to-client marker for ${lead.slug}:`,
         markError,
       );
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Marketing pack was already marked sent by a concurrent request — this click may have sent a duplicate email.",
+      };
     }
 
     revalidatePath("/dashboard/leads");
@@ -4082,12 +4098,18 @@ export async function sendClientVoicePackToClientAction(slug: string) {
 
     // Durable sent-marker after a confirmed successful send — mirrors
     // sendMarketingPackToClientAction's marker write (see
-    // marketing-voice-pack-client-send-visibility). Best-effort: the email
-    // already went out, so a marker-write failure must not report a failed
-    // send.
+    // marketing-voice-pack-client-send-visibility). Best-effort on a thrown
+    // write error: the email already went out, so a marker-*persist*
+    // failure must not report a failed send. markClientVoicePackSentToClient's
+    // atomic CAS write can also resolve `false` (not throw) when a
+    // concurrent request already set this exact marker first — proof this
+    // click's send was a genuine duplicate email, which must surface rather
+    // than be silently discarded (see marketing-voice-pack-client-send-race-guard,
+    // the same fix applied to sendMarketingPackToClientAction).
     const sentToClientAt = new Date().toISOString();
+    let marked = true;
     try {
-      await markClientVoicePackSentToClient(
+      marked = await markClientVoicePackSentToClient(
         lead.slug,
         sentToClientAt,
         CLIENT_VOICE_PACK_CONVEX_PRIMARY,
@@ -4097,6 +4119,13 @@ export async function sendClientVoicePackToClientAction(slug: string) {
         `Failed to record client voice pack sent-to-client marker for ${lead.slug}:`,
         markError,
       );
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Client voice pack was already marked sent by a concurrent request — this click may have sent a duplicate email.",
+      };
     }
 
     revalidatePath("/dashboard/leads");
