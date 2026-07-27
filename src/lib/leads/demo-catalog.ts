@@ -203,7 +203,26 @@ export function resolvePreviewLead(slug: string): Lead {
   // match out when a remodeling-contractor marker is also present, and route
   // it to trades via the "remodel"/"renovat" keywords added there instead.
   const isKitchenRemodelingContractor =
-    /kitchen/.test(lower) && /bath|remodel|renovat/.test(lower);
+    /\bkitchen\b/.test(lower) && /bath|remodel|renovat/.test(lower);
+  // A "workshop" (pottery/woodworking/art-class venue, e.g.
+  // "pottery-workshop-studio") is a genuine whole-word ambiguity with a
+  // retail "shop" — the business teaches or crafts, it doesn't sell off a
+  // shelf, and no other category fits it either. Word-boundary scoping alone
+  // can't help (workshop's "shop" suffix has a real word boundary on both
+  // sides), so exclude the compound outright and let it fall through to
+  // generic (category-substring-collision-audit-06).
+  const isCraftOrHobbyWorkshop = /workshop/.test(lower);
+  // Disaster-restoration/cleanup contractors ("storm-restore-services",
+  // "flood-restore-pros") are a real trades-adjacent naming convention whose
+  // bare "restor(e)" embeds retail's bare "store" substring with no word
+  // boundary in between ("re[store]") — word-boundary scoping "store" alone
+  // would also silently exclude the unrelated, well-known "ReStore"
+  // secondhand/home-improvement thrift store naming convention (a real
+  // retail business), so scope the exclusion to only when a
+  // disaster/damage marker is also present, not "restor(e)" in general
+  // (category-substring-collision-audit-06).
+  const isDisasterRestorationService =
+    /restor/.test(lower) && /storm|flood|water|fire|disaster|mold/.test(lower);
   // A "garage sale"/thrift-shop business name (e.g. "garage-sale-treasures")
   // is a whole-word ambiguity, not a substring-embedding one — word-boundary
   // scoping "garage" wouldn't help, since it's a genuine standalone token in
@@ -246,13 +265,18 @@ export function resolvePreviewLead(slug: string): Lead {
   let category: Lead["category"] = "generic";
   if (
     !isKitchenRemodelingContractor &&
-    /bakery|bistro|cafe|restaurant|pizza|\bgrill\b|\bdiner\b|kitchen/.test(lower)
+    /bakery|bistro|cafe|restaurant|pizza|\bgrill\b|\bdiner\b|\bkitchen\b/.test(lower)
   ) {
     // "grill" and "diner" are word-boundary scoped (\b) — a bare "grill"
     // matches inside "grille" (e.g. "chrome-grille-restorations", an
     // automotive customization/restoration business) and a bare "diner"
     // matches inside a surname like "Gardiner" (e.g. "gardiner-law-group",
     // which should resolve to legal instead) — category-substring-collision-audit-05.
+    // "kitchen" is also word-boundary scoped — a bare "kitchen" matches
+    // inside "kitchenware" (e.g. "kitchenware-outlet-store", a retailer) and
+    // inside "kitchenaid" (e.g. "kitchenaid-appliance-repair", an appliance
+    // repair business that should resolve to trades via its own "repair"
+    // keyword) — category-substring-collision-audit-06.
     category = "restaurant";
   } else if (
     !isGarageSaleOrThriftShop &&
@@ -274,7 +298,7 @@ export function resolvePreviewLead(slug: string): Lead {
     // clothing retailer) — mirroring the word-boundary fix already applied
     // to legal's/salon's own bare keywords (category-substring-collision-audit-03).
     category = "automotive";
-  } else if (/salon|\bspa\b|barber|\bnails\b|beauty|\bhair\b/.test(lower)) {
+  } else if (/salon|\bspa\b|barber|\bnails\b|\bbeauty\b|\bhair\b/.test(lower)) {
     // "spa", "hair", and "nails" are word-boundary scoped (\b) rather than
     // bare substrings — a bare "spa" matches inside "crawlspace" (a
     // home-services business name with no other category keyword), a bare
@@ -284,13 +308,16 @@ export function resolvePreviewLead(slug: string): Lead {
     // "thumbnails-design-studio", which has no other category keyword).
     // Mirrors the word-boundary fix already applied to legal's "law"/"legal"
     // keywords (legal-category-lawn-substring-collision-fix) — see
-    // category-substring-collision-audit-02 / -05.
+    // category-substring-collision-audit-02 / -05. "beauty" is also
+    // word-boundary scoped — a bare "beauty" matches inside a mattress brand
+    // like "beautyrest" (e.g. "beautyrest-mattress-outlet", a retailer with
+    // no other salon-adjacent keyword) — category-substring-collision-audit-06.
     category = "salon";
   } else if (
     !isTrademarkOrTradeSecretsLaw &&
     !isPaintballArena &&
     !isElectricBikeShop &&
-    /plumb|hvac|electric|\broof|paint|landscap|contractor|trade|repair|remodel|renovat/.test(
+    /plumb|hvac|electric|\broof|paint|landscap|contractor|trade(?!r)|repair|remodel|renovat/.test(
       lower,
     )
   ) {
@@ -302,16 +329,36 @@ export function resolvePreviewLead(slug: string): Lead {
     // (e.g. "hairston-roofing-llc", already covered by a regression test).
     // Left-boundary-only blocks the prefix-embedded false positive while
     // preserving every suffix-attached real match — category-substring-collision-audit-05.
+    // "trade" excludes only a trailing "r" via negative lookahead — a bare
+    // "trade" matches inside "trader" (e.g. "trader-joes-style-market",
+    // which should resolve to retail via "market" instead, and
+    // "downtown-trader-antiques", which has no other category keyword and
+    // should fall through to generic) — but a full \btrade\b boundary would
+    // also break the genuine "tradesman" suffix form (a real trades-business
+    // naming convention with no analogous false-positive risk), so the
+    // lookahead targets only the "trader" false friend, mirroring "roof"'s
+    // own suffix-preserving precedent above (category-substring-collision-audit-06).
     category = "trades";
-  } else if (/shop|store|boutique|mercantile|\bmarket\b|retail|\bgoods\b/.test(lower)) {
+  } else if (
+    !isDisasterRestorationService &&
+    !isCraftOrHobbyWorkshop &&
+    /shop|store|boutique|mercantile|\bmarket\b|retail|\bgoods\b/.test(lower)
+  ) {
     // "market" and "goods" are word-boundary scoped (\b) — a bare "market"
     // matches inside "marketing" (e.g. "elevate-marketing-agency", a
     // plausible and common cold-prospect business type with no other
     // category keyword) and a bare "goods" matches inside a surname like
     // "Goodson" (e.g. "goodson-photography-studio") —
-    // category-substring-collision-audit-05.
+    // category-substring-collision-audit-05. isDisasterRestorationService and
+    // isCraftOrHobbyWorkshop (defined above) exclude "store"/"shop" whole-word
+    // ambiguities that word-boundary scoping alone can't fix —
+    // category-substring-collision-audit-06.
     category = "retail";
-  } else if (/dental|dentist|chiro|clinic|wellness|therapy|medical|health|physio/.test(lower)) {
+  } else if (/dental|dentist|chiro|clinic|wellness|therapy|medical|\bhealth\b|physio/.test(lower)) {
+    // "health" is word-boundary scoped (\b) — a bare "health" matches inside
+    // "healthy" (e.g. "healthy-home-cleaning", which should resolve to
+    // cleaning via its own "clean" keyword instead — this branch runs before
+    // cleaning's) — category-substring-collision-audit-06.
     category = "health";
   } else if (
     !isCleanEatingNutrition &&

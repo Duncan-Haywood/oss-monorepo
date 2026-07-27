@@ -451,6 +451,101 @@ describe("resolvePreviewLead", () => {
     });
   });
 
+  it("does not mistake 'kitchenware' retailers or 'KitchenAid' appliance repair for restaurant keywords (category-substring-collision-audit-06)", () => {
+    // Bare "kitchen" previously matched inside "kitchenware" and
+    // "kitchenaid" — a kitchenware retailer should resolve via retail's own
+    // "store" keyword, and a KitchenAid appliance-repair shop should resolve
+    // via trades' own "repair" keyword, not restaurant.
+    expect(resolvePreviewLead("kitchenware-outlet-store")).toMatchObject({
+      category: "retail",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("kitchenaid-appliance-repair")).toMatchObject({
+      category: "trades",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake a craft/hobby 'workshop' for a retail shop (category-substring-collision-audit-06)", () => {
+    // Bare "shop" previously matched inside "workshop" — a pottery or
+    // woodworking workshop teaches or crafts, it doesn't sell off a shelf,
+    // and no other category keyword applies, so it must fall through to
+    // generic.
+    for (const slug of ["pottery-workshop-studio", "woodworking-workshop-classes"]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "generic",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
+  it("does not mistake a disaster-restoration contractor for a retail store, but keeps a genuine 'ReStore'-style thrift store as retail (category-substring-collision-audit-06)", () => {
+    // Bare "store" previously matched inside "restore" — a storm/flood
+    // restoration contractor has no other category keyword, so it must fall
+    // through to generic. The exclusion is scoped to a disaster/damage
+    // marker specifically so an unrelated, genuine secondhand/thrift store
+    // whose name happens to contain "restore" (e.g. the real-world "ReStore"
+    // naming convention) still resolves to retail via its own "shop"
+    // keyword.
+    expect(resolvePreviewLead("storm-restore-services")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("flood-restore-pros")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("habitat-restore-thrift-shop")).toMatchObject({
+      category: "retail",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake a general 'trader' for a trades business, but still routes 'tradesman' to trades (category-substring-collision-audit-06)", () => {
+    // Bare "trade" previously matched inside "trader" — an antiques/goods
+    // trader should resolve to retail via "market", or fall through to
+    // generic when no other keyword applies, not trades. "tradesman" (a
+    // genuine trades-business naming convention with the same "trade"
+    // prefix) must still resolve to trades — the fix is a negative lookahead
+    // scoped to just the "r" that makes "trader", not a full word boundary.
+    expect(resolvePreviewLead("trader-joes-style-market")).toMatchObject({
+      category: "retail",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("downtown-trader-antiques")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("tradesman-services-llc")).toMatchObject({
+      category: "trades",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake a 'healthy' cleaning service for a health/wellness business (category-substring-collision-audit-06)", () => {
+    // Bare "health" previously matched inside "healthy" — an eco-friendly
+    // "Healthy Home Cleaning" service (a real-world non-toxic cleaning
+    // naming convention) should resolve via cleaning's own "clean"/"maid"/
+    // "housekeep" keywords, not health, since the health branch is checked
+    // first in the chain.
+    for (const slug of ["healthy-home-cleaning", "healthy-maid-service", "eco-healthy-housekeeping"]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "cleaning",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
+  it("does not mistake a 'Beautyrest' mattress retailer for salon keywords (category-substring-collision-audit-06)", () => {
+    // Bare "beauty" previously matched inside "beautyrest" (a mattress
+    // brand) — this slug has no other category keyword ("outlet" is not a
+    // retail keyword), so it must fall through to generic rather than salon.
+    expect(resolvePreviewLead("beautyrest-mattress-outlet")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
   it("still routes plain 'roofing'/'roofer' businesses to trades (category-substring-collision-audit-05 regression)", () => {
     // The roof fix above is left-boundary-only specifically to preserve this
     // suffix-attached match — see hairston-roofing-llc above for the salon
