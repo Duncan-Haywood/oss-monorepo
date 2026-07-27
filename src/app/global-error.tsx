@@ -1,6 +1,6 @@
 "use client"; // Error boundaries must be Client Components (Next.js 16 app router convention)
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { brand } from "@/lib/brand";
 import "./globals.css";
@@ -32,8 +32,14 @@ export default function GlobalError({
   error: Error & { digest?: string };
   unstable_retry: () => void;
 }) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
   useEffect(() => {
     console.error(error);
+    // Same rationale as src/app/error.tsx's own heading-focus effect: Next's
+    // route announcer only fires on a navigation, and this boundary (the root
+    // layout's own fallback) can mount without one too.
+    headingRef.current?.focus();
   }, [error]);
 
   return (
@@ -43,7 +49,11 @@ export default function GlobalError({
           <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
             Something went wrong
           </p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
+          <h1
+            ref={headingRef}
+            tabIndex={-1}
+            className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 outline-none sm:text-4xl"
+          >
             {brand.isConfigured ? brand.name : "This site"} hit a snag
           </h1>
           <p className="mt-4 text-lg leading-8 text-zinc-600">
