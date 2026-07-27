@@ -4124,6 +4124,21 @@ source). The same digest also lists email-critical leads with no usable address 
         pinned, dataSource) still runs unchanged, just through one loop instead of many blocks.
       </p>
 
+      <p>
+        <code>checkout-form-email-autocomplete</code>: a fresh-angle accessibility audit (form
+        autocomplete attributes, WCAG 1.3.5 Identify Input Purpose) found the Checkout page&apos;s
+        email input — the highest-value conversion field in the app, sitting one click before a
+        Stripe redirect — was missing <code>autoComplete=&quot;email&quot;</code>, even though the
+        exact same convention was already established sitewide: the public preview contact form
+        (<code>name</code>/<code>email</code>/<code>tel</code>, all three fields) and the operator
+        login password field both set it. Added <code>autoComplete=&quot;email&quot;</code> (plus a
+        matching <code>name=&quot;email&quot;</code>) to <code>checkout-form.tsx</code>&apos;s email
+        input — a pure markup addition, no logic change. The dashboard&apos;s manual &quot;Add
+        lead&quot; email field was deliberately left as-is: that field enters a third party&apos;s
+        contact info on the operator&apos;s behalf, not the signed-in user&apos;s own profile data,
+        so browser autofill semantics don&apos;t apply the same way there.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
