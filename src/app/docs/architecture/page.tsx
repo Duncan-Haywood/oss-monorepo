@@ -4040,6 +4040,33 @@ source). The same digest also lists email-critical leads with no usable address 
         fix. See <code>category-substring-collision-audit-04</code>.
       </p>
 
+      <p>
+        <code>category-substring-collision-audit-05</code>: a fifth audit found the vein was
+        still not exhausted — nine more collisions, including one new pattern the prior four
+        rounds didn&apos;t need. Bare <code>diner</code>/<code>grill</code>/<code>mechanic</code>
+        /<code>nails</code>/<code>market</code>/<code>goods</code> each matched inside an
+        unrelated word (e.g. a bare <code>diner</code> inside the surname{" "}
+        <code>Gardiner</code>, a bare <code>market</code> inside{" "}
+        <code>marketing</code> — the highest-value single find of this round, since a
+        marketing/advertising agency is a plausible, common cold-prospect business type) and are
+        now word-boundary scoped, mirroring the pattern from prior audits. Bare{" "}
+        <code>roof</code> needed a different fix: a full <code>\broof\b</code> would have blocked
+        the false positive inside <code>proofreading</code>/<code>waterproof</code> but also
+        broken the genuine <code>roofing</code>/<code>roofer</code> suffix match an existing
+        regression test depends on, so it&apos;s now LEFT-boundary-only (<code>\broof</code>, no
+        trailing boundary) — blocks the prefix-embedded false positive while preserving every
+        suffix-attached real match. Two more whole-word ambiguities got compound-exclusion
+        guards mirroring <code>isKitchenRemodelingContractor</code>/
+        <code>isGarageSaleOrThriftShop</code>: <code>isPaintballArena</code> (a paintball arena
+        isn&apos;t a painting contractor) and <code>isElectricBikeShop</code> (an e-bike
+        retailer isn&apos;t an electrician, falls through to <code>retail</code> instead). A
+        research agent also assessed whether this bug class could close permanently via a
+        corpus-driven regression test iterating a data-derived version of the branch table —
+        judged feasible but out of scope for a single focused iteration; a future session may
+        take this on as its own dedicated pass if a sixth manual round also turns up multiple
+        fresh collisions. See <code>category-substring-collision-audit-05</code>.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

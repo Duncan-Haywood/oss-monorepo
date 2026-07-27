@@ -375,6 +375,95 @@ describe("resolvePreviewLead", () => {
     });
   });
 
+  it("does not mistake a 'Gardiner' surname or 'grille' restorations for restaurant keywords (category-substring-collision-audit-05)", () => {
+    // Bare "diner" previously matched inside a surname like "Gardiner", and
+    // bare "grill" previously matched inside "grille" (a common automotive
+    // customization/restoration term) — before ever reaching legal's own
+    // keywords / falling through to generic.
+    expect(resolvePreviewLead("gardiner-law-group")).toMatchObject({
+      category: "legal",
+      recommendedTier: "growth",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("chrome-grille-restorations")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake 'mechanical contractors' for automotive (category-substring-collision-audit-05)", () => {
+    // Bare "mechanic" previously matched inside "mechanical" — a common
+    // real-world HVAC/mechanical-contractor naming convention — before ever
+    // reaching trades' own "contractor" keyword.
+    expect(resolvePreviewLead("abc-mechanical-contractors")).toMatchObject({
+      category: "trades",
+      recommendedTier: "starter",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake a 'marketing agency' or a 'Goodson' surname for retail keywords (category-substring-collision-audit-05)", () => {
+    // Bare "market" previously matched inside "marketing" — a plausible,
+    // common cold-prospect business type — and bare "goods" previously
+    // matched inside a surname like "Goodson"; neither has another category
+    // keyword, so both must fall through to generic.
+    expect(resolvePreviewLead("elevate-marketing-agency")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("goodson-photography-studio")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake 'proofreading' or a 'paintball' arena for trades keywords (category-substring-collision-audit-05)", () => {
+    // Bare "roof" previously matched inside "proofreading" (roof preceded by
+    // a word char, no boundary), and bare "paint" previously matched the
+    // whole-word "paintball" arena naming pattern; neither has another
+    // category keyword, so both must fall through to generic.
+    expect(resolvePreviewLead("precision-proofreading-services")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("downtown-paintball-arena")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake 'thumbnails' design studios for a nail salon (category-substring-collision-audit-05)", () => {
+    // Bare "nails" previously matched inside "thumbnails" — no other
+    // category keyword applies, so this must fall through to generic.
+    expect(resolvePreviewLead("thumbnails-design-studio")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("routes 'electric bike' shops to retail, not trades (category-substring-collision-audit-05)", () => {
+    // "Electric bike"/e-bike retailers are a genuine whole-word ambiguity
+    // with electricians — must fall through to retail's own "shop" keyword.
+    expect(resolvePreviewLead("electric-bike-shop")).toMatchObject({
+      category: "retail",
+      recommendedTier: "growth",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("still routes plain 'roofing'/'roofer' businesses to trades (category-substring-collision-audit-05 regression)", () => {
+    // The roof fix above is left-boundary-only specifically to preserve this
+    // suffix-attached match — see hairston-roofing-llc above for the salon
+    // side of the same slug.
+    for (const slug of ["citywide-roofing-experts", "the-local-roofer"]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "trades",
+        recommendedTier: "starter",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",
