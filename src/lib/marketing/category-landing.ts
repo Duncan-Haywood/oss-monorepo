@@ -185,6 +185,47 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
       },
     ],
   },
+  {
+    category: "retail",
+    href: "/websites-for-retail",
+    navLabel: "Retail & shops",
+    seoTitle: "Website for Retail Shops — catalog, hours, orders",
+    metaDescription:
+      `A retail shop website with your catalog, hours, and location — previewed free before you pay. Optional online ordering (Commerce add-on). From $${startingSetupPriceUsd}.`,
+    heroHeadline: "A website for your shop, ready before you decide",
+    heroSubhead:
+      "Catalog highlights, hours, location, and a contact form — built from your public business details and previewed for free. Add online ordering when you're ready.",
+    painPoints: [
+      "Your hours and product highlights are scattered across social media and a directory listing",
+      "Shoppers can't tell if you're open, in stock, or trustworthy without a real website",
+      "A custom e-commerce build from an agency costs thousands and takes months",
+    ],
+    features: [
+      "Catalog highlights, hours, and location on one fast page",
+      "Contact form and Google Maps embed",
+      "Basic SEO so nearby shoppers can find you",
+      "Optional online ordering, gift cards, and pickup checkout (Commerce add-on)",
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "corner-mercantile",
+    faq: [
+      {
+        question: "Can customers buy directly from the site?",
+        answer:
+          "Yes — the Commerce add-on stacks on any bundle and adds Stripe checkout for products, gift cards, and pickup orders, with order notifications sent straight to you.",
+      },
+      {
+        question: "Do I need a full product catalog before I see anything?",
+        answer:
+          "No. You can preview a working example first (see the Retail preview below), then buy and we tailor it to your shop.",
+      },
+      {
+        question: "How is this different from a marketplace listing?",
+        answer:
+          "This is your own website on your own domain — not a listing you're renting inside someone else's marketplace, with their branding and their fees on every sale.",
+      },
+    ],
+  },
 ] as const;
 
 export function categoryLandingPageByHref(href: string): CategoryLandingPage | undefined {

@@ -11,6 +11,7 @@ const categoryValidator = v.union(
   v.literal("restaurant"),
   v.literal("salon"),
   v.literal("trades"),
+  v.literal("retail"),
   v.literal("generic"),
 );
 

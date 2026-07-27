@@ -390,7 +390,10 @@ describe("formatCsvImportSummary", () => {
       imported: 7,
       skipped: 3,
       errors: [
-        { row: 2, message: 'Invalid category "resturant" (use restaurant|salon|trades|generic)' },
+        {
+          row: 2,
+          message: 'Invalid category "resturant" (use restaurant|salon|trades|retail|generic)',
+        },
         { row: 5, message: "businessName is required" },
         { row: 0, message: existingLeadSlugConflictMessage("blue-river-salon") },
       ],

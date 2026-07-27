@@ -13,6 +13,7 @@ const CATEGORIES: BusinessCategory[] = [
   "restaurant",
   "salon",
   "trades",
+  "retail",
   "generic",
 ];
 
@@ -47,6 +48,12 @@ describe("CATEGORY_THEMES", () => {
       heroEyebrow: "Home services preview",
       accentTextClass: "text-teal-900",
       ctaClass: "bg-teal-950 text-teal-50 hover:bg-teal-900",
+    });
+    expect(CATEGORY_THEMES.retail).toMatchObject({
+      label: "Retail & shops",
+      heroEyebrow: "Retail preview",
+      accentTextClass: "text-violet-800",
+      ctaClass: "bg-violet-950 text-violet-50 hover:bg-violet-900",
     });
     expect(CATEGORY_THEMES.generic).toMatchObject({
       label: "Local business",

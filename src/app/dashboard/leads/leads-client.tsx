@@ -230,6 +230,7 @@ const CATEGORIES: { id: BusinessCategory; label: string }[] = [
   { id: "restaurant", label: "Restaurant / Cafe" },
   { id: "salon", label: "Salon / Spa" },
   { id: "trades", label: "Home Services / Trades" },
+  { id: "retail", label: "Retail / Shop" },
   { id: "generic", label: "Generic / Other" },
 ];
 

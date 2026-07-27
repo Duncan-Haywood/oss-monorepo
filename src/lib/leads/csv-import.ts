@@ -78,7 +78,13 @@ export interface CsvImportResult {
   skipped: number;
 }
 
-const CATEGORIES = new Set<BusinessCategory>(["restaurant", "salon", "trades", "generic"]);
+const CATEGORIES = new Set<BusinessCategory>([
+  "restaurant",
+  "salon",
+  "trades",
+  "retail",
+  "generic",
+]);
 const TIERS = new Set(["starter", "growth", "complete"] as const);
 const MAX_ROWS = 100;
 
@@ -398,7 +404,7 @@ export function parseLeadsCsv(
     if (!category) {
       errors.push({
         row: rowNumber,
-        message: `Invalid category "${get("category")}" (use restaurant|salon|trades|generic)`,
+        message: `Invalid category "${get("category")}" (use restaurant|salon|trades|retail|generic)`,
       });
       skipped += 1;
       return;

@@ -15,11 +15,12 @@ import {
  */
 
 describe("DEMO_LEADS", () => {
-  it("ships the three stable marketing deep-link demos", () => {
+  it("ships the four stable marketing deep-link demos", () => {
     expect(DEMO_LEADS.map((lead) => lead.slug)).toEqual([
       "example-bakery",
       "serene-salon",
       "mountain-plumbing",
+      "corner-mercantile",
     ]);
   });
 
@@ -41,6 +42,11 @@ describe("DEMO_LEADS", () => {
       category: "trades",
       recommendedTier: "starter",
       stage: "discovered",
+    });
+    expect(getLeadBySlug("corner-mercantile")).toMatchObject({
+      category: "retail",
+      recommendedTier: "growth",
+      stage: "discovery_call",
     });
   });
 });
@@ -122,6 +128,16 @@ describe("resolvePreviewLead", () => {
     }
   });
 
+  it("infers retail category and growth tier from shop keywords", () => {
+    for (const slug of ["riverside-boutique", "downtown-store", "gift-shop", "trailhead-goods"]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "retail",
+        recommendedTier: "growth",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",
@@ -136,6 +152,7 @@ describe("resolvePreviewLead", () => {
     expect(resolvePreviewLead("Downtown-BAKERY").category).toBe("restaurant");
     expect(resolvePreviewLead("Luxe-SALON").category).toBe("salon");
     expect(resolvePreviewLead("Peak-PLUMB").category).toBe("trades");
+    expect(resolvePreviewLead("Corner-BOUTIQUE").category).toBe("retail");
   });
 });
 
@@ -145,7 +162,7 @@ describe("countLeadsByStage", () => {
       discovered: 1,
       site_built: 1,
       outreach_sent: 1,
-      discovery_call: 0,
+      discovery_call: 1,
       paid: 0,
       live: 0,
       closed: 0,

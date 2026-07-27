@@ -3614,6 +3614,37 @@ source). The same digest also lists email-critical leads with no usable address 
         caller&apos;s snapshot reports a distinct &quot;already sent moments ago — skipped
         duplicate send&quot; message instead of falsely blaming a payment that never happened.
       </p>
+      <p>
+        <code>retail-category-landing-page</code>: <code>BusinessCategory</code> was a fixed
+        four-way union (<code>restaurant</code> / <code>salon</code> / <code>trades</code> /{" "}
+        <code>generic</code>) with exactly three <code>/websites-for-*</code> SEO landing pages —
+        a prior audit flagged a fourth vertical as a real, well-scoped growth candidate
+        (organic acquisition is the one growth lever an agent can build without operator
+        credentials, per <code>category-landing.ts</code>&apos;s own header comment) but
+        deliberately deferred it as its own iteration, since a new category literal touches the
+        live Convex schema&apos;s <code>categoryValidator</code> — a materially different risk
+        class than a content-only change. Added <code>retail</code> as a fifth, purely-additive
+        literal: <code>convex/leads.ts</code>&apos;s <code>categoryValidator</code> gained{" "}
+        <code>v.literal(&quot;retail&quot;)</code> (schema.ts itself stores <code>category</code>{" "}
+        as a plain string, so this needed no migration), and every <code>Record&lt;BusinessCategory,
+        …&gt;</code> map (<code>CATEGORY_THEMES</code>, the OG-image accent-hex map, the
+        schema.org <code>@type</code> map — <code>Store</code> for retail) plus every exhaustive{" "}
+        <code>switch</code> (<code>defaultTagline</code>,{" "}
+        <code>acquisitionSourceForCategory</code>) failed to compile until a <code>retail</code>{" "}
+        case was added — the same literal-union exhaustiveness this codebase already relies on
+        elsewhere caught every touch point mechanically rather than by manual cross-reference. A
+        new curated demo lead (<code>corner-mercantile</code>, a Longmont, CO boutique) backs the
+        new <code>/websites-for-retail</code> landing page&apos;s <code>exampleLeadSlug</code> and
+        the CSV/slug-inference tests; <code>resolvePreviewLead</code>&apos;s slug-keyword inference
+        gained a retail branch (<code>shop|store|boutique|mercantile|market|retail|goods</code>).{" "}
+        <code>cat-retail</code> was added to <code>CHECKOUT_ACQUISITION_SOURCES</code> so the new
+        page&apos;s CTA is attributed the same way the other three landing pages already are.
+        Sitemap listing and OG/Twitter card images needed zero new wiring — both are already
+        derived from <code>CATEGORY_LANDING_PAGES</code> generically (see{" "}
+        <code>category-landing-pages</code> above), and a clean production build confirmed{" "}
+        <code>/websites-for-retail</code> and its two image routes prerender statically
+        alongside the existing three.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

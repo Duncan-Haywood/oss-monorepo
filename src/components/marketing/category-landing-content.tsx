@@ -16,8 +16,8 @@ import { categoryLandingServiceJsonLd, safeJsonLdScript } from "@/lib/seo";
 // Maps this landing page's category to its checkout acquisition-source token
 // (see acquisition-source-checkout-attribution) — undefined for a category
 // with no landing page (defensive; CATEGORY_LANDING_PAGES today only ever
-// supplies restaurant/salon/trades entries), in which case the CTA omits
-// ?source= entirely rather than sending an unrecognized token.
+// supplies restaurant/salon/trades/retail entries), in which case the CTA
+// omits ?source= entirely rather than sending an unrecognized token.
 function acquisitionSourceForCategory(
   category: CategoryLandingPage["category"],
 ): CheckoutAcquisitionSource | undefined {
@@ -28,6 +28,8 @@ function acquisitionSourceForCategory(
       return "cat-salon";
     case "trades":
       return "cat-trades";
+    case "retail":
+      return "cat-retail";
     default:
       return undefined;
   }
