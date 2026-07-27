@@ -33,10 +33,10 @@ type IntroForm = {
 };
 
 /** Always on screen while swiping, so it's never ambiguous who you're rating for. */
-const PERSPECTIVE_LABEL: Record<"SELF" | "PARTNER" | "PARTNER_GUESS", string> = {
-  SELF: "⭐ Rating: for myself",
-  PARTNER: "💞 Rating: in a partner",
-  PARTNER_GUESS: "🔮 Rating: what I think they want",
+const PERSPECTIVE_SHORT: Record<"SELF" | "PARTNER" | "PARTNER_GUESS", string> = {
+  SELF: "⭐ For me",
+  PARTNER: "💞 In a partner",
+  PARTNER_GUESS: "🔮 Their view",
 };
 
 /** Blank by default — no personal data baked into the client bundle. */
@@ -535,51 +535,56 @@ export function UnifiedRunner() {
   const swipesLeft = swipesUntilNextInsight(totalPoints);
 
   return (
-    <div className="flex h-[100dvh] flex-col">
-      <header className="flex flex-col gap-2 border-b border-neutral-200 bg-neutral-50/95 px-4 pb-3 pt-4 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            {currentDomain && (
-              <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
-                {currentDomain.title}
-              </span>
-            )}
-            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">⭐ Level {level}</span>
-          </div>
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* Two dense rows instead of five stacked strips: identity + progress on
+          top, the actual question prompt below. Everything else (level-up
+          nudges, notes) is transient and only appears when it has something
+          to say. */}
+      <header className="flex flex-col gap-2 border-b border-neutral-200 bg-neutral-50/95 px-4 pb-2.5 pt-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95">
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+            {PERSPECTIVE_SHORT[perspective]}
+          </span>
+          {currentDomain && (
+            <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+              {currentDomain.title}
+            </span>
+          )}
+          <span className="shrink-0 text-[11px] font-bold tabular-nums text-neutral-500 dark:text-neutral-400">
+            Lv {level}
+          </span>
           <button
             onClick={() => setPhase("thanks")}
-            className="shrink-0 rounded-full border border-neutral-300 px-3 py-1 text-xs font-semibold text-neutral-600 transition active:scale-95 dark:border-neutral-700 dark:text-neutral-300"
+            className="shrink-0 rounded-full border border-neutral-300 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600 transition active:scale-95 dark:border-neutral-700 dark:text-neutral-300"
           >
             Pause
           </button>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+
+        <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
           <div
             className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500"
-            style={{ width: `${Math.max(levelProgressPct, 4)}%` }}
+            style={{ width: `${Math.max(levelProgressPct, 3)}%` }}
           />
         </div>
-        <p className="rounded-lg bg-neutral-200/70 px-2 py-1 text-center text-[11px] font-bold uppercase tracking-wide text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
-          {PERSPECTIVE_LABEL[perspective]}
-        </p>
-        {upcoming && swipesLeft !== null && (
-          <p className="text-center text-xs font-semibold text-amber-700 dark:text-amber-300">
-            {swipesLeft === 0
-              ? `🔓 “${upcoming.title}” is ready — tap Insights`
-              : `${swipesLeft} more to unlock “${upcoming.title}”`}
-          </p>
-        )}
+
         {currentDomain && (
-          <p className="text-center text-xs font-medium text-neutral-500 dark:text-neutral-400">
+          <p className="text-center text-sm font-semibold text-neutral-800 dark:text-neutral-100">
             {INSTRUCTIONS[currentDomain.kind]}
           </p>
         )}
-        {cuteNote && (
-          <div className="rounded-xl bg-amber-100 px-3 py-1.5 text-center text-xs font-medium text-amber-800 dark:bg-amber-950/50 dark:text-amber-300">
-            {cuteNote.en} · <span className="italic">{cuteNote.fa}</span>
-          </div>
+
+        {swipesLeft === 0 && upcoming && (
+          <p className="text-center text-[11px] font-bold text-amber-700 dark:text-amber-300">
+            🔓 “{upcoming.title}” unlocked — tap Insights
+          </p>
         )}
-        {error && <p className="text-center text-sm font-medium text-red-500">{error}</p>}
+        {cuteNote && (
+          <p className="text-center text-[11px] font-medium text-amber-700 dark:text-amber-300">
+            {cuteNote.en} · <span className="italic">{cuteNote.fa}</span>
+          </p>
+        )}
+        {error && <p className="text-center text-xs font-medium text-red-500">{error}</p>}
       </header>
 
       <div className="relative flex flex-1 flex-col gap-2 overflow-hidden p-2">

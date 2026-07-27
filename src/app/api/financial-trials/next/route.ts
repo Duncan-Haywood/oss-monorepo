@@ -33,9 +33,15 @@ export async function POST(req: NextRequest) {
     : null;
 
   const coverage = await financialFeatureCoverage(participantId);
+  // A conjoined card already carries an identity item, so only ONE financial
+  // attribute may move — three things at once isn't a trade-off anyone can
+  // answer meaningfully, and the response stops being attributable.
+  const slots: 1 | 2 = survey.kind === "CONJOINED" ? 1 : 2;
   const { a, b, linesA, linesB } = selectFinancialPair(
     coverage,
-    financialParams ? { params: financialParams, nu: existingFit!.nu } : null
+    financialParams ? { params: financialParams, nu: existingFit!.nu } : null,
+    Math.random,
+    slots
   );
 
   let identityItemAId: string | null = null;

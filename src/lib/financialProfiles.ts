@@ -23,11 +23,11 @@ export const FEATURE_NAMES = ["income", "netWorth", "futurePotential", "yearsToR
 export type FeatureName = (typeof FEATURE_NAMES)[number];
 
 export const RANGES = {
-  income: { min: 80_000, max: 2_000_000 },
-  netWorth: { min: 200_000, max: 25_000_000 },
-  futurePotential: { min: 250_000, max: 20_000_000 },
-  yearsToRealize: { min: 1, max: 20 },
-  weeklyHours: { min: 5, max: 70 },
+  income: { min: 100_000, max: 1_000_000 },
+  netWorth: { min: 250_000, max: 8_000_000 },
+  futurePotential: { min: 500_000, max: 10_000_000 },
+  yearsToRealize: { min: 2, max: 15 },
+  weeklyHours: { min: 15, max: 65 },
 };
 
 /** A fixed, unremarkable starting point. Only the active trade-off slots move away from this. */
@@ -203,9 +203,24 @@ function slotCoverageWeight(slot: TradeSlot, featureCoverage: number[]): number 
   return 1 / (1 + featureCoverage[idx]);
 }
 
-/** Builds one guaranteed non-dominated two-slot trade-off. */
-function generateTradeOffPair(featureCoverage: number[], rand: () => number): TradeOffPair {
+/**
+ * Builds a guaranteed non-dominated trade-off.
+ *
+ * `slots` caps how many attributes move. Two is the default; ONE is used
+ * when the card already carries an identity item, because a person can't
+ * meaningfully weigh three things at once — the answer stops being
+ * attributable to any single trade-off.
+ */
+function generateTradeOffPair(featureCoverage: number[], rand: () => number, slots: 1 | 2 = 2): TradeOffPair {
   const slot1 = weightedPick(TRADE_SLOTS, (s) => slotCoverageWeight(s, featureCoverage), rand);
+
+  if (slots === 1) {
+    const only = sampleSlot(slot1, rand);
+    const a1: FinancialProfile = { ...BASELINE, ...only.better };
+    const b1: FinancialProfile = { ...BASELINE, ...only.worse };
+    return { a: a1, b: b1, linesA: [only.line(a1)], linesB: [only.line(b1)] };
+  }
+
   // "upside" and "timing" both describe the same future-payout line, so they
   // can't both move in one trial — the card would show one line claiming two
   // different things.
@@ -243,8 +258,13 @@ export type FinancialFitLike = {
  * first. When a fit already exists, candidates are scored by how close to
  * a toss-up the current model predicts them to be (most informative).
  */
-export function selectFinancialPair(featureCoverage: number[], fit: FinancialFitLike, rand: () => number = Math.random): TradeOffPair {
-  const candidates = Array.from({ length: 6 }, () => generateTradeOffPair(featureCoverage, rand));
+export function selectFinancialPair(
+  featureCoverage: number[],
+  fit: FinancialFitLike,
+  rand: () => number = Math.random,
+  slots: 1 | 2 = 2
+): TradeOffPair {
+  const candidates = Array.from({ length: 6 }, () => generateTradeOffPair(featureCoverage, rand, slots));
 
   if (!fit || fit.params.every((p) => p === 0)) {
     return candidates[Math.floor(rand() * candidates.length)];
