@@ -299,6 +299,44 @@ describe("resolvePreviewLead", () => {
     }
   });
 
+  it("does not mistake 'attire'/'autograph' retailers for automotive (category-substring-collision-audit-03)", () => {
+    // Bare "tire"/"auto" previously matched inside "attire" and "autograph"
+    // — real-world clothing-retailer and memorabilia-retailer naming
+    // conventions — before ever reaching retail's own keywords.
+    expect(resolvePreviewLead("elegant-attire-boutique")).toMatchObject({
+      category: "retail",
+      dataSource: "slug_inference",
+    });
+    expect(resolvePreviewLead("autograph-collectibles-store")).toMatchObject({
+      category: "retail",
+      dataSource: "slug_inference",
+    });
+    // Neither contains a retail keyword, so — like the lawn/crawlspace
+    // false positives before them — these fall through to generic rather
+    // than being wrongly typed as automotive.
+    expect(resolvePreviewLead("mens-attire-outlet")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
+  it("does not mistake a 'garage sale' business for an auto garage (category-substring-collision-audit-03)", () => {
+    // "garage" is a genuine standalone token in both an auto-repair garage
+    // and a garage-sale/thrift shop — word-boundary scoping alone can't
+    // disambiguate them, so a garage+sale/thrift combination is excluded
+    // from automotive and falls through to retail's own keywords instead.
+    expect(resolvePreviewLead("vintage-garage-sale-shop")).toMatchObject({
+      category: "retail",
+      dataSource: "slug_inference",
+    });
+    // No retail keyword present either, so this falls through to generic
+    // rather than being wrongly typed as automotive.
+    expect(resolvePreviewLead("garage-sale-treasures")).toMatchObject({
+      category: "generic",
+      dataSource: "slug_inference",
+    });
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",

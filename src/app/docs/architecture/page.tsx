@@ -3949,6 +3949,34 @@ source). The same digest also lists email-critical leads with no usable address 
         pre-fix logic before restoring the fix. See{" "}
         <code>category-substring-collision-audit-02</code>.
       </p>
+      <p>
+        <code>category-substring-collision-audit-03</code>: a follow-up audit checked the
+        remaining branches <code>category-substring-collision-audit-02</code> didn&apos;t touch
+        (<code>retail</code>/<code>health</code>/<code>cleaning</code>/<code>fitness</code>) and
+        found two more live collisions in the <code>automotive</code> branch itself, checked
+        earlier in the chain than <code>retail</code>. A bare <code>tire</code> matches inside{" "}
+        <code>attire</code> (e.g. <code>elegant-attire-boutique</code>, a clothing retailer) and a
+        bare <code>auto</code> matches inside <code>autograph</code> (e.g.{" "}
+        <code>autograph-collectibles-store</code>, a memorabilia retailer) — both misclassified as{" "}
+        <code>automotive</code> before ever reaching <code>retail</code>&apos;s own{" "}
+        <code>boutique</code>/<code>store</code> keywords. Fixed with the same word-boundary
+        scoping already used for <code>spa</code>/<code>hair</code>/<code>law</code>/
+        <code>legal</code>: <code>\bauto\b</code>, <code>\btire\b</code>. A third collision needed
+        a different fix: <code>garage</code> is a genuine standalone token in both an auto-repair
+        garage and a &quot;garage sale&quot;/thrift-shop business name (e.g.{" "}
+        <code>garage-sale-treasures</code>), so word-boundary scoping alone can&apos;t
+        disambiguate it — a new <code>isGarageSaleOrThriftShop</code> guard (garage present
+        alongside sale/thrift) excludes it from <code>automotive</code> and lets it fall through
+        to <code>retail</code>&apos;s own keywords when present, mirroring{" "}
+        <code>isKitchenRemodelingContractor</code>&apos;s compound-exclusion pattern. Slugs
+        matching neither the automotive collision nor any other category&apos;s own keyword (e.g.{" "}
+        <code>mens-attire-outlet</code>, <code>garage-sale-treasures</code>) fall through to{" "}
+        <code>generic</code>, the same safe default the lawn/crawlspace false positives resolved
+        to. Verified every existing category-inference test slug still resolves unchanged, added
+        regression tests for all five new cases, and confirmed each fails against the pre-fix
+        logic before restoring the fix. See{" "}
+        <code>category-substring-collision-audit-03</code>.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

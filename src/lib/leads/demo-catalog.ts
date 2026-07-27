@@ -204,19 +204,34 @@ export function resolvePreviewLead(slug: string): Lead {
   // it to trades via the "remodel"/"renovat" keywords added there instead.
   const isKitchenRemodelingContractor =
     /kitchen/.test(lower) && /bath|remodel|renovat/.test(lower);
+  // A "garage sale"/thrift-shop business name (e.g. "garage-sale-treasures")
+  // is a whole-word ambiguity, not a substring-embedding one — word-boundary
+  // scoping "garage" wouldn't help, since it's a genuine standalone token in
+  // both an auto-repair garage and a garage sale. Exclude it from automotive
+  // and let it fall through to retail's own "shop"/"store" keywords when
+  // present (category-substring-collision-audit-03).
+  const isGarageSaleOrThriftShop = /garage/.test(lower) && /sale|thrift/.test(lower);
   let category: Lead["category"] = "generic";
   if (
     !isKitchenRemodelingContractor &&
     /bakery|bistro|cafe|restaurant|pizza|grill|diner|kitchen/.test(lower)
   ) {
     category = "restaurant";
-  } else if (/auto|mechanic|garage|tire|transmission|collision|motor/.test(lower)) {
+  } else if (
+    !isGarageSaleOrThriftShop &&
+    /\bauto\b|mechanic|garage|\btire\b|transmission|collision|motor/.test(lower)
+  ) {
     // Checked before both "salon" and "trades" — salon's own bare "spa"
     // keyword and trades' own bare "repair" keyword would otherwise swallow
     // two dominant real-world automotive naming conventions ("auto-spa"
     // detailing shops, "joes-auto-repair") before this branch ever runs
     // (category-substring-collision-audit-02 extended this precedent, first
-    // established against trades alone, to salon too).
+    // established against trades alone, to salon too). "auto" and "tire" are
+    // word-boundary scoped (\b) — a bare "auto" matches inside "autograph"
+    // (e.g. "autograph-collectibles-store", a memorabilia retailer) and a
+    // bare "tire" matches inside "attire" (e.g. "elegant-attire-boutique", a
+    // clothing retailer) — mirroring the word-boundary fix already applied
+    // to legal's/salon's own bare keywords (category-substring-collision-audit-03).
     category = "automotive";
   } else if (/salon|\bspa\b|barber|nails|beauty|\bhair\b/.test(lower)) {
     // "spa" and "hair" are word-boundary scoped (\b) rather than bare
