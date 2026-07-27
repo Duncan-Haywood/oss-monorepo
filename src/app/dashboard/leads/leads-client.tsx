@@ -314,6 +314,18 @@ export function LeadsClient({
     );
   }
   const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
+  // Same stale-prop bug as `leads` above, fed by an external actor rather
+  // than only this component's own handlers: the Stripe checkout.session.completed
+  // webhook calls enqueueProductionHandoff to create/upsert a deploy handoff
+  // server-side, independent of anything this tab does. All 5 setHandoffs
+  // call sites in this component patch a row only after their own await
+  // resolves (never optimistically before), so a wholesale adopt-on-prop-change
+  // is safe here — no in-flight-edit merge needed, unlike `leads`.
+  const [prevInitialHandoffs, setPrevInitialHandoffs] = useState(initialHandoffs);
+  if (prevInitialHandoffs !== initialHandoffs) {
+    setPrevInitialHandoffs(initialHandoffs);
+    setHandoffs(initialHandoffs);
+  }
   const [inquiries, setInquiries] = useState<ClientInquiry[]>(initialInquiries);
   const [checkoutSessions, setCheckoutSessions] =
     useState<CheckoutSessionRecord[]>(initialCheckoutSessions);

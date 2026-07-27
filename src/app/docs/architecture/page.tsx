@@ -742,6 +742,30 @@ export default function ArchitectureDocPage() {
         <code>setState</code>).
       </p>
       <p>
+        First of the eight documented <code>leads-client-stale-prop-resync</code> follow-ups
+        closed: <code>handoffs</code>. Picked first because it&apos;s fed by an external actor
+        rather than only this component&apos;s own handlers — the Stripe{" "}
+        <code>checkout.session.completed</code> webhook calls{" "}
+        <code>enqueueProductionHandoff</code> to create/upsert a deploy handoff server-side the
+        moment a customer pays, independent of anything the operator&apos;s own tab does. Left
+        unfixed, a brand-new paying customer&apos;s handoff could stay invisible in the
+        &quot;Paid, not live&quot; and &quot;Production deploy handoffs&quot; due-queues until a
+        hard reload — a direct delay to the DNS/go-live fulfillment funnel these panels exist to
+        drive. Traced all 5 <code>setHandoffs</code> call sites (
+        <code>handleMarkHandoffLive</code>, <code>handleCreateDeployHandoff</code>,{" "}
+        <code>handleAssignVercelProject</code>, <code>handleAssignCustomDomain</code>,{" "}
+        <code>handleResendBundleBuyerEmail</code>) and confirmed every one patches only after its
+        own <code>await</code> resolves — unlike <code>leads</code>&apos;{" "}
+        <code>handleStageChange</code>, none writes optimistically beforehand, so no in-flight-edit
+        merge helper is needed here: a plain wholesale adopt-on-prop-change (the same{" "}
+        <code>prevInitialHandoffs</code> reference-check idiom, simplified) is sufficient and
+        correct. The remaining seven arrays (<code>inquiries</code>, <code>checkoutSessions</code>
+        , <code>marketingPacks</code>, <code>commerceCatalogs</code>, <code>clientVoicePacks</code>
+        , <code>commerceOrders</code>, <code>commerceOrdersMissingClientReceipt</code>) stay a
+        documented follow-up — <code>inquiries</code> (fed by the public contact-form route, also
+        an external actor) is the suggested next pick.
+      </p>
+      <p>
         <code>src/lib/db.ts</code> (the Convex-first/SQLite-fallback orchestration layer every
         surface above ultimately writes and reads through) carries a{" "}
         <code>&quot;server-only&quot;</code> guard, which throws unconditionally outside a
