@@ -3694,6 +3694,21 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>/websites-for-automotive</code> and its two image routes prerender statically and
         serve 200s alongside the existing five.
       </p>
+      <p>
+        <code>automotive-repair-keyword-priority-fix</code>: the automotive branch above shared no
+        keywords with the other five branches, but that one-directional check missed the reverse —
+        <code>resolvePreviewLead</code>&apos;s if/else-if chain checked <code>trades</code> (whose
+        own keyword list includes the bare word <code>repair</code>) before{" "}
+        <code>automotive</code>, so the dominant real-world auto-repair naming convention (e.g.{" "}
+        <code>joes-auto-repair</code>) matched <code>trades</code> first and never reached the
+        automotive branch — mis-tiering a real cold-prospected lead&apos;s preview (
+        <code>trades</code> defaults to Starter, automotive to Growth) and mis-typing its JSON-LD.
+        Fixed by moving the automotive check immediately after salon, before trades, so the more
+        specific vertical wins; three regression cases (
+        <code>joes-auto-repair</code>, <code>smiths-auto-repair-shop</code>,{" "}
+        <code>quick-fix-auto-repair-center</code>) were added to{" "}
+        <code>demo-catalog.test.ts</code> that fail against the pre-fix ordering.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

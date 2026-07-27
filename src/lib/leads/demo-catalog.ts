@@ -147,14 +147,17 @@ export function resolvePreviewLead(slug: string): Lead {
     category = "restaurant";
   } else if (/salon|spa|barber|nails|beauty|hair/.test(lower)) {
     category = "salon";
+  } else if (/auto|mechanic|garage|tire|transmission|collision|motor/.test(lower)) {
+    // Checked before "trades" — trades' own bare "repair" keyword would
+    // otherwise swallow the dominant real-world auto-repair naming
+    // convention ("joes-auto-repair") before this branch ever runs.
+    category = "automotive";
   } else if (/plumb|hvac|electric|roof|paint|landscap|contractor|trade|repair/.test(lower)) {
     category = "trades";
   } else if (/shop|store|boutique|mercantile|market|retail|goods/.test(lower)) {
     category = "retail";
   } else if (/dental|dentist|chiro|clinic|wellness|therapy|medical|health|physio/.test(lower)) {
     category = "health";
-  } else if (/auto|mechanic|garage|tire|transmission|collision|motor/.test(lower)) {
-    category = "automotive";
   }
 
   return {

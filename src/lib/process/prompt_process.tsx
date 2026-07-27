@@ -637,4 +637,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "automotive-category-landing-page",
     ),
   },
+  {
+    date: "2026-07-27",
+    branch: "claude/upbeat-dijkstra-f2ym0b",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip e4ccb8a (PR #864, automotive-category-landing-page, merged prior session) — HEAD matched origin/main exactly at session start. NEXT_STEPS is fully gated (five operator/legal/infra-blocked items only) and no live sibling-branch fold candidate existed, so dispatched a read-only research agent to find one concrete gap rather than invent busywork. It found that resolvePreviewLead's category-inference chain (src/lib/leads/demo-catalog.ts) checks trades — whose own keyword list includes the bare word \"repair\" — before automotive, so the dominant real-world auto-repair naming convention (joes-auto-repair) never reaches the automotive branch and gets mis-tiered (starter instead of growth) and mis-typed in JSON-LD.",
+    shipped: [
+      "src/lib/leads/demo-catalog.ts — reordered resolvePreviewLead's if/else-if chain to check automotive immediately after salon, before trades, with an inline comment explaining why.",
+      "src/lib/leads/demo-catalog.test.ts — three new regression cases (joes-auto-repair, smiths-auto-repair-shop, quick-fix-auto-repair-center) asserting category: \"automotive\", which fail against the pre-fix ordering.",
+      "src/app/docs/architecture/page.tsx — new paragraph after the automotive-category-landing-page writeup naming the gap and the fix.",
+      "src/lib/process/business-decisions.ts — appended automotive-repair-keyword-priority-fix with the full detail.",
+      "src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, and github-actions-runner-unavailable remain operator/legal/infra-blocked, unchanged. Diff-gate anchor moves to e4ccb8a (this session's own starting tip, post-PR-#864).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3418 passed, 210 files — one net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split, no new warnings) + npm run dev smoke check curling /preview/joes-auto-repair, /dashboard/leads, and /websites-for-automotive (all 200, no error-boundary text).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "automotive-repair-keyword-priority-fix",
+    ),
+  },
 ];

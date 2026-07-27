@@ -170,6 +170,19 @@ describe("resolvePreviewLead", () => {
     }
   });
 
+  it("prefers automotive over trades' generic 'repair' keyword for auto-repair slugs", () => {
+    // "repair" alone is one of trades' own keywords — the dominant
+    // real-world auto-repair business naming convention ("joes-auto-repair")
+    // must still resolve to automotive, not fall into trades first.
+    for (const slug of ["joes-auto-repair", "smiths-auto-repair-shop", "quick-fix-auto-repair-center"]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "automotive",
+        recommendedTier: "growth",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",
