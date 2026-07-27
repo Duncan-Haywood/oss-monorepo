@@ -345,6 +345,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-a6fpas",
   },
+  {
+    id: "billing-upsell-marketing-voice-pack-inline-aria-announcement",
+    summary:
+      "Follow-up to buffer-scaffold-inline-aria-announcement (PR #846, merged prior session), part of the alert()-to-inline-aria conversion series over leads-client.tsx. Converted the 6 remaining action-failure alert() calls in the main leads table's row-action cluster (Billing, Upsell, Generate/Regenerate marketing pack, Email marketing pack, Generate/Regenerate voice pack, Email voice pack) into the existing slug-keyed leadActionErrors map/paragraph. Also fixed a silent-failure hazard: 4 of the 6 handlers are also triggered from a due-queue panel (Starter upsell, MRR paused/canceled, Marketing packs due, Voice packs due) that previously had no error feedback at all — each of those 4 panels now renders its own role=\"alert\" paragraph (panel-prefixed id to avoid a duplicate-id collision with the main table's own paragraph over the same map). 9 alert() call sites remain in leads-client.tsx, all success/informational notices rather than action failures. See billing-upsell-marketing-voice-pack-inline-aria-announcement in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/nice-euler-1dz45a",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -746,6 +754,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "buffer-scaffold-inline-aria-announcement",
+    ),
+  },
+  {
+    date: "2026-07-27",
+    branch: "claude/nice-euler-1dz45a",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip 59289ef (PR #846, buffer-scaffold-inline-aria-announcement, merged prior session) — HEAD matched origin/main exactly at session start. mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft, cursor/* family). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest ~4 claude/* branches by push time each had a non-empty diff against origin/main, but every one was independently confirmed already-merged under a different SHA (their sole commit's subject line and content matched origin/main's last four merge commits, PRs #843-#846, byte-for-byte); no live fold candidate.\n\nRead AGENT_PROTOCOL and the tail of ITERATIONS/BUSINESS_DECISIONS directly (no dispatched research agent needed — buffer-scaffold-inline-aria-announcement explicitly named 15 remaining alert() call sites as a documented follow-up). `grep -n \"alert(\" src/app/dashboard/leads/leads-client.tsx | grep -v 'role=\"alert\"'` confirmed exactly 15 sites; classified each and found 6 were genuine action-failure alerts in the main table's row-action cluster (Billing, Upsell, Generate/Regenerate marketing pack, Email marketing pack, Generate/Regenerate voice pack, Email voice pack) while the remaining 9 were success/informational notices, matching this series' established failure-only scope boundary.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — handleOpenBillingPortal, handleSendStarterUpsell, handleGenerateMarketingPack, handleEmailMarketingPack, handleGenerateClientVoicePack, and handleEmailClientVoicePack now clear/set the existing slug-keyed leadActionErrors map instead of calling alert(); each corresponding main-table button gained aria-describedby pointing at the existing lead-action-error-${slug} paragraph already rendered beneath that row. Discovered before implementing (by reading every call site of all six handlers, not just the main-table button) that 4 of the 6 — handleOpenBillingPortal, handleSendStarterUpsell, handleGenerateMarketingPack, handleGenerateClientVoicePack — are also invoked from a due-queue panel (MRR paused/canceled, Starter upsell, Marketing packs due, Voice packs due) that previously showed no error feedback at all; a naive conversion would have made a due-queue-triggered failure fail silently, worse than the alert() it replaced. Fixed by also rendering leadActionErrors[lead.slug] inline inside each of those four panels, each with its own panel-prefixed id (starter-upsell-action-error-, mrr-paused-action-error-, marketing-packs-due-action-error-, voice-packs-due-action-error-) rather than reusing the main table's id, avoiding a duplicate-id collision when the same lead renders in both places at once (mirroring the paid-not-live-handoff-error- / production-deploy-handoff-error- precedent).",
+      "src/app/docs/architecture/page.tsx — new paragraph directly before the closing 'Tech stack' section naming the gap, the shared-map reuse, the due-queue silent-failure hazard and its fix, and the remaining count.",
+      "src/lib/process/business-decisions.ts — appended billing-upsell-marketing-voice-pack-inline-aria-announcement.",
+      "src/lib/process/prompt_process.tsx — one new NEXT_STEPS-done entry (billing-upsell-marketing-voice-pack-inline-aria-announcement, owner claude/nice-euler-1dz45a) and this ITERATIONS entry. No new NEXT_STEPS capability entry (an accessibility fix on already-shipped dashboard controls, not a new capability) — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. 9 alert() call sites remain in leads-client.tsx, all success/informational notices rather than action failures, as a documented follow-up for a future pass. Diff-gate anchor moves to 59289ef (this session's own starting tip, post-PR-#846).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only — node_modules was absent at session start, a fresh clone) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean, jsx-a11y rules included) + npx vitest run full suite (3396 passed, 210 files, unchanged — no test harness exercises this client-component markup, per AGENT_PROTOCOL's own note) + a full clean rebuild (npm run build, clean, same 43-route ○/ƒ split, no new warnings) + npm run dev smoke check curling /dashboard/leads (200, full page content present, no error-boundary/500 text — the only '500' substrings are literal $500 price text — and zero stray role=\"alert\" markup rendered since the demo dataset has no failed actions to display). Killed the dev server, removed the stray gitignored local.db it created, and confirmed git status showed only the intended source files changed before this process-log append.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "billing-upsell-marketing-voice-pack-inline-aria-announcement",
     ),
   },
 ];

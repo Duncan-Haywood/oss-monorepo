@@ -1238,10 +1238,18 @@ export function LeadsClient({
   const packForLead = (slug: string) => packByLeadSlug.get(slug) ?? null;
 
   const handleOpenBillingPortal = (slug: string) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await openBillingPortalAction(slug);
       if (!res.success) {
-        alert(`Billing portal failed: ${res.error}`);
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: `Billing portal failed: ${res.error}`,
+        }));
         return;
       }
       window.open(res.url, "_blank", "noopener,noreferrer");
@@ -1249,10 +1257,18 @@ export function LeadsClient({
   };
 
   const handleSendStarterUpsell = (slug: string) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await sendStarterUpsellAction(slug);
       if (!res.success) {
-        alert(`Upsell email failed: ${res.error}`);
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: `Upsell email failed: ${res.error}`,
+        }));
         return;
       }
       const label = res.targetTier === "complete" ? "Complete" : "Growth";
@@ -1268,10 +1284,18 @@ export function LeadsClient({
     slug: string,
     opts?: { bringIntoView?: boolean; headingId?: string },
   ) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await generateMarketingPackAction(slug);
       if (!res.success) {
-        alert(`Marketing pack failed: ${res.error}`);
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: `Marketing pack failed: ${res.error}`,
+        }));
         return;
       }
       setMarketingPacks((prev) => {
@@ -1311,10 +1335,18 @@ export function LeadsClient({
   };
 
   const handleEmailMarketingPack = (slug: string) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await sendMarketingPackToClientAction(slug);
       if (!res.success) {
-        alert(`Email pack failed: ${res.error}`);
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: `Email pack failed: ${res.error}`,
+        }));
         return;
       }
       if ("sentToClientAt" in res && res.sentToClientAt) {
@@ -1629,10 +1661,18 @@ export function LeadsClient({
     slug: string,
     opts?: { bringIntoView?: boolean; headingId?: string },
   ) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await generateClientVoicePackAction(slug);
       if (!res.success) {
-        alert(`Client voice pack failed: ${res.error}`);
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: `Client voice pack failed: ${res.error}`,
+        }));
         return;
       }
       setClientVoicePacks((prev) => {
@@ -1666,10 +1706,18 @@ export function LeadsClient({
   };
 
   const handleEmailClientVoicePack = (slug: string) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await sendClientVoicePackToClientAction(slug);
       if (!res.success) {
-        alert(`Email voice pack failed: ${res.error}`);
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: `Email voice pack failed: ${res.error}`,
+        }));
         return;
       }
       if ("sentToClientAt" in res && res.sentToClientAt) {
@@ -2105,11 +2153,25 @@ export function LeadsClient({
                         lead.businessName,
                         lead.slug,
                       )}
+                      aria-describedby={
+                        leadActionErrors[lead.slug]
+                          ? `starter-upsell-action-error-${lead.slug}`
+                          : undefined
+                      }
                       className="rounded-lg bg-teal-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
                     >
                       Send {bundle?.name ?? targetTier} upsell
                     </button>
                   </div>
+                  {leadActionErrors[lead.slug] ? (
+                    <p
+                      id={`starter-upsell-action-error-${lead.slug}`}
+                      className="mt-2 text-xs font-medium text-red-600"
+                      role="alert"
+                    >
+                      {leadActionErrors[lead.slug]}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}
@@ -2176,12 +2238,26 @@ export function LeadsClient({
                         disabled={isPending}
                         onClick={() => handleOpenBillingPortal(lead.slug)}
                         aria-label={dashboardRowActionAriaLabel("Manage billing", lead.businessName, lead.slug)}
+                        aria-describedby={
+                          leadActionErrors[lead.slug]
+                            ? `mrr-paused-action-error-${lead.slug}`
+                            : undefined
+                        }
                         className="rounded-lg bg-rose-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-900 disabled:opacity-60"
                       >
                         Manage billing
                       </button>
                     ) : null}
                   </div>
+                  {leadActionErrors[lead.slug] ? (
+                    <p
+                      id={`mrr-paused-action-error-${lead.slug}`}
+                      className="mt-2 text-xs font-medium text-red-600"
+                      role="alert"
+                    >
+                      {leadActionErrors[lead.slug]}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}
@@ -2257,11 +2333,25 @@ export function LeadsClient({
                       lead.businessName,
                       lead.slug,
                     )}
+                    aria-describedby={
+                      leadActionErrors[lead.slug]
+                        ? `marketing-packs-due-action-error-${lead.slug}`
+                        : undefined
+                    }
                     className="rounded-lg bg-emerald-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-900 disabled:opacity-60"
                   >
                     Generate pack
                   </button>
                 </div>
+                {leadActionErrors[lead.slug] ? (
+                  <p
+                    id={`marketing-packs-due-action-error-${lead.slug}`}
+                    className="mt-2 text-xs font-medium text-red-600"
+                    role="alert"
+                  >
+                    {leadActionErrors[lead.slug]}
+                  </p>
+                ) : null}
               </li>
               );
             })}
@@ -2336,11 +2426,25 @@ export function LeadsClient({
                       lead.businessName,
                       lead.slug,
                     )}
+                    aria-describedby={
+                      leadActionErrors[lead.slug]
+                        ? `voice-packs-due-action-error-${lead.slug}`
+                        : undefined
+                    }
                     className="rounded-lg bg-violet-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-900 disabled:opacity-60"
                   >
                     Generate pack
                   </button>
                 </div>
+                {leadActionErrors[lead.slug] ? (
+                  <p
+                    id={`voice-packs-due-action-error-${lead.slug}`}
+                    className="mt-2 text-xs font-medium text-red-600"
+                    role="alert"
+                  >
+                    {leadActionErrors[lead.slug]}
+                  </p>
+                ) : null}
               </li>
               );
             })}
@@ -4587,6 +4691,11 @@ export function LeadsClient({
                               disabled={isPending}
                               onClick={() => handleOpenBillingPortal(lead.slug)}
                               aria-label={dashboardRowActionAriaLabel("Billing", lead.businessName, lead.slug)}
+                              aria-describedby={
+                                leadActionErrors[lead.slug]
+                                  ? `lead-action-error-${lead.slug}`
+                                  : undefined
+                              }
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-900 transition hover:border-emerald-300 hover:bg-emerald-100 disabled:opacity-60"
                             >
                               Billing
@@ -4598,6 +4707,11 @@ export function LeadsClient({
                               disabled={isPending}
                               onClick={() => handleSendStarterUpsell(lead.slug)}
                               aria-label={dashboardRowActionAriaLabel("Upsell", lead.businessName, lead.slug)}
+                              aria-describedby={
+                                leadActionErrors[lead.slug]
+                                  ? `lead-action-error-${lead.slug}`
+                                  : undefined
+                              }
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 px-3 text-xs font-semibold text-teal-900 transition hover:border-teal-300 hover:bg-teal-100 disabled:opacity-60"
                             >
                               Upsell
@@ -4614,6 +4728,11 @@ export function LeadsClient({
                                   lead.businessName,
                                   lead.slug,
                                 )}
+                                aria-describedby={
+                                  leadActionErrors[lead.slug]
+                                    ? `lead-action-error-${lead.slug}`
+                                    : undefined
+                                }
                                 className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-900 transition hover:border-sky-300 hover:bg-sky-100 disabled:opacity-60"
                               >
                                 {existingPack ? "Regenerate pack" : "Generate pack"}
@@ -4651,6 +4770,11 @@ export function LeadsClient({
                                     lead.businessName,
                                     lead.slug,
                                   )}
+                                  aria-describedby={
+                                    leadActionErrors[lead.slug]
+                                      ? `lead-action-error-${lead.slug}`
+                                      : undefined
+                                  }
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-900 transition hover:border-sky-300 hover:bg-sky-100 disabled:opacity-60"
                                 >
                                   Email pack
@@ -4699,6 +4823,11 @@ export function LeadsClient({
                                   lead.businessName,
                                   lead.slug,
                                 )}
+                                aria-describedby={
+                                  leadActionErrors[lead.slug]
+                                    ? `lead-action-error-${lead.slug}`
+                                    : undefined
+                                }
                                 className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
                               >
                                 {existingVoicePack ? "Regenerate voice" : "Generate voice"}
@@ -4738,6 +4867,11 @@ export function LeadsClient({
                                     lead.businessName,
                                     lead.slug,
                                   )}
+                                  aria-describedby={
+                                    leadActionErrors[lead.slug]
+                                      ? `lead-action-error-${lead.slug}`
+                                      : undefined
+                                  }
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
                                 >
                                   Email voice pack

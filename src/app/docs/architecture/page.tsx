@@ -3355,6 +3355,47 @@ source). The same digest also lists email-critical leads with no usable address 
         confirmations) as a documented follow-up for a future pass.
       </p>
 
+      <p>
+        A further follow-up pass (2026-07-27,{" "}
+        <code>billing-upsell-marketing-voice-pack-inline-aria-announcement</code>) converted the
+        six remaining <code>alert()</code>-on-failure call sites in the main leads table&apos;s
+        row-action cluster: <code>handleOpenBillingPortal</code> (Billing),{" "}
+        <code>handleSendStarterUpsell</code> (Upsell), <code>handleGenerateMarketingPack</code>{" "}
+        (Generate/Regenerate marketing pack), <code>handleEmailMarketingPack</code> (Email
+        marketing pack), <code>handleGenerateClientVoicePack</code> (Generate/Regenerate voice
+        pack), and <code>handleEmailClientVoicePack</code> (Email voice pack). All six already
+        shared a slug-keyed row with the four handlers <code>leads-client-kanban-action-inline-
+        aria-announcement</code> had already wired into <code>leadActionErrors</code>, and the
+        same paragraph (<code>lead-action-error-&#123;slug&#125;</code>) already rendered directly
+        beneath that row — so all six now clear/set that same map instead of inventing a new one,
+        and each button gained a matching <code>aria-describedby</code>. Four of the six —{" "}
+        <code>handleSendStarterUpsell</code> and <code>handleOpenBillingPortal</code> (used by the
+        Starter upsell and MRR paused / canceled due-queue panels) and{" "}
+        <code>handleGenerateMarketingPack</code> and <code>handleGenerateClientVoicePack</code>{" "}
+        (used by the Marketing packs due and Voice packs due panels) — are also called from a
+        due-queue panel above the main table, and none of those four panels previously rendered
+        any inline error feedback at all for these buttons; a naive conversion would have made a
+        due-queue-triggered failure fail silently (worse than the <code>alert()</code> it
+        replaced, not better) for an operator who never scrolls down to the always-mounted main
+        row. Each of the four due-queue panels now also renders{" "}
+        <code>leadActionErrors[lead.slug]</code> as its own <code>role=&quot;alert&quot;</code>{" "}
+        paragraph, each with its own panel-prefixed id (
+        <code>starter-upsell-action-error-&#123;slug&#125;</code>,{" "}
+        <code>mrr-paused-action-error-&#123;slug&#125;</code>,{" "}
+        <code>marketing-packs-due-action-error-&#123;slug&#125;</code>,{" "}
+        <code>voice-packs-due-action-error-&#123;slug&#125;</code>) rather than reusing the main
+        table&apos;s <code>lead-action-error-&#123;slug&#125;</code> id, mirroring the{" "}
+        <code>paid-not-live-handoff-error-</code> / <code>production-deploy-handoff-error-</code>{" "}
+        duplicate-id precedent from <code>deploy-handoff-live-create-inline-aria-announcement</code>{" "}
+        — a lead can be visible in a due-queue panel and the main table at the same time, and both
+        read the same underlying map. 9 <code>alert()</code> call sites remain in this file (the
+        mock-reply notice, two Stripe Connect onboarding-link confirmations, the orphan-product
+        archive confirmations, the clipboard-copy failure shared across several panels, and a few
+        other success-only confirmations) — all informational/success notices rather than action
+        failures, a distinct and lower-priority class from the failure alerts this series has been
+        closing, as a documented follow-up for a future pass.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
