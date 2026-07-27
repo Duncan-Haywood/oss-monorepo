@@ -1551,12 +1551,18 @@ export function LeadsClient({
   const [bufferScheduleResultByLead, setBufferScheduleResultByLead] = useState<
     Record<string, { scheduled: string[]; skipped: string[]; failed: string[] }>
   >({});
+  // Load/save/send are all inside the same dormant Buffer scaffold panel and
+  // only one lead's Marketing pack panel (which contains it) can be open at
+  // a time, per marketingPackOpenSlug above — a single non-slug-keyed string
+  // mirrors the stripeConnectError precedent rather than a Record.
+  const [bufferActionError, setBufferActionError] = useState<string | null>(null);
 
   const handleListBufferProfiles = () => {
+    setBufferActionError(null);
     startTransition(async () => {
       const res = await listBufferProfilesAction();
       if (!res.success) {
-        alert(`Load Buffer profiles failed: ${res.error}`);
+        setBufferActionError(`Load Buffer profiles failed: ${res.error}`);
         return;
       }
       setBufferProfiles(res.profiles);
@@ -1586,10 +1592,11 @@ export function LeadsClient({
       slug,
       leads.find((l) => l.slug === slug)?.bufferProfileIds,
     );
+    setBufferActionError(null);
     startTransition(async () => {
       const res = await saveLeadBufferProfilesAction(slug, selected);
       if (!res.success) {
-        alert(`Save Buffer profiles failed: ${res.error}`);
+        setBufferActionError(`Save Buffer profiles failed: ${res.error}`);
         return;
       }
       setLeads((prev) =>
@@ -1599,10 +1606,11 @@ export function LeadsClient({
   };
 
   const handleScheduleMarketingPackToBuffer = (slug: string) => {
+    setBufferActionError(null);
     startTransition(async () => {
       const res = await scheduleMarketingPackToBufferAction(slug);
       if (!res.success) {
-        alert(`Send to Buffer failed: ${res.error}`);
+        setBufferActionError(`Send to Buffer failed: ${res.error}`);
         return;
       }
       setBufferScheduleResultByLead((prev) => ({
@@ -4869,6 +4877,11 @@ export function LeadsClient({
                                     type="button"
                                     disabled={isPending}
                                     onClick={handleListBufferProfiles}
+                                    aria-describedby={
+                                      bufferActionError
+                                        ? `buffer-action-error-${lead.slug}`
+                                        : undefined
+                                    }
                                     className="inline-flex h-8 items-center rounded-lg border border-sky-200 px-3 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:opacity-60"
                                   >
                                     Load Buffer profiles
@@ -4879,6 +4892,11 @@ export function LeadsClient({
                                       disabled={isPending}
                                       onClick={() =>
                                         handleScheduleMarketingPackToBuffer(lead.slug)
+                                      }
+                                      aria-describedby={
+                                        bufferActionError
+                                          ? `buffer-action-error-${lead.slug}`
+                                          : undefined
                                       }
                                       className="inline-flex h-8 items-center rounded-lg border border-sky-200 px-3 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:opacity-60"
                                     >
@@ -4923,6 +4941,11 @@ export function LeadsClient({
                                       type="button"
                                       disabled={isPending}
                                       onClick={() => handleSaveBufferProfiles(lead.slug)}
+                                      aria-describedby={
+                                        bufferActionError
+                                          ? `buffer-action-error-${lead.slug}`
+                                          : undefined
+                                      }
                                       className="mt-2 inline-flex h-8 items-center rounded-lg border border-sky-200 px-3 text-xs font-semibold text-sky-900 hover:bg-sky-50 disabled:opacity-60"
                                     >
                                       Save profiles for this lead
@@ -4931,6 +4954,15 @@ export function LeadsClient({
                                 ) : null}
                               </>
                             )}
+                            {bufferActionError ? (
+                              <p
+                                id={`buffer-action-error-${lead.slug}`}
+                                className="mt-2 text-xs font-medium text-red-600"
+                                role="alert"
+                              >
+                                {bufferActionError}
+                              </p>
+                            ) : null}
                             {marketingSchedulingAllowed && bufferScheduleResultByLead[lead.slug] ? (
                               <p
                                 className="mt-2 text-[11px] text-zinc-600"

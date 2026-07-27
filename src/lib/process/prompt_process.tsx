@@ -337,6 +337,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/nice-euler-xtxzfb",
   },
+  {
+    id: "buffer-scaffold-inline-aria-announcement",
+    summary:
+      "Follow-up to checkout-recovery-payouts-inline-aria-announcement (PR #845, merged prior session), part of the alert()-to-inline-aria conversion series over leads-client.tsx. Converted the three remaining Buffer auto-post scaffold alert() calls (Load Buffer profiles, Save profiles for this lead, Send pack to Buffer) into a single bufferActionError inline role=\"alert\" paragraph, mirroring the panel's own existing bufferScheduleResultByLead outcome-message pattern that sat a couple dozen lines below the failing calls. 15 alert() call sites remain in leads-client.tsx as a documented follow-up. See buffer-scaffold-inline-aria-announcement in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-a6fpas",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -722,6 +730,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "checkout-recovery-payouts-inline-aria-announcement",
+    ),
+  },
+  {
+    date: "2026-07-27",
+    branch: "claude/upbeat-dijkstra-a6fpas",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip 28c6b780 (PR #845, checkout-recovery-payouts-inline-aria-announcement, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3396 passed, 210 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft, cursor/* family). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep of the newest ~6 claude/* branches by push time (claude/nice-euler-reoqkh, claude/upbeat-dijkstra-3ybuki, claude/nice-euler-u7lgzo, claude/upbeat-dijkstra-uqzrmd, claude/nice-euler-ltkic9, claude/upbeat-dijkstra-7yul9d) diffed against origin/main — one was byte-empty, the rest all net-negative (pure deletions relative to current main, growing with each successively-older branch as main advanced further past their fork point), the documented squash-merge-artifact pattern; no live fold candidate.\n\nDispatched a research agent (general-purpose, read-only) briefed on AGENT_PROTOCOL's full text and told to read the live tail of ITERATIONS/BUSINESS_DECISIONS directly (not a stale summary), asked to find one concrete, previously-unaddressed, small-to-medium gap per the standard empty-backlog priority order. It confirmed the checkout-recovery-payouts-inline-aria-announcement entry (immediately prior) explicitly named 18 remaining alert() call sites including \"Buffer profile load/save/send,\" checked several other angles clean (acquisition-source wiring, CSV import hardening, rate-limiting on newer routes, the existence-check pattern), and recommended the three Buffer-scaffold sites as the next natural scoped group.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — converted the three remaining Buffer auto-post scaffold alert() calls to a single bufferActionError inline role=\"alert\" paragraph: handleListBufferProfiles (Load Buffer profiles), handleSaveBufferProfiles (Save profiles for this lead), and handleScheduleMarketingPackToBuffer (Send pack to Buffer). Confirmed marketingPackOpenSlug gates only one lead's Marketing pack panel open at a time, so a single non-slug-keyed string state was sufficient — mirroring the existing stripeConnectError precedent rather than the slug/id-keyed Record states used for panels where multiple rows render concurrently. All three handlers now clear the error at the start of the call and set it with the identical prior alert() message text on failure; the new paragraph (id buffer-action-error-${slug}) renders directly above the panel's own existing bufferScheduleResultByLead outcome paragraph, and all three trigger buttons gained aria-describedby pointing at it.",
+      "src/app/docs/architecture/page.tsx — new paragraph directly before the closing 'Tech stack' section naming the gap, the single-string-state design choice and why it differs from the multi-row precedents (leadActionErrors/handoffActionErrors/inquiryActionErrors/queueActionErrors), and the remaining count.",
+      "src/lib/process/business-decisions.ts — appended buffer-scaffold-inline-aria-announcement.",
+      "src/lib/process/prompt_process.tsx — one new NEXT_STEPS-done entry (buffer-scaffold-inline-aria-announcement, owner claude/upbeat-dijkstra-a6fpas) and this ITERATIONS entry. No new NEXT_STEPS capability entry (an accessibility fix on an already-shipped dormant scaffold, not a new capability) — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. 15 alert() call sites remain in leads-client.tsx (mock-reply notice, billing portal, upsell email, marketing/client-voice pack generation and email, Stripe orphan-product archive, and a few success-only confirmations) as a documented follow-up for a future pass. Diff-gate anchor moves to 28c6b780 (this session's own starting tip, post-PR-#845).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean, jsx-a11y rules included) + npx vitest run full suite (3396 passed, 210 files, unchanged — no test harness exercises this client-component markup, per AGENT_PROTOCOL's own note) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split, no new warnings) + npm run dev smoke check curling /dashboard/leads (200, full page content present, no error-boundary/500 text, and zero stray role=\"alert\" markup rendered since the demo dataset has no failed actions to display and no lead's Marketing pack panel is open by default). Killed the dev server, removed the stray gitignored local.db it created, and confirmed git status showed only the intended source files changed before this process-log append.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-scaffold-inline-aria-announcement",
     ),
   },
 ];

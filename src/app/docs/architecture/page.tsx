@@ -3331,6 +3331,30 @@ source). The same digest also lists email-critical leads with no usable address 
         documented follow-up for a future pass.
       </p>
 
+      <p>
+        A further follow-up pass (2026-07-27,{" "}
+        <code>buffer-scaffold-inline-aria-announcement</code>) converted the three remaining{" "}
+        <code>alert()</code>-on-failure call sites inside the dormant{" "}
+        <code>ALLOW_MARKETING_SCHEDULING</code> Buffer auto-post scaffold nested in the Marketing
+        pack panel: <code>handleListBufferProfiles</code> (Load Buffer profiles),{" "}
+        <code>handleSaveBufferProfiles</code> (Save profiles for this lead), and{" "}
+        <code>handleScheduleMarketingPackToBuffer</code> (Send pack to Buffer). That panel already
+        modeled the correct inline pattern two dozen lines below (the{" "}
+        <code>bufferScheduleResultByLead</code> outcome paragraph), making the three initiation
+        failures still routing through a blocking modal <code>alert()</code> an inconsistency
+        within the same panel rather than a fresh discovery. Because{" "}
+        <code>marketingPackOpenSlug</code> gates only one lead&apos;s Marketing pack panel open at
+        a time, a single non-slug-keyed <code>bufferActionError</code> string state was sufficient
+        — mirroring the earlier <code>stripeConnectError</code> precedent rather than the
+        slug/id-keyed <code>Record</code> states used for panels where several rows can be visible
+        at once. All three buttons&apos; <code>aria-describedby</code> point at the same{" "}
+        <code>buffer-action-error-&#123;slug&#125;</code> paragraph, which sits directly above the
+        existing scheduled/skipped/failed outcome paragraph. 15 <code>alert()</code> call sites
+        remain in this file (mock-reply notice, billing portal, upsell email, marketing/client-voice
+        pack generation and email, Stripe orphan-product archive, and a few success-only
+        confirmations) as a documented follow-up for a future pass.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
