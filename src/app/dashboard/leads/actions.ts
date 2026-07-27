@@ -16,6 +16,7 @@ import {
   listOrdersByLeadSlug,
   recordLeadOutreach,
   recordStarterUpsellSent,
+  recordStripeConnectOnboardingLinkSent,
   listOpenCheckoutSessions,
   listUnrepliedInquiries,
   recordCheckoutRecoverySent,
@@ -74,6 +75,7 @@ import { LEAD_STAGE_CONVEX_PRIMARY } from "@/lib/leads/stage-persist";
 import { LEAD_UPSERT_CONVEX_PRIMARY } from "@/lib/leads/upsert-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
 import { STARTER_UPSELL_SENT_CONVEX_PRIMARY } from "@/lib/leads/starter-upsell-persist";
+import { STRIPE_CONNECT_ONBOARDING_LINK_SENT_CONVEX_PRIMARY } from "@/lib/leads/stripe-connect-onboarding-link-persist";
 import { MARKETING_PACK_CONVEX_PRIMARY } from "@/lib/marketing/pack-persist";
 import { CLIENT_VOICE_PACK_CONVEX_PRIMARY } from "@/lib/voice/pack-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
@@ -3510,6 +3512,44 @@ export async function sendStripeConnectOnboardingLinkToClientAction(slug: string
           "error" in sent && typeof sent.error === "string"
             ? sent.error
             : "Failed to send the onboarding link email",
+      };
+    }
+
+    // Durable sent-marker after a confirmed successful send — a concurrency
+    // guard only, not a one-shot "already sent" gate (mirrors
+    // starter-upsell-send-race-guard): an operator may legitimately re-send a
+    // fresh onboarding link after an earlier one expired unused. Best-effort
+    // on a thrown write error: the email already went out, so a marker-
+    // *persist* failure must not turn a successful send into a reported
+    // failure. recordStripeConnectOnboardingLinkSent's atomic CAS write can
+    // also resolve `false` (not throw) when a concurrent request — a second
+    // tab, a double-click before the button's isPending-disabled state
+    // applied — already advanced the count first; that's proof this click's
+    // send was a genuine duplicate email, so it must surface as
+    // success:false rather than be silently discarded (see
+    // stripe-connect-onboarding-link-send-race-guard).
+    const sentAt = new Date().toISOString();
+    const expectedStripeConnectOnboardingLinkSentCount =
+      lead.stripeConnectOnboardingLinkSentCount ?? 0;
+    let marked = true;
+    try {
+      marked = await recordStripeConnectOnboardingLinkSent(
+        lead.slug,
+        sentAt,
+        expectedStripeConnectOnboardingLinkSentCount,
+        STRIPE_CONNECT_ONBOARDING_LINK_SENT_CONVEX_PRIMARY,
+      );
+    } catch (markError) {
+      console.error(
+        `Failed to record Stripe Connect onboarding-link sent-marker for ${lead.slug}:`,
+        markError,
+      );
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "The onboarding link was already sent moments ago by a concurrent request — this click may have sent a duplicate email.",
       };
     }
 

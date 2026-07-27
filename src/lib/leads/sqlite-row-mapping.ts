@@ -44,6 +44,8 @@ export interface SqliteLeadRow {
   bufferPostedVariantKeys?: string | null;
   starterUpsellSentCount?: number | null;
   lastStarterUpsellSentAt?: string | null;
+  stripeConnectOnboardingLinkSentCount?: number | null;
+  lastStripeConnectOnboardingLinkSentAt?: string | null;
 }
 
 /** Encode LeadHours into the single TEXT column db.ts persists — "weekday · weekend", or bare weekday when weekend is empty. */
@@ -167,5 +169,10 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     starterUpsellSentCount:
       typeof row.starterUpsellSentCount === "number" ? row.starterUpsellSentCount : undefined,
     lastStarterUpsellSentAt: row.lastStarterUpsellSentAt || undefined,
+    stripeConnectOnboardingLinkSentCount:
+      typeof row.stripeConnectOnboardingLinkSentCount === "number"
+        ? row.stripeConnectOnboardingLinkSentCount
+        : undefined,
+    lastStripeConnectOnboardingLinkSentAt: row.lastStripeConnectOnboardingLinkSentAt || undefined,
   };
 }

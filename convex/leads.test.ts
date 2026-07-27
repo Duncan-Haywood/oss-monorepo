@@ -35,6 +35,8 @@ interface LeadRow {
   bufferPostedVariantKeys?: string[];
   starterUpsellSentCount?: number;
   lastStarterUpsellSentAt?: string;
+  stripeConnectOnboardingLinkSentCount?: number;
+  lastStripeConnectOnboardingLinkSentAt?: string;
 }
 
 function newLeadArgs(overrides: Partial<Record<string, unknown>> = {}) {
@@ -759,6 +761,92 @@ test("recordStarterUpsellSent rejects a concurrent duplicate (stale expected cou
   });
   expect(row?.starterUpsellSentCount).toBe(2);
   expect(row?.lastStarterUpsellSentAt).toBe("2026-03-01T00:00:00.000Z");
+});
+
+test("recordStripeConnectOnboardingLinkSent returns false (not throw) on an unknown slug", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.leads.recordStripeConnectOnboardingLinkSent, {
+      slug: "no-such-lead",
+      sentAt: "2026-01-01T00:00:00.000Z",
+      expectedStripeConnectOnboardingLinkSentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+});
+
+test("recordStripeConnectOnboardingLinkSent increments the count and stamps lastStripeConnectOnboardingLinkSentAt on a matching expected count", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "connect-link-cafe", stage: "paid" }),
+  );
+
+  const applied = await t.mutation(api.leads.recordStripeConnectOnboardingLinkSent, {
+    slug: "connect-link-cafe",
+    sentAt: "2026-02-01T00:00:00.000Z",
+    expectedStripeConnectOnboardingLinkSentCount: 0,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(applied).toBe(true);
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "connect-link-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.stripeConnectOnboardingLinkSentCount).toBe(1);
+  expect(row?.lastStripeConnectOnboardingLinkSentAt).toBe("2026-02-01T00:00:00.000Z");
+});
+
+test("recordStripeConnectOnboardingLinkSent rejects a concurrent duplicate (stale expected count) but allows a later, deliberate resend (stripe-connect-onboarding-link-send-race-guard)", async () => {
+  // Same expected-count CAS shape as recordStarterUpsellSent: a genuinely
+  // later resend (a fresh read, a fresh expected count) must succeed — an
+  // operator may legitimately re-send a fresh onboarding link after an
+  // earlier one expired unused. Only an exact concurrent duplicate (two
+  // calls racing on the same stale expected count) is rejected.
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "race-connect-link-cafe", stage: "paid" }),
+  );
+
+  // The winner of the race advances count 0 -> 1.
+  await expect(
+    t.mutation(api.leads.recordStripeConnectOnboardingLinkSent, {
+      slug: "race-connect-link-cafe",
+      sentAt: "2026-02-01T00:00:00.000Z",
+      expectedStripeConnectOnboardingLinkSentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+
+  // The loser of the race replays the same stale expected count (0) — must
+  // be rejected, not double-counted.
+  await expect(
+    t.mutation(api.leads.recordStripeConnectOnboardingLinkSent, {
+      slug: "race-connect-link-cafe",
+      sentAt: "2026-02-01T00:00:05.000Z",
+      expectedStripeConnectOnboardingLinkSentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+
+  // A later, deliberate resend (operator re-reads the lead, sees count=1,
+  // and clicks Send again after the first link expired) must succeed.
+  await expect(
+    t.mutation(api.leads.recordStripeConnectOnboardingLinkSent, {
+      slug: "race-connect-link-cafe",
+      sentAt: "2026-03-01T00:00:00.000Z",
+      expectedStripeConnectOnboardingLinkSentCount: 1,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "race-connect-link-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.stripeConnectOnboardingLinkSentCount).toBe(2);
+  expect(row?.lastStripeConnectOnboardingLinkSentAt).toBe("2026-03-01T00:00:00.000Z");
 });
 
 test("recordPreviewOpen no-ops (never throws) on an unknown slug, unlike every other lead mutation", async () => {

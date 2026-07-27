@@ -81,6 +81,19 @@ export default defineSchema({
     starterUpsellSentCount: v.optional(v.number()),
     /** ISO timestamp of the most recent Starter upsell send. */
     lastStarterUpsellSentAt: v.optional(v.string()),
+    /**
+     * Monotonic count of Stripe Connect onboarding-link emails sent to this
+     * lead's client — CAS guard for sendStripeConnectOnboardingLinkToClientAction
+     * (recordStripeConnectOnboardingLinkSent), mirroring
+     * starterUpsellSentCount's expected-count shape rather than
+     * marketingPacks.sentToClientAt's one-shot gate: this does NOT block a
+     * later, deliberate resend, only an exact concurrent duplicate (see
+     * stripe-connect-onboarding-link-send-race-guard). Absent/0 means never
+     * sent.
+     */
+    stripeConnectOnboardingLinkSentCount: v.optional(v.number()),
+    /** ISO timestamp of the most recent Stripe Connect onboarding-link send. */
+    lastStripeConnectOnboardingLinkSentAt: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

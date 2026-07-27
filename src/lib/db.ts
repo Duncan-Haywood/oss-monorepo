@@ -43,6 +43,7 @@ import {
   sqliteUpdateLeadStage,
   sqliteRecordLeadOutreach,
   sqliteRecordStarterUpsellSent,
+  sqliteRecordStripeConnectOnboardingLinkSent,
   sqliteApplyColdLeadDisposition,
   sqliteRecordClientInquiryReply,
   sqliteRecordCheckoutRecoverySent,
@@ -124,6 +125,7 @@ const api: any = {
     markLeadPaid: "leads:markLeadPaid",
     recordOutreach: "leads:recordOutreach",
     recordStarterUpsellSent: "leads:recordStarterUpsellSent",
+    recordStripeConnectOnboardingLinkSent: "leads:recordStripeConnectOnboardingLinkSent",
     recordPreviewOpen: "leads:recordPreviewOpen",
     updateNotes: "leads:updateNotes",
     updateSnooze: "leads:updateSnooze",
@@ -411,6 +413,49 @@ export async function recordStarterUpsellSent(
     slug,
     sentAt,
     expectedStarterUpsellSentCount,
+  );
+}
+
+/**
+ * CAS marker for sendStripeConnectOnboardingLinkToClientAction. Unlike
+ * recordLeadOutreach's monotonic step guard, this is a plain expected-count
+ * compare-and-swap (mirroring recordStarterUpsellSent) — the caller passes
+ * the count it last read (expectedStripeConnectOnboardingLinkSentCount), and
+ * the write only applies when the row's current count still matches, so a
+ * later, deliberate resend (a fresh read, a fresh expected count) always
+ * succeeds and only an exact concurrent duplicate (same stale expected
+ * count) is rejected. See stripe-connect-onboarding-link-send-race-guard.
+ */
+export async function recordStripeConnectOnboardingLinkSent(
+  slug: string,
+  sentAt: string,
+  expectedStripeConnectOnboardingLinkSentCount: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.leads.recordStripeConnectOnboardingLinkSent, {
+        slug,
+        sentAt,
+        expectedStripeConnectOnboardingLinkSentCount,
+        apiSecret: convexApiSecret,
+      })) as boolean;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordStripeConnectOnboardingLinkSent", e);
+      }
+      console.warn(
+        `Failed to record Stripe Connect onboarding-link send for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  return sqliteRecordStripeConnectOnboardingLinkSent(
+    getSqliteDb(),
+    slug,
+    sentAt,
+    expectedStripeConnectOnboardingLinkSentCount,
   );
 }
 

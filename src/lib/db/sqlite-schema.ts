@@ -202,6 +202,8 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   addLeadCol("bufferPostedVariantKeys", "TEXT");
   addLeadCol("starterUpsellSentCount", "INTEGER");
   addLeadCol("lastStarterUpsellSentAt", "TEXT");
+  addLeadCol("stripeConnectOnboardingLinkSentCount", "INTEGER");
+  addLeadCol("lastStripeConnectOnboardingLinkSentAt", "TEXT");
 
   const handoffCols = (
     db.prepare("PRAGMA table_info(deploy_handoffs)").all() as unknown as Array<{ name: string }>
