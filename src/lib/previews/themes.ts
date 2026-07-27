@@ -39,6 +39,15 @@ export const CATEGORY_THEMES: Record<BusinessCategory, CategoryTheme> = {
     panelClass: "border-teal-200/80 bg-white/70",
     heroEyebrow: "Home services preview",
   },
+  retail: {
+    category: "retail",
+    label: "Retail & shops",
+    shellClass: "min-h-screen bg-[radial-gradient(ellipse_at_top,_#f5f3ff_0%,_#ffffff_55%,_#ede9fe_100%)]",
+    accentTextClass: "text-violet-800",
+    ctaClass: "bg-violet-950 text-violet-50 hover:bg-violet-900",
+    panelClass: "border-violet-200/80 bg-white/70",
+    heroEyebrow: "Retail preview",
+  },
   generic: {
     category: "generic",
     label: "Local business",

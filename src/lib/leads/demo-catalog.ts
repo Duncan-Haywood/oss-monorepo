@@ -60,6 +60,24 @@ export const DEMO_LEADS: readonly Lead[] = [
     recommendedTier: "starter",
     dataSource: "demo_catalog",
   },
+  {
+    slug: "corner-mercantile",
+    businessName: "Corner Mercantile",
+    category: "retail",
+    city: "Longmont",
+    state: "CO",
+    address: "412 Main St",
+    tagline: "Curated goods, picked with care",
+    description:
+      "Independent shop carrying curated home goods, local artisan gifts, and everyday essentials, with in-store personal shopping and gift wrapping.",
+    phone: "(303) 555-0177",
+    email: "hello@cornermercantile.example",
+    services: ["Curated home goods", "Local artisan gifts", "Gift wrapping", "Personal shopping"],
+    hours: { weekday: "Tue–Sat 10am–6pm", weekend: "Sun 11am–4pm · Closed Mon" },
+    stage: "discovery_call",
+    recommendedTier: "growth",
+    dataSource: "demo_catalog",
+  },
 ] as const;
 
 export function getLeadBySlug(slug: string): Lead | undefined {
@@ -95,6 +113,8 @@ export function resolvePreviewLead(slug: string): Lead {
     category = "salon";
   } else if (/plumb|hvac|electric|roof|paint|landscap|contractor|trade|repair/.test(lower)) {
     category = "trades";
+  } else if (/shop|store|boutique|mercantile|market|retail|goods/.test(lower)) {
+    category = "retail";
   }
 
   return {

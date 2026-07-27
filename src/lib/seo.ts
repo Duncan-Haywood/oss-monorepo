@@ -280,6 +280,7 @@ const SCHEMA_TYPE_BY_CATEGORY: Record<BusinessCategory, string> = {
   restaurant: "Restaurant",
   salon: "HairSalon",
   trades: "HomeAndConstructionBusiness",
+  retail: "Store",
   generic: "LocalBusiness",
 };
 

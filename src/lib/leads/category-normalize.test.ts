@@ -58,6 +58,7 @@ describe("defaultTierForCategory cross-site consistency", () => {
       restaurant: "hearth-bakery",
       salon: "luxe-salon",
       trades: "peak-plumbing",
+      retail: "corner-mercantile",
       generic: "acme-services",
     } as const;
     for (const category of BUSINESS_CATEGORIES) {

@@ -320,6 +320,20 @@ test("upsertLead inserts a new lead and returns true, then returns false without
   expect(rows[0].stage).toBe("paid");
 });
 
+test("categoryValidator accepts the retail category end to end (retail-category-landing-page)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "corner-mercantile", businessName: "Corner Mercantile", category: "retail" }),
+  );
+
+  const bySlug: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "corner-mercantile",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(bySlug?.category).toBe("retail");
+});
+
 test("markLeadPaid is idempotent on stripeSessionId and inserts a paid stub lead using the canonical payment-stub defaults when none exists", async () => {
   const t = convexTest(schema, modules);
   const first = await t.mutation(api.leads.markLeadPaid, {

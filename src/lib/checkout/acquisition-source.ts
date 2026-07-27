@@ -1,6 +1,6 @@
 /**
  * Which marketing surface drove a bundle checkout — homepage pricing grid,
- * one of the three /websites-for-* SEO category landing pages, a lead's own
+ * one of the /websites-for-* SEO category landing pages, a lead's own
  * /preview/[slug] page (tier-upsell cards + hero "Claim this site" CTA), or
  * an outreach email (Email 1/2/3 + abandoned-checkout recovery nudges).
  * Fixed allowlist, never free text: this value rides through an
@@ -17,13 +17,19 @@
  * cold-outbound business's dominant conversion path, and neither tagged its
  * checkout links, so most real revenue was bucketing under "Unknown /
  * direct" in acquisitionSourceBreakdown — the opposite of what that panel
- * exists to answer.
+ * exists to answer. "cat-retail" was added when the retail vertical's
+ * /websites-for-retail landing page shipped (see
+ * retail-category-landing-page in BUSINESS_DECISIONS) — every new
+ * CATEGORY_LANDING_PAGES entry needs a matching token here or its CTA link
+ * silently omits ?source= (see acquisitionSourceForCategory's fallback in
+ * category-landing-content.tsx).
  */
 export const CHECKOUT_ACQUISITION_SOURCES = [
   "home",
   "cat-restaurant",
   "cat-salon",
   "cat-trades",
+  "cat-retail",
   "preview",
   "outreach-email",
 ] as const;
@@ -59,6 +65,8 @@ export function checkoutAcquisitionSourceLabel(source: CheckoutAcquisitionSource
       return "Salons landing page";
     case "cat-trades":
       return "Trades landing page";
+    case "cat-retail":
+      return "Retail landing page";
     case "preview":
       return "Lead preview page";
     case "outreach-email":

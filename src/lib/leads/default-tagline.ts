@@ -21,6 +21,8 @@ export function defaultTagline(category: BusinessCategory): string {
       return "Professional services you can count on";
     case "restaurant":
       return "Local favorites made fresh daily";
+    case "retail":
+      return "Curated goods, picked with care";
     case "generic":
       return "Your neighborhood business, online";
     default: {

@@ -13,7 +13,7 @@ describe("CATEGORY_LANDING_PAGES", () => {
   it("has one entry per non-generic BusinessCategory, each with a unique href", () => {
     const categories = CATEGORY_LANDING_PAGES.map((page) => page.category);
     expect(new Set(categories).size).toBe(categories.length);
-    expect(categories.sort()).toEqual(["restaurant", "salon", "trades"]);
+    expect(categories.sort()).toEqual(["restaurant", "retail", "salon", "trades"]);
 
     const hrefs = CATEGORY_LANDING_PAGES.map((page) => page.href);
     expect(new Set(hrefs).size).toBe(hrefs.length);
