@@ -3249,6 +3249,32 @@ source). The same digest also lists email-critical leads with no usable address 
         documented follow-up for a future pass.
       </p>
 
+      <p>
+        A further follow-up pass (2026-07-27,{" "}
+        <code>deploy-handoff-live-create-inline-aria-announcement</code>) closed the two{" "}
+        <code>alert()</code>-on-failure call sites in the &quot;Paid, not live&quot; and
+        &quot;Production deploy handoffs&quot; due-queue panels — <code>handleMarkHandoffLive</code>{" "}
+        (&quot;Mark live&quot;) and <code>handleCreateDeployHandoff</code> (&quot;Create deploy
+        handoff&quot;) — the same automatic Stripe-webhook-driven DNS/go-live flow the earlier{" "}
+        <code>markHandoffLiveAction</code>/<code>createDeployHandoffForLeadAction</code> coverage
+        already documents, but whose failure branches had never been converted in any of the
+        prior alert()-to-inline-aria passes. Added a single <code>handoffActionErrors</code> state
+        keyed by lead slug, shared by both handlers, cleared at the start of each. A lead with{" "}
+        <code>stage=&quot;paid&quot;</code> and an already-open (not-yet-live) handoff renders in{" "}
+        <em>both</em> due-queue panels simultaneously (&quot;Paid, not live&quot; filters on{" "}
+        <code>leads</code> by stage; &quot;Production deploy handoffs&quot; filters{" "}
+        <code>handoffs</code> by status independently) — sharing one slug-keyed map across two
+        panels meant a naive unconditional render would have put a duplicate DOM{" "}
+        <code>id</code> on two <code>role=&quot;alert&quot;</code> paragraphs at once (one for an
+        action the &quot;Paid, not live&quot; row&apos;s own button can&apos;t even trigger, since
+        Create deploy handoff is hidden once a handoff exists). Fixed by gating the &quot;Paid,
+        not live&quot; panel&apos;s error paragraph on the exact same condition as its button (
+        <code>!handoffSlugs.has(lead.slug)</code>) and giving each panel&apos;s paragraph its own
+        id prefix (<code>paid-not-live-handoff-error-</code> vs{" "}
+        <code>production-deploy-handoff-error-</code>) so the two can never collide even if a
+        future change loosens that guard.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

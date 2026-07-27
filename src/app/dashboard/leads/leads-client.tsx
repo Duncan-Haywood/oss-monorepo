@@ -313,6 +313,13 @@ export function LeadsClient({
   // be mounted), keyed by slug since multiple rows' actions can be in
   // flight/failed independently at once.
   const [leadActionErrors, setLeadActionErrors] = useState<Record<string, string>>({});
+  // Errors from Paid, not live's Create deploy handoff and Production deploy
+  // handoffs' Mark live — two distinct actions from two distinct due-queue
+  // panels, sharing one keyed-by-slug map (same convention as
+  // leadActionErrors above) since a lead can only be showing one of the two
+  // buttons at a time (Create deploy handoff disappears once a handoff
+  // exists; Mark live only exists on an already-created handoff row).
+  const [handoffActionErrors, setHandoffActionErrors] = useState<Record<string, string>>({});
   const [clientVoicePacks, setClientVoicePacks] =
     useState<ClientVoicePack[]>(initialClientVoicePacks);
   const [clientVoicePackOpenSlug, setClientVoicePackOpenSlug] = useState<string | null>(
@@ -796,10 +803,18 @@ export function LeadsClient({
   };
 
   const handleMarkHandoffLive = (slug: string) => {
+    setHandoffActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await markHandoffLiveAction(slug);
       if (!res.success) {
-        alert(`Error marking live: ${res.error}`);
+        setHandoffActionErrors((prev) => ({
+          ...prev,
+          [slug]: res.error ?? "Error marking live",
+        }));
         return;
       }
       setHandoffs((prev) =>
@@ -818,10 +833,18 @@ export function LeadsClient({
   };
 
   const handleCreateDeployHandoff = (slug: string) => {
+    setHandoffActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
     startTransition(async () => {
       const res = await createDeployHandoffForLeadAction(slug);
       if (!res.success) {
-        alert(`Error creating deploy handoff: ${res.error}`);
+        setHandoffActionErrors((prev) => ({
+          ...prev,
+          [slug]: res.error ?? "Error creating deploy handoff",
+        }));
         return;
       }
       setHandoffs((prev) => [...prev, res.handoff]);
@@ -3111,37 +3134,62 @@ export function LeadsClient({
               return (
                 <li
                   key={lead.slug}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-100 bg-white px-4 py-3 text-sm"
+                  className="rounded-xl border border-red-100 bg-white px-4 py-3 text-sm"
                 >
-                  <div>
-                    <p className="font-semibold text-zinc-900">
-                      {lead.businessName}{" "}
-                      <span className="font-normal text-zinc-500">({lead.slug})</span>
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-600">
-                      {handoffSlugs.has(lead.slug)
-                        ? "Has a deploy handoff — see Production deploy handoffs below."
-                        : "No deploy handoff on file."}
-                      {leadPaidAgeHours !== null ? (
-                        <> · paid {formatAbandonedAgeHours(leadPaidAgeHours)} ago</>
-                      ) : null}
-                    </p>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {lead.businessName}{" "}
+                        <span className="font-normal text-zinc-500">({lead.slug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {handoffSlugs.has(lead.slug)
+                          ? "Has a deploy handoff — see Production deploy handoffs below."
+                          : "No deploy handoff on file."}
+                        {leadPaidAgeHours !== null ? (
+                          <> · paid {formatAbandonedAgeHours(leadPaidAgeHours)} ago</>
+                        ) : null}
+                      </p>
+                    </div>
+                    {!handoffSlugs.has(lead.slug) && (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleCreateDeployHandoff(lead.slug)}
+                        aria-label={dashboardRowActionAriaLabel(
+                          "Create deploy handoff",
+                          lead.businessName,
+                          lead.slug,
+                        )}
+                        aria-describedby={
+                          handoffActionErrors[lead.slug]
+                            ? `paid-not-live-handoff-error-${lead.slug}`
+                            : undefined
+                        }
+                        className="rounded-lg bg-red-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-800 disabled:opacity-60"
+                      >
+                        Create deploy handoff
+                      </button>
+                    )}
                   </div>
-                  {!handoffSlugs.has(lead.slug) && (
-                    <button
-                      type="button"
-                      disabled={isPending}
-                      onClick={() => handleCreateDeployHandoff(lead.slug)}
-                      aria-label={dashboardRowActionAriaLabel(
-                        "Create deploy handoff",
-                        lead.businessName,
-                        lead.slug,
-                      )}
-                      className="rounded-lg bg-red-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-800 disabled:opacity-60"
+                  {/* Guarded the same as the button above (rather than on
+                      handoffActionErrors[lead.slug] alone): a lead with
+                      stage=paid AND an already-open (not-yet-live) handoff
+                      renders in both this panel and Production deploy
+                      handoffs below simultaneously, and a Mark live failure
+                      from that other panel's own action sets this same
+                      slug-keyed map — without this guard both panels would
+                      render a role="alert" paragraph with a duplicate id for
+                      an action this panel's button can't even trigger. */}
+                  {!handoffSlugs.has(lead.slug) && handoffActionErrors[lead.slug] ? (
+                    <p
+                      id={`paid-not-live-handoff-error-${lead.slug}`}
+                      className="mt-2 text-xs font-medium text-red-600"
+                      role="alert"
                     >
-                      Create deploy handoff
-                    </button>
-                  )}
+                      {handoffActionErrors[lead.slug]}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}
@@ -3339,11 +3387,25 @@ export function LeadsClient({
                       disabled={isPending}
                       onClick={() => handleMarkHandoffLive(h.leadSlug)}
                       aria-label={dashboardRowActionAriaLabel("Mark live", h.businessName, h.leadSlug)}
+                      aria-describedby={
+                        handoffActionErrors[h.leadSlug]
+                          ? `production-deploy-handoff-error-${h.leadSlug}`
+                          : undefined
+                      }
                       className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
                     >
                       Mark live
                     </button>
                   </div>
+                  {handoffActionErrors[h.leadSlug] ? (
+                    <p
+                      id={`production-deploy-handoff-error-${h.leadSlug}`}
+                      className="mt-2 text-xs font-medium text-red-600"
+                      role="alert"
+                    >
+                      {handoffActionErrors[h.leadSlug]}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}
