@@ -123,7 +123,7 @@ describe("formatMarketingVariantForBuffer", () => {
       hashtags: ["#local", "#coffee"],
     });
     expect(text).toBe(
-      "Grand reopening\n\nCome see us this weekend.\n\nCTA: Book now\n\n#local #coffee",
+      "Grand reopening\n\nCome see us this weekend.\n\nBook now\n\n#local #coffee",
     );
   });
 

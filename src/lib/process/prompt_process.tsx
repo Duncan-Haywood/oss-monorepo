@@ -362,6 +362,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-vq5l0e",
   },
+  {
+    id: "buffer-auto-post-cta-label-leak",
+    summary:
+      "formatMarketingVariantForBuffer (src/lib/marketing/buffer.ts) prefixed the call to action with a literal \"CTA: \" label — fine in the dashboard Copy button and the emailed pack deliverable (both human-reviewed before use), but scheduleMarketingPackToBufferAction passes this same text straight into Buffer's createBufferUpdate with no review step, publishing it verbatim to the lead's live Facebook/Instagram profile. Fixed by folding the CTA in as its own line, unlabeled, scoped to the Buffer function only. See buffer-auto-post-cta-label-leak in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 6 — Marketing automation",
+    owner: "claude/upbeat-dijkstra-temte9",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -559,6 +567,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "process-log-archive-21-iterations-resplit",
+    ),
+  },
+  {
+    date: "2026-07-27",
+    branch: "claude/upbeat-dijkstra-temte9",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip e5f3adb (PR #849, process-log-archive-21-iterations-resplit, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3396 passed, 210 files). mcp__github__list_pull_requests reconfirmed the sole open PR is still #202 (unrelated, weeks-stale human draft). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (770 remote heads) diffed the newest 9 claude/* branches by push time against origin/main — every one ahead by exactly 1 commit, but each independently confirmed already-merged under a different SHA (commit subject/content byte-identical to one of origin/main's last 9 merge commits, PRs #841-#849); no live fold candidate.\n\nThe alert()-to-inline-aria series is fully closed and the immediately preceding session just finished a size-triggered archive re-split, leaving no obvious mechanical continuation. Dispatched a read-only research agent (general-purpose) briefed on AGENT_PROTOCOL's full text and the already-exhausted tiers, asked to find one concrete, previously-unaddressed gap via careful direct reading rather than a repeat grep sweep. It found that formatMarketingVariantForBuffer (src/lib/marketing/buffer.ts) — whose own doc comment claimed it was 'the same shape as the dashboard's own Copy button' — feeds Buffer's createBufferUpdate with no human review step in between (scheduleMarketingPackToBufferAction in src/app/dashboard/leads/actions.ts passes its return value straight into the text field, which Buffer schedules/publishes verbatim to the lead's live Facebook/Instagram profile), whereas the Copy button and the emailed pack deliverable (src/lib/marketing/deliver-pack.ts) are both read and edited by a human before reaching a real audience. Independently re-verified by reading all four call sites (buffer.ts, the actions.ts caller, the Copy button, the email template) before implementing, rather than trusting the doc comment's claimed equivalence — the equivalence itself was the bug.",
+    shipped: [
+      "src/lib/marketing/buffer.ts — formatMarketingVariantForBuffer no longer prefixes the call to action with a literal \"CTA: \" label; the CTA now folds in as its own line, reading as a natural continuation of the caption rather than an internal field dump published unedited to a real customer's public feed. Scoped to this one function only — the dashboard Copy button and the emailed pack deliverable both keep the CTA label, since their reviewed-before-use context makes it a reasonable section marker rather than a bug. Doc comment rewritten to state why this function now intentionally diverges from the Copy button's format.",
+      "src/lib/marketing/buffer.test.ts — updated the one affected assertion (\"joins title, body, cta, and hashtags\") to the new expected string; the CTA-free \"skips absent optional fields\" case needed no change.",
+      "src/app/docs/architecture/page.tsx — new paragraph in Section 7 (Marketing automation) directly after the existing Buffer-auto-posting-is-dormant writeup naming the gap and the reviewed-vs-unreviewed distinction driving the fix.",
+      "src/lib/process/business-decisions.ts — appended buffer-auto-post-cta-label-leak.",
+      "src/lib/process/prompt_process.tsx — this ITERATIONS entry. No new NEXT_STEPS entry (a quality fix on an already-shipped dormant scaffold behind ALLOW_MARKETING_SCHEDULING, not a new capability) — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked, unchanged. Diff-gate anchor moves to e5f3adb (this session's own starting tip, post-PR-#849).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (buffer.test.ts, 31/31 passed) then full suite (3396 passed, 210 files — same count, only an existing assertion's expected value changed) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split, no new warnings).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-auto-post-cta-label-leak",
     ),
   },
 ];

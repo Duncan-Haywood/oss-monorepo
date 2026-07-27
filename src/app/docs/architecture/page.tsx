@@ -2287,6 +2287,18 @@ source). The same digest also lists email-critical leads with no usable address 
         <DocLink href="/docs/marketing-automation">Marketing automation</DocLink> and{" "}
         <DocLink href="/docs/process">process log</DocLink>.
       </p>
+      <p>
+        <code>formatMarketingVariantForBuffer</code> intentionally diverges from the dashboard
+        &quot;Copy&quot; button and the emailed pack deliverable&apos;s shared{" "}
+        <code>&quot;CTA: &quot;</code>-prefixed layout: Buffer&apos;s <code>createBufferUpdate</code>{" "}
+        text is published straight to the lead&apos;s live Facebook/Instagram profile with no
+        operator review step in between, while the Copy button and the emailed pack are both
+        human-reviewed before anything goes out. The literal <code>&quot;CTA: &quot;</code> label
+        reads fine in a reviewed copy buffer or client email, but published unedited to a real
+        customer&apos;s public feed it read as leftover template text (
+        <code>buffer-auto-post-cta-label-leak</code>) — the call to action is now folded in as its
+        own line instead.
+      </p>
 
       <h2>8. Client AI phone (Complete)</h2>
       <p>
