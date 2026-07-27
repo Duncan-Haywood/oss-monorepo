@@ -68,6 +68,12 @@ describe("createBufferUpdate", () => {
     expect(call[1].method).toBe("POST");
     expect(call[1].body).toContain("profile_ids%5B%5D=p1");
     expect(call[1].body).toContain("text=Hello");
+    expect(call[1].body).not.toContain("access_token");
+    expect(call[1].body).not.toContain("tok_x");
+    expect(call[1].headers).toEqual({
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: "Bearer tok_x",
+    });
   });
 
   it("returns failure when Buffer resolves success: false", async () => {

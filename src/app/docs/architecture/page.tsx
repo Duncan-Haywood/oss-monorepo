@@ -2348,6 +2348,19 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>buffer-auto-post-cta-label-leak</code>) — the call to action is now folded in as its
         own line instead.
       </p>
+      <p>
+        <code>createBufferUpdate</code> sends the access token via the{" "}
+        <code>Authorization</code> header, not the request body — it originally set{" "}
+        <code>access_token</code> as a field on the same <code>URLSearchParams</code> body as{" "}
+        <code>profile_ids[]</code>/<code>text</code>, the credential-leakage risk class{" "}
+        <code>listBufferProfiles</code> was already explicitly hardened against (
+        <code>buffer-token-header-not-query</code>): a form-encoded POST body is exactly what
+        APM/error-monitoring tools, reverse-proxy body-logging, and HTTP debug/replay tooling
+        commonly capture even when headers are redacted by default, and this is the
+        higher-volume call site — invoked once per profile × pack variant on every schedule
+        run, not once per operator account. Fixed to mirror <code>listBufferProfiles</code>
+        &apos;s header-only pattern (<code>buffer-update-token-header-not-body</code>).
+      </p>
 
       <h2>8. Client AI phone (Complete)</h2>
       <p>

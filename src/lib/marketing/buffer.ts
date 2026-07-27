@@ -61,13 +61,20 @@ export type CreateBufferUpdateResult =
  * slots, never posted immediately) for one or more profiles. Never throws —
  * a Buffer-side rejection (invalid profile, over length, rate limited)
  * resolves { success: false } so the caller can surface it per-profile.
+ *
+ * The access token is sent via the Authorization header, never the request
+ * body — same buffer-token-header-not-query rationale as listBufferProfiles
+ * above: a form-encoded POST body is exactly what APM/error-monitoring
+ * tools, reverse-proxy body-logging, and HTTP debug/replay tooling commonly
+ * capture even when headers are redacted by default, and this is the
+ * higher-volume call site (invoked once per profile × pack variant on every
+ * schedule run, not once per account) — see buffer-update-token-header-not-body.
  */
 export async function createBufferUpdate(
   accessToken: string,
   params: { profileIds: string[]; text: string },
 ): Promise<CreateBufferUpdateResult> {
   const body = new URLSearchParams();
-  body.set("access_token", accessToken);
   for (const profileId of params.profileIds) {
     body.append("profile_ids[]", profileId);
   }
@@ -76,7 +83,10 @@ export async function createBufferUpdate(
   try {
     const response = await fetch(`${BUFFER_API_BASE}/updates/create.json`, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${accessToken}`,
+      },
       body: body.toString(),
     });
 

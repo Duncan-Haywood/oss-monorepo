@@ -619,4 +619,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "leads-client-stale-prop-resync",
     ),
   },
+  {
+    date: "2026-07-27",
+    branch: "claude/nice-euler-gww6u6",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions\"), picked up at origin/main tip 996af1f (PR #851, suppressed-emails-panel-prop-resync, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3396 passed, 210 files). A `git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune` sweep (772 remote heads) diffed the newest 5 claude/*-family branches by push time against origin/main — every one matched the documented squash-merge-artifact pattern (net-negative/pure-deletion diffs, each branch's sole commit already merged under a different SHA); no live fold candidate, and the sole open PR remained the unrelated, weeks-stale #202 human draft.\n\nDispatched a read-only research agent (general-purpose) briefed on AGENT_PROTOCOL's full text and the current tail of ITERATIONS, told to independently re-verify rather than trust the log's own claims that tiers 1-8 came back clean. It re-checked dashboard action existence-guards, the Convex API map audit, replace()-based Convex mutation field lists, email escaping, rate limiting, uncapped debt lists, CSV import validation, the LLM prompt-injection surface, and dunning-notice dedup — all genuinely clean — then found that `createBufferUpdate` (src/lib/marketing/buffer.ts) sends the Buffer access token via the request body instead of the `Authorization` header its sibling `listBufferProfiles` already uses (the exact credential-leakage risk class `listBufferProfiles` was explicitly hardened against under buffer-token-header-not-query), and that it's the higher-volume call site of the two. Independently re-verified by reading buffer.ts and buffer.test.ts directly before implementing.",
+    shipped: [
+      "src/lib/marketing/buffer.ts — createBufferUpdate no longer sets access_token as a URLSearchParams body field; the token now travels via an Authorization: Bearer header alongside the existing Content-Type header, mirroring listBufferProfiles exactly. Doc comment added cross-referencing buffer-token-header-not-query and explaining why this is the higher-volume call site.",
+      "src/lib/marketing/buffer.test.ts — createBufferUpdate's existing 200-response test now also asserts the request body never contains access_token or the raw token, and that the Authorization header is set — mirroring listBufferProfiles's existing equivalent assertions, which this describe block previously lacked.",
+      "src/app/docs/architecture/page.tsx — new paragraph directly after the existing buffer-auto-post-cta-label-leak writeup naming the gap and the fix.",
+      "src/lib/process/business-decisions.ts — appended buffer-update-token-header-not-body.",
+      "src/lib/process/prompt_process.tsx — this ITERATIONS entry. No new NEXT_STEPS entry (a credential-handling fix on an already-shipped dormant scaffold behind ALLOW_MARKETING_SCHEDULING, not a new capability) — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked, unchanged. Diff-gate anchor moves to 996af1f (this session's own starting tip, post-PR-#851).",
+      "Verified: npm ci (409 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (buffer.test.ts, 31/31 passed) then full suite (3396 passed, 210 files — same count, only the one test file's assertions grew) + a full clean rebuild (rm -rf .next && npm run build, clean, same 43-route ○/ƒ split, no new warnings).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-update-token-header-not-body",
+    ),
+  },
 ];
