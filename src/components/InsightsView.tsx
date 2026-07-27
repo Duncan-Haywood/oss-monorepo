@@ -73,7 +73,11 @@ export function InsightsView() {
   }
 
   const intoLevel = data.totalAnswers % SWIPES_PER_LEVEL;
-  const pct = Math.round((intoLevel / SWIPES_PER_LEVEL) * 100);
+  // At an exact level boundary the bar would sit at 0% right after levelling
+  // up, which reads as "stuck". Show it full instead — the level number
+  // already ticked over, so a full bar is the honest picture of that moment.
+  const justLevelled = intoLevel === 0 && data.totalAnswers > 0;
+  const pct = justLevelled ? 100 : Math.round((intoLevel / SWIPES_PER_LEVEL) * 100);
   const readyCount = data.ready?.length ?? 0;
 
   return (
@@ -154,13 +158,18 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
   if (!value) return null;
 
   if (key === "top-pick" || key === "bottom-pick") {
-    const r = value as RankedItem;
+    const r = value as RankedItem & { contested?: boolean; rivals?: string[] };
     return (
       <div className="mt-1">
         <p className="text-lg font-bold">{r.label}</p>
         <p className="text-xs text-neutral-500 dark:text-neutral-400">
           {Math.round(r.rating)} ± {Math.round(1.96 * r.rd)}
         </p>
+        {r.contested && r.rivals && r.rivals.length > 1 && (
+          <p className="mt-1.5 rounded-lg bg-neutral-100 px-2 py-1 text-[11px] text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+            Still too close to call — it&apos;s between {r.rivals.slice(0, 3).join(", ")}.
+          </p>
+        )}
       </div>
     );
   }

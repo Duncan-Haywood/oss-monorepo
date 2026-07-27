@@ -118,6 +118,29 @@ model GeneratedInsight {
   @@index([userId, createdAt])
 }
 
+/// Free-form reports from users: bugs, suggestions, or anything else.
+/// Kept separate from InsightFeedback because that one is a structured
+/// rating of a specific insight, while this is unstructured prose that a
+/// person has to read.
+model UserReport {
+  id        String   @id @default(cuid())
+  userId    String?
+  /// "bug" | "idea" | "other"
+  kind      String
+  message   String
+  /// Optional contact address, only if they chose to leave one.
+  email     String?
+  /// Which page they were on — the single most useful debugging detail.
+  path      String?
+  userAgent String?
+  /// Set once it has been dealt with, so the admin list can be triaged.
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([resolved, createdAt])
+  @@index([kind, createdAt])
+}
+
 /// Rate limiting for LLM calls (generation and chat), keyed by user.
 model LlmUsage {
   id        String   @id @default(cuid())

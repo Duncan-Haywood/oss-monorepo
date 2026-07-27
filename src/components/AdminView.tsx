@@ -32,6 +32,16 @@ type Overview = {
     bySubject: { subject: string; up: number; down: number }[];
     notes: { subject: string; note: string | null; at: string }[];
   };
+  openReports: number;
+  reports: {
+    id: string;
+    kind: string;
+    message: string;
+    email: string | null;
+    path: string | null;
+    resolved: boolean;
+    createdAt: string;
+  }[];
   people: {
     id: string;
     firstName: string;
@@ -298,6 +308,48 @@ export function AdminView() {
         </Section>
       )}
 
+      {data.reports && data.reports.length > 0 && (
+        <Section title={`Reports${data.openReports ? ` — ${data.openReports} open` : ""}`}>
+          <ul className="flex flex-col gap-2">
+            {data.reports.map((r) => (
+              <li
+                key={r.id}
+                className={`rounded-xl border p-3 text-xs ${
+                  r.resolved
+                    ? "border-neutral-200 opacity-50 dark:border-neutral-800"
+                    : "border-amber-300 bg-amber-50/50 dark:border-amber-400/30 dark:bg-amber-950/20"
+                }`}
+              >
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-semibold">
+                    {r.kind === "bug" ? "🐞 Bug" : r.kind === "idea" ? "💡 Idea" : "💬 Other"}
+                    {r.path && <span className="ml-2 font-mono text-neutral-400">{r.path}</span>}
+                  </span>
+                  <button
+                    onClick={async () => {
+                      await fetch("/api/admin/report", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id: r.id, resolved: !r.resolved }),
+                      });
+                      await load();
+                    }}
+                    className="shrink-0 text-[11px] underline underline-offset-2"
+                  >
+                    {r.resolved ? "Reopen" : "Mark done"}
+                  </button>
+                </div>
+                <p className="mt-1 whitespace-pre-wrap">{r.message}</p>
+                <p className="mt-1 text-[11px] text-neutral-400">
+                  {new Date(r.createdAt).toLocaleString()}
+                  {r.email && ` · ${r.email}`}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
       <Section title="Download">
         <div className="flex flex-wrap gap-2">
           {[
@@ -305,6 +357,7 @@ export function AdminView() {
             ["ratings", "Final ratings + CIs"],
             ["financial", "Financial trade-offs"],
             ["feedback", "Feedback"],
+            ["reports", "Bug reports"],
           ].map(([what, label]) => (
             <a
               key={what}

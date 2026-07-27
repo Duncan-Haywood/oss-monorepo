@@ -122,6 +122,12 @@ export async function GET(req: NextRequest) {
         usefulness: f.usefulness, enjoyment: f.enjoyment, note: f.note,
         createdAt: f.createdAt.toISOString(),
       }));
+    } else if (what === "reports") {
+      const reports = await prisma.userReport.findMany({ orderBy: { createdAt: "desc" }, take: 5000 });
+      rows = reports.map((r) => ({
+        id: r.id, kind: r.kind, message: r.message, email: r.email,
+        path: r.path, resolved: r.resolved, createdAt: r.createdAt.toISOString(),
+      }));
     } else {
       return NextResponse.json({ error: "Unknown export" }, { status: 400 });
     }

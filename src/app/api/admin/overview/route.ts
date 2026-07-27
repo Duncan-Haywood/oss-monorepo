@@ -50,6 +50,11 @@ export async function GET() {
       prisma.couple.count({ where: { joinerId: { not: null } } }),
     ]);
 
+    const reports = await prisma.userReport.findMany({
+      orderBy: [{ resolved: "asc" }, { createdAt: "desc" }],
+      take: 100,
+    });
+
     const answered = trials.filter((t) => t.result);
     const timings = answered.map((t) => t.msToAnswer ?? 0).filter((m) => m > 0 && m < 120_000);
 
@@ -168,6 +173,16 @@ export async function GET() {
         notes: feedback.filter((f) => f.note).slice(0, 30).map((f) => ({ subject: f.subject, note: f.note, at: f.createdAt })),
       },
       people,
+      reports: reports.map((r) => ({
+        id: r.id,
+        kind: r.kind,
+        message: r.message,
+        email: r.email,
+        path: r.path,
+        resolved: r.resolved,
+        createdAt: r.createdAt,
+      })),
+      openReports: reports.filter((r) => !r.resolved).length,
     });
   } catch (err) {
     console.error("admin overview failed", err);

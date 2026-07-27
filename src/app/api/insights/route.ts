@@ -110,14 +110,22 @@ export async function POST(req: NextRequest) {
     const content: Record<string, unknown> = {};
 
     if (ranked.length >= 2) {
-      // A "#1" is only meaningful if the leader is measurably clear of the
-      // runner-up; otherwise it's just whichever way the noise fell.
+      // A single "#1" is only claimable when the leader is measurably clear
+      // of the runner-up. When it isn't, say who it's between rather than
+      // going silent — the ordering is visible in the top-few card anyway,
+      // so refusing to comment here just reads as a broken card.
       const [first, second] = ranked;
-      if (first.rating - second.rating > 0.5 * first.rd) content["top-pick"] = first;
+      const leaderIsClear = first.rating - second.rating > 0.5 * first.rd;
+      content["top-pick"] = leaderIsClear
+        ? { ...first, contested: false }
+        : { ...first, contested: true, rivals: ranked.slice(0, 3).map((r) => r.label) };
 
       const last = ranked[ranked.length - 1];
       const penultimate = ranked[ranked.length - 2];
-      if (penultimate.rating - last.rating > 0.5 * last.rd) content["bottom-pick"] = last;
+      const trailerIsClear = penultimate.rating - last.rating > 0.5 * last.rd;
+      content["bottom-pick"] = trailerIsClear
+        ? { ...last, contested: false }
+        : { ...last, contested: true, rivals: ranked.slice(-3).map((r) => r.label) };
     }
 
     if (ranked.length >= 5) {

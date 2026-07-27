@@ -66,6 +66,21 @@ CREATE TABLE "GeneratedInsight" (
 );
 
 -- CreateTable
+CREATE TABLE "UserReport" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT,
+    "kind" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "email" TEXT,
+    "path" TEXT,
+    "userAgent" TEXT,
+    "resolved" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "UserReport_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "LlmUsage" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -247,6 +262,12 @@ CREATE INDEX "InsightFeedback_userId_idx" ON "InsightFeedback"("userId");
 
 -- CreateIndex
 CREATE INDEX "GeneratedInsight_userId_createdAt_idx" ON "GeneratedInsight"("userId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "UserReport_resolved_createdAt_idx" ON "UserReport"("resolved", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "UserReport_kind_createdAt_idx" ON "UserReport"("kind", "createdAt");
 
 -- CreateIndex
 CREATE INDEX "LlmUsage_userId_createdAt_idx" ON "LlmUsage"("userId", "createdAt");
