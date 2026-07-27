@@ -4106,6 +4106,24 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>category-substring-collision-audit-06</code>.
       </p>
 
+      <p>
+        <code>process-log-category-collision-corpus-consolidation</code>: rather than a full
+        data-table rewrite of <code>resolvePreviewLead</code> itself (judged too risky for one
+        pass — the branch chain carries six audits&apos; worth of precisely-tuned, individually
+        commented exclusion guards), took the lower-risk half of the structural fix audit-05/-06
+        both flagged: <code>demo-catalog.test.ts</code> previously wrote one bespoke{" "}
+        <code>it()</code> block per collision finding across audits 02 through 06 (roughly twenty
+        scattered blocks). Consolidated all of them into a single{" "}
+        <code>COLLISION_REGRESSION_CASES</code> table (slug, expected category, optional tier, a
+        one-line note) driven through one <code>it.each</code>, with zero change to{" "}
+        <code>resolvePreviewLead</code>&apos;s production logic. A future audit that finds a fresh
+        collision now appends one row to that table instead of authoring a new test block — the
+        actual mechanical bottleneck the prior two hand-offs were pointing at was test-authoring
+        overhead per finding, not a missing branch-table abstraction in the source itself. Verified
+        byte-for-byte behavior parity: the full pre-existing assertion set (category, tier where
+        pinned, dataSource) still runs unchanged, just through one loop instead of many blocks.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
