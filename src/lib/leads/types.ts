@@ -12,6 +12,7 @@ export type BusinessCategory =
   | "automotive"
   | "cleaning"
   | "fitness"
+  | "legal"
   | "generic";
 
 export type LeadPipelineStage =

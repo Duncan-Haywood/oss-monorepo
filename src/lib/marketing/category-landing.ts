@@ -390,6 +390,47 @@ export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
       },
     ],
   },
+  {
+    category: "legal",
+    href: "/websites-for-legal",
+    navLabel: "Law firms",
+    seoTitle: "Website for Law Firms — intake, hours, contact",
+    metaDescription:
+      `A law firm website with practice areas, hours, and a confidential intake form — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that earns client trust before the first call",
+    heroSubhead:
+      "Practice areas, hours, and a confidential intake form — built from your public firm details and previewed for free. Add monthly client outreach when you're ready.",
+    painPoints: [
+      "Prospective clients research an attorney online before ever calling — a missing or dated website costs you the case",
+      "A directory listing alone doesn't explain your practice areas, experience, or what a consultation involves",
+      "A custom website from an agency costs thousands and takes months, longer than most clients will wait to find help",
+    ],
+    features: [
+      "Practice areas and attorney bios laid out clearly",
+      "Confidential intake form and Google Maps embed for easy directions",
+      "Basic SEO so \"near me\" searches for your practice area find you",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "westbrook-law-group",
+    faq: [
+      {
+        question: "Is the intake form confidential?",
+        answer:
+          "Yes — submissions route straight to your firm's inbox; nothing submitted through the form is publicly visible or indexed.",
+      },
+      {
+        question: "Do you write the client outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your firm's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for after-hours calls?",
+        answer:
+          "Complete adds an AI phone agent for your firm line so a missed call after hours doesn't become a lost client.",
+      },
+    ],
+  },
 ] as const;
 
 export function categoryLandingPageByHref(href: string): CategoryLandingPage | undefined {

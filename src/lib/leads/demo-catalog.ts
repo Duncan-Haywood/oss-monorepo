@@ -150,6 +150,24 @@ export const DEMO_LEADS: readonly Lead[] = [
     recommendedTier: "growth",
     dataSource: "demo_catalog",
   },
+  {
+    slug: "westbrook-law-group",
+    businessName: "Westbrook Law Group",
+    category: "legal",
+    city: "Broomfield",
+    state: "CO",
+    address: "70 Century Dr",
+    tagline: "Trusted counsel when it matters most",
+    description:
+      "Small family-law and estate-planning firm offering free 20-minute consultations, transparent flat-fee packages for wills and simple divorces, and same-week appointments for urgent matters.",
+    phone: "(303) 555-0161",
+    email: "intake@westbrooklawgroup.example",
+    services: ["Family law", "Estate planning & wills", "Free consultations", "Divorce mediation"],
+    hours: { weekday: "Mon–Fri 8:30am–5:30pm", weekend: "Closed Sat–Sun" },
+    stage: "discovered",
+    recommendedTier: "growth",
+    dataSource: "demo_catalog",
+  },
 ] as const;
 
 export function getLeadBySlug(slug: string): Lead | undefined {
@@ -204,6 +222,14 @@ export function resolvePreviewLead(slug: string): Lead {
     // branch's regex) — see automotive-repair-keyword-priority-fix for why
     // a one-directional check alone isn't sufficient.
     category = "fitness";
+  } else if (/law|attorney|legal|lawyer/.test(lower)) {
+    // Mechanically verified to share no keyword substring with any of the
+    // eight branches above in either direction — none of their keyword
+    // lists contain law/attorney/legal/lawyer, and none of these legal
+    // keywords match an earlier branch's regex (see
+    // automotive-repair-keyword-priority-fix for why a one-directional
+    // check alone isn't sufficient).
+    category = "legal";
   }
 
   return {

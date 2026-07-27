@@ -258,13 +258,14 @@ export default function ArchitectureDocPage() {
       <h2>2. Site generation</h2>
       <p>
         Category templates (restaurant, salon, trades, retail, health, automotive, cleaning,
-        fitness, generic) render at{" "}
+        fitness, legal, generic) render at{" "}
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
         <code>serene-salon</code>, <code>mountain-plumbing</code>,{" "}
         <code>corner-mercantile</code>, <code>clearview-wellness-clinic</code>,{" "}
         <code>trailhead-auto-repair</code>, <code>brightside-cleaning-co</code>,{" "}
-        <code>ironclad-fitness-studio</code>. Commerce catalog
+        <code>ironclad-fitness-studio</code>,{" "}
+        <code>westbrook-law-group</code>. Commerce catalog
         items load via <code>loadPreviewCommerceItems</code> (
         <code>@/lib/commerce/preview-commerce</code> — not re-exported from the{" "}
         <code>@/lib/commerce</code> barrel, which <code>leads-client</code> imports
@@ -3781,6 +3782,31 @@ source). The same digest also lists email-critical leads with no usable address 
         build plus a <code>npm run dev</code> smoke check confirmed{" "}
         <code>/websites-for-fitness</code> and its two image routes prerender statically and serve
         200s alongside the existing seven.
+      </p>
+      <p>
+        <code>legal-category-landing-page</code>: added <code>legal</code> as a tenth
+        purely-additive <code>BusinessCategory</code> literal and a ninth{" "}
+        <code>/websites-for-*</code> landing page (law firms and attorneys), mirroring the
+        retail/health/automotive/cleaning/fitness series above end to end —{" "}
+        <code>convex/leads.ts</code>&apos;s <code>categoryValidator</code> gained{" "}
+        <code>v.literal(&quot;legal&quot;)</code>, every{" "}
+        <code>Record&lt;BusinessCategory, …&gt;</code> map gained a <code>legal</code> entry (a blue
+        theme, hex <code>#1d4ed8</code>; schema.org&apos;s dedicated <code>LegalService</code>{" "}
+        subtype), and every exhaustive switch (<code>defaultTagline</code>,{" "}
+        <code>acquisitionSourceForCategory</code>) gained a <code>legal</code> case, forced by the
+        same <code>never</code>-check compile safety net as every prior vertical in this series. A
+        new curated demo lead (<code>westbrook-law-group</code>, a Broomfield, CO family-law and
+        estate-planning firm) backs the new page&apos;s live example, and{" "}
+        <code>resolvePreviewLead</code>&apos;s slug-inference chain gained a{" "}
+        <code>law|attorney|legal|lawyer</code> branch — mechanically checked (a small Python script,
+        not by hand) in both directions against all eight existing branches&apos; keyword lists and
+        confirmed to share no substring with any of them.{" "}
+        <code>cat-legal</code> was added to <code>CHECKOUT_ACQUISITION_SOURCES</code> for CTA
+        attribution. Sitemap listing and OG/Twitter card images again needed zero new wiring (both
+        stay generically derived from <code>CATEGORY_LANDING_PAGES</code>), and a clean production
+        build plus a <code>npm run dev</code> smoke check confirmed{" "}
+        <code>/websites-for-legal</code> and its two image routes prerender statically and serve
+        200s alongside the existing eight.
       </p>
 
       <p>

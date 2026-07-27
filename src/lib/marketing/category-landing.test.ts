@@ -18,6 +18,7 @@ describe("CATEGORY_LANDING_PAGES", () => {
       "cleaning",
       "fitness",
       "health",
+      "legal",
       "restaurant",
       "retail",
       "salon",

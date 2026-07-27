@@ -38,6 +38,8 @@ function acquisitionSourceForCategory(
       return "cat-cleaning";
     case "fitness":
       return "cat-fitness";
+    case "legal":
+      return "cat-legal";
     default:
       return undefined;
   }

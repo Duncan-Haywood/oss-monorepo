@@ -295,6 +295,10 @@ const SCHEMA_TYPE_BY_CATEGORY: Record<BusinessCategory, string> = {
   // studio is membership + class-schedule focused, not patient/booking
   // focused healthcare.
   fitness: "ExerciseGym",
+  // schema.org's real, dedicated LocalBusiness subtype for law firms
+  // (LegalService — Attorney is its own narrower subtype for a single
+  // practitioner, but a firm's public site is the more common case here).
+  legal: "LegalService",
   generic: "LocalBusiness",
 };
 

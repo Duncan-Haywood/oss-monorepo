@@ -15,7 +15,7 @@ import {
  */
 
 describe("DEMO_LEADS", () => {
-  it("ships the eight stable marketing deep-link demos", () => {
+  it("ships the nine stable marketing deep-link demos", () => {
     expect(DEMO_LEADS.map((lead) => lead.slug)).toEqual([
       "example-bakery",
       "serene-salon",
@@ -25,6 +25,7 @@ describe("DEMO_LEADS", () => {
       "trailhead-auto-repair",
       "brightside-cleaning-co",
       "ironclad-fitness-studio",
+      "westbrook-law-group",
     ]);
   });
 
@@ -69,6 +70,11 @@ describe("DEMO_LEADS", () => {
     });
     expect(getLeadBySlug("ironclad-fitness-studio")).toMatchObject({
       category: "fitness",
+      recommendedTier: "growth",
+      stage: "discovered",
+    });
+    expect(getLeadBySlug("westbrook-law-group")).toMatchObject({
+      category: "legal",
       recommendedTier: "growth",
       stage: "discovered",
     });
@@ -227,6 +233,21 @@ describe("resolvePreviewLead", () => {
     }
   });
 
+  it("infers legal category and growth tier from law-firm keywords", () => {
+    for (const slug of [
+      "eastview-law-group",
+      "downtown-attorney",
+      "summit-legal-services",
+      "jane-doe-lawyer",
+    ]) {
+      expect(resolvePreviewLead(slug)).toMatchObject({
+        category: "legal",
+        recommendedTier: "growth",
+        dataSource: "slug_inference",
+      });
+    }
+  });
+
   it("defaults to generic + growth when no category keyword matches", () => {
     expect(resolvePreviewLead("acme-services")).toMatchObject({
       category: "generic",
@@ -246,13 +267,14 @@ describe("resolvePreviewLead", () => {
     expect(resolvePreviewLead("Downtown-GARAGE").category).toBe("automotive");
     expect(resolvePreviewLead("Shine-MAID-Service").category).toBe("cleaning");
     expect(resolvePreviewLead("Peak-CROSSFIT").category).toBe("fitness");
+    expect(resolvePreviewLead("Downtown-ATTORNEY").category).toBe("legal");
   });
 });
 
 describe("countLeadsByStage", () => {
   it("counts every pipeline stage for the demo catalog", () => {
     expect(countLeadsByStage()).toEqual({
-      discovered: 3,
+      discovered: 4,
       site_built: 2,
       outreach_sent: 2,
       discovery_call: 1,
