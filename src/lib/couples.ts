@@ -13,7 +13,10 @@ export function generateInviteCode(): string {
   return `${out.slice(0, 4)}-${out.slice(4)}`;
 }
 
-export type Ranking = Map<string, { label: string; rating: number; rd: number }>;
+export type Ranking = Map<
+  string,
+  { label: string; rating: number; rd: number; category: string | null; dimensions: string[] }
+>;
 
 /**
  * A user's merged ranking for one perspective, keyed by item label so the
@@ -33,11 +36,78 @@ export async function rankingFor(userId: string, perspective: Perspective): Prom
       if (i.rd >= 349) continue; // never actually shown — no signal
       const prev = merged.get(i.label);
       if (!prev || i.rd < prev.rd) {
-        merged.set(i.label, { label: i.label, rating: i.rating, rd: i.rd });
+        merged.set(i.label, {
+          label: i.label,
+          rating: i.rating,
+          rd: i.rd,
+          category: i.category,
+          dimensions: i.dimensions ?? [],
+        });
       }
     }
   }
   return merged;
+}
+
+
+
+export type ActionItem = { label: string; rating: number; rd: number; category: string | null };
+
+/**
+ * The single most useful output of the whole app: concrete things one
+ * person can actually DO for the other, taken from the categories that
+ * describe actions rather than identity.
+ *
+ * A ranking of professions is interesting. "They'd rather you took a task
+ * off their plate than bought them something" is usable tonight, which is
+ * the difference between a curiosity and something that strengthens a
+ * relationship.
+ */
+const ACTIONABLE_CATEGORIES = new Set(["Behaviour", "Affection", "Relationship"]);
+
+export function actionableTop(ranking: Ranking, limit = 6): ActionItem[] {
+  return [...ranking.values()]
+    .filter((r) => r.category && ACTIONABLE_CATEGORIES.has(r.category))
+    // Only things measured with reasonable certainty — telling someone to do
+    // the wrong thing confidently is worse than saying nothing.
+    .filter((r) => r.rd < 200)
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, limit)
+    .map((r) => ({ label: r.label, rating: r.rating, rd: r.rd, category: r.category }));
+}
+
+export type SharedValue = { label: string; aRating: number; bRating: number; combined: number };
+
+/**
+ * What you BOTH rate highly. Common ground is the thing couples most often
+ * can't articulate about themselves, and it's more useful to surface than
+ * another list of differences.
+ */
+export function sharedValues(a: Ranking, b: Ranking, limit = 6): SharedValue[] {
+  const out: SharedValue[] = [];
+  for (const [label, ra] of a) {
+    const rb = b.get(label);
+    if (!rb) continue;
+    if (ra.rd >= 200 || rb.rd >= 200) continue;
+    // Both must rate it above their own middle for it to be shared ground.
+    out.push({ label, aRating: ra.rating, bRating: rb.rating, combined: Math.min(ra.rating, rb.rating) });
+  }
+  return out.sort((x, y) => y.combined - x.combined).slice(0, limit);
+}
+
+/**
+ * Where one person cares far more than the other. Framed as "this matters
+ * to them much more than to you" — the actionable asymmetry, not a fault.
+ */
+export function asymmetries(mine: Ranking, theirs: Ranking, limit = 5) {
+  const rows: { label: string; theirRating: number; myRating: number; gap: number }[] = [];
+  for (const [label, t] of theirs) {
+    const m = mine.get(label);
+    if (!m) continue;
+    if (t.rd >= 200 || m.rd >= 200) continue;
+    rows.push({ label, theirRating: t.rating, myRating: m.rating, gap: t.rating - m.rating });
+  }
+  return rows.sort((a, b) => b.gap - a.gap).slice(0, limit);
 }
 
 export type ComparisonRow = {

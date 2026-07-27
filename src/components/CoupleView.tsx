@@ -6,12 +6,20 @@ import { useCallback, useEffect, useState } from "react";
 type Row = { label: string; a: number; b: number; gap: number };
 type Comparison = { overlap: number; agreement: number | null; aligned: Row[]; diverged: Row[] };
 
+type ActionItem = { label: string; rating: number; rd: number; category: string | null };
+type SharedValue = { label: string; aRating: number; bRating: number; combined: number };
+type Asymmetry = { label: string; theirRating: number; myRating: number; gap: number };
+
 type CompareData = {
   couple: { inviteCode: string; partner: { id: string; firstName: string } | null } | null;
   fit?: Comparison;
   theirFit?: Comparison;
   mirror?: Comparison;
   blindSpots?: Comparison;
+  makeThemHappy?: ActionItem[];
+  makeYouHappy?: ActionItem[];
+  shared?: SharedValue[];
+  mattersMoreToThem?: Asymmetry[];
   counts?: Record<string, number>;
 };
 
@@ -170,6 +178,89 @@ export function CoupleView() {
           Swipe →
         </Link>
       </div>
+
+      {data.makeThemHappy && data.makeThemHappy.length > 0 && (
+        <section className="rounded-2xl border-2 border-amber-300/70 bg-amber-50 p-4 dark:border-amber-400/30 dark:bg-amber-950/30">
+          <h2 className="font-bold text-amber-900 dark:text-amber-200">
+            What actually makes {partnerName} happy
+          </h2>
+          <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-300/70">
+            Their highest-rated things you can actually do. Start at the top.
+          </p>
+          <ol className="mt-3 flex flex-col gap-2">
+            {data.makeThemHappy.map((r, i) => (
+              <li key={r.label} className="flex items-start gap-2.5 text-sm">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[11px] font-bold text-neutral-950">
+                  {i + 1}
+                </span>
+                <span className="font-medium text-amber-900 dark:text-amber-100">{r.label}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {data.mattersMoreToThem && data.mattersMoreToThem.length > 0 && (
+        <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+          <h2 className="font-semibold">Matters more to them than to you</h2>
+          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+            Not a fault — just where a small effort from you goes further than it would for you.
+          </p>
+          <ul className="mt-3 flex flex-col gap-2">
+            {data.mattersMoreToThem.map((r) => (
+              <li key={r.label} className="text-sm">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-medium">{r.label}</span>
+                  <span className="shrink-0 text-[11px] text-neutral-400">+{Math.round(r.gap)}</span>
+                </div>
+                <div className="mt-1 flex h-1.5 gap-1">
+                  <span className="flex-1 rounded-full bg-neutral-200 dark:bg-neutral-800">
+                    <span
+                      className="block h-full rounded-full bg-amber-500"
+                      style={{ width: `${Math.min(100, Math.max(4, (r.gap / 400) * 100))}%` }}
+                    />
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {data.shared && data.shared.length > 0 && (
+        <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+          <h2 className="font-semibold">What you both want</h2>
+          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+            Common ground — the things you&apos;re already aligned on.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {data.shared.map((r) => (
+              <li
+                key={r.label}
+                className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400"
+              >
+                {r.label}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {data.makeYouHappy && data.makeYouHappy.length > 0 && (
+        <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+          <h2 className="font-semibold">What {partnerName} could do for you</h2>
+          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+            Your own top answers — worth saying out loud, since they can&apos;t see this list.
+          </p>
+          <ol className="mt-2 flex flex-col gap-1 text-sm">
+            {data.makeYouHappy.map((r, i) => (
+              <li key={r.label}>
+                {i + 1}. {r.label}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       <Section
         title="Are you what they want?"

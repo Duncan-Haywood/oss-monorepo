@@ -267,6 +267,12 @@ model Trial {
   @@index([participantId])
   @@index([itemAId])
   @@index([itemBId])
+  /// findFirst(participantId, result != null) orderBy answeredAt desc — runs on every answer.
+  @@index([participantId, answeredAt])
+  /// findMany(participantId) orderBy shownAt desc — runs on every question.
+  @@index([participantId, shownAt])
+  /// count(participantId, result != null) — runs on every question and status check.
+  @@index([participantId, result])
 }
 
 /// One shown financial (or conjoined) comparison. Each side is a full
@@ -305,6 +311,9 @@ model FinancialTrial {
 
   @@index([surveyId])
   @@index([participantId])
+  @@index([participantId, answeredAt])
+  @@index([participantId, result])
+  @@index([surveyId, result])
 }
 
 /// One respondent's fitted conjoint model for a FINANCIAL or CONJOINED

@@ -288,10 +288,28 @@ CREATE INDEX "Trial_itemAId_idx" ON "Trial"("itemAId");
 CREATE INDEX "Trial_itemBId_idx" ON "Trial"("itemBId");
 
 -- CreateIndex
+CREATE INDEX "Trial_participantId_answeredAt_idx" ON "Trial"("participantId", "answeredAt");
+
+-- CreateIndex
+CREATE INDEX "Trial_participantId_shownAt_idx" ON "Trial"("participantId", "shownAt");
+
+-- CreateIndex
+CREATE INDEX "Trial_participantId_result_idx" ON "Trial"("participantId", "result");
+
+-- CreateIndex
 CREATE INDEX "FinancialTrial_surveyId_idx" ON "FinancialTrial"("surveyId");
 
 -- CreateIndex
 CREATE INDEX "FinancialTrial_participantId_idx" ON "FinancialTrial"("participantId");
+
+-- CreateIndex
+CREATE INDEX "FinancialTrial_participantId_answeredAt_idx" ON "FinancialTrial"("participantId", "answeredAt");
+
+-- CreateIndex
+CREATE INDEX "FinancialTrial_participantId_result_idx" ON "FinancialTrial"("participantId", "result");
+
+-- CreateIndex
+CREATE INDEX "FinancialTrial_surveyId_result_idx" ON "FinancialTrial"("surveyId", "result");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SurveyFit_participantId_key" ON "SurveyFit"("participantId");

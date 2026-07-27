@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { compareRankings, coupleFor, rankingFor } from "@/lib/couples";
+import { actionableTop, asymmetries, compareRankings, coupleFor, rankingFor, sharedValues } from "@/lib/couples";
 
 /**
  * The three comparisons worth showing a couple:
@@ -43,6 +43,12 @@ export async function GET() {
       theirFit: compareRankings(myPartnerWant, theirSelf),
       mirror: compareRankings(myPartnerWant, theirPartnerWant),
       blindSpots: compareRankings(myGuess, theirPartnerWant),
+      // The actually-usable outputs: what to do, what you share, and where
+      // something matters far more to them than to you.
+      makeThemHappy: actionableTop(theirPartnerWant),
+      makeYouHappy: actionableTop(myPartnerWant),
+      shared: sharedValues(myPartnerWant, theirPartnerWant),
+      mattersMoreToThem: asymmetries(myPartnerWant, theirPartnerWant),
       counts: {
         mySelf: mySelf.size,
         myPartnerWant: myPartnerWant.size,
