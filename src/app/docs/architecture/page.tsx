@@ -709,6 +709,39 @@ export default function ArchitectureDocPage() {
         <code>brand.postalAddress</code> fallback.
       </p>
       <p>
+        <code>LeadsClient</code> (<code>src/app/dashboard/leads/leads-client.tsx</code>) had the
+        same <code>useState(initialX)</code>-never-resyncs shape{" "}
+        <code>SuppressedEmailsPanel</code> was just fixed for, across nine arrays fed by{" "}
+        <code>src/app/dashboard/leads/page.tsx</code> with no <code>key</code> on the rendered
+        element — a prior pass had looked at this component and scoped it out as &quot;a
+        materially different design,&quot; which turned out to be wrong for the primary{" "}
+        <code>leads</code> array: any of the dozens of{" "}
+        <code>revalidatePath(&quot;/dashboard/leads&quot;)</code> calls across{" "}
+        <code>actions.ts</code>, a Stripe webhook recording a payment while the tab sits open, or
+        a second tab&apos;s own edits refresh the <code>initialLeads</code> prop, but a lead this
+        specific tab never itself touched via an optimistic handler stayed frozen at whatever
+        stage/badge/quality-score it showed on first mount until a hard reload. Fixed only for{" "}
+        <code>leads</code> in this pass (the other eight arrays — <code>handoffs</code>,{" "}
+        <code>inquiries</code>, <code>checkoutSessions</code>, <code>marketingPacks</code>,{" "}
+        <code>commerceCatalogs</code>, <code>clientVoicePacks</code>, <code>commerceOrders</code>,{" "}
+        <code>commerceOrdersMissingClientReceipt</code> — share the same bug shape and are a
+        documented follow-up): a new{" "}
+        <code>mergeFreshLeadsPreservingInFlightEdits</code> helper (
+        <code>src/lib/leads/optimistic-updates.ts</code>, beside{" "}
+        <code>upsertSavedLeadBySlug</code>/<code>revertSingleLeadOptimisticUpdate</code>) adopts
+        the fresh prop&apos;s row for every slug except one still mid an unconfirmed local edit,
+        which keeps its current value instead. Of this component&apos;s 11{" "}
+        <code>setLeads</code> call sites, only <code>handleStageChange</code>&apos;s classic
+        pre-await optimistic write needed that in-flight protection — every other site patches a
+        row only after its own server action already resolved, so the very same round trip&apos;s
+        refreshed prop already agrees by the time it runs. Wired via the same render-time
+        prop-resync idiom <code>SuppressedEmailsPanel</code> uses (a{" "}
+        <code>prevInitialLeads</code> reference check, <code>setLeads</code> called directly in
+        the render body rather than inside a <code>useEffect</code>, which this repo&apos;s{" "}
+        <code>react-hooks/set-state-in-effect</code> lint rule rejects for a synchronous{" "}
+        <code>setState</code>).
+      </p>
+      <p>
         <code>src/lib/db.ts</code> (the Convex-first/SQLite-fallback orchestration layer every
         surface above ultimately writes and reads through) carries a{" "}
         <code>&quot;server-only&quot;</code> guard, which throws unconditionally outside a

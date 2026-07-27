@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Lead } from "./types";
 import {
+  mergeFreshLeadsPreservingInFlightEdits,
   revertSingleLeadOptimisticUpdate,
   upsertSavedLeadBySlug,
 } from "./optimistic-updates";
@@ -141,5 +142,82 @@ describe("revertSingleLeadOptimisticUpdate", () => {
     const result = revertSingleLeadOptimisticUpdate(current, "target-lead", previous);
 
     expect(result).toEqual([previous]);
+  });
+});
+
+describe("mergeFreshLeadsPreservingInFlightEdits", () => {
+  it("adopts the fresh list verbatim when nothing is in flight", () => {
+    // Regression for leads-client-stale-prop-resync: a lead changed by
+    // something other than this component's own handlers (another tab, a
+    // webhook, an unrelated action's revalidatePath) must show up here, not
+    // stay frozen at whatever `leads` held before.
+    const current = [makeLead({ slug: "a-diner", stage: "discovered" })];
+    const fresh = [makeLead({ slug: "a-diner", stage: "paid" })];
+
+    const result = mergeFreshLeadsPreservingInFlightEdits(current, fresh, new Set());
+
+    expect(result).toBe(fresh);
+  });
+
+  it("keeps the current local row for a slug still mid optimistic edit", () => {
+    const inFlightLocal = makeLead({ slug: "target-lead", stage: "outreach_sent" });
+    const staleFresh = makeLead({ slug: "target-lead", stage: "discovered" });
+    const current = [inFlightLocal];
+    const fresh = [staleFresh];
+
+    const result = mergeFreshLeadsPreservingInFlightEdits(
+      current,
+      fresh,
+      new Set(["target-lead"]),
+    );
+
+    expect(result).toEqual([inFlightLocal]);
+    expect(result[0]).toBe(inFlightLocal);
+  });
+
+  it("merges per-row: refreshes untouched rows while preserving the one in-flight row", () => {
+    const untouchedStaleLocal = makeLead({ slug: "other-lead", stage: "discovered" });
+    const untouchedFresh = makeLead({ slug: "other-lead", stage: "paid" });
+    const inFlightLocal = makeLead({ slug: "target-lead", stage: "outreach_sent" });
+    const inFlightFresh = makeLead({ slug: "target-lead", stage: "discovered" });
+    const current = [untouchedStaleLocal, inFlightLocal];
+    const fresh = [untouchedFresh, inFlightFresh];
+
+    const result = mergeFreshLeadsPreservingInFlightEdits(
+      current,
+      fresh,
+      new Set(["target-lead"]),
+    );
+
+    expect(result).toEqual([untouchedFresh, inFlightLocal]);
+  });
+
+  it("keeps a locally-added in-flight row that hasn't round-tripped into fresh yet", () => {
+    const addedLocally = makeLead({ slug: "brand-new-lead" });
+    const current = [addedLocally];
+    const fresh: Lead[] = [];
+
+    const result = mergeFreshLeadsPreservingInFlightEdits(
+      current,
+      fresh,
+      new Set(["brand-new-lead"]),
+    );
+
+    expect(result).toEqual([addedLocally]);
+  });
+
+  it("does not drop an in-flight row's local value even though it's absent from a non-empty fresh list", () => {
+    const addedLocally = makeLead({ slug: "brand-new-lead" });
+    const existingFresh = makeLead({ slug: "existing-lead" });
+    const current = [existingFresh, addedLocally];
+    const fresh = [existingFresh];
+
+    const result = mergeFreshLeadsPreservingInFlightEdits(
+      current,
+      fresh,
+      new Set(["brand-new-lead"]),
+    );
+
+    expect(result).toEqual([existingFresh, addedLocally]);
   });
 });
