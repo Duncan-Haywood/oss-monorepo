@@ -238,10 +238,11 @@ export default function ArchitectureDocPage() {
 
       <h2>2. Site generation</h2>
       <p>
-        Category templates (restaurant, salon, trades, generic) render at{" "}
+        Category templates (restaurant, salon, trades, retail, health, generic) render at{" "}
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
-        <code>serene-salon</code>, <code>mountain-plumbing</code>. Commerce catalog
+        <code>serene-salon</code>, <code>mountain-plumbing</code>,{" "}
+        <code>corner-mercantile</code>, <code>clearview-wellness-clinic</code>. Commerce catalog
         items load via <code>loadPreviewCommerceItems</code> (
         <code>@/lib/commerce/preview-commerce</code> — not re-exported from the{" "}
         <code>@/lib/commerce</code> barrel, which <code>leads-client</code> imports
