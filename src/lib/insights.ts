@@ -27,6 +27,7 @@ export type InsightKey =
   | "full-ranking"
   | "confidence-map"
   | "value-profile"
+  | "tradeoffs"
   | "self-vs-partner";
 
 export type InsightDef = {
@@ -45,6 +46,7 @@ export const INSIGHTS: InsightDef[] = [
   { key: "top-three", level: 5, title: "Your top 3", teaser: "The three clear front-runners.", source: "ITEMS" },
   { key: "category-lean", level: 7, title: "What kind of person you lean toward", teaser: "Which whole category scores highest.", source: "ITEMS" },
   { key: "value-profile", level: 8, title: "What you actually value", teaser: "Your ranking broken down into warmth, ambition, adventure and nine more.", source: "ITEMS" },
+  { key: "tradeoffs", level: 9, title: "What wins when they conflict", teaser: "The real trade-offs — what you actually pick when two things you want can't both happen.", source: "ITEMS" },
   { key: "hours-price", level: 10, title: "The price of time", teaser: "What an extra hour a week is worth in money to you.", source: "FINANCIAL" },
   { key: "money-vs-identity", level: 13, title: "Money vs. who they are", teaser: "Which one actually moves you more.", source: "CONJOINED" },
   { key: "top-three", level: 16, title: "Your top 5, stabilised", teaser: "Now with enough data to be confident.", source: "ITEMS" },

@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   const recentPairKeys = new Set(recentTrials.map((t) => pairKey(t.itemAId, t.itemBId)));
 
   const [pickedA, pickedB] = selectNextPair({
-    items: items.map((i) => ({ id: i.id, rating: i.rating, rd: i.rd, category: i.category })),
+    items: items.map((i) => ({ id: i.id, rating: i.rating, rd: i.rd, category: i.category, dimensions: i.dimensions })),
     timesShown,
     recentPairKeys,
     answeredCount,

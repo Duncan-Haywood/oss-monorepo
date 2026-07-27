@@ -15,6 +15,8 @@ export type PairItem = {
   rating: number;
   rd: number;
   category?: string | null;
+  /** Dimensions this item signals; first is primary. */
+  dimensions?: string[];
 };
 
 export type PairingInput = {
@@ -81,6 +83,8 @@ export function selectNextPair({
   // staying inside one (fine discrimination).
   const bias = sameCategoryBias(answeredCount);
 
+  const firstDim = first.dimensions?.[0];
+
   const score = (other: PairItem) => {
     const ratingDiff = Math.abs(other.rating - first.rating);
     const closeness = 1 / (1 + ratingDiff / 100);
@@ -89,9 +93,17 @@ export function selectNextPair({
     const sameCategory = !!first.category && first.category === other.category;
     const phaseFactor = sameCategory ? bias : 1 - bias;
 
+    // A pair of items whose PRIMARY dimensions differ is the only kind that
+    // produces a real trade-off observation ("what wins when warmth and
+    // ambition collide"). Same-dimension pairs still refine the ranking, so
+    // they aren't excluded — just weighted down.
+    const otherDim = other.dimensions?.[0];
+    const conflicts = !!firstDim && !!otherDim && firstDim !== otherDim;
+    const conflictBonus = conflicts ? 1.5 : 1;
+
     const key = pairKey(first.id, other.id);
     const repeatPenalty = recentPairKeys.has(key) ? 0.05 : 1;
-    return (closeness * 2 + uncertaintyBonus) * (0.25 + 1.75 * phaseFactor) * repeatPenalty;
+    return (closeness * 2 + uncertaintyBonus) * (0.25 + 1.75 * phaseFactor) * conflictBonus * repeatPenalty;
   };
 
   const second = weightedPick(candidates, score);

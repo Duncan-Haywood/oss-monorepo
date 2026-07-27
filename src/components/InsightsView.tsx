@@ -266,6 +266,52 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
     );
   }
 
+  if (key === "tradeoffs") {
+    const v = value as {
+      tradeoffs: {
+        winnerLabel: string; loserLabel: string; winnerWins: number;
+        loserWins: number; ties: number; n: number; rate: number;
+      }[];
+      summary: string | null;
+    };
+    if (!v.tradeoffs?.length) return null;
+    return (
+      <div className="mt-2">
+        {v.summary && <p className="mb-3 text-sm font-medium">{v.summary}</p>}
+        <ul className="flex flex-col gap-2.5">
+          {v.tradeoffs.map((t, i) => {
+            const pct = Math.round(t.rate * 100);
+            return (
+              <li key={i} className="flex flex-col gap-1">
+                <div className="flex items-baseline justify-between gap-2 text-xs">
+                  <span className="font-semibold">{t.winnerLabel}</span>
+                  <span className="shrink-0 text-neutral-400">vs</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">{t.loserLabel}</span>
+                </div>
+                <div className="flex h-4 w-full overflow-hidden rounded-md">
+                  <div
+                    className="flex items-center justify-start bg-amber-500 pl-1.5 text-[10px] font-bold text-neutral-950"
+                    style={{ width: `${pct}%` }}
+                  >
+                    {pct >= 25 ? `${pct}%` : ""}
+                  </div>
+                  <div className="flex-1 bg-neutral-300 dark:bg-neutral-700" />
+                </div>
+                <span className="text-[10px] text-neutral-400">
+                  {t.winnerWins}–{t.loserWins}
+                  {t.ties > 0 ? ` (${t.ties} too close)` : ""} across {t.n} head-to-heads
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-2 text-[11px] text-neutral-400">
+          Only counts times these two actually went head to head.
+        </p>
+      </div>
+    );
+  }
+
   if (key === "confidence-map") {
     const rows = value as RankedItem[];
     return (

@@ -5,6 +5,7 @@ import { confidenceInterval95 } from "@/lib/glicko2";
 import { levelForAnswers, unlockedInsights, nextInsight, swipesUntilNextInsight, INSIGHTS } from "@/lib/insights";
 import { RANGES } from "@/lib/financialProfiles";
 import { describeDimensions, scoreDimensions } from "@/lib/dimensions";
+import { computeTradeOffs, describeTradeOff, HeadToHead } from "@/lib/tradeoffs";
 
 const MAX_ENTRIES = 20;
 
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
     let totalAnswers = 0;
     let fitParams: { name: string; value: number; se: number }[] | null = null;
     let fitNTrials = 0;
+    const headToHead: HeadToHead[] = [];
 
     for (const [, participantId] of entries) {
       const participant = await prisma.participant.findUnique({
@@ -36,11 +38,27 @@ export async function POST(req: NextRequest) {
       if (!participant) continue;
 
       if (participant.survey.kind === "ITEMS") {
-        const [items, answered] = await Promise.all([
+        const [items, answered, decided] = await Promise.all([
           loadRatedItems(participantId, participant.surveyId),
           prisma.trial.count({ where: { participantId, result: { not: null } } }),
+          prisma.trial.findMany({
+            where: { participantId, result: { not: null } },
+            select: {
+              result: true,
+              itemA: { select: { dimensions: true } },
+              itemB: { select: { dimensions: true } },
+            },
+            take: 3000,
+          }),
         ]);
         totalAnswers += answered;
+        for (const t of decided) {
+          headToHead.push({
+            aDimensions: t.itemA.dimensions,
+            bDimensions: t.itemB.dimensions,
+            result: t.result!,
+          });
+        }
         // Only items this person has actually been shown carry signal.
         for (const i of items) {
           if (i.rd >= 349) continue;
@@ -97,6 +115,12 @@ export async function POST(req: NextRequest) {
       const scores = scoreDimensions(ranked);
       if (scores.length >= 2) {
         content["value-profile"] = { scores, summary: describeDimensions(scores, totalAnswers) };
+      }
+    }
+    if (unlocked.has("tradeoffs") && headToHead.length) {
+      const tradeoffs = computeTradeOffs(headToHead);
+      if (tradeoffs.length) {
+        content["tradeoffs"] = { tradeoffs: tradeoffs.slice(0, 8), summary: describeTradeOff(tradeoffs[0]) };
       }
     }
     if (unlocked.has("confidence-map") && ranked.length) {
