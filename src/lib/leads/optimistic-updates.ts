@@ -47,6 +47,20 @@
  *    write; every other setLeads call site here patches a row only after its
  *    own server action already resolved successfully, so by the time it
  *    runs the corresponding fresh prop already agrees.
+ *
+ * 5. The in-flight tracker above was originally a bare `Set<string>` of
+ *    slugs (presence/absence), not a reference count — but the same slug can
+ *    have two overlapping handleStageChange calls in flight at once (the
+ *    main-table stage <select> and a due-queue "Send Email 1" button can
+ *    both target the same visible lead, and neither disables itself while
+ *    pending). The first call's completion unconditionally deleted the slug
+ *    from the set even though the second call was still awaiting its own
+ *    response, so a revalidate landing in that window overwrote the second
+ *    call's still-pending optimistic edit with the first call's already-
+ *    stale fresh snapshot (see stage-change-in-flight-refcount-race).
+ *    incrementInFlightCount / decrementInFlightCount turn the tracker into a
+ *    per-slug reference count instead: a slug reads as in-flight until every
+ *    overlapping call on it has settled, not just the first one.
  */
 
 import type { Lead } from "./types";
@@ -96,6 +110,42 @@ export function revertSingleLeadOptimisticUpdate(
 }
 
 /**
+ * Increment a slug's in-flight reference count by one — call when a new
+ * optimistic edit for that slug starts, even if one is already in flight.
+ * See this module's doc comment, point 5 (stage-change-in-flight-refcount-race).
+ */
+export function incrementInFlightCount(
+  counts: ReadonlyMap<string, number>,
+  slug: string,
+): Map<string, number> {
+  const next = new Map(counts);
+  next.set(slug, (next.get(slug) ?? 0) + 1);
+  return next;
+}
+
+/**
+ * Decrement a slug's in-flight reference count by one — call when one
+ * overlapping optimistic edit for that slug settles (success or failure).
+ * The slug is removed entirely once its count reaches zero, so it stops
+ * reading as in-flight only once every overlapping call on it has settled.
+ * A slug with no tracked count is left untouched (defensive no-op).
+ */
+export function decrementInFlightCount(
+  counts: ReadonlyMap<string, number>,
+  slug: string,
+): Map<string, number> {
+  const current = counts.get(slug);
+  if (current === undefined) return new Map(counts);
+  const next = new Map(counts);
+  if (current <= 1) {
+    next.delete(slug);
+  } else {
+    next.set(slug, current - 1);
+  }
+  return next;
+}
+
+/**
  * Merge a freshly re-rendered `initialLeads` prop into the current
  * client-side `leads` state, adopting the fresh (server-truth) row for
  * every slug except one whose optimistic edit is still in flight — that row
@@ -107,21 +157,28 @@ export function revertSingleLeadOptimisticUpdate(
  * one this component never touched at all, changed by an unrelated action,
  * a webhook, or a second tab — is taken verbatim, fixing the staleness
  * described in this module's doc comment (leads-client-stale-prop-resync).
+ *
+ * `inFlightCounts` is a per-slug reference count (see
+ * incrementInFlightCount/decrementInFlightCount above), not a presence set —
+ * a slug counts as in-flight as long as its count is greater than zero, so
+ * one of two overlapping calls on the same slug settling early does not
+ * make the row eligible for overwrite while the other is still pending.
  */
 export function mergeFreshLeadsPreservingInFlightEdits(
   currentLeads: Lead[],
   freshLeads: Lead[],
-  inFlightSlugs: ReadonlySet<string>,
+  inFlightCounts: ReadonlyMap<string, number>,
 ): Lead[] {
-  if (inFlightSlugs.size === 0) return freshLeads;
+  const isInFlight = (slug: string) => (inFlightCounts.get(slug) ?? 0) > 0;
+  if (inFlightCounts.size === 0) return freshLeads;
   const freshSlugs = new Set(freshLeads.map((l) => l.slug));
   const merged = freshLeads.map((fresh) => {
-    if (!inFlightSlugs.has(fresh.slug)) return fresh;
+    if (!isInFlight(fresh.slug)) return fresh;
     const current = currentLeads.find((l) => l.slug === fresh.slug);
     return current ?? fresh;
   });
   const localOnlyInFlight = currentLeads.filter(
-    (l) => inFlightSlugs.has(l.slug) && !freshSlugs.has(l.slug),
+    (l) => isInFlight(l.slug) && !freshSlugs.has(l.slug),
   );
   return localOnlyInFlight.length > 0 ? [...merged, ...localOnlyInFlight] : merged;
 }
