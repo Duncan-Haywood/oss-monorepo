@@ -3907,29 +3907,33 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     });
   });
 
-  describe("recordCheckoutRecoverySent (abandoned-recovery send marker, checkout-session-recovery-race-guard, optional requireConvex)", () => {
+  describe("recordCheckoutRecoverySent (abandoned-recovery send marker, checkout-session-recovery-race-guard + checkout-recovery-send-race-guard, optional requireConvex)", () => {
     it("returns Convex's boolean result directly without touching SQLite", async () => {
       convexMutation.mockResolvedValueOnce(true);
       const db = await loadDb(CONVEX_URL);
       await expect(
-        db.recordCheckoutRecoverySent("cs_convex_recovery", "2026-07-02T00:00:00.000Z", {
+        db.recordCheckoutRecoverySent("cs_convex_recovery", "2026-07-02T00:00:00.000Z", 0, {
           requireConvex: true,
         }),
       ).resolves.toBe(true);
       expect(convexMutation).toHaveBeenCalledTimes(1);
+      expect(convexMutation).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ expectedRecoverySentCount: 0 }),
+      );
     });
 
     it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
       convexMutation.mockRejectedValueOnce(new Error("convex outage"));
       const db = await loadDb(CONVEX_URL);
       await expect(
-        db.recordCheckoutRecoverySent("cs_any_recovery", "2026-07-02T00:00:00.000Z", {
+        db.recordCheckoutRecoverySent("cs_any_recovery", "2026-07-02T00:00:00.000Z", 0, {
           requireConvex: true,
         }),
       ).rejects.toThrow(/recordCheckoutRecoverySent/);
     });
 
-    it("SQLite fallback marks an open session and increments recoverySentCount across repeat sends", async () => {
+    it("SQLite fallback marks an open session and increments recoverySentCount across repeat sends when each call passes the current count", async () => {
       const db = await loadDb(undefined);
       await db.recordCheckoutSessionCreated({
         leadSlug: "recovery-lead",
@@ -3941,6 +3945,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       const first = await db.recordCheckoutRecoverySent(
         "cs_recovery_open",
         "2026-07-02T00:00:00.000Z",
+        0,
       );
       expect(first).toBe(true);
 
@@ -3952,6 +3957,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       const second = await db.recordCheckoutRecoverySent(
         "cs_recovery_open",
         "2026-07-03T00:00:00.000Z",
+        1,
       );
       expect(second).toBe(true);
 
@@ -3974,6 +3980,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       const result = await db.recordCheckoutRecoverySent(
         "cs_recovery_race",
         "2026-07-02T00:00:00.000Z",
+        0,
       );
       expect(result).toBe(false);
     });
@@ -3983,8 +3990,55 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       const result = await db.recordCheckoutRecoverySent(
         "cs_never_tracked",
         "2026-07-02T00:00:00.000Z",
+        0,
       );
       expect(result).toBe(false);
+    });
+
+    it("SQLite fallback rejects a second concurrent call whose expectedRecoverySentCount is stale (checkout-recovery-send-race-guard)", async () => {
+      const db = await loadDb(undefined);
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "recovery-dup-lead",
+        stripeSessionId: "cs_recovery_dup",
+        tier: "starter",
+        commerceAddon: false,
+      });
+
+      // First call (e.g. tab A) wins the race — both concurrent calls read
+      // the same pre-write snapshot (expectedRecoverySentCount: 0).
+      const first = await db.recordCheckoutRecoverySent(
+        "cs_recovery_dup",
+        "2026-07-02T00:00:00.000Z",
+        0,
+      );
+      expect(first).toBe(true);
+
+      // Second concurrent call (e.g. tab B) must be rejected rather than
+      // silently applying a second increment — that would send a real
+      // duplicate email to the customer with identical, stale nudge-tier
+      // copy.
+      const second = await db.recordCheckoutRecoverySent(
+        "cs_recovery_dup",
+        "2026-07-02T00:00:01.000Z",
+        0,
+      );
+      expect(second).toBe(false);
+
+      const open = await db.listOpenCheckoutSessions();
+      const session = open.find((s) => s.stripeSessionId === "cs_recovery_dup");
+      // Still reflects only tab A's write.
+      expect(session?.recoverySentAt).toBe("2026-07-02T00:00:00.000Z");
+      expect(session?.recoverySentCount).toBe(1);
+
+      // A genuine next nudge (correctly reading the now-current count) still
+      // succeeds — the guard only rejects a stale snapshot, not legitimate
+      // re-nudges across cadence tiers.
+      const third = await db.recordCheckoutRecoverySent(
+        "cs_recovery_dup",
+        "2026-07-03T00:00:00.000Z",
+        1,
+      );
+      expect(third).toBe(true);
     });
   });
 

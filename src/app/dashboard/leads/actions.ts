@@ -1325,15 +1325,21 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
     }
 
     const businessName = lead?.businessName || session.leadSlug;
+    const expectedRecoverySentCount = session.recoverySentCount ?? 0;
 
     // Durable mark before send (persist-then-notify). requireConvex when
     // configured so Convex-first abandoned queues cannot re-nudge after a
-    // SQLite-only recoverySentAt write.
+    // SQLite-only recoverySentAt write. expectedRecoverySentCount is this
+    // action's own pre-write snapshot — recordCheckoutRecoverySent rejects
+    // the write if the row's current count has already moved past it, so a
+    // second concurrent call (another tab, a fast double-click) can never
+    // both apply (checkout-recovery-send-race-guard).
     let marked: boolean;
     try {
       marked = await recordCheckoutRecoverySent(
         sessionId,
         new Date().toISOString(),
+        expectedRecoverySentCount,
         CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
       );
     } catch (error) {
@@ -1346,12 +1352,25 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
       }
       throw error;
     }
-    // Re-checked at write time against the session's own status, not just
-    // the listOpenCheckoutSessions() snapshot above — a concurrent Stripe
-    // webhook can complete this exact session (a real payment landing) in
-    // the window between that read and this mark. Skip the send entirely
-    // rather than nudge a customer who already paid to "finish checkout".
     if (!marked) {
+      // Re-fetch and report the actual current reason instead of assuming a
+      // payment race (mirroring commerce-order-paid-out-race-message-accuracy's
+      // re-fetch-and-branch): either (a) a concurrent Stripe webhook completed
+      // this exact session — a real payment landing — in the window between
+      // the listOpenCheckoutSessions() read above and this mark, so the
+      // session no longer resolves as open at all; or (b) a concurrent
+      // duplicate recovery-send call (another tab, a fast double-click)
+      // already recorded its own send moments ago, in which case the session
+      // is fine and an email WAS just sent, just not by this call.
+      const freshOpen = await listOpenCheckoutSessions();
+      const fresh = freshOpen.find((s) => s.stripeSessionId === sessionId);
+      if (fresh && (fresh.recoverySentCount ?? 0) > expectedRecoverySentCount) {
+        return {
+          success: false as const,
+          error:
+            "A recovery email was already sent for this session moments ago (likely from another tab or a duplicate click) — skipped duplicate send",
+        };
+      }
       return {
         success: false as const,
         error:
@@ -1364,7 +1383,7 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
       businessName,
       session.leadSlug,
       session.tier,
-      (session.recoverySentCount ?? 0) + 1,
+      expectedRecoverySentCount + 1,
     );
 
     if (!sent.success) {
@@ -1466,12 +1485,19 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
     const skuName =
       catalog?.items.find((item) => item.id === session.skuId)?.name ?? session.skuId ?? "item";
     const businessName = lead.businessName || session.leadSlug;
+    const expectedRecoverySentCount = session.recoverySentCount ?? 0;
 
+    // expectedRecoverySentCount is this action's own pre-write snapshot —
+    // recordCheckoutRecoverySent rejects the write if the row's current
+    // count has already moved past it, so a second concurrent call (another
+    // tab, a fast double-click) can never both apply
+    // (checkout-recovery-send-race-guard).
     let marked: boolean;
     try {
       marked = await recordCheckoutRecoverySent(
         sessionId,
         new Date().toISOString(),
+        expectedRecoverySentCount,
         CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
       );
     } catch (error) {
@@ -1484,12 +1510,25 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
       }
       throw error;
     }
-    // Re-checked at write time against the session's own status — a
-    // concurrent Stripe webhook can complete this exact Buy now cart (the
-    // shopper actually paying) in the window between listOpenCheckoutSessions
-    // above and this mark. Skip the send rather than nudge a shopper who
-    // already paid to "finish checkout".
     if (!marked) {
+      // Re-fetch and report the actual current reason instead of assuming a
+      // payment race (mirroring commerce-order-paid-out-race-message-accuracy's
+      // re-fetch-and-branch): either (a) a concurrent Stripe webhook completed
+      // this exact Buy now cart — the shopper actually paying — in the window
+      // between listOpenCheckoutSessions above and this mark, so the session
+      // no longer resolves as open at all; or (b) a concurrent duplicate
+      // recovery-send call (another tab, a fast double-click) already
+      // recorded its own send moments ago, in which case the cart is fine
+      // and an email WAS just sent, just not by this call.
+      const freshOpen = await listOpenCheckoutSessions();
+      const fresh = freshOpen.find((s) => s.stripeSessionId === sessionId);
+      if (fresh && (fresh.recoverySentCount ?? 0) > expectedRecoverySentCount) {
+        return {
+          success: false as const,
+          error:
+            "A recovery email was already sent for this session moments ago (likely from another tab or a duplicate click) — skipped duplicate send",
+        };
+      }
       return {
         success: false as const,
         error:
@@ -1502,7 +1541,7 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
       businessName,
       session.leadSlug,
       skuName,
-      (session.recoverySentCount ?? 0) + 1,
+      expectedRecoverySentCount + 1,
     );
 
     if (!sent.success) {

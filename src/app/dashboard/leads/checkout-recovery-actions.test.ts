@@ -251,6 +251,7 @@ describe("sendCheckoutRecoveryAction", () => {
     expect(recordCheckoutRecoverySent).toHaveBeenCalledWith(
       "cs_test_bundle",
       expect.any(String),
+      0,
       { requireConvex: true },
     );
     expect(sendCheckoutAbandonedRecovery).toHaveBeenCalledWith(
@@ -272,6 +273,15 @@ describe("sendCheckoutRecoveryAction", () => {
     ]);
     const { sendCheckoutRecoveryAction } = await import("./actions");
     await sendCheckoutRecoveryAction("cs_test_bundle");
+    // The pre-write snapshot's own recoverySentCount (2) is what gets passed
+    // through as the CAS guard's expected value — a legitimate re-nudge
+    // still succeeds and still escalates the copy tier.
+    expect(recordCheckoutRecoverySent).toHaveBeenCalledWith(
+      "cs_test_bundle",
+      expect.any(String),
+      2,
+      { requireConvex: true },
+    );
     expect(sendCheckoutAbandonedRecovery).toHaveBeenCalledWith(
       "buyer@example.com",
       "Demo Cafe",
@@ -319,6 +329,30 @@ describe("sendCheckoutRecoveryAction", () => {
       error:
         "Checkout session was completed after this page loaded — refresh; recovery email was not sent",
     });
+    expect(sendCheckoutAbandonedRecovery).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("reports a duplicate-send race instead of a false 'session completed' message when a concurrent call already recorded its own send (checkout-recovery-send-race-guard)", async () => {
+    // First read (the gating snapshot) shows no prior send; the mark then
+    // fails (simulating a second tab's concurrent call winning the CAS
+    // write first); the re-fetch inside the action shows the session is
+    // still open but its recoverySentCount has already moved forward —
+    // proof this was a duplicate-send race, not a completed payment.
+    listOpenCheckoutSessions
+      .mockResolvedValueOnce([bundleSession])
+      .mockResolvedValueOnce([
+        { ...bundleSession, recoverySentAt: "2026-07-13T12:00:00.000Z", recoverySentCount: 1 },
+      ]);
+    recordCheckoutRecoverySent.mockResolvedValue(false);
+    const { sendCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCheckoutRecoveryAction("cs_test_bundle");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "A recovery email was already sent for this session moments ago (likely from another tab or a duplicate click) — skipped duplicate send",
+    });
+    expect(listOpenCheckoutSessions).toHaveBeenCalledTimes(2);
     expect(sendCheckoutAbandonedRecovery).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
@@ -460,6 +494,7 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
     expect(recordCheckoutRecoverySent).toHaveBeenCalledWith(
       "cs_test_commerce",
       expect.any(String),
+      0,
       { requireConvex: true },
     );
     expect(sendCommerceAbandonedRecovery).toHaveBeenCalledWith(
@@ -480,6 +515,12 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
     ]);
     const { sendCommerceCheckoutRecoveryAction } = await import("./actions");
     await sendCommerceCheckoutRecoveryAction("cs_test_commerce");
+    expect(recordCheckoutRecoverySent).toHaveBeenCalledWith(
+      "cs_test_commerce",
+      expect.any(String),
+      1,
+      { requireConvex: true },
+    );
     expect(sendCommerceAbandonedRecovery).toHaveBeenCalledWith(
       "shopper@example.com",
       "Demo Cafe",
@@ -511,6 +552,24 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
       error:
         "Checkout session was completed after this page loaded — refresh; recovery email was not sent",
     });
+    expect(sendCommerceAbandonedRecovery).not.toHaveBeenCalled();
+  });
+
+  it("reports a duplicate-send race instead of a false 'session completed' message when a concurrent call already recorded its own send (checkout-recovery-send-race-guard)", async () => {
+    listOpenCheckoutSessions
+      .mockResolvedValueOnce([commerceSession])
+      .mockResolvedValueOnce([
+        { ...commerceSession, recoverySentAt: "2026-07-13T12:00:00.000Z", recoverySentCount: 1 },
+      ]);
+    recordCheckoutRecoverySent.mockResolvedValue(false);
+    const { sendCommerceCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCommerceCheckoutRecoveryAction("cs_test_commerce");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "A recovery email was already sent for this session moments ago (likely from another tab or a duplicate click) — skipped duplicate send",
+    });
+    expect(listOpenCheckoutSessions).toHaveBeenCalledTimes(2);
     expect(sendCommerceAbandonedRecovery).not.toHaveBeenCalled();
   });
 });

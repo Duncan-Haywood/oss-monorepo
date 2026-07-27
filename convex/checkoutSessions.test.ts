@@ -192,6 +192,7 @@ test("recordRecoverySent stamps recoverySentAt on a known open session and resol
     t.mutation(api.checkoutSessions.recordRecoverySent, {
       stripeSessionId: "cs_missing",
       sentAt: "2026-01-05T00:00:00.000Z",
+      expectedRecoverySentCount: 0,
       apiSecret: TEST_API_SECRET,
     }),
   ).resolves.toBe(false);
@@ -200,6 +201,7 @@ test("recordRecoverySent stamps recoverySentAt on a known open session and resol
     t.mutation(api.checkoutSessions.recordRecoverySent, {
       stripeSessionId: "cs_1",
       sentAt: "2026-01-05T00:00:00.000Z",
+      expectedRecoverySentCount: 0,
       apiSecret: TEST_API_SECRET,
     }),
   ).resolves.toBe(true);
@@ -217,11 +219,13 @@ test("recordRecoverySent increments recoverySentCount on each repeat send (recov
   await t.mutation(api.checkoutSessions.recordRecoverySent, {
     stripeSessionId: "cs_repeat",
     sentAt: "2026-01-05T00:00:00.000Z",
+    expectedRecoverySentCount: 0,
     apiSecret: TEST_API_SECRET,
   });
   await t.mutation(api.checkoutSessions.recordRecoverySent, {
     stripeSessionId: "cs_repeat",
     sentAt: "2026-01-07T00:00:00.000Z",
+    expectedRecoverySentCount: 1,
     apiSecret: TEST_API_SECRET,
   });
 
@@ -230,6 +234,53 @@ test("recordRecoverySent increments recoverySentCount on each repeat send (recov
   });
   expect(rows[0].recoverySentCount).toBe(2);
   expect(rows[0].recoverySentAt).toBe("2026-01-07T00:00:00.000Z");
+});
+
+test("recordRecoverySent (checkout-recovery-send-race-guard): resolves false and leaves the row unchanged when expectedRecoverySentCount is stale — a concurrent call already recorded its own send for this still-open session", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_dup" }));
+
+  // First call (e.g. tab A) wins the race.
+  await expect(
+    t.mutation(api.checkoutSessions.recordRecoverySent, {
+      stripeSessionId: "cs_dup",
+      sentAt: "2026-01-05T00:00:00.000Z",
+      expectedRecoverySentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+
+  // Second concurrent call (e.g. tab B) read the same pre-write snapshot
+  // (expectedRecoverySentCount: 0) before tab A's write landed — it must be
+  // rejected, not silently apply a second increment/patch that would send a
+  // real duplicate email with stale nudge-tier copy.
+  await expect(
+    t.mutation(api.checkoutSessions.recordRecoverySent, {
+      stripeSessionId: "cs_dup",
+      sentAt: "2026-01-05T00:00:01.000Z",
+      expectedRecoverySentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+
+  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
+  // Still reflects only tab A's write — tab B's rejected call left it alone.
+  expect(rows[0].recoverySentCount).toBe(1);
+  expect(rows[0].recoverySentAt).toBe("2026-01-05T00:00:00.000Z");
+
+  // A genuine next nudge (correctly reading the now-current count) still
+  // succeeds — the guard only rejects a stale snapshot, not legitimate
+  // re-nudges across cadence tiers.
+  await expect(
+    t.mutation(api.checkoutSessions.recordRecoverySent, {
+      stripeSessionId: "cs_dup",
+      sentAt: "2026-01-06T00:00:00.000Z",
+      expectedRecoverySentCount: 1,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
 });
 
 test("recordRecoverySent (checkout-session-recovery-race-guard): resolves false and leaves recoverySentAt unset once the session completed (a real payment landing) after the caller's earlier listOpen snapshot", async () => {
@@ -246,6 +297,7 @@ test("recordRecoverySent (checkout-session-recovery-race-guard): resolves false 
     t.mutation(api.checkoutSessions.recordRecoverySent, {
       stripeSessionId: "cs_race",
       sentAt: "2026-01-05T00:00:00.000Z",
+      expectedRecoverySentCount: 0,
       apiSecret: TEST_API_SECRET,
     }),
   ).resolves.toBe(false);

@@ -3591,6 +3591,29 @@ source). The same digest also lists email-critical leads with no usable address 
         inline-announcement conversion series entirely — zero blocking <code>alert()</code> calls
         remain in this file.
       </p>
+      <p>
+        Abandoned-checkout recovery sends had a duplicate-email race
+        (checkout-recovery-send-race-guard): <code>recordRecoverySent</code>/
+        <code>sqliteRecordCheckoutRecoverySent</code> only re-checked the session&apos;s{" "}
+        <code>status</code> at write time (see checkout-session-recovery-race-guard above), never
+        its <code>recoverySentCount</code> — so two concurrent{" "}
+        <code>sendCheckoutRecoveryAction</code>/<code>sendCommerceCheckoutRecoveryAction</code>{" "}
+        calls for the same still-open session (two dashboard tabs, or a click landing before the
+        button&apos;s <code>isPending</code>-disabled state took effect) both read the identical
+        pre-write <code>recoverySentCount</code> snapshot, both passed the status guard, and both
+        sent a real duplicate email to the customer — with identical, stale nudge-tier copy
+        (recovery-email-escalating-cadence above), silently skipping a cadence tier. Both mark
+        functions now take the caller&apos;s pre-read <code>recoverySentCount</code> as an{" "}
+        <code>expectedRecoverySentCount</code> and only apply the write (optimistic concurrency)
+        when the row&apos;s current count still matches it — the losing concurrent call returns{" "}
+        <code>false</code> instead of silently double-writing. On a rejected mark, both dashboard
+        actions re-fetch <code>listOpenCheckoutSessions()</code> and branch the message the same
+        way <code>commerce-order-paid-out-race-message-accuracy</code> does: a session that&apos;s
+        no longer open reports the existing &quot;completed after this page loaded&quot; message
+        (a real payment race), while a still-open session whose count has already moved past the
+        caller&apos;s snapshot reports a distinct &quot;already sent moments ago — skipped
+        duplicate send&quot; message instead of falsely blaming a payment that never happened.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

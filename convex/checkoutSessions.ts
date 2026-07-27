@@ -221,9 +221,29 @@ export const markCompleteOpenCommerceForLeadSkuCustomer = mutation({
  * (checkout-session-recovery-race-guard — same action-vs-mutation lost-update
  * class as commerceOrders.markPaidOut / leads.recordOutreach / updateStage /
  * applyColdDisposition / inquiries.recordReply, applied to this call site).
+ *
+ * expectedRecoverySentCount adds a second, distinct guard on top of the
+ * status re-check above: the caller must pass the recoverySentCount it read
+ * from its own listOpen() snapshot (the same value recovery-email-escalating-
+ * cadence uses to pick the nudge copy tier). A second concurrent call for
+ * the SAME still-open session — two dashboard tabs, or a click landing
+ * before the button's isPending-disabled state takes effect — reads that
+ * identical stale snapshot too, so without this check both calls would pass
+ * the status re-check, both patch recoverySentCount forward, and both send a
+ * real duplicate email to the customer (with identical, stale nudge-tier
+ * copy, silently skipping a cadence tier). Rejecting on a stale
+ * expectedRecoverySentCount makes only the write that "wins" the race
+ * proceed; the loser returns false and the calling action reports a
+ * duplicate-send message instead of emailing twice
+ * (checkout-recovery-send-race-guard).
  */
 export const recordRecoverySent = mutation({
-  args: { stripeSessionId: v.string(), sentAt: v.string(), apiSecret: v.string() },
+  args: {
+    stripeSessionId: v.string(),
+    sentAt: v.string(),
+    expectedRecoverySentCount: v.number(),
+    apiSecret: v.string(),
+  },
   returns: v.boolean(),
   handler: async (ctx, args) => {
     requireApiSecret(args.apiSecret);
@@ -234,9 +254,12 @@ export const recordRecoverySent = mutation({
     if (!session || session.status !== "open") {
       return false;
     }
+    if ((session.recoverySentCount ?? 0) !== args.expectedRecoverySentCount) {
+      return false;
+    }
     await ctx.db.patch(session._id, {
       recoverySentAt: args.sentAt,
-      recoverySentCount: (session.recoverySentCount ?? 0) + 1,
+      recoverySentCount: args.expectedRecoverySentCount + 1,
     });
     return true;
   },
