@@ -154,19 +154,19 @@ const cardBase =
 /**
  * The action row under the deck. Buttons are explicitly labelled ("Top" /
  * "Bottom") rather than bare arrows, which read ambiguously — an arrow
- * could mean "move the card" or "rank it higher". There is deliberately no
- * "equal" option: forcing a choice keeps the pace up. (The API still
- * accepts a tie, so it can be brought back without a schema change.)
+ * could mean "move the card" or "rank it higher".
  */
 function ActionBar({
   onUp,
   onDown,
+  onEqual,
   onUndo,
   canUndo,
   disabled,
 }: {
   onUp: () => void;
   onDown: () => void;
+  onEqual: () => void;
   onUndo?: () => void;
   canUndo: boolean;
   disabled: boolean;
@@ -174,23 +174,35 @@ function ActionBar({
   const pickClass =
     "flex flex-1 items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400 bg-white py-3 text-sm font-bold text-amber-600 shadow-sm transition active:scale-95 active:bg-amber-50 disabled:opacity-40 dark:bg-neutral-900 dark:text-amber-400 dark:active:bg-amber-950/40";
   return (
-    <div className="flex shrink-0 items-center gap-3 py-3">
-      <button onClick={onUp} disabled={disabled} className={pickClass}>
-        <span aria-hidden="true">↑</span> Top
-      </button>
-      {onUndo && (
-        <button
-          onClick={onUndo}
-          disabled={disabled || !canUndo}
-          aria-label="Undo last answer"
-          title="Undo last answer"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-neutral-300 bg-white text-lg text-neutral-500 transition active:scale-90 disabled:opacity-30 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400"
-        >
-          ↺
+    <div className="flex shrink-0 flex-col gap-1.5 py-2">
+      <div className="flex items-center gap-3">
+        <button onClick={onUp} disabled={disabled} className={pickClass}>
+          <span aria-hidden="true">↑</span> Top
         </button>
-      )}
-      <button onClick={onDown} disabled={disabled} className={pickClass}>
-        <span aria-hidden="true">↓</span> Bottom
+        {onUndo && (
+          <button
+            onClick={onUndo}
+            disabled={disabled || !canUndo}
+            aria-label="Undo last answer"
+            title="Undo last answer"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-neutral-300 bg-white text-lg text-neutral-500 transition active:scale-90 disabled:opacity-30 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400"
+          >
+            ↺
+          </button>
+        )}
+        <button onClick={onDown} disabled={disabled} className={pickClass}>
+          <span aria-hidden="true">↓</span> Bottom
+        </button>
+      </div>
+      {/* Deliberately small and secondary: an escape hatch for a genuinely
+          hard pair, not a default. Recorded as a real tie, which the rating
+          model uses — so it costs nothing statistically to take the out. */}
+      <button
+        onClick={onEqual}
+        disabled={disabled}
+        className="self-center px-4 py-1.5 text-xs font-medium text-neutral-500 underline underline-offset-2 disabled:opacity-40 dark:text-neutral-400"
+      >
+        Too close to call
       </button>
     </div>
   );
@@ -241,6 +253,7 @@ export function ItemsTrialView({
       <ActionBar
         onUp={() => commit("up")}
         onDown={() => commit("down")}
+        onEqual={() => onAnswer("EQUAL")}
         onUndo={onUndo}
         canUndo={!!canUndo}
         disabled={submitting}
@@ -313,6 +326,7 @@ export function FinancialTrialView({
       <ActionBar
         onUp={() => commit("up")}
         onDown={() => commit("down")}
+        onEqual={() => onAnswer("EQUAL")}
         onUndo={onUndo}
         canUndo={!!canUndo}
         disabled={submitting}
