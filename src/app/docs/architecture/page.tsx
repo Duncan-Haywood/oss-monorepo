@@ -4139,6 +4139,31 @@ source). The same digest also lists email-critical leads with no usable address 
         so browser autofill semantics don&apos;t apply the same way there.
       </p>
 
+      <p>
+        <code>docs-legal-pages-typography-plugin-missing</code>: a fresh-angle audit (verifying
+        the compiled CSS output itself, rather than trusting a green build) found that every{" "}
+        <code>/docs/*</code> page (via the shared <code>DocPage</code> component&apos;s{" "}
+        <code>proseClass</code>) plus <code>/terms</code> and <code>/privacy</code> applied
+        Tailwind Typography plugin classes — <code>prose</code>, <code>prose-zinc</code>,{" "}
+        <code>prose-headings:*</code>, <code>prose-a:*</code>, <code>prose-code:*</code> — that
+        matched zero rules in the compiled stylesheet. <code>@tailwindcss/typography</code> was
+        never installed as a dependency and never registered in <code>globals.css</code>, so those
+        class names shipped to the browser as inert strings: no paragraph rhythm, no heading-size
+        differentiation, no list/table styling, no code-block formatting on the operator/legal
+        documentation surface this app designates (see <code>AGENTS.md</code>) as the only place
+        substantive docs may live — worst on the Terms/Privacy pages, which got zero visual
+        structure at all. This produced no TypeScript, ESLint, Vitest, or build error, since{" "}
+        <code>prose</code> is a syntactically valid (if meaningless without the plugin) class
+        string — every prior session&apos;s &quot;tsc/lint/test/build all green&quot; check passed
+        regardless; it&apos;s a pure CSS-output defect only visible by inspecting the compiled
+        stylesheet or rendering the page. Confirmed directly: <code>grep -c &quot;\.prose&quot;{" "}
+        .next/static/chunks/*.css</code> returned 0 matches pre-fix. Fixed by installing{" "}
+        <code>@tailwindcss/typography</code> and registering it via Tailwind v4&apos;s CSS-first{" "}
+        <code>@plugin &quot;@tailwindcss/typography&quot;;</code> directive in{" "}
+        <code>globals.css</code> — confirmed post-fix that the compiled stylesheet now contains a
+        full <code>.prose</code> rule set.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
