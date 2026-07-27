@@ -153,6 +153,7 @@ import {
   type NotesPromptReason,
 } from "@/lib/leads/notes";
 import {
+  mergeFreshLeadsPreservingInFlightEdits,
   revertSingleLeadOptimisticUpdate,
   upsertSavedLeadBySlug,
 } from "@/lib/leads/optimistic-updates";
@@ -284,6 +285,34 @@ export function LeadsClient({
   marketingSchedulingAllowed = false,
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  // Slugs whose optimistic stage-change edit (handleStageChange) has been
+  // applied locally but not yet confirmed by that call's own server
+  // response — every other setLeads call site in this component only
+  // patches a row after its own server action already resolved
+  // successfully, so this is the only edit that can still be "ahead of" a
+  // freshly re-rendered initialLeads prop (see
+  // leads-client-stale-prop-resync / mergeFreshLeadsPreservingInFlightEdits).
+  const [stageChangeInFlightSlugs, setStageChangeInFlightSlugs] = useState<
+    ReadonlySet<string>
+  >(() => new Set());
+  // `initialLeads` is a fresh server-fetched prop on every RSC re-render —
+  // nearly every handler in actions.ts calls
+  // revalidatePath("/dashboard/leads"), and so does a Stripe/Resend webhook
+  // firing while this tab sits open, or a second tab's own edits. `leads`
+  // above only ever reads `initialLeads` on first mount (useState's initial
+  // value is a one-time read) and is otherwise patched exclusively by this
+  // component's own handlers — a lead changed by anything else stayed
+  // frozen at whatever this tab last saw until a hard reload. Same fix
+  // shape as suppressed-emails-panel-prop-resync: adjust state during
+  // render (not in an effect, which this repo's react-hooks/set-state-in-effect
+  // rule rejects) when the prop reference changes.
+  const [prevInitialLeads, setPrevInitialLeads] = useState(initialLeads);
+  if (prevInitialLeads !== initialLeads) {
+    setPrevInitialLeads(initialLeads);
+    setLeads((prev) =>
+      mergeFreshLeadsPreservingInFlightEdits(prev, initialLeads, stageChangeInFlightSlugs),
+    );
+  }
   const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
   const [inquiries, setInquiries] = useState<ClientInquiry[]>(initialInquiries);
   const [checkoutSessions, setCheckoutSessions] =
@@ -498,10 +527,21 @@ export function LeadsClient({
           }
         : { ...current, stage: newStage };
 
-    // Optimistic UI update
+    // Optimistic UI update — mark this row in-flight first so a fresh
+    // initialLeads prop arriving mid-request (another action's
+    // revalidatePath, a webhook, or a second tab) can't clobber this
+    // not-yet-confirmed edit back to stale server data (see
+    // leads-client-stale-prop-resync / mergeFreshLeadsPreservingInFlightEdits).
+    setStageChangeInFlightSlugs((prev) => new Set(prev).add(slug));
     setLeads((prev) => prev.map((l) => (l.slug === slug ? optimisticLead : l)));
 
     const res = await updateLeadStageAction(slug, newStage);
+    setStageChangeInFlightSlugs((prev) => {
+      if (!prev.has(slug)) return prev;
+      const next = new Set(prev);
+      next.delete(slug);
+      return next;
+    });
     if (!res.success) {
       setLeadActionErrors((prev) => ({
         ...prev,

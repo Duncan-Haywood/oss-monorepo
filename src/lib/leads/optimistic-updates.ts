@@ -31,6 +31,22 @@
  *    (see stage-change-optimistic-revert-race). revertSingleLeadOptimisticUpdate
  *    now takes the exact optimistic Lead object this call applied and only
  *    reverts when the row still holds that same reference.
+ *
+ * 4. `leads` state is seeded from the `initialLeads` prop via `useState`,
+ *    which only reads its argument on first mount — it never re-syncs when
+ *    a later render delivers a fresh `initialLeads` (nearly every handler
+ *    in actions.ts calls revalidatePath("/dashboard/leads"), which refreshes
+ *    that prop for this already-mounted client component; so does a Stripe
+ *    or Resend webhook firing while the tab sits open, or a second tab's own
+ *    edits). Every row this component itself never optimistically touched
+ *    stayed frozen at whatever it showed on first mount (see
+ *    leads-client-stale-prop-resync). mergeFreshLeadsPreservingInFlightEdits
+ *    lets the caller adopt a fresh prop wholesale except for rows still
+ *    mid-flight on this component's own not-yet-confirmed optimistic edit —
+ *    in this codebase that's only handleStageChange's pre-await optimistic
+ *    write; every other setLeads call site here patches a row only after its
+ *    own server action already resolved successfully, so by the time it
+ *    runs the corresponding fresh prop already agrees.
  */
 
 import type { Lead } from "./types";
@@ -77,4 +93,35 @@ export function revertSingleLeadOptimisticUpdate(
     if (expectedOptimistic !== undefined && l !== expectedOptimistic) return l;
     return previous;
   });
+}
+
+/**
+ * Merge a freshly re-rendered `initialLeads` prop into the current
+ * client-side `leads` state, adopting the fresh (server-truth) row for
+ * every slug except one whose optimistic edit is still in flight — that row
+ * keeps its current local value instead, since the fresh prop may predate
+ * this component's own not-yet-confirmed local write. A local row that is
+ * itself in-flight but not present in `fresh` at all (e.g. this same render
+ * arrived before a just-added lead's own round trip completed) is kept
+ * rather than dropped. Every fresh row not currently in-flight — including
+ * one this component never touched at all, changed by an unrelated action,
+ * a webhook, or a second tab — is taken verbatim, fixing the staleness
+ * described in this module's doc comment (leads-client-stale-prop-resync).
+ */
+export function mergeFreshLeadsPreservingInFlightEdits(
+  currentLeads: Lead[],
+  freshLeads: Lead[],
+  inFlightSlugs: ReadonlySet<string>,
+): Lead[] {
+  if (inFlightSlugs.size === 0) return freshLeads;
+  const freshSlugs = new Set(freshLeads.map((l) => l.slug));
+  const merged = freshLeads.map((fresh) => {
+    if (!inFlightSlugs.has(fresh.slug)) return fresh;
+    const current = currentLeads.find((l) => l.slug === fresh.slug);
+    return current ?? fresh;
+  });
+  const localOnlyInFlight = currentLeads.filter(
+    (l) => inFlightSlugs.has(l.slug) && !freshSlugs.has(l.slug),
+  );
+  return localOnlyInFlight.length > 0 ? [...merged, ...localOnlyInFlight] : merged;
 }
