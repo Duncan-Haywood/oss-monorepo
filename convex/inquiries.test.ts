@@ -23,6 +23,7 @@ interface InquiryRow {
   source?: string;
   operatorReply?: string;
   repliedAt?: string;
+  replySentCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -76,7 +77,7 @@ test("listUnreplied returns only new/read inquiries, newest-first, excluding rep
   await t.mutation(api.inquiries.create, createArgs({ inquiryId: "inq_read" }));
   await t.mutation(api.inquiries.updateStatus, { inquiryId: "inq_read", status: "read", apiSecret: TEST_API_SECRET });
   await t.mutation(api.inquiries.create, createArgs({ inquiryId: "inq_replied" }));
-  await t.mutation(api.inquiries.recordReply, { inquiryId: "inq_replied", operatorReply: "Yes!", apiSecret: TEST_API_SECRET });
+  await t.mutation(api.inquiries.recordReply, { inquiryId: "inq_replied", operatorReply: "Yes!", expectedReplySentCount: 0, apiSecret: TEST_API_SECRET });
   await t.mutation(api.inquiries.create, createArgs({ inquiryId: "inq_archived" }));
   await t.mutation(api.inquiries.updateStatus, { inquiryId: "inq_archived", status: "archived", apiSecret: TEST_API_SECRET });
 
@@ -171,6 +172,7 @@ test("recordReply returns null on an unknown id (never throws) and sets status=r
     t.mutation(api.inquiries.recordReply, {
       inquiryId: "no-such-inquiry",
       operatorReply: "Hi!",
+      expectedReplySentCount: 0,
       apiSecret: TEST_API_SECRET,
     }),
   ).resolves.toBeNull();
@@ -179,11 +181,13 @@ test("recordReply returns null on an unknown id (never throws) and sets status=r
   const replied: InquiryRow | null = await t.mutation(api.inquiries.recordReply, {
     inquiryId: "inq_demo-cafe_1",
     operatorReply: "Yes, we do!",
+    expectedReplySentCount: 0,
     apiSecret: TEST_API_SECRET,
   });
   expect(replied?.status).toBe("replied");
   expect(replied?.operatorReply).toBe("Yes, we do!");
   expect(replied?.repliedAt).toBeTruthy();
+  expect(replied?.replySentCount).toBe(1);
 });
 
 test("recordReply rejects (returns null, no patch) once the inquiry is archived — race guard against a stale action-level read", async () => {
@@ -199,6 +203,7 @@ test("recordReply rejects (returns null, no patch) once the inquiry is archived 
     t.mutation(api.inquiries.recordReply, {
       inquiryId: "inq_demo-cafe_1",
       operatorReply: "Too late, archived first",
+      expectedReplySentCount: 0,
       apiSecret: TEST_API_SECRET,
     }),
   ).resolves.toBeNull();
@@ -209,6 +214,46 @@ test("recordReply rejects (returns null, no patch) once the inquiry is archived 
   });
   expect(stillArchived?.status).toBe("archived");
   expect(stillArchived?.operatorReply).toBeUndefined();
+});
+
+test("recordReply rejects a stale expectedReplySentCount (inquiry-reply-send-race-guard) but a later, deliberate follow-up with the fresh count still succeeds", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.inquiries.create, createArgs());
+
+  const first: InquiryRow | null = await t.mutation(api.inquiries.recordReply, {
+    inquiryId: "inq_demo-cafe_1",
+    operatorReply: "First reply",
+    expectedReplySentCount: 0,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(first?.replySentCount).toBe(1);
+
+  // A concurrent duplicate call captured the same stale expected count (0)
+  // before the first call's patch landed.
+  await expect(
+    t.mutation(api.inquiries.recordReply, {
+      inquiryId: "inq_demo-cafe_1",
+      operatorReply: "Duplicate reply",
+      expectedReplySentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBeNull();
+
+  const afterDuplicateAttempt: InquiryRow | null = await t.query(api.inquiries.getById, {
+    inquiryId: "inq_demo-cafe_1",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(afterDuplicateAttempt?.operatorReply).toBe("First reply");
+
+  const followUp: InquiryRow | null = await t.mutation(api.inquiries.recordReply, {
+    inquiryId: "inq_demo-cafe_1",
+    operatorReply: "Follow-up reply",
+    expectedReplySentCount: 1,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(followUp?.status).toBe("replied");
+  expect(followUp?.operatorReply).toBe("Follow-up reply");
+  expect(followUp?.replySentCount).toBe(2);
 });
 
 test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SECRET configured", async () => {
@@ -231,6 +276,6 @@ test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SEC
     t.mutation(api.inquiries.updateStatus, { inquiryId: "inq_demo-cafe_1", status: "read", apiSecret: "wrong" }),
   ).rejects.toThrow(/Unauthorized/);
   await expect(
-    t.mutation(api.inquiries.recordReply, { inquiryId: "inq_demo-cafe_1", operatorReply: "Hi!", apiSecret: "wrong" }),
+    t.mutation(api.inquiries.recordReply, { inquiryId: "inq_demo-cafe_1", operatorReply: "Hi!", expectedReplySentCount: 0, apiSecret: "wrong" }),
   ).rejects.toThrow(/Unauthorized/);
 });

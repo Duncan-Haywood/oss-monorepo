@@ -176,6 +176,8 @@ export default defineSchema({
     operatorReply: v.optional(v.string()),
     /** Unix ms when the last dashboard reply was sent. */
     repliedAt: v.optional(v.number()),
+    /** CAS marker for recordReply — see inquiry-reply-send-race-guard. */
+    replySentCount: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

@@ -2456,10 +2456,19 @@ export async function getClientInquiryById(
  * and a concurrent archive can land in that window (see
  * inquiry-reply-archive-race-guard). Returns null on that race the same way
  * it already does for a missing row.
+ *
+ * expectedReplySentCount is a second, independent CAS guard (mirroring
+ * recordStarterUpsellSent) — the caller passes the count it last read, and
+ * the write only applies when the row's current count still matches, so a
+ * later, deliberate follow-up reply always succeeds and only an exact
+ * concurrent duplicate (same stale expected count — a second dashboard tab,
+ * or a double-click before the button's isPending-disabled state applies)
+ * is rejected. See inquiry-reply-send-race-guard.
  */
 export async function recordClientInquiryReply(
   inquiryId: string,
   operatorReply: string,
+  expectedReplySentCount: number,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<ClientInquiry | null> {
   if (convexClient) {
@@ -2467,6 +2476,7 @@ export async function recordClientInquiryReply(
       const updated = (await convexClient.mutation(api.inquiries.recordReply, {
         inquiryId,
         operatorReply,
+        expectedReplySentCount,
         apiSecret: convexApiSecret,
       })) as ClientInquiry | null;
       if (updated) return updated;
@@ -2485,7 +2495,12 @@ export async function recordClientInquiryReply(
     }
   }
 
-  return sqliteRecordClientInquiryReply(getSqliteDb(), inquiryId, operatorReply);
+  return sqliteRecordClientInquiryReply(
+    getSqliteDb(),
+    inquiryId,
+    operatorReply,
+    expectedReplySentCount,
+  );
 }
 
 // --- Checkout sessions (abandoned-checkout recovery, Phase 3) ---

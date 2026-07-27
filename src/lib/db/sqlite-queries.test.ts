@@ -568,16 +568,19 @@ describe("sqliteApplyColdLeadDisposition", () => {
 describe("sqliteRecordClientInquiryReply", () => {
   it("returns null when the inquiry does not exist", () => {
     const db = freshDb();
-    expect(sqliteRecordClientInquiryReply(db, "missing", "Thanks for reaching out!")).toBeNull();
+    expect(
+      sqliteRecordClientInquiryReply(db, "missing", "Thanks for reaching out!", 0),
+    ).toBeNull();
   });
 
   it("marks a new inquiry replied and returns the updated record", () => {
     const db = freshDb();
     insertInquiryDirect(db, "inq_1", "test-lead", "new");
-    const result = sqliteRecordClientInquiryReply(db, "inq_1", "Thanks for reaching out!");
+    const result = sqliteRecordClientInquiryReply(db, "inq_1", "Thanks for reaching out!", 0);
     expect(result?.status).toBe("replied");
     expect(result?.operatorReply).toBe("Thanks for reaching out!");
     expect(result?.repliedAt).toBeTruthy();
+    expect(result?.replySentCount).toBe(1);
 
     const row = db.prepare("SELECT status, operatorReply FROM client_inquiries WHERE id = ?").get(
       "inq_1",
@@ -589,12 +592,31 @@ describe("sqliteRecordClientInquiryReply", () => {
   it("rejects replying to an already-archived inquiry (inquiry-reply-archive-race-guard)", () => {
     const db = freshDb();
     insertInquiryDirect(db, "inq_1", "test-lead", "archived");
-    expect(sqliteRecordClientInquiryReply(db, "inq_1", "Too late")).toBeNull();
+    expect(sqliteRecordClientInquiryReply(db, "inq_1", "Too late", 0)).toBeNull();
     const row = db.prepare("SELECT status, operatorReply FROM client_inquiries WHERE id = ?").get(
       "inq_1",
     ) as { status: string; operatorReply: string | null };
     expect(row.status).toBe("archived");
     expect(row.operatorReply).toBeNull();
+  });
+
+  it("rejects a reply whose expectedReplySentCount is stale (inquiry-reply-send-race-guard)", () => {
+    const db = freshDb();
+    insertInquiryDirect(db, "inq_1", "test-lead", "new");
+
+    const first = sqliteRecordClientInquiryReply(db, "inq_1", "First reply", 0);
+    expect(first?.replySentCount).toBe(1);
+
+    // A concurrent duplicate call captured the same stale expected count (0).
+    expect(
+      sqliteRecordClientInquiryReply(db, "inq_1", "Duplicate reply", 0),
+    ).toBeNull();
+
+    // A later, deliberate follow-up reply using the fresh count still succeeds.
+    const followUp = sqliteRecordClientInquiryReply(db, "inq_1", "Follow-up reply", 1);
+    expect(followUp?.status).toBe("replied");
+    expect(followUp?.operatorReply).toBe("Follow-up reply");
+    expect(followUp?.replySentCount).toBe(2);
   });
 });
 

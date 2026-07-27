@@ -21,6 +21,7 @@ const inquiryReturn = v.object({
   source: v.optional(v.string()),
   operatorReply: v.optional(v.string()),
   repliedAt: v.optional(v.string()),
+  replySentCount: v.optional(v.number()),
   createdAt: v.string(),
   updatedAt: v.string(),
 });
@@ -41,6 +42,7 @@ function mapInquiry(row: {
   source?: string;
   operatorReply?: string;
   repliedAt?: number;
+  replySentCount?: number;
   createdAt: number;
   updatedAt: number;
 }) {
@@ -57,6 +59,7 @@ function mapInquiry(row: {
     operatorReply: row.operatorReply,
     repliedAt:
       row.repliedAt !== undefined ? toIso(row.repliedAt) : undefined,
+    replySentCount: row.replySentCount,
     createdAt: toIso(row.createdAt),
     updatedAt: toIso(row.updatedAt),
   };
@@ -263,11 +266,23 @@ export const updateStatus = mutation({
  * action-level check alone is a stale-read guard, not a guarantee. Same bug
  * class as commerce-order-paid-out-refund-race-guard, applied to the inquiry
  * reply surface. See inquiry-reply-archive-race-guard.
+ *
+ * expectedReplySentCount is a second, independent guard on top of the
+ * archive check above — a plain expected-count compare-and-swap (mirroring
+ * leads.recordStarterUpsellSent), not a one-shot "already replied" gate: a
+ * legitimate follow-up reply must still succeed later against a fresh read.
+ * This only rejects a write whose expectedReplySentCount no longer matches
+ * the row's current count — an exact concurrent duplicate (a second
+ * dashboard tab, or a double-click before the button's isPending-disabled
+ * state applies) firing two replyToInquiryAction calls for the same stale
+ * composer state, which previously both persisted and both sent a real
+ * duplicate reply email to the visitor. See inquiry-reply-send-race-guard.
  */
 export const recordReply = mutation({
   args: {
     inquiryId: v.string(),
     operatorReply: v.string(),
+    expectedReplySentCount: v.number(),
     apiSecret: v.string(),
   },
   returns: v.union(inquiryReturn, v.null()),
@@ -281,12 +296,16 @@ export const recordReply = mutation({
     if (!existing || existing.status === "archived") {
       return null;
     }
+    if ((existing.replySentCount ?? 0) !== args.expectedReplySentCount) {
+      return null;
+    }
 
     const now = Date.now();
     await ctx.db.patch(existing._id, {
       status: "replied",
       operatorReply: args.operatorReply,
       repliedAt: now,
+      replySentCount: args.expectedReplySentCount + 1,
       updatedAt: now,
     });
 
@@ -295,6 +314,7 @@ export const recordReply = mutation({
       status: "replied",
       operatorReply: args.operatorReply,
       repliedAt: now,
+      replySentCount: args.expectedReplySentCount + 1,
       updatedAt: now,
     });
   },

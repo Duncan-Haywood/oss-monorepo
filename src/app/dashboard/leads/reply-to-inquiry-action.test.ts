@@ -113,6 +113,7 @@ const openInquiry = {
   message: "Do you take walk-ins?",
   source: "contact_form" as const,
   status: "new" as const,
+  replySentCount: 0,
   createdAt: "2026-07-10T12:00:00.000Z",
 };
 
@@ -121,6 +122,7 @@ const repliedInquiry = {
   status: "replied" as const,
   operatorReply: "Thanks — yes, walk-ins welcome after 2pm.",
   repliedAt: "2026-07-14T02:10:00.000Z",
+  replySentCount: 1,
 };
 
 describe("replyToInquiryAction", () => {
@@ -290,6 +292,7 @@ describe("replyToInquiryAction", () => {
     expect(recordClientInquiryReply).toHaveBeenCalledWith(
       "inq_demo_1",
       "Thanks — yes, walk-ins welcome after 2pm.",
+      0,
       { requireConvex: true },
     );
     expect(sendInquiryReply).toHaveBeenCalledOnce();
@@ -349,19 +352,52 @@ describe("replyToInquiryAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("surfaces not-found/archived-race when the mark returns null", async () => {
-    // Null covers both a genuinely missing row and recordClientInquiryReply's
-    // own archived-race guard (inquiry-reply-archive-race-guard) — the
-    // action's inquiryCanReceiveReply check above ran against a stale read,
-    // so a concurrent archive between that read and this call also surfaces
-    // here, not only a missing inquiry.
+  it("surfaces not-found when the mark returns null and a re-fetch finds no row", async () => {
+    // Null from recordClientInquiryReply is ambiguous (missing row / archived
+    // race / duplicate-send race) — the action re-fetches to report the
+    // accurate current reason instead of guessing, mirroring
+    // commerce-order-paid-out-race-message-accuracy.
     recordClientInquiryReply.mockResolvedValue(null);
+    getClientInquiryById.mockResolvedValueOnce(openInquiry).mockResolvedValueOnce(null);
+    const { replyToInquiryAction } = await import("./actions");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
+    expect(res).toEqual({
+      success: false,
+      error: "Inquiry not found — it may have been deleted",
+    });
+    expect(sendInquiryReply).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("surfaces the archive-race when the mark returns null and a re-fetch shows archived (inquiry-reply-archive-race-guard)", async () => {
+    recordClientInquiryReply.mockResolvedValue(null);
+    getClientInquiryById
+      .mockResolvedValueOnce(openInquiry)
+      .mockResolvedValueOnce({ ...openInquiry, status: "archived" });
+    const { replyToInquiryAction } = await import("./actions");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
+    expect(res).toEqual({
+      success: false,
+      error: "Inquiry was archived after this page loaded — refresh and check its status",
+    });
+    expect(sendInquiryReply).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("surfaces a duplicate-send race when the mark returns null and a re-fetch shows still-not-archived (inquiry-reply-send-race-guard)", async () => {
+    // A concurrent second tab / double-click captured the same stale
+    // expectedReplySentCount and lost the CAS — the row is neither missing
+    // nor archived, so this must be the duplicate-send race, not a guess.
+    recordClientInquiryReply.mockResolvedValue(null);
+    getClientInquiryById
+      .mockResolvedValueOnce(openInquiry)
+      .mockResolvedValueOnce({ ...openInquiry, status: "replied", replySentCount: 1 });
     const { replyToInquiryAction } = await import("./actions");
     const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
       error:
-        "Inquiry not found or was archived after this page loaded — refresh and check its status",
+        "This inquiry was already replied to moments ago by a concurrent request — this click may have sent a duplicate reply email.",
     });
     expect(sendInquiryReply).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();

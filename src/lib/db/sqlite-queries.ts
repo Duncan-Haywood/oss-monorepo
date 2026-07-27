@@ -324,34 +324,41 @@ export function sqliteApplyColdLeadDisposition(
 
 /**
  * Persist a successful operator reply: status=replied + body + repliedAt.
- * Returns null when the inquiry is missing or already archived at write
- * time — replyToInquiryAction's inquiryCanReceiveReply gate runs against a
- * stale read from moments earlier, and a concurrent archive can land in
- * that window (inquiry-reply-archive-race-guard). Split out of
- * src/lib/db.ts's recordClientInquiryReply SQLite-fallback branch — pure
- * code move, no behavior change.
+ * Returns null when the inquiry is missing, already archived, or
+ * expectedReplySentCount no longer matches the row's current count at write
+ * time — replyToInquiryAction's inquiryCanReceiveReply gate (and its
+ * captured expected count) run against a stale read from moments earlier,
+ * and a concurrent archive (inquiry-reply-archive-race-guard) or a
+ * concurrent duplicate reply send (inquiry-reply-send-race-guard, mirroring
+ * recordStarterUpsellSent's CAS shape — not a one-shot "already replied"
+ * gate, since a later, deliberate follow-up reply must still succeed) can
+ * land in that window. Split out of src/lib/db.ts's recordClientInquiryReply
+ * SQLite-fallback branch — pure code move, no behavior change.
  */
 export function sqliteRecordClientInquiryReply(
   db: DatabaseSync,
   inquiryId: string,
   operatorReply: string,
+  expectedReplySentCount: number,
 ): ClientInquiry | null {
   const existing = db
     .prepare("SELECT * FROM client_inquiries WHERE id = ?")
     .get(inquiryId) as SqliteClientInquiryRow | undefined;
   if (!existing || existing.status === "archived") return null;
+  if ((existing.replySentCount ?? 0) !== expectedReplySentCount) return null;
 
   const now = new Date().toISOString();
   db.prepare(
     `UPDATE client_inquiries
-     SET status = ?, operatorReply = ?, repliedAt = ?, updatedAt = ?
+     SET status = ?, operatorReply = ?, repliedAt = ?, replySentCount = ?, updatedAt = ?
      WHERE id = ?`,
-  ).run("replied", operatorReply, now, now, inquiryId);
+  ).run("replied", operatorReply, now, expectedReplySentCount + 1, now, inquiryId);
 
   return mapClientInquiryRow({
     ...existing,
     status: "replied",
     operatorReply,
+    replySentCount: expectedReplySentCount + 1,
     repliedAt: now,
     updatedAt: now,
   });

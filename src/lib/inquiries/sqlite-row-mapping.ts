@@ -20,6 +20,7 @@ export interface SqliteClientInquiryRow {
   source: string | null;
   operatorReply: string | null;
   repliedAt: string | null;
+  replySentCount?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,6 +39,8 @@ export function mapClientInquiryRow(row: SqliteClientInquiryRow): ClientInquiry 
     source: row.source || undefined,
     operatorReply: row.operatorReply || undefined,
     repliedAt: row.repliedAt || undefined,
+    replySentCount:
+      typeof row.replySentCount === "number" ? row.replySentCount : undefined,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };

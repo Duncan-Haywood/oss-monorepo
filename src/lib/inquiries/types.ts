@@ -20,6 +20,14 @@ export interface ClientInquiry {
   operatorReply?: string;
   /** ISO timestamp of the last successful dashboard reply send. */
   repliedAt?: string;
+  /**
+   * CAS marker for replyToInquiryAction — mirrors leads.starterUpsellSentCount's
+   * expected-count pattern, not a one-shot "already replied" gate: a legitimate
+   * follow-up reply must still succeed later. Only rejects a write whose
+   * expectedReplySentCount no longer matches the row's current count (an exact
+   * concurrent duplicate). See inquiry-reply-send-race-guard.
+   */
+  replySentCount?: number;
   createdAt: string;
   updatedAt: string;
 }
