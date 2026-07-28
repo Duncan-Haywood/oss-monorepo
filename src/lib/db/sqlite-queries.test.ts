@@ -21,6 +21,8 @@ import {
   sqliteClearMarketingPackSentToClient,
   sqliteClearClientVoicePackSentToClient,
   sqliteUpdateDeployHandoffCustomDomain,
+  sqliteReserveBundleBuyerEmailNotes,
+  sqliteReleaseBundleBuyerEmailNotes,
   sqliteOrderAlreadyRecorded,
   sqliteRecordLeadPayment,
 } from "./sqlite-queries";
@@ -97,24 +99,25 @@ function insertCheckoutSessionDirect(
 function insertDeployHandoffDirect(
   db: DatabaseSync,
   leadSlug: string,
-  overrides: Partial<{ customDomain: string }> = {},
+  overrides: Partial<{ customDomain: string; stripeSessionId: string; notes: string[] }> = {},
 ): void {
   db.prepare(
     `INSERT INTO deploy_handoffs
-      (id, leadSlug, businessName, tier, stripeSessionId, customerEmail, previewUrl, suggestedHost, customDomain, contactFormUrl, dnsInstructions)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (id, leadSlug, businessName, tier, stripeSessionId, customerEmail, previewUrl, suggestedHost, customDomain, contactFormUrl, dnsInstructions, notes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     `handoff_${leadSlug}`,
     leadSlug,
     "Direct Insert Co",
     "starter",
-    `cs_${leadSlug}`,
+    overrides.stripeSessionId ?? `cs_${leadSlug}`,
     "owner@example.com",
     `https://example.com/preview/${leadSlug}`,
     `${leadSlug}.example.com`,
     overrides.customDomain ?? null,
     `https://example.com/api/contact/${leadSlug}`,
     "[]",
+    JSON.stringify(overrides.notes ?? []),
   );
 }
 
@@ -1082,6 +1085,122 @@ describe("sqliteUpdateDeployHandoffCustomDomain", () => {
       "2026-01-02T00:00:00.000Z",
     );
     expect(result?.customDomain).toBe("client.example.com");
+  });
+});
+
+describe("sqliteReserveBundleBuyerEmailNotes", () => {
+  it("returns null for an unknown leadSlug", () => {
+    const db = freshDb();
+    expect(
+      sqliteReserveBundleBuyerEmailNotes(
+        db,
+        "missing",
+        "cs_race",
+        true,
+        true,
+        "2026-01-02T00:00:00.000Z",
+      ),
+    ).toBeNull();
+  });
+
+  it("reserves both markers when neither is present, appending both notes atomically", () => {
+    const db = freshDb();
+    insertDeployHandoffDirect(db, "test-lead", { stripeSessionId: "cs_race" });
+    const result = sqliteReserveBundleBuyerEmailNotes(
+      db,
+      "test-lead",
+      "cs_race",
+      true,
+      true,
+      "2026-01-02T00:00:00.000Z",
+    );
+    expect(result?.reservedReceipt).toBe(true);
+    expect(result?.reservedDns).toBe(true);
+    expect(result?.handoff.notes).toEqual([
+      "Buyer receipt email sent — Stripe session cs_race",
+      "DNS handoff email sent — Stripe session cs_race",
+    ]);
+    const row = db
+      .prepare("SELECT notes FROM deploy_handoffs WHERE leadSlug = ?")
+      .get("test-lead") as { notes: string };
+    expect(JSON.parse(row.notes)).toEqual(result?.handoff.notes);
+  });
+
+  it("refuses to re-reserve a marker that's already present (prevents the duplicate-send race)", () => {
+    const db = freshDb();
+    insertDeployHandoffDirect(db, "test-lead", {
+      stripeSessionId: "cs_race",
+      notes: ["Buyer receipt email sent — Stripe session cs_race"],
+    });
+    const result = sqliteReserveBundleBuyerEmailNotes(
+      db,
+      "test-lead",
+      "cs_race",
+      true,
+      true,
+      "2026-01-02T00:00:00.000Z",
+    );
+    expect(result?.reservedReceipt).toBe(false);
+    expect(result?.reservedDns).toBe(true);
+    expect(result?.handoff.notes).toEqual([
+      "Buyer receipt email sent — Stripe session cs_race",
+      "DNS handoff email sent — Stripe session cs_race",
+    ]);
+  });
+
+  it("is a no-op read (no write) when nothing is wanted", () => {
+    const db = freshDb();
+    insertDeployHandoffDirect(db, "test-lead", { stripeSessionId: "cs_race" });
+    const result = sqliteReserveBundleBuyerEmailNotes(
+      db,
+      "test-lead",
+      "cs_race",
+      false,
+      false,
+      "2026-01-02T00:00:00.000Z",
+    );
+    expect(result?.reservedReceipt).toBe(false);
+    expect(result?.reservedDns).toBe(false);
+    expect(result?.handoff.notes).toEqual([]);
+    const row = db
+      .prepare("SELECT updatedAt FROM deploy_handoffs WHERE leadSlug = ?")
+      .get("test-lead") as { updatedAt: string };
+    expect(row.updatedAt).not.toBe("2026-01-02T00:00:00.000Z");
+  });
+});
+
+describe("sqliteReleaseBundleBuyerEmailNotes", () => {
+  it("returns false for an unknown leadSlug", () => {
+    const db = freshDb();
+    expect(
+      sqliteReleaseBundleBuyerEmailNotes(db, "missing", "cs_race", true, true),
+    ).toBe(false);
+  });
+
+  it("removes only the exact marker(s) requested and is a safe no-op when absent", () => {
+    const db = freshDb();
+    insertDeployHandoffDirect(db, "test-lead", {
+      stripeSessionId: "cs_race",
+      notes: [
+        "Buyer receipt email sent — Stripe session cs_race",
+        "DNS handoff email sent — Stripe session cs_race",
+      ],
+    });
+
+    expect(
+      sqliteReleaseBundleBuyerEmailNotes(db, "test-lead", "cs_race", true, false),
+    ).toBe(true);
+    const row = db
+      .prepare("SELECT notes FROM deploy_handoffs WHERE leadSlug = ?")
+      .get("test-lead") as { notes: string };
+    expect(JSON.parse(row.notes)).toEqual([
+      "DNS handoff email sent — Stripe session cs_race",
+    ]);
+
+    // A second release of the same (already-gone) marker is a safe no-op.
+    expect(
+      sqliteReleaseBundleBuyerEmailNotes(db, "test-lead", "cs_race", true, false),
+    ).toBe(false);
   });
 });
 

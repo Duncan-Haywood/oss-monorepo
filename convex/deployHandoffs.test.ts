@@ -237,6 +237,182 @@ test("updateStatus rejects a missing/wrong apiSecret and leaves the status uncha
   expect(found?.status).toBe("awaiting_dns");
 });
 
+test("reserveBuyerEmailNotes reserves both markers when neither is present, appending both notes atomically", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs({ stripeSessionId: "cs_race" }));
+
+  const result = await t.mutation(api.deployHandoffs.reserveBuyerEmailNotes, {
+    leadSlug: "demo-cafe",
+    stripeSessionId: "cs_race",
+    wantReceipt: true,
+    wantDns: true,
+    updatedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  expect(result?.reservedReceipt).toBe(true);
+  expect(result?.reservedDns).toBe(true);
+  expect(result?.handoff.notes).toEqual([
+    "Buyer receipt email sent — Stripe session cs_race",
+    "DNS handoff email sent — Stripe session cs_race",
+  ]);
+});
+
+test("reserveBuyerEmailNotes refuses to re-reserve a marker that's already present (prevents the duplicate-send race)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.deployHandoffs.upsert,
+    upsertArgs({
+      stripeSessionId: "cs_race",
+      notes: ["Buyer receipt email sent — Stripe session cs_race"],
+    }),
+  );
+
+  // Simulates a second concurrent call landing after the first already
+  // reserved+sent the receipt — only the still-absent DNS marker reserves.
+  const result = await t.mutation(api.deployHandoffs.reserveBuyerEmailNotes, {
+    leadSlug: "demo-cafe",
+    stripeSessionId: "cs_race",
+    wantReceipt: true,
+    wantDns: true,
+    updatedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  expect(result?.reservedReceipt).toBe(false);
+  expect(result?.reservedDns).toBe(true);
+  expect(result?.handoff.notes).toEqual([
+    "Buyer receipt email sent — Stripe session cs_race",
+    "DNS handoff email sent — Stripe session cs_race",
+  ]);
+});
+
+test("reserveBuyerEmailNotes is a no-op read when nothing is wanted, and returns null for an unknown lead", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs({ stripeSessionId: "cs_race" }));
+
+  const noop = await t.mutation(api.deployHandoffs.reserveBuyerEmailNotes, {
+    leadSlug: "demo-cafe",
+    stripeSessionId: "cs_race",
+    wantReceipt: false,
+    wantDns: false,
+    updatedAt: "2026-01-02T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(noop?.reservedReceipt).toBe(false);
+  expect(noop?.reservedDns).toBe(false);
+  expect(noop?.handoff.notes).toEqual([]);
+
+  await expect(
+    t.mutation(api.deployHandoffs.reserveBuyerEmailNotes, {
+      leadSlug: "no-such-lead",
+      stripeSessionId: "cs_race",
+      wantReceipt: true,
+      wantDns: true,
+      updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBeNull();
+});
+
+test("reserveBuyerEmailNotes rejects a missing/wrong apiSecret and leaves notes unchanged", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.deployHandoffs.upsert, upsertArgs({ stripeSessionId: "cs_race" }));
+
+  await expect(
+    t.mutation(api.deployHandoffs.reserveBuyerEmailNotes, {
+      leadSlug: "demo-cafe",
+      stripeSessionId: "cs_race",
+      wantReceipt: true,
+      wantDns: true,
+      updatedAt: "2026-01-02T00:00:00.000Z",
+      apiSecret: "wrong-secret",
+    }),
+  ).rejects.toThrow(/Unauthorized/);
+
+  const found = await t.query(api.deployHandoffs.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(found?.notes).toEqual([]);
+});
+
+test("releaseBuyerEmailNotes removes only the exact marker(s) requested, is a safe no-op when absent, and returns false for an unknown lead", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.deployHandoffs.upsert,
+    upsertArgs({
+      stripeSessionId: "cs_race",
+      notes: [
+        "Buyer receipt email sent — Stripe session cs_race",
+        "DNS handoff email sent — Stripe session cs_race",
+      ],
+    }),
+  );
+
+  const releasedReceipt = await t.mutation(api.deployHandoffs.releaseBuyerEmailNotes, {
+    leadSlug: "demo-cafe",
+    stripeSessionId: "cs_race",
+    releaseReceipt: true,
+    releaseDns: false,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(releasedReceipt).toBe(true);
+
+  const afterRelease = await t.query(api.deployHandoffs.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(afterRelease?.notes).toEqual(["DNS handoff email sent — Stripe session cs_race"]);
+
+  // A second release of the same (already-gone) marker is a safe no-op.
+  const secondRelease = await t.mutation(api.deployHandoffs.releaseBuyerEmailNotes, {
+    leadSlug: "demo-cafe",
+    stripeSessionId: "cs_race",
+    releaseReceipt: true,
+    releaseDns: false,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(secondRelease).toBe(false);
+
+  await expect(
+    t.mutation(api.deployHandoffs.releaseBuyerEmailNotes, {
+      leadSlug: "no-such-lead",
+      stripeSessionId: "cs_race",
+      releaseReceipt: true,
+      releaseDns: true,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+});
+
+test("releaseBuyerEmailNotes rejects a missing/wrong apiSecret and leaves notes unchanged", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.deployHandoffs.upsert,
+    upsertArgs({
+      stripeSessionId: "cs_race",
+      notes: ["Buyer receipt email sent — Stripe session cs_race"],
+    }),
+  );
+
+  await expect(
+    t.mutation(api.deployHandoffs.releaseBuyerEmailNotes, {
+      leadSlug: "demo-cafe",
+      stripeSessionId: "cs_race",
+      releaseReceipt: true,
+      releaseDns: false,
+      apiSecret: "wrong-secret",
+    }),
+  ).rejects.toThrow(/Unauthorized/);
+
+  const found = await t.query(api.deployHandoffs.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(found?.notes).toEqual(["Buyer receipt email sent — Stripe session cs_race"]);
+});
+
 test("updateVercelProject sets a dedicated project id, clears it on an empty/whitespace string, and returns null for an unknown lead", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.deployHandoffs.upsert, upsertArgs());

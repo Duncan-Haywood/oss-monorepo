@@ -4325,6 +4325,39 @@ source). The same digest also lists email-critical leads with no usable address 
         rest are reported skipped with a message telling the operator to re-run.
       </p>
 
+      <p>
+        <code>bundle-buyer-email-resend-race-guard-ordering-fix</code>: a research agent covering
+        this file&apos;s empty-backlog tiers found the fourth and final action in the
+        reserve-then-send race-guard series still on the older, weaker design —{" "}
+        <code>resendBundleBuyerEmailAction</code> (the operator&apos;s row-level remedy for{" "}
+        <code>isBundleHandoffMissingBuyerEmail</code>). Its own doc comment even named the gap: it
+        computed <code>needsReceipt</code>/<code>needsDns</code> from one stale read, sent the
+        receipt/DNS emails first, and only re-read the handoff <em>after</em> both sends completed
+        to check whether a concurrent invocation had already recorded the same marker note — this
+        could <em>detect</em> a lost race and warn the operator, but by then the real duplicate
+        transactional email had already gone out to the paying bundle buyer, so it could never
+        actually <em>prevent</em> the duplicate the way{" "}
+        <code>commerce-client-receipt-resend-race-guard-ordering-fix</code> and the marketing/voice
+        pack fixes above do for their own sends. Fixed by extending the same reserve-then-send
+        pattern to this handoff&apos;s notes-array marker shape: a new{" "}
+        <code>reserveBuyerEmailNotes</code> Convex mutation (plus the SQLite-fallback twin,{" "}
+        <code>sqliteReserveBundleBuyerEmailNotes</code>) atomically re-checks each requested
+        marker&apos;s absence and appends only the still-absent one(s) in the same write, returning
+        which marker(s) were actually reserved so the caller sends only what it now owns. A
+        concurrent invocation (a second open dashboard tab, or a double-click before the
+        button&apos;s <code>isPending</code>-disabled state applies) sees its wanted marker(s)
+        already reserved and skips the send entirely — the race is now closed <em>before</em> any
+        email goes out, not just reported afterward. A reserved send that then fails releases its
+        own marker via a new <code>releaseBuyerEmailNotes</code> mutation (exact string removal
+        from the notes array, a safe no-op if already gone) so the handoff correctly reappears in{" "}
+        <code>isBundleHandoffMissingBuyerEmail</code>&apos;s due-queue for a retry. The SQLite
+        fallback needs no explicit compare-and-swap token (unlike the scalar-field twins above):
+        its read-then-write is two synchronous <code>node:sqlite</code> calls with no{" "}
+        <code>await</code> between them, so no concurrent async call can interleave mid-reservation
+        — the same reasoning <code>updateDeployHandoffStatus</code>&apos;s own SQLite-fallback
+        branch already relies on for its notes-append.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

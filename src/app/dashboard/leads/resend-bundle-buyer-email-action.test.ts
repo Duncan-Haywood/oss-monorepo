@@ -11,15 +11,21 @@ import type { DeployHandoff } from "@/lib/deploy/types";
  *
  * Locks: requireOperatorAuth, per-IP rate limit, missing/empty/over-long
  * slug, handoff not-found, missing buyer email, both-already-sent guard,
- * sends only the still-missing half (receipt and/or DNS), writes only the
- * marker(s) for the half(s) that actually succeeded, partial-failure
- * reporting, DEPLOY_HANDOFF_CONVEX_PRIMARY persist + ConvexPrimaryWriteError
- * fail-closed, success revalidate, and the TOCTOU race guard
- * (bundle-buyer-email-resend-race-guard): a fresh re-read immediately before
- * persisting each sent-marker detects a concurrent invocation (a second tab,
- * or a double-click) that already recorded that marker first, and reports
- * success: false with an explicit duplicate-send warning instead of a false
- * success — mirroring resendCommerceClientReceiptAction's own race handling.
+ * sends only the still-missing half (receipt and/or DNS), reserves only the
+ * marker(s) for the half(s) actually sent, partial-failure reporting,
+ * DEPLOY_HANDOFF_CONVEX_PRIMARY reservation + ConvexPrimaryWriteError
+ * fail-closed, success revalidate.
+ *
+ * The sent-marker reservation now runs BEFORE the send and is released on a
+ * failed send (bundle-buyer-email-resend-race-guard-ordering-fix, mirroring
+ * commerce-client-receipt-resend-race-guard-ordering-fix /
+ * marketing-voice-pack-client-send-race-guard-ordering-fix) — this closes
+ * the prior version's gap, where a fresh re-read after both sends completed
+ * could only DETECT a lost race and warn the operator, never PREVENT the
+ * real duplicate email from having already gone out. See the "reserves
+ * before sending" / "skips the send when the race is already lost" /
+ * "releases the reservation on a failed send" tests below for the ordering
+ * this fix enforces.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -46,7 +52,8 @@ function headerStore(entries: Record<string, string | null> = {}) {
 }
 
 const getDeployHandoffBySlug = vi.fn();
-const updateDeployHandoffStatus = vi.fn();
+const reserveBundleBuyerEmailNotes = vi.fn();
+const releaseBundleBuyerEmailNotes = vi.fn();
 const getOrderByStripeSessionId = vi.fn();
 
 vi.mock("@/lib/db", () => ({
@@ -79,7 +86,8 @@ vi.mock("@/lib/db", () => ({
   listClientVoicePacks: vi.fn(),
   listUnpaidCommerceOrders: vi.fn(),
   getDeployHandoffBySlug: (...args: unknown[]) => getDeployHandoffBySlug(...args),
-  updateDeployHandoffStatus: (...args: unknown[]) => updateDeployHandoffStatus(...args),
+  reserveBundleBuyerEmailNotes: (...args: unknown[]) => reserveBundleBuyerEmailNotes(...args),
+  releaseBundleBuyerEmailNotes: (...args: unknown[]) => releaseBundleBuyerEmailNotes(...args),
   getOrderByStripeSessionId: (...args: unknown[]) => getOrderByStripeSessionId(...args),
 }));
 
@@ -138,6 +146,23 @@ function sampleHandoff(overrides: Partial<DeployHandoff> = {}): DeployHandoff {
 
 const missingBothHandoff = sampleHandoff();
 
+/** Default reservation mock: reserves exactly what's asked, mirroring the real mutation. */
+function reserveBothByDefault(
+  _leadSlug: string,
+  stripeSessionId: string,
+  wantReceipt: boolean,
+  wantDns: boolean,
+) {
+  const notesToAdd: string[] = [];
+  if (wantReceipt) notesToAdd.push(`Buyer receipt email sent — Stripe session ${stripeSessionId}`);
+  if (wantDns) notesToAdd.push(`DNS handoff email sent — Stripe session ${stripeSessionId}`);
+  return Promise.resolve({
+    handoff: { ...missingBothHandoff, notes: notesToAdd },
+    reservedReceipt: wantReceipt,
+    reservedDns: wantDns,
+  });
+}
+
 describe("resendBundleBuyerEmailAction", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -146,12 +171,8 @@ describe("resendBundleBuyerEmailAction", () => {
     revalidatePath.mockReset();
     getDeployHandoffBySlug.mockReset().mockResolvedValue(missingBothHandoff);
     getOrderByStripeSessionId.mockReset().mockResolvedValue({ amountPaid: 599 });
-    updateDeployHandoffStatus.mockReset().mockImplementation(
-      async (leadSlug: string, status: string, notes: string[]) => ({
-        ...sampleHandoff({ leadSlug, status: status as DeployHandoff["status"] }),
-        notes,
-      }),
-    );
+    reserveBundleBuyerEmailNotes.mockReset().mockImplementation(reserveBothByDefault);
+    releaseBundleBuyerEmailNotes.mockReset().mockResolvedValue(true);
     sendReceiptEmail.mockReset().mockResolvedValue({ success: true });
     sendBundleDnsHandoffEmail.mockReset().mockResolvedValue({ success: true });
   });
@@ -208,6 +229,7 @@ describe("resendBundleBuyerEmailAction", () => {
       success: false,
       error: "No deploy handoff found for this lead",
     });
+    expect(reserveBundleBuyerEmailNotes).not.toHaveBeenCalled();
     expect(sendReceiptEmail).not.toHaveBeenCalled();
     expect(sendBundleDnsHandoffEmail).not.toHaveBeenCalled();
   });
@@ -220,6 +242,7 @@ describe("resendBundleBuyerEmailAction", () => {
       success: false,
       error: "No buyer email on file for this handoff",
     });
+    expect(reserveBundleBuyerEmailNotes).not.toHaveBeenCalled();
     expect(sendReceiptEmail).not.toHaveBeenCalled();
   });
 
@@ -238,14 +261,28 @@ describe("resendBundleBuyerEmailAction", () => {
       success: false,
       error: "Both buyer emails were already sent for this handoff",
     });
+    expect(reserveBundleBuyerEmailNotes).not.toHaveBeenCalled();
     expect(sendReceiptEmail).not.toHaveBeenCalled();
     expect(sendBundleDnsHandoffEmail).not.toHaveBeenCalled();
   });
 
-  it("sends both emails, writes both markers, and revalidates when both are missing", async () => {
+  it("reserves before sending, sends both emails, and revalidates when both are missing", async () => {
     const { resendBundleBuyerEmailAction } = await import("./actions");
     const res = await resendBundleBuyerEmailAction("demo-cafe");
     expect(res.success).toBe(true);
+    expect(reserveBundleBuyerEmailNotes).toHaveBeenCalledWith(
+      "demo-cafe",
+      "cs_test_1",
+      true,
+      true,
+      { requireConvex: true },
+    );
+    // Reservation happens before either send.
+    const reserveOrder = reserveBundleBuyerEmailNotes.mock.invocationCallOrder[0];
+    const receiptOrder = sendReceiptEmail.mock.invocationCallOrder[0];
+    const dnsOrder = sendBundleDnsHandoffEmail.mock.invocationCallOrder[0];
+    expect(reserveOrder).toBeLessThan(receiptOrder);
+    expect(reserveOrder).toBeLessThan(dnsOrder);
     expect(sendReceiptEmail).toHaveBeenCalledWith(
       "owner@demo-cafe.test",
       "Demo Cafe",
@@ -258,33 +295,25 @@ describe("resendBundleBuyerEmailAction", () => {
       slug: "demo-cafe",
       handoff: missingBothHandoff,
     });
-    expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
-      "demo-cafe",
-      "awaiting_dns",
-      [
-        "Buyer receipt email sent — Stripe session cs_test_1",
-        "DNS handoff email sent — Stripe session cs_test_1",
-      ],
-      { requireConvex: true },
-    );
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("sends only the missing half when the receipt was already sent", async () => {
+  it("only reserves and sends the missing half when the receipt was already sent", async () => {
     getDeployHandoffBySlug.mockResolvedValue(
       sampleHandoff({ notes: ["Buyer receipt email sent — Stripe session cs_test_1"] }),
     );
     const { resendBundleBuyerEmailAction } = await import("./actions");
     const res = await resendBundleBuyerEmailAction("demo-cafe");
     expect(res.success).toBe(true);
-    expect(sendReceiptEmail).not.toHaveBeenCalled();
-    expect(sendBundleDnsHandoffEmail).toHaveBeenCalledOnce();
-    expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
+    expect(reserveBundleBuyerEmailNotes).toHaveBeenCalledWith(
       "demo-cafe",
-      "awaiting_dns",
-      ["DNS handoff email sent — Stripe session cs_test_1"],
+      "cs_test_1",
+      false,
+      true,
       { requireConvex: true },
     );
+    expect(sendReceiptEmail).not.toHaveBeenCalled();
+    expect(sendBundleDnsHandoffEmail).toHaveBeenCalledOnce();
   });
 
   it("falls back to $0 when no bundle order is found for the amount lookup", async () => {
@@ -294,24 +323,20 @@ describe("resendBundleBuyerEmailAction", () => {
     expect(sendReceiptEmail).toHaveBeenCalledWith("owner@demo-cafe.test", "Demo Cafe", "growth", 0);
   });
 
-  it("reports a partial failure and still writes the marker for the half that succeeded", async () => {
+  it("reports a partial failure, releases the failed half's reservation, and keeps the other marker", async () => {
     sendBundleDnsHandoffEmail.mockResolvedValue({ success: false, error: "Resend 500" });
     const { resendBundleBuyerEmailAction } = await import("./actions");
     const res = await resendBundleBuyerEmailAction("demo-cafe");
     expect(res.success).toBe(false);
     if (res.success) throw new Error("expected failure");
     expect(res.error).toContain("Sent the receipt email");
+    expect(res.error).toContain("DNS handoff");
     expect(res.handoff).toBeDefined();
-    expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
-      "demo-cafe",
-      "awaiting_dns",
-      ["Buyer receipt email sent — Stripe session cs_test_1"],
-      { requireConvex: true },
-    );
+    expect(releaseBundleBuyerEmailNotes).toHaveBeenCalledWith("demo-cafe", "cs_test_1", false, true);
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("returns a failure without writing any marker when both sends fail", async () => {
+  it("releases both reservations and reports failure when both sends fail", async () => {
     sendReceiptEmail.mockResolvedValue({ success: false, error: "Resend 500" });
     sendBundleDnsHandoffEmail.mockResolvedValue({ success: false, error: "Resend 500" });
     const { resendBundleBuyerEmailAction } = await import("./actions");
@@ -319,103 +344,93 @@ describe("resendBundleBuyerEmailAction", () => {
     expect(res).toEqual({
       success: false,
       error: "Failed to send the buyer email(s) — check Resend delivery status and try again",
+      handoff: expect.anything(),
     });
-    expect(updateDeployHandoffStatus).not.toHaveBeenCalled();
-    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(releaseBundleBuyerEmailNotes).toHaveBeenCalledWith("demo-cafe", "cs_test_1", true, false);
+    expect(releaseBundleBuyerEmailNotes).toHaveBeenCalledWith("demo-cafe", "cs_test_1", false, true);
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("reports the send-succeeded-but-marker-failed case distinctly on ConvexPrimaryWriteError, without revalidate", async () => {
-    updateDeployHandoffStatus.mockRejectedValue(new MockConvexPrimaryWriteError("mutation failed"));
+  it("skips the send entirely and reports the race when the reservation fails closed on ConvexPrimaryWriteError", async () => {
+    reserveBundleBuyerEmailNotes.mockRejectedValue(new MockConvexPrimaryWriteError("mutation failed"));
     const { resendBundleBuyerEmailAction } = await import("./actions");
     const res = await resendBundleBuyerEmailAction("demo-cafe");
     expect(res).toEqual({
       success: false,
       error:
-        "Buyer email was sent but the sent-marker could not be recorded in the shared store — it may show as missing again until this is retried.",
+        "Could not reserve the sent-marker(s) in the shared store — no email was sent. Retry in a moment.",
     });
+    expect(sendReceiptEmail).not.toHaveBeenCalled();
+    expect(sendBundleDnsHandoffEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("surfaces a null updateDeployHandoffStatus result (handoff vanished mid-request) as not-found", async () => {
-    updateDeployHandoffStatus.mockResolvedValue(null);
+  it("surfaces unexpected reservation errors as action failures", async () => {
+    reserveBundleBuyerEmailNotes.mockRejectedValue(new Error("disk full"));
+    const { resendBundleBuyerEmailAction } = await import("./actions");
+    const res = await resendBundleBuyerEmailAction("demo-cafe");
+    expect(res).toEqual({ success: false, error: "disk full" });
+    expect(sendReceiptEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("surfaces a null reservation result (handoff vanished mid-request) as not-found", async () => {
+    reserveBundleBuyerEmailNotes.mockResolvedValue(null);
     const { resendBundleBuyerEmailAction } = await import("./actions");
     const res = await resendBundleBuyerEmailAction("demo-cafe");
     expect(res).toEqual({
       success: false,
       error: "No deploy handoff found for this lead",
     });
+    expect(sendReceiptEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("surfaces unexpected marker-persist errors as action failures", async () => {
-    updateDeployHandoffStatus.mockRejectedValue(new Error("disk full"));
-    const { resendBundleBuyerEmailAction } = await import("./actions");
-    const res = await resendBundleBuyerEmailAction("demo-cafe");
-    expect(res).toEqual({ success: false, error: "disk full" });
-    expect(revalidatePath).not.toHaveBeenCalled();
-  });
-
-  it("reports a possible duplicate send when a concurrent request already recorded the receipt marker", async () => {
-    // Initial read: both missing. Fresh re-check (after both sends complete):
-    // a concurrent invocation already wrote the receipt marker in between.
-    getDeployHandoffBySlug
-      .mockResolvedValueOnce(missingBothHandoff)
-      .mockResolvedValueOnce(
-        sampleHandoff({ notes: ["Buyer receipt email sent — Stripe session cs_test_1"] }),
-      );
-    const { resendBundleBuyerEmailAction } = await import("./actions");
-    const res = await resendBundleBuyerEmailAction("demo-cafe");
-    expect(res.success).toBe(false);
-    if (res.success) throw new Error("expected failure");
-    expect(res.error).toContain("receipt");
-    expect(res.error).toContain("duplicate notification email");
-    // Both emails really were sent by this call — only the DNS marker (the
-    // one NOT already present on the fresh read) gets persisted; writing the
-    // receipt marker again would just double it up in the notes array.
-    expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
-      "demo-cafe",
-      "awaiting_dns",
-      ["DNS handoff email sent — Stripe session cs_test_1"],
-      { requireConvex: true },
-    );
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
-  });
-
-  it("reports a possible duplicate send when a concurrent request already recorded the DNS marker", async () => {
-    getDeployHandoffBySlug
-      .mockResolvedValueOnce(missingBothHandoff)
-      .mockResolvedValueOnce(
-        sampleHandoff({ notes: ["DNS handoff email sent — Stripe session cs_test_1"] }),
-      );
-    const { resendBundleBuyerEmailAction } = await import("./actions");
-    const res = await resendBundleBuyerEmailAction("demo-cafe");
-    expect(res.success).toBe(false);
-    if (res.success) throw new Error("expected failure");
-    expect(res.error).toContain("DNS handoff");
-    expect(res.error).toContain("duplicate notification email");
-    expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
-      "demo-cafe",
-      "awaiting_dns",
-      ["Buyer receipt email sent — Stripe session cs_test_1"],
-      { requireConvex: true },
-    );
-  });
-
-  it("skips the marker write entirely and still reports the duplicate when both markers lost the race", async () => {
-    const fresh = sampleHandoff({
-      notes: [
-        "Buyer receipt email sent — Stripe session cs_test_1",
-        "DNS handoff email sent — Stripe session cs_test_1",
-      ],
+  it("skips both sends entirely — no email goes out — when a concurrent request already reserved both markers", async () => {
+    reserveBundleBuyerEmailNotes.mockResolvedValue({
+      handoff: missingBothHandoff,
+      reservedReceipt: false,
+      reservedDns: false,
     });
-    getDeployHandoffBySlug.mockResolvedValueOnce(missingBothHandoff).mockResolvedValueOnce(fresh);
     const { resendBundleBuyerEmailAction } = await import("./actions");
     const res = await resendBundleBuyerEmailAction("demo-cafe");
     expect(res.success).toBe(false);
     if (res.success) throw new Error("expected failure");
-    expect(res.error).toContain("receipt and DNS handoff");
-    expect(res.handoff).toEqual(fresh);
-    expect(updateDeployHandoffStatus).not.toHaveBeenCalled();
+    expect(res.error).toContain("already sent (or reserved) by a concurrent request");
+    expect(sendReceiptEmail).not.toHaveBeenCalled();
+    expect(sendBundleDnsHandoffEmail).not.toHaveBeenCalled();
+    // This is the fix over the old detect-after-send guard: the race is
+    // caught BEFORE any email is sent, not just reported afterward.
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("sends only the reserved half and reports the other as already claimed when the race is lost for one marker", async () => {
+    reserveBundleBuyerEmailNotes.mockResolvedValue({
+      handoff: { ...missingBothHandoff, notes: ["DNS handoff email sent — Stripe session cs_test_1"] },
+      reservedReceipt: false,
+      reservedDns: true,
+    });
+    const { resendBundleBuyerEmailAction } = await import("./actions");
+    const res = await resendBundleBuyerEmailAction("demo-cafe");
+    expect(res.success).toBe(false);
+    if (res.success) throw new Error("expected failure");
+    expect(sendReceiptEmail).not.toHaveBeenCalled();
+    expect(sendBundleDnsHandoffEmail).toHaveBeenCalledOnce();
+    expect(res.error).toContain("Sent the DNS handoff email");
+    expect(res.error).toContain("receipt");
+    expect(res.error).toContain("already sent (or reserved) by a concurrent request");
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("logs but does not fail the action when the best-effort release itself fails after a send failure", async () => {
+    sendReceiptEmail.mockResolvedValue({ success: false, error: "Resend 500" });
+    releaseBundleBuyerEmailNotes.mockRejectedValue(new Error("release failed"));
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { resendBundleBuyerEmailAction } = await import("./actions");
+    const res = await resendBundleBuyerEmailAction("demo-cafe");
+    expect(res.success).toBe(false);
+    if (res.success) throw new Error("expected failure");
+    expect(res.error).toContain("Sent the DNS handoff email");
+    consoleErrorSpy.mockRestore();
   });
 });

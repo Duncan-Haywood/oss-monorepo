@@ -47,7 +47,8 @@ import {
   listDeployHandoffs,
   getLeadSlugByCustomDomain,
   getDeployHandoffBySlug,
-  updateDeployHandoffStatus,
+  reserveBundleBuyerEmailNotes,
+  releaseBundleBuyerEmailNotes,
   getOrderByStripeSessionId,
   updateLeadStripeConnectAccountId,
   updateLeadStripeConnectStatus,
@@ -166,8 +167,6 @@ import {
 import {
   hasBundleReceiptEmailNote,
   hasBundleDnsHandoffEmailNote,
-  bundleReceiptEmailSentNote,
-  bundleDnsHandoffEmailSentNote,
 } from "@/lib/payments/bundle-side-effect-recovery";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
@@ -1873,14 +1872,22 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
  * second click after a partial failure only retries the outstanding half,
  * since the marker for any half that already succeeded was already written.
  *
- * Re-reads the handoff immediately before persisting each sent-marker and
- * reports success: false with an explicit duplicate-send warning if a
- * concurrent invocation (a second tab, or a double-click before the button's
- * isPending-disabled state takes effect) already recorded that marker first —
- * this action's initial needsReceipt/needsDns check alone is not atomic, and
- * without this re-check both concurrent calls would send a real duplicate
- * email and both would silently report success: true (see
- * bundle-buyer-email-resend-race-guard).
+ * Reserves each wanted marker BEFORE sending via reserveBundleBuyerEmailNotes
+ * (see bundle-buyer-email-resend-race-guard-ordering-fix) — this function
+ * previously only detected a lost race AFTER both sends completed, which
+ * could report a duplicate-send warning but could never actually prevent the
+ * real duplicate email that had already gone out by then (the same
+ * mark-after-send anti-pattern already fixed on every sibling send guard:
+ * starter-upsell-stripe-connect-send-race-guard-ordering-fix,
+ * marketing-voice-pack-client-send-race-guard-ordering-fix,
+ * commerce-client-receipt-resend-race-guard-ordering-fix). A concurrent
+ * invocation (a second open dashboard tab, or a double-click before the
+ * button's isPending-disabled state applies) now sees its wanted marker(s)
+ * already reserved and is told not to send, instead of both calls sending a
+ * real duplicate email to the paying buyer before either persists a marker.
+ * A reserved send that then fails releases its own marker via
+ * releaseBundleBuyerEmailNotes so it correctly reappears as not-yet-sent for
+ * a retry.
  */
 export async function resendBundleBuyerEmailAction(leadSlug: string) {
   try {
@@ -1925,10 +1932,43 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
       };
     }
 
+    let reservation;
+    try {
+      reservation = await reserveBundleBuyerEmailNotes(
+        slug,
+        handoff.stripeSessionId,
+        needsReceipt,
+        needsDns,
+        DEPLOY_HANDOFF_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not reserve the sent-marker(s) in the shared store — no email was sent. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
+    if (!reservation) {
+      return { success: false as const, error: "No deploy handoff found for this lead" };
+    }
+    const { reservedReceipt, reservedDns } = reservation;
+
+    if (!reservedReceipt && !reservedDns) {
+      return {
+        success: false as const,
+        error:
+          "Both buyer emails were already sent (or reserved) by a concurrent request — skipped duplicate send.",
+        handoff: reservation.handoff,
+      };
+    }
+
     let sentReceipt = false;
     let sentDns = false;
 
-    if (needsReceipt) {
+    if (reservedReceipt) {
       const order = await getOrderByStripeSessionId(handoff.stripeSessionId);
       const sent = await sendReceiptEmail(
         to,
@@ -1938,10 +1978,19 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
       );
       if (sent.success) {
         sentReceipt = true;
+      } else {
+        try {
+          await releaseBundleBuyerEmailNotes(slug, handoff.stripeSessionId, true, false);
+        } catch (releaseError) {
+          console.error(
+            `Failed to release bundle buyer receipt reservation for ${slug} after a failed send:`,
+            releaseError,
+          );
+        }
       }
     }
 
-    if (needsDns) {
+    if (reservedDns) {
       const sent = await sendBundleDnsHandoffEmail({
         to,
         businessName: handoff.businessName,
@@ -1950,103 +1999,58 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
       });
       if (sent.success) {
         sentDns = true;
-      }
-    }
-
-    if (!sentReceipt && !sentDns) {
-      return {
-        success: false as const,
-        error: "Failed to send the buyer email(s) — check Resend delivery status and try again",
-      };
-    }
-
-    // TOCTOU race guard: re-read the handoff immediately before persisting the
-    // sent-marker(s), mirroring markCommerceOrderClientReceiptSent /
-    // scheduleMarketingPackToBufferAction's re-read-then-merge pattern. A
-    // concurrent invocation (a second open dashboard tab, or a double-click
-    // landing before the button's isPending-disabled state takes effect) can
-    // read this same stale "not yet sent" snapshot above, send its own real
-    // email, and persist its own marker in the window between our initial
-    // read and this write — this function's own doc comment claims to mirror
-    // resendCommerceClientReceiptAction, but only copied its sequential-retry
-    // behavior, not its atomic race guard. We cannot un-send a duplicate email
-    // already in flight, but re-checking against a fresh read lets us avoid
-    // double-appending the same marker note and tell the operator a duplicate
-    // notification may have gone out, instead of silently reporting an
-    // unconditional success (same class as commerce-order-paid-out-race-message-accuracy).
-    const freshHandoff = await getDeployHandoffBySlug(slug);
-    const freshNotes = freshHandoff?.notes ?? handoff.notes;
-    const notesToAppend: string[] = [];
-    let receiptRaceLost = false;
-    let dnsRaceLost = false;
-    if (sentReceipt) {
-      if (hasBundleReceiptEmailNote(freshNotes, handoff.stripeSessionId)) {
-        receiptRaceLost = true;
       } else {
-        notesToAppend.push(bundleReceiptEmailSentNote(handoff.stripeSessionId));
-      }
-    }
-    if (sentDns) {
-      if (hasBundleDnsHandoffEmailNote(freshNotes, handoff.stripeSessionId)) {
-        dnsRaceLost = true;
-      } else {
-        notesToAppend.push(bundleDnsHandoffEmailSentNote(handoff.stripeSessionId));
-      }
-    }
-
-    let updated = handoff;
-    if (notesToAppend.length > 0) {
-      let writeResult;
-      try {
-        writeResult = await updateDeployHandoffStatus(
-          slug,
-          handoff.status,
-          notesToAppend,
-          DEPLOY_HANDOFF_CONVEX_PRIMARY,
-        );
-      } catch (error) {
-        if (error instanceof ConvexPrimaryWriteError) {
-          return {
-            success: false as const,
-            error:
-              "Buyer email was sent but the sent-marker could not be recorded in the shared store — it may show as missing again until this is retried.",
-          };
+        try {
+          await releaseBundleBuyerEmailNotes(slug, handoff.stripeSessionId, false, true);
+        } catch (releaseError) {
+          console.error(
+            `Failed to release bundle buyer DNS-handoff reservation for ${slug} after a failed send:`,
+            releaseError,
+          );
         }
-        throw error;
       }
-      if (!writeResult) {
-        return { success: false as const, error: "No deploy handoff found for this lead" };
-      }
-      updated = writeResult;
-    } else if (freshHandoff) {
-      updated = freshHandoff;
     }
 
     revalidatePath("/dashboard/leads");
 
-    const allSent = (!needsReceipt || sentReceipt) && (!needsDns || sentDns);
-    if (!allSent) {
-      const sentLabel = [sentReceipt && "receipt", sentDns && "DNS handoff"]
-        .filter(Boolean)
-        .join(" and ");
+    const raceLostLabels = [
+      needsReceipt && !reservedReceipt && "receipt",
+      needsDns && !reservedDns && "DNS handoff",
+    ].filter((label): label is string => Boolean(label));
+    const sentLabels = [sentReceipt && "receipt", sentDns && "DNS handoff"].filter(
+      (label): label is string => Boolean(label),
+    );
+    const sendFailedLabels = [
+      reservedReceipt && !sentReceipt && "receipt",
+      reservedDns && !sentDns && "DNS handoff",
+    ].filter((label): label is string => Boolean(label));
+
+    if (sentLabels.length === 0) {
       return {
         success: false as const,
-        error: `Sent the ${sentLabel} email, but the other one failed to send — click Resend again to retry just that one.`,
-        handoff: updated,
+        error:
+          sendFailedLabels.length > 0
+            ? "Failed to send the buyer email(s) — check Resend delivery status and try again"
+            : `The ${raceLostLabels.join(" and ")} email was already sent (or reserved) by a concurrent request — this click sent nothing.`,
+        handoff: reservation.handoff,
       };
     }
 
-    if (receiptRaceLost || dnsRaceLost) {
-      const raceLabel = [receiptRaceLost && "receipt", dnsRaceLost && "DNS handoff"]
-        .filter(Boolean)
-        .join(" and ");
+    if (sendFailedLabels.length > 0 || raceLostLabels.length > 0) {
+      const causeLabel =
+        sendFailedLabels.length > 0 ? sendFailedLabels.join(" and ") : raceLostLabels.join(" and ");
+      const causeReason =
+        sendFailedLabels.length > 0
+          ? "failed to send — click Resend again to retry just that one"
+          : "was already sent (or reserved) by a concurrent request";
       return {
         success: false as const,
-        error: `The ${raceLabel} email was already marked sent by a concurrent request (e.g. a second tab or a duplicate click) — this click may have sent a duplicate notification email.`,
-        handoff: updated,
+        error: `Sent the ${sentLabels.join(" and ")} email, but the ${causeLabel} ${causeReason}.`,
+        handoff: reservation.handoff,
       };
     }
-    return { success: true as const, handoff: updated };
+
+    return { success: true as const, handoff: reservation.handoff };
   } catch (error) {
     console.error("Error in resendBundleBuyerEmailAction:", error);
     return {
