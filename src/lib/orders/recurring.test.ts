@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  existingRecurringStripeCustomerId,
   invoiceIsSubscriptionRenewalCharge,
   invoicePaidMayRestoreRecurringEntitlement,
   invoicePaymentFailedPausesRecurringEntitlement,
@@ -12,6 +13,8 @@ import {
   orderHadRecurringEntitlement,
   orderHasActiveRecurringEntitlement,
   orderRecurringIsCanceled,
+  otherLiveRecurringStripeCustomerIdsToSupersede,
+  stripeSubscriptionCancellationWasInternalSupersede,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
@@ -64,6 +67,132 @@ describe("orderHasActiveRecurringEntitlement", () => {
         commerceAddon: false,
         recurringCanceledAt: undefined,
       }),
+    ).toBe(false);
+  });
+});
+
+describe("existingRecurringStripeCustomerId", () => {
+  it("returns the Customer id of a live recurring order", () => {
+    expect(
+      existingRecurringStripeCustomerId([
+        { tier: "starter", commerceAddon: false, stripeCustomerId: undefined },
+        { tier: "growth", commerceAddon: false, stripeCustomerId: "cus_growth" },
+      ]),
+    ).toBe("cus_growth");
+  });
+
+  it("skips a canceled recurring order and returns null when none are live", () => {
+    expect(
+      existingRecurringStripeCustomerId([
+        {
+          tier: "growth",
+          commerceAddon: false,
+          stripeCustomerId: "cus_canceled",
+          recurringCanceledAt: 1_720_000_000_000,
+        },
+      ]),
+    ).toBeNull();
+  });
+
+  it("returns null for a lead with no orders at all (first-time checkout)", () => {
+    expect(existingRecurringStripeCustomerId([])).toBeNull();
+  });
+
+  it("skips a live recurring order missing a Customer id", () => {
+    expect(
+      existingRecurringStripeCustomerId([
+        { tier: "growth", commerceAddon: false, stripeCustomerId: "" },
+      ]),
+    ).toBeNull();
+  });
+});
+
+describe("otherLiveRecurringStripeCustomerIdsToSupersede", () => {
+  const growthOrder = {
+    stripeSessionId: "cs_old_growth",
+    stripeCustomerId: "cus_old",
+    tier: "growth",
+    commerceAddon: false,
+  };
+
+  it("returns the prior live recurring Customer id when a second subscription lands", () => {
+    expect(
+      otherLiveRecurringStripeCustomerIdsToSupersede(
+        [growthOrder],
+        "cs_new_complete",
+        "cus_new",
+      ),
+    ).toEqual(["cus_old"]);
+  });
+
+  it("excludes the just-completed session's own order", () => {
+    expect(
+      otherLiveRecurringStripeCustomerIdsToSupersede(
+        [{ ...growthOrder, stripeSessionId: "cs_new_complete" }],
+        "cs_new_complete",
+        "cus_new",
+      ),
+    ).toEqual([]);
+  });
+
+  it("excludes an order sharing the new session's own Customer id (Billing Portal resync, not a duplicate)", () => {
+    expect(
+      otherLiveRecurringStripeCustomerIdsToSupersede(
+        [{ ...growthOrder, stripeCustomerId: "cus_new" }],
+        "cs_new_complete",
+        "cus_new",
+      ),
+    ).toEqual([]);
+  });
+
+  it("excludes an already-canceled prior order", () => {
+    expect(
+      otherLiveRecurringStripeCustomerIdsToSupersede(
+        [{ ...growthOrder, recurringCanceledAt: 1_720_000_000_000 }],
+        "cs_new_complete",
+        "cus_new",
+      ),
+    ).toEqual([]);
+  });
+
+  it("dedupes when multiple stray orders share the same superseded Customer id", () => {
+    expect(
+      otherLiveRecurringStripeCustomerIdsToSupersede(
+        [growthOrder, { ...growthOrder, stripeSessionId: "cs_old_growth_2" }],
+        "cs_new_complete",
+        "cus_new",
+      ),
+    ).toEqual(["cus_old"]);
+  });
+
+  it("returns empty for a genuinely first-time recurring checkout (no prior orders)", () => {
+    expect(otherLiveRecurringStripeCustomerIdsToSupersede([], "cs_new_complete", "cus_new")).toEqual(
+      [],
+    );
+  });
+});
+
+describe("stripeSubscriptionCancellationWasInternalSupersede", () => {
+  it("recognizes this app's own supersede-cleanup cancellation comment", () => {
+    expect(
+      stripeSubscriptionCancellationWasInternalSupersede({
+        cancellation_details: { comment: "superseded_by_recurring_upgrade" },
+      }),
+    ).toBe(true);
+  });
+
+  it("returns false for a genuine customer-initiated cancellation", () => {
+    expect(
+      stripeSubscriptionCancellationWasInternalSupersede({
+        cancellation_details: { comment: "too_expensive" },
+      }),
+    ).toBe(false);
+  });
+
+  it("returns false when cancellation_details is absent", () => {
+    expect(stripeSubscriptionCancellationWasInternalSupersede({})).toBe(false);
+    expect(
+      stripeSubscriptionCancellationWasInternalSupersede({ cancellation_details: null }),
     ).toBe(false);
   });
 });

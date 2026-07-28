@@ -43,6 +43,9 @@ import {
   orderEligibleForPauseNotice,
   orderGrantsSoldCapabilityEntitlement,
   orderHadRecurringEntitlement,
+  otherLiveRecurringStripeCustomerIdsToSupersede,
+  SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT,
+  stripeSubscriptionCancellationWasInternalSupersede,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
@@ -1035,6 +1038,70 @@ export async function POST(request: Request) {
           return NextResponse.json(failure.body, { status: failure.status });
         }
 
+        // A recurring order for this lead can supersede an earlier
+        // still-active recurring order for the SAME lead under a DIFFERENT
+        // Stripe Customer — e.g. the Growth→Complete upsell email's
+        // checkout link. existingRecurringStripeCustomerId (checkout route)
+        // now reuses the existing Customer for a fresh session going
+        // forward, but a lead can still end up with two live recurring
+        // orders (a pre-fix session, a race between two concurrent
+        // sessions, or any future recurring re-checkout path). Cancel the
+        // superseded Subscription(s) so the customer is not billed twice.
+        // Best-effort: a failure here is captured but does not fail this
+        // response — the new order is already correctly recorded above, and
+        // forcing a Stripe redelivery would re-run the receipt/DNS emails
+        // below, a worse trade-off than a rare missed cancellation
+        // surfacing only via captureError. See
+        // stripe-checkout-recurring-upgrade-dedup.
+        if (Boolean(bundle.monthlyPriceIdEnv) || commerceAddon) {
+          try {
+            const { listOrdersByLeadSlug } = await import("@/lib/db");
+            const leadOrders = await listOrdersByLeadSlug(slug);
+            const supersededCustomerIds = otherLiveRecurringStripeCustomerIdsToSupersede(
+              leadOrders,
+              session.id,
+              stripeCustomerId,
+            );
+            for (const supersededCustomerId of supersededCustomerIds) {
+              const activeSubscriptions = await stripe.subscriptions.list({
+                customer: supersededCustomerId,
+                status: "active",
+              });
+              for (const activeSubscription of activeSubscriptions.data) {
+                // cancellation_details.comment survives onto the resulting
+                // customer.subscription.deleted event so that handler's
+                // win-back notice can tell this apart from a genuine
+                // customer-initiated cancellation and skip it — see
+                // stripeSubscriptionCancellationWasInternalSupersede.
+                await stripe.subscriptions.cancel(activeSubscription.id, {
+                  cancellation_details: {
+                    comment: SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT,
+                  },
+                });
+                console.log(
+                  `webhook: canceled superseded subscription ${activeSubscription.id} (customer ${supersededCustomerId}) for ${slug} after ${session.id} recurring upgrade`,
+                );
+              }
+              await markOrdersRecurringCanceledByCustomer(
+                supersededCustomerId,
+                Date.now(),
+                WEBHOOK_CONVEX_PRIMARY,
+              );
+            }
+          } catch (e) {
+            console.error(
+              `Failed to cancel superseded recurring subscription(s) for ${slug} after ${session.id}`,
+              e,
+            );
+            await captureError(e, {
+              component: "stripe-webhook",
+              eventType: event.type,
+              eventId: event.id,
+              failureKind: "supersede_recurring_subscription",
+            });
+          }
+        }
+
         // alreadyRecorded must NOT early-break past buyer emails: if the first
         // delivery recorded payment/handoff then failed before Resend, Stripe
         // retries must still recover receipt + DNS handoff emails. Durable
@@ -1287,6 +1354,15 @@ export async function POST(request: Request) {
       // sites: markOrdersRecurringCanceledByCustomer above just set
       // recurringCanceledAt on the very order this notice is about, so the
       // narrower orderGrantsSoldCapabilityEntitlement would always reject it.
+      //
+      // Skip entirely when this Subscription was canceled by this app's own
+      // recurring-upgrade-supersede cleanup (stripe-checkout-recurring-
+      // upgrade-dedup), not the customer — that customer just upgraded, not
+      // canceled, and must not get a "sorry to see you go" win-back email
+      // for the internal dedup of their own superseded subscription.
+      if (stripeSubscriptionCancellationWasInternalSupersede(subscription)) {
+        break;
+      }
       try {
         const { getOrdersByStripeCustomerId, getLeadBySlug, recordBillingNoticeSendOutcome } =
           await import("@/lib/db");
