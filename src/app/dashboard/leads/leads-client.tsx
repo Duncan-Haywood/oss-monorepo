@@ -17,6 +17,7 @@ import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import { CSV_LEAD_TEMPLATE, formatCsvImportSummary } from "@/lib/leads/csv-import";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import { dashboardRowActionAriaLabel } from "@/lib/leads/dashboard-row-aria-labels";
+import { pendingOperationAnnouncementText } from "@/lib/leads/pending-operation-announcement";
 import {
   inquiryReplyToggleElementId,
   leadCommerceToggleElementId,
@@ -2195,6 +2196,16 @@ export function LeadsClient({
 
   return (
     <div className="mt-8">
+      {/* Shared, focus-independent status announcement for the ~64 action
+          buttons gated on the one process-wide `isPending` above — see
+          pending-operation-announcement.ts and
+          leads-client-pending-announcement-deferred-needs-rtl-infra. Always
+          mounted (never conditionally rendered) so its text changes are
+          what aria-live actually announces, rather than the region itself
+          appearing/disappearing. */}
+      <div aria-live="assertive" role="status" className="sr-only">
+        {pendingOperationAnnouncementText(isPending)}
+      </div>
       {commerceCatalogsMissing.length > 0 && (
         <section aria-labelledby={COMMERCE_CATALOGS_MISSING_HEADING_ID} className="mb-8 rounded-2xl border border-orange-200 bg-orange-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
