@@ -3,6 +3,7 @@
 import Stripe from "stripe";
 import { headers } from "next/headers";
 import { requireOperatorAuth } from "@/lib/auth/operator";
+import { captureError } from "@/lib/observability/error-tracking";
 import { assessStripeBootstrapGate } from "@/lib/pricing/bootstrap-gate";
 import { bootstrapStripePrices } from "@/lib/pricing/bootstrap-stripe-prices";
 import type { BootstrapPriceResult } from "@/lib/pricing/bootstrap-stripe-prices";
@@ -67,6 +68,10 @@ export async function bootstrapStripePricesAction(): Promise<BootstrapStripePric
     };
   } catch (error) {
     console.error("Error in bootstrapStripePricesAction:", error);
+    await captureError(error, {
+      component: "dashboard-actions",
+      failureKind: "bootstrapStripePricesAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
