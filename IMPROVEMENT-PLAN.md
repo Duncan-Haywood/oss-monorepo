@@ -16,15 +16,20 @@ mean:
 
 ## Open
 
-### P0 — Thirty-seven parallel pull requests, none merged — *one merge closes all of them*
+### P0 — Forty-one parallel pull requests, none merged — *one merge closes all of them*
 
-**This branch is the thirty-eighth, and it extends the thirty-fourth rather
-than starting beside it.** Every commit below #34's head is carried forward
+**This branch is the forty-second, and it extends the thirty-ninth rather than
+starting beside it.** Every commit below #39's head is carried forward
 unchanged, so merging this one branch still closes the entire queue. The count
-has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 → 29 → 33 → 37 across eleven
-write-ups of this item; the notification each session sent did not change it,
-and neither will a twelfth. Merging or pausing the schedule are the only two
-things that do.
+has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 → 29 → 33 → 37 → 41 across
+twelve write-ups of this item; the notification each session sent did not
+change it, and neither will a thirteenth. Merging or pausing the schedule are
+the only two things that do.
+
+`main` has now been at `b887731` for a day and a half, and the work stacked
+above it includes a per-participant privacy fix, the perspective bugs that
+emptied the blind-spots comparison, and every test in the repo written since.
+None of it is running anywhere.
 
 **The queue is no longer only a waste — it is now a place where a real fix can
 be lost.** #35 was sitting in it with an unauthenticated read of any
@@ -79,6 +84,57 @@ project: **whether this task should keep firing while nothing it produces can
 land.** Two answers are both fine — merge this branch and let the schedule
 continue, or pause the schedule — and one is not: leaving it firing into a queue
 nobody drains. See [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
+
+### P1 → resolved on this branch — three screens had no way back from a dropped request
+
+Every screen in this app loads its data over one `fetch` on mount, from a
+phone, over a connection that drops. What each one did when that failed had
+been decided six separate times, and nothing put the six side by side. Reading
+them into one table — [`docs/SCREENS.md`](docs/SCREENS.md) — found three with
+no recovery at all:
+
+- **The admin portal set an error that no branch rendered.** A 500 on
+  `admin/overview` fell through to `Loading…` and stayed there. It is the
+  account owner's only window onto the data, and it has no navigation, so a
+  hard refresh was the only way out.
+- **The same screen never caught a rejected fetch**, so being offline meant
+  `Checking…` for as long as the tab was open, with an unhandled promise
+  rejection behind it.
+- **The couple and insights screens offered a link back to the cards.** Not a
+  dead end, but not recovery either: somebody who came to read the comparison
+  has to make the whole trip again. Both retry in place now.
+
+All four screens are covered by tests that drive the real component
+(`AdminView.test.tsx`, `ProfileView.test.tsx`, and additions to
+`CoupleView.test.tsx` and `InsightsView.test.tsx` — 31 cases). The three
+recovery fixes were each checked by reverting the fix and watching the test go
+red. `screenInventory.test.ts` fails if `SCREENS.md` and `src/components` ever
+disagree, the way `routeInventory.test.ts` does for the routes.
+
+### P1 → resolved on this branch — a signed-in person could be recorded as "Anonymous"
+
+The profile screen sent `user?.firstName ?? "Anonymous"` with a perspective
+switch, and `user` arrives from `/api/auth/me` some time after the first paint.
+Tapping a mode before it landed sent "Anonymous" — which sticks on the
+Participant row created for a mode that person had not used before, shows in
+the admin table from then on, and comes back at them as "Thank you, Anonymous"
+at the end of the round. The stored session bundle already holds the name they
+started under, so it is used first now.
+
+### P2 → resolved on this branch — the root-layout boundary discarded its error
+
+`global-error.tsx` took the `error` argument and dropped it, while the
+route-level boundary beside it logged every error it caught. The one failure
+that takes down every screen at once was the one failure that left no signal.
+Taken from #38/#40/#41, which each found it independently.
+
+### P3 → resolved on this branch — a dead progress bar
+
+`src/components/ProgressBar.tsx` was imported by nothing. It also predated the
+accessibility pass, so it carried no `role="progressbar"` — meaning the next
+person to reach for "the progress bar we already have" would have copied the
+version without it. Deleted; the two live progress bars are in `CoupleView`
+and the runner.
 
 ### P1 → resolved on this branch — the branch being held up for merge did not pass its own blocking gate
 

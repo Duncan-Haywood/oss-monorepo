@@ -1,11 +1,11 @@
 # The open pull requests, and what to do with each
 
-Thirty-seven scheduled sessions have opened thirty-seven pull requests against
-`main`. **None has been merged.** `main` is still at `b887731`.
+Forty-one scheduled sessions have opened forty-one pull requests against
+`main`, and this branch is the forty-second. **None has been merged.** `main`
+is still at `b887731`, where it has been for a day and a half.
 
-**Every one of them is closeable by merging this single branch.** Eleven are
-ancestors of it and close by containment; the other twenty-two were checked
-file-by-file, and the artifacts that were genuinely distinct and uncarried — a
+**Every one of them is closeable by merging this single branch.** Twelve are
+ancestors of it and close by containment; the rest were checked file-by-file, and the artifacts that were genuinely distinct and uncarried — a
 test for the rate limiter, the invite-code tests, and a contract test on the
 actionable categories — have been written here rather than left in branches
 nobody will merge. There is no longer anything in the queue that this branch
@@ -196,6 +196,30 @@ contains something no other branch has. That question needs the diff read, and
 the titles here are close to identical and actively misleading. Budget for
 reading the two or three that are not ancestors, every time.
 
+### #38 through #41 — checked file-by-file, one thing taken
+
+Four more sessions fired after #39 was pushed, all four from the stale base at
+`b887731`, none of them able to see each other. Their diffs were read rather
+than their titles, which is the rule the section above exists to enforce.
+
+| PR | Branch | What it has | Where it already is here |
+| --- | --- | --- | --- |
+| #38 | `keen-gates-sjkbhe` | Process document, `SessionStartAttempt` rate limit, conjoint line search, a11y attributes | `developmentprocess.tsx`; `AnonRequestLog` with `rateLimit.test.ts`; `conjoint.ts` with a regression test; all present |
+| #40 | `kind-ptolemy-mz6d12` | `perspective.ts` + tests, the `auth/me` perspective mix, `session/start` resuming an account's participants, CI workflow | All of it, from `9b2784c` onwards — this branch's `perspective.ts` is the same module with the same fix |
+| #41 | `keen-gates-xnetyk` | CSV formula guard, couple-comparison gating, `ProgressBar` deletion, lint to zero | `csvEscape` neutralises `= + - @` here too; the gates live inside `sharedValues`/`asymmetries`/`coupleReadiness`, so they are server-side rather than UI-only; `ProgressBar` is deleted on this branch as well |
+
+**One thing was taken.** #38, #40 and #41 each add a `console.error` to
+`src/app/global-error.tsx`, and this branch did not have it. The route-level
+boundary beside it logs every error it catches; the root-layout one — the
+boundary for the single failure that takes down every screen at once — took
+the `error` argument and discarded it. Three independent sessions noticing the
+same omission is a reasonable signal, and it is two lines. It is here now.
+
+That is the second time reading a non-ancestor diff has paid for itself, after
+#35. It is a small return this time, which is the honest thing to record: the
+rule is worth keeping because of the size of what it catches occasionally, not
+because of the average.
+
 ## The one real gap this left — now closed
 
 **`src/lib/rateLimit.ts` had no test.** #4 wrote one, but against a different
@@ -215,7 +239,7 @@ seventeen loses nothing at all.
 ## What to actually do
 
 1. Merge this branch. That closes #6, #12, #14, #17, #21, #22, #24, #25, #27,
-   #28, #30 and #34 by containment.
+   #28, #30, #34 and #39 by containment.
 2. Close the rest with a one-line comment pointing here. Nothing distinct is
    left in any of them — including #35, whose one distinct finding is carried
    here with tests rather than left in a branch nobody will merge.

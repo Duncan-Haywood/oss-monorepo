@@ -64,8 +64,12 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
 | `UnifiedRunner.test.tsx` | 8 | The swipe loop: cold start, resume, one question per resume, a half-written bundle, a failed fetch, a thrown fetch, advancing on an answer, and the consent line on the welcome screen |
 | `developmentProcess.test.ts` | 13 | The process document stays internally consistent |
 | `routeInventory.test.ts` | 3 | [ROUTES.md](ROUTES.md) lists every route that exists, with the right methods — the table is only useful if it is complete |
+| `screenInventory.test.ts` | 3 | The same for [SCREENS.md](SCREENS.md): every component has a row, every row has a component, and a screen the table calls tested has a test file |
+| `CoupleView.test.tsx` | 11 | The couple screen: that the four actionable sections say what they are waiting for instead of vanishing, that a match score is withheld when it would be measuring noise, and that a dropped request retries in place while a 401 asks for an account instead |
+| `AdminView.test.tsx` | 10 | The admin portal: a lockout message reaches the owner, an expired session returns to the form and takes the numbers with it, a 500 and a dropped connection both offer a way out rather than a permanent "Loading…", and all five export links point where they claim |
+| `ProfileView.test.tsx` | 8 | The perspective switch: which perspective is sent, that the name is not "Anonymous" for a signed-in person whose account has not loaded yet, and that a failed switch leaves the stored session exactly as it was |
 | `originCheck.test.ts` | 16 | The CSRF rule: a subdomain is not the same origin, the proxy's forwarded host is what a browser is compared against, a non-browser caller is not blocked, and reads are never touched |
-| `InsightsView.test.tsx` | 4 | The insight catalogue's contract with the content map |
+| `InsightsView.test.tsx` | 6 | The insight catalogue's contract with the content map, and that a dropped request can be retried in place instead of sending someone back to the cards |
 | `AuthView.test.tsx` | 3 | Signup names what it stores, links the policy, and collects only the three fields it names |
 | `api/session/start/route.test.ts` | 3 | The route writes a first name and a perspective and nothing else — the six profile fields the old intro form sent are refused |
 
@@ -108,9 +112,15 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
   planted rankings, but no human has read what two real accounts with three
   perspectives filled in actually produces. That is a judgement call, not a
   coverage gap.
-- **The runner against a real server.** `UnifiedRunner.test.tsx` drives the
-  real component, but every response is stubbed. It proves the component reacts
-  correctly to a shape; it cannot prove the server sends that shape.
+- **Every screen against a real server.** The six component suites drive the
+  real components, but every response in them is stubbed. They prove a screen
+  reacts correctly to a shape; they cannot prove the server sends that shape.
+  The integration suites prove the second half, and nothing joins the two.
+- **The three presentational components.** `CategoryIcon`, `Celebration` and
+  `BottomNav` fetch nothing and have no tests. A failure in one is visible the
+  moment anybody opens the app, which is the argument for spending the next
+  test elsewhere — not an argument that they are covered. Tracked as blanks in
+  the Tested column of [SCREENS.md](SCREENS.md) rather than left implicit.
 
 `api/session/start/route.test.ts` stays even though the integration suite now
 covers the same route, and it is worth understanding why: it `vi.mock`s Prisma

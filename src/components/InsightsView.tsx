@@ -20,6 +20,9 @@ type InsightsData = {
 export function InsightsView() {
   const [data, setData] = useState<InsightsData | null>(null);
   const [fetchState, setFetchState] = useState<"loading" | "ready" | "error">("loading");
+  // Bumped by the retry button; the load effect depends on it, so a bump is
+  // how the request is made again without duplicating it here.
+  const [reloadTick, setReloadTick] = useState(0);
 
   const bundle = useSessionBundle();
   // `undefined` is "we don't know yet" (server render / hydration) and must
@@ -47,7 +50,7 @@ export function InsightsView() {
     return () => {
       cancelled = true;
     };
-  }, [bundle]);
+  }, [bundle, reloadTick]);
 
   if (state === "loading") {
     return <Shell><p className="text-neutral-500">Working out what we know so far…</p></Shell>;
@@ -63,7 +66,19 @@ export function InsightsView() {
   if (state === "error" || !data) {
     return (
       <Shell>
-        <p className="text-red-500">Couldn&apos;t load your insights.</p>
+        <p role="alert" className="text-red-500">Couldn&apos;t load your insights.</p>
+        {/* The same failure the couple screen and the runner both recover
+            from: one dropped request on a phone. Offer the retry rather than
+            sending someone back to the cards to try the whole trip again. */}
+        <button
+          onClick={() => {
+            setFetchState("loading");
+            setReloadTick((t) => t + 1);
+          }}
+          className="rounded-xl border-2 border-neutral-300 px-4 py-2 text-sm font-semibold dark:border-neutral-700"
+        >
+          Try again
+        </button>
         <StartLink label="Back" />
       </Shell>
     );

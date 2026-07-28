@@ -124,7 +124,19 @@ export function CoupleView() {
   if (state === "error" || !data) {
     return (
       <Shell>
-        <p className="text-red-500">Couldn&apos;t load this.</p>
+        <p role="alert" className="text-red-500">Couldn&apos;t load this.</p>
+        {/* A dropped request on a phone is the ordinary case here, and going
+            back to the cards is not what someone who came to read this
+            wants. Retrying in place is. */}
+        <button
+          onClick={() => {
+            setState("loading");
+            load();
+          }}
+          className="rounded-xl border-2 border-neutral-300 px-4 py-2 text-sm font-semibold dark:border-neutral-700"
+        >
+          Try again
+        </button>
         <Link href="/" className="text-sm underline underline-offset-2">Back</Link>
       </Shell>
     );

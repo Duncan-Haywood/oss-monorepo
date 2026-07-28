@@ -19,6 +19,17 @@ export function ProfileView() {
   const bundle = useSessionBundle();
   const current: PerspectiveValue | null = bundle?.perspective ?? null;
 
+  /**
+   * `/api/auth/me` is still in flight on the first paint, and the mode
+   * buttons are live before it lands. Falling straight through to
+   * "Anonymous" meant a signed-in person who tapped quickly had that written
+   * onto the Participant row created for a mode they had not used before —
+   * where it is permanent, shows in the admin table, and comes back at them
+   * as "Thank you, Anonymous" at the end of the round. The stored bundle
+   * already carries the name they started under, so it is the better guess.
+   */
+  const name = user?.firstName ?? (bundle?.firstName?.trim() || "Anonymous");
+
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => r.json())
@@ -40,7 +51,7 @@ export function ProfileView() {
       const res = await fetch("/api/session/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ perspective: p, firstName: user?.firstName ?? "Anonymous" }),
+        body: JSON.stringify({ perspective: p, firstName: name }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.surveys?.length || !data?.participants) {
@@ -49,7 +60,7 @@ export function ProfileView() {
         return;
       }
       writeSessionBundle({
-        firstName: user?.firstName ?? "Anonymous",
+        firstName: name,
         perspective: p,
         participants: data.participants,
         domains: data.surveys,

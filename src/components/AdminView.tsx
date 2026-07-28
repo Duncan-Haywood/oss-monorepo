@@ -62,18 +62,31 @@ export function AdminView() {
   const [data, setData] = useState<Overview | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/admin/overview");
-    if (res.status === 401) {
-      setAuthed(false);
-      return;
-    }
-    if (!res.ok) {
-      setError("Couldn't load the overview.");
+    try {
+      const res = await fetch("/api/admin/overview");
+      if (res.status === 401) {
+        // Drop what is on screen with it. Numbers left up after the session
+        // has expired read as current, and the next action on them is
+        // refused.
+        setData(null);
+        setAuthed(false);
+        return;
+      }
+      if (!res.ok) {
+        setError("Couldn't load the overview.");
+        setAuthed(true);
+        return;
+      }
+      setData(await res.json());
+      setError(null);
       setAuthed(true);
-      return;
+    } catch {
+      // A rejected fetch — offline, or a connection dropped mid-request —
+      // used to fall out of this function entirely, leaving `authed` null and
+      // the screen on "Checking…" for as long as it was open.
+      setError("Couldn't reach the server.");
+      setAuthed(true);
     }
-    setData(await res.json());
-    setAuthed(true);
   }, []);
 
   useEffect(() => {
@@ -137,7 +150,30 @@ export function AdminView() {
     );
   }
 
-  if (!data) return <Shell><p className="text-neutral-500">Loading…</p></Shell>;
+  if (!data) {
+    // An error with no way to act on it is a dead end: this screen has no
+    // navigation, so a refresh was the only escape. `error` was being set
+    // here and rendered nowhere.
+    if (error) {
+      return (
+        <Shell>
+          <p role="alert" className="text-sm font-medium text-red-500">
+            {error}
+          </p>
+          <button
+            onClick={() => {
+              setError(null);
+              load();
+            }}
+            className="rounded-xl border-2 border-neutral-300 px-4 py-2 text-sm font-semibold dark:border-neutral-700"
+          >
+            Try again
+          </button>
+        </Shell>
+      );
+    }
+    return <Shell><p className="text-neutral-500">Loading…</p></Shell>;
+  }
 
   const { totals, engagement, feedback } = data;
   const anyData = totals.answeredItemTrials > 0;
@@ -427,7 +463,7 @@ function Td({ children, className }: { children: React.ReactNode; className?: st
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-5 py-10 text-center">
+    <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-3 px-5 py-10 text-center">
       {children}
     </main>
   );

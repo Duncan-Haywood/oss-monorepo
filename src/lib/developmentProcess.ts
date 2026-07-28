@@ -394,7 +394,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "worth-continuing",
     note:
-      "The runner reads storage through useSyncExternalStore rather than an effect, opens on a domain instead of choosing one mid-fetch (which used to burn a question on every resume), retries a failed or dropped next-question fetch, and treats a 409 on an answer as already recorded. Behaviour is covered by tests that drive the real component against a stubbed fetch.",
+      "The runner reads storage through useSyncExternalStore rather than an effect, opens on a domain instead of choosing one mid-fetch (which used to burn a question on every resume), retries a failed or dropped next-question fetch, and treats a 409 on an answer as already recorded. Every screen that loads over the network now recovers the same way, which reading them into one column in docs/SCREENS.md is what found: the admin portal had a 500 path that rendered no error at all and a rejected fetch it never caught, and the couple and insights screens offered a link back to the cards instead of a retry. All four are driven by tests against a stubbed fetch.",
   },
   {
     id: "model-cost",
@@ -430,7 +430,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "done",
     goal: "measure-honestly",
     note:
-      "Error boundaries exist, and every API route now catches its own failures and logs them rather than throwing past the handler. A silent failure is indistinguishable from a number that is simply wrong. Every route in docs/ROUTES.md now has a test, most of them against a real Postgres: the swipe loop, session start, the couple link, the financial and conjoined cards, the admin portal, the two free-text writers, and the participant-ownership rule. What is left is the half a passing suite cannot reach — the page components, and somebody reading what two real accounts actually produce.",
+      "Error boundaries exist, and every API route now catches its own failures and logs them rather than throwing past the handler. A silent failure is indistinguishable from a number that is simply wrong. Every route in docs/ROUTES.md now has a test, most of them against a real Postgres: the swipe loop, session start, the couple link, the financial and conjoined cards, the admin portal, the two free-text writers, and the participant-ownership rule. The screens have caught up: the admin portal, the profile switcher, the couple screen and insights are all driven by tests now, and docs/SCREENS.md is the table that says which of them recovers from what, guarded against drift the way ROUTES.md is. The root-layout boundary also logs the error it had been discarding. What is left is the half a passing suite cannot reach — somebody reading what two real accounts actually produce, in a browser.",
   },
   {
     id: "accessibility",

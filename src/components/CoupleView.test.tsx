@@ -16,7 +16,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { CoupleView } from "@/components/CoupleView";
 
 const LINKED = {
@@ -246,5 +246,47 @@ describe("CoupleView comparison rows that cannot be stood behind", () => {
     const section = await waitFor(() => sectionFor(/Your blind spots/i));
     expect(within(section).getByText("Overall match")).toBeTruthy();
     expect(within(section).getByText("Skiing")).toBeTruthy();
+  });
+});
+
+/**
+ * The couple screen is read on a phone, often on the move, and one dropped
+ * request used to end the trip: the failure state offered "Back" to the
+ * cards and nothing else, so the only way to see the comparison was to
+ * navigate away and come back.
+ */
+describe("CoupleView when the request fails", () => {
+  it("retries in place rather than sending someone back to the cards", async () => {
+    let attempt = 0;
+    const fetchMock = vi.fn(async () => {
+      attempt += 1;
+      if (attempt === 1) throw new TypeError("Failed to fetch");
+      return { ok: true, status: 200, json: async () => LINKED } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CoupleView />);
+
+    const retry = await screen.findByRole("button", { name: /try again/i });
+    expect(screen.getByRole("alert").textContent).toMatch(/Couldn't load this/);
+
+    fireEvent.click(retry);
+
+    // The linked screen, not the error one — the second attempt succeeded.
+    expect(await screen.findByRole("heading", { name: /You & Sam/ })).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("asks for an account instead of retrying when the answer is 401", async () => {
+    // Retrying a 401 forever is not recovery. Signing in is.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: false, status: 401, json: async () => ({}) }) as Response),
+    );
+
+    render(<CoupleView />);
+
+    expect(await screen.findByRole("link", { name: "Sign in" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /try again/i })).toBeNull();
   });
 });
