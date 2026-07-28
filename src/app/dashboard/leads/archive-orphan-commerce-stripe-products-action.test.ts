@@ -258,37 +258,53 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
     expect(archiveCommerceStripeProducts).toHaveBeenCalledWith(
       expect.anything(),
       orphanCandidates,
+      expect.objectContaining({ isStillOrphan: expect.any(Function) }),
     );
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("re-reads the catalog before archiving and drops a candidate whose SKU reappeared (concurrent save)", async () => {
-    // Simulate: sku_muffin looked orphaned when the initial catalog was read
-    // (and when listOrphanCommerceStripeProducts's account-wide pagination
-    // ran), but an operator (or a second tab) re-added it via
-    // saveCommerceCatalogAction before this action actually archives
-    // anything. Archiving it now would break that SKU's live Buy now
-    // checkout with no operator signal.
+  it("passes an isStillOrphan callback that re-reads the catalog before EACH archive, not just once before the batch (concurrent save)", async () => {
+    // The actual per-candidate drop logic now lives inside
+    // archiveCommerceStripeProducts (stripe-sync.test.ts covers it directly,
+    // including the mid-loop case), which is mocked at this action-boundary
+    // level — so this test captures the callback the action wires up and
+    // exercises it directly, proving it correctly re-reads the catalog and
+    // reports false (no longer orphaned) once a SKU reappears. Simulates:
+    // sku_muffin looked orphaned when the initial catalog was read (and when
+    // listOrphanCommerceStripeProducts's account-wide pagination ran), but an
+    // operator (or a second tab) re-added it via saveCommerceCatalogAction
+    // before this candidate's own archive turn. Archiving it anyway would
+    // break that SKU's live Buy now checkout with no operator signal.
     getCommerceCatalog
       .mockReset()
-      .mockResolvedValueOnce(savedCatalog) // initial read
+      .mockResolvedValueOnce(savedCatalog) // initial read (for `items`)
       .mockResolvedValueOnce({
         ...savedCatalog,
         items: [...catalogItems, { id: "sku_muffin", name: "Muffin", description: "", priceCents: 300 }],
-      }); // re-read right before archiving
-    archiveCommerceStripeProducts.mockResolvedValue({ archived: [] });
+      }); // re-read inside the callback, right before this candidate's archive
 
     const { archiveOrphanCommerceStripeProductsAction } = await import(
       "./actions"
     );
-    const res = await archiveOrphanCommerceStripeProductsAction("demo-cafe");
+    await archiveOrphanCommerceStripeProductsAction("demo-cafe");
 
-    expect(res).toEqual({
-      success: true,
-      archivedCount: 0,
-      archivedSkuIds: [],
-    });
-    expect(archiveCommerceStripeProducts).toHaveBeenCalledWith(expect.anything(), []);
+    const [, , options] = archiveCommerceStripeProducts.mock.calls[0]!;
+    const stillOrphan = await options.isStillOrphan(orphanCandidates[0]);
+    expect(stillOrphan).toBe(false);
+    expect(getCommerceCatalog).toHaveBeenCalledTimes(2);
+  });
+
+  it("the isStillOrphan callback reports true (still orphaned) when the SKU has not reappeared", async () => {
+    getCommerceCatalog.mockReset().mockResolvedValue(savedCatalog);
+
+    const { archiveOrphanCommerceStripeProductsAction } = await import(
+      "./actions"
+    );
+    await archiveOrphanCommerceStripeProductsAction("demo-cafe");
+
+    const [, , options] = archiveCommerceStripeProducts.mock.calls[0]!;
+    const stillOrphan = await options.isStillOrphan(orphanCandidates[0]);
+    expect(stillOrphan).toBe(true);
   });
 
   it("passes an empty items array when no catalog exists", async () => {
