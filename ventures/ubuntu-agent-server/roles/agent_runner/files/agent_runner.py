@@ -1,0 +1,577 @@
+#!/usr/bin/env python3
+"""
+Polls configured GitHub repos for issues labeled for agent work, runs the
+configured CLI (Claude Code / Codex / Antigravity / opencode) against a
+fresh clone in headless mode, and opens a PR if it made changes. Never
+pushes to a base branch directly, never merges.
+
+Invoked on a timer by the agent-runner systemd service — see
+/etc/systemd/system/agent-runner.{service,timer}. Safe to run concurrently
+with itself in the sense that issues are claimed (labeled in-progress)
+before work starts, so a second overlapping run skips them; it is NOT
+safe to run two instances against the exact same repo+issue at the same
+instant (there's a small race between the "list issues" and "claim" calls).
+A 10-minute default schedule makes that window irrelevant in practice.
+
+Kill switch: if AGENTS_ROOT/DISABLED exists, this exits immediately without
+touching anything. touch/rm that file to pause/resume everything at once.
+
+Self-directed work: if a repo has `self_directed: true` and no labeled
+issues are waiting, and its cooldown has elapsed, this creates a new GitHub
+issue itself (visible, auditable — not a hidden internal task) with a
+broad "use your judgment" prompt, then processes it exactly like any
+human-filed issue. Same guardrails apply: dry_run, PR-only, kill switch.
+
+Secret scanning: if `gitleaks` is on PATH, every diff is scanned before
+push; a match blocks the push and fails the run rather than silently
+"trusting" the model not to have leaked something.
+
+Docker sandboxing: if AGENT_RUNNER_USE_DOCKER=true in the environment
+(set by the systemd service when use_docker_sandbox: true in
+group_vars/all.yml), each tool invocation runs inside the agent-runner
+Docker image instead of directly on the host — real OS-level isolation
+uniformly across all four tools. Off by default and less battle-tested
+than the direct-exec path; see docker/agent-runner/Dockerfile.
+"""
+
+import json
+import os
+import shutil
+import subprocess
+import sys
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+import yaml
+
+# Overridable via env for testing (see tests/) — production default is
+# unaffected since the systemd service doesn't set this var.
+AGENTS_ROOT = Path(os.environ.get("AGENTS_ROOT", "/srv/agents"))
+CONFIG_FILE = AGENTS_ROOT / "config" / "repos.yml"
+WORKSPACES_DIR = AGENTS_ROOT / "workspaces"
+LOGS_DIR = AGENTS_ROOT / "logs"
+STATE_DIR = AGENTS_ROOT / "state"
+RUNNERS_DIR = AGENTS_ROOT / "bin" / "runners"
+DISABLED_FILE = AGENTS_ROOT / "DISABLED"
+
+LABEL_IN_PROGRESS = "agent:in-progress"
+LABEL_PR_OPENED = "agent:pr-opened"
+LABEL_FAILED = "agent:failed"
+LABEL_SELF_DIRECTED = "agent:self-directed"
+DONE_LABELS = {LABEL_IN_PROGRESS, LABEL_PR_OPENED, LABEL_FAILED}
+
+TOOL_RUNNERS = {
+    "claude": RUNNERS_DIR / "claude.sh",
+    "codex": RUNNERS_DIR / "codex.sh",
+    "antigravity": RUNNERS_DIR / "antigravity.sh",
+    "opencode": RUNNERS_DIR / "opencode.sh",
+}
+
+# Git author identity per tool, so history honestly shows what did the
+# work rather than attributing everything to whoever ran `ansible-playbook`.
+# Update the domain to something you actually control if you want these
+# addresses to be reachable; they don't need to be for git/GitHub to accept
+# them as commit authors.
+GIT_IDENTITY = {
+    "claude": ("Claude Code Agent", "agent-claude@agents.local"),
+    "codex": ("Codex Agent", "agent-codex@agents.local"),
+    "antigravity": ("Antigravity Agent", "agent-antigravity@agents.local"),
+    "opencode": ("opencode Agent", "agent-opencode@agents.local"),
+}
+
+# Model-tier routing: only implemented for the two tools with confidently-
+# documented --model flags (see README's per-tool table). The runner
+# scripts read these via env var (AGENT_MODEL) if set, so the actual model
+# IDs live here, in one place, not scattered across shell scripts.
+# VERIFY these are valid for your account/plan before trusting model_tier
+# routing — wrong values fail loudly (the CLI errors), they don't silently
+# fall back, which is preferable but still worth catching in dry_run first.
+MODEL_BY_TIER = {
+    "claude": {"low": "haiku", "high": "sonnet"},
+    "codex": {"low": "gpt-5-mini", "high": "gpt-5"},
+}
+
+USE_DOCKER = os.environ.get("AGENT_RUNNER_USE_DOCKER", "false").lower() == "true"
+DOCKER_IMAGE = os.environ.get("AGENT_RUNNER_DOCKER_IMAGE", "agent-runner:latest")
+
+# Host paths to each tool's cached credentials (from the one-time
+# interactive login), mounted read-only into the container so a
+# containerized run can reuse the same session instead of needing its own
+# login. UNVERIFIED for antigravity specifically — its docs describe OS
+# keyring-based storage (Secret Service/dbus) rather than a flat file,
+# which may not survive being mounted into a container at all. If
+# antigravity runs fail only in Docker mode, this is the first thing to
+# suspect.
+CREDENTIAL_MOUNTS = {
+    "claude": [("~/.claude", "/root/.claude")],
+    "codex": [("~/.codex", "/root/.codex")],
+    "antigravity": [("~/.config/antigravity", "/root/.config/antigravity")],
+    "opencode": [("~/.local/share/opencode", "/root/.local/share/opencode"),
+                 ("~/.config/opencode", "/root/.config/opencode")],
+}
+
+
+def run_id() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+class RunLog:
+    """Writes to both a per-run log file and stdout (which journald captures)."""
+
+    def __init__(self, path: Path):
+        self.path = path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self.fh = path.open("a")
+
+    def write(self, msg: str) -> None:
+        line = f"{datetime.now(timezone.utc).isoformat()} {msg}"
+        print(line, flush=True)
+        self.fh.write(line + "\n")
+        self.fh.flush()
+
+    def close(self) -> None:
+        self.fh.close()
+
+
+def gh(*args: str, check: bool = True) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["gh", *args], capture_output=True, text=True, check=check
+    )
+
+
+def git(*args: str, cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["git", *args], cwd=cwd, capture_output=True, text=True, check=check
+    )
+
+
+def load_config() -> list[dict]:
+    if not CONFIG_FILE.exists():
+        raise SystemExit(
+            f"No config at {CONFIG_FILE}. This should have been deployed by "
+            "Ansible from repos.yml in the ubuntu-agent-server repo — check "
+            "the agent_runner role ran cleanly."
+        )
+    data = yaml.safe_load(CONFIG_FILE.read_text()) or {}
+    return data.get("repos", [])
+
+
+def list_candidate_issues(repo: str, trigger_label: str, log: RunLog) -> list[dict]:
+    result = gh(
+        "issue", "list",
+        "--repo", repo,
+        "--label", trigger_label,
+        "--state", "open",
+        "--json", "number,title,body,labels",
+        check=False,
+    )
+    if result.returncode != 0:
+        log.write(f"[{repo}] gh issue list failed: {result.stderr.strip()}")
+        return []
+    issues = json.loads(result.stdout)
+    candidates = []
+    for issue in issues:
+        labels = {l["name"] for l in issue.get("labels", [])}
+        if labels & DONE_LABELS:
+            continue  # already claimed, already has a PR, or already failed — skip
+        candidates.append(issue)
+    return candidates
+
+
+def claim_issue(repo: str, number: int) -> bool:
+    """Add the in-progress label. Returns False if that failed (treat as lost the race)."""
+    result = gh("issue", "edit", str(number), "--repo", repo, "--add-label", LABEL_IN_PROGRESS, check=False)
+    return result.returncode == 0
+
+
+def unclaim_issue(repo: str, number: int) -> None:
+    gh("issue", "edit", str(number), "--repo", repo, "--remove-label", LABEL_IN_PROGRESS, check=False)
+
+
+def comment(repo: str, number: int, body: str) -> None:
+    gh("issue", "comment", str(number), "--repo", repo, "--body", body, check=False)
+
+
+def label(repo: str, number: int, name: str) -> None:
+    gh("issue", "edit", str(number), "--repo", repo, "--add-label", name, check=False)
+
+
+# --- self-directed work -----------------------------------------------
+
+SELF_DIRECTED_PROMPT = """\
+There is no specific issue assigned — you're finding your own next task.
+
+Review this repository (code, README, open issues, recent commit history)
+and use your judgment to identify ONE high-value improvement, then make it.
+Good candidates: a real bug, a gap in test coverage, unclear or missing
+documentation, a rough edge in the developer experience, a genuine
+performance problem, or a small well-scoped feature that's clearly implied
+by existing code/docs but not yet done.
+
+Boundaries, same as any unattended run: prefer leaving the repo unchanged
+over guessing at something ambiguous. Do not modify billing, pricing,
+payment, legal, or marketing-copy files, deployment/infra configuration,
+or anything secret-adjacent, unless a human explicitly asked for that in
+this task — none did. Stay inside normal software-engineering territory:
+code, tests, docs, dev tooling. A human reviews the PR this produces;
+explain your reasoning there so they can evaluate the judgment call, not
+just the diff.
+"""
+
+
+def self_directed_cooldown_path(repo: str) -> Path:
+    return STATE_DIR / f"{repo.replace('/', '_')}-self-directed-last.txt"
+
+
+def self_directed_ready(repo: str, cooldown_hours: float) -> bool:
+    path = self_directed_cooldown_path(repo)
+    if not path.exists():
+        return True
+    last = datetime.fromisoformat(path.read_text().strip())
+    return datetime.now(timezone.utc) - last >= timedelta(hours=cooldown_hours)
+
+
+def mark_self_directed_run(repo: str) -> None:
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    self_directed_cooldown_path(repo).write_text(datetime.now(timezone.utc).isoformat())
+
+
+def create_self_directed_issue(repo: str, trigger_label: str, log: RunLog) -> dict | None:
+    result = gh(
+        "issue", "create", "--repo", repo,
+        "--title", "[agent] find something worth doing",
+        "--body", SELF_DIRECTED_PROMPT,
+        "--label", trigger_label,
+        "--label", LABEL_SELF_DIRECTED,
+        check=False,
+    )
+    if result.returncode != 0:
+        log.write(f"[{repo}] failed to create self-directed issue: {result.stderr.strip()}")
+        return None
+    issue_url = result.stdout.strip()
+    number = int(issue_url.rstrip("/").rsplit("/", 1)[-1])
+    log.write(f"[{repo}] created self-directed issue #{number}: {issue_url}")
+    # labels populated to match what `gh issue list --json ...labels` would
+    # return — matters because choose_model_tier() checks for
+    # LABEL_SELF_DIRECTED here; leaving this empty silently meant a
+    # self-directed issue processed in the same poll cycle it was created
+    # in would never get bumped to the "high" model tier as intended.
+    return {
+        "number": number,
+        "title": "[agent] find something worth doing",
+        "body": SELF_DIRECTED_PROMPT,
+        "labels": [{"name": trigger_label}, {"name": LABEL_SELF_DIRECTED}],
+    }
+
+
+# --- model tier ----------------------------------------------------------
+
+def choose_model_tier(cfg: dict, issue: dict) -> str:
+    override = cfg.get("model_tier")
+    if override in ("low", "high"):
+        return override
+    if LABEL_SELF_DIRECTED in {l.get("name") if isinstance(l, dict) else l for l in issue.get("labels", [])}:
+        return "high"  # open-ended judgment calls get the stronger model
+    if any((l.get("name") if isinstance(l, dict) else l) == "agent:deep" for l in issue.get("labels", [])):
+        return "high"
+    body_len = len(issue.get("body") or "")
+    return "high" if body_len > 800 else "low"
+
+
+def model_env_for(tool: str, tier: str) -> dict:
+    models = MODEL_BY_TIER.get(tool)
+    if not models:
+        return {}
+    return {"AGENT_MODEL": models[tier]}
+
+
+# --- docker sandboxing -----------------------------------------------------
+
+def _docker_command(tool: str, workspace: Path, run_env: dict) -> list[str]:
+    cmd = [
+        "docker", "run", "--rm",
+        "-v", f"{workspace}:/workspace",
+        "-w", "/workspace",
+    ]
+    for host_path, container_path in CREDENTIAL_MOUNTS.get(tool, []):
+        resolved = Path(host_path).expanduser()
+        if resolved.exists():
+            cmd += ["-v", f"{resolved}:{container_path}:ro"]
+    if "AGENT_MODEL" in run_env:
+        cmd += ["-e", f"AGENT_MODEL={run_env['AGENT_MODEL']}"]
+    cmd += [DOCKER_IMAGE, f"/runners/{tool}.sh", "/workspace/.agent-prompt"]
+    return cmd
+
+
+# --- secret scanning -------------------------------------------------------
+
+def gitleaks_available() -> bool:
+    return shutil.which("gitleaks") is not None
+
+
+def scan_for_secrets(workspace: Path, run_log: RunLog) -> bool:
+    """Returns True if the STAGED diff looks clean (or gitleaks isn't installed — see README).
+
+    Deliberately scans only what's staged (`gitleaks protect --staged`), not
+    `gitleaks detect` against the whole tree: this repo may have existed for
+    years before an agent ever touched it, and `detect` would flag any
+    secret-shaped string anywhere in the checked-out tree — test fixtures,
+    example .env files, dummy keys in docs — none of which the agent
+    introduced. That would either block every PR from an otherwise-normal
+    repo forever, or (worse) train you to ignore this check. Scanning only
+    the staged changes means a hit is actually about what this run did.
+    Caller is responsible for `git add -A` before calling this.
+    """
+    if not gitleaks_available():
+        run_log.write("gitleaks not installed — skipping secret scan (see README, worth adding)")
+        return True
+    result = subprocess.run(
+        ["gitleaks", "protect", "--source", str(workspace), "--staged"],
+        capture_output=True, text=True,
+    )
+    run_log.write(f"--- gitleaks ---\n{result.stdout}\n{result.stderr}")
+    return result.returncode == 0
+
+
+def build_prompt(issue: dict) -> str:
+    return (
+        f"You are working autonomously and unattended — there is no human "
+        f"available to answer questions mid-task. Make the smallest correct "
+        f"change that addresses this issue. Do not push to the base branch "
+        f"directly and do not merge anything; the branch you're already on "
+        f"will become a pull request that a human reviews afterward. If the "
+        f"task is ambiguous or you're not confident in an approach, prefer "
+        f"leaving the repo unchanged over guessing.\n\n"
+        f"Issue #{issue['number']}: {issue['title']}\n\n"
+        f"{issue.get('body') or '(no description provided)'}"
+    )
+
+
+def process_issue(cfg: dict, issue: dict, log: RunLog) -> None:
+    repo = cfg["repo"]
+    tool = cfg["tool"]
+    base_branch = cfg.get("base_branch", "main")
+    dry_run = cfg.get("dry_run", True)
+    number = issue["number"]
+
+    if not claim_issue(repo, number):
+        log.write(f"[{repo}#{number}] could not claim (already claimed?), skipping")
+        return
+
+    workspace = WORKSPACES_DIR / f"{repo.replace('/', '_')}-{number}-{run_id()}"
+    log_path = LOGS_DIR / f"{repo.replace('/', '_')}-{number}-{run_id()}.log"
+    run_log = RunLog(log_path)
+    tier = choose_model_tier(cfg, issue)
+    run_log.write(f"[{repo}#{number}] tool={tool} model_tier={tier} dry_run={dry_run} workspace={workspace}")
+
+    try:
+        _process_issue_inner(repo, tool, tier, base_branch, dry_run, issue, workspace, run_log)
+    except Exception as exc:  # noqa: BLE001 — deliberately broad: any failure here must not crash the whole poll loop
+        run_log.write(f"[{repo}#{number}] UNEXPECTED ERROR: {exc!r}")
+        label(repo, number, LABEL_FAILED)
+        unclaim_issue(repo, number)
+        comment(
+            repo, number,
+            f"Agent run hit an unexpected error and stopped: `{exc!r}`. "
+            f"See server log `{log_path}` for details. The in-progress label "
+            f"was already cleared; fix the underlying issue and re-add the "
+            f"trigger label to retry.",
+        )
+    finally:
+        run_log.close()
+        if workspace.exists():
+            shutil.rmtree(workspace, ignore_errors=True)
+
+
+def _process_issue_inner(
+    repo: str, tool: str, tier: str, base_branch: str, dry_run: bool,
+    issue: dict, workspace: Path, run_log: RunLog,
+) -> None:
+    number = issue["number"]
+    branch = f"agent/{tool}/issue-{number}"
+
+    run_log.write(f"[{repo}#{number}] cloning")
+    clone = subprocess.run(
+        ["gh", "repo", "clone", repo, str(workspace), "--", "--branch", base_branch],
+        capture_output=True, text=True,
+    )
+    run_log.write(clone.stdout)
+    run_log.write(clone.stderr)
+    if clone.returncode != 0:
+        raise RuntimeError(f"clone failed: {clone.stderr.strip()}")
+
+    git("checkout", "-b", branch, cwd=workspace)
+
+    author_name, author_email = GIT_IDENTITY.get(tool, ("Agent", "agent@agents.local"))
+    git("config", "user.name", author_name, cwd=workspace)
+    git("config", "user.email", author_email, cwd=workspace)
+
+    prompt = build_prompt(issue)
+    # Written inside the workspace (not system tempdir) so it's visible to
+    # a container too when USE_DOCKER — the workspace is what gets mounted.
+    # Deleted before the diff check either way so it never shows up as a
+    # phantom "change" or risks being committed.
+    prompt_file = workspace / ".agent-prompt"
+    prompt_file.write_text(prompt)
+
+    run_env = {**os.environ, **model_env_for(tool, tier)}
+    if USE_DOCKER:
+        cmd = _docker_command(tool, workspace, run_env)
+    else:
+        cmd = [str(TOOL_RUNNERS[tool]), str(prompt_file)]
+    run_log.write(f"[{repo}#{number}] invoking ({'docker' if USE_DOCKER else 'host'}) tool={tool} model_tier={tier}")
+    result = subprocess.run(
+        cmd, cwd=workspace, capture_output=True, text=True, timeout=60 * 30, env=run_env,
+    )
+    if USE_DOCKER:
+        # The container runs as root, so anything it wrote into the
+        # bind-mounted workspace is root-owned on the host — which would
+        # break every git/shutil operation below, all run as agent_user.
+        # Standard fix: a throwaway container just to chown it back.
+        subprocess.run(
+            [
+                "docker", "run", "--rm", "-v", f"{workspace}:/workspace",
+                DOCKER_IMAGE, "chown", "-R", f"{os.getuid()}:{os.getgid()}", "/workspace",
+            ],
+            capture_output=True, text=True,
+        )
+    run_log.write(f"--- {tool} stdout ---\n{result.stdout}")
+    run_log.write(f"--- {tool} stderr ---\n{result.stderr}")
+    prompt_file.unlink(missing_ok=True)
+
+    diff = git("status", "--porcelain", cwd=workspace).stdout.strip()
+
+    if result.returncode != 0:
+        run_log.write(f"[{repo}#{number}] tool exited {result.returncode}")
+        label(repo, number, LABEL_FAILED)
+        unclaim_issue(repo, number)
+        comment(
+            repo, number,
+            f"Agent run (`{tool}`) failed (exit {result.returncode}) and made "
+            f"no changes it's willing to submit. See server log for the "
+            f"transcript. Re-add the trigger label to retry.",
+        )
+        return
+
+    if not diff:
+        run_log.write(f"[{repo}#{number}] tool ran but made no changes")
+        label(repo, number, LABEL_FAILED)
+        unclaim_issue(repo, number)
+        comment(
+            repo, number,
+            f"Agent run (`{tool}`) completed but made no changes to the repo "
+            f"— nothing to open a PR for. This usually means the task was "
+            f"ambiguous, already done, or the agent declined. See server log "
+            f"for its reasoning.",
+        )
+        return
+
+    # Staged before scanning (not just before commit) so gitleaks --staged
+    # sees exactly the changes this run made — see scan_for_secrets()'s
+    # docstring for why that matters.
+    git("add", "-A", cwd=workspace)
+
+    if not scan_for_secrets(workspace, run_log):
+        run_log.write(f"[{repo}#{number}] gitleaks found a likely secret in the diff — blocking push")
+        git("reset", cwd=workspace, check=False)  # unstage; workspace gets deleted regardless, but stay tidy
+        label(repo, number, LABEL_FAILED)
+        unclaim_issue(repo, number)
+        comment(
+            repo, number,
+            f"Agent run (`{tool}`) made changes but a secret-scan (`gitleaks`) "
+            f"flagged something in the diff, so nothing was pushed. See "
+            f"server log for the finding. This needs a human to look at the "
+            f"actual diff in the (deleted) workspace's log before retrying.",
+        )
+        return
+
+    if dry_run:
+        run_log.write(f"[{repo}#{number}] DRY RUN — would commit/push/PR now. Diff:\n{diff}")
+        git("reset", cwd=workspace, check=False)
+        unclaim_issue(repo, number)
+        comment(
+            repo, number,
+            f"[dry run] Agent (`{tool}`) would have made changes here but "
+            f"`dry_run: true` is set for this repo in `config/repos.yml`, so "
+            f"nothing was committed or pushed. Flip `dry_run` to `false` once "
+            f"you've reviewed a few of these and trust the behavior.",
+        )
+        return
+
+    git("commit", "-m", f"Agent ({tool}): {issue['title']}\n\nCloses #{number}", cwd=workspace)
+    push = subprocess.run(
+        ["git", "push", "-u", "origin", branch], cwd=workspace, capture_output=True, text=True,
+    )
+    run_log.write(push.stdout)
+    run_log.write(push.stderr)
+    if push.returncode != 0:
+        raise RuntimeError(f"push failed: {push.stderr.strip()}")
+
+    pr = subprocess.run(
+        [
+            "gh", "pr", "create", "--repo", repo,
+            "--base", base_branch, "--head", branch,
+            "--title", f"Agent ({tool}): {issue['title']}",
+            "--body", f"Closes #{number}\n\nOpened automatically by `{tool}` (model tier: {tier}) running unattended. Review before merging.",
+        ],
+        capture_output=True, text=True,
+    )
+    run_log.write(pr.stdout)
+    run_log.write(pr.stderr)
+    if pr.returncode != 0:
+        label(repo, number, LABEL_FAILED)
+        unclaim_issue(repo, number)
+        raise RuntimeError(f"pr create failed: {pr.stderr.strip()}")
+
+    pr_url = pr.stdout.strip()
+    label(repo, number, LABEL_PR_OPENED)
+    unclaim_issue(repo, number)
+    comment(repo, number, f"Agent (`{tool}`) opened {pr_url} for review.")
+    run_log.write(f"[{repo}#{number}] opened {pr_url}")
+
+
+def main() -> int:
+    if DISABLED_FILE.exists():
+        print(f"{DISABLED_FILE} exists — agent runner disabled, doing nothing.")
+        return 0
+
+    WORKSPACES_DIR.mkdir(parents=True, exist_ok=True)
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+    top_log = RunLog(LOGS_DIR / f"poll-{run_id()}.log")
+    try:
+        repos = load_config()
+        if not repos:
+            top_log.write("config/repos.yml has no repos configured — nothing to do")
+            return 0
+
+        for cfg in repos:
+            repo = cfg["repo"]
+            tool = cfg.get("tool")
+            if tool not in TOOL_RUNNERS:
+                top_log.write(f"[{repo}] unknown tool {tool!r}, skipping repo entirely")
+                continue
+            trigger_label = cfg.get("trigger_label", "agent")
+            issues = list_candidate_issues(repo, trigger_label, top_log)
+
+            if not issues and cfg.get("self_directed"):
+                cooldown = cfg.get("self_directed_cooldown_hours", 24)
+                if self_directed_ready(repo, cooldown):
+                    new_issue = create_self_directed_issue(repo, trigger_label, top_log)
+                    mark_self_directed_run(repo)
+                    if new_issue:
+                        issues = [new_issue]
+                else:
+                    top_log.write(f"[{repo}] self_directed cooldown not elapsed, skipping")
+
+            top_log.write(f"[{repo}] {len(issues)} candidate issue(s) labeled '{trigger_label}'")
+            for issue in issues:
+                process_issue(cfg, issue, top_log)
+    finally:
+        top_log.close()
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
