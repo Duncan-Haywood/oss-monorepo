@@ -538,6 +538,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "db-commerce-order-read-family-capture-error-sweep",
+    summary:
+      "Closed the Commerce (Buy now) ledger read family named as the deferred next slice in db-order-read-family-capture-error-sweep: listCommerceOrders, listUnpaidCommerceOrders, listCommerceOrdersRefunded, listCommerceOrdersDisputed, listCommerceOrdersMissingClientReceipt, and getCommerceOrderByStripeSessionId all only console.warn'd on a Convex-fallback failure. Wired captureError into all six, completing the read-path axis for both order families — no known unwired durable-write or live-read Convex-fallback catch remains as of this entry. See db-commerce-order-read-family-capture-error-sweep in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -891,6 +899,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "resend-webhook-suppression-write-capture-error",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 2af6ee33 (PR #914, resend-webhook-suppression-write-capture-error, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). No live sibling branch beyond the unrelated stale #202.",
+    shipped: [
+      "A dispatched research agent, told the observability axis was thoroughly covered and not to re-propose it without independent verification, re-read src/lib/db.ts directly and confirmed via grep the Commerce (Buy now) ledger read family — named as a deferred slice in db-order-read-family-capture-error-sweep — was genuinely still unwired: listCommerceOrders, listUnpaidCommerceOrders, listCommerceOrdersRefunded, listCommerceOrdersDisputed, listCommerceOrdersMissingClientReceipt, and getCommerceOrderByStripeSessionId all only console.warn on a Convex-fallback failure.",
+      "src/lib/db.ts — wired captureError into all six functions' existing Convex-fallback catches (components db-listCommerceOrders-convex-fallback / db-listUnpaidCommerceOrders-convex-fallback / db-listCommerceOrdersRefunded-convex-fallback / db-listCommerceOrdersDisputed-convex-fallback / db-listCommerceOrdersMissingClientReceipt-convex-fallback / db-getCommerceOrderByStripeSessionId-convex-fallback), same one-line pattern as every prior entry in this series. This completes the read-path axis for both order families — no known unwired durable-write or live-read Convex-fallback catch remains as of this entry.",
+      "src/lib/db.test.ts — extended each function's existing SQLite-fallback test with a captureError assertion, plus one new combined no-call-on-success test covering all five list* functions. Verified all six new/extended assertions actually catch the regression: git stash'd only db.ts's source change and confirmed all six failed with '0 calls' before restoring the fix. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended db-commerce-order-read-family-capture-error-sweep. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 2af6ee33.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (db.test.ts, 287/287 passed) then full suite (3637 passed, 213 files — 1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only orchestration fix with no route/UI surface change beyond a docs paragraph.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-commerce-order-read-family-capture-error-sweep",
     ),
   },
   {

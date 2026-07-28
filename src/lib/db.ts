@@ -3377,6 +3377,7 @@ export async function listCommerceOrders(
         "Failed to list commerce orders from Convex, falling back to SQLite",
         e,
       );
+      await captureError(e, { component: "db-listCommerceOrders-convex-fallback" });
     }
   }
 
@@ -3410,6 +3411,7 @@ export async function listUnpaidCommerceOrders(): Promise<CommerceOrderRecord[]>
         "Failed to list unpaid commerce orders from Convex, falling back to SQLite",
         e,
       );
+      await captureError(e, { component: "db-listUnpaidCommerceOrders-convex-fallback" });
     }
   }
 
@@ -3445,6 +3447,7 @@ export async function listCommerceOrdersRefunded(): Promise<CommerceOrderRecord[
         "Failed to list refunded commerce orders from Convex, falling back to SQLite",
         e,
       );
+      await captureError(e, { component: "db-listCommerceOrdersRefunded-convex-fallback" });
     }
   }
 
@@ -3479,6 +3482,7 @@ export async function listCommerceOrdersDisputed(): Promise<CommerceOrderRecord[
         "Failed to list disputed commerce orders from Convex, falling back to SQLite",
         e,
       );
+      await captureError(e, { component: "db-listCommerceOrdersDisputed-convex-fallback" });
     }
   }
 
@@ -3518,6 +3522,9 @@ export async function listCommerceOrdersMissingClientReceipt(): Promise<
         "Failed to list commerce orders missing client receipt from Convex, falling back to SQLite",
         e,
       );
+      await captureError(e, {
+        component: "db-listCommerceOrdersMissingClientReceipt-convex-fallback",
+      });
     }
   }
 
@@ -3548,6 +3555,7 @@ export async function getCommerceOrderByStripeSessionId(
         `Failed to get commerce order ${stripeSessionId} from Convex, falling back to SQLite`,
         e,
       );
+      await captureError(e, { component: "db-getCommerceOrderByStripeSessionId-convex-fallback" });
     }
   }
 
