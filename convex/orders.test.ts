@@ -94,6 +94,78 @@ test("markRecurringCanceledByCustomer only patches recurring-entitlement rows, a
   expect(rowsAfter.find((r) => r.stripeSessionId === "cs_growth")?.recurringCanceledAt).toBe(1_000);
 });
 
+test("markRecurringCanceledBySessionId only patches the named order, never a sibling sharing the same Customer id — stripe-checkout-recurring-upgrade-dedup-shared-customer-fix", async () => {
+  const t = convexTest(schema, modules);
+  // Old (superseded) and brand-new order share one reused Stripe Customer —
+  // the common Growth→Complete upgrade path once
+  // existingRecurringStripeCustomerId reuses the Customer.
+  await t.mutation(
+    api.orders.createOrder,
+    newOrderArgs({ tier: "growth", stripeSessionId: "cs_old", stripeCustomerId: "cus_shared" }),
+  );
+  await t.mutation(
+    api.orders.createOrder,
+    newOrderArgs({ tier: "complete", stripeSessionId: "cs_new", stripeCustomerId: "cus_shared" }),
+  );
+
+  await t.mutation(api.orders.markRecurringCanceledBySessionId, {
+    stripeSessionId: "cs_old",
+    canceledAt: 1_000,
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const rows: OrderRow[] = await t.query(api.orders.getByStripeCustomerId, {
+    stripeCustomerId: "cus_shared",
+    apiSecret: TEST_API_SECRET,
+  });
+  const oldRow = rows.find((r) => r.stripeSessionId === "cs_old");
+  const newRow = rows.find((r) => r.stripeSessionId === "cs_new");
+  expect(oldRow?.recurringCanceledAt).toBe(1_000);
+  // The brand-new order the customer just paid for must never be touched —
+  // this is the exact regression markOrdersRecurringCanceledByCustomer
+  // would have caused if used at this call site instead.
+  expect(newRow?.recurringCanceledAt).toBeUndefined();
+});
+
+test("markRecurringCanceledBySessionId is idempotent and ignores a non-recurring (Starter) order", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.orders.createOrder,
+    newOrderArgs({ tier: "starter", commerceAddon: false, stripeSessionId: "cs_starter" }),
+  );
+  await t.mutation(api.orders.markRecurringCanceledBySessionId, {
+    stripeSessionId: "cs_starter",
+    canceledAt: 1_000,
+    apiSecret: TEST_API_SECRET,
+  });
+  const starterRow = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_starter",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect((starterRow as OrderRow | null)?.recurringCanceledAt).toBeUndefined();
+
+  await t.mutation(
+    api.orders.createOrder,
+    newOrderArgs({ tier: "growth", stripeSessionId: "cs_growth", stripeCustomerId: "cus_idem" }),
+  );
+  await t.mutation(api.orders.markRecurringCanceledBySessionId, {
+    stripeSessionId: "cs_growth",
+    canceledAt: 1_000,
+    apiSecret: TEST_API_SECRET,
+  });
+  // Redelivery with a different timestamp must not move the already-canceled mark.
+  await t.mutation(api.orders.markRecurringCanceledBySessionId, {
+    stripeSessionId: "cs_growth",
+    canceledAt: 2_000,
+    apiSecret: TEST_API_SECRET,
+  });
+  const growthRow = await t.query(api.orders.getByStripeSessionId, {
+    stripeSessionId: "cs_growth",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect((growthRow as OrderRow | null)?.recurringCanceledAt).toBe(1_000);
+});
+
 test("clearRecurringCanceledByCustomer clears the pause and carries refundedAt/disputedAt forward untouched", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.orders.createOrder, newOrderArgs({ tier: "growth", stripeSessionId: "cs_growth" }));

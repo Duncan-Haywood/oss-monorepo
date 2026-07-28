@@ -13,7 +13,7 @@ import {
   orderHadRecurringEntitlement,
   orderHasActiveRecurringEntitlement,
   orderRecurringIsCanceled,
-  otherLiveRecurringStripeCustomerIdsToSupersede,
+  otherLiveRecurringOrdersToSupersede,
   stripeSubscriptionCancellationWasInternalSupersede,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
@@ -102,7 +102,7 @@ describe("existingRecurringStripeCustomerId", () => {
   });
 });
 
-describe("otherLiveRecurringStripeCustomerIdsToSupersede", () => {
+describe("otherLiveRecurringOrdersToSupersede", () => {
   const growthOrder = {
     stripeSessionId: "cs_old_growth",
     stripeCustomerId: "cus_old",
@@ -110,60 +110,53 @@ describe("otherLiveRecurringStripeCustomerIdsToSupersede", () => {
     commerceAddon: false,
   };
 
-  it("returns the prior live recurring Customer id when a second subscription lands", () => {
-    expect(
-      otherLiveRecurringStripeCustomerIdsToSupersede(
-        [growthOrder],
-        "cs_new_complete",
-        "cus_new",
-      ),
-    ).toEqual(["cus_old"]);
+  it("returns the prior live recurring order when a second subscription lands", () => {
+    expect(otherLiveRecurringOrdersToSupersede([growthOrder], "cs_new_complete")).toEqual([
+      { stripeSessionId: "cs_old_growth", stripeCustomerId: "cus_old" },
+    ]);
   });
 
   it("excludes the just-completed session's own order", () => {
     expect(
-      otherLiveRecurringStripeCustomerIdsToSupersede(
+      otherLiveRecurringOrdersToSupersede(
         [{ ...growthOrder, stripeSessionId: "cs_new_complete" }],
         "cs_new_complete",
-        "cus_new",
       ),
     ).toEqual([]);
   });
 
-  it("excludes an order sharing the new session's own Customer id (Billing Portal resync, not a duplicate)", () => {
+  it("still returns a prior order sharing the new session's own Customer id — the common case once existingRecurringStripeCustomerId reuses the Customer for a tier upgrade, not an exception to exclude (stripe-checkout-recurring-upgrade-dedup-shared-customer-fix)", () => {
     expect(
-      otherLiveRecurringStripeCustomerIdsToSupersede(
+      otherLiveRecurringOrdersToSupersede(
         [{ ...growthOrder, stripeCustomerId: "cus_new" }],
         "cs_new_complete",
-        "cus_new",
       ),
-    ).toEqual([]);
+    ).toEqual([{ stripeSessionId: "cs_old_growth", stripeCustomerId: "cus_new" }]);
   });
 
   it("excludes a non-recurring (Starter) prior order", () => {
     expect(
-      otherLiveRecurringStripeCustomerIdsToSupersede(
+      otherLiveRecurringOrdersToSupersede(
         [{ ...growthOrder, tier: "starter", commerceAddon: false }],
         "cs_new_complete",
-        "cus_new",
       ),
     ).toEqual([]);
   });
 
-  it("dedupes when multiple stray orders share the same superseded Customer id", () => {
+  it("returns one entry per stray order even when they share the same superseded Customer id", () => {
     expect(
-      otherLiveRecurringStripeCustomerIdsToSupersede(
+      otherLiveRecurringOrdersToSupersede(
         [growthOrder, { ...growthOrder, stripeSessionId: "cs_old_growth_2" }],
         "cs_new_complete",
-        "cus_new",
       ),
-    ).toEqual(["cus_old"]);
+    ).toEqual([
+      { stripeSessionId: "cs_old_growth", stripeCustomerId: "cus_old" },
+      { stripeSessionId: "cs_old_growth_2", stripeCustomerId: "cus_old" },
+    ]);
   });
 
   it("returns empty for a genuinely first-time recurring checkout (no prior orders)", () => {
-    expect(otherLiveRecurringStripeCustomerIdsToSupersede([], "cs_new_complete", "cus_new")).toEqual(
-      [],
-    );
+    expect(otherLiveRecurringOrdersToSupersede([], "cs_new_complete")).toEqual([]);
   });
 });
 

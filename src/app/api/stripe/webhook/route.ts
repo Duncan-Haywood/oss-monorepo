@@ -43,7 +43,7 @@ import {
   orderEligibleForPauseNotice,
   orderGrantsSoldCapabilityEntitlement,
   orderHadRecurringEntitlement,
-  otherLiveRecurringStripeCustomerIdsToSupersede,
+  otherLiveRecurringOrdersToSupersede,
   SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT,
   stripeSubscriptionCancellationWasInternalSupersede,
   stripeSubscriptionGrantsRecurringEntitlement,
@@ -1039,30 +1039,67 @@ export async function POST(request: Request) {
         }
 
         // A recurring order for this lead can supersede an earlier
-        // still-active recurring order for the SAME lead under a DIFFERENT
-        // Stripe Customer — e.g. the Growth→Complete upsell email's
-        // checkout link. existingRecurringStripeCustomerId (checkout route)
-        // now reuses the existing Customer for a fresh session going
-        // forward, but a lead can still end up with two live recurring
-        // orders (a pre-fix session, a race between two concurrent
-        // sessions, or any future recurring re-checkout path). Cancel the
-        // superseded Subscription(s) so the customer is not billed twice.
-        // Best-effort: a failure here is captured but does not fail this
-        // response — the new order is already correctly recorded above, and
-        // forcing a Stripe redelivery would re-run the receipt/DNS emails
-        // below, a worse trade-off than a rare missed cancellation
-        // surfacing only via captureError. See
-        // stripe-checkout-recurring-upgrade-dedup.
+        // still-active recurring order for the SAME lead — e.g. the
+        // Growth→Complete upsell email's checkout link.
+        // existingRecurringStripeCustomerId (checkout route) reuses the
+        // lead's existing Stripe Customer for that new session, so the OLD
+        // and NEW order usually share one Customer id; a stray pre-fix
+        // session or a two-tab race can still leave a genuinely different
+        // Customer behind too. Cancel the superseded Subscription(s) so the
+        // customer is not billed twice. Best-effort: a failure here is
+        // captured but does not fail this response — the new order is
+        // already correctly recorded above, and forcing a Stripe redelivery
+        // would re-run the receipt/DNS emails below, a worse trade-off than
+        // a rare missed cancellation surfacing only via captureError. See
+        // stripe-checkout-recurring-upgrade-dedup and
+        // stripe-checkout-recurring-upgrade-dedup-shared-customer-fix.
         if (Boolean(bundle.monthlyPriceIdEnv) || commerceAddon) {
           try {
-            const { listOrdersByLeadSlug } = await import("@/lib/db");
+            const { listOrdersByLeadSlug, markOrderRecurringCanceledBySessionId } =
+              await import("@/lib/db");
             const leadOrders = await listOrdersByLeadSlug(slug);
-            const supersededCustomerIds = otherLiveRecurringStripeCustomerIdsToSupersede(
-              leadOrders,
-              session.id,
-              stripeCustomerId,
-            );
+            const supersededOrders = otherLiveRecurringOrdersToSupersede(leadOrders, session.id);
+            // Present without expand on a subscription-mode Checkout
+            // Session. Used to tell the just-created Subscription apart
+            // from an old one sharing the SAME Customer id — Stripe never
+            // cancels/replaces an existing Subscription just because a new
+            // subscription-mode Checkout Session names that Customer; it
+            // mints a second, independent Subscription.
+            const newSubscriptionId =
+              typeof session.subscription === "string"
+                ? session.subscription
+                : (session.subscription?.id ?? null);
+            const supersededCustomerIds = [
+              ...new Set(supersededOrders.map((o) => o.stripeCustomerId)),
+            ];
+            const skippedCustomerIds = new Set<string>();
             for (const supersededCustomerId of supersededCustomerIds) {
+              const sharesNewCustomerId = supersededCustomerId === stripeCustomerId;
+              if (sharesNewCustomerId && !newSubscriptionId) {
+                // Can't safely distinguish the old Subscription from the
+                // brand-new one on this shared Customer without
+                // session.subscription (always present in subscription
+                // mode in practice) — a blind cancel-all here would risk
+                // canceling the Subscription the customer just paid for.
+                // Skip cancellation AND the CRM mark below for this
+                // Customer's order(s); surface for operator follow-up.
+                console.error(
+                  `webhook: recurring-upgrade supersede skipped for ${slug} after ${session.id} — shared Customer ${supersededCustomerId} but session.subscription missing`,
+                );
+                await captureError(
+                  new Error(
+                    "recurring-upgrade supersede: missing session.subscription on shared-Customer upgrade",
+                  ),
+                  {
+                    component: "stripe-webhook",
+                    eventType: event.type,
+                    eventId: event.id,
+                    failureKind: "supersede_recurring_subscription_missing_new_subscription_id",
+                  },
+                );
+                skippedCustomerIds.add(supersededCustomerId);
+                continue;
+              }
               // No status filter (Stripe's own default excludes only
               // status=canceled) — a superseded Subscription mid-dunning
               // (past_due/unpaid) or paused is exactly as live a duplicate-
@@ -1073,6 +1110,10 @@ export async function POST(request: Request) {
                 customer: supersededCustomerId,
               });
               for (const activeSubscription of activeSubscriptions.data) {
+                // A reused (shared) Customer id can carry both the brand-new
+                // Subscription just created above and the old superseded
+                // one in this same list — never cancel the new one.
+                if (newSubscriptionId && activeSubscription.id === newSubscriptionId) continue;
                 // cancellation_details.comment survives onto the resulting
                 // customer.subscription.deleted event so that handler's
                 // win-back notice can tell this apart from a genuine
@@ -1087,8 +1128,16 @@ export async function POST(request: Request) {
                   `webhook: canceled superseded subscription ${activeSubscription.id} (customer ${supersededCustomerId}) for ${slug} after ${session.id} recurring upgrade`,
                 );
               }
-              await markOrdersRecurringCanceledByCustomer(
-                supersededCustomerId,
+            }
+            // Mark each superseded ORDER individually by its own
+            // stripeSessionId — never markOrdersRecurringCanceledByCustomer
+            // here, since a reused (shared) Customer id would also patch
+            // the brand-new order the customer just paid for. See
+            // stripe-checkout-recurring-upgrade-dedup-shared-customer-fix.
+            for (const supersededOrder of supersededOrders) {
+              if (skippedCustomerIds.has(supersededOrder.stripeCustomerId)) continue;
+              await markOrderRecurringCanceledBySessionId(
+                supersededOrder.stripeSessionId,
                 Date.now(),
                 WEBHOOK_CONVEX_PRIMARY,
               );
