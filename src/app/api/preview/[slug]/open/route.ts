@@ -8,6 +8,7 @@ import {
 } from "@/lib/leads/preview-open";
 import { PREVIEW_OPEN_CONVEX_PRIMARY } from "@/lib/leads/preview-open-persist";
 import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
+import { captureError } from "@/lib/observability/error-tracking";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
@@ -95,6 +96,8 @@ export async function POST(request: Request, context: RouteContext) {
     );
     return NextResponse.json({ ok: true, recorded: result.recorded });
   } catch (error) {
+    console.error(`preview-open persist failed for ${slug}:`, error);
+    await captureError(error, { component: "preview-open", failureKind: "persist_failed" });
     if (error instanceof ConvexPrimaryWriteError) {
       return NextResponse.json(
         {

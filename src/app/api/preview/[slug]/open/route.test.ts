@@ -3,16 +3,22 @@ import { PREVIEW_OPEN_CONVEX_PRIMARY } from "@/lib/leads/preview-open-persist";
 
 const getLeadBySlug = vi.fn();
 const recordLeadPreviewOpen = vi.fn();
+const captureError = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   getLeadBySlug: (...args: unknown[]) => getLeadBySlug(...args),
   recordLeadPreviewOpen: (...args: unknown[]) => recordLeadPreviewOpen(...args),
 }));
 
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("POST /api/preview/[slug]/open — requireConvex", () => {
   beforeEach(() => {
     getLeadBySlug.mockReset();
     recordLeadPreviewOpen.mockReset();
+    captureError.mockReset().mockResolvedValue(undefined);
     getLeadBySlug.mockResolvedValue({
       slug: "demo-cafe",
       stage: "outreach_sent",
@@ -46,15 +52,14 @@ describe("POST /api/preview/[slug]/open — requireConvex", () => {
     );
   });
 
-  it("returns 503 when ConvexPrimaryWriteError is thrown", async () => {
+  it("returns 503 when ConvexPrimaryWriteError is thrown, and reports it via captureError (persist_failed)", async () => {
     // Import the same module instance the route will use after resetModules,
     // otherwise instanceof fails across duplicate class identities.
     const { ConvexPrimaryWriteError } = await import(
       "@/lib/payments/convex-primary"
     );
-    recordLeadPreviewOpen.mockRejectedValue(
-      new ConvexPrimaryWriteError("recordLeadPreviewOpen", new Error("boom")),
-    );
+    const persistError = new ConvexPrimaryWriteError("recordLeadPreviewOpen", new Error("boom"));
+    recordLeadPreviewOpen.mockRejectedValue(persistError);
     const { POST } = await import("./route");
     const response = await POST(
       new Request("http://localhost/api/preview/demo-cafe/open?src=outreach", {
@@ -70,6 +75,32 @@ describe("POST /api/preview/[slug]/open — requireConvex", () => {
     expect(json.ok).toBe(false);
     expect(json.recorded).toBe(false);
     expect(json.reason).toBe("persist_failed");
+    expect(captureError).toHaveBeenCalledWith(persistError, {
+      component: "preview-open",
+      failureKind: "persist_failed",
+    });
+  });
+
+  it("rethrows a non-ConvexPrimaryWriteError after reporting it via captureError", async () => {
+    const unexpectedError = new Error("unexpected db outage");
+    recordLeadPreviewOpen.mockRejectedValue(unexpectedError);
+    const { POST } = await import("./route");
+
+    await expect(
+      POST(
+        new Request("http://localhost/api/preview/demo-cafe/open?src=outreach", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: "{}",
+        }),
+        { params: Promise.resolve({ slug: "demo-cafe" }) },
+      ),
+    ).rejects.toThrow("unexpected db outage");
+
+    expect(captureError).toHaveBeenCalledWith(unexpectedError, {
+      component: "preview-open",
+      failureKind: "persist_failed",
+    });
   });
 
   it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
