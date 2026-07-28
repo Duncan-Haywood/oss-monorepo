@@ -68,6 +68,12 @@ export const humanNotificationLog: HumanNotificationRecord[] = [
     reason:
       "Repeat reminder per shouldNotifyHuman(72)'s throttle, crossed by ~2 minutes (~72.02h since the last notification). recentlyConfirmedWithinHours(12) was true (last full pass ~4h earlier) so this session did only the cheap check — independently re-confirmed via the GitHub Actions API (run 30130451157 on main, all 3 jobs runner_id 0 / empty runner_name / ~4-5s duration) that the CI runner outage is unresolved, now ~166h (~6.9 days) old. leads-log.ts/listingAuditLog/loggedInterviewResults still empty, PR #4 still the only open PR (draft/unchanged), nextActionableTasks() still empty (p3-app-scope still gated on p1-run-interviews + p2-first-deliveries, neither done). Business remains 100% human-blocked on the same 7 items as every notification since 2026-07-19; nothing new to report beyond the elapsed time.",
   },
+  {
+    notifiedAt: "2026-07-28T02:13:00Z",
+    notifiedBy: "claude/dazzling-allen-4lun7j",
+    reason:
+      "Repeat reminder per shouldNotifyHuman(72)'s throttle, crossed by ~2 minutes (~72.03h since the last notification). recentlyConfirmedWithinHours(24) was true (last full pass ~9h earlier) so this session did only the cheap check per step 0a: leads-log.ts/listingAuditLog/loggedInterviewResults still empty, PR #4 still the only open PR (draft/unchanged since 2026-06-15), nextActionableTasks() still empty (p3-app-scope still gated on p1-run-interviews + p2-first-deliveries, neither done). Independently re-confirmed via the GitHub Actions API that the CI runner outage is unresolved on the newest run on main (30288508209, created 2026-07-27T17:16:25Z, all 3 jobs runner_id 0 / empty runner_name / 3-11s duration, conclusion failure) — now ~238h (~9.9 days) old with zero sign of self-resolving, the single most time-sensitive item. Branch count read as 62 non-main branches this session (vs. 60 last recorded); spot-checked and every branch beyond the prior count is pre-existing mid-July scaffolding, not new concurrent-agent work, so treated as a recount correction rather than a new finding. Business remains 100% human-blocked on the same 7 items as every notification since 2026-07-19; nothing new to report beyond the elapsed time and the outage's continued duration.",
+  },
 ];
 
 /** Hours since the last out-of-band notification was sent. Infinity if none ever sent. */
