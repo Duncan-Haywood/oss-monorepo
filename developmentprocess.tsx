@@ -20,9 +20,14 @@
  *                                to a couple, and how to check a new one
  *   docs/CONVERGENCE.md          how many answers clearing that bar actually
  *                                costs, and how to measure a pairing change
+ *   docs/POOLING.md              the largest available precision win, measured,
+ *                                and why taking it would delete the product
  *   docs/TESTING.md              what is covered, what is not, and how to add to it
  *   docs/UNATTENDED-SESSIONS.md  how to work here when nobody is watching, and
  *                                what happens when several sessions forget to
+ *   docs/PULL-REQUEST-BACKLOG.md a disposition for each unmerged pull request
+ *   docs/decisions/              why an obvious simplification was rejected —
+ *                                read before undoing something that looks odd
  *   IMPROVEMENT-PLAN.md          the live backlog, ordered by priority
  *
  * The component is not routed. Internal process notes are not something to

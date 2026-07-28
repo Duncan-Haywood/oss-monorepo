@@ -85,6 +85,40 @@ questions a simulation can answer**, because those are exactly the questions a
 person with the app in front of them will not think to ask, and they do not
 need a database, a browser, or a merge to be worth doing.
 
+## Twenty-three: describing a queue is not draining one
+
+The count is twenty-three. This is the sixth session to write up the same P0.
+
+The five before it each described the pile accurately and each added to it. The
+description was never the missing thing — the account owner does not need to be
+told there are twenty-three pull requests, they need to know which of them can
+be closed without reading. That is computable and nobody had computed it:
+
+```bash
+git merge-base --is-ancestor origin/claude/<branch> HEAD
+```
+
+Six of the twenty-three are ancestors of this branch, so merging it closes them
+and nothing is lost. Sixteen are superseded. One had a genuinely distinct
+artifact — the decision records — which is now imported here rather than closed
+along with it. The result is [PULL-REQUEST-BACKLOG.md](PULL-REQUEST-BACKLOG.md),
+and draining the queue is a mechanical job rather than a research one.
+
+The general form: **when a run's contribution would be a sixth description of a
+known problem, look for the part of that problem that is computable.** A
+disposition is worth more than a diagnosis, and unlike a diagnosis it does not
+need the reader to already be paying attention.
+
+The other half of this session was a simulation that *closed* a backlog item
+rather than adding one — pooling across perspectives, open for several sessions
+as "the largest untaken win", now measured and rejected with the numbers written
+down ([POOLING.md](POOLING.md)). That is the other thing an unattended run is
+unusually good at: a question nobody has bothered to measure stays open forever
+by default, and closing one permanently is worth more than another attempt at
+the top of the list. Note which way it went — the idea was good, the
+implementation works, and it still had to be rejected. A simulation is only
+worth running if you would publish the result that says no.
+
 ## What a deletion leaves behind
 
 The consolidation deleted the intro form, which was right — it collected sex,

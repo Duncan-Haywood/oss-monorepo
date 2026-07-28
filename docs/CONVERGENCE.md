@@ -85,10 +85,14 @@ information is not there.
 The remaining honest options are the ones
 [IMPROVEMENT-PLAN.md](../IMPROVEMENT-PLAN.md) tracks:
 
-- **Pool evidence across the three perspectives.** SELF, PARTNER_IDEAL and
-  PARTNER_GUESS rate the same items and currently share nothing. They are
-  correlated in a way that a hierarchical prior could exploit — the largest
-  untaken win, and the one most likely to be got subtly wrong.
+- ~~**Pool evidence across the three perspectives.**~~ **Measured and closed.**
+  It works — items under rd 150 go from 3–4 to 28–29 at a realistic budget —
+  and it works by pulling PARTNER_GUESS onto SELF (correlation 0.97–0.99
+  against a true 0.37), which is the egocentric bias the blind-spots screen
+  exists to detect. See [POOLING.md](POOLING.md) and
+  [decisions/0006](decisions/0006-no-pooling-across-perspectives.md). What is
+  *not* closed is using other perspectives to choose which questions to ask,
+  which cannot bias an estimate and has never been measured.
 - **Shrink the combined survey.** 220 items is a superset of the other six. If
   the couple screen only ever needs the top of the ranking, it does not need
   the tail.

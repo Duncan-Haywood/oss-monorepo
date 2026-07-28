@@ -16,7 +16,18 @@ mean:
 
 ## Open
 
-### P0 — Twenty-one parallel pull requests, none merged
+### P0 — Twenty-three parallel pull requests, none merged
+
+**This session's contribution is a disposition for every one of them**, computed
+from the commit graph rather than the titles:
+[`docs/PULL-REQUEST-BACKLOG.md`](docs/PULL-REQUEST-BACKLOG.md). Six are contained
+in this branch and close by merging it; sixteen are superseded; one (#8) had the
+only genuinely distinct artifact in the pile — the decision records — which have
+been imported here rather than closed with it. Draining the queue is now a
+mechanical job. The count went 21 → 23 while that was being written.
+
+The rest of this entry is the previous sessions' write-up, kept because the
+history is the point:
 
 Twenty-one scheduled sessions opened twenty-one branches off `b887731`, each
 rediscovering the same lint errors and the same conjoint bug. #12 consolidated
@@ -179,10 +190,22 @@ rd 200 falling from 81 to 58. Breadth of weak estimates was exchanged for depth
 of usable ones. Since nothing on the couple screen is shown at rd 200, that is
 the right trade, but it is a trade.
 
-**Still open, in the order I would take them:** pool evidence across the three
-perspectives (they rate the same items and share nothing — the largest untaken
-win, and the easiest to get subtly wrong); shrink the combined survey, which is
-a superset of the other six; or say up front what 60 answers buys. See
+**Pooling is now measured and closed.** It was the top of this list for several
+sessions. It delivers what it promised — items under rd 150 go from 3–4 to
+28–29 at 90 answers per perspective — and it delivers it by shrinking
+PARTNER_GUESS onto SELF: correlation 0.97–0.99 against a true 0.37. That is the
+egocentric bias the blind-spots screen exists to detect, manufactured by the
+estimator and then reported as a finding about the couple. The `tau` that was
+supposed to prevent this collapses toward zero at exactly the budget where the
+shrinkage is strongest. Written up in [`docs/POOLING.md`](docs/POOLING.md), with
+the implementation kept unimported in `src/lib/pooling.ts` so the decision can be
+re-argued against a real estimator. See
+[`decisions/0006`](docs/decisions/0006-no-pooling-across-perspectives.md).
+
+**Still open, in the order I would take them:** shrink the combined survey,
+which is a superset of the other six; say up front what 60 answers buys; or
+pool across perspectives *for question selection only*, which cannot bias an
+estimate and is the one form of the idea nothing above refutes. See
 [`docs/CONVERGENCE.md`](docs/CONVERGENCE.md).
 
 ### P1 → resolved on this branch — The comparison screen reported its own noise as findings
