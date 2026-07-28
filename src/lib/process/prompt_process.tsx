@@ -784,5 +784,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "process-log-archive-27-iterations-split",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-0vp7am",
+    summary:
+      "Scheduled routine. Session started on a stale local checkout (a prior same-named branch's content had already merged, remote ref gone) — reset onto a freshly re-fetched origin/main (338449dc, PR #941). All recently-pushed sibling branches were 0-ahead of main; mcp__github__list_pull_requests found only the unrelated stale draft PR #202. Baseline green.",
+    shipped: [
+      "Hit two consecutive dual-build collisions with the same swarm this iteration, both reviewed and resolved without shipping duplicate code. First: implemented a full fix for sendSubscriptionCanceledNotice's hardcoded 'monthly' copy / missing &billing=annual link (persisting a new billingInterval column on orders end to end, 11 new tests, confirmed regression check) — before pushing, found sibling PR #944 had merged an equivalent fix (subscription-canceled-notice-annual-billing-copy) that derives the interval directly from the live Stripe Subscription instead of a persisted field. Reviewed it, confirmed correct and simpler, discarded my duplicate.",
+      "Second: with that fix superseded, did the process-log re-archive both prior entries had flagged as the next urgent task (prompt_process.tsx was over the 262,144-byte trigger). Split both NEXT_STEPS (into archive/next-steps-done-archive-06.ts) and ITERATIONS (into archive/iterations-archive-27.ts) — before pushing, found sibling PR #945 had merged the exact same ITERATIONS split under the identical filename. Diffed the two: byte-for-byte identical (both extracted the same oldest 21 entries, deterministically). Adopted theirs, discarded mine. Confirmed the NEXT_STEPS half is no longer necessary — their ITERATIONS-only split already brought prompt_process.tsx to 190,916 bytes, comfortably under the trigger, so shipping the NEXT_STEPS split too would be unneeded churn in an already fast-moving window.",
+      "Fast-forwarded onto the current origin/main (fa2c51ab → 57c53a88) with no changes of my own to add — both intended contributions were independently covered by siblings. Re-ran the full verification gate against the fast-forwarded tip to confirm it's still green before concluding the iteration.",
+      "No files changed by this session (both attempted contributions were superseded before push). src/lib/process/business-decisions.ts — this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked, unchanged.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3925 passed, 230 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same 64-route split, no new warnings), all against the fast-forwarded origin/main tip.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "dual-build-collision-review-billing-interval-and-process-log-archive",
+    ),
+  },
 ];
 
