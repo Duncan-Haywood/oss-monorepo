@@ -10,6 +10,11 @@ vi.mock("@/lib/db", () => ({
   suppressEmail: (...args: unknown[]) => suppressEmail(...args),
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 const SECRET = "whsec_" + Buffer.from("test-signing-key-bytes").toString("base64");
 const NOW_SECONDS = Math.floor(Date.now() / 1000);
 
@@ -42,6 +47,7 @@ describe("POST /api/resend/webhook", () => {
   beforeEach(() => {
     suppressEmail.mockReset();
     suppressEmail.mockResolvedValue(undefined);
+    captureError.mockReset().mockResolvedValue(undefined);
     resetRateLimiterForTests();
     process.env.RESEND_WEBHOOK_SECRET = SECRET;
   });
@@ -181,8 +187,9 @@ describe("POST /api/resend/webhook", () => {
     expect(suppressEmail).not.toHaveBeenCalled();
   });
 
-  it("returns 500 (so Resend retries) when the suppression write fails", async () => {
-    suppressEmail.mockRejectedValueOnce(new Error("db unavailable"));
+  it("returns 500 (so Resend retries) when the suppression write fails, and reports it via captureError (suppression_write)", async () => {
+    const writeError = new Error("db unavailable");
+    suppressEmail.mockRejectedValueOnce(writeError);
     const { POST } = await import("./route");
     const body = JSON.stringify({ type: "email.complained", data: { to: ["angry@example.com"] } });
     const response = await POST(signedRequest(body));
@@ -190,6 +197,18 @@ describe("POST /api/resend/webhook", () => {
 
     expect(response.status).toBe(500);
     expect(json.received).toBe(false);
+    expect(captureError).toHaveBeenCalledWith(writeError, {
+      component: "resend-webhook",
+      eventType: "email.complained",
+      failureKind: "suppression_write",
+    });
+  });
+
+  it("does not call captureError when the suppression write succeeds", async () => {
+    const { POST } = await import("./route");
+    const body = JSON.stringify({ type: "email.bounced", data: { to: ["bounced@example.com"] } });
+    await POST(signedRequest(body));
+    expect(captureError).not.toHaveBeenCalled();
   });
 
   it("rate-limits after DEFAULT-exceeding volume from one IP, without ever un-verifying a real signature", async () => {
