@@ -760,6 +760,39 @@ describe("POST /api/stripe/webhook", () => {
         expect.any(Number),
       );
     });
+
+    it("skips the win-back notice when this app canceled the Subscription itself for a recurring-upgrade supersede (stripe-checkout-recurring-upgrade-dedup)", async () => {
+      // The CRM cancel-marking and stale-marker-clear blocks still run
+      // (harmless/idempotent — the bundle-order handler already marked this
+      // customer's order recurringCanceledAt synchronously); only the
+      // customer-facing win-back email must not fire.
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([]);
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: {
+          object: {
+            id: "sub_superseded",
+            customer: "cus_superseded",
+            cancellation_details: { comment: "superseded_by_recurring_upgrade" },
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+        "cus_superseded",
+        expect.any(Number),
+        { requireConvex: true },
+      );
+      // Only the stale-marker-clear lookup ran (one call) — the win-back
+      // block's own second lookup never happened.
+      expect(getOrdersByStripeCustomerId).toHaveBeenCalledTimes(1);
+      expect(getLeadBySlug).not.toHaveBeenCalled();
+      expect(sendSubscriptionCanceledNotice).not.toHaveBeenCalled();
+      expect(recordBillingNoticeSendOutcome).not.toHaveBeenCalled();
+    });
   });
 
   describe("customer.subscription.created|updated CRM reactivate", () => {
@@ -4291,7 +4324,13 @@ describe("POST /api/stripe/webhook", () => {
         const response = await POST(webhookRequest());
         expect(response.status).toBe(200);
         expect(listSubscriptions).toHaveBeenCalledWith({ customer: "cus_old", status: "active" });
-        expect(cancelSubscription).toHaveBeenCalledWith("sub_old_1");
+        // cancellation_details.comment lets the customer.subscription.deleted
+        // handler's win-back notice tell this apart from a genuine
+        // customer-initiated cancel and skip it (subscription-canceled-
+        // win-back-notice suppression).
+        expect(cancelSubscription).toHaveBeenCalledWith("sub_old_1", {
+          cancellation_details: { comment: "superseded_by_recurring_upgrade" },
+        });
         expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
           "cus_old",
           expect.any(Number),

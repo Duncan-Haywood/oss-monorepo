@@ -14,6 +14,7 @@ import {
   orderHasActiveRecurringEntitlement,
   orderRecurringIsCanceled,
   otherLiveRecurringStripeCustomerIdsToSupersede,
+  stripeSubscriptionCancellationWasInternalSupersede,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
@@ -168,6 +169,31 @@ describe("otherLiveRecurringStripeCustomerIdsToSupersede", () => {
     expect(otherLiveRecurringStripeCustomerIdsToSupersede([], "cs_new_complete", "cus_new")).toEqual(
       [],
     );
+  });
+});
+
+describe("stripeSubscriptionCancellationWasInternalSupersede", () => {
+  it("recognizes this app's own supersede-cleanup cancellation comment", () => {
+    expect(
+      stripeSubscriptionCancellationWasInternalSupersede({
+        cancellation_details: { comment: "superseded_by_recurring_upgrade" },
+      }),
+    ).toBe(true);
+  });
+
+  it("returns false for a genuine customer-initiated cancellation", () => {
+    expect(
+      stripeSubscriptionCancellationWasInternalSupersede({
+        cancellation_details: { comment: "too_expensive" },
+      }),
+    ).toBe(false);
+  });
+
+  it("returns false when cancellation_details is absent", () => {
+    expect(stripeSubscriptionCancellationWasInternalSupersede({})).toBe(false);
+    expect(
+      stripeSubscriptionCancellationWasInternalSupersede({ cancellation_details: null }),
+    ).toBe(false);
   });
 });
 

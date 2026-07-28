@@ -113,6 +113,28 @@ export function otherLiveRecurringStripeCustomerIdsToSupersede(
 }
 
 /**
+ * Stripe Subscription cancellation_details.comment value stamped on a
+ * Subscription this app cancels itself to dedupe a lead's OTHER live
+ * recurring order after a tier-upgrade Checkout Session completes (see
+ * otherLiveRecurringStripeCustomerIdsToSupersede) — never a customer-
+ * initiated cancellation. The customer.subscription.deleted handler's
+ * win-back notice (subscription-canceled-win-back-notice) must check this
+ * before sending: a customer who just upgraded must not get a "sorry to see
+ * you go" email for the internal cleanup of their own superseded
+ * subscription.
+ */
+export const SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT = "superseded_by_recurring_upgrade";
+
+/** True when a customer.subscription.deleted event's Subscription was canceled by this app's own supersede cleanup, not the customer. */
+export function stripeSubscriptionCancellationWasInternalSupersede(subscription: {
+  cancellation_details?: { comment?: string | null } | null;
+}): boolean {
+  return (
+    subscription.cancellation_details?.comment === SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT
+  );
+}
+
+/**
  * Full gate for sold monthly capability delivery (marketing packs / voice
  * packs / commerce catalog + Buy now checkout): active recurring entitlement
  * AND the charge itself was never refunded or disputed. A Stripe refund or

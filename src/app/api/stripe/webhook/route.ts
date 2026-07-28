@@ -44,6 +44,8 @@ import {
   orderGrantsSoldCapabilityEntitlement,
   orderHadRecurringEntitlement,
   otherLiveRecurringStripeCustomerIdsToSupersede,
+  SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT,
+  stripeSubscriptionCancellationWasInternalSupersede,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
@@ -1066,7 +1068,16 @@ export async function POST(request: Request) {
                 status: "active",
               });
               for (const activeSubscription of activeSubscriptions.data) {
-                await stripe.subscriptions.cancel(activeSubscription.id);
+                // cancellation_details.comment survives onto the resulting
+                // customer.subscription.deleted event so that handler's
+                // win-back notice can tell this apart from a genuine
+                // customer-initiated cancellation and skip it — see
+                // stripeSubscriptionCancellationWasInternalSupersede.
+                await stripe.subscriptions.cancel(activeSubscription.id, {
+                  cancellation_details: {
+                    comment: SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT,
+                  },
+                });
                 console.log(
                   `webhook: canceled superseded subscription ${activeSubscription.id} (customer ${supersededCustomerId}) for ${slug} after ${session.id} recurring upgrade`,
                 );
@@ -1343,6 +1354,15 @@ export async function POST(request: Request) {
       // sites: markOrdersRecurringCanceledByCustomer above just set
       // recurringCanceledAt on the very order this notice is about, so the
       // narrower orderGrantsSoldCapabilityEntitlement would always reject it.
+      //
+      // Skip entirely when this Subscription was canceled by this app's own
+      // recurring-upgrade-supersede cleanup (stripe-checkout-recurring-
+      // upgrade-dedup), not the customer — that customer just upgraded, not
+      // canceled, and must not get a "sorry to see you go" win-back email
+      // for the internal dedup of their own superseded subscription.
+      if (stripeSubscriptionCancellationWasInternalSupersede(subscription)) {
+        break;
+      }
       try {
         const { getOrdersByStripeCustomerId, getLeadBySlug, recordBillingNoticeSendOutcome } =
           await import("@/lib/db");
