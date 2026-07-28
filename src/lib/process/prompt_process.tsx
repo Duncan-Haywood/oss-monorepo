@@ -916,4 +916,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "db-commerce-order-read-family-capture-error-sweep",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-k0ga61",
+    summary:
+      "Scheduled routine, picked up at origin/main tip 916c847e (PR #915, db-commerce-order-read-family-capture-error-sweep, merged prior session) — HEAD matched origin/main exactly at session start. No live claude/* sibling PR (the only open PR remains #202, a weeks-stale unrelated human draft). Baseline confirmed green after npm ci.",
+    shipped: [
+      "A grep across src/ and convex/ for console.error/console.warn catches missing a captureError import found two genuine remaining gaps beyond db.ts (which the immediately preceding entry closed): src/app/api/unsubscribe/route.ts's shared verifyAndSuppress helper's suppressEmail catch, and src/app/api/contact/[slug]/route.ts's insertClientInquiry catch — both durable-write failures on public routes that previously only console.error'd.",
+      "src/app/api/unsubscribe/route.ts + src/app/api/contact/[slug]/route.ts — wired captureError into each catch (component: \"unsubscribe\" / \"contact-form\", failureKind: \"suppression_write\" / \"inquiry_persist\"), same one-line pattern as every prior entry in this series. Both route.test.ts files extended with a captureError-call assertion on the existing throw-path test plus a new no-call-on-success test. Verified via the git-stash regression-catching technique (all four new/extended assertions failed with 0 calls pre-fix).",
+      "src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended public-route-durable-write-capture-error-sweep. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked.",
+      "Verified: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (both route.test.ts files, 48/48 passed) then full suite (3640 passed, 213 files — 4 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "public-route-durable-write-capture-error-sweep",
+    ),
+  },
 ];

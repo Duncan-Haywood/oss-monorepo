@@ -4683,6 +4683,29 @@ source). The same digest also lists email-critical leads with no usable address 
         bundle-order family closed above. Same one-line <code>captureError</code> pattern,
         completing the read-path axis for both order families.
       </p>
+      <p>
+        <code>public-route-durable-write-capture-error-sweep</code>: with every{" "}
+        <code>db.ts</code> read/write and both webhook handlers wired, the next unwired gap was
+        two public-facing routes whose own durable-write catch never called{" "}
+        <code>captureError</code> at all — a different axis from the db-layer sweeps above, since
+        these two calls are already wrapped in a route-level <code>try/catch</code> that only ever{" "}
+        <code>console.error</code>&apos;d.{" "}
+        <code>src/app/api/unsubscribe/route.ts</code>&apos;s shared{" "}
+        <code>verifyAndSuppress</code> helper (both the browser GET link and the RFC 8058 POST
+        one-click endpoint route through it) catches a thrown <code>suppressEmail</code> failure
+        and already fails closed with a 500, but never reported it — a lost CAN-SPAM/complaint
+        suppression write is silently invisible beyond raw platform logs, the same
+        sender-reputation-protection blind spot the Resend webhook fix above already closed for
+        the inbound side. <code>src/app/api/contact/[slug]/route.ts</code>&apos;s{" "}
+        <code>insertClientInquiry</code> catch is the Starter sold contact-form CRM persist write
+        — a failure here means a visitor&apos;s message is dropped from the business&apos;s inbox
+        with no operator signal at all (the route already refuses to claim success without a
+        durable row via <code>contactPersistOutcome</code>, but that guard alone doesn&apos;t
+        surface why persistence keeps failing). Wired <code>captureError</code> into both catches
+        (<code>component: &quot;unsubscribe&quot;</code> /{" "}
+        <code>component: &quot;contact-form&quot;</code>, each with its own{" "}
+        <code>failureKind</code>), same one-line pattern as every prior entry in this series.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
