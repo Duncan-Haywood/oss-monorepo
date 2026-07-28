@@ -59,6 +59,14 @@ const MAX_CONTEXT_VALUE_LENGTH = 500;
 const MAX_STACK_LENGTH = 2000;
 /** Bounds how many context keys are forwarded, in case a caller passes something unbounded. */
 const MAX_CONTEXT_KEYS = 20;
+/**
+ * Soft cap on the message field — unlike stack/context, message comes
+ * straight from `error.message` (or `String(error)` for a non-Error thrown
+ * value) with no cap of its own before this fix. A library that embeds a
+ * large response body or payload into its thrown message would otherwise
+ * bypass every other size bound this module enforces.
+ */
+const MAX_MESSAGE_LENGTH = 500;
 
 /** True when the operator has set a destination for error-tracking payloads on this deploy. */
 export function isErrorTrackingConfigured(env: EnvLike = process.env): boolean {
@@ -110,7 +118,11 @@ export function buildErrorTrackingPayload(
   nowIso: string,
 ): ErrorTrackingPayload {
   const { component, severity = "error", ...rest } = context;
-  const message = error instanceof Error ? error.message : String(error);
+  const rawMessage = error instanceof Error ? error.message : String(error);
+  const message =
+    rawMessage.length > MAX_MESSAGE_LENGTH
+      ? `${rawMessage.slice(0, MAX_MESSAGE_LENGTH)}…`
+      : rawMessage;
   const stack =
     error instanceof Error && typeof error.stack === "string"
       ? error.stack.length > MAX_STACK_LENGTH

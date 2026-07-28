@@ -63,6 +63,37 @@ describe("buildErrorTrackingPayload", () => {
     expect(payload.severity).toBe("warning");
   });
 
+  it("truncates an oversized error message rather than sending it unbounded", () => {
+    const longMessage = "x".repeat(1000);
+    const payload = buildErrorTrackingPayload(
+      new Error(longMessage),
+      { component: "test" },
+      "2026-07-28T00:00:00.000Z",
+    );
+    expect(payload.message.length).toBeLessThan(600);
+    expect(payload.message.endsWith("…")).toBe(true);
+  });
+
+  it("truncates an oversized non-Error thrown value the same way", () => {
+    const longThrow = "y".repeat(1000);
+    const payload = buildErrorTrackingPayload(
+      longThrow,
+      { component: "test" },
+      "2026-07-28T00:00:00.000Z",
+    );
+    expect(payload.message.length).toBeLessThan(600);
+    expect(payload.message.endsWith("…")).toBe(true);
+  });
+
+  it("does not truncate a message at or under the cap", () => {
+    const payload = buildErrorTrackingPayload(
+      new Error("short message"),
+      { component: "test" },
+      "2026-07-28T00:00:00.000Z",
+    );
+    expect(payload.message).toBe("short message");
+  });
+
   it("truncates an oversized context string value rather than dropping it", () => {
     const longValue = "x".repeat(1000);
     const payload = buildErrorTrackingPayload(
