@@ -16,18 +16,24 @@ mean:
 
 ## Open
 
-### P0 — Twelve parallel pull requests, none merged
+### P0 — Fifteen parallel pull requests, none merged
 
-Twelve scheduled sessions opened twelve branches off `b887731`, each
+Fifteen scheduled sessions opened fifteen branches off `b887731`, each
 rediscovering the same lint errors and the same conjoint bug. #12 consolidated
-the distinct fixes from #1–#9; this branch extends #12 rather than opening a
-thirteenth beside it, so merging it closes the lot.
+the distinct fixes from #1–#9, #14 extended #12, and this branch extends #14,
+so merging it closes the lot.
 
-The branch rule works — this session followed it and avoided the duplicate. It
-is not the binding constraint. **Nothing merges without the account owner**, and
-until it does, every scheduled run adds a pull request without moving the
-project. That is now a notification at the start of a run, not a line in a PR
-body; see [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
+The branch rule works — three sessions in a row have now followed it and
+extended rather than forked. It is not the binding constraint. **Nothing merges
+without the account owner**, and until it does, every scheduled run adds a pull
+request without moving the project. That is a notification at the start of a
+run, not a line in a PR body; see
+[`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
+
+The count has gone 9 → 12 → 15 across three write-ups of this same item, which
+is the honest measure of how well "write it down again" works. The open
+question is no longer technical: it is whether this task should keep firing at
+its current frequency while nothing it produces can land.
 
 ### P1 — `trials/next` creates a Trial row on every page load
 
@@ -38,17 +44,17 @@ rather than people giving up.
 **Fix:** only count a trial as shown once it has been on screen briefly, or
 reconcile against `msToAnswer` when reading the metric. ~2 hours.
 
-### P1 — No consent notice where data is actually collected
+### P1 — Decide what to do with six dead columns on `Participant`
 
-The intro form asks for name, email, sex, age and ethnicity — two of those are
-special-category data — and says only that the details let answers be told
-apart. The privacy policy exists but is linked from the profile screen, which
-someone who never signs in will not see. Goal 5 is "safe to hand to someone you
-love", and this is the gap in it.
+`lastName`, `email`, `sex`, `age`, `ethnicity` and `countryOfResidence` are no
+longer written by anything and no longer accepted by `session/start`, but the
+columns still exist and may hold values entered on the intro form before it was
+removed. Dropping a column drops its contents, so this is the account owner's
+call rather than a migration's side effect.
 
-**Fix:** one line above the form saying what is collected and why, linking the
-privacy policy, and drop any field that is not actually used for anything.
-~1 hour.
+**Fix:** check whether any row is non-null in any of the six; if not, drop them
+and remove them from the admin export. If so, decide first. ~1 hour once the
+answer is known. See [`docs/DATA-COLLECTION.md`](docs/DATA-COLLECTION.md).
 
 ### P2 — Not every route handles its own failures
 
@@ -162,6 +168,16 @@ Kept so the plan can be trusted as a record rather than re-litigated.
   person's answers cannot move another's ranking.
 - **Real PII hard-coded in the runner components.** Removed; the intro form
   starts blank and the app is `noindex` app-wide.
+- **No consent notice where data is collected, and a privacy policy that
+  described a form that no longer existed.** The intro form was deleted in the
+  consolidation, but `session/start` went on parsing and storing `lastName`,
+  `email`, `sex`, `age`, `ethnicity` and `countryOfResidence` — an
+  unauthenticated endpoint accepting special-category data for no screen — and
+  the policy went on telling people those were "optional profile details you
+  choose to enter". The route refuses all six now, guarded by its own test; the
+  policy says what is actually true; and both real collection points (signup,
+  and starting to answer signed out) name what they store and link the policy.
+  The inventory lives in [`docs/DATA-COLLECTION.md`](docs/DATA-COLLECTION.md).
 - **Lost-update and double-submit races on ratings.** `trials/answer` now
   claims the trial with `updateMany({ where: { result: null } })` inside the
   transaction and reads item ratings inside it too. A repeat answer returns
@@ -181,8 +197,8 @@ Kept so the plan can be trusted as a record rather than re-litigated.
   already-recorded answer is treated as success.
 - **No admin portal, no results page.** Both exist: login, rankings, CSV export,
   and the insights and couple screens.
-- **No tests.** 114 across the numerical core, the couples comparison, the
-  client contracts, and the swipe loop itself.
+- **No tests.** 135 across the numerical core, the couples comparison, the
+  client contracts, the swipe loop itself, and one API route.
 - **No error boundaries.** `error.tsx`, `global-error.tsx` and `not-found.tsx`
   are in place.
 - **`PARTNER_GUESS` collapsed into `PARTNER`.** `session/start` narrowed the

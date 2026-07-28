@@ -228,9 +228,16 @@ model ParticipantItemRating {
 }
 
 /// One respondent session for a survey. Identified by a client-generated id
-/// (stored in localStorage) plus a short intro form filled in once. The
-/// survey link has no auth, so these fields exist mainly to tell a genuine
-/// response apart from a stray visitor later, not to gate access.
+/// stored in localStorage, or by the account that owns it. `firstName` is
+/// the only thing about the person here: it separates two people answering
+/// on one device, and is "Anonymous" for anyone without an account.
+///
+/// The six nullable columns below it are dead. They were filled by an intro
+/// form that no longer exists, and `session/start` refuses them now (see
+/// its route test), so nothing can write them. They are kept only so that
+/// dropping data already in them stays a deliberate decision by the account
+/// owner rather than a side effect of a migration. See
+/// docs/DATA-COLLECTION.md.
 model Participant {
   id                 String      @id @default(cuid())
   surveyId           String

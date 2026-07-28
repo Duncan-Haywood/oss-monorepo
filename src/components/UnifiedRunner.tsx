@@ -372,6 +372,20 @@ export function UnifiedRunner() {
             </button>
           ))}
           {error && <p className="text-center text-sm font-medium text-red-500">{error}</p>}
+          {/*
+            What starting actually costs someone, said before they tap rather
+            than in a policy page they would have to go looking for. Signed
+            out it is genuinely nothing identifying — `beginSwiping` sends
+            "Anonymous" — and that is worth saying, not hiding.
+          */}
+          <p className="text-center text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">
+            {accountName
+              ? "Your picks are saved to your account. A linked partner sees how your rankings compare, never what you picked."
+              : "Answering without an account saves your picks and nothing else — no name, no email."}{" "}
+            <a href="/privacy" className="underline underline-offset-2">
+              Privacy
+            </a>
+          </p>
           {accountName ? (
             <p className="text-center text-xs text-neutral-500 dark:text-neutral-400">Signed in as {accountName}</p>
           ) : (

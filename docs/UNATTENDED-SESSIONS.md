@@ -55,6 +55,34 @@ So the count is the finding, and it goes to a person, not into a PR body where
 it waits for the same attention that is already the bottleneck. That is why
 this session sent a notification before writing any code.
 
+Three sessions later the count is fifteen. The branch rule has held — #14
+extended #12, and the session writing this line extended #14 rather than
+opening a sixteenth — so the duplicate work has stopped. Nothing has merged.
+Both of those are worth recording, because they say different things: the part
+an unattended session controls is fixed, and the part it does not control is
+unchanged, and no amount of further sessions changes the second one. When the
+only thing a run can add is a better description of a queue nobody has drained,
+the useful output is the notification and a short session.
+
+## What a deletion leaves behind
+
+The consolidation deleted the intro form, which was right — it collected sex,
+age and ethnicity for no screen. What it did not do is finish the deletion. The
+route went on accepting all six fields. The privacy policy went on describing
+them as "optional profile details you choose to enter", to people who could not
+enter them.
+
+Nothing leaked, because nothing was sent. But the app's public claim about its
+own data handling was false for as long as it took someone to check, and it was
+only checked because a later session went looking for a form the backlog said
+existed.
+
+Deleting a feature is the case where "correct every document this makes wrong"
+is easiest to skip, because a deletion feels like it removes obligations rather
+than creating them. It creates one for every place the feature was described.
+An unattended session should be especially careful here: it cannot open the app
+and notice that a page describes something that is not there.
+
 ## When there is already a consolidation
 
 Extend it — branch from its head, add work it does not have, and say in your PR

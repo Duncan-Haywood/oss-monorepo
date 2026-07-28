@@ -108,6 +108,27 @@ export function AuthView() {
         >
           {busy ? "…" : mode === "login" ? "Sign in" : "Create account"}
         </button>
+
+        {/*
+          The signup form is now the only place the app collects anything about
+          a person, so it is the only place a consent line can honestly go. It
+          names the three fields exactly — a person should be able to check the
+          claim against the form they are looking at.
+        */}
+        {mode === "signup" && (
+          <p className="text-center text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">
+            Your first name, email and a hashed password are stored — nothing else. Your answers stay
+            yours: a linked partner only ever sees how your rankings compare, never what you picked.{" "}
+            <Link href="/privacy" className="underline underline-offset-2">
+              Privacy
+            </Link>{" "}
+            and{" "}
+            <Link href="/terms" className="underline underline-offset-2">
+              Terms
+            </Link>
+            .
+          </p>
+        )}
       </form>
 
       <button

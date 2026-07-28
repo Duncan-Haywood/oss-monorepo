@@ -13,6 +13,8 @@
  *
  *   docs/PRODUCT-GOALS.md        what the app is for, and what it deliberately is not
  *   docs/ARCHITECTURE.md         how the measurement actually works
+ *   docs/DATA-COLLECTION.md      every field the app stores about a person, and
+ *                                what a linked partner can and cannot see
  *   docs/QUALITY-BAR.md          the gates, and what each one is protecting
  *   docs/TESTING.md              what is covered, what is not, and how to add to it
  *   docs/UNATTENDED-SESSIONS.md  how to work here when nobody is watching, and

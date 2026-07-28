@@ -79,6 +79,19 @@ describe("UnifiedRunner", () => {
     expect(await screen.findByText("What I want in a partner")).toBeTruthy();
   });
 
+  it("says what starting costs a signed-out person, before they start", async () => {
+    stubFetch({ "/api/auth/me": noAccount });
+    render(<UnifiedRunner />);
+
+    // Goal 5 is "safe to hand to someone you love". The welcome screen is the
+    // last point before data is written, and it is the only screen someone
+    // who never signs in is guaranteed to see, so the claim and the policy
+    // link belong here rather than only in /privacy.
+    expect(await screen.findByText(/no name, no email/i)).toBeTruthy();
+    const policy = screen.getByRole("link", { name: "Privacy" });
+    expect(policy.getAttribute("href")).toBe("/privacy");
+  });
+
   it("resumes straight into a question from a stored session", async () => {
     localStorage.setItem(LS_KEY, JSON.stringify(BUNDLE));
     stubFetch({

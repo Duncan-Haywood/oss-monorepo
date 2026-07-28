@@ -36,16 +36,17 @@ export async function POST(req: NextRequest) {
   if (!firstName) {
     return NextResponse.json({ error: "firstName is required" }, { status: 400 });
   }
-  const lastName = cleanString(body?.lastName, 60);
-  const email = cleanString(body?.email, 120);
-  const sex = cleanString(body?.sex, 30);
-  const ethnicity = cleanString(body?.ethnicity, 60);
-  const countryOfResidence = cleanString(body?.countryOfResidence, 60);
-  let age: number | null = null;
-  if (typeof body?.age === "number" && Number.isFinite(body.age)) {
-    age = Math.round(Math.max(13, Math.min(120, body.age)));
-  }
-
+  // `firstName` and `perspective` are the whole contract. This route used to
+  // also accept lastName, email, sex, age, ethnicity and countryOfResidence,
+  // left over from an intro form that no longer exists — nothing in the app
+  // has sent them since, so every one of those columns was written null.
+  //
+  // They are not parsed any more rather than parsed-and-ignored: this is an
+  // unauthenticated endpoint, and an unauthenticated endpoint that accepts
+  // ethnicity and sex is a way to put special-category data in the database
+  // that no screen in the product asks for. Removing the parse removes the
+  // route. Anything that genuinely needs a profile field should collect it
+  // behind an account, where there is someone to consent.
   const perspective = perspectiveOrDefault(body?.perspective);
 
   try {
@@ -103,12 +104,6 @@ export async function POST(req: NextRequest) {
             userId: user?.id ?? null,
             perspective,
             firstName,
-            lastName,
-            email,
-            sex,
-            age,
-            ethnicity,
-            countryOfResidence,
           },
         });
         return created.id;

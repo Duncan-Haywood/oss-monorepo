@@ -24,9 +24,11 @@ React against a stubbed `fetch`.
 | `perspective.test.ts` | 7 | The three perspectives parse distinctly and never collapse into each other |
 | `sessionStore.test.ts` | 6 | A partial or tampered session bundle is rejected rather than half-used |
 | `couples.test.ts` | 18 | Cross-person comparison: percentile positions, the answer-volume trap, overlap floors before a match score |
-| `UnifiedRunner.test.tsx` | 7 | The swipe loop: cold start, resume, one question per resume, a half-written bundle, a failed fetch, a thrown fetch, advancing on an answer |
+| `UnifiedRunner.test.tsx` | 8 | The swipe loop: cold start, resume, one question per resume, a half-written bundle, a failed fetch, a thrown fetch, advancing on an answer, and the consent line on the welcome screen |
 | `developmentProcess.test.ts` | 12 | The process document stays internally consistent |
 | `InsightsView.test.tsx` | 4 | The insight catalogue's contract with the content map |
+| `AuthView.test.tsx` | 3 | Signup names what it stores, links the policy, and collects only the three fields it names |
+| `api/session/start/route.test.ts` | 3 | The route writes a first name and a perspective and nothing else — the six profile fields the old intro form sent are refused |
 
 ## What is not covered, and why it matters
 
@@ -34,6 +36,14 @@ React against a stubbed `fetch`.
   claim-then-apply in `trials/answer` and the participant reuse in
   `session/start` are verified by hand against a local Postgres, which does not
   survive a future edit. This is the largest gap.
+
+  `api/session/start/route.test.ts` is the one exception and shows the cheap
+  half of the pattern: `vi.mock` the Prisma client and assert on the payload
+  the route hands it. That catches the whole class of "this route writes
+  something it should not" without a database — and for that class it is
+  *better* than an integration test, because a column that was never written
+  and a column written as null look identical in psql. It proves nothing
+  about transactions, constraints or concurrency; those still need Postgres.
 - **Anything requiring two linked accounts.** The couple comparison is
   exercised through its pure helpers in `couples.ts`, not end to end. Nobody
   has looked at real blind-spots output with two accounts and three

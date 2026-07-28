@@ -96,6 +96,7 @@ It is typed data guarded by a test, so it cannot drift from what is enforced.
 
 - [docs/PRODUCT-GOALS.md](docs/PRODUCT-GOALS.md) — what the app is for, and what it is not
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — how the measurement works, and where the risk is
+- [docs/DATA-COLLECTION.md](docs/DATA-COLLECTION.md) — everything stored about a person, and what a partner can see
 - [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md) — the gates and the definition of done
 - [docs/TESTING.md](docs/TESTING.md) — what is covered, what is not, how to add
 

@@ -350,7 +350,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "safe-to-hand-over",
     note:
-      "Prefill removed and noindex set app-wide. Remaining: the intro form asks for sex, age and ethnicity with no consent line and no privacy link anywhere a signed-out person would see it.",
+      "Prefill removed and noindex set app-wide. The intro form that asked for sex, age and ethnicity is gone, and session/start no longer accepts those fields, so there is no longer any route by which special-category data can enter the database. Both remaining collection points — signup, and starting to answer signed out — now say what is stored and link the policy. Every field is inventoried in docs/DATA-COLLECTION.md. Remaining: the columns still exist on Participant holding whatever was written before the form was removed; dropping them is the account owner's call.",
   },
   {
     id: "resilience",

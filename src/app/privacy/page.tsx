@@ -24,9 +24,8 @@ export default function PrivacyPage() {
           password. Passwords are hashed with bcrypt and are never stored or recoverable in plain text.
         </li>
         <li>
-          <strong>Optional profile details</strong> you choose to enter: last name, age, sex, ethnicity,
-          country. Every one of these is optional and can be left blank. They exist only to tell one
-          person&apos;s answers apart from another&apos;s.
+          <strong>A first name</strong> if you answer without an account, so your answers can be told
+          apart from your partner&apos;s on a shared device. Nothing else.
         </li>
         <li>
           <strong>Technical basics</strong> needed to run the service: your IP address is used to rate-limit
@@ -49,9 +48,10 @@ export default function PrivacyPage() {
 
       <H>Sensitive details</H>
       <p>
-        Ethnicity and sex are treated as sensitive. They are optional, they are never shown to a
-        linked partner, and they are used only to distinguish respondents. If you would rather not
-        provide them, leave them blank — nothing in the app behaves differently.
+        The app does not ask for your age, sex, ethnicity or country. It used to, on a form that has
+        since been removed, and there is no longer any way to enter them. Nothing in the app reads
+        them and no screen displays them. If you gave any of these earlier, email the address below
+        and they will be deleted.
       </p>
 
       <H>Where it lives</H>
