@@ -1050,5 +1050,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "stripe-webhook-dispute-resolution-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-xygg8r",
+    summary:
+      "Scheduled routine, picked up at origin/main tip 1b56386 (PR #958, growth-upsell-annual-billing-dual-build-collision-review) — HEAD matched origin/main exactly at session start. Folded in a stuck sibling branch (claude/upbeat-dijkstra-tg1n4z) that carried 2 unmerged, docs-only commits (the tier-upgrade-superseded-subscription-no-proration-flagged entry above) with no open PR, per AGENT_PROTOCOL's fold-a-stuck-sibling rule. Dispatched a research agent for the next high-leverage gap, which independently found and I independently re-verified the exact same dashboard billing-display gap the two entries immediately above already closed.",
+    shipped: [
+      "Implemented a full, independently-tested fix before the routine pre-push git fetch --prune: OrderRecord.billingInterval as a new durable column on both Convex and SQLite backends (schema, all three orders.ts replace() mutations, an ALTER TABLE migration, both list-query SELECTs, markLeadPaid), threaded from the webhook's already-derived checkout billingInterval, read by the dashboard's Growth → Complete panel.",
+      "The pre-push fetch showed sibling PR #959 (the same tier-upgrade-proration content, landed independently via the sibling's own PR) and PR #960 (growth-upsell-dashboard-candidate-annual-billing-display, immediately above) had both already merged — the sibling shipped the identical user-facing fix moments earlier via a different design: a live per-candidate Stripe lookup at dashboard render time (reusing resolveGrowthOrderBillingInterval, the same function the send action itself calls), rather than a new stored column.",
+      "Compared the two side by side rather than assuming mine was fine: judged the sibling's design strictly better — correctness-by-construction (display and send call the identical function, so they can never disagree, vs. two independently-maintained codepaths in mine), smaller blast radius (zero schema/migration surface vs. a new Convex field + 3 replace()-mutation sites + a SQLite ALTER TABLE in mine), and more reuse (one thin wrapper + one pure helper vs. 15 non-test files touched in mine). Discarded the entire duplicate implementation via git reset --hard origin/main (never pushed, so nothing shared was lost) and re-ran the full verification gate against the reset tip to confirm nothing was lost.",
+      "No product/test code ships from this entry — per the established dual-build-collision-review precedent, the honest, cooperative outcome is to verify the merged version, document why it won out, and move on. src/lib/process/business-decisions.ts — appended growth-upsell-dashboard-billing-display-dual-build-collision-review. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all six gated items remain operator/legal/business-blocked, unchanged.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3987 passed, 234 files, unchanged by this review) + a full clean rebuild (rm -rf .next && npm run build, clean, no new warnings).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "growth-upsell-dashboard-billing-display-dual-build-collision-review",
+    ),
+  },
 ];
-
