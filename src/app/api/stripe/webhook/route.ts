@@ -1434,6 +1434,20 @@ export async function POST(request: Request) {
           `Failed to mark recurring canceled for customer ${customerId} after subscription ${subscription.id}`,
           e,
         );
+        // Returns a response rather than re-throwing, so it never reaches the
+        // outer try/catch's own captureError call. Wired directly here (and
+        // at every other markOrdersRecurringCanceledByCustomer catch sharing
+        // this failureKind) since a failure means a canceled/paused
+        // subscriber keeps paid marketing-pack / voice-pack / commerce-
+        // catalog entitlement forever with zero operator visibility until
+        // Stripe's retry window (~3 days) also lapses. See
+        // orders-recurring-canceled-capture-error in /docs/architecture.
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "orders_recurring_canceled",
+        });
         const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -1601,6 +1615,13 @@ export async function POST(request: Request) {
               `Failed to pause recurring entitlement for customer ${customerId} after ${event.type} ${subscription.id} (no catalog Price)`,
               e,
             );
+            // See orders-recurring-canceled-capture-error in /docs/architecture.
+            await captureError(e, {
+              component: "stripe-webhook",
+              eventType: event.type,
+              eventId: event.id,
+              failureKind: "orders_recurring_canceled",
+            });
             const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
             return NextResponse.json(failure.body, { status: failure.status });
           }
@@ -1696,6 +1717,13 @@ export async function POST(request: Request) {
           `Failed to pause recurring entitlement for customer ${customerId} after ${event.type} ${subscription.id}`,
           e,
         );
+        // See orders-recurring-canceled-capture-error in /docs/architecture.
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "orders_recurring_canceled",
+        });
         const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -1816,6 +1844,13 @@ export async function POST(request: Request) {
           `Failed to pause recurring entitlement for customer ${customerId} after invoice.payment_failed ${invoice.id}`,
           e,
         );
+        // See orders-recurring-canceled-capture-error in /docs/architecture.
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "orders_recurring_canceled",
+        });
         const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -1936,6 +1971,13 @@ export async function POST(request: Request) {
             `Failed to pause recurring entitlement for customer ${customerId} after invoice.paid ${invoice.id} (no catalog Price)`,
             e,
           );
+          // See orders-recurring-canceled-capture-error in /docs/architecture.
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "orders_recurring_canceled",
+          });
           const failure = webhookFulfillmentFailureResponse("orders_recurring_canceled");
           return NextResponse.json(failure.body, { status: failure.status });
         }

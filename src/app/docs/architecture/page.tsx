@@ -4904,6 +4904,32 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>db.ts</code> candidate above) stay out of scope.
       </p>
       <p>
+        <code>orders-recurring-canceled-capture-error</code>: found the identical{" "}
+        <code>return</code>-instead-of-re-throw blind spot at a different, coherent cluster of 5
+        catch sites all sharing <code>failureKind: &quot;orders_recurring_canceled&quot;</code> —
+        every place <code>markOrdersRecurringCanceledByCustomer</code> is called (
+        <code>customer.subscription.deleted</code>, two branches of{" "}
+        <code>customer.subscription.created|updated</code> handling a pause or a would-be
+        reactivate with no recognized catalog Price on the Subscription&apos;s items, and the same
+        two branches&apos; <code>invoice.payment_failed</code> / <code>invoice.paid</code> twins).
+        A failure at any of these means a canceled or past-due subscriber keeps paid
+        marketing-pack / voice-pack / Commerce-catalog entitlement indefinitely, with the only
+        signal being a 5xx in Stripe&apos;s own dashboard (which the operator does not monitor)
+        rather than this app&apos;s error-tracking webhook — until Stripe&apos;s own ~3-day retry
+        window also lapses. Unlike the two single-site fixes above, this is one coherent,
+        mechanically-identical operation (the same function, the same failure meaning) repeated
+        across 5 call sites rather than 5 distinct write types, so all 5 were wired in one pass —
+        each got its own <code>captureError</code> call immediately before its existing{" "}
+        <code>webhookFulfillmentFailureResponse(&quot;orders_recurring_canceled&quot;)</code>{" "}
+        line, matching the same <code>component</code>/<code>eventType</code>/<code>eventId</code>{" "}
+        shape as every other capture in this file. Two of the five branches (the
+        no-catalog-Price/foreign-Price edge cases on the reactivate and restore paths) had no
+        prior failure-path test coverage at all, not just a missing capture assertion — added
+        dedicated tests for both alongside updating the three pre-existing failure tests to also
+        assert the new <code>captureError</code> call. The remaining ~33{" "}
+        <code>webhookFulfillmentFailureResponse(...)</code> sites in this file stay out of scope.
+      </p>
+      <p>
         <code>db-getLeads-convex-fallback-capture-error</code>: a closer look at the{" "}
         <code>db.ts</code> Convex-fallback gap named above (84{" "}
         <code>console.warn</code> &quot;falling back to SQLite&quot; sites, twice deferred as
