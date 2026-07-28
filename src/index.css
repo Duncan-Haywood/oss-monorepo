@@ -1,0 +1,66 @@
+:root {
+  --bg: #f7f5f2;
+  --bg-muted: #edeae5;
+  --bg-elevated: #ffffff;
+  --text: #1e2a32;
+  --text-muted: #5c6870;
+  --text-subtle: #8a9399;
+  --teal: #0d6e6e;
+  --teal-light: #e4f2f2;
+  --teal-dark: #094949;
+  --amber-light: #f5ebe0;
+  --slate: #3d4f5c;
+  --border: #d8d2c9;
+  --tier1: #0d6e6e;
+  --tier2: #b87333;
+  --tier3: #5a6870;
+  --shadow: 0 1px 3px rgb(30 42 50 / 7%), 0 6px 20px rgb(30 42 50 / 5%);
+  --shadow-lg: 0 4px 12px rgb(30 42 50 / 8%), 0 12px 32px rgb(30 42 50 / 6%);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --nav-height: 56px;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-family: var(--font-serif);
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-height) + 1rem);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--teal);
+}
+
+#root {
+  min-height: 100vh;
+}
