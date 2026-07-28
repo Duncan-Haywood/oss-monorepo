@@ -78,6 +78,7 @@ export async function recoverAbandonedBundleCheckout(
     session.leadSlug,
     session.tier,
     expectedRecoverySentCount + 1,
+    session.billingInterval,
   );
 
   if (!sent.success) {

@@ -19,7 +19,7 @@ import {
   commerceBuyNowClientReceiptSubject,
   formatCommerceBuyNowClientReceiptHtml,
 } from "../commerce/client-receipt";
-import { COMMERCE_ADDON, getBundle } from "../pricing/bundles";
+import { COMMERCE_ADDON, getBundle, type BundleBillingInterval } from "../pricing/bundles";
 import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "../marketing/monthly-pack";
 import { buildStarterUpsellCheckoutPath } from "../billing/starter-upsell";
 import { buildGrowthUpsellCheckoutPath } from "../billing/growth-upsell";
@@ -342,9 +342,16 @@ export async function sendCheckoutAbandonedRecovery(
   slug: string,
   tier: string,
   nudgeNumber = 1,
+  billingInterval?: BundleBillingInterval,
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}&source=outreach-email`;
+  // Mirrors POST /api/stripe/checkout's cancel_url billing=annual round-trip
+  // (checkout-recovery-billing-interval-carry-through) — without this, an
+  // abandoned annual-checkout shopper's recovery link silently re-prefills
+  // them onto CheckoutForm's monthly default (parseBundleBillingInterval
+  // falls back to "monthly" for a missing param).
+  const billingParam = billingInterval === "annual" ? "&billing=annual" : "";
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}${billingParam}&source=outreach-email`;
   const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
   const safeBiz = escapeHtmlForEmail(businessName);
 

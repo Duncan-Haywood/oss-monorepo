@@ -236,6 +236,7 @@ export async function POST(request: Request) {
           commerceAddon: commerceAddonApplied,
           customerEmail,
           kind: "bundle",
+          billingInterval,
         },
         CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
       );

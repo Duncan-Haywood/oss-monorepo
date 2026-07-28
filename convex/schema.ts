@@ -218,6 +218,12 @@ export default defineSchema({
     kind: v.optional(v.string()),
     /** Present when kind === "commerce_sku". */
     skuId: v.optional(v.string()),
+    /**
+     * "monthly" | "annual" — billing cadence selected at checkout creation
+     * (kind=bundle only, see annual-billing-option). Loose v.optional(v.string())
+     * rather than a closed union, matching kind/status/tier's own looseness above.
+     */
+    billingInterval: v.optional(v.string()),
   })
     .index("by_stripeSessionId", ["stripeSessionId"])
     .index("by_status", ["status"])

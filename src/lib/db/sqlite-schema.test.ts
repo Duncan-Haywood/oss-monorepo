@@ -81,6 +81,13 @@ describe("initializeSqliteSchema", () => {
     ]) {
       expect(orderCols).toContain(col);
     }
+
+    const checkoutSessionCols = (
+      db.prepare("PRAGMA table_info(checkout_sessions)").all() as Array<{ name: string }>
+    ).map((c) => c.name);
+    for (const col of ["kind", "skuId", "recoverySentCount", "billingInterval"]) {
+      expect(checkoutSessionCols).toContain(col);
+    }
   });
 
   it("enforces a unique index on orders.stripeSessionId (redelivery idempotency)", () => {
