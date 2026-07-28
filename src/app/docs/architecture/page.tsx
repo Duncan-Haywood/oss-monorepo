@@ -4641,6 +4641,22 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>component</code> values as their sibling catch), mirroring the exact call shape two
         lines below it in the same file.
       </p>
+      <p>
+        <code>db-order-read-family-capture-error-sweep</code>: continued the{" "}
+        <code>db.ts</code> read-path series onto the next tier of live, unwired Convex-fallback
+        reads in the bundle-order family — <code>listOrdersByLeadSlug()</code> (backs Manage
+        billing, the public preview page&apos;s Commerce gate, and roughly a dozen per-lead
+        dashboard eligibility actions), <code>getOrderByStripeSessionId()</code> (the Stripe
+        webhook&apos;s refund/dispute correlation lookup, four call sites), and{" "}
+        <code>getOrdersByStripeCustomerId()</code> (dunning and renewal-recovery notice
+        resolution) — plus <code>listOpenCheckoutSessions()</code>, which feeds pipeline health,
+        the daily digest, the Work-next lead scorer, and both abandoned-checkout recovery
+        actions. Same one-line <code>captureError</code> pattern and accepted no-dedup trade-off
+        as every prior entry in this series; the Commerce (Buy now) ledger&apos;s equivalent read
+        family (<code>getCommerceOrderByStripeSessionId</code> and the{" "}
+        <code>listCommerceOrders*</code> group) has the identical unwired shape and is the next
+        deferred slice, not covered here.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

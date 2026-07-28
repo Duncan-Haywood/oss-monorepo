@@ -5389,7 +5389,8 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       backdateOrderCreatedAt("2026-07-01T00:00:00.000Z", "cs_scoped_a_old");
       backdateOrderCreatedAt("2026-07-20T00:00:00.000Z", "cs_scoped_a_new");
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
       const db = await loadDb(CONVEX_URL);
       const ordersForA = await db.listOrdersByLeadSlug("scoped-lead-a");
       expect(ordersForA.map((o) => o.stripeSessionId)).toEqual([
@@ -5397,6 +5398,125 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         "cs_scoped_a_old",
       ]);
       expect(ordersForA.every((o) => o.leadSlug === "scoped-lead-a")).toBe(true);
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-listOrdersByLeadSlug-convex-fallback",
+      });
+    });
+
+    it("does not call captureError when Convex is unconfigured or the query succeeds", async () => {
+      const db = await loadDb(undefined);
+      await db.recordLeadPayment({
+        slug: "by-slug-no-capture-lead",
+        stripeSessionId: "cs_by_slug_no_capture",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 500,
+      });
+      await db.listOrdersByLeadSlug("by-slug-no-capture-lead");
+      expect(captureError).not.toHaveBeenCalled();
+
+      convexQuery.mockResolvedValueOnce([]);
+      const convexDb = await loadDb(CONVEX_URL);
+      await convexDb.listOrdersByLeadSlug("by-slug-no-capture-lead");
+      expect(captureError).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getOrderByStripeSessionId / getOrdersByStripeCustomerId / listOpenCheckoutSessions (Convex-fallback captureError sweep)", () => {
+    it("getOrderByStripeSessionId reports the outage via captureError on Convex fallback", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "single-order-capture-lead",
+        stripeSessionId: "cs_single_order_capture",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 500,
+      });
+
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
+      const db = await loadDb(CONVEX_URL);
+      const order = await db.getOrderByStripeSessionId("cs_single_order_capture");
+      expect(order?.stripeSessionId).toBe("cs_single_order_capture");
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-getOrderByStripeSessionId-convex-fallback",
+      });
+    });
+
+    it("getOrderByStripeSessionId does not call captureError when Convex is unconfigured or the query succeeds", async () => {
+      const db = await loadDb(undefined);
+      await db.getOrderByStripeSessionId("cs_no_capture");
+      expect(captureError).not.toHaveBeenCalled();
+
+      convexQuery.mockResolvedValueOnce(null);
+      const convexDb = await loadDb(CONVEX_URL);
+      await convexDb.getOrderByStripeSessionId("cs_no_capture_2");
+      expect(captureError).not.toHaveBeenCalled();
+    });
+
+    it("getOrdersByStripeCustomerId reports the outage via captureError on Convex fallback", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "customer-order-capture-lead",
+        stripeSessionId: "cs_customer_order_capture",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 500,
+        stripeCustomerId: "cus_capture_1",
+      });
+
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
+      const db = await loadDb(CONVEX_URL);
+      const orders = await db.getOrdersByStripeCustomerId("cus_capture_1");
+      expect(orders.map((o) => o.stripeSessionId)).toEqual(["cs_customer_order_capture"]);
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-getOrdersByStripeCustomerId-convex-fallback",
+      });
+    });
+
+    it("getOrdersByStripeCustomerId does not call captureError when Convex is unconfigured or the query succeeds", async () => {
+      const db = await loadDb(undefined);
+      await db.getOrdersByStripeCustomerId("cus_no_capture");
+      expect(captureError).not.toHaveBeenCalled();
+
+      convexQuery.mockResolvedValueOnce([]);
+      const convexDb = await loadDb(CONVEX_URL);
+      await convexDb.getOrdersByStripeCustomerId("cus_no_capture_2");
+      expect(captureError).not.toHaveBeenCalled();
+    });
+
+    it("listOpenCheckoutSessions reports the outage via captureError on Convex fallback", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordCheckoutSessionCreated({
+        leadSlug: "open-checkout-capture-lead",
+        stripeSessionId: "cs_open_checkout_capture",
+        tier: "starter",
+        commerceAddon: false,
+      });
+
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
+      const db = await loadDb(CONVEX_URL);
+      const open = await db.listOpenCheckoutSessions();
+      expect(open.some((s) => s.stripeSessionId === "cs_open_checkout_capture")).toBe(true);
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-listOpenCheckoutSessions-convex-fallback",
+      });
+    });
+
+    it("listOpenCheckoutSessions does not call captureError when Convex is unconfigured or the query succeeds", async () => {
+      const db = await loadDb(undefined);
+      await db.listOpenCheckoutSessions();
+      expect(captureError).not.toHaveBeenCalled();
+
+      convexQuery.mockResolvedValueOnce([]);
+      const convexDb = await loadDb(CONVEX_URL);
+      await convexDb.listOpenCheckoutSessions();
+      expect(captureError).not.toHaveBeenCalled();
     });
   });
 });
