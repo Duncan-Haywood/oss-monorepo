@@ -1146,6 +1146,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_reactivated");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "customer.subscription.updated",
+        eventId: undefined,
+        failureKind: "orders_recurring_reactivated",
+      });
     });
 
     it("returns 500 orders_recurring_canceled when past_due pause write fails", async () => {
@@ -1707,6 +1713,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("subscription_retrieve");
       expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "invoice.payment_failed",
+        eventId: undefined,
+        failureKind: "subscription_retrieve",
+      });
     });
 
     it("returns 500 orders_recurring_canceled when CRM write fails", async () => {
@@ -2110,6 +2122,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("subscription_retrieve");
       expect(clearOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "invoice.paid",
+        eventId: undefined,
+        failureKind: "subscription_retrieve",
+      });
     });
 
     it("returns 500 orders_recurring_reactivated when CRM write fails", async () => {
@@ -2138,6 +2156,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_reactivated");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "invoice.paid",
+        eventId: undefined,
+        failureKind: "orders_recurring_reactivated",
+      });
     });
   });
 
@@ -2243,6 +2267,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("subscription_renewal_revenue");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "invoice.paid",
+        eventId: undefined,
+        failureKind: "subscription_renewal_revenue",
+      });
     });
   });
 
