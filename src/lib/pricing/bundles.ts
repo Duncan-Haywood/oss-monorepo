@@ -136,6 +136,35 @@ export function bundlePriceHeadingLabel(bundle: BundleDefinition): string {
     : `$${bundle.setupPriceUsd} one-time`;
 }
 
+/**
+ * TierUpsell's (src/components/preview/tier-upsell.tsx) per-card headline
+ * price + caption on the public /preview/[slug] page — mirrors checkout's
+ * own setupFeeWaived treatment (checkoutSetupFeeTotal / checkoutDueTodaySubtitle
+ * in src/lib/checkout/due-today.ts) so a lead who already has a prior bundle
+ * order sees the same "setup already covered" price here as they would at
+ * /checkout, instead of the full setup fee this card always showed
+ * regardless of purchase history (preview-tier-upsell-setup-fee-waiver-parity).
+ */
+export function tierUpsellPricing(
+  bundle: BundleDefinition,
+  setupFeeWaived: boolean,
+): { headlineUsd: number; caption: string } {
+  if (setupFeeWaived) {
+    return {
+      headlineUsd: bundle.monthlyPriceUsd ?? 0,
+      caption: bundle.monthlyPriceUsd
+        ? "/mo — setup already covered"
+        : "Setup already covered",
+    };
+  }
+  return {
+    headlineUsd: bundle.setupPriceUsd,
+    caption: bundle.monthlyPriceUsd
+      ? `+ $${bundle.monthlyPriceUsd}/mo after go-live`
+      : "One-time",
+  };
+}
+
 /** "+$300 + $49/mo" — /docs/product-bundles' Commerce add-on heading format. */
 export function commerceAddonPriceHeadingLabel(): string {
   return `+$${COMMERCE_ADDON.setupPriceUsd} + $${COMMERCE_ADDON.monthlyPriceUsd}/mo`;

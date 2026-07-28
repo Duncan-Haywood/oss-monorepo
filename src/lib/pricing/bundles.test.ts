@@ -11,6 +11,7 @@ import {
   getBundle,
   minBundleSetupPriceUsd,
   parseBundleBillingInterval,
+  tierUpsellPricing,
 } from "./bundles";
 
 /**
@@ -136,6 +137,40 @@ describe("bundlePriceHeadingLabel", () => {
 describe("commerceAddonPriceHeadingLabel", () => {
   it("formats the Commerce add-on as a stacking '+$X + $Y/mo' figure", () => {
     expect(commerceAddonPriceHeadingLabel()).toBe("+$300 + $49/mo");
+  });
+});
+
+describe("tierUpsellPricing", () => {
+  it("shows the full setup fee + monthly caption when not waived (recurring tier)", () => {
+    expect(tierUpsellPricing(getBundle("growth")!, false)).toEqual({
+      headlineUsd: 500,
+      caption: "+ $99/mo after go-live",
+    });
+  });
+
+  it("shows the full setup fee + 'One-time' caption when not waived (Starter, no monthly)", () => {
+    expect(tierUpsellPricing(getBundle("starter")!, false)).toEqual({
+      headlineUsd: 500,
+      caption: "One-time",
+    });
+  });
+
+  it("swaps the headline to the monthly price + waiver caption when waived (recurring tier)", () => {
+    expect(tierUpsellPricing(getBundle("growth")!, true)).toEqual({
+      headlineUsd: 99,
+      caption: "/mo — setup already covered",
+    });
+    expect(tierUpsellPricing(getBundle("complete")!, true)).toEqual({
+      headlineUsd: 199,
+      caption: "/mo — setup already covered",
+    });
+  });
+
+  it("shows $0 + a plain waiver caption when waived for a one-time tier with no monthly price", () => {
+    expect(tierUpsellPricing(getBundle("starter")!, true)).toEqual({
+      headlineUsd: 0,
+      caption: "Setup already covered",
+    });
   });
 });
 

@@ -14,6 +14,8 @@ type CategoryPreviewProps = {
   lead: Lead;
   /** Commerce catalog items when the lead has a commerceAddon order + saved catalog. */
   commerceItems?: CommerceSku[];
+  /** See loadPreviewSetupFeeWaived — threaded into TierUpsell's pricing cards. */
+  setupFeeWaived?: boolean;
 };
 
 function isDemoPreview(lead: PublicLead): boolean {
@@ -23,6 +25,7 @@ function isDemoPreview(lead: PublicLead): boolean {
 export function CategoryPreview({
   lead,
   commerceItems = [],
+  setupFeeWaived = false,
 }: CategoryPreviewProps) {
   // Soft-cap create-path free-text at read so pre-cap Convex/SQLite rows cannot
   // emit unbounded HTML on the public preview (preview-lead-description-read-soft-cap).
@@ -143,7 +146,7 @@ export function CategoryPreview({
         />
       </section>
 
-      <TierUpsell lead={displayLead} />
+      <TierUpsell lead={displayLead} setupFeeWaived={setupFeeWaived} />
     </main>
   );
 }
