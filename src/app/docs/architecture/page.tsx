@@ -3530,6 +3530,29 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>marketing-voice-pack-missing-client-send-leads-panel</code>: the pipeline-health
+        cards and inline per-lead badge above still left these two due-queues without the third
+        surface every other sold-capability due-queue gets — a persistent panel on{" "}
+        <code>/dashboard/leads</code> with its own action button (see{" "}
+        <code>billing-notice-send-failed-leads-panel</code> for the identical gap closed one
+        iteration earlier). The inline badge only shows once an operator has already scrolled to
+        that specific lead&apos;s row in the full leads list; there was no at-a-glance, filtered
+        view of every lead whose pack was generated but never sent. Fixed by adding{" "}
+        <strong>Marketing packs not emailed</strong> and{" "}
+        <strong>Complete voice packs not emailed</strong> sections to{" "}
+        <code>leads-client.tsx</code>, directly consuming{" "}
+        <code>listMarketingPacksMissingClientSend</code>/
+        <code>listClientVoicePacksMissingClientSend</code> (already generic, exported, and fed the
+        same <code>marketingPacks</code>/<code>clientVoicePacks</code>/<code>leads</code>/
+        <code>orders</code> state the pipeline-health cards use) — no new backend plumbing. Each
+        row&apos;s <strong>Send to client</strong> button reuses the existing{" "}
+        <code>handleEmailMarketingPack</code>/<code>handleEmailClientVoicePack</code> handlers
+        (the same ones the per-lead detail row&apos;s own send button already calls), so a send
+        from either surface stays in sync via the same <code>setMarketingPacks</code>/
+        <code>setClientVoicePacks</code> state updates.
+      </p>
+
+      <p>
         A refund itself can also reverse — common for bank-sourced refunds (ACH, some debit cards)
         that Stripe reports as <code>pending</code>/<code>succeeded</code> first, then fails or is
         canceled days later when the destination account rejects it. Disputes got a resolution
