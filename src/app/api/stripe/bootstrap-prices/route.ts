@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { requireOperatorAuth } from "@/lib/auth/operator";
+import { captureError } from "@/lib/observability/error-tracking";
 import { assessStripeBootstrapGate } from "@/lib/pricing/bootstrap-gate";
 import { bootstrapStripePrices } from "@/lib/pricing/bootstrap-stripe-prices";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
@@ -63,6 +64,11 @@ export async function POST(request: Request) {
       next: "Paste envSnippet into .env.local / hosting secrets, set STRIPE_WEBHOOK_SECRET, then unset ALLOW_STRIPE_BOOTSTRAP.",
     });
   } catch (error) {
+    console.error("Error in POST /api/stripe/bootstrap-prices:", error);
+    await captureError(error, {
+      component: "stripe-bootstrap-prices-route",
+      failureKind: "bootstrap_prices",
+    });
     const message = error instanceof Error ? error.message : "Unknown Stripe error";
     return NextResponse.json({ error: "Bootstrap failed", message }, { status: 502 });
   }

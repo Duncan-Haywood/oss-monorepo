@@ -37,6 +37,11 @@ vi.mock("stripe", () => ({
   },
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("bootstrapStripePricesAction", () => {
   const originalEnv = { ...process.env };
 
@@ -45,6 +50,7 @@ describe("bootstrapStripePricesAction", () => {
     headerGet.mockReset().mockReturnValue("203.0.113.5");
     bootstrapStripePrices.mockReset();
     stripeCtor.mockReset();
+    captureError.mockReset().mockResolvedValue(undefined);
     process.env = { ...originalEnv };
     delete process.env.ALLOW_STRIPE_BOOTSTRAP;
     delete process.env.STRIPE_SECRET_KEY;
@@ -167,6 +173,10 @@ describe("bootstrapStripePricesAction", () => {
       success: false,
       error: "Stripe API timeout",
     });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-actions",
+      failureKind: "bootstrapStripePricesAction",
+    });
   });
 
   it("returns Unknown Stripe error when throw is non-Error", async () => {
@@ -180,6 +190,10 @@ describe("bootstrapStripePricesAction", () => {
     expect(result).toEqual({
       success: false,
       error: "Unknown Stripe error",
+    });
+    expect(captureError).toHaveBeenCalledWith("raw-failure", {
+      component: "dashboard-actions",
+      failureKind: "bootstrapStripePricesAction",
     });
   });
 });
