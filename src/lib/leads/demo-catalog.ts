@@ -265,7 +265,7 @@ export function resolvePreviewLead(slug: string): Lead {
   let category: Lead["category"] = "generic";
   if (
     !isKitchenRemodelingContractor &&
-    /bakery|bistro|cafe|restaurant|pizza|\bgrill\b|\bdiner\b|\bkitchen\b/.test(lower)
+    /bakery|bistro|cafe|restaurant|\bpizza\b|\bgrill\b|\bdiner\b|\bkitchen\b/.test(lower)
   ) {
     // "grill" and "diner" are word-boundary scoped (\b) — a bare "grill"
     // matches inside "grille" (e.g. "chrome-grille-restorations", an
@@ -277,6 +277,11 @@ export function resolvePreviewLead(slug: string): Lead {
     // inside "kitchenaid" (e.g. "kitchenaid-appliance-repair", an appliance
     // repair business that should resolve to trades via its own "repair"
     // keyword) — category-substring-collision-audit-06.
+    // "pizza" is also word-boundary scoped — a bare "pizza" matches inside
+    // "pizzazz" (e.g. "pizzazz-hair-salon-studio", a common real-world
+    // salon/boutique flourish word with no restaurant meaning at all), which
+    // would misclassify it as restaurant before the salon branch below ever
+    // runs — category-substring-collision-audit-07.
     category = "restaurant";
   } else if (
     !isGarageSaleOrThriftShop &&

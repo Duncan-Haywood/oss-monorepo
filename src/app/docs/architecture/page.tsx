@@ -5834,6 +5834,24 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>bundle.annualPriceIdEnv</code> when non-null, mirroring the existing{" "}
         <code>monthlyPriceIdEnv</code> guard.
       </p>
+      <p>
+        <code>category-substring-collision-audit-07</code>: a research agent auditing{" "}
+        <code>resolvePreviewLead</code>&apos;s (<code>src/lib/leads/demo-catalog.ts</code>)
+        category-inference regexes found the restaurant branch&apos;s{" "}
+        <code>pizza</code> keyword was still a bare substring match, unlike its siblings{" "}
+        <code>grill</code>/<code>diner</code>/<code>kitchen</code> in the same alternation
+        (already word-boundary scoped by earlier rounds of this audit) — so it matched inside{" "}
+        <code>pizzazz</code>, a common real-world salon/boutique flourish word (e.g. &quot;Pizzazz
+        Hair Salon&quot;). Since the restaurant branch runs before the salon branch in the
+        if/else-if chain, a slug like <code>pizzazz-hair-salon-studio</code> resolved to{" "}
+        <code>restaurant</code>/<code>growth</code> instead of <code>salon</code>/<code>complete</code>{" "}
+        — a real, visible difference in the rendered theme, JSON-LD{" "}
+        <code>LocalBusiness</code> subtype, and recommended tier on that exact public,
+        unauthenticated preview page. Fixed by scoping <code>pizza</code> to{" "}
+        <code>\bpizza\b</code>, mirroring the existing treatment of its siblings — still matches{" "}
+        <code>downtown-pizza</code>/<code>joes-pizza-place</code>, no longer matches{" "}
+        <code>pizzazz</code>.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

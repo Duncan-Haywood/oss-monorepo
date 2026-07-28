@@ -1092,4 +1092,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "bundle-price-env-readiness-annual-gap",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #985 merged (which also folded in sibling PR #984's client-error-boundary fix via a clean docs/process-log merge). The next research agent, briefed to avoid the prior false-positive pattern, instead found a genuine 7th round of the long-running category-substring-collision audit: resolvePreviewLead's (src/lib/leads/demo-catalog.ts) restaurant-branch regex still had a bare, unscoped 'pizza' alternative, unlike its already-fixed siblings grill/diner/kitchen in the same alternation.",
+    shipped: [
+      "Confirmed with a direct regex test: the bare pizza substring matches inside 'pizzazz', a common real-world salon/boutique flourish word ('Pizzazz Hair Salon'). Since the restaurant branch runs before the salon branch in the if/else-if chain, a pizzazz-named salon slug resolves to restaurant/growth instead of salon/complete on the public /preview/[slug] fallback — a real, visible theme/JSON-LD/tier difference.",
+      "Fixed by scoping pizza to \\bpizza\\b, mirroring the existing grill/diner/kitchen treatment. Verified via direct regex tests before committing that this still matches downtown-pizza/joes-pizza-place while no longer matching pizzazz.",
+      "src/lib/leads/demo-catalog.ts (word-boundary-scoped pizza, extended the branch's existing doc comment); demo-catalog.test.ts (1 new row in the consolidated COLLISION_REGRESSION_CASES table — 65 total, +1 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended category-substring-collision-audit-07); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only demo-catalog.ts, confirmed the new collision-regression assertion failed exactly as expected (64 passed, 1 failed — pizzazz-hair-salon-studio resolved to restaurant/growth instead of salon/complete), then restored and confirmed all 65 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (65 passed) then full suite (4029 passed, 235 files, +1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — pure regex-scoping fix, fully exercised by automated tests. File-size headroom narrowing (business-decisions.ts ~19KB, prompt_process.tsx ~14.6KB under trigger) — next large-entry iteration should plan a re-archive split.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "category-substring-collision-audit-07",
+    ),
+  },
 ];
