@@ -140,8 +140,6 @@ import {
 import type { ClientInquiryStatus } from "@/lib/inquiries/types";
 import {
   sendOutreachEmail,
-  sendOutreachFollowUp2,
-  sendOutreachFollowUp3,
   sendInquiryReply,
   sendStarterUpsellEmail,
   sendGrowthUpsellEmail,
@@ -156,7 +154,7 @@ import {
   hasBundleReceiptEmailNote,
   hasBundleDnsHandoffEmailNote,
 } from "@/lib/payments/bundle-side-effect-recovery";
-import { nextFollowUpStep } from "@/lib/email/outreach-followups";
+import { sendOutreachFollowUpEmail } from "@/lib/leads/send-follow-up";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
 import { parseCheckoutSessionId } from "@/lib/billing/checkout-session-id";
 import {
@@ -1152,7 +1150,10 @@ export async function disposeColdLeadAction(
 }
 
 /**
- * Send the next outreach follow-up (Email 2 or 3) for a lead that already received Email 1.
+ * Send the next outreach follow-up (Email 2 or 3) for a lead that already
+ * received Email 1. The mark-then-send body is shared with the automated
+ * GET /api/cron/outreach-followups trigger via sendOutreachFollowUpEmail
+ * (src/lib/leads/send-follow-up.ts).
  */
 export async function sendFollowUpAction(slug: string) {
   try {
@@ -1199,78 +1200,20 @@ export async function sendFollowUpAction(slug: string) {
       };
     }
 
-    const next = nextFollowUpStep(lead.outreachStep);
-    if (!next) {
-      const step = lead.outreachStep ?? 0;
-      if (step >= 3) {
-        return {
-          success: false as const,
-          error: "Outreach sequence already complete (Email 3 sent)",
-        };
-      }
+    const result = await sendOutreachFollowUpEmail(lead);
+    if (!result.success) {
       return {
         success: false as const,
-        error: "Send Email 1 first by setting stage to Outreach Sent",
-      };
-    }
-
-    // Durably mark the follow-up step sent BEFORE calling Resend
-    // (persist-then-notify) so a Convex mutation failure never lets a real
-    // send land unrecorded and risk a duplicate on another instance.
-    let recorded: boolean;
-    try {
-      recorded = await recordLeadOutreach(slug, next, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
-    } catch (error) {
-      if (error instanceof ConvexPrimaryWriteError) {
-        return {
-          success: false as const,
-          error:
-            "Could not record the outreach mark in the shared store — follow-up was not sent. Retry in a moment.",
-        };
-      }
-      throw error;
-    }
-
-    if (!recorded) {
-      // The paid/live/closed gate above ran against the snapshot read at the
-      // top of this action — recordLeadOutreach re-checks the same
-      // condition atomically at write time and skips the patch (and this
-      // action skips the Resend send) when a concurrent Stripe checkout or
-      // stage change already moved this lead to paid/live/closed in between
-      // (sendfollowup-action-paid-live-closed-race-guard), OR when this
-      // exact step was already recorded by a concurrent call (a double-click
-      // or a second open tab racing this same request — outreach-step-
-      // duplicate-send-guard) — either way the follow-up was not sent here.
-      return {
-        success: false as const,
-        error:
-          "Lead was paid, went live, or was closed after this page loaded — or this follow-up step was already sent by another request. Refresh and check its status; the follow-up was not sent",
-      };
-    }
-
-    const sent =
-      next === 2
-        ? await sendOutreachFollowUp2(lead.email, lead.businessName, lead.slug)
-        : await sendOutreachFollowUp3(lead.email, lead.businessName, lead.slug);
-
-    if (!sent.success) {
-      return {
-        success: false as const,
-        error:
-          "reason" in sent && sent.reason === "suppressed"
-            ? "Email is on the suppression list"
-            : "error" in sent && typeof sent.error === "string"
-              ? sent.error
-              : "Failed to send follow-up email",
-        outreachStep: next,
+        error: result.error,
+        outreachStep: result.outreachStep,
       };
     }
 
     revalidatePath("/dashboard/leads");
     return {
       success: true as const,
-      outreachStep: next,
-      mock: "mock" in sent ? Boolean(sent.mock) : false,
+      outreachStep: result.outreachStep,
+      mock: result.mock,
     };
   } catch (error) {
     console.error("Error in sendFollowUpAction:", error);

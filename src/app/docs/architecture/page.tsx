@@ -1938,6 +1938,31 @@ export default function ArchitectureDocPage() {
         <code>lead.email</code>, not a single operator inbox env var.
       </p>
       <p>
+        <code>outreach-followup-cron-automation</code> closes the third instance of the same gap
+        for the cold-outreach Email 2/3 follow-up cadence — the top-of-funnel sequence that turns a
+        free preview into a paying customer. <code>isFollowUpDue</code> /{" "}
+        <code>listFollowUpsDue</code> (<code>src/lib/email/outreach-followups.ts</code>) already
+        fed pipeline-health, the daily digest, and a dashboard panel with visibility, but{" "}
+        <code>sendFollowUpAction</code> was the only thing that ever actually sent Email 2/3, one
+        lead at a time, on a manual click. The mark-then-send body (next-step derivation via{" "}
+        <code>nextFollowUpStep</code>, the <code>recordLeadOutreach</code> CAS guard, Email 2 vs
+        Email 3 dispatch) was extracted into <code>sendOutreachFollowUpEmail</code> (
+        <code>src/lib/leads/send-follow-up.ts</code>) — same guard, unchanged — so the manual
+        button and <code>GET /api/cron/outreach-followups</code> (
+        <code>src/app/api/cron/outreach-followups/route.ts</code>) can never diverge. The cron
+        route reads <code>getLeads</code> once, computes the due queue via the same{" "}
+        <code>listFollowUpsDue</code> the dashboard panel calls (so cron and panel can never
+        disagree on what&apos;s due — snoozed leads excluded either way), and sequentially attempts
+        each one, aggregating per-lead failures the same way{" "}
+        <code>checkout-recovery</code>&apos;s cron route does. It shares the same{" "}
+        <code>CRON_SECRET</code> verification and adds a third <code>vercel.json</code>{" "}
+        <code>&quot;crons&quot;</code> entry — worth flagging plainly: Vercel&apos;s Hobby plan
+        caps a project at 2 Cron Jobs total, so three routes on one project needs Pro (or higher);
+        this is a real, cheap (well under any real revenue this whole outreach/checkout/digest
+        automation exists to protect) operational cost, not a blocker, but it is a genuine
+        plan-tier requirement worth stating rather than glossing over.
+      </p>
+      <p>
         <code>acquisition-source-checkout-attribution</code>: the homepage pricing grid and each
         of the three <code>/websites-for-*</code> SEO category landing pages funneled to the same{" "}
         <code>/checkout</code> page with no way to tell which surface actually converted — no
