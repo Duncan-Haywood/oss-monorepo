@@ -178,6 +178,12 @@ const COLLISION_REGRESSION_CASES: readonly CollisionRegressionCase[] = [
     tier: "starter",
     note: "roofer suffix regression check",
   },
+  {
+    slug: "pizzazz-hair-salon-studio",
+    category: "salon",
+    tier: "complete",
+    note: "pizzazz flourish word, not pizza restaurant",
+  },
 ];
 
 describe("DEMO_LEADS", () => {
