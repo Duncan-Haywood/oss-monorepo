@@ -43,6 +43,7 @@ import {
   orderEligibleForPauseNotice,
   orderGrantsSoldCapabilityEntitlement,
   orderHadRecurringEntitlement,
+  otherLiveRecurringStripeCustomerIdsToSupersede,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
   stripeSubscriptionIdFromInvoice,
@@ -1028,6 +1029,61 @@ export async function POST(request: Request) {
             "checkout_session_orphan_bundle_cleanup",
           );
           return NextResponse.json(failure.body, { status: failure.status });
+        }
+
+        // A recurring order for this lead can supersede an earlier
+        // still-active recurring order for the SAME lead under a DIFFERENT
+        // Stripe Customer — e.g. the Growth→Complete upsell email's
+        // checkout link. existingRecurringStripeCustomerId (checkout route)
+        // now reuses the existing Customer for a fresh session going
+        // forward, but a lead can still end up with two live recurring
+        // orders (a pre-fix session, a race between two concurrent
+        // sessions, or any future recurring re-checkout path). Cancel the
+        // superseded Subscription(s) so the customer is not billed twice.
+        // Best-effort: a failure here is captured but does not fail this
+        // response — the new order is already correctly recorded above, and
+        // forcing a Stripe redelivery would re-run the receipt/DNS emails
+        // below, a worse trade-off than a rare missed cancellation
+        // surfacing only via captureError. See
+        // stripe-checkout-recurring-upgrade-dedup.
+        if (Boolean(bundle.monthlyPriceIdEnv) || commerceAddon) {
+          try {
+            const { listOrdersByLeadSlug } = await import("@/lib/db");
+            const leadOrders = await listOrdersByLeadSlug(slug);
+            const supersededCustomerIds = otherLiveRecurringStripeCustomerIdsToSupersede(
+              leadOrders,
+              session.id,
+              stripeCustomerId,
+            );
+            for (const supersededCustomerId of supersededCustomerIds) {
+              const activeSubscriptions = await stripe.subscriptions.list({
+                customer: supersededCustomerId,
+                status: "active",
+              });
+              for (const activeSubscription of activeSubscriptions.data) {
+                await stripe.subscriptions.cancel(activeSubscription.id);
+                console.log(
+                  `webhook: canceled superseded subscription ${activeSubscription.id} (customer ${supersededCustomerId}) for ${slug} after ${session.id} recurring upgrade`,
+                );
+              }
+              await markOrdersRecurringCanceledByCustomer(
+                supersededCustomerId,
+                Date.now(),
+                WEBHOOK_CONVEX_PRIMARY,
+              );
+            }
+          } catch (e) {
+            console.error(
+              `Failed to cancel superseded recurring subscription(s) for ${slug} after ${session.id}`,
+              e,
+            );
+            await captureError(e, {
+              component: "stripe-webhook",
+              eventType: event.type,
+              eventId: event.id,
+              failureKind: "supersede_recurring_subscription",
+            });
+          }
         }
 
         // alreadyRecorded must NOT early-break past buyer emails: if the first

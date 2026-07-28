@@ -18,6 +18,8 @@ import { commerceSkuStripeKey } from "@/lib/commerce/stripe-sync";
 const constructEvent = vi.fn();
 const listLineItems = vi.fn();
 const retrieveSubscription = vi.fn();
+const listSubscriptions = vi.fn();
+const cancelSubscription = vi.fn();
 const listCheckoutSessions = vi.fn();
 const retrieveCharge = vi.fn();
 const retrievePaymentIntent = vi.fn();
@@ -32,6 +34,8 @@ vi.mock("stripe", () => ({
     };
     subscriptions = {
       retrieve: (...args: unknown[]) => retrieveSubscription(...args),
+      list: (...args: unknown[]) => listSubscriptions(...args),
+      cancel: (...args: unknown[]) => cancelSubscription(...args),
     };
     charges = {
       retrieve: (...args: unknown[]) => retrieveCharge(...args),
@@ -299,6 +303,12 @@ describe("POST /api/stripe/webhook", () => {
       status: "past_due",
       pause_collection: null,
     });
+    // Default: no other active Subscription found for a superseded Customer
+    // — most tests' listOrdersByLeadSlug fixture (activeCommerceOrders) has
+    // no stripeCustomerId, so this is never reached, but tests that do
+    // reach it default to "nothing to cancel" unless overridden.
+    listSubscriptions.mockReset().mockResolvedValue({ data: [] });
+    cancelSubscription.mockReset().mockResolvedValue({ status: "canceled" });
     markCheckoutSessionComplete.mockReset().mockResolvedValue(undefined);
     markCheckoutSessionOpen.mockReset().mockResolvedValue(undefined);
     markCompleteOpenBundleCheckoutSessionsForLead.mockReset().mockResolvedValue(0);
@@ -4092,6 +4102,92 @@ describe("POST /api/stripe/webhook", () => {
       );
       expect(sendBundleDnsHandoffEmail).toHaveBeenCalledTimes(1);
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(2);
+    });
+
+    describe("recurring order supersedes an earlier subscription for the same lead", () => {
+      function baseSetup() {
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          customer: "cus_new",
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+        getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+        updateDeployHandoffStatus.mockImplementation(
+          async (_slug: string, status: string, notes: string[]) => ({
+            ...existingHandoff({ status: status as DeployHandoff["status"] }),
+            notes: [...existingHandoff().notes, ...notes],
+          }),
+        );
+      }
+
+      it("cancels the prior Customer's active subscription and marks its order recurringCanceledAt", async () => {
+        baseSetup();
+        listOrdersByLeadSlug.mockResolvedValue([
+          { stripeSessionId: "cs_prior", stripeCustomerId: "cus_old", tier: "growth", commerceAddon: false },
+        ]);
+        listSubscriptions.mockResolvedValue({ data: [{ id: "sub_old_1" }] });
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(listSubscriptions).toHaveBeenCalledWith({ customer: "cus_old", status: "active" });
+        expect(cancelSubscription).toHaveBeenCalledWith("sub_old_1");
+        expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
+          "cus_old",
+          expect.any(Number),
+          { requireConvex: true },
+        );
+      });
+
+      it("does nothing for a genuinely first-time subscriber (no prior orders)", async () => {
+        baseSetup();
+        listOrdersByLeadSlug.mockResolvedValue([]);
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(listSubscriptions).not.toHaveBeenCalled();
+        expect(cancelSubscription).not.toHaveBeenCalled();
+      });
+
+      it("does not cancel when the prior order shares the new session's own Customer id (Billing Portal resync, not a duplicate)", async () => {
+        baseSetup();
+        listOrdersByLeadSlug.mockResolvedValue([
+          { stripeSessionId: "cs_prior", stripeCustomerId: "cus_new", tier: "growth", commerceAddon: false },
+        ]);
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(listSubscriptions).not.toHaveBeenCalled();
+        expect(cancelSubscription).not.toHaveBeenCalled();
+      });
+
+      it("is best-effort: a cancellation failure is captured but does not fail the webhook response", async () => {
+        baseSetup();
+        listOrdersByLeadSlug.mockResolvedValue([
+          { stripeSessionId: "cs_prior", stripeCustomerId: "cus_old", tier: "growth", commerceAddon: false },
+        ]);
+        listSubscriptions.mockRejectedValue(new Error("Stripe API unavailable"));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(cancelSubscription).not.toHaveBeenCalled();
+        expect(captureError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({
+            component: "stripe-webhook",
+            failureKind: "supersede_recurring_subscription",
+          }),
+        );
+        // The new order's own recording/handoff/receipt must not be rolled
+        // back by a best-effort cancellation failure.
+        expect(recordLeadPayment).toHaveBeenCalled();
+        expect(sendReceiptEmail).toHaveBeenCalled();
+      });
     });
 
     it("passes a valid metadata.acquisitionSource through to recordLeadPayment", async () => {

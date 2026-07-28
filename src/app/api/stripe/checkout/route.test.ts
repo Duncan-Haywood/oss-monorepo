@@ -26,9 +26,11 @@ vi.mock("stripe", () => ({
 }));
 
 const recordCheckoutSessionCreated = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 vi.mock("@/lib/db", () => ({
   recordCheckoutSessionCreated: (...args: unknown[]) =>
     recordCheckoutSessionCreated(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
 }));
 
 const captureError = vi.fn();
@@ -62,6 +64,7 @@ describe("POST /api/stripe/checkout", () => {
   beforeEach(() => {
     sessionsCreate.mockReset();
     recordCheckoutSessionCreated.mockReset().mockResolvedValue(undefined);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([]);
     captureError.mockReset().mockResolvedValue(undefined);
     // Each `it` below issues its own POST(s) from the same synthetic (no
     // x-forwarded-for) client — reset the limiter so route-level tests don't
@@ -297,6 +300,105 @@ describe("POST /api/stripe/checkout", () => {
       { price: "price_growth_setup", quantity: 1 },
       { price: "price_growth_monthly", quantity: 1 },
     ]);
+  });
+
+  describe("recurring-upgrade Customer reuse (stripe-checkout-recurring-upgrade-dedup)", () => {
+    it("uses customer_email as before for a first-time subscriber with no prior orders", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_growth_first",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "growth",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer_email).toBe("owner@demo-cafe.test");
+      expect(createArgs.customer).toBeUndefined();
+    });
+
+    it("reuses the existing Stripe Customer for a lead with a live recurring order, instead of customer_email", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_existing", tier: "growth", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_complete_upgrade",
+        url: "https://checkout.stripe.com/complete",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "complete",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer).toBe("cus_existing");
+      expect(createArgs.customer_email).toBeUndefined();
+    });
+
+    it("does not look up orders or reuse a Customer for a one-time Starter (non-recurring) checkout", async () => {
+      setBundlePriceEnv();
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_starter_no_lookup",
+        url: "https://checkout.stripe.com/starter",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "starter",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      expect(listOrdersByLeadSlug).not.toHaveBeenCalled();
+    });
+
+    it("falls back to customer_email when the lead's prior recurring order has no Stripe Customer id", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: undefined, tier: "growth", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_growth_no_customer",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "growth",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer).toBeUndefined();
+      expect(createArgs.customer_email).toBe("owner@demo-cafe.test");
+    });
   });
 
   it("adds Commerce add-on line items and cancel URL commerce=1", async () => {
