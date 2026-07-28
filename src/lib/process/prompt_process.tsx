@@ -816,9 +816,24 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-28",
+    branch: "claude/nice-euler-mjt5js",
+    summary:
+      "Scheduled routine. Picked up at origin/main tip 6c8b0fe (PR #965) and independently built the same fix sibling PR #967 (immediately above) also built — the third due-queue surface for listOrdersWithFailedBillingNotice. Merged sibling PR #966 cleanly, then a post-push fetch (run right before opening a PR) showed PR #967 had already merged moments earlier with an equivalent but better implementation.",
+    shipped: [
+      "Compared the two implementations: the sibling gated its 'Manage billing' button on a new per-order hasStripeCustomerId field (mirroring RecurringEntitlementPausedLead's own precedent exactly); mine reused leadHasBillingPortal(slug), which checks tier/commerceAddon eligibility only and has no relation to whether the specific order actually has a Stripe Customer id — a real latent bug (a button that could fail server-side on click). The sibling also shipped 3 new tests and a two-sided dev-server smoke test; mine shipped none.",
+      "Discarded this session's duplicate implementation via git reset --hard origin/main (never opened a PR for it) and re-ran the full verification gate against the reset tip. No product/test code ships from this entry. src/lib/process/business-decisions.ts (appended billing-notice-send-failed-leads-panel-dual-build-collision-review); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Process lesson: the pre-push fetch caught sibling #966 but not #967, which merged in the window between that fetch and this session's own push completing — a future iteration should fetch once more immediately before opening the PR itself, not only before the local push.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3991 passed, 234 files, unchanged by this review) + a full clean rebuild (rm -rf .next && npm run build, clean, no new warnings).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "billing-notice-send-failed-leads-panel-dual-build-collision-review",
+    ),
+  },
+  {
+    date: "2026-07-28",
     branch: "claude/upbeat-dijkstra-tg1n4z",
     summary:
-      "Continuation of the same scheduled routine, immediately after PR #967 merged. The next dispatched research agent found one more instance of the same third-due-queue-surface gap: listMarketingPacksMissingClientSend and listClientVoicePacksMissingClientSend each already fed a pipeline-health MetricCard and a daily-digest section, but leads-client.tsx had zero references to either.",
+      "Continuation of the same scheduled routine, immediately after PR #967 merged. The next dispatched research agent found one more instance of the same third-due-queue-surface gap: listMarketingPacksMissingClientSend and listClientVoicePacksMissingClientSend each already fed a pipeline-health MetricCard and a daily-digest section, but leads-client.tsx had zero references to either. While merging, sibling PR #968 (billing-notice-send-failed-leads-panel-dual-build-collision-review, immediately above) was already on origin/main — merged it in and resolved the process-log append-position conflict by keeping the sibling's entry first, this entry last.",
     shipped: [
       "The generated-vs-delivered gap is real sold-fulfillment visibility: marketing-voice-pack-client-send-visibility already fixed the due-count accuracy and added an inline emailed/not-yet-emailed badge on the per-lead detail row, but that badge only surfaces once an operator has scrolled to that specific lead — no at-a-glance, filtered due-queue view existed, the same gap billing-notice-send-failed-leads-panel closed one iteration earlier for a different queue.",
       "Added two new sections to leads-client.tsx mirroring the MRR-paused/billing-notice-failed panels' shape: Marketing packs not emailed and Complete voice packs not emailed. Both list helpers were already generic/exported/fully tested and consume the same client-side state the pipeline-health cards already use — no new backend plumbing. Each row's Send to client button reuses the existing handleEmailMarketingPack/handleEmailClientVoicePack handlers, so sends from either surface stay in sync automatically.",
