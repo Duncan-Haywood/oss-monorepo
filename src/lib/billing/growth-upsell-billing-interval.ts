@@ -42,3 +42,27 @@ export async function resolveGrowthOrderBillingInterval(
   }
   return "monthly";
 }
+
+/**
+ * Bulk twin of resolveGrowthOrderBillingInterval for the dashboard's Growth →
+ * Complete candidate list (see growth-upsell-dashboard-candidate-annual-
+ * billing-display) — one Checkout Session retrieve per candidate, run
+ * concurrently. Each candidate resolves independently (resolveGrowthOrder-
+ * BillingInterval itself never throws, so one Stripe failure can't take down
+ * the rest), and the returned map only ever contains "monthly"/"annual"
+ * values — callers should default a missing slug to "monthly", the same
+ * fallback resolveGrowthOrderBillingInterval already uses for every other
+ * failure mode.
+ */
+export async function resolveGrowthUpsellCandidateBillingIntervals(
+  stripe: StripeGrowthUpsellBillingIntervalClient,
+  candidateGrowthOrders: ReadonlyArray<{ slug: string; stripeSessionId: string }>,
+): Promise<Record<string, BundleBillingInterval>> {
+  const resolved = await Promise.all(
+    candidateGrowthOrders.map(async ({ slug, stripeSessionId }) => {
+      const billingInterval = await resolveGrowthOrderBillingInterval(stripe, stripeSessionId);
+      return [slug, billingInterval] as const;
+    }),
+  );
+  return Object.fromEntries(resolved);
+}

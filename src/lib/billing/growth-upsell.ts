@@ -181,3 +181,27 @@ export function oldestGrowthUpsellCandidateAgeHours(
   if (nowMs < oldestCreatedAtMs) return 0;
   return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / (60 * 60 * 1000)));
 }
+
+/**
+ * " · $199/mo" / " · $1990/yr" — the dashboard candidate-row price suffix for
+ * /dashboard/leads' Growth → Complete panel. growth-upsell-annual-billing-
+ * carry-through taught the actual send path (buildGrowthUpsellCheckoutPath /
+ * sendGrowthUpsellEmail) to quote a live annual Growth subscriber's real
+ * $1990/yr cadence instead of always "$199/mo", but never touched this
+ * operator-facing row — an operator reading "$199/mo" right before clicking
+ * Send saw a different number than the email/link that click actually
+ * produces for an annual subscriber. billingInterval defaults to "monthly"
+ * so an unresolved lookup (see resolveGrowthUpsellCandidateBillingIntervals)
+ * degrades to the original, always-correct-for-monthly display rather than
+ * showing nothing. See growth-upsell-dashboard-candidate-annual-billing-display.
+ */
+export function growthUpsellCandidatePriceSuffix(
+  bundle: { monthlyPriceUsd: number | null; annualPriceUsd?: number | null } | undefined,
+  billingInterval: BundleBillingInterval = "monthly",
+): string | null {
+  if (!bundle) return null;
+  if (billingInterval === "annual" && bundle.annualPriceUsd != null) {
+    return ` · $${bundle.annualPriceUsd}/yr`;
+  }
+  return bundle.monthlyPriceUsd != null ? ` · $${bundle.monthlyPriceUsd}/mo` : null;
+}

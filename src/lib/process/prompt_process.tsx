@@ -1019,5 +1019,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "tier-upgrade-superseded-subscription-no-proration-flagged",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #959 merged. The next dispatched research agent found a residual display-parity gap left over from growth-upsell-annual-billing-carry-through (PR #957): the actual send path now quotes an annual Growth subscriber's real $1990/yr cadence, but /dashboard/leads' own Growth → Complete candidate row still unconditionally rendered '$199/mo'. Unlike the proration gap flagged in the prior iteration, this is purely display/observability — no money movement — so it was safe to implement directly.",
+    shipped: [
+      "Fixed by resolving each candidate's live billing cadence server-side in page.tsx: a new resolveGrowthUpsellCandidateBillingIntervals (src/lib/billing/growth-upsell-billing-interval.ts) runs one Checkout Session retrieve per candidate concurrently, reusing resolveGrowthOrderBillingInterval so one candidate's Stripe failure can't affect the others. Gated on STRIPE_SECRET_KEY + a non-empty candidate list, matching the send action's own gate; the resulting slug-keyed map threads down to LeadsClient as a new optional growthUpsellBillingIntervals prop.",
+      "leads-client.tsx renders the row's price suffix through a new pure growthUpsellCandidatePriceSuffix(bundle, billingInterval) helper in growth-upsell.ts instead of reading bundle.monthlyPriceUsd inline — any unresolved slug falls back to 'monthly', identical to the pre-fix display. Deliberately left the sibling Starter-upsell panel's identical-looking hardcode untouched — Starter carries no recurring Price, so that number is a first-time cadence choice, not an existing one being overwritten.",
+      "src/lib/billing/growth-upsell-billing-interval.ts, .test.ts (new resolver + 3 tests); src/lib/billing/growth-upsell.ts, .test.ts (new price-suffix helper + 4 tests); src/app/dashboard/leads/page.tsx, leads-client.tsx (the wiring); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended growth-upsell-dashboard-candidate-annual-billing-display); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed the four pre-existing files with behavioral changes, confirmed all 7 new/updated assertions failed exactly as expected (29 passed, 7 failed), then restored and confirmed all 36 targeted tests pass. Smoke-tested with a dev server: seeded a paid Growth lead with no Complete order into local.db, confirmed the row rendered '$199/mo' unchanged (STRIPE_SECRET_KEY unset locally, lookup skipped) — the regression-safety case unit tests alone can't exercise. Cleaned up the seeded local.db afterward.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (36 passed, 2 files) then full suite (3987 passed, 234 files, +7 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + the dev-server smoke check described above.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "growth-upsell-dashboard-candidate-annual-billing-display",
+    ),
+  },
 ];
 
