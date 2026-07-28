@@ -837,5 +837,23 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "growth-upsell-canceled-exclusion",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 8282db70 (PR #927, stripe-checkout-recurring-upgrade-dedup, merged this session), folded in behind sibling PR #928 (growth-upsell-canceled-exclusion, which independently flagged the same business-decisions.ts archive-split need this iteration also hit). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3772 passed, 217 files).",
+    shipped: [
+      "Housekeeping, done first: business-decisions.ts measured 262,623 bytes — already over the 262,144-byte re-archive trigger. Moved the oldest 30 of 40 live BUSINESS_DECISIONS entries into a new archive/business-decisions-archive-20.ts (mirroring the ITERATIONS-archive split two iterations ago, but for this array's own separate pre-existing archive series). Verified losslessness via entry-count parity (30 archived + 10 live = 40 original) and decisions-link-audit.test.ts (10/10 passed). business-decisions.ts dropped to ~75KB.",
+      "Given how severe the just-shipped recurring-upgrade-dedup fix's own bug class was, dispatched a research agent to sweep the rest of the payment/checkout/subscription family for the same shape rather than pivoting away. Starter upsell, Commerce Buy-now, both Billing Portal creators, and every other Stripe-resource-creation call site checked out clean — but it found a real residual gap in the fix's own new logic: existingRecurringStripeCustomerId and otherLiveRecurringStripeCustomerIdsToSupersede both required recurringCanceledAt to be unset, but that field is set by BOTH a terminal subscription.deleted AND a temporary past_due/unpaid pause — the Stripe Subscription is still alive mid-dunning in the latter case. A lead whose old subscription was past_due at upgrade time would neither get its Customer reused nor its Subscription found/canceled (the webhook's own subscriptions.list call also filtered on status: active, excluding past_due) — if dunning later recovered it, the old subscription would resume billing alongside the new one, reproducing the exact double-billing bug just fixed, via a payment-failure timing window instead of same-day double-checkout.",
+      "Fixed by switching both predicates to orderHadRecurringEntitlement (ignores recurringCanceledAt — the same established escape hatch this file already uses for orderEligibleForPauseNotice, for the identical field-ambiguity reason) and dropping the status: active filter on the Stripe subscriptions.list call (Stripe's own default already excludes only status=canceled). Reusing an old, fully-dead Customer or calling Stripe for one is harmless — subscriptions.list simply returns nothing to cancel. Updated the two existing tests that encoded the old (now-incorrect) exclude-canceled behavior, and added new tests proving the past_due case specifically. Verified via the git-stash regression-catching technique: all 3 new/extended assertions failed with the expected mismatch before restoring the fix.",
+      "src/lib/process/archive/business-decisions-archive-20.ts — new file. src/lib/orders/recurring.ts, src/app/api/stripe/webhook/route.ts — the fix. src/lib/orders/recurring.test.ts, src/app/api/stripe/checkout/route.test.ts, src/app/api/stripe/webhook/route.test.ts — updated/new tests. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended business-decisions-archive-20-split and recurring-upgrade-dedup-past-due-customer-reuse-gap. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to a5b0d605 (origin/main tip after sibling PR #928 merged mid-iteration).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (recurring.test.ts, checkout/route.test.ts, webhook/route.test.ts — 334/334 passed) then full suite (3772 passed, 217 files, unchanged from post-merge baseline) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only Stripe orchestration fix with no rendered UI change beyond the docs paragraph.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) =>
+        d.id === "business-decisions-archive-20-split" ||
+        d.id === "recurring-upgrade-dedup-past-due-customer-reuse-gap",
+    ),
+  },
 ];
 
