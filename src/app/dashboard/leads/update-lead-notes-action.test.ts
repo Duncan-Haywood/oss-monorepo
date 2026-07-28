@@ -115,8 +115,14 @@ const baseLead = {
   dataSource: "manual_entry" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("updateLeadNotesAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
@@ -252,6 +258,10 @@ describe("updateLeadNotesAction", () => {
       error: "db offline",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "updateLeadNotesAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

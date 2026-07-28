@@ -117,8 +117,14 @@ const outreachLead = {
   dataSource: "manual_entry" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendFollowUpAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -132,6 +138,20 @@ describe("sendFollowUpAction", () => {
     sendOutreachFollowUp3.mockReset().mockResolvedValue({
       success: true,
       id: "email_3",
+    });
+  });
+
+  it("surfaces unexpected Error messages from the lead lookup and reports it via captureError", async () => {
+    getLeadBySlug.mockRejectedValue(new Error("db offline"));
+    const { sendFollowUpAction } = await import("./actions");
+    const res = await sendFollowUpAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "db offline",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendFollowUpAction",
     });
   });
 

@@ -135,10 +135,16 @@ const starterOrder = {
 const eligibilityError =
   "Upsell only applies to paid/live Starter leads with email and no Growth/Complete/Commerce order yet";
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendStarterUpsellAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
@@ -366,6 +372,10 @@ describe("sendStarterUpsellAction", () => {
     expect(res).toEqual({ success: false, error: "disk full" });
     expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendStarterUpsellAction",
+    });
   });
 
   it("targets Complete when recommendedTier is complete", async () => {

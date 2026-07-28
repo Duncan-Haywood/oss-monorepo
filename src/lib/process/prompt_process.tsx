@@ -891,4 +891,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "contact-form-notify-send-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-asetdn",
+    summary:
+      "Scheduled routine. Picked up at origin/main tip e23c159e (PR #972, contact-form-notify-send-capture-error) — HEAD matched origin/main exactly at session start. git fetch --prune found every one of the ~10 most-recently-pushed claude/* branches already fully merged (0 ahead of main); only the pre-existing unrelated stale draft #202 remained open. Read AGENT_PROTOCOL in full and the last ~30 ITERATIONS entries, then picked the priority-1 candidate the most recent observability-scaffold UPDATE had explicitly flagged as still open.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts's ~40 exported server actions each wrap their entire body in an outer try/catch whose console.error-only branch had never been wired to captureError — the file's only two existing calls (from stripe-connect-status-cache-write-capture-error) sit inside a nested inner catch that never reaches the outer one. Confirmed by grep: 39 top-level catch blocks, none calling captureError. Several of the 39 actions are payment/email-critical (openBillingPortalAction, sendCheckoutRecoveryAction, sendCommerceCheckoutRecoveryAction, resendCommerceClientReceiptAction, resendBundleBuyerEmailAction, sendStarterUpsellAction, sendGrowthUpsellAction, all four Stripe Connect onboarding actions, syncCommerceCatalogToStripeAction, markCommerceOrderPaidOutAction).",
+      "Wired captureError into all 39 outer catch blocks (scripted insertion, reviewed) with component: \"dashboard-leads-actions\" and failureKind set to each action's own name, using await to match the established convention for a call that is the last thing before a Server Action returns (a serverless runtime can terminate before an un-awaited promise finishes).",
+      "Extended 25 actions' existing outer-catch failure tests in place with a captureError assertion; added 8 new dedicated tests (disposeColdLeadAction, replyToInquiryAction, sendFollowUpAction, sendCheckoutRecoveryAction, sendCommerceCheckoutRecoveryAction, listBufferProfilesAction, scheduleMarketingPackToBufferAction, saveLeadBufferProfilesAction) for actions whose only existing coverage never reached the outer catch. Caught and corrected one wrong assumption mid-pass: saveLeadBufferProfilesAction's own listBufferProfiles verification step has its own inner try/catch that returns directly rather than re-throwing — the intended assertion failed with zero calls, so that inner-catch instance was left out of scope and the lead-lookup call was used instead to cover the action's actual outer catch. Added the shared captureError mock scaffold to all 31 touched test files (skipping stripe-connect-actions.test.ts, which already had one).",
+      "src/app/dashboard/leads/actions.ts (39 captureError call sites); 31 test files under src/app/dashboard/leads/ (mock scaffolding + assertions); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended dashboard-leads-actions-outer-catch-capture-error); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change — all six gated items remain operator/legal/business-blocked.",
+      "Proved via git-stash: stashed only actions.ts, confirmed exactly 39 new/updated captureError assertions failed as expected (535 passed, 39 failed of 574 in the leads directory), then restored and confirmed all 574 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (src/app/dashboard/leads — 574 passed, 33 files) then full suite (4007 passed, 234 files, +11 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only observability change, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "dashboard-leads-actions-outer-catch-capture-error",
+    ),
+  },
 ];

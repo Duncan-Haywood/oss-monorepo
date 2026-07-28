@@ -125,10 +125,16 @@ const stubVariants = [
   },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("generateMarketingPackAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.ANTHROPIC_API_KEY;
@@ -314,6 +320,10 @@ describe("generateMarketingPackAction", () => {
       error: "disk full",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "generateMarketingPackAction",
+    });
   });
 
   it("loads orders via listOrdersByLeadSlug (ineligible starter does not pass)", async () => {

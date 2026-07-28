@@ -99,8 +99,14 @@ const createdHandoff: DeployHandoff = {
   updatedAt: "2026-07-18T00:00:00.000Z",
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("createDeployHandoffForLeadAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
@@ -234,6 +240,10 @@ describe("createDeployHandoffForLeadAction", () => {
     const res = await createDeployHandoffForLeadAction("demo-cafe");
     expect(res).toEqual({ success: false, error: "handoff store offline" });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "createDeployHandoffForLeadAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

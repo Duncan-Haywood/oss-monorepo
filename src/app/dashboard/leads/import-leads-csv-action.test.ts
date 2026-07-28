@@ -135,8 +135,14 @@ const cafeRow = [
   "demo-cafe",
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("importLeadsCsvAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -537,6 +543,10 @@ describe("importLeadsCsvAction", () => {
       error: "db offline",
     });
     expect(upsertLead).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "importLeadsCsvAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

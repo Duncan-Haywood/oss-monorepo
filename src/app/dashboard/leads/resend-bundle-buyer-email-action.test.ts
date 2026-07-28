@@ -163,8 +163,14 @@ function reserveBothByDefault(
   });
 }
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("resendBundleBuyerEmailAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -372,6 +378,10 @@ describe("resendBundleBuyerEmailAction", () => {
     expect(res).toEqual({ success: false, error: "disk full" });
     expect(sendReceiptEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "resendBundleBuyerEmailAction",
+    });
   });
 
   it("surfaces a null reservation result (handoff vanished mid-request) as not-found", async () => {

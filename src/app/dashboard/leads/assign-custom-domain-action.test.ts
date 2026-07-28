@@ -112,8 +112,14 @@ const domainHandoff: DeployHandoff = {
   updatedAt: "2026-07-14T12:00:00.000Z",
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("assignCustomDomainAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
@@ -349,6 +355,10 @@ describe("assignCustomDomainAction", () => {
       error: "domains API offline",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "assignCustomDomainAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

@@ -274,6 +274,10 @@ export async function createDeployHandoffForLeadAction(slug: string) {
     return { success: true as const, handoff };
   } catch (error) {
     console.error("Error in createDeployHandoffForLeadAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "createDeployHandoffForLeadAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -327,6 +331,10 @@ export async function markHandoffLiveAction(slug: string) {
     return { success: true as const, handoff };
   } catch (error) {
     console.error("Error in markHandoffLiveAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "markHandoffLiveAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -387,6 +395,10 @@ export async function assignVercelProjectAction(slug: string, vercelProjectId: s
     return { success: true as const, handoff };
   } catch (error) {
     console.error("Error in assignVercelProjectAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "assignVercelProjectAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -472,6 +484,10 @@ export async function assignCustomDomainAction(slug: string, customDomain: strin
     return { success: true as const, handoff };
   } catch (error) {
     console.error("Error in assignCustomDomainAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "assignCustomDomainAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -533,6 +549,10 @@ export async function updateInquiryStatusAction(
     return { success: true as const, inquiry };
   } catch (error) {
     console.error("Error in updateInquiryStatusAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "updateInquiryStatusAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -677,6 +697,10 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
     };
   } catch (error) {
     console.error("Error in replyToInquiryAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "replyToInquiryAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -835,6 +859,10 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
     return { success: true as const };
   } catch (error) {
     console.error("Error in updateLeadStageAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "updateLeadStageAction",
+    });
     return { success: false as const, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
@@ -895,6 +923,10 @@ export async function updateLeadNotesAction(slug: string, notes: string) {
     return { success: true as const, notes: normalized.notes };
   } catch (error) {
     console.error("Error in updateLeadNotesAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "updateLeadNotesAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -979,6 +1011,10 @@ export async function snoozeLeadAction(
     return { success: true as const, snoozedUntil: normalized.snoozedUntil };
   } catch (error) {
     console.error("Error in snoozeLeadAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "snoozeLeadAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -1144,6 +1180,10 @@ export async function disposeColdLeadAction(
     };
   } catch (error) {
     console.error("Error in disposeColdLeadAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "disposeColdLeadAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -1219,6 +1259,10 @@ export async function sendFollowUpAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in sendFollowUpAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "sendFollowUpAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -1283,6 +1327,10 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
     return { success: true as const, mock: result.mock };
   } catch (error) {
     console.error("Error in sendCheckoutRecoveryAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "sendCheckoutRecoveryAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -1345,6 +1393,10 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
     return { success: true as const, mock: result.mock };
   } catch (error) {
     console.error("Error in sendCommerceCheckoutRecoveryAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "sendCommerceCheckoutRecoveryAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -1470,6 +1522,10 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
     return { success: true as const, paidOutAt };
   } catch (error) {
     console.error("Error in markCommerceOrderPaidOutAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "markCommerceOrderPaidOutAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -1622,6 +1678,10 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
     };
   } catch (error) {
     console.error("Error in resendCommerceClientReceiptAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "resendCommerceClientReceiptAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -1821,6 +1881,10 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
     return { success: true as const, handoff: reservation.handoff };
   } catch (error) {
     console.error("Error in resendBundleBuyerEmailAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "resendBundleBuyerEmailAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -1973,6 +2037,10 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
     return { success: true as const, slug: lead.slug };
   } catch (error) {
     console.error("Error in addLeadAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "addLeadAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -2169,6 +2237,10 @@ export async function importLeadsCsvAction(input: {
     };
   } catch (error) {
     console.error("Error in importLeadsCsvAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "importLeadsCsvAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -2303,6 +2375,10 @@ export async function sendStarterUpsellAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in sendStarterUpsellAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "sendStarterUpsellAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -2449,6 +2525,10 @@ export async function sendGrowthUpsellAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in sendGrowthUpsellAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "sendGrowthUpsellAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -2507,6 +2587,10 @@ export async function openBillingPortalAction(slug: string) {
     return { success: true as const, url: result.url };
   } catch (error) {
     console.error("Error in openBillingPortalAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "openBillingPortalAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -2568,6 +2652,10 @@ export async function sendDailyDigestAction() {
     };
   } catch (error) {
     console.error("Error in sendDailyDigestAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "sendDailyDigestAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -2663,6 +2751,10 @@ export async function generateMarketingPackAction(slug: string) {
     return { success: true as const, pack };
   } catch (error) {
     console.error("Error in generateMarketingPackAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "generateMarketingPackAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -2734,6 +2826,10 @@ export async function generateSeasonalPromoAction(slug: string, occasion?: strin
     };
   } catch (error) {
     console.error("Error in generateSeasonalPromoAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "generateSeasonalPromoAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -2899,6 +2995,10 @@ export async function sendMarketingPackToClientAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in sendMarketingPackToClientAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "sendMarketingPackToClientAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -2995,6 +3095,10 @@ export async function saveCommerceCatalogAction(
     return { success: true as const, catalog };
   } catch (error) {
     console.error("Error in saveCommerceCatalogAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "saveCommerceCatalogAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -3034,6 +3138,10 @@ export async function getCommerceCatalogAction(slug: string) {
     return { success: true as const, catalog };
   } catch (error) {
     console.error("Error in getCommerceCatalogAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "getCommerceCatalogAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -3156,6 +3264,10 @@ export async function syncCommerceCatalogToStripeAction(slug: string) {
     return { success: true as const, catalog: updated };
   } catch (error) {
     console.error("Error in syncCommerceCatalogToStripeAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "syncCommerceCatalogToStripeAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
@@ -3239,6 +3351,10 @@ export async function archiveOrphanCommerceStripeProductsAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in archiveOrphanCommerceStripeProductsAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "archiveOrphanCommerceStripeProductsAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
@@ -3336,6 +3452,10 @@ export async function createStripeConnectAccountAction(slug: string) {
     return { success: true as const, accountId, created };
   } catch (error) {
     console.error("Error in createStripeConnectAccountAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "createStripeConnectAccountAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
@@ -3424,6 +3544,10 @@ export async function createStripeConnectOnboardingLinkAction(slug: string) {
     return { success: true as const, url };
   } catch (error) {
     console.error("Error in createStripeConnectOnboardingLinkAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "createStripeConnectOnboardingLinkAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
@@ -3572,6 +3696,10 @@ export async function sendStripeConnectOnboardingLinkToClientAction(slug: string
     return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
   } catch (error) {
     console.error("Error in sendStripeConnectOnboardingLinkToClientAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "sendStripeConnectOnboardingLinkToClientAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
@@ -3682,6 +3810,10 @@ export async function checkStripeConnectAccountStatusAction(slug: string) {
     return { success: true as const, ...status };
   } catch (error) {
     console.error("Error in checkStripeConnectAccountStatusAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "checkStripeConnectAccountStatusAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
@@ -3721,6 +3853,10 @@ export async function listBufferProfilesAction() {
     return { success: true as const, profiles };
   } catch (error) {
     console.error("Error in listBufferProfilesAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "listBufferProfilesAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Buffer error",
@@ -3842,6 +3978,10 @@ export async function saveLeadBufferProfilesAction(slug: string, profileIds: str
     return { success: true as const, bufferProfileIds: dedupedProfileIds };
   } catch (error) {
     console.error("Error in saveLeadBufferProfilesAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "saveLeadBufferProfilesAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -4058,6 +4198,10 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
     return { success: true as const, scheduled, skipped, failed };
   } catch (error) {
     console.error("Error in scheduleMarketingPackToBufferAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "scheduleMarketingPackToBufferAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Buffer error",
@@ -4143,6 +4287,10 @@ export async function generateClientVoicePackAction(slug: string) {
     return { success: true as const, pack };
   } catch (error) {
     console.error("Error in generateClientVoicePackAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "generateClientVoicePackAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -4296,6 +4444,10 @@ export async function sendClientVoicePackToClientAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in sendClientVoicePackToClientAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "sendClientVoicePackToClientAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -4367,6 +4519,10 @@ export async function unsuppressEmailAction(email: string) {
     return { success: true as const };
   } catch (error) {
     console.error("Error in unsuppressEmailAction:", error);
+    await captureError(error, {
+      component: "dashboard-leads-actions",
+      failureKind: "unsuppressEmailAction",
+    });
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

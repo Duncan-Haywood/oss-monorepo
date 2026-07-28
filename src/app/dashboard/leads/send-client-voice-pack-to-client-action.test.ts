@@ -145,10 +145,16 @@ const packVariants = [
   },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendClientVoicePackToClientAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.NEXT_PUBLIC_APP_URL;
@@ -394,6 +400,10 @@ describe("sendClientVoicePackToClientAction", () => {
     const res = await sendClientVoicePackToClientAction("demo-cafe");
     expect(res).toEqual({ success: false, error: "unexpected bug" });
     expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendClientVoicePackToClientAction",
+    });
   });
 
   it("releases the reservation and reports the send failure when the email fails after a successful reservation", async () => {
