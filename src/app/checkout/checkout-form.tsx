@@ -7,6 +7,7 @@ import {
   type ClientIdempotencyAttempt,
 } from "@/lib/checkout/idempotency-key";
 import type { CheckoutAcquisitionSource } from "@/lib/checkout/acquisition-source";
+import { checkoutDueTodaySubtitle, checkoutSetupFeeTotal } from "@/lib/checkout/due-today";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import {
   annualBillingSavingsUsd,
@@ -33,6 +34,11 @@ export interface CheckoutPrefill {
    * is the only caller). Captured once from the initial page load, not a
    * user-editable form field — see acquisition-source-checkout-attribution. */
   acquisitionSource?: CheckoutAcquisitionSource;
+  /** True when the lead already has any prior bundle order — see
+   * checkout-setup-fee-skip-on-upgrade and due-today.ts. Mirrors the exact
+   * server-side predicate so this page never quotes a setup fee Stripe
+   * won't actually charge. */
+  hasExistingOrder?: boolean;
 }
 
 function parseTier(value: string | undefined): BundleTier {
@@ -92,7 +98,8 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
   const canBillAnnually = bundle.annualPriceUsd != null;
   const recurringUsd = billingInterval === "annual" ? bundle.annualPriceUsd : bundle.monthlyPriceUsd;
   const annualSavingsUsd = annualBillingSavingsUsd(bundle);
-  const setupTotal = bundle.setupPriceUsd + (commerceAddon ? COMMERCE_ADDON.setupPriceUsd : 0);
+  const setupFeeWaived = prefill.hasExistingOrder === true;
+  const setupTotal = checkoutSetupFeeTotal(bundle, commerceAddon, setupFeeWaived);
   // Commerce add-on is monthly-only (see setBillingInterval above) — its
   // contribution to "due today" always uses its own monthly price regardless
   // of the selected bundle billingInterval.
@@ -338,11 +345,7 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
           <div>
             <p className="font-medium">Due today</p>
             <p className="text-sm text-zinc-500">
-              {recurringTotal > 0
-                ? billingInterval === "annual"
-                  ? "Setup fee + first year"
-                  : "Setup fee + first month"
-                : "Setup fee, one-time"}
+              {checkoutDueTodaySubtitle({ recurringTotal, billingInterval, setupFeeWaived })}
             </p>
           </div>
           <p className="text-2xl font-semibold">${setupTotal + recurringTotal}</p>

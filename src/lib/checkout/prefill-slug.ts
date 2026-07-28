@@ -13,14 +13,16 @@
 
 import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
 import type { Lead } from "@/lib/leads/types";
+import type { OrderRecord } from "@/lib/orders/types";
 
 export type CheckoutPrefillLeadDeps = {
   getLeadBySlug: (slug: string) => Promise<Lead | null>;
+  listOrdersByLeadSlug: (slug: string) => Promise<OrderRecord[]>;
 };
 
 async function defaultDeps(): Promise<CheckoutPrefillLeadDeps> {
-  const { getLeadBySlug } = await import("@/lib/db");
-  return { getLeadBySlug };
+  const { getLeadBySlug, listOrdersByLeadSlug } = await import("@/lib/db");
+  return { getLeadBySlug, listOrdersByLeadSlug };
 }
 
 /**
@@ -41,6 +43,15 @@ export type CheckoutPrefillLeadResult = {
   /** Accepted query slug (or CRM canonical when found); undefined when missing/over-long. */
   slug: string | undefined;
   lead: Lead | null;
+  /**
+   * True when the lead already has any prior bundle order — mirrors POST
+   * /api/stripe/checkout's own setup-fee-skip predicate exactly (see
+   * checkout-setup-fee-skip-on-upgrade), so the "Due today" total the
+   * checkout form displays never drifts from what Stripe will actually
+   * charge. Only meaningful when `lead` resolved — a slug with no CRM lead
+   * has no orders to have paid a setup fee against.
+   */
+  hasExistingOrder?: boolean;
 };
 
 /**
@@ -53,9 +64,12 @@ export async function loadCheckoutPrefillLead(
 ): Promise<CheckoutPrefillLeadResult> {
   const slug = resolveCheckoutPrefillSlug(rawSlug);
   if (!slug) {
-    return { slug: undefined, lead: null };
+    return { slug: undefined, lead: null, hasExistingOrder: false };
   }
   const resolved = deps ?? (await defaultDeps());
   const lead = await resolved.getLeadBySlug(slug);
-  return { slug: lead?.slug ?? slug, lead };
+  const hasExistingOrder = lead
+    ? (await resolved.listOrdersByLeadSlug(lead.slug)).length > 0
+    : false;
+  return { slug: lead?.slug ?? slug, lead, hasExistingOrder };
 }

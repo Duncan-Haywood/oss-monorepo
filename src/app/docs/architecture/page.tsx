@@ -2074,6 +2074,33 @@ export default function ArchitectureDocPage() {
         an empty <code>line_items</code> array.
       </p>
       <p>
+        <code>checkout-form-setup-fee-display-parity</code>: the fix above only changed what{" "}
+        <code>POST /api/stripe/checkout</code> actually charges — <code>checkout-form.tsx</code>{" "}
+        never learned about the waiver, so it kept quoting the full setup fee in{" "}
+        <code>&quot;Due today&quot;</code> even on the exact upgrade checkouts the server now
+        discounts. A Growth customer following <code>sendGrowthUpsellEmail</code>&apos;s
+        &quot;setup is already covered&quot; link would see <code>Due today: $699</code> ($500 +
+        $199/mo) on this page, then actually be charged only $199 at Stripe — the opposite
+        direction of the original bug, but the same class of email-vs-checkout price mismatch.
+        Fixed by threading the same signal through: <code>loadCheckoutPrefillLead</code> (
+        <code>prefill-slug.ts</code>) now also calls <code>listOrdersByLeadSlug</code> whenever a
+        CRM lead resolves and returns <code>hasExistingOrder</code>, which{" "}
+        <code>checkout/page.tsx</code> passes to <code>CheckoutForm</code> as a new{" "}
+        <code>hasExistingOrder</code> prefill field. Extracted the &quot;Due today&quot; total and
+        subtitle arithmetic into a new pure module, <code>src/lib/checkout/due-today.ts</code> (
+        <code>checkoutSetupFeeTotal</code> / <code>checkoutDueTodaySubtitle</code>) — unit-tested
+        in the normal node Vitest environment rather than needing this repo&apos;s absent
+        jsdom/@testing-library/react render-test infra (same carve-out precedent as{" "}
+        <code>leads-client-pending-announcement-shared-status-region</code>) — and wired it into{" "}
+        <code>CheckoutForm</code> in place of the old inline calculation, mirroring the exact
+        no-filter-refunded/disputed and Commerce-add-on-unaffected semantics{" "}
+        <code>checkout-setup-fee-skip-on-upgrade</code> already established server-side. Verified
+        end to end with a dev-server smoke check: seeded a lead with a prior order directly in
+        SQLite, confirmed <code>/checkout?slug=...&amp;tier=complete</code> rendered &quot;First
+        month only — setup already covered&quot; and a <code>$199</code> total (vs. $699 for the
+        same tier with no prior order), then cleaned up the seeded rows.
+      </p>
+      <p>
         <code>webhook-setup-fee-skip-parity</code>: the setup-fee skip above shipped a real
         create-path/webhook parity gap of its own — the Stripe webhook&apos;s fulfillment gates (
         <code>sessionLineItemsMatchBundleCatalogPrices</code>, <code>expectedBundleCheckoutAmountCents</code>)
