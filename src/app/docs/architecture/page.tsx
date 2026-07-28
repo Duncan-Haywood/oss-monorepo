@@ -4489,6 +4489,47 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>webhookFulfillmentFailureResponse(...)</code> sites (and the 84-site{" "}
         <code>db.ts</code> candidate above) stay out of scope.
       </p>
+      <p>
+        <code>db-getLeads-convex-fallback-capture-error</code>: a closer look at the{" "}
+        <code>db.ts</code> Convex-fallback gap named above (84{" "}
+        <code>console.warn</code> &quot;falling back to SQLite&quot; sites, twice deferred as
+        too large) found the gap is narrower in practice than the raw count suggests.
+        Every write path this file&apos;s own dual-backend invariant names — the 24{" "}
+        <code>*_CONVEX_PRIMARY</code> constants across <code>src/lib/**/*-persist.ts</code> — sets{" "}
+        <code>requireConvex: true</code> at its real call site, which means{" "}
+        <code>shouldFallbackToSqliteOnConvexFailure</code> returns <code>false</code> and the
+        function <em>throws</em> a <code>ConvexPrimaryWriteError</code> instead of ever reaching
+        its own <code>console.warn</code>-and-fallback branch — that branch is dead code for the
+        one caller that matters (confirmed directly for <code>recordLeadPayment</code> and{" "}
+        <code>recordSubscriptionRenewalPayment</code>, both called only with{" "}
+        <code>WEBHOOK_CONVEX_PRIMARY</code>). A thrown <code>ConvexPrimaryWriteError</code> from
+        one of these already propagates to whatever try/catch wraps the call site (the Stripe
+        webhook&apos;s outer catch, for the write paths it calls) — already covered, not a gap.
+        The genuinely live fallback branches are the plain <em>read</em> functions (
+        <code>getLeads</code>, <code>getLeadBySlug</code>, <code>listOrders</code>, and similar) —
+        reads have no <code>requireConvex</code> concept at all, so every one of them
+        unconditionally degrades to SQLite on any Convex error, silently, on every call.
+      </p>
+      <p>
+        Wired <code>captureError</code> into exactly one of those read paths —{" "}
+        <code>getLeads()</code>, chosen as the single highest-blast-radius read in the file: every
+        dashboard page, the daily digest, and the webhook&apos;s <code>account.updated</code>{" "}
+        handler all call it, so a Convex outage there means the entire CRM silently runs on
+        decayed SQLite data across every consumer at once. Deliberately not wired into every read
+        function this session, for the same reason the webhook fix above didn&apos;t sweep its own
+        40 sites — but also deliberately not the two hottest read paths blindly, since reads run
+        far more often than a once-per-checkout webhook write. Read functions have no natural
+        per-event boundary the way a webhook event does, so a sustained Convex outage would fire{" "}
+        <code>captureError</code> on every single call rather than once per incident; this scaffold
+        has no built-in dedup, and a serverless deployment can&apos;t rely on an in-process
+        throttle surviving between invocations anyway. Accepted this as a known, reasonable
+        trade-off for a dormant, operator-opt-in diagnostic feature (most receiving endpoints —
+        Sentry-style tools, a custom log intake — already dedup/group incoming events server-side;
+        building bespoke throttling here would be premature complexity) rather than inventing new
+        infrastructure before anyone has actually turned this on. A future session extending this
+        to more read paths should re-examine that trade-off if it stops being reasonable in
+        practice.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

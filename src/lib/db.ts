@@ -3,6 +3,7 @@ import { ConvexHttpClient } from "convex/browser";
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { initializeSqliteSchema } from "./db/sqlite-schema";
+import { captureError } from "./observability/error-tracking";
 import type { Lead, LeadPipelineStage, OutreachStep } from "./leads/types";
 import type { DeployHandoff, DeployHandoffStatus } from "./deploy/types";
 import type { ClientInquiry, ClientInquiryStatus, CreateClientInquiryInput } from "./inquiries/types";
@@ -237,6 +238,13 @@ export async function getLeads(): Promise<Lead[]> {
       })) as Lead[];
     } catch (e) {
       console.warn("Failed to fetch leads from Convex, falling back to SQLite database", e);
+      // Best-effort — see db-getLeads-convex-fallback-capture-error in
+      // /docs/architecture for why this is the one read-path fallback wired
+      // so far (the highest-blast-radius read in the file — every dashboard
+      // page, the digest, and the webhook's account.updated handler all
+      // silently run on decayed SQLite data during a Convex outage) rather
+      // than a sweep of every db.ts fallback branch.
+      await captureError(e, { component: "db-getLeads-convex-fallback" });
     }
   }
 
