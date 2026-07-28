@@ -16,23 +16,41 @@
  */
 
 import { isOrderDisputed, isOrderRefunded } from "@/lib/orders/types";
+import { orderRecurringIsCanceled } from "@/lib/orders/recurring";
 
 /**
  * True for a live Growth order — excludes a Growth order Stripe has refunded
  * or disputed (mirrors isStarterOnlyOrder's refund/dispute exclusion: a
  * refunded/disputed Growth charge is not reliably still a live subscription
- * to upgrade from). commerceAddon is irrelevant here (unlike
- * isStarterOnlyOrder) — Commerce is an orthogonal e-commerce add-on with no
- * overlap with Complete's phone-agent/seasonal-promo value, so a
- * Growth+Commerce lead is still a genuine Growth-upsell candidate.
+ * to upgrade from), AND excludes a Growth order whose Subscription
+ * customer.subscription.deleted already canceled (orders.recurringCanceledAt
+ * — see src/lib/orders/recurring.ts's own file-level invariant: "sold
+ * monthly capabilities must ignore canceled rows"). Unlike Billing Portal
+ * (orderEligibleForBillingPortal, deliberately true for a canceled
+ * subscriber so they can self-serve resubscribe), this is a positive
+ * "actively running Growth today" check — pitching sendGrowthUpsellEmail's
+ * "Your marketing is already running on Growth" copy at a lapsed subscriber
+ * would be false, and nudging a $99/mo upgrade to $199/mo for a subscription
+ * that no longer exists doesn't make sense; they need to resubscribe first,
+ * unrelated to this upgrade nudge. See growth-upsell-canceled-exclusion.
+ * commerceAddon is irrelevant here (unlike isStarterOnlyOrder) — Commerce is
+ * an orthogonal e-commerce add-on with no overlap with Complete's
+ * phone-agent/seasonal-promo value, so a Growth+Commerce lead is still a
+ * genuine Growth-upsell candidate.
  */
 export function isGrowthOrder(order: {
   tier: string;
   commerceAddon?: boolean;
   refundedAt?: string;
   disputedAt?: string;
+  recurringCanceledAt?: number | null;
 }): boolean {
-  return order.tier === "growth" && !isOrderRefunded(order) && !isOrderDisputed(order);
+  return (
+    order.tier === "growth" &&
+    !isOrderRefunded(order) &&
+    !isOrderDisputed(order) &&
+    !orderRecurringIsCanceled(order)
+  );
 }
 
 /**
@@ -67,6 +85,7 @@ export function leadEligibleForGrowthUpsell(params: {
     commerceAddon?: boolean;
     refundedAt?: string;
     disputedAt?: string;
+    recurringCanceledAt?: number | null;
   }>;
 }): boolean {
   if (params.stage !== "paid" && params.stage !== "live") return false;
@@ -98,6 +117,7 @@ export function listGrowthUpsellCandidates<
     commerceAddon?: boolean;
     refundedAt?: string;
     disputedAt?: string;
+    recurringCanceledAt?: number | null;
   }>,
 ): T[] {
   return leads
@@ -124,6 +144,7 @@ export function oldestGrowthUpsellCandidateAgeHours(
     tier: string;
     refundedAt?: string;
     disputedAt?: string;
+    recurringCanceledAt?: number | null;
     createdAt?: string;
   }>,
   nowMs: number,
