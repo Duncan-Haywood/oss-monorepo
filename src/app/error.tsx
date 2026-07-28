@@ -24,6 +24,24 @@ export default function ErrorBoundary({
     // user gets no cue that the page swapped to this fallback UI unless focus
     // is moved here explicitly (error-boundary-heading-focus-on-mount).
     headingRef.current?.focus();
+    // Best-effort report into the same observability scaffold every
+    // server-side captureError call site already uses (see
+    // /api/client-error + /docs/architecture#observability). This boundary
+    // must never throw a second time, so the send is fire-and-forget —
+    // any failure (offline, ad-blocker, endpoint down) is silently
+    // swallowed rather than surfaced here (client-error-boundary-capture-error-route).
+    void fetch("/api/client-error", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        message: error.message,
+        stack: error.stack,
+        digest: error.digest,
+        boundary: "error",
+        path: window.location.pathname,
+      }),
+    }).catch(() => {});
   }, [error]);
 
   return (
