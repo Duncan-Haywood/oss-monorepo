@@ -128,16 +128,32 @@ export function bundleCatalogPriceIdsFromEnv(
 
 /**
  * Pure: true only when create-path bundle catalog Prices appear among the
- * session's line-item price ids (setup always; the recurring Price for
- * whichever interval `catalogPrices` was resolved for, when the tier has one).
- * Commerce add-on Prices are additive and checked separately via
+ * session's line-item price ids (the recurring Price for whichever interval
+ * `catalogPrices` was resolved for, when the tier has one — always required;
+ * the setup Price — required unless `requireSetupFee` is false). Commerce
+ * add-on Prices are additive and checked separately via
  * resolveCommerceAddonFromLineItems.
+ *
+ * `requireSetupFee` defaults to true (every pre-existing caller charged the
+ * setup fee). Pass false for a tier-upgrade checkout that skipped the
+ * one-time setup fee for a lead with a prior order (checkout-setup-fee-skip-
+ * on-upgrade) — when false, the setup Price's presence is simply not
+ * required (its absence is not itself invalid; a Session that charged it
+ * anyway still matches). Callers must independently confirm the lead
+ * actually qualifies for the skip before passing false — this function only
+ * proves what Prices are present on the Session, not who is entitled to omit
+ * the setup fee.
  */
 export function sessionLineItemsMatchBundleCatalogPrices(
   lineItemPriceIds: ReadonlyArray<string | null | undefined>,
   catalogPrices: BundleCatalogPriceIds,
+  options: { requireSetupFee?: boolean } = {},
 ): boolean {
-  if (!sessionLineItemsIncludePriceId(lineItemPriceIds, catalogPrices.setupId)) {
+  const requireSetupFee = options.requireSetupFee ?? true;
+  if (
+    requireSetupFee &&
+    !sessionLineItemsIncludePriceId(lineItemPriceIds, catalogPrices.setupId)
+  ) {
     return false;
   }
   if (catalogPrices.recurringId === null) return true;

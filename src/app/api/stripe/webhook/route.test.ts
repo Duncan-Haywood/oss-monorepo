@@ -4506,6 +4506,101 @@ describe("POST /api/stripe/webhook", () => {
       });
     });
 
+    describe("setup-fee skip on a tier-upgrade checkout (checkout-setup-fee-skip-on-upgrade / webhook-setup-fee-skip-parity)", () => {
+      /** Growth first month only ($99) — no setup fee. */
+      const GROWTH_NO_SETUP_AMOUNT_CENTS = 9_900;
+
+      function noSetupGrowthLineItems() {
+        return { data: [{ price: { id: GROWTH_MONTHLY_PRICE_ID } }] };
+      }
+
+      it("fulfills a session that omitted the setup fee when the lead already has a different prior order", async () => {
+        listLineItems.mockResolvedValue(noSetupGrowthLineItems());
+        listOrdersByLeadSlug.mockResolvedValue([
+          { stripeSessionId: "cs_prior_starter", tier: "starter", commerceAddon: false },
+        ]);
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          amount_total: GROWTH_NO_SETUP_AMOUNT_CENTS,
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+        getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+        updateDeployHandoffStatus.mockImplementation(
+          async (_slug: string, status: string, notes: string[]) => ({
+            ...existingHandoff({ status: status as DeployHandoff["status"] }),
+            notes: [...existingHandoff().notes, ...notes],
+          }),
+        );
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(recordLeadPayment).toHaveBeenCalledWith(
+          expect.objectContaining({
+            slug: "demo-cafe",
+            tier: "growth",
+            amountTotal: GROWTH_NO_SETUP_AMOUNT_CENTS / 100,
+          }),
+          { requireConvex: true },
+        );
+      });
+
+      it("skips fulfillment when the setup fee is omitted but the lead has NO prior order on record — the exact bug this gate exists to catch (a tampered/mismatched session must not bypass the setup fee)", async () => {
+        listLineItems.mockResolvedValue(noSetupGrowthLineItems());
+        listOrdersByLeadSlug.mockResolvedValue([]);
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          amount_total: GROWTH_NO_SETUP_AMOUNT_CENTS,
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(recordLeadPayment).not.toHaveBeenCalled();
+      });
+
+      it("a redelivery whose only recorded order is this exact session's own row still fulfills normally (self-exclusion) — the lead's genuinely first-ever purchase, which correctly charged the setup fee", async () => {
+        // Only "prior" order on record is this session's own row (already
+        // recorded by an earlier delivery of the same event) — excluded from
+        // the prior-order count, so this is correctly treated as a first-time
+        // purchase requiring (and, per the real charged line items, having)
+        // the setup fee — never miscounted into a false setup-fee-skip.
+        listLineItems.mockResolvedValue(growthLineItems());
+        listOrdersByLeadSlug.mockResolvedValue([
+          { stripeSessionId: "cs_test_1", tier: "growth", commerceAddon: false },
+        ]);
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth" },
+          customer_details: { email: "owner@demo-cafe.test" },
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        recordLeadPayment.mockResolvedValue({ alreadyRecorded: true });
+        getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+        updateDeployHandoffStatus.mockImplementation(
+          async (_slug: string, status: string, notes: string[]) => ({
+            ...existingHandoff({ status: status as DeployHandoff["status"] }),
+            notes: [...existingHandoff().notes, ...notes],
+          }),
+        );
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(recordLeadPayment).toHaveBeenCalledWith(
+          expect.objectContaining({
+            slug: "demo-cafe",
+            tier: "growth",
+            amountTotal: GROWTH_CHECKOUT_AMOUNT_CENTS / 100,
+          }),
+          { requireConvex: true },
+        );
+      });
+    });
+
     describe("recurring order supersedes an earlier subscription for the same lead", () => {
       function baseSetup() {
         const session = checkoutSession({

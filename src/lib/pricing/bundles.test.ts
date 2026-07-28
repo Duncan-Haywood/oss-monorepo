@@ -160,6 +160,21 @@ describe("expectedBundleCheckoutAmountCents", () => {
     expect(growth && expectedBundleCheckoutAmountCents(growth, false, "annual")).toBe(149_000);
     expect(complete && expectedBundleCheckoutAmountCents(complete, false, "annual")).toBe(249_000);
   });
+
+  it("excludes only the bundle's own setup fee when chargedSetupFee is false (tier-upgrade skip)", () => {
+    const growth = getBundle("growth")!;
+    // Same recurring price as the "sums setup + first month" case above,
+    // minus the $500 bundle setup fee — see checkout-setup-fee-skip-on-
+    // upgrade / webhook-setup-fee-skip-parity.
+    expect(expectedBundleCheckoutAmountCents(growth, false, "monthly", false)).toBe(9_900);
+    expect(expectedBundleCheckoutAmountCents(growth, false, "annual", false)).toBe(99_000);
+    // The Commerce add-on's own separate $300 setup fee is unaffected — only
+    // the bundle's own setup fee is ever skipped (checkout route never skips
+    // the add-on's setup fee).
+    expect(expectedBundleCheckoutAmountCents(growth, true, "monthly", false)).toBe(
+      9_900 + 30_000 + 4_900,
+    );
+  });
 });
 
 describe("bundleRecurringPriceUsd", () => {
