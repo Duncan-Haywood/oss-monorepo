@@ -4570,6 +4570,20 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>commerce_order_ledger</code> precedent exactly.
       </p>
       <p>
+        <code>buffer-schedule-stale-pack-variant-guard</code>: a residual gap in the same day&apos;s
+        earlier <code>buffer-schedule-stale-pack-content-guard</code> fix — that fix re-checked the
+        marketing pack&apos;s freshness once per Buffer profile, but{" "}
+        <code>scheduleMarketingPackToBufferAction</code> can post more than one variant per profile
+        (<code>MONTHLY_MARKETING_PACK_TYPES</code> generates 3 caption variants per lead per month),
+        via several sequential <code>createBufferUpdate</code> calls inside that one profile&apos;s
+        pass. A concurrent regenerate landing between the first and second variant post for the{" "}
+        <em>same</em> profile still shipped the now-superseded copy to that profile&apos;s remaining
+        posts, since the only freshness check for that profile had already passed. Moved the
+        freshness re-check inside the innermost per-variant loop, immediately before each{" "}
+        <code>createBufferUpdate</code> call, so a regenerate detected mid-profile stops the
+        remaining variants for that profile too (not just the remaining profiles).
+      </p>
+      <p>
         <code>db-order-read-family-capture-error-sweep</code>: continued the{" "}
         <code>db.ts</code> read-path series onto the next tier of live, unwired Convex-fallback
         reads in the bundle-order family — <code>listOrdersByLeadSlug()</code> (backs Manage

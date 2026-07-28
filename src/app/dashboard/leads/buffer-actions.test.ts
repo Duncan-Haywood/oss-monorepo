@@ -810,6 +810,54 @@ describe("Buffer scheduling dashboard actions", () => {
       });
     });
 
+    it("stops posting remaining variants for the SAME profile once a concurrent regenerate is detected mid-profile (buffer-schedule-stale-pack-content-guard)", async () => {
+      // A single profile with 3 matching variants makes 3 sequential
+      // createBufferUpdate calls — simulate a regenerate landing between the
+      // first and second variant post for that ONE profile, not just
+      // between two different profiles.
+      getMarketingPack
+        .mockResolvedValueOnce(
+          fakePack({
+            variants: [
+              { contentType: "facebook_caption", body: "FB post 1" },
+              { contentType: "facebook_caption", body: "FB post 2" },
+              { contentType: "facebook_caption", body: "FB post 3" },
+            ],
+          }),
+        )
+        .mockResolvedValueOnce(
+          fakePack({
+            variants: [
+              { contentType: "facebook_caption", body: "FB post 1" },
+              { contentType: "facebook_caption", body: "FB post 2" },
+              { contentType: "facebook_caption", body: "FB post 3" },
+            ],
+          }),
+        )
+        .mockResolvedValueOnce(fakePack({ generatedAt: "2026-07-02T00:00:00.000Z" }));
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb"] }));
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      // Only the first variant posted before the regenerate was detected —
+      // the second and third variants never received a createBufferUpdate
+      // call with the now-superseded copy.
+      expect(result.scheduled).toEqual(["p-fb (1/3)"]);
+      expect(result.skipped).toEqual([
+        "p-fb (2/3): marketing pack was regenerated mid-run — re-run to post the current content",
+      ]);
+      expect(createBufferUpdate).toHaveBeenCalledTimes(1);
+      expect(createBufferUpdate).toHaveBeenCalledWith("tok_test", {
+        profileIds: ["p-fb"],
+        text: "FB post 1",
+      });
+    });
+
     it("skips every profile when the pack was already regenerated before the first posting pass", async () => {
       getMarketingPack
         .mockResolvedValueOnce(fakePack())
