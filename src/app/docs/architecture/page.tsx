@@ -4407,6 +4407,25 @@ source). The same digest also lists email-critical leads with no usable address 
         failure) is deliberately left for a future iteration rather than a blanket sweep of this
         session&apos;s single budget — see <code>/docs/process</code>.
       </p>
+      <p>
+        <code>error-tracking-message-length-cap</code>: a fresh-code audit of the scaffold above
+        (brand new, never previously reviewed) found <code>buildErrorTrackingPayload</code> capped{" "}
+        <code>stack</code> (<code>MAX_STACK_LENGTH</code>) and every <code>context</code> value (
+        <code>MAX_CONTEXT_VALUE_LENGTH</code>) but left <code>message</code> — derived from{" "}
+        <code>error.message</code> or <code>String(error)</code> for a non-<code>Error</code> thrown
+        value — completely unbounded before <code>JSON.stringify</code>-ing it into the POST body.
+        Since this field is only ever populated by the exact class of{" "}
+        <em>genuinely unexpected</em> exception the scaffold exists to catch, a thrown value whose
+        message embeds a large blob (a raw string throw, a parse error echoing the offending
+        payload, a library that stuffs a full response body into <code>.message</code>) would bypass
+        every other size bound this module enforces — an oversized POST to whatever endpoint the
+        operator configured, not an app-availability issue (the send still has its own timeout).
+        Fixed by adding <code>MAX_MESSAGE_LENGTH</code> (500, matching{" "}
+        <code>MAX_CONTEXT_VALUE_LENGTH</code>) and truncating <code>message</code> the same way{" "}
+        <code>stack</code> already was, plus tests covering an oversized <code>Error.message</code>,
+        an oversized non-<code>Error</code> thrown value, and confirming a message at or under the
+        cap is left untouched.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

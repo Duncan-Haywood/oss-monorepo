@@ -425,6 +425,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "error-tracking-message-length-cap",
+    summary:
+      "A fresh-code audit of the just-merged observability-error-tracking-scaffold (never previously reviewed by anyone) found buildErrorTrackingPayload capped every field except message — stack (MAX_STACK_LENGTH) and each context value (MAX_CONTEXT_VALUE_LENGTH) were bounded, but message (derived from error.message or String(error) for a non-Error thrown value) was not, before JSON.stringify-ing the payload into the operator's configured ERROR_TRACKING_WEBHOOK_URL POST. Fixed by adding MAX_MESSAGE_LENGTH (500, matching MAX_CONTEXT_VALUE_LENGTH) and truncating message the same way stack already was. See error-tracking-message-length-cap in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -782,6 +790,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "observability-error-tracking-scaffold",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine. Mid-session, while finishing a separately-built observability scaffold, origin/main advanced with PR #898 — a sibling session had independently built the exact same feature, more completely. Since this session had not yet pushed, discarded its own local duplicate entirely and reset cleanly onto the new origin/main tip (36ea829c) rather than shipping a competing implementation, per AGENT_PROTOCOL's dual-build-collision rule.",
+    shipped: [
+      "Rather than a fourth consecutive tiers-1-4 sweep, dispatched a research agent to audit the brand-new PR #898 code — never previously reviewed by anyone. It found buildErrorTrackingPayload (src/lib/observability/error-tracking.ts) capped stack and every context value but left message completely unbounded before JSON.stringify-ing the payload. Independently re-verified by reading the function directly.",
+      "src/lib/observability/error-tracking.ts — added MAX_MESSAGE_LENGTH (500, matching MAX_CONTEXT_VALUE_LENGTH) and truncated message the same way stack already was. src/lib/observability/error-tracking.test.ts — 3 new tests (oversized Error.message truncates, oversized non-Error thrown value truncates the same way, a message at/under the cap is untouched). Verified the tests actually catch the regression: git stash'd the source change alone and confirmed both new truncation tests failed with the full untruncated message before restoring.",
+      "src/app/docs/architecture/page.tsx — one new paragraph after the observability-error-tracking-scaffold writeup. src/lib/process/business-decisions.ts — appended error-tracking-message-length-cap. src/lib/process/prompt_process.tsx — a new NEXT_STEPS done entry plus this ITERATIONS entry. No other NEXT_STEPS change — the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 36ea829c (this session's own starting tip after the pivot, post-PR-#898).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx 228,067 bytes, business-decisions.ts 209,277 bytes at session start (both via wc -c) — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (error-tracking.test.ts, 19/19 passed) then full suite (3593 passed, 211 files — 3 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + npm run dev smoke check curling /dashboard/leads (200 immediately) and /docs/architecture (200 after its own well-documented slow first-Turbopack-compile, confirmed the new paragraph renders). Killed the dev server, removed the stray gitignored local.db/local.db-shm/local.db-wal it created, and confirmed git status showed only the intended five files changed before this commit.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "error-tracking-message-length-cap",
     ),
   },
 ];
