@@ -1,3 +1,4 @@
+import { captureError } from "@/lib/observability/error-tracking";
 import {
   MAX_PACK_VARIANT_CTA_LENGTH,
   MAX_PACK_VARIANT_TITLE_LENGTH,
@@ -120,6 +121,15 @@ export class AnthropicMarketingGenerator implements MarketingGenerator {
       };
     } catch (error) {
       console.error("Anthropic marketing generation failed; using stub fallback", error);
+      // Sold-capability degradation: a Growth/Complete customer paid for
+      // AI-generated marketing content and silently receives generic stub
+      // copy instead — the only prior signal was this console.error, with
+      // zero operator-facing visibility that the fallback fired at all.
+      await captureError(error, {
+        component: "marketing-generators",
+        failureKind: "anthropic_marketing_generation",
+        leadId: request.leadId,
+      });
       return this.fallback.generate(request);
     }
   }

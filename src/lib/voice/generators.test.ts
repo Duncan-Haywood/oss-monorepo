@@ -4,6 +4,12 @@ import {
   MAX_PACK_VARIANT_CTA_LENGTH,
   MAX_PACK_VARIANT_TITLE_LENGTH,
 } from "@/lib/packs/variant-fields";
+
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 import {
   AnthropicClientVoiceGenerator,
   createDefaultClientVoiceGenerator,
@@ -47,6 +53,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   resetClientVoiceGeneratorForTests();
   delete process.env.ANTHROPIC_API_KEY;
+  captureError.mockReset().mockResolvedValue(undefined);
 });
 
 describe("StubClientVoiceGenerator", () => {
@@ -259,7 +266,7 @@ describe("AnthropicClientVoiceGenerator", () => {
     expect(result.variants[0]?.body).toMatch(/automated assistant/i);
   });
 
-  it("falls back on HTTP errors", async () => {
+  it("falls back on HTTP errors and reports the failure via captureError", async () => {
     const fallback = new StubClientVoiceGenerator();
     const spy = vi.spyOn(fallback, "generate");
     vi.stubGlobal(
@@ -277,6 +284,14 @@ describe("AnthropicClientVoiceGenerator", () => {
     );
     expect(spy).toHaveBeenCalledOnce();
     expect(errorSpy).toHaveBeenCalled();
+    // Sold-capability degradation: a paid Complete customer's FAQ voice pack
+    // silently fell back to generic stub scripts — this must be reported,
+    // not just logged.
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "voice-generators",
+      failureKind: "anthropic_client_voice_generation",
+      leadId: "summit-plumbing",
+    });
   });
 
   it("passes an AbortSignal request timeout to fetch", async () => {
@@ -317,6 +332,11 @@ describe("AnthropicClientVoiceGenerator", () => {
     expect(spy).toHaveBeenCalledOnce();
     expect(errorSpy).toHaveBeenCalled();
     expect(result.leadId).toBe(request().leadId);
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "voice-generators",
+      failureKind: "anthropic_client_voice_generation",
+      leadId: "summit-plumbing",
+    });
   });
 
   it("falls back when response has no text content", async () => {
