@@ -985,6 +985,21 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-c01ej2",
+    summary:
+      "Scheduled routine. All six live NEXT_STEPS items remain operator/legal/business-blocked, and the recent history was dominated by a systematic captureError sweep (dashboard-leads-actions-outer-catch-capture-error, then resend-fetch-timeout) — dispatched a research agent specifically to check whether that sweep missed a catch cluster before falling through to lower-priority tiers.",
+    shipped: [
+      "Found bootstrapStripePricesAction (src/app/dashboard/actions.ts) — the only dashboard action file with zero captureError calls — and its route twin POST /api/stripe/bootstrap-prices (which had no error logging of any kind, not even console.error). Both are on the operator path that creates the Stripe Price objects every paid checkout depends on.",
+      "Wired captureError into both catch blocks, mirroring the established sibling pattern exactly (component: \"dashboard-actions\" / \"stripe-bootstrap-prices-route\", failureKind naming the action/route). Added the shared captureError mock scaffold to both test files and 2 new assertions each (Error + non-Error throw paths, 4 new tests total).",
+      "src/app/dashboard/actions.ts, actions.test.ts; src/app/api/stripe/bootstrap-prices/route.ts, route.test.ts; src/lib/process/business-decisions.ts (appended bootstrap-prices-twin-capture-error-gap); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only the two source files, confirmed exactly 4 of 15 combined tests failed (the new captureError assertions), then restored and confirmed all 15 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (15 passed) then full suite (4013 passed, 234 files, +2 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only observability change, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "bootstrap-prices-twin-capture-error-gap",
+    ),
+  },
+  {
+    date: "2026-07-28",
     branch: "claude/upbeat-dijkstra-tg1n4z",
     summary:
       "Continuation of the same scheduled routine, immediately after PR #978 merged (which also folded in sibling PR #977's deploy-handoff fix via a clean auto-merge). The next dispatched research agent found getClientInquiryById (src/lib/db.ts) breaks this file's own Convex-first invariant: every sibling get-by-id/slug reader returns a successful Convex result unconditionally (including a clean null as authoritative), but this one used if (inquiry) return inquiry, letting a legitimate null fall through to a SQLite lookup that could serve a stale/orphaned row.",
