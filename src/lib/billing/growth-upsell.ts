@@ -17,6 +17,7 @@
 
 import { isOrderDisputed, isOrderRefunded } from "@/lib/orders/types";
 import { orderRecurringIsCanceled } from "@/lib/orders/recurring";
+import type { BundleBillingInterval } from "@/lib/pricing/bundles";
 
 /**
  * True for a live Growth order — excludes a Growth order Stripe has refunded
@@ -97,9 +98,24 @@ export function leadEligibleForGrowthUpsell(params: {
   return true;
 }
 
-export function buildGrowthUpsellCheckoutPath(slug: string): string {
+/**
+ * billingInterval carries the customer's existing Growth cadence onto the
+ * Complete checkout link — unlike buildStarterUpsellCheckoutPath (a
+ * brand-new subscriber choosing a cadence for the first time, since Starter
+ * has no recurring price of its own), a Growth subscriber upgrading to
+ * Complete already has a live annual or monthly Subscription; omitting this
+ * silently switches an annual subscriber to Monthly the moment they land on
+ * /checkout (checkout-form.tsx defaults billingInterval to "monthly" for a
+ * missing/unrecognized param, same as parseBundleBillingInterval). See
+ * growth-upsell-annual-billing-carry-through.
+ */
+export function buildGrowthUpsellCheckoutPath(
+  slug: string,
+  billingInterval?: BundleBillingInterval,
+): string {
   const trimmed = slug.trim();
-  return `/checkout?slug=${encodeURIComponent(trimmed)}&tier=complete`;
+  const billingParam = billingInterval === "annual" ? "&billing=annual" : "";
+  return `/checkout?slug=${encodeURIComponent(trimmed)}&tier=complete${billingParam}`;
 }
 
 /** Paid Growth leads ready for an operator Complete-upsell nudge, slug-sorted for stable UI. */

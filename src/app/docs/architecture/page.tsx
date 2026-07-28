@@ -1800,6 +1800,39 @@ export default function ArchitectureDocPage() {
         month-specific wording, so none needed the same fix.
       </p>
       <p>
+        <code>growth-upsell-annual-billing-carry-through</code>: the same billing-cadence blind
+        spot the two paragraphs above fixed for transactional notices also existed in the
+        paid-upgrade nudge — <code>sendGrowthUpsellAction</code> pitching a live Growth subscriber
+        on Complete. <code>buildGrowthUpsellCheckoutPath</code> built{" "}
+        <code>/checkout?slug=...&amp;tier=complete</code> with no billing-interval param at all,
+        and <code>sendGrowthUpsellEmail</code> hardcoded &quot;$X/mo&quot; copy — so an annual
+        Growth subscriber clicking &quot;Upgrade to Complete&quot; saw a monthly price quote and
+        landed on a checkout page that defaults <code>billingInterval</code> to Monthly for a
+        missing param, silently switching them off the cadence they already committed to.
+        Starter-upsell has no equivalent bug: Starter itself carries no recurring Price, so a
+        Starter subscriber upgrading is choosing a cadence for the first time rather than having an
+        existing one overwritten. Fixed by mirroring{" "}
+        <code>createBillingPortalForCheckoutSession</code>&apos;s existing precedent: a new{" "}
+        <code>resolveGrowthOrderBillingInterval</code> (
+        <code>src/lib/billing/growth-upsell-billing-interval.ts</code>) retrieves the eligible
+        Growth order&apos;s Stripe Checkout Session via its stored <code>stripeSessionId</code>{" "}
+        (<code>expand: [&quot;subscription&quot;]</code>), then reuses{" "}
+        <code>stripeSubscriptionBillingInterval</code> — the same helper the two paragraphs above
+        share — to derive the cadence. <code>buildGrowthUpsellCheckoutPath</code> and{" "}
+        <code>sendGrowthUpsellEmail</code> both take an optional <code>billingInterval</code>{" "}
+        param now: the checkout path appends <code>&amp;billing=annual</code> (matching{" "}
+        <code>buildStarterUpsellCheckoutPath</code>&apos;s shape) and the email swaps in{" "}
+        <code>annualPriceUsd</code>/&quot;$X/yr&quot; copy when applicable. Like its two siblings,
+        this is a best-effort, non-blocking lookup —{" "}
+        <code>resolveGrowthOrderBillingInterval</code> never throws; a missing{" "}
+        <code>STRIPE_SECRET_KEY</code>, no Growth order with a <code>stripeSessionId</code>, an
+        unexpanded/string subscription, or any Stripe API failure all fall back to the original
+        &quot;monthly&quot; behavior rather than blocking the upsell send. The Stripe client is
+        constructed only at the <code>sendGrowthUpsellAction</code> call site and passed into the
+        pure helper, mirroring <code>create-portal-session.ts</code>&apos;s dependency-injection
+        pattern for testability.
+      </p>
+      <p>
         <code>listOrdersWithFailedBillingNotice</code> itself had a follow-on gap (
         <code>billing-notice-failed-list-entitlement-guard</code>): it never excluded an order that
         had since fully canceled, been refunded, or been disputed. Because the marker is

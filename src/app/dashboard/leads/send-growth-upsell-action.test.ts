@@ -14,6 +14,19 @@ vi.mock("@/lib/payments/convex-primary", () => ({
   ConvexPrimaryWriteError: MockConvexPrimaryWriteError,
 }));
 
+// Minimal constructor-only mock — mirrors open-billing-portal-action.test.ts's
+// identical pattern. The real Stripe client is never used to make a network
+// call in this suite: resolveGrowthOrderBillingInterval (the only consumer of
+// the constructed client) is itself mocked below.
+const stripeCtor = vi.fn();
+vi.mock("stripe", () => ({
+  default: class MockStripe {
+    constructor(secretKey: string) {
+      stripeCtor(secretKey);
+    }
+  },
+}));
+
 /**
  * Action-level orchestration for sendGrowthUpsellAction — the operator
  * Growth → Complete upsell path (second upgrade step, mirroring
@@ -91,6 +104,12 @@ vi.mock("@/lib/db", () => ({
   listUnpaidCommerceOrders: vi.fn(),
 }));
 
+const resolveGrowthOrderBillingInterval = vi.fn();
+vi.mock("@/lib/billing/growth-upsell-billing-interval", () => ({
+  resolveGrowthOrderBillingInterval: (...args: unknown[]) =>
+    resolveGrowthOrderBillingInterval(...args),
+}));
+
 const sendGrowthUpsellEmail = vi.fn();
 
 vi.mock("@/lib/email/resend", () => ({
@@ -141,6 +160,7 @@ describe("sendGrowthUpsellAction", () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...originalEnv };
+    delete process.env.STRIPE_SECRET_KEY;
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
@@ -151,6 +171,8 @@ describe("sendGrowthUpsellAction", () => {
       id: "email_1",
     });
     recordGrowthUpsellSent.mockReset().mockResolvedValue(true);
+    stripeCtor.mockReset();
+    resolveGrowthOrderBillingInterval.mockReset().mockResolvedValue("monthly");
   });
 
   afterEach(() => {
@@ -296,13 +318,50 @@ describe("sendGrowthUpsellAction", () => {
       businessName: "Demo Cafe",
       slug: "demo-cafe",
       monthlyPriceUsd: 199,
+      annualPriceUsd: 1990,
+      billingInterval: "monthly",
     });
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(resolveGrowthOrderBillingInterval).not.toHaveBeenCalled();
     expect(recordGrowthUpsellSent).toHaveBeenCalledWith(
       "demo-cafe",
       expect.any(String),
       0,
       expect.objectContaining({ requireConvex: true }),
+    );
+  });
+
+  it("carries an annual Growth subscriber's cadence onto the Complete upsell email (growth-upsell-annual-billing-carry-through)", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_growth_upsell";
+    resolveGrowthOrderBillingInterval.mockResolvedValue("annual");
+    const { sendGrowthUpsellAction } = await import("./actions");
+    const res = await sendGrowthUpsellAction("demo-cafe");
+
+    expect(res).toEqual({ success: true, mock: false });
+    expect(stripeCtor).toHaveBeenCalledWith("sk_test_growth_upsell");
+    expect(resolveGrowthOrderBillingInterval).toHaveBeenCalledWith(
+      expect.anything(),
+      "cs_test_growth",
+    );
+    expect(sendGrowthUpsellEmail).toHaveBeenCalledWith({
+      to: "hello@demo-cafe.example",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      monthlyPriceUsd: 199,
+      annualPriceUsd: 1990,
+      billingInterval: "annual",
+    });
+  });
+
+  it("skips the billing-cadence lookup entirely when STRIPE_SECRET_KEY is unset, defaulting to monthly", async () => {
+    const { sendGrowthUpsellAction } = await import("./actions");
+    const res = await sendGrowthUpsellAction("demo-cafe");
+
+    expect(res).toEqual({ success: true, mock: false });
+    expect(stripeCtor).not.toHaveBeenCalled();
+    expect(resolveGrowthOrderBillingInterval).not.toHaveBeenCalled();
+    expect(sendGrowthUpsellEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ billingInterval: "monthly" }),
     );
   });
 
