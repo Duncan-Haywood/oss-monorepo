@@ -38,3 +38,14 @@ describe("checkoutAcquisitionSourceLabel", () => {
     }
   });
 });
+
+describe("nav-header-checkout-cta-acquisition-source-fix", () => {
+  it("allowlists the sitewide header nav CTA as its own acquisition source", () => {
+    // SiteHeader's "Get started" button renders on every route via the
+    // single root layout.tsx — without this token, every click through it
+    // silently bucketed into "Unknown / direct" in acquisitionSourceBreakdown.
+    expect(CHECKOUT_ACQUISITION_SOURCES).toContain("nav");
+    expect(parseCheckoutAcquisitionSource("nav")).toBe("nav");
+    expect(checkoutAcquisitionSourceLabel("nav")).toBe("Site header nav");
+  });
+});
