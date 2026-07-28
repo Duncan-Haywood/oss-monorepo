@@ -953,4 +953,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "stripe-connect-actions-outer-catch-scoped-duplicate-discarded",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #976 merged. The next dispatched research agent found src/lib/email/resend.ts's two direct Resend API fetch calls (inside sendEmail and sendOperatorDailyDigest) were the one outbound-fetch call site in the codebase never given a request timeout, unlike the already-fixed Anthropic generator, Vercel Domains API, and error-tracking webhook fetches.",
+    shipped: [
+      "Resend is the highest-volume external call in the app — every transactional/marketing/notification email funnels through one of these two calls, several from cron-triggered actions with their own run-health tracking expecting bounded invocation time. A hung/stalled connection previously tied up the calling function for the full duration ceiling instead of failing fast into the existing catch/captureError path.",
+      "Added RESEND_REQUEST_TIMEOUT_MS = 15_000 (mirroring VERCEL_REQUEST_TIMEOUT_MS's value and comment style) and passed signal: AbortSignal.timeout(RESEND_REQUEST_TIMEOUT_MS) on both fetch calls (sendEmail's shared call and sendOperatorDailyDigest's separate one, since the latter duplicates the send logic rather than calling sendEmail).",
+      "src/lib/email/resend.ts (timeout constant + signal option on 2 fetch calls); resend.test.ts (3 new tests: AbortSignal present on both calls, clean failure via the existing catch path on a simulated abort — 96 total, +3 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended resend-fetch-timeout); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only resend.ts, confirmed both new AbortSignal assertions failed exactly as expected (94 passed, 2 failed), then restored and confirmed all 96 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (96 passed) then full suite (4011 passed, 234 files, +3 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — library-function timeout addition, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "resend-fetch-timeout",
+    ),
+  },
 ];
