@@ -1,0 +1,24 @@
+.DS_Store
+*.log
+
+# Environments — never commit secrets. Each venture scopes its own.
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+dist/
+build/
+.next/
+out/
+coverage/
+
+tmp/
