@@ -7,7 +7,7 @@ import { CommercialViabilityDeepDiveContent } from "@/generated/doc-content/comm
 export default function CommercialViabilityDeepDivePage() {
   return (
     <DocsLayout
-      title={"ShootFlow — Deep Commercial Viability Assessment (Continuation)"}
+      title={"ShootFlow: Deep Commercial Viability Assessment"}
       subtitle={"Commercial viability report (TSX rewritten from repository HTML)"}
       sourceFile={"commercial-viability-deep-dive.html"}
       nav={FULL_NAV}

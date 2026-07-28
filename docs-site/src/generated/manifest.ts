@@ -31,17 +31,17 @@ export const GENERATED_REPORT_PAGES: GeneratedDocPage[] = [
     kind: "html",
   },
   {
-    slug: "commercial-viability-deep-dive",
-    title: "ShootFlow — Deep Commercial Viability Assessment (Continuation)",
-    sourceFile: "commercial-viability-deep-dive.html",
-    href: "/docs/reports/commercial-viability-deep-dive",
-    kind: "html",
-  },
-  {
     slug: "commercial-viability-assessment",
     title: "ShootFlow Commercial Viability Assessment",
     sourceFile: "commercial-viability-report.html",
     href: "/docs/reports/commercial-viability-assessment",
+    kind: "html",
+  },
+  {
+    slug: "commercial-viability-deep-dive",
+    title: "ShootFlow: Deep Commercial Viability Assessment",
+    sourceFile: "commercial-viability-deep-dive.html",
+    href: "/docs/reports/commercial-viability-deep-dive",
     kind: "html",
   }
 ];

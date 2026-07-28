@@ -1,0 +1,88 @@
+{
+  "render_tasks": [
+    {
+      "aspect_ratio": "9:16",
+      "can_run_in_parallel": false,
+      "depends_on": [
+        "rank_instagram_storylines",
+        "grade_asset_00000"
+      ],
+      "inputs": [
+        "analysis/instagram_storylines.json",
+        "graded/grade_asset_00000/A001.MOV"
+      ],
+      "output_kind": "instagram_reel",
+      "outputs": [
+        "deliverables/instagram_reel.mp4"
+      ],
+      "sequence_name": "reel",
+      "source_job_id": "assemble_instagram_reel",
+      "task_id": "render_instagram_reel"
+    },
+    {
+      "aspect_ratio": "9:16",
+      "can_run_in_parallel": true,
+      "depends_on": [
+        "rank_instagram_storylines",
+        "grade_asset_00002"
+      ],
+      "inputs": [
+        "analysis/instagram_storylines.json",
+        "graded/grade_asset_00002/BTS.MOV"
+      ],
+      "output_kind": "instagram_reel",
+      "outputs": [
+        "deliverables/instagram_reels/hero.mp4"
+      ],
+      "sequence_name": "reel",
+      "source_job_id": "assemble_instagram_reel",
+      "task_id": "render_instagram_reel_variant_hero"
+    },
+    {
+      "aspect_ratio": "4:5",
+      "can_run_in_parallel": true,
+      "depends_on": [
+        "rank_instagram_storylines",
+        "grade_asset_00001",
+        "grade_asset_00003"
+      ],
+      "inputs": [
+        "analysis/instagram_storylines.json",
+        "graded/grade_asset_00001/IMG_0001.JPG",
+        "graded/grade_asset_00003/IMG_0002.JPG"
+      ],
+      "output_kind": "instagram_carousel",
+      "outputs": [
+        "deliverables/instagram_carousel/slide_00001.jpg",
+        "deliverables/instagram_carousel/slide_00002.jpg"
+      ],
+      "sequence_name": "carousel",
+      "source_job_id": "assemble_instagram_carousel",
+      "task_id": "render_instagram_carousel"
+    },
+    {
+      "aspect_ratio": "4:5",
+      "can_run_in_parallel": true,
+      "depends_on": [
+        "rank_instagram_storylines",
+        "grade_asset_00001",
+        "grade_asset_00003"
+      ],
+      "inputs": [
+        "analysis/instagram_storylines.json",
+        "graded/grade_asset_00001/IMG_0001.JPG",
+        "graded/grade_asset_00003/IMG_0002.JPG"
+      ],
+      "output_kind": "instagram_photo_set",
+      "outputs": [
+        "deliverables/instagram_photo_set/photo_00001.jpg",
+        "deliverables/instagram_photo_set/photo_00002.jpg"
+      ],
+      "sequence_name": "photo_set",
+      "source_job_id": "export_instagram_photo_set",
+      "task_id": "export_instagram_photo_set_part_00001"
+    }
+  ],
+  "schema_version": 1,
+  "shoot_slug": "pilot-demo-001"
+}
