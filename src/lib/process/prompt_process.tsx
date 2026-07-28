@@ -1015,6 +1015,21 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #980 merged (which also folded in sibling PR #979's bootstrap-prices twin fix via a clean process-log-only merge). The next dispatched research agent found src/lib/marketing/buffer.ts's two raw fetch calls (listBufferProfiles, createBufferUpdate) were the last remaining unbounded outbound-fetch call site in the codebase — every sibling third-party API call already carries an AbortSignal.timeout.",
+    shipped: [
+      "These functions back listBufferProfilesAction, saveLeadBufferProfilesAction, and scheduleMarketingPackToBufferAction (the auto-post-to-a-client's-live-social-profile path). A hung Buffer connection previously tied up the calling dashboard action for the full duration ceiling instead of failing fast — the exact failure mode the Anthropic timeout's own doc comment names as the reason for adding timeouts elsewhere.",
+      "Added BUFFER_REQUEST_TIMEOUT_MS = 30_000 (mirroring ANTHROPIC_REQUEST_TIMEOUT_MS's value and comment style) and passed signal: AbortSignal.timeout(BUFFER_REQUEST_TIMEOUT_MS) on both fetch calls. createBufferUpdate's existing catch-all try/catch already turns an eventual AbortError into a clean { success: false } result, so this closes the gap with zero response-shape change.",
+      "src/lib/marketing/buffer.ts (timeout constant + signal option on 2 fetch calls); buffer.test.ts (updated 1 exact-equality assertion + 3 new tests: AbortSignal present on both calls, clean failure on a simulated abort — 34 total, +3 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended buffer-fetch-timeout); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only buffer.ts, confirmed all 3 new AbortSignal assertions failed exactly as expected (31 passed, 3 failed), then restored and confirmed all 34 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (34 passed) then full suite (4017 passed, 234 files, +3 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — library-function timeout addition, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-fetch-timeout",
+    ),
+  },
+  {
+    date: "2026-07-28",
     branch: "claude/nice-euler-2sm5d4",
     summary:
       "Scheduled routine. HEAD already matched origin/main (PR #980) at session start after a full refs/heads/* fetch; ranked the ~20 most-recently-pushed remote branches by commit time and confirmed every one showed 0 commits ahead of origin/main — no live fold candidate. mcp__github__list_pull_requests confirmed the only open PR is still the pre-existing unrelated stale draft #202. Mechanically re-verified the long-running captureError sweep rather than trusting the log: grepped every non-test .ts/.tsx file under src/ and convex/ for console.error/console.warn, diffed that list against every file already containing a captureError call, and inspected each of the seven files the diff surfaced.",
@@ -1024,7 +1039,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Wired captureError into both catches: component: \"marketing-generators\" / failureKind: \"anthropic_marketing_generation\" (plus leadId) for the marketing generator, and component: \"voice-generators\" / failureKind: \"anthropic_client_voice_generation\" for the voice twin — mirroring the established pattern exactly, placed after each existing console.error, before the existing stub-fallback return. No fallback behavior change, purely additive observability.",
       "src/lib/marketing/generators.ts, src/lib/voice/generators.ts (captureError import + 1 call site each); src/lib/marketing/generators.test.ts, src/lib/voice/generators.test.ts (new captureError mock scaffold + 2 existing tests extended each, 37 total in each file's combined run, unchanged net count); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended marketing-voice-generator-fallback-capture-error); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change — all six gated items remain operator/legal/business-blocked.",
       "Proved via git-stash: stashed only the two source files, confirmed exactly 4 of 37 combined tests failed (the 2 extended assertions per file) as expected, then restored and confirmed all 37 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (both files, 37 passed) then full suite (4014 passed, 234 files, unchanged — assertions added to existing tests) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings beyond the pre-existing SQLite experimental-feature notice). No dev-server smoke check needed — a server-only observability addition to two library classes with no dashboard-visible behavior change, fully exercised by automated tests.",
-      "File-size check per AGENT_PROTOCOL's re-archive note: business-decisions.ts measured 218,348 bytes and prompt_process.tsx measured ~230,521 bytes before this entry's own text was appended — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "File-size check per AGENT_PROTOCOL's re-archive note: after merging in sibling PR #981 (buffer-fetch-timeout, immediately above), business-decisions.ts and prompt_process.tsx both grew accordingly but remain comfortably under the 262,144-byte trigger — no re-archive needed this round.",
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "marketing-voice-generator-fallback-capture-error",
