@@ -5606,6 +5606,31 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>deploy-handoff-vercel-network-capture-error</code>: the multi-iteration{" "}
+        <code>captureError</code> observability sweep across the Stripe webhook, contact-form
+        notify, and preview-open beacon (all above) had a residual gap in a different file
+        entirely — <code>src/lib/deploy/handoff.ts</code>. Both of its <code>catch</code> blocks
+        (<code>tryProvisionVercelDomain</code>&apos;s domain-create call and{" "}
+        <code>releaseVercelDomains</code>&apos;s domain-release call, the two Vercel Domains API
+        integrations behind paid production handoff and custom-domain reassignment) already
+        recorded a network/timeout failure as a note on the handoff record — visible only if an
+        operator opens that specific lead&apos;s handoff panel — but never called{" "}
+        <code>captureError</code>, so an intermittent Vercel outage during either call produced no
+        centralized, aggregable error-tracking signal at all, unlike every other external-API
+        failure path this sweep had already closed. Wired <code>captureError</code> into both
+        catches (<code>component: &quot;deploy-handoff&quot;</code>,{" "}
+        <code>failureKind: &quot;vercel_domain_provision_network&quot;</code> /{" "}
+        <code>&quot;vercel_domain_release_network&quot;</code>, with <code>leadSlug</code> or{" "}
+        <code>domain</code>/<code>projectId</code> context respectively) — deliberately left the
+        handled non-exception branches (409 already-exists, a non-2xx hard error, a DELETE 404
+        treated as already-released) alone, since those are expected control flow rather than an
+        unexpected failure, matching the rest of this codebase&apos;s convention of capturing only
+        at genuine <code>catch (error)</code> sites. Added a new regression test for the
+        previously-uncovered release-network-error path and extended the existing
+        domain-create network-error and timeout tests with the new assertion.
+      </p>
+
+      <p>
         <code>dashboard-leads-actions-outer-catch-capture-error</code>:{" "}
         <code>src/app/dashboard/leads/actions.ts</code> (the dashboard&apos;s ~40 exported server
         actions — every operator-facing button click on <code>/dashboard/leads</code>) had{" "}

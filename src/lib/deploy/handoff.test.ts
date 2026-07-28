@@ -9,6 +9,7 @@ const updateDeployHandoffCustomDomain = vi.fn();
 const updateDeployHandoffStatus = vi.fn();
 const updateDeployHandoffVercelProject = vi.fn();
 const updateLeadStage = vi.fn();
+const captureError = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   getDeployHandoffBySlug: (...args: unknown[]) => getDeployHandoffBySlug(...args),
@@ -20,6 +21,10 @@ vi.mock("@/lib/db", () => ({
   updateDeployHandoffVercelProject: (...args: unknown[]) =>
     updateDeployHandoffVercelProject(...args),
   updateLeadStage: (...args: unknown[]) => updateLeadStage(...args),
+}));
+
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
 }));
 
 function baseHandoff(overrides: Partial<DeployHandoff> = {}): DeployHandoff {
@@ -55,6 +60,7 @@ describe("deploy/handoff", () => {
     updateDeployHandoffStatus.mockReset();
     updateDeployHandoffVercelProject.mockReset();
     updateLeadStage.mockReset();
+    captureError.mockReset().mockResolvedValue(undefined);
     delete process.env.VERCEL_TOKEN;
     delete process.env.VERCEL_PROJECT_ID;
     delete process.env.VERCEL_TEAM_ID;
@@ -297,10 +303,11 @@ describe("deploy/handoff", () => {
       );
     });
 
-    it("records error_network and never throws when fetch rejects", async () => {
+    it("records error_network and never throws when fetch rejects, and reports the outage via captureError (deploy-handoff-vercel-provision-network-error-capture)", async () => {
       process.env.VERCEL_TOKEN = "tok";
       process.env.VERCEL_PROJECT_ID = "prj";
-      global.fetch = vi.fn().mockRejectedValue(new Error("ECONNRESET"));
+      const fetchError = new Error("ECONNRESET");
+      global.fetch = vi.fn().mockRejectedValue(fetchError);
       getDeployHandoffBySlug.mockResolvedValue(null);
       insertDeployHandoff.mockResolvedValue(undefined);
       const { enqueueProductionHandoff } = await import("./handoff");
@@ -316,6 +323,11 @@ describe("deploy/handoff", () => {
 
       expect(result.vercelDomainStatus).toBe("error_network");
       expect(result.notes.some((n) => n.includes("ECONNRESET"))).toBe(true);
+      expect(captureError).toHaveBeenCalledWith(fetchError, {
+        component: "deploy-handoff",
+        failureKind: "vercel_domain_provision_network",
+        leadSlug: "demo-cafe",
+      });
     });
 
     it("passes an AbortSignal on the domain-create fetch call so a hung Vercel API response cannot hang forever", async () => {
@@ -360,6 +372,26 @@ describe("deploy/handoff", () => {
 
       expect(result.vercelDomainStatus).toBe("error_network");
       expect(result.notes.some((n) => n.includes("timed out"))).toBe(true);
+    });
+
+    it("does not call captureError when the Vercel domain-create call succeeds", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+      getDeployHandoffBySlug.mockResolvedValue(null);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      const { enqueueProductionHandoff } = await import("./handoff");
+
+      await enqueueProductionHandoff({
+        leadSlug: "demo-cafe",
+        businessName: "Demo Cafe",
+        tier: "growth",
+        commerceAddon: false,
+        stripeSessionId: "cs_1",
+        customerEmail: "owner@demo-cafe.test",
+      });
+
+      expect(captureError).not.toHaveBeenCalled();
     });
   });
 
@@ -626,6 +658,39 @@ describe("deploy/handoff", () => {
       expect(postCalls.map((call) => JSON.parse(String(call[1]?.body)))).toEqual([
         { name: "demo-cafe.localsitestudio.com" },
       ]);
+    });
+
+    it("reports a release network error via captureError but still completes the reassign (deploy-handoff-vercel-release-network-error-capture)", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      const oldHandoff = baseHandoff({ customDomain: "www.old.com" });
+      const afterAssign = baseHandoff({ customDomain: "www.new.com" });
+      updateDeployHandoffCustomDomain.mockResolvedValue(afterAssign);
+      getDeployHandoffBySlug
+        .mockResolvedValueOnce(oldHandoff)
+        .mockResolvedValueOnce(afterAssign);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      const releaseError = new Error("ECONNRESET");
+      global.fetch = vi.fn().mockImplementation((_url: string, init?: RequestInit) =>
+        init?.method === "DELETE"
+          ? Promise.reject(releaseError)
+          : Promise.resolve({ ok: true, status: 200, text: async () => "" }),
+      );
+      const { assignCustomDomainAndProvision } = await import("./handoff");
+
+      const result = await assignCustomDomainAndProvision("demo-cafe", "www.new.com");
+
+      expect(
+        result?.notes.some((n) => n.includes("Vercel domain release network error")),
+      ).toBe(true);
+      expect(captureError).toHaveBeenCalledWith(releaseError, {
+        component: "deploy-handoff",
+        failureKind: "vercel_domain_release_network",
+        domain: "www.old.com",
+        projectId: "prj",
+      });
+      // Release failures are best-effort — the reassign itself still completes.
+      expect(result?.customDomain).toBe("www.new.com");
     });
 
     it("treats a DELETE 404 as already-released, not an error", async () => {
