@@ -22,8 +22,12 @@ import "./globals.css";
  * define its own <html>/<body> and import the global stylesheet directly —
  * metadata/generateMetadata are not supported here (Client Component).
  * Keep this minimal and dependency-light: it must not itself risk throwing
- * (no SiteHeader/SiteFooter, no data fetching) since there is no boundary
- * above it to catch a secondary failure.
+ * (no SiteHeader/SiteFooter, no render-affecting data fetching) since there
+ * is no boundary above it to catch a secondary failure. The one exception is
+ * the fire-and-forget POST to /api/client-error in the effect below —
+ * `fetch(...).catch(() => {})` cannot itself throw synchronously and never
+ * feeds a result back into render/state, so it does not reintroduce the risk
+ * this comment otherwise warns against.
  */
 export default function GlobalError({
   error,
@@ -40,6 +44,23 @@ export default function GlobalError({
     // route announcer only fires on a navigation, and this boundary (the root
     // layout's own fallback) can mount without one too.
     headingRef.current?.focus();
+    // Same best-effort report as src/app/error.tsx's own boundary (see
+    // /api/client-error + /docs/architecture#observability) — this file's
+    // own module doc comment above already establishes the invariant that
+    // nothing here may risk throwing a second time (no boundary exists above
+    // this one to catch it), so the send is deliberately fire-and-forget.
+    void fetch("/api/client-error", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        message: error.message,
+        stack: error.stack,
+        digest: error.digest,
+        boundary: "global-error",
+        path: window.location.pathname,
+      }),
+    }).catch(() => {});
   }, [error]);
 
   return (

@@ -5788,6 +5788,28 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>catalogRecurringPriceIdsFromEnv</code>&apos;s loop exactly (Commerce add-on has no
         annual Price of its own, so it stays monthly-only).
       </p>
+      <p>
+        <code>client-error-boundary-capture-error-route</code>: every prior sweep in this
+        section closed a server-side catch — no path from a client-side React failure to{" "}
+        <code>ERROR_TRACKING_WEBHOOK_URL</code> existed at all, since <code>captureError</code>{" "}
+        itself is server-only (it reads process env vars directly). Shipped a new public beacon,{" "}
+        <code>POST /api/client-error</code>, that <code>src/app/error.tsx</code> and{" "}
+        <code>src/app/global-error.tsx</code> (this app&apos;s two React error boundaries) call
+        from their existing <code>useEffect</code> — fire-and-forget, wrapped in{" "}
+        <code>.catch(() =&gt; {"{}"})</code>, alongside their pre-existing{" "}
+        <code>console.error</code> — with the caught error&apos;s message/stack/digest, which
+        boundary caught it, and the current <code>pathname</code>. The route is unauthenticated by
+        necessity (a boundary can mount before any session exists) and shares this app&apos;s
+        established public-write-route shape: rate-limited via <code>checkRateLimit</code>,
+        body-size-bounded via <code>readJsonBodyWithByteLimit</code>, and every field
+        type-checked before use rather than trusted. It always resolves <code>200</code>{" "}
+        regardless of whether the report was well-formed, oversized, or empty — this is a
+        diagnostic beacon, not a contract the calling boundary should retry or branch on, and{" "}
+        <code>global-error.tsx</code> in particular has no boundary above it to catch a second
+        failure if the reporting call itself misbehaved. The reconstructed <code>Error</code> is
+        handed to the same <code>captureError</code> every server-side call site uses, so the same
+        message/stack/context length caps apply uniformly.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
