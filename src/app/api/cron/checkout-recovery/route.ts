@@ -8,7 +8,7 @@ import {
   recoverAbandonedBundleCheckout,
   recoverAbandonedCommerceCheckout,
 } from "@/lib/checkout/recover-abandoned-checkout";
-import { getLeads, listOpenCheckoutSessions, listOrders } from "@/lib/db";
+import { getLeads, listOpenCheckoutSessions, listOrders, recordCronRunOutcome } from "@/lib/db";
 import { captureError } from "@/lib/observability/error-tracking";
 import { verifyCronRequest } from "@/lib/security/cron-secret";
 import { checkRateLimit, clientIpFromHeaders, type RateLimitConfig } from "@/lib/security/rate-limit";
@@ -72,6 +72,7 @@ export async function GET(request: Request) {
   }
 
   const nowMs = Date.now();
+  const nowIso = new Date(nowMs).toISOString();
 
   try {
     const [sessions, leads, orders] = await Promise.all([
@@ -117,12 +118,12 @@ export async function GET(request: Request) {
       );
     }
 
+    await recordCronRunOutcome("checkout-recovery", { success: true, atIso: nowIso });
     return NextResponse.json({ success: true, attempted, sent: sentCount, failed: failures.length, failures });
   } catch (error) {
     await captureError(error, { component: "cron-checkout-recovery" });
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 },
-    );
+    const message = error instanceof Error ? error.message : "Unknown error";
+    await recordCronRunOutcome("checkout-recovery", { success: false, atIso: nowIso, error: message });
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

@@ -6,6 +6,7 @@ import {
   listCommerceOrdersDisputed,
   listCommerceOrdersMissingClientReceipt,
   listCommerceOrdersRefunded,
+  listCronRuns,
   listDeployHandoffs,
   listMarketingPacksForMonth,
   listOpenCheckoutSessions,
@@ -56,6 +57,7 @@ export async function sendOperatorDigestEmail(
     commerceOrdersMissingClientReceipt,
     handoffs,
     suppressions,
+    cronRuns,
   ] = await Promise.all([
     getLeads(),
     listUnrepliedInquiries(),
@@ -70,6 +72,7 @@ export async function sendOperatorDigestEmail(
     listCommerceOrdersMissingClientReceipt(),
     listDeployHandoffs(),
     getSuppressedEmails(),
+    listCronRuns(),
   ]);
 
   const digest = buildDailyDigest({
@@ -87,6 +90,8 @@ export async function sendOperatorDigestEmail(
     handoffs,
     marketingSchedulingEnabled: isMarketingSchedulingAllowed(),
     suppressions,
+    cronRuns,
+    cronSecretConfigured: !!process.env.CRON_SECRET?.trim(),
     nowMs,
   });
   const html = renderDailyDigestHtml(digest, appUrl);

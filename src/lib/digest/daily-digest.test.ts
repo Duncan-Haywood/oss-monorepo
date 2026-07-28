@@ -214,6 +214,7 @@ describe("buildDailyDigest", () => {
       "Bundle disputes",
       "production handoffs",
       "Vercel domain provisioning failed",
+      "Cron automation",
       "Paid, not live",
       "Missing email",
       "paused/canceled MRR recoveries",
@@ -2946,6 +2947,62 @@ describe("renderDailyDigestHtml", () => {
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).toContain("Newest Fail Cafe");
     expect(html).toContain("Vercel domain provisioning failed (1");
+  });
+
+  it("cronJobsNeedingAttention stays empty when cronSecretConfigured is false, even with a stale/failing cronRuns feed", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      cronRuns: [
+        {
+          job: "daily-digest",
+          lastRunAt: "2020-01-01T00:00:00.000Z",
+          lastRunSuccess: false,
+          lastError: "boom",
+        },
+      ],
+      cronSecretConfigured: false,
+      nowMs: NOW,
+    });
+    expect(digest.cronJobsNeedingAttentionCount).toBe(0);
+    expect(digest.isEmpty).toBe(true);
+  });
+
+  it("flags stale/never-run/failing cron jobs, counts toward actionableItemCount, and renders its own section", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      cronRuns: [
+        {
+          job: "daily-digest",
+          lastRunAt: new Date(NOW - 2 * 60 * 60 * 1000).toISOString(),
+          lastRunSuccess: true,
+        },
+        {
+          job: "checkout-recovery",
+          lastRunAt: new Date(NOW - 1 * 60 * 60 * 1000).toISOString(),
+          lastRunSuccess: false,
+          lastError: "Resend API error",
+        },
+        // outreach-followups has no row at all — never run.
+      ],
+      cronSecretConfigured: true,
+      nowMs: NOW,
+    });
+    expect(digest.cronJobsNeedingAttentionCount).toBe(2);
+    expect(digest.isEmpty).toBe(false);
+    expect(digest.actionableItemCount).toBeGreaterThanOrEqual(2);
+    const jobs = digest.cronJobsNeedingAttention.map((j) => j.label).sort();
+    expect(jobs).toEqual(["Checkout recovery", "Outreach follow-ups"]);
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Cron automation needing attention (2)");
+    expect(html).toContain("Checkout recovery");
+    expect(html).toContain("Resend API error");
+    expect(html).toContain("Outreach follow-ups");
+    expect(html).toContain("has never recorded a run");
+    expect(html).not.toContain("Nothing urgent today");
   });
 
   it("renders paid-not-live leads with an escaped business name, even with no handoff row", () => {

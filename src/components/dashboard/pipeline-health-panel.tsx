@@ -438,6 +438,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.vercelDomainProvisioningFailedCount > 0}
         />
         <MetricCard
+          label="Cron automation health"
+          value={String(health.staleOrFailingCronJobsCount)}
+          hint={
+            health.staleOrFailingCronJobsCount > 0
+              ? `${health.staleOrFailingCronJobNames.join(", ")} — hasn't run recently or last run failed, check Vercel Cron`
+              : "All Vercel Cron jobs running (or CRON_SECRET not set yet)"
+          }
+          attention={health.staleOrFailingCronJobsCount > 0}
+        />
+        <MetricCard
           label="Bounces/complaints (7d)"
           value={String(health.recentBounceOrComplaintSuppressionCount)}
           hint={
