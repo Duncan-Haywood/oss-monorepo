@@ -446,6 +446,28 @@ export function sqliteMarkCommerceOrderClientReceiptSent(
 }
 
 /**
+ * Releases a reservation made by sqliteMarkCommerceOrderClientReceiptSent
+ * when the send it was guarding failed — used only by
+ * resendCommerceClientReceiptAction's reserve-then-send-then-release
+ * ordering (see commerce-client-receipt-resend-race-guard-ordering-fix).
+ * Only clears when the row still holds the exact value this caller wrote
+ * (expectedClientReceiptEmailSentAt), a safe no-op otherwise. Mirrors
+ * sqliteClearMarketingPackSentToClient's exact-match CAS release.
+ */
+export function sqliteClearCommerceOrderClientReceiptSent(
+  db: DatabaseSync,
+  stripeSessionId: string,
+  expectedClientReceiptEmailSentAt: string,
+): boolean {
+  const result = db
+    .prepare(
+      "UPDATE commerce_orders SET clientReceiptEmailSentAt = NULL WHERE stripeSessionId = ? AND clientReceiptEmailSentAt = ?",
+    )
+    .run(stripeSessionId, expectedClientReceiptEmailSentAt);
+  return result.changes > 0;
+}
+
+/**
  * Durable sent-marker after sendMarketingPackToClientEmail resolves
  * { success: true }. Returns whether the row was actually marked (re-checks
  * sentToClientAt IS NULL atomically with the write, same TOCTOU-safe pattern

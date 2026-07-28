@@ -495,6 +495,82 @@ test("markClientReceiptSent on an unknown stripeSessionId is a safe no-op return
   ).resolves.toBe(false);
 });
 
+test("clearClientReceiptSent releases a reservation matching the expected value, and returns true", async () => {
+  // See commerce-client-receipt-resend-race-guard-ordering-fix — this
+  // release mutation is only ever called by resendCommerceClientReceiptAction
+  // when the send it reserved for then fails, mirroring
+  // marketingPacks.clearSentToClient / clientVoicePacks.clearSentToClient.
+  const t = convexTest(schema, modules);
+  await t.mutation(api.commerceOrders.insert, insertArgs({ stripeSessionId: "cs_receipt_release" }));
+  await t.mutation(api.commerceOrders.markClientReceiptSent, {
+    stripeSessionId: "cs_receipt_release",
+    clientReceiptEmailSentAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  const cleared = await t.mutation(api.commerceOrders.clearClientReceiptSent, {
+    stripeSessionId: "cs_receipt_release",
+    expectedClientReceiptEmailSentAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(cleared).toBe(true);
+
+  const row = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_receipt_release",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.clientReceiptEmailSentAt).toBeUndefined();
+
+  // A cleared marker can be re-reserved by a legitimate later retry.
+  const reMarked = await t.mutation(api.commerceOrders.markClientReceiptSent, {
+    stripeSessionId: "cs_receipt_release",
+    clientReceiptEmailSentAt: "2026-01-06T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(reMarked).toBe(true);
+});
+
+test("clearClientReceiptSent is a safe no-op when the marker no longer matches the expected value (already set by a concurrent writer, already unset, or unknown session)", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.commerceOrders.insert, insertArgs({ stripeSessionId: "cs_receipt_no_op" }));
+  await t.mutation(api.commerceOrders.markClientReceiptSent, {
+    stripeSessionId: "cs_receipt_no_op",
+    clientReceiptEmailSentAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+
+  // Wrong expected value — must not clear the real marker (e.g. a concurrent
+  // webhook redelivery set a different value than this stale release call
+  // still thinks it owns).
+  const wrongValue = await t.mutation(api.commerceOrders.clearClientReceiptSent, {
+    stripeSessionId: "cs_receipt_no_op",
+    expectedClientReceiptEmailSentAt: "2026-01-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(wrongValue).toBe(false);
+  const stillMarked = await t.query(api.commerceOrders.getByStripeSessionId, {
+    stripeSessionId: "cs_receipt_no_op",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(stillMarked?.clientReceiptEmailSentAt).toBe("2026-01-05T00:00:00.000Z");
+
+  // Unknown session id.
+  const unknown = await t.mutation(api.commerceOrders.clearClientReceiptSent, {
+    stripeSessionId: "cs_missing",
+    expectedClientReceiptEmailSentAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(unknown).toBe(false);
+
+  // Already unset — a stale release call must not throw or clobber state.
+  const alreadyCleared = await t.mutation(api.commerceOrders.clearClientReceiptSent, {
+    stripeSessionId: "cs_receipt_no_op",
+    expectedClientReceiptEmailSentAt: "2026-01-01T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(alreadyCleared).toBe(false);
+});
+
 test("list / listUnpaid / listRefunded / listDisputed sort newest createdAt first", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(
@@ -540,6 +616,13 @@ test("every function rejects a missing/wrong apiSecret, even with CONVEX_API_SEC
     t.mutation(api.commerceOrders.markClientReceiptSent, {
       stripeSessionId: "cs_1",
       clientReceiptEmailSentAt: "2026-01-01T00:00:00.000Z",
+      apiSecret: "wrong",
+    }),
+  ).rejects.toThrow(/Unauthorized/);
+  await expect(
+    t.mutation(api.commerceOrders.clearClientReceiptSent, {
+      stripeSessionId: "cs_1",
+      expectedClientReceiptEmailSentAt: "2026-01-01T00:00:00.000Z",
       apiSecret: "wrong",
     }),
   ).rejects.toThrow(/Unauthorized/);

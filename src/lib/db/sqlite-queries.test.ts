@@ -15,6 +15,7 @@ import {
   sqliteRecordCheckoutRecoverySent,
   sqliteMarkCommerceOrderPaidOut,
   sqliteMarkCommerceOrderClientReceiptSent,
+  sqliteClearCommerceOrderClientReceiptSent,
   sqliteMarkMarketingPackSentToClient,
   sqliteMarkClientVoicePackSentToClient,
   sqliteClearMarketingPackSentToClient,
@@ -864,6 +865,52 @@ describe("sqliteMarkCommerceOrderClientReceiptSent", () => {
       .prepare("SELECT clientReceiptEmailSentAt FROM commerce_orders WHERE stripeSessionId = ?")
       .get("cs_sent") as { clientReceiptEmailSentAt: string };
     expect(row.clientReceiptEmailSentAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+});
+
+describe("sqliteClearCommerceOrderClientReceiptSent", () => {
+  it("releases a reservation matching the expected value, and returns true", () => {
+    const db = freshDb();
+    insertCommerceOrderDirect(db, "cs_release", "test-lead", {
+      clientReceiptEmailSentAt: "2026-01-05T00:00:00.000Z",
+    });
+    expect(
+      sqliteClearCommerceOrderClientReceiptSent(db, "cs_release", "2026-01-05T00:00:00.000Z"),
+    ).toBe(true);
+    const row = db
+      .prepare("SELECT clientReceiptEmailSentAt FROM commerce_orders WHERE stripeSessionId = ?")
+      .get("cs_release") as { clientReceiptEmailSentAt: string | null };
+    expect(row.clientReceiptEmailSentAt).toBeNull();
+
+    // A cleared marker can be re-reserved by a legitimate later retry.
+    expect(
+      sqliteMarkCommerceOrderClientReceiptSent(db, "cs_release", "2026-01-06T00:00:00.000Z"),
+    ).toBe(true);
+  });
+
+  it("is a safe no-op when the marker no longer matches the expected value (already set by a concurrent writer, already unset, or unknown session)", () => {
+    const db = freshDb();
+    insertCommerceOrderDirect(db, "cs_no_op", "test-lead", {
+      clientReceiptEmailSentAt: "2026-01-05T00:00:00.000Z",
+    });
+
+    expect(
+      sqliteClearCommerceOrderClientReceiptSent(db, "cs_no_op", "2026-01-01T00:00:00.000Z"),
+    ).toBe(false);
+    const stillMarked = db
+      .prepare("SELECT clientReceiptEmailSentAt FROM commerce_orders WHERE stripeSessionId = ?")
+      .get("cs_no_op") as { clientReceiptEmailSentAt: string };
+    expect(stillMarked.clientReceiptEmailSentAt).toBe("2026-01-05T00:00:00.000Z");
+
+    expect(
+      sqliteClearCommerceOrderClientReceiptSent(db, "cs_missing", "2026-01-05T00:00:00.000Z"),
+    ).toBe(false);
+
+    const unsentDb = freshDb();
+    insertCommerceOrderDirect(unsentDb, "cs_unsent", "test-lead");
+    expect(
+      sqliteClearCommerceOrderClientReceiptSent(unsentDb, "cs_unsent", "2026-01-05T00:00:00.000Z"),
+    ).toBe(false);
   });
 });
 

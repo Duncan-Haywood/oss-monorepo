@@ -49,6 +49,7 @@ import {
   sqliteRecordCheckoutRecoverySent,
   sqliteMarkCommerceOrderPaidOut,
   sqliteMarkCommerceOrderClientReceiptSent,
+  sqliteClearCommerceOrderClientReceiptSent,
   sqliteMarkMarketingPackSentToClient,
   sqliteMarkClientVoicePackSentToClient,
   sqliteClearMarketingPackSentToClient,
@@ -201,6 +202,7 @@ const api: any = {
     getByStripeSessionId: "commerceOrders:getByStripeSessionId",
     markPaidOut: "commerceOrders:markPaidOut",
     markClientReceiptSent: "commerceOrders:markClientReceiptSent",
+    clearClientReceiptSent: "commerceOrders:clearClientReceiptSent",
     markRefunded: "commerceOrders:markRefunded",
     clearRefunded: "commerceOrders:clearRefunded",
     markDisputed: "commerceOrders:markDisputed",
@@ -3512,6 +3514,47 @@ export async function markCommerceOrderClientReceiptSent(
     getSqliteDb(),
     stripeSessionId,
     clientReceiptEmailSentAt,
+  );
+}
+
+/**
+ * Releases a reservation made by markCommerceOrderClientReceiptSent when the
+ * send it was guarding failed — used only by
+ * resendCommerceClientReceiptAction's reserve-then-send-then-release
+ * ordering (see commerce-client-receipt-resend-race-guard-ordering-fix,
+ * mirroring clearMarketingPackSentToClient's shape). Best-effort by design
+ * at the call site (a failed release leaves the order showing as sent even
+ * though it wasn't; a future manual resend attempt would report a false
+ * duplicate-send warning until an operator investigates). Not
+ * requireConvex-gated: a caller in this situation already knows the send
+ * failed and is trying to clean up, not trying to prove a durable state
+ * change succeeded. The Stripe webhook never calls this — it deliberately
+ * stays mark-after-send with its own redelivery-recovery path (see
+ * markCommerceOrderClientReceiptSent's doc comment).
+ */
+export async function clearCommerceOrderClientReceiptSent(
+  stripeSessionId: string,
+  expectedClientReceiptEmailSentAt: string,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.commerceOrders.clearClientReceiptSent, {
+        stripeSessionId,
+        expectedClientReceiptEmailSentAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      console.warn(
+        `Failed to clear commerce order client receipt sent-marker for ${stripeSessionId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  return sqliteClearCommerceOrderClientReceiptSent(
+    getSqliteDb(),
+    stripeSessionId,
+    expectedClientReceiptEmailSentAt,
   );
 }
 

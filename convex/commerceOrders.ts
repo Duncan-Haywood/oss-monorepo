@@ -250,6 +250,50 @@ export const markClientReceiptSent = mutation({
 });
 
 /**
+ * Releases a reservation made by markClientReceiptSent when the send that
+ * reservation was guarding turned out to fail — used only by
+ * resendCommerceClientReceiptAction's reserve-then-send-then-release
+ * ordering (mirroring marketingPacks.clearSentToClient /
+ * clientVoicePacks.clearSentToClient, see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix and
+ * commerce-client-receipt-resend-race-guard-ordering-fix). The Stripe
+ * webhook's own call to markClientReceiptSent is deliberately left
+ * mark-after-send (see that mutation's own doc comment) and never calls
+ * this release — a webhook redelivery already has its own idempotent
+ * recovery path via hasCommerceClientReceiptSentMarker /
+ * planCommerceWebhookSideEffects, so there is nothing to reserve or roll
+ * back there. Only clears the marker when it still holds the exact value
+ * this caller itself just wrote (expectedClientReceiptEmailSentAt); a safe
+ * no-op otherwise (e.g. a concurrent webhook redelivery already set its own
+ * value in between).
+ */
+export const clearClientReceiptSent = mutation({
+  args: {
+    stripeSessionId: v.string(),
+    expectedClientReceiptEmailSentAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (
+      !order ||
+      order.clientReceiptEmailSentAt !== args.expectedClientReceiptEmailSentAt
+    ) {
+      return false;
+    }
+    await ctx.db.patch(order._id, { clientReceiptEmailSentAt: undefined });
+    return true;
+  },
+});
+
+/**
  * Marks a commerce order refunded — called from the Stripe webhook's
  * charge.refunded handler once it resolves the order's Checkout Session.
  * Keyed on stripeSessionId (unique, always present), matching markPaidOut.
