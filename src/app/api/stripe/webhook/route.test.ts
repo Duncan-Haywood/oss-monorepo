@@ -51,6 +51,7 @@ const markCheckoutSessionOpen = vi.fn();
 const markCompleteOpenBundleCheckoutSessionsForLead = vi.fn();
 const markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer = vi.fn();
 const markOrdersRecurringCanceledByCustomer = vi.fn();
+const markOrderRecurringCanceledBySessionId = vi.fn();
 const clearOrdersRecurringCanceledByCustomer = vi.fn();
 const syncOrdersRecurringEntitlementByCustomer = vi.fn();
 const recordLeadPayment = vi.fn();
@@ -101,6 +102,8 @@ vi.mock("@/lib/db", () => ({
     markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(...args),
   markOrdersRecurringCanceledByCustomer: (...args: unknown[]) =>
     markOrdersRecurringCanceledByCustomer(...args),
+  markOrderRecurringCanceledBySessionId: (...args: unknown[]) =>
+    markOrderRecurringCanceledBySessionId(...args),
   clearOrdersRecurringCanceledByCustomer: (...args: unknown[]) =>
     clearOrdersRecurringCanceledByCustomer(...args),
   syncOrdersRecurringEntitlementByCustomer: (...args: unknown[]) =>
@@ -318,6 +321,7 @@ describe("POST /api/stripe/webhook", () => {
       .mockReset()
       .mockResolvedValue(0);
     markOrdersRecurringCanceledByCustomer.mockReset().mockResolvedValue(1);
+    markOrderRecurringCanceledBySessionId.mockReset().mockResolvedValue(undefined);
     clearOrdersRecurringCanceledByCustomer.mockReset().mockResolvedValue(1);
     syncOrdersRecurringEntitlementByCustomer.mockReset().mockResolvedValue(1);
     recordLeadPayment.mockReset();
@@ -4334,11 +4338,16 @@ describe("POST /api/stripe/webhook", () => {
         expect(cancelSubscription).toHaveBeenCalledWith("sub_old_1", {
           cancellation_details: { comment: "superseded_by_recurring_upgrade" },
         });
-        expect(markOrdersRecurringCanceledByCustomer).toHaveBeenCalledWith(
-          "cus_old",
+        // Marked by the OLD order's own stripeSessionId, never by Customer
+        // id — markOrdersRecurringCanceledByCustomer would also hit a
+        // brand-new order sharing this Customer in the shared-Customer case
+        // below (stripe-checkout-recurring-upgrade-dedup-shared-customer-fix).
+        expect(markOrderRecurringCanceledBySessionId).toHaveBeenCalledWith(
+          "cs_prior",
           expect.any(Number),
           { requireConvex: true },
         );
+        expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
       });
 
       it("cancels a superseded subscription that is past_due (recurringCanceledAt was set by a pause, not a terminal cancel) — recurring-upgrade-dedup-past-due-customer-reuse-gap", async () => {
@@ -4374,17 +4383,76 @@ describe("POST /api/stripe/webhook", () => {
         expect(cancelSubscription).not.toHaveBeenCalled();
       });
 
-      it("does not cancel when the prior order shares the new session's own Customer id (Billing Portal resync, not a duplicate)", async () => {
+      it("cancels the prior subscription even when the prior order shares the new session's reused Customer id — the common upgrade path, distinguishing old from new by Subscription id (stripe-checkout-recurring-upgrade-dedup-shared-customer-fix)", async () => {
+        baseSetup();
+        // existingRecurringStripeCustomerId (checkout route) reuses "cus_new"
+        // for the upgrade session, so the old order shares that same
+        // Customer id — this is the PRIMARY intended path, not an edge case.
+        listOrdersByLeadSlug.mockResolvedValue([
+          { stripeSessionId: "cs_prior", stripeCustomerId: "cus_new", tier: "growth", commerceAddon: false },
+        ]);
+        // Both the old (superseded) and brand-new Subscription live under
+        // the one shared Customer.
+        listSubscriptions.mockResolvedValue({
+          data: [{ id: "sub_old_1" }, { id: "sub_brand_new" }],
+        });
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          customer: "cus_new",
+          subscription: "sub_brand_new",
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(listSubscriptions).toHaveBeenCalledWith({ customer: "cus_new" });
+        // The old Subscription is canceled...
+        expect(cancelSubscription).toHaveBeenCalledWith("sub_old_1", {
+          cancellation_details: { comment: "superseded_by_recurring_upgrade" },
+        });
+        // ...but the brand-new one the customer just paid for is never
+        // touched.
+        expect(cancelSubscription).not.toHaveBeenCalledWith(
+          "sub_brand_new",
+          expect.anything(),
+        );
+        expect(cancelSubscription).toHaveBeenCalledTimes(1);
+        // Marked by the OLD order's own stripeSessionId — never by
+        // Customer id, which would also flip the brand-new order (sharing
+        // "cus_new") recurring-canceled the instant it was created.
+        expect(markOrderRecurringCanceledBySessionId).toHaveBeenCalledWith(
+          "cs_prior",
+          expect.any(Number),
+          { requireConvex: true },
+        );
+        expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+      });
+
+      it("skips cancellation on a shared Customer id when session.subscription is unexpectedly missing, rather than risk canceling the brand-new subscription", async () => {
         baseSetup();
         listOrdersByLeadSlug.mockResolvedValue([
           { stripeSessionId: "cs_prior", stripeCustomerId: "cus_new", tier: "growth", commerceAddon: false },
         ]);
+        // No `subscription` override — checkoutSession() defaults to none.
         const { POST } = await import("./route");
 
         const response = await POST(webhookRequest());
         expect(response.status).toBe(200);
         expect(listSubscriptions).not.toHaveBeenCalled();
         expect(cancelSubscription).not.toHaveBeenCalled();
+        expect(markOrderRecurringCanceledBySessionId).not.toHaveBeenCalled();
+        expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+        expect(captureError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({
+            component: "stripe-webhook",
+            failureKind: "supersede_recurring_subscription_missing_new_subscription_id",
+          }),
+        );
+        // The new order's own recording must proceed regardless.
+        expect(recordLeadPayment).toHaveBeenCalled();
       });
 
       it("is best-effort: a cancellation failure is captured but does not fail the webhook response", async () => {

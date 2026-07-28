@@ -184,6 +184,49 @@ export const markRecurringCanceledByCustomer = mutation({
 });
 
 /**
+ * Marks a single order recurring-canceled by its own stripeSessionId, never
+ * by Stripe Customer id. Exists specifically for the recurring-upgrade
+ * supersede path (stripe-checkout-recurring-upgrade-dedup): once
+ * existingRecurringStripeCustomerId reuses a lead's existing Stripe Customer
+ * for a tier-upgrade Checkout Session (the common case, not the exception),
+ * the OLD order and the BRAND-NEW order share the same stripeCustomerId.
+ * markRecurringCanceledByCustomer patches every row for that Customer id,
+ * which would incorrectly also cancel the entitlement the customer just
+ * paid for — this mutation targets only the one superseded order. Idempotent:
+ * an already-canceled row is left unchanged. See
+ * stripe-checkout-recurring-upgrade-dedup-shared-customer-fix.
+ */
+export const markRecurringCanceledBySessionId = mutation({
+  args: {
+    stripeSessionId: v.string(),
+    canceledAt: v.number(),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const row = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
+      .unique();
+    if (!row || !orderHadRecurringEntitlement(row)) {
+      return null;
+    }
+    if (
+      typeof row.recurringCanceledAt === "number" &&
+      Number.isFinite(row.recurringCanceledAt) &&
+      row.recurringCanceledAt > 0
+    ) {
+      return null;
+    }
+    const canceledAt =
+      Number.isFinite(args.canceledAt) && args.canceledAt > 0 ? args.canceledAt : Date.now();
+    await ctx.db.patch(row._id, { recurringCanceledAt: canceledAt });
+    return null;
+  },
+});
+
+/**
  * Clear recurringCanceledAt on Growth/Complete/Commerce orders for a Stripe
  * Customer after subscription.created|updated reaches active|trialing.
  * Uses replace (not patch) so the optional field is omitted — matches SQLite

@@ -159,6 +159,7 @@ const api: any = {
     getByStripeSessionId: "orders:getByStripeSessionId",
     getByStripeCustomerId: "orders:getByStripeCustomerId",
     markRecurringCanceledByCustomer: "orders:markRecurringCanceledByCustomer",
+    markRecurringCanceledBySessionId: "orders:markRecurringCanceledBySessionId",
     clearRecurringCanceledByCustomer: "orders:clearRecurringCanceledByCustomer",
     syncRecurringEntitlementByCustomer: "orders:syncRecurringEntitlementByCustomer",
     markRefunded: "orders:markRefunded",
@@ -1489,6 +1490,59 @@ export async function markOrdersRecurringCanceledByCustomer(
     if (result.changes > 0) updatedCount += 1;
   }
   return updatedCount;
+}
+
+/**
+ * Marks a single order recurring-canceled by its own stripeSessionId, never
+ * by Stripe Customer id. Exists specifically for the recurring-upgrade
+ * supersede path (stripe-checkout-recurring-upgrade-dedup): once
+ * existingRecurringStripeCustomerId reuses a lead's existing Stripe Customer
+ * for a tier-upgrade Checkout Session (the common case, not the exception),
+ * the OLD superseded order and the BRAND-NEW order share the same
+ * stripeCustomerId. markOrdersRecurringCanceledByCustomer patches every
+ * order row for that Customer id, which would incorrectly also cancel the
+ * entitlement the customer just paid for — this function targets only the
+ * one superseded order. Idempotent — an already-canceled row is left
+ * unchanged. requireConvex on the webhook path (WEBHOOK_CONVEX_PRIMARY). See
+ * stripe-checkout-recurring-upgrade-dedup-shared-customer-fix.
+ */
+export async function markOrderRecurringCanceledBySessionId(
+  stripeSessionId: string,
+  canceledAt: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  const sessionId = stripeSessionId.trim();
+  if (!sessionId) return;
+  const at = Number.isFinite(canceledAt) && canceledAt > 0 ? canceledAt : Date.now();
+
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.markRecurringCanceledBySessionId, {
+        stripeSessionId: sessionId,
+        canceledAt: at,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "markOrderRecurringCanceledBySessionId",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to mark order ${sessionId} recurring canceled on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    `UPDATE orders SET recurringCanceledAt = ?
+     WHERE stripeSessionId = ? AND (recurringCanceledAt IS NULL OR recurringCanceledAt = 0)
+       AND (tier = 'growth' OR tier = 'complete' OR commerceAddon = 1)`,
+  ).run(at, sessionId);
 }
 
 /**
