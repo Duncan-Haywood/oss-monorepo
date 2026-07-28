@@ -868,5 +868,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "checkout-setup-fee-skip-on-upgrade",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-0reqer",
+    summary:
+      "Scheduled routine, picked up at origin/main tip d9d6680f (PR #950, checkout-setup-fee-skip-on-upgrade, merged the immediately preceding session). git fetch --prune across all remote families plus mcp__github__list_pull_requests found no live sibling PR beyond the pre-existing unrelated stale draft #202. Per AGENT_PROTOCOL's waste-reduction rule the freshest real code diff since the last verified-clean point was exactly that one just-merged PR, so this iteration read it end to end for a fresh gap rather than dispatching a full five-tier sweep.",
+    shipped: [
+      "Found and independently re-verified a severe, freshly-introduced money-fulfillment bug: checkout-setup-fee-skip-on-upgrade correctly taught POST /api/stripe/checkout to omit the one-time setup-fee Stripe Price line item for a tier-upgrade checkout, but never touched the webhook's own independent fulfillment gates. sessionLineItemsMatchBundleCatalogPrices unconditionally required the setup Price id on line items, and expectedBundleCheckoutAmountCents unconditionally added the full setup fee to the expected amount. Every genuinely fee-skipped upgrade session would fail both gates, causing the webhook to silently skip recordLeadPayment, the handoff enqueue, and both buyer emails for a customer who had genuinely paid.",
+      "Fixed by having the webhook independently re-derive the same has-a-prior-order fact via listOrdersByLeadSlug (excluding this session's own order row, so a redelivery is never miscounted). sessionLineItemsMatchBundleCatalogPrices gained an options.requireSetupFee (default true); expectedBundleCheckoutAmountCents gained a chargedSetupFee parameter (default true) derived directly from whether the setup Price actually appears on the real Stripe line items — never from the prior-order lookup — so a tampered/forged attempt to omit the fee without a genuine prior order still fails exactly as before. Added a new WebhookFulfillmentStep (bundle_existing_orders_lookup) so a failure in the new lookup returns 5xx and Stripe retries.",
+      "src/app/api/stripe/webhook/route.ts, src/lib/payments/checkout-price-line-items.ts, src/lib/pricing/bundles.ts, src/lib/payments/webhook-fulfillment.ts — the fix. src/app/api/stripe/webhook/route.test.ts, src/lib/payments/checkout-price-line-items.test.ts, src/lib/pricing/bundles.test.ts — 15 new test cases. src/lib/process/business-decisions.ts — appended webhook-setup-fee-skip-parity. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked.",
+      "Verified the regression-catching claim directly via git-stash: stashed the four source files with the new tests left in place, confirmed the new 'fulfills a session that omitted the setup fee when the lead already has a different prior order' test failed exactly as expected (recordLeadPayment never called), then restored the exact original files and reconfirmed green.",
+      "File-size check per AGENT_PROTOCOL's re-archive note: both process-log files measured via wc -c before this entry (233,616 and 210,844 bytes) — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (3 changed/new test files, 306/306 passed) then full suite (3942 passed, 231 files, +15 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same 65-route split, no new warnings). No dev-server smoke check needed — server-only Stripe webhook logic change with no UI surface, fully exercised by the automated route-level test suite; no live STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET in this environment to exercise the real webhook end to end beyond the coverage above.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "webhook-setup-fee-skip-parity",
+    ),
+  },
 ];
 

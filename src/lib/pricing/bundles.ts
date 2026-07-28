@@ -197,13 +197,23 @@ export function bundleRecurringPriceUsd(
  * called with that combination in practice). Mirrors POST /api/stripe/checkout
  * line_items (Price IDs from env that bootstrap from these USD amounts). The
  * webhook must require session.amount_total === this before recordLeadPayment.
+ *
+ * `chargedSetupFee` defaults to true (every pre-existing caller/checkout
+ * charged it). A tier-upgrade checkout for a lead with a prior order skips
+ * the one-time setup fee (checkout-setup-fee-skip-on-upgrade) — the webhook
+ * must pass `chargedSetupFee: false` in that case, mirroring what the
+ * create-path route actually charged, or a legitimately fee-skipped session's
+ * real amount_total will never match this expectation and fulfillment will
+ * be silently skipped for a customer who has genuinely paid (see
+ * webhook-setup-fee-skip-parity).
  */
 export function expectedBundleCheckoutAmountCents(
   bundle: BundleDefinition,
   commerceAddon: boolean,
   billingInterval: BundleBillingInterval,
+  chargedSetupFee: boolean = true,
 ): number {
-  let cents = Math.round(bundle.setupPriceUsd * 100);
+  let cents = chargedSetupFee ? Math.round(bundle.setupPriceUsd * 100) : 0;
   const recurringUsd = bundleRecurringPriceUsd(bundle, billingInterval);
   if (recurringUsd != null) {
     cents += Math.round(recurringUsd * 100);
