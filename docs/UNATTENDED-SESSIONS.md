@@ -64,6 +64,27 @@ unchanged, and no amount of further sessions changes the second one. When the
 only thing a run can add is a better description of a queue nobody has drained,
 the useful output is the notification and a short session.
 
+## Twenty-one, and what a run is still good for
+
+The count is twenty-one. The rule has now held five times running. Nothing has
+merged.
+
+The session writing this notified first, then went looking for something a run
+*can* finish alone — and found one, which is the useful correction to the
+paragraph above. "Send the notification and stop" is right when the only
+remaining contribution is another description of a known bug. It is not right
+as a general policy, because it had gone unnoticed for twenty-one sessions that
+the app's central promise was arithmetically unreachable: spread evenly, 220
+items need ~1,100 answers before any of them is usable, so every confidence
+gate on the couple screen was gated on something that never happens.
+
+That was found by simulating the real loop, not by reading it. Twenty-one
+sessions had read this code. The general lesson is narrower than "keep working"
+and broader than "stop": **a run with no access to the app should look for the
+questions a simulation can answer**, because those are exactly the questions a
+person with the app in front of them will not think to ask, and they do not
+need a database, a browser, or a merge to be worth doing.
+
 ## What a deletion leaves behind
 
 The consolidation deleted the intro form, which was right — it collected sex,

@@ -16,22 +16,22 @@ mean:
 
 ## Open
 
-### P0 — Nineteen parallel pull requests, none merged
+### P0 — Twenty-one parallel pull requests, none merged
 
-Nineteen scheduled sessions opened nineteen branches off `b887731`, each
+Twenty-one scheduled sessions opened twenty-one branches off `b887731`, each
 rediscovering the same lint errors and the same conjoint bug. #12 consolidated
-the distinct fixes from #1–#9, #14 extended #12, #17 extended #14, and this
-branch extends #17, so merging it closes the lot.
+the distinct fixes from #1–#9, #14 extended #12, #17 extended #14, #21 extended
+#17, and this branch extends #21, so merging it closes the lot.
 
-The branch rule works — four sessions in a row have now followed it and
+The branch rule works — five sessions in a row have now followed it and
 extended rather than forked. It is not the binding constraint. **Nothing merges
 without the account owner**, and until it does, every scheduled run adds a pull
 request without moving the project. That is a notification at the start of a
 run, not a line in a PR body; see
 [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
 
-The count has gone 9 → 12 → 15 → 19 across four write-ups of this same item,
-which is the honest measure of how well "write it down again" works. This
+The count has gone 9 → 12 → 15 → 19 → 21 across five write-ups of this same
+item, which is the honest measure of how well "write it down again" works. This
 session sent a push notification before writing any code, which is the only
 channel that reaches a person who is not reading the repo. The open question is
 not technical: it is whether this task should keep firing at its current
@@ -142,6 +142,48 @@ a session anyone will sit through.** The honest options are a shorter path to
 confidence — more informative pairing early on, fewer items, or pooling
 evidence across the three perspectives — or a smaller promise up front. Loosening
 the gates instead would restore a screen that was full and wrong.
+
+**Partly answered on this branch — see the next item.** Pair selection now
+deepens a core set before broadening, which takes the combined survey from zero
+usable items at any budget to roughly 34 under `rd < 150` after 300 answers.
+That makes the screen reachable. It does not make it a ranking of 220 items,
+and the remaining options above are still the remaining options.
+
+### P1 — Reaching a usable confidence, measured rather than assumed
+
+An item needs eight to twelve comparisons before its deviation falls far enough
+to show; each answer supplies two item-appearances. Spread evenly, a survey of N
+items needs ~5N answers before *any* of it is usable — and the coverage term in
+`selectNextPair` was spreading them evenly across all 220 items of the combined
+survey. That is ~1,100 answers, so the gates on the couple screen were
+unreachable by construction rather than by accident.
+
+Measured with `pairing.simulation.test.ts`, which drives the real pairing and
+the real Glicko-2 update against a synthetic respondent, and is calibrated
+against two real accounts (lowest rd 170 live at ~90 answers on the 41-item
+survey; 159 in simulation). Medians over nine seeds:
+
+| Survey | Answers | before, rd<200 | after | before, rd<150 | after |
+| --- | --- | --- | --- | --- | --- |
+| combined (220) | 90 | 0 | **22** | 0 | **4** |
+| combined (220) | 300 | 26 | **57** | 0 | **34** |
+| professions (91) | 300 | 81 | **58** | 13 | **35** |
+
+**Done on this branch:** progressive broadening — only the first
+`activeSetSize` items are eligible for pairing, starting at a core of 14 and
+growing with answers. Surveys of 21 items or fewer are exempt, since their whole
+set already finishes.
+
+**What it cost, stated plainly:** the `professions | 300` row shows items under
+rd 200 falling from 81 to 58. Breadth of weak estimates was exchanged for depth
+of usable ones. Since nothing on the couple screen is shown at rd 200, that is
+the right trade, but it is a trade.
+
+**Still open, in the order I would take them:** pool evidence across the three
+perspectives (they rate the same items and share nothing — the largest untaken
+win, and the easiest to get subtly wrong); shrink the combined survey, which is
+a superset of the other six; or say up front what 60 answers buys. See
+[`docs/CONVERGENCE.md`](docs/CONVERGENCE.md).
 
 ### P1 → resolved on this branch — The comparison screen reported its own noise as findings
 

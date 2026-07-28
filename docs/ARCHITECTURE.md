@@ -87,6 +87,16 @@ It runs **coarse to fine**: early questions cross categories to fix the broad
 shape fast, later ones stay within a category where the hard discriminations
 are.
 
+It also **deepens before broadening**. Coverage balance is the right instinct
+and the wrong default: spread evenly, the 220-item combined survey needs ~1,100
+answers before a single item is precise enough to show, so the whole ranking sat
+just below its starting deviation no matter how long anyone answered. Only the
+first `activeSetSize` items are eligible for pairing — a core of 14, growing
+with answers — so someone who stops early gets a small ranking they can trust
+rather than a large one they cannot. This is the difference between the couple
+screen being reachable and not; the measurements are in
+[CONVERGENCE.md](CONVERGENCE.md).
+
 ## Scheduling across domains
 
 [`src/lib/domainScheduler.ts`](../src/lib/domainScheduler.ts). One continuous

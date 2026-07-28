@@ -342,7 +342,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "measure-honestly",
     note:
-      "Twelve parallel unattended sessions opened twelve branches off one commit and none merged, so each new session re-found the same bugs. The distinct fixes are consolidated onto one branch and later sessions extend it rather than opening another beside it — which works, and is not the constraint. Only the account owner can merge, so a run that finds the pile unmerged should notify them at the start rather than adding to it.",
+      "Twenty-one parallel unattended sessions opened twenty-one branches off one commit and none merged, so each new session re-found the same bugs. The distinct fixes are consolidated onto one branch and later sessions extend it rather than opening another beside it — which works, and is not the constraint. Only the account owner can merge, so a run that finds the pile unmerged should notify them at the start rather than adding to it.",
   },
   {
     id: "data-integrity",
@@ -379,6 +379,15 @@ export const WORKSTREAMS: Workstream[] = [
     goal: "measure-honestly",
     note:
       "Refit on a threshold rather than every answer, and use a relative gradient tolerance so convergence stays reachable as N grows.",
+  },
+  {
+    id: "convergence",
+    title: "Reach a usable confidence inside a session someone will sit through",
+    priority: "P1",
+    status: "in-progress",
+    goal: "measure-honestly",
+    note:
+      "Spreading a fixed answer budget evenly over 220 items meant the combined survey had zero items under rd 150 after 300 answers, so every gate on the couple screen was unreachable by construction. Pair selection now deepens a core of 14 before broadening, which gets that to roughly 34 — enough to say something true, and not a ranking of 220 items. Measured by a simulation calibrated against two real accounts; see docs/CONVERGENCE.md. Remaining: pool evidence across the three perspectives, or shrink the combined survey, or make a smaller promise up front.",
   },
   {
     id: "couples-output",

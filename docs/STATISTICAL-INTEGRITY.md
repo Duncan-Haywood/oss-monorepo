@@ -100,17 +100,24 @@ Every gate above has a matching piece of copy naming what it is waiting for.
 
 ---
 
-## What this costs, and the open question
+## What this costs, and what was done about it
 
 These gates are correct and they make the couple screen emptier than it was,
 because the data genuinely does not support what was being shown. The
 comparisons need roughly `rd < 100–150` to say anything; two accounts driven to
 ~90 answers reached a *lowest* rd of 170, with most items far above it.
 
-**So the real work is not the threshold, it is convergence.** Getting the
-measurement to that precision faster — better pair selection, fewer items,
-pooling across the three perspectives, or a smaller promise up front — is the
-open product question, and it is tracked as P1 in `IMPROVEMENT-PLAN.md`.
+**So the real work was never the threshold, it is convergence.** That is now
+measured rather than argued about, and the first fix has landed — see
+[CONVERGENCE.md](CONVERGENCE.md). The short version: spreading a fixed answer
+budget evenly over 220 items meant the combined survey had **zero** items under
+rd 150 after 300 answers, so the gates above were unreachable by construction.
+Deepening a core set before broadening gets that to ~34, which is enough for
+the screen to say something true.
+
+It is not enough to rank 220 items, and it will not be. The remaining options —
+pooling evidence across the three perspectives, shrinking the combined survey,
+or making a smaller promise up front — are tracked in `IMPROVEMENT-PLAN.md`.
 Loosening these gates instead would restore the old screen, which was full and
 wrong.
 

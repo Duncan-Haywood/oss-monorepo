@@ -18,6 +18,7 @@ React against a stubbed `fetch`.
 | `glicko2.test.ts` | 11 | Rating updates, the volatility solver, monotonicity of the deviation |
 | `conjoint.test.ts` | 11 | Coefficient recovery from simulated data, separable and all-tie degenerates, convergence at large n, the line search never stepping downhill |
 | `pairing.test.ts` | 10 | Question selection: uncertainty preference, close-rating preference, coverage, recent-repeat avoidance |
+| `pairing.simulation.test.ts` | 10 | The whole selection loop against a synthetic respondent: that a realistic answer budget reaches a confidence the couple screen can use, and that the active set only grows. See [CONVERGENCE.md](CONVERGENCE.md) |
 | `tradeoffs.test.ts` | 10 | Every generated financial pair is a genuine non-dominated trade-off |
 | `dimensions.test.ts` | 9 | The dimension taxonomy stays consistent with the item catalogue |
 | `financialProfiles.test.ts` | 9 | Profile generation stays inside its declared bounds |

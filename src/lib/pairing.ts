@@ -28,6 +28,97 @@ export type PairingInput = {
 };
 
 /**
+ * Progressive broadening.
+ *
+ * Spreading a fixed answer budget evenly over every item is the worst way to
+ * spend it. An item needs roughly eight to twelve comparisons before its
+ * rating deviation falls far enough to say anything about a person, and each
+ * answer supplies two item-appearances. So a survey of N items needs about
+ * 5N answers before *any* of it is usable, and until then every item sits
+ * just below its starting deviation — a complete ranking, uniformly worthless.
+ *
+ * Measured against the real pairing and the real Glicko-2 update
+ * (`pairing.simulation.test.ts`): the 220-item combined survey put zero items
+ * under rd 150 after 300 answers, and the couple comparison needs rd < 150
+ * before it carries signal. Nobody answers 1,100 questions.
+ *
+ * The fix is to deepen before broadening. Only the first `activeSetSize`
+ * items are eligible for pairing; the set starts at a core small enough to
+ * finish and grows as answers arrive, so a person who stops early has a
+ * small ranking they can trust rather than a large one they cannot. Items
+ * outside the set keep the default deviation, which already excludes them
+ * from every results screen.
+ */
+export const CORE_SET_SIZE = 14;
+
+/** Item-appearances to aim for per active item before admitting more items. */
+const APPEARANCES_PER_ITEM = 10;
+
+/**
+ * A survey this size or smaller is left alone. Its whole set already reaches
+ * the bar inside a session someone will sit through, so staging it would only
+ * postpone items that were going to finish anyway — measured as a real if
+ * small loss on the 16- and 20-item surveys.
+ */
+const NO_STAGING_BELOW = 21;
+
+export function activeSetSize(answeredCount: number, totalItems: number): number {
+  if (totalItems <= NO_STAGING_BELOW) return totalItems;
+  const earned = Math.floor((2 * answeredCount) / APPEARANCES_PER_ITEM);
+  return Math.min(totalItems, Math.max(CORE_SET_SIZE, CORE_SET_SIZE + earned));
+}
+
+/**
+ * Stable admission order: round-robin across categories, alphabetical within
+ * each. Deterministic, so the set only ever grows between requests — an item
+ * that has collected answers can never drop out and strand them — and
+ * category-balanced, so the early core spans the space instead of covering
+ * one corner of it.
+ */
+export function admissionOrder(items: PairItem[]): PairItem[] {
+  const byCategory = new Map<string, PairItem[]>();
+  for (const item of items) {
+    const key = item.category ?? "";
+    const group = byCategory.get(key);
+    if (group) group.push(item);
+    else byCategory.set(key, [item]);
+  }
+
+  const groups = [...byCategory.entries()]
+    .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+    .map(([, group]) => group.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)));
+
+  const ordered: PairItem[] = [];
+  for (let round = 0; ordered.length < items.length; round++) {
+    for (const group of groups) {
+      if (round < group.length) ordered.push(group[round]);
+    }
+  }
+  return ordered;
+}
+
+/**
+ * The items eligible for pairing right now. Anything already shown stays in
+ * regardless of where the growing window has reached, so a set that shrinks
+ * because items were seeded in a different order cannot strand answers.
+ */
+export function activeItems(
+  items: PairItem[],
+  answeredCount: number,
+  timesShown: Map<string, number>
+): PairItem[] {
+  const size = activeSetSize(answeredCount, items.length);
+  if (size >= items.length) return items;
+
+  const ordered = admissionOrder(items);
+  const active = new Set(ordered.slice(0, size).map((i) => i.id));
+  for (const item of items) {
+    if ((timesShown.get(item.id) ?? 0) > 0) active.add(item.id);
+  }
+  return items.filter((i) => active.has(i.id));
+}
+
+/**
  * Coarse-to-fine progression. Early on, pair items from DIFFERENT
  * categories: a handful of cross-category comparisons pins down the broad
  * shape of someone's taste far faster than the same number of within-category
@@ -67,8 +158,11 @@ export function selectNextPair({
 }: PairingInput): [string, string] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
 
-  const shownCounts = items.map((i) => timesShown.get(i.id) ?? 0);
-  const avgShown = shownCounts.reduce((a, b) => a + b, 0) / items.length;
+  // Deepen a core set before broadening — see activeSetSize above.
+  const pool = activeItems(items, answeredCount, timesShown);
+
+  const shownCounts = pool.map((i) => timesShown.get(i.id) ?? 0);
+  const avgShown = shownCounts.reduce((a, b) => a + b, 0) / pool.length;
 
   const priority = (item: PairItem) => {
     const shown = timesShown.get(item.id) ?? 0;
@@ -76,8 +170,8 @@ export function selectNextPair({
     return item.rd + underShownBonus;
   };
 
-  const first = weightedPick(items, priority);
-  const candidates = items.filter((i) => i.id !== first.id);
+  const first = weightedPick(pool, priority);
+  const candidates = pool.filter((i) => i.id !== first.id);
 
   // Early: reward crossing categories (broad structure). Later: reward
   // staying inside one (fine discrimination).
