@@ -798,4 +798,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "orders-recurring-reactivated-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after the process-log-archive-28-iterations-split housekeeping iteration. Picked up the fresh finding the prior iteration's own research agent had surfaced but deliberately deferred: listOrdersWithFailedBillingNotice was missing the third of this codebase's three established due-queue surfaces (pipeline-health MetricCard + daily-digest section + a persistent per-lead leads-client.tsx panel). While merging, sibling PR #966 (orders-recurring-reactivated-capture-error, immediately above) was already on origin/main — merged in and resolved the process-log append-position conflict by keeping the sibling's entry first, this entry last.",
+    shipped: [
+      "Independently re-verified via grep: zero BillingNotice references anywhere in leads-client.tsx before this fix, unlike recurringEntitlementPaused's own panel (the established precedent). An operator viewing the live dashboard had no way to identify which customer's dunning/payment-recovered/pause/resume/cancellation email failed to send without waiting for the next daily digest — real money-adjacent visibility, not cosmetic.",
+      "Added a Billing notice send failed section to leads-client.tsx mirroring the MRR paused / canceled panel's exact shape. Extracted daily-digest.ts's own private billingNoticeTypeLabel function into recurring.ts as a new exported helper (single source of truth, daily-digest.ts now imports it instead of duplicating). Widened OrderBillingNoticeSendFailure with a new hasStripeCustomerId field (same derivation as RecurringEntitlementPausedLead's own) to gate the Manage billing button exactly like the MRR-paused panel does.",
+      "src/lib/orders/recurring.ts, recurring.test.ts (new export + widened type + 3 tests); src/lib/digest/daily-digest.ts (imports the shared helper instead of its own copy); src/app/dashboard/leads/leads-client.tsx (the new panel); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended billing-notice-send-failed-leads-panel); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed the three pre-existing source files, confirmed all 3 new/updated assertions failed exactly as expected (175 passed, 3 failed), then restored and confirmed all pass. Smoke-tested with a dev server: seeded a lead with a live Stripe Customer id and one without, confirmed the panel rendered a working Manage billing button only for the former and 'no Stripe customer on file' for the latter. Cleaned up the seeded local.db afterward.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (287 passed, 3 files) then full suite (3991 passed, 234 files, +2 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + the dev-server smoke check described above.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "billing-notice-send-failed-leads-panel",
+    ),
+  },
 ];

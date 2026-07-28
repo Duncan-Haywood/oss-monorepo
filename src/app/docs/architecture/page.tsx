@@ -1912,6 +1912,31 @@ export default function ArchitectureDocPage() {
         <code>200</code>, never a retry loop.
       </p>
       <p>
+        <code>billing-notice-send-failed-leads-panel</code>: this codebase&apos;s established
+        convention is that every sold-capability due-queue gets three surfaces — a pipeline-health
+        MetricCard, a daily-digest email section, and a persistent per-lead panel on{" "}
+        <code>/dashboard/leads</code> with its own action button (see{" "}
+        <code>recurringEntitlementPaused</code> for the precedent).{" "}
+        <code>listOrdersWithFailedBillingNotice</code> had the first two but never the third — an
+        operator viewing the live dashboard had no way to identify which customer&apos;s
+        dunning/pause/resume/cancellation email failed to send without waiting for the next daily
+        digest. Fixed by adding a <code>Billing notice send failed</code> section to{" "}
+        <code>leads-client.tsx</code>, mirroring the <code>MRR paused / canceled</code> panel&apos;s
+        exact shape: each row shows the notice type (via a newly-exported{" "}
+        <code>billingNoticeTypeLabel</code>, moved from a digest-private helper into{" "}
+        <code>recurring.ts</code> so the digest and this panel can never drift on wording for the
+        same notice type — <code>daily-digest.ts</code> now imports it instead of keeping its own
+        copy) and age, with a <code>Manage billing</code> button reusing the existing{" "}
+        <code>handleOpenBillingPortal</code>. That button needs to know whether the order has a
+        Stripe Customer on file, which <code>OrderBillingNoticeSendFailure</code> did not
+        previously carry — widened it with a new <code>hasStripeCustomerId</code> field (derived
+        the same way <code>RecurringEntitlementPausedLead</code>&apos;s own field already is),
+        gating the button exactly like the MRR-paused panel does. Smoke-tested with a dev server:
+        seeded one lead with a Stripe Customer id and one without, confirmed the panel rendered
+        &quot;Manage billing&quot; only for the former and &quot;no Stripe customer on file&quot;
+        for the latter.
+      </p>
+      <p>
         Every Checkout Session is tracked in <code>checkout_sessions</code> (
         <code>src/lib/checkout/</code>) as <code>open</code> until the completed webhook flips it
         to <code>complete</code>. Create-path tracking (

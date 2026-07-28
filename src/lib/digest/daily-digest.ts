@@ -90,6 +90,7 @@ import {
   oldestRecurringEntitlementPausedAgeHours,
   listOrdersWithFailedBillingNotice,
   oldestBillingNoticeSendFailedAgeHours,
+  billingNoticeTypeLabel,
   type RecurringEntitlementPausedStage,
 } from "../orders/recurring";
 import type { BillingNoticeType } from "../orders/types";
@@ -1736,22 +1737,6 @@ export function formatSnoozeRemainingHours(hours: number | null): string {
   const days = Math.floor(hours / 24);
   const rem = hours % 24;
   return rem === 0 ? `${days}d` : `${days}d ${rem}h`;
-}
-
-/** Human-readable label for a BillingNoticeType — used in digest rows. */
-function billingNoticeTypeLabel(noticeType: BillingNoticeType): string {
-  switch (noticeType) {
-    case "payment_failed":
-      return "payment-failed (dunning)";
-    case "payment_recovered":
-      return "payment-recovered";
-    case "subscription_paused":
-      return "subscription-paused";
-    case "subscription_resumed":
-      return "subscription-resumed";
-    case "subscription_canceled":
-      return "subscription-canceled";
-  }
 }
 
 function section(title: string, rows: string[], emptyNote: string): string {

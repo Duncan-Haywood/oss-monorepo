@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  billingNoticeTypeLabel,
   existingRecurringStripeCustomerId,
   invoiceIsSubscriptionRenewalCharge,
   invoicePaidMayRestoreRecurringEntitlement,
@@ -634,7 +635,42 @@ describe("listOrdersWithFailedBillingNotice", () => {
       stripeSessionId: "cs_old",
       noticeType: "subscription_paused",
       failedAtMs: failedAt,
+      hasStripeCustomerId: false,
     });
+  });
+
+  it("sets hasStripeCustomerId from the order's own stripeCustomerId — gates the leads-panel Billing Portal action (billing-notice-send-failed-leads-panel)", () => {
+    const failed = listOrdersWithFailedBillingNotice(
+      [{ slug: "with-customer", businessName: "With Customer Cafe" }],
+      [
+        {
+          leadSlug: "with-customer",
+          stripeSessionId: "cs_with_customer",
+          stripeCustomerId: "cus_123",
+          tier: "growth",
+          commerceAddon: false,
+          lastBillingNoticeSendFailedAt: failedAt,
+          lastBillingNoticeSendFailedType: "payment_recovered",
+        },
+      ],
+    );
+    expect(failed[0]?.hasStripeCustomerId).toBe(true);
+
+    const failedNoCustomer = listOrdersWithFailedBillingNotice(
+      [{ slug: "no-customer", businessName: "No Customer Cafe" }],
+      [
+        {
+          leadSlug: "no-customer",
+          stripeSessionId: "cs_no_customer",
+          stripeCustomerId: "   ",
+          tier: "growth",
+          commerceAddon: false,
+          lastBillingNoticeSendFailedAt: failedAt,
+          lastBillingNoticeSendFailedType: "payment_recovered",
+        },
+      ],
+    );
+    expect(failedNoCustomer[0]?.hasStripeCustomerId).toBe(false);
   });
 
   it("excludes orders with no failure, a cleared failure, or a missing notice type", () => {
@@ -813,5 +849,15 @@ describe("oldestBillingNoticeSendFailedAgeHours", () => {
         1_720_003_600_000,
       ),
     ).toBe(1);
+  });
+});
+
+describe("billingNoticeTypeLabel", () => {
+  it("returns the exact digest-row wording for every BillingNoticeType (single source of truth for both the daily digest and the leads-panel)", () => {
+    expect(billingNoticeTypeLabel("payment_failed")).toBe("payment-failed (dunning)");
+    expect(billingNoticeTypeLabel("payment_recovered")).toBe("payment-recovered");
+    expect(billingNoticeTypeLabel("subscription_paused")).toBe("subscription-paused");
+    expect(billingNoticeTypeLabel("subscription_resumed")).toBe("subscription-resumed");
+    expect(billingNoticeTypeLabel("subscription_canceled")).toBe("subscription-canceled");
   });
 });

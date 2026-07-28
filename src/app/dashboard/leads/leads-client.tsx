@@ -106,7 +106,10 @@ import {
   oldestGrowthUpsellCandidateAgeHours,
 } from "@/lib/billing/growth-upsell";
 import {
+  billingNoticeTypeLabel,
+  listOrdersWithFailedBillingNotice,
   listRecurringEntitlementPaused,
+  oldestBillingNoticeSendFailedAgeHours,
   oldestRecurringEntitlementPausedAgeHours,
 } from "@/lib/orders/recurring";
 import { bundlePriceHeadingLabel, getBundle } from "@/lib/pricing/bundles";
@@ -272,6 +275,7 @@ const COMMERCE_CATALOGS_UNSYNCED_HEADING_ID = "commerce-catalogs-unsynced-headin
 const STARTER_UPSELL_HEADING_ID = "starter-mrr-upsell-heading";
 const GROWTH_UPSELL_HEADING_ID = "growth-complete-upsell-heading";
 const MRR_PAUSED_HEADING_ID = "mrr-paused-canceled-heading";
+const BILLING_NOTICE_SEND_FAILED_HEADING_ID = "billing-notice-send-failed-heading";
 const MARKETING_PACKS_DUE_HEADING_ID = "marketing-packs-due-heading";
 const VOICE_PACKS_DUE_HEADING_ID = "voice-packs-due-heading";
 const ABANDONED_CHECKOUTS_HEADING_ID = "abandoned-checkouts-heading";
@@ -2131,6 +2135,11 @@ export function LeadsClient({
     recurringEntitlementPaused,
     nowMs,
   );
+  const billingNoticeSendFailed = listOrdersWithFailedBillingNotice(leads, orders);
+  const oldestBillingNoticeSendFailedHours = oldestBillingNoticeSendFailedAgeHours(
+    billingNoticeSendFailed,
+    nowMs,
+  );
   const marketingPacksDueMonth = marketingMonthKey(nowMs);
   const marketingPacksDue = listMarketingPacksDue(
     leads,
@@ -2672,6 +2681,93 @@ export function LeadsClient({
                       role="alert"
                     >
                       {leadActionErrors[lead.slug]}
+                    </p>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {billingNoticeSendFailed.length > 0 && (
+        <section aria-labelledby={BILLING_NOTICE_SEND_FAILED_HEADING_ID} className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2
+              id={BILLING_NOTICE_SEND_FAILED_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
+              Billing notice send failed
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({billingNoticeSendFailed.length}
+                {oldestBillingNoticeSendFailedHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestBillingNoticeSendFailedHours)}`
+                  : ""}
+                )
+              </span>
+            </h2>
+            <Link
+              href="/docs/architecture#payments"
+              className="text-xs font-medium text-rose-800 underline underline-offset-2"
+            >
+              Payments
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            A billing-status email (dunning, payment-recovered, pause, resume, or cancellation)
+            never reached the customer. Open Billing Portal so they can self-serve, or resend the
+            notice manually.
+          </p>
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
+            {billingNoticeSendFailed.map((order) => {
+              const failedAgeHours = Math.max(
+                0,
+                Math.floor((nowMs - order.failedAtMs) / (60 * 60 * 1000)),
+              );
+              return (
+                <li
+                  key={order.slug}
+                  className="rounded-xl border border-rose-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {order.businessName}{" "}
+                        <span className="font-normal text-zinc-500">({order.slug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {billingNoticeTypeLabel(order.noticeType)} · failed{" "}
+                        {formatAbandonedAgeHours(failedAgeHours)} ago
+                        {order.hasStripeCustomerId
+                          ? null
+                          : " · no Stripe customer on file"}
+                      </p>
+                    </div>
+                    {order.hasStripeCustomerId ? (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleOpenBillingPortal(order.slug)}
+                        aria-label={dashboardRowActionAriaLabel("Manage billing", order.businessName, order.slug)}
+                        aria-describedby={
+                          leadActionErrors[order.slug]
+                            ? `billing-notice-failed-action-error-${order.slug}`
+                            : undefined
+                        }
+                        className="rounded-lg bg-rose-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-900 disabled:opacity-60"
+                      >
+                        Manage billing
+                      </button>
+                    ) : null}
+                  </div>
+                  {leadActionErrors[order.slug] ? (
+                    <p
+                      id={`billing-notice-failed-action-error-${order.slug}`}
+                      className="mt-2 text-xs font-medium text-red-600"
+                      role="alert"
+                    >
+                      {leadActionErrors[order.slug]}
                     </p>
                   ) : null}
                 </li>
