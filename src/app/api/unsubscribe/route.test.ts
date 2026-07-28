@@ -10,6 +10,11 @@ vi.mock("@/lib/db", () => ({
   suppressEmail: (...args: unknown[]) => suppressEmail(...args),
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 function unsubscribeUrl(email: string, token?: string): string {
   const params = new URLSearchParams({ email });
   if (token !== undefined) {
@@ -22,6 +27,7 @@ describe("GET /api/unsubscribe", () => {
   beforeEach(() => {
     suppressEmail.mockReset();
     suppressEmail.mockResolvedValue(undefined);
+    captureError.mockReset().mockResolvedValue(undefined);
     resetRateLimiterForTests();
   });
 
@@ -187,7 +193,8 @@ describe("GET /api/unsubscribe", () => {
   });
 
   it("returns a generic 500 when suppressEmail throws a non-Convex error", async () => {
-    suppressEmail.mockRejectedValue(new Error("sqlite is locked"));
+    const writeError = new Error("sqlite is locked");
+    suppressEmail.mockRejectedValue(writeError);
     const { GET } = await import("./route");
     const token = signUnsubscribeToken("pat@example.com");
     const request = new NextRequest(unsubscribeUrl("pat@example.com", token));
@@ -198,6 +205,20 @@ describe("GET /api/unsubscribe", () => {
     expect(response.status).toBe(500);
     expect(text).toMatch(/error processing request/i);
     expect(text).not.toMatch(/try again/i);
+    expect(captureError).toHaveBeenCalledWith(writeError, {
+      component: "unsubscribe",
+      failureKind: "suppression_write",
+    });
+  });
+
+  it("does not call captureError when suppressEmail succeeds", async () => {
+    const { GET } = await import("./route");
+    const token = signUnsubscribeToken("pat@example.com");
+    const request = new NextRequest(unsubscribeUrl("pat@example.com", token));
+
+    await GET(request);
+
+    expect(captureError).not.toHaveBeenCalled();
   });
 
   it("escapes apostrophes in the email via shared escapeHtmlForEmail (&#39;)", async () => {
@@ -259,6 +280,7 @@ describe("POST /api/unsubscribe (RFC 8058 one-click)", () => {
   beforeEach(() => {
     suppressEmail.mockReset();
     suppressEmail.mockResolvedValue(undefined);
+    captureError.mockReset().mockResolvedValue(undefined);
     resetRateLimiterForTests();
   });
 
