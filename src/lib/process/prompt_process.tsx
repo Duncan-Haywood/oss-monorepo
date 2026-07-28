@@ -211,6 +211,13 @@ export const NEXT_STEPS: NextStep[] = [
     status: "todo",
     phase: "Phase 1 — Website foundation",
   },
+  {
+    id: "tier-upgrade-superseded-subscription-no-proration",
+    summary:
+      "OPERATOR/BUSINESS DECISION NEEDED (not auto-fixed by the scheduled routine — a money-movement policy call, not a mechanical bug). A research agent found: when a subscriber upgrades tiers (e.g. Growth→Complete via the growth-upsell nudge, or any recurring re-checkout that reuses the same Stripe Customer per stripe-checkout-recurring-upgrade-dedup), src/app/api/stripe/webhook/route.ts's checkout.session.completed handler cancels the superseded subscription with a bare stripe.subscriptions.cancel(...) — no prorate/invoice_now param, no manual refund/credit anywhere in the repo (zero hits for \"prorat\" across src/). A plain cancellation issues no refund or credit for already-paid, unconsumed time. Harmless for monthly (at most a few dollars), but annual-billing-option's $990/yr Growth and $1990/yr Complete plans mean an annual Growth subscriber upgrading in month 2 loses roughly $907 of paid-for service with zero credit, while being charged the full new annual price on top — a real customer-trust/chargeback exposure, silent to both the customer (no email/copy warns them) and the operator (no log/metric). This predates annual-billing-option; the exposure grew once annual pricing shipped and the original stripe-checkout-recurring-upgrade-dedup cancel call was never revisited. Needs a business decision before an agent implements anything: prorate via Stripe's cancellation-time invoicing (refund/credit path — verify current Stripe Node SDK's exact param shape), or a manual balance-credit computed from the old subscription's current_period_end, or a deliberate policy of no refund with clear upgrade-page copy warning the customer (cheapest, but a product/trust call, not a code call) — and whether to treat monthly and annual differently. An agent can implement any one of these once a policy is chosen; picking the policy itself needs a human.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
   ...NEXT_STEPS_DONE_ARCHIVE_05,
   {
     id: "db-ts-lead-attribute-writes-sqlite-fallback-test-coverage",
@@ -963,6 +970,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "growth-upsell-annual-billing-carry-through",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #957 merged. The next dispatched research agent found a real gap — tier upgrades cancel the superseded subscription with no proration/credit — but this is a money-movement business-policy decision, not a mechanical bug fix, so it was recorded as a gated NEXT_STEPS item rather than auto-implemented.",
+    shipped: [
+      "Found: src/app/api/stripe/webhook/route.ts's checkout.session.completed handler cancels a superseded subscription on tier upgrade (the stripe-checkout-recurring-upgrade-dedup cancel call) with a bare stripe.subscriptions.cancel(...) — no prorate/refund/credit anywhere in the repo (zero grep hits for 'prorat'). Harmless for monthly; for annual-billing-option's $990/yr Growth and $1990/yr Complete plans, an annual Growth subscriber upgrading in month 2 loses ~$907 of already-paid service with zero credit while being charged the new plan's full annual price on top — silent to both customer and operator.",
+      "Deliberately did not implement a fix: unlike every prior billing-cadence-copy fix this session (all best-effort, non-blocking, never touching real money movement), this requires a business decision first — prorate via Stripe's cancellation-time invoicing, issue a manual balance credit, or accept no refund with clear upgrade-page copy — and whether monthly/annual should differ. Recorded as tier-upgrade-superseded-subscription-no-proration in NEXT_STEPS (status: todo, Phase 3 — Payments), matching how commerce-payouts-stripe-connect and lead-ingestion are already gated behind operator/legal/business sign-off.",
+      "src/lib/process/prompt_process.tsx — new NEXT_STEPS entry + this ITERATIONS entry. src/lib/process/business-decisions.ts — appended tier-upgrade-superseded-subscription-no-proration-flagged. No application source changed this iteration.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run src/lib/process (decisions-link-audit.test.ts, 10/10 passed). No full-suite/build re-run needed — process-log-only change, no application source touched.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "tier-upgrade-superseded-subscription-no-proration-flagged",
     ),
   },
 ];
