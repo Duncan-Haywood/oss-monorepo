@@ -933,5 +933,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "stripe-checkout-recurring-upgrade-dedup-shared-customer-fix",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-5aqb5x",
+    summary:
+      "Fresh scheduled routine, branch restarted from origin/main tip 0ee90efa (PR #934, checkout-recovery-cron-automation, merged this session's own prior PR) — HEAD matched origin/main exactly at session start. No live sibling found.",
+    shipped: [
+      "Dispatched a research agent briefed on both prior cron-automation fixes (digest, checkout-recovery), told to find a third instance of the same gap or something fresh. It found and I independently re-verified: the cold-outreach Email 2/3 follow-up cadence — the top-of-funnel sequence that turns a free preview into a paying customer — had exactly one trigger anywhere in the codebase, a manual per-lead dashboard button click, despite isFollowUpDue/listFollowUpsDue already feeding pipeline-health, the digest, and a dashboard panel with visibility.",
+      "Extracted sendFollowUpAction's next-step-derivation + mark + send body into sendOutreachFollowUpEmail (src/lib/leads/send-follow-up.ts) — same CAS guard, unchanged. Added GET /api/cron/outreach-followups: reads the due queue via the same listFollowUpsDue the dashboard panel uses, sequentially attempts each follow-up, aggregates per-lead failures. Reused the existing shared CRON_SECRET verification module unchanged (all three cron routes now share it) and added a third vercel.json crons entry — flagged plainly in docs that Vercel's Hobby plan caps a project at 2 Cron Jobs total, so three routes needs Pro.",
+      "src/lib/leads/send-follow-up.ts, src/app/api/cron/outreach-followups/route.ts — new files, with 19 new test cases across two new test files. The existing send-follow-up-action.test.ts (17 cases) needed zero changes, proving the refactor preserved exact behavior. src/lib/process/business-decisions.ts — appended outreach-followup-cron-automation. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3836 passed, 223 files, +19 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, 65-route split incl. the new /api/cron/outreach-followups, no new warnings). Also verified the new snoozed-lead-exclusion test actually catches a regression via a temporary break-and-restore of isFollowUpDue's snooze check. No dev-server smoke check beyond the automated gate — no live RESEND_API_KEY/real Vercel Cron scheduler in this environment, but the route and shared helper are fully exercised by automated coverage.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "outreach-followup-cron-automation",
+    ),
+  },
 ];
 
