@@ -1051,5 +1051,23 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "empty-backlog-third-consecutive-clean-sweep-post-cron-banner",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 338449dc (PR #941, the third consecutive clean sweep, merged this session). git fetch --prune + list_pull_requests found no live sibling PR beyond the unrelated stale draft #202. Dispatched a research agent steering toward fresh angles (email/notification content, dashboard CRM edge cases, webhook idempotency outside the closed recurring-dedup family, timezone bugs, refund edge cases) and told to cross-check the live process-log tail plus git log for freshness first.",
+    shipped: [
+      "Found a real, fresh bug: sendSubscriptionCanceledNotice (src/lib/email/resend.ts), the win-back email sent from the customer.subscription.deleted webhook handler, hardcoded 'monthly' in its body copy and never carried billing=annual onto its resubscribe link — a gap left over from sibling PR #940 (annual-billing-option), which shipped a real annual cadence but never touched this pre-existing email. Confirmed fresh: orders never persisted billingInterval (a documented scope-out of #940), and the one prior audit reviewing the #940/dedup interaction (empty-backlog-third-consecutive-clean-sweep-post-cron-banner) only checked recurring.ts's predicates, never this email.",
+      "Why it matters: a former Growth/Complete annual subscriber who cancels gets an email flatly claiming 'monthly' — a visible inconsistency — and clicking Resubscribe silently steers them back to a monthly checkout, a worse cadence than the one they actually had, via a dropped param they never see.",
+      "Fix: added stripeSubscriptionBillingInterval(subscription) to src/lib/orders/recurring.ts, deriving 'monthly' | 'annual' from the Subscription's own first line-item Price (subscription.items.data[0].price.recurring.interval — always a full Price object, no `expand` needed), with the same conservative monthly-fallback convention as parseBundleBillingInterval. Threaded a new required billingInterval param through sendSubscriptionCanceledNotice: copy now reads the correct cadence, and the resubscribe URL (rebuilt via URLSearchParams) appends ?billing=annual only when the tier still has a recurring Price AND billingInterval is annual — a Starter+Commerce-add-on-only cancellation still correctly omits both ?tier and ?billing regardless of interval. Webhook call site now passes billingInterval: stripeSubscriptionBillingInterval(subscription).",
+      "Proved via git-stash: stashed only the three source files (recurring.ts, resend.ts, webhook/route.ts) with the extended tests left in place, confirmed 7 tests failed exactly as expected, then restored. Tests added: a dedicated stripeSubscriptionBillingInterval describe block in recurring.test.ts (year/month/fallback cases); billingInterval added to every existing sendSubscriptionCanceledNotice call in resend.test.ts plus two new cases (annual copy+link, Starter-addon still omits ?billing); webhook/route.test.ts gained billingInterval: 'monthly' on the existing happy-path assertion plus a new case proving a 'year' interval Subscription produces billingInterval: 'annual'.",
+      "src/lib/process/business-decisions.ts — appended subscription-canceled-notice-annual-billing-copy. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 338449dc (origin/main tip, PR #941 merge).",
+      "File-size check: prompt_process.tsx measured 253,025 bytes and business-decisions.ts measured 172,218 bytes via wc -c before this entry — prompt_process.tsx is now within roughly 9KB of the 262,144-byte trigger and should be re-checked (and likely split) at the start of the next iteration.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3901 passed, 229 files, +7 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only Stripe-webhook/email change, no dashboard UI touched.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "subscription-canceled-notice-annual-billing-copy",
+    ),
+  },
 ];
 

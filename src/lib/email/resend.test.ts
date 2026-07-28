@@ -383,6 +383,7 @@ describe("resend.ts — brand.* HTML escaping", () => {
       slug: "demo-cafe",
       tier: "growth",
       commerceAddon: false,
+      billingInterval: "monthly",
     });
     expect(sentHtml).toContain(ESCAPED_NAME);
     expect(sentHtml).not.toContain("<Truck>");
@@ -649,9 +650,28 @@ describe("resend.ts — href URL HTML escaping", () => {
       slug: "demo-cafe",
       tier: "growth",
       commerceAddon: false,
+      billingInterval: "monthly",
     });
     expectHrefSafe();
     expect(sentHtml).toMatch(/href="[^"]*\/checkout\?slug=demo-cafe&amp;tier=growth"/);
+  });
+
+  it("carries billing=annual onto the resubscribe link and copy for an annual subscription (subscription-canceled-notice-annual-billing-copy)", async () => {
+    const { sendSubscriptionCanceledNotice } = await import("./resend");
+    const { brand } = await import("../brand");
+    await sendSubscriptionCanceledNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      tier: "growth",
+      commerceAddon: false,
+      billingInterval: "annual",
+    });
+    expect(sentHtml).toMatch(
+      /href="[^"]*\/checkout\?slug=demo-cafe&amp;tier=growth&amp;billing=annual"/,
+    );
+    expect(sentHtml).toContain(`annual ${brand.name} subscription has ended`);
+    expect(sentHtml).not.toContain(`monthly ${brand.name} subscription has ended`);
   });
 
   it("escapes the onboarding link href in sendStripeConnectOnboardingLinkEmail", async () => {
@@ -791,6 +811,7 @@ describe("resend.ts — transactional skipSuppression", () => {
       slug: "demo-cafe",
       tier: "growth",
       commerceAddon: false,
+      billingInterval: "monthly",
     });
     expect(result.success).toBe(true);
     expect(fetchMock).toHaveBeenCalled();
@@ -1105,6 +1126,7 @@ describe("resend.ts — sendSubscriptionCanceledNotice lost-features content (su
       slug: "demo-cafe",
       tier: "growth",
       commerceAddon: false,
+      billingInterval: "monthly",
     });
     expect(sentHtml).toContain("Ready-to-post packs for Google, Facebook, Instagram");
     expect(sentHtml).not.toContain("Everything in Starter");
@@ -1119,6 +1141,7 @@ describe("resend.ts — sendSubscriptionCanceledNotice lost-features content (su
       slug: "demo-cafe",
       tier: "complete",
       commerceAddon: true,
+      billingInterval: "monthly",
     });
     expect(sentHtml).toContain("Commerce add-on");
   });
@@ -1131,11 +1154,26 @@ describe("resend.ts — sendSubscriptionCanceledNotice lost-features content (su
       slug: "demo-cafe",
       tier: "starter",
       commerceAddon: true,
+      billingInterval: "monthly",
     });
     expect(sentHtml).toContain("Commerce add-on");
     expect(sentHtml).not.toContain("Professional landing page");
     expect(sentHtml).toContain("/checkout?slug=demo-cafe\"");
     expect(sentHtml).not.toContain("tier=starter");
+  });
+
+  it("omits ?billing=annual for a Starter+addon cancellation even when billingInterval is annual (Starter has no annual Price of its own)", async () => {
+    const { sendSubscriptionCanceledNotice } = await import("./resend");
+    await sendSubscriptionCanceledNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      tier: "starter",
+      commerceAddon: true,
+      billingInterval: "annual",
+    });
+    expect(sentHtml).toContain("/checkout?slug=demo-cafe\"");
+    expect(sentHtml).not.toContain("billing=annual");
   });
 
   it("omits the lost-features paragraph entirely for a bare Starter cancellation with no addon (should not occur in practice, but must not crash or mislabel)", async () => {
@@ -1146,6 +1184,7 @@ describe("resend.ts — sendSubscriptionCanceledNotice lost-features content (su
       slug: "demo-cafe",
       tier: "starter",
       commerceAddon: false,
+      billingInterval: "monthly",
     });
     expect(sentHtml).not.toContain("Your subscription included");
   });

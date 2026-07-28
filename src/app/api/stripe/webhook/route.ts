@@ -44,6 +44,7 @@ import {
   orderGrantsSoldCapabilityEntitlement,
   orderHadRecurringEntitlement,
   otherLiveRecurringOrdersToSupersede,
+  stripeSubscriptionBillingInterval,
   SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT,
   stripeSubscriptionCancellationWasInternalSupersede,
   stripeSubscriptionGrantsRecurringEntitlement,
@@ -1437,6 +1438,7 @@ export async function POST(request: Request) {
               slug: recurringOrder.leadSlug,
               tier: recurringOrder.tier,
               commerceAddon: recurringOrder.commerceAddon,
+              billingInterval: stripeSubscriptionBillingInterval(subscription),
             });
             if (!sent.success) {
               console.warn(
