@@ -88,6 +88,8 @@ import type { ClientVoicePack } from "@/lib/voice/pack";
 import {
   leadEligibleForClientVoicePack,
   listClientVoicePacksDue,
+  listClientVoicePacksMissingClientSend,
+  oldestClientVoicePackMissingClientSendAgeHours,
   oldestClientVoicePacksDueAgeHours,
   scriptTypeLabel,
 } from "@/lib/voice/faq-pack";
@@ -118,7 +120,9 @@ import {
   contentTypeLabel,
   leadEligibleForMarketingPack,
   listMarketingPacksDue,
+  listMarketingPacksMissingClientSend,
   marketingMonthKey,
+  oldestMarketingPackMissingClientSendAgeHours,
   oldestMarketingPacksDueAgeHours,
 } from "@/lib/marketing/monthly-pack";
 import { leadEligibleForSeasonalPromo } from "@/lib/marketing/seasonal-promo";
@@ -278,6 +282,8 @@ const MRR_PAUSED_HEADING_ID = "mrr-paused-canceled-heading";
 const BILLING_NOTICE_SEND_FAILED_HEADING_ID = "billing-notice-send-failed-heading";
 const MARKETING_PACKS_DUE_HEADING_ID = "marketing-packs-due-heading";
 const VOICE_PACKS_DUE_HEADING_ID = "voice-packs-due-heading";
+const MARKETING_PACKS_MISSING_CLIENT_SEND_HEADING_ID = "marketing-packs-missing-client-send-heading";
+const VOICE_PACKS_MISSING_CLIENT_SEND_HEADING_ID = "voice-packs-missing-client-send-heading";
 const ABANDONED_CHECKOUTS_HEADING_ID = "abandoned-checkouts-heading";
 const ABANDONED_BUY_NOW_HEADING_ID = "abandoned-buy-now-heading";
 const COMMERCE_PAYOUTS_HEADING_ID = "commerce-payouts-heading";
@@ -2159,6 +2165,22 @@ export function LeadsClient({
     orders,
     nowMs,
   );
+  const marketingPacksMissingClientSend = listMarketingPacksMissingClientSend(
+    marketingPacks,
+    leads,
+    orders,
+  );
+  const oldestMarketingPacksMissingClientSendHours = oldestMarketingPackMissingClientSendAgeHours(
+    marketingPacksMissingClientSend,
+    nowMs,
+  );
+  const clientVoicePacksMissingClientSend = listClientVoicePacksMissingClientSend(
+    clientVoicePacks,
+    leads,
+    orders,
+  );
+  const oldestClientVoicePacksMissingClientSendHours =
+    oldestClientVoicePackMissingClientSendAgeHours(clientVoicePacksMissingClientSend, nowMs);
   const commerceCatalogsMissing = listCommerceCatalogsMissing(
     leads,
     orders,
@@ -2958,6 +2980,182 @@ export function LeadsClient({
                   </p>
                 ) : null}
               </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {marketingPacksMissingClientSend.length > 0 && (
+        <section aria-labelledby={MARKETING_PACKS_MISSING_CLIENT_SEND_HEADING_ID} className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2
+              id={MARKETING_PACKS_MISSING_CLIENT_SEND_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
+              Marketing packs not emailed
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({marketingPacksMissingClientSend.length}
+                {oldestMarketingPacksMissingClientSendHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestMarketingPacksMissingClientSendHours)}`
+                  : ""}
+                )
+              </span>
+            </h2>
+            <Link
+              href="/docs/marketing-automation"
+              className="text-xs font-medium text-emerald-800 underline underline-offset-2"
+            >
+              Marketing automation
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Marketing packs already generated for a paid Growth/Complete lead but never emailed to
+            the client — the sold monthly fulfillment promise, delivered but not sent.
+          </p>
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
+            {marketingPacksMissingClientSend.map((pack) => {
+              const businessName = businessNameBySlug.get(pack.leadSlug) ?? pack.leadSlug;
+              const generatedAgeHours = oldestMarketingPackMissingClientSendAgeHours(
+                [{ generatedAt: pack.generatedAt }],
+                nowMs,
+              );
+              return (
+                <li
+                  key={`${pack.leadSlug}-${pack.yearMonth}`}
+                  className="rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {businessName}{" "}
+                        <span className="font-normal text-zinc-500">({pack.leadSlug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {pack.yearMonth}
+                        {generatedAgeHours !== null
+                          ? ` · generated ${formatAbandonedAgeHours(generatedAgeHours)} ago`
+                          : ""}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleEmailMarketingPack(pack.leadSlug)}
+                      aria-label={dashboardRowActionAriaLabel(
+                        "Send pack to client",
+                        businessName,
+                        pack.leadSlug,
+                      )}
+                      aria-describedby={
+                        leadActionErrors[pack.leadSlug]
+                          ? `marketing-packs-missing-client-send-action-error-${pack.leadSlug}`
+                          : undefined
+                      }
+                      className="rounded-lg bg-emerald-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-900 disabled:opacity-60"
+                    >
+                      Send to client
+                    </button>
+                  </div>
+                  {leadActionErrors[pack.leadSlug] ? (
+                    <p
+                      id={`marketing-packs-missing-client-send-action-error-${pack.leadSlug}`}
+                      className="mt-2 text-xs font-medium text-red-600"
+                      role="alert"
+                    >
+                      {leadActionErrors[pack.leadSlug]}
+                    </p>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {clientVoicePacksMissingClientSend.length > 0 && (
+        <section aria-labelledby={VOICE_PACKS_MISSING_CLIENT_SEND_HEADING_ID} className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2
+              id={VOICE_PACKS_MISSING_CLIENT_SEND_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
+              Complete voice packs not emailed
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({clientVoicePacksMissingClientSend.length}
+                {oldestClientVoicePacksMissingClientSendHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestClientVoicePacksMissingClientSendHours)}`
+                  : ""}
+                )
+              </span>
+            </h2>
+            <Link
+              href="/docs/voice-agent-flow"
+              className="text-xs font-medium text-violet-800 underline underline-offset-2"
+            >
+              Voice agent flow
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            FAQ voice packs already generated for a paid/live Complete lead but never emailed to
+            the client — the sold phone fulfillment promise, delivered but not sent.
+          </p>
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
+            {clientVoicePacksMissingClientSend.map((pack) => {
+              const businessName = businessNameBySlug.get(pack.leadSlug) ?? pack.leadSlug;
+              const generatedAgeHours = oldestClientVoicePackMissingClientSendAgeHours(
+                [{ generatedAt: pack.generatedAt }],
+                nowMs,
+              );
+              return (
+                <li
+                  key={pack.leadSlug}
+                  className="rounded-xl border border-violet-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {businessName}{" "}
+                        <span className="font-normal text-zinc-500">({pack.leadSlug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        Complete
+                        {generatedAgeHours !== null
+                          ? ` · generated ${formatAbandonedAgeHours(generatedAgeHours)} ago`
+                          : ""}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleEmailClientVoicePack(pack.leadSlug)}
+                      aria-label={dashboardRowActionAriaLabel(
+                        "Send voice pack to client",
+                        businessName,
+                        pack.leadSlug,
+                      )}
+                      aria-describedby={
+                        leadActionErrors[pack.leadSlug]
+                          ? `voice-packs-missing-client-send-action-error-${pack.leadSlug}`
+                          : undefined
+                      }
+                      className="rounded-lg bg-violet-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-900 disabled:opacity-60"
+                    >
+                      Send to client
+                    </button>
+                  </div>
+                  {leadActionErrors[pack.leadSlug] ? (
+                    <p
+                      id={`voice-packs-missing-client-send-action-error-${pack.leadSlug}`}
+                      className="mt-2 text-xs font-medium text-red-600"
+                      role="alert"
+                    >
+                      {leadActionErrors[pack.leadSlug]}
+                    </p>
+                  ) : null}
+                </li>
               );
             })}
           </ul>
