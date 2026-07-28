@@ -1964,6 +1964,29 @@ export default function ArchitectureDocPage() {
         plan-tier requirement worth stating rather than glossing over.
       </p>
       <p>
+        <code>cron-run-health-visibility</code>: once all three Vercel Cron routes existed, none of
+        them persisted anything about their own invocation history — a route that stopped being
+        invoked at all (Vercel Cron disabled, quota reached, a <code>vercel.json</code> typo), or
+        one that started 500ing on every run with <code>ERROR_TRACKING_WEBHOOK_URL</code> unset (the
+        default), was invisible everywhere in-app; pipeline-health and the digest only ever showed
+        the underlying due queues, which look identical whether the automation is running or has
+        been silently dead for a week. Added a <code>cronRuns</code> table (Convex +{" "}
+        <code>cron_runs</code> SQLite fallback, one row per job name) written via{" "}
+        <code>recordCronRunOutcome</code> (<code>src/lib/db.ts</code>) at the end of every cron
+        route invocation — both the success and the catch/failure branch — so <code>lastRunAt</code>{" "}
+        always reflects the most recent attempt regardless of outcome. Deliberately best-effort and
+        never throws (mirrors <code>captureError</code>&apos;s contract): a failure to persist this
+        marker must never turn an otherwise-successful cron run into a reported failure, or vice
+        versa. <code>computeCronJobHealth</code> (<code>src/lib/cron/cron-run-health.ts</code>) is
+        the pure aggregator — a job with no recorded row at all is treated identically to one whose
+        last run fell outside <code>CRON_RUN_STALE_THRESHOLD_HOURS</code> (36h), since both mean
+        &quot;nothing confirms this automation is working.&quot; Consumed by pipeline-health&apos;s
+        new <strong>Cron automation health</strong> metric card and a new digest section, both gated
+        behind <code>cronSecretConfigured</code> (<code>!!process.env.CRON_SECRET?.trim()</code>) so
+        a deployment that has never enabled Vercel Cron isn&apos;t flagged as unhealthy for
+        automation it never opted into.
+      </p>
+      <p>
         <code>annual-billing-option</code>: Growth/Complete checkout only ever offered monthly
         billing — no way for a customer who&apos;d happily prepay a year to do so, and no
         discount lever to reward that lower payment-risk/higher-LTV choice, leaving revenue on

@@ -13,6 +13,7 @@ import type { BillingNoticeType, OrderRecord } from "./orders/types";
 import { sortOrdersNewestFirst } from "./orders/types";
 import { orderGrantsSoldCapabilityEntitlement } from "./orders/recurring";
 import type { CheckoutSessionRecord } from "./checkout/types";
+import type { CronRunRecord } from "./cron/cron-run-health";
 import { preferSuppressionReason } from "./email/suppression";
 import type { SuppressionReason, SuppressionRecord } from "./email/suppression";
 import { newCheckoutSessionId } from "./checkout/types";
@@ -230,6 +231,10 @@ const api: any = {
     updateCustomDomain: "deployHandoffs:updateCustomDomain",
     reserveBuyerEmailNotes: "deployHandoffs:reserveBuyerEmailNotes",
     releaseBuyerEmailNotes: "deployHandoffs:releaseBuyerEmailNotes",
+  },
+  cronRuns: {
+    recordRun: "cronRuns:recordRun",
+    list: "cronRuns:list",
   },
 };
 
@@ -4146,4 +4151,125 @@ export async function clearClientVoicePackSentToClient(
   }
 
   return sqliteClearClientVoicePackSentToClient(getSqliteDb(), leadSlug, expectedSentToClientAt);
+}
+
+// --- Cron job run-health (see cron-run-health-visibility / src/lib/cron/cron-run-health.ts) ---
+
+/**
+ * Records that a cron-triggered route (job: "daily-digest" |
+ * "checkout-recovery" | "outreach-followups") just ran, and whether it
+ * succeeded. Called from both the success and failure/catch branches of each
+ * route, so `lastRunAt` always reflects the most recent invocation
+ * regardless of outcome, letting computeCronJobHealth (src/lib/cron/cron-run-health.ts)
+ * tell "stopped being invoked at all" apart from "invoked but failing".
+ *
+ * Deliberately best-effort and never throws (like captureError) — this is
+ * diagnostic plumbing only; a failure to persist the marker must never turn
+ * an otherwise-successful cron run into a reported failure, or vice versa.
+ * Not requireConvex-gated for the same reason: there is no money/state
+ * correctness invariant here, only observability, so a lost write on a
+ * Convex outage just means one missed health data point, not a split-brain.
+ */
+export async function recordCronRunOutcome(
+  job: string,
+  outcome: { success: boolean; atIso: string; error?: string },
+): Promise<void> {
+  try {
+    if (convexClient) {
+      try {
+        await convexClient.mutation(api.cronRuns.recordRun, {
+          job,
+          success: outcome.success,
+          atIso: outcome.atIso,
+          error: outcome.error,
+          apiSecret: convexApiSecret,
+        });
+        return;
+      } catch (e) {
+        console.warn(
+          `Failed to record cron run outcome for "${job}" on Convex, falling back to SQLite database`,
+          e,
+        );
+      }
+    }
+
+    // SQLite Fallback
+    const db = getSqliteDb();
+    const existing = db.prepare("SELECT job FROM cron_runs WHERE job = ?").get(job) as
+      | { job: string }
+      | undefined;
+    if (existing) {
+      if (outcome.success) {
+        db.prepare(
+          "UPDATE cron_runs SET lastRunAt = ?, lastRunSuccess = 1, lastSuccessAt = ? WHERE job = ?",
+        ).run(outcome.atIso, outcome.atIso, job);
+      } else {
+        db.prepare(
+          "UPDATE cron_runs SET lastRunAt = ?, lastRunSuccess = 0, lastFailureAt = ?, lastError = ? WHERE job = ?",
+        ).run(outcome.atIso, outcome.atIso, outcome.error ?? null, job);
+      }
+      return;
+    }
+    db.prepare(
+      "INSERT INTO cron_runs (job, lastRunAt, lastRunSuccess, lastSuccessAt, lastFailureAt, lastError) VALUES (?, ?, ?, ?, ?, ?)",
+    ).run(
+      job,
+      outcome.atIso,
+      outcome.success ? 1 : 0,
+      outcome.success ? outcome.atIso : null,
+      outcome.success ? null : outcome.atIso,
+      outcome.success ? null : (outcome.error ?? null),
+    );
+  } catch (e) {
+    console.error(
+      `Failed to record cron run outcome for "${job}" — observability-only, does not affect the cron's actual result`,
+      e,
+    );
+  }
+}
+
+/**
+ * Lists every recorded cron job's run-health row. Wrapped in a top-level
+ * try/catch (unlike most list* functions) and returns [] on total failure —
+ * this feeds an optional pipeline-health/digest signal, and a broken
+ * cron_runs table must never break the dashboard or digest it powers.
+ */
+export async function listCronRuns(): Promise<CronRunRecord[]> {
+  try {
+    if (convexClient) {
+      try {
+        return (await convexClient.query(api.cronRuns.list, {
+          apiSecret: convexApiSecret,
+        })) as CronRunRecord[];
+      } catch (e) {
+        console.warn("Failed to list cron runs from Convex, falling back to SQLite database", e);
+      }
+    }
+
+    // SQLite Fallback
+    const db = getSqliteDb();
+    const rows = db
+      .prepare(
+        "SELECT job, lastRunAt, lastRunSuccess, lastSuccessAt, lastFailureAt, lastError FROM cron_runs",
+      )
+      .all() as Array<{
+      job: string;
+      lastRunAt: string;
+      lastRunSuccess: number;
+      lastSuccessAt: string | null;
+      lastFailureAt: string | null;
+      lastError: string | null;
+    }>;
+    return rows.map((row) => ({
+      job: row.job,
+      lastRunAt: row.lastRunAt,
+      lastRunSuccess: !!row.lastRunSuccess,
+      lastSuccessAt: row.lastSuccessAt ?? undefined,
+      lastFailureAt: row.lastFailureAt ?? undefined,
+      lastError: row.lastError ?? undefined,
+    }));
+  } catch (e) {
+    console.error("Failed to list cron runs — returning empty (observability-only)", e);
+    return [];
+  }
 }

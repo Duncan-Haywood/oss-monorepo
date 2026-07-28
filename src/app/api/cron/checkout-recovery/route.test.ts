@@ -22,10 +22,12 @@ vi.mock("@/lib/checkout/recover-abandoned-checkout", () => ({
 const listOpenCheckoutSessions = vi.fn();
 const getLeads = vi.fn();
 const listOrders = vi.fn();
+const recordCronRunOutcome = vi.fn();
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: (...args: unknown[]) => listOpenCheckoutSessions(...args),
   getLeads: (...args: unknown[]) => getLeads(...args),
   listOrders: (...args: unknown[]) => listOrders(...args),
+  recordCronRunOutcome: (...args: unknown[]) => recordCronRunOutcome(...args),
 }));
 
 const captureError = vi.fn();
@@ -120,6 +122,10 @@ describe("GET /api/cron/checkout-recovery", () => {
     expect(body).toEqual({ success: true, attempted: 0, sent: 0, failed: 0, failures: [] });
     expect(recoverAbandonedBundleCheckout).not.toHaveBeenCalled();
     expect(recoverAbandonedCommerceCheckout).not.toHaveBeenCalled();
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "checkout-recovery",
+      expect.objectContaining({ success: true, atIso: expect.any(String) }),
+    );
   });
 
   it("recovers a due bundle session via the shared helper", async () => {
@@ -195,6 +201,10 @@ describe("GET /api/cron/checkout-recovery", () => {
     const body = await response.json();
     expect(body).toEqual({ success: false, error: "db unavailable" });
     expect(captureError).toHaveBeenCalledWith(expect.any(Error), { component: "cron-checkout-recovery" });
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "checkout-recovery",
+      expect.objectContaining({ success: false, error: "db unavailable" }),
+    );
   });
 
   it("rate-limits repeated calls from the same IP after auth succeeds", async () => {

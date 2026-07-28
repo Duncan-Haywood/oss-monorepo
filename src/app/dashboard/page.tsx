@@ -13,6 +13,7 @@ import {
   listCommerceOrdersRefunded,
   listCommerceOrdersDisputed,
   listCommerceOrdersMissingClientReceipt,
+  listCronRuns,
 } from "@/lib/db";
 import {
   computePipelineHealth,
@@ -98,6 +99,7 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     commerceOrdersRefunded,
     commerceOrdersDisputed,
     commerceOrdersMissingClientReceipt,
+    cronRuns,
   ] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
@@ -111,6 +113,7 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     listCommerceOrdersRefunded(),
     listCommerceOrdersDisputed(),
     listCommerceOrdersMissingClientReceipt(),
+    listCronRuns(),
   ]);
   return computePipelineHealth({
     leads,
@@ -125,6 +128,8 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     commerceOrdersRefunded,
     commerceOrdersDisputed,
     commerceOrdersMissingClientReceipt,
+    cronRuns,
+    cronSecretConfigured: !!process.env.CRON_SECRET?.trim(),
     nowMs,
   });
 }

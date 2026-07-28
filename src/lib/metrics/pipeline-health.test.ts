@@ -421,6 +421,51 @@ describe("computePipelineHealth", () => {
     expect(health.oldestVercelDomainProvisioningFailedAgeHours).toBe(20);
   });
 
+  it("staleOrFailingCronJobsCount stays 0 when cronSecretConfigured is false, even with a clearly stale/failing cronRuns feed", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      cronRuns: [
+        { job: "daily-digest", lastRunAt: "2020-01-01T00:00:00.000Z", lastRunSuccess: false, lastError: "boom" },
+      ],
+      cronSecretConfigured: false,
+      nowMs: NOW,
+    });
+    expect(health.staleOrFailingCronJobsCount).toBe(0);
+    expect(health.staleOrFailingCronJobNames).toEqual([]);
+  });
+
+  it("flags never-run and failing cron jobs when cronSecretConfigured is true, leaving a healthy job out", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      cronRuns: [
+        {
+          job: "daily-digest",
+          lastRunAt: new Date(NOW - 2 * HOUR_MS).toISOString(),
+          lastRunSuccess: true,
+        },
+        {
+          job: "checkout-recovery",
+          lastRunAt: new Date(NOW - 1 * HOUR_MS).toISOString(),
+          lastRunSuccess: false,
+          lastError: "Resend API error",
+        },
+        // outreach-followups has no row at all — never run.
+      ],
+      cronSecretConfigured: true,
+      nowMs: NOW,
+    });
+    expect(health.staleOrFailingCronJobsCount).toBe(2);
+    expect(health.staleOrFailingCronJobNames.sort()).toEqual(
+      ["Checkout recovery", "Outreach follow-ups"].sort(),
+    );
+  });
+
   it("counts bounce/complaint suppressions in the last 7 days, ignoring unsubscribes and older events", () => {
     const health = computePipelineHealth({
       leads: [],

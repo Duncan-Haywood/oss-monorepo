@@ -102,6 +102,7 @@ import {
 } from "@/lib/marketing/buffer";
 import { isBundleHandoffMissingBuyerEmail } from "@/lib/payments/bundle-side-effect-recovery";
 import { isVercelDomainProvisioningFailed } from "@/lib/deploy/handoff-preserve";
+import { cronJobsNeedingAttention, type CronRunRecord } from "@/lib/cron/cron-run-health";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -441,6 +442,17 @@ export interface PipelineHealth {
   /** Age in whole hours since the oldest such handoff was created; null when none. */
   oldestVercelDomainProvisioningFailedAgeHours: number | null;
   /**
+   * Count of the 3 Vercel Cron jobs (daily-digest / checkout-recovery /
+   * outreach-followups) that have either never recorded a run, gone stale
+   * (no recorded run in CRON_RUN_STALE_THRESHOLD_HOURS), or whose most
+   * recent recorded run failed — see cron-run-health-visibility. Stays 0
+   * while cronSecretConfigured is false/unset, since a cron that's
+   * intentionally never been enabled isn't a health problem.
+   */
+  staleOrFailingCronJobsCount: number;
+  /** Display labels for the jobs counted above (e.g. ["Checkout recovery"]) — empty when none. */
+  staleOrFailingCronJobNames: string[];
+  /**
    * Count of hard bounces/spam complaints (see src/lib/email/suppression.ts)
    * recorded in the last 7 days — a rolling sender-reputation signal, unlike
    * the permanently-suppressed total which only ever grows and is never
@@ -737,6 +749,16 @@ export function computePipelineHealth(input: {
   marketingSchedulingEnabled?: boolean;
   /** Pass getSuppressedEmails() (optional) — powers the bounce/complaint reputation signal. */
   suppressions?: ReadonlyArray<SuppressionRecord>;
+  /** Pass listCronRuns() (optional) — powers staleOrFailingCronJobsCount. */
+  cronRuns?: ReadonlyArray<CronRunRecord>;
+  /**
+   * Pass !!process.env.CRON_SECRET?.trim() — gates staleOrFailingCronJobsCount
+   * so a deployment that has never enabled Vercel Cron isn't flagged as
+   * having a stale automation (see cron-run-health-visibility). Defaults to
+   * false (not read from process.env here — pure aggregator, like every
+   * sibling flag in this file).
+   */
+  cronSecretConfigured?: boolean;
   nowMs?: number;
 }): PipelineHealth {
   const stageCounts = emptyStageCounts();
@@ -1079,6 +1101,10 @@ export function computePipelineHealth(input: {
     nowMs,
   );
 
+  const staleOrFailingCronJobs = input.cronSecretConfigured
+    ? cronJobsNeedingAttention(input.cronRuns ?? [], nowMs)
+    : [];
+
   const suppressions = input.suppressions ?? [];
   const recentBounceOrComplaintCount = recentBounceOrComplaintSuppressionCount(
     suppressions,
@@ -1170,6 +1196,8 @@ export function computePipelineHealth(input: {
     oldestBundleOrdersMissingBuyerEmailAgeHours: oldestBundleOrdersMissingBuyerEmailHours,
     vercelDomainProvisioningFailedCount: vercelDomainProvisioningFailed.length,
     oldestVercelDomainProvisioningFailedAgeHours: oldestVercelDomainProvisioningFailedHours,
+    staleOrFailingCronJobsCount: staleOrFailingCronJobs.length,
+    staleOrFailingCronJobNames: staleOrFailingCronJobs.map((job) => job.label),
     recentBounceOrComplaintSuppressionCount: recentBounceOrComplaintCount,
     newestBounceOrComplaintSuppressionAgeHours: newestBounceOrComplaintAgeHours,
   };

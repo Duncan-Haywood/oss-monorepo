@@ -24,6 +24,7 @@ const listCommerceOrdersDisputed = vi.fn();
 const listCommerceOrdersMissingClientReceipt = vi.fn();
 const listDeployHandoffs = vi.fn();
 const getSuppressedEmails = vi.fn();
+const listCronRuns = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   getLeads: (...args: unknown[]) => getLeads(...args),
@@ -40,6 +41,7 @@ vi.mock("@/lib/db", () => ({
     listCommerceOrdersMissingClientReceipt(...args),
   listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
   getSuppressedEmails: (...args: unknown[]) => getSuppressedEmails(...args),
+  listCronRuns: (...args: unknown[]) => listCronRuns(...args),
 }));
 
 const sendOperatorDailyDigest = vi.fn();
@@ -63,6 +65,7 @@ describe("sendOperatorDigestEmail", () => {
     listCommerceOrdersMissingClientReceipt.mockReset().mockResolvedValue([]);
     listDeployHandoffs.mockReset().mockResolvedValue([]);
     getSuppressedEmails.mockReset().mockResolvedValue([]);
+    listCronRuns.mockReset().mockResolvedValue([]);
     sendOperatorDailyDigest.mockReset().mockResolvedValue({ success: true, mock: true });
   });
 
@@ -85,6 +88,7 @@ describe("sendOperatorDigestEmail", () => {
     expect(listCommerceOrdersMissingClientReceipt).toHaveBeenCalledOnce();
     expect(listDeployHandoffs).toHaveBeenCalledOnce();
     expect(getSuppressedEmails).toHaveBeenCalledOnce();
+    expect(listCronRuns).toHaveBeenCalledOnce();
 
     expect(sendOperatorDailyDigest).toHaveBeenCalledOnce();
     const [to, html] = sendOperatorDailyDigest.mock.calls[0]!;

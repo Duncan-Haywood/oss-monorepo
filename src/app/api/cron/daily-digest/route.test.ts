@@ -20,6 +20,11 @@ vi.mock("@/lib/observability/error-tracking", () => ({
   captureError: (...args: unknown[]) => captureError(...args),
 }));
 
+const recordCronRunOutcome = vi.fn();
+vi.mock("@/lib/db", () => ({
+  recordCronRunOutcome: (...args: unknown[]) => recordCronRunOutcome(...args),
+}));
+
 function cronRequest(options?: { bearer?: string; ip?: string }) {
   const headers: Record<string, string> = { "x-forwarded-for": options?.ip ?? "203.0.113.9" };
   if (options?.bearer !== undefined) {
@@ -101,6 +106,10 @@ describe("GET /api/cron/daily-digest", () => {
     const body = await response.json();
     expect(body).toEqual({ success: true, mock: true });
     expect(sendOperatorDigestEmail).toHaveBeenCalledWith("ops@example.com", expect.any(String));
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "daily-digest",
+      expect.objectContaining({ success: true, atIso: expect.any(String) }),
+    );
   });
 
   it("returns 500 and captures the error when the send fails", async () => {
@@ -111,6 +120,10 @@ describe("GET /api/cron/daily-digest", () => {
     const body = await response.json();
     expect(body).toEqual({ success: false, error: "Resend 429" });
     expect(captureError).toHaveBeenCalledWith(expect.any(Error), { component: "cron-daily-digest" });
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "daily-digest",
+      expect.objectContaining({ success: false, error: "Resend 429" }),
+    );
   });
 
   it("returns 500 and captures the error when the helper throws", async () => {
@@ -121,6 +134,10 @@ describe("GET /api/cron/daily-digest", () => {
     const body = await response.json();
     expect(body).toEqual({ success: false, error: "db unavailable" });
     expect(captureError).toHaveBeenCalledWith(expect.any(Error), { component: "cron-daily-digest" });
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "daily-digest",
+      expect.objectContaining({ success: false, error: "db unavailable" }),
+    );
   });
 
   it("rate-limits repeated calls from the same IP after auth succeeds", async () => {

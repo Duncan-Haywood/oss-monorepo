@@ -418,4 +418,20 @@ export default defineSchema({
     .index("by_handoffId", ["handoffId"])
     .index("by_status", ["status"])
     .index("by_customDomain", ["customDomain"]),
+
+  /**
+   * Operational run-health marker for the Vercel Cron-triggered routes
+   * (daily-digest / checkout-recovery / outreach-followups) — one row per
+   * job name, written on every invocation (success or failure) so a stopped
+   * or failing automation is visible in-app instead of only in Vercel's own
+   * cron run history. See cron-run-health-visibility.
+   */
+  cronRuns: defineTable({
+    job: v.string(), // "daily-digest" | "checkout-recovery" | "outreach-followups"
+    lastRunAt: v.string(), // ISO — set on every invocation regardless of outcome
+    lastRunSuccess: v.boolean(),
+    lastSuccessAt: v.optional(v.string()),
+    lastFailureAt: v.optional(v.string()),
+    lastError: v.optional(v.string()),
+  }).index("by_job", ["job"]),
 });
