@@ -156,6 +156,31 @@ describe("GET /api/cron/outreach-followups", () => {
       component: "cron-outreach-followups",
       failures: [{ slug: "demo-cafe", error: "Email is on the suppression list" }],
     });
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "outreach-followups",
+      expect.objectContaining({
+        success: false,
+        error: "1 of 2 follow-up sends failed",
+      }),
+    );
+  });
+
+  it("records run health as failed when every attempted send fails, even though the HTTP response is still 200", async () => {
+    getLeads.mockResolvedValue([dueLead(), dueLead({ slug: "demo-bakery" })]);
+    sendOutreachFollowUpEmail.mockResolvedValue({ success: false, error: "Resend API key revoked" });
+    const { GET } = await import("./route");
+    const response = await GET(cronRequest({ bearer: "test-cron-secret-value" }));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.failed).toBe(2);
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "outreach-followups",
+      expect.objectContaining({
+        success: false,
+        error: "2 of 2 follow-up sends failed",
+      }),
+    );
   });
 
   it("returns 500 and captures the error when a ledger read throws", async () => {
