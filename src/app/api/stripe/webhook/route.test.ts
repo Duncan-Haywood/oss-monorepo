@@ -4394,7 +4394,8 @@ describe("POST /api/stripe/webhook", () => {
         payment_status: "unpaid",
       });
       constructEvent.mockReturnValue(asyncPaymentFailedEvent(session));
-      markCheckoutSessionOpen.mockRejectedValueOnce(new Error("convex down"));
+      const reopenError = new Error("convex down");
+      markCheckoutSessionOpen.mockRejectedValueOnce(reopenError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -4402,6 +4403,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("checkout_session_mark_open");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(reopenError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.async_payment_failed",
+        eventId: undefined,
+        failureKind: "checkout_session_mark_open",
+      });
       expect(recordLeadPayment).not.toHaveBeenCalled();
     });
   });
@@ -4537,9 +4544,8 @@ describe("POST /api/stripe/webhook", () => {
           notes: [...existingHandoff().notes, ...notes],
         }),
       );
-      markCompleteOpenBundleCheckoutSessionsForLead.mockRejectedValueOnce(
-        new Error("convex down"),
-      );
+      const cleanupError = new Error("convex down");
+      markCompleteOpenBundleCheckoutSessionsForLead.mockRejectedValueOnce(cleanupError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -4550,6 +4556,12 @@ describe("POST /api/stripe/webhook", () => {
       // Payment already durable — Stripe retry recovers cleanup + emails.
       expect(recordLeadPayment).toHaveBeenCalled();
       expect(sendReceiptEmail).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(cleanupError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "checkout_session_orphan_bundle_cleanup",
+      });
     });
   });
 
@@ -4644,8 +4656,9 @@ describe("POST /api/stripe/webhook", () => {
 
     it("returns 500 (checkout_session_orphan_commerce_cleanup) when orphan cleanup fails after ledger", async () => {
       constructEvent.mockReturnValue(completedEvent(paidCommerceSession()));
+      const cleanupError = new Error("convex down");
       markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer.mockRejectedValueOnce(
-        new Error("convex down"),
+        cleanupError,
       );
       const { POST } = await import("./route");
 
@@ -4656,6 +4669,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(json.received).toBe(false);
       expect(insertCommerceOrder).toHaveBeenCalled();
       expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(cleanupError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "checkout_session_orphan_commerce_cleanup",
+      });
     });
   });
 
@@ -4866,6 +4885,31 @@ describe("POST /api/stripe/webhook", () => {
           }),
           { requireConvex: true },
         );
+      });
+
+      it("returns 500 (bundle_existing_orders_lookup) so Stripe retries when listing existing orders for the setup-fee-skip check fails", async () => {
+        listLineItems.mockResolvedValue(noSetupGrowthLineItems());
+        const lookupError = new Error("db down");
+        listOrdersByLeadSlug.mockRejectedValue(lookupError);
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          amount_total: GROWTH_NO_SETUP_AMOUNT_CENTS,
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        const json = await response.json();
+        expect(response.status).toBe(500);
+        expect(json.step).toBe("bundle_existing_orders_lookup");
+        expect(recordLeadPayment).not.toHaveBeenCalled();
+        expect(captureError).toHaveBeenCalledWith(lookupError, {
+          component: "stripe-webhook",
+          eventType: "checkout.session.completed",
+          eventId: undefined,
+          failureKind: "bundle_existing_orders_lookup",
+        });
       });
 
       it("skips fulfillment when the setup fee is omitted but the lead has NO prior order on record — the exact bug this gate exists to catch (a tampered/mismatched session must not bypass the setup fee)", async () => {
@@ -5573,7 +5617,8 @@ describe("POST /api/stripe/webhook", () => {
         metadata: { slug: "demo-cafe", tier: "growth", commerceAddon: "true" },
       });
       constructEvent.mockReturnValue(completedEvent(session));
-      listLineItems.mockRejectedValue(new Error("stripe down"));
+      const lineItemError = new Error("stripe down");
+      listLineItems.mockRejectedValue(lineItemError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -5581,6 +5626,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_commerce_addon_line_items");
       expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(lineItemError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "bundle_commerce_addon_line_items",
+      });
     });
 
     it("does not record payment when Growth catalog Prices are missing from line items (amount+currency match)", async () => {
@@ -5620,7 +5671,8 @@ describe("POST /api/stripe/webhook", () => {
     it("returns 500 (checkout_session_mark_complete) so Stripe retries when marking the session complete fails", async () => {
       const session = checkoutSession({ metadata: { slug: "demo-cafe", tier: "growth" } });
       constructEvent.mockReturnValue(completedEvent(session));
-      markCheckoutSessionComplete.mockRejectedValue(new Error("db down"));
+      const markCompleteError = new Error("db down");
+      markCheckoutSessionComplete.mockRejectedValue(markCompleteError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -5628,6 +5680,62 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("checkout_session_mark_complete");
       expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(markCompleteError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "checkout_session_mark_complete",
+      });
+    });
+
+    it("returns 500 (checkout_session_mark_complete) so Stripe retries when marking an unpaid (async ACH) session complete fails", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        payment_status: "unpaid",
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const markCompleteError = new Error("db down");
+      markCheckoutSessionComplete.mockRejectedValue(markCompleteError);
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("checkout_session_mark_complete");
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(markCompleteError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "checkout_session_mark_complete",
+      });
+    });
+
+    it("returns 500 (checkout_session_mark_complete) so Stripe retries when marking a commerce_sku session complete fails", async () => {
+      const session = checkoutSession({
+        metadata: {
+          kind: "commerce_sku",
+          slug: "demo-cafe",
+          skuId: "sku_latte",
+        },
+        amount_total: 2500,
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const markCompleteError = new Error("db down");
+      markCheckoutSessionComplete.mockRejectedValue(markCompleteError);
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("checkout_session_mark_complete");
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(markCompleteError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "checkout_session_mark_complete",
+      });
     });
 
     it("returns 500 (bundle_payment_or_handoff) so Stripe retries when recordLeadPayment fails, and reports it via captureError since this inner catch returns rather than re-throwing (stripe-webhook-payment-write-capture-error)", async () => {
@@ -5661,7 +5769,8 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(session));
       recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
-      updateDeployHandoffStatus.mockRejectedValue(new Error("marker write failed"));
+      const markerError = new Error("marker write failed");
+      updateDeployHandoffStatus.mockRejectedValue(markerError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -5671,6 +5780,41 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendReceiptEmail).toHaveBeenCalledTimes(1);
       // Best-effort send already happened once; do not re-send DNS email on this failure path.
       expect(sendBundleDnsHandoffEmail).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(markerError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "bundle_email_sent_marker",
+      });
+    });
+
+    it("returns 500 (bundle_email_sent_marker) when the durable DNS handoff sent-marker write fails after a successful receipt marker and DNS send", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      const dnsMarkerError = new Error("dns marker write failed");
+      updateDeployHandoffStatus
+        .mockResolvedValueOnce(existingHandoff())
+        .mockRejectedValueOnce(dnsMarkerError);
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_email_sent_marker");
+      expect(sendReceiptEmail).toHaveBeenCalledTimes(1);
+      expect(sendBundleDnsHandoffEmail).toHaveBeenCalledTimes(1);
+      expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(2);
+      expect(captureError).toHaveBeenCalledWith(dnsMarkerError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "bundle_email_sent_marker",
+      });
     });
 
     it("returns 500 after attempting the DNS handoff email when the buyer receipt send throws", async () => {
@@ -5690,6 +5834,16 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_email_send");
       expect(sendBundleDnsHandoffEmail).toHaveBeenCalledTimes(1);
+      // The thrown emailError is scoped to its own inner catch and does not
+      // survive to the merged emailSendFailed flag check — captureError gets
+      // a synthesized Error instead (see the flag-based-failure comment at
+      // this call site in route.ts).
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "bundle_email_send",
+      });
     });
 
     it("returns 500 when the DNS handoff email throws unexpectedly, so Stripe retries missing markers", async () => {
@@ -5711,6 +5865,12 @@ describe("POST /api/stripe/webhook", () => {
       // The buyer receipt completed before the DNS formatter failed; its
       // independent marker remains durable while DNS is retried.
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "bundle_email_send",
+      });
     });
 
     it("does not mark the receipt sent when sendReceiptEmail resolves success:false (suppressed), so redelivery retries it", async () => {
@@ -5743,6 +5903,12 @@ describe("POST /api/stripe/webhook", () => {
         [expect.stringContaining("DNS handoff email sent")],
         { requireConvex: true },
       );
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "bundle_email_send",
+      });
     });
 
     it("does not mark the DNS handoff email sent when sendBundleDnsHandoffEmail resolves success:false, so redelivery retries it", async () => {
@@ -5775,6 +5941,12 @@ describe("POST /api/stripe/webhook", () => {
         [expect.stringContaining("Buyer receipt email sent")],
         { requireConvex: true },
       );
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "bundle_email_send",
+      });
     });
   });
 
@@ -6404,7 +6576,8 @@ describe("POST /api/stripe/webhook", () => {
           },
         ],
       });
-      listLineItems.mockRejectedValue(new Error("stripe down"));
+      const lineItemError = new Error("stripe down");
+      listLineItems.mockRejectedValue(lineItemError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -6412,6 +6585,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_sku_price_line_items");
       expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(lineItemError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "commerce_sku_price_line_items",
+      });
     });
 
     it("warns and stops when slug metadata is missing from a commerce_sku session", async () => {
@@ -6553,7 +6732,8 @@ describe("POST /api/stripe/webhook", () => {
         id: "corder_1",
         stripeSessionId: "cs_test_1",
       });
-      insertClientInquiry.mockRejectedValue(new Error("db down"));
+      const inquiryError = new Error("db down");
+      insertClientInquiry.mockRejectedValue(inquiryError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -6561,6 +6741,32 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_inquiry");
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(inquiryError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "commerce_order_inquiry",
+      });
+    });
+
+    it("returns 500 (commerce_order_inquiry) so Stripe retries when a lookup before the inquiry write fails (outer catch)", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue(eligibleCommerceLead);
+      const catalogError = new Error("catalog lookup down");
+      getCommerceCatalog.mockRejectedValue(catalogError);
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_order_inquiry");
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(catalogError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "commerce_order_inquiry",
+      });
     });
 
     it("returns 500 and leaves the receipt marker unwritten when sendCommerceBuyNowClientReceipt throws", async () => {
@@ -6590,6 +6796,16 @@ describe("POST /api/stripe/webhook", () => {
       expect(json.step).toBe("commerce_client_receipt_send");
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
       expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
+      // The thrown emailError is scoped to its own inner catch and does not
+      // survive to the merged clientReceiptSendFailed flag check —
+      // captureError gets a synthesized Error instead (see the flag-based-
+      // failure comment at this call site in route.ts).
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "commerce_client_receipt_send",
+      });
     });
 
     it("does not mark the client receipt sent when send resolves success:false, so redelivery retries it", async () => {
@@ -6623,6 +6839,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
       expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
       expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "commerce_client_receipt_send",
+      });
     });
 
     it("returns 500 (commerce_client_receipt_sent_marker) when the durable receipt marker write fails after a successful send", async () => {
@@ -6643,7 +6865,8 @@ describe("POST /api/stripe/webhook", () => {
         id: "corder_1",
         stripeSessionId: "cs_test_1",
       });
-      markCommerceOrderClientReceiptSent.mockRejectedValue(new Error("db down"));
+      const markerError = new Error("db down");
+      markCommerceOrderClientReceiptSent.mockRejectedValue(markerError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -6652,6 +6875,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(json.step).toBe("commerce_client_receipt_sent_marker");
       expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
       expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledTimes(1);
+      expect(captureError).toHaveBeenCalledWith(markerError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "commerce_client_receipt_sent_marker",
+      });
     });
 
     it("returns 200 (not a fulfillment failure) when a concurrent writer already set the receipt marker", async () => {

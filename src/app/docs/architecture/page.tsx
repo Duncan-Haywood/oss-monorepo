@@ -5477,6 +5477,44 @@ source). The same digest also lists email-critical leads with no usable address 
         banner renders on both dashboard pages with <code>CRON_SECRET</code> unset and correctly
         hides once it&apos;s set.
       </p>
+      <p>
+        <code>stripe-webhook-checkout-completed-capture-error</code>: closes the largest remaining
+        gap named by the prior clusters&apos; own &quot;stay out of scope&quot; counts — the{" "}
+        <code>checkout.session.completed</code> / <code>checkout.session.async_payment_succeeded</code>{" "}
+        handler (by far the biggest single case block in this file) and its small{" "}
+        <code>checkout.session.async_payment_failed</code> twin. All 17{" "}
+        <code>webhookFulfillmentFailureResponse(...)</code> catch sites in this pair that lacked a{" "}
+        <code>captureError</code> call got one (the <code>commerce_order_ledger</code> and{" "}
+        <code>bundle_payment_or_handoff</code> sites were already wired by earlier single-site
+        fixes and left untouched) — the unpaid-session and <code>commerce_sku</code> branches&apos;{" "}
+        <code>checkout_session_mark_complete</code> writes, the commerce-Price line-item lookup, both
+        orphan-checkout-session cleanups, the commerce order inquiry write (both its inner{" "}
+        insertClientInquiry catch and the outer catch wrapping every lookup before it), the commerce
+        client receipt sent-marker and send, the bundle commerce-addon line-item lookup, the
+        bundle existing-orders lookup, both bundle receipt/DNS sent-marker writes, the bundle
+        receipt/DNS send, and the async_payment_failed reopen. A silent failure anywhere in this
+        cluster means a paying customer&apos;s Buy now order, bundle purchase, or their client
+        receipt/DNS handoff email never fully lands, with no signal beyond a 5xx in Stripe&apos;s own
+        dashboard — the same blind spot every prior cluster in this section closed for its own event
+        types. Two sites merge two distinct failure causes (a resolved <code>success: false</code>{" "}
+        send and a thrown send error) into one shared <code>if (flagSet)</code> check with no single
+        caught error surviving to it — <code>commerce_client_receipt_send</code> and the flag-based{" "}
+        <code>bundle_email_send</code> site synthesize an <code>Error</code> for{" "}
+        <code>captureError</code> there instead, mirroring the existing{" "}
+        <code>supersede_recurring_subscription_missing_new_subscription_id</code> capture above
+        (also synthesized, for the same reason). While wiring tests, found two gaps beyond a missing
+        capture assertion: the unpaid-session and <code>commerce_sku</code> branches of{" "}
+        <code>checkout_session_mark_complete</code>, the outer commerce-order-inquiry catch, the DNS
+        half of <code>bundle_email_sent_marker</code>, and{" "}
+        <code>bundle_existing_orders_lookup</code> had no failure-path test at all; added one each.
+        Every other affected site already had failure-path coverage — extended those in place. One
+        site, the outer <code>catch (emailError)</code> wrapping the bundle receipt/DNS send block,
+        only catches a throw from its own leading dynamic <code>import(&quot;@/lib/email/resend&quot;)</code>{" "}
+        — structurally unreachable through this suite&apos;s module-level mocking, so it was wired
+        for uniformity but left without a dedicated test, the same trade-off{" "}
+        <code>db-ts-convex-fallback-capture-error-full-sweep</code> already documented for an inert
+        fallback branch above.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

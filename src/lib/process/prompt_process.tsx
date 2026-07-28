@@ -845,4 +845,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "marketing-voice-pack-missing-client-send-leads-panel",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-np0ang",
+    summary:
+      "Scheduled routine, picked up at origin/main tip 5392ca3 (PR #968, billing-notice-send-failed-leads-panel-dual-build-collision-review) — HEAD matched origin/main exactly at session start after a full refs/heads/* fetch. Checked the 20 most-recently-pushed claude/* branches: all showed 0 commits ahead of main, so no live sibling to fold or avoid colliding with. While merging, sibling PR #969 (marketing-voice-pack-missing-client-send-leads-panel, immediately above) was already on origin/main — merged it in and resolved the process-log append-position conflict by keeping the sibling's entry first, this entry last; #969 touched only leads-client.tsx, untouched by this entry's own changes, so the source-file merge was clean. Dispatched a general-purpose agent to close the largest remaining captureError-sweep gap — the checkout.session.completed handler, left unwired by every prior single-site/5-site/26-site/2-site pass in this file — with full test coverage and verification, then independently re-verified its diff and re-ran the full gate myself before documenting and merging.",
+    shipped: [
+      "Wired captureError into all 17 remaining unwired webhookFulfillmentFailureResponse(...) sites across checkout.session.completed / checkout.session.async_payment_succeeded / checkout.session.async_payment_failed — the single largest case block in route.ts, and the one that actually fulfills a paying customer's purchase, sends receipts, and enqueues DNS/production handoff. Same component/eventType/eventId/failureKind shape as every other already-wired site in this file (checkout_session_mark_complete's three branches, commerce_sku_price_line_items, both orphan-checkout-session cleanups, commerce_order_inquiry's inner and outer catches, commerce_client_receipt_sent_marker/send, bundle_commerce_addon_line_items, bundle_existing_orders_lookup, both bundle_email_sent_marker sites, both bundle_email_send sites, and checkout_session_mark_open). Left the already-wired commerce_order_ledger and bundle_payment_or_handoff sites untouched.",
+      "Two sites merge a resolved success: false send and a thrown send error into one shared flag check with no single caught error surviving to it — synthesized a descriptive Error for captureError there, mirroring this file's own existing precedent for the same problem. Found and fixed 5 sites with zero prior failure-path test coverage (added one test each); extended the other 12 sites' existing failure-path tests in place with the new captureError assertion.",
+      "src/app/api/stripe/webhook/route.ts (17 captureError call sites); route.test.ts (12 tests extended + 5 new, 263 total, +5 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended stripe-webhook-checkout-completed-capture-error); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change — all six gated items remain operator/legal/business-blocked.",
+      "Proved via git-stash: stashed only route.ts, confirmed 20 assertions across the 17 sites' 12 extended + 5 new tests failed exactly as expected (243 passed, 20 failed of 263), then restored and confirmed all 263 pass. Independently re-verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3996 passed, 234 files, +5 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, no new warnings). No dev-server smoke check needed — server-only observability change, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-webhook-checkout-completed-capture-error",
+    ),
+  },
 ];
