@@ -1,0 +1,31 @@
+{
+  "name": "retail-pilot-intel",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck",
+    "lint": "eslint .",
+    "ci": "tsx scripts/ci.ts",
+    "bootstrap": "tsx scripts/bootstrap.ts",
+    "docs:convert-html": "tsx scripts/convert-html-to-tsx.ts",
+    "docs:dev": "pnpm --filter @retail-pilot/docs dev",
+    "docs:build": "pnpm --filter @retail-pilot/docs build",
+    "docs:export": "tsx scripts/export-docs-oneoff.ts",
+    "portal:dev": "pnpm --filter @retail-pilot/portal dev",
+    "portal:build": "pnpm --filter @retail-pilot/portal build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@types/node": "^22.15.21",
+    "eslint": "^9.28.0",
+    "globals": "^16.2.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.33.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
