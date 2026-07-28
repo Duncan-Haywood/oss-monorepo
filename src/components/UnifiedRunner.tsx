@@ -371,7 +371,7 @@ export function UnifiedRunner() {
               {PERSPECTIVE_META[key].cta}
             </button>
           ))}
-          {error && <p className="text-center text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
+          {error && <p role="alert" className="text-center text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
           {/*
             What starting actually costs someone, said before they tap rather
             than in a policy page they would have to go looking for. Signed

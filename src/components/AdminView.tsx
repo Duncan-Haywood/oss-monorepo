@@ -144,7 +144,7 @@ export function AdminView() {
           >
             {busy ? "…" : "Sign in"}
           </button>
-          {error && <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
+          {error && <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
         </form>
       </main>
     );

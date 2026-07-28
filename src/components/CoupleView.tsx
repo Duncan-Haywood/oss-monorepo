@@ -197,7 +197,7 @@ export function CoupleView() {
           </div>
         </form>
 
-        {error && <p className="text-center text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
+        {error && <p role="alert" className="text-center text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
         <Link href="/" className="text-center text-xs text-neutral-500 dark:text-neutral-400 underline underline-offset-2">
           Back to swiping
         </Link>

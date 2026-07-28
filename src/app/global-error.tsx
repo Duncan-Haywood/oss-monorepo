@@ -33,6 +33,9 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
         >
           Try again
         </button>
+        {error.digest && (
+          <p style={{ color: "#767676", fontSize: "0.7rem", marginTop: "1rem" }}>Reference: {error.digest}</p>
+        )}
       </body>
     </html>
   );

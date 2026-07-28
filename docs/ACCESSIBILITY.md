@@ -18,6 +18,7 @@ about to stop.
 | Text contrast, WCAG AA | `src/lib/contrastAudit.test.ts` | Reads every class list in `src/**/*.tsx` and `developmentprocess.tsx`, resolves each colour against the palette in `node_modules/tailwindcss/theme.css`, and fails anything below 4.5:1 (3:1 for large text), in both colour schemes |
 | The contrast maths itself | `src/lib/contrast.test.ts` | oklch → sRGB, relative luminance and the ratio, against values fixed by the WCAG definition and by Tailwind's own published hex |
 | Screens all recover from a dropped request | `docs/SCREENS.md` + `src/lib/screenInventory.test.ts` | Not accessibility as such, but the same failure mode: a property some screens had and others did not, invisible until put in a column |
+| Rendered errors are announced | `src/lib/errorAnnouncement.test.ts` | Finds every `{error && …}` element that renders the message itself, and fails any without `role="alert"` or `aria-live`. Retry buttons gated on the same variable are skipped — they are controls, not announcements |
 
 ### How the contrast check works, and what it cannot see
 
@@ -44,7 +45,6 @@ the only cue, reading order, or what a screen reader actually says.
 | Property | State |
 | --- | --- |
 | `role="progressbar"` with `aria-valuenow`/`min`/`max` | On both live progress bars |
-| Errors announce | `role="alert"` on the error paragraphs the screens render |
 | Decorative content hidden | `aria-hidden` on emoji, category art, and the swipe stamp |
 | Persian copy | `lang="fa"` and `dir="rtl"`, so a screen reader does not apply English phonetics |
 | Reduced motion | `prefers-reduced-motion` collapses the card animations |

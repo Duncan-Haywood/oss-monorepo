@@ -96,8 +96,13 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 export async function destroySession(): Promise<void> {
   const store = await cookies();
   const raw = store.get(SESSION_COOKIE)?.value;
+  // The cookie goes first. Deleting the row can throw — the database is the
+  // one thing here that can be down — and if it does after the cookie is
+  // already gone, the person who asked to sign out is signed out on their
+  // device, which is what they asked for. The other order leaves them signed
+  // in behind a 500, which is the failure that actually matters.
+  store.delete(SESSION_COOKIE);
   if (raw) {
     await prisma.userSession.deleteMany({ where: { tokenHash: hashToken(raw) } });
   }
-  store.delete(SESSION_COOKIE);
 }

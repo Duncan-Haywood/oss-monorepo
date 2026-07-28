@@ -133,7 +133,7 @@ export function ReportWidget() {
               className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-neutral-700 dark:bg-neutral-950"
             />
 
-            {error && <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
+            {error && <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
 
             <button
               type="submit"
