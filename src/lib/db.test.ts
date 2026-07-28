@@ -3956,6 +3956,51 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       );
     });
 
+    it("passes businessName/businessPhone through to the Convex mutation args", async () => {
+      convexMutation.mockResolvedValueOnce({ alreadyRecorded: false });
+      const db = await loadDb(CONVEX_URL);
+      await db.recordLeadPayment(
+        {
+          slug: "convex-business-fields-lead",
+          stripeSessionId: "cs_convex_business_fields",
+          customerEmail: "buyer@example.com",
+          tier: "starter",
+          commerceAddon: false,
+          amountTotal: 99,
+          businessName: "Riverside Plumbing",
+          businessPhone: "555-867-5309",
+        },
+        { requireConvex: true },
+      );
+      expect(convexMutation).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          businessName: "Riverside Plumbing",
+          businessPhone: "555-867-5309",
+        }),
+      );
+    });
+
+    it("SQLite fallback uses businessName/businessPhone for the new payment-stub lead", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await db.recordLeadPayment({
+        slug: "sqlite-business-fields-lead",
+        stripeSessionId: "cs_sqlite_business_fields",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 99,
+        businessName: "Riverside Plumbing",
+        businessPhone: "555-867-5309",
+      });
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const lead = await db.getLeadBySlug("sqlite-business-fields-lead");
+      expect(lead?.businessName).toBe("Riverside Plumbing");
+      expect(lead?.phone).toBe("555-867-5309");
+    });
+
     it("SQLite fallback persists acquisitionSource onto the order row", async () => {
       convexMutation.mockRejectedValueOnce(new Error("convex outage"));
       const db = await loadDb(CONVEX_URL);

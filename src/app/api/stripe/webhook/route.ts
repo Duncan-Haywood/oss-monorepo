@@ -27,6 +27,10 @@ import {
 import { findLeadSlugByStripeConnectAccountId } from "@/lib/commerce/stripe-connect";
 import { LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY } from "@/lib/leads/stripe-connect-persist";
 import { parseCheckoutAcquisitionSource } from "@/lib/checkout/acquisition-source";
+import {
+  normalizeCheckoutBusinessName,
+  normalizeCheckoutBusinessPhone,
+} from "@/lib/checkout/business-fields";
 import { normalizeCheckoutCustomerEmailForMatch } from "@/lib/checkout/abandoned-recovery";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
@@ -412,6 +416,12 @@ export async function POST(request: Request) {
       // metadata value verbatim — same paranoia as every other metadata field
       // on this path (see acquisition-source-checkout-attribution).
       const acquisitionSource = parseCheckoutAcquisitionSource(session.metadata?.acquisitionSource);
+      // Only ever set on the organic no-preexisting-lead path (CheckoutForm
+      // only renders these fields when there's no CRM lead to prefill from) —
+      // re-validated here the same as every other metadata field on this
+      // path, never trusted verbatim (checkout-business-fields-capture).
+      const metadataBusinessName = normalizeCheckoutBusinessName(session.metadata?.businessName);
+      const metadataBusinessPhone = normalizeCheckoutBusinessPhone(session.metadata?.businessPhone);
 
       // Commerce catalog "Buy now" purchase (stripe-commerce-products-sync) —
       // a paid order for a client's shop item, not a Local Site Studio bundle
@@ -947,6 +957,8 @@ export async function POST(request: Request) {
               amountTotal,
               stripeCustomerId,
               acquisitionSource,
+              businessName: metadataBusinessName,
+              businessPhone: metadataBusinessPhone,
             },
             WEBHOOK_CONVEX_PRIMARY,
           ));

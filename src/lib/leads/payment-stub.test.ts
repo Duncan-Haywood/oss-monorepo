@@ -33,4 +33,25 @@ describe("buildPaymentStubLeadFields", () => {
     expect(stub.description).toContain("New Bakery");
     expect(stub.hours.weekday).toContain("Mon");
   });
+
+  it("uses a real checkout-time businessName/phone override when supplied", () => {
+    const stub = buildPaymentStubLeadFields("organic-a1b2c3", {
+      businessName: "Riverside Plumbing",
+      phone: "555-867-5309",
+    });
+    expect(stub.businessName).toBe("Riverside Plumbing");
+    expect(stub.phone).toBe("555-867-5309");
+    expect(stub.description).toContain("Riverside Plumbing");
+    expect(stub.description).not.toContain("Organic");
+  });
+
+  it("falls back to derived defaults when overrides are blank/absent", () => {
+    const blank = buildPaymentStubLeadFields("organic-a1b2c3", { businessName: "", phone: "" });
+    expect(blank.businessName).toBe("Organic A1b2c3");
+    expect(blank.phone).toBe("(555) 000-0000");
+
+    const noOverrides = buildPaymentStubLeadFields("organic-a1b2c3");
+    expect(noOverrides.businessName).toBe("Organic A1b2c3");
+    expect(noOverrides.phone).toBe("(555) 000-0000");
+  });
 });

@@ -498,6 +498,47 @@ test("markLeadPaid persists acquisitionSource onto the new order, and leaves it 
   expect(noSource?.acquisitionSource).toBeUndefined();
 });
 
+test("markLeadPaid uses the checkout-time businessName/businessPhone for a new payment-stub lead when supplied, but leaves an existing lead's fields untouched", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.leads.markLeadPaid, {
+    slug: "organic-with-real-name",
+    stripeSessionId: "cs_test_business_fields_1",
+    customerEmail: "buyer@example.com",
+    tier: "starter",
+    commerceAddon: false,
+    amountTotal: 500,
+    businessName: "Riverside Plumbing",
+    businessPhone: "555-867-5309",
+    apiSecret: TEST_API_SECRET,
+  });
+  const stub = await t.query(api.leads.getBySlug, {
+    slug: "organic-with-real-name",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(stub?.businessName).toBe("Riverside Plumbing");
+  expect(stub?.phone).toBe("555-867-5309");
+
+  // An existing lead's real CRM fields must never be overwritten by
+  // checkout-supplied businessName/businessPhone.
+  await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe-existing" }));
+  await t.mutation(api.leads.markLeadPaid, {
+    slug: "demo-cafe-existing",
+    stripeSessionId: "cs_test_business_fields_2",
+    customerEmail: "buyer2@example.com",
+    tier: "starter",
+    commerceAddon: false,
+    amountTotal: 500,
+    businessName: "Should Not Apply",
+    businessPhone: "555-000-0000",
+    apiSecret: TEST_API_SECRET,
+  });
+  const existing = await t.query(api.leads.getBySlug, {
+    slug: "demo-cafe-existing",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(existing?.businessName).not.toBe("Should Not Apply");
+});
+
 test("markLeadPaid moves an existing lead's stage to paid rather than inserting a stub", async () => {
   const t = convexTest(schema, modules);
   await t.mutation(api.leads.upsertLead, upsertArgs({ slug: "demo-cafe", stage: "outreach_sent" }));
