@@ -4626,6 +4626,22 @@ source). The same digest also lists email-critical leads with no usable address 
         per-item reads are affordable for an operator-triggered, low-frequency cleanup action.
       </p>
       <p>
+        <code>checkout-session-create-capture-error-wiring</code>: the last uninstrumented catch in
+        the checkout money path — <code>checkout-session-record-capture-error-wiring</code> (above)
+        wired <code>captureError</code> into the inner tracking catch in both{" "}
+        <code>src/app/api/stripe/checkout/route.ts</code> and{" "}
+        <code>src/app/api/commerce/checkout/route.ts</code>, but left the outer catch — the one
+        wrapping the actual <code>stripe.checkout.sessions.create()</code> call itself — reporting
+        only a generic 502 with no <code>captureError</code>, not even a <code>console.warn</code>.
+        That outer catch fires on a bad/rotated <code>*_PRICE_ID</code> or{" "}
+        <code>STRIPE_SECRET_KEY</code>, a Stripe outage, or a transient network error — the moment a
+        shopper&apos;s checkout attempt fails before they ever reach Stripe&apos;s hosted page, one
+        step upstream of the tracking catch already wired. Wired <code>captureError</code> into both
+        outer catches (<code>failureKind: &quot;session_create&quot;</code>, same{" "}
+        <code>component</code> values as their sibling catch), mirroring the exact call shape two
+        lines below it in the same file.
+      </p>
+      <p>
         <code>db-order-read-family-capture-error-sweep</code>: continued the{" "}
         <code>db.ts</code> read-path series onto the next tier of live, unwired Convex-fallback
         reads in the bundle-order family — <code>listOrdersByLeadSlug()</code> (backs Manage
