@@ -245,6 +245,11 @@ vi.mock("convex/browser", () => ({
   },
 }));
 
+const captureError = vi.fn();
+vi.mock("./observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 type DbModule = typeof import("./db");
 
 const ORIGINAL_ENV = { ...process.env };
@@ -352,6 +357,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(tmpDir);
     convexQuery.mockReset();
     convexMutation.mockReset();
+    captureError.mockReset().mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -382,15 +388,33 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(convexQuery).toHaveBeenCalledTimes(1);
     });
 
-    it("falls back to SQLite when the Convex query throws", async () => {
+    it("falls back to SQLite when the Convex query throws, and reports the outage via captureError (db-getLeads-convex-fallback-capture-error)", async () => {
       // Seed via the SQLite-only path first (no Convex client for the seed).
       const seedDb = await loadDb(undefined);
       await seedDb.upsertLead(testLead("fallback-read-lead"));
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
       const db = await loadDb(CONVEX_URL);
       const leads = await db.getLeads();
       expect(leads.map((l) => l.slug)).toContain("fallback-read-lead");
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-getLeads-convex-fallback",
+      });
+    });
+
+    it("does not call captureError when Convex is unconfigured (no outage to report)", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("no-convex-capture-lead"));
+      await db.getLeads();
+      expect(captureError).not.toHaveBeenCalled();
+    });
+
+    it("does not call captureError when the Convex query succeeds", async () => {
+      convexQuery.mockResolvedValueOnce([{ slug: "convex-only-lead-2" }]);
+      const db = await loadDb(CONVEX_URL);
+      await db.getLeads();
+      expect(captureError).not.toHaveBeenCalled();
     });
 
     it("getLeadBySlug returns Convex's object directly on success", async () => {
