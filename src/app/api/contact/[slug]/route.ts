@@ -252,9 +252,15 @@ export async function POST(request: Request, context: RouteContext) {
         // Same bug class as webhook/Email 1: sendEmail resolves failure without
         // throwing — log with inquiryId so operators can correlate CRM trail vs
         // missing business notify (Resend/API outage — marketing suppress skipped).
+        const reason = sent.reason ?? sent.error ?? "unknown";
         console.error(
-          `contact form notify not sent for ${slug} (inquiry ${outcome.inquiryId}): ${sent.reason ?? sent.error ?? "unknown"}`,
+          `contact form notify not sent for ${slug} (inquiry ${outcome.inquiryId}): ${reason}`,
         );
+        await captureError(new Error(String(reason)), {
+          component: "contact-form",
+          failureKind: "notify_send",
+          leadSlug: slug,
+        });
       }
     } catch (error) {
       // Notify is best-effort after durable persist — visitor already succeeded.
@@ -263,6 +269,11 @@ export async function POST(request: Request, context: RouteContext) {
         `contact form email failed for ${slug} (inquiry ${outcome.inquiryId}):`,
         error,
       );
+      await captureError(error, {
+        component: "contact-form",
+        failureKind: "notify_send",
+        leadSlug: slug,
+      });
     }
   }
 
