@@ -4926,6 +4926,44 @@ source). The same digest also lists email-critical leads with no usable address 
         an old Customer, or calling Stripe for one whose Subscription is already fully canceled, is
         harmless either way — <code>subscriptions.list</code> simply returns nothing to cancel.
       </p>
+      <p>
+        <code>stripe-checkout-recurring-upgrade-dedup-shared-customer-fix</code>: a research agent
+        found the dedup fix above never actually fired in the exact case it was built for. Its own{" "}
+        <code>otherLiveRecurringStripeCustomerIdsToSupersede</code> excluded any prior order sharing
+        the new session&apos;s Stripe Customer id, on the theory that a shared Customer id meant a
+        Billing Portal resync rather than a second subscription stacked on top. But{" "}
+        <code>existingRecurringStripeCustomerId</code> (the checkout route) makes the new,
+        subscription-mode Checkout Session reuse the lead&apos;s existing Customer id whenever one
+        exists — i.e. in precisely the Growth→Complete upgrade scenario this feature targets — and
+        Stripe does not cancel or replace an existing Subscription just because a new Checkout
+        Session names that same Customer; it mints a second, independent Subscription under it. So
+        on the primary, intended upgrade path the old exclusion always matched (old and new order
+        now share one Customer id) and the supersede logic silently found nothing to cancel — the
+        exact double-billing bug the feature exists to prevent, still reachable on its very first
+        real use. Every existing test for this logic used two distinct Customer ids for the old and
+        new orders, a shape that can only arise from a stale pre-fix order or a genuine race, never
+        from the now-standard reuse path — which is why this fell through undetected.
+      </p>
+      <p>
+        Fixed by no longer keying supersede detection on Customer-id equality at all. Renamed{" "}
+        <code>otherLiveRecurringOrdersToSupersede</code> (src/lib/orders/recurring.ts) now returns
+        every other recurring order (stripeSessionId + stripeCustomerId), regardless of whether it
+        shares the new Customer id. The webhook (src/app/api/stripe/webhook/route.ts) groups those
+        by Customer id for the Stripe <code>subscriptions.list</code> call as before, but now tells
+        the old Subscription apart from the brand-new one by Subscription id — the just-completed
+        Checkout Session&apos;s own <code>session.subscription</code> (present without expand in
+        subscription mode) — never canceling whichever active Subscription matches it. If a shared
+        Customer&apos;s superseded order is found but <code>session.subscription</code> is
+        unexpectedly missing, the fix skips cancellation entirely for that Customer (surfaced via{" "}
+        <code>captureError</code>) rather than risk a blind cancel-all wiping out the Subscription
+        the customer just paid for. CRM cancellation-marking changed to match: a new{" "}
+        <code>markOrderRecurringCanceledBySessionId</code> (Convex <code>markRecurringCanceledBySessionId</code>{" "}
+        + SQLite, mirroring <code>markOrderRefunded</code>&apos;s per-session-id shape) marks only
+        the specific superseded order, since the pre-existing{" "}
+        <code>markOrdersRecurringCanceledByCustomer</code> patches every order row for a Customer id
+        — which, once old and new orders share that id, would have also marked the brand-new order
+        recurring-canceled the instant it was created.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

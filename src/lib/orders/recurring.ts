@@ -90,19 +90,37 @@ export function existingRecurringStripeCustomerId(
 }
 
 /**
- * Stripe Customer ids of the lead's OTHER recurring orders that a
- * just-completed recurring Checkout Session for the same lead supersedes
- * (e.g. Growth→Complete upsell). Excludes the just-completed session's own
- * order (by stripeSessionId) and any order sharing the new session's own
- * Customer id (the same Customer/Subscription being resynced via Billing
- * Portal, not a second one stacked on top). A well-behaved lead never has
+ * The lead's OTHER recurring orders (stripeSessionId + stripeCustomerId
+ * pairs) that a just-completed recurring Checkout Session for the same lead
+ * supersedes (e.g. Growth→Complete upsell). Excludes only the just-completed
+ * session's own order, by stripeSessionId. A well-behaved lead never has
  * more than one live recurring order; any others found here are exactly the
  * duplicate-subscription bug this predicate exists to detect and heal — the
- * caller cancels each returned Customer's still-active Stripe
- * Subscription(s) (a Stripe subscriptions.list with no status filter, so
- * past_due/unpaid/trialing/paused resources are found too, not just
- * status=active) and marks the corresponding order(s) recurringCanceledAt.
- * See stripe-checkout-recurring-upgrade-dedup.
+ * caller cancels each returned order's still-active Stripe Subscription(s)
+ * (grouped by Customer id; a Stripe subscriptions.list with no status
+ * filter, so past_due/unpaid/trialing/paused resources are found too, not
+ * just status=active) and marks each specific order recurringCanceledAt via
+ * markOrderRecurringCanceledBySessionId — never
+ * markOrdersRecurringCanceledByCustomer, which would also hit the brand-new
+ * order below. See stripe-checkout-recurring-upgrade-dedup.
+ *
+ * Earlier versions of this function additionally excluded any prior order
+ * sharing the new session's own Customer id, on the theory that a shared
+ * Customer id meant "the same Customer/Subscription being resynced via
+ * Billing Portal, not a second one stacked on top." That theory does not
+ * hold for this call site: existingRecurringStripeCustomerId (the checkout
+ * route) makes the NEW recurring Checkout Session reuse the lead's existing
+ * Customer id whenever one exists — i.e. in precisely the tier-upgrade
+ * scenario this function targets — and Stripe does not replace/cancel any
+ * existing Subscription on a Customer just because a new subscription-mode
+ * Checkout Session names that same Customer; it mints a second, independent
+ * Subscription. The old exclusion therefore silently defeated the primary,
+ * intended path: the very first real upgrade would find zero orders to
+ * supersede and leave the old Subscription billing forever alongside the
+ * new one. The caller now tells the old and new Subscriptions apart by
+ * Stripe Subscription id (the just-completed session's own
+ * `session.subscription`), not by Customer id — see
+ * stripe-checkout-recurring-upgrade-dedup-shared-customer-fix.
  *
  * Deliberately uses orderHadRecurringEntitlement, not
  * orderHasActiveRecurringEntitlement — see
@@ -113,7 +131,7 @@ export function existingRecurringStripeCustomerId(
  * Customer here is harmless — subscriptions.list simply returns nothing to
  * cancel.
  */
-export function otherLiveRecurringStripeCustomerIdsToSupersede(
+export function otherLiveRecurringOrdersToSupersede(
   orders: ReadonlyArray<{
     stripeSessionId: string;
     stripeCustomerId?: string | null;
@@ -121,18 +139,16 @@ export function otherLiveRecurringStripeCustomerIdsToSupersede(
     commerceAddon: boolean;
   }>,
   justCompletedSessionId: string,
-  newStripeCustomerId: string | null | undefined,
-): string[] {
-  const ids = new Set<string>();
+): Array<{ stripeSessionId: string; stripeCustomerId: string }> {
+  const result: Array<{ stripeSessionId: string; stripeCustomerId: string }> = [];
   for (const order of orders) {
     if (order.stripeSessionId === justCompletedSessionId) continue;
     if (!orderHadRecurringEntitlement(order)) continue;
     const customerId = order.stripeCustomerId?.trim();
     if (!customerId) continue;
-    if (newStripeCustomerId && customerId === newStripeCustomerId) continue;
-    ids.add(customerId);
+    result.push({ stripeSessionId: order.stripeSessionId, stripeCustomerId: customerId });
   }
-  return [...ids];
+  return result;
 }
 
 /**

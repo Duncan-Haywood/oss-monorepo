@@ -859,6 +859,97 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     });
   });
 
+  describe("markOrderRecurringCanceledBySessionId (recurring-upgrade supersede write, requireConvex fail-closed)", () => {
+    it("returns after a successful Convex mutation without touching SQLite", async () => {
+      convexMutation.mockResolvedValueOnce(undefined);
+      const db = await loadDb(CONVEX_URL);
+      await db.markOrderRecurringCanceledBySessionId("cs_convex_only", Date.now());
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.markOrderRecurringCanceledBySessionId("cs_1", Date.now(), { requireConvex: true }),
+      ).rejects.toThrow(/markOrderRecurringCanceledBySessionId/);
+    });
+
+    it("marks only the named order recurring-canceled, never a sibling order sharing the same Customer id (SQLite fallback) — stripe-checkout-recurring-upgrade-dedup-shared-customer-fix", async () => {
+      const seedDb = await loadDb(undefined);
+      // Old (superseded) and brand-new order share one reused Stripe
+      // Customer — the common Growth→Complete upgrade path once
+      // existingRecurringStripeCustomerId reuses the Customer.
+      await seedDb.recordLeadPayment({
+        slug: "upgrade-old-lead",
+        stripeSessionId: "cs_upgrade_old",
+        customerEmail: "upgrade@example.com",
+        tier: "growth",
+        commerceAddon: false,
+        amountTotal: 99,
+        stripeCustomerId: "cus_shared_upgrade",
+      });
+      await seedDb.recordLeadPayment({
+        slug: "upgrade-new-lead",
+        stripeSessionId: "cs_upgrade_new",
+        customerEmail: "upgrade@example.com",
+        tier: "complete",
+        commerceAddon: false,
+        amountTotal: 199,
+        stripeCustomerId: "cus_shared_upgrade",
+      });
+
+      const canceledAt = Date.now();
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await db.markOrderRecurringCanceledBySessionId("cs_upgrade_old", canceledAt);
+
+      const readDb = await loadDb(undefined);
+      const orders = await readDb.getOrdersByStripeCustomerId("cus_shared_upgrade");
+      const oldOrder = orders.find((o) => o.stripeSessionId === "cs_upgrade_old");
+      const newOrder = orders.find((o) => o.stripeSessionId === "cs_upgrade_new");
+      expect(oldOrder?.recurringCanceledAt).toBe(canceledAt);
+      // The brand-new order the customer just paid for must never be
+      // touched — this is the exact regression
+      // markOrdersRecurringCanceledByCustomer would have caused if used at
+      // this call site instead of a per-order mark.
+      expect(newOrder?.recurringCanceledAt).toBeUndefined();
+
+      // Idempotent: a redelivered/duplicate event must not error or move
+      // the already-canceled mark.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      await (
+        await loadDb(CONVEX_URL)
+      ).markOrderRecurringCanceledBySessionId("cs_upgrade_old", Date.now());
+      const [unchangedOld] = (
+        await (await loadDb(undefined)).getOrdersByStripeCustomerId("cus_shared_upgrade")
+      ).filter((o) => o.stripeSessionId === "cs_upgrade_old");
+      expect(unchangedOld?.recurringCanceledAt).toBe(canceledAt);
+    });
+
+    it("ignores a non-recurring (Starter) order (SQLite fallback)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.recordLeadPayment({
+        slug: "starter-lead-supersede",
+        stripeSessionId: "cs_starter_supersede",
+        customerEmail: "starter@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 29,
+        stripeCustomerId: "cus_starter_supersede",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await db.markOrderRecurringCanceledBySessionId("cs_starter_supersede", Date.now());
+
+      const [order] = await (
+        await loadDb(undefined)
+      ).getOrdersByStripeCustomerId("cus_starter_supersede");
+      expect(order?.recurringCanceledAt).toBeUndefined();
+    });
+  });
+
   describe("clearOrdersRecurringCanceledByCustomer (resume-write, requireConvex fail-closed)", () => {
     it("returns Convex's updatedCount directly without touching SQLite", async () => {
       convexMutation.mockResolvedValueOnce({ updatedCount: 1 });
