@@ -1076,4 +1076,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "client-error-boundary-capture-error-route",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #983 merged. The prior research agent's finding (webhook route.ts:1223, Boolean(bundle.monthlyPriceIdEnv) || commerceAddon) was investigated and rejected as a false positive before shipping anything: that field is a static per-bundle-definition env-var name, not an env[...] runtime lookup, and always moves in lockstep with annualPriceIdEnv for every real bundle — the actual bug class only applies to genuine dynamic env[bundle.xPriceIdEnv] lookups. Reverted the speculative edit and re-dispatched research, explicitly briefed on the false-positive pattern.",
+    shipped: [
+      "That re-dispatch found a genuine instance one file over: listRequiredBundlePriceEnvNames (src/lib/pricing/price-env-readiness.ts) only ever pushed bundle.monthlyPriceIdEnv into the required-env list, never annualPriceIdEnv — and this list IS consumed via a real env[name] lookup, so the gap is reachable. Drives BundlePriceEnvBanner on /dashboard (hides itself once ready) and the launch checklist's readiness gate.",
+      "Concrete reachable scenario: an operator pastes only the monthly Price IDs (the long-standing default), skips the annual ones. Readiness reports ready: true, the sale-blocking banner disappears, launch checklist gives a false green light — while a customer picking Annual for Growth/Complete at checkout still hits a real 501, the exact outcome the banner exists to prevent.",
+      "Fixed by pushing bundle.annualPriceIdEnv into the required list when non-null, mirroring the existing monthlyPriceIdEnv guard. No consumer changes needed.",
+      "src/lib/pricing/price-env-readiness.ts (widened the list, updated doc comment); price-env-readiness.test.ts (fixture extended with 2 annual names, 2 existing tests updated in place, 1 new dedicated test — 6 total, +1 net new); src/app/docs/architecture/page.tsx (new paragraph contrasting this real finding against the rejected false positive); src/lib/process/business-decisions.ts (appended bundle-price-env-readiness-annual-gap); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only price-env-readiness.ts, confirmed 5 of 6 tests failed exactly as expected — including the key new assertion flipping from false to true (readiness incorrectly reporting ready). Restored and confirmed all 6 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (6 passed) then full suite (4022 passed, 234 files, +1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — pure library-function fix, no UI-component code touched.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "bundle-price-env-readiness-annual-gap",
+    ),
+  },
 ];

@@ -5810,6 +5810,30 @@ source). The same digest also lists email-critical leads with no usable address 
         handed to the same <code>captureError</code> every server-side call site uses, so the same
         message/stack/context length caps apply uniformly.
       </p>
+      <p>
+        <code>bundle-price-env-readiness-annual-gap</code>: a research agent found the same
+        missed-annual-cadence bug class one file over —{" "}
+        <code>listRequiredBundlePriceEnvNames</code> (
+        <code>src/lib/pricing/price-env-readiness.ts</code>), which builds the operator-facing
+        list of required <code>STRIPE_PRICE_ID_*</code> env vars behind{" "}
+        <code>BundlePriceEnvBanner</code> (<code>/dashboard</code>) and the launch checklist&apos;s
+        readiness check, only ever pushed <code>bundle.setupPriceIdEnv</code> and{" "}
+        <code>bundle.monthlyPriceIdEnv</code> — never <code>bundle.annualPriceIdEnv</code>. Unlike
+        the false-positive this same research pass initially flagged in the Stripe webhook (a
+        bare <code>Boolean(bundle.monthlyPriceIdEnv)</code> structural truthiness check, which
+        can never differ from checking <code>annualPriceIdEnv</code> too since both fields always
+        move together per bundle), this one is a genuine dynamic{" "}
+        <code>env[name]</code> lookup driving a real operator-facing readiness signal, confirmed
+        reachable: an operator who pastes only the monthly Price IDs (a very plausible partial-
+        config state, since annual billing shipped later) sees{" "}
+        <code>assessBundlePriceEnvReadiness()</code> report <code>ready: true</code>, the
+        sale-blocking banner disappears, and the launch checklist gives a false green light — while{" "}
+        <code>POST /api/stripe/checkout</code> still correctly 501s the moment a customer picks
+        Annual for Growth/Complete, since it does check{" "}
+        <code>bundle.annualPriceIdEnv</code> directly. Fixed by also pushing{" "}
+        <code>bundle.annualPriceIdEnv</code> when non-null, mirroring the existing{" "}
+        <code>monthlyPriceIdEnv</code> guard.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
