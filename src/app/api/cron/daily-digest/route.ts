@@ -1,8 +1,8 @@
-import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { sendOperatorDigestEmail } from "@/lib/digest/send-operator-digest";
 import { captureError } from "@/lib/observability/error-tracking";
 import { resolveTrustedAppUrl } from "@/lib/security/app-url";
+import { verifyCronRequest } from "@/lib/security/cron-secret";
 import { checkRateLimit, clientIpFromHeaders, type RateLimitConfig } from "@/lib/security/rate-limit";
 
 /**
@@ -29,26 +29,6 @@ import { checkRateLimit, clientIpFromHeaders, type RateLimitConfig } from "@/lib
 
 const CRON_DAILY_DIGEST_RATE_LIMIT: RateLimitConfig = { limit: 5, windowMs: 60_000 };
 
-// Hard ceiling before Buffer.from/timingSafeEqual — mirrors
-// MAX_OPERATOR_PASSWORD_LENGTH (src/lib/auth/operator.ts): rate-limiting
-// blunts attempt count, not per-attempt payload size, and a genuine
-// CRON_SECRET is a short generated token.
-const MAX_CRON_SECRET_LENGTH = 256;
-
-function cronSecretMatches(provided: string, expected: string): boolean {
-  if (provided.length > MAX_CRON_SECRET_LENGTH) {
-    return false;
-  }
-  const providedBuffer = Buffer.from(provided);
-  const expectedBuffer = Buffer.from(expected);
-  if (providedBuffer.length !== expectedBuffer.length) {
-    // Still run a compare to reduce trivial timing leaks on length mismatch.
-    timingSafeEqual(expectedBuffer, expectedBuffer);
-    return false;
-  }
-  return timingSafeEqual(providedBuffer, expectedBuffer);
-}
-
 function notConfigured(message: string) {
   return NextResponse.json(
     {
@@ -66,9 +46,7 @@ export async function GET(request: Request) {
     return notConfigured("Set CRON_SECRET (see .env.example) and configure vercel.json crons.");
   }
 
-  const authHeader = request.headers.get("authorization") ?? "";
-  const provided = authHeader.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : "";
-  if (!provided || !cronSecretMatches(provided, cronSecret)) {
+  if (!verifyCronRequest(request.headers, cronSecret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
