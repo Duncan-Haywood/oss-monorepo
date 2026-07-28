@@ -126,6 +126,12 @@ export const PRINCIPLES: Principle[] = [
       "Glicko ratings are stored per respondent, so their spread tracks how much someone answered, not how much they care. Subtracting one person's rating from another's measured swipe volume and called it a difference in values. Anything crossing between two people goes through a within-person position first.",
   },
   {
+    id: "absence-is-a-claim",
+    title: "A section that renders nothing still says something",
+    why:
+      "Gating output on confidence is right, but hiding the gated section is not: the couple screen dropped the four things a couple could act on and read as though they did not exist, so ninety answers bought a screen that looked finished and was half missing. Whenever output is withheld, say that it is being withheld, what it is waiting for, and how far off it is — otherwise the honest threshold reads as an empty promise.",
+  },
+  {
     id: "land-the-work",
     title: "Work that does not land does not count",
     why:
@@ -326,7 +332,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "measure-honestly",
     note:
-      "Nine parallel unattended sessions opened nine branches off one commit and none merged, so each new session re-found the same bugs. The distinct fixes are consolidated onto one branch; the standing rule is in the orient stage and the land-the-work principle.",
+      "Twelve parallel unattended sessions opened twelve branches off one commit and none merged, so each new session re-found the same bugs. The distinct fixes are consolidated onto one branch and later sessions extend it rather than opening another beside it — which works, and is not the constraint. Only the account owner can merge, so a run that finds the pile unmerged should notify them at the start rather than adding to it.",
   },
   {
     id: "data-integrity",
@@ -371,7 +377,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "couples-payoff",
     note:
-      "Cross-person comparisons go through within-person percentile positions, so a partner who answered less can no longer look like they want nothing. Blind spots only has data now that PARTNER_GUESS is recorded, so it still needs a real look with two accounts filled in.",
+      "Cross-person comparisons go through within-person percentile positions, so a partner who answered less can no longer look like they want nothing. The four actionable sections no longer vanish when they are below their confidence floor: they say who is still answering and how far there is to go. Blind spots only has data now that PARTNER_GUESS is recorded, so it still needs a real look with two accounts filled in.",
   },
   {
     id: "observability",

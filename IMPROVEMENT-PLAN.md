@@ -16,16 +16,18 @@ mean:
 
 ## Open
 
-### P0 — Nine parallel pull requests, none merged
+### P0 — Twelve parallel pull requests, none merged
 
-Nine scheduled sessions opened nine branches off `b887731` within ninety
-minutes, each rediscovering the same lint errors and the same conjoint bug.
-This branch consolidates the five distinct fixes among them; the other nine
-PRs are now superseded and want closing. Only the account owner can merge or
-close, so this stays open until they do.
+Twelve scheduled sessions opened twelve branches off `b887731`, each
+rediscovering the same lint errors and the same conjoint bug. #12 consolidated
+the distinct fixes from #1–#9; this branch extends #12 rather than opening a
+thirteenth beside it, so merging it closes the lot.
 
-See [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md) for the
-standing rule that stops it recurring: read the open PRs before starting.
+The branch rule works — this session followed it and avoided the duplicate. It
+is not the binding constraint. **Nothing merges without the account owner**, and
+until it does, every scheduled run adds a pull request without moving the
+project. That is now a notification at the start of a run, not a line in a PR
+body; see [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
 
 ### P1 — `trials/next` creates a Trial row on every page load
 
@@ -87,15 +89,17 @@ actually act on need answer counts in the high hundreds.
 The threshold is not wrong — advising someone confidently off four swipes is the
 failure mode this project exists to avoid. Two things are wrong around it:
 
-1. `CoupleView` renders those sections only when non-empty, so they vanish with
-   no explanation. Someone who answered ninety questions sees a comparison with
-   its most useful half silently missing. It should say what it is waiting for,
-   the way the overall-match line already does.
-2. Nothing tells either partner how much further they have to go, so there is no
-   reason to keep answering toward it.
+**Done on this branch.** `coupleReadiness` reports, per section, whether it is
+ready and how far each partner is toward the floor; the four sections now
+always render, showing either their rows or a locked state that names who is
+still answering and a progress bar toward the threshold. A section with enough
+data but nothing above the bar says so, which is a different fact from "keep
+going". The threshold was not lowered.
 
-**Fix:** a locked state naming the gap, and a progress signal against it.
-~2 hours. Do not fix this by lowering the threshold.
+What is still open is the question underneath it: **several hundred answers is
+a long way to ask two people to go** before the actionable half fills in. The
+honest options are a shorter path to confidence (more informative pairing early
+on) or a smaller promise up front — both product calls, neither a bug.
 
 ### P2 — Blind spots now has data, but no human has read it
 

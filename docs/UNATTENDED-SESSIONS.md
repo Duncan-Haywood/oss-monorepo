@@ -33,6 +33,39 @@ None of those sessions did anything wrong by its own lights. Each read the
 plan, picked the top item, fixed it, tested it, and opened a well-described
 PR. The failure is only visible from outside any one of them.
 
+## What happened next, which matters more
+
+Two further sessions fired after that was written. #10 and #11 were already in
+flight and landed as two more parallel branches off `b887731`, taking the count
+to twelve. #12 consolidated #1–#9 onto one branch and added the rules below.
+
+Then the thirteenth session — the one writing this — followed those rules:
+read the open PRs first, found #12 already did what it was about to do, and
+built on it instead of beside it. That worked. But it also found the thing the
+original write-up had wrong.
+
+**The rules above stop duplicate work. They do not make anything merge.** #12
+was correct, green, and consolidated, and it sat unmerged exactly like the nine
+it replaced, because the constraint was never branch hygiene — it is that only
+the account owner can merge, and nobody had told them. Twelve well-described
+pull requests are not twelve times the signal of one; past about three they
+read as a backlog to deal with later.
+
+So the count is the finding, and it goes to a person, not into a PR body where
+it waits for the same attention that is already the bottleneck. That is why
+this session sent a notification before writing any code.
+
+## When there is already a consolidation
+
+Extend it — branch from its head, add work it does not have, and say in your PR
+that it contains the other branch. Do not open a second consolidation of the
+same branches; two competing merges of nine PRs is strictly worse than one,
+and it costs the reviewer the one thing in shortest supply.
+
+If your only available contribution would be a third description of a bug two
+open PRs already describe, the honest output is a notification and a short
+session, not a thirteenth branch. Volume is not progress here.
+
 ## What to do instead
 
 **Read the open pull requests before writing anything.** `list_pull_requests`

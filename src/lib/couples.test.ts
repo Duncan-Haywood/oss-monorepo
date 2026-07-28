@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  actionableCount,
   actionableTop,
   asymmetries,
   compareRankings,
+  confidentCount,
+  coupleReadiness,
   sharedValues,
   strengthScores,
   type Ranking,
@@ -186,5 +189,132 @@ describe("actionableTop", () => {
   it("drops anything the model is not yet sure about", () => {
     const r = withCategory([["Holds your hand", 1900, "Affection", 260]]);
     expect(actionableTop(r)).toEqual([]);
+  });
+});
+
+describe("coupleReadiness", () => {
+  const actionable = (n: number, rd = 80): Ranking =>
+    new Map(
+      Array.from({ length: n }, (_, i) => [
+        `do-${i}`,
+        { label: `do-${i}`, rating: 1500 + i, rd, category: "Behaviour", dimensions: [] as string[] },
+      ]),
+    );
+
+  it("says who is holding up the cross-person sections", () => {
+    const mine = padded([], 10);
+    const theirs = padded([], 3);
+    const r = coupleReadiness(mine, theirs);
+    expect(r.shared).toMatchObject({ ready: false, waitingOn: "them", mine: 10, theirs: 3, needed: 8 });
+    // Both sections come off the same threshold, so they must never disagree.
+    expect(r.mattersMoreToThem).toEqual(r.shared);
+  });
+
+  it("names both partners when neither has enough", () => {
+    expect(coupleReadiness(padded([], 2), padded([], 3)).shared).toMatchObject({
+      ready: false,
+      waitingOn: "both",
+    });
+  });
+
+  it("is ready once both sides clear the floor", () => {
+    expect(coupleReadiness(padded([], 8), padded([], 9)).shared).toMatchObject({
+      ready: true,
+      waitingOn: null,
+    });
+  });
+
+  it("counts only items the model is confident about", () => {
+    // Ten items, all rated, none of them settled: not progress a couple can use.
+    const unsure = padded([], 10);
+    for (const [k, v] of unsure) unsure.set(k, { ...v, rd: 260 });
+    expect(confidentCount(unsure)).toBe(0);
+    expect(coupleReadiness(unsure, padded([], 8)).shared.mine).toBe(0);
+  });
+
+  it("tracks the one-sided action lists against the partner they come from", () => {
+    const r = coupleReadiness(actionable(0), actionable(2));
+    // "What makes them happy" is built from THEIR ranking, so it can only ever
+    // be waiting on them — and vice versa.
+    expect(r.makeThemHappy).toMatchObject({ ready: true, mine: null, theirs: 2 });
+    expect(r.makeYouHappy).toMatchObject({ ready: false, waitingOn: "you", theirs: null });
+  });
+
+  it("ignores non-actionable items when gating the action lists", () => {
+    const professions: Ranking = new Map(
+      Array.from({ length: 10 }, (_, i) => [
+        `job-${i}`,
+        { label: `job-${i}`, rating: 1500, rd: 80, category: "Profession", dimensions: [] as string[] },
+      ]),
+    );
+    expect(actionableCount(professions)).toBe(0);
+    expect(coupleReadiness(professions, professions).makeThemHappy.ready).toBe(false);
+  });
+
+  /**
+   * The invariant that keeps the locked state honest. Readiness is computed
+   * separately from the functions it describes, so the two can drift — and
+   * either direction is a real defect: a "not ready" notice covering real
+   * content hides the payoff, and a "ready" section with nothing in it is the
+   * silent blank this whole change exists to remove.
+   *
+   * The two sides are built with opposed spreads, so the comparison functions
+   * genuinely produce rows the moment their threshold allows. With identical
+   * filler ratings they never would, and this test would pass against any
+   * threshold at all.
+   */
+  it("flips to ready exactly when the sections start producing rows", () => {
+    /**
+     * Two fixtures, because the two sections need opposite data to produce
+     * anything. Reversed orderings make every item a large asymmetry and
+     * leave zero common ground; identical orderings do the reverse. Using one
+     * fixture for both would leave one section permanently empty, and the
+     * biconditional below would hold against any threshold at all.
+     */
+    const pair = (n: number, reversed: boolean) => {
+      const mine: Ranking = new Map();
+      const theirs: Ranking = new Map();
+      for (let i = 0; i < n; i++) {
+        const label = `item-${i}`;
+        const base = { label, rd: 80, category: null, dimensions: [] as string[] };
+        mine.set(label, { ...base, rating: 1500 + i * 40 });
+        theirs.set(label, { ...base, rating: 1500 + (reversed ? n - 1 - i : i) * 40 });
+      }
+      return { mine, theirs };
+    };
+
+    let sawReady = false;
+    let sawLocked = false;
+    for (let n = 0; n <= 12; n++) {
+      const opposed = pair(n, true);
+      const aligned = pair(n, false);
+      const rOpposed = coupleReadiness(opposed.mine, opposed.theirs);
+      const rAligned = coupleReadiness(aligned.mine, aligned.theirs);
+
+      // Each section checked against the fixture that can actually feed it.
+      expect(rOpposed.mattersMoreToThem.ready).toBe(asymmetries(opposed.mine, opposed.theirs).length > 0);
+      expect(rAligned.shared.ready).toBe(sharedValues(aligned.mine, aligned.theirs).length > 0);
+
+      // On the other fixture the section is legitimately empty, so only the
+      // one-way guarantee holds: locked must never cover real rows.
+      if (!rOpposed.shared.ready) expect(sharedValues(opposed.mine, opposed.theirs)).toEqual([]);
+      if (!rAligned.mattersMoreToThem.ready) {
+        expect(asymmetries(aligned.mine, aligned.theirs)).toEqual([]);
+      }
+
+      if (rAligned.shared.ready) sawReady = true;
+      else sawLocked = true;
+    }
+    // Guards the guard: if the fixture never crossed the threshold in either
+    // direction, the loop above would assert nothing interesting.
+    expect(sawReady && sawLocked).toBe(true);
+  });
+
+  it("never reports not-ready for an action list that has rows to show", () => {
+    for (const n of [0, 1, 2, 6]) {
+      const r = coupleReadiness(actionable(n), actionable(n));
+      expect(r.makeThemHappy.ready).toBe(actionableTop(actionable(n)).length > 0);
+      expect(r.makeYouHappy.ready).toBe(actionableTop(actionable(n)).length > 0);
+    }
   });
 });

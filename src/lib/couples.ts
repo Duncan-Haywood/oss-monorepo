@@ -141,6 +141,76 @@ export function actionableTop(ranking: Ranking, limit = 6): ActionItem[] {
     .map((r) => ({ label: r.label, rating: r.rating, rd: r.rd, category: r.category }));
 }
 
+/** Items the model is sure enough about to be worth acting on. */
+export function confidentCount(ranking: Ranking, maxRd = CONFIDENT_RD): number {
+  let n = 0;
+  for (const r of ranking.values()) if (r.rd < maxRd) n++;
+  return n;
+}
+
+/** Of those, the ones describing something a person can actually do. */
+export function actionableCount(ranking: Ranking, maxRd = CONFIDENT_RD): number {
+  let n = 0;
+  for (const r of ranking.values()) {
+    if (r.category && ACTIONABLE_CATEGORIES.has(r.category) && r.rd < maxRd) n++;
+  }
+  return n;
+}
+
+export type Readiness = {
+  ready: boolean;
+  /** Progress toward `needed`. Null on a side the section does not depend on. */
+  mine: number | null;
+  theirs: number | null;
+  needed: number;
+  waitingOn: "you" | "them" | "both" | null;
+};
+
+function readinessOf(mine: number | null, theirs: number | null, needed: number): Readiness {
+  const mineShort = mine !== null && mine < needed;
+  const theirsShort = theirs !== null && theirs < needed;
+  const waitingOn = mineShort && theirsShort ? "both" : mineShort ? "you" : theirsShort ? "them" : null;
+  return { ready: waitingOn === null, mine, theirs, needed, waitingOn };
+}
+
+export type CoupleReadiness = {
+  makeThemHappy: Readiness;
+  makeYouHappy: Readiness;
+  shared: Readiness;
+  mattersMoreToThem: Readiness;
+};
+
+/**
+ * Why each actionable section is or isn't showing yet.
+ *
+ * These four all sit behind `CONFIDENT_RD`, and measurement against two real
+ * accounts put that further away than anyone guessed: after ~90 answers the
+ * lowest deviation any item reached was 170, with exactly one item under 200.
+ * So the half of this screen a couple would actually act on stays empty for
+ * several hundred answers.
+ *
+ * The threshold is not the bug — advising someone confidently off four swipes
+ * is the failure mode this project exists to avoid. The bug was rendering
+ * these sections only when non-empty, so they vanished with nothing saying
+ * they existed or how much further there was to go. Answering the next
+ * question has to be worth it, and that means naming what it buys.
+ */
+export function coupleReadiness(mine: Ranking, theirs: Ranking): CoupleReadiness {
+  const crossPerson = readinessOf(
+    confidentCount(mine),
+    confidentCount(theirs),
+    MIN_ITEMS_FOR_CROSS_PERSON,
+  );
+  return {
+    // One item is enough to name a top thing to do; it is the *ordering* of a
+    // list that needs a crowd, not the existence of its first entry.
+    makeThemHappy: readinessOf(null, actionableCount(theirs), 1),
+    makeYouHappy: readinessOf(actionableCount(mine), null, 1),
+    shared: crossPerson,
+    mattersMoreToThem: crossPerson,
+  };
+}
+
 export type SharedValue = { label: string; aStrength: number; bStrength: number; combined: number };
 
 /**

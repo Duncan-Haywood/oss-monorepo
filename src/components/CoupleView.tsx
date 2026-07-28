@@ -10,6 +10,13 @@ type ActionItem = { label: string; rating: number; rd: number; category: string 
 type SharedValue = { label: string; aStrength: number; bStrength: number; combined: number };
 /** `gap` is a difference of within-person positions, in points out of 100. */
 type Asymmetry = { label: string; theirStrength: number; myStrength: number; gap: number };
+type Readiness = {
+  ready: boolean;
+  mine: number | null;
+  theirs: number | null;
+  needed: number;
+  waitingOn: "you" | "them" | "both" | null;
+};
 
 type CompareData = {
   couple: { inviteCode: string; partner: { id: string; firstName: string } | null } | null;
@@ -21,6 +28,12 @@ type CompareData = {
   makeYouHappy?: ActionItem[];
   shared?: SharedValue[];
   mattersMoreToThem?: Asymmetry[];
+  readiness?: {
+    makeThemHappy: Readiness;
+    makeYouHappy: Readiness;
+    shared: Readiness;
+    mattersMoreToThem: Readiness;
+  };
   counts?: Record<string, number>;
 };
 
@@ -184,14 +197,14 @@ export function CoupleView() {
         </Link>
       </div>
 
-      {data.makeThemHappy && data.makeThemHappy.length > 0 && (
-        <section className="rounded-2xl border-2 border-amber-300/70 bg-amber-50 p-4 dark:border-amber-400/30 dark:bg-amber-950/30">
-          <h2 className="font-bold text-amber-900 dark:text-amber-200">
-            What actually makes {partnerName} happy
-          </h2>
-          <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-300/70">
-            Their highest-rated things you can actually do. Start at the top.
-          </p>
+      <section className="rounded-2xl border-2 border-amber-300/70 bg-amber-50 p-4 dark:border-amber-400/30 dark:bg-amber-950/30">
+        <h2 className="font-bold text-amber-900 dark:text-amber-200">
+          What actually makes {partnerName} happy
+        </h2>
+        <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-300/70">
+          Their highest-rated things you can actually do. Start at the top.
+        </p>
+        {data.makeThemHappy && data.makeThemHappy.length > 0 ? (
           <ol className="mt-3 flex flex-col gap-2">
             {data.makeThemHappy.map((r, i) => (
               <li key={r.label} className="flex items-start gap-2.5 text-sm">
@@ -202,15 +215,21 @@ export function CoupleView() {
               </li>
             ))}
           </ol>
-        </section>
-      )}
+        ) : (
+          <Locked
+            readiness={data.readiness?.makeThemHappy}
+            partnerName={partnerName}
+            unlocks="there is anything worth telling you to do"
+          />
+        )}
+      </section>
 
-      {data.mattersMoreToThem && data.mattersMoreToThem.length > 0 && (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <h2 className="font-semibold">Matters more to them than to you</h2>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-            Not a fault — just where a small effort from you goes further than it would for you.
-          </p>
+      <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+        <h2 className="font-semibold">Matters more to them than to you</h2>
+        <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          Not a fault — just where a small effort from you goes further than it would for you.
+        </p>
+        {data.mattersMoreToThem && data.mattersMoreToThem.length > 0 ? (
           <ul className="mt-3 flex flex-col gap-2">
             {data.mattersMoreToThem.map((r) => (
               <li key={r.label} className="text-sm">
@@ -231,15 +250,21 @@ export function CoupleView() {
               </li>
             ))}
           </ul>
-        </section>
-      )}
+        ) : (
+          <Locked
+            readiness={data.readiness?.mattersMoreToThem}
+            partnerName={partnerName}
+            unlocks="a difference between you means more than a difference in how much you each answered"
+          />
+        )}
+      </section>
 
-      {data.shared && data.shared.length > 0 && (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <h2 className="font-semibold">What you both want</h2>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-            Common ground — the things you&apos;re already aligned on.
-          </p>
+      <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+        <h2 className="font-semibold">What you both want</h2>
+        <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          Common ground — the things you&apos;re already aligned on.
+        </p>
+        {data.shared && data.shared.length > 0 ? (
           <ul className="mt-3 flex flex-wrap gap-1.5">
             {data.shared.map((r) => (
               <li
@@ -250,15 +275,21 @@ export function CoupleView() {
               </li>
             ))}
           </ul>
-        </section>
-      )}
+        ) : (
+          <Locked
+            readiness={data.readiness?.shared}
+            partnerName={partnerName}
+            unlocks="common ground can be told apart from coincidence"
+          />
+        )}
+      </section>
 
-      {data.makeYouHappy && data.makeYouHappy.length > 0 && (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <h2 className="font-semibold">What {partnerName} could do for you</h2>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-            Your own top answers — worth saying out loud, since they can&apos;t see this list.
-          </p>
+      <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+        <h2 className="font-semibold">What {partnerName} could do for you</h2>
+        <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          Your own top answers — worth saying out loud, since they can&apos;t see this list.
+        </p>
+        {data.makeYouHappy && data.makeYouHappy.length > 0 ? (
           <ol className="mt-2 flex flex-col gap-1 text-sm">
             {data.makeYouHappy.map((r, i) => (
               <li key={r.label}>
@@ -266,8 +297,14 @@ export function CoupleView() {
               </li>
             ))}
           </ol>
-        </section>
-      )}
+        ) : (
+          <Locked
+            readiness={data.readiness?.makeYouHappy}
+            partnerName={partnerName}
+            unlocks="there is anything here worth asking them for"
+          />
+        )}
+      </section>
 
       <Section
         title="Are you what they want?"
@@ -316,6 +353,97 @@ function describeGap(gap: number): string {
   if (gap >= 50) return "far higher for them";
   if (gap >= 30) return "much higher for them";
   return "higher for them";
+}
+
+/**
+ * The honest version of an empty section.
+ *
+ * These four sit behind a confidence floor a couple does not reach for
+ * several hundred answers — measured, not guessed: after ~90 answers across
+ * two real accounts, exactly one item had come under it. Rendering them only
+ * when non-empty meant the most useful half of this screen silently vanished,
+ * with nothing saying it existed or how much further there was to go. That is
+ * the opposite of making the next question worth answering.
+ *
+ * Do not fix this by lowering the floor. Advising someone confidently off four
+ * swipes is the failure mode the whole project exists to avoid.
+ */
+function Locked({
+  readiness,
+  partnerName,
+  unlocks,
+}: {
+  readiness?: Readiness;
+  partnerName: string;
+  unlocks: string;
+}) {
+  // Enough data, but nothing rose above the bar — a real answer, and a
+  // different one from "keep going".
+  if (readiness?.ready) {
+    return (
+      <p className="mt-3 rounded-xl bg-black/5 px-3 py-2.5 text-xs text-neutral-600 dark:bg-white/10 dark:text-neutral-300">
+        Nothing stands out here yet. More answers will sharpen it.
+      </p>
+    );
+  }
+
+  // No readiness in the payload means an older response shape; "both" is the
+  // safe assumption because it never tells one partner the other is holding
+  // things up when they aren't.
+  const waitingOn = readiness?.waitingOn ?? "both";
+  const who =
+    waitingOn === "both"
+      ? `You and ${partnerName} both need`
+      : waitingOn === "them"
+        ? `${partnerName} needs`
+        : "You need";
+
+  return (
+    <div className="mt-3 rounded-xl bg-black/5 px-3 py-2.5 dark:bg-white/10">
+      <p className="text-xs text-neutral-600 dark:text-neutral-300">
+        <span aria-hidden="true">🔒 </span>
+        {who} to answer more before {unlocks}.
+      </p>
+      {readiness && (
+        <div className="mt-2 flex flex-col gap-1.5">
+          {readiness.mine !== null && (
+            <ReadinessBar label="You" value={readiness.mine} needed={readiness.needed} />
+          )}
+          {readiness.theirs !== null && (
+            <ReadinessBar label={partnerName} value={readiness.theirs} needed={readiness.needed} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Progress toward a threshold, in items the model is confident about. */
+function ReadinessBar({ label, value, needed }: { label: string; value: number; needed: number }) {
+  const done = Math.min(value, needed);
+  return (
+    <div>
+      <div className="flex items-baseline justify-between text-[11px] text-neutral-600 dark:text-neutral-400">
+        <span>{label}</span>
+        <span>
+          {done} of {needed} settled
+        </span>
+      </div>
+      <div
+        role="progressbar"
+        aria-label={`${label}: ${done} of ${needed} answers settled enough to use`}
+        aria-valuemin={0}
+        aria-valuemax={needed}
+        aria-valuenow={done}
+        className="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10"
+      >
+        <div
+          className="h-full rounded-full bg-amber-500"
+          style={{ width: `${Math.max((done / needed) * 100, 3)}%` }}
+        />
+      </div>
+    </div>
+  );
 }
 
 function Section({

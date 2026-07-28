@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { actionableTop, asymmetries, compareRankings, coupleFor, rankingFor, sharedValues } from "@/lib/couples";
+import {
+  actionableTop,
+  asymmetries,
+  compareRankings,
+  coupleFor,
+  coupleReadiness,
+  rankingFor,
+  sharedValues,
+} from "@/lib/couples";
 
 /**
  * The three comparisons worth showing a couple:
@@ -49,6 +57,9 @@ export async function GET() {
       makeYouHappy: actionableTop(myPartnerWant),
       shared: sharedValues(myPartnerWant, theirPartnerWant),
       mattersMoreToThem: asymmetries(myPartnerWant, theirPartnerWant),
+      // Why any of the four above are empty, so the screen can say what it is
+      // waiting for instead of silently dropping the sections.
+      readiness: coupleReadiness(myPartnerWant, theirPartnerWant),
       counts: {
         mySelf: mySelf.size,
         myPartnerWant: myPartnerWant.size,
