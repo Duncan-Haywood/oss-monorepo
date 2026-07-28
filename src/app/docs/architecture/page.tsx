@@ -548,6 +548,34 @@ export default function ArchitectureDocPage() {
         <code>daily-digest.test.ts</code> alone does not cover that glue.
       </p>
       <p>
+        Until <code>operator-daily-digest-cron-automation</code>, <strong>Send daily digest</strong>{" "}
+        was the digest&apos;s only trigger — the one mechanism built so a single-operator business
+        doesn&apos;t have to open <code>/dashboard/leads</code> to know what&apos;s urgent today
+        could only ever fire when the operator remembered to click a button, at which point they
+        were already looking at <code>PipelineHealthPanel</code> and didn&apos;t need the email.
+        The digest-build-and-send body was extracted out of{" "}
+        <code>sendDailyDigestAction</code> into <code>sendOperatorDigestEmail</code> (
+        <code>src/lib/digest/send-operator-digest.ts</code>), a plain async helper with no auth or
+        rate-limit logic of its own, so both triggers share one code path and can never build the
+        digest from different ledger reads. <code>GET /api/cron/daily-digest</code> (
+        <code>src/app/api/cron/daily-digest/route.ts</code>) calls that helper once a day via a{" "}
+        <code>vercel.json</code> <code>&quot;crons&quot;</code> entry. Vercel Cron sends{" "}
+        <code>Authorization: Bearer &lt;CRON_SECRET&gt;</code> automatically when the env var is
+        named exactly <code>CRON_SECRET</code> — the route verifies it with a constant-time,
+        length-bounded compare mirroring <code>passwordsMatch</code> (
+        <code>src/lib/auth/operator.ts</code>), then rate-limits by IP as defense in depth against
+        a leaked secret before calling <code>sendOperatorDigestEmail</code>. Mirrors{" "}
+        <code>src/app/api/resend/webhook/route.ts</code>&apos;s <code>notConfigured</code> pattern:
+        an unset <code>CRON_SECRET</code> or <code>OPERATOR_DIGEST_EMAIL</code> returns 501 rather
+        than a silent 200, so a misconfigured deployment shows as a failing run in Vercel&apos;s own
+        cron dashboard instead of quietly never sending. Route-level Vitest in{" "}
+        <code>src/app/api/cron/daily-digest/route.test.ts</code> locks the secret gate (including a
+        same-length-wrong-secret case that exercises the byte compare, not just the length check),
+        the rate limit, both not-configured cases, and success/failure delegation;{" "}
+        <code>src/lib/digest/send-operator-digest.test.ts</code> locks the shared helper&apos;s own
+        ledger-read wiring independent of either caller.
+      </p>
+      <p>
         Every automated marketing send (outreach Email 1-3, Starter upsell, abandoned-checkout
         recovery) calls <code>sendEmail</code> (<code>src/lib/email/resend.ts</code>), which
         checks the CAN-SPAM unsubscribe suppression list before sending and{" "}

@@ -837,5 +837,35 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "growth-upsell-canceled-exclusion",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-5aqb5x",
+    summary:
+      "Fresh scheduled routine, picked up at origin/main tip a5b0d605 (PR #928, growth-upsell-canceled-exclusion, merged prior session) — HEAD matched origin/main exactly at session start. git fetch --prune '+refs/heads/*:refs/remotes/origin/*' across all 829 remote branches and a rev-list ahead-count check on the ~10 most-recently-pushed claude/* branches found every one already fully merged (0 ahead of main) — no live sibling to fold or pivot around. mcp__github__list_pull_requests found only the one pre-existing stale, unrelated human draft PR (#202) open.",
+    shipped: [
+      "Housekeeping, done first per the prior iteration's own flag: business-decisions.ts measured 262,623 bytes, over the 262,144-byte re-archive trigger. Moved the oldest 30 of 40 live BUSINESS_DECISIONS entries into a new src/lib/process/archive/business-decisions-archive-20.ts (chronological order preserved, mirroring iterations-archive-26's precedent — the first BUSINESS_DECISIONS-specific archive split since archive-19), keeping the most recent 10 live. business-decisions.ts dropped to 74,726 bytes.",
+      "Verified losslessness two ways: a line-anchored entry-boundary parse confirmed the extraction split exactly on complete entries (40 found, none partial), and a temporary Vitest test deep-equality-compared the post-split assembled BUSINESS_DECISIONS array against the pre-split array (imported from a git-show'd copy of the original file) — both passed before the temporary comparison files were deleted.",
+      "src/lib/process/archive/business-decisions-archive-20.ts — new file. src/lib/process/business-decisions.ts — removed the 30 archived entries, added the import + spread, appended this iteration's own entry (process-log-business-decisions-archive-20-split). src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked.",
+      "Verified: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3770 passed, 217 files, unchanged from baseline) + a full clean rebuild (rm -rf .next && npm run build, clean, same 61-route split, no new warnings). No dev-server smoke check needed — this iteration touched only the process log. A research agent was dispatched in parallel for this session's substantive fix, tracked separately.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "process-log-business-decisions-archive-20-split",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-5aqb5x",
+    summary:
+      "Continuation of the same scheduled routine, sharing the same baseline as the archive-split entry above (origin/main tip a5b0d605, PR #928 merged prior session, no live sibling).",
+    shipped: [
+      "Dispatched a research agent to find the highest-leverage business-growth gap rather than another micro-hardening pass, briefed on the long list of already-exhausted axes. It found a real gap, independently re-verified by reading the action, the button component, .env.example, and a repo-wide grep before acting: the operator daily digest (sendDailyDigestAction, src/lib/digest/daily-digest.ts) — the one mechanism built so a single-operator business doesn't have to open the dashboard to know what's urgent today — had exactly one trigger: a manual dashboard button click. No vercel.json, Convex scheduled function, or GitHub Actions cron ever called it.",
+      "Extracted the digest-build-and-send body out of sendDailyDigestAction into a shared helper, sendOperatorDigestEmail (src/lib/digest/send-operator-digest.ts), so it can't drift from the manual button's own behavior. Added GET /api/cron/daily-digest (src/app/api/cron/daily-digest/route.ts): constant-time CRON_SECRET bearer check (mirroring passwordsMatch), per-IP rate limit after auth, 501 on either CRON_SECRET or OPERATOR_DIGEST_EMAIL unset (mirrors resend-webhook's notConfigured pattern — loud failure, not a silent 200). Added vercel.json (daily 13:00 UTC cron), documented CRON_SECRET in .env.example, and updated launch-checklist/architecture docs.",
+      "src/app/dashboard/leads/actions.ts — refactored to delegate, removed now-dead imports (also caught two more the lint pass flagged). src/lib/digest/send-operator-digest.ts, src/app/api/cron/daily-digest/route.ts, vercel.json — new files, with send-operator-digest.test.ts (5 cases) and route.test.ts (10 cases, including a same-length-wrong-secret case verified via a temporary regression-break to actually exercise the byte compare rather than the length short-circuit). The existing send-daily-digest-action.test.ts (13 cases) needed zero changes, proving the refactor preserved behavior exactly. src/lib/process/business-decisions.ts — appended operator-daily-digest-cron-automation. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3785 passed, 219 files, +15 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, 62-route split incl. the new /api/cron/daily-digest, no new warnings). No dev-server smoke check beyond the automated gate — no live RESEND_API_KEY/real Vercel Cron scheduler in this environment, but both the route and the shared helper are fully exercised by automated coverage, and the manual-button path they now share is unchanged and remains manually-verified per its own prior iteration.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "operator-daily-digest-cron-automation",
+    ),
+  },
 ];
 
