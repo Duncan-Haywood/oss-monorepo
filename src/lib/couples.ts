@@ -279,6 +279,12 @@ export type Comparison = {
   overlap: number;
   /** Spearman rank correlation over the shared items, -1..1. */
   agreement: number | null;
+  /**
+   * The fraction of the spread in these two rankings that is real preference
+   * rather than measurement error, 0–1. `agreement` is suppressed below
+   * `MIN_RELIABILITY`; above it, this is how much to trust the figure.
+   */
+  reliability: number;
   aligned: ComparisonRow[];
   diverged: ComparisonRow[];
 };
@@ -294,11 +300,139 @@ const MIN_OVERLAP_FOR_ROWS = 5;
  */
 const MIN_OVERLAP_FOR_AGREEMENT = 8;
 
-/** Compares two rankings over the items they have in common. */
+/**
+ * How much of the spread in a ranking is real preference rather than the
+ * model's own uncertainty.
+ *
+ * A stored rating is an estimate, and `rd` is the standard deviation of that
+ * estimate. So the variance you can see in someone's ratings is the variance
+ * of what they actually want *plus* the variance of the measurement:
+ *
+ *     var(observed) = var(true) + mean(rd²)
+ *
+ * Rearranged, the share of the visible spread that is signal is
+ * `1 - mean(rd²)/var(observed)`. At 1 the ordering is exact; at 0 it is a
+ * shuffle. This is the classical reliability coefficient, and it is the
+ * quantity every cross-person statistic here is silently multiplied by.
+ */
+export function reliabilityOf(entries: { rating: number; rd: number }[]): number {
+  const n = entries.length;
+  if (n < 2) return 0;
+  const mean = entries.reduce((s, e) => s + e.rating, 0) / n;
+  const observedVar = entries.reduce((s, e) => s + (e.rating - mean) ** 2, 0) / n;
+  if (observedVar <= 0) return 0;
+  const errorVar = entries.reduce((s, e) => s + e.rd ** 2, 0) / n;
+  return Math.max(0, Math.min(1, 1 - errorVar / observedVar));
+}
+
+/**
+ * Below this, more than half of the reported agreement is measurement error
+ * and the number says more about how much the two of them have answered than
+ * about how alike they are.
+ *
+ * Measured, not chosen. Simulating two people with *identical* preferences and
+ * only the deviations this app actually reaches, the reported rho comes back
+ * badly shrunk toward zero — an attenuation equal to the reliability itself:
+ *
+ *  | rd  | reported rho | truth |
+ *  | --- | ------------ | ----- |
+ *  | 300 | 0.14         | 1.00  |
+ *  | 200 | 0.26         | 1.00  |
+ *  | 100 | 0.60         | 1.00  |
+ *  |  40 | 0.91         | 1.00  |
+ *
+ * and symmetrically for two people who disagree completely. At the deviations
+ * reached after ~90 answers, a couple who want exactly the same things and a
+ * couple who want opposite things were both being shown roughly "50% match".
+ * At 0.5 the figure still understates a real similarity, which is the safe
+ * direction to be wrong in.
+ */
+const MIN_RELIABILITY = 0.5;
+
+/**
+ * The chance of showing a couple at least one difference that is not there,
+ * across the whole list. Not per row — per screen, which is what a person
+ * actually experiences.
+ */
+const FAMILY_WISE_ALPHA = 0.05;
+
+/**
+ * Inverse standard normal CDF (Acklam's rational approximation, ~1e-9 over the
+ * useful range). Needed to turn "one false row per twenty screens" into a
+ * number of standard errors, rather than hard-coding one.
+ */
+function normalQuantile(p: number): number {
+  if (p <= 0 || p >= 1) return p <= 0 ? -Infinity : Infinity;
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2, 1.38357751867269e2, -3.066479806614716e1, 2.506628277459239];
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2, 6.680131188771972e1, -1.328068155288572e1];
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416];
+  const pLow = 0.02425;
+  if (p < pLow) {
+    const q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+      ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  if (p > 1 - pLow) return -normalQuantile(1 - p);
+  const q = p - 0.5;
+  const r = q * q;
+  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q /
+    (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+}
+
+/**
+ * How far apart two standardized positions must be, in standard errors, before
+ * the difference is worth showing — Bonferroni-corrected for the number of
+ * items being examined.
+ *
+ * The correction is the whole point. A flat two-sigma bar sounds strict and is
+ * not: applied independently to forty items it is forty chances to be fooled,
+ * and it produced two or three phantom rows on *every* screen for a couple with
+ * identical preferences. Testing more things means each one has to clear a
+ * higher bar, or the list fills up with whichever items happened to land far
+ * apart. At forty items this asks for about 3.2 standard errors.
+ */
+export function significanceThreshold(comparisons: number): number {
+  if (comparisons < 1) return Infinity;
+  return normalQuantile(1 - FAMILY_WISE_ALPHA / (2 * comparisons));
+}
+
+/**
+ * Positions within one person's own shared-item spread, plus the uncertainty
+ * of each position on that same scale.
+ *
+ * Standardizing per person is what makes the two comparable at all — raw
+ * ratings are per-respondent and their spread tracks answer count, not
+ * conviction. Dividing `rd` by the same spread carries the model's uncertainty
+ * onto the scale the comparison happens on, instead of dropping it.
+ */
+function standardize(m: Ranking, labels: string[]) {
+  const entries = labels.map((l) => m.get(l)!);
+  const mean = entries.reduce((s, e) => s + e.rating, 0) / entries.length;
+  const sd = Math.sqrt(entries.reduce((s, e) => s + (e.rating - mean) ** 2, 0) / entries.length);
+  const z = new Map<string, number>();
+  const se = new Map<string, number>();
+  for (const e of entries) {
+    // Every item sits at the same place and nothing can be distinguished.
+    z.set(e.label, sd > 0 ? (e.rating - mean) / sd : 0);
+    se.set(e.label, sd > 0 ? e.rd / sd : Infinity);
+  }
+  return { z, se };
+}
+
+/**
+ * Compares two rankings over the items they have in common.
+ *
+ * Every row this returns is a claim about two people, so it has to clear the
+ * model's own uncertainty before it is made. A difference smaller than the
+ * error bars around it is not a finding about the couple — it is the
+ * measurement moving — and sorting by the *largest* gap, as this used to,
+ * selects for exactly the items with the widest error bars.
+ */
 export function compareRankings(a: Ranking, b: Ranking): Comparison {
   const shared = [...a.keys()].filter((k) => b.has(k));
   if (shared.length < MIN_OVERLAP_FOR_ROWS) {
-    return { overlap: shared.length, agreement: null, aligned: [], diverged: [] };
+    return { overlap: shared.length, agreement: null, reliability: 0, aligned: [], diverged: [] };
   }
 
   const rank = (m: Ranking): Map<string, number> => {
@@ -316,26 +450,49 @@ export function compareRankings(a: Ranking, b: Ranking): Comparison {
     const d = ra.get(label)! - rb.get(label)!;
     sumD2 += d * d;
   }
+  const rho = 1 - (6 * sumD2) / (n * (n * n - 1));
+
+  // Both orderings have to be worth trusting; the weaker one caps the pair.
+  const reliability = Math.min(
+    reliabilityOf(shared.map((l) => a.get(l)!)),
+    reliabilityOf(shared.map((l) => b.get(l)!)),
+  );
   const agreement =
-    n >= MIN_OVERLAP_FOR_AGREEMENT ? 1 - (6 * sumD2) / (n * (n * n - 1)) : null;
+    n >= MIN_OVERLAP_FOR_AGREEMENT && reliability >= MIN_RELIABILITY ? rho : null;
 
-  const rows: ComparisonRow[] = shared.map((label) => ({
-    label,
-    a: ra.get(label)!,
-    b: rb.get(label)!,
-    gap: Math.abs(ra.get(label)! - rb.get(label)!),
-  }));
+  const sa = standardize(a, shared);
+  const sb = standardize(b, shared);
 
-  const aligned = rows
-    .slice()
-    .sort((x, y) => x.gap - y.gap || Math.min(x.a, x.b) - Math.min(y.a, y.b))
-    .slice(0, 5);
-  const diverged = rows
-    .slice()
-    .sort((x, y) => y.gap - x.gap)
-    .slice(0, 5);
+  const scored = shared.map((label) => {
+    const delta = sa.z.get(label)! - sb.z.get(label)!;
+    const se = Math.hypot(sa.se.get(label)!, sb.se.get(label)!);
+    return {
+      row: { label, a: ra.get(label)!, b: rb.get(label)!, gap: Math.abs(ra.get(label)! - rb.get(label)!) },
+      // How many standard errors of daylight there are between the two
+      // positions. Below 1 the difference is smaller than the error bars.
+      z: se > 0 && Number.isFinite(se) ? Math.abs(delta) / se : 0,
+      se,
+    };
+  });
 
-  return { overlap: n, agreement, aligned, diverged };
+  // A difference the error bars already explain is not a difference.
+  const threshold = significanceThreshold(n);
+  const diverged = scored
+    .filter((s) => s.z >= threshold)
+    .sort((x, y) => y.z - x.z)
+    .slice(0, 5)
+    .map((s) => s.row);
+
+  // Agreement needs the opposite guarantee: close together *and* measured
+  // finely enough that "close" is a finding rather than a shrug. Without the
+  // second half, the strongest agreement is always the least-answered item.
+  const aligned = scored
+    .filter((s) => s.z < 1 && s.se <= 1)
+    .sort((x, y) => x.z - y.z || Math.min(x.row.a, x.row.b) - Math.min(y.row.a, y.row.b))
+    .slice(0, 5)
+    .map((s) => s.row);
+
+  return { overlap: n, agreement, reliability, aligned, diverged };
 }
 
 /** The couple a user belongs to, if any, plus the other person. */

@@ -16,29 +16,31 @@ mean:
 
 ## Open
 
-### P0 — Fifteen parallel pull requests, none merged
+### P0 — Nineteen parallel pull requests, none merged
 
-Fifteen scheduled sessions opened fifteen branches off `b887731`, each
+Nineteen scheduled sessions opened nineteen branches off `b887731`, each
 rediscovering the same lint errors and the same conjoint bug. #12 consolidated
-the distinct fixes from #1–#9, #14 extended #12, and this branch extends #14,
-so merging it closes the lot.
+the distinct fixes from #1–#9, #14 extended #12, #17 extended #14, and this
+branch extends #17, so merging it closes the lot.
 
-The branch rule works — three sessions in a row have now followed it and
+The branch rule works — four sessions in a row have now followed it and
 extended rather than forked. It is not the binding constraint. **Nothing merges
 without the account owner**, and until it does, every scheduled run adds a pull
 request without moving the project. That is a notification at the start of a
 run, not a line in a PR body; see
 [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
 
-The count has gone 9 → 12 → 15 across three write-ups of this same item, which
-is the honest measure of how well "write it down again" works. The open
-question is no longer technical: it is whether this task should keep firing at
-its current frequency while nothing it produces can land.
+The count has gone 9 → 12 → 15 → 19 across four write-ups of this same item,
+which is the honest measure of how well "write it down again" works. This
+session sent a push notification before writing any code, which is the only
+channel that reaches a person who is not reading the repo. The open question is
+not technical: it is whether this task should keep firing at its current
+frequency while nothing it produces can land.
 
 ### P1 — CI has never run, and the docs said it had
 
 `.github/workflows/ci.yml` was added several branches ago and every run of it
-since — eight, across six branches — has failed in about three seconds with no
+since — eleven, across seven branches — has failed in two to thirteen seconds with no
 steps, no downloadable logs and `runner_id: 0`. That is a job that never
 started, identically on every branch, so it is Actions/runner availability at
 the repository or account level rather than anything in a change.
@@ -48,10 +50,17 @@ CI ran the four gates on every push. It never has. Every "verified in CI" claim
 in this repo's history should be read as "verified by whoever ran
 `npm run verify` locally, if they did".
 
-**Fix:** only the account owner can do it — enable Actions for the repository,
-or resolve whatever the runner/billing situation is. Then re-run one of the
-failed workflows and confirm it produces steps. The docs now say CI is not
-running; that correction should be reverted once it is.
+Confirmed again this session against the API: eleven runs, eleven failures, and
+the single `verify` job on the most recent one reports `runner_id: 0`,
+`runner_name: ""`, and `started_at` equal to `created_at`. No machine was ever
+assigned. On a private repository that is almost always exhausted Actions
+minutes or Actions disabled by repository/organisation policy — not a workflow
+error.
+
+**Fix:** only the account owner can do it — check Settings → Actions and the
+billing page, then re-run one of the failed workflows and confirm it produces
+steps. The docs now say CI is not running; that correction should be reverted
+once it is.
 
 ### P1 — `trials/next` creates a Trial row on every page load
 
@@ -113,17 +122,63 @@ actually act on need answer counts in the high hundreds.
 The threshold is not wrong — advising someone confidently off four swipes is the
 failure mode this project exists to avoid. Two things are wrong around it:
 
-**Done on this branch.** `coupleReadiness` reports, per section, whether it is
-ready and how far each partner is toward the floor; the four sections now
+**Done on an earlier branch.** `coupleReadiness` reports, per section, whether
+it is ready and how far each partner is toward the floor; the four sections now
 always render, showing either their rows or a locked state that names who is
 still answering and a progress bar toward the threshold. A section with enough
 data but nothing above the bar says so, which is a different fact from "keep
 going". The threshold was not lowered.
 
-What is still open is the question underneath it: **several hundred answers is
-a long way to ask two people to go** before the actionable half fills in. The
-honest options are a shorter path to confidence (more informative pairing early
-on) or a smaller promise up front — both product calls, neither a bug.
+**Done on this branch, and it makes the gap larger, not smaller.** The top row
+of that table was the more urgent problem: those four sections were *not* gated
+on confidence at all, so the half of the screen that looked healthy was the half
+with no floor under it. See the next item. The measured answer is that the
+comparisons need roughly `rd < 100–150` before they carry signal, which is
+further out than the `rd < 200` the other four ask for.
+
+So the question underneath is now sharper and is the top open product call:
+**every useful thing on this screen needs a precision the app does not reach in
+a session anyone will sit through.** The honest options are a shorter path to
+confidence — more informative pairing early on, fewer items, or pooling
+evidence across the three perspectives — or a smaller promise up front. Loosening
+the gates instead would restore a screen that was full and wrong.
+
+### P1 → resolved on this branch — The comparison screen reported its own noise as findings
+
+`compareRankings` feeds `fit`, `theirFit`, `mirror` and `blindSpots` — the four
+sections that *did* render — and it applied no confidence filter whatsoever.
+`rankingFor` hands it every item with `rd < 349`, so an item shown once, whose
+rating is very nearly a coin flip, was given a hard rank position and printed as
+a finding about the couple.
+
+Two consequences, both measured by simulating two people with **identical**
+preferences at the deviations the app actually reaches (`rd ≈ 280`):
+
+- **The "Overall match" percentage was attenuated to about 14% of its true
+  value.** Attenuation by measurement error does not make a correlation noisy
+  and centred, it shrinks it toward zero — so a couple who wanted exactly the
+  same things scored 0.14 and a couple who wanted opposite things scored −0.18.
+  Rendered as a percentage, every couple was told roughly "50% match" no matter
+  what was true.
+- **The difference list was sorted by the largest rank gap**, and the largest
+  gaps are where the error bars are widest, so it selected the least-measured
+  items by construction. 100% of simulated screens showed five phantom
+  differences between two people who agreed on everything.
+
+**Fixed.** `reliabilityOf` computes what fraction of a ranking's spread is real
+preference (`1 - mean(rd²)/var(observed)`); the headline figure is withheld
+below 0.5. Rows are kept only where the two standardized positions differ by
+more than their combined standard error, at a Bonferroni-corrected threshold so
+the 5% false-positive budget is spent per *screen* rather than per row. Over
+1000 simulated identical couples that takes phantom rows from 5.0 per screen to
+0.04, while two genuinely opposed people are still detected on 97% of screens
+once `rd` reaches 100. Empty lists now say what they are waiting for rather than
+vanishing. Written up in
+[`docs/STATISTICAL-INTEGRITY.md`](docs/STATISTICAL-INTEGRITY.md).
+
+**Not verified against a database.** No Postgres in this sandbox — the
+statistics are covered by seeded simulation and the component by jsdom tests,
+but nobody has seen the new empty states on a real screen with real data.
 
 ### P2 — Blind spots now has data, but no human has read it
 

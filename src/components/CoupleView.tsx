@@ -4,7 +4,14 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 type Row = { label: string; a: number; b: number; gap: number };
-type Comparison = { overlap: number; agreement: number | null; aligned: Row[]; diverged: Row[] };
+type Comparison = {
+  overlap: number;
+  agreement: number | null;
+  /** 0–1: how much of the spread in these rankings is preference, not noise. */
+  reliability?: number;
+  aligned: Row[];
+  diverged: Row[];
+};
 
 type ActionItem = { label: string; rating: number; rd: number; category: string | null };
 type SharedValue = { label: string; aStrength: number; bStrength: number; combined: number };
@@ -479,8 +486,9 @@ function Section({
         <>
           {comparison.agreement === null ? (
             <p className="mt-3 text-[11px] text-neutral-500 dark:text-neutral-400">
-              Early days — the pairs below are real, but there aren&apos;t enough shared answers
-              yet for an overall match score to mean anything.
+              Early days — there aren&apos;t enough shared answers yet for an overall match
+              score to mean anything. A number here now would mostly be measuring how much
+              you&apos;ve each answered.
             </p>
           ) : (
             <div className="mt-3">
@@ -498,17 +506,46 @@ function Section({
             </div>
           )}
 
-          <RowList label={alignedLabel} rows={comparison.aligned} tone="good" />
-          <RowList label={divergedLabel} rows={comparison.diverged} tone={highlightDiverged ? "alert" : "muted"} />
+          <RowList
+            label={alignedLabel}
+            rows={comparison.aligned}
+            tone="good"
+            empty="Nothing is measured finely enough yet to say the two of you agree on it."
+          />
+          <RowList
+            label={divergedLabel}
+            rows={comparison.diverged}
+            tone={highlightDiverged ? "alert" : "muted"}
+            empty="No difference here is bigger than the uncertainty around it yet. Keep answering and real ones will surface."
+          />
         </>
       )}
     </section>
   );
 }
 
-function RowList({ label, rows, tone }: { label: string; rows: Row[]; tone: "good" | "muted" | "alert" }) {
-  if (!rows.length) return null;
+function RowList({
+  label,
+  rows,
+  tone,
+  empty,
+}: {
+  label: string;
+  rows: Row[];
+  tone: "good" | "muted" | "alert";
+  empty: string;
+}) {
   const dot = tone === "good" ? "bg-emerald-500" : tone === "alert" ? "bg-rose-500" : "bg-neutral-400";
+  // An empty list is a finding too: saying nothing at all here is what made
+  // the screen look finished when it was still waiting. See `absence-is-a-claim`.
+  if (!rows.length) {
+    return (
+      <div className="mt-3">
+        <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">{label}</p>
+        <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">{empty}</p>
+      </div>
+    );
+  }
   return (
     <div className="mt-3">
       <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">{label}</p>

@@ -125,6 +125,7 @@ mounted runner showing the old one.
 | --- | --- | --- |
 | `glicko2.ts` | A sign error in the volatility solver is invisible | Property tests over simulated outcomes |
 | `conjoint.ts` | Silent non-convergence, or a fit that walked downhill | Recovery-from-simulation tests, plus explicit tests for both failure modes |
+| `couples.ts` | A figure that is really measuring answer count, or the width of its own error bars | Within-person positions before anything crosses between two people; `reliabilityOf` gating the headline figure; a Bonferroni-corrected per-row test. See [STATISTICAL-INTEGRITY.md](STATISTICAL-INTEGRITY.md) |
 | `perspective.ts` | A coerced value merging two rankings | `perspective.test.ts`, which names the exact regression |
 | `sessionStore.ts` | A partial bundle wedging the runner | `sessionStore.test.ts` |
 | API routes | Lost updates, double-applied answers | Claim-then-apply inside a transaction; `updateMany` guarded on `result: null` |

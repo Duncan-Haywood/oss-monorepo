@@ -198,3 +198,53 @@ describe("CoupleView locked sections", () => {
     expect(document.body.textContent).not.toContain("Nothing stands out here yet");
   });
 });
+
+/**
+ * A comparison can now have enough overlap to render while still having no row
+ * that clears the model's own uncertainty. Before, those lists rendered as
+ * nothing at all — the same "looks finished, is actually waiting" failure the
+ * four actionable sections had.
+ */
+describe("CoupleView comparison rows that cannot be stood behind", () => {
+  it("says why a comparison list is empty instead of dropping it", async () => {
+    stubCompare({
+      ...LINKED,
+      blindSpots: { overlap: 30, agreement: null, reliability: 0.2, aligned: [], diverged: [] },
+    });
+
+    render(<CoupleView />);
+
+    const section = await waitFor(() => sectionFor(/Your blind spots/i));
+    // Both list headings survive an empty list...
+    expect(within(section).getByText(/You read them well here/i)).toBeTruthy();
+    expect(within(section).getByText(/You were most wrong here/i)).toBeTruthy();
+    // ...and each says what it is waiting for rather than showing nothing.
+    expect(within(section).getByText(/No difference here is bigger than the uncertainty/i)).toBeTruthy();
+    expect(within(section).getByText(/Nothing is measured finely enough yet/i)).toBeTruthy();
+  });
+
+  it("withholds the match score without implying the rows are wrong", async () => {
+    stubCompare({
+      ...LINKED,
+      blindSpots: { overlap: 30, agreement: null, reliability: 0.2, aligned: [], diverged: [] },
+    });
+
+    render(<CoupleView />);
+
+    const section = await waitFor(() => sectionFor(/Your blind spots/i));
+    // Exact, not a regex: the copy explaining the absence contains the phrase
+    // "an overall match score", which a loose match happily finds.
+    expect(within(section).queryByText("Overall match")).toBeNull();
+    expect(within(section).getByText(/mostly be measuring how much/i)).toBeTruthy();
+  });
+
+  it("still shows a match score and rows once the data supports them", async () => {
+    stubCompare({ ...LINKED, blindSpots: { ...COMPARISON, reliability: 0.8 } });
+
+    render(<CoupleView />);
+
+    const section = await waitFor(() => sectionFor(/Your blind spots/i));
+    expect(within(section).getByText("Overall match")).toBeTruthy();
+    expect(within(section).getByText("Skiing")).toBeTruthy();
+  });
+});

@@ -16,6 +16,8 @@
  *   docs/DATA-COLLECTION.md      every field the app stores about a person, and
  *                                what a linked partner can and cannot see
  *   docs/QUALITY-BAR.md          the gates, and what each one is protecting
+ *   docs/STATISTICAL-INTEGRITY.md  what has to be true before a number is shown
+ *                                to a couple, and how to check a new one
  *   docs/TESTING.md              what is covered, what is not, and how to add to it
  *   docs/UNATTENDED-SESSIONS.md  how to work here when nobody is watching, and
  *                                what happens when several sessions forget to

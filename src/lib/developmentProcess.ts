@@ -126,6 +126,12 @@ export const PRINCIPLES: Principle[] = [
       "Glicko ratings are stored per respondent, so their spread tracks how much someone answered, not how much they care. Subtracting one person's rating from another's measured swipe volume and called it a difference in values. Anything crossing between two people goes through a within-person position first.",
   },
   {
+    id: "carry-the-error-bars",
+    title: "A number that ignores its own error bars is not a measurement",
+    why:
+      "Every stored rating is an estimate and `rd` is its standard deviation, so any figure computed from ratings inherits that uncertainty whether or not the code mentions it. The couple screen reported a Spearman correlation straight from the ratings, which shrinks it toward zero in exact proportion to the noise: simulated at the deviations this app actually reaches, two people with identical preferences were reported at 0.14 and two with opposite preferences at -0.18, so every couple was shown roughly the same score no matter what was true. Worse, the difference lists sorted by the largest gap, which selects for whichever items had the widest error bars. Anything shown to a couple has to clear its own uncertainty first — and when many items are examined at once, clear a bar raised for the number of chances there were to be fooled.",
+  },
+  {
     id: "absence-is-a-claim",
     title: "A section that renders nothing still says something",
     why:

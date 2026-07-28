@@ -4,6 +4,7 @@ import {
   actionableTop,
   asymmetries,
   compareRankings,
+  reliabilityOf,
   confidentCount,
   coupleReadiness,
   sharedValues,
@@ -316,5 +317,111 @@ describe("coupleReadiness", () => {
       expect(r.makeThemHappy.ready).toBe(actionableTop(actionable(n)).length > 0);
       expect(r.makeYouHappy.ready).toBe(actionableTop(actionable(n)).length > 0);
     }
+  });
+});
+
+/**
+ * The deviations this app actually reaches, measured against two real accounts
+ * (PR #12): after ~90 answers the lowest rd any item had reached was 170, and
+ * exactly one item was under 200. Everything the couple screen showed was
+ * built from estimates at least this wide.
+ */
+const MEASURED_RD = 280;
+
+/** Deterministic standard normal, so these tests never flake. */
+function noise(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const u = (s >>> 8) / 16777216 || 1e-9;
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const v = (s >>> 8) / 16777216 || 1e-9;
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  };
+}
+
+/**
+ * One shared set of true preferences, observed twice through independent
+ * measurement error of size `rd` — i.e. two people who want exactly the same
+ * things, each measured as precisely as this app manages.
+ */
+function observedTwice(rd: number, seed = 7, n = 40) {
+  const g = noise(seed);
+  const build = (): Ranking =>
+    new Map(
+      Array.from({ length: n }, (_, i) => {
+        const label = `item-${i}`;
+        const truth = 1300 + (i / (n - 1)) * 400;
+        return [label, { label, rating: truth + g() * rd, rd, category: null, dimensions: [] }] as const;
+      }),
+    );
+  return { mine: build(), theirs: build() };
+}
+
+describe("compareRankings under real measurement error", () => {
+  it("invents no differences between two people who want the same things", () => {
+    const { mine, theirs } = observedTwice(MEASURED_RD);
+
+    // Their true orderings are identical. Every row here would be the model's
+    // own noise presented to a couple as a difference between them.
+    expect(compareRankings(mine, theirs).diverged).toEqual([]);
+  });
+
+  it("withholds a match score the deviations cannot support", () => {
+    const c = compareRankings(...Object.values(observedTwice(MEASURED_RD)) as [Ranking, Ranking]);
+
+    // Before this was gated on reliability, two people with identical
+    // preferences were reported at rho ~0.14 — rendered as a "57% match" —
+    // and two people with opposite preferences at ~-0.18, or "41%". Every
+    // couple got told roughly the same thing regardless of the truth.
+    expect(c.agreement).toBeNull();
+    expect(c.reliability).toBeLessThan(0.5);
+  });
+
+  it("still reports a real difference once it is measured well enough", () => {
+    const n = 40;
+    const build = (flip: boolean): Ranking =>
+      new Map(
+        Array.from({ length: n }, (_, i) => {
+          const label = `item-${i}`;
+          const pos = flip ? n - 1 - i : i;
+          return [label, { label, rating: 1300 + (pos / (n - 1)) * 400, rd: 40, category: null, dimensions: [] }] as const;
+        }),
+      );
+    const c = compareRankings(build(false), build(true));
+
+    // Precisely measured and genuinely opposed: the gate must not swallow it.
+    expect(c.reliability).toBeGreaterThan(0.5);
+    expect(c.agreement).toBeLessThan(-0.9);
+    expect(c.diverged.length).toBeGreaterThan(0);
+  });
+
+  it("reports more of the truth as the measurement gets finer", () => {
+    const seen = [280, 150, 60, 20].map((rd) => compareRankings(
+      ...Object.values(observedTwice(rd, 11)) as [Ranking, Ranking],
+    ).reliability);
+
+    // Reliability is the factor every cross-person figure is multiplied by,
+    // so it has to move monotonically with the thing it measures.
+    for (let i = 1; i < seen.length; i++) expect(seen[i]).toBeGreaterThan(seen[i - 1]);
+  });
+});
+
+describe("reliabilityOf", () => {
+  it("is 0 when the spread is entirely measurement error", () => {
+    const flat = Array.from({ length: 20 }, () => ({ rating: 1500, rd: 300 }));
+    expect(reliabilityOf(flat)).toBe(0);
+  });
+
+  it("approaches 1 as the deviations shrink against a real spread", () => {
+    const spread = (rd: number) =>
+      Array.from({ length: 20 }, (_, i) => ({ rating: 1300 + i * 20, rd }));
+    expect(reliabilityOf(spread(1))).toBeGreaterThan(0.99);
+    expect(reliabilityOf(spread(115))).toBeLessThan(0.1);
+  });
+
+  it("says nothing rather than dividing by zero on a degenerate set", () => {
+    expect(reliabilityOf([])).toBe(0);
+    expect(reliabilityOf([{ rating: 1500, rd: 80 }])).toBe(0);
   });
 });
