@@ -1,29 +1,32 @@
 /**
- * Operator-visible readiness for the shared Vercel Cron secret gating BOTH
- * GET /api/cron/daily-digest AND GET /api/cron/checkout-recovery (see
- * .env.example — the two routes were shipped in separate iterations but
- * share this one env var).
+ * Operator-visible readiness for the shared Vercel Cron secret gating EVERY
+ * cron route wired in vercel.json's "crons" array (see .env.example for the
+ * current list — three as of this writing: GET /api/cron/daily-digest, GET
+ * /api/cron/checkout-recovery, GET /api/cron/outreach-followups — all
+ * shipped in separate same-day iterations but sharing this one env var).
  *
  * OperatorDigestEmailEnvBanner (operator-digest-email-env-readiness.ts) only
  * covers OPERATOR_DIGEST_EMAIL — the manual "Send daily digest" button's own
- * gate. CRON_SECRET is a separate, independent gate: both manual sends
- * (digest button, per-lead recovery send) still work fine with CRON_SECRET
- * unset, but the whole point of both cron routes (removing reliance on the
- * operator remembering to click a button — see operator-daily-digest-cron-
- * automation in BUSINESS_DECISIONS) silently never fires if CRON_SECRET is
- * missing, and there is no other dashboard-visible signal of that — a
- * misconfigured or never-configured automation only shows up in Vercel's own
- * cron-run history, a surface a single-operator user has no routine reason
- * to check. See operator-digest-cron-secret-env-banner.
+ * gate. CRON_SECRET is a separate, independent gate: every equivalent manual
+ * per-item send still works fine with CRON_SECRET unset, but the whole point
+ * of every cron route (removing reliance on the operator remembering to
+ * click a button — see operator-daily-digest-cron-automation in
+ * BUSINESS_DECISIONS) silently never fires if CRON_SECRET is missing, and
+ * there is no other dashboard-visible signal of that — a misconfigured or
+ * never-configured automation only shows up in Vercel's own cron-run
+ * history, a surface a single-operator user has no routine reason to check.
+ * See operator-digest-cron-secret-env-banner.
  *
  * Deliberately a separate readiness check + banner from the email one (not a
- * shared multi-var list) since the two failure modes are not equivalent: a
- * missing CRON_SECRET does not block either manual send the way a missing
- * OPERATOR_DIGEST_EMAIL does, so the two need distinct wording and must be
- * independently hideable once each is fixed. Named for the digest (its
- * original, still-primary consumer) rather than renamed for both cron
- * routes — a rename purely for the second consumer would be scope creep
- * unrelated to this readiness banner's own fix.
+ * shared multi-var list) since the failure modes are not equivalent: a
+ * missing CRON_SECRET does not block any manual send the way a missing
+ * OPERATOR_DIGEST_EMAIL blocks the digest button, so the two need distinct
+ * wording and must be independently hideable once each is fixed. Named for
+ * the digest (its original, still-primary consumer) rather than renamed for
+ * every cron route sharing the secret — a rename purely to keep pace with
+ * each new consumer would be unrelated scope creep every time; this
+ * module's return type/logic already generalizes correctly (env presence
+ * only) regardless of how many routes end up gated on CRON_SECRET.
  *
  * Pure: pass an env map in tests; production call sites use process.env.
  * Env presence only — does not call Vercel and does not invent aggregates.
