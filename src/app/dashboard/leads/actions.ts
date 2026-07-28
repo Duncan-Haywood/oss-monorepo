@@ -186,8 +186,10 @@ import {
   getMarketingGenerator,
   leadEligibleForMarketingPack,
   leadEligibleForMarketingPackDelivery,
+  leadEligibleForSeasonalPromo,
   marketingMonthKey,
   monthlyPackRequestForLead,
+  seasonalPromoRequestForLead,
 } from "@/lib/marketing";
 import {
   archiveCommerceStripeProducts,
@@ -2803,6 +2805,77 @@ export async function generateMarketingPackAction(slug: string) {
     return { success: true as const, pack };
   } catch (error) {
     console.error("Error in generateMarketingPackAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Ad-hoc seasonal promo + A/B ad-copy generation — fulfills the Complete
+ * tier's sold "Full marketing — seasonal promos, A/B variants" bullet
+ * (src/lib/pricing/bundles.ts), which had no dashboard fulfillment path at
+ * all until this action shipped (see /docs/marketing-automation). Unlike
+ * generateMarketingPackAction, this is intentionally NOT persisted — no DB
+ * row, no monthly cadence — the operator copies the result to post/paste
+ * themselves. Growth-tier leads are not eligible (leadEligibleForSeasonalPromo).
+ */
+export async function generateSeasonalPromoAction(slug: string, occasion?: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`seasonal-promo-generate:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const orders = await listOrdersByLeadSlug(slug);
+    if (!leadEligibleForSeasonalPromo(lead, orders)) {
+      return {
+        success: false as const,
+        error:
+          "Seasonal promo generation requires a paid/live lead with an active Complete order",
+      };
+    }
+
+    const request = seasonalPromoRequestForLead(lead, occasion, Date.now());
+    const generator = getMarketingGenerator();
+    const result = await generator.generate(request);
+    const usedAnthropic =
+      Boolean(process.env.ANTHROPIC_API_KEY?.trim()) &&
+      !result.variants.some((v) => v.body.startsWith("[Stub"));
+
+    return {
+      success: true as const,
+      variants: result.variants,
+      generatedAt: result.generatedAt,
+      generator: usedAnthropic ? ("anthropic" as const) : ("stub" as const),
+    };
+  } catch (error) {
+    console.error("Error in generateSeasonalPromoAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

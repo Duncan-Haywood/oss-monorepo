@@ -7,6 +7,7 @@ import {
 } from "@/lib/leads/create-fields";
 import {
   formatPackBusinessHours,
+  MAX_CAMPAIGN_CONTEXT_LENGTH,
   MAX_MARKETING_CONTENT_TYPES_PER_REQUEST,
   MAX_MARKETING_GENERATE_LEAD_ID_LENGTH,
   MAX_PACK_BUSINESS_HOURS_LENGTH,
@@ -70,6 +71,26 @@ describe("marketing generate limits", () => {
       services: ["  ", ""],
     });
     expect(normalized.services).toEqual(["our services"]);
+  });
+
+  it("soft-caps campaignContext and omits it when unset", () => {
+    expect(
+      normalizeMarketingGenerateBusiness({
+        businessName: "Demo Cafe",
+        category: "restaurant",
+        city: "Austin",
+        services: ["brunch"],
+      }).campaignContext,
+    ).toBeUndefined();
+
+    const normalized = normalizeMarketingGenerateBusiness({
+      businessName: "Demo Cafe",
+      category: "restaurant",
+      city: "Austin",
+      services: ["brunch"],
+      campaignContext: "C".repeat(MAX_CAMPAIGN_CONTEXT_LENGTH + 40),
+    });
+    expect(normalized.campaignContext).toHaveLength(MAX_CAMPAIGN_CONTEXT_LENGTH);
   });
 });
 
