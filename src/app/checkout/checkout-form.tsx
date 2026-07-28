@@ -39,6 +39,12 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
   );
   const [commerceAddon, setCommerceAddon] = useState(prefill.initialCommerce === true);
   const [email, setEmail] = useState(prefill.email ?? "");
+  // Only ever shown when there's no existing CRM lead to prefill from (see
+  // the businessName-conditional block below) — a real lead's name/phone
+  // already live in the CRM, and letting a buyer overwrite them here would
+  // let anonymous checkout traffic edit someone else's record.
+  const [businessName, setBusinessName] = useState("");
+  const [businessPhone, setBusinessPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Reused across a same-params retry (network error, re-click) so it
@@ -62,6 +68,9 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
         customerEmail: email || undefined,
         slug,
         acquisitionSource: prefill.acquisitionSource,
+        ...(prefill.businessName
+          ? {}
+          : { businessName: businessName || undefined, businessPhone: businessPhone || undefined }),
       };
       if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
         const attempt = nextClientIdempotencyKey(
@@ -203,6 +212,44 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
           className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
         />
       </div>
+
+      {prefill.businessName ? null : (
+        <div className="mt-4 space-y-4">
+          <div>
+            <label className="text-sm font-medium text-zinc-700" htmlFor="businessName">
+              Business name (optional)
+            </label>
+            <input
+              id="businessName"
+              type="text"
+              name="businessName"
+              autoComplete="organization"
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              placeholder="Riverside Plumbing"
+              className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            />
+            <p className="mt-1 text-xs text-zinc-500">
+              Helps us set up your CRM record and address your receipt correctly.
+            </p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-zinc-700" htmlFor="businessPhone">
+              Business phone (optional)
+            </label>
+            <input
+              id="businessPhone"
+              type="tel"
+              name="businessPhone"
+              autoComplete="tel"
+              value={businessPhone}
+              onChange={(e) => setBusinessPhone(e.target.value)}
+              placeholder="(555) 555-0100"
+              className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="mt-8 rounded-2xl border border-zinc-200 p-6">
         <div className="flex items-center justify-between">

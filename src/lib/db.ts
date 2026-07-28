@@ -926,6 +926,14 @@ export async function recordLeadPayment(
     amountTotal: number;
     stripeCustomerId?: string;
     acquisitionSource?: string;
+    /**
+     * Real business name/phone collected at checkout on the organic
+     * no-preexisting-lead path (see checkout-business-fields-capture) — used
+     * only when the payment stub below actually creates a new lead row;
+     * ignored when the slug already resolves to an existing CRM lead.
+     */
+    businessName?: string;
+    businessPhone?: string;
   },
   options?: ConvexPrimaryWriteOptions,
 ): Promise<{ alreadyRecorded: boolean }> {
