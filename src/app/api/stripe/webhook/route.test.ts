@@ -542,6 +542,15 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_canceled");
       expect(json.received).toBe(false);
+      // This catch returns a 5xx instead of re-throwing, so it never reaches
+      // the outer try/catch's own captureError call — must be wired directly
+      // (orders-recurring-canceled-capture-error).
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "customer.subscription.deleted",
+        eventId: undefined,
+        failureKind: "orders_recurring_canceled",
+      });
     });
 
     it("clears a live payment_failed/subscription_paused billing-notice marker for this customer's orders — see billing-notice-failed-pause-gate-terminal-clear", async () => {
@@ -925,6 +934,40 @@ describe("POST /api/stripe/webhook", () => {
       );
     });
 
+    it("returns 500 orders_recurring_canceled and reports it via captureError when the foreign-Price pause write fails (orders-recurring-canceled-capture-error)", async () => {
+      markOrdersRecurringCanceledByCustomer.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_foreign",
+            customer: "cus_foreign",
+            status: "active",
+            items: {
+              data: [
+                {
+                  price: { id: "price_foreign_monthly" },
+                  current_period_start: 1_720_000_500,
+                },
+              ],
+            },
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("orders_recurring_canceled");
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "customer.subscription.updated",
+        eventId: undefined,
+        failureKind: "orders_recurring_canceled",
+      });
+    });
+
     it("pauses CRM on active+pause_collection (does not clear)", async () => {
       constructEvent.mockReturnValue({
         type: "customer.subscription.updated",
@@ -1124,6 +1167,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_canceled");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "customer.subscription.updated",
+        eventId: undefined,
+        failureKind: "orders_recurring_canceled",
+      });
     });
   });
 
@@ -1686,6 +1735,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("orders_recurring_canceled");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "invoice.payment_failed",
+        eventId: undefined,
+        failureKind: "orders_recurring_canceled",
+      });
     });
   });
 
@@ -1957,6 +2012,40 @@ describe("POST /api/stripe/webhook", () => {
         1_720_000_600_000,
         { requireConvex: true },
       );
+    });
+
+    it("returns 500 orders_recurring_canceled and reports it via captureError when the no-catalog-Price pause write fails (orders-recurring-canceled-capture-error)", async () => {
+      retrieveSubscription.mockResolvedValueOnce({
+        id: "sub_paid_foreign_fail",
+        customer: "cus_paid_foreign_fail",
+        status: "active",
+        pause_collection: null,
+        items: catalogSubscriptionItems("price_foreign_monthly"),
+      });
+      markOrdersRecurringCanceledByCustomer.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue({
+        type: "invoice.paid",
+        data: {
+          object: {
+            id: "in_paid_foreign_fail",
+            customer: "cus_paid_foreign_fail",
+            subscription: "sub_paid_foreign_fail",
+            created: 1_720_000_700,
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("orders_recurring_canceled");
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "invoice.paid",
+        eventId: undefined,
+        failureKind: "orders_recurring_canceled",
+      });
     });
 
     it("skips restore when pause_collection is set (active status hole)", async () => {
