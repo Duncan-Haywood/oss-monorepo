@@ -85,12 +85,19 @@ export const upsert = mutation({
  * { success: true }. Returns whether the row was actually marked — re-checks
  * sentToClientAt IS unset atomically with the write, mirroring
  * commerceOrders.markClientReceiptSent (see
- * marketing-voice-pack-client-send-visibility).
+ * marketing-voice-pack-client-send-visibility). Also re-checks generatedAt
+ * still matches expectedGeneratedAt (the version the caller actually read
+ * and is about to email) — a regenerate between the caller's read and this
+ * reservation clears sentToClientAt and swaps in new variants, and without
+ * this check the reservation would succeed against the NEW row while the
+ * caller sends the STALE content it captured earlier (see
+ * marketing-voice-pack-send-stale-content-race-guard).
  */
 export const markSentToClient = mutation({
   args: {
     leadSlug: v.string(),
     yearMonth: v.string(),
+    expectedGeneratedAt: v.string(),
     sentToClientAt: v.string(),
     apiSecret: v.string(),
   },
@@ -102,7 +109,11 @@ export const markSentToClient = mutation({
       .withIndex("by_lead_month", (q) => q.eq("leadSlug", args.leadSlug))
       .collect();
     const existing = candidates.find((row) => row.yearMonth === args.yearMonth);
-    if (!existing || existing.sentToClientAt) {
+    if (
+      !existing ||
+      existing.sentToClientAt ||
+      existing.generatedAt !== args.expectedGeneratedAt
+    ) {
       return false;
     }
     await ctx.db.patch(existing._id, { sentToClientAt: args.sentToClientAt });

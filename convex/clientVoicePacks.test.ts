@@ -128,6 +128,7 @@ test("markSentToClient marks an unsent pack and returns true", async () => {
 
   const marked = await t.mutation(api.clientVoicePacks.markSentToClient, {
     leadSlug: "demo-cafe",
+    expectedGeneratedAt: "2026-01-01T00:00:00.000Z",
     sentToClientAt: "2026-01-05T00:00:00.000Z",
     apiSecret: TEST_API_SECRET,
   });
@@ -145,12 +146,14 @@ test("markSentToClient is a no-op once already marked, and returns false for an 
   await t.mutation(api.clientVoicePacks.upsert, upsertArgs());
   await t.mutation(api.clientVoicePacks.markSentToClient, {
     leadSlug: "demo-cafe",
+    expectedGeneratedAt: "2026-01-01T00:00:00.000Z",
     sentToClientAt: "2026-01-05T00:00:00.000Z",
     apiSecret: TEST_API_SECRET,
   });
 
   const secondMark = await t.mutation(api.clientVoicePacks.markSentToClient, {
     leadSlug: "demo-cafe",
+    expectedGeneratedAt: "2026-01-01T00:00:00.000Z",
     sentToClientAt: "2026-01-06T00:00:00.000Z",
     apiSecret: TEST_API_SECRET,
   });
@@ -163,10 +166,47 @@ test("markSentToClient is a no-op once already marked, and returns false for an 
 
   const missing = await t.mutation(api.clientVoicePacks.markSentToClient, {
     leadSlug: "no-such-lead",
+    expectedGeneratedAt: "2026-01-01T00:00:00.000Z",
     sentToClientAt: "2026-01-06T00:00:00.000Z",
     apiSecret: TEST_API_SECRET,
   });
   expect(missing).toBe(false);
+});
+
+test("markSentToClient fails (and does not write) when the pack was regenerated after the caller read it, even though the regenerate cleared sentToClientAt", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.clientVoicePacks.upsert, upsertArgs({ generatedAt: "2026-01-01T00:00:00.000Z" }));
+
+  // Simulates a concurrent Regenerate landing between the caller's read of
+  // the pack and this reservation call: sentToClientAt is unset (regenerate
+  // always clears it) and generatedAt has moved on.
+  await t.mutation(
+    api.clientVoicePacks.upsert,
+    upsertArgs({ packId: "cvp_demo-cafe_v2", generatedAt: "2026-01-02T00:00:00.000Z" }),
+  );
+
+  const staleReserve = await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    expectedGeneratedAt: "2026-01-01T00:00:00.000Z", // the version the caller actually read
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(staleReserve).toBe(false);
+
+  const row = await t.query(api.clientVoicePacks.getByLeadSlug, {
+    leadSlug: "demo-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.sentToClientAt).toBeUndefined();
+
+  // A reservation against the CURRENT version still succeeds.
+  const currentReserve = await t.mutation(api.clientVoicePacks.markSentToClient, {
+    leadSlug: "demo-cafe",
+    expectedGeneratedAt: "2026-01-02T00:00:00.000Z",
+    sentToClientAt: "2026-01-05T00:00:00.000Z",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(currentReserve).toBe(true);
 });
 
 test("upsert (regenerate) clears a previously-set sentToClientAt", async () => {
@@ -174,6 +214,7 @@ test("upsert (regenerate) clears a previously-set sentToClientAt", async () => {
   await t.mutation(api.clientVoicePacks.upsert, upsertArgs());
   await t.mutation(api.clientVoicePacks.markSentToClient, {
     leadSlug: "demo-cafe",
+    expectedGeneratedAt: "2026-01-01T00:00:00.000Z",
     sentToClientAt: "2026-01-05T00:00:00.000Z",
     apiSecret: TEST_API_SECRET,
   });
@@ -195,6 +236,7 @@ test("clearSentToClient releases a reservation matching the expected value, and 
   await t.mutation(api.clientVoicePacks.upsert, upsertArgs());
   await t.mutation(api.clientVoicePacks.markSentToClient, {
     leadSlug: "demo-cafe",
+    expectedGeneratedAt: "2026-01-01T00:00:00.000Z",
     sentToClientAt: "2026-01-05T00:00:00.000Z",
     apiSecret: TEST_API_SECRET,
   });
@@ -214,6 +256,7 @@ test("clearSentToClient releases a reservation matching the expected value, and 
 
   const reMarked = await t.mutation(api.clientVoicePacks.markSentToClient, {
     leadSlug: "demo-cafe",
+    expectedGeneratedAt: "2026-01-01T00:00:00.000Z",
     sentToClientAt: "2026-01-06T00:00:00.000Z",
     apiSecret: TEST_API_SECRET,
   });
@@ -225,6 +268,7 @@ test("clearSentToClient is a safe no-op when the marker no longer matches the ex
   await t.mutation(api.clientVoicePacks.upsert, upsertArgs());
   await t.mutation(api.clientVoicePacks.markSentToClient, {
     leadSlug: "demo-cafe",
+    expectedGeneratedAt: "2026-01-01T00:00:00.000Z",
     sentToClientAt: "2026-01-05T00:00:00.000Z",
     apiSecret: TEST_API_SECRET,
   });

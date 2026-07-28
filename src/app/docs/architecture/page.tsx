@@ -4273,18 +4273,47 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
-        <code>buffer-schedule-stale-pack-content-guard</code>: the reserve-then-send-then-release
-        series above closes the duplicate-send race for marketing/voice pack email delivery, but{" "}
-        <code>scheduleMarketingPackToBufferAction</code> (the dormant, opt-in Buffer auto-post
-        path) had a distinct, unaddressed staleness gap in the same family. It reads the current
+        <code>marketing-voice-pack-send-stale-content-race-guard</code>: the reserve-then-send
+        pattern the three entries above shipped closes the duplicate-send race but left a distinct
+        one open — <code>sendMarketingPackToClientAction</code> /{" "}
+        <code>sendClientVoicePackToClientAction</code> read the pack&apos;s <code>variants</code>{" "}
+        once at the top of the action, then reserved the <code>sentToClientAt</code> marker keyed
+        only on <code>leadSlug</code> (plus <code>yearMonth</code> for marketing packs), with no
+        check that the pack was still the version that was read. A concurrent{" "}
+        <em>Regenerate</em> landing between that read and the reservation clears{" "}
+        <code>sentToClientAt</code> and swaps in new <code>variants</code>/
+        <code>generatedAt</code> — the in-flight reservation then succeeded against the now-unset
+        marker on the <em>new</em> row, while the send that followed still emailed the{" "}
+        <em>stale</em> content captured earlier. The client would receive superseded copy while
+        every consumer of <code>sentToClientAt</code> (pipeline-health, the daily digest,{" "}
+        <code>listMarketingPacksMissingClientSend</code>) reported the current pack as delivered.
+        Fixed by threading the read pack&apos;s <code>generatedAt</code> through as an{" "}
+        <code>expectedGeneratedAt</code> argument on <code>markMarketingPackSentToClient</code> /{" "}
+        <code>markClientVoicePackSentToClient</code> (Convex <code>markSentToClient</code>, plus
+        the SQLite-fallback twin) — the reservation now also fails when the pack&apos;s current{" "}
+        <code>generatedAt</code> no longer matches, even though a regenerate already cleared{" "}
+        <code>sentToClientAt</code> and would otherwise look like a normal, unclaimed pack. On a
+        lost reservation the action re-fetches the pack to tell this apart from an ordinary
+        duplicate-send race and reports a distinct &quot;pack was regenerated while this send was
+        in flight — refresh and resend&quot; message rather than the generic duplicate-send
+        wording, since the correct operator action (resend the current version) differs from the
+        duplicate-send case (do nothing, it already went out).
+      </p>
+
+      <p>
+        <code>buffer-schedule-stale-pack-content-guard</code>: the same stale-content class also
+        reached the dormant, opt-in Buffer auto-post path,{" "}
+        <code>scheduleMarketingPackToBufferAction</code> — a structurally distinct function from
+        the two email-send actions above (its own eligibility gate, its own{" "}
+        <code>bufferPostedVariantKeys</code> marker), so the{" "}
+        <code>expectedGeneratedAt</code> fix above did not cover it. It reads the current
         month&apos;s pack once at the top of the action, then makes a sequence of real, awaited
         Buffer API calls — <code>listBufferProfiles</code>, then one <code>createBufferUpdate</code>{" "}
-        per profile/variant — all built from that single stale in-memory read. Marketing packs are
-        replaced wholesale on regenerate (<code>upsertMarketingPack</code>, one row per lead per
-        month), so a concurrent <strong>Regenerate marketing pack</strong> click landing anywhere
-        in that window let the action publish the operator&apos;s just-superseded copy to the
-        lead&apos;s live Facebook/Instagram profile through Buffer — unlike an email, a live social
-        post can&apos;t be recalled once it ships. The existing TOCTOU guard in this same function
+        per profile/variant — all built from that single stale in-memory read. A concurrent{" "}
+        <strong>Regenerate marketing pack</strong> click landing anywhere in that window let the
+        action publish the operator&apos;s just-superseded copy to the lead&apos;s live
+        Facebook/Instagram profile through Buffer — unlike an email, a live social post
+        can&apos;t be recalled once it ships. The existing TOCTOU guard in this same function
         (re-reading the lead and merging onto a fresh <code>bufferPostedVariantKeys</code> read
         before the final persist) only protects the posted-variant <em>marker</em> from a lost
         update; it does nothing to stop stale <em>content</em> from reaching Buffer in the first

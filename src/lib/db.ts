@@ -2974,11 +2974,17 @@ export async function listMarketingPacksForMonth(
  * leadSlug+yearMonth (matches the pack's own uniqueness). Returns whether the
  * row was actually marked (re-checks sentToClientAt unset atomically with the
  * write, matching markCommerceOrderClientReceiptSent's race guard) — see
- * marketing-voice-pack-client-send-visibility.
+ * marketing-voice-pack-client-send-visibility. expectedGeneratedAt must be
+ * the generatedAt of the pack version the caller actually read and is about
+ * to email — the reservation also fails (returns false, no write) if a
+ * concurrent regenerate has since replaced that version, closing the window
+ * where a stale send could land while this marker stamps the NEW pack as
+ * delivered (see marketing-voice-pack-send-stale-content-race-guard).
  */
 export async function markMarketingPackSentToClient(
   leadSlug: string,
   yearMonth: string,
+  expectedGeneratedAt: string,
   sentToClientAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
 ): Promise<boolean> {
@@ -2987,6 +2993,7 @@ export async function markMarketingPackSentToClient(
       return await convexClient.mutation(api.marketingPacks.markSentToClient, {
         leadSlug,
         yearMonth,
+        expectedGeneratedAt,
         sentToClientAt,
         apiSecret: convexApiSecret,
       });
@@ -3001,7 +3008,13 @@ export async function markMarketingPackSentToClient(
     }
   }
 
-  return sqliteMarkMarketingPackSentToClient(getSqliteDb(), leadSlug, yearMonth, sentToClientAt);
+  return sqliteMarkMarketingPackSentToClient(
+    getSqliteDb(),
+    leadSlug,
+    yearMonth,
+    expectedGeneratedAt,
+    sentToClientAt,
+  );
 }
 
 /**
@@ -3844,11 +3857,13 @@ export async function listClientVoicePacks(
  * Durable sent-marker after sendClientVoicePackToClientEmail resolves
  * { success: true } in sendClientVoicePackToClientAction. Keyed on leadSlug
  * (matches the pack's own uniqueness — one row per lead). Mirrors
- * markMarketingPackSentToClient's race-guard (see
- * marketing-voice-pack-client-send-visibility).
+ * markMarketingPackSentToClient's race-guard, including its
+ * expectedGeneratedAt version check (see
+ * marketing-voice-pack-send-stale-content-race-guard).
  */
 export async function markClientVoicePackSentToClient(
   leadSlug: string,
+  expectedGeneratedAt: string,
   sentToClientAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
 ): Promise<boolean> {
@@ -3856,6 +3871,7 @@ export async function markClientVoicePackSentToClient(
     try {
       return await convexClient.mutation(api.clientVoicePacks.markSentToClient, {
         leadSlug,
+        expectedGeneratedAt,
         sentToClientAt,
         apiSecret: convexApiSecret,
       });
@@ -3870,7 +3886,12 @@ export async function markClientVoicePackSentToClient(
     }
   }
 
-  return sqliteMarkClientVoicePackSentToClient(getSqliteDb(), leadSlug, sentToClientAt);
+  return sqliteMarkClientVoicePackSentToClient(
+    getSqliteDb(),
+    leadSlug,
+    expectedGeneratedAt,
+    sentToClientAt,
+  );
 }
 
 /**

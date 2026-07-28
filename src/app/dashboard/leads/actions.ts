@@ -2874,7 +2874,13 @@ export async function sendMarketingPackToClientAction(slug: string) {
     // either reaches a mark-after-send check (see
     // marketing-voice-pack-client-send-race-guard-ordering-fix, the same fix
     // already applied to sendStarterUpsellAction /
-    // sendStripeConnectOnboardingLinkToClientAction). A lost reservation
+    // sendStripeConnectOnboardingLinkToClientAction). Passing pack.generatedAt
+    // as the expected version additionally closes a second, distinct race: a
+    // concurrent Regenerate between the `pack` read above and this reservation
+    // clears sentToClientAt and swaps in new variants, and without this check
+    // the reservation would succeed against the NEW row while the send below
+    // still emails the STALE `pack.variants` captured earlier (see
+    // marketing-voice-pack-send-stale-content-race-guard). A lost reservation
     // (marked === false) or a fail-closed reservation write skips the send
     // entirely — no email goes out on the losing side.
     const sentToClientAt = new Date().toISOString();
@@ -2883,6 +2889,7 @@ export async function sendMarketingPackToClientAction(slug: string) {
       marked = await markMarketingPackSentToClient(
         lead.slug,
         pack.yearMonth,
+        pack.generatedAt,
         sentToClientAt,
         MARKETING_PACK_CONVEX_PRIMARY,
       );
@@ -2897,10 +2904,18 @@ export async function sendMarketingPackToClientAction(slug: string) {
       throw markError;
     }
     if (!marked) {
+      // Re-fetch to tell a genuine duplicate-send race (same pack version,
+      // already sent) apart from a version mismatch (the pack was
+      // regenerated between the read above and this reservation) — the two
+      // need different operator guidance, and in both cases no email was
+      // sent by this call.
+      const current = await getMarketingPack(lead.slug, pack.yearMonth);
       return {
         success: false as const,
         error:
-          "Marketing pack was already marked sent by a concurrent request — skipped duplicate send.",
+          current && current.generatedAt !== pack.generatedAt
+            ? "Marketing pack was regenerated while this send was in flight — refresh and resend to deliver the current version."
+            : "Marketing pack was already marked sent by a concurrent request — skipped duplicate send.",
       };
     }
 
@@ -4244,7 +4259,14 @@ export async function sendClientVoicePackToClientAction(slug: string) {
     // Reserve the one-shot sent-marker BEFORE sending — mirrors
     // sendMarketingPackToClientAction's reserve-then-send-then-release-on-failure
     // ordering (see marketing-voice-pack-client-send-race-guard-ordering-fix).
-    // A lost reservation or a fail-closed reservation write skips the send
+    // Passing pack.generatedAt as the expected version additionally closes a
+    // second, distinct race: a concurrent Regenerate between the `pack` read
+    // above and this reservation clears sentToClientAt and swaps in new
+    // variants, and without this check the reservation would succeed
+    // against the NEW row while the send below still emails the STALE
+    // `pack.variants` captured earlier (see
+    // marketing-voice-pack-send-stale-content-race-guard). A lost
+    // reservation or a fail-closed reservation write skips the send
     // entirely, closing the window where two concurrent requests could both
     // send a real duplicate email before either reached a mark-after-send
     // check.
@@ -4253,6 +4275,7 @@ export async function sendClientVoicePackToClientAction(slug: string) {
     try {
       marked = await markClientVoicePackSentToClient(
         lead.slug,
+        pack.generatedAt,
         sentToClientAt,
         CLIENT_VOICE_PACK_CONVEX_PRIMARY,
       );
@@ -4267,10 +4290,18 @@ export async function sendClientVoicePackToClientAction(slug: string) {
       throw markError;
     }
     if (!marked) {
+      // Re-fetch to tell a genuine duplicate-send race (same pack version,
+      // already sent) apart from a version mismatch (the pack was
+      // regenerated between the read above and this reservation) — the two
+      // need different operator guidance, and in both cases no email was
+      // sent by this call.
+      const current = await getClientVoicePackByLeadSlug(lead.slug);
       return {
         success: false as const,
         error:
-          "Client voice pack was already marked sent by a concurrent request — skipped duplicate send.",
+          current && current.generatedAt !== pack.generatedAt
+            ? "Client voice pack was regenerated while this send was in flight — refresh and resend to deliver the current version."
+            : "Client voice pack was already marked sent by a concurrent request — skipped duplicate send.",
       };
     }
 
