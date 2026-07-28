@@ -948,5 +948,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "outreach-followup-cron-automation",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-5z0t95",
+    summary:
+      "Scheduled routine, picked up at origin/main tip 0ee90ef (PR #934, checkout-recovery-cron-automation folded in behind stripe-checkout-recurring-upgrade-dedup-shared-customer-fix, merged prior sessions) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). git fetch --prune across all remote branches and a rev-list ahead-count check on the 5 most-recently-pushed claude/* branches found every one already fully merged (0 ahead of main); mcp__github__list_pull_requests found only the one pre-existing stale, unrelated human draft PR (#202) open — no live sibling to fold or avoid colliding with.",
+    shipped: [
+      "AGENT_PROTOCOL's diff-gate found a non-empty diff since the last verified-clean anchor (5347eb10, 9 real commits behind), so ran a fresh (not rubber-stamped) look rather than trusting the prior clean sweep still held. Checked the task brief's own suggested candidate — a dormant Sentry-equivalent observability scaffold — first: it turned out already built and extensively wired (observability-error-tracking-scaffold plus ten follow-on capture-error-wiring NEXT_STEPS-done entries closed essentially the whole axis before this session started), and both brand-new cron routes added in the diff window (GET /api/cron/daily-digest, GET /api/cron/checkout-recovery) already call captureError on every failure path — confirmed genuinely closed, not pursued further.",
+      "Read both new cron routes and their shared src/lib/security/cron-secret.ts end to end for a fresh money/ledger/security/Convex-parity gap and found none — but did find a real untested-orchestration gap: every OTHER file in src/lib/security/ (app-url, content-security-policy, json-body, rate-limit, security-headers) has a colocated *.test.ts with direct unit coverage; cron-secret.ts — the shared constant-time secret-compare module gating both cron routes — had none of its own, only indirect coverage via the two routes' own route.test.ts response-shape assertions.",
+      "Shipped src/lib/security/cron-secret.test.ts: 18 new Vitest cases across cronSecretMatches (identical/mismatched/empty secrets, the 256-char boundary accepted, the 257-char boundary rejected even when otherwise equal, case-sensitivity), extractBearerToken (well-formed header, missing header, lowercase 'bearer' scheme, non-Bearer 'Basic' scheme, bare 'Bearer' with no token, empty value), and verifyCronRequest (correct/missing/wrong/malformed). Verified two of these actually catch a regression: temporarily reduced cronSecretMatches to a naive `provided === expected` (dropping the length ceiling + constant-time compare) and confirmed the 257-char-boundary case failed as expected; separately made extractBearerToken's prefix check case-insensitive and confirmed the lowercase-'bearer' case failed as expected; restored the original file exactly (diffed clean) before re-running the suite green.",
+      "src/lib/security/cron-secret.test.ts — new file. src/lib/process/business-decisions.ts — appended cron-secret-module-direct-unit-coverage. src/lib/process/prompt_process.tsx — this entry. No docs-page change (test-coverage-only, no behavior/invariant change). No NEXT_STEPS change — this is a test-coverage gap fix in an already-shipped, dormant-until-CRON_SECRET-is-set capability; the five gated items remain operator/legal/infra-blocked.",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx (225,572 bytes) and business-decisions.ts (121,196 bytes) both measured via wc -c before this entry — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (cron-secret.test.ts, 18/18 passed) then full suite (3835 passed, 222 files, +18 net new, +1 net new test file) + a full clean rebuild (rm -rf .next && npm run build, clean, same 64-route split, no new warnings). No dev-server smoke check needed — pure unit-test addition to a server-only pure-function module, no new UI/runtime surface.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "cron-secret-module-direct-unit-coverage",
+    ),
+  },
 ];
 
