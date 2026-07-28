@@ -5825,7 +5825,8 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(session));
       recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
-      sendReceiptEmail.mockRejectedValue(new Error("resend down"));
+      const receiptError = new Error("resend down");
+      sendReceiptEmail.mockRejectedValue(receiptError);
       updateDeployHandoffStatus.mockResolvedValue(existingHandoff());
       const { POST } = await import("./route");
 
@@ -5834,11 +5835,10 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_email_send");
       expect(sendBundleDnsHandoffEmail).toHaveBeenCalledTimes(1);
-      // The thrown emailError is scoped to its own inner catch and does not
-      // survive to the merged emailSendFailed flag check — captureError gets
-      // a synthesized Error instead (see the flag-based-failure comment at
-      // this call site in route.ts).
-      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      // Captured at the throw site with the real error object (not a
+      // synthesized one at the merged emailSendFailed flag check) so its
+      // actual message/stack survives into captureError.
+      expect(captureError).toHaveBeenCalledWith(receiptError, {
         component: "stripe-webhook",
         eventType: "checkout.session.completed",
         eventId: undefined,
@@ -5854,7 +5854,8 @@ describe("POST /api/stripe/webhook", () => {
       constructEvent.mockReturnValue(completedEvent(session));
       recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
-      sendBundleDnsHandoffEmail.mockRejectedValue(new Error("dns formatting failed"));
+      const dnsError = new Error("dns formatting failed");
+      sendBundleDnsHandoffEmail.mockRejectedValue(dnsError);
       updateDeployHandoffStatus.mockResolvedValue(existingHandoff());
       const { POST } = await import("./route");
 
@@ -5865,7 +5866,8 @@ describe("POST /api/stripe/webhook", () => {
       // The buyer receipt completed before the DNS formatter failed; its
       // independent marker remains durable while DNS is retried.
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
-      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      // Captured at the throw site with the real error object.
+      expect(captureError).toHaveBeenCalledWith(dnsError, {
         component: "stripe-webhook",
         eventType: "checkout.session.completed",
         eventId: undefined,
@@ -5903,12 +5905,17 @@ describe("POST /api/stripe/webhook", () => {
         [expect.stringContaining("DNS handoff email sent")],
         { requireConvex: true },
       );
-      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
-        component: "stripe-webhook",
-        eventType: "checkout.session.completed",
-        eventId: undefined,
-        failureKind: "bundle_email_send",
-      });
+      // Captured at the resolved-failure origin — the message carries the
+      // real reason, not a generic string from a merged flag check.
+      expect(captureError).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.stringContaining("suppressed") }),
+        {
+          component: "stripe-webhook",
+          eventType: "checkout.session.completed",
+          eventId: undefined,
+          failureKind: "bundle_email_send",
+        },
+      );
     });
 
     it("does not mark the DNS handoff email sent when sendBundleDnsHandoffEmail resolves success:false, so redelivery retries it", async () => {
@@ -5941,12 +5948,17 @@ describe("POST /api/stripe/webhook", () => {
         [expect.stringContaining("Buyer receipt email sent")],
         { requireConvex: true },
       );
-      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
-        component: "stripe-webhook",
-        eventType: "checkout.session.completed",
-        eventId: undefined,
-        failureKind: "bundle_email_send",
-      });
+      // Captured at the resolved-failure origin — the message carries the
+      // real reason, not a generic string from a merged flag check.
+      expect(captureError).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.stringContaining("Resend API error") }),
+        {
+          component: "stripe-webhook",
+          eventType: "checkout.session.completed",
+          eventId: undefined,
+          failureKind: "bundle_email_send",
+        },
+      );
     });
   });
 
@@ -6787,7 +6799,8 @@ describe("POST /api/stripe/webhook", () => {
         id: "corder_1",
         stripeSessionId: "cs_test_1",
       });
-      sendCommerceBuyNowClientReceipt.mockRejectedValue(new Error("resend down"));
+      const receiptError = new Error("resend down");
+      sendCommerceBuyNowClientReceipt.mockRejectedValue(receiptError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -6796,11 +6809,10 @@ describe("POST /api/stripe/webhook", () => {
       expect(json.step).toBe("commerce_client_receipt_send");
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
       expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
-      // The thrown emailError is scoped to its own inner catch and does not
-      // survive to the merged clientReceiptSendFailed flag check —
-      // captureError gets a synthesized Error instead (see the flag-based-
-      // failure comment at this call site in route.ts).
-      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      // Captured at the throw site with the real error object (not a
+      // synthesized one at the merged clientReceiptSendFailed flag check) so
+      // its actual message/stack survives into captureError.
+      expect(captureError).toHaveBeenCalledWith(receiptError, {
         component: "stripe-webhook",
         eventType: "checkout.session.completed",
         eventId: undefined,
@@ -6839,12 +6851,17 @@ describe("POST /api/stripe/webhook", () => {
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
       expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
       expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
-      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
-        component: "stripe-webhook",
-        eventType: "checkout.session.completed",
-        eventId: undefined,
-        failureKind: "commerce_client_receipt_send",
-      });
+      // Captured at the resolved-failure origin — the message carries the
+      // real reason, not a generic string from a merged flag check.
+      expect(captureError).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.stringContaining("suppressed") }),
+        {
+          component: "stripe-webhook",
+          eventType: "checkout.session.completed",
+          eventId: undefined,
+          failureKind: "commerce_client_receipt_send",
+        },
+      );
     });
 
     it("returns 500 (commerce_client_receipt_sent_marker) when the durable receipt marker write fails after a successful send", async () => {
