@@ -32,6 +32,12 @@ export interface BusinessContext {
   tagline?: string;
   websiteUrl?: string;
   tone?: "friendly" | "professional" | "casual";
+  /**
+   * Named sale/event/occasion to center seasonal_promo/ad_copy content
+   * around (e.g. "Labor Day weekend", "Grand reopening"). Ignored by every
+   * other content type. See src/lib/marketing/seasonal-promo.ts.
+   */
+  campaignContext?: string;
 }
 
 export interface GenerateMarketingRequest {

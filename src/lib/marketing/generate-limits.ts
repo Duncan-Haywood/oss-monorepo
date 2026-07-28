@@ -26,6 +26,9 @@ import type { BusinessContext } from "./types";
 export const MAX_MARKETING_CONTENT_TYPES_PER_REQUEST =
   MONTHLY_MARKETING_PACK_TYPES.length;
 
+/** Same bound as tagline — a free-text marketing label, not a CRM field. */
+export const MAX_CAMPAIGN_CONTEXT_LENGTH = MAX_TAGLINE_LENGTH;
+
 /** leadId is a slug-like token on this route — match preview-open slug bound. */
 export const MAX_MARKETING_GENERATE_LEAD_ID_LENGTH = 120;
 
@@ -101,5 +104,9 @@ export function normalizeMarketingGenerateBusiness(
     tagline: softCapOptional(business.tagline?.trim(), MAX_TAGLINE_LENGTH),
     websiteUrl: softCapOptional(business.websiteUrl?.trim(), MAX_WEBSITE_URL_LENGTH),
     tone: business.tone,
+    campaignContext: softCapOptional(
+      business.campaignContext?.trim(),
+      MAX_CAMPAIGN_CONTEXT_LENGTH,
+    ),
   };
 }

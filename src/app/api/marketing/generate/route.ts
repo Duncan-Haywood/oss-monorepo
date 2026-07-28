@@ -37,6 +37,7 @@ function isBusinessContext(value: unknown): value is BusinessContext {
   const b = value as Record<string, unknown>;
   // Bound services length before .every so a multi-MB array cannot stall validation.
   if (!Array.isArray(b.services) || b.services.length > 500) return false;
+  if (b.campaignContext !== undefined && typeof b.campaignContext !== "string") return false;
   return (
     typeof b.businessName === "string" &&
     typeof b.category === "string" &&

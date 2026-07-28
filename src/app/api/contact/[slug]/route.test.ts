@@ -13,6 +13,11 @@ vi.mock("@/lib/db", () => ({
   insertClientInquiry: (...args: unknown[]) => insertClientInquiry(...args),
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 type SendEmailResult = { success: true; mock?: boolean } | { success: false; reason?: string; error?: string };
 
 const sentEmail = vi.fn(async (): Promise<SendEmailResult> => ({ success: true })) as unknown as {
@@ -44,6 +49,7 @@ describe("POST /api/contact/[slug]", () => {
     // contact-form-require-known-lead. Tests that need null override explicitly.
     getLeadBySlug.mockResolvedValue({ ...KNOWN_LEAD });
     insertClientInquiry.mockResolvedValue({ id: "inq_test_1" });
+    captureError.mockReset().mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -261,6 +267,46 @@ describe("POST /api/contact/[slug]", () => {
       CONTACT_FORM_CONVEX_PRIMARY,
     );
     expect(sentEmail).not.toHaveBeenCalled();
+  });
+
+  it("reports insertClientInquiry failures via captureError (inquiry_persist)", async () => {
+    const persistError = new Error("sqlite is locked");
+    insertClientInquiry.mockRejectedValue(persistError);
+    const { POST } = await import("./route");
+    await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "Need a quote",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+
+    expect(captureError).toHaveBeenCalledWith(persistError, {
+      component: "contact-form",
+      failureKind: "inquiry_persist",
+      leadSlug: "demo-cafe",
+    });
+  });
+
+  it("does not call captureError when insertClientInquiry succeeds", async () => {
+    const { POST } = await import("./route");
+    await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "Need a quote",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+
+    expect(captureError).not.toHaveBeenCalled();
   });
 
   it("still returns ok when notify email throws after a durable persist", async () => {

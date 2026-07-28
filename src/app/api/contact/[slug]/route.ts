@@ -10,6 +10,7 @@ import {
 } from "@/lib/inquiries/contact-persist";
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
+import { captureError } from "@/lib/observability/error-tracking";
 import {
   readFormBodyWithByteLimit,
   readJsonBodyWithByteLimit,
@@ -199,6 +200,7 @@ export async function POST(request: Request, context: RouteContext) {
     inquiryId = inquiry.id;
   } catch (error) {
     console.error(`contact form persist failed for ${slug}:`, error);
+    await captureError(error, { component: "contact-form", failureKind: "inquiry_persist", leadSlug: slug });
   }
 
   const outcome = contactPersistOutcome(inquiryId);

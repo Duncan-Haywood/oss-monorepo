@@ -70,7 +70,14 @@ export default function MarketingAutomationDocPage() {
         Three additional content types (<code>local_seo_meta</code>, <code>seasonal_promo</code>,{" "}
         <code>ad_copy</code>) exist for ad-hoc, non-persisted generation via{" "}
         <code>POST /api/marketing/generate</code> — they are not part of the fixed monthly pack
-        above and have no dedicated dashboard fulfillment action yet.
+        above. <code>seasonal_promo</code>/<code>ad_copy</code> now also have a dedicated dashboard
+        action (<strong>Seasonal promo</strong>, Complete-tier leads only —{" "}
+        <code>generateSeasonalPromoAction</code>): two seasonal-promo A/B variants plus one
+        ad-copy piece, optionally named around an operator-supplied occasion (defaults to the
+        current UTC month when left blank — never a hemisphere-dependent &quot;season&quot;
+        guess). Like the ad-hoc route, results are not persisted — the operator copies them to
+        post/paste before navigating away. <code>local_seo_meta</code> still has no dedicated
+        dashboard action.
       </p>
 
       <h2>Automation levels</h2>
@@ -79,7 +86,12 @@ export default function MarketingAutomationDocPage() {
         {getBundle("complete")!.monthlyPriceUsd}/mo) generate the identical monthly pack above — Complete&apos;s{" "}
         <code>full_marketing</code> package tier label (vs Growth&apos;s <code>social_email</code>,
         see <code>packageTierForOrderTier</code>) reflects Complete&apos;s broader bundle (marketing
-        + AI phone receptionist), not a deeper marketing generation depth. Buffer auto-posting
+        + AI phone receptionist), not a deeper monthly-pack generation depth. The one genuine
+        depth difference is the ad-hoc <strong>Seasonal promo</strong> dashboard action above —
+        the &quot;Full marketing — seasonal promos, A/B variants&quot; bullet on{" "}
+        <DocLink href="/docs/product-bundles">Product bundles</DocLink> is Complete-only,
+        gated by <code>leadEligibleForSeasonalPromo</code> the same way the monthly pack gates on
+        Growth-or-Complete. Buffer auto-posting
         (facebook_caption/instagram_caption only) is a dormant scaffold behind{" "}
         <code>ALLOW_MARKETING_SCHEDULING</code> + <code>BUFFER_ACCESS_TOKEN</code> (default off) —
         see <DocLink href="/docs/process">/docs/process</DocLink>{" "}

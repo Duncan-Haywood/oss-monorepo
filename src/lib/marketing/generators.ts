@@ -56,9 +56,14 @@ function stubVariant(
   const phoneBit = business.phone ? `Reach us at ${business.phone}.` : "";
   const angle =
     index % 3 === 0 ? "this week" : index % 3 === 1 ? "for locals" : "with a special offer";
+  // campaignContext (a named sale/event, e.g. "Labor Day weekend") only
+  // shapes seasonal_promo/ad_copy — every other content type ignores it.
+  const isCampaignContentType = contentType === "seasonal_promo" || contentType === "ad_copy";
+  const campaignBit =
+    isCampaignContentType && business.campaignContext ? ` ${business.campaignContext}.` : "";
 
   const body =
-    `[Stub ${index + 1}] ${businessName} in ${location} — ${service} ${angle}. ${hoursBit} ${phoneBit}`.trim();
+    `[Stub ${index + 1}] ${businessName} in ${location} — ${service} ${angle}.${campaignBit} ${hoursBit} ${phoneBit}`.trim();
 
   // Soft-cap at stub emit too — parseVariantsJson only covers the Anthropic path;
   // default/fallback packs still upsert + skipSuppression email (PR #312 twin).
@@ -131,6 +136,7 @@ export class AnthropicMarketingGenerator implements MarketingGenerator {
       "You write local small-business marketing copy.",
       "Every piece must include the business name, city, concrete services, accurate hours when provided, and a relevant CTA.",
       "Forbidden: generic AI slop, invented awards, wrong city, hashtag spam, fake statistics.",
+      "When campaignContext is provided, center every seasonal_promo and ad_copy piece specifically around it (a named sale, holiday, or event) — every other content type must ignore it.",
       "Return ONLY valid JSON: an array of objects with keys contentType, title (optional string), body (string), cta (optional string), hashtags (optional string array).",
       "Array length and contentType values must match the requested contentTypes exactly, in order.",
     ].join(" ");
@@ -145,6 +151,7 @@ export class AnthropicMarketingGenerator implements MarketingGenerator {
         services: business.services,
         tagline: business.tagline,
         tone: business.tone ?? "friendly",
+        campaignContext: business.campaignContext,
       },
       contentTypes,
     });
