@@ -457,9 +457,10 @@ describe("POST /api/commerce/checkout", () => {
     expect(captureError).not.toHaveBeenCalled();
   });
 
-  it("returns 502 when Stripe session creation throws", async () => {
+  it("returns 502 when Stripe session creation throws, and reports it via captureError (session_create)", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
-    sessionsCreate.mockRejectedValue(new Error("stripe_timeout"));
+    const stripeError = new Error("stripe_timeout");
+    sessionsCreate.mockRejectedValue(stripeError);
     const { POST } = await import("./route");
     const res = await POST(
       commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }),
@@ -470,6 +471,10 @@ describe("POST /api/commerce/checkout", () => {
       message: "stripe_timeout",
     });
     expect(recordCheckoutSessionCreated).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(stripeError, {
+      component: "commerce-checkout",
+      failureKind: "session_create",
+    });
   });
 
   it("passes a valid client idempotencyKey through to Stripe as the request options", async () => {

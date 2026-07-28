@@ -491,15 +491,20 @@ describe("POST /api/stripe/checkout", () => {
     expect(recordCheckoutSessionCreated).not.toHaveBeenCalled();
   });
 
-  it("returns 502 when Stripe session creation throws", async () => {
+  it("returns 502 when Stripe session creation throws, and reports it via captureError (session_create)", async () => {
     setBundlePriceEnv();
-    sessionsCreate.mockRejectedValue(new Error("card_declined_sim"));
+    const stripeError = new Error("card_declined_sim");
+    sessionsCreate.mockRejectedValue(stripeError);
     const { POST } = await import("./route");
     const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
     expect(res.status).toBe(502);
     const body = await res.json();
     expect(body.error).toBe("Stripe session creation failed");
     expect(body.message).toBe("card_declined_sim");
+    expect(captureError).toHaveBeenCalledWith(stripeError, {
+      component: "stripe-checkout",
+      failureKind: "session_create",
+    });
   });
 
   it("returns 502 (fail-closed) when checkout tracking hits ConvexPrimaryWriteError, and reports it via captureError (checkout_session_record)", async () => {
