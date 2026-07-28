@@ -985,5 +985,54 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "annual-billing-option",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-k4t0a0",
+    summary:
+      "Scheduled routine, picked up at origin/main tip fe6ceea1 (PR #935, cron-secret-module-direct-unit-coverage, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). git fetch --prune across all remote branches and an ahead-count check on the 8 most-recently-pushed claude/* branches found every one already fully merged; mcp__github__list_pull_requests found only the one pre-existing stale, unrelated human draft PR (#202) open — no live sibling to fold or avoid colliding with.",
+    shipped: [
+      "Diff-gate since the last verified-clean anchor (5347eb10) was non-empty, but the immediately preceding session had already done a fresh look at that exact window and closed its one finding (cron-secret.ts coverage). Diff since that session's own starting tip (0ee90ef) was empty, so per the waste-reduction rule this iteration skipped a full five-tier sweep and dispatched a narrowly-scoped research pass explicitly briefed to avoid every angle already closed today, aimed at tiers 1 and 4.",
+      "Found a real, isolated gap: 4 of the 20 `*_CONVEX_PRIMARY` fail-closed write-option constants (STARTER_UPSELL_SENT_CONVEX_PRIMARY, GROWTH_UPSELL_SENT_CONVEX_PRIMARY, STRIPE_CONNECT_ONBOARDING_LINK_SENT_CONVEX_PRIMARY, LEAD_BUFFER_POSTED_VARIANT_KEYS_CONVEX_PRIMARY) — all shipped by features later than the 2026-07-20 AGENT_PROTOCOL entry that claimed 'every constant now has a dedicated unit test' — never got the matching *-persist.test.ts file every one of the other 16 sibling constants has. The fail-closed behavior itself was real and indirectly exercised via each feature's own action-level test, but never pinned down as a direct unit fact the way every sibling already is.",
+      "Shipped src/lib/leads/starter-upsell-persist.test.ts, src/lib/leads/growth-upsell-persist.test.ts, src/lib/leads/stripe-connect-onboarding-link-persist.test.ts, src/lib/marketing/buffer-posted-variant-persist.test.ts — 8 new Vitest cases mirroring the existing sibling pattern exactly (requireConvex===true; shouldFallbackToSqliteOnConvexFailure false-when-configured/true-when-not). src/lib/process/business-decisions.ts — appended convex-primary-persist-constant-direct-test-coverage-gap-4-files. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to fe6ceea1.",
+      "Verified the regression-catching claim directly: temporarily flipped STARTER_UPSELL_SENT_CONVEX_PRIMARY.requireConvex to false, confirmed its first test case failed as expected, restored the file exactly (diffed clean).",
+      "Verified: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (4 new files, 8/8 passed) then full suite (3843 passed, 226 files, +8 net new, +4 net new test files) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — pure unit-test addition to four server-only constant modules.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "convex-primary-persist-constant-direct-test-coverage-gap-4-files",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip e78d219e (PR #932, empty-backlog-second-consecutive-clean-sweep-post-dedup, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). Four live siblings merged mid-iteration (PR #933, an important correction to this session's own earlier recurring-upgrade-dedup work; PR #934, checkout-recovery-cron-automation; PR #935, cron-secret-module-direct-unit-coverage; PR #936, outreach-followups-cron-automation) — all merged in cleanly, no code overlap, only the two process-log files, plus two rounds of copy correction as the CRON_SECRET consumer count kept growing mid-iteration (see below).",
+    shipped: [
+      "Given two consecutive clean sweeps, dispatched a research agent at the freshly-shipped Vercel Cron daily-digest automation (entirely unaudited). The cron route itself (auth, failure handling, double-send/leak risk) was clean, but it found a real integration gap: OperatorDigestEmailEnvBanner, the only existing digest readiness signal, only ever checked OPERATOR_DIGEST_EMAIL, never CRON_SECRET — the manual 'Send daily digest' button still works with just the former set, but the cron route's own gate had zero dashboard visibility if missing, silently defeating the automation's entire stated purpose (removing reliance on the operator remembering to check something).",
+      "Added a separate readiness check + banner pair rather than folding CRON_SECRET into the existing check: src/lib/digest/operator-digest-cron-env-readiness.ts (assessOperatorDigestCronEnvReadiness) + src/components/dashboard/operator-digest-cron-env-banner.tsx (OperatorDigestCronEnvBanner), wired into both /dashboard and /dashboard/leads. Deliberately separate since the two failure modes aren't equivalent (missing CRON_SECRET doesn't block the manual button), matching this codebase's established one-banner-per-concern convention.",
+      "As a new capability addition (not a fix to existing broken behavior), git-stash regression-proof doesn't apply the same way — verified instead via 6 new unit tests plus a dev-server smoke check: confirmed both banners render with CRON_SECRET unset, and only the email banner remains once CRON_SECRET is set.",
+      "Sibling PR #934 shipped a second cron route (checkout-recovery) sharing the SAME CRON_SECRET mid-iteration — updated the banner to name both automations. Before this branch even reached push, a THIRD sibling (PR #936) merged a third cron route sharing the same secret, making that two-consumer wording stale within the same iteration. Rather than keep chasing the count, rewrote the copy to be feature-list-agnostic (every vercel.json cron shares this secret) with illustrative current examples pointing at .env.example as the authoritative list — so a future fourth cron route makes an example stale, not the banner's core claim wrong. Re-verified with dev-server smoke checks at each step (three total).",
+      "src/lib/digest/operator-digest-cron-env-readiness.ts + .test.ts, src/components/dashboard/operator-digest-cron-env-banner.tsx — new files. src/app/dashboard/page.tsx + leads/page.tsx — wired in. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended operator-digest-cron-secret-env-banner. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 16d550be (origin/main tip after sibling PRs #933/#934/#935/#936 all merged mid-iteration).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (operator-digest-cron-env-readiness.test.ts, 6/6 passed) then full suite (3860 passed, 225 files post-merge) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + three dev-server smoke checks confirming the banner's show/hide behavior and each copy revision.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "operator-digest-cron-secret-env-banner",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 071b45f7 (PR #938, operator-digest-cron-secret-env-banner, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). Sibling PR #937 (cron-secret-persist-constant-unit-coverage, test-only) merged mid-iteration — fast-forwarded cleanly, no code overlap. No other live sibling beyond the unrelated stale #202.",
+    shipped: [
+      "Given the extremely high concurrent-sibling velocity this hour, dispatched a research agent told to run a git log freshness check first (to avoid re-auditing work a sibling had just finished) before sweeping five genuinely fresh angles: Commerce/Stripe Connect onboarding end to end, security headers/CSP, SEO correctness, the three new cron routes' actual business logic (not just auth), and custom-domain Host-header routing security.",
+      "All five came back clean. One process-discipline highlight: the agent's SEO sweep initially surfaced what looked like a fresh finding (/dashboard/login inherits the homepage's wrong canonical/OG tags) — but cross-referencing the live business-decisions.ts archive found this exact finding already logged and deliberately deferred as low-severity (robots.ts already disallows /dashboard wholesale) in business-decisions-archive-05.ts. Catching this near-miss by checking the process log rather than trusting its own judgment alone is exactly the discipline AGENT_PROTOCOL asks for.",
+      "Everything else checked out clean: Commerce/Connect stack already idempotency-keyed with correct accessibility wiring; CSP's two-tier nonce/static design is deliberate and documented; the three new cron routes' business logic all follow the already-proven persist-then-notify CAS pattern with no new race; custom-domain routing already has documented fixes for every edge case constructed. The agent honestly flagged lower confidence on areas it lacked budget to read line-by-line rather than overstating full-repo closure. No code shipped this iteration.",
+      "src/lib/process/business-decisions.ts — appended empty-backlog-post-cron-banner-clean-sweep. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 0a9e5c65 (origin/main tip after sibling PR #937 merged mid-iteration).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3868 passed, 229 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — this iteration touched only the process log.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "empty-backlog-post-cron-banner-clean-sweep",
+    ),
+  },
 ];
 
