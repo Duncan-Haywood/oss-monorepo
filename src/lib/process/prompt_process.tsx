@@ -967,6 +967,22 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-28",
+    branch: "claude/nice-euler-k4t0a0",
+    summary:
+      "Scheduled routine, picked up at origin/main tip fe6ceea1 (PR #935, cron-secret-module-direct-unit-coverage, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed baseline green: npm ci + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). git fetch --prune across all remote branches and an ahead-count check on the 8 most-recently-pushed claude/* branches found every one already fully merged; mcp__github__list_pull_requests found only the one pre-existing stale, unrelated human draft PR (#202) open — no live sibling to fold or avoid colliding with.",
+    shipped: [
+      "Diff-gate since the last verified-clean anchor (5347eb10) was non-empty, but the immediately preceding session had already done a fresh look at that exact window and closed its one finding (cron-secret.ts coverage). Diff since that session's own starting tip (0ee90ef) was empty, so per the waste-reduction rule this iteration skipped a full five-tier sweep and dispatched a narrowly-scoped research pass explicitly briefed to avoid every angle already closed today, aimed at tiers 1 and 4.",
+      "Found a real, isolated gap: 4 of the 20 `*_CONVEX_PRIMARY` fail-closed write-option constants (STARTER_UPSELL_SENT_CONVEX_PRIMARY, GROWTH_UPSELL_SENT_CONVEX_PRIMARY, STRIPE_CONNECT_ONBOARDING_LINK_SENT_CONVEX_PRIMARY, LEAD_BUFFER_POSTED_VARIANT_KEYS_CONVEX_PRIMARY) — all shipped by features later than the 2026-07-20 AGENT_PROTOCOL entry that claimed 'every constant now has a dedicated unit test' — never got the matching *-persist.test.ts file every one of the other 16 sibling constants has. The fail-closed behavior itself was real and indirectly exercised via each feature's own action-level test, but never pinned down as a direct unit fact the way every sibling already is.",
+      "Shipped src/lib/leads/starter-upsell-persist.test.ts, src/lib/leads/growth-upsell-persist.test.ts, src/lib/leads/stripe-connect-onboarding-link-persist.test.ts, src/lib/marketing/buffer-posted-variant-persist.test.ts — 8 new Vitest cases mirroring the existing sibling pattern exactly (requireConvex===true; shouldFallbackToSqliteOnConvexFailure false-when-configured/true-when-not). src/lib/process/business-decisions.ts — appended convex-primary-persist-constant-direct-test-coverage-gap-4-files. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to fe6ceea1.",
+      "Verified the regression-catching claim directly: temporarily flipped STARTER_UPSELL_SENT_CONVEX_PRIMARY.requireConvex to false, confirmed its first test case failed as expected, restored the file exactly (diffed clean).",
+      "Verified: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (4 new files, 8/8 passed) then full suite (3843 passed, 226 files, +8 net new, +4 net new test files) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — pure unit-test addition to four server-only constant modules.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "convex-primary-persist-constant-direct-test-coverage-gap-4-files",
+    ),
+  },
+  {
+    date: "2026-07-28",
     branch: "claude/upbeat-dijkstra-tg1n4z",
     summary:
       "Continuation of the same scheduled routine, picked up at origin/main tip e78d219e (PR #932, empty-backlog-second-consecutive-clean-sweep-post-dedup, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). Four live siblings merged mid-iteration (PR #933, an important correction to this session's own earlier recurring-upgrade-dedup work; PR #934, checkout-recovery-cron-automation; PR #935, cron-secret-module-direct-unit-coverage; PR #936, outreach-followups-cron-automation) — all merged in cleanly, no code overlap, only the two process-log files, plus two rounds of copy correction as the CRON_SECRET consumer count kept growing mid-iteration (see below).",
