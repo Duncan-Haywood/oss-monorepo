@@ -562,6 +562,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "commerce-stripe-sync-superseded-price-deactivation",
+    summary:
+      "Third-consecutive-empty-backlog research (angles the two prior clean sweeps already exhausted explicitly excluded) found syncCommerceCatalogToStripe minted a new Stripe Price on every Commerce SKU reprice (correct — Prices are immutable) but never deactivated the Price it superseded, permanently accumulating one more active-but-orphaned Price per SKU on every operator reprice, with no existing cleanup path (archiveOrphanCommerceStripeProducts only covers whole Products for removed SKUs). Shipped deactivateSupersededPrices (src/lib/commerce/stripe-sync.ts), called automatically after each SKU's current Price is resolved — not operator-gated, since deactivating a superseded Price carries no customer-facing/money-movement risk, unlike Product archival. See commerce-stripe-sync-superseded-price-deactivation in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-f9gu8c",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -1055,6 +1063,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "leads-client-pending-announcement-deferred-needs-rtl-infra",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-f9gu8c",
+    summary:
+      "Fresh scheduled-routine session, picked up at origin/main tip 661ea488 (PR #921, empty-backlog-second-consecutive-clean-sweep, merged in an unrelated prior session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). Ran a full git fetch --prune across all 825 remote branches and checked rev-list ahead-counts on the ~20 most-recently-pushed ones — every one already fully merged into origin/main, so no live sibling claim to check or pivot around.",
+    shipped: [
+      "Third consecutive empty-backlog round. Dispatched a research agent with an explicit list of every angle the two preceding clean sweeps had already closed, and asked it to go deep (full-file reads, not skims) on genuinely fresh angles: SEO/structured-data beyond FAQ, cookie/session security, TS/lint strictness in payment code, dashboard N+1 risk, email-deliverability compliance headers, pricing/conversion copy, and a real TODO/FIXME grep. Also independently reconfirmed via mcp__github__actions_list/get that the github-actions-runner-unavailable NEXT_STEPS item is still accurate (every workflow run still fails in ~4s with no runner assigned) before ruling it out again as unfixable by code.",
+      "Most of the fresh angles came back clean (LocalBusiness/Organization/Service JSON-LD, robots.txt/sitemap.ts, the operator auth cookie's httpOnly/secure/sameSite/path + constant-time compare, List-Unsubscribe headers + CAN-SPAM footer, bundle/pricing copy matching its BUNDLES source, zero real TODO/FIXME hits). It found one real, previously-unaudited gap in src/lib/commerce/stripe-sync.ts's syncCommerceCatalogToStripe — I independently re-verified it by reading the full file myself before fixing: on a Commerce SKU reprice, the function correctly minted a brand-new immutable Stripe Price but never deactivated the Price it superseded, so every operator reprice permanently left one more active-but-orphaned Price on that SKU's Stripe Product, with no existing cleanup path (archiveOrphanCommerceStripeProducts only targets whole Products for SKUs removed from the catalog entirely).",
+      "Shipped a new deactivateSupersededPrices helper, called once per SKU immediately after the current Price is resolved (freshly created, reactivated, or already-matching) — it lists every other active Price on that Product (exactly one Product per SKU by construction, so any other active Price there is stale by definition) and deactivates each. Automatic rather than operator-gated, since deactivating a superseded Price carries no customer-facing or money-movement risk, unlike the existing operator-triggered whole-Product archive for removed SKUs. Added 2 new Vitest cases (superseded-Price deactivation leaving exactly one active Price per SKU; a reprice-then-revert round trip reactivating the original Price, deactivating the interim one, and minting no third Price) plus two new fake-Stripe test-harness helpers (activePriceCount, isPriceActive) needed to assert active/inactive state — all 26 cases in stripe-sync.test.ts pass, including every pre-existing reactivate/idempotency/pagination/concurrency case unchanged.",
+      "src/lib/commerce/stripe-sync.ts — the fix. src/lib/commerce/stripe-sync.test.ts — the new coverage. src/lib/process/business-decisions.ts — appended commerce-stripe-sync-superseded-price-deactivation. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No other NEXT_STEPS change — the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 661ea488 (this session's own starting tip, post-PR-#921).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx measured 247,937 bytes before this entry, comfortably under the 262,144-byte trigger — but the rebase onto origin/main folded in a same-day sibling PR (#923, leads-client-pending-announcement-deferred-needs-rtl-infra) that appended its own sizeable ITERATIONS/BUSINESS_DECISIONS entries at the same tail position, and the combined result (this entry plus the folded sibling entry) pushed prompt_process.tsx to 262,302 bytes post-rebase — just over the trigger. Per AGENT_PROTOCOL, re-archiving is its own dedicated iteration, never a drive-by alongside a feature change, so it is NOT done in this commit; the next session must run the archive split (move the oldest live ITERATIONS entries into a new archive/iterations-archive-26.ts, mirroring process-log-archive-25-iterations-split) as its first action before appending further entries here.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3678 passed, 215 files, +2 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only Stripe-call orchestration fix behind a fake-client unit-test harness, not meaningfully exercisable beyond automated coverage without a live STRIPE_SECRET_KEY and a real Commerce catalog in this sandboxed environment.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-stripe-sync-superseded-price-deactivation",
     ),
   },
 ];

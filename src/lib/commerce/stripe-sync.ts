@@ -156,6 +156,38 @@ async function findMatchingPrice(
   return match;
 }
 
+/**
+ * Deactivate every other active Price on this Product besides the one the
+ * current sync just resolved as current — a repriced SKU mints a brand-new
+ * Price (Stripe Prices are immutable) via findMatchingPrice/prices.create
+ * above, but the superseded Price it replaces was otherwise never touched:
+ * this module creates exactly one Product per SKU, so any other active Price
+ * left on that Product is stale by definition once a current one is known.
+ * Left unfixed, every operator reprice permanently accumulates one more
+ * active-but-orphaned Price per SKU in the connected Stripe account, with no
+ * existing cleanup path (archiveOrphanCommerceStripeProducts only targets
+ * whole Products for SKUs removed from the catalog, never a stale Price on a
+ * SKU that's still present at a new amount). Mirrors the reactivate-on-resync
+ * precedent above — automatic, not operator-gated, since deactivating a
+ * superseded Price (unlike archiving a Product for a removed SKU) carries no
+ * customer-facing or money-movement risk and keeps external Stripe state
+ * matching the catalog's current desired state, the same principle this file
+ * already enforces for Products via archiveOrphanCommerceStripeProducts.
+ */
+async function deactivateSupersededPrices(
+  stripe: StripeProductsAndPrices,
+  productId: string,
+  currentPriceId: string,
+): Promise<void> {
+  const stale = await listAllPages((starting_after) =>
+    stripe.prices.list({ product: productId, active: true, limit: 100, starting_after }),
+  );
+  for (const price of stale) {
+    if (price.id === currentPriceId) continue;
+    await stripe.prices.update(price.id, { active: false });
+  }
+}
+
 export type SyncedCommerceSku = CommerceSku & {
   stripeProductId: string;
   stripePriceId: string;
@@ -213,6 +245,7 @@ export async function syncCommerceCatalogToStripe(
         { idempotencyKey: commercePriceIdempotencyKey(key, item.priceCents) },
       );
     }
+    await deactivateSupersededPrices(stripe, product.id, price.id);
 
     synced.push({ ...item, stripeProductId: product.id, stripePriceId: price.id });
   }
