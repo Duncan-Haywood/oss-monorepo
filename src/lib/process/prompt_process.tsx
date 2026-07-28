@@ -870,5 +870,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "operator-daily-digest-cron-automation",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 2d3ac50e (PR #929, recurring-upgrade-dedup-past-due-customer-reuse-gap, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). No live sibling branch beyond the unrelated stale #202.",
+    shipped: [
+      "Three consecutive iterations had just closed a real, severe bug family (recurring Stripe subscription duplication on tier upgrade, its win-back-notice interaction, and a past_due residual gap) and confirmed the rest of the payment/checkout/subscription surface clean. Rather than keep mining that now-thoroughly-audited vein, dispatched a research agent to widen into fresh angles: digest/pipeline-health aggregation math, XSS/injection safety in the public preview/demo-catalog rendering path, and Convex mutation write-path correctness.",
+      "All three came back clean: the digest/pipeline-health math (TotalUsd reduces, oldest*AgeHours helpers, actionableSections coverage) is consistently Math.floor/Math.max(0,...) and UTC-safe; every lead-controlled field in the public preview path renders through React-escaped JSX text interpolation with encodeURIComponent'd URLs, and the one dangerouslySetInnerHTML (safeJsonLdScript) correctly escapes script-tag breakout; every Convex money/state-mutating mutation re-checks its authoritative condition atomically at write time, and all 39 dashboard actions carry both requireOperatorAuth and checkRateLimit. Honestly scoped as 'three fresh angles clean,' not full-repo closure — it did not read convex/checkoutSessions.ts, convex/deployHandoffs.ts, or the remaining marketing-pack/Buffer/voice-pack actions in dashboard/leads/actions.ts.",
+      "src/lib/process/business-decisions.ts — appended empty-backlog-post-recurring-dedup-clean-sweep. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 2d3ac50e.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3772 passed, 217 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — this iteration touched only the process log.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "empty-backlog-post-recurring-dedup-clean-sweep",
+    ),
+  },
 ];
 
