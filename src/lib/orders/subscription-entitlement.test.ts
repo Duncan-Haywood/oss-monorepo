@@ -9,6 +9,8 @@ const ENV_KEYS = [
   "STRIPE_PRICE_ID_GROWTH_MONTHLY",
   "STRIPE_PRICE_ID_COMPLETE_MONTHLY",
   "STRIPE_PRICE_ID_COMMERCE_MONTHLY",
+  "STRIPE_PRICE_ID_GROWTH_ANNUAL",
+  "STRIPE_PRICE_ID_COMPLETE_ANNUAL",
 ] as const;
 
 const saved: Partial<Record<(typeof ENV_KEYS)[number], string | undefined>> = {};
@@ -98,6 +100,48 @@ describe("deriveLiveRecurringEntitlementFromPriceIds", () => {
   it("fails closed when catalog monthly envs are missing", () => {
     setCatalogEnv({});
     expect(deriveLiveRecurringEntitlementFromPriceIds(["price_growth_m"])).toEqual({
+      bundleTier: null,
+      commerceAddon: false,
+      hasCatalogRecurring: false,
+    });
+  });
+
+  it("recognizes an annual Growth Subscription (annual-subscriber-entitlement-derivation-fix)", () => {
+    setCatalogEnv({
+      STRIPE_PRICE_ID_GROWTH_MONTHLY: "price_growth_m",
+      STRIPE_PRICE_ID_COMPLETE_MONTHLY: "price_complete_m",
+      STRIPE_PRICE_ID_GROWTH_ANNUAL: "price_growth_a",
+      STRIPE_PRICE_ID_COMPLETE_ANNUAL: "price_complete_a",
+    });
+    expect(deriveLiveRecurringEntitlementFromPriceIds(["price_growth_a"])).toEqual({
+      bundleTier: "growth",
+      commerceAddon: false,
+      hasCatalogRecurring: true,
+    });
+  });
+
+  it("recognizes an annual Complete Subscription and prefers it over a monthly Growth match", () => {
+    setCatalogEnv({
+      STRIPE_PRICE_ID_GROWTH_MONTHLY: "price_growth_m",
+      STRIPE_PRICE_ID_COMPLETE_MONTHLY: "price_complete_m",
+      STRIPE_PRICE_ID_GROWTH_ANNUAL: "price_growth_a",
+      STRIPE_PRICE_ID_COMPLETE_ANNUAL: "price_complete_a",
+    });
+    expect(
+      deriveLiveRecurringEntitlementFromPriceIds(["price_growth_m", "price_complete_a"]),
+    ).toEqual({
+      bundleTier: "complete",
+      commerceAddon: false,
+      hasCatalogRecurring: true,
+    });
+  });
+
+  it("still fails closed on a foreign Price when only annual envs are configured", () => {
+    setCatalogEnv({
+      STRIPE_PRICE_ID_GROWTH_ANNUAL: "price_growth_a",
+      STRIPE_PRICE_ID_COMPLETE_ANNUAL: "price_complete_a",
+    });
+    expect(deriveLiveRecurringEntitlementFromPriceIds(["price_foreign_a"])).toEqual({
       bundleTier: null,
       commerceAddon: false,
       hasCatalogRecurring: false,

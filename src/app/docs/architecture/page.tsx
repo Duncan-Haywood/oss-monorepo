@@ -5761,6 +5761,33 @@ source). The same digest also lists email-critical leads with no usable address 
         two files no earlier pass had reached because neither sits behind a route/webhook/dashboard
         catch cluster.
       </p>
+      <p>
+        <code>annual-subscriber-entitlement-derivation-fix</code>: a research agent found{" "}
+        <code>deriveLiveRecurringEntitlementFromPriceIds</code> (
+        <code>src/lib/orders/subscription-entitlement.ts</code>) — the function{" "}
+        <code>customer.subscription.created|updated</code> and <code>invoice.paid</code> use to
+        decide whether a live Stripe Subscription still carries a real catalog Growth/Complete
+        recurring Price — only ever checked each bundle&apos;s{" "}
+        <code>monthlyPriceIdEnv</code>, never its <code>annualPriceIdEnv</code> (added later by{" "}
+        <code>annual-billing-option</code>). The correct pattern already existed next door in{" "}
+        <code>catalogRecurringPriceIdsFromEnv</code> (
+        <code>src/lib/payments/checkout-price-line-items.ts</code>), which checks both cadences —
+        this helper was simply never given the same treatment. Every annual Growth/Complete
+        subscriber&apos;s Subscription item Price ID never matched the monthly-only check, so{" "}
+        <code>hasCatalogRecurring</code> always computed <code>false</code> and both call sites
+        took the &quot;no catalog recurring Price on items&quot; branch — incorrectly calling{" "}
+        <code>markOrdersRecurringCanceledByCustomer</code> on a currently-active, paying annual
+        subscriber&apos;s order as if they had churned, on essentially their first{" "}
+        <code>customer.subscription.created</code> event and on every renewal{" "}
+        <code>invoice.paid</code> after that. Once paused, the customer silently drops every
+        recurring-entitlement-gated feature (monthly marketing packs, client voice pack, Commerce
+        catalog access) while still being billed annually, and surfaces in the{" "}
+        <code>recurringEntitlementPaused</code> due-queue as if they need Billing Portal recovery
+        even though nothing is wrong with their subscription. Fixed by checking both{" "}
+        <code>monthlyPriceIdEnv</code> and <code>annualPriceIdEnv</code> per bundle, mirroring{" "}
+        <code>catalogRecurringPriceIdsFromEnv</code>&apos;s loop exactly (Commerce add-on has no
+        annual Price of its own, so it stays monthly-only).
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

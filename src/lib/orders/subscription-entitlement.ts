@@ -12,19 +12,28 @@ import {
  * cleared/marked orders.recurringCanceledAt. Billing Portal / Dashboard plan
  * changes (Complete→Growth, remove Commerce monthly) left CRM unlocking
  * Complete voice / Commerce catalog / full_marketing while Stripe no longer
- * charged those Prices. Sync tier + commerceAddon from catalog monthly Prices
- * on the live Subscription; require at least one create-path catalog recurring
- * Price before restoring packs (active foreign-Price subscriptions pause).
+ * charged those Prices. Sync tier + commerceAddon from catalog recurring
+ * Prices (monthly OR annual — see annual-billing-option) on the live
+ * Subscription; require at least one create-path catalog recurring Price
+ * before restoring packs (active foreign-Price subscriptions pause).
  *
- * Subscription items typically carry only recurring (monthly) Prices after the
- * first invoice — setup Fees are one-time Checkout line items — so this helper
- * keys off monthly env Price IDs only.
+ * Checks both bundle.monthlyPriceIdEnv and bundle.annualPriceIdEnv for each
+ * bundle, mirroring catalogRecurringPriceIdsFromEnv
+ * (src/lib/payments/checkout-price-line-items.ts) — an annual subscriber's
+ * Subscription item Price ID never matched a monthly-only check, so before
+ * this fix every annual Growth/Complete subscriber's
+ * customer.subscription.created|updated / invoice.paid handling computed
+ * hasCatalogRecurring: false and incorrectly paused their recurring
+ * entitlement as if they had churned, even though their annual Subscription
+ * was fully active (see annual-subscriber-entitlement-derivation-fix).
+ * Commerce add-on has no annual Price of its own
+ * (COMMERCE_ADDON.monthlyPriceIdEnv only).
  */
 
 export type LiveRecurringBundleTier = Extract<BundleTier, "growth" | "complete">;
 
 export type LiveRecurringEntitlement = {
-  /** Highest Growth/Complete monthly catalog Price on the Subscription. */
+  /** Highest Growth/Complete catalog recurring Price (monthly or annual) on the Subscription. */
   bundleTier: LiveRecurringBundleTier | null;
   /** True when Commerce monthly catalog Price is on the Subscription. */
   commerceAddon: boolean;
@@ -72,9 +81,14 @@ export function deriveLiveRecurringEntitlementFromPriceIds(
   let hasComplete = false;
   let hasGrowth = false;
   for (const bundle of BUNDLES) {
-    if (!bundle.monthlyPriceIdEnv) continue;
-    const monthlyId = env[bundle.monthlyPriceIdEnv]?.trim() ?? "";
-    if (!monthlyId || !present.has(monthlyId)) continue;
+    const monthlyId = bundle.monthlyPriceIdEnv
+      ? (env[bundle.monthlyPriceIdEnv]?.trim() ?? "")
+      : "";
+    const annualId = bundle.annualPriceIdEnv
+      ? (env[bundle.annualPriceIdEnv]?.trim() ?? "")
+      : "";
+    const matches = (monthlyId && present.has(monthlyId)) || (annualId && present.has(annualId));
+    if (!matches) continue;
     if (bundle.id === "complete") hasComplete = true;
     if (bundle.id === "growth") hasGrowth = true;
   }

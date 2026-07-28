@@ -1045,4 +1045,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "marketing-voice-generator-fallback-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #981 merged. Given how exhaustively this session had already swept observability/fetch-timeout bug classes, steered the next research agent toward genuine business-logic bugs — it found deriveLiveRecurringEntitlementFromPriceIds (src/lib/orders/subscription-entitlement.ts) only ever checked each bundle's monthlyPriceIdEnv, never annualPriceIdEnv, even though annual-billing-option shipped ~233 commits after this function.",
+    shipped: [
+      "Real production-impacting bug, not theoretical: every annual Growth/Complete subscriber's Subscription item Price ID never matched the monthly-only check, so customer.subscription.created|updated and invoice.paid both computed hasCatalogRecurring: false and incorrectly called markOrdersRecurringCanceledByCustomer on a currently-active, paying annual subscriber's order — as if they had churned, potentially on their very first subscription event. Would silently strip every recurring-entitlement-gated feature from essentially every real annual customer while still billing them, and surface them in the recurringEntitlementPaused due-queue for no reason. No real customer affected yet (annual bootstrap-prices not yet run in production) — caught pre-launch.",
+      "Fixed by checking both monthlyPriceIdEnv and annualPriceIdEnv per bundle, mirroring the already-correct catalogRecurringPriceIdsFromEnv (src/lib/payments/checkout-price-line-items.ts) exactly. Commerce add-on has no annual Price of its own, left unchanged.",
+      "src/lib/orders/subscription-entitlement.ts (widened the loop, updated 3 doc comments); subscription-entitlement.test.ts (3 new unit tests, 12 total, +3 net new); src/app/api/stripe/webhook/route.test.ts (1 new webhook-level regression test, 264 total, +1 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended annual-subscriber-entitlement-derivation-fix); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change — mechanical bug fix, no business-policy decision needed.",
+      "Proved via git-stash: stashed only subscription-entitlement.ts, confirmed all 4 new assertions (3 unit + 1 webhook) failed exactly as expected — the stashed webhook test's own console output printed the real bug live ('no catalog recurring Price on items — paused recurring entitlement'). Restored and confirmed all 276 combined tests pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (276 passed) then full suite (4021 passed, 234 files, +4 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — pure derivation-function fix, fully exercised by unit and webhook-integration tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "annual-subscriber-entitlement-derivation-fix",
+    ),
+  },
 ];
