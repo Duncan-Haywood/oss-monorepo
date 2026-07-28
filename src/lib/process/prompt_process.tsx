@@ -885,5 +885,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "empty-backlog-post-recurring-dedup-clean-sweep",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 5347eb10 (PR #930, empty-backlog-post-recurring-dedup-clean-sweep, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). No live sibling branch beyond the unrelated stale #202.",
+    shipped: [
+      "The prior clean sweep explicitly named three genuinely-unread surfaces (convex/checkoutSessions.ts, convex/deployHandoffs.ts, marketing-pack/Buffer/voice-pack actions). Dispatched a research agent to close exactly that gap plus email-suppression correctness and the rate limiter's own correctness.",
+      "Came back clean: both never-audited Convex files already close every atomic re-check-before-write race with confirmed SQLite fallback parity; both AI generators (marketing pack, voice pack) correctly fall back to a stub on any failure with no partial-result/duplicate risk; scheduleMarketingPackToBufferAction already re-checks freshness per-post exactly as the earlier buffer-schedule-stale-pack-variant-guard fix established; the Resend webhook's signature verification, rate limiting, and suppression writes are correct and consistent across both backends; checkRateLimit is fully synchronous with no interleaving risk. Two minor, explicitly non-actionable notes were surfaced (not fixed): a bounded full-scan bucket eviction, and a Convex-only alias helper missing a plausibility check its sole caller already performs upstream.",
+      "Second consecutive clean sweep. The research agent's own honest recommendation was to steer the next pass toward genuinely untouched code rather than re-sweeping these five angles again.",
+      "src/lib/process/business-decisions.ts — appended empty-backlog-second-consecutive-clean-sweep-post-dedup. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 5347eb10.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3772 passed, 217 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — this iteration touched only the process log.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "empty-backlog-second-consecutive-clean-sweep-post-dedup",
+    ),
+  },
 ];
 
