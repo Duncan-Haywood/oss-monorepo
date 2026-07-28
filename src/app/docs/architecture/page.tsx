@@ -5704,6 +5704,23 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>VERCEL_REQUEST_TIMEOUT_MS</code>&apos;s own comment style) and passed{" "}
         <code>signal: AbortSignal.timeout(RESEND_REQUEST_TIMEOUT_MS)</code> on both fetch calls.
       </p>
+      <p>
+        <code>db-getClientInquiryById-convex-null-authoritative</code>: a research agent found{" "}
+        <code>getClientInquiryById</code> (<code>src/lib/db.ts</code>) broke this file&apos;s own
+        Convex-first invariant — every other get-by-id/slug reader (<code>getLeadBySlug</code>,{" "}
+        <code>getDeployHandoffBySlug</code>, <code>getCommerceCatalog</code>, etc.) returns a
+        successful Convex query&apos;s result unconditionally, treating a clean{" "}
+        <code>null</code> as authoritative &quot;not found&quot; and only falling through to
+        SQLite when Convex itself throws. This function instead used{" "}
+        <code>{"if (inquiry) return inquiry;"}</code>, so a legitimate Convex{" "}
+        <code>null</code> silently fell through to a SQLite lookup that could serve a stale or
+        orphaned row sharing the same inquiry id as if it were the live record — the one hot,
+        auth-gated, operator-facing reply flow in the CRM (<code>replyToInquiryAction</code>&apos;s
+        initial lookup and its post-write race-check re-fetch). Fixed by returning the Convex
+        result directly inside the try block, matching every sibling reader; added a regression
+        test seeding a colliding SQLite row and confirming a mocked Convex <code>null</code>{" "}
+        still wins.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

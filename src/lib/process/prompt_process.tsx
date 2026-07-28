@@ -998,4 +998,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "bootstrap-prices-twin-capture-error-gap",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #978 merged (which also folded in sibling PR #977's deploy-handoff fix via a clean auto-merge). The next dispatched research agent found getClientInquiryById (src/lib/db.ts) breaks this file's own Convex-first invariant: every sibling get-by-id/slug reader returns a successful Convex result unconditionally (including a clean null as authoritative), but this one used if (inquiry) return inquiry, letting a legitimate null fall through to a SQLite lookup that could serve a stale/orphaned row.",
+    shipped: [
+      "This is the one hot, auth-gated, operator-facing reply flow in the CRM (replyToInquiryAction's initial lookup and post-write race-check re-fetch). Every legitimate 'no such inquiry' Convex response wasted a synchronous SQLite query, and in a non-ephemeral deployment it opened a real correctness gap: a stale row sharing an inquiry id would be silently served as live instead of the function reporting not-found like every sibling getter.",
+      "Fixed by removing the truthiness guard and returning the Convex result directly inside the try block, matching every sibling reader exactly, plus an explanatory comment so a future edit doesn't reintroduce the asymmetry.",
+      "src/lib/db.ts (removed guard, added comment); db.test.ts (1 new test seeding a colliding SQLite row and confirming a mocked Convex null still wins — 304 total, +1 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended db-getClientInquiryById-convex-null-authoritative); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only db.ts, confirmed the new assertion failed exactly as expected (303 passed, 1 failed — the stale seeded row was returned instead of null), then restored and confirmed all 304 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (304 passed) then full suite (4014 passed, 234 files, +1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — a pure read-path correctness fix fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-getClientInquiryById-convex-null-authoritative",
+    ),
+  },
 ];

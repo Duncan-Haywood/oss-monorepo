@@ -2690,11 +2690,18 @@ export async function getClientInquiryById(
 ): Promise<ClientInquiry | null> {
   if (convexClient) {
     try {
-      const inquiry = (await convexClient.query(api.inquiries.getById, {
+      // Convex is authoritative once configured — return its answer directly
+      // (including a legitimate null "not found"), matching every other
+      // get-by-id/slug reader in this file (getLeadBySlug,
+      // getDeployHandoffBySlug, getCommerceCatalog, etc.). Only a thrown
+      // Convex error (network/query failure, caught below) falls through to
+      // SQLite; a clean null must never be reinterpreted as "go check
+      // SQLite instead", or a stale/orphaned SQLite row sharing this id
+      // would be served as if it were the live record.
+      return (await convexClient.query(api.inquiries.getById, {
         inquiryId,
         apiSecret: convexApiSecret,
       })) as ClientInquiry | null;
-      if (inquiry) return inquiry;
     } catch (e) {
       console.warn(
         `Failed to get inquiry ${inquiryId} from Convex, falling back to SQLite`,
