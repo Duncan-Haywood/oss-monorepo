@@ -309,8 +309,9 @@ describe("POST /api/contact/[slug]", () => {
     expect(captureError).not.toHaveBeenCalled();
   });
 
-  it("still returns ok when notify email throws after a durable persist", async () => {
-    sentEmail.mockRejectedValueOnce(new Error("resend down"));
+  it("still returns ok when notify email throws after a durable persist, and reports it via captureError (notify_send)", async () => {
+    const notifyError = new Error("resend down");
+    sentEmail.mockRejectedValueOnce(notifyError);
     const { POST } = await import("./route");
     const response = await POST(
       new Request("http://localhost/api/contact/demo-cafe", {
@@ -330,9 +331,14 @@ describe("POST /api/contact/[slug]", () => {
     expect(json.inquiryId).toBe("inq_test_1");
     expect(json.notifySent).toBe(false);
     expect(sentEmail).toHaveBeenCalledTimes(1);
+    expect(captureError).toHaveBeenCalledWith(notifyError, {
+      component: "contact-form",
+      failureKind: "notify_send",
+      leadSlug: "demo-cafe",
+    });
   });
 
-  it("still returns ok with notifySent:false when sendEmail resolves success:false (Resend outage)", async () => {
+  it("still returns ok with notifySent:false when sendEmail resolves success:false (Resend outage), and reports it via captureError (notify_send)", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     // After skipSuppression, marketing suppress is not a failure path for this
     // route — still assert Resend/API failure surfaces notifySent:false.
@@ -362,6 +368,12 @@ describe("POST /api/contact/[slug]", () => {
     expect(errorSpy).toHaveBeenCalledWith(
       expect.stringContaining("inquiry inq_test_1"),
     );
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "contact-form",
+      failureKind: "notify_send",
+      leadSlug: "demo-cafe",
+    });
+    expect(captureError.mock.calls[0][0].message).toBe("resend 500");
     errorSpy.mockRestore();
   });
 
