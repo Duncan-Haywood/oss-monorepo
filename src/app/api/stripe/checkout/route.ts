@@ -216,6 +216,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown Stripe error";
+    await captureError(error, { component: "stripe-checkout", failureKind: "session_create" });
     return NextResponse.json({ error: "Stripe session creation failed", message }, { status: 502 });
   }
 }

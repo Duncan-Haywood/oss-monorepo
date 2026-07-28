@@ -515,6 +515,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
   {
+    id: "checkout-session-create-capture-error-wiring",
+    summary:
+      "Follow-up to checkout-session-record-capture-error-wiring: that fix wired captureError into the INNER catch (recordCheckoutSessionCreated tracking write) in both checkout routes, but left the OUTER catch — wrapping the actual stripe.checkout.sessions.create() call itself — reporting only a generic 502 with no captureError. That outer catch is the more consequential of the two sites: a bad/rotated price env var, an expired Stripe secret key, a Stripe outage, or a network error, one hop upstream of the already-wired tracking catch. Wired captureError into both outer catches (failureKind: session_create), mirroring the sibling call shape two lines below. See checkout-session-create-capture-error-wiring in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/nice-euler-fxofbs",
+  },
+  {
     id: "resend-webhook-suppression-write-capture-error",
     summary:
       "Found the one remaining durable-write failure path never wired into the observability scaffold: src/app/api/resend/webhook/route.ts's suppressEmail catch (hard-bounce/complaint suppression) only console.error'd before returning its 500, unlike every other durable-write failure path already closed today. Wired captureError in (component: resend-webhook, failureKind: suppression_write), mirroring the established pattern. See resend-webhook-suppression-write-capture-error in BUSINESS_DECISIONS for full detail.",
@@ -829,6 +837,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "archive-orphan-stripe-products-per-item-guard",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-fxofbs",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 9736d9c9 (PR #909, buffer-schedule-stale-pack-variant-guard, merged prior session). Confirmed baseline green: npm ci + npx tsc --noEmit -p tsconfig.json (0 errors). mcp__github__list_pull_requests reconfirmed the sole open PR remains #202 (unrelated, weeks-stale human draft). NEXT_STEPS fully gated (all five items operator/legal/infra-blocked, unchanged). Per this run's explicit operator instruction to prioritize business-growth over another micro-hardening pass unless a genuine correctness/security gap surfaces, dispatched a research agent (Explore) steered at the homepage/checkout/SEO/pipeline-visibility growth angle.",
+    shipped: [
+      "The agent's strongest finding was in fact a real, unclaimed money-path observability gap (outranks growth polish per its own brief): checkout-session-record-capture-error-wiring (PR #908, earlier today) wired captureError into the INNER catch (recordCheckoutSessionCreated tracking write) in both src/app/api/stripe/checkout/route.ts and src/app/api/commerce/checkout/route.ts, but left the OUTER catch — wrapping the actual stripe.checkout.sessions.create() call — reporting only a generic 502 with no captureError, not even a console.warn. Confirmed via grep: exactly one captureError call site per file, both in the inner catch. The outer catch is the more consequential of the two: it fires on a bad/rotated price env var, an expired Stripe secret key, a Stripe outage, or a network error — one hop upstream of the already-wired tracking catch, before the shopper ever reaches Stripe's hosted page.",
+      "src/app/api/stripe/checkout/route.ts + src/app/api/commerce/checkout/route.ts — wired captureError into each outer catch (component: stripe-checkout / commerce-checkout, failureKind: session_create), mirroring the sibling call shape two lines below. Both route.test.ts files extended with a captureError assertion on the existing 'Stripe session creation throws' 502 test. Verified via the git-stash regression-catching technique (both new assertions failed with 0 calls pre-fix). src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended checkout-session-create-capture-error-wiring. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked.",
+      "Mid-session, a re-fetch before push found origin/main had advanced twice more (PR #910 checkout-organic-business-fields-capture, PR #911 archive-orphan-stripe-products-per-item-guard) — merged cleanly, no file overlap on any source file (both touched only the checkout metadata-building section / the orphan-archive Commerce subsystem, well away from the outer catch this iteration targets); resolved the routine same-array-tail-position append conflicts in prompt_process.tsx and docs/architecture/page.tsx by keeping both sides' entries, origin/main's first. Diff-gate anchor moves to fe413435 (origin/main tip after PR #911).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (both route.test.ts files, 50/50 passed) then full suite (3607 passed, 212 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "checkout-session-create-capture-error-wiring",
     ),
   },
   {
