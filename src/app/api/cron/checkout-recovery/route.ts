@@ -118,7 +118,17 @@ export async function GET(request: Request) {
       );
     }
 
-    await recordCronRunOutcome("checkout-recovery", { success: true, atIso: nowIso });
+    // Run health tracks whether every attempted send actually went out, not
+    // merely whether the route avoided a thrown/500 error — a batch where
+    // every send fails (e.g. a revoked RESEND_API_KEY) must show as a
+    // failing automation on pipeline-health/the digest, not a silent
+    // success=true forever (see cron-partial-failure-run-health-fix).
+    const runSucceeded = failures.length === 0;
+    await recordCronRunOutcome("checkout-recovery", {
+      success: runSucceeded,
+      atIso: nowIso,
+      ...(runSucceeded ? {} : { error: `${failures.length} of ${attempted} recovery sends failed` }),
+    });
     return NextResponse.json({ success: true, attempted, sent: sentCount, failed: failures.length, failures });
   } catch (error) {
     await captureError(error, { component: "cron-checkout-recovery" });

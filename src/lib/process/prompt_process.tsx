@@ -834,5 +834,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "leads-client-pending-announcement-shared-status-region",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-c94smr",
+    summary:
+      "Scheduled routine (\"progress the business, use a process file, cooperate with siblings\" brief). Restarted the pre-assigned branch from a fresh origin/main tip (67d22fc8, PR #947) since the local checkout had fallen two merges behind; git fetch --prune across all remote families plus mcp__github__list_pull_requests found no live sibling claim beyond the pre-existing unrelated stale draft PR #202.",
+    shipped: [
+      "Every NEXT_STEPS entry is operator/legal-gated (Stripe live bootstrap, Google Places legal review, marketing OAuth creds, Stripe Connect counsel review, GitHub Actions runner access), so dispatched a research agent per AGENT_PROTOCOL's tiered empty-backlog priority order to find the next real, unclaimed gap rather than inventing busywork. It found and I independently re-verified: GET /api/cron/checkout-recovery and GET /api/cron/outreach-followups both call recordCronRunOutcome(job, { success: true }) unconditionally after their per-item send loop, regardless of how many sends in the batch actually failed — only the third cron route, daily-digest, threads real success/failure into that call. This defeats cron-run-health-visibility's whole purpose for 2 of its 3 jobs: a systemically broken automation (e.g. 0 of N sends succeeding every day because RESEND_API_KEY was revoked) would show success: true forever, invisible on both the Pipeline health 'Cron automation health' card and the digest's 'Cron automation needing attention' section.",
+      "Fixed both routes by computing runSucceeded = failures.length === 0 and passing that (plus a summarizing error string on failure) into recordCronRunOutcome, instead of a hardcoded true — mirroring daily-digest's own all-or-nothing precedent. The HTTP response body's own success: true is untouched (the route itself completed without a thrown/fatal error); only the durable run-health record now reflects whether every attempted send actually went out.",
+      "Updated both routes' existing 'aggregates a per-X failure without aborting the batch' test to assert the new success: false + summarizing error string, and added one new explicit all-fail test per route (every attempted send fails, HTTP response still 200, but recordCronRunOutcome sees success: false). Verified both catch the regression: temporarily reverted the call-site fix (hardcoded success: true again) and confirmed 4 of the 23 cases across the two test files failed with a clear diff, then restored the real fix and reconfirmed green.",
+      "src/app/api/cron/checkout-recovery/route.ts, src/app/api/cron/outreach-followups/route.ts — the success-computation fix, each. src/app/api/cron/checkout-recovery/route.test.ts, src/app/api/cron/outreach-followups/route.test.ts — one existing test updated + one new test added, each (23 total cases, up from 21). src/lib/process/business-decisions.ts — appended cron-partial-failure-run-health-fix. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3927 passed, 230 files, +2 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — pure server-route logic change fully exercised by the existing and new automated route-level tests; no live CRON_SECRET/Resend credentials in this environment to smoke-test the dormant routes end to end.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "cron-partial-failure-run-health-fix",
+    ),
+  },
 ];
 
