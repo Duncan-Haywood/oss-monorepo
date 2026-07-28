@@ -465,6 +465,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "db-read-path-capture-error-sweep-getLeadBySlug-listOrders",
+    summary:
+      "Extended captureError to the two read paths db-getLeads-convex-fallback-capture-error deliberately deferred: getLeadBySlug() (second-highest-blast-radius read, backs /preview/[slug]) and listOrders() (revenue/pipeline-health/digest/billing). Same one-line pattern, same accepted no-dedup trade-off. NOTE: this entry pushed prompt_process.tsx past the 262,144-byte re-archive trigger — see db-read-path-capture-error-sweep-getLeadBySlug-listOrders in BUSINESS_DECISIONS for the full writeup and file-size flag; the next session must run the archive split as its own dedicated iteration before adding further entries here.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -939,6 +947,20 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "db-getLeads-convex-fallback-capture-error",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 69149695 (PR #905, db-getLeads-convex-fallback-capture-error, merged this session). Baseline green (tsc/lint); no live sibling branch, sole other open PR remains #202 (unrelated, stale human draft). Full detail — including the research agent's findings, the exact fix, and a file-size flag on prompt_process.tsx — is in db-read-path-capture-error-sweep-getLeadBySlug-listOrders in BUSINESS_DECISIONS; kept this entry compact deliberately, since this file crossed the 262,144-byte re-archive trigger while writing it.",
+    shipped: [
+      "src/lib/db.ts + src/lib/db.test.ts — wired captureError into getLeadBySlug() and listOrders()'s Convex-fallback catches (components db-getLeadBySlug-convex-fallback / db-listOrders-convex-fallback), the two read paths getLeads() deferred. New tests verified via the git-stash regression-catching technique. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended db-read-path-capture-error-sweep-getLeadBySlug-listOrders. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No NEXT_STEPS change beyond that — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 69149695.",
+      "IMPORTANT for the next session: prompt_process.tsx now exceeds the 262,144-byte re-archive trigger (measured 261,553 bytes before this entry). Run the archive split (mirroring iterations-archive-23/business-decisions-archive-18) as its own dedicated first iteration before appending further entries to this file — do not blend it with a feature change.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (db.test.ts, 277/277 passed) then full suite (3601 passed, 211 files — 3 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-read-path-capture-error-sweep-getLeadBySlug-listOrders",
     ),
   },
 ];

@@ -239,11 +239,10 @@ export async function getLeads(): Promise<Lead[]> {
     } catch (e) {
       console.warn("Failed to fetch leads from Convex, falling back to SQLite database", e);
       // Best-effort — see db-getLeads-convex-fallback-capture-error in
-      // /docs/architecture for why this is the one read-path fallback wired
-      // so far (the highest-blast-radius read in the file — every dashboard
-      // page, the digest, and the webhook's account.updated handler all
-      // silently run on decayed SQLite data during a Convex outage) rather
-      // than a sweep of every db.ts fallback branch.
+      // /docs/architecture for the reasoning behind wiring read-path
+      // fallbacks one at a time (getLeadBySlug and listOrders followed in
+      // db-read-path-capture-error-sweep-getLeadBySlug-listOrders) rather
+      // than sweeping every db.ts fallback branch at once.
       await captureError(e, { component: "db-getLeads-convex-fallback" });
     }
   }
@@ -264,6 +263,7 @@ export async function getLeadBySlug(slug: string): Promise<Lead | null> {
       return (lead as Lead) || null;
     } catch (e) {
       console.warn(`Failed to fetch lead ${slug} from Convex, falling back to SQLite database`, e);
+      await captureError(e, { component: "db-getLeadBySlug-convex-fallback" });
     }
   }
 
@@ -1039,6 +1039,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
       console.warn("Failed to fetch orders from Convex, falling back to SQLite", e);
+      await captureError(e, { component: "db-listOrders-convex-fallback" });
     }
   }
 

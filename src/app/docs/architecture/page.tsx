@@ -4530,6 +4530,18 @@ source). The same digest also lists email-critical leads with no usable address 
         to more read paths should re-examine that trade-off if it stops being reasonable in
         practice.
       </p>
+      <p>
+        <code>db-read-path-capture-error-sweep-getLeadBySlug-listOrders</code>: took up that
+        re-examination named above and extended <code>captureError</code> to the two read paths{" "}
+        <code>getLeads()</code> deliberately deferred — <code>getLeadBySlug()</code> (the second
+        highest-blast-radius read: backs the public <code>/preview/[slug]</code> SSR page, contact
+        form lookup, checkout lead resolution, the billing portal, and most per-lead dashboard
+        actions) and <code>listOrders()</code> (feeds revenue totals, pipeline health, the daily
+        digest, and billing/entitlement eligibility checks). Same one-line pattern, same accepted
+        no-dedup trade-off reasoning as <code>getLeads()</code> — this is one site-by-site pass
+        continuing that scoping, not a reversal of it. All other <code>db.ts</code> read functions
+        with the same live-fallback shape remain out of scope for this iteration.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
