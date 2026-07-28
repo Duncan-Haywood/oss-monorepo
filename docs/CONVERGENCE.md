@@ -74,6 +74,47 @@ bar inside a session someone will sit through, so staging them would only
 postpone items that were going to finish anyway — measured as a real, if small,
 loss on the 16- and 20-item surveys.
 
+## Measured end to end, over the real routes
+
+Everything above is simulation or hand-driving. `earned.integration.test.ts`
+closes the loop: two linked accounts answer the behaviours survey one question
+at a time through `trials/next` and `trials/answer` against a real Postgres,
+with a respondent who has fixed preferences and follows them 85% of the time,
+and then reads `/api/couple/compare`. Nothing is planted — every rating is
+earned the way a person's would be.
+
+| Answers each | Ada's items under rd 200 | make them happy | shared | matters more to them |
+| --- | --- | --- | --- | --- |
+| 30 | 5 / 16 | 6 | 0 | 0 |
+| 50 | 15 / 16 | 6 | 3 | 5 |
+| 70 | 16 / 16 | 6 | 0 | 5 |
+
+Three things worth taking from that:
+
+**The couple screen is reachable, and on a survey a person would finish.** Not
+at 1,100 answers, and not only in simulation — at about fifty each on a 16-item
+survey, over the shipped handlers.
+
+**"Something to do for them" arrives long before the comparisons.**
+`makeThemHappy` needs one measured item and is full at 30 answers; everything
+that compares the two people needs eight each and is empty until roughly 50.
+That ordering is worth knowing when deciding what to show someone early: the
+half of the screen that lands first is the half that does not mention the other
+person's numbers at all.
+
+**More answers deleted three "you agree on this" rows.** These two respondents
+were given opposite preferences, so the true shared list is empty. At 50
+answers it had three rows in it; at 70 it had none. One pair of seeds is an
+illustration rather than a rate, but it is the failure mode the confidence
+gates exist for, caught happening: a row that clears the bar early and is
+simply wrong. It argues for the thresholds staying where they are rather than
+being lowered to fill the screen sooner.
+
+**What it does not measure.** One survey, one seed pair, one pattern of
+disagreement. The 220-item combined survey is a different question, answered by
+simulation above, and the answer there is still ~34 usable items after 300
+answers.
+
 ## What this does not fix
 
 The combined survey still reaches only ~34 items under rd 150 after 300

@@ -300,3 +300,12 @@ by something that cannot swipe.
 A test that passes against both the old and the new code proves nothing. Run it
 against the old behaviour once and watch it fail — that check takes a minute and
 is the difference between a regression test and a comment.
+
+**And run the gate on the branch you are describing, not on the change you
+made.** The thirty-fourth session ran `npm run verify` on the tip before adding
+anything to it and found `npm test` red — a simulation overrunning the default
+timeout by 2%. The test arrived in #27 and two sessions extended it after that,
+each describing the branch as ready to merge; whatever any of them ran, nobody
+ran the blocking suite on the head they were handing over. It is the same shape as "no database is reachable here"
+(`decisions/0004`), and the same rule closes both: **a claim you inherited is
+not a claim you checked, and the cheap ones are one command away.**

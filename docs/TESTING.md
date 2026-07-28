@@ -23,6 +23,22 @@ signed in as. Files run one at a time because they share one database. Seeded
 surveys and items are fixture and are never truncated; everything a session
 writes is cleared between tests by `resetData()`.
 
+**The simulation files are the expensive ones.** `pairing.simulation.test.ts`,
+`pooling.simulation.test.ts` and `selectionPrior.simulation.test.ts` drive the
+real pairing chooser and the real Glicko-2 update over thousands of synthetic
+answering sessions, because the numbers in `docs/CONVERGENCE.md`,
+`docs/POOLING.md` and the decision records have to come from the shipped code
+rather than from a spreadsheet. They are also where the suite's whole runtime
+lives, so:
+
+- Every run is seeded. If two metrics are read off the same set of sessions,
+  simulate once and read both — re-running per metric produces byte-identical
+  answers for three times the cost, which is exactly how the suite came to
+  overrun its timeout.
+- The unit config sets `testTimeout` to 20s explicitly. Nothing here should
+  come close to that; if something does, make the run cheaper rather than
+  raising the ceiling.
+
 `scripts/test-db.sh` finds the Postgres server binaries even when only `psql`
 is on PATH, and drops to the `postgres` system user when run as root — both of
 which are what an agent sandbox looks like. If it cannot find a server it says
@@ -60,6 +76,7 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
 | `api/trials/trials.integration.test.ts` | 10 | The swipe loop: an answer moves both items and stores the snapshot undo replays, a resent answer is acknowledged and applied once, two submits racing on one trial apply once, one participant's answers never touch another's ratings, undo restores exactly, and a reload returns the pending question instead of minting a row |
 | `api/session/session.integration.test.ts` | 8 | Participant creation and reuse: switching perspective and back lands on the same rows, the six removed profile fields cannot be written, the per-IP throttle counts and exempts accounts, and the status fan-out stays capped |
 | `api/couple/couple.integration.test.ts` | 9 | The couple screen: an invite is claimable exactly once under a race, no raw answer or participant id crosses between two people, and the actionable sections stay shut while the data is thin and open when it is not |
+| `api/couple/earned.integration.test.ts` | 2 | The couple screen on ratings that were *earned* rather than planted: two linked accounts answer through the real trial routes, and the actionable sections open on a session someone would sit through — plus the one-sided case, where the screen names the partner who has not answered. The measurement it prints is what `docs/CONVERGENCE.md` quotes |
 | `api/financial-trials/financial.integration.test.ts` | 15 | The financial and conjoined loop: every card is a real non-dominated trade-off, a reload returns the pending question rather than minting a row, an answer applies once under a race and once on a retry, the refit runs on the first answer and then on a throttle, and a conjoined card's identity weight comes from the answerer's own ratings — two people who rated the same item oppositely fit opposite signs |
 
 ## What is not covered, and why it matters

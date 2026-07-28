@@ -181,22 +181,33 @@ const REALISTIC = 90;
 const LONG = 300;
 
 type Paired = { withPrior: number[]; without: number[] };
+type PairedRuns = { withPrior: Run[]; without: Run[] };
 
 /**
  * Runs both arms across every seed. The first perspective is answered once per
  * seed and its estimates become the prior; the second is then answered twice
  * from the same starting state, differing only in whether it gets that prior.
+ *
+ * This returns the runs rather than a number so that several metrics can be
+ * read off one set of sessions. Everything here is seeded, so re-simulating
+ * per metric produced identical answers at three times the cost — enough to
+ * push the reporting test past the suite's five-second timeout.
  */
-function sweep(rho: number, budget: number, metric: (r: Run) => number): Paired {
-  const withPrior: number[] = [];
-  const without: number[] = [];
+function sweep(rho: number, budget: number): PairedRuns {
+  const withPrior: Run[] = [];
+  const without: Run[] = [];
   for (const seed of SEEDS) {
     const { first, second } = correlatedTruths(rho, mulberry32(seed));
     const prior = runPerspective(first, budget, seed);
-    withPrior.push(metric({ estimates: runPerspective(second, budget, seed + 1, prior), truth: second }));
-    without.push(metric({ estimates: runPerspective(second, budget, seed + 1), truth: second }));
+    withPrior.push({ estimates: runPerspective(second, budget, seed + 1, prior), truth: second });
+    without.push({ estimates: runPerspective(second, budget, seed + 1), truth: second });
   }
   return { withPrior, without };
+}
+
+/** Reads one metric off both arms of a sweep. */
+function measure(runs: PairedRuns, metric: (r: Run) => number): Paired {
+  return { withPrior: runs.withPrior.map(metric), without: runs.without.map(metric) };
 }
 
 const itemsUnder = (threshold: number) => (r: Run) => under(r.estimates, threshold);
@@ -299,9 +310,10 @@ describe("what a selection-only prior buys", () => {
     const rows: string[] = [];
     for (const rho of [0.37, 0.6, 0.85]) {
       for (const budget of [REALISTIC, LONG]) {
-        const rd150 = sweep(rho, budget, itemsUnder(150));
-        const rd200 = sweep(rho, budget, itemsUnder(200));
-        const acc = sweep(rho, budget, accuracy);
+        const runs = sweep(rho, budget);
+        const rd150 = measure(runs, itemsUnder(150));
+        const rd200 = measure(runs, itemsUnder(200));
+        const acc = measure(runs, accuracy);
         rows.push(
           [
             `rho ${rho.toFixed(2)}`,

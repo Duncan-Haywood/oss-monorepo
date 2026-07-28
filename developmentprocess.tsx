@@ -131,7 +131,7 @@ export function DevelopmentProcess() {
 
       <Section
         title="Gates"
-        lead="npm run verify runs the blocking ones — and is currently the only thing that does. The two below it need a database (scripts/test-db.sh start), and are required for any change touching a route, a query or the schema. The CI workflow exists but has never started a runner, so nothing is checked after a push."
+        lead="npm run verify runs the blocking ones — and is currently the only thing that does. Run it on the head you are handing over, not only on your own change: the tip of the consolidation was red for two sessions because a simulation overran its timeout by 2%. The two gates below need a database (scripts/test-db.sh start), and are required for any change touching a route, a query or the schema. The CI workflow exists but has never started a runner, so nothing is checked after a push."
       >
         {GATES.map((g) => (
           <Card key={g.id}>

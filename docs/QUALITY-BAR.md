@@ -39,6 +39,14 @@ Two things follow, and the second matters more:
 | Test | `npm test` | The numerical core, and the contracts between the catalogue, the session bundle and the perspectives |
 | Build | `npm run build` | Server/client boundary mistakes and route config errors that only appear when the app is compiled |
 
+**Run them, on the thing you are about to ask someone to merge.** The tip of
+the consolidation branch failed `npm test` for four sessions before anyone ran
+it there: one simulation finished at 5.1s against a 5s default timeout, on the
+fastest machine in play. Every one of those sessions described the branch as
+verified, having inherited the claim rather than made it. A gate that lands
+within a few percent of its own limit is already failing — it is reporting how
+busy the machine is. Make the work cheaper, then leave the margin wide.
+
 ## When the change touches a route, a query, or the schema
 
 ```bash

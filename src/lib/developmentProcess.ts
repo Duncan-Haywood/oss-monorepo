@@ -138,6 +138,12 @@ export const PRINCIPLES: Principle[] = [
       "Gating output on confidence is right, but hiding the gated section is not: the couple screen dropped the four things a couple could act on and read as though they did not exist, so ninety answers bought a screen that looked finished and was half missing. Whenever output is withheld, say that it is being withheld, what it is waiting for, and how far off it is — otherwise the honest threshold reads as an empty promise.",
   },
   {
+    id: "gates-need-headroom",
+    title: "A gate that only passes on a fast machine has already failed",
+    why:
+      "The blocking suite failed on the branch everything else is stacked on, because one measurement sweep ran 5.1 seconds against a 5-second default timeout. Nothing was wrong with the code it tested; the gate was simply sized to the machine that happened to write it. A check that sits within a few percent of its own limit reports the load on the box, not the health of the change — and the first person it fails is the one who did nothing wrong, who then learns to re-run it until it passes. Make the work smaller when you can, and leave the margin wide enough that only a real regression closes it.",
+  },
+  {
     id: "land-the-work",
     title: "Work that does not land does not count",
     why:
@@ -297,6 +303,12 @@ export const DEFINITION_OF_DONE: DoneCheck[] = [
     defends: "regression-per-bug",
   },
   {
+    id: "gates-green-with-margin",
+    check:
+      "The blocking gates passed on the first run, not the third, and no test finished within a few percent of its own time limit.",
+    defends: "gates-need-headroom",
+  },
+  {
     id: "no-new-pii",
     check: "No personal data was added to the repo, a seed file, or the client bundle.",
     defends: "safe-to-hand-over",
@@ -355,7 +367,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "measure-honestly",
     note:
-      "Twenty-one parallel unattended sessions opened twenty-one branches off one commit and none merged, so each new session re-found the same bugs. The distinct fixes are consolidated onto one branch and later sessions extend it rather than opening another beside it — which works, and is not the constraint. Only the account owner can merge, so a run that finds the pile unmerged should notify them at the start rather than adding to it.",
+      "Thirty-three parallel unattended sessions have opened thirty-three branches off one commit and none has merged, so each new session re-finds the same bugs. The distinct fixes are consolidated onto one branch and later sessions extend it rather than opening another beside it — which works, and is not the constraint. Only the account owner can merge, so a run that finds the pile unmerged should notify them at the start rather than adding to it. Every disposition is in docs/PULL-REQUEST-BACKLOG.md: one merge, then thirty-odd closes, and none of them loses anything.",
   },
   {
     id: "data-integrity",
@@ -409,7 +421,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "couples-payoff",
     note:
-      "Cross-person comparisons go through within-person percentile positions, so a partner who answered less can no longer look like they want nothing. The four actionable sections no longer vanish when they are below their confidence floor: they say who is still answering and how far there is to go. Blind spots only has data now that PARTNER_GUESS is recorded, so it still needs a real look with two accounts filled in.",
+      "Cross-person comparisons go through within-person percentile positions, so a partner who answered less can no longer look like they want nothing. The four actionable sections no longer vanish when they are below their confidence floor: they say who is still answering and how far there is to go. Two linked accounts answering through the real routes now show the screen opening at roughly fifty answers each on a 16-item survey, with 'something to do for them' full at thirty — measured, not inferred, in earned.integration.test.ts. Blind spots only has data now that PARTNER_GUESS is recorded, so it still needs a real look with two accounts filled in.",
   },
   {
     id: "observability",

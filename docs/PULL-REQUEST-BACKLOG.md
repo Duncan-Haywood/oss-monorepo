@@ -1,10 +1,10 @@
 # The open pull requests, and what to do with each
 
-Twenty-nine scheduled sessions have opened twenty-nine pull requests against
+Thirty-three scheduled sessions have opened thirty-three pull requests against
 `main`. **None has been merged.** `main` is still at `b887731`.
 
-**Every one of them is closeable by merging this single branch.** Ten are
-ancestors of it and close by containment; the other nineteen were checked
+**Every one of them is closeable by merging this single branch.** Eleven are
+ancestors of it and close by containment; the other twenty-two were checked
 file-by-file, and the artifacts that were genuinely distinct and uncarried — a
 test for the rate limiter, the invite-code tests, and a contract test on the
 actionable categories — have been written here rather than left in branches
@@ -58,8 +58,9 @@ branch deletes.
 | #25 | `kind-ptolemy-2lb265` | Cross-perspective pooling measured and rejected; `docs/POOLING.md`; this document |
 | #27 | `kind-ptolemy-uvl60j` | The merge of #24 and #25, plus the selection-prior measurement |
 | #28 | `kind-ptolemy-wmhgvs` | Integration tests against a real Postgres, and the pending-question fix on `trials/next` they exposed |
+| #30 | `kind-ptolemy-nq502g` | The same pending-question fix on `financial-trials/next`, its twin; `docs/ROUTES.md` and the route inventory test |
 
-Merging this branch closes all ten.
+Merging this branch closes all eleven.
 
 **#24 and #25 are the two heads this branch merged.** They fired within minutes
 of each other, extended the same seven commits, and each added one on top —
@@ -132,6 +133,27 @@ written here:
   forever. #29 saw that and wrote the contract test; it is here now.
 
 Everything else in the two branches is duplicate. **Close both.**
+
+### #31, #32 and #33 — checked file-by-file, nothing distinct
+
+Three more sessions fired after that, all from the stale base, and between them
+they re-derived the conjoint line-search fix twice, the `session/start` rate
+limit twice, the Arial-over-Geist font fix, and a fourth independent
+development-process document. Each of those exists here already, with a test:
+
+| PR | Branch | What it re-derived | Where it already is |
+| --- | --- | --- | --- |
+| #31 | `keen-gates-g7q3tw` | Conjoint fit stepping downhill; `SessionStartAttempt` rate limit | `conjoint.ts:230` with a regression test; `AnonRequestLog` + `rateLimit.test.ts` |
+| #32 | `kind-ptolemy-h8lt5e` | `standardizePair` — z-scores both partners over their shared items before comparing | `couples.ts:409` `standardize`, plus a significance threshold corrected for the number of items examined, which #32 does not have |
+| #33 | `keen-gates-evbsij` | Same conjoint fix, same rate limit, a `DEVELOPMENT-PROCESS.md` | As #31, plus `developmentprocess.tsx` |
+
+#32 is the closest call of the three and still a close: it identifies the same
+real problem this branch's `compareRankings` was rewritten for — two people's
+Glicko ratings are not on one scale, so subtracting them measures who swiped
+more — and solves it the same way, but stops at the z-score. It does not carry
+the multiplicity correction, so at its `MIN_MEANINGFUL_SD` of 0.25 a couple
+would still be shown ordering noise across dozens of simultaneous comparisons
+as findings about their relationship. **Close it.**
 
 ## The one real gap this left — now closed
 

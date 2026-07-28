@@ -16,14 +16,20 @@ mean:
 
 ## Open
 
-### P0 — Twenty-nine parallel pull requests, none merged — *one merge closes all of them*
+### P0 — Thirty-three parallel pull requests, none merged — *one merge closes all of them*
 
-**This branch is the thirtieth, and it extends the twenty-eighth rather than
-starting beside it.** Every commit below #28's head is carried forward
+**This branch is the thirty-fourth, and it extends the thirtieth rather than
+starting beside it.** Every commit below #30's head is carried forward
 unchanged, so merging this one branch still closes the entire queue. The count
-has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 → 29 across nine write-ups of
-this item; the notification each session sent did not change it, and neither
-will a tenth. Merging or pausing the schedule are the only two things that do.
+has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 → 29 → 33 across ten
+write-ups of this item; the notification each session sent did not change it,
+and neither will an eleventh. Merging or pausing the schedule are the only two
+things that do.
+
+**What this session did differently, for whatever it is worth:** it did not add
+a fix. It ran the blocking gates on the tip everything is stacked on and found
+them red — see the item below — which is the one thing thirty-three write-ups
+of "merge this" had not checked.
 
 **The queue had grown two heads.** Two sessions fired minutes apart, both
 extended the same seven commits, and each added one commit: #25 (the pooling
@@ -42,9 +48,16 @@ queue is lost by closing it: the ancestors close by containment, and the rest
 were checked file-by-file for anything this branch does not already have.
 
 The consolidation chain is #12 ⊂ #14 ⊂ #17 ⊂ #21 ⊂ #22 ⊂ {#24, #25} ⊂ #27 ⊂ #28
-⊂ here. #26 and #29 forked from the stale base after the dispositions were
+⊂ #30 ⊂ here. #26 and #29 forked from the stale base after the dispositions were
 computed; both were checked file-by-file and three tests were taken from #29
-rather than closed with it.
+rather than closed with it. #31, #32 and #33 forked from it too and were checked
+the same way: between them they re-derive the conjoint line-search fix twice,
+the `session/start` rate limit twice, the font fix, and a fourth process
+document, all of which are already here with tests. #32 is the closest call —
+it reaches independently for the same within-person standardisation this
+branch's `compareRankings` uses — and it stops short of the multiplicity
+correction, so it would still show a couple ordering noise. Nothing distinct
+remains in any of the three.
 
 **Nothing merges without the account owner**, and until it does, every scheduled
 run adds a pull request without moving the project. Each of those sessions sent
@@ -55,6 +68,32 @@ project: **whether this task should keep firing while nothing it produces can
 land.** Two answers are both fine — merge this branch and let the schedule
 continue, or pause the schedule — and one is not: leaving it firing into a queue
 nobody drains. See [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
+
+### P1 → resolved on this branch — the branch being held up for merge did not pass its own blocking gate
+
+`npm test` failed on the tip of the consolidation. Not intermittently in
+principle: `selectionPrior.simulation.test.ts` ran 5.1–5.5 seconds against
+vitest's 5-second default and timed out, on a fast machine with nothing else
+running. The test arrived in #27, two sessions extended the branch after that,
+and no write-up mentions a red gate — so the "verified locally" claim was
+carried forward rather than re-made, which is the same failure mode as
+`decisions/0004`'s "no database is reachable here", two branches later.
+
+The test is a measurement sweep, not a slow assertion: for each of three
+correlations × two budgets it simulated the same 15 seeds three times over —
+once per metric it reported — even though every run is seeded and therefore
+identical. It now simulates once per cell and reads all three metrics off the
+same runs. **5.1s → 1.7s, and the six printed rows are unchanged**, which is
+the check that matters: the numbers `decisions/0007` is written from must not
+move.
+
+`vitest.config.ts` also carries an explicit `testTimeout` now, at 20s. The
+default was never chosen for this suite; a limit a simulation lands within 2%
+of on the fastest machine available is a limit that fails everywhere else, and
+the first person it fails is someone who changed nothing. The cost reduction is
+what buys the headroom — the timeout only stops a busy box from being reported
+as a regression. Written up as a principle (`gates-need-headroom`) and a
+definition-of-done check, because the general form of this bites again.
 
 ### P1 — CI has never run, and the docs said it had
 
@@ -202,7 +241,32 @@ claims. When one is cheap to test — one `ls`, one command — test it before
 building on it. Written into
 [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
 
-### P1 — The actionable half of the couple screen is gated past where anyone reaches
+### P1 → largely answered on this branch — The actionable half of the couple screen is gated past where anyone reaches
+
+**Answered end to end this session, and the answer is better than the estimate
+below.** `src/app/api/couple/earned.integration.test.ts` links two accounts and
+has them answer the behaviours survey through the real `trials/next` and
+`trials/answer` handlers against a real database — nothing planted — then reads
+`/api/couple/compare`:
+
+| Answers each | Items under rd 200 | make them happy | shared | matters more to them |
+| --- | --- | --- | --- | --- |
+| 30 | 5 / 16 | 6 | 0 | 0 |
+| 50 | 15 / 16 | 6 | 3 | 5 |
+| 70 | 16 / 16 | 6 | 0 | 5 |
+
+So the actionable half opens at roughly **fifty answers each on a 16-item
+survey**, not the several hundred the paragraph below inferred from the 41- and
+220-item surveys. The gate was never the problem on the small surveys; the
+combined survey was. Two further findings are in
+[`docs/CONVERGENCE.md`](docs/CONVERGENCE.md): "something to do for them" is full
+at 30 answers, long before anything that compares the two people, and the shared
+list held three rows at 50 answers that more answers deleted — a confidence gate
+catching exactly what it exists to catch.
+
+**What is left of this item:** the combined survey, which is what a couple is
+actually pointed at, and which the simulation still puts at ~34 usable items
+after 300 answers. The original write-up follows.
 
 Measured, not guessed. Two accounts were driven through all three perspectives
 against a local Postgres — roughly 90 and 60 answers respectively — and then
