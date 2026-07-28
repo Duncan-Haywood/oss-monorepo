@@ -58,6 +58,7 @@ import {
 } from "@/lib/commerce/checkout-fields";
 import { parseLeadSlugLookup } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
+import { captureError } from "@/lib/observability/error-tracking";
 import {
   checkRateLimit,
   clientIpFromHeaders,
@@ -361,7 +362,18 @@ export async function POST(request: Request) {
     );
   }
 
-  switch (event.type) {
+  // Every expected/recoverable failure inside a case below is already caught
+  // and console.error'd at its own call site (idempotency/redelivery
+  // semantics documented throughout this file depend on exactly which
+  // sub-step failed). This outer try/catch exists only for a genuinely
+  // unexpected bug that escapes every inner catch — without it, that failure
+  // was visible only via whatever the hosting platform's raw logs happen to
+  // retain (observability-error-tracking-scaffold). Re-throwing preserves
+  // the existing behavior exactly (Next.js turns an uncaught throw into a
+  // 500, which is what keeps Stripe retrying) — this only adds a best-effort,
+  // non-blocking capture before that happens.
+  try {
+    switch (event.type) {
     case "checkout.session.completed":
     case "checkout.session.async_payment_succeeded": {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -2486,6 +2498,14 @@ export async function POST(request: Request) {
     }
     default:
       break;
+    }
+  } catch (error) {
+    await captureError(error, {
+      component: "stripe-webhook",
+      eventType: event.type,
+      eventId: event.id,
+    });
+    throw error;
   }
 
   return NextResponse.json({ received: true });

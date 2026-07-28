@@ -4358,6 +4358,56 @@ source). The same digest also lists email-critical leads with no usable address 
         branch already relies on for its notes-append.
       </p>
 
+      <h2 id="observability">10. Observability (error tracking)</h2>
+      <p>
+        Empty-backlog audit (2026-07-28,{" "}
+        <code>empty-backlog-tiers-1-5-clean-sweep-observability-gap-noted</code>) found this repo
+        had zero error-tracking/observability tooling — no Sentry, Datadog, Honeycomb, PostHog, or
+        LogRocket, and no generic monitoring integration of any kind. Every failure path, including
+        the Stripe webhook handler&apos;s 190+ <code>console.error</code>/<code>console.warn</code>{" "}
+        call sites, was visible only via whatever the hosting platform&apos;s raw log retention
+        happened to capture — no aggregation, alerting, or queryable index existed for a production
+        payment-webhook failure, a Convex-outage SQLite-fallback trigger, or a Resend delivery
+        failure.
+      </p>
+      <p>
+        A real Sentry-equivalent SDK integration needs an operator-provided DSN — the same
+        operator-gated class as <code>ALLOW_STRIPE_CONNECT_ONBOARDING</code> /{" "}
+        <code>ALLOW_MARKETING_SCHEDULING</code> above — and a vendor-specific envelope format that
+        should not be guessed at without that vendor&apos;s own SDK. Shipped instead: a
+        vendor-agnostic generic webhook sink (<code>src/lib/observability/error-tracking.ts</code>
+        ). Set <code>ERROR_TRACKING_WEBHOOK_URL</code> to any HTTP(S) endpoint that accepts a JSON
+        POST — a custom receiver, a Datadog/Honeycomb log-intake URL, a Sentry-compatible ingestion
+        proxy, etc. — and <code>captureError</code> best-effort POSTs a structured payload (
+        <code>message</code>, <code>stack</code>, <code>component</code>, <code>severity</code>,{" "}
+        <code>timestamp</code>, bounded free-text <code>context</code>) there, with an optional{" "}
+        <code>ERROR_TRACKING_WEBHOOK_SECRET</code> sent as a bearer{" "}
+        <code>Authorization</code> header (never the URL or body, mirroring{" "}
+        <code>buffer-token-header-not-query</code>). Unlike the Connect/Buffer scaffolds this needs
+        no separate <code>ALLOW_*</code> opt-in flag — sending the app&apos;s own error diagnostics
+        to a URL the operator themselves configured carries no money-movement or third-party-visible
+        side effect, so the URL&apos;s presence is itself the opt-in. Leaving it unset is a total
+        no-op: every call site keeps its existing <code>console.error</code>/<code>console.warn</code>{" "}
+        exactly as before this shipped. <code>captureError</code> never throws and aborts after{" "}
+        <code>DEFAULT_ERROR_TRACKING_TIMEOUT_MS</code> (4s) rather than risk hanging a caller that
+        must itself return promptly.
+      </p>
+      <p>
+        First wiring: the Stripe webhook handler&apos;s <code>POST</code> now wraps its entire{" "}
+        <code>switch (event.type)</code> in one outer <code>try</code>/<code>catch</code>. Every
+        expected/recoverable failure inside a <code>case</code> is already caught and{" "}
+        <code>console.error</code>&apos;d at its own call site — the idempotency/redelivery
+        semantics documented throughout that file depend on exactly which sub-step failed, so none
+        of that per-case handling changed. The outer catch exists only for a genuinely unexpected
+        bug that escapes every inner catch (previously invisible beyond raw logs): it best-effort
+        captures with <code>component: &quot;stripe-webhook&quot;</code> plus the event type/id, then
+        re-throws unchanged — Next.js still turns that into a 500, preserving the exact retry
+        behavior Stripe&apos;s delivery contract depends on. Wiring the remaining
+        high-value failure paths (a Convex-outage SQLite-fallback trigger, a Resend delivery
+        failure) is deliberately left for a future iteration rather than a blanket sweep of this
+        session&apos;s single budget — see <code>/docs/process</code>.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
