@@ -3,43 +3,36 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PERSPECTIVE_META, PERSPECTIVE_ORDER, type PerspectiveValue } from "@/lib/perspective";
+import { clearSessionBundle, useSessionBundle, writeSessionBundle } from "@/lib/sessionStore";
 
-const LS_KEY = "survey:unified:session";
-
-type Perspective = "SELF" | "PARTNER" | "PARTNER_GUESS";
-
-const MODES: { key: Perspective; label: string; blurb: string; glyph: string }[] = [
-  { key: "PARTNER", label: "In a partner", blurb: "What you want in someone else.", glyph: "💞" },
-  { key: "SELF", label: "For myself", blurb: "What you want to build in your own life.", glyph: "⭐" },
-  { key: "PARTNER_GUESS", label: "What they want", blurb: "Your guess at your partner's answers.", glyph: "🔮" },
-];
+const MODES = PERSPECTIVE_ORDER.map((key) => PERSPECTIVE_META[key]);
 
 export function ProfileView() {
   const router = useRouter();
   const [user, setUser] = useState<{ firstName: string; email: string } | null>(null);
-  const [current, setCurrent] = useState<Perspective | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Read during render from the session store rather than mirrored into
+  // state, so the highlighted row is right on the first paint.
+  const bundle = useSessionBundle();
+  const current: PerspectiveValue | null = bundle?.perspective ?? null;
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((d) => setUser(d?.user ?? null))
       .catch(() => {});
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) setCurrent(JSON.parse(raw)?.perspective ?? null);
-    } catch {
-      /* ignore a malformed bundle */
-    }
   }, []);
 
   /**
-   * Switching mode starts a fresh set of sessions for that perspective.
-   * Ratings are stored per participant, so the old mode's answers are kept
-   * intact and can be switched back to — nothing is overwritten.
+   * Switching mode resumes that perspective's existing sessions — the
+   * server hands back the participants already tied to the account, so the
+   * answers given in the other modes are untouched and switching back
+   * lands on them rather than on an empty ranking.
    */
-  async function switchTo(p: Perspective) {
+  async function switchTo(p: PerspectiveValue) {
     if (busy) return;
     setBusy(true);
     setError(null);
@@ -55,15 +48,12 @@ export function ProfileView() {
         setBusy(false);
         return;
       }
-      localStorage.setItem(
-        LS_KEY,
-        JSON.stringify({
-          firstName: user?.firstName ?? "Anonymous",
-          perspective: p,
-          participants: data.participants,
-          domains: data.surveys,
-        })
-      );
+      writeSessionBundle({
+        firstName: user?.firstName ?? "Anonymous",
+        perspective: p,
+        participants: data.participants,
+        domains: data.surveys,
+      });
       router.push("/");
     } catch {
       setError("Couldn't switch. Try again.");
@@ -73,7 +63,7 @@ export function ProfileView() {
 
   async function signOut() {
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
-    localStorage.removeItem(LS_KEY);
+    clearSessionBundle();
     router.push("/");
     router.refresh();
   }

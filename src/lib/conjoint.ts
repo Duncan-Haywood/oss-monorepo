@@ -39,7 +39,16 @@ export type FitResult = {
 
 const RIDGE_LAMBDA = 0.08;
 const MAX_ITERATIONS = 60;
-const GRAD_NORM_TOL = 1e-7;
+/**
+ * Convergence is judged on the gradient PER OBSERVATION, not on its raw
+ * norm. The log-likelihood is a sum over rows, so its gradient scales with
+ * the number of trials: a fixed absolute threshold that a small fit clears
+ * easily becomes unreachable as the history grows, and the fit then reports
+ * `converged: false` while sitting on a perfectly good answer. A flag that
+ * turns false purely because someone answered more questions is worse than
+ * no flag at all.
+ */
+const GRAD_NORM_TOL_PER_ROW = 1e-7;
 const FD_STEP = 1e-4;
 const D_CLAMP = 15;
 const LOG_NU_CLAMP = 3;
@@ -189,10 +198,12 @@ export function fitConjointModel(rows: ChoiceRow[], nFeatures: number): FitResul
   let converged = false;
   let iterations = 0;
 
+  const gradTol = GRAD_NORM_TOL_PER_ROW * rows.length;
+
   for (; iterations < MAX_ITERATIONS; iterations++) {
     const grad = numericGradient(theta, rows);
     const gradNorm = Math.sqrt(grad.reduce((s, g) => s + g * g, 0));
-    if (gradNorm < GRAD_NORM_TOL) {
+    if (gradNorm < gradTol) {
       converged = true;
       break;
     }
@@ -209,11 +220,19 @@ export function fitConjointModel(rows: ChoiceRow[], nFeatures: number): FitResul
     let stepSize = 1;
     let next = theta.map((v, i) => v + stepSize * step[i]);
     let attempts = 0;
-    while (logLikelihood(next, rows) < before && attempts < 20) {
+    let nextLL = logLikelihood(next, rows);
+    while (nextLL < before && attempts < 20) {
       stepSize *= 0.5;
       next = theta.map((v, i) => v + stepSize * step[i]);
+      nextLL = logLikelihood(next, rows);
       attempts++;
     }
+    // If every halving still made things worse, the direction is unusable at
+    // any scale — keep the point we have and stop. Assigning `next` anyway
+    // (which is what this used to do) moves the fit DOWNHILL and then reports
+    // the result as if it were a maximum. `converged` stays false: the
+    // gradient is not small, we simply cannot make progress from here.
+    if (nextLL < before) break;
     theta = next;
   }
 

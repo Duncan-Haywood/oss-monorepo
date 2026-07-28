@@ -6,6 +6,19 @@ import { cuteBreakForCount } from "@/lib/cuteMessages";
 import { DomainState, pickNextDomain, randomStreakTarget } from "@/lib/domainScheduler";
 import { answersIntoLevel, answersUntilNextLevel, levelForAnswers, SWIPES_PER_LEVEL } from "@/lib/insights";
 import {
+  parseSessionBundle,
+  SESSION_KEY,
+  writeSessionBundle,
+  type SessionBundle,
+} from "@/lib/sessionStore";
+import {
+  DEFAULT_PERSPECTIVE,
+  PERSPECTIVE_META,
+  PERSPECTIVE_ORDER,
+  parsePerspective,
+  type PerspectiveValue,
+} from "@/lib/perspective";
+import {
   CenteredNote,
   FinancialTrialView,
   INSTRUCTIONS,
@@ -13,8 +26,6 @@ import {
   ItemsTrialView,
   Trial,
 } from "@/components/CardViews";
-
-const LS_KEY = "survey:unified:session";
 
 type IntroForm = {
   firstName: string;
@@ -27,11 +38,9 @@ type IntroForm = {
 };
 
 /** Always on screen while swiping, so it's never ambiguous who you're rating for. */
-const PERSPECTIVE_SHORT: Record<"SELF" | "PARTNER" | "PARTNER_GUESS", string> = {
-  SELF: "⭐ For me",
-  PARTNER: "💞 In a partner",
-  PARTNER_GUESS: "🔮 Their view",
-};
+const PERSPECTIVE_SHORT: Record<PerspectiveValue, string> = Object.fromEntries(
+  PERSPECTIVE_ORDER.map((k) => [k, `${PERSPECTIVE_META[k].glyph} ${PERSPECTIVE_META[k].short}`])
+) as Record<PerspectiveValue, string>;
 
 /** Blank by default — no personal data baked into the client bundle. */
 const DEFAULT_INTRO: IntroForm = {
@@ -44,16 +53,9 @@ const DEFAULT_INTRO: IntroForm = {
   countryOfResidence: "",
 };
 
-type SessionBundle = {
-  firstName: string;
-  perspective?: "SELF" | "PARTNER" | "PARTNER_GUESS";
-  participants: Record<string, string>;
-  domains: { slug: string; title: string; kind: DomainState["kind"] }[];
-};
-
 export function UnifiedRunner() {
   const [phase, setPhase] = useState<"loading" | "welcome" | "name-entry" | "running" | "thanks">("loading");
-  const [perspective, setPerspective] = useState<"SELF" | "PARTNER" | "PARTNER_GUESS">("PARTNER");
+  const [perspective, setPerspective] = useState<PerspectiveValue>(DEFAULT_PERSPECTIVE);
   const [intro, setIntro] = useState<IntroForm>(DEFAULT_INTRO);
   const [firstName, setFirstName] = useState("");
   const [participants, setParticipants] = useState<Record<string, string>>({});
@@ -69,6 +71,37 @@ export function UnifiedRunner() {
   const [retryTick, setRetryTick] = useState(0);
   const [accountName, setAccountName] = useState<string | null>(null);
 
+  /**
+   * Fills the per-domain counters in from the server. Resuming without this
+   * shows every progress bar at zero for someone who has already answered
+   * hundreds of questions, which reads as "my answers were lost".
+   */
+  const hydrateProgress = useCallback((forParticipants: Record<string, string>) => {
+    fetch("/api/session/status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ participants: forParticipants }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        setDomains((prev) => prev.map((d) => (data.status?.[d.slug] ? { ...d, ...data.status[d.slug] } : d)));
+      })
+      .catch(() => {});
+  }, []);
+
+  const resumeFrom = useCallback(
+    (bundle: SessionBundle) => {
+      const stored = parsePerspective(bundle.perspective);
+      if (stored) setPerspective(stored);
+      setFirstName(bundle.firstName);
+      setParticipants(bundle.participants);
+      setDomains(bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 })));
+      setPhase("running");
+      hydrateProgress(bundle.participants);
+    },
+    [hydrateProgress]
+  );
+
   useEffect(() => {
     // A signed-in account is the source of truth — it lets progress resume on
     // a device that has nothing in localStorage.
@@ -81,60 +114,34 @@ export function UnifiedRunner() {
         if (data.surveys?.length && data.participants && Object.keys(data.participants).length) {
           const bundle: SessionBundle = {
             firstName: data.user.firstName,
+            // Without this the account-resume path drops which perspective
+            // the participants belong to, and the badge above the cards then
+            // claims you're rating something you aren't.
+            perspective: parsePerspective(data.perspective) ?? undefined,
             participants: data.participants,
             domains: data.surveys,
           };
-          localStorage.setItem(LS_KEY, JSON.stringify(bundle));
-          setFirstName(bundle.firstName);
-          setParticipants(bundle.participants);
-          setDomains(bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 })));
-          setPhase("running");
+          writeSessionBundle(bundle);
+          resumeFrom(bundle);
         }
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [resumeFrom]);
 
   useEffect(() => {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) {
-      try {
-        const bundle: SessionBundle = JSON.parse(raw);
-        // Require a usable bundle: at least one domain AND a participant id
-        // for it. A partial bundle from a failed start would otherwise leave
-        // the runner with nothing to fetch and spin forever.
-        const usable =
-          bundle.domains?.length > 0 &&
-          bundle.participants &&
-          bundle.domains.some((d) => bundle.participants[d.slug]);
-        if (usable) {
-          if (bundle.perspective) setPerspective(bundle.perspective);
-          setFirstName(bundle.firstName);
-          setParticipants(bundle.participants);
-          const initialDomains = bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 }));
-          setDomains(initialDomains);
-          setPhase("running");
-          fetch("/api/session/status", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ participants: bundle.participants }),
-          })
-            .then((r) => r.json())
-            .then((data) => {
-              setDomains((prev) =>
-                prev.map((d) => (data.status?.[d.slug] ? { ...d, ...data.status[d.slug] } : d))
-              );
-            })
-            .catch(() => {});
-          return;
-        }
-      } catch {
-        // fall through
-      }
-    }
-    setPhase("welcome");
+    const bundle = parseSessionBundle(localStorage.getItem(SESSION_KEY));
+    // Reading the stored session is a synchronous external-store read on
+    // mount; the `loading` phase exists precisely so this cannot flash.
+    // Tracked in IMPROVEMENT-PLAN.md as "move the runner onto
+    // useSessionBundle", which removes the effect entirely.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (bundle) resumeFrom(bundle);
+    else setPhase("welcome");
+    // Bootstrap once, on mount. `resumeFrom` is stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchNext = useCallback(
@@ -168,6 +175,10 @@ export function UnifiedRunner() {
     if (!slug || streak <= 0) {
       slug = pickNextDomain(domains, slug);
       streak = randomStreakTarget();
+      // The scheduler's choice has to survive to the next render, and that
+      // render is the one that shows the card. Tracked in IMPROVEMENT-PLAN.md
+      // alongside the rest of the runner's state model.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentSlug(slug);
       setStreakRemaining(streak);
     }
@@ -182,7 +193,7 @@ export function UnifiedRunner() {
    * are asked for later (or never), because the fastest possible path to
    * the first card is what makes people actually start.
    */
-  async function beginSwiping(p: "SELF" | "PARTNER" | "PARTNER_GUESS") {
+  async function beginSwiping(p: PerspectiveValue) {
     setPerspective(p);
     setError(null);
     const name = accountName ?? "Anonymous";
@@ -203,7 +214,7 @@ export function UnifiedRunner() {
         participants: data.participants,
         domains: data.surveys,
       };
-      localStorage.setItem(LS_KEY, JSON.stringify(bundle));
+      writeSessionBundle(bundle);
       setFirstName(name);
       setParticipants(data.participants);
       setDomains(
@@ -248,8 +259,13 @@ export function UnifiedRunner() {
       setError("Couldn't start — the server sent back an empty session.");
       return;
     }
-    const bundle: SessionBundle = { firstName: name, participants: data.participants, domains: data.surveys };
-    localStorage.setItem(LS_KEY, JSON.stringify(bundle));
+    const bundle: SessionBundle = {
+      firstName: name,
+      perspective,
+      participants: data.participants,
+      domains: data.surveys,
+    };
+    writeSessionBundle(bundle);
     setFirstName(name);
     setParticipants(data.participants);
     setDomains(data.surveys.map((s: { slug: string; title: string; kind: DomainState["kind"] }) => ({ ...s, confidence: 0, answeredCount: 0 })));
@@ -370,24 +386,19 @@ export function UnifiedRunner() {
           <p className="text-center text-sm font-semibold text-neutral-700 dark:text-neutral-300">
             What are we figuring out?
           </p>
-          <button
-            onClick={() => beginSwiping("PARTNER")}
-            className="rounded-2xl bg-amber-500 px-4 py-4 text-base font-semibold text-neutral-950 shadow-sm transition active:scale-[0.98]"
-          >
-            What I want in a partner
-          </button>
-          <button
-            onClick={() => beginSwiping("SELF")}
-            className="rounded-2xl border-2 border-neutral-300 px-4 py-4 text-base font-semibold text-neutral-800 transition active:scale-[0.98] dark:border-neutral-700 dark:text-neutral-200"
-          >
-            What I want for myself
-          </button>
-          <button
-            onClick={() => beginSwiping("PARTNER_GUESS")}
-            className="rounded-2xl border-2 border-neutral-300 px-4 py-4 text-base font-semibold text-neutral-800 transition active:scale-[0.98] dark:border-neutral-700 dark:text-neutral-200"
-          >
-            What I think my partner wants
-          </button>
+          {PERSPECTIVE_ORDER.map((key, i) => (
+            <button
+              key={key}
+              onClick={() => beginSwiping(key)}
+              className={
+                i === 0
+                  ? "rounded-2xl bg-amber-500 px-4 py-4 text-base font-semibold text-neutral-950 shadow-sm transition active:scale-[0.98]"
+                  : "rounded-2xl border-2 border-neutral-300 px-4 py-4 text-base font-semibold text-neutral-800 transition active:scale-[0.98] dark:border-neutral-700 dark:text-neutral-200"
+              }
+            >
+              {PERSPECTIVE_META[key].cta}
+            </button>
+          ))}
           {error && <p className="text-center text-sm font-medium text-red-500">{error}</p>}
           {accountName ? (
             <p className="text-center text-xs text-neutral-500 dark:text-neutral-400">Signed in as {accountName}</p>

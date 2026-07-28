@@ -1,183 +1,190 @@
 # Improvement plan
 
-Status as of this review: the survey flow works end-to-end locally (5 surveys, Glicko-2 +
-conjoint models both self-tested, swipe UI, adaptive question selection). What follows is
-everything between "works on my laptop" and "trustworthy enough to send to Seti and rely on
-the numbers."
+The live backlog. Individual items hang off the workstreams in
+[`src/lib/developmentProcess.ts`](src/lib/developmentProcess.ts); the process
+they go through is [`developmentprocess.tsx`](developmentprocess.tsx).
 
-Ordered by importance. P0 = do before sharing the link with anyone.
+Priorities mean what [`docs/QUALITY-BAR.md`](docs/QUALITY-BAR.md) says they
+mean:
 
----
-
-## P0 — Blocking. The data is not trustworthy until these are fixed.
-
-### 1. Ratings are global and anyone can move them
-**What:** `Item.rating` is a single shared value per item, not per-person. Every answer from
-any visitor mutates the same numbers. The link is public with no auth, so one person with
-curl (or a bored stranger, or a crawler) can drive every ranking to whatever they want in
-seconds, and the UI will then display that corrupted ranking at ~100% confidence.
-
-**Why it matters most:** this defeats the entire purpose. You want *Seti's* preferences. Right
-now the schema cannot express "Seti's ranking" — it only has "the ranking," mixed across
-everyone who ever opened the URL. Even with zero malice, if you open it to try it yourself,
-your taps and hers are now the same dataset with no way to separate them.
-
-**Fix:** move rating state per-participant. Add a `ParticipantItemRating` table keyed by
-(participantId, itemId) and compute rankings per person. The per-trial before/after snapshots
-already stored on `Trial` mean nothing is lost historically. Roughly a half-day of work,
-including a migration and updating the two `next`/`answer` routes.
-
-**Cheaper interim option:** keep global state but gate the whole app behind a secret link
-token, so only someone with the URL can write. Weaker (still can't separate two people) but
-an hour of work.
-
-### 2. Her name, email, age, sex, and ethnicity are hard-coded in the source
-**What:** `DEFAULT_INTRO` in both runner components contains real PII, committed to the repo
-and shipped in the client JS bundle. Anyone who opens the public page and hits devtools has
-it. There's also no `noindex`, so a search engine can index a page displaying her name.
-
-**Why it matters:** it's a real person's personal data (including two special-category fields,
-ethnicity and sex) published to anyone who visits, with no consent notice anywhere in the app.
-
-**Fix:** move the prefill behind a URL parameter or a signed invite link instead of a source
-constant — `?for=<token>` resolves server-side to the prefill. Add `robots: noindex`. Add one
-line of consent copy above the form. ~1 hour.
-
-### 3. Double-submit and lost-update races on ratings
-**What:** `trials/answer` reads item ratings *outside* the transaction and writes absolute
-values back, so two concurrent answers on the same item silently discard one update. The
-"already answered" check is also check-then-act, so a retry can apply the same answer twice.
-
-**Fix:** `updateMany({ where: { id, result: null } })` and bail if `count === 0`; move the item
-reads inside the transaction. ~1 hour.
-
-### 4. One-line denial of service on `/api/session/status`
-**What:** it accepts an arbitrary, uncapped map of participant IDs and fires a `Promise.all` of
-DB queries over all of them. A 5 MB request body means hundreds of thousands of concurrent
-queries and the site goes down. It also accepts non-string values, which crash the route.
-
-**Fix:** cap the map at ~20 entries, validate every value is a string, before touching the DB.
-15 minutes.
+- **P0** — the data or the people in it are at risk. Nothing else ships first.
+- **P1** — it will mislead someone or break in ordinary use.
+- **P2** — a promise the app makes but does not keep yet.
+- **P3** — polish. Real, but nobody is harmed by waiting.
 
 ---
 
-## P1 — Will break or mislead you in normal use.
+## Open
 
-### 5. The model refit gets slower forever
-`refitSurvey()` runs on *every* financial answer and re-fits from the entire history:
-~3,500–4,700 full passes over every stored trial, synchronously, inside the request. At 500
-trials that's millions of row-evaluations blocking the answer. Answer latency climbs linearly
-until it times out. Also, the convergence tolerance is absolute, so past a certain N it can
-never converge and always burns all 60 iterations.
+### P1 — Anonymous row creation is unbounded
 
-**Fix:** refit on a threshold (every N answers) or in the background rather than every answer;
-switch to a relative gradient tolerance. Also a real bug in the line search: if 20 halvings all
-fail it assigns the worse point anyway instead of keeping the current one. ~2–3 hours.
+`session/start` inserts one participant per survey with no rate limit and no
+dedupe for a signed-out visitor. A loop against the public URL fills the table.
+Signed-in accounts now reuse their participants, so this only affects anonymous
+sessions.
 
-### 6. Two dead-end error states
-- If a "next question" fetch fails, the UI shows an error over a permanent "Loading next…"
-  with no retry — hard refresh is the only escape.
-- If an answer submit fails *after* the server committed it, retrying returns 409 forever.
-  Permanently wedged.
+**Fix:** rate-limit by IP. The pattern in `adminAuth.ts` generalises. ~2 hours.
 
-Both are very likely to happen in real use on a phone with flaky signal.
-**Fix:** retry affordance, and treat 409 as "already recorded, move on." ~1 hour.
+### P1 — `trials/next` creates a Trial row on every page load
 
-### 7. The progress/confidence numbers are wrong per-person
-Confidence is computed survey-wide, not per participant, so a second visitor sees someone
-else's progress as their own. Falls out of fix #1.
+A trial is recorded as "shown" before it has been displayed for any length of
+time, so the abandonment metric is currently measuring refreshes and crawlers
+rather than people giving up.
 
-### 8. Missing indexes and full-history scans in hot paths
-Five composite indexes are missing for queries that run on every single question
-(`(participantId, answeredAt)`, `(participantId, shownAt)`, `(participantId, result)`, etc).
-Separately, `trials/next` loads *every* prior trial for the participant on each question just
-to count and then discard all but the last 10 — O(n²) over a session.
-**Fix:** add the indexes; add `take` limits and let the DB do the counting. ~1–2 hours.
+**Fix:** only count a trial as shown once it has been on screen briefly, or
+reconcile against `msToAnswer` when reading the metric. ~2 hours.
 
-### 9. Unbounded anonymous row creation
-`session/start` inserts 5 rows per call with no rate limit or dedupe. `trials/next` creates a
-Trial row on *every page load* before any answer — which also means the drop-rate metric you
-asked for is currently measuring refreshes and bots, not abandonment.
-**Fix:** rate-limit by IP (the pattern already written in `adminAuth.ts` generalizes); only
-count a trial as "shown" once it's actually been displayed for a moment. ~2 hours.
+### P1 — No consent notice where data is actually collected
+
+The intro form asks for name, email, sex, age and ethnicity — two of those are
+special-category data — and says only that the details let answers be told
+apart. The privacy policy exists but is linked from the profile screen, which
+someone who never signs in will not see. Goal 5 is "safe to hand to someone you
+love", and this is the gap in it.
+
+**Fix:** one line above the form saying what is collected and why, linking the
+privacy policy, and drop any field that is not actually used for anything.
+~1 hour.
+
+### P2 — Not every route handles its own failures
+
+Seven of the twenty-four route handlers have no `try`/`catch`, so a database
+error surfaces as an unhandled rejection with nothing searchable in the log:
+`auth/me`, `auth/logout`, `admin/logout`, `participants`,
+`financial-trials/next`, `trials/next`, `surveys/[slug]`.
+
+**Fix:** one wrapper used consistently, one structured log line per failure.
+~2 hours.
+
+### P2 — No integration tests
+
+The transactional answer path and the participant reuse in `session/start` are
+verified by hand against a local Postgres. That does not survive the next edit.
+This is the largest coverage gap; see [`docs/TESTING.md`](docs/TESTING.md).
+
+**Fix:** a Vitest project with a Postgres service and a migrate-and-seed
+fixture. ~4 hours.
+
+### P2 — The runner has no tests and mirrors storage into state
+
+`UnifiedRunner` is the core loop and is untested. Its bootstrap still copies
+localStorage into component state inside an effect — the two remaining
+`react-hooks/set-state-in-effect` suppressions in the codebase are both there.
+
+**Fix:** move it onto `useSessionBundle` the way `ProfileView` and
+`InsightsView` already are, deriving `phase` and the domain list from the store
+rather than mirroring them. Do it with a jsdom test in place, not before.
+~4 hours.
+
+### P2 — Blind spots has never been seen with real data
+
+`PARTNER_GUESS` was silently recorded as `PARTNER` until recently, so the
+blind-spots comparison — the sharpest thing the app produces — has never had
+anything behind it. The code path is exercised; the output is not.
+
+**Fix:** two accounts, three perspectives each, and an actual look at what comes
+out. Not a code change until then.
+
+### P2 — CSRF/origin check on the mutating routes
+
+Low impact today (no session worth stealing on the anonymous routes) but a free
+amplifier for anything else, and the auth routes now do carry a session cookie.
+
+**Fix:** an origin check in the shared route wrapper. ~1 hour.
+
+### P3 — Accessibility
+
+- Progress bars have no `role="progressbar"` or aria values.
+- Errors are not announced (`aria-live`).
+- The Persian copy has no `lang`/`dir="rtl"`, so screen readers apply English
+  phonetics to it.
+- Celebration emoji are not `aria-hidden`.
+- No `prefers-reduced-motion` opt-out for the flying cards.
+
+### P3 — Contrast
+
+Four spots fail WCAG AA; the worst is the small grey topic line at about 2.6:1.
+
+### P3 — Fonts
+
+Geist is loaded and then overridden by a hard-coded Arial in `globals.css` —
+two font files downloaded and used nowhere.
+
+### P3 — `SurveyRunner` drops the email field that `UnifiedRunner` collects
 
 ---
 
 ## Auth roadmap
 
-Email + password is built (bcrypt, hashed session tokens in HTTP-only cookies,
-per-email and per-IP rate limiting). The remaining methods each need setup only you
-can do, listed in the order I'd add them:
+Email + password is built: bcrypt, hashed session tokens in HTTP-only cookies,
+per-email and per-IP rate limiting. The rest each need setup only the account
+owner can do, in the order worth adding them:
 
-1. **Google OAuth** — you create a Google Cloud project, configure the OAuth consent
-   screen, and hand me a client ID + secret; redirect URI must point at the final
-   deployed domain. Cheapest big win: most users have a Google account and it removes
-   password friction entirely. ~3 hours once credentials exist.
-2. **Passwordless email magic links** — needs an email service (Resend is the easiest;
-   free tier is fine) plus DNS records if you want to send from your own domain.
-   Also unlocks password reset, which the current password login lacks. ~4 hours.
-3. **Sign in with Apple** — Apple Developer Program ($99/yr), a Services ID, a private
-   key, and domain verification. Worth it mainly if this becomes a real iOS app, where
-   Apple requires it alongside other social logins. ~4 hours after enrolment.
-4. **Optional TOTP 2FA** — pure JS (`otpauth` + `qrcode`), no external service, no cost.
-   Opt-in from settings, with single-use recovery codes. ~3 hours, can be done anytime.
+1. **Google OAuth** — needs a Google Cloud project, a configured consent
+   screen, and a client ID + secret; the redirect URI must point at the final
+   deployed domain. Cheapest big win: removes password friction entirely.
+   ~3 hours once credentials exist.
+2. **Passwordless email magic links** — needs an email service (Resend's free
+   tier is enough) plus DNS records to send from your own domain. Also unlocks
+   password reset, which the current password login lacks. ~4 hours.
+3. **Sign in with Apple** — Apple Developer Program ($99/yr), a Services ID, a
+   private key, domain verification. Worth it mainly if this becomes a real iOS
+   app, where Apple requires it alongside other social logins. ~4 hours after
+   enrolment.
+4. **Optional TOTP 2FA** — pure JS (`otpauth` + `qrcode`), no external service,
+   no cost. Opt-in from settings, with single-use recovery codes. ~3 hours.
 
-Account linking matters here: whichever methods get added should attach to the same
-`User` row by verified email, so signing in with Google and with a password lands you
-in the same account rather than silently creating a duplicate.
-
-## P2 — Missing pieces you've already asked for.
-
-### 10. The admin portal does not exist
-The route directories are empty. `adminAuth.ts` (login, session tokens, rate limiting) is
-written and tested-by-eye but imported by nothing; `AdminLoginAttempt` is never written to;
-`ADMIN_KEY` guards nothing. **There is currently no way to read the results except psql.**
-~3–4 hours for login + rankings view + CSV export.
-
-### 11. The results/insights page does not exist
-`UnifiedRunner` links to `/r/{token}`, that route doesn't exist (hard 404), and nothing ever
-issues a token. The link is inert dead code today. This is also the thing that makes the survey
-worth continuing for her — per your own point, there has to be a real payoff. ~4 hours.
-
-### 12. No tests
-~800 lines of pure numerical code (Glicko-2, the conjoint fitter, pairing, trade-off
-generation) with zero automated tests. All four modules take an injectable RNG — they were
-written to be testable. A sign error in the volatility solver would be invisible. I've verified
-each by hand once; that doesn't survive future edits. ~3 hours for meaningful coverage.
-
-### 13. No error boundaries, no logging, no monitoring
-Not one `try/catch` in any of the 8 API routes; no `error.tsx` anywhere. When something breaks
-in production you get a blank screen and no signal that it happened. ~2 hours.
+Account linking matters: every method should attach to the same `User` row by
+verified email, so signing in with Google and with a password lands in one
+account rather than silently creating two.
 
 ---
 
-## P3 — Polish.
+## Closed
 
-- **Accessibility:** progress bars have no `role="progressbar"`/aria values; errors aren't
-  announced (`aria-live`); the Persian text has no `lang`/`dir="rtl"` so screen readers apply
-  English phonetics; celebration emoji aren't `aria-hidden`; no `prefers-reduced-motion` opt-out
-  for the flying cards.
-- **Contrast:** four spots fail WCAG AA, worst is the small grey topic line at ~2.6:1.
-- **4 eslint errors** (`set-state-in-effect`) — all the same root cause, localStorage read in an
-  effect mirrored into state. The `loading` phase exists only to paper over it.
-- **Deployment gap:** the build script never runs `prisma migrate deploy`, so a deploy can build
-  against a schema the database doesn't have.
-- **README** is still create-next-app boilerplate — no env vars documented, no setup steps.
-- Loaded Geist fonts are overridden by a hard-coded Arial in `globals.css` — two fonts
-  downloaded and used nowhere.
-- `SurveyRunner` silently drops the email field that `UnifiedRunner` collects.
-- No CSRF/origin check on the mutating routes (low impact — no session to steal — but it's a
-  free amplifier for #1).
-- Everything is still one uncommitted working tree on top of the initial commit.
+Kept so the plan can be trusted as a record rather than re-litigated.
 
----
-
-## Suggested sequence
-
-1. **Before sending her the link at all:** #1, #2, #3, #4 (~1 day).
-2. **Before relying on the numbers:** #5, #6, #7, #8, #9 (~1 day).
-3. **To make it worth her time and readable by you:** #10, #11 (~1 day).
-4. **To keep it working:** #12, #13, then P3 polish.
-
-The single highest-value item is **#1** — without it, the ranking is not "Seti's ranking," and
-that's the whole deliverable.
+- **Ratings were global.** Now per participant via `ParticipantItemRating`; one
+  person's answers cannot move another's ranking.
+- **Real PII hard-coded in the runner components.** Removed; the intro form
+  starts blank and the app is `noindex` app-wide.
+- **Lost-update and double-submit races on ratings.** `trials/answer` now
+  claims the trial with `updateMany({ where: { result: null } })` inside the
+  transaction and reads item ratings inside it too. A repeat answer returns
+  `alreadyAnswered` rather than a permanent 409.
+- **Uncapped fan-out on `/api/session/status`.** Capped at 20 entries with every
+  value type-checked before any query runs.
+- **Refit on every financial answer.** Now every `REFIT_EVERY` answers, or on an
+  explicit force after an undo.
+- **Absolute convergence tolerance in the conjoint fitter.** Now scaled per
+  observation, so `converged` does not turn false purely because someone
+  answered more questions.
+- **Line search assigned a worse point after exhausting its halvings.** It now
+  stops instead of stepping downhill and reporting the result as a maximum.
+- **Missing composite indexes on hot paths.** Added, including
+  `(userId, perspective, lastSeenAt)` for account resume.
+- **Dead-end error states.** Retry affordance on a failed fetch; a 409 on an
+  already-recorded answer is treated as success.
+- **No admin portal, no results page.** Both exist: login, rankings, CSV export,
+  and the insights and couple screens.
+- **No tests.** 89 across the numerical core and the client contracts.
+- **No error boundaries.** `error.tsx`, `global-error.tsx` and `not-found.tsx`
+  are in place.
+- **`PARTNER_GUESS` collapsed into `PARTNER`.** `session/start` narrowed the
+  value with a two-way ternary, so every session started as "what I think my
+  partner wants" was recorded as "what I want in a partner" — polluting that
+  person's own ranking and leaving the blind-spots comparison with no data it
+  could ever be built from. Perspectives are now declared once and parsed by a
+  rejecting parser.
+- **Switching perspective silently reset progress.** A signed-in account now
+  reuses the participants it already has for that perspective instead of
+  creating a new set, which is what the profile screen always claimed happened.
+- **`/api/auth/me` mixed perspectives on resume.** It took the most recent
+  participant per survey regardless of perspective, so a fresh device could
+  resume "in a partner" for one domain and "what they want" for the next, under
+  one progress bar. It now resolves the perspective first and returns only that
+  one's participants.
+- **The account-resume path reset every progress bar to zero.** It now hydrates
+  the counters the same way the localStorage path does.
+- **No CI.** `.github/workflows/ci.yml` runs typecheck, lint, test, build, and a
+  migration-parity check on every push and pull request.

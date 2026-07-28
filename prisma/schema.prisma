@@ -255,6 +255,9 @@ model Participant {
 
   @@index([surveyId])
   @@index([userId])
+  /// Resuming an account asks "which perspective was this person last using,
+  /// and which participants belong to it" on every page load.
+  @@index([userId, perspective, lastSeenAt])
 }
 
 /// One shown pair. Created when the pair is shown (result null) and filled

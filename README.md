@@ -49,6 +49,19 @@ npx prisma db seed
 npm run dev
 ```
 
+Use `npx prisma db seed` rather than `npx tsx prisma/seed.ts` directly — the
+Prisma CLI loads `.env`, plain `tsx` does not, and the seed script fails with
+"Environment variable not found: POSTGRES_PRISMA_URL" if it is run bare.
+
+## Before you commit
+
+```bash
+npm run verify   # typecheck → lint → test → build
+```
+
+CI runs the same four gates plus a migration-parity check on every push and
+pull request.
+
 ## How it works
 
 **Discrete items** (activities, professions) use **Glicko-2** — the system chess.com's
@@ -75,8 +88,20 @@ state: what you want for yourself, what you want in a partner, and what you *thi
 your partner wants. Comparing the last two across a linked couple is the sharpest
 output — not what you each want, but where you're wrong about each other.
 
+## How this gets built
+
+[developmentprocess.tsx](developmentprocess.tsx) is the front door — goals,
+principles, the loop a change goes through, the gates, and what "done" means.
+It is typed data guarded by a test, so it cannot drift from what is enforced.
+
+- [docs/PRODUCT-GOALS.md](docs/PRODUCT-GOALS.md) — what the app is for, and what it is not
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — how the measurement works, and where the risk is
+- [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md) — the gates and the definition of done
+- [docs/TESTING.md](docs/TESTING.md) — what is covered, what is not, how to add
+
 ## Known gaps
 
-See [IMPROVEMENT-PLAN.md](IMPROVEMENT-PLAN.md) — an audit of what still needs doing,
-ordered by importance, with effort estimates. The admin portal and per-item results
-export are the main things still missing.
+See [IMPROVEMENT-PLAN.md](IMPROVEMENT-PLAN.md) — the live backlog, ordered by
+priority, with effort estimates and a record of what has already been closed.
+The largest open items are rate limiting on anonymous session creation, a
+consent notice on the intro form, and integration tests for the API routes.

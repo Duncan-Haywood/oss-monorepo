@@ -34,6 +34,15 @@ function simulate(trueParams: number[], nu: number, n: number, seed: number): Ch
   return rows;
 }
 
+/**
+ * The penalised log-likelihood at the starting point (all coefficients zero,
+ * nu = 1). There d = 0 for every row, so A, B and EQUAL are each 1/3 and the
+ * ridge penalty is zero — no need to reach into the module's internals.
+ */
+function logLikelihoodAtZero(rows: ChoiceRow[]): number {
+  return rows.length * Math.log(1 / 3);
+}
+
 describe("fitConjointModel", () => {
   it("recovers known coefficients from simulated data", () => {
     const truth = [1.4, -0.9, 0.6];
@@ -79,6 +88,49 @@ describe("fitConjointModel", () => {
     expect(Number.isFinite(fit.params[0])).toBe(true);
     expect(fit.params[0]).toBeGreaterThan(0);
     expect(fit.params[0]).toBeLessThan(20);
+  });
+
+  /**
+   * The gradient of a summed log-likelihood grows with the number of rows,
+   * so an ABSOLUTE convergence threshold gets harder to satisfy the more
+   * data you have — exactly backwards. With the old fixed 1e-7 this same
+   * fit reported `converged: false` while sitting on a perfectly good
+   * answer, which is the kind of flag that later gets used to decide whether
+   * a result is safe to show.
+   */
+  it("reports convergence at large samples, not just small ones", () => {
+    const truth = [1.1, -0.7];
+    for (const n of [50, 800, 10000]) {
+      const fit = fitConjointModel(simulate(truth, 1.2, n, 11), truth.length);
+      expect(fit.converged, `n=${n}`).toBe(true);
+      truth.forEach((t, i) => {
+        expect(Math.abs(fit.params[i] - t) / fit.se[i], `n=${n} param ${i}`).toBeLessThan(4);
+      });
+    }
+  });
+
+  /**
+   * When no step size improves the likelihood, the direction is unusable at
+   * any scale. The old code assigned the trial point anyway — stepping
+   * DOWNHILL and then reporting the result as a maximum — and, because the
+   * next iteration proposed the same direction, span the full 60 iterations
+   * doing it. On this input it used to take 60; it now stops as soon as it
+   * stops making progress, and never returns a point worse than the one it
+   * started from.
+   */
+  it("stops instead of stepping downhill when no step size helps", () => {
+    const rand = seeded(1);
+    // Feature magnitudes far outside anything the app generates, with
+    // outcomes that contradict each other — the fit has nowhere to go.
+    const rows: ChoiceRow[] = Array.from({ length: 60 }, () => ({
+      deltaX: [(rand() * 2 - 1) * 200, (rand() * 2 - 1) * 200],
+      outcome: (["A", "B", "EQUAL"] as Outcome[])[Math.floor(rand() * 3)],
+    }));
+
+    const fit = fitConjointModel(rows, 2);
+    expect(fit.iterations).toBeLessThan(60);
+    expect(Number.isFinite(fit.logLikelihood)).toBe(true);
+    expect(fit.logLikelihood).toBeGreaterThanOrEqual(logLikelihoodAtZero(rows) - 1e-9);
   });
 
   it("never produces NaN on degenerate all-tie input", () => {

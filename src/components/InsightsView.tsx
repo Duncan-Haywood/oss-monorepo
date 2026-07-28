@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { INSIGHTS, SWIPES_PER_LEVEL } from "@/lib/insights";
 import { InsightFeedback } from "@/components/FeedbackWidget";
-
-const LS_KEY = "survey:unified:session";
+import { useSessionBundle } from "@/lib/sessionStore";
 
 type RankedItem = { label: string; category: string | null; rating: number; rd: number; lo: number; hi: number };
 
@@ -20,37 +19,35 @@ type InsightsData = {
 
 export function InsightsView() {
   const [data, setData] = useState<InsightsData | null>(null);
-  const [state, setState] = useState<"loading" | "ready" | "empty" | "error">("loading");
+  const [fetchState, setFetchState] = useState<"loading" | "ready" | "error">("loading");
+
+  const bundle = useSessionBundle();
+  // `undefined` is "we don't know yet" (server render / hydration) and must
+  // not be shown as "you haven't started" — that flashed the empty state on
+  // every load for someone who had answers.
+  const state = bundle === undefined ? "loading" : bundle === null ? "empty" : fetchState;
 
   useEffect(() => {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) {
-      setState("empty");
-      return;
-    }
-    let participants: Record<string, string> | null = null;
-    try {
-      participants = JSON.parse(raw).participants ?? null;
-    } catch {
-      setState("empty");
-      return;
-    }
-    if (!participants || Object.keys(participants).length === 0) {
-      setState("empty");
-      return;
-    }
+    if (!bundle) return;
+    let cancelled = false;
     fetch("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ participants }),
+      body: JSON.stringify({ participants: bundle.participants }),
     })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => {
+        if (cancelled) return;
         setData(d);
-        setState("ready");
+        setFetchState("ready");
       })
-      .catch(() => setState("error"));
-  }, []);
+      .catch(() => {
+        if (!cancelled) setFetchState("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [bundle]);
 
   if (state === "loading") {
     return <Shell><p className="text-neutral-500">Working out what we know so far…</p></Shell>;

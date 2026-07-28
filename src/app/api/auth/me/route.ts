@@ -12,14 +12,21 @@ export async function GET() {
 
   const participants = await prisma.participant.findMany({
     where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
+    orderBy: { lastSeenAt: "desc" },
     select: { id: true, perspective: true, survey: { select: { slug: true, title: true, kind: true } } },
   });
 
-  // Most recent participant per (perspective, survey) wins.
+  // The most recently started session decides which perspective is being
+  // resumed, and only participants from THAT perspective are handed back.
+  // Mixing them would answer "what I want in a partner" in one domain and
+  // "what I think they want" in the next, under one progress bar, and the
+  // two rankings are supposed to be comparable — never merged.
+  const perspective = participants[0]?.perspective ?? null;
+
   const bySlug: Record<string, string> = {};
   const domains: { slug: string; title: string; kind: string }[] = [];
   for (const p of participants) {
+    if (p.perspective !== perspective) continue;
     if (bySlug[p.survey.slug]) continue;
     bySlug[p.survey.slug] = p.id;
     domains.push({ slug: p.survey.slug, title: p.survey.title, kind: p.survey.kind });
@@ -29,6 +36,6 @@ export async function GET() {
     user,
     participants: bySlug,
     surveys: domains,
-    perspective: participants[0]?.perspective ?? null,
+    perspective,
   });
 }

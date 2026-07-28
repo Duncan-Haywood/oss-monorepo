@@ -77,6 +77,9 @@ export function AdminView() {
   }, []);
 
   useEffect(() => {
+    // `load` only sets state after awaiting the fetch, so nothing is set
+    // synchronously here; the rule can't see through the async boundary.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

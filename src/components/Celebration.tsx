@@ -28,7 +28,7 @@ export function Celebration({
   label?: string;
 }) {
   const rand = mulberry32(burstKey + 1);
-  const particles = Array.from({ length: milestone ? 10 : 5 }, (_, i) => {
+  const particles = Array.from({ length: milestone ? 10 : 5 }, () => {
     const angle = rand() * Math.PI * 2;
     const distance = 40 + rand() * (milestone ? 70 : 40);
     return {

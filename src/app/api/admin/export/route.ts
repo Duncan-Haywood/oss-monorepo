@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
   try {
     let rows: Record<string, unknown>[] = [];
-    let name = what;
+    const name = what;
 
     if (what === "trials") {
       const trials = await prisma.trial.findMany({
