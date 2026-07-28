@@ -43,6 +43,7 @@ import {
   disposeColdLeadAction,
   openBillingPortalAction,
   sendStarterUpsellAction,
+  sendGrowthUpsellAction,
   generateMarketingPackAction,
   sendMarketingPackToClientAction,
   generateSeasonalPromoAction,
@@ -97,6 +98,11 @@ import {
   oldestStarterUpsellCandidateAgeHours,
   resolveUpsellTargetTier,
 } from "@/lib/billing/starter-upsell";
+import {
+  leadEligibleForGrowthUpsell,
+  listGrowthUpsellCandidates,
+  oldestGrowthUpsellCandidateAgeHours,
+} from "@/lib/billing/growth-upsell";
 import {
   listRecurringEntitlementPaused,
   oldestRecurringEntitlementPausedAgeHours,
@@ -254,6 +260,7 @@ const CATEGORIES: { id: BusinessCategory; label: string }[] = [
 const COMMERCE_CATALOGS_MISSING_HEADING_ID = "commerce-catalogs-missing-heading";
 const COMMERCE_CATALOGS_UNSYNCED_HEADING_ID = "commerce-catalogs-unsynced-heading";
 const STARTER_UPSELL_HEADING_ID = "starter-mrr-upsell-heading";
+const GROWTH_UPSELL_HEADING_ID = "growth-complete-upsell-heading";
 const MRR_PAUSED_HEADING_ID = "mrr-paused-canceled-heading";
 const MARKETING_PACKS_DUE_HEADING_ID = "marketing-packs-due-heading";
 const VOICE_PACKS_DUE_HEADING_ID = "voice-packs-due-heading";
@@ -1378,6 +1385,13 @@ export function LeadsClient({
       ordersForLead: ordersByLeadSlug.get(lead.slug) ?? [],
     });
 
+  const leadEligibleForCompleteUpsell = (lead: Lead) =>
+    leadEligibleForGrowthUpsell({
+      stage: lead.stage,
+      email: lead.email,
+      ordersForLead: ordersByLeadSlug.get(lead.slug) ?? [],
+    });
+
   const leadHasMarketingPack = (lead: Lead) =>
     leadEligibleForMarketingPack(lead, ordersByLeadSlug.get(lead.slug) ?? []);
 
@@ -1428,6 +1442,35 @@ export function LeadsClient({
         [slug]: res.mock
           ? `Mock upsell email logged (Resend unset) — ${label} checkout link`
           : `Upsell email sent — ${label} checkout link`,
+      }));
+    });
+  };
+
+  const handleSendGrowthUpsell = (slug: string) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
+    setLeadActionNotices((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
+    startTransition(async () => {
+      const res = await sendGrowthUpsellAction(slug);
+      if (!res.success) {
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: `Upsell email failed: ${res.error}`,
+        }));
+        return;
+      }
+      setLeadActionNotices((prev) => ({
+        ...prev,
+        [slug]: res.mock
+          ? "Mock upsell email logged (Resend unset) — Complete checkout link"
+          : "Upsell email sent — Complete checkout link",
       }));
     });
   };
@@ -2061,6 +2104,12 @@ export function LeadsClient({
     orders,
     nowMs,
   );
+  const growthUpsellCandidates = listGrowthUpsellCandidates(leads, orders);
+  const oldestGrowthUpsellHours = oldestGrowthUpsellCandidateAgeHours(
+    growthUpsellCandidates,
+    orders,
+    nowMs,
+  );
   const recurringEntitlementPaused = listRecurringEntitlementPaused(leads, orders);
   // Same aggregate staleness signal pipeline-health's MetricCard hint and the
   // daily digest already show for this due-queue — this per-lead panel
@@ -2407,6 +2456,110 @@ export function LeadsClient({
                   {leadActionNotices[lead.slug] ? (
                     <p
                       id={`starter-upsell-action-notice-${lead.slug}`}
+                      className="mt-2 text-xs font-medium text-emerald-700"
+                      role="status"
+                    >
+                      {leadActionNotices[lead.slug]}
+                    </p>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+      {growthUpsellCandidates.length > 0 && (
+        <section aria-labelledby={GROWTH_UPSELL_HEADING_ID} className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2
+              id={GROWTH_UPSELL_HEADING_ID}
+              tabIndex={-1}
+              className="text-lg font-semibold tracking-tight text-zinc-900 focus:outline-none"
+            >
+              Growth → Complete upsell
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({growthUpsellCandidates.length}
+                {oldestGrowthUpsellHours !== null
+                  ? ` · oldest ${formatAbandonedAgeHours(oldestGrowthUpsellHours)}`
+                  : ""}
+                )
+              </span>
+            </h2>
+            <Link
+              href="/docs/product-bundles"
+              className="text-xs font-medium text-teal-800 underline underline-offset-2"
+            >
+              Product bundles
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Paid Growth customers with no Complete order yet. Operator-triggered upgrade
+            email pitching the AI phone agent, appointment booking, and seasonal promos
+            (honors suppression).
+          </p>
+          <ul className="mt-4 space-y-3" aria-live="polite" aria-relevant="removals">
+            {growthUpsellCandidates.map((lead) => {
+              const bundle = getBundle("complete");
+              const upsellAgeHours = oldestGrowthUpsellCandidateAgeHours(
+                [{ slug: lead.slug }],
+                orders,
+                nowMs,
+              );
+              return (
+                <li
+                  key={lead.slug}
+                  className="rounded-xl border border-teal-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {lead.businessName}{" "}
+                        <span className="font-normal text-zinc-500">({lead.slug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {lead.stage} · suggest {bundle?.name ?? "complete"}
+                        {bundle?.monthlyPriceUsd != null
+                          ? ` · $${bundle.monthlyPriceUsd}/mo`
+                          : null}
+                        {lead.email ? ` · ${lead.email}` : null}
+                        {upsellAgeHours !== null ? (
+                          <> · paid {formatAbandonedAgeHours(upsellAgeHours)} ago</>
+                        ) : null}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleSendGrowthUpsell(lead.slug)}
+                      aria-label={dashboardRowActionAriaLabel(
+                        `Send ${bundle?.name ?? "Complete"} upsell`,
+                        lead.businessName,
+                        lead.slug,
+                      )}
+                      aria-describedby={
+                        leadActionErrors[lead.slug]
+                          ? `growth-upsell-action-error-${lead.slug}`
+                          : leadActionNotices[lead.slug]
+                            ? `growth-upsell-action-notice-${lead.slug}`
+                            : undefined
+                      }
+                      className="rounded-lg bg-teal-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
+                    >
+                      Send {bundle?.name ?? "Complete"} upsell
+                    </button>
+                  </div>
+                  {leadActionErrors[lead.slug] ? (
+                    <p
+                      id={`growth-upsell-action-error-${lead.slug}`}
+                      className="mt-2 text-xs font-medium text-red-600"
+                      role="alert"
+                    >
+                      {leadActionErrors[lead.slug]}
+                    </p>
+                  ) : null}
+                  {leadActionNotices[lead.slug] ? (
+                    <p
+                      id={`growth-upsell-action-notice-${lead.slug}`}
                       className="mt-2 text-xs font-medium text-emerald-700"
                       role="status"
                     >
@@ -4969,6 +5122,28 @@ export function LeadsClient({
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 px-3 text-xs font-semibold text-teal-900 transition hover:border-teal-300 hover:bg-teal-100 disabled:opacity-60"
                             >
                               Upsell
+                            </button>
+                          ) : null}
+                          {leadEligibleForCompleteUpsell(lead) ? (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleSendGrowthUpsell(lead.slug)}
+                              aria-label={dashboardRowActionAriaLabel(
+                                "Upsell to Complete",
+                                lead.businessName,
+                                lead.slug,
+                              )}
+                              aria-describedby={
+                                leadActionErrors[lead.slug]
+                                  ? `lead-action-error-${lead.slug}`
+                                  : leadActionNotices[lead.slug]
+                                    ? `lead-action-notice-${lead.slug}`
+                                    : undefined
+                              }
+                              className="inline-flex h-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 px-3 text-xs font-semibold text-teal-900 transition hover:border-teal-300 hover:bg-teal-100 disabled:opacity-60"
+                            >
+                              Upsell to Complete
                             </button>
                           ) : null}
                           {marketingEligible ? (

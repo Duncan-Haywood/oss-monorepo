@@ -17,6 +17,7 @@ import {
   recordLeadOutreach,
   recordStarterUpsellSent,
   recordStripeConnectOnboardingLinkSent,
+  recordGrowthUpsellSent,
   listOpenCheckoutSessions,
   listUnrepliedInquiries,
   recordCheckoutRecoverySent,
@@ -79,6 +80,7 @@ import { LEAD_STAGE_CONVEX_PRIMARY } from "@/lib/leads/stage-persist";
 import { LEAD_UPSERT_CONVEX_PRIMARY } from "@/lib/leads/upsert-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
 import { STARTER_UPSELL_SENT_CONVEX_PRIMARY } from "@/lib/leads/starter-upsell-persist";
+import { GROWTH_UPSELL_SENT_CONVEX_PRIMARY } from "@/lib/leads/growth-upsell-persist";
 import { STRIPE_CONNECT_ONBOARDING_LINK_SENT_CONVEX_PRIMARY } from "@/lib/leads/stripe-connect-onboarding-link-persist";
 import { MARKETING_PACK_CONVEX_PRIMARY } from "@/lib/marketing/pack-persist";
 import { CLIENT_VOICE_PACK_CONVEX_PRIMARY } from "@/lib/voice/pack-persist";
@@ -157,6 +159,7 @@ import {
   sendInquiryReply,
   sendOperatorDailyDigest,
   sendStarterUpsellEmail,
+  sendGrowthUpsellEmail,
   sendMarketingPackToClientEmail,
   sendClientVoicePackToClientEmail,
   sendCommerceBuyNowClientReceipt,
@@ -179,6 +182,7 @@ import {
   leadEligibleForStarterUpsell,
   resolveUpsellTargetTier,
 } from "@/lib/billing/starter-upsell";
+import { leadEligibleForGrowthUpsell } from "@/lib/billing/growth-upsell";
 import { getBundle } from "@/lib/pricing/bundles";
 import { buildDailyDigest, renderDailyDigestHtml } from "@/lib/digest/daily-digest";
 import {
@@ -2537,6 +2541,132 @@ export async function sendStarterUpsellAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in sendStarterUpsellAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Operator-triggered Complete upsell email for paid Growth leads (no
+ * Complete order yet) — the second upgrade step, mirroring
+ * sendStarterUpsellAction's mark-before-send race guard and error shape.
+ * See /docs/process (growth-upsell-nudge).
+ */
+export async function sendGrowthUpsellAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const clientIp = clientIpFromHeaders(await headers());
+    const rate = checkRateLimit(`growth-upsell:${clientIp}`);
+    if (!rate.allowed) {
+      return {
+        success: false as const,
+        error: "Too many requests — please try again shortly.",
+      };
+    }
+
+    const parsedSlug = parseLeadSlugLookup(slug);
+    if (!parsedSlug.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSlug.reason === "too_long"
+            ? "Slug is too long"
+            : "Slug is required",
+      };
+    }
+    slug = parsedSlug.slug;
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const ordersForLead = await listOrdersByLeadSlug(lead.slug);
+    if (
+      !leadEligibleForGrowthUpsell({
+        stage: lead.stage,
+        email: lead.email,
+        ordersForLead,
+      })
+    ) {
+      return {
+        success: false as const,
+        error:
+          "Upsell only applies to paid/live Growth leads with email and no Complete order yet",
+      };
+    }
+
+    const email = lead.email!.trim();
+    const bundle = getBundle("complete");
+    if (!bundle?.monthlyPriceUsd) {
+      return { success: false as const, error: "Complete tier is missing monthly pricing" };
+    }
+
+    // Durable mark before send (persist-then-notify) — see
+    // sendStarterUpsellAction's identical comment for the full race-guard
+    // reasoning (growth-upsell-send-race-guard mirrors
+    // starter-upsell-send-race-guard exactly: a concurrency guard only, not
+    // a one-shot "already sent" gate, since a later, deliberate resend to a
+    // still Growth-only lead must succeed).
+    const sentAt = new Date().toISOString();
+    const expectedGrowthUpsellSentCount = lead.growthUpsellSentCount ?? 0;
+    let marked: boolean;
+    try {
+      marked = await recordGrowthUpsellSent(
+        lead.slug,
+        sentAt,
+        expectedGrowthUpsellSentCount,
+        GROWTH_UPSELL_SENT_CONVEX_PRIMARY,
+      );
+    } catch (markError) {
+      if (markError instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record Growth upsell send in the shared store — email was not sent. Retry in a moment.",
+        };
+      }
+      throw markError;
+    }
+    if (!marked) {
+      return {
+        success: false as const,
+        error:
+          "Growth upsell was already sent moments ago by a concurrent request — skipped duplicate send",
+      };
+    }
+
+    const sent = await sendGrowthUpsellEmail({
+      to: email,
+      businessName: lead.businessName,
+      slug: lead.slug,
+      monthlyPriceUsd: bundle.monthlyPriceUsd,
+    });
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list (sent-marker was recorded — click Send Complete upsell again to retry)"
+            : "error" in sent && typeof sent.error === "string"
+              ? `${sent.error} (sent-marker was recorded — click Send Complete upsell again to retry)`
+              : "Failed to send upsell email (sent-marker was recorded — click Send Complete upsell again to retry)",
+      };
+    }
+
+    revalidatePath("/dashboard/leads");
+    return {
+      success: true as const,
+      mock: "mock" in sent ? Boolean(sent.mock) : false,
+    };
+  } catch (error) {
+    console.error("Error in sendGrowthUpsellAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

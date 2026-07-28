@@ -3962,6 +3962,34 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        Business-growth audit (<code>growth-upsell-nudge</code>): the Starter → Growth/Complete
+        nudge above has no second step — a paid/live Growth customer (the AI marketing engine, no
+        phone agent) had zero automated path toward Complete, the only tier with real
+        differentiated value over Growth (seasonal promos, an AI phone agent for the business
+        line, appointment booking and lead capture). Shipped{" "}
+        <code>src/lib/billing/growth-upsell.ts</code>, mirroring{" "}
+        <code>starter-upsell.ts</code>&apos;s shape exactly except the negative check:{" "}
+        <code>orderEligibleForBillingPortal</code> is true for both Growth and Complete (it gates
+        Billing vs no-Billing, not one tier vs the other), so it cannot serve as the &quot;already
+        has this&quot; exclusion here — <code>hasCompleteOrder</code> checks for a Complete-tier
+        order specifically instead, regardless of that order&apos;s refund/dispute status (same
+        &quot;already sold, don&apos;t re-pitch&quot; reasoning <code>starter-upsell.ts</code>{" "}
+        documents). <code>leads</code> gained <code>growthUpsellSentCount</code>/
+        <code>lastGrowthUpsellSentAt</code> (both backends) and{" "}
+        <code>recordGrowthUpsellSent</code> (Convex <code>requireConvex: true</code>), the same
+        expected-count compare-and-swap shape as <code>recordStarterUpsellSent</code>.{" "}
+        <code>sendGrowthUpsellAction</code> marks before it sends (persist-then-notify, mirroring{" "}
+        <code>starter-upsell-stripe-connect-send-race-guard-ordering-fix</code>&apos;s corrected
+        ordering, not the original shape the paragraph above describes) — a lost CAS or a
+        fail-closed mark write skips the send entirely. New dashboard panel (&quot;Growth →
+        Complete upsell&quot;) + row
+        action (&quot;Upsell to Complete&quot;), a <code>growthUpsellCandidatesCount</code>{" "}
+        pipeline-health card, and a matching daily-digest section, all mirroring their Starter
+        upsell twins. See <code>send-growth-upsell-action.test.ts</code> +{" "}
+        <code>growth-upsell.test.ts</code>.
+      </p>
+
+      <p>
         <code>replyToInquiryAction</code> (the CRM reply-to-visitor flow) was the one send action
         in this family still missing a duplicate-send race guard — and the one send in the whole
         set that reaches an actual end customer rather than the operator&apos;s own paid client.

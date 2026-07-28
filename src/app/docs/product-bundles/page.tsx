@@ -170,7 +170,13 @@ export default function ProductBundlesDocPage() {
 
       <h2>Upsell path</h2>
       <p>
-        Preview tier comparison cards → self-serve Stripe checkout. (No SMS send capability
+        Preview tier comparison cards → self-serve Stripe checkout. Two operator-triggered
+        one-tier-up nudges cover the post-purchase path: paid/live Starter →
+        Growth/Complete, and paid/live Growth → Complete (the only tier with real
+        differentiated value over Growth — seasonal promos, the AI phone agent, appointment
+        booking) — both a dashboard panel/row action + Resend email, both also surfaced in
+        pipeline health and the daily digest. See{" "}
+        <DocLink href="/docs/business-model">Business model</DocLink>. (No SMS send capability
         exists in this codebase; platform voice explaining tiers is unbuilt — see{" "}
         <DocLink href="/docs/roadmap">Roadmap</DocLink>.)
       </p>

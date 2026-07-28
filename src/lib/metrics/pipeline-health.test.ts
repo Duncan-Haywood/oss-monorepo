@@ -142,6 +142,8 @@ describe("computePipelineHealth", () => {
     expect(health.oldestBillingNoticeSendFailedAgeHours).toBeNull();
     expect(health.starterUpsellCandidatesCount).toBe(0);
     expect(health.oldestStarterUpsellCandidateAgeHours).toBeNull();
+    expect(health.growthUpsellCandidatesCount).toBe(0);
+    expect(health.oldestGrowthUpsellCandidateAgeHours).toBeNull();
     expect(health.connectOnboardingIncompleteCount).toBe(0);
     expect(health.oldestConnectOnboardingIncompleteAgeHours).toBeNull();
     expect(health.bufferProfileMappingMissingCount).toBe(0);
@@ -1108,6 +1110,46 @@ describe("computePipelineHealth", () => {
     });
     expect(health.starterUpsellCandidatesCount).toBe(2);
     expect(health.oldestStarterUpsellCandidateAgeHours).toBe(10);
+  });
+
+  it("counts paid/live Growth-only leads ready for a Complete upsell nudge", () => {
+    const upsellCandidate = makeLead("paid", { slug: "growth-upsell", email: "owner@example.com" });
+    const olderCandidate = makeLead("live", { slug: "growth-upsell-older", email: "owner2@example.com" });
+    const alreadyComplete = makeLead("live", { slug: "already-complete", email: "owner3@example.com" });
+    const noEmail = makeLead("paid", { slug: "growth-no-email", email: undefined });
+    const olderCreatedAt = NOW - 12 * HOUR_MS;
+    const health = computePipelineHealth({
+      leads: [upsellCandidate, olderCandidate, alreadyComplete, noEmail],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "g1",
+          leadSlug: "growth-upsell",
+          tier: "growth",
+          createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+        },
+        {
+          ...makeOrder(599),
+          id: "g2",
+          leadSlug: "growth-upsell-older",
+          tier: "growth",
+          createdAt: new Date(olderCreatedAt).toISOString(),
+        },
+        { ...makeOrder(699), id: "g3", leadSlug: "already-complete", tier: "complete" },
+        {
+          ...makeOrder(599),
+          id: "g4",
+          leadSlug: "growth-no-email",
+          tier: "growth",
+          createdAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.growthUpsellCandidatesCount).toBe(2);
+    expect(health.oldestGrowthUpsellCandidateAgeHours).toBe(12);
   });
 
   it("counts leads with an incomplete Stripe Connect account, anchoring age on stripeConnectAccountCreatedAt", () => {

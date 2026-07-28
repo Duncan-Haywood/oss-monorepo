@@ -163,6 +163,19 @@ export interface Lead {
   stripeConnectOnboardingLinkSentCount?: number;
   /** ISO timestamp of the most recent Stripe Connect onboarding-link send. */
   lastStripeConnectOnboardingLinkSentAt?: string;
+  /**
+   * Monotonic count of Growth→Complete upsell emails sent to this lead via
+   * sendGrowthUpsellAction — a concurrency guard, not a one-shot "already
+   * sent" gate, mirroring starterUpsellSentCount's CAS shape: an operator
+   * may legitimately re-nudge a still Growth-only lead weeks later.
+   * recordGrowthUpsellSent only rejects a write whose expected count no
+   * longer matches the current row (an exact concurrent duplicate), never a
+   * later, deliberate resend. Absent/0 means never sent. See
+   * growth-upsell-send-race-guard.
+   */
+  growthUpsellSentCount?: number;
+  /** ISO timestamp of the most recent Growth upsell send. */
+  lastGrowthUpsellSentAt?: string;
 }
 
 /**

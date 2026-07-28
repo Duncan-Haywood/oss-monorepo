@@ -10,6 +10,7 @@ import {
   sqliteRecordLeadOutreach,
   sqliteRecordStarterUpsellSent,
   sqliteRecordStripeConnectOnboardingLinkSent,
+  sqliteRecordGrowthUpsellSent,
   sqliteApplyColdLeadDisposition,
   sqliteRecordClientInquiryReply,
   sqliteRecordCheckoutRecoverySent,
@@ -715,6 +716,59 @@ describe("sqliteRecordStripeConnectOnboardingLinkSent", () => {
     // succeeds — the guard only rejects a stale snapshot.
     expect(
       sqliteRecordStripeConnectOnboardingLinkSent(db, "test-lead", "2026-02-01T00:00:00.000Z", 1),
+    ).toBe(true);
+  });
+});
+
+describe("sqliteRecordGrowthUpsellSent", () => {
+  it("stamps growthUpsellSentCount 0 -> 1 and lastGrowthUpsellSentAt when expectedGrowthUpsellSentCount matches (0 on first send)", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+    expect(
+      sqliteRecordGrowthUpsellSent(db, "test-lead", "2026-01-01T00:00:00.000Z", 0),
+    ).toBe(true);
+    const row = db
+      .prepare("SELECT growthUpsellSentCount, lastGrowthUpsellSentAt FROM leads WHERE slug = ?")
+      .get("test-lead") as { growthUpsellSentCount: number; lastGrowthUpsellSentAt: string };
+    expect(row.growthUpsellSentCount).toBe(1);
+    expect(row.lastGrowthUpsellSentAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+
+  it("returns false for a missing slug", () => {
+    const db = freshDb();
+    expect(
+      sqliteRecordGrowthUpsellSent(db, "missing", "2026-01-01T00:00:00.000Z", 0),
+    ).toBe(false);
+  });
+
+  it("rejects a second concurrent call whose expectedGrowthUpsellSentCount is stale, but allows a later, deliberate resend with the fresh count (growth-upsell-send-race-guard)", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+
+    // First call (e.g. tab A) wins the race.
+    expect(
+      sqliteRecordGrowthUpsellSent(db, "test-lead", "2026-01-01T00:00:00.000Z", 0),
+    ).toBe(true);
+
+    // Second concurrent call (e.g. tab B) read the same pre-write snapshot
+    // (expectedGrowthUpsellSentCount: 0) before tab A's write landed — must
+    // be rejected, not silently apply a second increment that would send a
+    // real duplicate email.
+    expect(
+      sqliteRecordGrowthUpsellSent(db, "test-lead", "2026-01-01T00:00:01.000Z", 0),
+    ).toBe(false);
+
+    const row = db
+      .prepare("SELECT growthUpsellSentCount, lastGrowthUpsellSentAt FROM leads WHERE slug = ?")
+      .get("test-lead") as { growthUpsellSentCount: number; lastGrowthUpsellSentAt: string };
+    // Still reflects only tab A's write.
+    expect(row.growthUpsellSentCount).toBe(1);
+    expect(row.lastGrowthUpsellSentAt).toBe("2026-01-01T00:00:00.000Z");
+
+    // A genuine later resend (correctly reading the now-current count) still
+    // succeeds — the guard only rejects a stale snapshot.
+    expect(
+      sqliteRecordGrowthUpsellSent(db, "test-lead", "2026-02-01T00:00:00.000Z", 1),
     ).toBe(true);
   });
 });

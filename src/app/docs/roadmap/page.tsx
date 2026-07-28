@@ -267,7 +267,10 @@ export default function RoadmapDocPage() {
         self-serve route suite. Operator <strong>Upsell</strong> action glue for paid/live
         Starter-only leads is covered by <code>send-starter-upsell-action.test.ts</code>{" "}
         (auth, eligibility inverse of Billing, Growth/Complete target tier, suppression /
-        Resend) beside the starter-upsell helper suite. Checkout for an unknown slug creates a
+        Resend) beside the starter-upsell helper suite. The second upgrade step — paid/live
+        Growth-only leads with no Complete order yet — has its own <strong>Upsell to Complete</strong>{" "}
+        action, covered by <code>send-growth-upsell-action.test.ts</code> beside the{" "}
+        <code>growth-upsell.test.ts</code> helper suite. Checkout for an unknown slug creates a
         paid payment stub lead on both backends. Remaining: run
         bootstrap (or Dashboard) for test + live Price IDs, and activate Customer Portal in the
         Stripe Dashboard. Until core Stripe secrets are set,{" "}
@@ -353,10 +356,14 @@ export default function RoadmapDocPage() {
         <code>cold-disposition-convex-primary</code>): shipped.
         Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
         Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
-        Growth/Complete monthly marketing packs: shipped. Marketing packs due this UTC month
-        surface on pipeline health + daily digest from an uncapped{" "}
-        <code>listMarketingPacksForMonth</code> (not a newest-N page); Starter upsell candidates
-        also appear in the digest. Closed-leads funnel footnote: shipped (
+        Paid-Growth → Complete upsell nudge (the second upgrade step — Complete is the only tier
+        with real differentiated value over Growth: seasonal promos, the AI phone agent,
+        appointment booking): shipped (its own dashboard panel + row action + Resend email
+        pitching those specific differentiators, not a re-pitch of the marketing pack Growth
+        already has). Growth/Complete monthly marketing packs: shipped. Marketing packs due this
+        UTC month surface on pipeline health + daily digest from an uncapped{" "}
+        <code>listMarketingPacksForMonth</code> (not a newest-N page); Starter and Growth upsell
+        candidates also appear in the digest. Closed-leads funnel footnote: shipped (
         <code>closedLeadCount</code> on pipeline health — see{" "}
         <DocLink href="/docs/process">process log</DocLink>).
       </p>

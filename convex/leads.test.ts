@@ -37,6 +37,8 @@ interface LeadRow {
   lastStarterUpsellSentAt?: string;
   stripeConnectOnboardingLinkSentCount?: number;
   lastStripeConnectOnboardingLinkSentAt?: string;
+  growthUpsellSentCount?: number;
+  lastGrowthUpsellSentAt?: string;
 }
 
 function newLeadArgs(overrides: Partial<Record<string, unknown>> = {}) {
@@ -906,6 +908,93 @@ test("recordStripeConnectOnboardingLinkSent rejects a concurrent duplicate (stal
   });
   expect(row?.stripeConnectOnboardingLinkSentCount).toBe(2);
   expect(row?.lastStripeConnectOnboardingLinkSentAt).toBe("2026-03-01T00:00:00.000Z");
+});
+
+test("recordGrowthUpsellSent returns false (not throw) on an unknown slug", async () => {
+  const t = convexTest(schema, modules);
+  await expect(
+    t.mutation(api.leads.recordGrowthUpsellSent, {
+      slug: "no-such-lead",
+      sentAt: "2026-01-01T00:00:00.000Z",
+      expectedGrowthUpsellSentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+});
+
+test("recordGrowthUpsellSent increments the count and stamps lastGrowthUpsellSentAt on a matching expected count", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "growth-upsell-cafe", stage: "paid" }),
+  );
+
+  const applied = await t.mutation(api.leads.recordGrowthUpsellSent, {
+    slug: "growth-upsell-cafe",
+    sentAt: "2026-02-01T00:00:00.000Z",
+    expectedGrowthUpsellSentCount: 0,
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(applied).toBe(true);
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "growth-upsell-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.growthUpsellSentCount).toBe(1);
+  expect(row?.lastGrowthUpsellSentAt).toBe("2026-02-01T00:00:00.000Z");
+});
+
+test("recordGrowthUpsellSent rejects a concurrent duplicate (stale expected count) but allows a later, deliberate resend (growth-upsell-send-race-guard)", async () => {
+  // Same expected-count CAS shape as recordStarterUpsellSent: a genuinely
+  // later resend (a fresh read, a fresh expected count) must succeed — a
+  // Growth upsell nudge has no monthly regenerate step to reset
+  // eligibility, so the operator can legitimately re-send it to a still
+  // Growth-only lead weeks later. Only an exact concurrent duplicate (two
+  // calls racing on the same stale expected count) is rejected.
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.leads.upsertLead,
+    upsertArgs({ slug: "race-growth-upsell-cafe", stage: "paid" }),
+  );
+
+  // The winner of the race advances count 0 -> 1.
+  await expect(
+    t.mutation(api.leads.recordGrowthUpsellSent, {
+      slug: "race-growth-upsell-cafe",
+      sentAt: "2026-02-01T00:00:00.000Z",
+      expectedGrowthUpsellSentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+
+  // The loser of the race replays the same stale expected count (0) — must
+  // be rejected, not double-counted.
+  await expect(
+    t.mutation(api.leads.recordGrowthUpsellSent, {
+      slug: "race-growth-upsell-cafe",
+      sentAt: "2026-02-01T00:00:05.000Z",
+      expectedGrowthUpsellSentCount: 0,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(false);
+
+  // A later, deliberate resend (operator re-reads the lead, sees count=1,
+  // and clicks Send again weeks later) must succeed.
+  await expect(
+    t.mutation(api.leads.recordGrowthUpsellSent, {
+      slug: "race-growth-upsell-cafe",
+      sentAt: "2026-03-01T00:00:00.000Z",
+      expectedGrowthUpsellSentCount: 1,
+      apiSecret: TEST_API_SECRET,
+    }),
+  ).resolves.toBe(true);
+
+  const row: LeadRow | null = await t.query(api.leads.getBySlug, {
+    slug: "race-growth-upsell-cafe",
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(row?.growthUpsellSentCount).toBe(2);
+  expect(row?.lastGrowthUpsellSentAt).toBe("2026-03-01T00:00:00.000Z");
 });
 
 test("recordPreviewOpen no-ops (never throws) on an unknown slug, unlike every other lead mutation", async () => {

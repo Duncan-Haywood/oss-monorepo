@@ -314,6 +314,19 @@ describe("resend.ts — brand.* HTML escaping", () => {
     expect(sentHtml).toContain(`${cadence}/month`);
   });
 
+  it("escapes brand.name in sendGrowthUpsellEmail body + signature", async () => {
+    const { sendGrowthUpsellEmail } = await import("./resend");
+    await sendGrowthUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      monthlyPriceUsd: 199,
+    });
+    expect(sentHtml).toContain(`running on ${ESCAPED_BRAND} Growth`);
+    expect(sentHtml).toContain(`The ${ESCAPED_BRAND} Team`);
+    expect(sentHtml).not.toContain(`running on ${UNSAFE_BRAND} Growth`);
+  });
+
   it("escapes businessName in sendPaymentFailedNotice", async () => {
     const { sendPaymentFailedNotice } = await import("./resend");
     await sendPaymentFailedNotice({
@@ -552,6 +565,17 @@ describe("resend.ts — href URL HTML escaping", () => {
       slug: "demo-cafe",
       targetTier: "growth",
       monthlyPriceUsd: 99,
+    });
+    expectHrefSafe();
+  });
+
+  it("escapes checkout + preview hrefs in sendGrowthUpsellEmail", async () => {
+    const { sendGrowthUpsellEmail } = await import("./resend");
+    await sendGrowthUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      monthlyPriceUsd: 199,
     });
     expectHrefSafe();
   });
@@ -945,6 +969,57 @@ describe("resend.ts — sendStarterUpsellEmail checkout URL single source of tru
       monthlyPriceUsd: 99,
     });
     const expectedHref = `https://app.example.com${buildStarterUpsellCheckoutPath("demo-cafe", "growth")}`.replace(
+      /&/g,
+      "&amp;",
+    );
+    expect(sentHtml).toContain(`href="${expectedHref}"`);
+  });
+});
+
+describe("resend.ts — sendGrowthUpsellEmail checkout URL single source of truth", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+  const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+  let sentHtml: string;
+
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    sentHtml = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const body = JSON.parse(String(init.body));
+        sentHtml = body.html;
+        return {
+          ok: true,
+          json: async () => ({ id: "email_test" }),
+        } as Response;
+      }),
+    );
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    process.env.RESEND_API_KEY = originalKey;
+    if (originalAppUrl === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = originalAppUrl;
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  // Same guard as sendStarterUpsellEmail's twin above — the email's checkout
+  // link and the dedicated src/lib/billing/growth-upsell.ts path builder
+  // must never drift apart.
+  it("sendGrowthUpsellEmail's checkout href is exactly buildGrowthUpsellCheckoutPath's output", async () => {
+    const { sendGrowthUpsellEmail } = await import("./resend");
+    const { buildGrowthUpsellCheckoutPath } = await import("../billing/growth-upsell");
+    await sendGrowthUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      monthlyPriceUsd: 199,
+    });
+    const expectedHref = `https://app.example.com${buildGrowthUpsellCheckoutPath("demo-cafe")}`.replace(
       /&/g,
       "&amp;",
     );
