@@ -8,6 +8,7 @@ import {
   type ResendWebhookEvent,
 } from "@/lib/email/resend-webhook";
 import { RESEND_WEBHOOK_SUPPRESSION_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
+import { captureError } from "@/lib/observability/error-tracking";
 import { checkRateLimit, clientIpFromHeaders, type RateLimitConfig } from "@/lib/security/rate-limit";
 import { MAX_PUBLIC_JSON_BODY_BYTES, readTextBodyWithByteLimit } from "@/lib/security/json-body";
 
@@ -119,6 +120,11 @@ export async function POST(request: Request) {
         );
       } catch (e) {
         console.error(`Resend webhook: failed to suppress ${event.type} recipient`, e);
+        await captureError(e, {
+          component: "resend-webhook",
+          eventType: event.type,
+          failureKind: "suppression_write",
+        });
         return NextResponse.json(
           { error: "Suppression write failed — Resend should retry", received: false },
           { status: 500 },

@@ -4657,6 +4657,20 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>listCommerceOrders*</code> group) has the identical unwired shape and is the next
         deferred slice, not covered here.
       </p>
+      <p>
+        <code>resend-webhook-suppression-write-capture-error</code>: closed the one durable-write
+        failure path in the codebase that had never been wired into the observability scaffold —{" "}
+        <code>src/app/api/resend/webhook/route.ts</code>&apos;s <code>suppressEmail</code> catch
+        (hard-bounce/complaint suppression) only <code>console.error</code>&apos;d before returning
+        its 500, unlike every other durable-write failure path (the Stripe webhook, both checkout
+        routes, and every wired <code>db.ts</code> read). A failed suppression write here means a
+        hard-bounced or complained address keeps getting emailed by every future send — the exact
+        sender-reputation-protection surface this route exists to close — with zero operator-visible
+        signal beyond raw platform logs. Wired <code>captureError</code> in{" "}
+        (<code>component: &quot;resend-webhook&quot;</code>,{" "}
+        <code>failureKind: &quot;suppression_write&quot;</code>), mirroring the established pattern
+        exactly.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

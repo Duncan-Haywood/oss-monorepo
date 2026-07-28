@@ -530,6 +530,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-uo5mws",
   },
+  {
+    id: "resend-webhook-suppression-write-capture-error",
+    summary:
+      "Found the one remaining durable-write failure path never wired into the observability scaffold: src/app/api/resend/webhook/route.ts's suppressEmail catch (hard-bounce/complaint suppression) only console.error'd before returning its 500, unlike every other durable-write failure path already closed today. Wired captureError in (component: resend-webhook, failureKind: suppression_write), mirroring the established pattern. See resend-webhook-suppression-write-capture-error in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -869,6 +877,20 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "db-order-read-family-capture-error-sweep",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip fe413435 (PR #911, archive-orphan-stripe-products-per-item-guard, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). A live sibling PR (#912, continuing the db.ts captureError sweep to bundle-order reads) was found in flight with no file overlap, so proceeded independently.",
+    shipped: [
+      "A dispatched research agent re-ran grep -rln captureError src rather than trusting prior summaries and found one real gap: src/app/api/resend/webhook/route.ts (the inbound Resend delivery-event webhook, distinct from resend.ts's already-wired outbound sends) never called captureError at all — its suppressEmail catch (hard-bounce/complaint suppression) only console.error'd before its 500, the same shape as every other durable-write failure path already closed today.",
+      "src/app/api/resend/webhook/route.ts — added captureError import and call inside the existing catch (component: resend-webhook, eventType: event.type, failureKind: suppression_write), after the console.error and before the 500 response. src/app/api/resend/webhook/route.test.ts — added a captureError mock, extended the existing 'suppression write fails' 500 test with a captureError-call assertion, and added a no-call-on-success test. Verified it actually catches the regression: git stash'd route.ts's source change alone and confirmed the assertion failed (0 calls) before restoring the fix. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended resend-webhook-suppression-write-capture-error. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to fe413435.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (route.test.ts, 13/13 passed) then full suite (3629 passed, 213 files — 1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only route change gated behind RESEND_WEBHOOK_SECRET, unset in this sandboxed environment.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "resend-webhook-suppression-write-capture-error",
     ),
   },
 ];
