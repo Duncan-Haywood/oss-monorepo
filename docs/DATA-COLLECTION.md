@@ -18,7 +18,9 @@ reason for the rule is at the bottom — it has already been broken once.
 | Which option was picked, when it was shown, how long it took | Every swipe | `Trial`, `FinancialTrial` | The person. A linked partner sees **aggregate comparisons only** |
 | Fitted ratings and model coefficients | Derived from the above | `ParticipantItemRating`, `SurveyFit` | Same as answers |
 | Bug reports and ideas, optionally with an email | Feedback widget | `UserReport` | The admin portal |
-| IP address | Every write to an anonymous route, and every sign-in attempt | `AnonRequestLog`, `LoginAttempt` | Nobody; used only for rate limiting |
+| Was an insight useful, was the survey enjoyable, and an optional free-text note | Feedback widget, after an insight and periodically | `InsightFeedback` | The admin portal |
+| Browser user-agent and the page it was sent from | Attached to a bug report | `UserReport.userAgent`, `UserReport.path` | The admin portal |
+| IP address | Every write to an anonymous route, and every sign-in attempt | `AnonRequestLog`, `LoginAttempt`, `AdminLoginAttempt` | Nobody; used only for rate limiting |
 | Invite code linking two accounts | Couple screen | `Couple` | Both partners |
 
 ## Not collected
@@ -77,3 +79,22 @@ happened to look. That is the failure this file is a fix for: the definition
 of done already said "every document the change made wrong is corrected in
 the same commit", and a policy page is easy not to think of as one of the
 documents. It is the most important one.
+
+## The second time, which this file did not prevent
+
+`InsightFeedback` — a subject, two 1–5 ratings, and up to a thousand
+characters of free text — was missing from the table above from the day this
+document was written until the day the admin portal got its first test. So
+were the user-agent and page path attached to every bug report.
+
+That is the same failure as the one above, at one remove: this file was
+written to be the single place that says what is stored, and it was incomplete
+on arrival, because it was assembled by reading the *screens* rather than the
+schema. A screen shows the fields someone fills in. It does not show what the
+handler attaches on the way past, which is exactly where a user-agent string
+comes from.
+
+**So the check is against `prisma/schema.prisma`, not against the UI.** Every
+model that holds something a person typed, or something their browser
+disclosed, needs a row here. Reading the forms will miss the same category of
+field a second time.

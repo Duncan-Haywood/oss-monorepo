@@ -16,20 +16,31 @@ mean:
 
 ## Open
 
-### P0 — Thirty-three parallel pull requests, none merged — *one merge closes all of them*
+### P0 — Thirty-seven parallel pull requests, none merged — *one merge closes all of them*
 
-**This branch is the thirty-fourth, and it extends the thirtieth rather than
-starting beside it.** Every commit below #30's head is carried forward
+**This branch is the thirty-eighth, and it extends the thirty-fourth rather
+than starting beside it.** Every commit below #34's head is carried forward
 unchanged, so merging this one branch still closes the entire queue. The count
-has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 → 29 → 33 across ten
+has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 → 29 → 33 → 37 across eleven
 write-ups of this item; the notification each session sent did not change it,
-and neither will an eleventh. Merging or pausing the schedule are the only two
+and neither will a twelfth. Merging or pausing the schedule are the only two
 things that do.
 
-**What this session did differently, for whatever it is worth:** it did not add
-a fix. It ran the blocking gates on the tip everything is stacked on and found
-them red — see the item below — which is the one thing thirty-three write-ups
-of "merge this" had not checked.
+**The queue is no longer only a waste — it is now a place where a real fix can
+be lost.** #35 was sitting in it with an unauthenticated read of any
+account-linked participant's full ranking, found and fixed by nobody else, and
+it was on track to be closed as "process docs plus small fixes" on the strength
+of a title that looks like thirty others. Its finding is carried onto this
+branch, with tests, and gone further; see
+[`docs/PULL-REQUEST-BACKLOG.md`](docs/PULL-REQUEST-BACKLOG.md). The lesson is
+recorded there: containment can be computed from the commit graph, but "does
+this branch have something no other branch has" cannot, and needs the diff
+read.
+
+**What the previous session did differently:** it did not add a fix. It ran the
+blocking gates on the tip everything is stacked on and found them red — see the
+item below — which is the one thing thirty-three write-ups of "merge this" had
+not checked.
 
 **The queue had grown two heads.** Two sessions fired minutes apart, both
 extended the same seven commits, and each added one commit: #25 (the pooling
@@ -171,6 +182,102 @@ call rather than a migration's side effect.
 and remove them from the admin export. If so, decide first. ~1 hour once the
 answer is known. See [`docs/DATA-COLLECTION.md`](docs/DATA-COLLECTION.md).
 
+### P0 → resolved on this branch — Anyone holding a participant id could read that person's ranking
+
+`POST /api/insights` and `POST /api/session/status` took a map of participant
+ids straight from the request body and answered with what that participant had
+told the app — a full item ranking in the first case, per-survey progress in
+the second. Neither asked who was calling.
+
+The app's central promise, in [`docs/DATA-COLLECTION.md`](docs/DATA-COLLECTION.md)
+and held on the couple route by `couple.integration.test.ts`, is that a partner
+sees aggregate comparisons and never an individual answer. That promise was
+worth exactly the secrecy of a cuid sitting in localStorage — and the two
+people this app is built for are the two most likely to share a phone, a
+browser profile, or a screen. Copy the id once, read the ranking forever.
+
+**Fixed** in `src/lib/participantAccess.ts`, one rule rather than two inlined
+checks: a participant attached to an account is readable only by that account.
+An **anonymous** participant stays readable by whoever holds its id, and that
+is deliberate — there is no account to check against, the id is the only thing
+identifying that session, and requiring a sign-in would lock people out of
+their own answers before they make one, which is the whole onboarding. An id
+that is not the caller's is skipped rather than refused, because the client
+sends whatever is in its storage and one stale id should not blank the screen.
+
+Seven tests in `access.integration.test.ts`; three fail against the old code,
+four pass either way and exist to stop the fix being taken too far.
+
+**Found by #35**, which is the part worth remembering: it was the one branch in
+thirty-seven with something no other branch had, and it was on track to be
+closed unread.
+
+### P1 → resolved on this branch — Two anonymous, unbounded, free-text write routes recorded as account-only
+
+[`docs/ROUTES.md`](docs/ROUTES.md) listed `feedback` and `report` as `session`
+in the Auth column and "account required" in the Limit column, and ranked them
+below the admin portal *on that basis*. Neither has ever required an account:
+both call `getSessionUser()`, both accept `null`, both write the row anyway. So
+they were unauthenticated writes of up to 1000 and 4000 characters of free
+text, one row above a bullet point in the same file saying that a route with no
+auth and no limit is a bug being introduced.
+
+Being anonymous is right — the feedback widget is shown to someone answering
+signed out, and a person who hits a bug before making an account is exactly who
+needs to report it. What was missing was the bound.
+
+`report` did have a guard, which is the more instructive half: it counted
+recent rows matching the caller's own `userAgent` **and** `path`, both taken
+straight off the request, so varying the user-agent string reset the count to
+zero every call. Its comment said "per IP". It had never been per IP, and a
+populated cell in the Limit column reads as a limit.
+
+Both now use the same per-IP limiter as every other anonymous write, accounts
+exempt, budgets separate per route. Fifteen tests in
+`writes.integration.test.ts`; the user-agent one fails against the old code.
+
+### P1 → resolved on this branch — Free text from a stranger, into the admin's spreadsheet
+
+The admin CSV export escaped quotes, commas and newlines, and nothing else. A
+cell whose text begins with `=`, `+`, `-` or `@` is evaluated as a formula by
+Excel, LibreOffice and Sheets rather than displayed, and the `note` and
+`message` columns come from the two anonymous routes above. `=HYPERLINK(…)` in
+a bug report arrives as a working link in the account owner's spreadsheet.
+
+Leading formula characters in **string** values are now prefixed with an
+apostrophe, which those readers treat as "this cell is text" and do not
+display. Numbers are left alone, so a negative figure still exports as one —
+which is the reason the guard cannot simply be applied to every cell. A bare
+`\r` now forces quoting too.
+
+### P2 → resolved on this branch — The admin portal had no test at any level
+
+Four routes, one of them serialising every answer, every rating and every
+free-text note in the database into a CSV, and the only thing that had ever
+checked any of it was somebody using the portal and it looking right. It was
+the largest coverage gap in the repo by the repo's own reckoning.
+
+`admin.integration.test.ts`, 40 tests, against a real database. The three
+things "it looked right" cannot distinguish:
+
+- **The door.** `verifySessionToken` is hand-rolled, and its payload *is* the
+  expiry — so a token is a deadline the holder would otherwise be able to edit.
+  A forged, an expired, an extended and a wrongly-signed token are each
+  refused, and a signature of the wrong length returns 401 rather than an
+  uncaught `timingSafeEqual` throw (two of the routes check the cookie outside
+  their `try`).
+- **The throttle.** Eight failures lock an IP out; the *correct* key is still
+  refused while it is locked, which is the property that makes it a lockout
+  rather than a speed bump; the lockout is per-IP, expires with the window, and
+  successes do not count toward it.
+- **What comes out.** Quoting round-trips a comma, a quote and a newline; a
+  formula is neutralised; a negative number is not; all five tables serialise.
+
+Also fixed while writing it: `admin/report` returned 500 for an id that no
+longer exists, so an admin clicking "Mark done" on a report another tab had
+already cleared could not tell that from the database being down. It is a 404
+now.
+
 ### P2 → resolved on this branch — Not every route handles its own failures
 
 Six route handlers had no `try`/`catch` — `auth/me`, `auth/logout`,
@@ -223,10 +330,17 @@ that a conjoined card's identity weight comes from the answerer's own ratings
 (two people who rated the same item in opposite directions fit opposite signs,
 which pooled ratings could not produce).
 
-**Still uncovered:** the admin portal — four routes, one of them exporting
-every answer in the database as CSV, with no test at any level. That is now the
-largest coverage gap. Below it, `feedback` and `report`, which write on a POST
-but require an account.
+**And since:** the admin portal, the two free-text writers, and the
+participant-ownership rule, in `admin.integration.test.ts`,
+`writes.integration.test.ts` and `access.integration.test.ts`. Every route in
+[`docs/ROUTES.md`](docs/ROUTES.md) now has a test; the `Tested` column has no
+empty cells left, and 106 of the tests run against a real Postgres.
+
+**Still uncovered:** the page components. `AdminView` is 380 lines of React
+that nothing drives, and six of the eight pages have no test. The routes they
+call are covered; which of them each screen calls, with what, and what it does
+with a 401 mid-session, are not. Below that sits the thing no suite can reach —
+somebody reading what two real accounts actually produce.
 
 ### P2 — The premise that was wrong for four documents
 

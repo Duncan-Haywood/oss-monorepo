@@ -126,5 +126,6 @@ See [IMPROVEMENT-PLAN.md](IMPROVEMENT-PLAN.md) — the live backlog, ordered by
 priority, with effort estimates and a record of what has already been closed.
 The two largest open items both need the account owner rather than more code:
 a queue of unmerged pull requests, and GitHub Actions never allocating a
-runner. After those, the remaining coverage gaps are the financial/conjoined
-routes and the admin portal.
+runner. Every API route now has a test; the remaining coverage gap is the page
+components, and below that the thing no suite can settle — somebody reading
+what two linked accounts actually produce on screen.

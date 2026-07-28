@@ -78,17 +78,32 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
 | `api/couple/couple.integration.test.ts` | 9 | The couple screen: an invite is claimable exactly once under a race, no raw answer or participant id crosses between two people, and the actionable sections stay shut while the data is thin and open when it is not |
 | `api/couple/earned.integration.test.ts` | 2 | The couple screen on ratings that were *earned* rather than planted: two linked accounts answer through the real trial routes, and the actionable sections open on a session someone would sit through — plus the one-sided case, where the screen names the partner who has not answered. The measurement it prints is what `docs/CONVERGENCE.md` quotes |
 | `api/financial-trials/financial.integration.test.ts` | 15 | The financial and conjoined loop: every card is a real non-dominated trade-off, a reload returns the pending question rather than minting a row, an answer applies once under a race and once on a retry, the refit runs on the first answer and then on a throttle, and a conjoined card's identity weight comes from the answerer's own ratings — two people who rated the same item oppositely fit opposite signs |
+| `api/admin/admin.integration.test.ts` | 40 | The admin portal, which is the whole database behind one hand-rolled token. The door: a forged, an expired, an extended and a wrongly-signed token are each refused, and a signature of the wrong length is a 401 rather than an uncaught `timingSafeEqual` throw. The throttle: eight failures lock an IP out, the *correct* key is refused while it is locked, the lockout is per-IP and expires with the window, and successes do not count toward it. The export: quoting round-trips a comma, a quote and a newline, a spreadsheet formula in free text is neutralised, a negative number is not, and each of the five tables serialises |
+| `api/insights/access.integration.test.ts` | 7 | Who may read a participant out. A participant attached to an account is readable by that account and by nobody else — not another account, not someone signed out holding the id — while an anonymous one stays readable by its holder, including after they sign up, because the id is the only thing it has. A request mixing both answers for the caller's own and drops the rest |
+| `api/feedback/writes.integration.test.ts` | 15 | The two anonymous free-text writers. That both accept a POST with no account — which is the intent, and was not what `ROUTES.md` said — and that both are bounded per IP with accounts exempt, budgets kept separate per route, and `report` still bounded when the caller varies their user-agent on every request |
 
 ## What is not covered, and why it matters
 
-- **The admin portal.** Login, rate limiting and the CSV export have no test
-  at any level. Four routes, one of them exporting every answer in the database
-  as a CSV, and the only thing that has ever checked them is someone using the
-  portal. **This is now the largest gap** — the financial routes, which held
-  the title, are covered.
-- **`feedback` and `report`.** The two remaining routes that write on a POST
-  with no test. Both require an account, which is why they rank below the admin
-  portal rather than above it.
+- **Every route now has a test.** The two entries that stood here — the admin
+  portal and the `feedback`/`report` pair — are covered, and with them the
+  `Tested` column in [ROUTES.md](ROUTES.md) has no empty cells left. What is
+  below is what a *passing* suite still cannot tell you.
+- **The admin portal's UI.** `AdminView` is 380 lines of React that nothing
+  drives. The routes it calls are covered; which of them it calls, with what,
+  and what it does with a 401 mid-session, are not.
+- **Anything a browser has to render.** Six of the eight page components have
+  no test. `UnifiedRunner.test.tsx` drives the real component against a stubbed
+  `fetch`, which proves it reacts correctly to a shape and cannot prove the
+  server sends that shape.
+- **Real blind-spots output.** The comparison is exercised end to end with both
+  planted and earned rankings, but no human has read what two real accounts
+  with three perspectives filled in actually produces. That is a judgement
+  call, not a coverage gap, and it is the one thing on this list that a person
+  has to do.
+- **The `-` in the Limit column is not the same as "no limit needed".** The
+  read routes have nothing bounding how often they are called. Nothing writes,
+  so the cost is compute rather than data, which is why it is here and not in
+  the plan.
 - **Real blind-spots output.** The comparison is exercised end to end with
   planted rankings, but no human has read what two real accounts with three
   perspectives filled in actually produces. That is a judgement call, not a

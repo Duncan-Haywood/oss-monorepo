@@ -3,10 +3,29 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 
+/**
+ * A cell whose text begins with one of these is evaluated as a formula by
+ * Excel, LibreOffice and Google Sheets rather than displayed.
+ *
+ * That matters here because this file exists to be opened in a spreadsheet
+ * and several of its columns are free text a stranger can write: both
+ * `/api/feedback` and `/api/report` accept an anonymous POST. So a bug
+ * report reading `=HYPERLINK("http://…","Click me")` arrives in the admin's
+ * spreadsheet as a working link, and in older Excel `=WEBSERVICE(…)` makes
+ * an outbound request carrying whatever cell it is pointed at.
+ *
+ * Prefixing with an apostrophe is the standard fix — the spreadsheet reads
+ * the cell as text and does not display the apostrophe. It is applied only
+ * to strings, so a negative number still exports as a negative number.
+ */
+const FORMULA_LEAD = /^[=+\-@\t\r]/;
+
 function csvEscape(v: unknown): string {
   if (v === null || v === undefined) return "";
-  const s = String(v);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  let s = String(v);
+  if (typeof v === "string" && FORMULA_LEAD.test(s)) s = `'${s}`;
+  // A bare CR splits the row in some readers, so it has to force quoting too.
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 function toCsv(rows: Record<string, unknown>[]): string {

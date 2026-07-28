@@ -28,8 +28,16 @@ export default function PrivacyPage() {
           apart from your partner&apos;s on a shared device. Nothing else.
         </li>
         <li>
-          <strong>Technical basics</strong> needed to run the service: your IP address is used to rate-limit
-          sign-in attempts and is not used to build a profile of you.
+          <strong>Anything you write to us</strong>: a bug report or an idea, a rating of whether an
+          insight was useful, and any note you leave with it. If you send a bug report we also record
+          which page you were on and your browser&apos;s user-agent string, because that is what makes
+          a bug findable. You can leave an email address so we can reply; it is optional.
+        </li>
+        <li>
+          <strong>Technical basics</strong> needed to run the service: your IP address is recorded
+          when you sign in, start answering without an account, or send feedback, and is used only to
+          stop the same address doing any of those thousands of times over. It is not used to build a
+          profile of you.
         </li>
       </ul>
 

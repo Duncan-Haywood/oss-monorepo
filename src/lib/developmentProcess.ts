@@ -367,7 +367,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "measure-honestly",
     note:
-      "Thirty-three parallel unattended sessions have opened thirty-three branches off one commit and none has merged, so each new session re-finds the same bugs. The distinct fixes are consolidated onto one branch and later sessions extend it rather than opening another beside it — which works, and is not the constraint. Only the account owner can merge, so a run that finds the pile unmerged should notify them at the start rather than adding to it. Every disposition is in docs/PULL-REQUEST-BACKLOG.md: one merge, then thirty-odd closes, and none of them loses anything.",
+      "Thirty-seven parallel unattended sessions have opened thirty-seven branches off one commit and none has merged, so each new session re-finds the same bugs. The distinct fixes are consolidated onto one branch and later sessions extend it rather than opening another beside it — which works, and is not the constraint. Only the account owner can merge, so a run that finds the pile unmerged should notify them at the start rather than adding to it. Every disposition is in docs/PULL-REQUEST-BACKLOG.md: one merge, then thirty-odd closes, and none of them loses anything. Closing them is not free either — #35 sat in the queue for hours holding a real unauthenticated read of any account-linked participant's ranking, which no other branch had.",
   },
   {
     id: "data-integrity",
@@ -376,7 +376,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "each-persons-own",
     note:
-      "Ratings are per participant, the perspectives no longer collapse into each other, anonymous session creation is rate limited per IP, and every mutating route sits behind an origin check in src/proxy.ts. Remaining: the columns still on Participant from the deleted intro form, which only the account owner can decide to drop.",
+      "Ratings are per participant, the perspectives no longer collapse into each other, and every mutating route sits behind an origin check in src/proxy.ts. Every anonymous write is now bounded per IP by one shared limiter — feedback and report were the two that were not, having been recorded in docs/ROUTES.md as account-only when neither has ever required an account. Reading a participant out now requires owning it, unless it is anonymous and the id is all it has. Remaining: the columns still on Participant from the deleted intro form, which only the account owner can decide to drop.",
   },
   {
     id: "privacy",
@@ -430,7 +430,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "done",
     goal: "measure-honestly",
     note:
-      "Error boundaries exist, and every API route now catches its own failures and logs them rather than throwing past the handler. A silent failure is indistinguishable from a number that is simply wrong. The swipe loop, session start and the couple link are now covered against a real Postgres as well as a stubbed one; the financial/conjoint routes and the admin portal are not yet.",
+      "Error boundaries exist, and every API route now catches its own failures and logs them rather than throwing past the handler. A silent failure is indistinguishable from a number that is simply wrong. Every route in docs/ROUTES.md now has a test, most of them against a real Postgres: the swipe loop, session start, the couple link, the financial and conjoined cards, the admin portal, the two free-text writers, and the participant-ownership rule. What is left is the half a passing suite cannot reach — the page components, and somebody reading what two real accounts actually produce.",
   },
   {
     id: "accessibility",

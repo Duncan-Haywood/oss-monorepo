@@ -6,6 +6,7 @@ import { answersUntilNextLevel, INSIGHTS, levelForAnswers } from "@/lib/insights
 import { RANGES } from "@/lib/financialProfiles";
 import { describeDimensions, scoreDimensions } from "@/lib/dimensions";
 import { computeTradeOffs, describeTradeOff, HeadToHead } from "@/lib/tradeoffs";
+import { accessibleParticipantIds } from "@/lib/participantAccess";
 
 const MAX_ENTRIES = 20;
 
@@ -37,7 +38,14 @@ export async function POST(req: NextRequest) {
     let fitNTrials = 0;
     const headToHead: HeadToHead[] = [];
 
+    // Skipped rather than refused, for the same reason as `session/status`:
+    // the client sends whatever ids it has, and one that is not the caller's
+    // should not turn the insights screen into an error page.
+    const allowed = await accessibleParticipantIds(entries.map(([, id]) => id));
+
     for (const [, participantId] of entries) {
+      if (!allowed.has(participantId)) continue;
+
       const participant = await prisma.participant.findUnique({
         where: { id: participantId },
         select: { id: true, surveyId: true, survey: { select: { kind: true } } },

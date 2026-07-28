@@ -16,7 +16,12 @@ export async function POST(req: NextRequest) {
   if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
 
   try {
-    await prisma.userReport.update({ where: { id }, data: { resolved } });
+    // `update` throws on a missing row, which the catch below would report as
+    // a server failure. A report that is gone is an ordinary thing for the
+    // admin list to hit — another tab resolved it, or the row was cleared —
+    // and it should not look identical to the database being down.
+    const { count } = await prisma.userReport.updateMany({ where: { id }, data: { resolved } });
+    if (count === 0) return NextResponse.json({ error: "No such report" }, { status: 404 });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("admin report update failed", err);

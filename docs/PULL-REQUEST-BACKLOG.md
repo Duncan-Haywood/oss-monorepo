@@ -1,6 +1,6 @@
 # The open pull requests, and what to do with each
 
-Thirty-three scheduled sessions have opened thirty-three pull requests against
+Thirty-seven scheduled sessions have opened thirty-seven pull requests against
 `main`. **None has been merged.** `main` is still at `b887731`.
 
 **Every one of them is closeable by merging this single branch.** Eleven are
@@ -155,6 +155,47 @@ the multiplicity correction, so at its `MIN_MEANINGFUL_SD` of 0.25 a couple
 would still be shown ordering noise across dozens of simultaneous comparisons
 as findings about their relationship. **Close it.**
 
+### #35, #36 and #37 — and the one that was not duplicate
+
+Three more sessions fired after #34. Two are duplicates. **#35 is not, and it
+is the reason this section is worth reading rather than skimming.**
+
+| PR | Branch | Disposition |
+| --- | --- | --- |
+| #35 | `keen-gates-900qwz` | **Found a real leak no other branch had.** Its fix is carried here — see below. Close it once this merges |
+| #36 | `keen-gates-87r1em` | Duplicate: a fifth process document, the Arial/Geist fix, the a11y attributes, a re-audited plan. All here already |
+| #37 | `kind-ptolemy-05v9zj` | Duplicate, and says so itself: its own body recommends closing it in favour of #34 |
+
+**What #35 found.** `POST /api/insights` and `POST /api/session/status` both
+take a map of participant ids straight from the request body and answer with
+what that participant has told the app — a full item ranking in the first
+case. Neither checked who was asking. Holding the id was sufficient, from
+anywhere, for as long as the row existed.
+
+Every session that computed a disposition for this queue, including the one
+that wrote this document, had marked #35's family "process docs plus small
+fixes" and moved on. It is the one branch in thirty-seven whose closure would
+have lost something real, and it would have been closed with a one-line
+comment pointing here.
+
+The fix is carried rather than the branch merged, because #35 forked from the
+stale base — but it is carried *and gone further*: the rule lives in one place
+(`src/lib/participantAccess.ts`) instead of being inlined in two handlers, and
+`access.integration.test.ts` holds both halves of it. The half that is easy to
+get wrong in the other direction is that an **anonymous** participant must stay
+readable by whoever holds its id: there is no account to check against, the id
+is the only thing identifying that session, and requiring a sign-in there would
+lock people out of their own answers before they make one — which is the entire
+onboarding. Three of those seven tests fail against the old code; four pass
+before and after, which is the point of them.
+
+**The lesson for this document.** Dispositions computed from the commit graph
+are reliable for *containment* — an ancestor is an ancestor. They are worth
+nothing for the question that actually matters, which is whether a branch
+contains something no other branch has. That question needs the diff read, and
+the titles here are close to identical and actively misleading. Budget for
+reading the two or three that are not ancestors, every time.
+
 ## The one real gap this left — now closed
 
 **`src/lib/rateLimit.ts` had no test.** #4 wrote one, but against a different
@@ -173,10 +214,11 @@ seventeen loses nothing at all.
 
 ## What to actually do
 
-1. Merge this branch. That closes #6, #12, #14, #17, #21, #22, #24, #25, #27
-   and #28 by containment.
-2. Close the other nineteen with a one-line comment pointing here. Nothing
-   distinct is left in any of them.
+1. Merge this branch. That closes #6, #12, #14, #17, #21, #22, #24, #25, #27,
+   #28, #30 and #34 by containment.
+2. Close the rest with a one-line comment pointing here. Nothing distinct is
+   left in any of them — including #35, whose one distinct finding is carried
+   here with tests rather than left in a branch nobody will merge.
 3. Decide whether this task should keep firing while nothing it produces can
    land. That is the question underneath all of the above, and it is the only
    one a scheduled session cannot answer for itself.

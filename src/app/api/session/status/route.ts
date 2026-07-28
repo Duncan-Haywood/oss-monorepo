@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { surveyConfidence } from "@/lib/pairing";
 import { paramNames } from "@/lib/financialFit";
 import { loadRatedItems } from "@/lib/participantRatings";
+import { accessibleParticipantIds } from "@/lib/participantAccess";
 
 /** Guards against a huge map fanning out into thousands of concurrent queries. */
 const MAX_ENTRIES = 20;
@@ -26,8 +27,14 @@ export async function POST(req: NextRequest) {
   const result: Record<string, { confidence: number; answeredCount: number }> = {};
 
   try {
+    // An id belonging to someone else's account is skipped rather than
+    // refused: this route is a fan-out over whatever the client has in
+    // storage, and one stale id should not blank the whole screen.
+    const allowed = await accessibleParticipantIds(entries.map(([, id]) => id));
+    const mine = entries.filter(([, participantId]) => allowed.has(participantId));
+
     await Promise.all(
-      entries.map(async ([slug, participantId]) => {
+      mine.map(async ([slug, participantId]) => {
         const participant = await prisma.participant.findUnique({
           where: { id: participantId },
           select: { id: true, surveyId: true, survey: { select: { id: true, kind: true } } },

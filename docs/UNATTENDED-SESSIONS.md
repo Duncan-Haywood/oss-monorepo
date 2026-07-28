@@ -262,6 +262,26 @@ branches you merged and the ones you passed over.
 session should quietly work around; it is the thing the person needs to know,
 because only they can merge. Send it as soon as you see it, not at the end.
 
+**Recommending a close is a review, and it costs what a review costs.** The
+dispositions in [PULL-REQUEST-BACKLOG.md](PULL-REQUEST-BACKLOG.md) started as a
+way to make draining the queue mechanical, and for *containment* they are
+exactly that — an ancestor is an ancestor, and `git merge-base` settles it. The
+trap is that the same table also carries "nothing distinct here", which no
+command can establish. That line has to come from reading the diff.
+
+It went wrong on the thirty-fifth pull request. Its title reads like thirty
+others, its body leads with the same re-audited plan and process document, and
+three consecutive sessions filed it under duplicate. Inside it was an
+unauthenticated read of any account-linked participant's full ranking — the
+single most sensitive thing this app holds — found by nobody else. One more
+close-as-duplicate and it would have gone.
+
+So: **a branch that is not an ancestor gets its diff read before anything says
+"close it".** There are only ever two or three of those. Reading them is an
+hour; the alternative is that the queue becomes a place where the one real
+finding is the thing most likely to be lost, because it arrives dressed as the
+noise.
+
 ## What only a person can do
 
 An unattended session cannot merge, cannot deploy, and should not close
