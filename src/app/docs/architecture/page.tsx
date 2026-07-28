@@ -4426,6 +4426,30 @@ source). The same digest also lists email-critical leads with no usable address 
         an oversized non-<code>Error</code> thrown value, and confirming a message at or under the
         cap is left untouched.
       </p>
+      <p>
+        <code>resend-email-capture-error-wiring</code>: closed the second of the two candidate
+        failure paths the original scaffold entry named as future work — a Resend delivery
+        failure. <code>src/lib/email/resend.ts</code>&apos;s <code>sendEmail</code> and{" "}
+        <code>sendOperatorDailyDigest</code> are the only two Resend HTTP-call sites in the file
+        (every other send helper in this module funnels through <code>sendEmail</code>), and both
+        catch blocks already <code>console.error</code>&apos;d and returned{" "}
+        <code>{"{ success: false, error }"}</code> without ever reporting to the scaffold. Both now
+        also <code>await captureError(error, {"{ component, ... }"})</code> — <code>
+          &quot;resend-email&quot;
+        </code>{" "}
+        (with the send&apos;s <code>leadSlug</code> when known — the internal identifier, not the
+        recipient address, since an operator-configured{" "}
+        <code>ERROR_TRACKING_WEBHOOK_URL</code> may not be a vetted PII processor) and{" "}
+        <code>&quot;resend-operator-digest&quot;</code> respectively. Best-effort and non-blocking,
+        matching every other call site&apos;s contract: a capture failure can never mask or replace
+        the original send failure this catch already handles. The remaining named candidate — a
+        Convex-outage SQLite-fallback trigger — has no shared choke point (84 separate hand-written{" "}
+        <code>console.warn</code> sites across ~80 exported functions in <code>src/lib/db.ts</code>,
+        confirmed via grep) and stays deliberately out of scope: wiring it would mean either
+        touching all 84 call sites or first extracting a shared fallback-wrapper helper, either of
+        which is a distinct, larger iteration in the most heavily-tested file in the repo, not a
+        same-session addition.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

@@ -24,6 +24,7 @@ import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "../
 import { buildStarterUpsellCheckoutPath } from "../billing/starter-upsell";
 import { formatDnsInstructionsForEmail } from "../deploy/dns-email";
 import type { DeployHandoff } from "../deploy/types";
+import { captureError } from "../observability/error-tracking";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -210,6 +211,12 @@ Unsubscribe URL: ${unsubscribeUrl}`);
     return { success: true as const, emailId: data.id };
   } catch (error) {
     console.error(`Failed to send email to ${to} via Resend:`, error);
+    // Best-effort — never let a diagnostics-reporting failure mask or
+    // replace the original send failure this catch already handles. leadSlug
+    // (an internal identifier), not the recipient address, is forwarded: the
+    // operator-configured ERROR_TRACKING_WEBHOOK_URL may not be a vetted PII
+    // processor (see observability-error-tracking-scaffold).
+    await captureError(error, { component: "resend-email", leadSlug });
     return { success: false as const, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
@@ -528,6 +535,9 @@ Content Preview: ${html.substring(0, 150)}...`);
     return { success: true as const, emailId: data.id };
   } catch (error) {
     console.error(`Failed to send daily digest to ${to} via Resend:`, error);
+    // Best-effort — see sendEmail's identical capture for why this never
+    // throws or masks the original send failure.
+    await captureError(error, { component: "resend-operator-digest" });
     return { success: false as const, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }

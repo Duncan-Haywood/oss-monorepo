@@ -433,6 +433,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "resend-email-capture-error-wiring",
+    summary:
+      "Closed the second of the two candidate failure paths observability-error-tracking-scaffold named as future work — a Resend delivery failure. src/lib/email/resend.ts's sendEmail and sendOperatorDailyDigest (the only two Resend HTTP-call sites in the file; every other send helper funnels through sendEmail) now both call captureError in their existing catch blocks — \"resend-email\" with the internal leadSlug (never the recipient address, since an operator-configured webhook may not be a vetted PII processor) and \"resend-operator-digest\" respectively. Best-effort, non-blocking, matching the Stripe webhook's existing contract exactly. The remaining named candidate (a Convex-outage SQLite-fallback trigger) stays explicitly out of scope — no shared choke point exists (84 separate console.warn sites across ~80 db.ts functions), so wiring it needs its own dedicated iteration. See resend-email-capture-error-wiring in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -806,6 +814,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "error-tracking-message-length-cap",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip a3a604e8 (PR #899, error-tracking-message-length-cap, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3593 passed, 211 files). No live sibling branch; the sole other open PR remains #202 (unrelated, weeks-stale human draft).",
+    shipped: [
+      "Rather than a fourth consecutive tiers-1-4 sweep, dispatched a research agent explicitly briefed on everything closed today and pointed at fresh angles. It found the observability-error-tracking-scaffold entry itself named two future candidates — a Convex-outage SQLite-fallback trigger and a Resend delivery failure — neither touched since. Ruled out the Convex-fallback candidate as too large (84 separate console.warn sites across ~80 db.ts functions, no shared choke point) and recommended the Resend one: sendEmail and sendOperatorDailyDigest (src/lib/email/resend.ts, the only two Resend HTTP-call sites in the file) never called captureError in their existing catch blocks.",
+      "src/lib/email/resend.ts — sendEmail's catch now calls captureError(error, { component: \"resend-email\", leadSlug }) (leadSlug, not the recipient address — an operator-configured webhook may not be a vetted PII processor). sendOperatorDailyDigest's catch calls captureError(error, { component: \"resend-operator-digest\" }). Both best-effort/non-blocking, mirroring the Stripe webhook's existing contract exactly.",
+      "src/lib/email/resend.test.ts — 3 new tests in a new describe block (vi.doMock-based spy on captureError, since the file's existing module-level vi.mock convention doesn't fit a per-test call-argument assertion): sendEmail calls captureError with the right component/leadSlug on a non-2xx response, sendEmail does NOT call it on success, sendOperatorDailyDigest calls it with its own component on a thrown network error. Verified the tests actually catch the regression: git stash'd resend.ts's source change alone and confirmed both capture-assertion tests failed (0 calls) before restoring.",
+      "src/app/docs/architecture/page.tsx — one new paragraph naming both originally-deferred candidates, which one this closes, and why the other stays out of scope. src/lib/process/business-decisions.ts — appended resend-email-capture-error-wiring. src/lib/process/prompt_process.tsx — a new NEXT_STEPS done entry plus this ITERATIONS entry. No other NEXT_STEPS change — the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to a3a604e8 (this session's own starting tip, post-PR-#899).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx 232,174 bytes, business-decisions.ts 214,876 bytes at session start (both via wc -c) — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (resend.test.ts, 75/75 passed) then full suite (3596 passed, 211 files — 3 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). Server-only lib fix with no route/UI surface change beyond a docs paragraph — no dev-server smoke check needed beyond the automated build/test/lint gate.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "resend-email-capture-error-wiring",
     ),
   },
 ];
