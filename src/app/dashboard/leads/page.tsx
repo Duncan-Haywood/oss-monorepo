@@ -28,6 +28,7 @@ import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
 import { EmailFromEnvBanner } from "@/components/dashboard/email-from-env-banner";
 import { AnthropicEnvBanner } from "@/components/dashboard/anthropic-env-banner";
 import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-digest-email-env-banner";
+import { OperatorDigestCronEnvBanner } from "@/components/dashboard/operator-digest-cron-env-banner";
 import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-banner";
 import { BrandNameEnvBanner } from "@/components/dashboard/brand-name-env-banner";
 import { CompanyAddressEnvBanner } from "@/components/dashboard/company-address-env-banner";
@@ -47,6 +48,7 @@ import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness"
 import { assessEmailFromEnvReadiness } from "@/lib/email/email-from-env-readiness";
 import { assessAnthropicEnvReadiness } from "@/lib/ai/anthropic-env-readiness";
 import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-digest-email-env-readiness";
+import { assessOperatorDigestCronEnvReadiness } from "@/lib/digest/operator-digest-cron-env-readiness";
 import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-readiness";
 import { assessBrandNameEnvReadiness } from "@/lib/brand/brand-name-env-readiness";
 import { assessCompanyAddressEnvReadiness } from "@/lib/brand/company-address-env-readiness";
@@ -199,6 +201,7 @@ export default async function LeadsPage() {
   const emailFromEnv = assessEmailFromEnvReadiness();
   const anthropicEnv = assessAnthropicEnvReadiness();
   const digestEmailEnv = assessOperatorDigestEmailEnvReadiness();
+  const digestCronEnv = assessOperatorDigestCronEnvReadiness();
   const operatorAuthEnv = assessOperatorAuthEnvReadiness();
   const brandNameEnv = assessBrandNameEnvReadiness();
   const companyAddressEnv = assessCompanyAddressEnvReadiness();
@@ -245,6 +248,7 @@ export default async function LeadsPage() {
         <CompanyAddressEnvBanner readiness={companyAddressEnv} />
         <AnthropicEnvBanner readiness={anthropicEnv} />
         <OperatorDigestEmailEnvBanner readiness={digestEmailEnv} />
+        <OperatorDigestCronEnvBanner readiness={digestCronEnv} />
       </div>
 
       <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between border-b border-zinc-200 pb-5">
