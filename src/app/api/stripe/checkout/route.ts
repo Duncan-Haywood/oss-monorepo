@@ -7,6 +7,7 @@ import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attributio
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 import { recordCheckoutSessionCreated } from "@/lib/db";
+import { captureError } from "@/lib/observability/error-tracking";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
 import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
@@ -187,6 +188,7 @@ export async function POST(request: Request) {
       if (!(e instanceof ConvexPrimaryWriteError)) {
         console.warn(`Failed to record checkout session ${session.id} for recovery tracking`, e);
       }
+      await captureError(e, { component: "stripe-checkout", failureKind: "checkout_session_record" });
       return NextResponse.json(
         {
           error: "Checkout tracking unavailable",
