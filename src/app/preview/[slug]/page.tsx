@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CategoryPreview } from "@/components/preview/category-preview";
 import { PreviewOpenBeacon } from "@/components/preview/preview-open-beacon";
 import { loadPreviewCommerceItems } from "@/lib/commerce/preview-commerce";
+import { loadPreviewSetupFeeWaived } from "@/lib/checkout/preview-setup-fee";
 import { isCuratedDemoLeadSlug, resolvePreviewLead } from "@/lib/leads/demo-catalog";
 import { resolvePreviewOpenAttrParam } from "@/lib/leads/preview-open";
 import { planPreviewPageAccess } from "@/lib/leads/preview-page-access";
@@ -80,6 +81,11 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   // key off of, and the whole point of the fallback is avoiding this call.
   const commerceItems =
     plan.kind === "ok" ? await loadPreviewCommerceItems(lead, slug) : [];
+  // Same stage-gate-before-DB-call precedent as commerceItems above (see
+  // loadPreviewSetupFeeWaived) — skips the listOrdersByLeadSlug call entirely
+  // for the high-volume cold-outreach preview path.
+  const setupFeeWaived =
+    plan.kind === "ok" ? await loadPreviewSetupFeeWaived(lead, slug) : false;
   // Same consent predicate as sitemap + robots — never emit LocalBusiness
   // JSON-LD on a noindex cold-prospect preview (preview-jsonld-indexable-only).
   // commerceItems is already stage/eligibility-gated by loadPreviewCommerceItems
@@ -110,7 +116,7 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
         utmSource={utmSource}
         trackByStage={trackByStage}
       />
-      <CategoryPreview lead={lead} commerceItems={commerceItems} />
+      <CategoryPreview lead={lead} commerceItems={commerceItems} setupFeeWaived={setupFeeWaived} />
     </>
   );
 }

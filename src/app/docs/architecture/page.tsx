@@ -2172,6 +2172,30 @@ export default function ArchitectureDocPage() {
         without a genuine prior order still fails exactly as before.
       </p>
       <p>
+        <code>preview-tier-upsell-setup-fee-waiver-parity</code>: the setup-fee-skip series above
+        scoped its display-parity fix strictly to <code>/checkout</code> — but{" "}
+        <code>TierUpsell</code> (<code>src/components/preview/tier-upsell.tsx</code>), rendered by
+        every <code>/preview/[slug]</code> page, still quoted each tier&apos;s full{" "}
+        <code>bundle.setupPriceUsd</code> unconditionally. The upsell emails&apos; secondary link
+        (&quot;Or revisit your site preview first&quot;) sends an already-paying customer straight
+        back to this page, where they&apos;d see the un-waived setup fee — contradicting both the
+        email they just read and, post-fix, <code>/checkout</code> itself. Fixed the same way as{" "}
+        <code>checkout-form-setup-fee-display-parity</code>: a new{" "}
+        <code>loadPreviewSetupFeeWaived</code> (<code>src/lib/checkout/preview-setup-fee.ts</code>)
+        stage-gates on <code>paid</code>/<code>live</code> before calling{" "}
+        <code>listOrdersByLeadSlug</code> (mirroring <code>loadPreviewCommerceItems</code>&apos;s
+        own gate, so the high-volume cold-outreach preview path never pays that DB cost), threaded
+        through <code>CategoryPreview</code> into <code>TierUpsell</code> as{" "}
+        <code>setupFeeWaived</code>. A new pure <code>tierUpsellPricing</code> helper in{" "}
+        <code>bundles.ts</code> swaps each card&apos;s headline price to the monthly price (or{" "}
+        <code>$0</code> for Starter, which has none) with an &quot;already covered&quot; caption
+        when waived. Verified end to end with a dev-server smoke check: the demo/cold preview
+        still showed the full <code>$500</code> setup fee on all three cards, then a lead seeded
+        directly in SQLite as <code>paid</code> with one prior order showed <code>$0</code>/
+        <code>$99</code>/<code>$199</code> with &quot;setup already covered&quot; on Starter/
+        Growth/Complete respectively.
+      </p>
+      <p>
         <code>acquisition-source-checkout-attribution</code>: the homepage pricing grid and each
         of the three <code>/websites-for-*</code> SEO category landing pages funneled to the same{" "}
         <code>/checkout</code> page with no way to tell which surface actually converted — no
