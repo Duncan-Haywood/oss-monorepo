@@ -520,11 +520,20 @@ export interface OrderBillingNoticeSendFailure {
   stripeSessionId: string;
   noticeType: BillingNoticeType;
   failedAtMs: number;
+  /**
+   * True when the underlying order has a Stripe Customer id on file — gates
+   * whether /dashboard/leads' billing-notice-send-failed panel can offer a
+   * "Manage billing" (Billing Portal) action, mirroring
+   * RecurringEntitlementPausedLead's own hasStripeCustomerId field. See
+   * billing-notice-send-failed-leads-panel.
+   */
+  hasStripeCustomerId: boolean;
 }
 
 type BillingNoticeFailureOrder = {
   leadSlug: string;
   stripeSessionId?: string;
+  stripeCustomerId?: string | null;
   tier: string;
   commerceAddon: boolean;
   recurringCanceledAt?: number | null;
@@ -533,6 +542,27 @@ type BillingNoticeFailureOrder = {
   lastBillingNoticeSendFailedAt?: number | null;
   lastBillingNoticeSendFailedType?: BillingNoticeType | null;
 };
+
+/**
+ * Human-readable label for a BillingNoticeType — single source of truth for
+ * both the daily digest's own rows and /dashboard/leads' billing-notice-
+ * send-failed panel, so the two surfaces can never drift on wording for the
+ * same notice type.
+ */
+export function billingNoticeTypeLabel(noticeType: BillingNoticeType): string {
+  switch (noticeType) {
+    case "payment_failed":
+      return "payment-failed (dunning)";
+    case "payment_recovered":
+      return "payment-recovered";
+    case "subscription_paused":
+      return "subscription-paused";
+    case "subscription_resumed":
+      return "subscription-resumed";
+    case "subscription_canceled":
+      return "subscription-canceled";
+  }
+}
 
 /**
  * Bundle/Commerce orders whose most recent billing-notice send (dunning /
@@ -594,6 +624,7 @@ export function listOrdersWithFailedBillingNotice(
       stripeSessionId: order.stripeSessionId ?? "",
       noticeType: order.lastBillingNoticeSendFailedType,
       failedAtMs: order.lastBillingNoticeSendFailedAt as number,
+      hasStripeCustomerId: Boolean(order.stripeCustomerId?.trim()),
     });
   }
   return failed.sort((a, b) => a.failedAtMs - b.failedAtMs);
