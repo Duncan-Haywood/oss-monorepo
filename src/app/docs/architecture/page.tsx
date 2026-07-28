@@ -5738,6 +5738,29 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>ANTHROPIC_REQUEST_TIMEOUT_MS</code>&apos;s value and comment style) and passed{" "}
         <code>signal: AbortSignal.timeout(BUFFER_REQUEST_TIMEOUT_MS)</code> on both fetch calls.
       </p>
+      <p>
+        <code>marketing-voice-generator-fallback-capture-error</code>: mechanically re-verified
+        the long-running <code>captureError</code> sweep against every catch block in{" "}
+        <code>src/</code> and <code>convex/</code> that only logs via{" "}
+        <code>console.error</code>/<code>console.warn</code> — the Stripe webhook, contact-form,
+        preview-open, deploy-handoff, dashboard actions, bootstrap-prices, and Resend surfaces
+        this doc already covers are all fully wired. Found the one genuinely fresh gap: both{" "}
+        <code>AnthropicMarketingGenerator.generate</code> (
+        <code>src/lib/marketing/generators.ts</code>) and{" "}
+        <code>AnthropicClientVoiceGenerator.generate</code> (
+        <code>src/lib/voice/generators.ts</code>) already catch every Anthropic-call failure
+        (blank key aside) and fall back to the stub generator so operators still get a usable
+        pack — but the catch only ever <code>console.error</code>&apos;d, with zero
+        operator-facing signal that a paying Growth/Complete/Complete-voice customer&apos;s AI
+        pack silently degraded to generic stub copy for that request. Wired{" "}
+        <code>captureError</code> into both catches (
+        <code>component: &quot;marketing-generators&quot;</code> /{" "}
+        <code>&quot;voice-generators&quot;</code>, <code>failureKind</code> naming the specific
+        Anthropic-generation operation, plus <code>leadId</code>) — the same
+        catch-already-exists-but-was-console-only shape as every prior site in this sweep, just in
+        two files no earlier pass had reached because neither sits behind a route/webhook/dashboard
+        catch cluster.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
