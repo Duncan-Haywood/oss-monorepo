@@ -245,6 +245,11 @@ vi.mock("convex/browser", () => ({
   },
 }));
 
+const captureError = vi.fn();
+vi.mock("./observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 type DbModule = typeof import("./db");
 
 const ORIGINAL_ENV = { ...process.env };
@@ -352,6 +357,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(tmpDir);
     convexQuery.mockReset();
     convexMutation.mockReset();
+    captureError.mockReset().mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -382,15 +388,33 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(convexQuery).toHaveBeenCalledTimes(1);
     });
 
-    it("falls back to SQLite when the Convex query throws", async () => {
+    it("falls back to SQLite when the Convex query throws, and reports the outage via captureError (db-getLeads-convex-fallback-capture-error)", async () => {
       // Seed via the SQLite-only path first (no Convex client for the seed).
       const seedDb = await loadDb(undefined);
       await seedDb.upsertLead(testLead("fallback-read-lead"));
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
       const db = await loadDb(CONVEX_URL);
       const leads = await db.getLeads();
       expect(leads.map((l) => l.slug)).toContain("fallback-read-lead");
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-getLeads-convex-fallback",
+      });
+    });
+
+    it("does not call captureError when Convex is unconfigured (no outage to report)", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("no-convex-capture-lead"));
+      await db.getLeads();
+      expect(captureError).not.toHaveBeenCalled();
+    });
+
+    it("does not call captureError when the Convex query succeeds", async () => {
+      convexQuery.mockResolvedValueOnce([{ slug: "convex-only-lead-2" }]);
+      const db = await loadDb(CONVEX_URL);
+      await db.getLeads();
+      expect(captureError).not.toHaveBeenCalled();
     });
 
     it("getLeadBySlug returns Convex's object directly on success", async () => {
@@ -398,6 +422,32 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       const db = await loadDb(CONVEX_URL);
       const lead = await db.getLeadBySlug("convex-single-lead");
       expect(lead).toEqual({ slug: "convex-single-lead" });
+    });
+
+    it("getLeadBySlug falls back to SQLite when the Convex query throws, and reports the outage via captureError (db-read-path-capture-error-sweep-getLeadBySlug-listOrders)", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertLead(testLead("fallback-read-lead-by-slug"));
+
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
+      const db = await loadDb(CONVEX_URL);
+      const lead = await db.getLeadBySlug("fallback-read-lead-by-slug");
+      expect(lead?.slug).toBe("fallback-read-lead-by-slug");
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-getLeadBySlug-convex-fallback",
+      });
+    });
+
+    it("getLeadBySlug does not call captureError when Convex is unconfigured or the query succeeds", async () => {
+      const db = await loadDb(undefined);
+      await db.upsertLead(testLead("no-convex-capture-lead-by-slug"));
+      await db.getLeadBySlug("no-convex-capture-lead-by-slug");
+      expect(captureError).not.toHaveBeenCalled();
+
+      convexQuery.mockResolvedValueOnce({ slug: "convex-single-lead-2" });
+      const convexDb = await loadDb(CONVEX_URL);
+      await convexDb.getLeadBySlug("convex-single-lead-2");
+      expect(captureError).not.toHaveBeenCalled();
     });
   });
 
@@ -5198,11 +5248,34 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       backdateOrderCreatedAt("2026-07-01T00:00:00.000Z", "cs_older_order");
       backdateOrderCreatedAt("2026-07-20T00:00:00.000Z", "cs_newer_order");
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
       const db = await loadDb(CONVEX_URL);
       const orders = await db.listOrders();
       const slugs = orders.map((o) => o.leadSlug);
       expect(slugs.indexOf("newer-order-lead")).toBeLessThan(slugs.indexOf("older-order-lead"));
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-listOrders-convex-fallback",
+      });
+    });
+
+    it("does not call captureError when Convex is unconfigured or the query succeeds (db-read-path-capture-error-sweep-getLeadBySlug-listOrders)", async () => {
+      const db = await loadDb(undefined);
+      await db.recordLeadPayment({
+        slug: "no-convex-capture-order-lead",
+        stripeSessionId: "cs_no_convex_capture",
+        customerEmail: "buyer@example.com",
+        tier: "starter",
+        commerceAddon: false,
+        amountTotal: 500,
+      });
+      await db.listOrders();
+      expect(captureError).not.toHaveBeenCalled();
+
+      convexQuery.mockResolvedValueOnce([]);
+      const convexDb = await loadDb(CONVEX_URL);
+      await convexDb.listOrders();
+      expect(captureError).not.toHaveBeenCalled();
     });
   });
 
