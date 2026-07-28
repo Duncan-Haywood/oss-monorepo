@@ -5578,6 +5578,32 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>db-ts-convex-fallback-capture-error-full-sweep</code> already documented for an inert
         fallback branch above.
       </p>
+      <p>
+        <code>checkout-completed-capture-error-per-origin-fix</code>: an independently-built
+        session found this exact same gap and had a complete duplicate implementation ready to
+        push when a routine pre-push fetch showed{" "}
+        <code>stripe-webhook-checkout-completed-capture-error</code> (immediately above) had
+        already merged — the standard dual-build-collision outcome. Comparing the two rather than
+        discarding outright: the two implementations were structurally identical at 15 of 17
+        sites, but diverged on the two flag-based sites (<code>commerce_client_receipt_send</code>,{" "}
+        <code>bundle_email_send</code>) each merge two failure origins into one shared{" "}
+        <code>if (flagSet)</code> check. The merged version synthesizes one generic{" "}
+        <code>Error</code> at that shared check regardless of which origin actually failed — which
+        means a thrown <code>emailError</code>&apos;s real message and stack are discarded in favor
+        of a generic string, exactly the diagnostic information{" "}
+        <code>captureError</code> exists to preserve. The unmerged duplicate captured at each
+        origin instead (the real thrown error in a catch branch; a synthesized{" "}
+        <code>Error</code> carrying the actual <code>reason</code>/<code>error</code> field only
+        where no thrown error exists — a resolved <code>success: false</code>). Judged the
+        per-origin approach a genuine, if narrow, improvement — not merely a stylistic
+        preference — and shipped it as a small follow-up on top of the already-merged fix rather
+        than reintroducing the full 17-site duplicate: moved the <code>captureError</code> call at
+        both flag-based sites from the shared check into each of their four failure-origin
+        branches (two per site), removing the shared-check call entirely. Extended the 6 existing
+        failure-path tests covering these two sites to assert the specific error object/message
+        rather than <code>expect.any(Error)</code>, so a future regression back to a generic
+        synthesized message at the merged site would be caught.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
