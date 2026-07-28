@@ -89,7 +89,7 @@ export interface StripeProductsAndPricesForBootstrap {
         product: string;
         currency: string;
         unit_amount: number;
-        recurring?: { interval: "month" };
+        recurring?: { interval: "month" | "year" };
         metadata: Record<string, string>;
       },
       options?: { idempotencyKey?: string },
@@ -97,12 +97,15 @@ export interface StripeProductsAndPricesForBootstrap {
   };
 }
 
+/** null for a one-time Price (setup fees); "month" or "year" for a recurring one. */
+type PriceSpecInterval = "month" | "year" | null;
+
 type PriceSpec = {
   envVar: string;
   key: string;
   productName: string;
   unitAmountUsd: number;
-  recurring: boolean;
+  interval: PriceSpecInterval;
 };
 
 function allPriceSpecs(): PriceSpec[] {
@@ -113,15 +116,29 @@ function allPriceSpecs(): PriceSpec[] {
       key: `${bundle.id}_setup`,
       productName: `${bundle.name} — setup`,
       unitAmountUsd: bundle.setupPriceUsd,
-      recurring: false,
+      interval: null,
     });
+    // Monthly and annual share ONE Product (key: `${bundle.id}_recurring`) —
+    // Stripe Prices are the immutable per-interval unit, and one Product
+    // naturally carries both a monthly and an annual recurring Price for the
+    // same plan (annual-billing-option). findMatchingPrice below still tells
+    // the two apart by (unitAmount, interval), so this never conflates them.
     if (bundle.monthlyPriceIdEnv && bundle.monthlyPriceUsd != null) {
       specs.push({
         envVar: bundle.monthlyPriceIdEnv,
-        key: `${bundle.id}_monthly`,
-        productName: `${bundle.name} — monthly`,
+        key: `${bundle.id}_recurring`,
+        productName: `${bundle.name} — recurring`,
         unitAmountUsd: bundle.monthlyPriceUsd,
-        recurring: true,
+        interval: "month",
+      });
+    }
+    if (bundle.annualPriceIdEnv && bundle.annualPriceUsd != null) {
+      specs.push({
+        envVar: bundle.annualPriceIdEnv,
+        key: `${bundle.id}_recurring`,
+        productName: `${bundle.name} — recurring`,
+        unitAmountUsd: bundle.annualPriceUsd,
+        interval: "year",
       });
     }
   }
@@ -131,14 +148,14 @@ function allPriceSpecs(): PriceSpec[] {
       key: "commerce_setup",
       productName: `${COMMERCE_ADDON.name} — setup`,
       unitAmountUsd: COMMERCE_ADDON.setupPriceUsd,
-      recurring: false,
+      interval: null,
     },
     {
       envVar: COMMERCE_ADDON.monthlyPriceIdEnv,
       key: "commerce_monthly",
       productName: `${COMMERCE_ADDON.name} — monthly`,
       unitAmountUsd: COMMERCE_ADDON.monthlyPriceUsd,
-      recurring: true,
+      interval: "month",
     },
   );
   return specs;
@@ -161,14 +178,14 @@ async function findMatchingPrice(
   stripe: StripeProductsAndPricesForBootstrap,
   productId: string,
   unitAmount: number,
-  recurring: boolean,
+  interval: PriceSpecInterval,
 ): Promise<MinimalStripePrice | null> {
   const matches = (price: MinimalStripePrice) => {
     const amountMatches = price.unit_amount === unitAmount;
-    const recurringMatches = recurring
-      ? price.recurring?.interval === "month"
+    const intervalMatches = interval
+      ? price.recurring?.interval === interval
       : price.type === "one_time";
-    return amountMatches && recurringMatches;
+    return amountMatches && intervalMatches;
   };
   const listed = await listAllPages(
     (starting_after) =>
@@ -199,14 +216,14 @@ export async function bootstrapStripePrices(
     }
 
     const unitAmount = Math.round(spec.unitAmountUsd * 100);
-    let price = await findMatchingPrice(stripe, product.id, unitAmount, spec.recurring);
+    let price = await findMatchingPrice(stripe, product.id, unitAmount, spec.interval);
     if (!price) {
       price = await stripe.prices.create(
         {
           product: product.id,
           currency: "usd",
           unit_amount: unitAmount,
-          ...(spec.recurring ? { recurring: { interval: "month" as const } } : {}),
+          ...(spec.interval ? { recurring: { interval: spec.interval } } : {}),
           metadata: { local_site_studio_key: spec.key },
         },
         { idempotencyKey: bootstrapPriceIdempotencyKey(spec.key, unitAmount) },

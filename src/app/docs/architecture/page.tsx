@@ -1385,8 +1385,9 @@ export default function ArchitectureDocPage() {
         forever), and{" "}
         <code>session.amount_total</code>{" "}
         (integer cents) equal to{" "}
-        <code>expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon)</code>{" "}
-        (setup + first month from <code>BUNDLES</code>, plus optional{" "}
+        <code>expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon, billingInterval)</code>{" "}
+        (setup + first recurring period — monthly or annual, see{" "}
+        <code>annual-billing-option</code> below — from <code>BUNDLES</code>, plus optional{" "}
         <code>COMMERCE_ADDON</code> — twin of Commerce catalog <code>priceCents</code>{" "}
         parity) — a truthy but over-long slug, unknown/wrong-cased tier, missing
         catalog Prices on line items, forged Commerce flag, non-USD currency, unpaid
@@ -1961,6 +1962,43 @@ export default function ArchitectureDocPage() {
         this is a real, cheap (well under any real revenue this whole outreach/checkout/digest
         automation exists to protect) operational cost, not a blocker, but it is a genuine
         plan-tier requirement worth stating rather than glossing over.
+      </p>
+      <p>
+        <code>annual-billing-option</code>: Growth/Complete checkout only ever offered monthly
+        billing — no way for a customer who&apos;d happily prepay a year to do so, and no
+        discount lever to reward that lower payment-risk/higher-LTV choice, leaving revenue on
+        the table the same way the cron-automation iterations above closed operator-side gaps.{" "}
+        <code>bundles.ts</code> adds <code>annualPriceUsd</code> / <code>annualPriceIdEnv</code>{" "}
+        per tier (Growth $990/yr, Complete $1990/yr — both &ldquo;2 months free&rdquo; vs. paying
+        monthly × 12, see <code>annualBillingSavingsUsd</code>) and a validated{" "}
+        <code>BundleBillingInterval</code> (<code>parseBundleBillingInterval</code> — unknown or
+        missing values fall back to <code>&quot;monthly&quot;</code>, never an unrecognized value
+        reaching the amount/Price-ID branch). <code>POST /api/stripe/checkout</code> resolves the
+        recurring line item from <code>bundle.annualPriceIdEnv</code> instead of{" "}
+        <code>monthlyPriceIdEnv</code> when the request selects annual, stamps{" "}
+        <code>billingInterval</code> onto Session <code>metadata</code>, and rejects annual +
+        Commerce add-on combinations at 400 before a Session is ever created — a single Stripe
+        subscription&apos;s recurring line items must share one billing interval, and the
+        add-on has no annual Price of its own (a documented follow-up, not built here). The
+        webhook re-derives <code>billingInterval</code> from Session <code>metadata</code>{" "}
+        (falling back to <code>&quot;monthly&quot;</code> for a stale/tampered/pre-feature
+        Session, same as a missing value) and passes it through to both{" "}
+        <code>bundleCatalogPriceIdsFromEnv</code> (so <code>sessionLineItemsMatchBundleCatalogPrices</code>{" "}
+        checks the line item against the correct interval&apos;s catalog Price ID, not always
+        monthly&apos;s) and <code>expectedBundleCheckoutAmountCents</code> (so the exact-amount
+        gate expects the annual total, not the monthly one) — the same forged-line-item /
+        wrong-amount protections every other checkout amount gets, just interval-aware.{" "}
+        <code>bootstrapStripePrices</code> now creates both a monthly and an annual Price per
+        tier under one shared Stripe Product (key <code>bundle.id + &quot;_recurring&quot;</code>,
+        renamed from the old monthly-only key — safe pre-launch, since{" "}
+        <code>stripe-price-objects</code> has never actually run against a live Stripe account),
+        distinguished by <code>(unitAmount, interval)</code> in <code>findMatchingPrice</code>{" "}
+        rather than a boolean <code>recurring</code> flag. Deliberately out of scope: no{" "}
+        <code>billingInterval</code> column on the <code>orders</code> table (operator dashboards
+        don&apos;t yet surface which cadence a customer is on — a documented follow-up), and
+        revenue/MRR reporting needed zero changes since <code>orderLifetimeRevenueUsd</code> /{" "}
+        <code>lifetimeRevenueUsd</code> are already driven by actual Stripe invoice amounts, not
+        a computed monthly-price formula.
       </p>
       <p>
         <code>acquisition-source-checkout-attribution</code>: the homepage pricing grid and each
