@@ -878,6 +878,21 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #971 merged. The next dispatched research agent found that src/app/api/contact/[slug]/route.ts's notify-email path was left uninstrumented by an earlier sweep that already wired captureError into this same route's insertClientInquiry persist catch but not the sendEmail notify catch right below it.",
+    shipped: [
+      "The notify-email path has the same two-shape failure pattern (sendEmail resolves { success: false } or throws) already fixed for the Stripe webhook and the Resend webhook, but this route's own notify catch only ever console.error'd. A Resend outage during a live contact-form submission — a paying Starter customer's sold website feature — degraded silently: the CRM row still lands, but the business owner's own email notification never arrives with zero operator-visible signal.",
+      "Wired captureError into both branches (resolved-false and thrown) matching the route's own inquiry_persist convention: component: 'contact-form', failureKind: 'notify_send', leadSlug. The resolved-false branch synthesizes a descriptive Error from sent.reason ?? sent.error, mirroring the checkout-completed sweep's own precedent for the identical merged-shape problem.",
+      "src/app/api/contact/[slug]/route.ts (2 captureError call sites); route.test.ts (2 existing tests extended, 26 total, unchanged count); src/app/docs/architecture/page.tsx (new paragraph after billing-portal-capture-error-wiring's own); src/lib/process/business-decisions.ts (appended contact-form-notify-send-capture-error); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only route.ts, confirmed both new/updated assertions failed exactly as expected (24 passed, 2 failed), then restored and confirmed all 26 tests pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (26 passed) then full suite (3996 passed, 234 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only observability change, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "contact-form-notify-send-capture-error",
+    ),
+  },
+  {
+    date: "2026-07-28",
     branch: "claude/nice-euler-ujz9qn",
     summary:
       "Continuation of the same scheduled routine. Had independently built a complete duplicate of stripe-webhook-checkout-completed-capture-error (the entry two above) and was about to push when a routine pre-push fetch showed origin/main had already moved — a sibling session had merged the identical fix as PR #970 moments earlier. Compared the two implementations side by side per the established dual-build-collision-review precedent rather than discarding outright.",

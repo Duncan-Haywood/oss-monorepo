@@ -5381,6 +5381,27 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>contact-form-notify-send-capture-error</code>:{" "}
+        <code>public-route-durable-write-capture-error-sweep</code> above wired{" "}
+        <code>captureError</code> into this same route&apos;s <code>insertClientInquiry</code>{" "}
+        catch, but the notify-email path right below it — the exact same &quot;
+        <code>sendEmail</code> either resolves <code>{"{ success: false }"}</code> or throws&quot;
+        two-shape failure this codebase has repeatedly flagged as its own bug class (see the Stripe
+        webhook&apos;s <code>checkout.session.completed</code> sweep and the Resend webhook fix) —
+        was left with only <code>console.error</code> in both branches. A Resend outage or a
+        malformed reply-to during a live contact-form submission (the actual lead-generation moment
+        for a paying Starter customer&apos;s sold website feature) degraded silently: the CRM row
+        still lands (persist already succeeds first), but the business owner never gets their
+        email notification and nobody outside a raw log-grep would ever know. Wired{" "}
+        <code>captureError</code> into both the resolved-<code>false</code> branch (synthesizing a
+        descriptive <code>Error</code> from <code>sent.reason ?? sent.error</code>, mirroring the
+        checkout-completed sweep&apos;s own precedent for the identical merged-shape problem) and
+        the thrown branch, both with <code>component: &quot;contact-form&quot;</code>,{" "}
+        <code>failureKind: &quot;notify_send&quot;</code>, and <code>leadSlug</code> — matching the
+        route&apos;s own <code>inquiry_persist</code> capture exactly.
+      </p>
+
+      <p>
         <code>stripe-checkout-recurring-upgrade-dedup</code>: a research agent auditing the
         Growth→Complete upsell feature traced its checkout link (
         <code>buildGrowthUpsellCheckoutPath</code>, <code>/checkout?slug=...&amp;tier=complete</code>)
