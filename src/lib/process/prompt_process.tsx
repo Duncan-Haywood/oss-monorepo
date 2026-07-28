@@ -399,6 +399,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-pkkaj0",
   },
+  {
+    id: "buffer-schedule-stale-pack-content-guard",
+    summary:
+      "Tier 2/3-4 empty-backlog research (two independent agents converged on the same finding) found scheduleMarketingPackToBufferAction — the dormant ALLOW_MARKETING_SCHEDULING=1 Buffer auto-post path — read the current month's marketing pack once, then made a sequence of real awaited Buffer HTTP calls (listBufferProfiles, then one createBufferUpdate per profile/variant) built from that single stale read, with no check that a concurrent Regenerate marketing pack click (full-row upsertMarketingPack replace) hadn't superseded it. Unlike an email, a live Buffer post to a lead's real Facebook/Instagram profile can't be recalled once it ships; the function's existing TOCTOU guard only protected the posted-variant marker from a lost update, not the content. Fixed by re-fetching the pack and comparing generatedAt against the captured value immediately before each profile's own posting pass in the loop (not just once up front, since the loop itself spans further sequential awaited Buffer calls) — a detected regenerate skips the remaining profile(s) with a clear operator message; already-posted profiles keep their result since that post can't be undone. See buffer-schedule-stale-pack-content-guard in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 6 — Marketing automation",
+    owner: "claude/nice-euler-vcud3o",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -666,6 +674,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "process-log-archive-24-iterations-split",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-vcud3o",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 4cf2194 (PR #893, process-log-archive-24-iterations-split, merged prior session) — HEAD matched origin/main exactly at session start. NEXT_STEPS is fully gated (all five standing items operator/legal/infra-blocked). A fold-scan found one live, in-flight claim (claude/upbeat-dijkstra-u6ohkh, marketing-voice-pack-send-stale-content-race-guard, ~16 minutes old, no feature body yet) — left it alone per AGENT_PROTOCOL's cooperation rule rather than treating a fresh claim as idle.",
+    shipped: [
+      "Dispatched three parallel research agents across AGENT_PROTOCOL's empty-backlog priority tiers 1/2/3-4, each told to avoid the just-claimed sibling item and verify against actual source. Tier 1 (sold-capability wiring) came back clean — no unwired pipeline-health/digest/dashboard aggregate exists right now. Tiers 2 and 3/4 independently converged on the same finding: scheduleMarketingPackToBufferAction (src/app/dashboard/leads/actions.ts, the dormant ALLOW_MARKETING_SCHEDULING=1 Buffer auto-post path) reads the current month's marketing pack once, then makes a sequence of real awaited Buffer HTTP calls (listBufferProfiles, then one createBufferUpdate per profile/variant) built from that single stale read, with no check that a concurrent Regenerate marketing pack click (upsertMarketingPack — full-row replace, fresh generatedAt) hasn't superseded it. Unlike an email, a live Buffer post to a lead's real Facebook/Instagram profile can't be recalled once it ships. The function's existing TOCTOU guard only protects the posted-variant marker from a lost update, not the content itself. Same bug class as the sibling's claimed marketing-voice-pack-send-stale-content-race-guard, but a structurally distinct, unclaimed code path (separate gate, separate marker, separate tests) — no double-build.",
+      "src/app/dashboard/leads/actions.ts — scheduleMarketingPackToBufferAction now re-fetches the pack and compares generatedAt against the value captured at the top of the action immediately before each profile's own posting pass in its per-profile loop (not just once before the loop, since the loop itself spans further sequential awaited Buffer calls). A detected regenerate skips the remaining profile(s) with an operator-facing 'marketing pack was regenerated mid-run — re-run to post the current content' message; profiles already posted to before the regenerate landed keep their scheduled result (already sent, can't be undone). A since-deleted pack (fresh read returns null) is treated the same as staleness, not thrown.",
+      "src/app/dashboard/leads/buffer-actions.test.ts — 3 new tests: stops posting to the remaining profile once a regenerate is detected mid-run (multi-profile case), skips the only profile when the pack was already stale before the first posting pass, and treats a since-deleted pack as stale rather than throwing. All pre-existing tests in this file continued to pass unmodified (they use mockResolvedValue, not mockResolvedValueOnce, for getMarketingPack, so the new per-profile re-check transparently resolves the same fixture pack).",
+      "src/app/docs/architecture/page.tsx — new paragraph before 'Tech stack' naming the gap, why the existing marker-only TOCTOU guard didn't cover it, and the fix. src/lib/process/business-decisions.ts — appended buffer-schedule-stale-pack-content-guard. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — this is a real correctness bug fix in an already-shipped (dormant/opt-in) capability, not any of the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable), which remain operator/legal/infra-blocked and unchanged; also not a duplicate of the sibling's in-progress claim, which targets a disjoint pair of email-send actions. Diff-gate anchor moves to 4cf2194 (this session's own starting tip, post-PR-#893).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: business-decisions.ts and prompt_process.tsx both re-measured via wc -c before committing — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npm ci (413 packages, 9 known high-severity findings, unchanged dev-only) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (buffer-actions.test.ts, 35/35 passed) then full suite (3544 passed, 210 files — 3 net new; one unrelated db.test.ts timeout on the first full-suite run reproduced as flaky, not caused by this change — passed standalone and on a clean full-suite rerun) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). Server-action fix with no client-component UI change, so no browser smoke check needed beyond build/test/lint.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-schedule-stale-pack-content-guard",
     ),
   },
 ];

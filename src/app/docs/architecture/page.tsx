@@ -4272,6 +4272,30 @@ source). The same digest also lists email-critical leads with no usable address 
         never called from the webhook path.
       </p>
 
+      <p>
+        <code>buffer-schedule-stale-pack-content-guard</code>: the reserve-then-send-then-release
+        series above closes the duplicate-send race for marketing/voice pack email delivery, but{" "}
+        <code>scheduleMarketingPackToBufferAction</code> (the dormant, opt-in Buffer auto-post
+        path) had a distinct, unaddressed staleness gap in the same family. It reads the current
+        month&apos;s pack once at the top of the action, then makes a sequence of real, awaited
+        Buffer API calls — <code>listBufferProfiles</code>, then one <code>createBufferUpdate</code>{" "}
+        per profile/variant — all built from that single stale in-memory read. Marketing packs are
+        replaced wholesale on regenerate (<code>upsertMarketingPack</code>, one row per lead per
+        month), so a concurrent <strong>Regenerate marketing pack</strong> click landing anywhere
+        in that window let the action publish the operator&apos;s just-superseded copy to the
+        lead&apos;s live Facebook/Instagram profile through Buffer — unlike an email, a live social
+        post can&apos;t be recalled once it ships. The existing TOCTOU guard in this same function
+        (re-reading the lead and merging onto a fresh <code>bufferPostedVariantKeys</code> read
+        before the final persist) only protects the posted-variant <em>marker</em> from a lost
+        update; it does nothing to stop stale <em>content</em> from reaching Buffer in the first
+        place. Fixed by re-fetching the pack and comparing <code>generatedAt</code> against the
+        captured value immediately before each profile&apos;s own posting pass (not just once up
+        front) — a regenerate detected at any point stops the remaining profiles from receiving the
+        superseded copy, and any profiles already posted to before the regenerate landed are
+        reported as scheduled (their posts already went out and can&apos;t be undone) while the
+        rest are reported skipped with a message telling the operator to re-run.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

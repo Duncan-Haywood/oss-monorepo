@@ -775,5 +775,76 @@ describe("Buffer scheduling dashboard actions", () => {
       expect(result.scheduled).toEqual(["p-fb"]);
       expect(updateLeadBufferPostedVariantKeys).toHaveBeenCalled();
     });
+
+    it("stops posting to the remaining profiles once a concurrent regenerate is detected mid-run (buffer-schedule-stale-pack-content-guard)", async () => {
+      // Three getMarketingPack calls: the initial read at the top of the
+      // action, then one freshness re-check per profile in
+      // lead.bufferProfileIds order. Simulate a regenerate landing between
+      // the first profile's posting pass and the second's.
+      getMarketingPack
+        .mockResolvedValueOnce(fakePack())
+        .mockResolvedValueOnce(fakePack())
+        .mockResolvedValueOnce(fakePack({ generatedAt: "2026-07-02T00:00:00.000Z" }));
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb", "p-ig"] }));
+      listBufferProfiles.mockResolvedValue([
+        { id: "p-fb", service: "facebook" },
+        { id: "p-ig", service: "instagram" },
+      ]);
+      createBufferUpdate.mockResolvedValue({ success: true, updateIds: ["u1"] });
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      // Only p-fb was posted before the regenerate was detected — p-ig never
+      // received a createBufferUpdate call with the now-superseded copy.
+      expect(result.scheduled).toEqual(["p-fb"]);
+      expect(result.skipped).toEqual([
+        "p-ig: marketing pack was regenerated mid-run — re-run to post the current content",
+      ]);
+      expect(createBufferUpdate).toHaveBeenCalledTimes(1);
+      expect(createBufferUpdate).toHaveBeenCalledWith("tok_test", {
+        profileIds: ["p-fb"],
+        text: "Come visit us!",
+      });
+    });
+
+    it("skips every profile when the pack was already regenerated before the first posting pass", async () => {
+      getMarketingPack
+        .mockResolvedValueOnce(fakePack())
+        .mockResolvedValueOnce(fakePack({ generatedAt: "2026-07-02T00:00:00.000Z" }));
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb"] }));
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.scheduled).toEqual([]);
+      expect(result.skipped).toEqual([
+        "p-fb: marketing pack was regenerated mid-run — re-run to post the current content",
+      ]);
+      expect(createBufferUpdate).not.toHaveBeenCalled();
+      expect(updateLeadBufferPostedVariantKeys).not.toHaveBeenCalled();
+    });
+
+    it("treats a since-deleted pack as stale rather than throwing", async () => {
+      getMarketingPack.mockResolvedValueOnce(fakePack()).mockResolvedValueOnce(null);
+      getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p-fb"] }));
+      listBufferProfiles.mockResolvedValue([{ id: "p-fb", service: "facebook" }]);
+
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.scheduled).toEqual([]);
+      expect(result.skipped).toEqual([
+        "p-fb: marketing pack was regenerated mid-run — re-run to post the current content",
+      ]);
+      expect(createBufferUpdate).not.toHaveBeenCalled();
+    });
   });
 });
