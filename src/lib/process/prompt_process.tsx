@@ -1041,5 +1041,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "empty-backlog-second-consecutive-clean-sweep",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 661ea488 (PR #921, empty-backlog-second-consecutive-clean-sweep, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). No live sibling branch beyond the unrelated stale #202.",
+    shipped: [
+      "Third consecutive iteration with no shipped code, but not a third clean sweep — a research agent ran three explicitly different tactics (stuck-sibling-branch check, deep single-component accessibility audit of leads-client.tsx, gated-NEXT_STEPS-scaffold recheck). The branch check and gated-scaffold recheck came back clean; the accessibility audit found a real, independently re-verified gap: of ~64 dashboard action buttons gated on the component's one shared useTransition() isPending, only 3 (\"Import leads\"/\"Save Lead\"/\"Save notes\") change their visible label while pending — the other ~61 (\"Billing\", \"Upsell\", etc.) just disable silently.",
+      "Traced two levels deeper before deciding whether to ship the obvious fix (copy the existing ternary onto another button) and found it would not actually work: the 3 labeled buttons have no aria-label override so their visible text is their accessible name, but the ~61 row-scoped buttons pass a *static* accessible name through dashboardRowActionAriaLabel(action, businessName, slug) that does not vary with isPending — aria-label always wins over visible text, so a label-only ternary would be cosmetic for sighted users and silent for screen readers. Separately, the file's own existing dashboard-focus-restore-async-transition-race comment documents that a button loses focus at the exact moment it becomes disabled during an async transition, undermining any per-button focus-based announcement regardless. The real fix is a shared aria-live status region decoupled from per-button disabled/focus state — a systemic change, not a copy-paste ternary.",
+      "Also confirmed (grep -i testing-library package.json, and repo-wide for @testing-library/react) that this codebase has zero DOM-rendering component-test infrastructure — all 215 test files cover pure/lib logic only. A client-rendered accessibility fix can't be proven via this session's git-stash regression-catching discipline without first standing up a new render-test toolchain, itself a structural decision out of scope for one focused iteration. Deferred with two named prerequisites for a future session (render-test infra or an explicit git-stash exemption for JSX-label/aria edits; and designing the fix as a focus-independent aria-live region) rather than shipping a fix that would either be a no-op or skip verification.",
+      "src/lib/process/business-decisions.ts — appended leads-client-pending-announcement-deferred-needs-rtl-infra. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — all five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 661ea488.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3676 passed, 215 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — this iteration touched only the process log.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "leads-client-pending-announcement-deferred-needs-rtl-infra",
+    ),
+  },
 ];
 
