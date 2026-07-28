@@ -106,10 +106,16 @@ vi.mock("@/lib/email/resend", () => ({
   sendClientVoicePackToClientEmail: vi.fn(),
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendDailyDigestAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     process.env.OPERATOR_DIGEST_EMAIL = "ops@localsitestudio.com";
@@ -346,6 +352,10 @@ describe("sendDailyDigestAction", () => {
       error: "db unavailable",
     });
     expect(sendOperatorDailyDigest).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendDailyDigestAction",
+    });
   });
 
   it("wires getSuppressedEmails into the digest's bounce/complaint footnote (suppression-reason-visibility follow-up)", async () => {

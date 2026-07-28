@@ -5605,6 +5605,45 @@ source). The same digest also lists email-critical leads with no usable address 
         synthesized message at the merged site would be caught.
       </p>
 
+      <p>
+        <code>dashboard-leads-actions-outer-catch-capture-error</code>:{" "}
+        <code>src/app/dashboard/leads/actions.ts</code> (the dashboard&apos;s ~40 exported server
+        actions — every operator-facing button click on <code>/dashboard/leads</code>) had{" "}
+        <code>captureError</code> imported and used at exactly two nested-catch sites (the Stripe
+        Connect status-cache write) but its outer, top-level{" "}
+        <code>{"catch (error) { console.error(\"Error in \" + \"XAction\" + \":\", error); ... }"}</code>{" "}
+        safety-net — the one every one of those ~40 actions wraps its entire body in, and the one
+        that actually catches an unexpected bug (a re-thrown non-<code>ConvexPrimaryWriteError</code>,
+        a Stripe/Resend/Buffer client throw, a programming error) rather than a known,
+        already-handled failure mode — had never been wired to the observability scaffold at all.
+        Several of these actions are payment- or email-critical
+        (<code>openBillingPortalAction</code>, <code>sendCheckoutRecoveryAction</code>,{" "}
+        <code>sendCommerceCheckoutRecoveryAction</code>, <code>resendCommerceClientReceiptAction</code>,{" "}
+        <code>resendBundleBuyerEmailAction</code>, <code>sendStarterUpsellAction</code>,{" "}
+        <code>sendGrowthUpsellAction</code>, <code>createStripeConnectAccountAction</code> and its
+        three Connect siblings, <code>syncCommerceCatalogToStripeAction</code>,{" "}
+        <code>markCommerceOrderPaidOutAction</code>) — an unexpected failure there previously left
+        the operator&apos;s click silently erroring with zero signal beyond whatever the hosting
+        platform&apos;s raw log retention happens to capture. Wired <code>captureError</code> into
+        all 39 of the file&apos;s top-level catch blocks in one mechanical pass (same shape as every
+        prior sweep in this section: <code>component: &quot;dashboard-leads-actions&quot;</code>,{" "}
+        <code>failureKind</code> set to the action&apos;s own name, matching its existing{" "}
+        <code>console.error</code> label), using <code>await</code> (not fire-and-forget) to match
+        this scaffold&apos;s established convention for a caller that returns immediately afterward
+        — a Next.js Server Action&apos;s serverless runtime can terminate before an un-awaited
+        promise finishes. Extended each action&apos;s own nearest existing generic-failure test
+        (typically named <code>&quot;surfaces unexpected Error messages...&quot;</code>) with the
+        new capture assertion where one already exercised the outer catch; added five new dedicated
+        tests for the actions whose only existing failure coverage was a Convex-specific or
+        best-effort inner catch that never reaches the outer one. One inner catch (
+        <code>saveLeadBufferProfilesAction</code>&apos;s own <code>listBufferProfiles</code>{" "}
+        verification step) turned out to have its own dedicated try/catch that returns directly
+        rather than re-throwing — left that gap out of scope for this sweep (a distinct inner-catch
+        instance of the same missing-capture bug class, not the outer-catch pattern this entry
+        closes) and used a different injection point (the lead lookup) to cover that action&apos;s
+        actual outer catch instead.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

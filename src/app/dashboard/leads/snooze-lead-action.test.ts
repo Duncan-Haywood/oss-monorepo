@@ -117,8 +117,14 @@ const baseLead = {
   dataSource: "manual_entry" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("snoozeLeadAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     vi.useFakeTimers();
     vi.setSystemTime(NOW_MS);
@@ -286,6 +292,10 @@ describe("snoozeLeadAction", () => {
       error: "db offline",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "snoozeLeadAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

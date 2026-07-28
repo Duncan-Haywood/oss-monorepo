@@ -89,8 +89,14 @@ vi.mock("@/lib/payments/convex-primary", () => ({
   ConvexPrimaryWriteError: MockConvexPrimaryWriteError,
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("unsuppressEmailAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -200,6 +206,10 @@ describe("unsuppressEmailAction", () => {
     const res = await unsuppressEmailAction("buyer@example.com");
     expect(res).toEqual({ success: false, error: "db offline" });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "unsuppressEmailAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

@@ -109,8 +109,14 @@ const unpaidOrder = {
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("markCommerceOrderPaidOutAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -365,6 +371,10 @@ describe("markCommerceOrderPaidOutAction", () => {
       error: "disk full",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "markCommerceOrderPaidOutAction",
+    });
   });
 
   it("looks up by stripeSessionId before marking (never a truncated list scan)", async () => {

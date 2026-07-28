@@ -125,10 +125,16 @@ const stubVariants = [
   },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("generateClientVoicePackAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.ANTHROPIC_API_KEY;
@@ -310,6 +316,10 @@ describe("generateClientVoicePackAction", () => {
       error: "disk full",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "generateClientVoicePackAction",
+    });
   });
 
   it("loads orders via listOrdersByLeadSlug (growth-only does not pass Complete gate)", async () => {

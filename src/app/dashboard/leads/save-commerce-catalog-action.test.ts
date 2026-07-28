@@ -122,10 +122,16 @@ const draftItems = [
   },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("saveCommerceCatalogAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
@@ -379,6 +385,10 @@ describe("saveCommerceCatalogAction", () => {
       error: "disk full",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "saveCommerceCatalogAction",
+    });
   });
 
   it("loads orders via listOrdersByLeadSlug (no commerceAddon does not pass)", async () => {

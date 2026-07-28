@@ -126,8 +126,14 @@ const coldLead = {
   dataSource: "manual_entry" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("disposeColdLeadAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -154,6 +160,20 @@ describe("disposeColdLeadAction", () => {
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(applyColdLeadDisposition).not.toHaveBeenCalled();
+  });
+
+  it("surfaces unexpected Error messages from the lead lookup and reports it via captureError", async () => {
+    getLeadBySlug.mockRejectedValue(new Error("db offline"));
+    const { disposeColdLeadAction } = await import("./actions");
+    const res = await disposeColdLeadAction("cold-bakery", "close");
+    expect(res).toEqual({
+      success: false,
+      error: "db offline",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "disposeColdLeadAction",
+    });
   });
 
   it("rate-limits repeated dispositions from the same IP (auth alone is not a throttle)", async () => {

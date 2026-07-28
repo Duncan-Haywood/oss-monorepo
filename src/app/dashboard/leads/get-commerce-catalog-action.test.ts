@@ -83,8 +83,14 @@ const sampleCatalog = {
   ],
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("getCommerceCatalogAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -154,6 +160,10 @@ describe("getCommerceCatalogAction", () => {
     expect(res).toEqual({
       success: false,
       error: "convex timeout",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "getCommerceCatalogAction",
     });
   });
 

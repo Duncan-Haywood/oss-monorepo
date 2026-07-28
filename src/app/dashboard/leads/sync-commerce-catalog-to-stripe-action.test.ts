@@ -163,10 +163,16 @@ const updatedCatalog = {
   updatedAt: "2026-07-13T12:05:00.000Z",
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("syncCommerceCatalogToStripeAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce_sync";
@@ -361,6 +367,10 @@ describe("syncCommerceCatalogToStripeAction", () => {
       error: "disk full",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "syncCommerceCatalogToStripeAction",
+    });
   });
 
   it("surfaces Stripe sync throws as Unknown Stripe error for non-Error", async () => {

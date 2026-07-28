@@ -134,10 +134,16 @@ const orphanCandidates = [
   },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("archiveOrphanCommerceStripeProductsAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce_archive";
@@ -342,6 +348,10 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       error: "rate limited",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "archiveOrphanCommerceStripeProductsAction",
+    });
   });
 
   it("surfaces Stripe archive throws as Unknown Stripe error for non-Error", async () => {

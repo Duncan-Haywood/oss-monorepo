@@ -79,10 +79,16 @@ function headerStore(entries: Record<string, string | null> = {}) {
   };
 }
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("openBillingPortalAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     createBillingPortalForLead.mockReset();
@@ -303,6 +309,10 @@ describe("openBillingPortalAction", () => {
     expect(result).toEqual({
       success: false,
       error: "Stripe timeout",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "openBillingPortalAction",
     });
   });
 

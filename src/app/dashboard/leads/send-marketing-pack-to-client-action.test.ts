@@ -152,11 +152,17 @@ function currentYearMonth(): string {
   return `${y}-${m}`;
 }
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendMarketingPackToClientAction", () => {
   const originalEnv = { ...process.env };
   const yearMonth = currentYearMonth();
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.NEXT_PUBLIC_APP_URL;
@@ -415,6 +421,10 @@ describe("sendMarketingPackToClientAction", () => {
     const res = await sendMarketingPackToClientAction("demo-cafe");
     expect(res).toEqual({ success: false, error: "unexpected bug" });
     expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendMarketingPackToClientAction",
+    });
   });
 
   it("releases the reservation and reports the send failure when the email fails after a successful reservation", async () => {

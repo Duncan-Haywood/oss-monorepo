@@ -111,8 +111,14 @@ const baseInquiry = {
   createdAt: "2026-07-10T12:00:00.000Z",
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("updateInquiryStatusAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
@@ -287,6 +293,10 @@ describe("updateInquiryStatusAction", () => {
       error: "db offline",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "updateInquiryStatusAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {
