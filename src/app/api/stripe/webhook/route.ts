@@ -616,6 +616,23 @@ export async function POST(request: Request) {
               `Failed to record commerce order ledger for ${orderSlug}`,
               ledgerError,
             );
+            // This catch returns a response (a 5xx so Stripe retries) rather
+            // than re-throwing, so it never reaches the outer try/catch's own
+            // captureError call — that one only fires for a genuinely
+            // unhandled exception escaping every inner catch like this one.
+            // Wired directly here as the Commerce-side sibling of the bundle
+            // payment ledger write (bundle_payment_or_handoff, above): a
+            // failure here means a paying Buy now customer's order isn't
+            // recorded and no operator inquiry/client receipt follows. See
+            // commerce-order-ledger-write-capture-error in /docs/architecture
+            // for why this is wired individually rather than sweeping all the
+            // other webhookFulfillmentFailureResponse catch sites in this file.
+            await captureError(ledgerError, {
+              component: "stripe-webhook",
+              eventType: event.type,
+              eventId: event.id,
+              failureKind: "commerce_order_ledger",
+            });
             const failure = webhookFulfillmentFailureResponse("commerce_order_ledger");
             return NextResponse.json(failure.body, { status: failure.status });
           }

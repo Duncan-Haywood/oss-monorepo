@@ -449,6 +449,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "commerce-order-ledger-write-capture-error",
+    summary:
+      "Closed the Commerce-side sibling of stripe-webhook-payment-write-capture-error. The webhook's catch around insertCommerceOrder (the Buy now order ledger write — distinct from bundle payments per the commerceOrders/orders money-separation invariant) shares the exact same shape: it returns its own commerce_order_ledger 5xx instead of re-throwing, so it never reached the outer catch's captureError either, even after that first wiring landed. A failure here means a paying Buy now customer's order isn't recorded and no operator inquiry/client receipt follows — the same severity tier as bundle_payment_or_handoff, on the other primary payment-recording write in this file. Wired captureError directly into just this one site (failureKind: \"commerce_order_ledger\"), for the same single-site, deliberately-not-a-sweep reasoning as its bundle sibling. The remaining ~38 webhookFulfillmentFailureResponse(...) sites (and the 84-site db.ts candidate) stay out of scope. See commerce-order-ledger-write-capture-error in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/nice-euler-efgr18",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -873,6 +881,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "stripe-webhook-payment-write-capture-error",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-efgr18",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 6094479 (PR #902, stripe-webhook-payment-write-capture-error, merged prior session) — HEAD matched origin/main exactly once the local remote-tracking refs were refreshed (a stale local `main`/fetch-partial-failure pattern prior sessions logged; a combined `git fetch origin main claude/nice-euler-efgr18` aborted entirely because the branch ref didn't exist remotely, silently leaving `origin/main` stale until fetched alone). Confirmed baseline green: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3596 passed, 211 files). A git fetch --prune sweep of the ~15 most-recently-pushed branches found every one already merged into origin/main; mcp__github__list_pull_requests reconfirmed the sole open PR remains #202 (unrelated, weeks-stale human draft) — no live sibling claim.",
+    shipped: [
+      "Dispatched a research agent covering AGENT_PROTOCOL's empty-backlog priority order, explicitly briefed on everything closed across the prior several sessions and both previously-deferred observability candidates (db.ts's 84-site SQLite-fallback sweep; this webhook file's other ~39 unwired webhookFulfillmentFailureResponse(...) sites). It found stripe-webhook-payment-write-capture-error's own reasoning had a direct, structurally identical sibling it didn't cover: the catch around insertCommerceOrder (the Commerce Buy now order-ledger write, ~route.ts:594-621) returns its own commerce_order_ledger 5xx from inside the catch instead of re-throwing — the same shape that put bundle_payment_or_handoff out of the outer catch's reach. Confirmed via the existing test that no captureError assertion existed there. Independently re-verified by reading the live catch block before implementing anything.",
+      "src/app/api/stripe/webhook/route.ts — wired captureError directly into that one catch (failureKind: \"commerce_order_ledger\", alongside the usual component/eventType/eventId), mirroring the bundle-payment precedent exactly rather than sweeping the file's other sites.",
+      "src/app/api/stripe/webhook/route.test.ts — extended the existing 'returns 500 (commerce_order_ledger)...' test (rather than duplicating a parallel test) with a captureError assertion matching the bundle test's shape. Verified the test actually catches the regression: git stash'd route.ts's source change alone and confirmed the extended assertion failed (0 calls) before restoring.",
+      "src/app/docs/architecture/page.tsx — new paragraph after the stripe-webhook-payment-write-capture-error writeup naming this as its Commerce-side sibling and reconfirming the remaining ~38 sites (and the 84-site db.ts candidate) stay out of scope. src/lib/process/business-decisions.ts — appended commerce-order-ledger-write-capture-error. src/lib/process/prompt_process.tsx — a new NEXT_STEPS done entry plus this ITERATIONS entry. No other NEXT_STEPS change — the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 6094479 (this session's own starting tip, post-PR-#902).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx 245,726 bytes, business-decisions.ts 231,463 bytes at session start (both via wc -c) — both comfortably under the 262,144-byte trigger, no re-archive needed this round, though prompt_process.tsx is close enough (under 7% headroom) that the next session should re-check rather than assume the same.",
+      "Verified: npm ci (413 packages, matching the documented baseline) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (route.test.ts, 229/229 passed) then full suite (3596 passed, 211 files, unchanged count — an existing test was extended, not duplicated) + a full clean rebuild (rm -rf .next && npm run build, clean, same 65-route split, no new warnings) + npm run dev smoke check curling /, /dashboard/leads, /docs/architecture (grep-confirmed the new paragraph renders), and /docs/process (grep-confirmed the new ITERATIONS/BUSINESS_DECISIONS entry renders) — all 200. Killed the dev server, removed the stray gitignored local.db/local.db-shm/local.db-wal it created, and confirmed git status showed only the intended five files changed before this commit.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "commerce-order-ledger-write-capture-error",
     ),
   },
 ];
