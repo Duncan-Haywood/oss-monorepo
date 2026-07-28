@@ -937,4 +937,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "dashboard-leads-actions-outer-catch-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #974 merged. Had independently built a scoped 4-site fix for the same outer-catch gap in the four Stripe Connect onboarding actions that dashboard-leads-actions-outer-catch-capture-error (the entry above) closed as part of its 39-site sweep — a fetch immediately before committing showed the sibling's much larger PR #975 had already merged the identical four sites moments earlier.",
+    shipped: [
+      "Compared the two before discarding, per the dual-build-collision-review precedent. The merged 39-site sweep is the better outcome: a single consistent component (dashboard-leads-actions) with failureKind set to each action's own name reads naturally across the whole file, whereas the unmerged duplicate would have introduced a second component (stripe-connect-actions) for just 4 of the file's 39 structurally identical outer catches — an inconsistency, not a deliberate design choice, since nothing about the Connect actions' outer-catch shape differs from the other 35.",
+      "No diagnostic information was lost either way (both capture the same real error object with leadSlug), unlike the checkout-completed-capture-error-per-origin-fix case where the merged version's synthesized-Error-at-a-shared-check pattern genuinely discarded a real thrown error's message/stack — so there was no narrow technical edge to justify a follow-up on top of the merged fix this time. Discarded the unmerged duplicate in full (never pushed; reverted via git checkout before merging origin/main, so no conflict resolution needed).",
+      "Noted for future sweeps: checkStripeConnectAccountStatusAction now has two different captureError components for its two failure paths (stripe-connect-status for the pre-existing inner cache-write catch, dashboard-leads-actions for the newly-merged outer catch) — an accepted, minor discoverability cost of the outer sweep's uniform naming, not a defect.",
+      "No source files changed by this entry — actions.ts and stripe-connect-actions.test.ts are exactly PR #975's merged state. src/lib/process/business-decisions.ts (appended stripe-connect-actions-outer-catch-scoped-duplicate-discarded); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Verified: since no source diff exists relative to the already-merged, already-verified PR #975, re-ran only the doc-touching checks: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run src/lib/process (10 passed).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-connect-actions-outer-catch-scoped-duplicate-discarded",
+    ),
+  },
 ];
