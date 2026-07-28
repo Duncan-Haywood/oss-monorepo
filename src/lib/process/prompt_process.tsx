@@ -788,5 +788,21 @@ export const ITERATIONS: ProcessIteration[] = [
         d.id === "growth-upsell-audit-and-eslint-devdep-advisory-noted",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-221zy9",
+    summary:
+      "Scheduled routine, fast-forward-merged origin/main (which had advanced to PR #925, process-log-archive-26-iterations-split, since this branch's own last push) before starting. mcp__github__list_pull_requests found only the one pre-existing stale, unrelated human draft PR (#202) open — no live claude/* sibling to fold or avoid colliding with.",
+    shipped: [
+      "With NEXT_STEPS still fully gated and this run's own framing explicitly prioritizing business growth, dispatched a research agent told to find the single highest-leverage change for a more profitable, growing business — not another micro-hardening pass. It found a real, previously-unaudited asymmetry, independently re-verified by reading the full handler and every sibling notice implementation before writing anything: src/app/api/stripe/webhook/route.ts's customer.subscription.deleted handler — the actual end of a subscriber's MRR — synced CRM state and cleared a stale billing-notice marker, but sent the customer nothing at all. Every OTHER billing-lifecycle transition (dunning, payment-recovered, pause, resume) already has a customer-facing notice; cancellation, the highest-stakes one, had none.",
+      "Shipped sendSubscriptionCanceledNotice (src/lib/email/resend.ts) as a fifth BillingNoticeType, wired into the customer.subscription.deleted handler AFTER the existing stale-marker-clear block (not before it — placing it before would let that block's unconditional clear immediately wipe out a fresh subscription_canceled failure marker from the very notice it's guarding). Reuses orderEligibleForPauseNotice for recipient selection, the same predicate already serving the pause/dunning notices for the identical reason. The email names what lapses straight from BUNDLES/COMMERCE_ADDON (never hardcoded copy) and correctly handles the Starter+Commerce-add-on-only recurring edge case (no bundle tier claim, no ?tier on the resubscribe link).",
+      "src/lib/orders/types.ts, convex/schema.ts, convex/orders.ts, src/lib/digest/daily-digest.ts, src/lib/orders/recurring.ts — supporting type/validator/doc-comment updates for the fifth notice type. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/email/resend.test.ts + src/app/api/stripe/webhook/route.test.ts — new coverage mirroring every sibling notice's test pattern, plus a dedicated ordering-guard test proving a failed win-back send's fresh failure marker survives the stale-marker-clear block. src/lib/process/business-decisions.ts — appended subscription-canceled-win-back-notice. src/lib/process/prompt_process.tsx — this entry. Not a NEXT_STEPS item — no NEXT_STEPS change; the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked.",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx and business-decisions.ts both measured via wc -c before this entry — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3741 passed, 217 files, +15 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same 61-route split, no new warnings). No dev-server smoke check needed — server-only Stripe-webhook/email orchestration change with no new UI surface, requiring a live STRIPE_SECRET_KEY/RESEND_API_KEY and a real canceled Subscription to exercise beyond the automated coverage in this sandboxed environment.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "subscription-canceled-win-back-notice",
+    ),
+  },
 ];
 

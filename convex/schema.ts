@@ -152,12 +152,13 @@ export default defineSchema({
     lastRenewalInvoiceId: v.optional(v.string()),
     /**
      * Unix ms of the most recent best-effort billing-notice send (dunning /
-     * payment-recovered / subscription-paused / subscription-resumed) that
-     * resolved success:false. Cleared the next time any of the four sends
-     * for this order succeeds. See billing-notice-send-failure-visibility.
+     * payment-recovered / subscription-paused / subscription-resumed /
+     * subscription-canceled) that resolved success:false. Cleared the next
+     * time any of the five sends for this order succeeds. See
+     * billing-notice-send-failure-visibility.
      */
     lastBillingNoticeSendFailedAt: v.optional(v.number()),
-    /** Which of the four notice types most recently failed. */
+    /** Which of the five notice types most recently failed. */
     lastBillingNoticeSendFailedType: v.optional(v.string()),
     /**
      * Which marketing surface (homepage vs. a /websites-for-* category

@@ -375,6 +375,19 @@ describe("resend.ts — brand.* HTML escaping", () => {
     expect(sentHtml).not.toContain("<Truck>");
   });
 
+  it("escapes businessName in sendSubscriptionCanceledNotice", async () => {
+    const { sendSubscriptionCanceledNotice } = await import("./resend");
+    await sendSubscriptionCanceledNotice({
+      to: "owner@example.com",
+      businessName: UNSAFE_NAME,
+      slug: "demo-cafe",
+      tier: "growth",
+      commerceAddon: false,
+    });
+    expect(sentHtml).toContain(ESCAPED_NAME);
+    expect(sentHtml).not.toContain("<Truck>");
+  });
+
   it("escapes brand.name in sendReceiptEmail signature", async () => {
     const { sendReceiptEmail } = await import("./resend");
     await sendReceiptEmail("owner@example.com", "Demo Cafe", "starter", 500);
@@ -628,6 +641,19 @@ describe("resend.ts — href URL HTML escaping", () => {
     expect(sentHtml).toMatch(/href="[^"]*\/checkout\/success\?session_id=cs_test_resumed"/);
   });
 
+  it("escapes resubscribe href in sendSubscriptionCanceledNotice", async () => {
+    const { sendSubscriptionCanceledNotice } = await import("./resend");
+    await sendSubscriptionCanceledNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      tier: "growth",
+      commerceAddon: false,
+    });
+    expectHrefSafe();
+    expect(sentHtml).toMatch(/href="[^"]*\/checkout\?slug=demo-cafe&amp;tier=growth"/);
+  });
+
   it("escapes the onboarding link href in sendStripeConnectOnboardingLinkEmail", async () => {
     const { sendStripeConnectOnboardingLinkEmail } = await import("./resend");
     await sendStripeConnectOnboardingLinkEmail({
@@ -752,6 +778,19 @@ describe("resend.ts — transactional skipSuppression", () => {
       businessName: "Demo Cafe",
       slug: "demo-cafe",
       stripeSessionId: "cs_test_resumed",
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sendSubscriptionCanceledNotice still delivers when marketing-suppressed", async () => {
+    const { sendSubscriptionCanceledNotice } = await import("./resend");
+    const result = await sendSubscriptionCanceledNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      tier: "growth",
+      commerceAddon: false,
     });
     expect(result.success).toBe(true);
     expect(fetchMock).toHaveBeenCalled();
@@ -1024,6 +1063,91 @@ describe("resend.ts — sendGrowthUpsellEmail checkout URL single source of trut
       "&amp;",
     );
     expect(sentHtml).toContain(`href="${expectedHref}"`);
+  });
+});
+
+describe("resend.ts — sendSubscriptionCanceledNotice lost-features content (subscription-canceled-win-back-notice)", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+  const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+  let sentHtml: string;
+
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    sentHtml = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const body = JSON.parse(String(init.body));
+        sentHtml = body.html;
+        return {
+          ok: true,
+          json: async () => ({ id: "email_test" }),
+        } as Response;
+      }),
+    );
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    process.env.RESEND_API_KEY = originalKey;
+    if (originalAppUrl === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = originalAppUrl;
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("names Growth's own features (minus the 'Everything in' inherited bullet) and links to a growth resubscribe", async () => {
+    const { sendSubscriptionCanceledNotice } = await import("./resend");
+    await sendSubscriptionCanceledNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      tier: "growth",
+      commerceAddon: false,
+    });
+    expect(sentHtml).toContain("Ready-to-post packs for Google, Facebook, Instagram");
+    expect(sentHtml).not.toContain("Everything in Starter");
+    expect(sentHtml).toContain("/checkout?slug=demo-cafe&amp;tier=growth");
+  });
+
+  it("also names the Commerce add-on when commerceAddon is true", async () => {
+    const { sendSubscriptionCanceledNotice } = await import("./resend");
+    await sendSubscriptionCanceledNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      tier: "complete",
+      commerceAddon: true,
+    });
+    expect(sentHtml).toContain("Commerce add-on");
+  });
+
+  it("names only the Commerce add-on (never bundle features) for a Starter+addon-only cancellation, and omits ?tier from the resubscribe link", async () => {
+    const { sendSubscriptionCanceledNotice } = await import("./resend");
+    await sendSubscriptionCanceledNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      tier: "starter",
+      commerceAddon: true,
+    });
+    expect(sentHtml).toContain("Commerce add-on");
+    expect(sentHtml).not.toContain("Professional landing page");
+    expect(sentHtml).toContain("/checkout?slug=demo-cafe\"");
+    expect(sentHtml).not.toContain("tier=starter");
+  });
+
+  it("omits the lost-features paragraph entirely for a bare Starter cancellation with no addon (should not occur in practice, but must not crash or mislabel)", async () => {
+    const { sendSubscriptionCanceledNotice } = await import("./resend");
+    await sendSubscriptionCanceledNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      tier: "starter",
+      commerceAddon: false,
+    });
+    expect(sentHtml).not.toContain("Your subscription included");
   });
 });
 
