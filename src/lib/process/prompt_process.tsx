@@ -998,5 +998,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "operator-digest-cron-secret-env-banner",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 071b45f7 (PR #938, operator-digest-cron-secret-env-banner, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). Sibling PR #937 (cron-secret-persist-constant-unit-coverage, test-only) merged mid-iteration — fast-forwarded cleanly, no code overlap. No other live sibling beyond the unrelated stale #202.",
+    shipped: [
+      "Given the extremely high concurrent-sibling velocity this hour, dispatched a research agent told to run a git log freshness check first (to avoid re-auditing work a sibling had just finished) before sweeping five genuinely fresh angles: Commerce/Stripe Connect onboarding end to end, security headers/CSP, SEO correctness, the three new cron routes' actual business logic (not just auth), and custom-domain Host-header routing security.",
+      "All five came back clean. One process-discipline highlight: the agent's SEO sweep initially surfaced what looked like a fresh finding (/dashboard/login inherits the homepage's wrong canonical/OG tags) — but cross-referencing the live business-decisions.ts archive found this exact finding already logged and deliberately deferred as low-severity (robots.ts already disallows /dashboard wholesale) in business-decisions-archive-05.ts. Catching this near-miss by checking the process log rather than trusting its own judgment alone is exactly the discipline AGENT_PROTOCOL asks for.",
+      "Everything else checked out clean: Commerce/Connect stack already idempotency-keyed with correct accessibility wiring; CSP's two-tier nonce/static design is deliberate and documented; the three new cron routes' business logic all follow the already-proven persist-then-notify CAS pattern with no new race; custom-domain routing already has documented fixes for every edge case constructed. The agent honestly flagged lower confidence on areas it lacked budget to read line-by-line rather than overstating full-repo closure. No code shipped this iteration.",
+      "src/lib/process/business-decisions.ts — appended empty-backlog-post-cron-banner-clean-sweep. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 0a9e5c65 (origin/main tip after sibling PR #937 merged mid-iteration).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3868 passed, 229 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — this iteration touched only the process log.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "empty-backlog-post-cron-banner-clean-sweep",
+    ),
+  },
 ];
 
