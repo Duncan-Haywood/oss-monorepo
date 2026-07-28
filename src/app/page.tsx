@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Testimonials } from "@/components/marketing/testimonials";
 import { brand } from "@/lib/brand";
 import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
 import { COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
@@ -129,6 +130,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <Testimonials />
 
       <section id="pricing" className="mx-auto max-w-6xl px-6 py-20">
         <div className="max-w-2xl">
