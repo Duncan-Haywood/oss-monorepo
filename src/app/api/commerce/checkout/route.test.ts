@@ -37,6 +37,11 @@ vi.mock("@/lib/db", () => ({
     recordCheckoutSessionCreated(...args),
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 const eligibleLead = {
   slug: "demo-cafe",
   businessName: "Demo Cafe",
@@ -92,6 +97,7 @@ describe("POST /api/commerce/checkout", () => {
     getLeadBySlug.mockReset();
     listOrdersByLeadSlug.mockReset();
     recordCheckoutSessionCreated.mockReset();
+    captureError.mockReset().mockResolvedValue(undefined);
     // Each `it` below issues its own POST(s) from the same synthetic (no
     // x-forwarded-for) client — reset the limiter so route-level tests don't
     // interfere with each other regardless of run order.
@@ -408,11 +414,10 @@ describe("POST /api/commerce/checkout", () => {
     expect(recordCheckoutSessionCreated).not.toHaveBeenCalled();
   });
 
-  it("returns 502 and does not hand out a URL when Convex-primary tracking fails", async () => {
+  it("returns 502 and does not hand out a URL when Convex-primary tracking fails, and reports it via captureError (checkout_session_record)", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
-    recordCheckoutSessionCreated.mockRejectedValue(
-      new ConvexPrimaryWriteError("recordCheckoutSessionCreated", new Error("convex down")),
-    );
+    const convexError = new ConvexPrimaryWriteError("recordCheckoutSessionCreated", new Error("convex down"));
+    recordCheckoutSessionCreated.mockRejectedValue(convexError);
     const { POST } = await import("./route");
     const res = await POST(
       commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }),
@@ -421,11 +426,16 @@ describe("POST /api/commerce/checkout", () => {
     const body = await res.json();
     expect(body.error).toBe("Checkout tracking unavailable");
     expect(body).not.toHaveProperty("url");
+    expect(captureError).toHaveBeenCalledWith(convexError, {
+      component: "commerce-checkout",
+      failureKind: "checkout_session_record",
+    });
   });
 
-  it("returns 502 when non-Convex tracking fails (still fail-closed)", async () => {
+  it("returns 502 when non-Convex tracking fails (still fail-closed), and reports it via captureError", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
-    recordCheckoutSessionCreated.mockRejectedValue(new Error("disk full"));
+    const trackingError = new Error("disk full");
+    recordCheckoutSessionCreated.mockRejectedValue(trackingError);
     const { POST } = await import("./route");
     const res = await POST(
       commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }),
@@ -434,6 +444,17 @@ describe("POST /api/commerce/checkout", () => {
     expect(await res.json()).toMatchObject({
       error: "Checkout tracking unavailable",
     });
+    expect(captureError).toHaveBeenCalledWith(trackingError, {
+      component: "commerce-checkout",
+      failureKind: "checkout_session_record",
+    });
+  });
+
+  it("does not call captureError when commerce checkout session creation succeeds", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    const { POST } = await import("./route");
+    await POST(commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }));
+    expect(captureError).not.toHaveBeenCalled();
   });
 
   it("returns 502 when Stripe session creation throws", async () => {

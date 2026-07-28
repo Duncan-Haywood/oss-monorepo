@@ -31,6 +31,11 @@ vi.mock("@/lib/db", () => ({
     recordCheckoutSessionCreated(...args),
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 function checkoutRequest(body: unknown) {
   return new Request("http://localhost/api/stripe/checkout", {
     method: "POST",
@@ -57,6 +62,7 @@ describe("POST /api/stripe/checkout", () => {
   beforeEach(() => {
     sessionsCreate.mockReset();
     recordCheckoutSessionCreated.mockReset().mockResolvedValue(undefined);
+    captureError.mockReset().mockResolvedValue(undefined);
     // Each `it` below issues its own POST(s) from the same synthetic (no
     // x-forwarded-for) client — reset the limiter so route-level tests don't
     // interfere with each other regardless of run order.
@@ -496,34 +502,53 @@ describe("POST /api/stripe/checkout", () => {
     expect(body.message).toBe("card_declined_sim");
   });
 
-  it("returns 502 (fail-closed) when checkout tracking hits ConvexPrimaryWriteError", async () => {
+  it("returns 502 (fail-closed) when checkout tracking hits ConvexPrimaryWriteError, and reports it via captureError (checkout_session_record)", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({
       id: "cs_test_convex",
       url: "https://checkout.stripe.com/convex",
     });
-    recordCheckoutSessionCreated.mockRejectedValue(
-      new ConvexPrimaryWriteError("checkout_session_create", new Error("convex down")),
-    );
+    const convexError = new ConvexPrimaryWriteError("checkout_session_create", new Error("convex down"));
+    recordCheckoutSessionCreated.mockRejectedValue(convexError);
     const { POST } = await import("./route");
     const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
     expect(res.status).toBe(502);
     const body = await res.json();
     expect(body.error).toBe("Checkout tracking unavailable");
     // Must not leak the Stripe URL after a failed durable track
+    expect(captureError).toHaveBeenCalledWith(convexError, {
+      component: "stripe-checkout",
+      failureKind: "checkout_session_record",
+    });
   });
 
-  it("returns 502 when checkout tracking fails for a non-Convex reason", async () => {
+  it("returns 502 when checkout tracking fails for a non-Convex reason, and reports it via captureError", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({
       id: "cs_test_track",
       url: "https://checkout.stripe.com/track",
     });
-    recordCheckoutSessionCreated.mockRejectedValue(new Error("sqlite busy"));
+    const trackingError = new Error("sqlite busy");
+    recordCheckoutSessionCreated.mockRejectedValue(trackingError);
     const { POST } = await import("./route");
     const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
     expect(res.status).toBe(502);
     expect(await res.json()).toMatchObject({ error: "Checkout tracking unavailable" });
+    expect(captureError).toHaveBeenCalledWith(trackingError, {
+      component: "stripe-checkout",
+      failureKind: "checkout_session_record",
+    });
+  });
+
+  it("does not call captureError when checkout session creation succeeds", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_clean",
+      url: "https://checkout.stripe.com/clean",
+    });
+    const { POST } = await import("./route");
+    await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
+    expect(captureError).not.toHaveBeenCalled();
   });
 
   it("never trusts a spoofed request origin for success_url / cancel_url when APP_URL is unset", async () => {

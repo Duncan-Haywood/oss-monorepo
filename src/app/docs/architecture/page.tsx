@@ -4542,6 +4542,20 @@ source). The same digest also lists email-critical leads with no usable address 
         continuing that scoping, not a reversal of it. All other <code>db.ts</code> read functions
         with the same live-fallback shape remain out of scope for this iteration.
       </p>
+      <p>
+        <code>checkout-session-record-capture-error-wiring</code>: closed the same observability gap
+        one hop earlier in the money funnel — <code>recordCheckoutSessionCreated</code>&apos;s catch
+        in both <code>src/app/api/stripe/checkout/route.ts</code> and{" "}
+        <code>src/app/api/commerce/checkout/route.ts</code> already fails closed with a 502
+        (<code>CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY</code> sets <code>requireConvex: true</code>),
+        but neither wired <code>captureError</code> before this — a customer with an already-valid
+        Stripe checkout URL being told to retry, with zero first-class signal beyond a raw{" "}
+        <code>console.warn</code>. Wired <code>captureError</code> into both catches (
+        <code>component: &quot;stripe-checkout&quot;</code> /{" "}
+        <code>&quot;commerce-checkout&quot;</code>, <code>failureKind: &quot;checkout_session_record&quot;</code>),
+        mirroring the webhook route&apos;s <code>bundle_payment_or_handoff</code> /{" "}
+        <code>commerce_order_ledger</code> precedent exactly.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

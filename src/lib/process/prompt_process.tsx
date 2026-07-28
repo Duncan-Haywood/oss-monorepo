@@ -473,6 +473,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "checkout-session-record-capture-error-wiring",
+    summary:
+      "Wired captureError into the recordCheckoutSessionCreated catch in both src/app/api/stripe/checkout/route.ts and src/app/api/commerce/checkout/route.ts (component: stripe-checkout / commerce-checkout, failureKind: checkout_session_record) — the same fail-closed 502 site the webhook fixes' pattern hadn't yet reached, one hop earlier in the funnel (a valid Stripe URL already minted, but the recovery-tracking write failing silently). See checkout-session-record-capture-error-wiring in BUSINESS_DECISIONS for full detail, including the concurrent sibling PR (#907) this iteration deliberately avoided colliding with.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -961,6 +969,19 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "db-read-path-capture-error-sweep-getLeadBySlug-listOrders",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip a8147dd4 (PR #906, merged this session). Baseline green (tsc/lint). A live sibling PR (#907, from the same base commit) was found in flight, shipping a homepage testimonials scaffold plus its own prompt_process.tsx re-archive — no file overlap with this iteration's target (the two checkout routes), so proceeded independently rather than blocking. Full detail is in checkout-session-record-capture-error-wiring in BUSINESS_DECISIONS; kept this entry compact deliberately, since this file is already past the 262,144-byte re-archive trigger (PR #907 carries its own split, not duplicated here).",
+    shipped: [
+      "src/app/api/stripe/checkout/route.ts + src/app/api/commerce/checkout/route.ts — wired captureError into each route's existing recordCheckoutSessionCreated catch (components stripe-checkout / commerce-checkout, failureKind: checkout_session_record), unconditionally (both a ConvexPrimaryWriteError and any other failure), mirroring the webhook route's own unconditional-capture convention. Both route.test.ts files extended with captureError assertions plus a no-call-on-success test each; verified via the git-stash regression-catching technique (all four new/extended assertions failed pre-fix). src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended checkout-session-record-capture-error-wiring. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to a8147dd4.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (both route.test.ts files, 50/50 passed) then full suite (3603 passed, 211 files — 2 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings).",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "checkout-session-record-capture-error-wiring",
     ),
   },
 ];

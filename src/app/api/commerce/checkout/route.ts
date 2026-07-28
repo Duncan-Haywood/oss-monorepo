@@ -16,6 +16,7 @@ import {
   recordCheckoutSessionCreated,
 } from "@/lib/db";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
+import { captureError } from "@/lib/observability/error-tracking";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
 import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
@@ -195,6 +196,7 @@ export async function POST(request: Request) {
       if (!(e instanceof ConvexPrimaryWriteError)) {
         console.warn(`Failed to record commerce checkout session ${session.id}`, e);
       }
+      await captureError(e, { component: "commerce-checkout", failureKind: "checkout_session_record" });
       return NextResponse.json(
         {
           error: "Checkout tracking unavailable",
