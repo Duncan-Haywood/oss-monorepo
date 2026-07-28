@@ -2101,6 +2101,25 @@ export default function ArchitectureDocPage() {
         same tier with no prior order), then cleaned up the seeded rows.
       </p>
       <p>
+        <code>webhook-setup-fee-skip-parity</code>: the setup-fee skip above shipped a real
+        create-path/webhook parity gap of its own — the Stripe webhook&apos;s fulfillment gates (
+        <code>sessionLineItemsMatchBundleCatalogPrices</code>, <code>expectedBundleCheckoutAmountCents</code>)
+        still unconditionally required the setup Price on line items and in the expected amount, so
+        every genuinely fee-skipped upgrade session failed both gates and the webhook silently
+        skipped <code>recordLeadPayment</code>, the handoff, and both buyer emails for a customer
+        who had actually paid — worse than the original double-charge bug, since the customer now
+        paid correctly but received nothing. Fixed by having the webhook independently re-derive the
+        same has-a-prior-order fact via <code>listOrdersByLeadSlug</code> (excluding this exact
+        session&apos;s own order row, so a redelivery of an already-recorded session is never
+        miscounted as a prior order).{" "}
+        <code>sessionLineItemsMatchBundleCatalogPrices</code> gained an{" "}
+        <code>options.requireSetupFee</code> (default <code>true</code>, backward compatible), and{" "}
+        <code>expectedBundleCheckoutAmountCents</code> gained a <code>chargedSetupFee</code>{" "}
+        parameter derived directly from whether the setup Price actually appears on the real line
+        items — never from the prior-order lookup — so a tampered/forged session that omits the fee
+        without a genuine prior order still fails exactly as before.
+      </p>
+      <p>
         <code>acquisition-source-checkout-attribution</code>: the homepage pricing grid and each
         of the three <code>/websites-for-*</code> SEO category landing pages funneled to the same{" "}
         <code>/checkout</code> page with no way to tell which surface actually converted — no

@@ -268,6 +268,47 @@ describe("sessionLineItemsMatchBundleCatalogPrices", () => {
       ),
     ).toBe(true);
   });
+
+  describe("requireSetupFee: false (tier-upgrade setup-fee skip)", () => {
+    it("still matches when the setup Price is absent but recurring is present", () => {
+      expect(
+        sessionLineItemsMatchBundleCatalogPrices(
+          ["price_growth_monthly"],
+          { setupId: "price_growth_setup", recurringId: "price_growth_monthly" },
+          { requireSetupFee: false },
+        ),
+      ).toBe(true);
+    });
+
+    it("still requires the recurring Price when the tier has one", () => {
+      expect(
+        sessionLineItemsMatchBundleCatalogPrices(
+          [],
+          { setupId: "price_growth_setup", recurringId: "price_growth_monthly" },
+          { requireSetupFee: false },
+        ),
+      ).toBe(false);
+    });
+
+    it("still matches when the setup Price is present anyway (charged despite being optional)", () => {
+      expect(
+        sessionLineItemsMatchBundleCatalogPrices(
+          ["price_growth_setup", "price_growth_monthly"],
+          { setupId: "price_growth_setup", recurringId: "price_growth_monthly" },
+          { requireSetupFee: false },
+        ),
+      ).toBe(true);
+    });
+
+    it("defaults requireSetupFee to true when options is omitted", () => {
+      expect(
+        sessionLineItemsMatchBundleCatalogPrices(["price_growth_monthly"], {
+          setupId: "price_growth_setup",
+          recurringId: "price_growth_monthly",
+        }),
+      ).toBe(false);
+    });
+  });
 });
 
 describe("catalogRecurringPriceIdsFromEnv", () => {

@@ -254,7 +254,17 @@ export type WebhookFulfillmentStep =
    * subscriber's renewal permanently uncounted in revenueTotalUsd. See
    * revenue-total-usd-renewal-gap.
    */
-  | "subscription_renewal_revenue";
+  | "subscription_renewal_revenue"
+  /**
+   * Listing a lead's existing bundle orders (listOrdersByLeadSlug) on a
+   * bundle checkout.session.completed, to independently re-derive whether
+   * this lead already had a prior order before this session — required so
+   * Stripe retries rather than risking a false verdict on whether omitting
+   * the one-time setup fee (checkout-setup-fee-skip-on-upgrade) was
+   * legitimate, which gates the catalog-Price/amount-parity checks right
+   * below it. See webhook-setup-fee-skip-parity.
+   */
+  | "bundle_existing_orders_lookup";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

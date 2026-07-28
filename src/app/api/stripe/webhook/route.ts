@@ -85,6 +85,7 @@ import {
   bundleCatalogPriceIdsFromEnv,
   commerceSkuLineItemQuantity,
   sessionLineItemsIncludeMetadataKey,
+  sessionLineItemsIncludePriceId,
   sessionLineItemsMatchBundleCatalogPrices,
 } from "@/lib/payments/checkout-price-line-items";
 import { commerceSkuStripeKey } from "@/lib/commerce/stripe-sync";
@@ -120,24 +121,32 @@ import {
  * Bundle checkout create already sanitizes+caps slug via
  * resolveBundleCheckoutLeadSlug / sanitizeLeadSlug (MAX_LEAD_SLUG_LENGTH),
  * rejects unknown tiers via getBundle, only sets metadata.commerceAddon when
- * both COMMERCE_ADDON Price IDs are on line_items, and charges only catalog
- * Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON) in USD; this
- * handler must mirror slug/tier gates, require BUNDLES setup (+ monthly) env
- * Price IDs on listLineItems, derive commerceAddon from listLineItems Price
- * IDs (never metadata), require session.currency === "usd"
+ * both COMMERCE_ADDON Price IDs are on line_items, skips the one-time setup
+ * fee entirely for a lead with a prior order (checkout-setup-fee-skip-on-
+ * upgrade), and charges only catalog Stripe Price IDs from BUNDLES (+
+ * optional COMMERCE_ADDON) in USD; this handler must mirror slug/tier gates,
+ * derive commerceAddon from listLineItems Price IDs (never metadata),
+ * independently re-derive whether the lead had a prior order via
+ * listOrdersByLeadSlug (excluding this session's own order, so a redelivery
+ * is not miscounted — webhook-setup-fee-skip-parity) to decide whether the
+ * setup Price is required on listLineItems (sessionLineItemsMatchBundle-
+ * CatalogPrices's requireSetupFee), require session.currency === "usd"
  * (isStripeCheckoutCurrencyUsd), AND require session.amount_total (integer
- * cents) === expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon)
- * minus session.total_details.amount_discount (Stripe's own server-computed
- * discount from a redeemed allow_promotion_codes promo, never a client-
- * supplied value) before recordLeadPayment / handoff / receipt — a truthy
- * metadata.slug / tier / commerceAddon alone is not enough (Dashboard-minted
- * or tampered Checkout Sessions), and a genuinely promo-discounted session
- * must still fulfill rather than being treated as tampered (bundle-webhook-
- * promotion-code-amount-parity). Over-long slug (parseLeadSlugLookup),
- * unknown tier, missing catalog Prices on line items, non-USD currency, or
+ * cents) === expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon,
+ * billingInterval, chargedSetupFee) — chargedSetupFee itself derived from
+ * whether the setup Price actually appears on listLineItems, never from the
+ * prior-order lookup directly — minus session.total_details.amount_discount
+ * (Stripe's own server-computed discount from a redeemed allow_promotion_codes
+ * promo, never a client-supplied value) before recordLeadPayment / handoff /
+ * receipt — a truthy metadata.slug / tier / commerceAddon alone is not enough
+ * (Dashboard-minted or tampered Checkout Sessions), and a genuinely promo-
+ * discounted session must still fulfill rather than being treated as
+ * tampered (bundle-webhook-promotion-code-amount-parity). Over-long slug
+ * (parseLeadSlugLookup), unknown tier, missing catalog Prices on line items,
+ * a setup-fee omission with no prior order on record, non-USD currency, or
  * amount mismatch skips like missing slug/tier (session already marked
- * complete; do not 5xx forever). listLineItems failures return 500 so Stripe
- * retries.
+ * complete; do not 5xx forever). listLineItems / prior-order lookup failures
+ * return 500 so Stripe retries.
  *
  * Commerce Buy now create already hard-rejects over-long slug via
  * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog,
@@ -904,12 +913,67 @@ export async function POST(request: Request) {
         }
 
         const catalogPrices = bundleCatalogPriceIdsFromEnv(bundle, billingInterval);
+        if (!catalogPrices) {
+          console.warn(
+            `webhook: bundle session ${session.id} for ${slug} tier ${knownTier} catalog Price IDs not configured — skipping payment/handoff/receipt`,
+          );
+          break;
+        }
+
+        // Mirror POST /api/stripe/checkout's setup-fee skip for a tier-upgrade
+        // checkout (checkout-setup-fee-skip-on-upgrade): that route omits the
+        // one-time setup Price entirely when the lead already has a prior
+        // order, so this gate must not blindly require it either, or every
+        // legitimately fee-skipped session fails catalog-Price/amount parity
+        // below and fulfillment is silently skipped for a customer who has
+        // genuinely paid (webhook-setup-fee-skip-parity). Re-derive the same
+        // "has a prior order" fact independently here (never trust metadata)
+        // via listOrdersByLeadSlug, excluding THIS session's own order row —
+        // a webhook redelivery may have already recorded it via
+        // recordLeadPayment's idempotency, and counting it would wrongly
+        // flip a brand-new customer's first-ever session into "had a prior
+        // order" on redelivery, breaking amount parity for a normal retry.
+        let hadPriorOrderBeforeThisSession = false;
+        try {
+          const { listOrdersByLeadSlug } = await import("@/lib/db");
+          const existingOrders = await listOrdersByLeadSlug(slug);
+          hadPriorOrderBeforeThisSession = existingOrders.some(
+            (order) => order.stripeSessionId !== session.id,
+          );
+        } catch (e) {
+          console.error(
+            `Failed to list existing orders for ${slug} while checking setup-fee-skip eligibility on session ${session.id}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse("bundle_existing_orders_lookup");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+
+        // Ground truth for whether the setup fee was actually charged is the
+        // Session's own line items, not the prior-order lookup above — that
+        // lookup only gates whether omitting the setup Price is ALLOWED, per
+        // sessionLineItemsMatchBundleCatalogPrices's requireSetupFee option.
+        const chargedSetupFee = sessionLineItemsIncludePriceId(
+          lineItemPriceIds,
+          catalogPrices.setupId,
+        );
         if (
-          !catalogPrices ||
-          !sessionLineItemsMatchBundleCatalogPrices(lineItemPriceIds, catalogPrices)
+          !sessionLineItemsMatchBundleCatalogPrices(lineItemPriceIds, catalogPrices, {
+            requireSetupFee: !hadPriorOrderBeforeThisSession,
+          })
         ) {
           console.warn(
             `webhook: bundle session ${session.id} for ${slug} tier ${knownTier} catalog Price IDs not on line items — skipping payment/handoff/receipt`,
+          );
+          break;
+        }
+        if (!chargedSetupFee && !hadPriorOrderBeforeThisSession) {
+          // Belt-and-suspenders: the check above already fails this case via
+          // requireSetupFee, but state it explicitly so a future refactor of
+          // that helper can't silently reopen a setup-fee-skip bypass for a
+          // lead with no prior order.
+          console.warn(
+            `webhook: bundle session ${session.id} for ${slug} tier ${knownTier} omitted the setup fee with no prior order on record — skipping payment/handoff/receipt`,
           );
           break;
         }
@@ -934,7 +998,12 @@ export async function POST(request: Request) {
         // exact equality to the undiscounted catalog price — a tampered/
         // mismatched amount with no corresponding Stripe-verified discount
         // still fails this check exactly as before.
-        const expectedCents = expectedBundleCheckoutAmountCents(bundle, commerceAddon, billingInterval);
+        const expectedCents = expectedBundleCheckoutAmountCents(
+          bundle,
+          commerceAddon,
+          billingInterval,
+          chargedSetupFee,
+        );
         const amountCents = session.amount_total;
         const discountCents = session.total_details?.amount_discount ?? 0;
         const expectedAfterDiscountCents = Math.max(0, expectedCents - discountCents);
