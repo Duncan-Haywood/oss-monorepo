@@ -1536,19 +1536,20 @@ export default function ArchitectureDocPage() {
       <p>
         That initial &ldquo;which half is missing&rdquo; check alone is not atomic, though — a
         concurrent invocation (a second open dashboard tab, or a double-click landing before the
-        button&apos;s pending-disabled state takes effect) can read the same stale
-        &ldquo;not yet sent&rdquo; snapshot, send its own real duplicate email, and persist its own
-        marker in the window between that read and the write (
-        <code>bundle-buyer-email-resend-race-guard</code>).{" "}
-        <code>resendBundleBuyerEmailAction</code> re-reads the handoff immediately before
-        persisting each marker and, if the fresh read already shows a marker this call itself just
-        sent, skips writing a duplicate note for that half and reports{" "}
-        <code>success: false</code> with an explicit &ldquo;may have sent a duplicate notification
-        email&rdquo; warning instead of a false success — the same message-accuracy discipline as{" "}
-        <code>commerce-order-paid-out-race-message-accuracy</code> above, applied to this sibling
-        resend action, whose own doc comment had claimed to mirror{" "}
-        <code>resendCommerceClientReceiptAction</code> but had only copied its sequential-retry
-        behavior, not its atomic race guard.
+        button&apos;s pending-disabled state takes effect) could read the same stale
+        &ldquo;not yet sent&rdquo; snapshot and send its own real duplicate email in the window
+        between that read and the write. <code>resendBundleBuyerEmailAction</code> now closes
+        this race before either send happens rather than merely detecting it afterward: it
+        reserves both wanted markers via <code>reserveBundleBuyerEmailNotes</code> (a Convex
+        mutation — plus a SQLite-fallback twin — that atomically re-checks each marker&apos;s
+        absence and appends only the still-absent one(s) in the same write) before sending
+        anything, sends only whichever half it actually reserved, and releases any reserved-but-
+        failed-to-send marker via <code>releaseBundleBuyerEmailNotes</code> so that half correctly
+        reappears in <code>isBundleHandoffMissingBuyerEmail</code>&apos;s due-queue for a retry.
+        See <code>bundle-buyer-email-resend-race-guard-ordering-fix</code> further down in this
+        document for the full mechanism — this replaced an earlier design that sent first and only detected a
+        lost race by re-reading afterward, which could report the race but not prevent the
+        duplicate email that had already gone out.
       </p>
       <p>
         If required fulfillment writes fail (
