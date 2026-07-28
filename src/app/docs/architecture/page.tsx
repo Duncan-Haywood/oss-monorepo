@@ -5643,6 +5643,23 @@ source). The same digest also lists email-critical leads with no usable address 
         closes) and used a different injection point (the lead lookup) to cover that action&apos;s
         actual outer catch instead.
       </p>
+      <p>
+        <code>stripe-connect-actions-outer-catch-scoped-duplicate-discarded</code>: a research
+        agent independently found the same outer-catch gap in just the four Stripe Connect
+        onboarding actions above and had a scoped 4-site fix (a separate{" "}
+        <code>component: &quot;stripe-connect-actions&quot;</code>) fully built and verified when a
+        routine pre-commit fetch showed{" "}
+        <code>dashboard-leads-actions-outer-catch-capture-error</code> (immediately above) had
+        already merged the same four sites as part of its 39-site sweep. Compared the two before
+        discarding: the merged sweep&apos;s single consistent component across all 39 actions reads
+        naturally file-wide, while the unmerged duplicate would have carved out a second component
+        for only 4 of 39 structurally identical sites — an inconsistency, not a deliberate design
+        choice, since nothing about the Connect actions&apos; failure shape differs from the other
+        35. Unlike <code>checkout-completed-capture-error-per-origin-fix</code>&apos;s comparison
+        (where the merged version genuinely discarded a real thrown error&apos;s message/stack),
+        no diagnostic information was lost either way here, so the duplicate was discarded in full
+        rather than shipped as a follow-up.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
