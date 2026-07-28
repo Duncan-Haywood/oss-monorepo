@@ -1,0 +1,108 @@
+---
+# All installed as agent_user via the user-writable npm prefix configured
+# in the nodejs role — never with sudo, to avoid root-owned files breaking
+# future `npm update -g`.
+#
+# Idempotent by design: only runs `npm install` for CLIs not already
+# present, so re-running this role doesn't hit the network or silently
+# bump versions every time. To upgrade a tool later, do it explicitly
+# (`npm install -g <package>@latest` as agent_user) rather than re-running
+# this role.
+
+- name: Build list of agent CLIs to install
+  ansible.builtin.set_fact:
+    agent_clis_wanted: "{{ agent_clis_wanted | default([]) + [item] }}"
+  loop:
+    - { bin: claude, package: "@anthropic-ai/claude-code", enabled: "{{ install_claude_code }}" }
+    - { bin: codex, package: "@openai/codex", enabled: "{{ install_codex_cli }}" }
+    - { bin: opencode, package: "opencode-ai", enabled: "{{ install_opencode }}" }
+  loop_control:
+    label: "{{ item.bin }}"
+  when: item.enabled | bool
+
+- name: Check which agent CLIs are already installed
+  ansible.builtin.command: "npm list -g --depth=0 {{ item.package }}"
+  become: true
+  become_user: "{{ agent_user }}"
+  environment:
+    PATH: "/home/{{ agent_user }}/.npm-global/bin:{{ ansible_env.PATH }}"
+  loop: "{{ agent_clis_wanted | default([]) }}"
+  loop_control:
+    label: "{{ item.bin }}"
+  register: cli_check
+  failed_when: false
+  changed_when: false
+
+- name: Install missing agent CLIs
+  ansible.builtin.command: "npm install -g {{ item.item.package }}@latest"
+  become: true
+  become_user: "{{ agent_user }}"
+  environment:
+    PATH: "/home/{{ agent_user }}/.npm-global/bin:{{ ansible_env.PATH }}"
+  loop: "{{ cli_check.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.bin }}"
+  when: item.rc != 0
+  changed_when: true
+
+- name: Check whether Antigravity CLI is already installed
+  ansible.builtin.command: agy --version
+  become: true
+  become_user: "{{ agent_user }}"
+  environment:
+    PATH: "/home/{{ agent_user }}/.npm-global/bin:{{ ansible_env.PATH }}"
+  register: agy_check
+  failed_when: false
+  changed_when: false
+  when: install_antigravity_cli | bool
+
+# Antigravity CLI (agy) — Google's replacement for Gemini CLI, which is
+# being sunset for free-tier/Google One users. Installed via curl script,
+# not npm — different distribution mechanism than the other three tools.
+# CONFIDENCE NOTE: unlike claude/codex/opencode above, Antigravity CLI's own
+# docs site doesn't fully document headless-mode CLI flags at the time of
+# writing (only interactive settings.json config for permissions/sandbox).
+# The install command and binary name (`agy`) are confirmed from official
+# docs; the exact headless invocation in
+# roles/agent_runner/files/runners/antigravity.sh is best-effort — verify
+# it against `agy --help` on the actual box before trusting it.
+- name: Install Antigravity CLI
+  ansible.builtin.shell: |
+    set -euo pipefail
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: "{{ agent_user }}"
+  when: install_antigravity_cli | bool and (agy_check.rc | default(1)) != 0
+  changed_when: true
+
+- name: Collect installed CLI versions
+  ansible.builtin.shell: |
+    set -euo pipefail
+    export PATH="/home/{{ agent_user }}/.npm-global/bin:$HOME/.local/bin:$PATH"
+    for bin in claude codex agy opencode; do
+      if command -v "$bin" >/dev/null 2>&1; then
+        printf '%-10s %s\n' "$bin" "$("$bin" --version 2>&1 | head -1)"
+      else
+        printf '%-10s not installed\n' "$bin"
+      fi
+    done
+  become: true
+  become_user: "{{ agent_user }}"
+  register: cli_versions
+  changed_when: false
+
+- name: Show installed CLI versions
+  ansible.builtin.debug:
+    msg: "{{ cli_versions.stdout_lines }}"
+
+- name: Grok Build reminder
+  ansible.builtin.debug:
+    msg: >-
+      Skipping Grok Build — xAI doesn't publish an unauthenticated install
+      script for it (as of writing it's beta, gated to SuperGrok/X Premium+
+      subscribers, and the install command is only revealed after signing in
+      at grok.com/build). Sign in there yourself and run whatever command it
+      gives you; there's nothing safe for this playbook to automate.
+  when: not install_grok_build
