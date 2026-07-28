@@ -54,3 +54,24 @@ Run both servers in separate terminals (or tmux panes) for the full stakeholder 
 ### Optional Docker
 
 `docker compose up docs` serves built docs on port 8080; `analytics-sync` is optional for long-running sync — not needed for routine dev or CI.
+
+## Learned User Preferences
+
+- Prioritize profitable-first, software-first, AI-first, hiring-last, and minimal founder intervention for scheduled or autonomous agent runs.
+- Hourly automation should ship one incremental, shippable step per run when possible; default to the smallest diff that passes CI.
+- Scheduled automations must read `.cursor/automations/retail-pilot-intel-orchestrator.md` from repo `main` — the dashboard bootstrap is only a pointer, not the full prompt.
+- Do not execute business-model pivots without explicit founder approval; log pivot signals and stop for review.
+- Do not invent pilot customers, revenue figures, or signed legal artifacts (e.g. DPIAs).
+- Treat GDPR/EU privacy as a go-live gate alongside profit metrics; prepare compliance artifacts but do not claim compliance without a signed pilot DPIA.
+- Product and stakeholder documentation belongs in TSX under `apps/docs`; TypeScript is the default for infra and CI scripts too.
+
+## Learned Workspace Facts
+
+- GitHub repo: `Duncan-Haywood/retail-pilot-intel` (private); default branch `main`.
+- Initial design partner wedge: ~10 m² leather boutique in Italy; on-device aggregation and no customer identity are core product constraints.
+- Product thesis: store-local door counts plus POS join → weekly € decisions for owners; pricing anchored to one incremental sale per month, not sensor count.
+- Current maturity: M0 done, M1 in progress; `packages/edge` and `packages/pos` are sample stubs; `apps/portal` uses illustrative `demoStore.ts`, not live SQLite.
+- Commercial viability verdict in docs: ~6.2/10 conditional pursue — strong GTM and docs collateral, weak live product proof.
+- Orchestrator state lives in `ORCHESTRATOR.md`, `docs/PRODUCT.md`, `docs/BACKLOG.md`, `docs/IDEAS.md`, and `docs/PROGRESS.md`.
+- ROI-ranked delivery order: door plus POS join (ranks 1–3) before desirability gap, before window or outdoor CV (rank 8).
+- Commercial viability reports are TSX pages under `/commercial-viability/*` in the docs app.
