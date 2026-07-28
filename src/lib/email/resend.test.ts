@@ -797,6 +797,84 @@ describe("resend.ts — transactional skipSuppression", () => {
   });
 });
 
+describe("resend.ts — Resend delivery failures report via the observability scaffold", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    process.env.RESEND_API_KEY = originalKey;
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("sendEmail calls captureError with component resend-email and the leadSlug on a non-2xx Resend response", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: false, status: 500, text: async () => "Resend down" }) as Response),
+    );
+    const captureErrorMock = vi.fn(async () => {});
+    vi.doMock("../observability/error-tracking", () => ({ captureError: captureErrorMock }));
+
+    const { sendEmail } = await import("./resend");
+    const result = await sendEmail({
+      to: "owner@example.com",
+      subject: "Test",
+      html: "<p>hi</p>",
+      leadSlug: "demo-cafe",
+    });
+
+    expect(result.success).toBe(false);
+    expect(captureErrorMock).toHaveBeenCalledWith(
+      expect.any(Error),
+      { component: "resend-email", leadSlug: "demo-cafe" },
+    );
+  });
+
+  it("sendEmail does not call captureError on a successful send", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, json: async () => ({ id: "email_1" }) }) as Response),
+    );
+    const captureErrorMock = vi.fn(async () => {});
+    vi.doMock("../observability/error-tracking", () => ({ captureError: captureErrorMock }));
+
+    const { sendEmail } = await import("./resend");
+    const result = await sendEmail({
+      to: "owner@example.com",
+      subject: "Test",
+      html: "<p>hi</p>",
+      leadSlug: "demo-cafe",
+    });
+
+    expect(result.success).toBe(true);
+    expect(captureErrorMock).not.toHaveBeenCalled();
+  });
+
+  it("sendOperatorDailyDigest calls captureError with component resend-operator-digest on a thrown network error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("network down");
+      }),
+    );
+    const captureErrorMock = vi.fn(async () => {});
+    vi.doMock("../observability/error-tracking", () => ({ captureError: captureErrorMock }));
+
+    const { sendOperatorDailyDigest } = await import("./resend");
+    const result = await sendOperatorDailyDigest("operator@example.com", "<p>digest</p>");
+
+    expect(result.success).toBe(false);
+    expect(captureErrorMock).toHaveBeenCalledWith(
+      expect.any(Error),
+      { component: "resend-operator-digest" },
+    );
+  });
+});
+
 describe("resend.ts — sendStarterUpsellEmail checkout URL single source of truth", () => {
   const originalKey = process.env.RESEND_API_KEY;
   const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL;
