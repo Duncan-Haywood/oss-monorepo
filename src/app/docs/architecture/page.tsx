@@ -5040,6 +5040,33 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>webhookFulfillmentFailureResponse(...)</code> sites in this file stay out of scope.
       </p>
       <p>
+        <code>stripe-connect-status-cache-write-capture-error</code>: a two-site gap outside the
+        webhook file&apos;s own catch clusters — both places that persist the Stripe Connect
+        onboarding status cache (<code>updateLeadStripeConnectStatus</code>, keyed by{" "}
+        <code>LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY</code> so a Convex failure fails closed
+        rather than split-braining the cache) swallow their own write failure and continue,
+        deliberately never 5xx-ing or surfacing an operator-facing error — this display cache is
+        not a ledger write, so retrying or failing the caller would be wrong. But &quot;never
+        surface an error&quot; also meant neither catch had any path to{" "}
+        <code>captureError</code> at all — a different axis from the db-layer sweeps above, since
+        this isn&apos;t about a return-instead-of-throw structural gap, just two catches that were
+        never wired up in the first place. <code>route.ts</code>&apos;s <code>account.updated</code>{" "}
+        handler (the webhook-driven refresh) and <code>actions.ts</code>&apos;s{" "}
+        <code>checkStripeConnectAccountStatusAction</code> (the operator&apos;s manual &quot;Check
+        status&quot; click) both call the same persistence function and both silently no-op on
+        failure — meaning <code>pipeline-health</code>&apos;s{" "}
+        <code>connectOnboardingIncompleteCount</code> MetricCard and the daily digest can both keep
+        reading a stale cache indefinitely, with the dashboard action even returning{" "}
+        <code>success: true</code> (the live Stripe fetch really did succeed; only the cache write
+        failed) so there was no way for an operator to notice either. Added a{" "}
+        <code>captureError</code> call to both catches (<code>component:
+        &quot;stripe-connect-status&quot;</code>, distinct <code>failureKind</code> per call site,
+        plus <code>leadSlug</code>) — <code>actions.ts</code> needed its first-ever{" "}
+        <code>captureError</code> import in this ~3600-line file. Currently a dormant,
+        low-volume surface (<code>ALLOW_STRIPE_CONNECT_ONBOARDING</code>-gated), but the same blind
+        spot the busier clusters above already closed.
+      </p>
+      <p>
         <code>db-getLeads-convex-fallback-capture-error</code>: a closer look at the{" "}
         <code>db.ts</code> Convex-fallback gap named above (84{" "}
         <code>console.warn</code> &quot;falling back to SQLite&quot; sites, twice deferred as

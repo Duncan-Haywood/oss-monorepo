@@ -3031,6 +3031,20 @@ export async function POST(request: Request) {
           `webhook: account.updated ${account.id} failed to persist Connect status cache for lead ${matchedSlug}`,
           e,
         );
+        // A swallow-and-continue policy (never a 5xx/retry, see the doc
+        // comment above) means this failure has no path back to the outer
+        // per-event catch's own captureError call below — the same blind
+        // spot orders-recurring-canceled-capture-error and the refund/
+        // dispute cluster closed for their own catches, just for a
+        // display-cache write instead of a ledger write. Silent here means
+        // pipeline-health's connectOnboardingIncompleteCount and the daily
+        // digest can both keep reading a stale cache indefinitely with zero
+        // signal. See stripe-connect-status-cache-write-capture-error.
+        await captureError(e, {
+          component: "stripe-connect-status",
+          failureKind: "account_updated_webhook",
+          leadSlug: matchedSlug,
+        });
       }
       break;
     }
