@@ -432,6 +432,19 @@ export default function ArchitectureDocPage() {
         schema anywhere on the site described a client&apos;s own Commerce catalog, never the
         platform&apos;s own plans.
       </p>
+      <p>
+        A homepage-level growth audit separately found zero social-proof signal anywhere on the
+        site (no testimonial, review, or client count) — a real gap for a self-serve product that
+        asks a stranger to pay in the same session they first see the preview. Rather than
+        fabricate quotes (this business has not yet taken a real Stripe payment — see{" "}
+        <code>stripe-price-objects</code> in <DocLink href="/docs/process">process</DocLink>),{" "}
+        <code>src/lib/marketing/testimonials.ts</code> ships the capability dormant:{" "}
+        <code>TESTIMONIALS</code> starts as an empty array, and{" "}
+        <code>src/components/marketing/testimonials.tsx</code> (rendered on the homepage between
+        the industries and pricing sections) returns <code>null</code> until the operator adds a
+        real, permissioned client quote — no code change needed at that point, and nothing on the
+        page changes until then.
+      </p>
 
       <h2 id="security-headers">2c. Security headers</h2>
       <p>
