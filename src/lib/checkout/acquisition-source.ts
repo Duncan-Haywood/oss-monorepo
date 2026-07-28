@@ -35,7 +35,13 @@
  * landing page shipped (see fitness-category-landing-page in
  * BUSINESS_DECISIONS). "cat-legal" was added the same way when the legal
  * vertical's /websites-for-legal landing page shipped (see
- * legal-category-landing-page in BUSINESS_DECISIONS).
+ * legal-category-landing-page in BUSINESS_DECISIONS). "nav" was added by
+ * nav-header-checkout-cta-acquisition-source-fix: SiteHeader's "Get started"
+ * button renders on every route (the single root layout.tsx mounts it
+ * unconditionally) but linked to plain /checkout with no ?source= — every
+ * click through this persistent, high-visibility CTA was silently bucketing
+ * into "Unknown / direct" in acquisitionSourceBreakdown, undermining the
+ * exact metric this allowlist exists to produce.
  */
 export const CHECKOUT_ACQUISITION_SOURCES = [
   "home",
@@ -50,6 +56,7 @@ export const CHECKOUT_ACQUISITION_SOURCES = [
   "cat-legal",
   "preview",
   "outreach-email",
+  "nav",
 ] as const;
 
 export type CheckoutAcquisitionSource = (typeof CHECKOUT_ACQUISITION_SOURCES)[number];
@@ -99,5 +106,7 @@ export function checkoutAcquisitionSourceLabel(source: CheckoutAcquisitionSource
       return "Lead preview page";
     case "outreach-email":
       return "Outreach email";
+    case "nav":
+      return "Site header nav";
   }
 }

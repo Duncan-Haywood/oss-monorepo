@@ -546,6 +546,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "nav-header-checkout-cta-acquisition-source-fix",
+    summary:
+      "Standard five-tier sweep (observability axis now exhausted) found SiteHeader's sitewide 'Get started' button — rendered on every route via the single root layout.tsx — linked to plain /checkout with no ?source=, unlike every other checkout CTA in the app. Every conversion through this persistent, high-visibility button was silently bucketing into 'Unknown / direct' in acquisitionSourceBreakdown. Added a new 'nav' token to CHECKOUT_ACQUISITION_SOURCES and pointed the header link at /checkout?source=nav, matching the established per-CTA-token pattern. See nav-header-checkout-cta-acquisition-source-fix in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -914,6 +922,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "db-commerce-order-read-family-capture-error-sweep",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 916c847e (PR #915, db-commerce-order-read-family-capture-error-sweep, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). No live sibling branch beyond the unrelated stale #202.",
+    shipped: [
+      "With the observability axis stated fully closed, a dispatched research agent ran the standard five-tier empty-backlog sweep (Convex/SQLite parity, security, untested orchestration, money/ledger integrity, docs staleness) — all four checked tiers came back clean. A fresh conversion-attribution angle found a real gap: src/components/site-header.tsx's sitewide 'Get started' button (mounted unconditionally from the single root layout.tsx, rendering on every route) linked to plain /checkout with no ?source=, unlike every other checkout CTA in the app (homepage, all nine category landing pages, preview page, outreach emails). Conversions through this persistent, high-visibility CTA were silently bucketing into 'Unknown / direct' in acquisitionSourceBreakdown.",
+      "src/lib/checkout/acquisition-source.ts — added a new 'nav' token to CHECKOUT_ACQUISITION_SOURCES with a matching checkoutAcquisitionSourceLabel case and doc-comment entry. src/components/site-header.tsx — changed the Get started link to /checkout?source=nav. Verified no other code needed updating: acquisitionSourceBreakdown groups dynamically with no hardcoded per-token list, and tsc's exhaustive-switch check on checkoutAcquisitionSourceLabel would have failed to compile had any other code path needed a matching case.",
+      "src/lib/checkout/acquisition-source.test.ts — added a dedicated test asserting 'nav' is allowlisted, parses correctly, and has the expected label. Verified it actually catches the regression: git stash'd both source changes together and confirmed it failed before restoring the fix. Verified via a dev-server smoke check (curled / and /websites-for-legal) that the header CTA now renders /checkout?source=nav alongside each page's own distinct token (home / cat-legal), not replacing it. Added one paragraph to /docs/architecture. src/lib/process/business-decisions.ts — appended nav-header-checkout-cta-acquisition-source-fix. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 916c847e.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (acquisition-source.test.ts, 6/6 passed) then full suite (3638 passed, 213 files — 1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + a dev-server smoke check confirming the rendered header link. Killed the dev server, removed the stray gitignored local.db it created, and confirmed git status showed only the intended files changed before this commit.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "nav-header-checkout-cta-acquisition-source-fix",
     ),
   },
 ];

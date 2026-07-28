@@ -4683,6 +4683,22 @@ source). The same digest also lists email-critical leads with no usable address 
         bundle-order family closed above. Same one-line <code>captureError</code> pattern,
         completing the read-path axis for both order families.
       </p>
+      <p>
+        <code>nav-header-checkout-cta-acquisition-source-fix</code>: with the observability axis
+        exhausted, a standard five-tier sweep found a real gap in checkout-attribution
+        completeness — <code>SiteHeader</code>&apos;s &quot;Get started&quot; button (mounted
+        unconditionally from the single root <code>layout.tsx</code>, so it renders on{" "}
+        <em>every</em> route: the homepage, all nine category landing pages, preview pages,
+        checkout itself, and docs) linked to plain <code>/checkout</code> with no{" "}
+        <code>?source=</code>. Every other checkout CTA in the app — the homepage pricing grid,
+        every category landing page, the preview tier-upsell, outreach emails — was deliberately
+        tagged with an allowlisted token; the header nav button was the one persistent,
+        high-visibility CTA never covered, silently bucketing its conversions into{" "}
+        &quot;Unknown / direct&quot; in <code>acquisitionSourceBreakdown</code>. Added a new{" "}
+        <code>&quot;nav&quot;</code> token to <code>CHECKOUT_ACQUISITION_SOURCES</code> and changed
+        the header link to <code>/checkout?source=nav</code>, matching the established
+        per-CTA-token pattern exactly.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
