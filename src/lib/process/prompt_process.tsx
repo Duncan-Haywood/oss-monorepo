@@ -1082,4 +1082,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "webhook-refund-dispute-capture-error-dual-build-collision-review",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #961 merged. The next dispatched research agent found a two-site captureError gap entirely outside the webhook file's own catch clusters: both places that persist the Stripe Connect onboarding status cache — route.ts's account.updated handler and actions.ts's checkStripeConnectAccountStatusAction — swallow their own write failure with zero path to captureError. While merging, sibling PRs #962 (growth-upsell-dashboard-billing-display-dual-build-collision-review) and #963 (webhook-refund-dispute-capture-error-dual-build-collision-review, immediately above) were already on origin/main — merged both in and resolved the process-log append-position conflicts by keeping those entries first, this entry last.",
+    shipped: [
+      "Different axis from every prior capture-error fix this session: both catches deliberately and correctly swallow-and-continue (a display-cache write, not a ledger write — a 5xx or operator-facing error would be wrong), but neither had ever been wired to captureError at all. actions.ts had zero captureError usage anywhere in its ~3600 lines before this fix.",
+      "A failure here is a real, silent no-op on the value pipeline-health's connectOnboardingIncompleteCount MetricCard and the daily digest both read (updateLeadStripeConnectStatus fails closed on a Convex error via LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY) — the dashboard action even returns success: true since the live Stripe fetch itself succeeded, so there was no operator-visible signal either. Added one captureError call to each catch (component: 'stripe-connect-status', distinct failureKind per site, plus leadSlug).",
+      "src/app/api/stripe/webhook/route.ts, src/app/dashboard/leads/actions.ts (the two calls + new import); route.test.ts, stripe-connect-actions.test.ts (3 existing tests updated, new captureError mock added to the latter); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended stripe-connect-status-cache-write-capture-error); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed both pre-existing source files, confirmed all 3 new/updated assertions failed exactly as expected (277 passed, 3 failed), then restored and confirmed all 280 targeted tests pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (280 passed, 2 files) then full suite (3989 passed, 234 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only observability change.",
+      "File-size check per AGENT_PROTOCOL's re-archive note: a sibling entry already flagged prompt_process.tsx at 257,612 bytes, within ~4.5KB of the 262,144-byte trigger, before this entry's own text was appended — re-measured after appending: 261,515 bytes, now within ~630 bytes of the trigger. Deliberately not re-archiving in this same commit, per AGENT_PROTOCOL's explicit rule that a file-size re-archive should never be blended with feature work — left as the very next iteration's dedicated task, since the next appended entry will almost certainly cross it.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-connect-status-cache-write-capture-error",
+    ),
+  },
 ];
