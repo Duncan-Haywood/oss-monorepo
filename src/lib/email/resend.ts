@@ -658,24 +658,35 @@ export async function sendGrowthUpsellEmail(params: {
  * /checkout/success page (stripeSessionId never expires server-side, unlike
  * the Checkout Session's own 24h hosted `url`) so this needs no fresh Stripe
  * Billing Portal API call from inside the webhook.
+ *
+ * billingInterval names which cadence actually failed (see
+ * payment-failed-notice-annual-billing-copy) — derive it from the failed
+ * invoice's own Stripe Subscription via stripeSubscriptionBillingInterval,
+ * mirroring sendSubscriptionCanceledNotice's identical fix. Without this, an
+ * annual subscriber's once-a-year renewal failure reads "declined for this
+ * month's subscription" — factually wrong for someone who was never billed
+ * monthly, and this notice fires on every Smart Retry attempt (more often
+ * than the one-shot cancellation email that fix already covers).
  */
 export async function sendPaymentFailedNotice(params: {
   to: string;
   businessName: string;
   slug: string;
   stripeSessionId: string;
+  billingInterval: BundleBillingInterval;
 }) {
-  const { to, businessName, slug, stripeSessionId } = params;
+  const { to, businessName, slug, stripeSessionId, billingInterval } = params;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const manageBillingUrl = `${baseUrl}/checkout/success?session_id=${encodeURIComponent(stripeSessionId)}`;
   const safeBiz = escapeHtmlForEmail(businessName);
   const safeBrand = escapeHtmlForEmail(brand.name);
   const safeManageBillingUrl = escapeHtmlForEmail(manageBillingUrl);
+  const cadencePhrase = billingInterval === "annual" ? "your annual" : "this month's";
 
   const subject = `Action needed: your ${brand.name} payment did not go through`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">We couldn't process your latest payment</h2>
-    <p style="margin-bottom: 16px;">Your card on file for <strong>${safeBiz}</strong> was declined for this month's ${escapeHtmlForEmail(brand.name)} subscription. Your service stays paused until this is resolved.</p>
+    <p style="margin-bottom: 16px;">Your card on file for <strong>${safeBiz}</strong> was declined for ${cadencePhrase} ${escapeHtmlForEmail(brand.name)} subscription. Your service stays paused until this is resolved.</p>
     <div style="margin-bottom: 16px; text-align: center;">
       <a href="${safeManageBillingUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Update payment method</a>
     </div>

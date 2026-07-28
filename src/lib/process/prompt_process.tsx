@@ -902,5 +902,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "webhook-setup-fee-skip-parity",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip d2c0154e (PR #951, checkout-form-setup-fee-display-parity, merged this session's own prior PR). git fetch --prune + list_pull_requests found no live sibling PR beyond the unrelated stale draft #202 at dispatch time. Dispatched a research agent asked to look for other server-vs-display drift bugs and told to cross-check the live process-log tail plus git log for freshness first. While shipping, sibling PR #952 (webhook-setup-fee-skip-parity) merged into origin/main — it touched the same webhook/route.ts file, but a disjoint case block (checkout.session.completed, not invoice.payment_failed), so it merged with no conflict; only the process-log append position needed resolving.",
+    shipped: [
+      "Found and independently re-verified the same hardcoded-cadence bug class subscription-canceled-notice-annual-billing-copy already fixed once this session, but in a sibling billing-status email: sendPaymentFailedNotice (the invoice.payment_failed dunning notice) hardcoded 'was declined for this month's [brand] subscription' unconditionally — never touched by the earlier fix, whose own file list only names sendSubscriptionCanceledNotice. Arguably larger exposure: Stripe fires a distinct invoice.payment_failed per Smart Retry attempt, so this notice can send the wrong copy multiple times per failed renewal, unlike the win-back email's one-shot send. Checked the other three billing-status notices directly — none contain the same 'month' wording, so none needed the fix.",
+      "Fixed identically to the win-back notice: the invoice.payment_failed handler already retrieves the failed invoice's Subscription via stripe.subscriptions.retrieve a few lines above the notify block, so stripeSubscriptionBillingInterval(subscription) — the exact helper the earlier fix added — threads straight into sendPaymentFailedNotice's new required billingInterval param with zero extra Stripe API calls.",
+      "Proved via git-stash: stashed only the two source files (resend.ts, webhook/route.ts), confirmed all 3 new/updated assertions failed exactly as expected, then restored and confirmed all 341 tests across the two test files pass.",
+      "src/lib/email/resend.ts, resend.test.ts — the fix + updated/new tests. src/app/api/stripe/webhook/route.ts, route.test.ts — the call site + updated/new tests. src/app/docs/architecture/page.tsx — one new paragraph next to the existing win-back-notice paragraph. src/lib/process/business-decisions.ts — appended payment-failed-notice-annual-billing-copy. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to fd8b9bab (origin/main tip after sibling PR #952 merged mid-iteration).",
+      "File-size check: both process-log files re-measured via wc -c after merging sibling PR #952 in — prompt_process.tsx (222,913 bytes) has real headroom, but business-decisions.ts (255,763 bytes) is now within ~6.4KB of the 262,144-byte trigger; no re-archive strictly required this round, but likely needed soon as its own dedicated iteration.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (webhook/route.test.ts + resend.test.ts, 341 passed) then full suite (green, including sibling PR #952's own 15 new tests) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only Stripe-webhook/email change, no dashboard UI touched.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "payment-failed-notice-annual-billing-copy",
+    ),
+  },
 ];
 

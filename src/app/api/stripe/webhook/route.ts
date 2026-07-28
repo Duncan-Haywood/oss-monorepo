@@ -1839,6 +1839,7 @@ export async function POST(request: Request) {
               businessName: lead.businessName,
               slug: recurringOrder.leadSlug,
               stripeSessionId: recurringOrder.stripeSessionId,
+              billingInterval: stripeSubscriptionBillingInterval(subscription),
             });
             if (!sent.success) {
               console.warn(
