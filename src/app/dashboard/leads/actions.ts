@@ -18,7 +18,6 @@ import {
   recordStripeConnectOnboardingLinkSent,
   recordGrowthUpsellSent,
   listOpenCheckoutSessions,
-  recordCheckoutRecoverySent,
   updateLeadNotes,
   updateLeadSnooze,
   applyColdLeadDisposition,
@@ -48,7 +47,10 @@ import {
   isEmailSuppressed,
   unsuppressEmail,
 } from "@/lib/db";
-import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import {
+  recoverAbandonedBundleCheckout,
+  recoverAbandonedCommerceCheckout,
+} from "@/lib/checkout/recover-abandoned-checkout";
 import { OPERATOR_UNSUPPRESS_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
 import { MAX_CONTACT_EMAIL_LENGTH } from "@/lib/inquiries/contact-fields";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
@@ -140,8 +142,6 @@ import {
   sendOutreachEmail,
   sendOutreachFollowUp2,
   sendOutreachFollowUp3,
-  sendCheckoutAbandonedRecovery,
-  sendCommerceAbandonedRecovery,
   sendInquiryReply,
   sendStarterUpsellEmail,
   sendGrowthUpsellEmail,
@@ -1285,6 +1285,9 @@ export async function sendFollowUpAction(slug: string) {
  * Send an abandoned-checkout recovery nudge for a Stripe Checkout Session that
  * was created but not completed. See src/lib/checkout/abandoned-recovery.ts.
  * Bundle plan sessions only — commerce Buy now uses sendCommerceCheckoutRecoveryAction.
+ * The mark-then-send body is shared with the automated
+ * GET /api/cron/checkout-recovery trigger via recoverAbandonedBundleCheckout
+ * (src/lib/checkout/recover-abandoned-checkout.ts).
  */
 export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
   try {
@@ -1326,88 +1329,13 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
       };
     }
 
-    const lead = await getLeadBySlug(session.leadSlug);
-    const to = session.customerEmail || lead?.email;
-    if (!to) {
-      return { success: false as const, error: "No email on file for this checkout session" };
-    }
-
-    const businessName = lead?.businessName || session.leadSlug;
-    const expectedRecoverySentCount = session.recoverySentCount ?? 0;
-
-    // Durable mark before send (persist-then-notify). requireConvex when
-    // configured so Convex-first abandoned queues cannot re-nudge after a
-    // SQLite-only recoverySentAt write. expectedRecoverySentCount is this
-    // action's own pre-write snapshot — recordCheckoutRecoverySent rejects
-    // the write if the row's current count has already moved past it, so a
-    // second concurrent call (another tab, a fast double-click) can never
-    // both apply (checkout-recovery-send-race-guard).
-    let marked: boolean;
-    try {
-      marked = await recordCheckoutRecoverySent(
-        sessionId,
-        new Date().toISOString(),
-        expectedRecoverySentCount,
-        CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
-      );
-    } catch (error) {
-      if (error instanceof ConvexPrimaryWriteError) {
-        return {
-          success: false as const,
-          error:
-            "Could not record recovery send in the shared store — email was not sent. Retry in a moment.",
-        };
-      }
-      throw error;
-    }
-    if (!marked) {
-      // Re-fetch and report the actual current reason instead of assuming a
-      // payment race (mirroring commerce-order-paid-out-race-message-accuracy's
-      // re-fetch-and-branch): either (a) a concurrent Stripe webhook completed
-      // this exact session — a real payment landing — in the window between
-      // the listOpenCheckoutSessions() read above and this mark, so the
-      // session no longer resolves as open at all; or (b) a concurrent
-      // duplicate recovery-send call (another tab, a fast double-click)
-      // already recorded its own send moments ago, in which case the session
-      // is fine and an email WAS just sent, just not by this call.
-      const freshOpen = await listOpenCheckoutSessions();
-      const fresh = freshOpen.find((s) => s.stripeSessionId === sessionId);
-      if (fresh && (fresh.recoverySentCount ?? 0) > expectedRecoverySentCount) {
-        return {
-          success: false as const,
-          error:
-            "A recovery email was already sent for this session moments ago (likely from another tab or a duplicate click) — skipped duplicate send",
-        };
-      }
-      return {
-        success: false as const,
-        error:
-          "Checkout session was completed after this page loaded — refresh; recovery email was not sent",
-      };
-    }
-
-    const sent = await sendCheckoutAbandonedRecovery(
-      to,
-      businessName,
-      session.leadSlug,
-      session.tier,
-      expectedRecoverySentCount + 1,
-    );
-
-    if (!sent.success) {
-      return {
-        success: false as const,
-        error:
-          "reason" in sent && sent.reason === "suppressed"
-            ? "Email is on the suppression list (session already marked recovered — will not reappear in due queue)"
-            : "error" in sent && typeof sent.error === "string"
-              ? `${sent.error} (session already marked recovered — will not reappear in due queue)`
-              : "Failed to send recovery email (session already marked recovered — will not reappear in due queue)",
-      };
+    const result = await recoverAbandonedBundleCheckout(session);
+    if (!result.success) {
+      return { success: false as const, error: result.error };
     }
 
     revalidatePath("/dashboard/leads");
-    return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
+    return { success: true as const, mock: result.mock };
   } catch (error) {
     console.error("Error in sendCheckoutRecoveryAction:", error);
     return {
@@ -1419,7 +1347,9 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
 
 /**
  * Commerce Buy now abandoned-cart recovery — emails the end customer a link
- * back to /preview/[slug]#catalog (never /checkout?tier=).
+ * back to /preview/[slug]#catalog (never /checkout?tier=). The mark-then-send
+ * body is shared with the automated GET /api/cron/checkout-recovery trigger
+ * via recoverAbandonedCommerceCheckout (src/lib/checkout/recover-abandoned-checkout.ts).
  */
 export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string) {
   try {
@@ -1461,111 +1391,13 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
       };
     }
 
-    const to = session.customerEmail;
-    if (!to) {
-      return {
-        success: false as const,
-        error: "No customer email on this Buy now session — recovery needs the shopper's email",
-      };
-    }
-
-    const lead = await getLeadBySlug(session.leadSlug);
-    if (!lead) {
-      return {
-        success: false as const,
-        error: "Lead not found for this Buy now session",
-      };
-    }
-
-    // Twin of Buy now create (#348) + sync + commerce_sku webhook (#350): do
-    // not nudge end-customer carts after CRM pause/cancel while entitlement
-    // is off (create-path 403s; webhook skips ledger).
-    const orders = await listOrdersByLeadSlug(session.leadSlug);
-    if (!leadEligibleForCommerceCatalog(lead, orders)) {
-      return {
-        success: false as const,
-        error:
-          "Commerce catalogs require a paid/live lead with a Commerce add-on order",
-      };
-    }
-
-    const catalog = await getCommerceCatalog(session.leadSlug);
-    const skuName =
-      catalog?.items.find((item) => item.id === session.skuId)?.name ?? session.skuId ?? "item";
-    const businessName = lead.businessName || session.leadSlug;
-    const expectedRecoverySentCount = session.recoverySentCount ?? 0;
-
-    // expectedRecoverySentCount is this action's own pre-write snapshot —
-    // recordCheckoutRecoverySent rejects the write if the row's current
-    // count has already moved past it, so a second concurrent call (another
-    // tab, a fast double-click) can never both apply
-    // (checkout-recovery-send-race-guard).
-    let marked: boolean;
-    try {
-      marked = await recordCheckoutRecoverySent(
-        sessionId,
-        new Date().toISOString(),
-        expectedRecoverySentCount,
-        CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
-      );
-    } catch (error) {
-      if (error instanceof ConvexPrimaryWriteError) {
-        return {
-          success: false as const,
-          error:
-            "Could not record recovery send in the shared store — email was not sent. Retry in a moment.",
-        };
-      }
-      throw error;
-    }
-    if (!marked) {
-      // Re-fetch and report the actual current reason instead of assuming a
-      // payment race (mirroring commerce-order-paid-out-race-message-accuracy's
-      // re-fetch-and-branch): either (a) a concurrent Stripe webhook completed
-      // this exact Buy now cart — the shopper actually paying — in the window
-      // between listOpenCheckoutSessions above and this mark, so the session
-      // no longer resolves as open at all; or (b) a concurrent duplicate
-      // recovery-send call (another tab, a fast double-click) already
-      // recorded its own send moments ago, in which case the cart is fine
-      // and an email WAS just sent, just not by this call.
-      const freshOpen = await listOpenCheckoutSessions();
-      const fresh = freshOpen.find((s) => s.stripeSessionId === sessionId);
-      if (fresh && (fresh.recoverySentCount ?? 0) > expectedRecoverySentCount) {
-        return {
-          success: false as const,
-          error:
-            "A recovery email was already sent for this session moments ago (likely from another tab or a duplicate click) — skipped duplicate send",
-        };
-      }
-      return {
-        success: false as const,
-        error:
-          "Checkout session was completed after this page loaded — refresh; recovery email was not sent",
-      };
-    }
-
-    const sent = await sendCommerceAbandonedRecovery(
-      to,
-      businessName,
-      session.leadSlug,
-      skuName,
-      expectedRecoverySentCount + 1,
-    );
-
-    if (!sent.success) {
-      return {
-        success: false as const,
-        error:
-          "reason" in sent && sent.reason === "suppressed"
-            ? "Email is on the suppression list (session already marked recovered — will not reappear in due queue)"
-            : "error" in sent && typeof sent.error === "string"
-              ? `${sent.error} (session already marked recovered — will not reappear in due queue)`
-              : "Failed to send recovery email (session already marked recovered — will not reappear in due queue)",
-      };
+    const result = await recoverAbandonedCommerceCheckout(session);
+    if (!result.success) {
+      return { success: false as const, error: result.error };
     }
 
     revalidatePath("/dashboard/leads");
-    return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
+    return { success: true as const, mock: result.mock };
   } catch (error) {
     console.error("Error in sendCommerceCheckoutRecoveryAction:", error);
     return {

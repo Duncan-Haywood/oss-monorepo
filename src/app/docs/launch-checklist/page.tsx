@@ -375,6 +375,19 @@ export default function LaunchChecklistDocPage() {
           third-party approval needed, unlike the Google Places / Buffer / Stripe
           Connect items below.
         </li>
+        <li>
+          The same <code>CRON_SECRET</code> also automates abandoned-checkout
+          and Buy-now-cart recovery emails via{" "}
+          <code>vercel.json</code>&apos;s second crons entry,{" "}
+          <code>/api/cron/checkout-recovery</code> — until that secret is set,
+          a recovery email only ever sends when an operator manually clicks{" "}
+          <strong>Send recovery email</strong> / <strong>Send Buy now recovery</strong>{" "}
+          on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for a
+          specific session before the 2-hour abandonment window (and 2-day
+          resend cooldown) makes it worth nudging. Confirm the same way: a 200
+          response body reports how many due sessions it attempted / sent /
+          failed that run.
+        </li>
       </ol>
 
       <h2>4. Persistence</h2>

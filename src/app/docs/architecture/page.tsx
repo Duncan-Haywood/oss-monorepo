@@ -1909,6 +1909,35 @@ export default function ArchitectureDocPage() {
         recovery-due counts beside paid-not-live, plus separate Buy now cart counts.
       </p>
       <p>
+        Until <code>checkout-recovery-cron-automation</code>, both recovery emails above were
+        100% operator-triggered — a due session sat visible on pipeline-health and the (now
+        automated) daily digest, but nothing ever actually sent the nudge without a human opening{" "}
+        <code>/dashboard/leads</code> and clicking a per-session button inside the 2-hour
+        abandonment window. The mark-then-send body of{" "}
+        <code>sendCheckoutRecoveryAction</code> / <code>sendCommerceCheckoutRecoveryAction</code>{" "}
+        was extracted into <code>recoverAbandonedBundleCheckout</code> /{" "}
+        <code>recoverAbandonedCommerceCheckout</code> (
+        <code>src/lib/checkout/recover-abandoned-checkout.ts</code>) — same CAS race guard,
+        same suppression/error surfacing, unchanged — so the manual buttons and a new automated
+        trigger can never diverge. <code>GET /api/cron/checkout-recovery</code> (
+        <code>src/app/api/cron/checkout-recovery/route.ts</code>) reads{" "}
+        <code>listOpenCheckoutSessions</code> once, computes both due queues via{" "}
+        <code>listAbandonedCheckoutsDue</code> /{" "}
+        <code>listCommerceAbandonedCheckoutsDue</code> (the same pure predicates the dashboard
+        panels already use, so a session is never treated as due for the cron and not-due for the
+        panel or vice versa), and sequentially attempts each one — a per-session failure (missing
+        email, suppression, a concurrent race) is aggregated into the response body and reported
+        via <code>captureError</code> rather than aborting the batch. It shares{" "}
+        <code>src/lib/security/cron-secret.ts</code>&apos;s <code>CRON_SECRET</code>{" "}
+        bearer-token verification with <code>GET /api/cron/daily-digest</code> (extracted from
+        that route in the same change so a second cron route can&apos;t drift from the first
+        one&apos;s constant-time compare), and the same <code>vercel.json</code>{" "}
+        <code>&quot;crons&quot;</code> entry pattern, offset two hours from the digest. Unlike the
+        digest, an unset recipient is a per-session skip in the response body, not a whole-route
+        501 — recovery emails go to the session&apos;s own <code>customerEmail</code> /{" "}
+        <code>lead.email</code>, not a single operator inbox env var.
+      </p>
+      <p>
         <code>acquisition-source-checkout-attribution</code>: the homepage pricing grid and each
         of the three <code>/websites-for-*</code> SEO category landing pages funneled to the same{" "}
         <code>/checkout</code> page with no way to tell which surface actually converted — no

@@ -885,5 +885,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "empty-backlog-post-recurring-dedup-clean-sweep",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-5aqb5x",
+    summary:
+      "Fresh scheduled routine, branch restarted from origin/main tip a4d96642 (PR #931, operator-daily-digest-cron-automation, merged this session's own prior PR) — HEAD matched origin/main exactly at session start. No live sibling found.",
+    shipped: [
+      "Dispatched a research agent to find the next high-leverage business-growth gap, briefed on every already-exhausted axis including this session's own just-shipped digest-cron work. It found a direct sibling gap: sendCheckoutRecoveryAction / sendCommerceCheckoutRecoveryAction (abandoned bundle-checkout and Commerce Buy-now cart recovery emails) had exactly one trigger — a manual per-session dashboard button click. No cron, Convex scheduled function, or batch path existed. Both are time-sensitive, high-converting revenue-recovery emails that only fired if the operator happened to act within the 2-hour abandonment window.",
+      "Extracted the send-and-mark body of both dashboard actions into recoverAbandonedBundleCheckout / recoverAbandonedCommerceCheckout (src/lib/checkout/recover-abandoned-checkout.ts) — same CAS race guard, suppression handling, and failure-message shaping, unchanged. Added GET /api/cron/checkout-recovery: reads the due sessions via the same pure predicates the dashboard panels already use, sequentially attempts each recovery, and aggregates per-session success/failure into the response rather than aborting the batch. Also extracted the CRON_SECRET verification itself (previously inline in the digest route) into src/lib/security/cron-secret.ts, shared by both cron routes now.",
+      "src/lib/checkout/recover-abandoned-checkout.ts, src/app/api/cron/checkout-recovery/route.ts, src/lib/security/cron-secret.ts — new files, with 23 new test cases across two new test files. The existing checkout-recovery-actions.test.ts (25 cases) and daily-digest cron route test (10 cases) needed zero changes, proving both refactors preserved exact behavior. Added a second vercel.json crons entry, documented CRON_SECRET's dual purpose in .env.example, and updated launch-checklist/architecture docs. src/lib/process/business-decisions.ts — appended checkout-recovery-cron-automation. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3810 passed, 221 files, +23 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, 64-route split incl. the new /api/cron/checkout-recovery, no new warnings). Also verified the new eligibility-exclusion test actually catches a regression via a temporary break-and-restore of the Commerce eligibility filter. No dev-server smoke check beyond the automated gate — no live RESEND_API_KEY/STRIPE_SECRET_KEY/real Vercel Cron scheduler in this environment, but both routes and shared helpers are fully exercised by automated coverage.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "checkout-recovery-cron-automation",
+    ),
+  },
 ];
 
