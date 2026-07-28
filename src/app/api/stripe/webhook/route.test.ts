@@ -5448,9 +5448,10 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
     });
 
-    it("returns 500 (commerce_order_ledger) so Stripe retries when the ledger write fails", async () => {
+    it("returns 500 (commerce_order_ledger) so Stripe retries when the ledger write fails, and reports it via captureError since this inner catch returns rather than re-throwing (commerce-order-ledger-write-capture-error)", async () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
-      insertCommerceOrder.mockRejectedValue(new Error("db down"));
+      const ledgerError = new Error("db down");
+      insertCommerceOrder.mockRejectedValue(ledgerError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -5458,6 +5459,15 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_ledger");
       expect(insertClientInquiry).not.toHaveBeenCalled();
+      // This catch returns a 5xx response instead of re-throwing, so it never
+      // reaches the outer try/catch's own captureError call — it must be
+      // wired here directly (see commerce-order-ledger-write-capture-error).
+      expect(captureError).toHaveBeenCalledWith(ledgerError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "commerce_order_ledger",
+      });
     });
 
     it("returns 500 (commerce_order_inquiry) so Stripe retries when the operator inquiry write fails after a durable ledger write", async () => {

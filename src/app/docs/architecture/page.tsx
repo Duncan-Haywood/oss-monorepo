@@ -4474,6 +4474,22 @@ source). The same digest also lists email-critical leads with no usable address 
         unwired, a real gap but an explicitly deferred one, not a full sweep.
       </p>
       <p>
+        <code>commerce-order-ledger-write-capture-error</code>: closes the Commerce-side sibling of
+        the fix above. The webhook&apos;s <code>catch</code> around{" "}
+        <code>insertCommerceOrder</code> (the Buy now order ledger write, distinct from bundle
+        payments per the money-separation invariant below) shares the exact same shape — it{" "}
+        <code>return</code>s its own <code>commerce_order_ledger</code> 5xx instead of re-throwing,
+        so it never reached the outer catch&apos;s <code>captureError</code> either. A failure there
+        means a paying Buy now customer&apos;s order isn&apos;t recorded and no operator
+        inquiry/client receipt follows — the same severity tier as{" "}
+        <code>bundle_payment_or_handoff</code>, on the other primary payment-recording write in this
+        file. Wired <code>captureError</code> into just this one site, with{" "}
+        <code>failureKind: &quot;commerce_order_ledger&quot;</code>, for the same single-site,
+        deliberately-not-a-sweep reasoning as its bundle sibling. The remaining ~38{" "}
+        <code>webhookFulfillmentFailureResponse(...)</code> sites (and the 84-site{" "}
+        <code>db.ts</code> candidate above) stay out of scope.
+      </p>
+      <p>
         <code>db-getLeads-convex-fallback-capture-error</code>: a closer look at the{" "}
         <code>db.ts</code> Convex-fallback gap named above (84{" "}
         <code>console.warn</code> &quot;falling back to SQLite&quot; sites, twice deferred as
