@@ -902,6 +902,35 @@ describe("POST /api/stripe/webhook", () => {
       );
     });
 
+    it("syncs an annual Growth Subscription instead of pausing it (annual-subscriber-entitlement-derivation-fix)", async () => {
+      process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL = GROWTH_ANNUAL_PRICE_ID;
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_annual_growth",
+            customer: "cus_annual_growth",
+            status: "active",
+            items: catalogSubscriptionItems(GROWTH_ANNUAL_PRICE_ID),
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(syncOrdersRecurringEntitlementByCustomer).toHaveBeenCalledWith(
+        "cus_annual_growth",
+        { tier: "growth", commerceAddon: false },
+        { requireConvex: true },
+      );
+      // Before the fix, an annual-only Price ID never matched the
+      // monthly-only check, so this call site instead treated an active
+      // annual subscriber's Subscription as carrying no catalog recurring
+      // Price and paused their CRM entitlement.
+      expect(markOrdersRecurringCanceledByCustomer).not.toHaveBeenCalled();
+    });
+
     it("pauses CRM when active Subscription has only a foreign Price", async () => {
       constructEvent.mockReturnValue({
         type: "customer.subscription.updated",
