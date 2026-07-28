@@ -471,7 +471,11 @@ export function sqliteClearCommerceOrderClientReceiptSent(
  * Durable sent-marker after sendMarketingPackToClientEmail resolves
  * { success: true }. Returns whether the row was actually marked (re-checks
  * sentToClientAt IS NULL atomically with the write, same TOCTOU-safe pattern
- * as sqliteMarkCommerceOrderClientReceiptSent). Split out of
+ * as sqliteMarkCommerceOrderClientReceiptSent). Also re-checks generatedAt
+ * still matches expectedGeneratedAt — a regenerate between the caller's read
+ * and this reservation must not let a stale send land while the marker
+ * stamps the new pack as delivered (see
+ * marketing-voice-pack-send-stale-content-race-guard). Split out of
  * src/lib/db.ts's markMarketingPackSentToClient SQLite-fallback branch (see
  * marketing-voice-pack-client-send-visibility).
  */
@@ -479,32 +483,34 @@ export function sqliteMarkMarketingPackSentToClient(
   db: DatabaseSync,
   leadSlug: string,
   yearMonth: string,
+  expectedGeneratedAt: string,
   sentToClientAt: string,
 ): boolean {
   const result = db
     .prepare(
-      "UPDATE marketing_packs SET sentToClientAt = ? WHERE leadSlug = ? AND yearMonth = ? AND (sentToClientAt IS NULL OR sentToClientAt = '')",
+      "UPDATE marketing_packs SET sentToClientAt = ? WHERE leadSlug = ? AND yearMonth = ? AND generatedAt = ? AND (sentToClientAt IS NULL OR sentToClientAt = '')",
     )
-    .run(sentToClientAt, leadSlug, yearMonth);
+    .run(sentToClientAt, leadSlug, yearMonth, expectedGeneratedAt);
   return result.changes > 0;
 }
 
 /**
  * Durable sent-marker after sendClientVoicePackToClientEmail resolves
  * { success: true }. Same re-check-atomically-with-the-write pattern as
- * sqliteMarkMarketingPackSentToClient (see
- * marketing-voice-pack-client-send-visibility).
+ * sqliteMarkMarketingPackSentToClient, including its expectedGeneratedAt
+ * version guard (see marketing-voice-pack-send-stale-content-race-guard).
  */
 export function sqliteMarkClientVoicePackSentToClient(
   db: DatabaseSync,
   leadSlug: string,
+  expectedGeneratedAt: string,
   sentToClientAt: string,
 ): boolean {
   const result = db
     .prepare(
-      "UPDATE client_voice_packs SET sentToClientAt = ? WHERE leadSlug = ? AND (sentToClientAt IS NULL OR sentToClientAt = '')",
+      "UPDATE client_voice_packs SET sentToClientAt = ? WHERE leadSlug = ? AND generatedAt = ? AND (sentToClientAt IS NULL OR sentToClientAt = '')",
     )
-    .run(sentToClientAt, leadSlug);
+    .run(sentToClientAt, leadSlug, expectedGeneratedAt);
   return result.changes > 0;
 }
 

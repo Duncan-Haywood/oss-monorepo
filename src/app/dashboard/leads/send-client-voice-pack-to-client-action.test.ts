@@ -316,6 +316,7 @@ describe("sendClientVoicePackToClientAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
     expect(markClientVoicePackSentToClient).toHaveBeenCalledWith(
       "demo-cafe",
+      "2026-07-13T12:00:00.000Z",
       expect.any(String),
       expect.objectContaining({ requireConvex: true }),
     );
@@ -328,6 +329,9 @@ describe("sendClientVoicePackToClientAction", () => {
     // isPending-disabled state applied already reserved this exact marker —
     // since the reservation now runs BEFORE the send, this must skip the
     // send entirely, mirroring sendMarketingPackToClientAction's twin fix.
+    // The re-fetch used to distinguish this from a version mismatch sees the
+    // SAME generatedAt (no regenerate happened), so the duplicate-send
+    // message applies.
     markClientVoicePackSentToClient.mockResolvedValue(false);
     const { sendClientVoicePackToClientAction } = await import("./actions");
     const res = await sendClientVoicePackToClientAction("demo-cafe");
@@ -335,6 +339,37 @@ describe("sendClientVoicePackToClientAction", () => {
       success: false,
       error:
         "Client voice pack was already marked sent by a concurrent request — skipped duplicate send.",
+    });
+    expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("skips the send and reports a regenerated-pack error (not the duplicate-send message) when the pack was regenerated while the send was in flight (marketing-voice-pack-send-stale-content-race-guard)", async () => {
+    // Simulates a concurrent Regenerate landing between this action's read of
+    // the pack and its reservation call — see the matching marketing-pack
+    // test for the full reasoning; this test only proves the action surfaces
+    // the right operator-facing message.
+    markClientVoicePackSentToClient.mockResolvedValue(false);
+    getClientVoicePackByLeadSlug.mockResolvedValueOnce({
+      id: "voice_pack_1",
+      leadSlug: "demo-cafe",
+      generator: "stub",
+      variants: packVariants,
+      generatedAt: "2026-07-13T12:00:00.000Z",
+    });
+    getClientVoicePackByLeadSlug.mockResolvedValueOnce({
+      id: "voice_pack_1_v2",
+      leadSlug: "demo-cafe",
+      generator: "stub",
+      variants: [{ scriptType: "inbound_greeting" as const, title: "Greeting", body: "Regenerated" }],
+      generatedAt: "2026-07-14T00:00:00.000Z",
+    });
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Client voice pack was regenerated while this send was in flight — refresh and resend to deliver the current version.",
     });
     expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();

@@ -147,6 +147,7 @@ function insertMarketingPackDirect(
   leadSlug: string,
   yearMonth: string,
   sentToClientAt?: string,
+  generatedAt: string = "2026-07-01T00:00:00.000Z",
 ): void {
   db.prepare(
     `INSERT INTO marketing_packs (id, leadSlug, yearMonth, variantsJson, generatedAt, generator, sentToClientAt)
@@ -156,7 +157,7 @@ function insertMarketingPackDirect(
     leadSlug,
     yearMonth,
     "[]",
-    "2026-07-01T00:00:00.000Z",
+    generatedAt,
     "stub",
     sentToClientAt ?? null,
   );
@@ -166,19 +167,28 @@ function insertClientVoicePackDirect(
   db: DatabaseSync,
   leadSlug: string,
   sentToClientAt?: string,
+  generatedAt: string = "2026-07-01T00:00:00.000Z",
 ): void {
   db.prepare(
     `INSERT INTO client_voice_packs (id, leadSlug, variantsJson, generatedAt, generator, sentToClientAt)
      VALUES (?, ?, ?, ?, ?, ?)`,
-  ).run(`cv_${leadSlug}`, leadSlug, "[]", "2026-07-01T00:00:00.000Z", "stub", sentToClientAt ?? null);
+  ).run(`cv_${leadSlug}`, leadSlug, "[]", generatedAt, "stub", sentToClientAt ?? null);
 }
 
 describe("sqliteMarkMarketingPackSentToClient", () => {
+  const GENERATED_AT = "2026-07-01T00:00:00.000Z";
+
   it("marks an unsent pack and returns true", () => {
     const db = freshDb();
     insertMarketingPackDirect(db, "test-lead", "2026-07");
     expect(
-      sqliteMarkMarketingPackSentToClient(db, "test-lead", "2026-07", "2026-07-05T00:00:00.000Z"),
+      sqliteMarkMarketingPackSentToClient(
+        db,
+        "test-lead",
+        "2026-07",
+        GENERATED_AT,
+        "2026-07-05T00:00:00.000Z",
+      ),
     ).toBe(true);
     const row = db
       .prepare("SELECT sentToClientAt FROM marketing_packs WHERE leadSlug = ? AND yearMonth = ?")
@@ -190,7 +200,13 @@ describe("sqliteMarkMarketingPackSentToClient", () => {
     const db = freshDb();
     insertMarketingPackDirect(db, "test-lead", "2026-07", "2026-07-05T00:00:00.000Z");
     expect(
-      sqliteMarkMarketingPackSentToClient(db, "test-lead", "2026-07", "2026-07-06T00:00:00.000Z"),
+      sqliteMarkMarketingPackSentToClient(
+        db,
+        "test-lead",
+        "2026-07",
+        GENERATED_AT,
+        "2026-07-06T00:00:00.000Z",
+      ),
     ).toBe(false);
     const row = db
       .prepare("SELECT sentToClientAt FROM marketing_packs WHERE leadSlug = ? AND yearMonth = ?")
@@ -201,17 +217,59 @@ describe("sqliteMarkMarketingPackSentToClient", () => {
   it("returns false for an unknown leadSlug/yearMonth pair", () => {
     const db = freshDb();
     expect(
-      sqliteMarkMarketingPackSentToClient(db, "missing", "2026-07", "2026-07-05T00:00:00.000Z"),
+      sqliteMarkMarketingPackSentToClient(
+        db,
+        "missing",
+        "2026-07",
+        GENERATED_AT,
+        "2026-07-05T00:00:00.000Z",
+      ),
     ).toBe(false);
+  });
+
+  it("fails (and does not write) when the pack's generatedAt no longer matches expectedGeneratedAt — a regenerate landed between the caller's read and this reservation", () => {
+    const db = freshDb();
+    insertMarketingPackDirect(db, "test-lead", "2026-07", undefined, "2026-07-01T00:00:00.000Z");
+    // Simulate a regenerate: same row, new generatedAt, sentToClientAt still unset.
+    db.prepare(
+      "UPDATE marketing_packs SET generatedAt = ? WHERE leadSlug = ? AND yearMonth = ?",
+    ).run("2026-07-02T00:00:00.000Z", "test-lead", "2026-07");
+
+    expect(
+      sqliteMarkMarketingPackSentToClient(
+        db,
+        "test-lead",
+        "2026-07",
+        "2026-07-01T00:00:00.000Z", // the stale version the caller actually read
+        "2026-07-05T00:00:00.000Z",
+      ),
+    ).toBe(false);
+    const row = db
+      .prepare("SELECT sentToClientAt FROM marketing_packs WHERE leadSlug = ? AND yearMonth = ?")
+      .get("test-lead", "2026-07") as { sentToClientAt: string | null };
+    expect(row.sentToClientAt).toBeNull();
+
+    // A reservation against the CURRENT version still succeeds.
+    expect(
+      sqliteMarkMarketingPackSentToClient(
+        db,
+        "test-lead",
+        "2026-07",
+        "2026-07-02T00:00:00.000Z",
+        "2026-07-05T00:00:00.000Z",
+      ),
+    ).toBe(true);
   });
 });
 
 describe("sqliteMarkClientVoicePackSentToClient", () => {
+  const GENERATED_AT = "2026-07-01T00:00:00.000Z";
+
   it("marks an unsent pack and returns true", () => {
     const db = freshDb();
     insertClientVoicePackDirect(db, "test-lead");
     expect(
-      sqliteMarkClientVoicePackSentToClient(db, "test-lead", "2026-07-05T00:00:00.000Z"),
+      sqliteMarkClientVoicePackSentToClient(db, "test-lead", GENERATED_AT, "2026-07-05T00:00:00.000Z"),
     ).toBe(true);
     const row = db
       .prepare("SELECT sentToClientAt FROM client_voice_packs WHERE leadSlug = ?")
@@ -223,7 +281,7 @@ describe("sqliteMarkClientVoicePackSentToClient", () => {
     const db = freshDb();
     insertClientVoicePackDirect(db, "test-lead", "2026-07-05T00:00:00.000Z");
     expect(
-      sqliteMarkClientVoicePackSentToClient(db, "test-lead", "2026-07-06T00:00:00.000Z"),
+      sqliteMarkClientVoicePackSentToClient(db, "test-lead", GENERATED_AT, "2026-07-06T00:00:00.000Z"),
     ).toBe(false);
     const row = db
       .prepare("SELECT sentToClientAt FROM client_voice_packs WHERE leadSlug = ?")
@@ -234,8 +292,39 @@ describe("sqliteMarkClientVoicePackSentToClient", () => {
   it("returns false for an unknown leadSlug", () => {
     const db = freshDb();
     expect(
-      sqliteMarkClientVoicePackSentToClient(db, "missing", "2026-07-05T00:00:00.000Z"),
+      sqliteMarkClientVoicePackSentToClient(db, "missing", GENERATED_AT, "2026-07-05T00:00:00.000Z"),
     ).toBe(false);
+  });
+
+  it("fails (and does not write) when the pack's generatedAt no longer matches expectedGeneratedAt — a regenerate landed between the caller's read and this reservation", () => {
+    const db = freshDb();
+    insertClientVoicePackDirect(db, "test-lead", undefined, "2026-07-01T00:00:00.000Z");
+    db.prepare("UPDATE client_voice_packs SET generatedAt = ? WHERE leadSlug = ?").run(
+      "2026-07-02T00:00:00.000Z",
+      "test-lead",
+    );
+
+    expect(
+      sqliteMarkClientVoicePackSentToClient(
+        db,
+        "test-lead",
+        "2026-07-01T00:00:00.000Z", // the stale version the caller actually read
+        "2026-07-05T00:00:00.000Z",
+      ),
+    ).toBe(false);
+    const row = db
+      .prepare("SELECT sentToClientAt FROM client_voice_packs WHERE leadSlug = ?")
+      .get("test-lead") as { sentToClientAt: string | null };
+    expect(row.sentToClientAt).toBeNull();
+
+    expect(
+      sqliteMarkClientVoicePackSentToClient(
+        db,
+        "test-lead",
+        "2026-07-02T00:00:00.000Z",
+        "2026-07-05T00:00:00.000Z",
+      ),
+    ).toBe(true);
   });
 });
 
@@ -253,7 +342,13 @@ describe("sqliteClearMarketingPackSentToClient", () => {
 
     // A cleared marker can be re-reserved by a legitimate later send.
     expect(
-      sqliteMarkMarketingPackSentToClient(db, "test-lead", "2026-07", "2026-07-06T00:00:00.000Z"),
+      sqliteMarkMarketingPackSentToClient(
+        db,
+        "test-lead",
+        "2026-07",
+        "2026-07-01T00:00:00.000Z",
+        "2026-07-06T00:00:00.000Z",
+      ),
     ).toBe(true);
   });
 
@@ -299,7 +394,12 @@ describe("sqliteClearClientVoicePackSentToClient", () => {
     expect(row.sentToClientAt).toBeNull();
 
     expect(
-      sqliteMarkClientVoicePackSentToClient(db, "test-lead", "2026-07-06T00:00:00.000Z"),
+      sqliteMarkClientVoicePackSentToClient(
+        db,
+        "test-lead",
+        "2026-07-01T00:00:00.000Z",
+        "2026-07-06T00:00:00.000Z",
+      ),
     ).toBe(true);
   });
 
