@@ -981,5 +981,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "convex-primary-persist-constant-direct-test-coverage-gap-4-files",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip e78d219e (PR #932, empty-backlog-second-consecutive-clean-sweep-post-dedup, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). Four live siblings merged mid-iteration (PR #933, an important correction to this session's own earlier recurring-upgrade-dedup work; PR #934, checkout-recovery-cron-automation; PR #935, cron-secret-module-direct-unit-coverage; PR #936, outreach-followups-cron-automation) — all merged in cleanly, no code overlap, only the two process-log files, plus two rounds of copy correction as the CRON_SECRET consumer count kept growing mid-iteration (see below).",
+    shipped: [
+      "Given two consecutive clean sweeps, dispatched a research agent at the freshly-shipped Vercel Cron daily-digest automation (entirely unaudited). The cron route itself (auth, failure handling, double-send/leak risk) was clean, but it found a real integration gap: OperatorDigestEmailEnvBanner, the only existing digest readiness signal, only ever checked OPERATOR_DIGEST_EMAIL, never CRON_SECRET — the manual 'Send daily digest' button still works with just the former set, but the cron route's own gate had zero dashboard visibility if missing, silently defeating the automation's entire stated purpose (removing reliance on the operator remembering to check something).",
+      "Added a separate readiness check + banner pair rather than folding CRON_SECRET into the existing check: src/lib/digest/operator-digest-cron-env-readiness.ts (assessOperatorDigestCronEnvReadiness) + src/components/dashboard/operator-digest-cron-env-banner.tsx (OperatorDigestCronEnvBanner), wired into both /dashboard and /dashboard/leads. Deliberately separate since the two failure modes aren't equivalent (missing CRON_SECRET doesn't block the manual button), matching this codebase's established one-banner-per-concern convention.",
+      "As a new capability addition (not a fix to existing broken behavior), git-stash regression-proof doesn't apply the same way — verified instead via 6 new unit tests plus a dev-server smoke check: confirmed both banners render with CRON_SECRET unset, and only the email banner remains once CRON_SECRET is set.",
+      "Sibling PR #934 shipped a second cron route (checkout-recovery) sharing the SAME CRON_SECRET mid-iteration — updated the banner to name both automations. Before this branch even reached push, a THIRD sibling (PR #936) merged a third cron route sharing the same secret, making that two-consumer wording stale within the same iteration. Rather than keep chasing the count, rewrote the copy to be feature-list-agnostic (every vercel.json cron shares this secret) with illustrative current examples pointing at .env.example as the authoritative list — so a future fourth cron route makes an example stale, not the banner's core claim wrong. Re-verified with dev-server smoke checks at each step (three total).",
+      "src/lib/digest/operator-digest-cron-env-readiness.ts + .test.ts, src/components/dashboard/operator-digest-cron-env-banner.tsx — new files. src/app/dashboard/page.tsx + leads/page.tsx — wired in. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended operator-digest-cron-secret-env-banner. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 16d550be (origin/main tip after sibling PRs #933/#934/#935/#936 all merged mid-iteration).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (operator-digest-cron-env-readiness.test.ts, 6/6 passed) then full suite (3860 passed, 225 files post-merge) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + three dev-server smoke checks confirming the banner's show/hide behavior and each copy revision.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "operator-digest-cron-secret-env-banner",
+    ),
+  },
 ];
 
