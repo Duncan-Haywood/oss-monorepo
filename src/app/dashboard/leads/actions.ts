@@ -12,40 +12,30 @@ import {
   recordClientInquiryReply,
   getLeadBySlug,
   getLeads,
-  listOrders,
   listOrdersByLeadSlug,
   recordLeadOutreach,
   recordStarterUpsellSent,
   recordStripeConnectOnboardingLinkSent,
   recordGrowthUpsellSent,
   listOpenCheckoutSessions,
-  listUnrepliedInquiries,
   recordCheckoutRecoverySent,
   updateLeadNotes,
   updateLeadSnooze,
   applyColdLeadDisposition,
   upsertMarketingPack,
-  listMarketingPacksForMonth,
   getMarketingPack,
   markMarketingPackSentToClient,
   clearMarketingPackSentToClient,
   upsertCommerceCatalog,
   getCommerceCatalog,
-  listCommerceCatalogs,
   getCommerceOrderByStripeSessionId,
   markCommerceOrderPaidOut,
   markCommerceOrderClientReceiptSent,
   clearCommerceOrderClientReceiptSent,
   upsertClientVoicePack,
   getClientVoicePackByLeadSlug,
-  listClientVoicePacks,
   markClientVoicePackSentToClient,
   clearClientVoicePackSentToClient,
-  listUnpaidCommerceOrders,
-  listCommerceOrdersRefunded,
-  listCommerceOrdersDisputed,
-  listCommerceOrdersMissingClientReceipt,
-  listDeployHandoffs,
   getLeadSlugByCustomDomain,
   getDeployHandoffBySlug,
   reserveBundleBuyerEmailNotes,
@@ -57,7 +47,6 @@ import {
   updateLeadBufferPostedVariantKeys,
   isEmailSuppressed,
   unsuppressEmail,
-  getSuppressedEmails,
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { OPERATOR_UNSUPPRESS_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
@@ -135,10 +124,7 @@ import {
   createConnectOnboardingLink,
   fetchConnectAccountStatus,
 } from "@/lib/commerce/stripe-connect";
-import {
-  assessMarketingSchedulingGate,
-  isMarketingSchedulingAllowed,
-} from "@/lib/marketing/buffer-gate";
+import { assessMarketingSchedulingGate } from "@/lib/marketing/buffer-gate";
 import {
   listBufferProfiles,
   createBufferUpdate,
@@ -157,7 +143,6 @@ import {
   sendCheckoutAbandonedRecovery,
   sendCommerceAbandonedRecovery,
   sendInquiryReply,
-  sendOperatorDailyDigest,
   sendStarterUpsellEmail,
   sendGrowthUpsellEmail,
   sendMarketingPackToClientEmail,
@@ -184,7 +169,7 @@ import {
 } from "@/lib/billing/starter-upsell";
 import { leadEligibleForGrowthUpsell } from "@/lib/billing/growth-upsell";
 import { getBundle } from "@/lib/pricing/bundles";
-import { buildDailyDigest, renderDailyDigestHtml } from "@/lib/digest/daily-digest";
+import { sendOperatorDigestEmail } from "@/lib/digest/send-operator-digest";
 import {
   bestMarketingOrderTier,
   getMarketingGenerator,
@@ -2740,7 +2725,10 @@ export async function openBillingPortalAction(slug: string) {
  * production handoffs still open (DNS / Mark live) in one send, plus
  * cold/snoozed footnotes, so a single-operator business does not have to open
  * this dashboard to know what is urgent today. Requires OPERATOR_DIGEST_EMAIL
- * — see /docs/process.
+ * — see /docs/process. This manual button and the automated daily
+ * GET /api/cron/daily-digest (Vercel Cron) trigger both delegate to the same
+ * sendOperatorDigestEmail helper (src/lib/digest/send-operator-digest.ts) so
+ * they can never build the digest from different ledger reads.
  */
 export async function sendDailyDigestAction() {
   try {
@@ -2768,75 +2756,18 @@ export async function sendDailyDigestAction() {
       };
     }
 
-    const nowMs = Date.now();
-    const yearMonth = marketingMonthKey(nowMs);
-    const [
-      leads,
-      inquiries,
-      openCheckoutSessions,
-      orders,
-      marketingPacks,
-      commerceCatalogs,
-      clientVoicePacks,
-      commerceOrders,
-      commerceOrdersRefunded,
-      commerceOrdersDisputed,
-      commerceOrdersMissingClientReceipt,
-      handoffs,
-      suppressions,
-    ] = await Promise.all([
-      getLeads(),
-      listUnrepliedInquiries(),
-      listOpenCheckoutSessions(),
-      listOrders(),
-      listMarketingPacksForMonth(yearMonth),
-      listCommerceCatalogs(),
-      listClientVoicePacks(),
-      listUnpaidCommerceOrders(),
-      listCommerceOrdersRefunded(),
-      listCommerceOrdersDisputed(),
-      listCommerceOrdersMissingClientReceipt(),
-      listDeployHandoffs(),
-      getSuppressedEmails(),
-    ]);
-
     const headerStore = await headers();
     const appUrl = resolveTrustedAppUrl(headerStore, process.env.NEXT_PUBLIC_APP_URL);
 
-    const digest = buildDailyDigest({
-      leads,
-      inquiries,
-      openCheckoutSessions,
-      orders,
-      marketingPacksThisMonth: marketingPacks,
-      commerceCatalogs,
-      clientVoicePacks,
-      commerceOrders,
-      commerceOrdersRefunded,
-      commerceOrdersDisputed,
-      commerceOrdersMissingClientReceipt,
-      handoffs,
-      marketingSchedulingEnabled: isMarketingSchedulingAllowed(),
-      suppressions,
-      nowMs,
-    });
-    const html = renderDailyDigestHtml(digest, appUrl);
-
-    const sent = await sendOperatorDailyDigest(digestEmail, html);
-    if (!sent.success) {
-      return {
-        success: false as const,
-        error:
-          "error" in sent && typeof sent.error === "string"
-            ? sent.error
-            : "Failed to send daily digest",
-      };
+    const result = await sendOperatorDigestEmail(digestEmail, appUrl);
+    if (!result.success) {
+      return { success: false as const, error: result.error };
     }
 
     return {
       success: true as const,
-      digest,
-      mock: "mock" in sent ? Boolean(sent.mock) : false,
+      digest: result.digest,
+      mock: result.mock,
     };
   } catch (error) {
     console.error("Error in sendDailyDigestAction:", error);
