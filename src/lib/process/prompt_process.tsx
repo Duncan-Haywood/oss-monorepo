@@ -860,4 +860,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "stripe-webhook-checkout-completed-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #969 merged. The next dispatched research agent found that the main Leads table's own row-action Billing button never received the hasStripeCustomerId fix two newer surfaces in the same file (RecurringEntitlementPausedLead, billing-notice-send-failed panel) already applied to their own Manage billing buttons. While merging, sibling PR #970 (stripe-webhook-checkout-completed-capture-error, immediately above) was already on origin/main — merged it in and resolved the process-log append-position conflict by keeping the sibling's entry first, this entry last.",
+    shipped: [
+      "leadHasBillingPortal gated the table's Billing button on orderEligibleForBillingPortal alone (tier/commerceAddon, no relation to whether a Stripe Customer exists). Traced the full click path (openBillingPortalAction -> createBillingPortalForLead -> createBillingPortalForCheckoutSession) and confirmed a Starter+Commerce-addon checkout with no Stripe Customer would show a Billing button guaranteed to 404 server-side — not a crash, but a wasted click with zero warning on the dashboard's most-used surface.",
+      "Fixed by widening leadHasBillingPortal to also require Boolean(order.stripeCustomerId?.trim()), mirroring the sibling surfaces' derivation exactly. No schema/backend change, no business-policy decision — pure UI-eligibility parity. Unlike the two dedicated panels, this compact row simply omits the button with no fallback text, matching every other conditionally-rendered button in the same row.",
+      "src/app/dashboard/leads/leads-client.tsx (widened predicate + doc comment); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended leads-table-billing-button-stripe-customer-gate); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change. No library function was modified — verified via a dev-server smoke check rather than a git-stash proof.",
+      "Smoke-tested with a dev server: seeded a paid Growth lead with a live Stripe Customer id and a paid Starter+Commerce-addon lead with no Stripe Customer id; confirmed via the rendered HTML that exactly one Billing button existed on the page, for the Growth lead only. Cleaned up the seeded local.db afterward.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3991 passed, 234 files, unchanged) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + the dev-server smoke check described above.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "leads-table-billing-button-stripe-customer-gate",
+    ),
+  },
 ];
