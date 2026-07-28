@@ -891,4 +891,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "contact-form-notify-send-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #972 merged. The next dispatched research agent found src/app/api/preview/[slug]/open/route.ts's recordLeadPreviewOpen catch already shaped the right response (503 on ConvexPrimaryWriteError) but never called captureError — a genuinely fresh file, not covered by any of this session's prior captureError sweeps.",
+    shipped: [
+      "This is the public preview-open beacon that drives outreach attribution (Work-next scoring, openers-first follow-up sort, the dashboard's Opened badge). Its catch clearly mirrors unsubscribe's own structurally identical one but was missing the observability half unsubscribe's fix already added. A Convex outage during this window silently drops preview-open attribution for every visitor with zero operator-visible signal.",
+      "Wired captureError into the catch (component: 'preview-open', failureKind: 'persist_failed') before the existing ConvexPrimaryWriteError branch, so it fires for both the expected Convex failure and any unexpected rethrown error. Found the non-ConvexPrimaryWriteError rethrow branch had zero test coverage at all — added a new test proving it still rethrows unchanged after being reported.",
+      "src/app/api/preview/[slug]/open/route.ts (captureError import + 1 call site); route.test.ts (new captureError mock, 1 test extended + 1 new, 10 total, +1 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended preview-open-persist-capture-error); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only route.ts, confirmed both new/updated assertions failed exactly as expected (8 passed, 2 failed), then restored and confirmed all 10 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (10 passed) then full suite (3997 passed, 234 files, +1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only observability change, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "preview-open-persist-capture-error",
+    ),
+  },
 ];

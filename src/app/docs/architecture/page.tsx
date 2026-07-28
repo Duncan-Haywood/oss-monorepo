@@ -5402,6 +5402,26 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>preview-open-persist-capture-error</code>: the same uninstrumented-durable-write gap
+        found one more file over — <code>POST /api/preview/[slug]/open</code>, the public,
+        unauthenticated beacon that drives outreach attribution (Work-next scoring, the
+        openers-first follow-up sort, the dashboard&apos;s Opened badge). Its{" "}
+        <code>recordLeadPreviewOpen</code> catch already shaped the right response (503 on{" "}
+        <code>ConvexPrimaryWriteError</code>, matching every other <code>requireConvex</code>{" "}
+        route) but never called <code>captureError</code> at all — unlike{" "}
+        <code>unsubscribe</code>&apos;s structurally identical catch, which this route&apos;s own
+        shape was clearly modeled on but never got the observability half of. A Convex outage
+        during this window silently drops preview-open attribution for every visitor with zero
+        operator-visible signal, quietly degrading lead-scoring/follow-up-ordering data quality.
+        Wired <code>captureError</code> into the catch (<code>component: &quot;preview-open&quot;</code>,{" "}
+        <code>failureKind: &quot;persist_failed&quot;</code>) before the existing{" "}
+        <code>ConvexPrimaryWriteError</code> branch, so it fires for both the expected Convex
+        failure and any genuinely unexpected rethrown error. The latter had no test at all before
+        this fix — added one confirming a non-<code>ConvexPrimaryWriteError</code> still rethrows
+        (existing behavior, unchanged) after being reported.
+      </p>
+
+      <p>
         <code>stripe-checkout-recurring-upgrade-dedup</code>: a research agent auditing the
         Growth→Complete upsell feature traced its checkout link (
         <code>buildGrowthUpsellCheckoutPath</code>, <code>/checkout?slug=...&amp;tier=complete</code>)
