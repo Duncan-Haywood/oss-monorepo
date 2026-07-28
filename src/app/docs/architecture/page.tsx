@@ -5402,6 +5402,26 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>preview-open-persist-capture-error</code>: the same uninstrumented-durable-write gap
+        found one more file over — <code>POST /api/preview/[slug]/open</code>, the public,
+        unauthenticated beacon that drives outreach attribution (Work-next scoring, the
+        openers-first follow-up sort, the dashboard&apos;s Opened badge). Its{" "}
+        <code>recordLeadPreviewOpen</code> catch already shaped the right response (503 on{" "}
+        <code>ConvexPrimaryWriteError</code>, matching every other <code>requireConvex</code>{" "}
+        route) but never called <code>captureError</code> at all — unlike{" "}
+        <code>unsubscribe</code>&apos;s structurally identical catch, which this route&apos;s own
+        shape was clearly modeled on but never got the observability half of. A Convex outage
+        during this window silently drops preview-open attribution for every visitor with zero
+        operator-visible signal, quietly degrading lead-scoring/follow-up-ordering data quality.
+        Wired <code>captureError</code> into the catch (<code>component: &quot;preview-open&quot;</code>,{" "}
+        <code>failureKind: &quot;persist_failed&quot;</code>) before the existing{" "}
+        <code>ConvexPrimaryWriteError</code> branch, so it fires for both the expected Convex
+        failure and any genuinely unexpected rethrown error. The latter had no test at all before
+        this fix — added one confirming a non-<code>ConvexPrimaryWriteError</code> still rethrows
+        (existing behavior, unchanged) after being reported.
+      </p>
+
+      <p>
         <code>stripe-checkout-recurring-upgrade-dedup</code>: a research agent auditing the
         Growth→Complete upsell feature traced its checkout link (
         <code>buildGrowthUpsellCheckoutPath</code>, <code>/checkout?slug=...&amp;tier=complete</code>)
@@ -5557,6 +5577,32 @@ source). The same digest also lists email-critical leads with no usable address 
         for uniformity but left without a dedicated test, the same trade-off{" "}
         <code>db-ts-convex-fallback-capture-error-full-sweep</code> already documented for an inert
         fallback branch above.
+      </p>
+      <p>
+        <code>checkout-completed-capture-error-per-origin-fix</code>: an independently-built
+        session found this exact same gap and had a complete duplicate implementation ready to
+        push when a routine pre-push fetch showed{" "}
+        <code>stripe-webhook-checkout-completed-capture-error</code> (immediately above) had
+        already merged — the standard dual-build-collision outcome. Comparing the two rather than
+        discarding outright: the two implementations were structurally identical at 15 of 17
+        sites, but diverged on the two flag-based sites (<code>commerce_client_receipt_send</code>,{" "}
+        <code>bundle_email_send</code>) each merge two failure origins into one shared{" "}
+        <code>if (flagSet)</code> check. The merged version synthesizes one generic{" "}
+        <code>Error</code> at that shared check regardless of which origin actually failed — which
+        means a thrown <code>emailError</code>&apos;s real message and stack are discarded in favor
+        of a generic string, exactly the diagnostic information{" "}
+        <code>captureError</code> exists to preserve. The unmerged duplicate captured at each
+        origin instead (the real thrown error in a catch branch; a synthesized{" "}
+        <code>Error</code> carrying the actual <code>reason</code>/<code>error</code> field only
+        where no thrown error exists — a resolved <code>success: false</code>). Judged the
+        per-origin approach a genuine, if narrow, improvement — not merely a stylistic
+        preference — and shipped it as a small follow-up on top of the already-merged fix rather
+        than reintroducing the full 17-site duplicate: moved the <code>captureError</code> call at
+        both flag-based sites from the shared check into each of their four failure-origin
+        branches (two per site), removing the shared-check call entirely. Extended the 6 existing
+        failure-path tests covering these two sites to assert the specific error object/message
+        rather than <code>expect.any(Error)</code>, so a future regression back to a generic
+        synthesized message at the merged site would be caught.
       </p>
 
       <p>
