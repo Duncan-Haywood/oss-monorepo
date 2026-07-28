@@ -121,14 +121,13 @@ function sampleLowHigh(min: number, max: number, gap: number, rand: () => number
  * amount at a fixed horizon, and "timing" is its own separate slot, so a
  * trial never turns into a three-way comparison.
  */
-function sampleSlot(slot: TradeSlot, rand: () => number): { worse: Partial<FinancialProfile>; better: Partial<FinancialProfile>; line: (p: FinancialProfile) => SlotLine } {
+function sampleSlot(slot: TradeSlot, rand: () => number): { worse: Partial<FinancialProfile>; better: Partial<FinancialProfile> } {
   switch (slot) {
     case "income": {
       const { lo, hi } = sampleLowHigh(RANGES.income.min, RANGES.income.max, 1.5, rand);
       return {
         worse: { income: lo },
         better: { income: hi },
-        line: (p) => ({ icon: "money", text: `${formatMoney(p.income)}/yr income` }),
       };
     }
     case "netWorth": {
@@ -136,7 +135,6 @@ function sampleSlot(slot: TradeSlot, rand: () => number): { worse: Partial<Finan
       return {
         worse: { netWorth: lo },
         better: { netWorth: hi },
-        line: (p) => ({ icon: "bank", text: `${formatMoney(p.netWorth)} net worth` }),
       };
     }
     case "hours": {
@@ -145,7 +143,6 @@ function sampleSlot(slot: TradeSlot, rand: () => number): { worse: Partial<Finan
       return {
         worse: { weeklyHours: hi },
         better: { weeklyHours: lo },
-        line: (p) => ({ icon: "clock", text: `${p.weeklyHours} hrs/week` }),
       };
     }
     case "upside": {
@@ -155,10 +152,6 @@ function sampleSlot(slot: TradeSlot, rand: () => number): { worse: Partial<Finan
       return {
         worse: { futurePotential: lo, yearsToRealize: years },
         better: { futurePotential: hi, yearsToRealize: years },
-        line: (p) => ({
-          icon: "rocket",
-          text: `${formatMoney(p.futurePotential)} upside in ${p.yearsToRealize} yr${p.yearsToRealize === 1 ? "" : "s"}`,
-        }),
       };
     }
     case "timing": {
@@ -169,10 +162,6 @@ function sampleSlot(slot: TradeSlot, rand: () => number): { worse: Partial<Finan
       return {
         worse: { futurePotential: amount, yearsToRealize: later },
         better: { futurePotential: amount, yearsToRealize: sooner },
-        line: (p) => ({
-          icon: "rocket",
-          text: `${formatMoney(p.futurePotential)} upside in ${p.yearsToRealize} yr${p.yearsToRealize === 1 ? "" : "s"}`,
-        }),
       };
     }
   }
@@ -218,7 +207,7 @@ function generateTradeOffPair(featureCoverage: number[], rand: () => number, slo
     const only = sampleSlot(slot1, rand);
     const a1: FinancialProfile = { ...BASELINE, ...only.better };
     const b1: FinancialProfile = { ...BASELINE, ...only.worse };
-    return { a: a1, b: b1, linesA: [only.line(a1)], linesB: [only.line(b1)] };
+    return { a: a1, b: b1, ...describeProfiles(a1, b1) };
   }
 
   // "upside" and "timing" both describe the same future-payout line, so they
@@ -237,12 +226,49 @@ function generateTradeOffPair(featureCoverage: number[], rand: () => number, slo
   const a: FinancialProfile = { ...BASELINE, ...s1.better, ...s2.worse };
   const b: FinancialProfile = { ...BASELINE, ...s1.worse, ...s2.better };
 
-  return {
-    a,
-    b,
-    linesA: [s1.line(a), s2.line(a)],
-    linesB: [s1.line(b), s2.line(b)],
+  return { a, b, ...describeProfiles(a, b) };
+}
+
+/**
+ * Renders the two cards' text from the pair of profiles.
+ *
+ * This is the *only* place a card's text is produced — both when the pair is
+ * generated and when a stored trial is shown again. That is the point: the
+ * lines used to come from closures inside `sampleSlot`, which did not survive
+ * the write to the database, so a trial read back could not be re-displayed.
+ * `financial-trials/next` therefore minted a new row on every call rather than
+ * handing back the question already on screen, and the unanswered rows — the
+ * abandonment metric — counted every refresh and crawler.
+ *
+ * Nothing is inferred unsafely. A slot moves exactly one quantity away from a
+ * fixed baseline, so the attributes that differ between the two sides *are*
+ * the slots that were sampled, and each line is a pure function of the profile
+ * it describes. `upside` and `timing` both render the same payout line, so
+ * they collapse into one case rather than needing to be told apart.
+ *
+ * Because generation goes through here too, a replayed card is identical to
+ * the one first shown, down to the order of the lines — which a person
+ * re-reading a question they are mid-way through deciding will notice.
+ */
+export function describeProfiles(a: FinancialProfile, b: FinancialProfile): { linesA: SlotLine[]; linesB: SlotLine[] } {
+  const linesA: SlotLine[] = [];
+  const linesB: SlotLine[] = [];
+  const push = (line: (p: FinancialProfile) => SlotLine) => {
+    linesA.push(line(a));
+    linesB.push(line(b));
   };
+
+  if (a.income !== b.income) push((p) => ({ icon: "money", text: `${formatMoney(p.income)}/yr income` }));
+  if (a.netWorth !== b.netWorth) push((p) => ({ icon: "bank", text: `${formatMoney(p.netWorth)} net worth` }));
+  if (a.weeklyHours !== b.weeklyHours) push((p) => ({ icon: "clock", text: `${p.weeklyHours} hrs/week` }));
+  if (a.futurePotential !== b.futurePotential || a.yearsToRealize !== b.yearsToRealize) {
+    push((p) => ({
+      icon: "rocket",
+      text: `${formatMoney(p.futurePotential)} upside in ${p.yearsToRealize} yr${p.yearsToRealize === 1 ? "" : "s"}`,
+    }));
+  }
+
+  return { linesA, linesB };
 }
 
 export type FinancialFitLike = {

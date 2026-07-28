@@ -1,14 +1,15 @@
 # The open pull requests, and what to do with each
 
-Twenty-five scheduled sessions have opened twenty-five pull requests against
+Twenty-nine scheduled sessions have opened twenty-nine pull requests against
 `main`. **None has been merged.** `main` is still at `b887731`.
 
-**Every one of them is closeable by merging this single branch.** Eight are
-ancestors of it and close by containment; the other seventeen were checked
-file-by-file, and the one artifact that was genuinely distinct and uncarried —
-a test for the rate limiter — has now been written here rather than left in a
-branch nobody will merge. There is no longer anything in the queue that this
-branch does not have.
+**Every one of them is closeable by merging this single branch.** Ten are
+ancestors of it and close by containment; the other nineteen were checked
+file-by-file, and the artifacts that were genuinely distinct and uncarried — a
+test for the rate limiter, the invite-code tests, and a contract test on the
+actionable categories — have been written here rather than left in branches
+nobody will merge. There is no longer anything in the queue that this branch
+does not have.
 
 [UNATTENDED-SESSIONS.md](UNATTENDED-SESSIONS.md) records why this happened and
 what changed in response — the branch rule now holds, and sessions extend the
@@ -55,8 +56,10 @@ branch deletes.
 | #22 | `kind-ptolemy-q4tje6` | Progressive broadening; `docs/CONVERGENCE.md`; the pairing simulation |
 | #24 | `keen-gates-9o7vfd` | The last route-level `try`/`catch` gap, with a regression test |
 | #25 | `kind-ptolemy-2lb265` | Cross-perspective pooling measured and rejected; `docs/POOLING.md`; this document |
+| #27 | `kind-ptolemy-uvl60j` | The merge of #24 and #25, plus the selection-prior measurement |
+| #28 | `kind-ptolemy-wmhgvs` | Integration tests against a real Postgres, and the pending-question fix on `trials/next` they exposed |
 
-Merging this branch closes all eight.
+Merging this branch closes all ten.
 
 **#24 and #25 are the two heads this branch merged.** They fired within minutes
 of each other, extended the same seven commits, and each added one on top —
@@ -67,7 +70,7 @@ reviewed; see [UNATTENDED-SESSIONS.md](UNATTENDED-SESSIONS.md).
 
 ### Superseded — close, but read the note first
 
-Sixteen branches, each a single commit off `b887731`, most of them adding a
+Eighteen branches, each a single commit off `b887731`, most of them adding a
 `DEVELOPMENT-PROCESS.md` and a rewritten `IMPROVEMENT-PLAN.md`. They are the
 duplicate-work episode itself. This branch carries the same material as
 `developmentprocess.tsx` plus `docs/`, kept current across nine commits.
@@ -90,6 +93,8 @@ duplicate-work episode itself. This branch carries the same material as
 | #19 | `kind-ptolemy-uzyxcf` | ADRs, `CONTRIBUTING.md`, `sessionBundle.ts` | Its own PR body says it is superseded by #17 |
 | #20 | `keen-gates-vo8m6v` | `DEVELOPMENT-PROCESS.md` | — |
 | #23 | `keen-gates-st08i6` | `DEVELOPMENT-PROCESS.md` | — |
+| #26 | `keen-gates-2y9gvg` | `DEVELOPMENT-PROCESS.md`, `couples.test.ts` | Thirteen tests, all of them properties this branch's thirty-seven already assert |
+| #29 | `kind-ptolemy-3ksdss` | `docs/{architecture,product-goals,testing}.md`, `couples.test.ts` | Its couples fixes were independently made here and gone further; **three of its tests were distinct and have been taken** — see below |
 
 ### Taken from a superseded branch rather than lost
 
@@ -111,6 +116,23 @@ stale corrected:
 taken because its numbering and content are a superset. **#8 and #19 should
 still be closed** — their remaining content is duplicate.
 
+### Taken from #26 and #29, which fired after the list above was computed
+
+Both forked from the stale base rather than extending the consolidation, and
+both re-derived work this branch already had — with three exceptions, now
+written here:
+
+- **`generateInviteCode` had no test at all.** Three added: the code is two
+  four-character groups, it never emits `O`/`0`/`I`/`1` (a couple types this in
+  from a text message, which is the entire reason the alphabet is not A–Z0–9),
+  and 5,000 draws collide zero times.
+- **`ACTIONABLE_CATEGORIES` was not checked against the survey content.**
+  Rename `Behaviour` in `surveyData.ts` and nothing breaks: no type fails, no
+  test throws, and the most useful half of the couple screen quietly empties
+  forever. #29 saw that and wrote the contract test; it is here now.
+
+Everything else in the two branches is duplicate. **Close both.**
+
 ## The one real gap this left — now closed
 
 **`src/lib/rateLimit.ts` had no test.** #4 wrote one, but against a different
@@ -129,9 +151,9 @@ seventeen loses nothing at all.
 
 ## What to actually do
 
-1. Merge this branch. That closes #6, #12, #14, #17, #21, #22, #24 and #25 by
-   containment.
-2. Close the other seventeen with a one-line comment pointing here. Nothing
+1. Merge this branch. That closes #6, #12, #14, #17, #21, #22, #24, #25, #27
+   and #28 by containment.
+2. Close the other nineteen with a one-line comment pointing here. Nothing
    distinct is left in any of them.
 3. Decide whether this task should keep firing while nothing it produces can
    land. That is the question underneath all of the above, and it is the only

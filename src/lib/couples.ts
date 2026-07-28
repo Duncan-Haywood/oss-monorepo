@@ -128,7 +128,7 @@ export type ActionItem = { label: string; rating: number; rd: number; category: 
  * the difference between a curiosity and something that strengthens a
  * relationship.
  */
-const ACTIONABLE_CATEGORIES = new Set(["Behaviour", "Affection", "Relationship"]);
+export const ACTIONABLE_CATEGORIES = new Set(["Behaviour", "Affection", "Relationship"]);
 
 export function actionableTop(ranking: Ranking, limit = 6): ActionItem[] {
   return [...ranking.values()]

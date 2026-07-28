@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { deltaFeatures, encodeFeatures, formatMoney, RANGES, selectFinancialPair } from "./financialProfiles";
+import {
+  deltaFeatures,
+  describeProfiles,
+  encodeFeatures,
+  formatMoney,
+  RANGES,
+  selectFinancialPair,
+} from "./financialProfiles";
 
 /** Deterministic RNG so a failure is reproducible rather than a flake. */
 function seeded(seed: number) {
@@ -125,5 +132,60 @@ describe("formatMoney", () => {
     expect(formatMoney(250_000)).toBe("$250K");
     expect(formatMoney(1_500_000)).toBe("$1.5M");
     expect(formatMoney(12_000_000)).toBe("$12M");
+  });
+});
+
+describe("describeProfiles", () => {
+  /**
+   * The property that matters: a trial written to the database and read back
+   * has to show the same card the person was shown. Anything less and the
+   * pending-question replay in `financial-trials/next` silently rewrites the
+   * question under someone mid-answer.
+   */
+  it("reproduces the generated card exactly, over many seeds and both slot counts", () => {
+    for (const slots of [1, 2] as const) {
+      for (let seed = 1; seed <= 200; seed++) {
+        const pair = selectFinancialPair([0, 0, 0, 0, 0], null, seeded(seed), slots);
+        const rebuilt = describeProfiles(pair.a, pair.b);
+
+        expect(rebuilt.linesA, `seed ${seed}, ${slots} slots`).toEqual(pair.linesA);
+        expect(rebuilt.linesB).toEqual(pair.linesB);
+        expect(rebuilt.linesA).toHaveLength(slots);
+      }
+    }
+  });
+
+  it("keeps each line with the side it describes", () => {
+    const a = { income: 500_000, netWorth: 1_500_000, futurePotential: 0, yearsToRealize: 0, weeklyHours: 60 };
+    const b = { income: 200_000, netWorth: 1_500_000, futurePotential: 0, yearsToRealize: 0, weeklyHours: 30 };
+    const { linesA, linesB } = describeProfiles(a, b);
+
+    expect(linesA.map((l) => l.text)).toEqual(["$500K/yr income", "60 hrs/week"]);
+    expect(linesB.map((l) => l.text)).toEqual(["$200K/yr income", "30 hrs/week"]);
+  });
+
+  it("renders a payout as one line even when both its numbers move", () => {
+    // `upside` and `timing` are separate slots but share a line. Two lines
+    // here would be a card contradicting itself about the same payout.
+    const a = { income: 300_000, netWorth: 1_500_000, futurePotential: 4_000_000, yearsToRealize: 3, weeklyHours: 40 };
+    const b = { income: 300_000, netWorth: 1_500_000, futurePotential: 1_000_000, yearsToRealize: 12, weeklyHours: 40 };
+    const { linesA, linesB } = describeProfiles(a, b);
+
+    expect(linesA).toEqual([{ icon: "rocket", text: "$4.0M upside in 3 yrs" }]);
+    expect(linesB).toEqual([{ icon: "rocket", text: "$1.0M upside in 12 yrs" }]);
+  });
+
+  it("says nothing about two sides that do not differ", () => {
+    // The caller uses an empty result as "this row can no longer be shown"
+    // and picks a fresh pair, rather than rendering a blank card.
+    const p = { income: 300_000, netWorth: 1_500_000, futurePotential: 0, yearsToRealize: 0, weeklyHours: 40 };
+    expect(describeProfiles(p, p)).toEqual({ linesA: [], linesB: [] });
+  });
+
+  it("pluralises a one-year horizon", () => {
+    const a = { income: 300_000, netWorth: 1_500_000, futurePotential: 2_000_000, yearsToRealize: 1, weeklyHours: 40 };
+    const b = { ...a, yearsToRealize: 5 };
+    expect(describeProfiles(a, b).linesA[0].text).toBe("$2.0M upside in 1 yr");
+    expect(describeProfiles(a, b).linesB[0].text).toBe("$2.0M upside in 5 yrs");
   });
 });

@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  ACTIONABLE_CATEGORIES,
   actionableCount,
   actionableTop,
   asymmetries,
   compareRankings,
+  generateInviteCode,
   reliabilityOf,
   confidentCount,
   coupleReadiness,
@@ -11,6 +13,7 @@ import {
   strengthScores,
   type Ranking,
 } from "@/lib/couples";
+import { SEED_SURVEYS } from "@/lib/surveyData";
 
 /**
  * Builds a ranking from `[label, rating]` pairs. Everything is confidently
@@ -423,5 +426,44 @@ describe("reliabilityOf", () => {
   it("says nothing rather than dividing by zero on a degenerate set", () => {
     expect(reliabilityOf([])).toBe(0);
     expect(reliabilityOf([{ rating: 1500, rd: 80 }])).toBe(0);
+  });
+});
+
+/**
+ * Carried across from an unmerged branch (#29) rather than closed with it —
+ * the invite code and the actionable-category list were the two things in
+ * that pull request this branch did not already cover. See
+ * `docs/PULL-REQUEST-BACKLOG.md`.
+ */
+describe("generateInviteCode", () => {
+  it("is two four-character groups, so it can be read aloud", () => {
+    expect(generateInviteCode()).toMatch(/^[A-Z2-9]{4}-[A-Z2-9]{4}$/);
+  });
+
+  it("never emits a character people confuse when reading a code out", () => {
+    // A couple types this in from a text message or across a table. O/0 and
+    // I/1 are the whole reason the alphabet is not A-Z0-9.
+    const codes = Array.from({ length: 500 }, () => generateInviteCode()).join("");
+    expect(codes).not.toMatch(/[O0I1]/);
+  });
+
+  it("does not collide across far more invites than this app will ever issue", () => {
+    const seen = new Set(Array.from({ length: 5000 }, () => generateInviteCode()));
+    expect(seen.size).toBe(5000);
+  });
+});
+
+describe("ACTIONABLE_CATEGORIES", () => {
+  it("names categories that exist in the survey content", () => {
+    // Nothing else fails if one of these is renamed in `surveyData`: no type
+    // breaks, no test throws, and the most useful half of the couple screen
+    // quietly empties forever. This is the only thing standing between a
+    // rename and that.
+    const real = new Set(
+      SEED_SURVEYS.flatMap((s) => s.items.map((i) => i.category)).filter(Boolean),
+    );
+    for (const category of ACTIONABLE_CATEGORIES) {
+      expect(real, `no survey item has category "${category}"`).toContain(category);
+    }
   });
 });

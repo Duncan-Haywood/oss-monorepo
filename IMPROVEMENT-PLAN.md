@@ -16,14 +16,14 @@ mean:
 
 ## Open
 
-### P0 — Twenty-seven parallel pull requests, none merged — *one merge closes all of them*
+### P0 — Twenty-nine parallel pull requests, none merged — *one merge closes all of them*
 
-**This branch is the twenty-eighth, and it extends the twenty-seventh rather
-than starting beside it.** Every commit below #27's head is carried forward
+**This branch is the thirtieth, and it extends the twenty-eighth rather than
+starting beside it.** Every commit below #28's head is carried forward
 unchanged, so merging this one branch still closes the entire queue. The count
-has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 across eight write-ups of
+has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 → 29 across nine write-ups of
 this item; the notification each session sent did not change it, and neither
-will a ninth. Merging or pausing the schedule are the only two things that do.
+will a tenth. Merging or pausing the schedule are the only two things that do.
 
 **The queue had grown two heads.** Two sessions fired minutes apart, both
 extended the same seven commits, and each added one commit: #25 (the pooling
@@ -41,7 +41,10 @@ Dispositions, computed from the commit graph rather than the titles, are in
 queue is lost by closing it: the ancestors close by containment, and the rest
 were checked file-by-file for anything this branch does not already have.
 
-The consolidation chain is #12 ⊂ #14 ⊂ #17 ⊂ #21 ⊂ #22 ⊂ {#24, #25} ⊂ #27 ⊂ here.
+The consolidation chain is #12 ⊂ #14 ⊂ #17 ⊂ #21 ⊂ #22 ⊂ {#24, #25} ⊂ #27 ⊂ #28
+⊂ here. #26 and #29 forked from the stale base after the dispositions were
+computed; both were checked file-by-file and three tests were taken from #29
+rather than closed with it.
 
 **Nothing merges without the account owner**, and until it does, every scheduled
 run adds a pull request without moving the project. Each of those sessions sent
@@ -94,6 +97,28 @@ integration tests cover both halves; the first fails against the old route.
 row and create two. The duplicate-fetch path that used to do that on every
 resume is gone (the runner picks its domain outside the effect), so what
 remains is a genuine double-tap rather than a structural bug.
+
+### P1 → resolved on this branch — `financial-trials/next` created a row on every page load
+
+The same bug as the one fixed on `trials/next` two branches ago, on its twin,
+untouched. Every call — a refresh, a back button, a crawler — minted a
+`FinancialTrial` row, so the abandonment metric counted reloads, and an
+unauthenticated caller could write rows in a loop.
+
+It survived because it looked impossible rather than because it was missed: the
+financial card's text came from closures that did not survive the write, so the
+stored row could not be shown again. That was true of the code and false of the
+problem. `describeProfiles` reconstructs the card from the two stored profiles
+— the attributes that differ between the sides *are* the slots that were
+sampled — and is now the single renderer for both the generated card and the
+replayed one, so a reloaded question is identical down to the order of its
+lines. Round-tripped over 200 seeds at both slot counts.
+
+The general version of this is written up in
+[`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md), and the durable
+fix for "which routes differ in a way one of them shouldn't" is
+[`docs/ROUTES.md`](docs/ROUTES.md): every route in one table, guarded by
+`routeInventory.test.ts` so it cannot fall behind the code.
 
 ### P1 — Decide what to do with six dead columns on `Participant`
 
@@ -153,8 +178,16 @@ CI runs the same suite against its existing Postgres service. `npm run verify`
 deliberately does not: a gate that needs setup is a gate people route around.
 See [`decisions/0008`](docs/decisions/0008-integration-tests-against-a-real-database.md).
 
-**Still uncovered:** the financial/conjoined routes (the refit runs inside the
-request) and the admin portal. That is now the largest coverage gap.
+**Now also covered on this branch:** the financial and conjoined routes, in
+`financial.integration.test.ts` — 15 tests over the real handlers, including
+that a conjoined card's identity weight comes from the answerer's own ratings
+(two people who rated the same item in opposite directions fit opposite signs,
+which pooled ratings could not produce).
+
+**Still uncovered:** the admin portal — four routes, one of them exporting
+every answer in the database as CSV, with no test at any level. That is now the
+largest coverage gap. Below it, `feedback` and `report`, which write on a POST
+but require an account.
 
 ### P2 — The premise that was wrong for four documents
 
@@ -328,12 +361,27 @@ items, five aligned and five diverged rows.
 **Fix:** what remains is judgement, not code. Someone has to read real output
 and say whether it is worth showing.
 
-### P2 — CSRF/origin check on the mutating routes
+### P2 → resolved on this branch — CSRF/origin check on the mutating routes
 
-Low impact today (no session worth stealing on the anonymous routes) but a free
-amplifier for anything else, and the auth routes now do carry a session cookie.
+A signed-in user opening another page, whose JavaScript posts to
+`/api/couple/join` or `/api/trials/answer`, would have had that request carry
+their session cookie and be indistinguishable from a real one. Nothing here is
+worth *reading* — but it is worth writing to: burning a couple's invite code,
+planting answers into a partner's ranking, or firing the anonymous session
+endpoint from real users' browsers, which is the one route with no account
+behind it to throttle against.
 
-**Fix:** an origin check in the shared route wrapper. ~1 hour.
+**Done** in `src/proxy.ts` (Next 16's renamed Middleware), so the rule is in one
+file rather than eighteen handlers where the nineteenth would be missing it.
+`src/lib/originCheck.ts` holds the decision and 16 tests hold it in place. Two
+choices worth knowing about: a request with **no** `Origin` is allowed, because
+browsers always send it on POST, so its absence means a non-browser caller —
+curl, the admin export, the integration suite — which cannot be a CSRF vector;
+and `Sec-Fetch-Site: cross-site` is rejected on its own, which closes the gap
+that would otherwise open by simply omitting the header.
+
+**Not** claimed to be authorisation. It says the request came from our own
+pages; who is making it is still `getSessionUser`'s job.
 
 ### P3 — Contrast and a real screen-reader pass
 

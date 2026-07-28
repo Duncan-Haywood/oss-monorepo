@@ -41,12 +41,14 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
 | `pooling.simulation.test.ts` | 13 | A rejected design, kept measured rather than argued: cross-perspective pooling buys a sevenfold precision gain by turning PARTNER_GUESS into a copy of SELF. Guards the claim so a future session cannot reopen it from intuition. See [POOLING.md](POOLING.md) |
 | `tradeoffs.test.ts` | 10 | Every generated financial pair is a genuine non-dominated trade-off |
 | `dimensions.test.ts` | 9 | The dimension taxonomy stays consistent with the item catalogue |
-| `financialProfiles.test.ts` | 9 | Profile generation stays inside its declared bounds |
+| `financialProfiles.test.ts` | 14 | Profile generation stays inside its declared bounds, and a card rebuilt from a stored trial is identical to the one first shown — over 200 seeds at both slot counts |
 | `perspective.test.ts` | 7 | The three perspectives parse distinctly and never collapse into each other |
 | `sessionStore.test.ts` | 6 | A partial or tampered session bundle is rejected rather than half-used |
-| `couples.test.ts` | 18 | Cross-person comparison: percentile positions, the answer-volume trap, overlap floors before a match score |
+| `couples.test.ts` | 37 | Cross-person comparison: percentile positions, the answer-volume trap, overlap floors before a match score |
 | `UnifiedRunner.test.tsx` | 8 | The swipe loop: cold start, resume, one question per resume, a half-written bundle, a failed fetch, a thrown fetch, advancing on an answer, and the consent line on the welcome screen |
 | `developmentProcess.test.ts` | 13 | The process document stays internally consistent |
+| `routeInventory.test.ts` | 3 | [ROUTES.md](ROUTES.md) lists every route that exists, with the right methods — the table is only useful if it is complete |
+| `originCheck.test.ts` | 16 | The CSRF rule: a subdomain is not the same origin, the proxy's forwarded host is what a browser is compared against, a non-browser caller is not blocked, and reads are never touched |
 | `InsightsView.test.tsx` | 4 | The insight catalogue's contract with the content map |
 | `AuthView.test.tsx` | 3 | Signup names what it stores, links the policy, and collects only the three fields it names |
 | `api/session/start/route.test.ts` | 3 | The route writes a first name and a perspective and nothing else — the six profile fields the old intro form sent are refused |
@@ -58,14 +60,18 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
 | `api/trials/trials.integration.test.ts` | 10 | The swipe loop: an answer moves both items and stores the snapshot undo replays, a resent answer is acknowledged and applied once, two submits racing on one trial apply once, one participant's answers never touch another's ratings, undo restores exactly, and a reload returns the pending question instead of minting a row |
 | `api/session/session.integration.test.ts` | 8 | Participant creation and reuse: switching perspective and back lands on the same rows, the six removed profile fields cannot be written, the per-IP throttle counts and exempts accounts, and the status fan-out stays capped |
 | `api/couple/couple.integration.test.ts` | 9 | The couple screen: an invite is claimable exactly once under a race, no raw answer or participant id crosses between two people, and the actionable sections stay shut while the data is thin and open when it is not |
+| `api/financial-trials/financial.integration.test.ts` | 15 | The financial and conjoined loop: every card is a real non-dominated trade-off, a reload returns the pending question rather than minting a row, an answer applies once under a race and once on a retry, the refit runs on the first answer and then on a throttle, and a conjoined card's identity weight comes from the answerer's own ratings — two people who rated the same item oppositely fit opposite signs |
 
 ## What is not covered, and why it matters
 
-- **The financial and conjoined routes.** `financial-trials/next` and
-  `/answer` run the conjoint refit inside the request; the fitter itself is
-  well covered, the route around it is not. This is now the largest gap.
 - **The admin portal.** Login, rate limiting and the CSV export have no test
-  at any level.
+  at any level. Four routes, one of them exporting every answer in the database
+  as a CSV, and the only thing that has ever checked them is someone using the
+  portal. **This is now the largest gap** — the financial routes, which held
+  the title, are covered.
+- **`feedback` and `report`.** The two remaining routes that write on a POST
+  with no test. Both require an account, which is why they rank below the admin
+  portal rather than above it.
 - **Real blind-spots output.** The comparison is exercised end to end with
   planted rankings, but no human has read what two real accounts with three
   perspectives filled in actually produces. That is a judgement call, not a

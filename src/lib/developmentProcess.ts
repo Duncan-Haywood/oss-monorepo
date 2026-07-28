@@ -364,7 +364,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "each-persons-own",
     note:
-      "Ratings are per participant, the perspectives no longer collapse into each other, and anonymous session creation is rate limited per IP. Remaining: origin checks on the mutating routes.",
+      "Ratings are per participant, the perspectives no longer collapse into each other, anonymous session creation is rate limited per IP, and every mutating route sits behind an origin check in src/proxy.ts. Remaining: the columns still on Participant from the deleted intro form, which only the account owner can decide to drop.",
   },
   {
     id: "privacy",

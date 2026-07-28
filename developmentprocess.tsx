@@ -22,6 +22,8 @@
  *                                costs, and how to measure a pairing change
  *   docs/POOLING.md              the largest available precision win, measured,
  *                                and why taking it would delete the product
+ *   docs/ROUTES.md               every API route in one table: what guards it,
+ *                                what it writes, and what tests it
  *   docs/TESTING.md              what is covered, what is not, and how to add to it
  *   docs/UNATTENDED-SESSIONS.md  how to work here when nobody is watching, and
  *                                what happens when several sessions forget to
