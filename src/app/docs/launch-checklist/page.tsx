@@ -388,6 +388,24 @@ export default function LaunchChecklistDocPage() {
           response body reports how many due sessions it attempted / sent /
           failed that run.
         </li>
+        <li>
+          The same <code>CRON_SECRET</code> also automates the cold-outreach
+          Email 2/3 follow-up cadence via <code>vercel.json</code>&apos;s third
+          crons entry, <code>/api/cron/outreach-followups</code> — until that
+          secret is set, a follow-up only ever sends when an operator manually
+          clicks <strong>Send Email 2/3</strong> for a specific lead on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> once it
+          shows up as due (3 days after Email 1, 4 days after Email 2).
+          Confirm the same way: a 200 response body reports how many due leads
+          it attempted / sent / failed that run.{" "}
+          <strong>Vercel&apos;s Hobby plan allows only 2 Cron Jobs total</strong> —
+          running all three of these routes needs a Pro plan (or higher)
+          project. On Hobby, either upgrade or drop one entry from{" "}
+          <code>vercel.json</code>&apos;s <code>&quot;crons&quot;</code> array
+          before deploying — check Vercel&apos;s current Cron Jobs limits page
+          for the exact enforcement behavior on your plan rather than
+          assuming a config over the limit silently truncates.
+        </li>
       </ol>
 
       <h2>4. Persistence</h2>
