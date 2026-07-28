@@ -965,5 +965,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "growth-upsell-annual-billing-carry-through",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-t8u96q",
+    summary:
+      "Scheduled routine, picked up at origin/main tip b7f78e85 (PR #955). git fetch --prune found no live sibling PR beyond the pre-existing unrelated stale draft #202 at dispatch time. Independently identified the exact same gap the immediately-preceding entry's session found (the growth-upsell nudge never carrying annual billing through), implemented a full fix with tests and a git-stash-verified regression proof, then hit a genuine dual-build collision on the routine pre-push re-fetch.",
+    shipped: [
+      "That re-fetch showed sibling PR #957 (claude/upbeat-dijkstra-tg1n4z) had already merged the identical fix moments earlier. Compared implementations side by side rather than assuming mine was fine: the sibling derives the live billing cadence from the qualifying order's own stripeSessionId via Stripe Checkout Session retrieve+expand — a field every order always has, mapping unambiguously to one specific session — while mine used stripeCustomerId (optional, and ambiguous if a customer ever holds more than one active subscription) with a subscriptions.list lookup. The sibling's design is strictly better for the same fact.",
+      "Discarded my entire duplicate implementation (git restore --source=HEAD across all 6 touched files) and fast-forwarded onto origin/main (401d0813, PR #957 merge) rather than reconciling two competing implementations of one helper. Re-ran the full verification gate against the fast-forwarded tip to confirm nothing was lost: file-size check (both process-log files well under the 262,144-byte trigger), npx tsc --noEmit (0 errors), npm run lint (clean), npx vitest run full suite (3968 passed, 233 files, unchanged by this review).",
+      "No product/test code ships from this entry — per the established dual-build-collision-review precedent, the honest, cooperative outcome is to verify the merged version, document why it won out, and move on rather than manufacture a distinguishing change. src/lib/process/business-decisions.ts — appended growth-upsell-annual-billing-dual-build-collision-review. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked, unchanged.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "growth-upsell-annual-billing-dual-build-collision-review",
+    ),
+  },
 ];
 
