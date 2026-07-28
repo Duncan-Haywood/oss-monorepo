@@ -52,24 +52,37 @@ export function orderHasActiveRecurringEntitlement(order: {
 }
 
 /**
- * The Stripe Customer id of the lead's existing live recurring order, if
- * any. A new recurring Checkout Session for the same lead (e.g. the Growth→
+ * The Stripe Customer id of the lead's existing recurring order, if any. A
+ * new recurring Checkout Session for the same lead (e.g. the Growth→
  * Complete upsell email's checkout link) must reuse this Customer instead of
  * letting Stripe mint a fresh one from customer_email alone — otherwise the
  * same real-world subscriber ends up with two Stripe Customer records and
  * two active Subscriptions (one per Customer), silently doubling their
  * monthly bill. See stripe-checkout-recurring-upgrade-dedup.
+ *
+ * Deliberately uses orderHadRecurringEntitlement (ignores
+ * recurringCanceledAt), not orderHasActiveRecurringEntitlement — same
+ * reasoning as orderEligibleForPauseNotice below: recurringCanceledAt is set
+ * by BOTH a terminal customer.subscription.deleted AND a temporary
+ * past_due/unpaid/pause_collection pause (the underlying Stripe Subscription
+ * is still very much alive mid-dunning). A customer upgrading tiers while
+ * their old Subscription happens to be past_due must still reuse that old
+ * Customer — reusing an old, fully-dead Customer for a genuinely fresh
+ * subscriber is harmless (Stripe Customers are cheap and reusable), but
+ * MISSING a merely-paused one here would recreate the exact duplicate-
+ * subscription bug this function exists to prevent the moment dunning
+ * recovers the old Subscription. See
+ * recurring-upgrade-dedup-past-due-customer-reuse-gap.
  */
 export function existingRecurringStripeCustomerId(
   orders: ReadonlyArray<{
     stripeCustomerId?: string | null;
     tier: string;
     commerceAddon: boolean;
-    recurringCanceledAt?: number | null;
   }>,
 ): string | null {
   for (const order of orders) {
-    if (!orderHasActiveRecurringEntitlement(order)) continue;
+    if (!orderHadRecurringEntitlement(order)) continue;
     const customerId = order.stripeCustomerId?.trim();
     if (customerId) return customerId;
   }
@@ -77,17 +90,28 @@ export function existingRecurringStripeCustomerId(
 }
 
 /**
- * Stripe Customer ids of the lead's OTHER still-active recurring orders that
- * a just-completed recurring Checkout Session for the same lead supersedes
+ * Stripe Customer ids of the lead's OTHER recurring orders that a
+ * just-completed recurring Checkout Session for the same lead supersedes
  * (e.g. Growth→Complete upsell). Excludes the just-completed session's own
  * order (by stripeSessionId) and any order sharing the new session's own
  * Customer id (the same Customer/Subscription being resynced via Billing
  * Portal, not a second one stacked on top). A well-behaved lead never has
  * more than one live recurring order; any others found here are exactly the
  * duplicate-subscription bug this predicate exists to detect and heal — the
- * caller cancels each returned Customer's active Stripe Subscription(s) and
- * marks the corresponding order(s) recurringCanceledAt. See
- * stripe-checkout-recurring-upgrade-dedup.
+ * caller cancels each returned Customer's still-active Stripe
+ * Subscription(s) (a Stripe subscriptions.list with no status filter, so
+ * past_due/unpaid/trialing/paused resources are found too, not just
+ * status=active) and marks the corresponding order(s) recurringCanceledAt.
+ * See stripe-checkout-recurring-upgrade-dedup.
+ *
+ * Deliberately uses orderHadRecurringEntitlement, not
+ * orderHasActiveRecurringEntitlement — see
+ * existingRecurringStripeCustomerId's doc comment above for why
+ * recurringCanceledAt alone cannot distinguish "Stripe resource is fully
+ * gone" from "temporarily paused" (recurring-upgrade-dedup-past-due-
+ * customer-reuse-gap). Calling Stripe for a genuinely already-fully-canceled
+ * Customer here is harmless — subscriptions.list simply returns nothing to
+ * cancel.
  */
 export function otherLiveRecurringStripeCustomerIdsToSupersede(
   orders: ReadonlyArray<{
@@ -95,7 +119,6 @@ export function otherLiveRecurringStripeCustomerIdsToSupersede(
     stripeCustomerId?: string | null;
     tier: string;
     commerceAddon: boolean;
-    recurringCanceledAt?: number | null;
   }>,
   justCompletedSessionId: string,
   newStripeCustomerId: string | null | undefined,
@@ -103,7 +126,7 @@ export function otherLiveRecurringStripeCustomerIdsToSupersede(
   const ids = new Set<string>();
   for (const order of orders) {
     if (order.stripeSessionId === justCompletedSessionId) continue;
-    if (!orderHasActiveRecurringEntitlement(order)) continue;
+    if (!orderHadRecurringEntitlement(order)) continue;
     const customerId = order.stripeCustomerId?.trim();
     if (!customerId) continue;
     if (newStripeCustomerId && customerId === newStripeCustomerId) continue;

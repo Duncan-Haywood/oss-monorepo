@@ -4323,7 +4323,10 @@ describe("POST /api/stripe/webhook", () => {
 
         const response = await POST(webhookRequest());
         expect(response.status).toBe(200);
-        expect(listSubscriptions).toHaveBeenCalledWith({ customer: "cus_old", status: "active" });
+        // No status filter — Stripe's own default excludes only
+        // status=canceled, so a past_due/unpaid/paused Subscription is
+        // found here too (recurring-upgrade-dedup-past-due-customer-reuse-gap).
+        expect(listSubscriptions).toHaveBeenCalledWith({ customer: "cus_old" });
         // cancellation_details.comment lets the customer.subscription.deleted
         // handler's win-back notice tell this apart from a genuine
         // customer-initiated cancel and skip it (subscription-canceled-
@@ -4336,6 +4339,28 @@ describe("POST /api/stripe/webhook", () => {
           expect.any(Number),
           { requireConvex: true },
         );
+      });
+
+      it("cancels a superseded subscription that is past_due (recurringCanceledAt was set by a pause, not a terminal cancel) — recurring-upgrade-dedup-past-due-customer-reuse-gap", async () => {
+        baseSetup();
+        listOrdersByLeadSlug.mockResolvedValue([
+          {
+            stripeSessionId: "cs_prior",
+            stripeCustomerId: "cus_past_due",
+            tier: "growth",
+            commerceAddon: false,
+            recurringCanceledAt: 1_720_000_000_000,
+          },
+        ]);
+        listSubscriptions.mockResolvedValue({ data: [{ id: "sub_past_due_1" }] });
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(listSubscriptions).toHaveBeenCalledWith({ customer: "cus_past_due" });
+        expect(cancelSubscription).toHaveBeenCalledWith("sub_past_due_1", {
+          cancellation_details: { comment: "superseded_by_recurring_upgrade" },
+        });
       });
 
       it("does nothing for a genuinely first-time subscriber (no prior orders)", async () => {

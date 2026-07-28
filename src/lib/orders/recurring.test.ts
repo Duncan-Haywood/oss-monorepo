@@ -81,15 +81,10 @@ describe("existingRecurringStripeCustomerId", () => {
     ).toBe("cus_growth");
   });
 
-  it("skips a canceled recurring order and returns null when none are live", () => {
+  it("skips a non-recurring (Starter, no commerce addon) order", () => {
     expect(
       existingRecurringStripeCustomerId([
-        {
-          tier: "growth",
-          commerceAddon: false,
-          stripeCustomerId: "cus_canceled",
-          recurringCanceledAt: 1_720_000_000_000,
-        },
+        { tier: "starter", commerceAddon: false, stripeCustomerId: "cus_starter" },
       ]),
     ).toBeNull();
   });
@@ -145,10 +140,10 @@ describe("otherLiveRecurringStripeCustomerIdsToSupersede", () => {
     ).toEqual([]);
   });
 
-  it("excludes an already-canceled prior order", () => {
+  it("excludes a non-recurring (Starter) prior order", () => {
     expect(
       otherLiveRecurringStripeCustomerIdsToSupersede(
-        [{ ...growthOrder, recurringCanceledAt: 1_720_000_000_000 }],
+        [{ ...growthOrder, tier: "starter", commerceAddon: false }],
         "cs_new_complete",
         "cus_new",
       ),
