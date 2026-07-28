@@ -498,6 +498,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "buffer-schedule-stale-pack-variant-guard",
+    summary:
+      "Closed a residual gap in buffer-schedule-stale-pack-content-guard: that fix re-checked marketing-pack freshness once per Buffer profile, but scheduleMarketingPackToBufferAction can post several sequential variants per profile (3 caption variants/month). A regenerate landing between two variant posts for the SAME profile still shipped superseded copy. Moved the freshness re-check inside the innermost per-variant loop, immediately before each createBufferUpdate call. See buffer-schedule-stale-pack-variant-guard in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 6 — Marketing automation",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -761,6 +769,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "checkout-session-record-capture-error-wiring",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 73bd1328 (PR #908, checkout-session-record-capture-error-wiring, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). No live sibling branch; the sole other open PR remains #202 (unrelated, weeks-stale human draft).",
+    shipped: [
+      "A dispatched research agent, explicitly told the observability/captureError axis was now fully closed and not to propose another site, found a genuine residual gap in a different fix from earlier today (buffer-schedule-stale-pack-content-guard): its freshness re-check ran once per Buffer profile, but scheduleMarketingPackToBufferAction can post several sequential variants per profile — a regenerate landing between two variant posts for the SAME profile still shipped superseded copy to a live, unrecallable social post.",
+      "src/app/dashboard/leads/actions.ts — moved the freshness re-check (getMarketingPack + generatedAt comparison) from once per profileId into the innermost per-variant loop, immediately before each createBufferUpdate call. On staleness, breaks out of the inner loop rather than continuing to the next profile — the outer loop's next iteration re-checks freshness itself and cascades the skip naturally, so no extra early-exit logic was needed. The skip message reuses the existing label variable (profileId alone for a single-variant profile, profileId (N/total) otherwise), so the pre-existing single-variant tests' skip-message assertions are unaffected.",
+      "src/app/dashboard/leads/buffer-actions.test.ts — added one new test (a single profile with 3 matching variants, a regenerate landing between the first and second createBufferUpdate call, asserting only the first variant posts and the remaining two are skipped). Verified it actually catches the regression: git stash'd actions.ts's source change alone and confirmed all 3 variants posted instead of 1 before restoring the fix; all 35 pre-existing tests (including both prior regenerate-detection tests) still pass unchanged, confirming the refactor is behavior-preserving for cases already covered. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended buffer-schedule-stale-pack-variant-guard. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 73bd1328.",
+      "File-size check per AGENT_PROTOCOL's re-archive note: both process-log files re-measured well under the 262,144-byte trigger (prompt_process.tsx ~199KB, business-decisions.ts ~128KB) thanks to PR #907's re-archive split earlier today — no re-archive needed this round.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (buffer-actions.test.ts, 36/36 passed) then full suite (3607 passed, 212 files — 1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-action-only change gated behind ALLOW_MARKETING_SCHEDULING and a live Buffer token, neither available in this sandboxed environment.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-schedule-stale-pack-variant-guard",
     ),
   },
 ];
