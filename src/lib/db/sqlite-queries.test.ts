@@ -1305,4 +1305,42 @@ describe("sqliteRecordLeadPayment", () => {
       .get("cs_test_3") as { stripeCustomerId: string | null };
     expect(order.stripeCustomerId).toBeNull();
   });
+
+  it("uses the checkout-time businessName/businessPhone for a new payment-stub lead when supplied", () => {
+    const db = freshDb();
+    sqliteRecordLeadPayment(
+      db,
+      {
+        ...paymentParams({ stripeSessionId: "cs_test_4" }),
+        businessName: "Riverside Plumbing",
+        businessPhone: "555-867-5309",
+      },
+      false,
+    );
+    const lead = db
+      .prepare("SELECT businessName, phone FROM leads WHERE slug = ?")
+      .get("organic-new-buyer") as { businessName: string; phone: string };
+    expect(lead.businessName).toBe("Riverside Plumbing");
+    expect(lead.phone).toBe("555-867-5309");
+  });
+
+  it("ignores businessName/businessPhone when the lead already exists (never overwrites a real CRM row)", () => {
+    const db = freshDb();
+    insertLeadDirect(db, "test-lead");
+
+    sqliteRecordLeadPayment(
+      db,
+      {
+        ...paymentParams({ slug: "test-lead", stripeSessionId: "cs_test_5" }),
+        businessName: "Should Not Apply",
+        businessPhone: "555-000-0000",
+      },
+      true,
+    );
+
+    const lead = db
+      .prepare("SELECT businessName FROM leads WHERE slug = ?")
+      .get("test-lead") as { businessName: string };
+    expect(lead.businessName).not.toBe("Should Not Apply");
+  });
 });

@@ -329,6 +329,8 @@ export const markLeadPaid = mutation({
     amountTotal: v.float64(),
     stripeCustomerId: v.optional(v.string()),
     acquisitionSource: v.optional(v.string()),
+    businessName: v.optional(v.string()),
+    businessPhone: v.optional(v.string()),
     apiSecret: v.string(),
   },
   // Returns whether this call recorded a *new* order — false means Stripe
@@ -377,7 +379,13 @@ export const markLeadPaid = mutation({
       // drift class fixed once already in convex/orders.ts and
       // convex/deployHandoffs.ts (see AGENT_PROTOCOL /
       // convex-deploy-handoff-status-rank-duplicate-fix).
-      await ctx.db.insert("leads", buildPaymentStubLeadFields(args.slug));
+      await ctx.db.insert(
+        "leads",
+        buildPaymentStubLeadFields(args.slug, {
+          businessName: args.businessName,
+          phone: args.businessPhone,
+        }),
+      );
     }
 
     await ctx.db.insert("orders", {
