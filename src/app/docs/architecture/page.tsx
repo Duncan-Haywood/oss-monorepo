@@ -3553,6 +3553,28 @@ source). The same digest also lists email-critical leads with no usable address 
       </p>
 
       <p>
+        <code>leads-table-billing-button-stripe-customer-gate</code>: the main Leads table&apos;s
+        own row-action <strong>Billing</strong> button never got the same fix{" "}
+        <code>RecurringEntitlementPausedLead</code> and{" "}
+        <code>billing-notice-send-failed-leads-panel</code> already applied to their own Manage
+        billing buttons. It gated only on <code>orderEligibleForBillingPortal</code> (tier/
+        <code>commerceAddon</code> only, no relation to whether a Stripe Customer actually exists)
+        — a Starter+Commerce-addon (payment-mode) checkout can complete with no Stripe Customer at
+        all (the webhook sets <code>stripeCustomerId</code> from{" "}
+        <code>stripeCustomerIdFromUnknown(session.customer) ?? undefined</code>), so that lead
+        would show a Billing button guaranteed to 404 server-side the moment it&apos;s clicked (
+        <code>createBillingPortalForCheckoutSession</code>&apos;s own &quot;Checkout session has no
+        Stripe Customer&quot; case) — not a crash, but a wasted click with no warning on the single
+        most-used surface in the dashboard. Fixed by widening the table&apos;s own{" "}
+        <code>leadHasBillingPortal</code> predicate to also require{" "}
+        <code>Boolean(order.stripeCustomerId?.trim())</code>, the identical derivation the two
+        sibling surfaces already use. Unlike those two dedicated due-queue panels (which show a
+        &quot;no Stripe customer on file&quot; note in place of the hidden button), this compact
+        row simply omits the button with no fallback text, matching every other conditionally-
+        rendered action button already in the same row.
+      </p>
+
+      <p>
         A refund itself can also reverse — common for bank-sourced refunds (ACH, some debit cards)
         that Stripe reports as <code>pending</code>/<code>succeeded</code> first, then fails or is
         canceled days later when the destination account rejects it. Disputes got a resolution

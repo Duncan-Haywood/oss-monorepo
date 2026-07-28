@@ -1396,8 +1396,21 @@ export function LeadsClient({
   const packByLeadSlug = new Map(marketingPacks.map((p) => [p.leadSlug, p]));
   const voicePackByLeadSlug = new Map(clientVoicePacks.map((p) => [p.leadSlug, p]));
 
+  // orderEligibleForBillingPortal alone checks only tier/commerceAddon — a
+  // Starter+Commerce-addon (payment-mode) checkout can complete with no
+  // Stripe Customer created at all (stripeCustomerIdFromUnknown(session.customer)
+  // ?? undefined in the webhook), so that predicate alone would show this
+  // button for a lead whose Billing Portal open is guaranteed to 404
+  // server-side (createBillingPortalForCheckoutSession's own "Checkout
+  // session has no Stripe Customer" case). RecurringEntitlementPausedLead and
+  // the billing-notice-send-failed panel both already gate their own Manage
+  // billing button on Boolean(order.stripeCustomerId?.trim()) for exactly
+  // this reason — this table's own Billing button had never gotten the same
+  // fix. See leads-table-billing-button-stripe-customer-gate.
   const leadHasBillingPortal = (slug: string) =>
-    (ordersByLeadSlug.get(slug) ?? []).some((o) => orderEligibleForBillingPortal(o));
+    (ordersByLeadSlug.get(slug) ?? []).some(
+      (o) => orderEligibleForBillingPortal(o) && Boolean(o.stripeCustomerId?.trim()),
+    );
 
   const leadEligibleForUpsell = (lead: Lead) =>
     leadEligibleForStarterUpsell({
