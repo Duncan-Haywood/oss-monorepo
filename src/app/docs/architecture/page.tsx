@@ -4901,6 +4901,31 @@ source). The same digest also lists email-critical leads with no usable address 
         logic still run as before (idempotent either way, since the bundle-order handler already
         marked the order <code>recurringCanceledAt</code> synchronously moments earlier).
       </p>
+      <p>
+        <code>recurring-upgrade-dedup-past-due-customer-reuse-gap</code>: a research agent auditing
+        the dedup fix above for the same bug family elsewhere in the codebase found a real residual
+        gap in its own logic. <code>existingRecurringStripeCustomerId</code> and{" "}
+        <code>otherLiveRecurringStripeCustomerIdsToSupersede</code> both gated on{" "}
+        <code>orderHasActiveRecurringEntitlement</code>, which requires{" "}
+        <code>recurringCanceledAt</code> to be unset — but that field is set by BOTH a terminal{" "}
+        <code>customer.subscription.deleted</code> AND a temporary past_due/unpaid/pause_collection
+        pause, where the underlying Stripe Subscription is still very much alive mid-dunning. A
+        customer whose old subscription happened to be past_due at upgrade time would not have that
+        Customer reused by the checkout route, and the webhook&apos;s own supersede-cancel would
+        neither find it (recurringCanceledAt already set) nor have canceled it even if it had (the{" "}
+        <code>subscriptions.list</code> call filtered on <code>status: &quot;active&quot;</code>,
+        which excludes past_due). If dunning later recovered the old subscription, it would resume
+        billing alongside the new one — reproducing the exact double-billing bug the fix above was
+        meant to eliminate, just via a payment-failure timing window instead of same-day
+        double-checkout. Fixed by switching both predicates to{" "}
+        <code>orderHadRecurringEntitlement</code> (ignores <code>recurringCanceledAt</code>{" "}
+        entirely — the same established pattern this file already uses for{" "}
+        <code>orderEligibleForPauseNotice</code>, for the identical reason) and dropping the{" "}
+        <code>status: &quot;active&quot;</code> filter on the Stripe <code>subscriptions.list</code>{" "}
+        call (Stripe&apos;s own default already excludes only <code>status=canceled</code>). Reusing
+        an old Customer, or calling Stripe for one whose Subscription is already fully canceled, is
+        harmless either way — <code>subscriptions.list</code> simply returns nothing to cancel.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

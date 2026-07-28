@@ -356,6 +356,37 @@ describe("POST /api/stripe/checkout", () => {
       expect(createArgs.customer_email).toBeUndefined();
     });
 
+    it("reuses the existing Customer even when the prior order's recurringCanceledAt is set (past_due/unpaid pause, not necessarily a fully-canceled Stripe Subscription — recurring-upgrade-dedup-past-due-customer-reuse-gap)", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        {
+          stripeCustomerId: "cus_past_due",
+          tier: "growth",
+          commerceAddon: false,
+          recurringCanceledAt: 1_720_000_000_000,
+        },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_complete_upgrade_past_due",
+        url: "https://checkout.stripe.com/complete",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "complete",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer).toBe("cus_past_due");
+      expect(createArgs.customer_email).toBeUndefined();
+    });
+
     it("does not look up orders or reuse a Customer for a one-time Starter (non-recurring) checkout", async () => {
       setBundlePriceEnv();
       sessionsCreate.mockResolvedValue({

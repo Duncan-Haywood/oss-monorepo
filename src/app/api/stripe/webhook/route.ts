@@ -1063,9 +1063,14 @@ export async function POST(request: Request) {
               stripeCustomerId,
             );
             for (const supersededCustomerId of supersededCustomerIds) {
+              // No status filter (Stripe's own default excludes only
+              // status=canceled) — a superseded Subscription mid-dunning
+              // (past_due/unpaid) or paused is exactly as live a duplicate-
+              // billing risk as one still reporting status=active, and must
+              // still be found and canceled here. See
+              // recurring-upgrade-dedup-past-due-customer-reuse-gap.
               const activeSubscriptions = await stripe.subscriptions.list({
                 customer: supersededCustomerId,
-                status: "active",
               });
               for (const activeSubscription of activeSubscriptions.data) {
                 // cancellation_details.comment survives onto the resulting
