@@ -833,4 +833,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "resend-email-capture-error-wiring",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tu28nr",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 20d1184f (PR #900, resend-email-capture-error-wiring, merged prior session) — HEAD matched origin/main exactly at session start. Confirmed no live sibling branch (mcp__github__list_pull_requests: the sole open PR remains #202, unrelated, weeks-stale human draft). Per the diff-gate rule, computed the diff since the last full clean sweep (36d28c55, PR #896): non-empty (five product-affecting commits: the observability scaffold + two follow-on fixes, plus the unrelated bundle-buyer-email-resend-race-guard-ordering-fix), so a full research-agent five-tier sweep was in scope this round rather than a fast spot-check.",
+    shipped: [
+      "Dispatched a research agent (general-purpose, read-only) to run the standard five tiers (Convex/SQLite parity, security/injection, untested orchestration, money/ledger integrity, docs staleness) scoped at the diff since 36d28c55, after reading every changed file in full.",
+      "Found and fixed a docs-staleness gap: src/app/docs/architecture/page.tsx's Phase-5/bundle-fulfillment narrative still described resendBundleBuyerEmailAction's old 'detect-after-send' design (re-read after both sends, warn on a detected duplicate) as current, even though bundle-buyer-email-resend-race-guard-ordering-fix (PR #897, same diff window) had already replaced it with reserve-then-send-then-release — a later, accurate paragraph describing the fix existed further down the same file, but the earlier, more prominent paragraph was never updated, leaving two contradictory accounts of the same function in one document. Rewrote the stale paragraph to describe the current mechanism and point to the fuller writeup rather than duplicate it. Independently re-verified against the live resendBundleBuyerEmailAction source (no post-send re-read/detect logic remains) before editing.",
+      "Pure documentation fix — no source/logic/test change; the race guard itself was already correct and already covered, only the prose was wrong. Everything else the research agent checked (reserve/release atomicity on both backends, Convex API map registration, error-tracking payload/URL/secret handling, webhook try/catch wiring, test coverage on every new function from the diff window) came back clean.",
+      "src/lib/process/business-decisions.ts — appended bundle-buyer-email-doc-drift-fix. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 20d1184f (this session's own starting tip, post-PR-#900).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx 237,031 bytes, business-decisions.ts 220,025 bytes at session start (both via wc -c) — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npm ci (413 packages, matching the documented baseline) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3596 passed, 211 files — unchanged, docs-only) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + npm run dev smoke check curling /docs/architecture (200; grep-confirmed the stale duplicate-notification phrase is gone and the new reserveBundleBuyerEmailNotes reference renders), /dashboard/leads (200), and /preview/example-bakery (200). Killed the dev server, removed the stray gitignored local.db/local.db-shm/local.db-wal it created, and confirmed git status showed only the intended three process-log/docs files changed before this commit.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "bundle-buyer-email-doc-drift-fix",
+    ),
+  },
 ];
