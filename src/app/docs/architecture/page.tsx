@@ -1781,6 +1781,25 @@ export default function ArchitectureDocPage() {
         notice succeeding.
       </p>
       <p>
+        <code>payment-failed-notice-annual-billing-copy</code>: the same hardcoded-cadence bug{" "}
+        <code>subscription-canceled-notice-annual-billing-copy</code> fixed for the win-back email
+        above also existed in <code>sendPaymentFailedNotice</code> — its body copy read &quot;was
+        declined for this month&apos;s [brand] subscription&quot; unconditionally, so an annual
+        Growth/Complete subscriber&apos;s once-a-year renewal failure produced an email that was
+        factually wrong about their own billing cadence. Worse exposure than the win-back email:
+        Stripe fires a distinct <code>invoice.payment_failed</code> per Smart Retry attempt, so this
+        notice can send several times per failed renewal rather than the win-back email&apos;s
+        one-shot send. Fixed the same way: the handler already retrieves the failed invoice&apos;s
+        Subscription via <code>stripe.subscriptions.retrieve</code> a few lines above the notify
+        block, so <code>stripeSubscriptionBillingInterval(subscription)</code> — the exact helper{" "}
+        <code>subscription-canceled-notice-annual-billing-copy</code> added — threads straight in
+        with no extra Stripe API call. Copy now reads &quot;your annual&quot; or &quot;this
+        month&apos;s&quot; correctly. <code>sendPaymentRecoveredNotice</code>,{" "}
+        <code>sendSubscriptionPausedNotice</code>, and{" "}
+        <code>sendSubscriptionResumedNotice</code> were checked and contain no equivalent
+        month-specific wording, so none needed the same fix.
+      </p>
+      <p>
         <code>listOrdersWithFailedBillingNotice</code> itself had a follow-on gap (
         <code>billing-notice-failed-list-entitlement-guard</code>): it never excluded an order that
         had since fully canceled, been refunded, or been disputed. Because the marker is

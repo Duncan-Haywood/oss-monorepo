@@ -1744,6 +1744,7 @@ describe("POST /api/stripe/webhook", () => {
         businessName: "Demo Cafe",
         slug: "demo-cafe",
         stripeSessionId: "cs_notice_1",
+        billingInterval: "monthly",
       });
       expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
         "cs_notice_1",
@@ -1751,6 +1752,42 @@ describe("POST /api/stripe/webhook", () => {
         true,
         expect.any(Number),
       );
+    });
+
+    it("passes billingInterval: \"annual\" when the failed Subscription's own Price recurring.interval is \"year\" (payment-failed-notice-annual-billing-copy)", async () => {
+      retrieveSubscription.mockReset().mockResolvedValueOnce({
+        id: "sub_notice",
+        customer: "cus_notice",
+        status: "past_due",
+        pause_collection: null,
+        items: { data: [{ price: { recurring: { interval: "year" } } }] },
+      });
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([
+        {
+          leadSlug: "annual-demo-cafe",
+          stripeSessionId: "cs_notice_annual",
+          tier: "growth",
+          commerceAddon: false,
+          recurringCanceledAt: 1_720_000_600_000,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "annual-demo-cafe",
+        businessName: "Annual Demo Cafe",
+        email: "owner@annual-demo-cafe.test",
+      });
+      constructEvent.mockReturnValue(paymentFailedEvent());
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendPaymentFailedNotice).toHaveBeenCalledWith({
+        to: "owner@annual-demo-cafe.test",
+        businessName: "Annual Demo Cafe",
+        slug: "annual-demo-cafe",
+        stripeSessionId: "cs_notice_annual",
+        billingInterval: "annual",
+      });
     });
 
     it("skips the notice when the customer has no recurring order", async () => {

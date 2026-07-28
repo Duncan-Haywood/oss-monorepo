@@ -334,6 +334,7 @@ describe("resend.ts — brand.* HTML escaping", () => {
       businessName: UNSAFE_NAME,
       slug: "demo-cafe",
       stripeSessionId: "cs_test_dunning",
+      billingInterval: "monthly",
     });
     expect(sentHtml).toContain(ESCAPED_NAME);
     expect(sentHtml).not.toContain("<Truck>");
@@ -601,9 +602,33 @@ describe("resend.ts — href URL HTML escaping", () => {
       businessName: "Demo Cafe",
       slug: "demo-cafe",
       stripeSessionId: "cs_test_dunning",
+      billingInterval: "monthly",
     });
     expectHrefSafe();
     expect(sentHtml).toMatch(/href="[^"]*\/checkout\/success\?session_id=cs_test_dunning"/);
+  });
+
+  it("names the failed cadence correctly for a monthly vs. annual subscriber (payment-failed-notice-annual-billing-copy)", async () => {
+    const { sendPaymentFailedNotice } = await import("./resend");
+    const { brand } = await import("../brand");
+    await sendPaymentFailedNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_dunning_monthly",
+      billingInterval: "monthly",
+    });
+    expect(sentHtml).toContain(`declined for this month's ${brand.name}`);
+
+    await sendPaymentFailedNotice({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      stripeSessionId: "cs_test_dunning_annual",
+      billingInterval: "annual",
+    });
+    expect(sentHtml).toContain(`declined for your annual ${brand.name}`);
+    expect(sentHtml).not.toContain("this month's");
   });
 
   it("escapes manage-billing href in sendPaymentRecoveredNotice", async () => {
@@ -762,6 +787,7 @@ describe("resend.ts — transactional skipSuppression", () => {
       businessName: "Demo Cafe",
       slug: "demo-cafe",
       stripeSessionId: "cs_test_dunning",
+      billingInterval: "monthly",
     });
     expect(result.success).toBe(true);
     expect(fetchMock).toHaveBeenCalled();
