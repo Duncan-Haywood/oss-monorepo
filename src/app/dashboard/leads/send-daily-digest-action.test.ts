@@ -43,6 +43,7 @@ const listClientInquiries = vi.fn();
 const listCommerceOrders = vi.fn();
 const listDeployHandoffs = vi.fn();
 const getSuppressedEmails = vi.fn();
+const listCronRuns = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: (...args: unknown[]) =>
@@ -86,6 +87,7 @@ vi.mock("@/lib/db", () => ({
   listCommerceOrders: (...args: unknown[]) => listCommerceOrders(...args),
   listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
   getSuppressedEmails: (...args: unknown[]) => getSuppressedEmails(...args),
+  listCronRuns: (...args: unknown[]) => listCronRuns(...args),
 }));
 
 const sendOperatorDailyDigest = vi.fn();
@@ -136,6 +138,7 @@ describe("sendDailyDigestAction", () => {
     listClientInquiries.mockReset();
     listCommerceOrders.mockReset();
     getSuppressedEmails.mockReset().mockResolvedValue([]);
+    listCronRuns.mockReset().mockResolvedValue([]);
     sendOperatorDailyDigest.mockReset().mockResolvedValue({
       success: true,
       mock: true,

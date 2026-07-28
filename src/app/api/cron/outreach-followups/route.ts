@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getLeads } from "@/lib/db";
+import { getLeads, recordCronRunOutcome } from "@/lib/db";
 import { listFollowUpsDue } from "@/lib/email/outreach-followups";
 import { sendOutreachFollowUpEmail } from "@/lib/leads/send-follow-up";
 import { captureError } from "@/lib/observability/error-tracking";
@@ -67,6 +67,7 @@ export async function GET(request: Request) {
   }
 
   const nowMs = Date.now();
+  const nowIso = new Date(nowMs).toISOString();
 
   try {
     const leads = await getLeads();
@@ -96,12 +97,12 @@ export async function GET(request: Request) {
       );
     }
 
+    await recordCronRunOutcome("outreach-followups", { success: true, atIso: nowIso });
     return NextResponse.json({ success: true, attempted: due.length, sent: sentCount, failed: failures.length, failures });
   } catch (error) {
     await captureError(error, { component: "cron-outreach-followups" });
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 },
-    );
+    const message = error instanceof Error ? error.message : "Unknown error";
+    await recordCronRunOutcome("outreach-followups", { success: false, atIso: nowIso, error: message });
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

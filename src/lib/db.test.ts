@@ -5779,4 +5779,102 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(captureError).not.toHaveBeenCalled();
     });
   });
+
+  describe("recordCronRunOutcome / listCronRuns (cron-run-health-visibility)", () => {
+    it("SQLite fallback: records a success, then a later failure, updating lastRunSuccess/lastError while keeping the prior lastSuccessAt", async () => {
+      const db = await loadDb(undefined);
+      await db.recordCronRunOutcome("daily-digest", {
+        success: true,
+        atIso: "2026-07-28T09:00:00.000Z",
+      });
+      let rows = await db.listCronRuns();
+      expect(rows).toEqual([
+        {
+          job: "daily-digest",
+          lastRunAt: "2026-07-28T09:00:00.000Z",
+          lastRunSuccess: true,
+          lastSuccessAt: "2026-07-28T09:00:00.000Z",
+        },
+      ]);
+
+      await db.recordCronRunOutcome("daily-digest", {
+        success: false,
+        atIso: "2026-07-28T10:00:00.000Z",
+        error: "Resend API error",
+      });
+      rows = await db.listCronRuns();
+      expect(rows).toEqual([
+        {
+          job: "daily-digest",
+          lastRunAt: "2026-07-28T10:00:00.000Z",
+          lastRunSuccess: false,
+          lastSuccessAt: "2026-07-28T09:00:00.000Z",
+          lastFailureAt: "2026-07-28T10:00:00.000Z",
+          lastError: "Resend API error",
+        },
+      ]);
+    });
+
+    it("records each job independently", async () => {
+      const db = await loadDb(undefined);
+      await db.recordCronRunOutcome("daily-digest", { success: true, atIso: "2026-07-28T01:00:00.000Z" });
+      await db.recordCronRunOutcome("checkout-recovery", {
+        success: false,
+        atIso: "2026-07-28T02:00:00.000Z",
+        error: "boom",
+      });
+      const rows = await db.listCronRuns();
+      expect(rows.map((r) => r.job).sort()).toEqual(["checkout-recovery", "daily-digest"]);
+    });
+
+    it("Convex success: mutation is called with the job/outcome and SQLite is never touched", async () => {
+      convexMutation.mockResolvedValueOnce(null);
+      const db = await loadDb(CONVEX_URL);
+      await db.recordCronRunOutcome("outreach-followups", {
+        success: false,
+        atIso: "2026-07-28T03:00:00.000Z",
+        error: "timeout",
+      });
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+      const [, args] = convexMutation.mock.calls[0];
+      expect(args).toMatchObject({
+        job: "outreach-followups",
+        success: false,
+        atIso: "2026-07-28T03:00:00.000Z",
+        error: "timeout",
+      });
+    });
+
+    it("listCronRuns returns Convex's result directly on success", async () => {
+      convexQuery.mockResolvedValueOnce([
+        { job: "daily-digest", lastRunAt: "2026-07-28T00:00:00.000Z", lastRunSuccess: true },
+      ]);
+      const db = await loadDb(CONVEX_URL);
+      await expect(db.listCronRuns()).resolves.toEqual([
+        { job: "daily-digest", lastRunAt: "2026-07-28T00:00:00.000Z", lastRunSuccess: true },
+      ]);
+    });
+
+    it("falls back to SQLite when the Convex mutation/query throws, and never throws itself", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.recordCronRunOutcome("checkout-recovery", {
+          success: true,
+          atIso: "2026-07-28T04:00:00.000Z",
+        }),
+      ).resolves.toBeUndefined();
+
+      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const rows = await db.listCronRuns();
+      expect(rows).toEqual([
+        {
+          job: "checkout-recovery",
+          lastRunAt: "2026-07-28T04:00:00.000Z",
+          lastRunSuccess: true,
+          lastSuccessAt: "2026-07-28T04:00:00.000Z",
+        },
+      ]);
+    });
+  });
 });

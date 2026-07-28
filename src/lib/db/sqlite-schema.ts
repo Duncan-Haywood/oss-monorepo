@@ -171,6 +171,15 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
 
     CREATE INDEX IF NOT EXISTS idx_deploy_handoffs_customDomain
       ON deploy_handoffs(customDomain);
+
+    CREATE TABLE IF NOT EXISTS cron_runs (
+      job TEXT PRIMARY KEY,
+      lastRunAt TEXT NOT NULL,
+      lastRunSuccess INTEGER NOT NULL DEFAULT 1,
+      lastSuccessAt TEXT,
+      lastFailureAt TEXT,
+      lastError TEXT
+    );
   `);
 
   // Migrations for DBs created before email/dataSource columns existed

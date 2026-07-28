@@ -114,6 +114,7 @@ import {
   recentBounceOrComplaintSuppressionCount,
   type SuppressionRecord,
 } from "../email/suppression";
+import { cronJobsNeedingAttention, type CronRunRecord } from "../cron/cron-run-health";
 
 const WORK_NEXT_LIMIT = 5;
 const FOLLOW_UPS_LIMIT = 5;
@@ -376,6 +377,19 @@ export interface DigestVercelDomainProvisioningFailed {
 }
 
 /**
+ * One Vercel Cron job (daily-digest / checkout-recovery / outreach-followups)
+ * that has never recorded a run, gone stale, or whose most recent recorded
+ * run failed — see cron-run-health-visibility. Independent of the digest's
+ * own delivery (a healthy digest cron run doesn't confirm the OTHER two
+ * cron jobs are still firing).
+ */
+export interface DigestCronJobHealth {
+  job: string;
+  label: string;
+  reason: string;
+}
+
+/**
  * Lead whose stage is "paid" (same predicate as pipeline-health
  * paidNotLiveCount) — distinct from openHandoffs: a lead can be moved to
  * stage=paid (dashboard stage dropdown or CSV import) with no deploy_handoffs
@@ -598,6 +612,14 @@ export interface DailyDigest {
   vercelDomainProvisioningFailedCount: number;
   /** Age in whole hours of the oldest such failure; null when none. */
   oldestVercelDomainProvisioningFailedAgeHours: number | null;
+  /**
+   * Vercel Cron jobs that have never recorded a run, gone stale, or last
+   * failed — see cron-run-health-visibility. Empty while
+   * cronSecretConfigured is falsy (an intentionally-disabled cron isn't a
+   * health problem).
+   */
+  cronJobsNeedingAttention: DigestCronJobHealth[];
+  cronJobsNeedingAttentionCount: number;
   /**
    * Leads with stage="paid" — same predicate as pipeline-health
    * paidNotLiveCount (action section). Not the same set as openHandoffs: a
@@ -851,6 +873,14 @@ export interface BuildDailyDigestInput {
    * suppression-reason-visibility).
    */
   suppressions?: ReadonlyArray<SuppressionRecord>;
+  /** Pass listCronRuns() (optional) — powers cronJobsNeedingAttention. */
+  cronRuns?: ReadonlyArray<CronRunRecord>;
+  /**
+   * Pass !!process.env.CRON_SECRET?.trim() — gates cronJobsNeedingAttention
+   * the same way pipeline-health's cronSecretConfigured input does (see
+   * cron-run-health-visibility). Defaults to false.
+   */
+  cronSecretConfigured?: boolean;
   nowMs: number;
 }
 
@@ -878,6 +908,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     handoffs = [],
     marketingSchedulingEnabled = false,
     suppressions = [],
+    cronRuns = [],
+    cronSecretConfigured = false,
     nowMs,
   } = input;
   const leadsBySlug = new Map(leads.map((lead) => [lead.slug, lead]));
@@ -1330,6 +1362,22 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         vercelDomainStatus: handoff.vercelDomainStatus ?? "",
       }));
 
+  const cronJobsNeedingAttentionAll = cronSecretConfigured
+    ? cronJobsNeedingAttention(cronRuns, nowMs)
+    : [];
+  const cronJobsNeedingAttentionList: DigestCronJobHealth[] = cronJobsNeedingAttentionAll.map(
+    (job) => ({
+      job: job.job,
+      label: job.label,
+      reason:
+        job.ageHours === null
+          ? "has never recorded a run"
+          : job.isStale
+            ? `hasn't run in ${job.ageHours}h (expected daily)`
+            : `last run failed${job.lastError ? `: ${job.lastError}` : ""}`,
+    }),
+  );
+
   // Buyer-email visibility — independent axis from handoff status; a
   // permanently-bad customerEmail or sustained Resend outage leaves this
   // unset forever with nothing else surfacing the gap (see
@@ -1549,6 +1597,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "Bundle disputes", count: bundleOrdersDisputedCount },
     { label: "production handoffs", count: openHandoffsCount },
     { label: "Vercel domain provisioning failed", count: vercelDomainProvisioningFailedCount },
+    { label: "Cron automation", count: cronJobsNeedingAttentionList.length },
     { label: "Paid, not live", count: paidNotLiveCount },
     { label: "Missing email", count: leadsMissingEmailCount },
     { label: "paused/canceled MRR recoveries", count: recurringEntitlementPausedCount },
@@ -1637,6 +1686,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     vercelDomainProvisioningFailed,
     vercelDomainProvisioningFailedCount,
     oldestVercelDomainProvisioningFailedAgeHours: oldestVercelDomainProvisioningFailedAgeHoursValue,
+    cronJobsNeedingAttention: cronJobsNeedingAttentionList,
+    cronJobsNeedingAttentionCount: cronJobsNeedingAttentionList.length,
     paidNotLive,
     paidNotLiveCount,
     oldestPaidNotLiveAgeHours: oldestPaidNotLiveAgeHoursValue,
@@ -1928,6 +1979,10 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   );
   const vercelDomainProvisioningFailedTitle = `Vercel domain provisioning failed (${digest.vercelDomainProvisioningFailedCount}${digest.oldestVercelDomainProvisioningFailedAgeHours !== null ? ` · oldest ${digest.oldestVercelDomainProvisioningFailedAgeHours}h` : ""})`;
 
+  const cronJobsNeedingAttentionRows = digest.cronJobsNeedingAttention.map(
+    (job) => `<strong>${escapeHtmlForEmail(job.label)}</strong> — ${escapeHtmlForEmail(job.reason)}`,
+  );
+
   const paidNotLiveRows = digest.paidNotLive.map(
     (lead) => `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — stage is Paid`,
   );
@@ -1971,6 +2026,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
       <a href="${escapeHtmlForEmail(baseUrl)}/dashboard/leads" style="color:#2563eb;">Open the dashboard</a> to act on any of these.
     </p>
+    ${section(`Cron automation needing attention (${digest.cronJobsNeedingAttentionCount})`, cronJobsNeedingAttentionRows, "Every configured Vercel Cron job (daily digest, checkout recovery, outreach follow-ups) ran successfully within the last day (or CRON_SECRET isn't set yet).")}
     ${section(`Work next (${digest.workNext.length})`, workNextRows, "No actionable leads scored right now.")}
     ${section(
       `Follow-ups due (${digest.followUpsDueCount}${digest.oldestFollowUpDueAgeHours !== null ? ` · oldest ${digest.oldestFollowUpDueAgeHours}h` : ""})`,
