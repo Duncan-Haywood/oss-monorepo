@@ -3989,6 +3989,25 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
     const failed: string[] = [];
 
     for (const profileId of lead.bufferProfileIds) {
+      // Stale-content guard: pack was captured once above (before the
+      // listBufferProfiles network call), and this loop itself performs
+      // further sequential awaited Buffer network calls per profile — a
+      // concurrent generateMarketingPackAction regenerate (full-row
+      // upsertMarketingPack replace keyed only on leadSlug+yearMonth) in
+      // that window would otherwise let this loop publish now-superseded
+      // copy to the lead's live Facebook/Instagram profile through Buffer,
+      // which can't be recalled once posted. Re-check freshness before
+      // every profile's own posting pass (not just once up front) so a
+      // regenerate landing mid-run stops the remaining posts too
+      // (buffer-schedule-stale-pack-content-guard).
+      const freshPackForStaleCheck = await getMarketingPack(lead.slug, yearMonth);
+      if (!freshPackForStaleCheck || freshPackForStaleCheck.generatedAt !== pack.generatedAt) {
+        skipped.push(
+          `${profileId}: marketing pack was regenerated mid-run — re-run to post the current content`,
+        );
+        continue;
+      }
+
       const profile = profileById.get(profileId);
       if (!profile) {
         skipped.push(`${profileId}: no longer connected to Buffer`);
