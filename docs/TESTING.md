@@ -6,8 +6,10 @@ npm run test:watch
 npx vitest run src/lib/conjoint.test.ts   # one file
 ```
 
-Vitest, node environment, `src/**/*.test.ts(x)`. No database and no network:
-every test here runs against pure functions.
+Vitest, `src/**/*.test.ts(x)`. No database and no network. Most files run in
+the node environment against pure functions; the component tests opt into
+jsdom with a `// @vitest-environment jsdom` pragma on the first line and drive
+React against a stubbed `fetch`.
 
 ## What is covered
 
@@ -21,6 +23,8 @@ every test here runs against pure functions.
 | `financialProfiles.test.ts` | 9 | Profile generation stays inside its declared bounds |
 | `perspective.test.ts` | 7 | The three perspectives parse distinctly and never collapse into each other |
 | `sessionStore.test.ts` | 6 | A partial or tampered session bundle is rejected rather than half-used |
+| `couples.test.ts` | 18 | Cross-person comparison: percentile positions, the answer-volume trap, overlap floors before a match score |
+| `UnifiedRunner.test.tsx` | 7 | The swipe loop: cold start, resume, one question per resume, a half-written bundle, a failed fetch, a thrown fetch, advancing on an answer |
 | `developmentProcess.test.ts` | 12 | The process document stays internally consistent |
 | `InsightsView.test.tsx` | 4 | The insight catalogue's contract with the content map |
 
@@ -30,10 +34,13 @@ every test here runs against pure functions.
   claim-then-apply in `trials/answer` and the participant reuse in
   `session/start` are verified by hand against a local Postgres, which does not
   survive a future edit. This is the largest gap.
-- **The runner component.** `UnifiedRunner` is the core loop and has no test at
-  all. jsdom is installed but nothing is configured to use it.
-- **Anything requiring two linked accounts.** The couple comparison is only
-  exercised through its pure helpers in `couples.ts`, not end to end.
+- **Anything requiring two linked accounts.** The couple comparison is
+  exercised through its pure helpers in `couples.ts`, not end to end. Nobody
+  has looked at real blind-spots output with two accounts and three
+  perspectives filled in.
+- **The runner against a real server.** `UnifiedRunner.test.tsx` drives the
+  real component, but every response is stubbed. It proves the component reacts
+  correctly to a shape; it cannot prove the server sends that shape.
 
 ## How to write one here
 

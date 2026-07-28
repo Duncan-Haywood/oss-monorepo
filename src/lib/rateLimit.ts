@@ -1,0 +1,28 @@
+import { prisma } from "@/lib/prisma";
+
+export { getClientIp } from "@/lib/http";
+
+const WINDOW_MS = 15 * 60 * 1000;
+
+/**
+ * Coarse per-IP throttling for the anonymous write endpoints, which have no
+ * account behind them to attribute abuse to.
+ *
+ * Counted in the database rather than in memory because the app runs
+ * serverless: an in-process counter is per-instance, so it resets on every
+ * cold start and never sees the other instances at all.
+ *
+ * Deliberately generous. Two partners on one home network, each restarting
+ * a couple of times while they figure the thing out, is normal use — the
+ * limit exists to stop a script creating rows without bound, not to police
+ * anyone's second attempt.
+ */
+export async function isWriteRateLimited(ip: string, route: string, max: number): Promise<boolean> {
+  const since = new Date(Date.now() - WINDOW_MS);
+  const count = await prisma.anonRequestLog.count({ where: { ip, route, createdAt: { gte: since } } });
+  return count >= max;
+}
+
+export async function recordWrite(ip: string, route: string): Promise<void> {
+  await prisma.anonRequestLog.create({ data: { ip, route } });
+}

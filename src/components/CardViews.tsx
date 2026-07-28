@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import { usePrefersReducedMotion } from "@/lib/clientStore";
 
 export type SurveyKind = "ITEMS" | "FINANCIAL" | "CONJOINED";
 
@@ -70,6 +71,7 @@ function useSwipeStage(onUp: () => void, onDown: () => void, disabled: boolean) 
   const [dragging, setDragging] = useState(false);
   const [flying, setFlying] = useState<"up" | "down" | null>(null);
   const startY = useRef<number | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   function onPointerDown(e: React.PointerEvent) {
     if (disabled || flying) return;
@@ -86,12 +88,15 @@ function useSwipeStage(onUp: () => void, onDown: () => void, disabled: boolean) 
     if (disabled || flying) return;
     setFlying(direction);
     setDragging(false);
-    setTimeout(() => {
-      if (direction === "up") onUp();
-      else onDown();
-      setFlying(null);
-      setDragY(0);
-    }, 220);
+    setTimeout(
+      () => {
+        if (direction === "up") onUp();
+        else onDown();
+        setFlying(null);
+        setDragY(0);
+      },
+      reducedMotion ? 20 : 220
+    );
   }
 
   function endDrag() {
@@ -106,9 +111,14 @@ function useSwipeStage(onUp: () => void, onDown: () => void, disabled: boolean) 
   const progressUp = dragY < 0 ? Math.min(1, -dragY / THRESHOLD) : 0;
   const progressDown = dragY > 0 ? Math.min(1, dragY / THRESHOLD) : 0;
 
-  const topOffset = flying === "up" ? -900 : dragY < 0 ? dragY : dragY * 0.12;
-  const bottomOffset = flying === "down" ? 900 : dragY > 0 ? dragY : dragY * 0.12;
-  const transition = dragging ? "none" : `transform 0.32s ${SPRING}, opacity 0.25s ease`;
+  const flyDistance = reducedMotion ? 40 : 900;
+  const topOffset = flying === "up" ? -flyDistance : dragY < 0 ? dragY : dragY * 0.12;
+  const bottomOffset = flying === "down" ? flyDistance : dragY > 0 ? dragY : dragY * 0.12;
+  const transition = dragging
+    ? "none"
+    : reducedMotion
+      ? "transform 0.05s linear, opacity 0.05s linear"
+      : `transform 0.32s ${SPRING}, opacity 0.25s ease`;
 
   const topScale = flying === "up" ? 1.04 : 1 + progressUp * 0.03 - progressDown * 0.05;
   const bottomScale = flying === "down" ? 1.04 : 1 + progressDown * 0.03 - progressUp * 0.05;

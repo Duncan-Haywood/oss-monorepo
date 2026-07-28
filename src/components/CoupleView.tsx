@@ -7,8 +7,9 @@ type Row = { label: string; a: number; b: number; gap: number };
 type Comparison = { overlap: number; agreement: number | null; aligned: Row[]; diverged: Row[] };
 
 type ActionItem = { label: string; rating: number; rd: number; category: string | null };
-type SharedValue = { label: string; aRating: number; bRating: number; combined: number };
-type Asymmetry = { label: string; theirRating: number; myRating: number; gap: number };
+type SharedValue = { label: string; aStrength: number; bStrength: number; combined: number };
+/** `gap` is a difference of within-person positions, in points out of 100. */
+type Asymmetry = { label: string; theirStrength: number; myStrength: number; gap: number };
 
 type CompareData = {
   couple: { inviteCode: string; partner: { id: string; firstName: string } | null } | null;
@@ -43,8 +44,9 @@ export function CoupleView() {
   }, []);
 
   useEffect(() => {
-    // `load` only sets state after awaiting the fetch, so nothing is set
-    // synchronously here; the rule can't see through the async boundary.
+    // `load` is async and its first statement is an await, so nothing is set
+    // synchronously here. The rule can't see across the async boundary and
+    // flags every fetch-on-mount; this is the shape React's own docs give.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
@@ -214,13 +216,15 @@ export function CoupleView() {
               <li key={r.label} className="text-sm">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-medium">{r.label}</span>
-                  <span className="shrink-0 text-[11px] text-neutral-400">+{Math.round(r.gap)}</span>
+                  <span className="shrink-0 text-[11px] text-neutral-500 dark:text-neutral-400">
+                    {describeGap(r.gap)}
+                  </span>
                 </div>
                 <div className="mt-1 flex h-1.5 gap-1">
                   <span className="flex-1 rounded-full bg-neutral-200 dark:bg-neutral-800">
                     <span
                       className="block h-full rounded-full bg-amber-500"
-                      style={{ width: `${Math.min(100, Math.max(4, (r.gap / 400) * 100))}%` }}
+                      style={{ width: `${Math.min(100, Math.max(4, r.gap))}%` }}
                     />
                   </span>
                 </div>
@@ -303,6 +307,17 @@ export function CoupleView() {
   );
 }
 
+/**
+ * The gap is a difference of within-person positions out of 100. Printing it
+ * as a number would imply a precision a few dozen swipes can't support, so
+ * the bar carries the magnitude and the words stay honest.
+ */
+function describeGap(gap: number): string {
+  if (gap >= 50) return "far higher for them";
+  if (gap >= 30) return "much higher for them";
+  return "higher for them";
+}
+
 function Section({
   title,
   subtitle,
@@ -320,7 +335,9 @@ function Section({
   divergedLabel: string;
   highlightDiverged?: boolean;
 }) {
-  const enough = comparison && comparison.overlap >= 3;
+  // Matches MIN_OVERLAP_FOR_ROWS in lib/couples — below it the server sends
+  // no rows at all, so the locked state is the honest thing to show.
+  const enough = comparison && comparison.overlap >= 5;
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
       <h2 className="font-semibold">{title}</h2>
@@ -332,7 +349,12 @@ function Section({
         </p>
       ) : (
         <>
-          {comparison.agreement !== null && (
+          {comparison.agreement === null ? (
+            <p className="mt-3 text-[11px] text-neutral-500 dark:text-neutral-400">
+              Early days — the pairs below are real, but there aren&apos;t enough shared answers
+              yet for an overall match score to mean anything.
+            </p>
+          ) : (
             <div className="mt-3">
               <div className="flex items-baseline justify-between text-xs">
                 <span className="font-medium text-neutral-600 dark:text-neutral-400">Overall match</span>

@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Celebration } from "@/components/Celebration";
 import { cuteBreakForCount } from "@/lib/cuteMessages";
 import { DomainState, pickNextDomain, randomStreakTarget } from "@/lib/domainScheduler";
 import { answersIntoLevel, answersUntilNextLevel, levelForAnswers, SWIPES_PER_LEVEL } from "@/lib/insights";
 import {
-  parseSessionBundle,
-  SESSION_KEY,
+  coerceSessionBundle,
+  useStoredSession,
   writeSessionBundle,
   type SessionBundle,
 } from "@/lib/sessionStore";
@@ -15,7 +15,6 @@ import {
   DEFAULT_PERSPECTIVE,
   PERSPECTIVE_META,
   PERSPECTIVE_ORDER,
-  parsePerspective,
   type PerspectiveValue,
 } from "@/lib/perspective";
 import {
@@ -27,41 +26,54 @@ import {
   Trial,
 } from "@/components/CardViews";
 
-type IntroForm = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  sex: string;
-  age: string;
-  ethnicity: string;
-  countryOfResidence: string;
-};
-
 /** Always on screen while swiping, so it's never ambiguous who you're rating for. */
 const PERSPECTIVE_SHORT: Record<PerspectiveValue, string> = Object.fromEntries(
   PERSPECTIVE_ORDER.map((k) => [k, `${PERSPECTIVE_META[k].glyph} ${PERSPECTIVE_META[k].short}`])
 ) as Record<PerspectiveValue, string>;
 
-/** Blank by default — no personal data baked into the client bundle. */
-const DEFAULT_INTRO: IntroForm = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  sex: "",
-  age: "",
-  ethnicity: "",
-  countryOfResidence: "",
+/**
+ * A session in progress: the stored bundle plus the bookkeeping that only
+ * matters while swiping.
+ *
+ * Held as one object rather than six `useState`s so the runner can *open*
+ * on a domain instead of choosing one from inside an effect. The old shape
+ * picked the domain in the same effect that fetched the question, so
+ * setting it re-ran the effect and fired a second `trials/next` before the
+ * first returned. That endpoint creates a row per call, so every resume
+ * burned a question, silently skipped it, and inflated the abandonment
+ * metric.
+ */
+type LiveSession = {
+  firstName: string;
+  perspective: PerspectiveValue;
+  participants: Record<string, string>;
+  domains: DomainState[];
+  currentSlug: string;
+  /** Questions left before moving to another domain. */
+  streakRemaining: number;
 };
 
+function openSession(bundle: SessionBundle): LiveSession {
+  const domains: DomainState[] = bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 }));
+  return {
+    firstName: bundle.firstName,
+    perspective: bundle.perspective ?? DEFAULT_PERSPECTIVE,
+    participants: bundle.participants,
+    domains,
+    currentSlug: pickNextDomain(domains, null),
+    streakRemaining: randomStreakTarget(),
+  };
+}
+
 export function UnifiedRunner() {
-  const [phase, setPhase] = useState<"loading" | "welcome" | "name-entry" | "running" | "thanks">("loading");
-  const [perspective, setPerspective] = useState<PerspectiveValue>(DEFAULT_PERSPECTIVE);
-  const [intro, setIntro] = useState<IntroForm>(DEFAULT_INTRO);
-  const [firstName, setFirstName] = useState("");
-  const [participants, setParticipants] = useState<Record<string, string>>({});
-  const [domains, setDomains] = useState<DomainState[]>([]);
-  const [currentSlug, setCurrentSlug] = useState<string | null>(null);
-  const [streakRemaining, setStreakRemaining] = useState(0);
+  // `hydrated` is false until the browser has actually read storage.
+  // Rendering the welcome screen before then flashes it in front of every
+  // returning visitor.
+  const { hydrated, bundle } = useStoredSession();
+  const restored = useMemo(() => (bundle ? openSession(bundle) : null), [bundle]);
+
+  const [live, setLive] = useState<LiveSession | null>(null);
+  const [paused, setPaused] = useState(false);
   const [trial, setTrial] = useState<Trial | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,122 +83,131 @@ export function UnifiedRunner() {
   const [retryTick, setRetryTick] = useState(0);
   const [accountName, setAccountName] = useState<string | null>(null);
 
-  /**
-   * Fills the per-domain counters in from the server. Resuming without this
-   * shows every progress bar at zero for someone who has already answered
-   * hundreds of questions, which reads as "my answers were lost".
-   */
-  const hydrateProgress = useCallback((forParticipants: Record<string, string>) => {
-    fetch("/api/session/status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ participants: forParticipants }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        setDomains((prev) => prev.map((d) => (data.status?.[d.slug] ? { ...d, ...data.status[d.slug] } : d)));
-      })
-      .catch(() => {});
-  }, []);
+  // A session the person has touched wins over the stored one, so a late
+  // account response can't yank the question out from under them.
+  const session = live ?? restored;
+  const phase = !hydrated ? "loading" : paused ? "thanks" : session ? "running" : "welcome";
 
-  const resumeFrom = useCallback(
-    (bundle: SessionBundle) => {
-      const stored = parsePerspective(bundle.perspective);
-      if (stored) setPerspective(stored);
-      setFirstName(bundle.firstName);
-      setParticipants(bundle.participants);
-      setDomains(bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 })));
-      setPhase("running");
-      hydrateProgress(bundle.participants);
-    },
-    [hydrateProgress]
+  const update = useCallback(
+    (fn: (s: LiveSession) => LiveSession) => setLive((prev) => (prev ? fn(prev) : restored ? fn(restored) : null)),
+    [restored]
   );
 
   useEffect(() => {
     // A signed-in account is the source of truth — it lets progress resume on
-    // a device that has nothing in localStorage.
+    // a device that has nothing in localStorage. Writing it to the store is
+    // enough; `restored` above picks it up on the next snapshot.
     let cancelled = false;
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((data) => {
+    void (async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        const data = await res.json();
         if (cancelled || !data?.user) return;
         setAccountName(data.user.firstName);
-        if (data.surveys?.length && data.participants && Object.keys(data.participants).length) {
-          const bundle: SessionBundle = {
-            firstName: data.user.firstName,
-            // Without this the account-resume path drops which perspective
-            // the participants belong to, and the badge above the cards then
-            // claims you're rating something you aren't.
-            perspective: parsePerspective(data.perspective) ?? undefined,
-            participants: data.participants,
-            domains: data.surveys,
-          };
-          writeSessionBundle(bundle);
-          resumeFrom(bundle);
-        }
-      })
-      .catch(() => {});
+        const fromAccount = coerceSessionBundle({
+          firstName: data.user.firstName,
+          // Without this the account-resume path drops which perspective the
+          // participants belong to, and the badge above the cards then claims
+          // you're rating something you aren't.
+          perspective: data.perspective,
+          participants: data.participants,
+          domains: data.surveys,
+        });
+        if (fromAccount) writeSessionBundle(fromAccount);
+      } catch {
+        // Signed out, or offline. The anonymous session still works.
+      }
+    })();
     return () => {
       cancelled = true;
     };
-  }, [resumeFrom]);
-
-  useEffect(() => {
-    const bundle = parseSessionBundle(localStorage.getItem(SESSION_KEY));
-    // Reading the stored session is a synchronous external-store read on
-    // mount; the `loading` phase exists precisely so this cannot flash.
-    // Tracked in IMPROVEMENT-PLAN.md as "move the runner onto
-    // useSessionBundle", which removes the effect entirely.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (bundle) resumeFrom(bundle);
-    else setPhase("welcome");
-    // Bootstrap once, on mount. `resumeFrom` is stable.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchNext = useCallback(
-    async (slug: string, pid: string, kind: DomainState["kind"]) => {
-      setError(null);
-      const endpoint = kind === "ITEMS" ? "/api/trials/next" : "/api/financial-trials/next";
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ participantId: pid }),
-      });
-      if (!res.ok) {
-        setError("Couldn't load the next question. Try again.");
-        return;
+  useEffect(() => {
+    /**
+     * Fills the per-domain counters in from the server for a resumed
+     * session. The stored bundle knows which surveys, not how far into
+     * them — without this every progress bar reads zero for someone who
+     * has answered hundreds of questions, which looks like lost answers.
+     */
+    if (!restored) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/session/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ participants: restored.participants }),
+        });
+        const data = await res.json();
+        if (cancelled || !data?.status) return;
+        update((s) => ({
+          ...s,
+          domains: s.domains.map((d) => (data.status[d.slug] ? { ...d, ...data.status[d.slug] } : d)),
+        }));
+      } catch {
+        // Progress bars start at zero. Not worth interrupting anyone over.
       }
-      const data = await res.json();
-      setTrial(data);
-      const totalPoints = domains.reduce((s, d) => s + d.answeredCount, 0);
-      setCuteNote(cuteBreakForCount(totalPoints));
-      setDomains((prev) =>
-        prev.map((d) => (d.slug === slug ? { ...d, confidence: data.confidence, answeredCount: data.answeredCount } : d))
-      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [restored, update]);
+
+  const fetchNext = useCallback(
+    async (slug: string, pid: string, kind: DomainState["kind"], totalPoints: number) => {
+      // Nothing is set before the first await on purpose: this runs from an
+      // effect, and a synchronous setState there cascades a second render
+      // before the first has painted. Clearing a stale error is the job of
+      // whatever event triggered the reload (Retry, an answer, a restart).
+      const endpoint = kind === "ITEMS" ? "/api/trials/next" : "/api/financial-trials/next";
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ participantId: pid }),
+        });
+        if (!res.ok) {
+          setError("Couldn't load the next question. Try again.");
+          return;
+        }
+        const data = await res.json();
+        // A body without a trial id would leave `trial` falsy and re-trigger
+        // this fetch forever, so it counts as a failure, not a question.
+        if (!data?.trialId) {
+          setError("Couldn't load the next question. Try again.");
+          return;
+        }
+        setTrial(data);
+        setError(null);
+        setCuteNote(cuteBreakForCount(totalPoints));
+        update((s) => ({
+          ...s,
+          domains: s.domains.map((d) =>
+            d.slug === slug ? { ...d, confidence: data.confidence, answeredCount: data.answeredCount } : d
+          ),
+        }));
+      } catch {
+        // A dropped connection rejects rather than returning !ok. Without
+        // this the rejection went unhandled and the screen sat on "Loading
+        // next…" with no Retry and no way out but a hard refresh — the
+        // common case on a phone, not an edge case.
+        setError("Couldn't load the next question. Try again.");
+      }
     },
-    [domains]
+    [update]
   );
 
   useEffect(() => {
-    if (phase !== "running" || trial || domains.length === 0) return;
-    let slug = currentSlug;
-    let streak = streakRemaining;
-    if (!slug || streak <= 0) {
-      slug = pickNextDomain(domains, slug);
-      streak = randomStreakTarget();
-      // The scheduler's choice has to survive to the next render, and that
-      // render is the one that shows the card. Tracked in IMPROVEMENT-PLAN.md
-      // alongside the rest of the runner's state model.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCurrentSlug(slug);
-      setStreakRemaining(streak);
-    }
-    const pid = participants[slug];
-    const domain = domains.find((d) => d.slug === slug);
-    if (pid && domain) fetchNext(slug, pid, domain.kind);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, trial, domains.length, currentSlug, retryTick]);
+    if (phase !== "running" || trial || !session) return;
+    const pid = session.participants[session.currentSlug];
+    const domain = session.domains.find((d) => d.slug === session.currentSlug);
+    if (!pid || !domain) return;
+    const totalPoints = session.domains.reduce((sum, d) => sum + d.answeredCount, 0);
+    void (async () => {
+      await fetchNext(session.currentSlug, pid, domain.kind, totalPoints);
+    })();
+  }, [phase, trial, session, fetchNext, retryTick]);
 
   /**
    * Straight from the welcome screen into swiping — no form first. Details
@@ -194,7 +215,6 @@ export function UnifiedRunner() {
    * the first card is what makes people actually start.
    */
   async function beginSwiping(p: PerspectiveValue) {
-    setPerspective(p);
     setError(null);
     const name = accountName ?? "Anonymous";
     try {
@@ -204,81 +224,29 @@ export function UnifiedRunner() {
         body: JSON.stringify({ perspective: p, firstName: name }),
       });
       const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.surveys?.length || !data?.participants) {
+      const started = res.ok
+        ? coerceSessionBundle({
+            firstName: name,
+            perspective: p,
+            participants: data?.participants,
+            domains: data?.surveys,
+          })
+        : null;
+      if (!started) {
         setError("Couldn't start. Try again.");
         return;
       }
-      const bundle: SessionBundle = {
-        firstName: name,
-        perspective: p,
-        participants: data.participants,
-        domains: data.surveys,
-      };
-      writeSessionBundle(bundle);
-      setFirstName(name);
-      setParticipants(data.participants);
-      setDomains(
-        data.surveys.map((s: { slug: string; title: string; kind: DomainState["kind"] }) => ({
-          ...s,
-          confidence: 0,
-          answeredCount: 0,
-        }))
-      );
-      setPhase("running");
+      writeSessionBundle(started);
+      setLive(openSession(started));
     } catch {
       setError("Couldn't start. Try again.");
     }
   }
 
-  async function handleStart(e: React.FormEvent) {
-    e.preventDefault();
-    const name = intro.firstName.trim();
-    if (!name) return;
-    setError(null);
-    const age = intro.age.trim() ? Number(intro.age) : undefined;
-    const res = await fetch("/api/session/start", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        perspective,
-        firstName: name,
-        lastName: intro.lastName.trim() || undefined,
-        email: intro.email.trim() || undefined,
-        sex: intro.sex.trim() || undefined,
-        age,
-        ethnicity: intro.ethnicity.trim() || undefined,
-        countryOfResidence: intro.countryOfResidence.trim() || undefined,
-      }),
-    });
-    if (!res.ok) {
-      setError("Couldn't start. Try again.");
-      return;
-    }
-    const data = await res.json();
-    if (!data?.surveys?.length || !data?.participants) {
-      setError("Couldn't start — the server sent back an empty session.");
-      return;
-    }
-    const bundle: SessionBundle = {
-      firstName: name,
-      perspective,
-      participants: data.participants,
-      domains: data.surveys,
-    };
-    writeSessionBundle(bundle);
-    setFirstName(name);
-    setParticipants(data.participants);
-    setDomains(data.surveys.map((s: { slug: string; title: string; kind: DomainState["kind"] }) => ({ ...s, confidence: 0, answeredCount: 0 })));
-    setPhase("running");
-  }
-
-  function updateIntro<K extends keyof IntroForm>(key: K, value: IntroForm[K]) {
-    setIntro((prev) => ({ ...prev, [key]: value }));
-  }
-
   async function handleAnswer(result: "A" | "B" | "EQUAL") {
-    if (!trial || submitting || !currentSlug) return;
-    const domain = domains.find((d) => d.slug === currentSlug);
+    if (!session || !trial || submitting) return;
+    const answeredSlug = session.currentSlug;
+    const domain = session.domains.find((d) => d.slug === answeredSlug);
     if (!domain) return;
     setSubmitting(true);
     setError(null);
@@ -290,7 +258,10 @@ export function UnifiedRunner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ trialId: trial.trialId, result }),
       });
-      ok = res.ok;
+      // 409 means the server already has this answer — a retry after a
+      // timeout, not a failure. Treating it as one wedged the session
+      // permanently, since every retry returned 409 too.
+      ok = res.ok || res.status === 409;
     } catch {
       ok = false;
     }
@@ -300,23 +271,21 @@ export function UnifiedRunner() {
       return;
     }
     setBurst((n) => n + 1);
-    setUndoableSlug(currentSlug);
+    setUndoableSlug(answeredSlug);
     setTrial(null);
-    const remaining = streakRemaining - 1;
-    if (remaining <= 0) {
-      const next = pickNextDomain(domains, currentSlug);
-      setCurrentSlug(next);
-      setStreakRemaining(randomStreakTarget());
-    } else {
-      setStreakRemaining(remaining);
-    }
+    update((s) => {
+      const remaining = s.streakRemaining - 1;
+      return remaining <= 0
+        ? { ...s, currentSlug: pickNextDomain(s.domains, s.currentSlug), streakRemaining: randomStreakTarget() }
+        : { ...s, streakRemaining: remaining };
+    });
   }
 
   /** Tinder-style rewind of the most recent answer in the domain it was made in. */
   async function handleUndo() {
-    if (!undoableSlug || submitting) return;
-    const domain = domains.find((d) => d.slug === undoableSlug);
-    const pid = participants[undoableSlug];
+    if (!session || !undoableSlug || submitting) return;
+    const domain = session.domains.find((d) => d.slug === undoableSlug);
+    const pid = session.participants[undoableSlug];
     if (!domain || !pid) return;
     setSubmitting(true);
     setError(null);
@@ -338,11 +307,14 @@ export function UnifiedRunner() {
     }
     setSubmitting(false);
     setUndoableSlug(null);
-    setDomains((prev) =>
-      prev.map((d) => (d.slug === undoableSlug ? { ...d, answeredCount: Math.max(0, d.answeredCount - 1) } : d))
-    );
     // Go back to the domain the undone answer belonged to, and pull a fresh question there.
-    setCurrentSlug(undoableSlug);
+    update((s) => ({
+      ...s,
+      domains: s.domains.map((d) =>
+        d.slug === undoableSlug ? { ...d, answeredCount: Math.max(0, d.answeredCount - 1) } : d
+      ),
+      currentSlug: undoableSlug,
+    }));
     setTrial(null);
   }
 
@@ -415,115 +387,21 @@ export function UnifiedRunner() {
     );
   }
 
-  if (phase === "name-entry") {
-    return (
-      <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 px-5 py-10">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">Quick pick 💛</h1>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            One continuous session — it moves between topics on its own.
-          </p>
-        </div>
-
-        <form onSubmit={handleStart} className="flex flex-col gap-4">
-          <p className="text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-            Just a few details so your answers can be told apart from anyone else&apos;s. Only the first
-            name is required — leave the rest blank if you&apos;d rather not say.
-          </p>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="First name">
-              <input
-                autoFocus
-                value={intro.firstName}
-                onChange={(e) => updateIntro("firstName", e.target.value)}
-                className={inputClass}
-                placeholder="Required"
-                maxLength={60}
-              />
-            </Field>
-            <Field label="Last name">
-              <input
-                value={intro.lastName}
-                onChange={(e) => updateIntro("lastName", e.target.value)}
-                className={inputClass}
-                placeholder="Optional"
-                maxLength={60}
-              />
-            </Field>
-            <Field label="Email" className="col-span-2">
-              <input
-                type="email"
-                value={intro.email}
-                onChange={(e) => updateIntro("email", e.target.value)}
-                className={inputClass}
-                placeholder="Optional"
-                maxLength={120}
-              />
-            </Field>
-            <Field label="Sex">
-              <select value={intro.sex} onChange={(e) => updateIntro("sex", e.target.value)} className={inputClass}>
-                <option value="">Prefer not to say</option>
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-                <option value="other">Other</option>
-              </select>
-            </Field>
-            <Field label="Age">
-              <input
-                type="number"
-                inputMode="numeric"
-                value={intro.age}
-                onChange={(e) => updateIntro("age", e.target.value)}
-                className={inputClass}
-                placeholder="Optional"
-                min={13}
-                max={120}
-              />
-            </Field>
-            <Field label="Ethnicity">
-              <input
-                value={intro.ethnicity}
-                onChange={(e) => updateIntro("ethnicity", e.target.value)}
-                className={inputClass}
-                placeholder="Optional"
-                maxLength={60}
-              />
-            </Field>
-            <Field label="Country">
-              <input
-                value={intro.countryOfResidence}
-                onChange={(e) => updateIntro("countryOfResidence", e.target.value)}
-                className={inputClass}
-                placeholder="Optional"
-                maxLength={60}
-              />
-            </Field>
-          </div>
-
-          <button
-            type="submit"
-            className="mt-1 rounded-2xl bg-amber-500 px-4 py-4 text-base font-semibold text-neutral-950 shadow-sm transition active:scale-[0.98] disabled:opacity-50"
-            disabled={!intro.firstName.trim()}
-          >
-            Start
-          </button>
-          {error && <p className="text-sm text-red-500">{error}</p>}
-        </form>
-      </div>
-    );
-  }
-
-  if (phase === "thanks") {
+  if (phase === "thanks" || !session) {
     return (
       <div className="mx-auto flex w-full max-w-sm flex-1 flex-col items-center justify-center gap-4 px-5 py-10 text-center">
-        <div className="text-4xl">💛</div>
-        <h1 className="text-2xl font-bold">Thank you, {firstName}</h1>
+        <div className="text-4xl" aria-hidden="true">
+          💛
+        </div>
+        <h1 className="text-2xl font-bold">Thank you, {session?.firstName}</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          دوستت دارم — come back anytime, it&apos;ll pick up right where you left off.
+          <span lang="fa" dir="rtl">
+            دوستت دارم
+          </span>{" "}
+          — come back anytime, it&apos;ll pick up right where you left off.
         </p>
         <button
-          onClick={() => setPhase("running")}
+          onClick={() => setPaused(false)}
           className="mt-2 rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold text-neutral-950 shadow-sm transition active:scale-[0.98]"
         >
           Keep going
@@ -532,6 +410,7 @@ export function UnifiedRunner() {
     );
   }
 
+  const { domains, currentSlug, perspective } = session;
   const currentDomain = domains.find((d) => d.slug === currentSlug);
   const totalPoints = domains.reduce((s, d) => s + d.answeredCount, 0);
   const level = levelForAnswers(totalPoints);
@@ -558,14 +437,21 @@ export function UnifiedRunner() {
             Lv {level}
           </span>
           <button
-            onClick={() => setPhase("thanks")}
+            onClick={() => setPaused(true)}
             className="shrink-0 rounded-full border border-neutral-300 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600 transition active:scale-95 dark:border-neutral-700 dark:text-neutral-300"
           >
             Pause
           </button>
         </div>
 
-        <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+        <div
+          role="progressbar"
+          aria-label={`Progress through level ${level}`}
+          aria-valuenow={levelProgressPct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          className="h-1 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800"
+        >
           <div
             className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500"
             style={{ width: `${Math.max(levelProgressPct, 3)}%` }}
@@ -580,15 +466,24 @@ export function UnifiedRunner() {
 
         {toNextLevel === SWIPES_PER_LEVEL && totalPoints > 0 && (
           <p className="text-center text-[11px] font-bold text-amber-700 dark:text-amber-300">
-            ⭐ Level {level} — new insights may be ready
+            <span aria-hidden="true">⭐</span> Level {level} — new insights may be ready
           </p>
         )}
         {cuteNote && (
           <p className="text-center text-[11px] font-medium text-amber-700 dark:text-amber-300">
-            {cuteNote.en} · <span className="italic">{cuteNote.fa}</span>
+            {cuteNote.en} ·{" "}
+            <span className="italic" lang="fa" dir="rtl">
+              {cuteNote.fa}
+            </span>
           </p>
         )}
-        {error && <p className="text-center text-xs font-medium text-red-500">{error}</p>}
+        {/* Announced, not just shown: a failure while swiping is otherwise
+            silent for anyone not looking at this strip. */}
+        {error && (
+          <p role="alert" className="text-center text-xs font-medium text-red-500">
+            {error}
+          </p>
+        )}
       </header>
 
       <div className="relative flex flex-1 flex-col gap-2 overflow-hidden p-2">
@@ -598,7 +493,10 @@ export function UnifiedRunner() {
             <CenteredNote>Loading next…</CenteredNote>
             {error && (
               <button
-                onClick={() => setRetryTick((n) => n + 1)}
+                onClick={() => {
+                  setError(null);
+                  setRetryTick((n) => n + 1);
+                }}
                 className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950"
               >
                 Retry
@@ -624,17 +522,5 @@ export function UnifiedRunner() {
         )}
       </div>
     </div>
-  );
-}
-
-const inputClass =
-  "rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50";
-
-function Field({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
-  return (
-    <label className={`flex flex-col gap-1 text-xs font-medium text-neutral-600 dark:text-neutral-400 ${className ?? ""}`}>
-      {label}
-      {children}
-    </label>
   );
 }

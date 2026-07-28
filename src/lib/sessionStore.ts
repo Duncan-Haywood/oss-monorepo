@@ -42,28 +42,46 @@ export type SessionBundle = {
  */
 export function parseSessionBundle(raw: string | null): SessionBundle | null {
   if (!raw) return null;
-  let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    return coerceSessionBundle(JSON.parse(raw));
   } catch {
     return null;
   }
+}
+
+/**
+ * The same validation applied to a bundle just built from an API response,
+ * so a survey the server returned without a participant id is dropped in
+ * one place rather than two that can drift apart.
+ *
+ * Domains without a usable participant id are filtered out rather than
+ * failing the whole bundle: a `session/start` that half-succeeded should
+ * still let someone answer the surveys it did create.
+ */
+export function coerceSessionBundle(parsed: unknown): SessionBundle | null {
   if (!parsed || typeof parsed !== "object") return null;
 
-  const candidate = parsed as Partial<SessionBundle>;
-  const participants = candidate.participants;
-  const domains = candidate.domains;
+  const { firstName, perspective, participants, domains } = parsed as Record<string, unknown>;
   if (!participants || typeof participants !== "object") return null;
   if (!Array.isArray(domains) || domains.length === 0) return null;
-  if (!domains.some((d) => d && typeof d.slug === "string" && typeof participants[d.slug] === "string")) {
-    return null;
+
+  const ids = participants as Record<string, unknown>;
+  const usable: SessionDomain[] = [];
+  for (const d of domains) {
+    if (!d || typeof d !== "object") continue;
+    const { slug, title, kind } = d as Record<string, unknown>;
+    if (typeof slug !== "string" || typeof title !== "string") continue;
+    if (kind !== "ITEMS" && kind !== "FINANCIAL" && kind !== "CONJOINED") continue;
+    if (typeof ids[slug] !== "string" || !ids[slug]) continue;
+    usable.push({ slug, title, kind });
   }
+  if (usable.length === 0) return null;
 
   return {
-    firstName: typeof candidate.firstName === "string" ? candidate.firstName : "",
-    perspective: parsePerspective(candidate.perspective) ?? undefined,
-    participants: participants as Record<string, string>,
-    domains: domains as SessionDomain[],
+    firstName: typeof firstName === "string" ? firstName : "",
+    perspective: parsePerspective(perspective) ?? undefined,
+    participants: Object.fromEntries(usable.map((d) => [d.slug, ids[d.slug] as string])),
+    domains: usable,
   };
 }
 
@@ -124,4 +142,17 @@ function getServerSnapshot(): string | undefined {
 export function useSessionBundle(): SessionBundle | null | undefined {
   const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return useMemo(() => (raw === undefined ? undefined : parseSessionBundle(raw)), [raw]);
+}
+
+/**
+ * The same store, with "haven't looked yet" split out as its own flag.
+ *
+ * Callers need `hydrated` to tell "we haven't read storage" apart from
+ * "there is nothing stored" — they are the same absence of a bundle, but
+ * rendering the welcome screen for the first one flashes it in front of
+ * every returning visitor before their session resumes.
+ */
+export function useStoredSession(): { hydrated: boolean; bundle: SessionBundle | null } {
+  const bundle = useSessionBundle();
+  return { hydrated: bundle !== undefined, bundle: bundle ?? null };
 }

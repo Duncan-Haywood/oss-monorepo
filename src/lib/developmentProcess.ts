@@ -119,6 +119,18 @@ export const PRINCIPLES: Principle[] = [
     why:
       "A better ranking of professions is interesting. 'They would rather you took something off their plate than bought them something' is usable tonight. When the two compete, the second wins.",
   },
+  {
+    id: "never-compare-raw-scales",
+    title: "Two people's numbers are not on the same scale",
+    why:
+      "Glicko ratings are stored per respondent, so their spread tracks how much someone answered, not how much they care. Subtracting one person's rating from another's measured swipe volume and called it a difference in values. Anything crossing between two people goes through a within-person position first.",
+  },
+  {
+    id: "land-the-work",
+    title: "Work that does not land does not count",
+    why:
+      "This repo is worked on mostly by scheduled sessions that cannot see each other. Nine of them once opened nine branches off the same commit, each rediscovering the same lint errors and the same conjoint bug, and none of it merged. Read the open pull requests before starting, and build on what is already there instead of beside it.",
+  },
 ];
 
 export type Stage = {
@@ -132,6 +144,16 @@ export type Stage = {
 
 /** The loop a single change goes through, start to finish. */
 export const STAGES: Stage[] = [
+  {
+    id: "orient",
+    title: "Orient",
+    work:
+      "List the open pull requests and read what they already do. Sessions here run unattended and in parallel, so the most likely reason a bug is still in main is that three branches already fix it and none of them merged. Extend the strongest branch rather than opening a tenth.",
+    exit: [
+      "Every open pull request has been read, not just counted.",
+      "The change is either new work or an explicit consolidation of existing branches.",
+    ],
+  },
   {
     id: "frame",
     title: "Frame",
@@ -298,13 +320,22 @@ export type Workstream = {
  */
 export const WORKSTREAMS: Workstream[] = [
   {
+    id: "land-work",
+    title: "Get finished work merged",
+    priority: "P0",
+    status: "in-progress",
+    goal: "measure-honestly",
+    note:
+      "Nine parallel unattended sessions opened nine branches off one commit and none merged, so each new session re-found the same bugs. The distinct fixes are consolidated onto one branch; the standing rule is in the orient stage and the land-the-work principle.",
+  },
+  {
     id: "data-integrity",
     title: "Per-person, per-perspective data integrity",
     priority: "P0",
     status: "in-progress",
     goal: "each-persons-own",
     note:
-      "Ratings are per participant and the perspectives no longer collapse into each other. Remaining: rate limiting on anonymous session creation, and origin checks on the mutating routes.",
+      "Ratings are per participant, the perspectives no longer collapse into each other, and anonymous session creation is rate limited per IP. Remaining: origin checks on the mutating routes.",
   },
   {
     id: "privacy",
@@ -322,7 +353,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "worth-continuing",
     note:
-      "Retry affordance and 409-as-success are in. Remaining: the runner's bootstrap still mirrors storage into state inside an effect.",
+      "The runner reads storage through useSyncExternalStore rather than an effect, opens on a domain instead of choosing one mid-fetch (which used to burn a question on every resume), retries a failed or dropped next-question fetch, and treats a 409 on an answer as already recorded. Behaviour is covered by tests that drive the real component against a stubbed fetch.",
   },
   {
     id: "model-cost",
@@ -340,7 +371,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "couples-payoff",
     note:
-      "Fit, mirror, blind spots, shared ground and asymmetries all render. Blind spots only has data now that PARTNER_GUESS is recorded, so it needs a real look with real answers.",
+      "Cross-person comparisons go through within-person percentile positions, so a partner who answered less can no longer look like they want nothing. Blind spots only has data now that PARTNER_GUESS is recorded, so it still needs a real look with two accounts filled in.",
   },
   {
     id: "observability",
@@ -355,9 +386,9 @@ export const WORKSTREAMS: Workstream[] = [
     id: "accessibility",
     title: "Usable with a screen reader and without motion",
     priority: "P3",
-    status: "later",
+    status: "in-progress",
     goal: "worth-continuing",
     note:
-      "Progress bars need roles and values, errors need aria-live, the Persian copy needs lang/dir, and the flying cards need a prefers-reduced-motion opt-out.",
+      "Progress bars carry roles and values, errors announce, the Persian copy carries lang/dir, decorative emoji are hidden, and the card animations honour prefers-reduced-motion. Remaining: a full contrast audit and a pass with an actual screen reader.",
   },
 ];

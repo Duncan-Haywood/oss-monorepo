@@ -374,3 +374,14 @@ model AdminLoginAttempt {
 
   @@index([ip, createdAt])
 }
+
+/// Anonymous writes (no account to attribute them to), counted per IP per
+/// route so `session/start` can't be used to create rows without bound.
+model AnonRequestLog {
+  id        String   @id @default(cuid())
+  ip        String
+  route     String
+  createdAt DateTime @default(now())
+
+  @@index([ip, route, createdAt])
+}

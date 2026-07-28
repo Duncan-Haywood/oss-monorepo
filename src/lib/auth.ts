@@ -42,11 +42,8 @@ export function passwordProblem(pw: string): PasswordProblem {
   return null;
 }
 
-export function getClientIp(headers: Headers): string {
-  const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  return headers.get("x-real-ip") ?? "unknown";
-}
+/** Re-exported so existing call sites keep their single auth import. */
+export { getClientIp } from "@/lib/http";
 
 export async function isLoginRateLimited(email: string, ip: string): Promise<boolean> {
   const since = new Date(Date.now() - WINDOW_MS);

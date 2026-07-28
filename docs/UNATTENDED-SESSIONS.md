@@ -1,0 +1,75 @@
+# Working on this repo unattended
+
+Most changes here are made by scheduled agent sessions with nobody watching.
+That is a different situation from a person at a keyboard, and the difference
+is worth writing down, because ignoring it has already cost this project more
+work than any bug in it.
+
+## What went wrong
+
+On 2026-07-28, nine scheduled sessions fired in the space of ninety minutes.
+Each one cloned the repo, found `IMPROVEMENT-PLAN.md`, noticed it was stale,
+and did the obvious thing. The result was nine branches off the same commit
+(`b887731`) and nine open pull requests:
+
+| PR | Development-process doc | Rewrote the plan | Fixed the conjoint line search | Fixed the lint errors |
+| --- | --- | --- | --- | --- |
+| #1 | yes | yes | — | yes |
+| #2 | yes | yes | — | yes |
+| #3 | yes | yes | yes | yes |
+| #4 | yes | yes | yes | — |
+| #5 | yes | yes | — | yes |
+| #6 | yes | yes | yes | yes |
+| #7 | yes | yes | yes | — |
+| #8 | yes | yes | — | yes |
+| #9 | yes | yes | yes | yes |
+
+Nine descriptions of the same seven `react-hooks/set-state-in-effect` errors.
+Nine explanations of the same backtracking line search accepting a worse point.
+Between them, five distinct real bugs — and because none of it merged, the
+tenth session would have started from `b887731` and found all of them again.
+
+None of those sessions did anything wrong by its own lights. Each read the
+plan, picked the top item, fixed it, tested it, and opened a well-described
+PR. The failure is only visible from outside any one of them.
+
+## What to do instead
+
+**Read the open pull requests before writing anything.** `list_pull_requests`
+with `state: "open"` costs one call. If a PR already fixes what you were about
+to fix, you have learned that in thirty seconds instead of two hours.
+
+**Prefer extending a branch to starting one.** Merging an existing branch into
+yours keeps its history and its tests, and it means the reviewer has one thing
+to read instead of two. Consolidating several branches is more valuable than
+adding a good one — the pile is the problem, not the quality of any item in it.
+
+**Say what you did not take, and why.** A consolidation that silently drops
+somebody's work looks identical to one that reviewed and rejected it. Name the
+branches you merged and the ones you passed over.
+
+**Notify when the pile is the finding.** Nine unmerged PRs is not something a
+session should quietly work around; it is the thing the person needs to know,
+because only they can merge. Send it as soon as you see it, not at the end.
+
+## What only a person can do
+
+An unattended session cannot merge, cannot deploy, and should not close
+somebody else's pull request. It also cannot see the app: there is no Postgres
+in the sandbox and no browser pointed at a running server, so nothing that
+depends on a real database is verified by anything a scheduled run produces.
+
+Say so plainly. "Not run against a database" is useful; a test plan that
+implies otherwise is worse than no test plan, because it gets believed.
+
+## The gate is the substitute for looking
+
+Since a session cannot look at the app, `npm run verify` is the whole of what
+it can honestly claim. That is why the runner has behavioural tests driving the
+real component against a stubbed `fetch` (`src/components/UnifiedRunner.test.tsx`)
+rather than none: it is the only way a change to the swipe loop can be checked
+by something that cannot swipe.
+
+A test that passes against both the old and the new code proves nothing. Run it
+against the old behaviour once and watch it fail — that check takes a minute and
+is the difference between a regression test and a comment.

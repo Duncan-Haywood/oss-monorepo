@@ -64,8 +64,5 @@ export async function recordLoginAttempt(ip: string, success: boolean): Promise<
   await prisma.adminLoginAttempt.create({ data: { ip, success } });
 }
 
-export function getClientIp(headers: Headers): string {
-  const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  return headers.get("x-real-ip") ?? "unknown";
-}
+/** Re-exported so existing call sites keep their single auth import. */
+export { getClientIp } from "@/lib/http";

@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { perspectiveOrDefault } from "@/lib/perspective";
+import { getClientIp, isWriteRateLimited, recordWrite } from "@/lib/rateLimit";
+
+/**
+ * One call creates a Participant per survey — five rows — with no account
+ * required, so this is the cheapest endpoint to point a script at. Set
+ * high enough that two partners sharing a home network, each restarting a
+ * few times, never see it.
+ */
+const MAX_STARTS_PER_IP = 40;
 
 function cleanString(value: unknown, maxLen: number): string | null {
   if (typeof value !== "string") return null;
@@ -43,6 +52,17 @@ export async function POST(req: NextRequest) {
     // If signed in, tie these sessions to the account so progress follows the
     // person across devices instead of living only in one browser.
     const user = await getSessionUser();
+
+    // Only anonymous callers are throttled — a signed-in account is already
+    // rate-limited at signup, and reuses its participants rather than
+    // creating new ones.
+    if (!user) {
+      const ip = getClientIp(req.headers);
+      if (await isWriteRateLimited(ip, "session/start", MAX_STARTS_PER_IP)) {
+        return NextResponse.json({ error: "Too many sessions started. Try again shortly." }, { status: 429 });
+      }
+      await recordWrite(ip, "session/start");
+    }
 
     const surveys = await prisma.survey.findMany({ orderBy: { createdAt: "asc" } });
     if (surveys.length === 0) {

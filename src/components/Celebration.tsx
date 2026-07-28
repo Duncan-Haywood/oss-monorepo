@@ -40,7 +40,11 @@ export function Celebration({
   });
 
   return (
-    <div key={burstKey} className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-visible">
+    <div
+      key={burstKey}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-visible"
+    >
       <div
         className={`animate-pop-fade whitespace-nowrap font-extrabold ${milestone ? "text-3xl text-amber-500" : "text-2xl text-amber-400"}`}
       >

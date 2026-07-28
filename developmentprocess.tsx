@@ -11,11 +11,13 @@
  * Read this first if you are about to change anything in this repo. The
  * long-form companions live in `docs/`:
  *
- *   docs/PRODUCT-GOALS.md   what the app is for, and what it deliberately is not
- *   docs/ARCHITECTURE.md    how the measurement actually works
- *   docs/QUALITY-BAR.md     the gates, and what each one is protecting
- *   docs/TESTING.md         what is covered, what is not, and how to add to it
- *   IMPROVEMENT-PLAN.md     the live backlog, ordered by priority
+ *   docs/PRODUCT-GOALS.md        what the app is for, and what it deliberately is not
+ *   docs/ARCHITECTURE.md         how the measurement actually works
+ *   docs/QUALITY-BAR.md          the gates, and what each one is protecting
+ *   docs/TESTING.md              what is covered, what is not, and how to add to it
+ *   docs/UNATTENDED-SESSIONS.md  how to work here when nobody is watching, and
+ *                                what happens when several sessions forget to
+ *   IMPROVEMENT-PLAN.md          the live backlog, ordered by priority
  *
  * The component is not routed. Internal process notes are not something to
  * serve to people answering the survey; import it into a scratch page if

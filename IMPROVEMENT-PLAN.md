@@ -16,14 +16,16 @@ mean:
 
 ## Open
 
-### P1 — Anonymous row creation is unbounded
+### P0 — Nine parallel pull requests, none merged
 
-`session/start` inserts one participant per survey with no rate limit and no
-dedupe for a signed-out visitor. A loop against the public URL fills the table.
-Signed-in accounts now reuse their participants, so this only affects anonymous
-sessions.
+Nine scheduled sessions opened nine branches off `b887731` within ninety
+minutes, each rediscovering the same lint errors and the same conjoint bug.
+This branch consolidates the five distinct fixes among them; the other nine
+PRs are now superseded and want closing. Only the account owner can merge or
+close, so this stays open until they do.
 
-**Fix:** rate-limit by IP. The pattern in `adminAuth.ts` generalises. ~2 hours.
+See [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md) for the
+standing rule that stops it recurring: read the open PRs before starting.
 
 ### P1 — `trials/next` creates a Trial row on every page load
 
@@ -48,10 +50,10 @@ privacy policy, and drop any field that is not actually used for anything.
 
 ### P2 — Not every route handles its own failures
 
-Seven of the twenty-four route handlers have no `try`/`catch`, so a database
-error surfaces as an unhandled rejection with nothing searchable in the log:
-`auth/me`, `auth/logout`, `admin/logout`, `participants`,
-`financial-trials/next`, `trials/next`, `surveys/[slug]`.
+Six of the remaining route handlers have no `try`/`catch`, so a database error
+surfaces as an unhandled rejection with nothing searchable in the log:
+`auth/me`, `auth/logout`, `admin/logout`, `financial-trials/next`,
+`trials/next`, `surveys/[slug]`.
 
 **Fix:** one wrapper used consistently, one structured log line per failure.
 ~2 hours.
@@ -65,25 +67,45 @@ This is the largest coverage gap; see [`docs/TESTING.md`](docs/TESTING.md).
 **Fix:** a Vitest project with a Postgres service and a migrate-and-seed
 fixture. ~4 hours.
 
-### P2 — The runner has no tests and mirrors storage into state
+### P1 — The actionable half of the couple screen is gated past where anyone reaches
 
-`UnifiedRunner` is the core loop and is untested. Its bootstrap still copies
-localStorage into component state inside an effect — the two remaining
-`react-hooks/set-state-in-effect` suppressions in the codebase are both there.
+Measured, not guessed. Two accounts were driven through all three perspectives
+against a local Postgres — roughly 90 and 60 answers respectively — and then
+`/api/couple/compare` was read:
 
-**Fix:** move it onto `useSessionBundle` the way `ProfileView` and
-`InsightsView` already are, deriving `phase` and the domain list from the store
-rather than mirroring them. Do it with a jsdom test in place, not before.
-~4 hours.
+| Section | Rows |
+| --- | --- |
+| `fit` / `theirFit` / `mirror` / `blindSpots` | 5 aligned + 5 diverged each, overlap 37–52 |
+| `makeThemHappy` / `makeYouHappy` / `shared` / `mattersMoreToThem` | **0** |
 
-### P2 — Blind spots has never been seen with real data
+The four empty ones all require `rd < 200`, and `strengthScores` additionally
+needs eight items past that floor before it will compare two people at all.
+After ~90 answers the *lowest* deviation any item reached was 170, with exactly
+one item under 200 across all three perspectives. So the sections a couple would
+actually act on need answer counts in the high hundreds.
+
+The threshold is not wrong — advising someone confidently off four swipes is the
+failure mode this project exists to avoid. Two things are wrong around it:
+
+1. `CoupleView` renders those sections only when non-empty, so they vanish with
+   no explanation. Someone who answered ninety questions sees a comparison with
+   its most useful half silently missing. It should say what it is waiting for,
+   the way the overall-match line already does.
+2. Nothing tells either partner how much further they have to go, so there is no
+   reason to keep answering toward it.
+
+**Fix:** a locked state naming the gap, and a progress signal against it.
+~2 hours. Do not fix this by lowering the threshold.
+
+### P2 — Blind spots now has data, but no human has read it
 
 `PARTNER_GUESS` was silently recorded as `PARTNER` until recently, so the
-blind-spots comparison — the sharpest thing the app produces — has never had
-anything behind it. The code path is exercised; the output is not.
+blind-spots comparison — the sharpest thing the app produces — had nothing
+behind it. It does now: verified end to end with two linked accounts, 38 shared
+items, five aligned and five diverged rows.
 
-**Fix:** two accounts, three perspectives each, and an actual look at what comes
-out. Not a code change until then.
+**Fix:** what remains is judgement, not code. Someone has to read real output
+and say whether it is worth showing.
 
 ### P2 — CSRF/origin check on the mutating routes
 
@@ -92,23 +114,11 @@ amplifier for anything else, and the auth routes now do carry a session cookie.
 
 **Fix:** an origin check in the shared route wrapper. ~1 hour.
 
-### P3 — Accessibility
+### P3 — Contrast and a real screen-reader pass
 
-- Progress bars have no `role="progressbar"` or aria values.
-- Errors are not announced (`aria-live`).
-- The Persian copy has no `lang`/`dir="rtl"`, so screen readers apply English
-  phonetics to it.
-- Celebration emoji are not `aria-hidden`.
-- No `prefers-reduced-motion` opt-out for the flying cards.
-
-### P3 — Contrast
-
-Four spots fail WCAG AA; the worst is the small grey topic line at about 2.6:1.
-
-### P3 — Fonts
-
-Geist is loaded and then overridden by a hard-coded Arial in `globals.css` —
-two font files downloaded and used nowhere.
+Several small grey labels still sit near the WCAG AA floor on light
+backgrounds. Roles, values and announcements are in place, but nothing here
+has been driven with an actual screen reader — only read in the markup.
 
 ### P3 — `SurveyRunner` drops the email field that `UnifiedRunner` collects
 
@@ -167,7 +177,8 @@ Kept so the plan can be trusted as a record rather than re-litigated.
   already-recorded answer is treated as success.
 - **No admin portal, no results page.** Both exist: login, rankings, CSV export,
   and the insights and couple screens.
-- **No tests.** 89 across the numerical core and the client contracts.
+- **No tests.** 114 across the numerical core, the couples comparison, the
+  client contracts, and the swipe loop itself.
 - **No error boundaries.** `error.tsx`, `global-error.tsx` and `not-found.tsx`
   are in place.
 - **`PARTNER_GUESS` collapsed into `PARTNER`.** `session/start` narrowed the
@@ -188,3 +199,40 @@ Kept so the plan can be trusted as a record rather than re-litigated.
   the counters the same way the localStorage path does.
 - **No CI.** `.github/workflows/ci.yml` runs typecheck, lint, test, build, and a
   migration-parity check on every push and pull request.
+- **Comparing two people on incomparable scales.** The couple screen subtracted
+  one partner's raw Glicko rating from the other's. Ratings are per respondent,
+  so their spread tracks how much someone answered rather than how much they
+  care — "this matters much more to them" was reporting whoever had swiped more,
+  and two people who agreed on everything were still shown a list of
+  differences. Cross-person comparisons now go through within-person percentile
+  positions. Spearman's rho also needed a real overlap before being shown as a
+  match percentage; at three shared items it can only come out as ±1 or ±0.5.
+- **A duplicate question on every resume.** The runner picked its opening domain
+  inside the fetch effect, so setting it re-ran the effect and fired a second
+  `POST /api/trials/next` before the first returned. That endpoint creates a row
+  per call, so every resume burned a question, silently skipped it, and inflated
+  the abandonment metric. The domain is now chosen when the session is opened,
+  which is a pure derivation, not an effect.
+- **A dropped connection wedged the session.** A next-question fetch that *threw*
+  rather than returning non-ok left an unhandled rejection and no error state,
+  so the screen sat on "Loading next…" with no Retry. On a phone that is the
+  common case. A response with no trial id had the same effect and is now
+  treated as a failure too.
+- **The welcome screen flashed in front of returning visitors.** "Haven't read
+  storage yet" and "nothing stored" were the same state; they are now distinct.
+- **The unreachable name-entry form.** Nothing set that phase. It collected name,
+  email, sex, age and ethnicity with no route in — deleted, along with the
+  unused `/api/participants` route, which duplicated `session/start` with the
+  same unbounded-write gap.
+- **Anonymous row creation was unbounded.** `session/start` is rate limited per
+  IP against an `AnonRequestLog` table — counted in the database, since an
+  in-process counter resets on every serverless cold start. Signed-in callers
+  are exempt; they reuse their participants rather than creating new ones.
+- **The lint suppressions in the runner.** All gone: storage is read through
+  `useSyncExternalStore`, and nothing sets state synchronously from an effect.
+- **Accessibility basics.** `role="progressbar"` with values, `role="alert"` on
+  the error line, `lang="fa"`/`dir="rtl"` on the Persian copy, `aria-hidden` on
+  decorative emoji, and `prefers-reduced-motion` honoured by the card and
+  celebration animations.
+- **Geist loaded and then overridden by a hard-coded Arial.** The body font now
+  uses the variable the layout sets.
