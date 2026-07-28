@@ -14,6 +14,16 @@ import { isMarketingBundleTier, leadEligibleForMarketingPack } from "./monthly-p
 import type { MarketingContentVariant } from "./types";
 
 const BUFFER_API_BASE = "https://api.bufferapp.com/1";
+// No application-layer timeout meant a hung/stalled Buffer connection tied up
+// the calling dashboard action (listBufferProfilesAction,
+// saveLeadBufferProfilesAction, scheduleMarketingPackToBufferAction) for
+// however long the hosting platform's own function-duration ceiling allows,
+// instead of failing fast into the existing error handling like every other
+// failure mode already does. Mirrors ANTHROPIC_REQUEST_TIMEOUT_MS in
+// src/lib/marketing/generators.ts / src/lib/voice/generators.ts and
+// VERCEL_REQUEST_TIMEOUT_MS in src/lib/deploy/handoff.ts. See
+// buffer-fetch-timeout.
+const BUFFER_REQUEST_TIMEOUT_MS = 30_000;
 
 /** Opaque Buffer profile ids hard-reject over this length rather than truncate (AGENT_PROTOCOL opaque-id class). */
 export const MAX_BUFFER_PROFILE_ID_LENGTH = 64;
@@ -35,6 +45,7 @@ export async function listBufferProfiles(accessToken: string): Promise<BufferPro
   // full post-as access to every connected social profile (buffer-token-header-not-query).
   const response = await fetch(`${BUFFER_API_BASE}/profiles.json`, {
     headers: { Authorization: `Bearer ${accessToken}` },
+    signal: AbortSignal.timeout(BUFFER_REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) {
     const body = await response.text();
@@ -88,6 +99,7 @@ export async function createBufferUpdate(
         Authorization: `Bearer ${accessToken}`,
       },
       body: body.toString(),
+      signal: AbortSignal.timeout(BUFFER_REQUEST_TIMEOUT_MS),
     });
 
     const raw = (await response.json().catch(() => null)) as {

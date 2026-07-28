@@ -1013,4 +1013,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "db-getClientInquiryById-convex-null-authoritative",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #980 merged (which also folded in sibling PR #979's bootstrap-prices twin fix via a clean process-log-only merge). The next dispatched research agent found src/lib/marketing/buffer.ts's two raw fetch calls (listBufferProfiles, createBufferUpdate) were the last remaining unbounded outbound-fetch call site in the codebase — every sibling third-party API call already carries an AbortSignal.timeout.",
+    shipped: [
+      "These functions back listBufferProfilesAction, saveLeadBufferProfilesAction, and scheduleMarketingPackToBufferAction (the auto-post-to-a-client's-live-social-profile path). A hung Buffer connection previously tied up the calling dashboard action for the full duration ceiling instead of failing fast — the exact failure mode the Anthropic timeout's own doc comment names as the reason for adding timeouts elsewhere.",
+      "Added BUFFER_REQUEST_TIMEOUT_MS = 30_000 (mirroring ANTHROPIC_REQUEST_TIMEOUT_MS's value and comment style) and passed signal: AbortSignal.timeout(BUFFER_REQUEST_TIMEOUT_MS) on both fetch calls. createBufferUpdate's existing catch-all try/catch already turns an eventual AbortError into a clean { success: false } result, so this closes the gap with zero response-shape change.",
+      "src/lib/marketing/buffer.ts (timeout constant + signal option on 2 fetch calls); buffer.test.ts (updated 1 exact-equality assertion + 3 new tests: AbortSignal present on both calls, clean failure on a simulated abort — 34 total, +3 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended buffer-fetch-timeout); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only buffer.ts, confirmed all 3 new AbortSignal assertions failed exactly as expected (31 passed, 3 failed), then restored and confirmed all 34 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (34 passed) then full suite (4017 passed, 234 files, +3 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — library-function timeout addition, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "buffer-fetch-timeout",
+    ),
+  },
 ];
