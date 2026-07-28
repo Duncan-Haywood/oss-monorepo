@@ -174,9 +174,12 @@ vi.mock("@/lib/observability/error-tracking", () => ({
 
 /** Growth setup ($500) + first month ($99) — matches expectedBundleCheckoutAmountCents. */
 const GROWTH_CHECKOUT_AMOUNT_CENTS = 59_900;
+/** Growth setup ($500) + first year ($990), annual-billing-option. */
+const GROWTH_ANNUAL_CHECKOUT_AMOUNT_CENTS = 149_000;
 /** Create-path Growth Price IDs — webhook catalog Price line-item gate requires these. */
 const GROWTH_SETUP_PRICE_ID = "price_growth_setup";
 const GROWTH_MONTHLY_PRICE_ID = "price_growth_monthly";
+const GROWTH_ANNUAL_PRICE_ID = "price_growth_annual";
 /** Commerce Buy now catalog Price — webhook requires it on listLineItems. */
 const COMMERCE_SKU_PRICE_ID = "price_commerce_sku_1";
 /** Complete / Commerce monthly — subscription-items CRM sync. */
@@ -4297,6 +4300,133 @@ describe("POST /api/stripe/webhook", () => {
       );
       expect(sendBundleDnsHandoffEmail).toHaveBeenCalledTimes(1);
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(2);
+    });
+
+    describe("annual billing (annual-billing-option)", () => {
+      beforeEach(() => {
+        process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL = GROWTH_ANNUAL_PRICE_ID;
+      });
+
+      it("fulfills an annual Growth session: catalog Price gate + amount gate both use the annual Price/amount, not monthly", async () => {
+        listLineItems.mockResolvedValue({
+          data: [
+            { price: { id: GROWTH_SETUP_PRICE_ID } },
+            { price: { id: GROWTH_ANNUAL_PRICE_ID } },
+          ],
+        });
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth", billingInterval: "annual" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          amount_total: GROWTH_ANNUAL_CHECKOUT_AMOUNT_CENTS,
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+        getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+        updateDeployHandoffStatus.mockImplementation(
+          async (_slug: string, status: string, notes: string[]) => ({
+            ...existingHandoff({ status: status as DeployHandoff["status"] }),
+            notes: [...existingHandoff().notes, ...notes],
+          }),
+        );
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(recordLeadPayment).toHaveBeenCalledWith(
+          expect.objectContaining({ slug: "demo-cafe", tier: "growth" }),
+          { requireConvex: true },
+        );
+        expect(sendReceiptEmail).toHaveBeenCalledWith(
+          "owner@demo-cafe.test",
+          "Demo Cafe",
+          "growth",
+          GROWTH_ANNUAL_CHECKOUT_AMOUNT_CENTS / 100,
+        );
+      });
+
+      it("skips fulfillment when an annual session's amount_total matches the MONTHLY expected amount instead of annual — proves the amount gate actually switched, not just accepted a wider range", async () => {
+        listLineItems.mockResolvedValue({
+          data: [
+            { price: { id: GROWTH_SETUP_PRICE_ID } },
+            { price: { id: GROWTH_ANNUAL_PRICE_ID } },
+          ],
+        });
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth", billingInterval: "annual" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          // Monthly amount, not annual — must not fulfill.
+          amount_total: GROWTH_CHECKOUT_AMOUNT_CENTS,
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(recordLeadPayment).not.toHaveBeenCalled();
+      });
+
+      it("skips fulfillment when an annual session's line items carry the monthly Price id instead of the annual one", async () => {
+        // Session claims annual but Stripe actually charged the monthly Price.
+        listLineItems.mockResolvedValue(growthLineItems());
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth", billingInterval: "annual" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          amount_total: GROWTH_ANNUAL_CHECKOUT_AMOUNT_CENTS,
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(recordLeadPayment).not.toHaveBeenCalled();
+      });
+
+      it("skips fulfillment when the Growth annual Price env is unset, even though the monthly env is configured", async () => {
+        delete process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL;
+        listLineItems.mockResolvedValue({
+          data: [
+            { price: { id: GROWTH_SETUP_PRICE_ID } },
+            { price: { id: GROWTH_ANNUAL_PRICE_ID } },
+          ],
+        });
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth", billingInterval: "annual" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          amount_total: GROWTH_ANNUAL_CHECKOUT_AMOUNT_CENTS,
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(recordLeadPayment).not.toHaveBeenCalled();
+      });
+
+      it("treats a missing/malformed billingInterval metadata value as monthly (falls back, does not skip or crash)", async () => {
+        listLineItems.mockResolvedValue(growthLineItems());
+        const session = checkoutSession({
+          metadata: { slug: "demo-cafe", tier: "growth", billingInterval: "yearly" },
+          customer_details: { email: "owner@demo-cafe.test" },
+          amount_total: GROWTH_CHECKOUT_AMOUNT_CENTS,
+        });
+        constructEvent.mockReturnValue(completedEvent(session));
+        recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+        getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+        updateDeployHandoffStatus.mockImplementation(
+          async (_slug: string, status: string, notes: string[]) => ({
+            ...existingHandoff({ status: status as DeployHandoff["status"] }),
+            notes: [...existingHandoff().notes, ...notes],
+          }),
+        );
+        const { POST } = await import("./route");
+
+        const response = await POST(webhookRequest());
+        expect(response.status).toBe(200);
+        expect(recordLeadPayment).toHaveBeenCalledWith(
+          expect.objectContaining({ slug: "demo-cafe", tier: "growth" }),
+          { requireConvex: true },
+        );
+      });
     });
 
     describe("recurring order supersedes an earlier subscription for the same lead", () => {

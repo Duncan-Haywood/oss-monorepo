@@ -7,6 +7,8 @@ import {
 } from "@/lib/marketing/monthly-pack";
 import { docPageMetadata } from "@/lib/seo";
 import {
+  annualBillingSavingsUsd,
+  bundleAnnualPriceHeadingLabel,
   bundlePriceHeadingLabel,
   commerceAddonPriceHeadingLabel,
   getBundle,
@@ -67,6 +69,13 @@ export default function ProductBundlesDocPage() {
 
       <h2>Growth — {bundlePriceHeadingLabel(getBundle("growth")!)}</h2>
       <p>
+        Billed monthly by default. Choosing annual billing at checkout is{" "}
+        {bundleAnnualPriceHeadingLabel(getBundle("growth")!)} — {annualBillingSavingsUsd(getBundle("growth")!)}
+        /yr cheaper than paying monthly (2 months free). Annual billing can&apos;t be combined
+        with the Commerce add-on, since a Stripe subscription&apos;s recurring line items share
+        one billing interval and the add-on has no annual Price of its own.
+      </p>
+      <p>
         Everything in Starter plus AI marketing engine: {monthlyMarketingSocialPostCount()}{" "}
         social/GBP posts + {monthlyMarketingEmailCount()} emails/month, brand voice from site
         data. Operators generate a monthly pack on the leads dashboard and
@@ -80,6 +89,12 @@ export default function ProductBundlesDocPage() {
       </p>
 
       <h2>Complete — {bundlePriceHeadingLabel(getBundle("complete")!)}</h2>
+      <p>
+        Billed monthly by default. Choosing annual billing at checkout is{" "}
+        {bundleAnnualPriceHeadingLabel(getBundle("complete")!)} —{" "}
+        {annualBillingSavingsUsd(getBundle("complete")!)}/yr cheaper than paying monthly (2
+        months free). Same Commerce add-on restriction as Growth applies.
+      </p>
       <p>
         Everything in Growth plus full marketing tier and client AI phone agent (answers their
         business line — booking, FAQ, lead capture). Until Twilio is live, operators fulfill with
