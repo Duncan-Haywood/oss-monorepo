@@ -22,6 +22,7 @@ import {
 import { getBundle } from "../pricing/bundles";
 import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "../marketing/monthly-pack";
 import { buildStarterUpsellCheckoutPath } from "../billing/starter-upsell";
+import { buildGrowthUpsellCheckoutPath } from "../billing/growth-upsell";
 import { formatDnsInstructionsForEmail } from "../deploy/dns-email";
 import type { DeployHandoff } from "../deploy/types";
 import { captureError } from "../observability/error-tracking";
@@ -589,6 +590,48 @@ export async function sendStarterUpsellEmail(params: {
       Or revisit your <a href="${safePreviewUrl}" style="color: #2563eb;">site preview</a> first.
     </p>
     <p style="margin-bottom: 8px;">Questions? Just reply — happy to walk through Growth vs Complete.</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
+ * Second-step upsell email — paid Growth customer, no Complete order yet.
+ * Mirrors sendStarterUpsellEmail's shape (see
+ * starter-upsell-checkout-url-single-source-of-truth for why the checkout
+ * path always comes from a dedicated, tested builder rather than a
+ * hand-duplicated query string), but the copy is deliberately different: a
+ * Growth customer already has the AI marketing engine, so re-pitching it
+ * here would be redundant. This pitches Complete's actual differentiators
+ * (see BUNDLES in src/lib/pricing/bundles.ts) — seasonal promos, the AI
+ * phone agent, and appointment booking — none of which Growth includes.
+ */
+export async function sendGrowthUpsellEmail(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  monthlyPriceUsd: number;
+}) {
+  const { to, businessName, slug, monthlyPriceUsd } = params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const checkoutUrl = `${baseUrl}${buildGrowthUpsellCheckoutPath(slug)}`;
+  const previewUrl = leadPreviewAbsoluteUrl(baseUrl, slug);
+  const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
+  const safePreviewUrl = escapeHtmlForEmail(previewUrl);
+
+  const subject = `${businessName} — add Complete ($${monthlyPriceUsd}/mo)`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Never miss another call?</h2>
+    <p style="margin-bottom: 16px;">Your <strong>${escapeHtmlForEmail(businessName)}</strong> marketing is already running on ${escapeHtmlForEmail(brand.name)} Growth. <strong>Complete</strong> at <strong>$${monthlyPriceUsd}/mo</strong> adds an AI phone agent that answers your business line, appointment booking and lead capture, and seasonal promo/A/B variants on top of what you already get.</p>
+    <p style="margin-bottom: 16px;">Setup is already covered by what you paid. Upgrade when you want the phone agent turned on:</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${safeCheckoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Upgrade to Complete</a>
+    </div>
+    <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">
+      Or revisit your <a href="${safePreviewUrl}" style="color: #2563eb;">site preview</a> first.
+    </p>
+    <p style="margin-bottom: 8px;">Questions? Just reply — happy to walk through what Complete adds.</p>
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 

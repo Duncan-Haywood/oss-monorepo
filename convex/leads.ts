@@ -153,6 +153,8 @@ const leadReturn = v.object({
   lastStarterUpsellSentAt: v.optional(v.string()),
   stripeConnectOnboardingLinkSentCount: v.optional(v.number()),
   lastStripeConnectOnboardingLinkSentAt: v.optional(v.string()),
+  growthUpsellSentCount: v.optional(v.number()),
+  lastGrowthUpsellSentAt: v.optional(v.string()),
 });
 
 function mapLeadRow(row: {
@@ -188,6 +190,8 @@ function mapLeadRow(row: {
   lastStarterUpsellSentAt?: string;
   stripeConnectOnboardingLinkSentCount?: number;
   lastStripeConnectOnboardingLinkSentAt?: string;
+  growthUpsellSentCount?: number;
+  lastGrowthUpsellSentAt?: string;
 }) {
   const category = normalizeLeadCategory(row.category);
   return {
@@ -223,6 +227,8 @@ function mapLeadRow(row: {
     lastStarterUpsellSentAt: row.lastStarterUpsellSentAt,
     stripeConnectOnboardingLinkSentCount: row.stripeConnectOnboardingLinkSentCount,
     lastStripeConnectOnboardingLinkSentAt: row.lastStripeConnectOnboardingLinkSentAt,
+    growthUpsellSentCount: row.growthUpsellSentCount,
+    lastGrowthUpsellSentAt: row.lastGrowthUpsellSentAt,
   };
 }
 
@@ -523,6 +529,45 @@ export const recordStripeConnectOnboardingLinkSent = mutation({
     await ctx.db.patch(lead._id, {
       stripeConnectOnboardingLinkSentCount: args.expectedStripeConnectOnboardingLinkSentCount + 1,
       lastStripeConnectOnboardingLinkSentAt: args.sentAt,
+    });
+    return true;
+  },
+});
+
+/**
+ * CAS marker for sendGrowthUpsellAction — mirrors recordStarterUpsellSent's
+ * expected-count pattern, not markMarketingPackSentToClient's one-shot
+ * "already sent" gate: a Growth upsell nudge has no monthly regenerate step
+ * to reset eligibility, so an operator may legitimately re-send it to a
+ * still Growth-only lead weeks later. This only rejects a write whose
+ * expectedGrowthUpsellSentCount no longer matches the row's current count —
+ * an exact concurrent duplicate (a second dashboard tab, or a double-click
+ * before the button's isPending-disabled state applies), never a later,
+ * deliberate resend. See growth-upsell-send-race-guard.
+ */
+export const recordGrowthUpsellSent = mutation({
+  args: {
+    slug: v.string(),
+    sentAt: v.string(),
+    expectedGrowthUpsellSentCount: v.number(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      return false;
+    }
+    if ((lead.growthUpsellSentCount ?? 0) !== args.expectedGrowthUpsellSentCount) {
+      return false;
+    }
+    await ctx.db.patch(lead._id, {
+      growthUpsellSentCount: args.expectedGrowthUpsellSentCount + 1,
+      lastGrowthUpsellSentAt: args.sentAt,
     });
     return true;
   },

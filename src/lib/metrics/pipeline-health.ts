@@ -87,6 +87,10 @@ import {
   oldestStarterUpsellCandidateAgeHours,
 } from "@/lib/billing/starter-upsell";
 import {
+  listGrowthUpsellCandidates,
+  oldestGrowthUpsellCandidateAgeHours,
+} from "@/lib/billing/growth-upsell";
+import {
   listLeadsWithIncompleteConnectOnboarding,
   oldestConnectOnboardingIncompleteAgeHours,
 } from "@/lib/commerce/stripe-connect";
@@ -370,6 +374,14 @@ export interface PipelineHealth {
   starterUpsellCandidatesCount: number;
   /** Age in whole hours since the oldest qualifying Starter order; null when none. */
   oldestStarterUpsellCandidateAgeHours: number | null;
+  /**
+   * Paid/live Growth-only leads with a usable email and no Complete order
+   * yet — the second-step MRR upsell nudge queue (see growth-upsell-nudge).
+   * Same always-on summary-card + staleness signal as starterUpsellCandidatesCount.
+   */
+  growthUpsellCandidatesCount: number;
+  /** Age in whole hours since the oldest qualifying Growth order; null when none. */
+  oldestGrowthUpsellCandidateAgeHours: number | null;
   /**
    * Leads with a Stripe Connect Express account created but not yet
    * confirmed fully onboarded (both charges_enabled and payouts_enabled) —
@@ -1028,6 +1040,13 @@ export function computePipelineHealth(input: {
     nowMs,
   );
 
+  const growthUpsellCandidates = listGrowthUpsellCandidates(input.leads, input.orders);
+  const oldestGrowthUpsellAgeHours = oldestGrowthUpsellCandidateAgeHours(
+    growthUpsellCandidates,
+    input.orders,
+    nowMs,
+  );
+
   const connectOnboardingIncomplete = listLeadsWithIncompleteConnectOnboarding(input.leads);
   const oldestConnectOnboardingIncompleteHours = oldestConnectOnboardingIncompleteAgeHours(
     connectOnboardingIncomplete,
@@ -1139,6 +1158,8 @@ export function computePipelineHealth(input: {
     oldestBillingNoticeSendFailedAgeHours: oldestBillingNoticeSendFailedHours,
     starterUpsellCandidatesCount: starterUpsellCandidates.length,
     oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellAgeHours,
+    growthUpsellCandidatesCount: growthUpsellCandidates.length,
+    oldestGrowthUpsellCandidateAgeHours: oldestGrowthUpsellAgeHours,
     connectOnboardingIncompleteCount: connectOnboardingIncomplete.length,
     oldestConnectOnboardingIncompleteAgeHours: oldestConnectOnboardingIncompleteHours,
     bufferProfileMappingMissingCount: bufferProfileMappingMissing.length,

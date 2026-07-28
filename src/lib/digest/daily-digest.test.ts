@@ -111,6 +111,7 @@ describe("buildDailyDigest", () => {
     expect(digest.billingNoticeSendFailedCount).toBe(0);
     expect(digest.oldestBillingNoticeSendFailedAgeHours).toBeNull();
     expect(digest.starterUpsellCandidates).toHaveLength(0);
+    expect(digest.growthUpsellCandidates).toHaveLength(0);
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
     expect(digest.oldestCommerceCatalogsMissingAgeHours).toBeNull();
     expect(digest.commerceCatalogsUnsynced).toHaveLength(0);
@@ -171,7 +172,11 @@ describe("buildDailyDigest", () => {
     expect(digest.unrepliedInquiries).toHaveLength(0);
     expect(digest.marketingPacksDue).toHaveLength(1);
     expect(digest.isEmpty).toBe(false);
-    expect(digest.actionableItemCount).toBe(1);
+    // 2, not 1: this live Growth lead with a usable email and no Complete
+    // order is also a genuine growthUpsellCandidates hit (growth-upsell-nudge)
+    // — both sections are correctly actionable for the same lead.
+    expect(digest.growthUpsellCandidates).toHaveLength(1);
+    expect(digest.actionableItemCount).toBe(2);
   });
 
   it("actionableSectionLabels covers every section actionableItemCount sums, including the clawback/dispute/paid-not-live/missing-email sections", () => {
@@ -195,6 +200,7 @@ describe("buildDailyDigest", () => {
       "marketing packs",
       "marketing packs not emailed",
       "Starter upsells",
+      "Growth upsells",
       "Commerce catalogs",
       "Sync to Stripe",
       "Complete voice packs",

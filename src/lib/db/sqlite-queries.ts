@@ -285,6 +285,37 @@ export function sqliteRecordStripeConnectOnboardingLinkSent(
 }
 
 /**
+ * CAS marker for sendGrowthUpsellAction, mirroring
+ * sqliteRecordStarterUpsellSent's expected-count pattern rather than a
+ * one-shot "already sent" gate — an operator may legitimately re-send a
+ * Growth upsell nudge to a still Growth-only lead weeks later. The atomic
+ * `AND COALESCE(growthUpsellSentCount, 0) = ?` clause only rejects a write
+ * whose expected count no longer matches the current row — an exact
+ * concurrent duplicate (a second dashboard tab, or a double-click before the
+ * button's isPending-disabled state applies), never a later, deliberate
+ * resend. Missing slug is a false no-op (mirrors the caller's own prior
+ * getLeadBySlug existence check). See growth-upsell-send-race-guard.
+ */
+export function sqliteRecordGrowthUpsellSent(
+  db: DatabaseSync,
+  slug: string,
+  sentAt: string,
+  expectedGrowthUpsellSentCount: number,
+): boolean {
+  const result = db
+    .prepare(
+      "UPDATE leads SET growthUpsellSentCount = ?, lastGrowthUpsellSentAt = ?, updatedAt = datetime('now') WHERE slug = ? AND COALESCE(growthUpsellSentCount, 0) = ?",
+    )
+    .run(
+      expectedGrowthUpsellSentCount + 1,
+      sentAt,
+      slug,
+      expectedGrowthUpsellSentCount,
+    );
+  return result.changes > 0;
+}
+
+/**
  * Persist a cold-lead disposition patch (re-engage or close) in one write.
  * Throws on an unknown slug (db-convex-sqlite-not-found-parity). Returns
  * false when the lead has already moved to paid/live by write time — the

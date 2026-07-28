@@ -65,6 +65,10 @@ import {
   type UpsellTargetTier,
 } from "../billing/starter-upsell";
 import {
+  listGrowthUpsellCandidates,
+  oldestGrowthUpsellCandidateAgeHours,
+} from "../billing/growth-upsell";
+import {
   listCommerceCatalogsMissing,
   listCommerceCatalogsUnsynced,
   oldestCommerceCatalogCandidateAgeHours,
@@ -202,6 +206,11 @@ export interface DigestStarterUpsellLead {
   slug: string;
   businessName: string;
   targetTier: UpsellTargetTier;
+}
+
+export interface DigestGrowthUpsellLead {
+  slug: string;
+  businessName: string;
 }
 
 export interface DigestCommerceCatalogMissing {
@@ -477,6 +486,10 @@ export interface DailyDigest {
   starterUpsellCandidatesCount: number;
   /** Age in whole hours since the oldest candidate's qualifying Starter-only order; null when none. */
   oldestStarterUpsellCandidateAgeHours: number | null;
+  growthUpsellCandidates: DigestGrowthUpsellLead[];
+  growthUpsellCandidatesCount: number;
+  /** Age in whole hours since the oldest candidate's qualifying Growth order; null when none. */
+  oldestGrowthUpsellCandidateAgeHours: number | null;
   commerceCatalogsMissing: DigestCommerceCatalogMissing[];
   commerceCatalogsMissingCount: number;
   /** Age in whole hours since the oldest missing-catalog lead's qualifying order; null when none. */
@@ -991,6 +1004,15 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       targetTier: resolveUpsellTargetTier(lead.recommendedTier),
     }));
 
+  const growthUpsellCandidatesAll = listGrowthUpsellCandidates(leads, orders);
+  const growthUpsellCandidatesCount = growthUpsellCandidatesAll.length;
+  const growthUpsellCandidates: DigestGrowthUpsellLead[] = growthUpsellCandidatesAll
+    .slice(0, UPSELL_LIMIT)
+    .map((lead) => ({
+      slug: lead.slug,
+      businessName: lead.businessName,
+    }));
+
   const commerceCatalogsMissingAll = listCommerceCatalogsMissing(leads, orders, commerceCatalogs);
   const commerceCatalogsMissingCount = commerceCatalogsMissingAll.length;
   const commerceCatalogsMissing: DigestCommerceCatalogMissing[] = commerceCatalogsMissingAll
@@ -1065,6 +1087,11 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
   );
   const oldestStarterUpsellCandidateAgeHoursValue = oldestStarterUpsellCandidateAgeHours(
     starterUpsellCandidatesAll,
+    orders,
+    nowMs,
+  );
+  const oldestGrowthUpsellCandidateAgeHoursValue = oldestGrowthUpsellCandidateAgeHours(
+    growthUpsellCandidatesAll,
     orders,
     nowMs,
   );
@@ -1508,6 +1535,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     { label: "marketing packs", count: marketingPacksDueCount },
     { label: "marketing packs not emailed", count: marketingPacksMissingClientSendCount },
     { label: "Starter upsells", count: starterUpsellCandidatesCount },
+    { label: "Growth upsells", count: growthUpsellCandidatesCount },
     { label: "Commerce catalogs", count: commerceCatalogsMissingCount },
     { label: "Sync to Stripe", count: commerceCatalogsUnsyncedCount },
     { label: "Complete voice packs", count: clientVoicePacksDueCount },
@@ -1560,6 +1588,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     starterUpsellCandidates,
     starterUpsellCandidatesCount,
     oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellCandidateAgeHoursValue,
+    growthUpsellCandidates,
+    growthUpsellCandidatesCount,
+    oldestGrowthUpsellCandidateAgeHours: oldestGrowthUpsellCandidateAgeHoursValue,
     commerceCatalogsMissing,
     commerceCatalogsMissingCount,
     oldestCommerceCatalogsMissingAgeHours: oldestCommerceCatalogsMissingAgeHoursValue,
@@ -1795,6 +1826,10 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Starter paid, suggest ${escapeHtmlForEmail(lead.targetTier)} upsell`,
   );
 
+  const growthUpsellRows = digest.growthUpsellCandidates.map(
+    (lead) => `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Growth paid, suggest Complete upsell`,
+  );
+
   const commerceRows = digest.commerceCatalogsMissing.map(
     (lead) =>
       `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Commerce catalog not created`,
@@ -1956,6 +1991,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     )}
     ${section(billingNoticeSendFailedTitle, billingNoticeSendFailedRows, "Every billing-status email reached its customer.")}
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount}${digest.oldestStarterUpsellCandidateAgeHours !== null ? ` · oldest ${digest.oldestStarterUpsellCandidateAgeHours}h` : ""})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
+    ${section(`Growth → Complete upsell (${digest.growthUpsellCandidatesCount}${digest.oldestGrowthUpsellCandidateAgeHours !== null ? ` · oldest ${digest.oldestGrowthUpsellCandidateAgeHours}h` : ""})`, growthUpsellRows, "No Growth-only paid leads ready to upsell.")}
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount}${digest.oldestCommerceCatalogsMissingAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsMissingAgeHours}h` : ""})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount}${digest.oldestCommerceCatalogsUnsyncedAgeHours !== null ? ` · oldest ${digest.oldestCommerceCatalogsUnsyncedAgeHours}h` : ""})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
     ${section(`Stripe Connect onboarding incomplete (${digest.connectOnboardingIncompleteCount}${digest.oldestConnectOnboardingIncompleteAgeHours !== null ? ` · oldest ${digest.oldestConnectOnboardingIncompleteAgeHours}h` : ""})`, connectOnboardingIncompleteRows, "Every Connect account is fully onboarded (or none created yet).")}

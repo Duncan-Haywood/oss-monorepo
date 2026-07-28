@@ -45,6 +45,7 @@ import {
   sqliteRecordLeadOutreach,
   sqliteRecordStarterUpsellSent,
   sqliteRecordStripeConnectOnboardingLinkSent,
+  sqliteRecordGrowthUpsellSent,
   sqliteApplyColdLeadDisposition,
   sqliteRecordClientInquiryReply,
   sqliteRecordCheckoutRecoverySent,
@@ -132,6 +133,7 @@ const api: any = {
     recordOutreach: "leads:recordOutreach",
     recordStarterUpsellSent: "leads:recordStarterUpsellSent",
     recordStripeConnectOnboardingLinkSent: "leads:recordStripeConnectOnboardingLinkSent",
+    recordGrowthUpsellSent: "leads:recordGrowthUpsellSent",
     recordPreviewOpen: "leads:recordPreviewOpen",
     updateNotes: "leads:updateNotes",
     updateSnooze: "leads:updateSnooze",
@@ -474,6 +476,49 @@ export async function recordStripeConnectOnboardingLinkSent(
     slug,
     sentAt,
     expectedStripeConnectOnboardingLinkSentCount,
+  );
+}
+
+/**
+ * CAS marker for sendGrowthUpsellAction. Unlike recordLeadOutreach's
+ * monotonic step guard, this is a plain expected-count compare-and-swap
+ * (mirroring recordStarterUpsellSent) — the caller passes the count it last
+ * read (expectedGrowthUpsellSentCount), and the write only applies when the
+ * row's current count still matches, so a later, deliberate resend (a fresh
+ * read, a fresh expected count) always succeeds and only an exact
+ * concurrent duplicate (same stale expected count) is rejected. See
+ * growth-upsell-send-race-guard.
+ */
+export async function recordGrowthUpsellSent(
+  slug: string,
+  sentAt: string,
+  expectedGrowthUpsellSentCount: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.leads.recordGrowthUpsellSent, {
+        slug,
+        sentAt,
+        expectedGrowthUpsellSentCount,
+        apiSecret: convexApiSecret,
+      })) as boolean;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordGrowthUpsellSent", e);
+      }
+      console.warn(
+        `Failed to record Growth upsell send for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  return sqliteRecordGrowthUpsellSent(
+    getSqliteDb(),
+    slug,
+    sentAt,
+    expectedGrowthUpsellSentCount,
   );
 }
 

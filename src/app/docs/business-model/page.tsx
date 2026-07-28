@@ -237,6 +237,12 @@ export default function BusinessModelDocPage() {
           leads (<code>/dashboard/leads</code> panel + row action) → Growth/Complete checkout;
           the same candidates also appear in the operator daily digest
         </li>
+        <li>
+          Second-step upgrade — operator <strong>Upsell to Complete</strong> on paid/live
+          Growth-only leads (own panel + row action) → Complete checkout, pitching the AI phone
+          agent, appointment booking, and seasonal promos Growth doesn&apos;t include; also
+          surfaced in pipeline health and the daily digest
+        </li>
       </ul>
 
       <h2>Operator workflow</h2>
