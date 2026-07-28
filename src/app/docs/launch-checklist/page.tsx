@@ -361,6 +361,20 @@ export default function LaunchChecklistDocPage() {
           whitespace-only / <code>you@example.com</code>-style placeholders) so
           the gap is visible before click.
         </li>
+        <li>
+          Automate the digest above so it doesn&apos;t depend on remembering to
+          click the button: generate a random token (
+          <code>openssl rand -hex 32</code>) and set it as <code>CRON_SECRET</code>
+          — Vercel Cron sends it back automatically as{" "}
+          <code>Authorization: Bearer &lt;value&gt;</code> to any route named in{" "}
+          <code>vercel.json</code>&apos;s <code>&quot;crons&quot;</code> array,
+          which already points at <code>/api/cron/daily-digest</code> once a day.
+          Confirm it by calling that route yourself with the header set (a 200
+          means it sent; a 501 means <code>CRON_SECRET</code> or{" "}
+          <code>OPERATOR_DIGEST_EMAIL</code> is still unset). No OAuth or
+          third-party approval needed, unlike the Google Places / Buffer / Stripe
+          Connect items below.
+        </li>
       </ol>
 
       <h2>4. Persistence</h2>
