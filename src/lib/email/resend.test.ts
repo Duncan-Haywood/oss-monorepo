@@ -1481,6 +1481,27 @@ describe("resend.ts — outreach checkout links carry acquisition-source attribu
     expect(sentHtml).toContain("&amp;tier=starter&amp;source=outreach-email");
   });
 
+  it("adds &billing=annual to sendCheckoutAbandonedRecovery's checkout link when billingInterval is annual (checkout-recovery-billing-interval-carry-through)", async () => {
+    const { sendCheckoutAbandonedRecovery } = await import("./resend");
+    await sendCheckoutAbandonedRecovery(
+      "owner@example.com",
+      "Demo Cafe",
+      "demo-cafe",
+      "growth",
+      1,
+      "annual",
+    );
+    expect(sentHtml).toContain("&amp;tier=growth&amp;billing=annual&amp;source=outreach-email");
+  });
+
+  it("omits &billing= entirely when billingInterval is monthly or omitted", async () => {
+    const { sendCheckoutAbandonedRecovery } = await import("./resend");
+    await sendCheckoutAbandonedRecovery("owner@example.com", "Demo Cafe", "demo-cafe", "growth", 1, "monthly");
+    expect(sentHtml).not.toContain("billing=");
+    await sendCheckoutAbandonedRecovery("owner@example.com", "Demo Cafe", "demo-cafe", "growth");
+    expect(sentHtml).not.toContain("billing=");
+  });
+
   it("does NOT tag sendCommerceAbandonedRecovery's checkout link — that flow links to the client's own preview/catalog, not /checkout, and has no bundle acquisition to attribute", async () => {
     const { sendCommerceAbandonedRecovery } = await import("./resend");
     await sendCommerceAbandonedRecovery("shopper@example.com", "Demo Cafe", "demo-cafe", "Latte");

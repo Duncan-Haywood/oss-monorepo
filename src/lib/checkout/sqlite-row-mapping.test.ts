@@ -14,6 +14,7 @@ const baseRow: SqliteCheckoutSessionRow = {
   recoverySentCount: null,
   kind: null,
   skuId: null,
+  billingInterval: null,
 };
 
 describe("mapCheckoutSessionRow", () => {
@@ -66,5 +67,15 @@ describe("mapCheckoutSessionRow", () => {
   it("preserves recoverySentCount when set, undefined when null", () => {
     expect(mapCheckoutSessionRow(baseRow).recoverySentCount).toBeUndefined();
     expect(mapCheckoutSessionRow({ ...baseRow, recoverySentCount: 2 }).recoverySentCount).toBe(2);
+  });
+
+  it("preserves billingInterval when set, undefined when null (checkout-recovery-billing-interval-carry-through)", () => {
+    expect(mapCheckoutSessionRow(baseRow).billingInterval).toBeUndefined();
+    expect(
+      mapCheckoutSessionRow({ ...baseRow, billingInterval: "annual" }).billingInterval,
+    ).toBe("annual");
+    expect(
+      mapCheckoutSessionRow({ ...baseRow, billingInterval: "monthly" }).billingInterval,
+    ).toBe("monthly");
   });
 });

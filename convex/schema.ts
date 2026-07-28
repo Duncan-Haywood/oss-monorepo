@@ -218,6 +218,12 @@ export default defineSchema({
     kind: v.optional(v.string()),
     /** Present when kind === "commerce_sku". */
     skuId: v.optional(v.string()),
+    /**
+     * "monthly" | "annual" — billing cadence selected at checkout creation
+     * (kind=bundle only, see annual-billing-option). Loose v.optional(v.string())
+     * rather than a closed union, matching kind/status/tier's own looseness above.
+     */
+    billingInterval: v.optional(v.string()),
   })
     .index("by_stripeSessionId", ["stripeSessionId"])
     .index("by_status", ["status"])
@@ -418,4 +424,20 @@ export default defineSchema({
     .index("by_handoffId", ["handoffId"])
     .index("by_status", ["status"])
     .index("by_customDomain", ["customDomain"]),
+
+  /**
+   * Operational run-health marker for the Vercel Cron-triggered routes
+   * (daily-digest / checkout-recovery / outreach-followups) — one row per
+   * job name, written on every invocation (success or failure) so a stopped
+   * or failing automation is visible in-app instead of only in Vercel's own
+   * cron run history. See cron-run-health-visibility.
+   */
+  cronRuns: defineTable({
+    job: v.string(), // "daily-digest" | "checkout-recovery" | "outreach-followups"
+    lastRunAt: v.string(), // ISO — set on every invocation regardless of outcome
+    lastRunSuccess: v.boolean(),
+    lastSuccessAt: v.optional(v.string()),
+    lastFailureAt: v.optional(v.string()),
+    lastError: v.optional(v.string()),
+  }).index("by_job", ["job"]),
 });

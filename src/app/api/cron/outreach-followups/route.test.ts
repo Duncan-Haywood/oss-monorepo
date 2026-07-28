@@ -18,8 +18,10 @@ vi.mock("@/lib/leads/send-follow-up", () => ({
 }));
 
 const getLeads = vi.fn();
+const recordCronRunOutcome = vi.fn();
 vi.mock("@/lib/db", () => ({
   getLeads: (...args: unknown[]) => getLeads(...args),
+  recordCronRunOutcome: (...args: unknown[]) => recordCronRunOutcome(...args),
 }));
 
 const captureError = vi.fn();
@@ -104,6 +106,10 @@ describe("GET /api/cron/outreach-followups", () => {
     const body = await response.json();
     expect(body).toEqual({ success: true, attempted: 0, sent: 0, failed: 0, failures: [] });
     expect(sendOutreachFollowUpEmail).not.toHaveBeenCalled();
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "outreach-followups",
+      expect.objectContaining({ success: true, atIso: expect.any(String) }),
+    );
   });
 
   it("sends a due follow-up via the shared helper", async () => {
@@ -160,6 +166,10 @@ describe("GET /api/cron/outreach-followups", () => {
     const body = await response.json();
     expect(body).toEqual({ success: false, error: "db unavailable" });
     expect(captureError).toHaveBeenCalledWith(expect.any(Error), { component: "cron-outreach-followups" });
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "outreach-followups",
+      expect.objectContaining({ success: false, error: "db unavailable" }),
+    );
   });
 
   it("rate-limits repeated calls from the same IP after auth succeeds", async () => {

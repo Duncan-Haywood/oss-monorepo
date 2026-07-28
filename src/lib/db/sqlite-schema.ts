@@ -110,7 +110,8 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
       recoverySentAt TEXT,
       recoverySentCount INTEGER,
       kind TEXT NOT NULL DEFAULT 'bundle',
-      skuId TEXT
+      skuId TEXT,
+      billingInterval TEXT
     );
 
     CREATE INDEX IF NOT EXISTS idx_checkout_sessions_status
@@ -170,6 +171,15 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
 
     CREATE INDEX IF NOT EXISTS idx_deploy_handoffs_customDomain
       ON deploy_handoffs(customDomain);
+
+    CREATE TABLE IF NOT EXISTS cron_runs (
+      job TEXT PRIMARY KEY,
+      lastRunAt TEXT NOT NULL,
+      lastRunSuccess INTEGER NOT NULL DEFAULT 1,
+      lastSuccessAt TEXT,
+      lastFailureAt TEXT,
+      lastError TEXT
+    );
   `);
 
   // Migrations for DBs created before email/dataSource columns existed
@@ -296,6 +306,9 @@ export function initializeSqliteSchema(db: DatabaseSync): void {
   }
   if (!checkoutSessionCols.includes("recoverySentCount")) {
     db.exec("ALTER TABLE checkout_sessions ADD COLUMN recoverySentCount INTEGER");
+  }
+  if (!checkoutSessionCols.includes("billingInterval")) {
+    db.exec("ALTER TABLE checkout_sessions ADD COLUMN billingInterval TEXT");
   }
 
   const commerceOrderCols = (

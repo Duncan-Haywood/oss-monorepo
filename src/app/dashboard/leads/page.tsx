@@ -13,6 +13,7 @@ import {
   listCommerceOrdersDisputed,
   listCommerceOrdersMissingClientReceipt,
   getSuppressedEmails,
+  listCronRuns,
 } from "@/lib/db";
 import { mergeCommerceOrdersForReview } from "@/lib/commerce";
 import { mergeInquiriesForInbox } from "@/lib/inquiries/merge";
@@ -104,6 +105,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     commerceOrdersDisputed,
     commerceOrdersMissingClientReceipt,
     suppressedEmails,
+    cronRuns,
   ] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
@@ -119,6 +121,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     listCommerceOrdersDisputed(),
     listCommerceOrdersMissingClientReceipt(),
     getSuppressedEmails(),
+    listCronRuns(),
   ]);
   return {
     leads,
@@ -151,6 +154,8 @@ async function loadLeadsPipelineHealth(): Promise<{
       commerceOrdersMissingClientReceipt,
       marketingSchedulingEnabled: isMarketingSchedulingAllowed(),
       suppressions: suppressedEmails,
+      cronRuns,
+      cronSecretConfigured: !!process.env.CRON_SECRET?.trim(),
       nowMs,
     }),
   };

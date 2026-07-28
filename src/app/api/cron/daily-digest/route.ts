@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordCronRunOutcome } from "@/lib/db";
 import { sendOperatorDigestEmail } from "@/lib/digest/send-operator-digest";
 import { captureError } from "@/lib/observability/error-tracking";
 import { resolveTrustedAppUrl } from "@/lib/security/app-url";
@@ -65,19 +66,21 @@ export async function GET(request: Request) {
   }
 
   const appUrl = resolveTrustedAppUrl(request.headers, process.env.NEXT_PUBLIC_APP_URL);
+  const nowIso = new Date().toISOString();
 
   try {
     const result = await sendOperatorDigestEmail(digestEmail, appUrl);
     if (!result.success) {
       await captureError(new Error(result.error), { component: "cron-daily-digest" });
+      await recordCronRunOutcome("daily-digest", { success: false, atIso: nowIso, error: result.error });
       return NextResponse.json({ success: false, error: result.error }, { status: 500 });
     }
+    await recordCronRunOutcome("daily-digest", { success: true, atIso: nowIso });
     return NextResponse.json({ success: true, mock: result.mock });
   } catch (error) {
     await captureError(error, { component: "cron-daily-digest" });
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 },
-    );
+    const message = error instanceof Error ? error.message : "Unknown error";
+    await recordCronRunOutcome("daily-digest", { success: false, atIso: nowIso, error: message });
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
