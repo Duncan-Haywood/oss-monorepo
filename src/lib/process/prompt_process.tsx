@@ -950,5 +950,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "orders-recurring-canceled-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, implementing an already-identified, already-verified-fresh finding deliberately deferred by the housekeeping-split iteration above (per AGENT_PROTOCOL's rule never to blend a re-archive with feature work). Before implementing: git fetch --prune found no live sibling PR touching growth-upsell; re-synced onto fresh origin/main (b7f78e85, picking up sibling PR #955's unrelated captureError wiring via a clean fast-forward); independently re-read source to confirm the finding was still live.",
+    shipped: [
+      "The paid-upgrade nudge (Growth → Complete) was the one billing-cadence-carrying surface this session's annual-billing sweep hadn't yet reached: buildGrowthUpsellCheckoutPath built /checkout?slug=...&tier=complete with no billing-interval param, and sendGrowthUpsellEmail hardcoded '$X/mo' copy — so an annual Growth subscriber upgrading saw a monthly price quote and landed on a checkout defaulting to Monthly, silently switching their committed cadence. Confirmed Starter-upsell has no equivalent bug (Starter carries no recurring Price, so a Starter subscriber is choosing a cadence for the first time, not having an existing one overwritten).",
+      "Fixed by mirroring createBillingPortalForCheckoutSession's precedent and this session's own stripeSubscriptionBillingInterval helper: new resolveGrowthOrderBillingInterval (src/lib/billing/growth-upsell-billing-interval.ts) retrieves the Growth order's Checkout Session (expand: ['subscription']) and derives the cadence, following open-billing-portal-action.test.ts's dependency-injection convention so the Stripe client is constructed only at the action call site. buildGrowthUpsellCheckoutPath and sendGrowthUpsellEmail both take an optional billingInterval param — the checkout path appends &billing=annual, the email swaps in annualPriceUsd/'$X/yr' copy. Best-effort/non-blocking like its two siblings: any lookup failure falls back to the original 'monthly' behavior rather than blocking the send.",
+      "src/lib/billing/growth-upsell.ts, src/lib/email/resend.ts, src/app/dashboard/leads/actions.ts (fix); src/lib/billing/growth-upsell-billing-interval.ts + .test.ts (new); growth-upsell.test.ts, resend.test.ts, send-growth-upsell-action.test.ts (updated/new tests); src/app/docs/architecture/page.tsx (new paragraph after payment-failed-notice-annual-billing-copy); src/lib/process/business-decisions.ts (appended growth-upsell-annual-billing-carry-through); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change. Diff-gate anchor moves to b7f78e85 (origin/main tip, PR #955 merged).",
+      "Proved via git-stash: stashed the three pre-existing source files, confirmed all 5 new/updated assertions failed exactly as expected (138 passed, 5 failed), then restored and confirmed all 143 targeted tests pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (143 passed) then full suite (3968 passed, 233 files, +11 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only billing/email change; checkout-form.tsx's own billing=annual consumption was already fixed in a prior iteration.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "growth-upsell-annual-billing-carry-through",
+    ),
+  },
 ];
 

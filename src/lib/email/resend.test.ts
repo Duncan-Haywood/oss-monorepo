@@ -1111,6 +1111,49 @@ describe("resend.ts — sendGrowthUpsellEmail checkout URL single source of trut
     );
     expect(sentHtml).toContain(`href="${expectedHref}"`);
   });
+
+  it("quotes the annual price and carries billing=annual onto the checkout link for an annual Growth subscriber (growth-upsell-annual-billing-carry-through)", async () => {
+    const { sendGrowthUpsellEmail } = await import("./resend");
+    await sendGrowthUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      monthlyPriceUsd: 199,
+      annualPriceUsd: 1990,
+      billingInterval: "annual",
+    });
+    expect(sentHtml).toContain("$1990/yr");
+    expect(sentHtml).not.toContain("$199/mo");
+    expect(sentHtml).toMatch(/href="[^"]*\/checkout\?slug=demo-cafe&amp;tier=complete&amp;billing=annual"/);
+  });
+
+  it("still quotes the monthly price when billingInterval is monthly or omitted, even if annualPriceUsd is supplied", async () => {
+    const { sendGrowthUpsellEmail } = await import("./resend");
+    await sendGrowthUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      monthlyPriceUsd: 199,
+      annualPriceUsd: 1990,
+      billingInterval: "monthly",
+    });
+    expect(sentHtml).toContain("$199/mo");
+    expect(sentHtml).not.toContain("$1990/yr");
+    expect(sentHtml).not.toContain("billing=annual");
+  });
+
+  it("falls back to the monthly price when annualPriceUsd is missing even if billingInterval is annual", async () => {
+    const { sendGrowthUpsellEmail } = await import("./resend");
+    await sendGrowthUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      monthlyPriceUsd: 199,
+      billingInterval: "annual",
+    });
+    expect(sentHtml).toContain("$199/mo");
+    expect(sentHtml).not.toContain("billing=annual");
+  });
 });
 
 describe("resend.ts — sendSubscriptionCanceledNotice lost-features content (subscription-canceled-win-back-notice)", () => {

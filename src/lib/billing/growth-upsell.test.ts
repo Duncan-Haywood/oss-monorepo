@@ -196,6 +196,18 @@ describe("buildGrowthUpsellCheckoutPath", () => {
       "/checkout?slug=acme%20co&tier=complete",
     );
   });
+
+  it("appends billing=annual only when explicitly requested (growth-upsell-annual-billing-carry-through)", () => {
+    expect(buildGrowthUpsellCheckoutPath("serene-salon", "annual")).toBe(
+      "/checkout?slug=serene-salon&tier=complete&billing=annual",
+    );
+    expect(buildGrowthUpsellCheckoutPath("serene-salon", "monthly")).toBe(
+      "/checkout?slug=serene-salon&tier=complete",
+    );
+    expect(buildGrowthUpsellCheckoutPath("serene-salon")).toBe(
+      "/checkout?slug=serene-salon&tier=complete",
+    );
+  });
 });
 
 describe("listGrowthUpsellCandidates", () => {
