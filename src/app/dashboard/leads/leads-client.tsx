@@ -100,6 +100,7 @@ import {
   resolveUpsellTargetTier,
 } from "@/lib/billing/starter-upsell";
 import {
+  growthUpsellCandidatePriceSuffix,
   leadEligibleForGrowthUpsell,
   listGrowthUpsellCandidates,
   oldestGrowthUpsellCandidateAgeHours,
@@ -109,6 +110,7 @@ import {
   oldestRecurringEntitlementPausedAgeHours,
 } from "@/lib/orders/recurring";
 import { bundlePriceHeadingLabel, getBundle } from "@/lib/pricing/bundles";
+import type { BundleBillingInterval } from "@/lib/pricing/bundles";
 import {
   contentTypeLabel,
   leadEligibleForMarketingPack,
@@ -224,6 +226,13 @@ interface LeadsClientProps {
   connectOnboardingAllowed?: boolean;
   /** True when ALLOW_MARKETING_SCHEDULING=1 — enables the Buffer auto-post panel. */
   marketingSchedulingAllowed?: boolean;
+  /**
+   * Live-resolved billing cadence per Growth-upsell-candidate slug — see
+   * growth-upsell-dashboard-candidate-annual-billing-display. A slug absent
+   * from this map (lookup skipped or failed) defaults to "monthly" at the
+   * render site, matching resolveGrowthOrderBillingInterval's own fallback.
+   */
+  growthUpsellBillingIntervals?: Record<string, BundleBillingInterval>;
 }
 
 const STAGES: { id: LeadPipelineStage; label: string; color: string; desc: string }[] = [
@@ -337,6 +346,7 @@ export function LeadsClient({
   marketingMonth = "",
   connectOnboardingAllowed = false,
   marketingSchedulingAllowed = false,
+  growthUpsellBillingIntervals = {},
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   // Per-slug reference count of optimistic stage-change edits
@@ -2529,9 +2539,10 @@ export function LeadsClient({
                       </p>
                       <p className="mt-1 text-xs text-zinc-600">
                         {lead.stage} · suggest {bundle?.name ?? "complete"}
-                        {bundle?.monthlyPriceUsd != null
-                          ? ` · $${bundle.monthlyPriceUsd}/mo`
-                          : null}
+                        {growthUpsellCandidatePriceSuffix(
+                          bundle,
+                          growthUpsellBillingIntervals[lead.slug],
+                        )}
                         {lead.email ? ` · ${lead.email}` : null}
                         {upsellAgeHours !== null ? (
                           <> · paid {formatAbandonedAgeHours(upsellAgeHours)} ago</>

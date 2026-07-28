@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { resolveGrowthOrderBillingInterval } from "./growth-upsell-billing-interval";
+import {
+  resolveGrowthOrderBillingInterval,
+  resolveGrowthUpsellCandidateBillingIntervals,
+} from "./growth-upsell-billing-interval";
 
 function fakeStripe(subscription: unknown) {
   return {
@@ -60,5 +63,56 @@ describe("resolveGrowthOrderBillingInterval", () => {
     await expect(resolveGrowthOrderBillingInterval(stripe, "cs_test_error")).resolves.toBe(
       "monthly",
     );
+  });
+});
+
+describe("resolveGrowthUpsellCandidateBillingIntervals", () => {
+  function fakeStripeMulti(subscriptionsBySessionId: Record<string, unknown>) {
+    return {
+      checkout: {
+        sessions: {
+          retrieve: vi.fn(async (id: string) => ({
+            subscription: subscriptionsBySessionId[id],
+          })),
+        },
+      },
+    };
+  }
+
+  it("resolves each candidate's cadence independently, keyed by slug", async () => {
+    const stripe = fakeStripeMulti({
+      cs_annual: { items: { data: [{ price: { recurring: { interval: "year" } } }] } },
+      cs_monthly: { items: { data: [{ price: { recurring: { interval: "month" } } }] } },
+    });
+    await expect(
+      resolveGrowthUpsellCandidateBillingIntervals(stripe, [
+        { slug: "annual-cafe", stripeSessionId: "cs_annual" },
+        { slug: "monthly-salon", stripeSessionId: "cs_monthly" },
+      ]),
+    ).resolves.toEqual({ "annual-cafe": "annual", "monthly-salon": "monthly" });
+  });
+
+  it("one candidate's retrieve failure doesn't affect the others (falls back to monthly for that slug only)", async () => {
+    const stripe = {
+      checkout: {
+        sessions: {
+          retrieve: vi.fn(async (id: string) => {
+            if (id === "cs_broken") throw new Error("Stripe API error");
+            return { subscription: { items: { data: [{ price: { recurring: { interval: "year" } } }] } } };
+          }),
+        },
+      },
+    };
+    await expect(
+      resolveGrowthUpsellCandidateBillingIntervals(stripe, [
+        { slug: "broken-lead", stripeSessionId: "cs_broken" },
+        { slug: "fine-lead", stripeSessionId: "cs_fine" },
+      ]),
+    ).resolves.toEqual({ "broken-lead": "monthly", "fine-lead": "annual" });
+  });
+
+  it("returns an empty map for an empty candidate list", async () => {
+    const stripe = fakeStripeMulti({});
+    await expect(resolveGrowthUpsellCandidateBillingIntervals(stripe, [])).resolves.toEqual({});
   });
 });

@@ -1833,6 +1833,32 @@ export default function ArchitectureDocPage() {
         pattern for testability.
       </p>
       <p>
+        <code>growth-upsell-dashboard-candidate-annual-billing-display</code>: the paragraph above
+        fixed the actual send path (the email/checkout link a click on &quot;Send Complete
+        upsell&quot; produces), but never touched the operator-facing candidate row itself —
+        /dashboard/leads&apos; Growth → Complete panel kept unconditionally rendering
+        &quot;$199/mo&quot; even for a lead whose live Growth subscription is annual, so the
+        operator read a different number than the one the button they were about to click would
+        actually send. Fixed by resolving each candidate&apos;s cadence server-side in{" "}
+        <code>page.tsx</code> — a new <code>resolveGrowthUpsellCandidateBillingIntervals</code> (
+        <code>src/lib/billing/growth-upsell-billing-interval.ts</code>) runs one Checkout Session
+        retrieve per candidate concurrently, reusing <code>resolveGrowthOrderBillingInterval</code>
+        so a single candidate&apos;s Stripe failure can&apos;t affect the others — and passing the
+        resulting slug-keyed map down to <code>LeadsClient</code> as a new{" "}
+        <code>growthUpsellBillingIntervals</code> prop. <code>leads-client.tsx</code> renders the
+        row&apos;s price suffix through a new pure{" "}
+        <code>growthUpsellCandidatePriceSuffix(bundle, billingInterval)</code> helper in{" "}
+        <code>growth-upsell.ts</code> instead of reading <code>bundle.monthlyPriceUsd</code>{" "}
+        directly. Same best-effort shape as its sibling: no <code>STRIPE_SECRET_KEY</code> or an
+        empty candidate list skips the lookup entirely (the common case — this list is normally
+        small), a missing slug in the resolved map defaults to &quot;monthly&quot;, and the whole
+        thing degrades to the exact pre-fix display rather than blocking the dashboard&apos;s page
+        render. The sibling Starter-upsell panel a few lines above renders unchanged — it has no
+        equivalent bug, for the same reason <code>growth-upsell-annual-billing-carry-through</code>{" "}
+        never touched it: Starter carries no recurring Price, so that panel&apos;s price is a
+        first-time cadence choice, not an existing one to preserve.
+      </p>
+      <p>
         <code>listOrdersWithFailedBillingNotice</code> itself had a follow-on gap (
         <code>billing-notice-failed-list-entitlement-guard</code>): it never excluded an order that
         had since fully canceled, been refunded, or been disputed. Because the marker is

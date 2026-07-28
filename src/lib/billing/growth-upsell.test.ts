@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildGrowthUpsellCheckoutPath,
+  growthUpsellCandidatePriceSuffix,
   hasCompleteOrder,
   isGrowthOrder,
   leadEligibleForGrowthUpsell,
@@ -207,6 +208,32 @@ describe("buildGrowthUpsellCheckoutPath", () => {
     expect(buildGrowthUpsellCheckoutPath("serene-salon")).toBe(
       "/checkout?slug=serene-salon&tier=complete",
     );
+  });
+});
+
+describe("growthUpsellCandidatePriceSuffix", () => {
+  const bundle = { monthlyPriceUsd: 199, annualPriceUsd: 1990 };
+
+  it("quotes the monthly price when billingInterval is monthly or omitted (growth-upsell-dashboard-candidate-annual-billing-display)", () => {
+    expect(growthUpsellCandidatePriceSuffix(bundle, "monthly")).toBe(" · $199/mo");
+    expect(growthUpsellCandidatePriceSuffix(bundle)).toBe(" · $199/mo");
+  });
+
+  it("quotes the annual price when billingInterval is annual and the bundle has one", () => {
+    expect(growthUpsellCandidatePriceSuffix(bundle, "annual")).toBe(" · $1990/yr");
+  });
+
+  it("falls back to the monthly price when billingInterval is annual but the bundle has no annualPriceUsd", () => {
+    expect(
+      growthUpsellCandidatePriceSuffix({ monthlyPriceUsd: 199, annualPriceUsd: null }, "annual"),
+    ).toBe(" · $199/mo");
+  });
+
+  it("returns null for an undefined bundle or a bundle with no monthlyPriceUsd", () => {
+    expect(growthUpsellCandidatePriceSuffix(undefined, "monthly")).toBeNull();
+    expect(
+      growthUpsellCandidatePriceSuffix({ monthlyPriceUsd: null, annualPriceUsd: null }, "monthly"),
+    ).toBeNull();
   });
 });
 

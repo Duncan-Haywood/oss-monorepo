@@ -17,6 +17,10 @@ import {
 } from "@/lib/db";
 import { mergeCommerceOrdersForReview } from "@/lib/commerce";
 import { mergeInquiriesForInbox } from "@/lib/inquiries/merge";
+import Stripe from "stripe";
+import { isGrowthOrder, listGrowthUpsellCandidates } from "@/lib/billing/growth-upsell";
+import { resolveGrowthUpsellCandidateBillingIntervals } from "@/lib/billing/growth-upsell-billing-interval";
+import type { BundleBillingInterval } from "@/lib/pricing/bundles";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
@@ -199,6 +203,37 @@ export default async function LeadsPage() {
   // uncapped listUnrepliedInquiries() below) keep counting it as outstanding
   // (see inquiries-inbox-uncapped-unreplied-merge).
   const inquiriesForInboxPanel = mergeInquiriesForInbox(inquiries, unrepliedInquiries);
+  // The Growth → Complete upsell panel must quote each candidate's actual
+  // billing cadence, not always "$X/mo" — growth-upsell-annual-billing-
+  // carry-through already fixed the send action's own email/link, but never
+  // touched this row (see growth-upsell-dashboard-candidate-annual-billing-
+  // display). Best-effort like the send path itself: no STRIPE_SECRET_KEY or
+  // no candidates skips the lookup entirely, and any candidate whose
+  // Checkout Session retrieve fails just falls back to "monthly" (the
+  // original, always-correct-for-monthly display) rather than blocking the
+  // page render.
+  const growthUpsellCandidates = listGrowthUpsellCandidates(leads, orders);
+  let growthUpsellBillingIntervals: Record<string, BundleBillingInterval> = {};
+  const stripeSecretKeyForGrowthUpsell = process.env.STRIPE_SECRET_KEY;
+  if (stripeSecretKeyForGrowthUpsell && growthUpsellCandidates.length > 0) {
+    const candidateGrowthOrders = growthUpsellCandidates
+      .map((lead) => {
+        const growthOrder = orders.find(
+          (order) => order.leadSlug === lead.slug && isGrowthOrder(order),
+        );
+        return growthOrder
+          ? { slug: lead.slug, stripeSessionId: growthOrder.stripeSessionId }
+          : null;
+      })
+      .filter(
+        (candidate): candidate is { slug: string; stripeSessionId: string } =>
+          candidate !== null,
+      );
+    growthUpsellBillingIntervals = await resolveGrowthUpsellCandidateBillingIntervals(
+      new Stripe(stripeSecretKeyForGrowthUpsell),
+      candidateGrowthOrders,
+    );
+  }
   const isConvexActive = isConvexUrlConfigured(process.env.NEXT_PUBLIC_CONVEX_URL);
   const priceEnv = assessBundlePriceEnvReadiness();
   const coreEnv = assessStripeCoreEnvReadiness();
@@ -280,6 +315,7 @@ export default async function LeadsPage() {
           initialInquiries={inquiriesForInboxPanel}
           initialCheckoutSessions={openCheckoutSessions}
           initialOrders={orders}
+          growthUpsellBillingIntervals={growthUpsellBillingIntervals}
           initialMarketingPacks={marketingPacks}
           initialCommerceCatalogs={commerceCatalogs}
           marketingMonth={marketingMonth}
