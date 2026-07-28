@@ -35,7 +35,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
           Back to swiping
         </Link>
       </div>
-      {error.digest && <p className="text-[11px] text-neutral-400">Reference: {error.digest}</p>}
+      {error.digest && <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Reference: {error.digest}</p>}
     </main>
   );
 }

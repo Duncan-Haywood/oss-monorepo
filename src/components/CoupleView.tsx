@@ -106,7 +106,7 @@ export function CoupleView() {
     setBusy(false);
   }
 
-  if (state === "loading") return <Shell><p className="text-neutral-500">Loading…</p></Shell>;
+  if (state === "loading") return <Shell><p className="text-neutral-500 dark:text-neutral-400">Loading…</p></Shell>;
 
   if (state === "signedout") {
     return (
@@ -124,7 +124,7 @@ export function CoupleView() {
   if (state === "error" || !data) {
     return (
       <Shell>
-        <p role="alert" className="text-red-500">Couldn&apos;t load this.</p>
+        <p role="alert" className="text-red-600 dark:text-red-400">Couldn&apos;t load this.</p>
         {/* A dropped request on a phone is the ordinary case here, and going
             back to the cards is not what someone who came to read this
             wants. Retrying in place is. */}
@@ -197,8 +197,8 @@ export function CoupleView() {
           </div>
         </form>
 
-        {error && <p className="text-center text-sm font-medium text-red-500">{error}</p>}
-        <Link href="/" className="text-center text-xs text-neutral-400 underline underline-offset-2">
+        {error && <p className="text-center text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
+        <Link href="/" className="text-center text-xs text-neutral-500 dark:text-neutral-400 underline underline-offset-2">
           Back to swiping
         </Link>
       </main>
@@ -211,7 +211,7 @@ export function CoupleView() {
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-5 py-6">
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-bold">You &amp; {partnerName}</h1>
-        <Link href="/" className="text-sm font-semibold text-amber-600 underline underline-offset-2 dark:text-amber-400">
+        <Link href="/" className="text-sm font-semibold text-amber-700 underline underline-offset-2 dark:text-amber-400">
           Swipe →
         </Link>
       </div>
@@ -491,7 +491,7 @@ function Section({
       <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{subtitle}</p>
 
       {!enough ? (
-        <p className="mt-3 rounded-xl bg-neutral-100 px-3 py-2 text-xs text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+        <p className="mt-3 rounded-xl bg-neutral-100 px-3 py-2 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
           🔒 {needs}
         </p>
       ) : (
@@ -514,7 +514,7 @@ function Section({
                   style={{ width: `${Math.max(((comparison.agreement + 1) / 2) * 100, 3)}%` }}
                 />
               </div>
-              <p className="mt-1 text-[11px] text-neutral-400">Across {comparison.overlap} shared items</p>
+              <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">Across {comparison.overlap} shared items</p>
             </div>
           )}
 
@@ -566,7 +566,7 @@ function RowList({
           <li key={r.label} className="flex items-center gap-2 text-sm">
             <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot}`} />
             <span className="flex-1 truncate">{r.label}</span>
-            <span className="shrink-0 text-xs text-neutral-400">
+            <span className="shrink-0 text-xs text-neutral-500 dark:text-neutral-400">
               #{r.a} vs #{r.b}
             </span>
           </li>

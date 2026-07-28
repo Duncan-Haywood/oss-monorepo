@@ -6,7 +6,7 @@ export default function TermsPage() {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-5 py-8 text-sm leading-relaxed">
       <h1 className="text-2xl font-bold">Terms of use</h1>
-      <p className="text-xs text-neutral-500">Last updated: 28 July 2026</p>
+      <p className="text-xs text-neutral-500 dark:text-neutral-400">Last updated: 28 July 2026</p>
 
       <p>Short version: use it freely, it&apos;s for fun and self-reflection, don&apos;t rely on it for anything important.</p>
 
@@ -53,7 +53,7 @@ export default function TermsPage() {
       <H>Contact</H>
       <p>duncan.andrew.haywood@gmail.com</p>
 
-      <Link href="/" className="mt-4 text-amber-600 underline underline-offset-2 dark:text-amber-400">
+      <Link href="/" className="mt-4 text-amber-700 underline underline-offset-2 dark:text-amber-400">
         ← Back
       </Link>
     </main>

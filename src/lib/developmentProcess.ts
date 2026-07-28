@@ -439,6 +439,6 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "worth-continuing",
     note:
-      "Progress bars carry roles and values, errors announce, the Persian copy carries lang/dir, decorative emoji are hidden, and the card animations honour prefers-reduced-motion. Remaining: a full contrast audit and a pass with an actual screen reader.",
+      "Progress bars carry roles and values, errors announce, the Persian copy carries lang/dir, decorative emoji are hidden, and the card animations honour prefers-reduced-motion. Contrast is now computed rather than eyeballed: contrastAudit.test.ts reads every class list in the app, resolves each colour against the palette Tailwind actually ships, and fails below the WCAG AA floor. It found seventy-two failures on its first run — thirty of them the same 2.58:1 grey, which is what reading colour by eye does: each label looked fine beside the ones next to it because they were all the same wrong grey. Remaining: a pass with an actual screen reader, and the things no class list can answer — focus visibility, and colour used as the only cue. See docs/ACCESSIBILITY.md.",
   },
 ];

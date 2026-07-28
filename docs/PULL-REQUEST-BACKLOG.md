@@ -1,8 +1,14 @@
 # The open pull requests, and what to do with each
 
-Forty-one scheduled sessions have opened forty-one pull requests against
-`main`, and this branch is the forty-second. **None has been merged.** `main`
-is still at `b887731`, where it has been for a day and a half.
+Forty-two scheduled sessions have opened forty-two pull requests against
+`main`, and this branch is the forty-third. **None has been merged.** `main`
+is still at `b887731`, where it has been for two days.
+
+The forty-second (#42) is this branch's parent and closes by containment, like
+every consolidation head before it. The session that opened this one added the
+contrast audit on top rather than beside — and ran all four gates on #42's head
+before doing so, which is now the standing habit: check the thing you are
+asking someone to merge, then extend it.
 
 **Every one of them is closeable by merging this single branch.** Twelve are
 ancestors of it and close by containment; the rest were checked file-by-file, and the artifacts that were genuinely distinct and uncarried — a
@@ -239,7 +245,7 @@ seventeen loses nothing at all.
 ## What to actually do
 
 1. Merge this branch. That closes #6, #12, #14, #17, #21, #22, #24, #25, #27,
-   #28, #30, #34 and #39 by containment.
+   #28, #30, #34, #39 and #42 by containment.
 2. Close the rest with a one-line comment pointing here. Nothing distinct is
    left in any of them — including #35, whose one distinct finding is carried
    here with tests rather than left in a branch nobody will merge.

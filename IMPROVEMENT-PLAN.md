@@ -16,20 +16,26 @@ mean:
 
 ## Open
 
-### P0 — Forty-one parallel pull requests, none merged — *one merge closes all of them*
+### P0 — Forty-two parallel pull requests, none merged — *one merge closes all of them*
 
-**This branch is the forty-second, and it extends the thirty-ninth rather than
-starting beside it.** Every commit below #39's head is carried forward
+**This branch is the forty-third, and it extends the forty-second rather than
+starting beside it.** Every commit below #42's head is carried forward
 unchanged, so merging this one branch still closes the entire queue. The count
-has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 → 29 → 33 → 37 → 41 across
-twelve write-ups of this item; the notification each session sent did not
-change it, and neither will a thirteenth. Merging or pausing the schedule are
-the only two things that do.
+has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 → 29 → 33 → 37 → 41 → 42
+across thirteen write-ups of this item; the notification each session sent did
+not change it, and neither will a fourteenth. Merging or pausing the schedule
+are the only two things that do.
 
-`main` has now been at `b887731` for a day and a half, and the work stacked
-above it includes a per-participant privacy fix, the perspective bugs that
-emptied the blind-spots comparison, and every test in the repo written since.
+`main` has now been at `b887731` for two days, and the work stacked above it
+includes a per-participant privacy fix, the perspective bugs that emptied the
+blind-spots comparison, and every test in the repo written since — 262 of them.
 None of it is running anywhere.
+
+**This session checked the merge candidate before adding to it**, which is the
+habit the previous one established after finding the tip red. All four blocking
+gates — typecheck, lint, test, build — pass on `989a8c7`, the head of #42, and
+pass again on this branch's own head. Whoever merges is merging something that
+has been run.
 
 **The queue is no longer only a waste — it is now a place where a real fix can
 be lost.** #35 was sitting in it with an unauthenticated read of any
@@ -617,11 +623,41 @@ that would otherwise open by simply omitting the header.
 **Not** claimed to be authorisation. It says the request came from our own
 pages; who is making it is still `getSessionUser`'s job.
 
-### P3 — Contrast and a real screen-reader pass
+### P3 → contrast resolved on this branch; the screen-reader pass still needs a person
 
-Several small grey labels still sit near the WCAG AA floor on light
-backgrounds. Roles, values and announcements are in place, but nothing here
-has been driven with an actual screen reader — only read in the markup.
+"Several small grey labels still sit near the WCAG AA floor" was the estimate
+this item carried for several sessions, made by eye. Computed, it was seventy-two
+elements below the floor, and the estimate was wrong in the direction that
+estimates made by eye always are: **thirty of them were the same 2.58:1 grey**,
+and each one looked fine next to the labels around it because those were the
+same wrong grey. That is the whole argument for `contrastAudit.test.ts` — it
+reads every class list in the app, resolves each colour against the palette
+Tailwind actually ships (v4 defines it in oklch, so the check converts through
+OKLab rather than trusting a hand-copied hex table), and fails below 4.5:1.
+
+What it found, beyond the grey:
+
+- **Error text at 3.81:1.** `text-red-500` on white, on nine screens. The one
+  piece of text on the page that exists because something has gone wrong was
+  among the hardest to read.
+- **Twelve elements below the floor in dark mode only**, because a colour with
+  no `dark:` counterpart renders in *both* schemes. Anything darkened for the
+  light scheme has to be lightened for the dark one, and half the fix would
+  have quietly broken the other half.
+- **A hairline miss at 4.48:1** on the perspective pill, which no eye would
+  have caught and no eye should have to.
+
+Every one is fixed, in both schemes, and the audit fails the build if a new one
+appears. The exemption list has one entry — the decorative category art, which
+is `aria-hidden` and always beside its own text label — and a test that fails if
+an exemption stops matching anything, so an excuse cannot outlive the element it
+excused.
+
+**Still needs a person:** a real screen-reader pass, keyboard-only completion,
+focus visibility, and whether the amber/emerald split on the couple screen
+carries meaning that the text alone does not. None of those can be settled by
+reading class strings. All of them are listed, unclaimed, in
+[`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md).
 
 ### P3 — `SurveyRunner` drops the email field that `UnifiedRunner` collects
 

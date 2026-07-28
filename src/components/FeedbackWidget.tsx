@@ -35,7 +35,7 @@ export function InsightFeedback({ subject }: { subject: string }) {
   if (sent === null) {
     return (
       <div className="mt-3 flex items-center gap-2 border-t border-neutral-100 pt-2 dark:border-neutral-800">
-        <span className="text-[11px] text-neutral-400">Useful?</span>
+        <span className="text-[11px] text-neutral-500 dark:text-neutral-400">Useful?</span>
         <button
           onClick={() => send(true)}
           aria-label="This insight was useful"
@@ -73,7 +73,7 @@ export function InsightFeedback({ subject }: { subject: string }) {
           </button>
         </div>
       ) : (
-        <p className="text-[11px] text-neutral-400">Thanks — noted 💛</p>
+        <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Thanks — noted 💛</p>
       )}
     </div>
   );
@@ -114,7 +114,7 @@ export function SessionPulse({ totalAnswers, onDone }: { totalAnswers: number; o
           </button>
         ))}
       </div>
-      <button onClick={onDone} className="mt-2 text-[11px] text-amber-800/70 underline dark:text-amber-300/60">
+      <button onClick={onDone} className="mt-2 text-[11px] text-amber-800 underline dark:text-amber-300/60">
         skip
       </button>
     </div>

@@ -27,6 +27,8 @@
  *   docs/SCREENS.md              the same table for the screens: what each one
  *                                fetches, and what it does when that fails
  *   docs/TESTING.md              what is covered, what is not, and how to add to it
+ *   docs/ACCESSIBILITY.md        what a test enforces, what was only read in the
+ *                                markup, and what nobody has checked
  *   docs/UNATTENDED-SESSIONS.md  how to work here when nobody is watching, and
  *                                what happens when several sessions forget to
  *   docs/PULL-REQUEST-BACKLOG.md a disposition for each unmerged pull request
@@ -144,7 +146,7 @@ export function DevelopmentProcess() {
               <span
                 className={
                   g.blocking
-                    ? "text-xs font-semibold text-amber-600 dark:text-amber-400"
+                    ? "text-xs font-semibold text-amber-700 dark:text-amber-400"
                     : "text-xs font-semibold text-neutral-500 dark:text-neutral-400"
                 }
               >
@@ -161,12 +163,12 @@ export function DevelopmentProcess() {
           <ul className="flex flex-col gap-2">
             {DEFINITION_OF_DONE.map((d) => (
               <li key={d.id} className="flex items-start gap-2 text-xs">
-                <span aria-hidden="true" className="text-neutral-400">
+                <span aria-hidden="true" className="text-neutral-500 dark:text-neutral-400">
                   ☐
                 </span>
                 <span className="text-neutral-700 dark:text-neutral-300">
                   {d.check}{" "}
-                  <span className="text-neutral-400 dark:text-neutral-500">({d.defends})</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">({d.defends})</span>
                 </span>
               </li>
             ))}

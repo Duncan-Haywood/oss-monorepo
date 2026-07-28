@@ -53,7 +53,7 @@ export function InsightsView() {
   }, [bundle, reloadTick]);
 
   if (state === "loading") {
-    return <Shell><p className="text-neutral-500">Working out what we know so far…</p></Shell>;
+    return <Shell><p className="text-neutral-500 dark:text-neutral-400">Working out what we know so far…</p></Shell>;
   }
   if (state === "empty") {
     return (
@@ -66,7 +66,7 @@ export function InsightsView() {
   if (state === "error" || !data) {
     return (
       <Shell>
-        <p role="alert" className="text-red-500">Couldn&apos;t load your insights.</p>
+        <p role="alert" className="text-red-600 dark:text-red-400">Couldn&apos;t load your insights.</p>
         {/* The same failure the couple screen and the runner both recover
             from: one dropped request on a phone. Offer the retry rather than
             sending someone back to the cards to try the whole trip again. */}
@@ -97,7 +97,7 @@ export function InsightsView() {
       <header className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between">
           <h1 className="text-2xl font-bold">Your insights</h1>
-          <Link href="/" className="text-sm font-semibold text-amber-600 underline underline-offset-2 dark:text-amber-400">
+          <Link href="/" className="text-sm font-semibold text-amber-700 underline underline-offset-2 dark:text-amber-400">
             Keep swiping →
           </Link>
         </div>
@@ -147,7 +147,7 @@ export function InsightsView() {
               ) : (
                 <>
                   <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{def.teaser}</p>
-                  <p className="mt-1.5 text-[11px] text-neutral-400">Not yet — {def.needs.toLowerCase()}</p>
+                  <p className="mt-1.5 text-[11px] text-neutral-500 dark:text-neutral-400">Not yet — {def.needs.toLowerCase()}</p>
                 </>
               )}
             </li>
@@ -178,7 +178,7 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
           {Math.round(r.rating)} ± {Math.round(1.96 * r.rd)}
         </p>
         {r.contested && r.rivals && r.rivals.length > 1 && (
-          <p className="mt-1.5 rounded-lg bg-neutral-100 px-2 py-1 text-[11px] text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+          <p className="mt-1.5 rounded-lg bg-neutral-100 px-2 py-1 text-[11px] text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
             Still too close to call — it&apos;s between {r.rivals.slice(0, 3).join(", ")}.
           </p>
         )}
@@ -257,7 +257,7 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
                     }
                   />
                 </span>
-                <span className="w-8 shrink-0 text-right tabular-nums text-neutral-400">
+                <span className="w-8 shrink-0 text-right tabular-nums text-neutral-500 dark:text-neutral-400">
                   {s.delta >= 0 ? "+" : ""}
                   {Math.round(s.delta)}
                 </span>
@@ -265,7 +265,7 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
             );
           })}
         </ul>
-        <p className="mt-2 text-[11px] text-neutral-400">
+        <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
           Relative to your own average. Bars right = you value it more.
         </p>
       </div>
@@ -291,7 +291,7 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
               <li key={i} className="flex flex-col gap-1">
                 <div className="flex items-baseline justify-between gap-2 text-xs">
                   <span className="font-semibold">{t.winnerLabel}</span>
-                  <span className="shrink-0 text-neutral-400">vs</span>
+                  <span className="shrink-0 text-neutral-500 dark:text-neutral-400">vs</span>
                   <span className="text-neutral-500 dark:text-neutral-400">{t.loserLabel}</span>
                 </div>
                 <div className="flex h-4 w-full overflow-hidden rounded-md">
@@ -303,7 +303,7 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
                   </div>
                   <div className="flex-1 bg-neutral-300 dark:bg-neutral-700" />
                 </div>
-                <span className="text-[10px] text-neutral-400">
+                <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
                   {t.winnerWins}–{t.loserWins}
                   {t.ties > 0 ? ` (${t.ties} too close)` : ""} across {t.n} head-to-heads
                 </span>
@@ -311,7 +311,7 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
             );
           })}
         </ul>
-        <p className="mt-2 text-[11px] text-neutral-400">
+        <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
           Only counts times these two actually went head to head.
         </p>
       </div>

@@ -77,7 +77,7 @@ export function ReportWidget() {
       <div className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white p-4 shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
         <div className="flex items-baseline justify-between">
           <h2 className="font-bold">{sent ? "Thanks 💛" : "Tell us"}</h2>
-          <button onClick={close} aria-label="Close" className="text-sm text-neutral-400">
+          <button onClick={close} aria-label="Close" className="text-sm text-neutral-500 dark:text-neutral-400">
             ✕
           </button>
         </div>
@@ -133,7 +133,7 @@ export function ReportWidget() {
               className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-neutral-700 dark:bg-neutral-950"
             />
 
-            {error && <p className="text-sm font-medium text-red-500">{error}</p>}
+            {error && <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
 
             <button
               type="submit"

@@ -371,7 +371,7 @@ export function UnifiedRunner() {
               {PERSPECTIVE_META[key].cta}
             </button>
           ))}
-          {error && <p className="text-center text-sm font-medium text-red-500">{error}</p>}
+          {error && <p className="text-center text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
           {/*
             What starting actually costs someone, said before they tap rather
             than in a policy page they would have to go looking for. Signed
@@ -439,7 +439,7 @@ export function UnifiedRunner() {
           to say. */}
       <header className="flex flex-col gap-2 border-b border-neutral-200 bg-neutral-50/95 px-4 pb-2.5 pt-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95">
         <div className="flex items-center gap-2">
-          <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+          <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-800 dark:text-amber-300">
             {PERSPECTIVE_SHORT[perspective]}
           </span>
           {currentDomain && (
@@ -494,7 +494,7 @@ export function UnifiedRunner() {
         {/* Announced, not just shown: a failure while swiping is otherwise
             silent for anyone not looking at this strip. */}
         {error && (
-          <p role="alert" className="text-center text-xs font-medium text-red-500">
+          <p role="alert" className="text-center text-xs font-medium text-red-600 dark:text-red-400">
             {error}
           </p>
         )}

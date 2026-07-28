@@ -150,7 +150,7 @@ function PickStamp({ progress, position }: { progress: number; position: "top" |
   return (
     <span
       aria-hidden="true"
-      className={`pointer-events-none absolute ${position === "top" ? "bottom-3" : "top-3"} right-3 rotate-[-12deg] rounded-lg border-[3px] border-amber-500 px-3 py-1 text-base font-extrabold uppercase tracking-wide text-amber-500`}
+      className={`pointer-events-none absolute ${position === "top" ? "bottom-3" : "top-3"} right-3 rotate-[-12deg] rounded-lg border-[3px] border-amber-500 px-3 py-1 text-base font-extrabold uppercase tracking-wide text-amber-700 dark:text-amber-400`}
       style={{ opacity: Math.min(1, progress * 1.4), transform: `rotate(-12deg) scale(${0.8 + progress * 0.25})` }}
     >
       This one
@@ -182,7 +182,7 @@ function ActionBar({
   disabled: boolean;
 }) {
   const pickClass =
-    "flex flex-1 items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400 bg-white py-3 text-sm font-bold text-amber-600 shadow-sm transition active:scale-95 active:bg-amber-50 disabled:opacity-40 dark:bg-neutral-900 dark:text-amber-400 dark:active:bg-amber-950/40";
+    "flex flex-1 items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400 bg-white py-3 text-sm font-bold text-amber-700 shadow-sm transition active:scale-95 active:bg-amber-50 disabled:opacity-40 dark:bg-neutral-900 dark:text-amber-400 dark:active:bg-amber-950/40";
   return (
     <div className="flex shrink-0 flex-col gap-1.5 py-2">
       <div className="flex items-center gap-3">

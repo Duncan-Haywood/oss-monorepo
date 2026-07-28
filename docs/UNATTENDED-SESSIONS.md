@@ -329,3 +329,37 @@ each describing the branch as ready to merge; whatever any of them ran, nobody
 ran the blocking suite on the head they were handing over. It is the same shape as "no database is reachable here"
 (`decisions/0004`), and the same rule closes both: **a claim you inherited is
 not a claim you checked, and the cheap ones are one command away.**
+
+## Forty-three: an estimate by eye is not a measurement
+
+The accessibility item in the plan said *"several small grey labels still sit
+near the WCAG AA floor"* and sat at P3 for several sessions on the strength of
+that phrasing. It had been arrived at by reading the JSX. Computed, it was
+**seventy-two elements below the floor**, and the estimate was wrong in three
+distinct ways at once:
+
+- **Wrong about the count**, by an order of magnitude, because thirty of the
+  failures were the same grey and each looked reasonable next to the others.
+  Uniformity reads as intent.
+- **Wrong about the worst case**: error text — the one thing on a page that is
+  there because something has already gone wrong — was among the least
+  readable at 3.81:1.
+- **Wrong about the scheme**: twelve elements failed in *dark* mode only,
+  because a colour with no `dark:` counterpart renders in both. Reading the
+  light scheme carefully would never have found them, and fixing only what the
+  eye found would have broken the half it did not.
+
+The general form, and the reason this is filed here rather than in the plan: a
+session cannot look at the app, so every claim about how the app *looks* is
+either derived from something machine-readable or it is a guess wearing the
+grammar of a finding. "Several", "mostly", "near the floor" are the tells.
+Where the property is computable — contrast, coverage, which routes have a
+guard, which screens recover from a failed fetch — compute it and write the
+number down. Each time this repo has done that, the answer has been worse than
+the estimate: the routes table found an unguarded read, the screens table found
+three dead ends, and the palette found seventy-two.
+
+This is the same rule as the two above it, one step further out. `decisions/0004`
+says a constraint you inherited is a claim. The gate section says a claim about
+a branch is worth one command. This says **a claim about something countable is
+worth counting**, and the session that writes "several" has usually not.

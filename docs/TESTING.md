@@ -63,6 +63,8 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
 | `couples.test.ts` | 37 | Cross-person comparison: percentile positions, the answer-volume trap, overlap floors before a match score |
 | `UnifiedRunner.test.tsx` | 8 | The swipe loop: cold start, resume, one question per resume, a half-written bundle, a failed fetch, a thrown fetch, advancing on an answer, and the consent line on the welcome screen |
 | `developmentProcess.test.ts` | 13 | The process document stays internally consistent |
+| `contrast.test.ts` | 14 | The colour maths the audit below reports: oklch → sRGB, WCAG relative luminance, the ratio, and alpha compositing — each against a value fixed by the WCAG definition or published by Tailwind for its own palette, so the numbers are checkable against something other than themselves |
+| `contrastAudit.test.ts` | 4 | Every class list in the app against the WCAG AA floor, in both colour schemes. Found 72 failures on its first run, 30 of them the same 2.58:1 grey. See [ACCESSIBILITY.md](ACCESSIBILITY.md) |
 | `routeInventory.test.ts` | 3 | [ROUTES.md](ROUTES.md) lists every route that exists, with the right methods — the table is only useful if it is complete |
 | `screenInventory.test.ts` | 3 | The same for [SCREENS.md](SCREENS.md): every component has a row, every row has a component, and a screen the table calls tested has a test file |
 | `CoupleView.test.tsx` | 11 | The couple screen: that the four actionable sections say what they are waiting for instead of vanishing, that a match score is withheld when it would be measuring noise, and that a dropped request retries in place while a 401 asks for an account instead |
@@ -92,9 +94,6 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
   portal and the `feedback`/`report` pair — are covered, and with them the
   `Tested` column in [ROUTES.md](ROUTES.md) has no empty cells left. What is
   below is what a *passing* suite still cannot tell you.
-- **The admin portal's UI.** `AdminView` is 380 lines of React that nothing
-  drives. The routes it calls are covered; which of them it calls, with what,
-  and what it does with a 401 mid-session, are not.
 - **Anything a browser has to render.** Six of the eight page components have
   no test. `UnifiedRunner.test.tsx` drives the real component against a stubbed
   `fetch`, which proves it reacts correctly to a shape and cannot prove the
@@ -108,10 +107,11 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
   read routes have nothing bounding how often they are called. Nothing writes,
   so the cost is compute rather than data, which is why it is here and not in
   the plan.
-- **Real blind-spots output.** The comparison is exercised end to end with
-  planted rankings, but no human has read what two real accounts with three
-  perspectives filled in actually produces. That is a judgement call, not a
-  coverage gap.
+- **Anything accessible that is not a colour.** Contrast is computed now, which
+  makes the rest of [ACCESSIBILITY.md](ACCESSIBILITY.md) easier to mistake for
+  covered. Focus visibility, keyboard-only completion, colour used as the only
+  cue, and what a screen reader actually says are all unchecked, and none of
+  them can be settled by reading class strings.
 - **Every screen against a real server.** The six component suites drive the
   real components, but every response in them is stubbed. They prove a screen
   reacts correctly to a shape; they cannot prove the server sends that shape.

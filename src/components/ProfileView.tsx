@@ -108,11 +108,11 @@ export function ProfileView() {
                 <span className="block text-sm font-semibold">{m.label}</span>
                 <span className="block text-xs text-neutral-500 dark:text-neutral-400">{m.blurb}</span>
               </span>
-              {active && <span className="shrink-0 text-xs font-bold text-amber-600 dark:text-amber-400">Active</span>}
+              {active && <span className="shrink-0 text-xs font-bold text-amber-700 dark:text-amber-400">Active</span>}
             </button>
           );
         })}
-        {error && <p className="text-sm font-medium text-red-500">{error}</p>}
+        {error && <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
       </section>
 
       <section className="flex flex-col gap-2">
@@ -144,7 +144,7 @@ export function ProfileView() {
         )}
       </section>
 
-      <section className="flex flex-col gap-1 text-xs text-neutral-400">
+      <section className="flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400">
         <Link href="/privacy" className="underline underline-offset-2">
           Privacy policy
         </Link>

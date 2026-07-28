@@ -91,12 +91,12 @@ export function AuthView() {
             required
           />
           {mode === "signup" && (
-            <span className="text-[11px] text-neutral-400">At least 10 characters, with a letter and a number.</span>
+            <span className="text-[11px] text-neutral-500 dark:text-neutral-400">At least 10 characters, with a letter and a number.</span>
           )}
         </label>
 
         {error && (
-          <p role="alert" className="text-sm font-medium text-red-500">
+          <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
             {error}
           </p>
         )}
@@ -141,7 +141,7 @@ export function AuthView() {
         {mode === "login" ? "No account yet? Create one" : "Already have an account? Sign in"}
       </button>
 
-      <Link href="/" className="text-center text-xs text-neutral-400 underline underline-offset-2">
+      <Link href="/" className="text-center text-xs text-neutral-500 dark:text-neutral-400 underline underline-offset-2">
         Continue without an account
       </Link>
     </main>

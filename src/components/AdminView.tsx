@@ -121,7 +121,7 @@ export function AdminView() {
   }
 
   if (authed === null) {
-    return <Shell><p className="text-neutral-500">Checking…</p></Shell>;
+    return <Shell><p className="text-neutral-500 dark:text-neutral-400">Checking…</p></Shell>;
   }
 
   if (!authed) {
@@ -144,7 +144,7 @@ export function AdminView() {
           >
             {busy ? "…" : "Sign in"}
           </button>
-          {error && <p className="text-sm font-medium text-red-500">{error}</p>}
+          {error && <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
         </form>
       </main>
     );
@@ -157,7 +157,7 @@ export function AdminView() {
     if (error) {
       return (
         <Shell>
-          <p role="alert" className="text-sm font-medium text-red-500">
+          <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
             {error}
           </p>
           <button
@@ -172,7 +172,7 @@ export function AdminView() {
         </Shell>
       );
     }
-    return <Shell><p className="text-neutral-500">Loading…</p></Shell>;
+    return <Shell><p className="text-neutral-500 dark:text-neutral-400">Loading…</p></Shell>;
   }
 
   const { totals, engagement, feedback } = data;
@@ -187,7 +187,7 @@ export function AdminView() {
             await fetch("/api/admin/logout", { method: "POST" });
             setAuthed(false);
           }}
-          className="text-xs text-neutral-500 underline underline-offset-2"
+          className="text-xs text-neutral-500 dark:text-neutral-400 underline underline-offset-2"
         >
           Sign out
         </button>
@@ -230,7 +230,7 @@ export function AdminView() {
           />
           <Stat label="Returns after a break" value={engagement.returnsAfterBreak} />
         </Grid>
-        <p className="mt-2 text-[11px] text-neutral-400">
+        <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
           Abandonment counts sessions whose last shown card was never answered — not every
           unanswered row, since those are mostly page reloads.
         </p>
@@ -245,21 +245,21 @@ export function AdminView() {
                 const max = Math.max(...engagement.velocity.map((x) => x.medianMs), 1);
                 return (
                   <li key={v.from} className="flex items-center gap-2 text-xs">
-                    <span className="w-16 shrink-0 text-neutral-500">#{v.from + 1}–{v.from + 10}</span>
+                    <span className="w-16 shrink-0 text-neutral-500 dark:text-neutral-400">#{v.from + 1}–{v.from + 10}</span>
                     <span className="h-3 flex-1 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
                       <span
                         className="block h-full rounded-full bg-amber-500"
                         style={{ width: `${(v.medianMs / max) * 100}%` }}
                       />
                     </span>
-                    <span className="w-20 shrink-0 text-right tabular-nums text-neutral-500">
+                    <span className="w-20 shrink-0 text-right tabular-nums text-neutral-500 dark:text-neutral-400">
                       {(v.medianMs / 1000).toFixed(1)}s · n={v.n}
                     </span>
                   </li>
                 );
               })}
             </ul>
-            <p className="mt-1 text-[11px] text-neutral-400">
+            <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
               Bars getting longer = slowing down (fatigue). Shorter = speeding up.
             </p>
           </div>
@@ -272,7 +272,7 @@ export function AdminView() {
             <TimingList title="Hardest calls" rows={data.hardest} />
             <TimingList title="Instant calls" rows={data.easiest} />
           </div>
-          <p className="mt-2 text-[11px] text-neutral-400">
+          <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
             Median time on pairs containing each item, minimum 3 appearances. Slow = genuinely
             torn; fast = obvious either way.
           </p>
@@ -294,8 +294,8 @@ export function AdminView() {
               <li key={s.subject} className="flex items-center justify-between gap-2">
                 <span className="font-mono text-neutral-600 dark:text-neutral-400">{s.subject}</span>
                 <span className="tabular-nums">
-                  <span className="text-emerald-600">{s.up}👍</span>{" "}
-                  <span className="text-rose-500">{s.down}👎</span>
+                  <span className="text-emerald-700 dark:text-emerald-400">{s.up}👍</span>{" "}
+                  <span className="text-rose-600 dark:text-rose-400">{s.down}👎</span>
                 </span>
               </li>
             ))}
@@ -307,7 +307,7 @@ export function AdminView() {
             <ul className="mt-1 flex flex-col gap-1.5 text-xs">
               {feedback.notes.map((n, i) => (
                 <li key={i} className="rounded-lg bg-neutral-100 px-2 py-1.5 dark:bg-neutral-900">
-                  <span className="font-mono text-neutral-400">{n.subject}</span> — {n.note}
+                  <span className="font-mono text-neutral-500 dark:text-neutral-400">{n.subject}</span> — {n.note}
                 </li>
               ))}
             </ul>
@@ -319,7 +319,7 @@ export function AdminView() {
         <Section title="People">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="text-neutral-500">
+              <thead className="text-neutral-500 dark:text-neutral-400">
                 <tr>
                   <Th>Name</Th>
                   <Th>Mode</Th>
@@ -333,12 +333,12 @@ export function AdminView() {
                   <tr key={p.id} className="border-t border-neutral-200 dark:border-neutral-800">
                     <Td>
                       {p.firstName} {p.lastName ?? ""}
-                      {p.email && <span className="block text-neutral-400">{p.email}</span>}
+                      {p.email && <span className="block text-neutral-500 dark:text-neutral-400">{p.email}</span>}
                     </Td>
                     <Td>{p.perspective}</Td>
                     <Td>{p.survey.title}</Td>
                     <Td className="tabular-nums">{p.answered}</Td>
-                    <Td className="text-neutral-400">{new Date(p.lastSeenAt).toLocaleString()}</Td>
+                    <Td className="text-neutral-500 dark:text-neutral-400">{new Date(p.lastSeenAt).toLocaleString()}</Td>
                   </tr>
                 ))}
               </tbody>
@@ -362,7 +362,7 @@ export function AdminView() {
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-semibold">
                     {r.kind === "bug" ? "🐞 Bug" : r.kind === "idea" ? "💡 Idea" : "💬 Other"}
-                    {r.path && <span className="ml-2 font-mono text-neutral-400">{r.path}</span>}
+                    {r.path && <span className="ml-2 font-mono text-neutral-500 dark:text-neutral-400">{r.path}</span>}
                   </span>
                   <button
                     onClick={async () => {
@@ -379,7 +379,7 @@ export function AdminView() {
                   </button>
                 </div>
                 <p className="mt-1 whitespace-pre-wrap">{r.message}</p>
-                <p className="mt-1 text-[11px] text-neutral-400">
+                <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
                   {new Date(r.createdAt).toLocaleString()}
                   {r.email && ` · ${r.email}`}
                 </p>
@@ -415,7 +415,7 @@ export function AdminView() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-      <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-500">{title}</h2>
+      <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{title}</h2>
       {children}
     </section>
   );
@@ -429,7 +429,7 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
       <div className="text-xl font-bold tabular-nums">{value}</div>
-      <div className="text-[11px] text-neutral-500">{label}</div>
+      <div className="text-[11px] text-neutral-500 dark:text-neutral-400">{label}</div>
     </div>
   );
 }
@@ -443,7 +443,7 @@ function TimingList({ title, rows }: { title: string; rows: Timing[] }) {
         {rows.map((r) => (
           <li key={r.label} className="flex items-baseline justify-between gap-2">
             <span className="truncate">{r.label}</span>
-            <span className="shrink-0 tabular-nums text-neutral-400">
+            <span className="shrink-0 tabular-nums text-neutral-500 dark:text-neutral-400">
               {(r.medianMs / 1000).toFixed(1)}s
             </span>
           </li>

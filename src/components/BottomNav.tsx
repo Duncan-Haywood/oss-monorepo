@@ -32,8 +32,8 @@ export function BottomNav() {
             aria-current={active ? "page" : undefined}
             className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-semibold transition ${
               active
-                ? "text-amber-600 dark:text-amber-400"
-                : "text-neutral-400 dark:text-neutral-500"
+                ? "text-amber-700 dark:text-amber-400"
+                : "text-neutral-500 dark:text-neutral-400"
             }`}
           >
             <span aria-hidden="true" className={`text-lg ${active ? "" : "opacity-60 grayscale"}`}>

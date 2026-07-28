@@ -6,7 +6,7 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-5 py-8 text-sm leading-relaxed">
       <h1 className="text-2xl font-bold">Privacy policy</h1>
-      <p className="text-xs text-neutral-500">Last updated: 28 July 2026</p>
+      <p className="text-xs text-neutral-500 dark:text-neutral-400">Last updated: 28 July 2026</p>
 
       <p>
         This is a small personal project, not a company. It is written plainly because you should be
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
       <H>Contact</H>
       <p>duncan.andrew.haywood@gmail.com</p>
 
-      <Link href="/" className="mt-4 text-amber-600 underline underline-offset-2 dark:text-amber-400">
+      <Link href="/" className="mt-4 text-amber-700 underline underline-offset-2 dark:text-amber-400">
         ← Back
       </Link>
     </main>

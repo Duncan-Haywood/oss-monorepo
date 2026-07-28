@@ -26,11 +26,11 @@ export default function LandingPage() {
         >
           Start — it takes 30 seconds
         </Link>
-        <p className="text-xs text-neutral-400">No account needed to try it.</p>
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">No account needed to try it.</p>
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-center text-sm font-bold uppercase tracking-wide text-neutral-400">
+        <h2 className="text-center text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
           How it works
         </h2>
         <Step
@@ -66,7 +66,7 @@ export default function LandingPage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-center text-sm font-bold uppercase tracking-wide text-neutral-400">
+        <h2 className="text-center text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
           What you&apos;ll find out
         </h2>
         <div className="grid grid-cols-2 gap-2 text-sm">
@@ -88,7 +88,7 @@ export default function LandingPage() {
         >
           Try it
         </Link>
-        <p className="flex gap-3 text-xs text-neutral-400">
+        <p className="flex gap-3 text-xs text-neutral-500 dark:text-neutral-400">
           <Link href="/privacy" className="underline underline-offset-2">
             Privacy
           </Link>
