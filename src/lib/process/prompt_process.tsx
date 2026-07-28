@@ -857,6 +857,21 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-5aqb5x",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip a5b0d605 (PR #928, growth-upsell-canceled-exclusion, merged prior session) — HEAD matched origin/main exactly at session start; no live sibling at that point. A sibling scheduled session (claude/upbeat-dijkstra-tg1n4z, immediately above) independently performed the identical business-decisions.ts archive split and shipped a real past_due dedup follow-up fix, merging as PR #929 partway through this iteration's own work — folded in via a local merge (byte-identical archive-20 file, so trivially reconciled; this iteration's own now-redundant duplicate narrative of the same split was dropped, keeping only the sibling's).",
+    shipped: [
+      "Dispatched a research agent to find the highest-leverage business-growth gap rather than another micro-hardening pass, briefed on the long list of already-exhausted axes. It found a real gap, independently re-verified by reading the action, the button component, .env.example, and a repo-wide grep before acting: the operator daily digest (sendDailyDigestAction, src/lib/digest/daily-digest.ts) — the one mechanism built so a single-operator business doesn't have to open the dashboard to know what's urgent today — had exactly one trigger: a manual dashboard button click. No vercel.json, Convex scheduled function, or GitHub Actions cron ever called it.",
+      "Extracted the digest-build-and-send body out of sendDailyDigestAction into a shared helper, sendOperatorDigestEmail (src/lib/digest/send-operator-digest.ts), so it can't drift from the manual button's own behavior. Added GET /api/cron/daily-digest (src/app/api/cron/daily-digest/route.ts): constant-time CRON_SECRET bearer check (mirroring passwordsMatch), per-IP rate limit after auth, 501 on either CRON_SECRET or OPERATOR_DIGEST_EMAIL unset (mirrors resend-webhook's notConfigured pattern — loud failure, not a silent 200). Added vercel.json (daily 13:00 UTC cron), documented CRON_SECRET in .env.example, and updated launch-checklist/architecture docs.",
+      "src/app/dashboard/leads/actions.ts — refactored to delegate, removed now-dead imports (also caught two more the lint pass flagged). src/lib/digest/send-operator-digest.ts, src/app/api/cron/daily-digest/route.ts, vercel.json — new files, with send-operator-digest.test.ts (5 cases) and route.test.ts (10 cases, including a same-length-wrong-secret case verified via a temporary regression-break to actually exercise the byte compare rather than the length short-circuit). The existing send-daily-digest-action.test.ts (13 cases) needed zero changes, proving the refactor preserved behavior exactly. src/lib/process/business-decisions.ts — appended operator-daily-digest-cron-automation. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3785 passed pre-merge, 219 files, +15 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, 62-route split incl. the new /api/cron/daily-digest, no new warnings) — re-verified green again after merging in sibling PR #929's own recurring.ts/webhook changes (no file overlap with this iteration's own changes beyond the shared process-log files). No dev-server smoke check beyond the automated gate — no live RESEND_API_KEY/real Vercel Cron scheduler in this environment, but both the route and the shared helper are fully exercised by automated coverage, and the manual-button path they now share is unchanged and remains manually-verified per its own prior iteration.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "operator-daily-digest-cron-automation",
+    ),
+  },
+  {
+    date: "2026-07-28",
     branch: "claude/upbeat-dijkstra-tg1n4z",
     summary:
       "Continuation of the same scheduled routine, picked up at origin/main tip 2d3ac50e (PR #929, recurring-upgrade-dedup-past-due-customer-reuse-gap, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). No live sibling branch beyond the unrelated stale #202.",
