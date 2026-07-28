@@ -12,6 +12,7 @@ import {
   updateLeadStage,
 } from "@/lib/db";
 import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
+import { captureError } from "@/lib/observability/error-tracking";
 import {
   leadContactAbsoluteUrl,
   leadPreviewAbsoluteUrl,
@@ -210,6 +211,11 @@ async function tryProvisionVercelDomain(
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
+    await captureError(error, {
+      component: "deploy-handoff",
+      failureKind: "vercel_domain_provision_network",
+      leadSlug: handoff.leadSlug,
+    });
     return {
       ...handoff,
       vercelDomainStatus: "error_network",
@@ -281,6 +287,12 @@ async function releaseVercelDomains(
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : "unknown error";
+      await captureError(error, {
+        component: "deploy-handoff",
+        failureKind: "vercel_domain_release_network",
+        domain,
+        projectId,
+      });
       notes.push(
         `Vercel domain release network error for ${domain} on project ${projectId}: ${message}`,
       );
