@@ -935,5 +935,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "business-decisions-archive-21-split",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-zkpvez",
+    summary:
+      "Continuation of the same scheduled routine. Hit two separate dual-build collisions with sibling sessions in one iteration, resolved both per AGENT_PROTOCOL's earlier-remote-claim-wins rule: (1) this session's first research pass independently found the same webhook setup-fee-waiver bug sibling PR #952 had already merged with a more robust implementation — discarded this session's entire uncommitted duplicate and re-scanned for a different gap; (2) while shipping THAT gap's fix, sibling PR #954 independently performed the identical business-decisions.ts re-archive housekeeping this session had also done as a same-iteration follow-up — re-fetched before pushing, discarded this session's own duplicate split, and appended only the genuinely new work on top of the sibling's already-merged split.",
+    shipped: [
+      "Found, via a research agent explicitly told which recent findings (including both just-merged sibling PRs) were already closed, and independently re-verified by reading the full webhook route.ts: a coherent 5-site cluster sharing the exact — return-instead-of-re-throw blind spot the file's two prior single-site captureError fixes (bundle_payment_or_handoff, commerce_order_ledger) already closed for their own writes. Every call to markOrdersRecurringCanceledByCustomer — customer.subscription.deleted, two branches of customer.subscription.created|updated (a would-be-reactivate with no recognized catalog Price, or an ordinary pause), and the same two branches' invoice.payment_failed / invoice.paid twins — shares failureKind 'orders_recurring_canceled' and returns its own 5xx on failure instead of re-throwing, so none of the 5 ever reached the outer catch's captureError call. A failure at any site means a canceled/past-due subscriber keeps paid marketing-pack / voice-pack / Commerce-catalog entitlement indefinitely, visible only as a 5xx in Stripe's own dashboard rather than this app's error-tracking webhook.",
+      "Wired captureError into all 5 sites in one pass (a bounded, mechanically-identical cluster — same function, same failure meaning — unlike the ~38-48 other unrelated webhookFulfillmentFailureResponse(...) catch sites in this file, which stay deliberately out of scope). Found while wiring tests that 2 of the 5 branches (the no-catalog-Price/foreign-Price edge cases on the reactivate and restore paths) had zero prior failure-path test coverage at all — added 2 new dedicated tests plus updated the 3 pre-existing failure tests to also assert the new captureError call.",
+      "src/app/api/stripe/webhook/route.ts (5 captureError call sites), route.test.ts (3 updated + 2 new tests, 256 total); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended orders-recurring-canceled-capture-error, after sibling PR #954's own re-archive split); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 158045fa (origin/main tip, PR #954 merged).",
+      "Proved via git-stash: stashed only route.ts, confirmed all 5 new/updated captureError assertions failed exactly as expected, then restored and confirmed all 256 tests pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (webhook/route.test.ts — 256 passed) then full suite (3957 passed, 232 files, +5 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only Stripe webhook observability change, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "orders-recurring-canceled-capture-error",
+    ),
+  },
 ];
 
