@@ -800,5 +800,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "dual-build-collision-review-billing-interval-and-process-log-archive",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-sueoed",
+    summary:
+      "Scheduled routine. Picked up at origin/main tip 1c588ec0 (PR #946). git fetch --prune found no live sibling PR ahead of main beyond the unrelated stale draft #202; the diff-gate (git log since the last verified-clean sha) showed only process-log-only commits since fa2c51ab/57c53a88, so skipped a full tiered research sweep per the waste-reduction rule and instead picked up the observability thread's own explicitly-named remaining gap.",
+    shipped: [
+      "Closed the 'Convex-outage SQLite-fallback trigger' item that five separate prior observability iterations named and deliberately deferred (the original error-tracking scaffold, error-tracking-message-length-cap, resend-email-capture-error-wiring, stripe-webhook-payment-write-capture-error, commerce-order-ledger-write-capture-error) — each time citing the same reason: hand-wiring all ~84-88 console.warn('...falling back to SQLite...', e) sites in src/lib/db.ts was too large a single-session diff for the repo's most heavily-tested file. Wrote a small script to mechanize the exact one-line pattern the 13 already-wired sites established (void captureError(e, { component: \"db-<fnName>-convex-fallback\" })) and applied it to all 75 remaining sites in one pass — recount found 88 total sites (up from the 84 last counted), 13 pre-wired, 75 newly wired.",
+      "While mechanizing, normalized every capture call in db.ts (the 12 pre-existing 'await captureError' sites plus all 76 new ones — 76 not 75 because one duplicate insertion at getLeads needed removing first) to 'void captureError(...)' — fire-and-forget, so a slow/unreachable tracking endpoint (up to DEFAULT_ERROR_TRACKING_TIMEOUT_MS=4s) can never add latency to the actual Convex-fallback path, which was previously inconsistent across the 13 pre-existing sites.",
+      "Addressed the docs' own previously-raised 'no dedup, spam risk during a sustained outage' concern for read paths without building new throttling infrastructure (deliberately — the docs already reasoned against premature complexity here): the newly-covered reads are lower-traffic than the three original hot-path reads (getLeads/getLeadBySlug/listOrders) already accepted as live, so this extends an already-accepted trade-off rather than introducing a materially riskier one. Flagged (not special-cased) that recordLeadPayment/recordSubscriptionRenewalPayment's new capture calls are structurally dead code today (their one real caller always passes requireConvex: true, so the fallback branch beside them never executes) — left in for uniformity and forward-compatibility rather than carved out.",
+      "src/lib/db.ts — 76 new captureError call sites + normalized 12 pre-existing ones to void + removed one duplicate insertion and its now-stale explanatory comment at getLeads. src/app/docs/architecture/page.tsx — new Observability-section paragraph closing out the item. src/lib/process/business-decisions.ts — appended db-ts-convex-fallback-capture-error-full-sweep. src/lib/process/prompt_process.tsx — this ITERATIONS entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 1c588ec0 (origin/main tip, PR #946 merge).",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3925 passed, 230 files unchanged — every db.ts consumer test that mocks captureError or lets it no-op via unset ERROR_TRACKING_WEBHOOK_URL still passes, confirming the new calls are genuinely inert in this repo's current unconfigured-by-default state) + a full clean rebuild (rm -rf .next && npm run build, clean, same 64-route split, no new warnings). Grepped afterward to confirm exactly 88/88 db.ts fallback sites now call captureError and zero duplicates remain. No dev-server smoke check needed — diagnostic-only addition behind an already-shipped, currently-unconfigured opt-in env var.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-ts-convex-fallback-capture-error-full-sweep",
+    ),
+  },
 ];
 

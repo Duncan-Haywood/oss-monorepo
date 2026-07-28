@@ -4853,6 +4853,36 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>commerce_order_ledger</code> precedent exactly.
       </p>
       <p>
+        <code>db-ts-convex-fallback-capture-error-full-sweep</code>: closes the one item every prior
+        entry above named and deferred — the Convex-outage SQLite-fallback trigger, previously left
+        unwired because sweeping all ~84-88 <code>console.warn(...falling back to SQLite...)</code>{" "}
+        sites in <code>src/lib/db.ts</code> by hand was judged too large a single-session diff for
+        the repo&apos;s most heavily-tested file. Mechanized instead of hand-wiring: a script walks
+        the file, finds each fallback <code>console.warn</code> block, identifies its enclosing
+        function, and inserts the same one-line{" "}
+        <code>void captureError(e, {"{ component: \"db-<fnName>-convex-fallback\" }"})</code>{" "}
+        pattern the 13 already-wired sites established — applied uniformly across all remaining 75
+        sites in one pass instead of one function at a time, then verified with the full{" "}
+        <code>tsc</code>/lint/test/build gate. While wiring, normalized every capture call in the
+        file (the 12 pre-existing sites included) to <code>void</code> rather than{" "}
+        <code>await</code>, so a slow or unreachable tracking endpoint can never add latency to the
+        actual Convex-fallback request path — previously inconsistent, since an awaited call could
+        stack up to <code>DEFAULT_ERROR_TRACKING_TIMEOUT_MS</code> (4s) of delay per request during a
+        real outage. The read-path spam-during-outage concern raised when the first three read
+        functions were wired (no dedup, a sustained outage fires on every call) was not solved with
+        new throttling infrastructure — deliberately, per that same entry&apos;s own reasoning
+        against premature complexity — but the newly-covered reads here are lower-traffic than
+        those original three (per-lead detail views and periodic digest/cron reads, not
+        every-page-load hot paths), so this extends an already-accepted trade-off rather than a new
+        one. A handful of newly-wired write functions (confirmed for{" "}
+        <code>recordLeadPayment</code>/<code>recordSubscriptionRenewalPayment</code>, each called
+        from exactly one <code>requireConvex: true</code> site) have a fallback branch that is
+        structurally unreachable today — the added <code>captureError</code> call there is inert,
+        left in for uniformity rather than carved out as a special case. See{" "}
+        <code>db-ts-convex-fallback-capture-error-full-sweep</code> in <code>/docs/process</code> for
+        the full accounting.
+      </p>
+      <p>
         <code>buffer-schedule-stale-pack-variant-guard</code>: a residual gap in the same day&apos;s
         earlier <code>buffer-schedule-stale-pack-content-guard</code> fix — that fix re-checked the
         marketing pack&apos;s freshness once per Buffer profile, but{" "}
