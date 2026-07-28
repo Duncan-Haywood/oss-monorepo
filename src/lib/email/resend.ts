@@ -29,6 +29,19 @@ import { captureError } from "../observability/error-tracking";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
+/**
+ * Bounds every Resend send so a hung/stalled connection fails fast into the
+ * existing catch/captureError path instead of tying up the calling
+ * serverless function for however long the hosting platform's own
+ * function-duration ceiling allows — this matters most for the
+ * cron-triggered sends (checkout-recovery, outreach-followups, daily-digest)
+ * whose own run-health tracking (recordCronRunOutcome) expects each
+ * invocation to resolve in bounded time. Mirrors ANTHROPIC_REQUEST_TIMEOUT_MS
+ * in src/lib/marketing/generators.ts / src/lib/voice/generators.ts and
+ * VERCEL_REQUEST_TIMEOUT_MS in src/lib/deploy/handoff.ts.
+ */
+const RESEND_REQUEST_TIMEOUT_MS = 15_000;
+
 export interface SendEmailParams {
   to: string;
   subject: string;
@@ -200,6 +213,7 @@ Unsubscribe URL: ${unsubscribeUrl}`);
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
       }),
+      signal: AbortSignal.timeout(RESEND_REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
@@ -531,6 +545,7 @@ Content Preview: ${html.substring(0, 150)}...`);
         html,
         text: plainTextFromEmailHtml(html),
       }),
+      signal: AbortSignal.timeout(RESEND_REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {

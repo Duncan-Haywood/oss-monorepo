@@ -983,6 +983,61 @@ describe("resend.ts — Resend delivery failures report via the observability sc
       { component: "resend-operator-digest" },
     );
   });
+
+  it("sendEmail bounds its Resend fetch with an AbortSignal (resend-fetch-timeout)", async () => {
+    const fetchMock = vi.fn(
+      async () => ({ ok: true, json: async () => ({ id: "email_1" }) }) as Response,
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { sendEmail } = await import("./resend");
+    await sendEmail({ to: "owner@example.com", subject: "Test", html: "<p>hi</p>" });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.resend.com/emails",
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+  });
+
+  it("sendEmail returns a failure (not a hang or uncaught throw) when the Resend fetch aborts on timeout", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new DOMException("The operation was aborted.", "TimeoutError");
+      }),
+    );
+    const captureErrorMock = vi.fn(async () => {});
+    vi.doMock("../observability/error-tracking", () => ({ captureError: captureErrorMock }));
+
+    const { sendEmail } = await import("./resend");
+    const result = await sendEmail({
+      to: "owner@example.com",
+      subject: "Test",
+      html: "<p>hi</p>",
+      leadSlug: "demo-cafe",
+    });
+
+    expect(result.success).toBe(false);
+    expect(captureErrorMock).toHaveBeenCalledWith(
+      expect.any(DOMException),
+      { component: "resend-email", leadSlug: "demo-cafe" },
+    );
+  });
+
+  it("sendOperatorDailyDigest bounds its Resend fetch with an AbortSignal (resend-fetch-timeout)", async () => {
+    const fetchMock = vi.fn(
+      async () => ({ ok: true, json: async () => ({ id: "email_1" }) }) as Response,
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { sendOperatorDailyDigest } = await import("./resend");
+    await sendOperatorDailyDigest("operator@example.com", "<p>digest</p>");
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.resend.com/emails",
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+  });
 });
 
 describe("resend.ts — sendStarterUpsellEmail checkout URL single source of truth", () => {

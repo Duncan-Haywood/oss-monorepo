@@ -5685,6 +5685,25 @@ source). The same digest also lists email-critical leads with no usable address 
         no diagnostic information was lost either way here, so the duplicate was discarded in full
         rather than shipped as a follow-up.
       </p>
+      <p>
+        <code>resend-fetch-timeout</code>: a research agent found{" "}
+        <code>src/lib/email/resend.ts</code>&apos;s two direct{" "}
+        <code>fetch(&quot;https://api.resend.com/emails&quot;, ...)</code> calls — the shared{" "}
+        <code>sendEmail</code> helper every other send wrapper in this file funnels through, and{" "}
+        <code>sendOperatorDailyDigest</code>&apos;s own separate call — were the one outbound-fetch
+        call site in the codebase never given a request timeout, unlike the Anthropic generator
+        fetch, the Vercel Domains API calls above, and the error-tracking webhook, each of which
+        already bounds its own call with an <code>AbortSignal.timeout</code>. Resend is the
+        highest-volume external call in the app (every transactional, marketing, and notification
+        email), and several of its callers are cron-triggered (checkout-recovery,
+        outreach-followups, daily-digest) with their own run-health tracking expecting bounded
+        invocation time — a hung/stalled connection to Resend previously tied up the calling
+        function for however long the hosting platform&apos;s own duration ceiling allows, instead
+        of failing fast into the existing catch/<code>captureError</code> path. Added{" "}
+        <code>RESEND_REQUEST_TIMEOUT_MS = 15_000</code> (mirroring{" "}
+        <code>VERCEL_REQUEST_TIMEOUT_MS</code>&apos;s own comment style) and passed{" "}
+        <code>signal: AbortSignal.timeout(RESEND_REQUEST_TIMEOUT_MS)</code> on both fetch calls.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
