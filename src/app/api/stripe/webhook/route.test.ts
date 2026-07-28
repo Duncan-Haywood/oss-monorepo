@@ -2572,6 +2572,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_order_refund");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.refunded",
+        eventId: undefined,
+        failureKind: "bundle_order_refund",
+      });
     });
 
     it("is idempotent — does not re-mark an order already flagged refunded", async () => {
@@ -2604,6 +2610,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_refund_session_lookup");
       expect(markCommerceOrderRefunded).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.refunded",
+        eventId: undefined,
+        failureKind: "commerce_order_refund_session_lookup",
+      });
     });
 
     it("returns 500 commerce_order_refund when the refund mark write fails", async () => {
@@ -2626,6 +2638,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_refund");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.refunded",
+        eventId: undefined,
+        failureKind: "commerce_order_refund",
+      });
     });
 
     // renewal-charge-refund-dispute-customer-correlation: a subscription
@@ -2788,6 +2806,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_renewal_customer_lookup");
         expect(markOrderRefunded).not.toHaveBeenCalled();
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "charge.refunded",
+          eventId: undefined,
+          failureKind: "bundle_order_renewal_customer_lookup",
+        });
       });
 
       it("returns 500 bundle_order_refund when the renewal-cycle refund mark write fails", async () => {
@@ -2814,6 +2838,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_refund");
         expect(json.received).toBe(false);
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "charge.refunded",
+          eventId: undefined,
+          failureKind: "bundle_order_refund",
+        });
       });
     });
   });
@@ -2966,6 +2996,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_order_dispute");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.dispute.created",
+        eventId: undefined,
+        failureKind: "bundle_order_dispute",
+      });
     });
 
     it("is idempotent — does not re-mark an order already flagged disputed", async () => {
@@ -2998,6 +3034,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_dispute_session_lookup");
       expect(markCommerceOrderDisputed).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.dispute.created",
+        eventId: undefined,
+        failureKind: "commerce_order_dispute_session_lookup",
+      });
     });
 
     it("returns 500 commerce_order_dispute when the dispute mark write fails", async () => {
@@ -3020,6 +3062,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_dispute");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.dispute.created",
+        eventId: undefined,
+        failureKind: "commerce_order_dispute",
+      });
     });
 
     // renewal-charge-refund-dispute-customer-correlation: unlike Charge,
@@ -3137,6 +3185,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_dispute_renewal_payment_intent_lookup");
         expect(markOrderDisputed).not.toHaveBeenCalled();
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "charge.dispute.created",
+          eventId: undefined,
+          failureKind: "bundle_order_dispute_renewal_payment_intent_lookup",
+        });
       });
 
       it("returns 500 bundle_order_renewal_customer_lookup when the customer orders lookup fails", async () => {
@@ -3151,6 +3205,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_renewal_customer_lookup");
         expect(markOrderDisputed).not.toHaveBeenCalled();
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "charge.dispute.created",
+          eventId: undefined,
+          failureKind: "bundle_order_renewal_customer_lookup",
+        });
       });
 
       it("returns 500 bundle_order_dispute when the renewal-cycle dispute mark write fails", async () => {
@@ -3178,6 +3238,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_dispute");
         expect(json.received).toBe(false);
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "charge.dispute.created",
+          eventId: undefined,
+          failureKind: "bundle_order_dispute",
+        });
       });
     });
   });
@@ -3309,6 +3375,34 @@ describe("POST /api/stripe/webhook", () => {
       );
     });
 
+    it("returns 500 commerce_order_dispute and reports it via captureError when the lost-status commerce mark write fails (stripe-webhook-dispute-resolution-capture-error)", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_commerce_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "corder_1",
+        leadSlug: "demo-cafe",
+        skuId: "sku_1",
+        skuName: "Widget",
+        amountPaidUsd: 50,
+        stripeSessionId: "cs_commerce_1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      markCommerceOrderDisputed.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "lost" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_order_dispute");
+      expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.dispute.closed",
+        eventId: undefined,
+        failureKind: "commerce_order_dispute",
+      });
+    });
+
     it("skips a closed dispute with no payment_intent", async () => {
       constructEvent.mockReturnValue(disputeClosedEvent({ payment_intent: null }));
       const { POST } = await import("./route");
@@ -3376,6 +3470,36 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCommerceOrderDisputed).not.toHaveBeenCalled();
     });
 
+    it("returns 500 bundle_order_dispute and reports it via captureError when the lost-status bundle mark write fails (stripe-webhook-dispute-resolution-capture-error)", async () => {
+      listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_bundle_1" }] });
+      getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
+      getOrderByStripeSessionId.mockResolvedValueOnce({
+        id: "ord_1",
+        leadSlug: "demo-cafe",
+        stripeSessionId: "cs_bundle_1",
+        tier: "growth",
+        commerceAddon: false,
+        amountPaid: 300,
+        status: "paid",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      markOrderDisputed.mockRejectedValueOnce(new Error("convex down"));
+      constructEvent.mockReturnValue(disputeClosedEvent({ status: "lost" }));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_order_dispute");
+      expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.dispute.closed",
+        eventId: undefined,
+        failureKind: "bundle_order_dispute",
+      });
+    });
+
     it("skips when the Session backs neither a commerce order nor a bundle order", async () => {
       listCheckoutSessions.mockResolvedValueOnce({ data: [{ id: "cs_unknown_1" }] });
       getCommerceOrderByStripeSessionId.mockResolvedValueOnce(null);
@@ -3412,6 +3536,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_order_dispute_clear");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.dispute.closed",
+        eventId: undefined,
+        failureKind: "bundle_order_dispute_clear",
+      });
     });
 
     it("returns 500 commerce_order_dispute_closed_session_lookup when Session list fails", async () => {
@@ -3424,6 +3554,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_dispute_closed_session_lookup");
       expect(clearCommerceOrderDisputed).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.dispute.closed",
+        eventId: undefined,
+        failureKind: "commerce_order_dispute_closed_session_lookup",
+      });
     });
 
     it("returns 500 commerce_order_dispute_clear when the clear write fails", async () => {
@@ -3447,6 +3583,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_dispute_clear");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "charge.dispute.closed",
+        eventId: undefined,
+        failureKind: "commerce_order_dispute_clear",
+      });
     });
 
     // A renewal-cycle dispute's PaymentIntent was never attached to a
@@ -3601,6 +3743,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_dispute_renewal_payment_intent_lookup");
         expect(clearOrderDisputed).not.toHaveBeenCalled();
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "charge.dispute.closed",
+          eventId: undefined,
+          failureKind: "bundle_order_dispute_renewal_payment_intent_lookup",
+        });
       });
 
       it("returns 500 bundle_order_renewal_customer_lookup when the customer orders lookup fails", async () => {
@@ -3615,6 +3763,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_renewal_customer_lookup");
         expect(clearOrderDisputed).not.toHaveBeenCalled();
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "charge.dispute.closed",
+          eventId: undefined,
+          failureKind: "bundle_order_renewal_customer_lookup",
+        });
       });
 
       it("returns 500 bundle_order_dispute_clear when the renewal-cycle clear write fails", async () => {
@@ -3643,6 +3797,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_dispute_clear");
         expect(json.received).toBe(false);
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "charge.dispute.closed",
+          eventId: undefined,
+          failureKind: "bundle_order_dispute_clear",
+        });
       });
 
       it("returns 500 bundle_order_dispute when the renewal-cycle mark write fails", async () => {
@@ -3670,6 +3830,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_dispute");
         expect(json.received).toBe(false);
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "charge.dispute.closed",
+          eventId: undefined,
+          failureKind: "bundle_order_dispute",
+        });
       });
     });
   });
@@ -3827,6 +3993,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(json.received).toBe(false);
       expect(listCheckoutSessions).not.toHaveBeenCalled();
       expect(clearCommerceOrderRefunded).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "refund.updated",
+        eventId: undefined,
+        failureKind: "commerce_order_refund_reversed_charge_lookup",
+      });
     });
 
     it("skips when no Checkout Session matches", async () => {
@@ -3898,6 +4070,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_order_refund_clear");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "refund.updated",
+        eventId: undefined,
+        failureKind: "bundle_order_refund_clear",
+      });
     });
 
     it("returns 500 commerce_order_refund_reversed_session_lookup when Session list fails", async () => {
@@ -3910,6 +4088,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_refund_reversed_session_lookup");
       expect(clearCommerceOrderRefunded).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "refund.updated",
+        eventId: undefined,
+        failureKind: "commerce_order_refund_reversed_session_lookup",
+      });
     });
 
     it("returns 500 commerce_order_refund_clear when the clear write fails", async () => {
@@ -3933,6 +4117,12 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("commerce_order_refund_clear");
       expect(json.received).toBe(false);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-webhook",
+        eventType: "refund.updated",
+        eventId: undefined,
+        failureKind: "commerce_order_refund_clear",
+      });
     });
 
     // A renewal-cycle refund's PaymentIntent was never attached to a Checkout
@@ -4030,6 +4220,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_renewal_customer_lookup");
         expect(clearOrderRefunded).not.toHaveBeenCalled();
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "refund.updated",
+          eventId: undefined,
+          failureKind: "bundle_order_renewal_customer_lookup",
+        });
       });
 
       it("returns 500 bundle_order_refund_clear when the renewal-cycle clear write fails", async () => {
@@ -4058,6 +4254,12 @@ describe("POST /api/stripe/webhook", () => {
         expect(response.status).toBe(500);
         expect(json.step).toBe("bundle_order_refund_clear");
         expect(json.received).toBe(false);
+        expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+          component: "stripe-webhook",
+          eventType: "refund.updated",
+          eventId: undefined,
+          failureKind: "bundle_order_refund_clear",
+        });
       });
     });
   });

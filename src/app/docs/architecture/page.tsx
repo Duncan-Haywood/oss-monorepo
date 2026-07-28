@@ -4989,6 +4989,33 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>webhookFulfillmentFailureResponse(...)</code> sites in this file stay out of scope.
       </p>
       <p>
+        <code>stripe-webhook-dispute-resolution-capture-error</code>: swept the one remaining
+        coherent handler family sharing the same return-instead-of-re-throw blind spot — all 26{" "}
+        <code>webhookFulfillmentFailureResponse(...)</code> catch sites across{" "}
+        <code>charge.refunded</code>, <code>charge.dispute.created</code>,{" "}
+        <code>charge.dispute.closed</code>, and <code>refund.updated</code> (four Stripe event
+        types that all correlate a Checkout Session/Customer and durably flag or clear{" "}
+        <code>refundedAt</code>/<code>disputedAt</code>). None reached the outer catch&apos;s own{" "}
+        <code>captureError</code> for the identical structural reason as{" "}
+        <code>orders-recurring-canceled-capture-error</code>: each returns its own 5xx instead of
+        throwing. The stakes here are correctness, not just observability —{" "}
+        <code>isStarterOnlyOrder</code>, <code>isGrowthOrder</code>, and pipeline-health&apos;s
+        revenue/clawback totals all key off <code>refundedAt</code>/<code>disputedAt</code>, so a
+        silent write failure here means a refunded/disputed order keeps looking live: a disputed
+        Growth customer would keep getting upgrade nudges, and a refunded/disputed Commerce order
+        already marked paid out would silently miss its clawback flag. Wired all 26 in one pass —
+        larger than the prior 5-site cluster but identical in shape (same function family, same
+        failure meaning, purely mechanical), each getting a <code>captureError</code> call
+        immediately before its existing <code>webhookFulfillmentFailureResponse(...)</code> line.
+        While wiring tests, found the same test-coverage gap the prior cluster fix also
+        surfaced: two branches — the lost-status bundle and commerce mark-disputed writes in{" "}
+        <code>charge.dispute.closed</code> — had no dedicated failure-path test at all (only their{" "}
+        <code>charge.dispute.created</code> twins were covered); added both. The remaining ~23{" "}
+        <code>webhookFulfillmentFailureResponse(...)</code> sites in this file (checkout/commerce
+        line-item lookups, email sends, subscription retrieves — each a distinct, non-repeating
+        write type) stay out of scope, same reasoning as every prior single-site/cluster fix here.
+      </p>
+      <p>
         <code>db-getLeads-convex-fallback-capture-error</code>: a closer look at the{" "}
         <code>db.ts</code> Convex-fallback gap named above (84{" "}
         <code>console.warn</code> &quot;falling back to SQLite&quot; sites, twice deferred as

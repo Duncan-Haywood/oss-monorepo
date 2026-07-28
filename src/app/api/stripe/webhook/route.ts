@@ -2114,6 +2114,12 @@ export async function POST(request: Request) {
           `Failed to list Checkout Sessions for refunded charge ${charge.id} (payment_intent=${paymentIntentId})`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "commerce_order_refund_session_lookup",
+        });
         const failure = webhookFulfillmentFailureResponse(
           "commerce_order_refund_session_lookup",
         );
@@ -2148,6 +2154,12 @@ export async function POST(request: Request) {
             `Failed to look up orders for customer ${customerId} after charge.refunded ${charge.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_renewal_customer_lookup",
+          });
           const failure = webhookFulfillmentFailureResponse(
             "bundle_order_renewal_customer_lookup",
           );
@@ -2177,6 +2189,12 @@ export async function POST(request: Request) {
             `Failed to mark renewal-cycle order refunded for customer ${customerId} after charge.refunded ${charge.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_refund",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_order_refund");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -2207,6 +2225,12 @@ export async function POST(request: Request) {
             `Failed to mark bundle order refunded for session ${session.id} after charge.refunded ${charge.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_refund",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_order_refund");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -2230,6 +2254,12 @@ export async function POST(request: Request) {
           `Failed to mark commerce order refunded for session ${session.id} after charge.refunded ${charge.id}`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "commerce_order_refund",
+        });
         const failure = webhookFulfillmentFailureResponse("commerce_order_refund");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -2259,6 +2289,12 @@ export async function POST(request: Request) {
           `Failed to list Checkout Sessions for disputed charge ${dispute.charge} (payment_intent=${paymentIntentId})`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "commerce_order_dispute_session_lookup",
+        });
         const failure = webhookFulfillmentFailureResponse(
           "commerce_order_dispute_session_lookup",
         );
@@ -2280,6 +2316,12 @@ export async function POST(request: Request) {
             `Failed to retrieve PaymentIntent ${paymentIntentId} for charge.dispute.created ${dispute.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_dispute_renewal_payment_intent_lookup",
+          });
           const failure = webhookFulfillmentFailureResponse(
             "bundle_order_dispute_renewal_payment_intent_lookup",
           );
@@ -2294,6 +2336,12 @@ export async function POST(request: Request) {
             `Failed to look up orders for customer ${disputeCustomerId} after charge.dispute.created ${dispute.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_renewal_customer_lookup",
+          });
           const failure = webhookFulfillmentFailureResponse(
             "bundle_order_renewal_customer_lookup",
           );
@@ -2323,6 +2371,12 @@ export async function POST(request: Request) {
             `Failed to mark renewal-cycle order disputed for customer ${disputeCustomerId} after charge.dispute.created ${dispute.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_dispute",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_order_dispute");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -2359,6 +2413,12 @@ export async function POST(request: Request) {
             `Failed to mark bundle order disputed for session ${disputeSession.id} after charge.dispute.created ${dispute.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_dispute",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_order_dispute");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -2382,6 +2442,12 @@ export async function POST(request: Request) {
           `Failed to mark commerce order disputed for session ${disputeSession.id} after charge.dispute.created ${dispute.id}`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "commerce_order_dispute",
+        });
         const failure = webhookFulfillmentFailureResponse("commerce_order_dispute");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -2410,6 +2476,12 @@ export async function POST(request: Request) {
           `Failed to list Checkout Sessions for closed dispute ${closedDispute.charge} (payment_intent=${closedPaymentIntentId})`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "commerce_order_dispute_closed_session_lookup",
+        });
         const failure = webhookFulfillmentFailureResponse(
           "commerce_order_dispute_closed_session_lookup",
         );
@@ -2435,6 +2507,12 @@ export async function POST(request: Request) {
             `Failed to retrieve PaymentIntent ${closedPaymentIntentId} for charge.dispute.closed ${closedDispute.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_dispute_renewal_payment_intent_lookup",
+          });
           const failure = webhookFulfillmentFailureResponse(
             "bundle_order_dispute_renewal_payment_intent_lookup",
           );
@@ -2453,6 +2531,12 @@ export async function POST(request: Request) {
             `Failed to look up orders for customer ${closedDisputeCustomerId} after charge.dispute.closed ${closedDispute.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_renewal_customer_lookup",
+          });
           const failure = webhookFulfillmentFailureResponse(
             "bundle_order_renewal_customer_lookup",
           );
@@ -2482,6 +2566,12 @@ export async function POST(request: Request) {
               `Failed to clear renewal-cycle order disputed for customer ${closedDisputeCustomerId} after charge.dispute.closed ${closedDispute.id}`,
               e,
             );
+            await captureError(e, {
+              component: "stripe-webhook",
+              eventType: event.type,
+              eventId: event.id,
+              failureKind: "bundle_order_dispute_clear",
+            });
             const failure = webhookFulfillmentFailureResponse("bundle_order_dispute_clear");
             return NextResponse.json(failure.body, { status: failure.status });
           }
@@ -2506,6 +2596,12 @@ export async function POST(request: Request) {
             `Failed to mark renewal-cycle order disputed for customer ${closedDisputeCustomerId} after charge.dispute.closed ${closedDispute.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_dispute",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_order_dispute");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -2540,6 +2636,12 @@ export async function POST(request: Request) {
               `Failed to clear bundle order disputed for session ${closedDisputeSession.id} after charge.dispute.closed ${closedDispute.id}`,
               e,
             );
+            await captureError(e, {
+              component: "stripe-webhook",
+              eventType: event.type,
+              eventId: event.id,
+              failureKind: "bundle_order_dispute_clear",
+            });
             const failure = webhookFulfillmentFailureResponse(
               "bundle_order_dispute_clear",
             );
@@ -2564,6 +2666,12 @@ export async function POST(request: Request) {
             `Failed to mark bundle order disputed for session ${closedDisputeSession.id} after charge.dispute.closed ${closedDispute.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_dispute",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_order_dispute");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -2587,6 +2695,12 @@ export async function POST(request: Request) {
             `Failed to clear commerce order disputed for session ${closedDisputeSession.id} after charge.dispute.closed ${closedDispute.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "commerce_order_dispute_clear",
+          });
           const failure = webhookFulfillmentFailureResponse(
             "commerce_order_dispute_clear",
           );
@@ -2613,6 +2727,12 @@ export async function POST(request: Request) {
           `Failed to mark commerce order disputed for session ${closedDisputeSession.id} after charge.dispute.closed ${closedDispute.id}`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "commerce_order_dispute",
+        });
         const failure = webhookFulfillmentFailureResponse("commerce_order_dispute");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -2660,6 +2780,12 @@ export async function POST(request: Request) {
           `Failed to retrieve charge ${refundedChargeId} for reversed refund ${refund.id}`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "commerce_order_refund_reversed_charge_lookup",
+        });
         const failure = webhookFulfillmentFailureResponse(
           "commerce_order_refund_reversed_charge_lookup",
         );
@@ -2682,6 +2808,12 @@ export async function POST(request: Request) {
           `Failed to list Checkout Sessions for reversed refund ${refund.id} (payment_intent=${refundPaymentIntentId})`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "commerce_order_refund_reversed_session_lookup",
+        });
         const failure = webhookFulfillmentFailureResponse(
           "commerce_order_refund_reversed_session_lookup",
         );
@@ -2710,6 +2842,12 @@ export async function POST(request: Request) {
             `Failed to look up orders for customer ${reversedRefundCustomerId} after refund.updated ${refund.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_renewal_customer_lookup",
+          });
           const failure = webhookFulfillmentFailureResponse(
             "bundle_order_renewal_customer_lookup",
           );
@@ -2738,6 +2876,12 @@ export async function POST(request: Request) {
             `Failed to clear renewal-cycle order refunded for customer ${reversedRefundCustomerId} after refund.updated ${refund.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_refund_clear",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_order_refund_clear");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -2772,6 +2916,12 @@ export async function POST(request: Request) {
             `Failed to clear bundle order refunded for session ${reversedRefundSession.id} after refund.updated ${refund.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_order_refund_clear",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_order_refund_clear");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -2791,6 +2941,12 @@ export async function POST(request: Request) {
           `Failed to clear commerce order refunded for session ${reversedRefundSession.id} after refund.updated ${refund.id}`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "commerce_order_refund_clear",
+        });
         const failure = webhookFulfillmentFailureResponse("commerce_order_refund_clear");
         return NextResponse.json(failure.body, { status: failure.status });
       }

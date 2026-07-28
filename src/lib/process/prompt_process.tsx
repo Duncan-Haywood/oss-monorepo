@@ -1035,5 +1035,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "growth-upsell-dashboard-candidate-annual-billing-display",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #960 merged. The next dispatched research agent found the one remaining coherent handler family sharing the return-instead-of-re-throw captureError blind spot orders-recurring-canceled-capture-error already closed for a different 5-site cluster: all 26 webhookFulfillmentFailureResponse(...) catch sites across charge.refunded, charge.dispute.created, charge.dispute.closed, and refund.updated.",
+    shipped: [
+      "These four Stripe event types all correlate a Checkout Session/Customer and durably flag/clear refundedAt/disputedAt — every catch returns its own 5xx instead of re-throwing, so none reach the outer catch's captureError. Real correctness stakes, not just observability: isStarterOnlyOrder/isGrowthOrder and pipeline-health's revenue/clawback totals key off these fields, so a silent write failure means a refunded/disputed order keeps looking live (continued upgrade nudges, missed clawback flags), visible only as a 5xx in Stripe's dashboard.",
+      "Wired all 26 in one pass via a scripted insertion (Python, reviewed the output) rather than 26 manual edits — same captureError shape/ordering as the prior fixes. While wiring tests, found 2 of the 26 catch blocks (charge.dispute.closed's lost-status bundle and commerce mark-disputed writes) had zero prior failure-path coverage — added 2 new tests, and updated the 24 pre-existing failure tests to also assert captureError.",
+      "src/app/api/stripe/webhook/route.ts (26 captureError call sites); route.test.ts (24 updated + 2 new tests, 258 total); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended stripe-webhook-dispute-resolution-capture-error); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change. The remaining ~23 webhookFulfillmentFailureResponse(...) sites (distinct, non-repeating write types) stay out of scope.",
+      "Proved via git-stash: stashed only route.ts, confirmed all 26 new/updated captureError assertions failed exactly as expected (232 passed, 26 failed), then restored and confirmed all 258 tests pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (route.test.ts — 258 passed) then full suite (3989 passed, 234 files, +2 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only observability change, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-webhook-dispute-resolution-capture-error",
+    ),
+  },
 ];
 
