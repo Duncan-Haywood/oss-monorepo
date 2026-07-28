@@ -26,6 +26,18 @@ describe("isGrowthOrder", () => {
       isGrowthOrder({ tier: "growth", disputedAt: "2026-07-01T00:00:00.000Z" }),
     ).toBe(false);
   });
+
+  it("rejects a Growth order whose recurring Subscription was already canceled (customer.subscription.deleted set recurringCanceledAt) — see growth-upsell-canceled-exclusion", () => {
+    expect(
+      isGrowthOrder({ tier: "growth", recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z") }),
+    ).toBe(false);
+  });
+
+  it("accepts a Growth order with an absent/null/zero recurringCanceledAt (never canceled)", () => {
+    expect(isGrowthOrder({ tier: "growth", recurringCanceledAt: undefined })).toBe(true);
+    expect(isGrowthOrder({ tier: "growth", recurringCanceledAt: null })).toBe(true);
+    expect(isGrowthOrder({ tier: "growth", recurringCanceledAt: 0 })).toBe(true);
+  });
 });
 
 describe("hasCompleteOrder", () => {
@@ -142,6 +154,37 @@ describe("leadEligibleForGrowthUpsell", () => {
       }),
     ).toBe(true);
   });
+
+  it("rejects a lead whose only Growth order's Subscription was already canceled — a lapsed subscriber must not be pitched an upgrade to a subscription that no longer exists (growth-upsell-canceled-exclusion)", () => {
+    expect(
+      leadEligibleForGrowthUpsell({
+        stage: "paid",
+        email: "owner@example.com",
+        ordersForLead: [
+          {
+            tier: "growth",
+            recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
+          },
+        ],
+      }),
+    ).toBe(false);
+  });
+
+  it("stays eligible when a canceled Growth order sits alongside a separate, still-active Growth order for the same lead (e.g. an old cancel followed by a fresh resubscribe checkout)", () => {
+    expect(
+      leadEligibleForGrowthUpsell({
+        stage: "paid",
+        email: "owner@example.com",
+        ordersForLead: [
+          {
+            tier: "growth",
+            recurringCanceledAt: Date.parse("2026-06-01T00:00:00.000Z"),
+          },
+          growthOrder,
+        ],
+      }),
+    ).toBe(true);
+  });
 });
 
 describe("buildGrowthUpsellCheckoutPath", () => {
@@ -173,6 +216,22 @@ describe("listGrowthUpsellCandidates", () => {
       "alpha",
       "zeta",
     ]);
+  });
+
+  it("excludes a lead whose Growth order was already canceled (growth-upsell-canceled-exclusion)", () => {
+    const leads = [
+      { slug: "active", stage: "paid", email: "a@example.com" },
+      { slug: "canceled", stage: "paid", email: "c@example.com" },
+    ];
+    const orders = [
+      { leadSlug: "active", tier: "growth" },
+      {
+        leadSlug: "canceled",
+        tier: "growth",
+        recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
+      },
+    ];
+    expect(listGrowthUpsellCandidates(leads, orders).map((l) => l.slug)).toEqual(["active"]);
   });
 });
 
@@ -236,5 +295,18 @@ describe("oldestGrowthUpsellCandidateAgeHours", () => {
       },
     ];
     expect(oldestGrowthUpsellCandidateAgeHours(candidates, orders, NOW)).toBe(6);
+  });
+
+  it("skips a candidate's canceled Growth order (isGrowthOrder rejects it) rather than counting its age", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
+        createdAt: new Date(NOW - 999 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestGrowthUpsellCandidateAgeHours(candidates, orders, NOW)).toBeNull();
   });
 });

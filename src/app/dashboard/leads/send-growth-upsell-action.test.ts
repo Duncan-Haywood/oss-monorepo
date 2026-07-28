@@ -248,6 +248,19 @@ describe("sendGrowthUpsellAction", () => {
     expect(sendGrowthUpsellEmail).not.toHaveBeenCalled();
   });
 
+  it("rejects a lead whose only Growth order's Subscription was already canceled (growth-upsell-canceled-exclusion) — a lapsed subscriber must not be pitched an upgrade to a subscription that no longer exists", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...growthOrder, recurringCanceledAt: Date.parse("2026-07-14T00:00:00.000Z") },
+    ]);
+    const { sendGrowthUpsellAction } = await import("./actions");
+    const res = await sendGrowthUpsellAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: eligibilityError,
+    });
+    expect(sendGrowthUpsellEmail).not.toHaveBeenCalled();
+  });
+
   it("rejects when Complete already exists, regardless of refund/dispute status", async () => {
     listOrdersByLeadSlug.mockResolvedValue([
       growthOrder,
