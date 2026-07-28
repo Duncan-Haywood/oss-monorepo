@@ -115,10 +115,16 @@ const stubVariants = [
   { contentType: "ad_copy" as const, body: "[Stub 3] Ad copy" },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("generateSeasonalPromoAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.ANTHROPIC_API_KEY;
@@ -276,5 +282,9 @@ describe("generateSeasonalPromoAction", () => {
     const { generateSeasonalPromoAction } = await import("./actions");
     const res = await generateSeasonalPromoAction("demo-cafe");
     expect(res).toEqual({ success: false, error: "Anthropic outage" });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "generateSeasonalPromoAction",
+    });
   });
 });

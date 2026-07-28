@@ -142,10 +142,16 @@ const leadWithEmail = {
   dataSource: "manual_entry" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("resendCommerceClientReceiptAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.NEXT_PUBLIC_APP_URL;
@@ -451,6 +457,10 @@ describe("resendCommerceClientReceiptAction", () => {
     });
     expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "resendCommerceClientReceiptAction",
+    });
   });
 
   it("looks up by stripeSessionId before sending (never a truncated list scan)", async () => {

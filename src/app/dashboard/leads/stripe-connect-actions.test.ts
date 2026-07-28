@@ -269,6 +269,17 @@ describe("Stripe Connect dashboard actions", () => {
       expect(result.error).toMatch(/retry/i);
       expect(revalidatePath).not.toHaveBeenCalled();
     });
+
+    it("surfaces unexpected Error messages from the lead lookup and reports it via captureError", async () => {
+      getLeadBySlug.mockRejectedValue(new Error("db offline"));
+      const { createStripeConnectAccountAction } = await import("./actions");
+      const result = await createStripeConnectAccountAction("demo-cafe");
+      expect(result).toEqual({ success: false, error: "db offline" });
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "dashboard-leads-actions",
+        failureKind: "createStripeConnectAccountAction",
+      });
+    });
   });
 
   describe("createStripeConnectOnboardingLinkAction", () => {
@@ -312,6 +323,18 @@ describe("Stripe Connect dashboard actions", () => {
       expect(result).toEqual({
         success: true,
         url: "https://connect.stripe.com/setup/e/acct_existing/fake",
+      });
+    });
+
+    it("surfaces unexpected Error messages from createConnectOnboardingLink and reports it via captureError", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      createConnectOnboardingLink.mockRejectedValue(new Error("Stripe timeout"));
+      const { createStripeConnectOnboardingLinkAction } = await import("./actions");
+      const result = await createStripeConnectOnboardingLinkAction("demo-cafe");
+      expect(result).toEqual({ success: false, error: "Stripe timeout" });
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "dashboard-leads-actions",
+        failureKind: "createStripeConnectOnboardingLinkAction",
       });
     });
   });
@@ -478,6 +501,10 @@ describe("Stripe Connect dashboard actions", () => {
 
       expect(result).toEqual({ success: false, error: "disk full" });
       expect(sendStripeConnectOnboardingLinkEmail).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "dashboard-leads-actions",
+        failureKind: "sendStripeConnectOnboardingLinkToClientAction",
+      });
     });
   });
 
@@ -491,6 +518,18 @@ describe("Stripe Connect dashboard actions", () => {
         error: "Create a Connect account for this lead first",
       });
       expect(fetchConnectAccountStatus).not.toHaveBeenCalled();
+    });
+
+    it("surfaces unexpected Error messages from fetchConnectAccountStatus and reports it via captureError", async () => {
+      getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
+      fetchConnectAccountStatus.mockRejectedValue(new Error("Stripe timeout"));
+      const { checkStripeConnectAccountStatusAction } = await import("./actions");
+      const result = await checkStripeConnectAccountStatusAction("demo-cafe");
+      expect(result).toEqual({ success: false, error: "Stripe timeout" });
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "dashboard-leads-actions",
+        failureKind: "checkStripeConnectAccountStatusAction",
+      });
     });
 
     it("returns the live status on success", async () => {

@@ -137,10 +137,16 @@ function fakePack(overrides: Partial<MarketingPack> = {}): MarketingPack {
   };
 }
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("Buffer scheduling dashboard actions", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headerGet.mockReset().mockReturnValue("203.0.113.5");
     getLeadBySlug.mockReset();
@@ -195,6 +201,20 @@ describe("Buffer scheduling dashboard actions", () => {
       if (result.success) return;
       expect(result.error).toMatch(/ALLOW_MARKETING_SCHEDULING/);
       expect(listBufferProfiles).not.toHaveBeenCalled();
+    });
+
+    it("surfaces unexpected Error messages from listBufferProfiles and reports it via captureError", async () => {
+      listBufferProfiles.mockRejectedValue(new Error("Buffer API down"));
+      const { listBufferProfilesAction } = await import("./actions");
+      const result = await listBufferProfilesAction();
+      expect(result).toEqual({
+        success: false,
+        error: "Buffer API down",
+      });
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "dashboard-leads-actions",
+        failureKind: "listBufferProfilesAction",
+      });
     });
 
     it("returns the connected profiles on success", async () => {
@@ -322,6 +342,24 @@ describe("Buffer scheduling dashboard actions", () => {
         error: "Buffer profile list failed (500)",
       });
       expect(updateLeadBufferProfileIds).not.toHaveBeenCalled();
+      // Note: listBufferProfiles has its own dedicated inner try/catch here
+      // (returns directly rather than re-throwing), so this failure never
+      // reaches the outer catch's captureError call — see the dedicated
+      // outer-catch test below for coverage of that call.
+    });
+
+    it("surfaces unexpected Error messages from the lead lookup and reports it via captureError", async () => {
+      getLeadBySlug.mockRejectedValue(new Error("db offline"));
+      const { saveLeadBufferProfilesAction } = await import("./actions");
+      const result = await saveLeadBufferProfilesAction("demo-cafe", ["p1"]);
+      expect(result).toEqual({
+        success: false,
+        error: "db offline",
+      });
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "dashboard-leads-actions",
+        failureKind: "saveLeadBufferProfilesAction",
+      });
     });
 
     it("fails closed with a retry message when the Convex persist throws", async () => {
@@ -375,6 +413,20 @@ describe("Buffer scheduling dashboard actions", () => {
   });
 
   describe("scheduleMarketingPackToBufferAction", () => {
+    it("surfaces unexpected Error messages from the lead lookup and reports it via captureError", async () => {
+      getLeadBySlug.mockRejectedValue(new Error("db offline"));
+      const { scheduleMarketingPackToBufferAction } = await import("./actions");
+      const result = await scheduleMarketingPackToBufferAction("demo-cafe");
+      expect(result).toEqual({
+        success: false,
+        error: "db offline",
+      });
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "dashboard-leads-actions",
+        failureKind: "scheduleMarketingPackToBufferAction",
+      });
+    });
+
     it("errors when the lead's recurring marketing entitlement has been canceled", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead({ bufferProfileIds: ["p1"] }));
       listOrdersByLeadSlug.mockResolvedValue([

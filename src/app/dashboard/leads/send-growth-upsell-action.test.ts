@@ -154,10 +154,16 @@ const growthOrder = {
 const eligibilityError =
   "Upsell only applies to paid/live Growth leads with email and no Complete order yet";
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendGrowthUpsellAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.STRIPE_SECRET_KEY;
@@ -412,6 +418,10 @@ describe("sendGrowthUpsellAction", () => {
     expect(res).toEqual({ success: false, error: "disk full" });
     expect(sendGrowthUpsellEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendGrowthUpsellAction",
+    });
   });
 
   it("surfaces suppression without revalidate", async () => {

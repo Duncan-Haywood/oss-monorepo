@@ -127,8 +127,14 @@ const commerceSession = {
   recoverySentAt: null,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendCheckoutRecoveryAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -162,6 +168,20 @@ describe("sendCheckoutRecoveryAction", () => {
     expect(listOpenCheckoutSessions).not.toHaveBeenCalled();
     expect(recordCheckoutRecoverySent).not.toHaveBeenCalled();
     expect(sendCheckoutAbandonedRecovery).not.toHaveBeenCalled();
+  });
+
+  it("surfaces unexpected Error messages from the session list and reports it via captureError", async () => {
+    listOpenCheckoutSessions.mockRejectedValue(new Error("db offline"));
+    const { sendCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCheckoutRecoveryAction("cs_test_bundle");
+    expect(res).toEqual({
+      success: false,
+      error: "db offline",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendCheckoutRecoveryAction",
+    });
   });
 
   it("rate-limits repeated recovery sends from the same IP (auth alone is not a throttle)", async () => {
@@ -362,6 +382,7 @@ describe("sendCheckoutRecoveryAction", () => {
 
 describe("sendCommerceCheckoutRecoveryAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -386,6 +407,20 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
       mock: false,
     });
     sendCheckoutAbandonedRecovery.mockReset();
+  });
+
+  it("surfaces unexpected Error messages from the session list and reports it via captureError", async () => {
+    listOpenCheckoutSessions.mockRejectedValue(new Error("db offline"));
+    const { sendCommerceCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCommerceCheckoutRecoveryAction("cs_test_commerce");
+    expect(res).toEqual({
+      success: false,
+      error: "db offline",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendCommerceCheckoutRecoveryAction",
+    });
   });
 
   it("returns auth error without listing sessions", async () => {

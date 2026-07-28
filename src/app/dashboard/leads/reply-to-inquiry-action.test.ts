@@ -125,8 +125,14 @@ const repliedInquiry = {
   replySentCount: 1,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("replyToInquiryAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     headersMock.mockReset().mockResolvedValue(headerStore());
@@ -157,6 +163,20 @@ describe("replyToInquiryAction", () => {
     expect(getClientInquiryById).not.toHaveBeenCalled();
     expect(recordClientInquiryReply).not.toHaveBeenCalled();
     expect(sendInquiryReply).not.toHaveBeenCalled();
+  });
+
+  it("surfaces unexpected Error messages from the inquiry lookup and reports it via captureError", async () => {
+    getClientInquiryById.mockRejectedValue(new Error("db offline"));
+    const { replyToInquiryAction } = await import("./actions");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
+    expect(res).toEqual({
+      success: false,
+      error: "db offline",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "replyToInquiryAction",
+    });
   });
 
   it("rate-limits repeated replies from the same IP (auth alone is not a throttle)", async () => {
