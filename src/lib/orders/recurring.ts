@@ -52,6 +52,89 @@ export function orderHasActiveRecurringEntitlement(order: {
 }
 
 /**
+ * The Stripe Customer id of the lead's existing live recurring order, if
+ * any. A new recurring Checkout Session for the same lead (e.g. the Growth→
+ * Complete upsell email's checkout link) must reuse this Customer instead of
+ * letting Stripe mint a fresh one from customer_email alone — otherwise the
+ * same real-world subscriber ends up with two Stripe Customer records and
+ * two active Subscriptions (one per Customer), silently doubling their
+ * monthly bill. See stripe-checkout-recurring-upgrade-dedup.
+ */
+export function existingRecurringStripeCustomerId(
+  orders: ReadonlyArray<{
+    stripeCustomerId?: string | null;
+    tier: string;
+    commerceAddon: boolean;
+    recurringCanceledAt?: number | null;
+  }>,
+): string | null {
+  for (const order of orders) {
+    if (!orderHasActiveRecurringEntitlement(order)) continue;
+    const customerId = order.stripeCustomerId?.trim();
+    if (customerId) return customerId;
+  }
+  return null;
+}
+
+/**
+ * Stripe Customer ids of the lead's OTHER still-active recurring orders that
+ * a just-completed recurring Checkout Session for the same lead supersedes
+ * (e.g. Growth→Complete upsell). Excludes the just-completed session's own
+ * order (by stripeSessionId) and any order sharing the new session's own
+ * Customer id (the same Customer/Subscription being resynced via Billing
+ * Portal, not a second one stacked on top). A well-behaved lead never has
+ * more than one live recurring order; any others found here are exactly the
+ * duplicate-subscription bug this predicate exists to detect and heal — the
+ * caller cancels each returned Customer's active Stripe Subscription(s) and
+ * marks the corresponding order(s) recurringCanceledAt. See
+ * stripe-checkout-recurring-upgrade-dedup.
+ */
+export function otherLiveRecurringStripeCustomerIdsToSupersede(
+  orders: ReadonlyArray<{
+    stripeSessionId: string;
+    stripeCustomerId?: string | null;
+    tier: string;
+    commerceAddon: boolean;
+    recurringCanceledAt?: number | null;
+  }>,
+  justCompletedSessionId: string,
+  newStripeCustomerId: string | null | undefined,
+): string[] {
+  const ids = new Set<string>();
+  for (const order of orders) {
+    if (order.stripeSessionId === justCompletedSessionId) continue;
+    if (!orderHasActiveRecurringEntitlement(order)) continue;
+    const customerId = order.stripeCustomerId?.trim();
+    if (!customerId) continue;
+    if (newStripeCustomerId && customerId === newStripeCustomerId) continue;
+    ids.add(customerId);
+  }
+  return [...ids];
+}
+
+/**
+ * Stripe Subscription cancellation_details.comment value stamped on a
+ * Subscription this app cancels itself to dedupe a lead's OTHER live
+ * recurring order after a tier-upgrade Checkout Session completes (see
+ * otherLiveRecurringStripeCustomerIdsToSupersede) — never a customer-
+ * initiated cancellation. The customer.subscription.deleted handler's
+ * win-back notice (subscription-canceled-win-back-notice) must check this
+ * before sending: a customer who just upgraded must not get a "sorry to see
+ * you go" email for the internal cleanup of their own superseded
+ * subscription.
+ */
+export const SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT = "superseded_by_recurring_upgrade";
+
+/** True when a customer.subscription.deleted event's Subscription was canceled by this app's own supersede cleanup, not the customer. */
+export function stripeSubscriptionCancellationWasInternalSupersede(subscription: {
+  cancellation_details?: { comment?: string | null } | null;
+}): boolean {
+  return (
+    subscription.cancellation_details?.comment === SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT
+  );
+}
+
+/**
  * Full gate for sold monthly capability delivery (marketing packs / voice
  * packs / commerce catalog + Buy now checkout): active recurring entitlement
  * AND the charge itself was never refunded or disputed. A Stripe refund or

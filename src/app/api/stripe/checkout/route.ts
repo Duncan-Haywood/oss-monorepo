@@ -9,8 +9,9 @@ import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { parseClientIdempotencyKey } from "@/lib/checkout/idempotency-key";
 import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attribution";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import { existingRecurringStripeCustomerId } from "@/lib/orders/recurring";
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
-import { recordCheckoutSessionCreated } from "@/lib/db";
+import { listOrdersByLeadSlug, recordCheckoutSessionCreated } from "@/lib/db";
 import { captureError } from "@/lib/observability/error-tracking";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
@@ -143,6 +144,17 @@ export async function POST(request: Request) {
   const businessName = normalizeCheckoutBusinessName(body.businessName);
   const businessPhone = normalizeCheckoutBusinessPhone(body.businessPhone);
 
+  // A recurring checkout for a lead that already has a live recurring order
+  // (e.g. the Growth→Complete upsell email's checkout link) must reuse that
+  // order's Stripe Customer instead of letting customer_email mint a fresh
+  // one — otherwise the same subscriber ends up with two Customers and two
+  // active Subscriptions, silently doubling their bill. See
+  // stripe-checkout-recurring-upgrade-dedup. A brand-new subscriber has no
+  // prior orders, so this resolves to null and behaves exactly as before.
+  const existingCustomerId = hasRecurring
+    ? existingRecurringStripeCustomerId(await listOrdersByLeadSlug(leadSlug))
+    : null;
+
   const cancelParams = new URLSearchParams({ cancelled: "1" });
   cancelParams.set("slug", leadSlug);
   cancelParams.set("tier", bundle.id);
@@ -158,7 +170,12 @@ export async function POST(request: Request) {
       {
         mode: hasRecurring ? "subscription" : "payment",
         line_items: lineItems,
-        customer_email: customerEmail,
+        // Stripe rejects passing both — reuse the existing Customer for a
+        // recurring upgrade (see existingCustomerId above), otherwise fall
+        // back to customer_email exactly as before.
+        ...(existingCustomerId
+          ? { customer: existingCustomerId }
+          : { customer_email: customerEmail }),
         allow_promotion_codes: true,
         success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${appUrl}/checkout?${cancelParams.toString()}`,

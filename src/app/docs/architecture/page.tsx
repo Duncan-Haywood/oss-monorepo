@@ -4835,6 +4835,45 @@ source). The same digest also lists email-critical leads with no usable address 
         programming error.
       </p>
 
+      <p>
+        <code>stripe-checkout-recurring-upgrade-dedup</code>: a research agent auditing the
+        Growth→Complete upsell feature traced its checkout link (
+        <code>buildGrowthUpsellCheckoutPath</code>, <code>/checkout?slug=...&amp;tier=complete</code>)
+        through to <code>POST /api/stripe/checkout</code> and found it always creates the Stripe
+        Checkout Session with only <code>customer_email</code>, never an existing{" "}
+        <code>customer</code> id. For an already-subscribed lead, Stripe mints a brand-new Customer
+        and Subscription rather than reusing the existing one — an upgrading Growth customer ended
+        up with two live subscriptions ($99 + $199/mo) under two different Stripe Customer records,
+        with nothing anywhere in the codebase ever canceling the superseded one. The business has
+        not yet run bootstrap-prices (<code>stripe-price-objects</code> is still{" "}
+        <code>todo</code>), so no real customer had actually been double-billed by this — caught
+        during the pre-launch autonomous dev routine rather than after real money was flowing.
+        Fixed in two parts: <code>src/app/api/stripe/checkout/route.ts</code> now reuses the lead&apos;s
+        existing live-recurring-order Stripe Customer id (
+        <code>existingRecurringStripeCustomerId</code>, <code>src/lib/orders/recurring.ts</code>)
+        instead of <code>customer_email</code> when one exists — a first-time subscriber has no
+        prior orders, so this resolves to <code>null</code> and behaves exactly as before. The
+        webhook route then detects and cancels any OTHER still-active recurring order&apos;s Stripe
+        subscription for the same lead (<code>otherLiveRecurringStripeCustomerIdsToSupersede</code>)
+        after a recurring order is recorded, best-effort, so a customer is never billed twice even
+        if two sessions race or a pre-fix session is still in flight.
+      </p>
+      <p>
+        Merging this in alongside a concurrently-shipped sibling PR (a customer-facing win-back
+        notice on genuine <code>customer.subscription.deleted</code> events) surfaced a real
+        interaction: canceling the superseded subscription via the live Stripe API fires a genuine
+        <code>customer.subscription.deleted</code> event, which the sibling&apos;s new handler would
+        otherwise treat as real churn and send a &quot;sorry to see you go&quot; win-back email to a
+        customer who just upgraded, not canceled. Fixed by stamping a distinguishing{" "}
+        <code>cancellation_details.comment</code> (
+        <code>SUPERSEDED_SUBSCRIPTION_CANCELLATION_COMMENT</code>) when canceling a superseded
+        subscription, and checking for it (
+        <code>stripeSubscriptionCancellationWasInternalSupersede</code>) before sending the win-back
+        notice — only that email is skipped; the CRM cancel-marking and stale-notice-marker-clear
+        logic still run as before (idempotent either way, since the bundle-order handler already
+        marked the order <code>recurringCanceledAt</code> synchronously moments earlier).
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>
