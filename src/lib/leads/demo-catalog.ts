@@ -347,7 +347,7 @@ export function resolvePreviewLead(slug: string): Lead {
   } else if (
     !isDisasterRestorationService &&
     !isCraftOrHobbyWorkshop &&
-    /shop|store|boutique|mercantile|\bmarket\b|retail|\bgoods\b/.test(lower)
+    /\bshop\b|store|boutique|mercantile|\bmarket\b|retail|\bgoods\b/.test(lower)
   ) {
     // "market" and "goods" are word-boundary scoped (\b) — a bare "market"
     // matches inside "marketing" (e.g. "elevate-marketing-agency", a
@@ -357,7 +357,12 @@ export function resolvePreviewLead(slug: string): Lead {
     // category-substring-collision-audit-05. isDisasterRestorationService and
     // isCraftOrHobbyWorkshop (defined above) exclude "store"/"shop" whole-word
     // ambiguities that word-boundary scoping alone can't fix —
-    // category-substring-collision-audit-06.
+    // category-substring-collision-audit-06. "shop" is also word-boundary
+    // scoped — a bare "shop" matches inside a surname/title like "Bishop"
+    // (e.g. "bishop-family-law", which should resolve to legal instead via
+    // its own "law" keyword; retail runs before legal in this chain, so the
+    // false match swallows several later branches, not just legal) —
+    // category-substring-collision-audit-08.
     category = "retail";
   } else if (/dental|dentist|chiro|clinic|wellness|therapy|medical|\bhealth\b|physio/.test(lower)) {
     // "health" is word-boundary scoped (\b) — a bare "health" matches inside
