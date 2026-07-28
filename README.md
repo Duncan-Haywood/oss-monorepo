@@ -59,8 +59,12 @@ Prisma CLI loads `.env`, plain `tsx` does not, and the seed script fails with
 npm run verify   # typecheck → lint → test → build
 ```
 
-CI runs the same four gates plus a migration-parity check on every push and
-pull request.
+`.github/workflows/ci.yml` is configured to run the same four gates plus a
+migration-parity check on every push and pull request, but **it has never
+actually run**: every run since it was added fails in about three seconds with
+no steps and no logs, which is a runner that was never allocated rather than a
+gate that failed. Until that is sorted out, the command above is the whole of
+the enforcement — see [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md).
 
 ## How it works
 

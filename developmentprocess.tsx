@@ -118,7 +118,10 @@ export function DevelopmentProcess() {
         </ol>
       </Section>
 
-      <Section title="Gates" lead="npm run verify runs the blocking ones. CI runs the same command.">
+      <Section
+        title="Gates"
+        lead="npm run verify runs the blocking ones — and is currently the only thing that does. The CI workflow exists but has never started a runner, so nothing is checked after a push."
+      >
         {GATES.map((g) => (
           <Card key={g.id}>
             <p className="flex flex-wrap items-center gap-2">

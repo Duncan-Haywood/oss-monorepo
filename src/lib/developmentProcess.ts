@@ -221,7 +221,11 @@ export type Gate = {
   blocking: boolean;
 };
 
-/** `npm run verify` runs all of these. CI runs the same command. */
+/**
+ * `npm run verify` runs all of these, and is currently the only thing that
+ * does: the CI workflow exists but has never allocated a runner, so nothing
+ * is checked after a push. See docs/QUALITY-BAR.md.
+ */
 export const GATES: Gate[] = [
   {
     id: "typecheck",

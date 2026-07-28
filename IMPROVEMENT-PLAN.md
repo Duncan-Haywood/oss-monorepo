@@ -35,6 +35,24 @@ is the honest measure of how well "write it down again" works. The open
 question is no longer technical: it is whether this task should keep firing at
 its current frequency while nothing it produces can land.
 
+### P1 — CI has never run, and the docs said it had
+
+`.github/workflows/ci.yml` was added several branches ago and every run of it
+since — eight, across six branches — has failed in about three seconds with no
+steps, no downloadable logs and `runner_id: 0`. That is a job that never
+started, identically on every branch, so it is Actions/runner availability at
+the repository or account level rather than anything in a change.
+
+Meanwhile the README, the quality bar and the process document all stated that
+CI ran the four gates on every push. It never has. Every "verified in CI" claim
+in this repo's history should be read as "verified by whoever ran
+`npm run verify` locally, if they did".
+
+**Fix:** only the account owner can do it — enable Actions for the repository,
+or resolve whatever the runner/billing situation is. Then re-run one of the
+failed workflows and confirm it produces steps. The docs now say CI is not
+running; that correction should be reverted once it is.
+
 ### P1 — `trials/next` creates a Trial row on every page load
 
 A trial is recorded as "shown" before it has been displayed for any length of

@@ -12,7 +12,25 @@ npm run verify
 ```
 
 That is `typecheck → lint → test → build`, in the order that fails fastest.
-CI runs the same four as separate steps so a failure names itself.
+`.github/workflows/ci.yml` runs the same four as separate steps so a failure
+names itself.
+
+## CI is not currently running
+
+Every run of that workflow since it was added has failed the same way: about
+three seconds, no steps, no downloadable logs, `runner_id: 0`. That is not a
+gate failing — it is a job that never started, and it happens identically on
+every branch, so it is an Actions/runner availability problem at the repository
+or account level rather than anything in the workflow or in a given change.
+
+Two things follow, and the second matters more:
+
+1. **`npm run verify` locally is the entire gate today.** Nothing is checked
+   after a push. Treat a green tick from anything other than that command as
+   meaning nothing.
+2. **Only the account owner can fix it** — enabling Actions for the repository,
+   or whatever the billing/runner situation turns out to be. An unattended
+   session cannot, and should not report "CI is green" or "CI will catch it".
 
 | Gate | Command | What it is protecting |
 | --- | --- | --- |
