@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BUNDLES, COMMERCE_ADDON } from "@/lib/pricing/bundles";
+import { BUNDLES, COMMERCE_ADDON, tierUpsellPricing } from "@/lib/pricing/bundles";
 import type { PublicLead } from "@/lib/leads/public-fields";
 
 type TierUpsellProps = {
@@ -11,13 +11,20 @@ type TierUpsellProps = {
    * RSC payload.
    */
   lead: PublicLead;
+  /**
+   * True when the lead already has a prior bundle order (loadPreviewSetupFeeWaived) —
+   * shows the same "setup already covered" price checkout would charge, so a
+   * customer following an upsell email's waiver promise back to this preview
+   * page doesn't see a contradicting full setup fee (preview-tier-upsell-setup-fee-waiver-parity).
+   */
+  setupFeeWaived?: boolean;
 };
 
 /**
  * Interactive upsell — cards are intentional here (checkout CTAs).
  * See business model: "Preview site tier comparison cards".
  */
-export function TierUpsell({ lead }: TierUpsellProps) {
+export function TierUpsell({ lead, setupFeeWaived = false }: TierUpsellProps) {
   return (
     <section className="mx-auto max-w-5xl px-6 py-16" aria-labelledby="tier-upsell-heading">
       <div className="max-w-2xl">
@@ -33,6 +40,7 @@ export function TierUpsell({ lead }: TierUpsellProps) {
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         {BUNDLES.map((bundle) => {
           const recommended = bundle.id === lead.recommendedTier;
+          const pricing = tierUpsellPricing(bundle, setupFeeWaived);
           return (
             <div
               key={bundle.id}
@@ -47,11 +55,9 @@ export function TierUpsell({ lead }: TierUpsellProps) {
               <p className={`mt-1 text-sm ${recommended ? "text-zinc-300" : "text-zinc-600"}`}>
                 {bundle.tagline}
               </p>
-              <p className="mt-3 text-3xl font-semibold tracking-tight">${bundle.setupPriceUsd}</p>
+              <p className="mt-3 text-3xl font-semibold tracking-tight">${pricing.headlineUsd}</p>
               <p className={`mt-1 text-sm ${recommended ? "text-zinc-300" : "text-zinc-600"}`}>
-                {bundle.monthlyPriceUsd
-                  ? `+ $${bundle.monthlyPriceUsd}/mo after go-live`
-                  : "One-time"}
+                {pricing.caption}
               </p>
               <ul className="mt-4 flex-1 space-y-2 text-sm">
                 {bundle.features.map((feature) => (
