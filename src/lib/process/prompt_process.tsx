@@ -457,6 +457,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/nice-euler-efgr18",
   },
+  {
+    id: "db-getLeads-convex-fallback-capture-error",
+    summary:
+      "Refined the deferred 'db.ts's 84 console.warn sites, too large' framing into a precise finding: nearly every write-path fallback branch (recordLeadPayment, recordSubscriptionRenewalPayment, and everything behind the 24 *_CONVEX_PRIMARY constants) is dead code in practice, since its only real caller always passes requireConvex: true and shouldFallbackToSqliteOnConvexFailure throws instead of reaching the console.warn. The genuinely live gap is in plain read functions, which always silently degrade to SQLite on any Convex error. Wired captureError into getLeads() specifically — the single highest-blast-radius read (every dashboard page, the digest, and the webhook's account.updated handler all call it) — rather than sweeping every read path, and explicitly documented why (no per-event boundary on a read means no built-in dedup, and a serverless deployment can't rely on an in-process throttle surviving between invocations). See db-getLeads-convex-fallback-capture-error in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -914,6 +922,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "empty-backlog-day8-clean-sweep-genuinely-fresh-angles",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip aef6e448 (PR #903, the clean-sweep entry, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3596 passed, 211 files). A git fetch --prune sweep and mcp__github__list_pull_requests reconfirmed no live sibling branch at session start and the sole other open PR remains #202 (unrelated, weeks-stale human draft). Mid-implementation, origin/main advanced with PR #904 (commerce-order-ledger-write-capture-error, a sibling session independently closing the Commerce-side twin of stripe-webhook-payment-write-capture-error) — merged it in and resolved the resulting docs-append conflict (both sessions inserted a new paragraph at the identical spot, immediately before Tech stack) by keeping both.",
+    shipped: [
+      "The prior clean-sweep entry's own research agent recommended, as one of two honest options, treating the Convex-fallback observability gap (db.ts's 84 console.warn sites) as a scoped future sub-slice. Investigated directly: read recordLeadPayment's catch block and confirmed its fallback branch is unreachable in practice, since the Stripe webhook always passes WEBHOOK_CONVEX_PRIMARY ({ requireConvex: true }) and shouldFallbackToSqliteOnConvexFailure(true, options) returns false whenever requireConvex is true — a Convex failure throws instead of ever reaching that console.warn. Spot-checked recordSubscriptionRenewalPayment (same shape, same caller) and grepped all 24 *_CONVEX_PRIMARY constants across src/lib/**/*-persist.ts — every one of these already-documented dual-backend write paths shares the identical dead-fallback shape. This refines rather than contradicts the '84 sites, too large' framing: the count was accurate, but the genuinely live fraction is concentrated in plain read functions (getLeads, getLeadBySlug, and similar), which have no requireConvex concept and always silently degrade to SQLite on any Convex error.",
+      "src/lib/db.ts — wired captureError into getLeads()'s existing catch, the single highest-blast-radius read in the file (every dashboard page render, the daily digest, and the webhook's account.updated Connect-status handler all call it). Deliberately did not also wire getLeadBySlug or any other read function this iteration, matching the same single-highest-value-site scoping used for both webhook fixes today, and reasoned through (rather than ignored) that reads have no natural per-event boundary the way a once-per-checkout webhook write does — a sustained outage would fire captureError on every call, and this scaffold has no built-in dedup/throttle. Rejected adding one as premature: an in-process throttle wouldn't survive between separate stateless serverless invocations anyway, and most realistic receiving endpoints for this dormant scaffold already dedup server-side.",
+      "src/lib/db.test.ts — added a captureError mock and extended the existing Convex-fallback test with a captureError-call assertion, plus two new tests (no call when Convex is unconfigured; no call on a successful read). Verified the test actually catches the regression: git stash'd db.ts's source change alone and confirmed the extended assertion failed (0 calls) before restoring the fix.",
+      "src/app/docs/architecture/page.tsx — two new paragraphs after the (sibling's) commerce-order-ledger-write-capture-error writeup: one refining the '84 sites, too large' framing into the dead-code-vs-live-read-path distinction, the other documenting the getLeads() wiring and the dedup/serverless-statelessness trade-off. src/lib/process/business-decisions.ts — appended db-getLeads-convex-fallback-capture-error. src/lib/process/prompt_process.tsx — a new NEXT_STEPS done entry plus this ITERATIONS entry. No other NEXT_STEPS change — the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 7009003a (origin/main tip after PR #904 merged mid-session).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: both files re-measured via wc -c before this commit. business-decisions.ts is now within real range of the 262,144-byte trigger and prompt_process.tsx is close behind it — the next session that adds a sizeable entry to either file should run wc -c first and, if crossed, run the archive split as its own dedicated iteration per AGENT_PROTOCOL, never blended with a feature change.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (db.test.ts, 274/274 passed) then full suite (3598 passed, 211 files — 2 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + npm run dev smoke check curling /dashboard/leads and /preview/example-bakery (both 200, no error markers). Killed the dev server, removed the stray gitignored local.db/local.db-shm/local.db-wal it created, and confirmed git status showed only the intended files changed before this commit.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-getLeads-convex-fallback-capture-error",
     ),
   },
 ];
