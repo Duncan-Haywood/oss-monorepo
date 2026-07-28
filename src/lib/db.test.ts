@@ -1318,7 +1318,11 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
 
       convexMutation.mockResolvedValueOnce(true);
       const db = await loadDb(CONVEX_URL);
-      const result = await db.markMarketingPackSentToClient("marketing-pack-lead", "2026-07");
+      const result = await db.markMarketingPackSentToClient(
+        "marketing-pack-lead",
+        "2026-07",
+        "2026-07-01T00:00:00.000Z",
+      );
       expect(result).toBe(true);
       expect(convexMutation).toHaveBeenCalledTimes(1);
 
@@ -1334,7 +1338,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       convexMutation.mockRejectedValueOnce(new Error("convex outage"));
       const db = await loadDb(CONVEX_URL);
       await expect(
-        db.markMarketingPackSentToClient("some-lead", "2026-07", undefined, {
+        db.markMarketingPackSentToClient("some-lead", "2026-07", "2026-07-01T00:00:00.000Z", undefined, {
           requireConvex: true,
         }),
       ).rejects.toThrow(/markMarketingPackSentToClient/);
@@ -1355,6 +1359,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       const firstResult = await markDb.markMarketingPackSentToClient(
         "marketing-pack-fallback-lead",
         "2026-07",
+        "2026-07-01T00:00:00.000Z",
         "2026-01-01T00:00:00.000Z",
       );
       expect(firstResult).toBe(true);
@@ -1372,6 +1377,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       ).markMarketingPackSentToClient(
         "marketing-pack-fallback-lead",
         "2026-07",
+        "2026-07-01T00:00:00.000Z",
         "2026-01-02T00:00:00.000Z",
       );
       expect(secondResult).toBe(false);
@@ -1380,6 +1386,55 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         await loadDb(undefined)
       ).getMarketingPack("marketing-pack-fallback-lead", "2026-07");
       expect(afterRedelivery?.sentToClientAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+
+    it("fails (and does not write) when the pack was regenerated after the caller read it, even on the SQLite-fallback path", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertMarketingPack({
+        leadSlug: "marketing-pack-stale-version-lead",
+        yearMonth: "2026-07",
+        variants: [{ contentType: "gbp_post", body: "Original post" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+      // Simulates a concurrent Regenerate landing between the caller's read
+      // and this reservation: sentToClientAt is unset (regenerate always
+      // clears it) and generatedAt has moved on.
+      await seedDb.upsertMarketingPack({
+        leadSlug: "marketing-pack-stale-version-lead",
+        yearMonth: "2026-07",
+        variants: [{ contentType: "gbp_post", body: "Regenerated post" }],
+        generatedAt: "2026-07-02T00:00:00.000Z",
+        generator: "stub",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const staleReserve = await (
+        await loadDb(CONVEX_URL)
+      ).markMarketingPackSentToClient(
+        "marketing-pack-stale-version-lead",
+        "2026-07",
+        "2026-07-01T00:00:00.000Z", // the stale version the caller actually read
+        "2026-01-01T00:00:00.000Z",
+      );
+      expect(staleReserve).toBe(false);
+
+      const afterStaleAttempt = await (
+        await loadDb(undefined)
+      ).getMarketingPack("marketing-pack-stale-version-lead", "2026-07");
+      expect(afterStaleAttempt?.sentToClientAt).toBeUndefined();
+
+      // A reservation against the CURRENT version still succeeds.
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const currentReserve = await (
+        await loadDb(CONVEX_URL)
+      ).markMarketingPackSentToClient(
+        "marketing-pack-stale-version-lead",
+        "2026-07",
+        "2026-07-02T00:00:00.000Z",
+        "2026-01-01T00:00:00.000Z",
+      );
+      expect(currentReserve).toBe(true);
     });
   });
 
@@ -1396,6 +1451,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       await seedDb.markMarketingPackSentToClient(
         "marketing-pack-clear-lead",
         "2026-07",
+        "2026-07-01T00:00:00.000Z",
         "2026-01-01T00:00:00.000Z",
       );
 
@@ -1430,6 +1486,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       await seedDb.markMarketingPackSentToClient(
         "marketing-pack-clear-fallback-lead",
         "2026-07",
+        "2026-07-01T00:00:00.000Z",
         "2026-01-01T00:00:00.000Z",
       );
 
@@ -1455,6 +1512,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       ).markMarketingPackSentToClient(
         "marketing-pack-clear-fallback-lead",
         "2026-07",
+        "2026-07-01T00:00:00.000Z",
         "2026-01-02T00:00:00.000Z",
       );
       expect(reMarked).toBe(true);
@@ -1472,6 +1530,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       await seedDb.markMarketingPackSentToClient(
         "marketing-pack-clear-mismatch-lead",
         "2026-07",
+        "2026-07-01T00:00:00.000Z",
         "2026-01-01T00:00:00.000Z",
       );
 
@@ -1672,7 +1731,10 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
 
       convexMutation.mockResolvedValueOnce(true);
       const db = await loadDb(CONVEX_URL);
-      const result = await db.markClientVoicePackSentToClient("voice-pack-lead");
+      const result = await db.markClientVoicePackSentToClient(
+        "voice-pack-lead",
+        "2026-07-01T00:00:00.000Z",
+      );
       expect(result).toBe(true);
       expect(convexMutation).toHaveBeenCalledTimes(1);
 
@@ -1686,7 +1748,9 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       convexMutation.mockRejectedValueOnce(new Error("convex outage"));
       const db = await loadDb(CONVEX_URL);
       await expect(
-        db.markClientVoicePackSentToClient("some-lead", undefined, { requireConvex: true }),
+        db.markClientVoicePackSentToClient("some-lead", "2026-07-01T00:00:00.000Z", undefined, {
+          requireConvex: true,
+        }),
       ).rejects.toThrow(/markClientVoicePackSentToClient/);
     });
 
@@ -1702,7 +1766,11 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       convexMutation.mockRejectedValueOnce(new Error("convex outage"));
       const firstResult = await (
         await loadDb(CONVEX_URL)
-      ).markClientVoicePackSentToClient("voice-pack-fallback-lead", "2026-01-01T00:00:00.000Z");
+      ).markClientVoicePackSentToClient(
+        "voice-pack-fallback-lead",
+        "2026-07-01T00:00:00.000Z",
+        "2026-01-01T00:00:00.000Z",
+      );
       expect(firstResult).toBe(true);
 
       const afterMark = await (
@@ -1713,13 +1781,60 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       convexMutation.mockRejectedValueOnce(new Error("convex outage"));
       const secondResult = await (
         await loadDb(CONVEX_URL)
-      ).markClientVoicePackSentToClient("voice-pack-fallback-lead", "2026-01-02T00:00:00.000Z");
+      ).markClientVoicePackSentToClient(
+        "voice-pack-fallback-lead",
+        "2026-07-01T00:00:00.000Z",
+        "2026-01-02T00:00:00.000Z",
+      );
       expect(secondResult).toBe(false);
 
       const afterRedelivery = await (
         await loadDb(undefined)
       ).getClientVoicePackByLeadSlug("voice-pack-fallback-lead");
       expect(afterRedelivery?.sentToClientAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+
+    it("fails (and does not write) when the pack was regenerated after the caller read it, even on the SQLite-fallback path", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.upsertClientVoicePack({
+        leadSlug: "voice-pack-stale-version-lead",
+        variants: [{ scriptType: "inbound_greeting", title: "Greeting", body: "Hello!" }],
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        generator: "stub",
+      });
+      // Simulates a concurrent Regenerate landing between the caller's read
+      // and this reservation.
+      await seedDb.upsertClientVoicePack({
+        leadSlug: "voice-pack-stale-version-lead",
+        variants: [{ scriptType: "inbound_greeting", title: "Greeting", body: "Hi there!" }],
+        generatedAt: "2026-07-02T00:00:00.000Z",
+        generator: "stub",
+      });
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const staleReserve = await (
+        await loadDb(CONVEX_URL)
+      ).markClientVoicePackSentToClient(
+        "voice-pack-stale-version-lead",
+        "2026-07-01T00:00:00.000Z", // the stale version the caller actually read
+        "2026-01-01T00:00:00.000Z",
+      );
+      expect(staleReserve).toBe(false);
+
+      const afterStaleAttempt = await (
+        await loadDb(undefined)
+      ).getClientVoicePackByLeadSlug("voice-pack-stale-version-lead");
+      expect(afterStaleAttempt?.sentToClientAt).toBeUndefined();
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const currentReserve = await (
+        await loadDb(CONVEX_URL)
+      ).markClientVoicePackSentToClient(
+        "voice-pack-stale-version-lead",
+        "2026-07-02T00:00:00.000Z",
+        "2026-01-01T00:00:00.000Z",
+      );
+      expect(currentReserve).toBe(true);
     });
   });
 
@@ -1734,6 +1849,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       });
       await seedDb.markClientVoicePackSentToClient(
         "voice-pack-clear-lead",
+        "2026-07-01T00:00:00.000Z",
         "2026-01-01T00:00:00.000Z",
       );
 
@@ -1762,6 +1878,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       });
       await seedDb.markClientVoicePackSentToClient(
         "voice-pack-clear-fallback-lead",
+        "2026-07-01T00:00:00.000Z",
         "2026-01-01T00:00:00.000Z",
       );
 
@@ -1781,7 +1898,11 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
 
       const reMarked = await (
         await loadDb(undefined)
-      ).markClientVoicePackSentToClient("voice-pack-clear-fallback-lead", "2026-01-02T00:00:00.000Z");
+      ).markClientVoicePackSentToClient(
+        "voice-pack-clear-fallback-lead",
+        "2026-07-01T00:00:00.000Z",
+        "2026-01-02T00:00:00.000Z",
+      );
       expect(reMarked).toBe(true);
     });
 
@@ -1795,6 +1916,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       });
       await seedDb.markClientVoicePackSentToClient(
         "voice-pack-clear-mismatch-lead",
+        "2026-07-01T00:00:00.000Z",
         "2026-01-01T00:00:00.000Z",
       );
 
@@ -4257,6 +4379,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       await db.markMarketingPackSentToClient(
         "marketing-pack-orchestration-lead",
         "2026-07",
+        "2026-07-01T00:00:00.000Z",
         "2026-07-02T00:00:00.000Z",
       );
       await db.upsertMarketingPack(marketingInput);
@@ -4316,6 +4439,7 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       await db.upsertClientVoicePack(voiceInput);
       await db.markClientVoicePackSentToClient(
         "voice-pack-orchestration-lead",
+        "2026-07-01T00:00:00.000Z",
         "2026-07-02T00:00:00.000Z",
       );
       await db.upsertClientVoicePack(voiceInput);

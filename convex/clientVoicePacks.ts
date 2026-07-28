@@ -67,12 +67,14 @@ export const upsert = mutation({
 
 /**
  * Durable sent-marker after sendClientVoicePackToClientEmail resolves
- * { success: true }. Mirrors marketingPacks.markSentToClient (see
- * marketing-voice-pack-client-send-visibility).
+ * { success: true }. Mirrors marketingPacks.markSentToClient, including its
+ * expectedGeneratedAt version guard (see
+ * marketing-voice-pack-send-stale-content-race-guard).
  */
 export const markSentToClient = mutation({
   args: {
     leadSlug: v.string(),
+    expectedGeneratedAt: v.string(),
     sentToClientAt: v.string(),
     apiSecret: v.string(),
   },
@@ -83,7 +85,11 @@ export const markSentToClient = mutation({
       .query("clientVoicePacks")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
       .unique();
-    if (!existing || existing.sentToClientAt) {
+    if (
+      !existing ||
+      existing.sentToClientAt ||
+      existing.generatedAt !== args.expectedGeneratedAt
+    ) {
       return false;
     }
     await ctx.db.patch(existing._id, { sentToClientAt: args.sentToClientAt });

@@ -172,7 +172,7 @@ describe("sendMarketingPackToClientAction", () => {
       generator: "stub",
       packageTier: "social_email",
       variants: packVariants,
-      createdAt: "2026-07-13T12:00:00.000Z",
+      generatedAt: "2026-07-13T12:00:00.000Z",
     });
     sendMarketingPackToClientEmail.mockReset().mockResolvedValue({
       success: true,
@@ -286,7 +286,7 @@ describe("sendMarketingPackToClientAction", () => {
       generator: "stub",
       packageTier: "social_email",
       variants: [],
-      createdAt: "2026-07-13T12:00:00.000Z",
+      generatedAt: "2026-07-13T12:00:00.000Z",
     });
     const { sendMarketingPackToClientAction } = await import("./actions");
     const res = await sendMarketingPackToClientAction("demo-cafe");
@@ -331,6 +331,7 @@ describe("sendMarketingPackToClientAction", () => {
     expect(markMarketingPackSentToClient).toHaveBeenCalledWith(
       "demo-cafe",
       yearMonth,
+      "2026-07-13T12:00:00.000Z",
       expect.any(String),
       expect.objectContaining({ requireConvex: true }),
     );
@@ -343,7 +344,9 @@ describe("sendMarketingPackToClientAction", () => {
     // isPending-disabled state applied already reserved this exact marker —
     // since the reservation now runs BEFORE the send, this must skip the
     // send entirely rather than detect the duplicate only after a real
-    // second email already went out.
+    // second email already went out. The re-fetch used to distinguish this
+    // from a version mismatch sees the SAME generatedAt (no regenerate
+    // happened), so the duplicate-send message applies.
     markMarketingPackSentToClient.mockResolvedValue(false);
     const { sendMarketingPackToClientAction } = await import("./actions");
     const res = await sendMarketingPackToClientAction("demo-cafe");
@@ -351,6 +354,43 @@ describe("sendMarketingPackToClientAction", () => {
       success: false,
       error:
         "Marketing pack was already marked sent by a concurrent request — skipped duplicate send.",
+    });
+    expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("skips the send and reports a regenerated-pack error (not the duplicate-send message) when the pack was regenerated while the send was in flight (marketing-voice-pack-send-stale-content-race-guard)", async () => {
+    // Simulates a concurrent Regenerate landing between this action's read of
+    // the pack and its reservation call: the reservation is lost (the real
+    // fix — markMarketingPackSentToClient itself rejects a stale
+    // expectedGeneratedAt — is exercised at the db.ts/Convex/SQLite layers;
+    // this test only proves the action surfaces the right operator-facing
+    // message, distinct from an ordinary duplicate-send race).
+    markMarketingPackSentToClient.mockResolvedValue(false);
+    getMarketingPack.mockResolvedValueOnce({
+      id: "pack_1",
+      leadSlug: "demo-cafe",
+      yearMonth,
+      generator: "stub",
+      packageTier: "social_email",
+      variants: packVariants,
+      generatedAt: "2026-07-13T12:00:00.000Z",
+    });
+    getMarketingPack.mockResolvedValueOnce({
+      id: "pack_1_v2",
+      leadSlug: "demo-cafe",
+      yearMonth,
+      generator: "stub",
+      packageTier: "social_email",
+      variants: [{ contentType: "gbp_post" as const, body: "Regenerated content" }],
+      generatedAt: "2026-07-14T00:00:00.000Z",
+    });
+    const { sendMarketingPackToClientAction } = await import("./actions");
+    const res = await sendMarketingPackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Marketing pack was regenerated while this send was in flight — refresh and resend to deliver the current version.",
     });
     expect(sendMarketingPackToClientEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
