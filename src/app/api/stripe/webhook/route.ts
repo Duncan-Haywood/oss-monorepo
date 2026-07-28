@@ -414,6 +414,12 @@ export async function POST(request: Request) {
               `Failed to mark unpaid checkout session ${session.id} complete`,
               e,
             );
+            await captureError(e, {
+              component: "stripe-webhook",
+              eventType: event.type,
+              eventId: event.id,
+              failureKind: "checkout_session_mark_complete",
+            });
             const failure = webhookFulfillmentFailureResponse("checkout_session_mark_complete");
             return NextResponse.json(failure.body, { status: failure.status });
           }
@@ -458,6 +464,12 @@ export async function POST(request: Request) {
           await markCheckoutSessionComplete(session.id, WEBHOOK_CONVEX_PRIMARY);
         } catch (e) {
           console.error(`Failed to mark commerce checkout session ${session.id} complete`, e);
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "checkout_session_mark_complete",
+          });
           const failure = webhookFulfillmentFailureResponse("checkout_session_mark_complete");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -570,6 +582,12 @@ export async function POST(request: Request) {
               `Failed to list line items for commerce_sku Price parity on ${session.id}`,
               lineItemError,
             );
+            await captureError(lineItemError, {
+              component: "stripe-webhook",
+              eventType: event.type,
+              eventId: event.id,
+              failureKind: "commerce_sku_price_line_items",
+            });
             const failure = webhookFulfillmentFailureResponse("commerce_sku_price_line_items");
             return NextResponse.json(failure.body, { status: failure.status });
           }
@@ -690,6 +708,12 @@ export async function POST(request: Request) {
                 `Failed to close orphan open commerce checkout sessions for ${orderSlug}/${knownSkuId} after ${session.id}`,
                 e,
               );
+              await captureError(e, {
+                component: "stripe-webhook",
+                eventType: event.type,
+                eventId: event.id,
+                failureKind: "checkout_session_orphan_commerce_cleanup",
+              });
               const failure = webhookFulfillmentFailureResponse(
                 "checkout_session_orphan_commerce_cleanup",
               );
@@ -759,6 +783,12 @@ export async function POST(request: Request) {
                 `Failed to record commerce order inquiry for ${orderSlug}`,
                 inquiryError,
               );
+              await captureError(inquiryError, {
+                component: "stripe-webhook",
+                eventType: event.type,
+                eventId: event.id,
+                failureKind: "commerce_order_inquiry",
+              });
               const failure = webhookFulfillmentFailureResponse("commerce_order_inquiry");
               return NextResponse.json(failure.body, { status: failure.status });
             }
@@ -814,6 +844,12 @@ export async function POST(request: Request) {
                       `Failed to record commerce client receipt sent-marker for ${orderSlug}`,
                       markerError,
                     );
+                    await captureError(markerError, {
+                      component: "stripe-webhook",
+                      eventType: event.type,
+                      eventId: event.id,
+                      failureKind: "commerce_client_receipt_sent_marker",
+                    });
                     const failure = webhookFulfillmentFailureResponse(
                       "commerce_client_receipt_sent_marker",
                     );
@@ -833,6 +869,22 @@ export async function POST(request: Request) {
                 );
               }
               if (clientReceiptSendFailed) {
+                // No single caught error survives to this merged flag check
+                // (it is set from either a resolved success:false send or a
+                // thrown emailError, each scoped to its own inner catch) —
+                // synthesize one for captureError, mirroring the
+                // missing-session.subscription capture above.
+                await captureError(
+                  new Error(
+                    `commerce client receipt send failed for ${orderSlug} (session ${session.id})`,
+                  ),
+                  {
+                    component: "stripe-webhook",
+                    eventType: event.type,
+                    eventId: event.id,
+                    failureKind: "commerce_client_receipt_send",
+                  },
+                );
                 const failure = webhookFulfillmentFailureResponse(
                   "commerce_client_receipt_send",
                 );
@@ -848,6 +900,12 @@ export async function POST(request: Request) {
             `Failed before commerce order inquiry for ${orderSlug}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "commerce_order_inquiry",
+          });
           const failure = webhookFulfillmentFailureResponse("commerce_order_inquiry");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -858,6 +916,12 @@ export async function POST(request: Request) {
         await markCheckoutSessionComplete(session.id, WEBHOOK_CONVEX_PRIMARY);
       } catch (e) {
         console.error(`Failed to mark checkout session ${session.id} complete`, e);
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "checkout_session_mark_complete",
+        });
         const failure = webhookFulfillmentFailureResponse("checkout_session_mark_complete");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -908,6 +972,12 @@ export async function POST(request: Request) {
             `Failed to list line items for catalog Price / commerceAddon parity on ${session.id}`,
             lineItemError,
           );
+          await captureError(lineItemError, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_commerce_addon_line_items",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_commerce_addon_line_items");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -945,6 +1015,12 @@ export async function POST(request: Request) {
             `Failed to list existing orders for ${slug} while checking setup-fee-skip eligibility on session ${session.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_existing_orders_lookup",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_existing_orders_lookup");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -1107,6 +1183,12 @@ export async function POST(request: Request) {
             `Failed to close orphan open bundle checkout sessions for ${slug} after ${session.id}`,
             e,
           );
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "checkout_session_orphan_bundle_cleanup",
+          });
           const failure = webhookFulfillmentFailureResponse(
             "checkout_session_orphan_bundle_cleanup",
           );
@@ -1301,6 +1383,12 @@ export async function POST(request: Request) {
                     `Failed to record bundle receipt sent-marker for ${slug}`,
                     markerError,
                   );
+                  await captureError(markerError, {
+                    component: "stripe-webhook",
+                    eventType: event.type,
+                    eventId: event.id,
+                    failureKind: "bundle_email_sent_marker",
+                  });
                   const failure = webhookFulfillmentFailureResponse("bundle_email_sent_marker");
                   return NextResponse.json(failure.body, { status: failure.status });
                 }
@@ -1341,6 +1429,12 @@ export async function POST(request: Request) {
                     `Failed to record bundle DNS handoff sent-marker for ${slug}`,
                     markerError,
                   );
+                  await captureError(markerError, {
+                    component: "stripe-webhook",
+                    eventType: event.type,
+                    eventId: event.id,
+                    failureKind: "bundle_email_sent_marker",
+                  });
                   const failure = webhookFulfillmentFailureResponse("bundle_email_sent_marker");
                   return NextResponse.json(failure.body, { status: failure.status });
                 }
@@ -1356,11 +1450,33 @@ export async function POST(request: Request) {
             }
           }
           if (emailSendFailed) {
+            // No single caught error survives to this merged flag check (it
+            // is set from either a resolved success:false send or a thrown
+            // emailError, each scoped to its own inner catch) — synthesize
+            // one for captureError, mirroring the missing-
+            // session.subscription capture above.
+            await captureError(
+              new Error(
+                `bundle receipt/DNS handoff email send failed for ${slug} (session ${session.id})`,
+              ),
+              {
+                component: "stripe-webhook",
+                eventType: event.type,
+                eventId: event.id,
+                failureKind: "bundle_email_send",
+              },
+            );
             const failure = webhookFulfillmentFailureResponse("bundle_email_send");
             return NextResponse.json(failure.body, { status: failure.status });
           }
         } catch (emailError) {
           console.error(`Failed to send receipt/DNS emails for ${slug}:`, emailError);
+          await captureError(emailError, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_email_send",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_email_send");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -1393,6 +1509,12 @@ export async function POST(request: Request) {
           `Failed to reopen checkout session ${session.id} after async_payment_failed`,
           e,
         );
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "checkout_session_mark_open",
+        });
         const failure = webhookFulfillmentFailureResponse("checkout_session_mark_open");
         return NextResponse.json(failure.body, { status: failure.status });
       }
