@@ -19,7 +19,7 @@ import {
   commerceBuyNowClientReceiptSubject,
   formatCommerceBuyNowClientReceiptHtml,
 } from "../commerce/client-receipt";
-import { getBundle } from "../pricing/bundles";
+import { COMMERCE_ADDON, getBundle } from "../pricing/bundles";
 import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "../marketing/monthly-pack";
 import { buildStarterUpsellCheckoutPath } from "../billing/starter-upsell";
 import { buildGrowthUpsellCheckoutPath } from "../billing/growth-upsell";
@@ -783,6 +783,68 @@ export async function sendSubscriptionResumedNotice(params: {
     <div style="margin-bottom: 16px; text-align: center;">
       <a href="${safeManageBillingUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Manage billing</a>
     </div>
+    <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
+}
+
+/**
+ * Win-back notice for a fully canceled recurring subscription — sent from
+ * the Stripe webhook's customer.subscription.deleted handler (see
+ * subscription-canceled-win-back-notice). Distinct from
+ * sendSubscriptionPausedNotice: pause_collection leaves the Subscription
+ * alive and billing merely on hold, while subscription.deleted is the actual
+ * end of MRR with no further subscription-lifecycle webhook to retry a
+ * failed send or a later resubscribe against — this is the one billing
+ * transition that previously sent the customer nothing at all. Names what
+ * lapses straight from BUNDLES/COMMERCE_ADDON (never hardcoded copy) so it
+ * can never drift from the real feature set, and only when the canceled
+ * order's own tier still has a monthly Price (growth/complete) — a
+ * Starter order's recurring entitlement comes solely from a Commerce
+ * add-on rider (see orderHadRecurringEntitlement), so a bare "starter"
+ * tier here means only the add-on lapsed, not any bundle feature.
+ * Passes skipSuppression: true — billing-critical, same class as the other
+ * four billing-status notices, not cold marketing.
+ */
+export async function sendSubscriptionCanceledNotice(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  tier: string;
+  commerceAddon: boolean;
+}) {
+  const { to, businessName, slug, tier, commerceAddon } = params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const bundle = getBundle(tier);
+  const isRecurringBundleTier = bundle != null && bundle.monthlyPriceUsd != null;
+  const resubscribeUrl = isRecurringBundleTier
+    ? `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}`
+    : `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+  const safeBiz = escapeHtmlForEmail(businessName);
+  const safeBrand = escapeHtmlForEmail(brand.name);
+  const safeResubscribeUrl = escapeHtmlForEmail(resubscribeUrl);
+
+  const lostFeatures = [
+    ...(isRecurringBundleTier
+      ? bundle.features.filter((feature) => !feature.toLowerCase().startsWith("everything in"))
+      : []),
+    ...(commerceAddon ? [COMMERCE_ADDON.name] : []),
+  ];
+  const lostFeaturesParagraph =
+    lostFeatures.length > 0
+      ? `<p style="margin-bottom: 16px;">Your subscription included: ${lostFeatures.map((feature) => escapeHtmlForEmail(feature)).join(", ")}. These stop as of today.</p>`
+      : "";
+
+  const subject = `Your ${brand.name} subscription for ${businessName} has ended`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Sorry to see you go</h2>
+    <p style="margin-bottom: 16px;">Your <strong>${safeBiz}</strong> monthly ${escapeHtmlForEmail(brand.name)} subscription has ended and no further charges will be made.</p>
+    ${lostFeaturesParagraph}
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${safeResubscribeUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Resubscribe</a>
+    </div>
+    <p style="margin-bottom: 8px;">If this was a mistake, or you cancelled over something we could have fixed, just reply — we'd love the chance to make it right.</p>
     <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
   `;
 

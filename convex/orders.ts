@@ -32,6 +32,7 @@ const billingNoticeTypeValidator = v.union(
   v.literal("payment_recovered"),
   v.literal("subscription_paused"),
   v.literal("subscription_resumed"),
+  v.literal("subscription_canceled"),
 );
 
 export const createOrder = mutation({

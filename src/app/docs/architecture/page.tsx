@@ -1723,6 +1723,35 @@ export default function ArchitectureDocPage() {
         <code>lifetimeRevenueUsd</code>/<code>lastRenewalInvoiceId</code>.
       </p>
       <p>
+        Until <code>subscription-canceled-win-back-notice</code> shipped,{" "}
+        <code>customer.subscription.deleted</code> — the actual end of a subscriber&apos;s MRR —
+        was the one billing-lifecycle transition with no customer-facing email at all: every other
+        transition (dunning, payment-recovered, pause, resume) already had one. Fixed by adding a
+        fifth best-effort notice, <code>sendSubscriptionCanceledNotice</code>, sent from that same
+        handler right after the existing stale-marker-clear cleanup (never before it — that block
+        unconditionally clears any live <code>lastBillingNoticeSendFailedType</code> for the
+        customer&apos;s orders, so a fresh <code>subscription_canceled</code> failure recorded ahead
+        of it would be wiped out by its own cancellation event). Recipient selection reuses{" "}
+        <code>orderEligibleForPauseNotice</code> — valid here for the identical reason it already
+        covers the pause/dunning notices: <code>markOrdersRecurringCanceledByCustomer</code> just set{" "}
+        <code>recurringCanceledAt</code> on the very order this notice is about, so the narrower{" "}
+        <code>orderGrantsSoldCapabilityEntitlement</code> would always reject it. The email names
+        what lapses straight from <code>BUNDLES</code>/<code>COMMERCE_ADDON</code> (never hardcoded
+        copy, so it can&apos;t drift from the real feature set) and links to a resubscribe{" "}
+        <code>/checkout</code> prefilled with the lead&apos;s slug
+        and, when the canceled order&apos;s own tier still carries a monthly Price
+        (Growth/Complete), that same tier — a bare Starter tier here means only a Commerce add-on
+        rider lapsed (Starter itself has no recurring Price), so the link and copy omit any
+        bundle-tier claim in that case. <code>BillingNoticeType</code> is now a five-way union;{" "}
+        <code>lastBillingNoticeSendFailedAt</code>/<code>Type</code> and{" "}
+        <code>recordBillingNoticeSendOutcome</code> needed no shape change since they were already
+        generic over the notice type. Because a fully deleted Subscription never fires another
+        subscription-lifecycle webhook event, a failed win-back send has no retry path of its own —
+        it surfaces on the same <code>billingNoticeSendFailedCount</code> pipeline-health/digest
+        due-queue as the other four and can only clear via an unrelated future resubscribe&apos;s own
+        notice succeeding.
+      </p>
+      <p>
         <code>listOrdersWithFailedBillingNotice</code> itself had a follow-on gap (
         <code>billing-notice-failed-list-entitlement-guard</code>): it never excluded an order that
         had since fully canceled, been refunded, or been disputed. Because the marker is

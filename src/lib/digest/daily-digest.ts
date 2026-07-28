@@ -1698,6 +1698,8 @@ function billingNoticeTypeLabel(noticeType: BillingNoticeType): string {
       return "subscription-paused";
     case "subscription_resumed":
       return "subscription-resumed";
+    case "subscription_canceled":
+      return "subscription-canceled";
   }
 }
 

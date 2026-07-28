@@ -138,19 +138,22 @@ export function orderGrantsSoldCapabilityEntitlement(order: {
 }
 
 /**
- * Recipient-selection gate for the two pause-direction webhook notices
- * (subscription-paused, payment-failed dunning). The webhook handler always
- * calls markOrdersRecurringCanceledByCustomer (which sets recurringCanceledAt
- * on the matching order) BEFORE re-reading that same order via
- * getOrdersByStripeCustomerId to pick a notice recipient — so at that read,
- * recurringCanceledAt is freshly set on the very order the notice is about.
- * orderGrantsSoldCapabilityEntitlement requires recurringCanceledAt to be
- * unset and would therefore always reject that order, silently dropping the
- * notice (see billing-notice-pause-recipient-write-before-read-fix). Use
+ * Recipient-selection gate for the three pause-direction webhook notices
+ * (subscription-paused, payment-failed dunning, and the terminal
+ * subscription-canceled win-back — see subscription-canceled-win-back-notice).
+ * The webhook handler always calls markOrdersRecurringCanceledByCustomer
+ * (which sets recurringCanceledAt on the matching order) BEFORE re-reading
+ * that same order via getOrdersByStripeCustomerId to pick a notice recipient
+ * — so at that read, recurringCanceledAt is freshly set on the very order the
+ * notice is about. orderGrantsSoldCapabilityEntitlement requires
+ * recurringCanceledAt to be unset and would therefore always reject that
+ * order, silently dropping the notice (see
+ * billing-notice-pause-recipient-write-before-read-fix). Use
  * orderHadRecurringEntitlement (tier/commerceAddon only, ignoring
  * recurringCanceledAt) plus the same refund/dispute exclusion instead — this
  * is the pause-notice twin of orderGrantsSoldCapabilityEntitlement, valid
- * only at a call site that reads immediately after writing that same pause.
+ * only at a call site that reads immediately after writing that same pause
+ * (or terminal cancellation).
  */
 export function orderEligibleForPauseNotice(order: {
   tier: string;

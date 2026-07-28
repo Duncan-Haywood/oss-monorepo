@@ -189,7 +189,12 @@ import {
  * stripeCustomerId (orders.recurringCanceledAt) so canceled Growth/Complete/
  * Commerce subscribers lose marketing/voice/catalog entitlement while keeping
  * stage=paid|live + Billing Portal. Write failures return 5xx
- * (orders_recurring_canceled).
+ * (orders_recurring_canceled). Also best-effort sends a customer-facing
+ * win-back notice (sendSubscriptionCanceledNotice) — the one billing
+ * transition that previously notified the customer of nothing at all — after
+ * clearing any stale pre-cancellation billing-notice failure marker (must run
+ * in that order; see the inline comment at the call site). See
+ * subscription-canceled-win-back-notice.
  *
  * customer.subscription.created|updated with status active|trialing must
  * clearOrdersRecurringCanceledByCustomer so Billing Portal / Checkout
@@ -1322,6 +1327,54 @@ export async function POST(request: Request) {
       } catch (e) {
         console.error(
           `Failed to clear stale billing-notice failure marker(s) for customer ${customerId} after subscription ${subscription.id} deleted`,
+          e,
+        );
+      }
+
+      // Customer-facing win-back notice — best-effort, run AFTER the stale-
+      // marker clear above (never before it): that block unconditionally
+      // clears ANY existing lastBillingNoticeSendFailedType for this
+      // customer's orders, so a subscription_canceled failure recorded
+      // ahead of it would be immediately wiped out by its own cancellation
+      // event. The durable CRM cancel write already succeeded, so a notify
+      // failure here must not turn it into a 5xx/retry loop (see
+      // subscription-canceled-win-back-notice). orderEligibleForPauseNotice
+      // is valid here for the same reason it is at the pause/dunning call
+      // sites: markOrdersRecurringCanceledByCustomer above just set
+      // recurringCanceledAt on the very order this notice is about, so the
+      // narrower orderGrantsSoldCapabilityEntitlement would always reject it.
+      try {
+        const { getOrdersByStripeCustomerId, getLeadBySlug, recordBillingNoticeSendOutcome } =
+          await import("@/lib/db");
+        const orders = await getOrdersByStripeCustomerId(customerId);
+        const recurringOrder = orders.find((order) => orderEligibleForPauseNotice(order));
+        if (recurringOrder) {
+          const lead = await getLeadBySlug(recurringOrder.leadSlug);
+          if (lead?.email) {
+            const { sendSubscriptionCanceledNotice } = await import("@/lib/email/resend");
+            const sent = await sendSubscriptionCanceledNotice({
+              to: lead.email,
+              businessName: lead.businessName,
+              slug: recurringOrder.leadSlug,
+              tier: recurringOrder.tier,
+              commerceAddon: recurringOrder.commerceAddon,
+            });
+            if (!sent.success) {
+              console.warn(
+                `webhook: customer.subscription.deleted ${subscription.id} subscription-canceled notice not sent for ${recurringOrder.leadSlug} (${sent.reason ?? sent.error ?? "unknown"})`,
+              );
+            }
+            await recordBillingNoticeSendOutcome(
+              recurringOrder.stripeSessionId,
+              "subscription_canceled",
+              sent.success,
+              canceledAt,
+            );
+          }
+        }
+      } catch (e) {
+        console.error(
+          `Failed to send subscription-canceled notice for customer ${customerId} after subscription ${subscription.id} deleted`,
           e,
         );
       }

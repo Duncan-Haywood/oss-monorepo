@@ -151,6 +151,7 @@ const sendPaymentFailedNotice = vi.fn();
 const sendPaymentRecoveredNotice = vi.fn();
 const sendSubscriptionPausedNotice = vi.fn();
 const sendSubscriptionResumedNotice = vi.fn();
+const sendSubscriptionCanceledNotice = vi.fn();
 vi.mock("@/lib/email/resend", () => ({
   sendEmail: (...args: unknown[]) => sendEmail(...args),
   sendReceiptEmail: (...args: unknown[]) => sendReceiptEmail(...args),
@@ -160,6 +161,7 @@ vi.mock("@/lib/email/resend", () => ({
   sendPaymentRecoveredNotice: (...args: unknown[]) => sendPaymentRecoveredNotice(...args),
   sendSubscriptionPausedNotice: (...args: unknown[]) => sendSubscriptionPausedNotice(...args),
   sendSubscriptionResumedNotice: (...args: unknown[]) => sendSubscriptionResumedNotice(...args),
+  sendSubscriptionCanceledNotice: (...args: unknown[]) => sendSubscriptionCanceledNotice(...args),
 }));
 
 const captureError = vi.fn();
@@ -366,6 +368,7 @@ describe("POST /api/stripe/webhook", () => {
     sendPaymentRecoveredNotice.mockReset().mockResolvedValue({ success: true });
     sendSubscriptionPausedNotice.mockReset().mockResolvedValue({ success: true });
     sendSubscriptionResumedNotice.mockReset().mockResolvedValue({ success: true });
+    sendSubscriptionCanceledNotice.mockReset().mockResolvedValue({ success: true });
     captureError.mockReset().mockResolvedValue(undefined);
 
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
@@ -601,6 +604,161 @@ describe("POST /api/stripe/webhook", () => {
       const json = await response.json();
       expect(response.status).toBe(200);
       expect(json).toEqual({ received: true });
+    });
+  });
+
+  describe("customer.subscription.deleted win-back notice (subscription-canceled-win-back-notice)", () => {
+    it("sends a subscription-canceled win-back notice to the canceled recurring order's lead", async () => {
+      // First call is the stale-marker-clear block (no live marker here);
+      // second call is this win-back block's own recipient lookup.
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([]).mockResolvedValueOnce([
+        {
+          leadSlug: "churned-cafe",
+          stripeSessionId: "cs_churned_win_back",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "churned-cafe",
+        businessName: "Churned Cafe",
+        email: "owner@churned-cafe.test",
+      });
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: {
+          object: { id: "sub_win_back_1", customer: "cus_win_back_1", ended_at: 1_720_002_000 },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendSubscriptionCanceledNotice).toHaveBeenCalledWith({
+        to: "owner@churned-cafe.test",
+        businessName: "Churned Cafe",
+        slug: "churned-cafe",
+        tier: "growth",
+        commerceAddon: false,
+      });
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_churned_win_back",
+        "subscription_canceled",
+        true,
+        1_720_002_000_000,
+      );
+    });
+
+    it("records a failed send via recordBillingNoticeSendOutcome without turning it into a 5xx", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([]).mockResolvedValueOnce([
+        {
+          leadSlug: "churned-cafe-2",
+          stripeSessionId: "cs_churned_win_back_2",
+          tier: "complete",
+          commerceAddon: false,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "churned-cafe-2",
+        businessName: "Churned Cafe 2",
+        email: "owner@churned-cafe-2.test",
+      });
+      sendSubscriptionCanceledNotice.mockResolvedValueOnce({ success: false, reason: "suppressed" });
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: { object: { id: "sub_win_back_2", customer: "cus_win_back_2" } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_churned_win_back_2",
+        "subscription_canceled",
+        false,
+        expect.any(Number),
+      );
+    });
+
+    it("skips the send when the recurring order's lead has no email on file", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([]).mockResolvedValueOnce([
+        { leadSlug: "no-email-cafe", stripeSessionId: "cs_no_email", tier: "growth", commerceAddon: false },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({ slug: "no-email-cafe", businessName: "No Email Cafe" });
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: { object: { id: "sub_win_back_3", customer: "cus_win_back_3" } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendSubscriptionCanceledNotice).not.toHaveBeenCalled();
+      expect(recordBillingNoticeSendOutcome).not.toHaveBeenCalled();
+    });
+
+    it("skips the send when no order in this customer's set had a recurring entitlement", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([]).mockResolvedValueOnce([
+        { leadSlug: "starter-only", stripeSessionId: "cs_starter_only", tier: "starter", commerceAddon: false },
+      ]);
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: { object: { id: "sub_win_back_4", customer: "cus_win_back_4" } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendSubscriptionCanceledNotice).not.toHaveBeenCalled();
+    });
+
+    it("stays 200 and never 5xx when the win-back lookup itself throws (best-effort, never retried)", async () => {
+      getOrdersByStripeCustomerId
+        .mockResolvedValueOnce([])
+        .mockRejectedValueOnce(new Error("read failed"));
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: { object: { id: "sub_win_back_5", customer: "cus_win_back_5" } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(200);
+      expect(json).toEqual({ received: true });
+    });
+
+    it("does not clear a fresh subscription_canceled failure marker via the stale-marker-clear block (ordering guard)", async () => {
+      // The win-back send below fails, so its recordBillingNoticeSendOutcome
+      // call sets a fresh subscription_canceled failure marker. Because the
+      // notify block runs AFTER the stale-marker-clear block (not before),
+      // that fresh marker is never clobbered back to cleared within this same
+      // event — regression guard for the ordering called out at the call
+      // site's own comment.
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([]).mockResolvedValueOnce([
+        { leadSlug: "ordering-cafe", stripeSessionId: "cs_ordering", tier: "growth", commerceAddon: false },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "ordering-cafe",
+        businessName: "Ordering Cafe",
+        email: "owner@ordering-cafe.test",
+      });
+      sendSubscriptionCanceledNotice.mockResolvedValueOnce({ success: false, reason: "suppressed" });
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: { object: { id: "sub_ordering", customer: "cus_ordering" } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledTimes(1);
+      expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
+        "cs_ordering",
+        "subscription_canceled",
+        false,
+        expect.any(Number),
+      );
     });
   });
 
