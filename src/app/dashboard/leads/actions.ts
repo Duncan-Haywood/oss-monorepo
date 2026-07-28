@@ -165,7 +165,8 @@ import {
   leadEligibleForStarterUpsell,
   resolveUpsellTargetTier,
 } from "@/lib/billing/starter-upsell";
-import { leadEligibleForGrowthUpsell } from "@/lib/billing/growth-upsell";
+import { isGrowthOrder, leadEligibleForGrowthUpsell } from "@/lib/billing/growth-upsell";
+import { resolveGrowthOrderBillingInterval } from "@/lib/billing/growth-upsell-billing-interval";
 import { getBundle } from "@/lib/pricing/bundles";
 import { sendOperatorDigestEmail } from "@/lib/digest/send-operator-digest";
 import {
@@ -2368,6 +2369,24 @@ export async function sendGrowthUpsellAction(slug: string) {
       return { success: false as const, error: "Complete tier is missing monthly pricing" };
     }
 
+    // Best-effort: carry the customer's existing Growth billing cadence onto
+    // the Complete upsell email/link (growth-upsell-annual-billing-carry-
+    // through) — an annual Growth subscriber must not be silently quoted
+    // "$X/mo" and redirected to a Monthly checkout. STRIPE_SECRET_KEY unset
+    // or no Growth order with a stripeSessionId both skip the lookup;
+    // resolveGrowthOrderBillingInterval itself never throws (a Stripe API
+    // failure falls back to "monthly") — a diagnostic/copy-accuracy
+    // enhancement, not a money-correctness gate.
+    let billingInterval: "monthly" | "annual" = "monthly";
+    const growthOrder = ordersForLead.find(isGrowthOrder);
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    if (growthOrder?.stripeSessionId && stripeSecretKey) {
+      billingInterval = await resolveGrowthOrderBillingInterval(
+        new Stripe(stripeSecretKey),
+        growthOrder.stripeSessionId,
+      );
+    }
+
     // Durable mark before send (persist-then-notify) — see
     // sendStarterUpsellAction's identical comment for the full race-guard
     // reasoning (growth-upsell-send-race-guard mirrors
@@ -2407,6 +2426,8 @@ export async function sendGrowthUpsellAction(slug: string) {
       businessName: lead.businessName,
       slug: lead.slug,
       monthlyPriceUsd: bundle.monthlyPriceUsd,
+      annualPriceUsd: bundle.annualPriceUsd,
+      billingInterval,
     });
     if (!sent.success) {
       return {

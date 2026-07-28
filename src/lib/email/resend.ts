@@ -613,24 +613,37 @@ export async function sendStarterUpsellEmail(params: {
  * here would be redundant. This pitches Complete's actual differentiators
  * (see BUNDLES in src/lib/pricing/bundles.ts) — seasonal promos, the AI
  * phone agent, and appointment booking — none of which Growth includes.
+ *
+ * billingInterval + annualPriceUsd carry the customer's existing Growth
+ * cadence into both the copy and the checkout link (see
+ * growth-upsell-annual-billing-carry-through) — an annual Growth subscriber
+ * must see "$X/yr", not the flat "$X/mo" this email previously always
+ * quoted regardless of their actual cadence. billingInterval defaults to
+ * "monthly" (undefined/unresolved cadence) — the original, unconditional
+ * behavior — same conservative fallback as parseBundleBillingInterval.
  */
 export async function sendGrowthUpsellEmail(params: {
   to: string;
   businessName: string;
   slug: string;
   monthlyPriceUsd: number;
+  annualPriceUsd?: number | null;
+  billingInterval?: BundleBillingInterval;
 }) {
-  const { to, businessName, slug, monthlyPriceUsd } = params;
+  const { to, businessName, slug, monthlyPriceUsd, annualPriceUsd, billingInterval } = params;
+  const isAnnual = billingInterval === "annual" && annualPriceUsd != null;
+  const priceUsd = isAnnual ? annualPriceUsd : monthlyPriceUsd;
+  const cadenceLabel = isAnnual ? "/yr" : "/mo";
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const checkoutUrl = `${baseUrl}${buildGrowthUpsellCheckoutPath(slug)}`;
+  const checkoutUrl = `${baseUrl}${buildGrowthUpsellCheckoutPath(slug, isAnnual ? "annual" : undefined)}`;
   const previewUrl = leadPreviewAbsoluteUrl(baseUrl, slug);
   const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
   const safePreviewUrl = escapeHtmlForEmail(previewUrl);
 
-  const subject = `${businessName} — add Complete ($${monthlyPriceUsd}/mo)`;
+  const subject = `${businessName} — add Complete ($${priceUsd}${cadenceLabel})`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Never miss another call?</h2>
-    <p style="margin-bottom: 16px;">Your <strong>${escapeHtmlForEmail(businessName)}</strong> marketing is already running on ${escapeHtmlForEmail(brand.name)} Growth. <strong>Complete</strong> at <strong>$${monthlyPriceUsd}/mo</strong> adds an AI phone agent that answers your business line, appointment booking and lead capture, and seasonal promo/A/B variants on top of what you already get.</p>
+    <p style="margin-bottom: 16px;">Your <strong>${escapeHtmlForEmail(businessName)}</strong> marketing is already running on ${escapeHtmlForEmail(brand.name)} Growth. <strong>Complete</strong> at <strong>$${priceUsd}${cadenceLabel}</strong> adds an AI phone agent that answers your business line, appointment booking and lead capture, and seasonal promo/A/B variants on top of what you already get.</p>
     <p style="margin-bottom: 16px;">Setup is already covered by what you paid. Upgrade when you want the phone agent turned on:</p>
     <div style="margin-bottom: 16px; text-align: center;">
       <a href="${safeCheckoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Upgrade to Complete</a>
