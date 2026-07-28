@@ -2077,6 +2077,32 @@ export default function ArchitectureDocPage() {
         <code>recommendedTier</code> is Complete; otherwise Growth). Billing and Upsell never
         both appear for the same order set.
       </p>
+      <p>
+        The homepage&apos;s primary pricing CTAs (<code>Get {"{bundle.name}"}</code>) link straight
+        to <code>/checkout?tier=…</code> with no lead slug — the organic, no-preexisting-CRM-row
+        path <code>resolveBundleCheckoutLeadSlug</code> mints an <code>organic-*</code> slug for.
+        Until <code>checkout-business-fields-capture</code> this path collected only an email: the
+        webhook&apos;s payment-stub insert (<code>buildPaymentStubLeadFields</code>) fell back to a
+        title-cased slug as the CRM <code>businessName</code> (e.g. <code>organic-a1b2c3</code>{" "}
+        → &quot;Organic A1b2c3&quot;) and a placeholder <code>(555) 000-0000</code> phone — both of
+        which then rendered verbatim in the receipt and go-live emails a paying customer actually
+        receives. <code>CheckoutForm</code> now shows optional <em>Business name</em> /{" "}
+        <em>Business phone</em> inputs, but only when <code>prefill.businessName</code> is absent
+        (an existing lead&apos;s real CRM fields must never be editable from anonymous checkout).
+        Values are soft-capped (<code>normalizeCheckoutBusinessName</code>/
+        <code>normalizeCheckoutBusinessPhone</code>, <code>src/lib/checkout/business-fields.ts</code>{" "}
+        — reusing the existing <code>MAX_BUSINESS_NAME_LENGTH</code>/
+        <code>MAX_CONTACT_PHONE_LENGTH</code> caps, never hard-rejecting a checkout over a cosmetic
+        field) and carried as Stripe Checkout Session metadata, re-validated the same way{" "}
+        <code>acquisitionSource</code> already is on the webhook side, then threaded through{" "}
+        <code>recordLeadPayment</code> → <code>buildPaymentStubLeadFields</code>&apos;s new optional{" "}
+        <code>overrides</code> parameter on both backends. An existing lead (<code>leadExists</code>{" "}
+        true) never has these values applied — only a brand-new payment-stub row. Because the
+        webhook already re-fetches the lead via <code>getLeadBySlug</code> immediately after{" "}
+        <code>recordLeadPayment</code> to build its own local <code>businessName</code> for the
+        receipt/handoff emails, no separate email-template change was needed — it picks up the
+        real name automatically once persistence uses it.
+      </p>
 
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>
       <p>

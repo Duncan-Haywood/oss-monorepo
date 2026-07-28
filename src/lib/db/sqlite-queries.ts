@@ -742,12 +742,17 @@ export function sqliteRecordLeadPayment(
     amountTotal: number;
     stripeCustomerId?: string;
     acquisitionSource?: string;
+    businessName?: string;
+    businessPhone?: string;
   },
   leadExists: boolean,
 ): void {
   if (!leadExists) {
     // Keep field defaults aligned with Convex markLeadPaid stub + payment-stub.ts.
-    const stub = buildPaymentStubLeadFields(params.slug);
+    const stub = buildPaymentStubLeadFields(params.slug, {
+      businessName: params.businessName,
+      phone: params.businessPhone,
+    });
     const id = newLeadId();
 
     db.prepare(

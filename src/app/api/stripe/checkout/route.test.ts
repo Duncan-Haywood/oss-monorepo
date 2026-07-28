@@ -448,6 +448,46 @@ describe("POST /api/stripe/checkout", () => {
     expect(createArgs.metadata.acquisitionSource).toBeUndefined();
   });
 
+  it("includes a trimmed businessName/businessPhone in Stripe Checkout metadata when supplied (organic no-preexisting-lead path)", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_business_fields",
+      url: "https://checkout.stripe.com/business-fields",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        businessName: "  Riverside Plumbing  ",
+        businessPhone: "  555-867-5309  ",
+      }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata.businessName).toBe("Riverside Plumbing");
+    expect(createArgs.metadata.businessPhone).toBe("555-867-5309");
+  });
+
+  it("omits businessName/businessPhone from Stripe Checkout metadata when absent or blank", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_no_business_fields",
+      url: "https://checkout.stripe.com/no-business-fields",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", slug: "demo-cafe", businessName: "   " }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata.businessName).toBeUndefined();
+    expect(createArgs.metadata.businessPhone).toBeUndefined();
+  });
+
   it("carries a valid acquisitionSource onto cancel_url so a Stripe back-out/retry doesn't lose attribution", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({

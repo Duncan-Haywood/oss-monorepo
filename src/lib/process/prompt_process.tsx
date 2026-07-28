@@ -763,4 +763,17 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "checkout-session-record-capture-error-wiring",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-j3cuns",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done - use a process in a prompt_process.tsx file and other similar files to progress in this, improve the process little by little as well as documenting progress business decisions, use tsx/ts as the default stack, cooperate with other agents on other branches\"). Full detail on this iteration's work is in checkout-business-fields-capture in BUSINESS_DECISIONS; kept this entry compact since it comes right after a merge-conflict-reconciliation entry in the same session.",
+    shipped: [
+      "checkout-business-fields-capture: a research agent steered at conversion-funnel gaps (not the already-exhausted security/observability/a11y/Convex-parity tiers) found the organic no-preexisting-lead checkout path (homepage CTAs with no slug) collected only email, so the webhook's payment-stub insert derived a fake 'business name' from the slug (organic-a1b2c3 -> 'Organic A1b2c3') and a placeholder phone - both of which then rendered in the receipt/go-live emails a paying customer actually receives.",
+      "buildPaymentStubLeadFields (src/lib/leads/payment-stub.ts) gained an optional overrides parameter; src/lib/checkout/business-fields.ts (new) soft-caps optional businessName/businessPhone; wired through src/app/api/stripe/checkout/route.ts (Stripe metadata), src/app/api/stripe/webhook/route.ts (re-validated metadata -> recordLeadPayment), src/lib/db.ts / src/lib/db/sqlite-queries.ts / convex/leads.ts (both backends, only applied to a NEW payment-stub lead, never an existing one), and src/app/checkout/checkout-form.tsx (two new optional inputs, shown only when prefill.businessName is absent).",
+      "19 net new Vitest cases across 7 files (payment-stub, business-fields (new), sqlite-queries, convex leads, db.ts, checkout route, webhook route). src/app/docs/architecture/page.tsx - new paragraph in section 6 (Payments). src/lib/process/business-decisions.ts - appended checkout-business-fields-capture. src/lib/process/prompt_process.tsx - this ITERATIONS entry. Not a NEXT_STEPS item - no NEXT_STEPS change; all five gated items remain operator/legal/infra-blocked.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (344 passed) then full suite (3623 passed, 213 files - 19 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + npm run dev smoke check curling /checkout (200, new fields render), /checkout?slug=example-bakery (200, fields correctly do NOT render), /, /dashboard/leads, and /preview/example-bakery (all 200). Killed the dev server, removed the stray gitignored local.db/local.db-shm/local.db-wal it created, and confirmed git status showed only the intended files changed before this commit.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter((d) => d.id === "checkout-business-fields-capture"),
+  },
 ];

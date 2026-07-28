@@ -4142,6 +4142,62 @@ describe("POST /api/stripe/webhook", () => {
       );
     });
 
+    it("passes trimmed metadata.businessName/businessPhone through to recordLeadPayment (organic no-preexisting-lead path)", async () => {
+      const session = checkoutSession({
+        metadata: {
+          slug: "organic-abc123",
+          tier: "growth",
+          businessName: "  Riverside Plumbing  ",
+          businessPhone: "  555-867-5309  ",
+        },
+        customer_details: { email: "owner@example.com" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Riverside Plumbing" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          businessName: "Riverside Plumbing",
+          businessPhone: "555-867-5309",
+        }),
+        { requireConvex: true },
+      );
+    });
+
+    it("omits businessName/businessPhone from recordLeadPayment when metadata is absent or blank", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({ businessName: undefined, businessPhone: undefined }),
+        { requireConvex: true },
+      );
+    });
+
     it("redelivery with both emails already marked sent: skips both, no duplicate send", async () => {
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth" },
