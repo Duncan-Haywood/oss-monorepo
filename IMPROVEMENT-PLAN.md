@@ -16,42 +16,43 @@ mean:
 
 ## Open
 
-### P0 — Twenty-three parallel pull requests, none merged
+### P0 — Twenty-five parallel pull requests, none merged — *one merge closes all of them*
 
-**This session's contribution is a disposition for every one of them**, computed
-from the commit graph rather than the titles:
-[`docs/PULL-REQUEST-BACKLOG.md`](docs/PULL-REQUEST-BACKLOG.md). Six are contained
-in this branch and close by merging it; sixteen are superseded; one (#8) had the
-only genuinely distinct artifact in the pile — the decision records — which have
-been imported here rather than closed with it. Draining the queue is now a
-mechanical job. The count went 21 → 23 while that was being written.
+**The queue had grown two heads.** Two sessions fired minutes apart, both
+extended the same seven commits, and each added one commit: #25 (the pooling
+measurement) and #24 (the last route try/catch gap). Each was a valid
+continuation; neither could see the other; the result was two eight-commit
+lineages and two pull requests where one would do.
 
-The rest of this entry is the previous sessions' write-up, kept because the
-history is the point:
+This branch is their merge. It conflicted in exactly two files — this document
+and `docs/UNATTENDED-SESSIONS.md`, i.e. two sessions writing up the same problem
+in the same place — and both sides were kept.
 
-Twenty-one scheduled sessions opened twenty-one branches off `b887731`, each
-rediscovering the same lint errors and the same conjoint bug. #12 consolidated
-the distinct fixes from #1–#9, #14 extended #12, #17 extended #14, #21 extended
-#17, and this branch extends #21, so merging it closes the lot.
+**Every one of the twenty-five open pull requests is now closeable by merging
+this one branch.** Dispositions, computed from the commit graph rather than the
+titles, are in [`docs/PULL-REQUEST-BACKLOG.md`](docs/PULL-REQUEST-BACKLOG.md).
+Nothing in the queue is lost by closing it: the eight that are ancestors close
+by containment, and the rest were checked file-by-file for anything this branch
+does not already have.
 
-The branch rule works — five sessions in a row have now followed it and
-extended rather than forked. It is not the binding constraint. **Nothing merges
-without the account owner**, and until it does, every scheduled run adds a pull
-request without moving the project. That is a notification at the start of a
-run, not a line in a PR body; see
-[`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
+The consolidation chain is #12 ⊂ #14 ⊂ #17 ⊂ #21 ⊂ #22 ⊂ {#24, #25} ⊂ here.
 
-The count has gone 9 → 12 → 15 → 19 → 21 across five write-ups of this same
-item, which is the honest measure of how well "write it down again" works. This
-session sent a push notification before writing any code, which is the only
-channel that reaches a person who is not reading the repo. The open question is
-not technical: it is whether this task should keep firing at its current
-frequency while nothing it produces can land.
+**Nothing merges without the account owner**, and until it does, every scheduled
+run adds a pull request without moving the project. The count has gone
+9 → 12 → 15 → 19 → 21 → 23 → 25 across seven write-ups of this same item. Each
+of those sessions sent a notification; the notification is not the missing
+piece either.
+
+The open question is not technical, and it is now the *only* thing blocking this
+project: **whether this task should keep firing while nothing it produces can
+land.** Two answers are both fine — merge this branch and let the schedule
+continue, or pause the schedule — and one is not: leaving it firing into a queue
+nobody drains. See [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
 
 ### P1 — CI has never run, and the docs said it had
 
 `.github/workflows/ci.yml` was added several branches ago and every run of it
-since — eleven, across seven branches — has failed in two to thirteen seconds with no
+since — thirteen, across nine branches — has failed in two to thirteen seconds with no
 steps, no downloadable logs and `runner_id: 0`. That is a job that never
 started, identically on every branch, so it is Actions/runner availability at
 the repository or account level rather than anything in a change.
@@ -61,12 +62,12 @@ CI ran the four gates on every push. It never has. Every "verified in CI" claim
 in this repo's history should be read as "verified by whoever ran
 `npm run verify` locally, if they did".
 
-Confirmed again this session against the API: eleven runs, eleven failures, and
-the single `verify` job on the most recent one reports `runner_id: 0`,
-`runner_name: ""`, and `started_at` equal to `created_at`. No machine was ever
-assigned. On a private repository that is almost always exhausted Actions
-minutes or Actions disabled by repository/organisation policy — not a workflow
-error.
+Confirmed again this session against the API: thirteen runs, thirteen failures,
+including the run against this branch's own tip (#22's head commit), and the
+`verify` job on it reports `runner_id: 0`, `runner_name: ""`, and
+`started_at` equal to `created_at`. No machine was ever assigned. On a private
+repository that is almost always exhausted Actions minutes or Actions disabled
+by repository/organisation policy — not a workflow error.
 
 **Fix:** only the account owner can do it — check Settings → Actions and the
 billing page, then re-run one of the failed workflows and confirm it produces
@@ -94,15 +95,24 @@ call rather than a migration's side effect.
 and remove them from the admin export. If so, decide first. ~1 hour once the
 answer is known. See [`docs/DATA-COLLECTION.md`](docs/DATA-COLLECTION.md).
 
-### P2 — Not every route handles its own failures
+### P2 → resolved on this branch — Not every route handles its own failures
 
-Six of the remaining route handlers have no `try`/`catch`, so a database error
-surfaces as an unhandled rejection with nothing searchable in the log:
-`auth/me`, `auth/logout`, `admin/logout`, `financial-trials/next`,
-`trials/next`, `surveys/[slug]`.
+Six route handlers had no `try`/`catch` — `auth/me`, `auth/logout`,
+`admin/logout`, `financial-trials/next`, `trials/next`, `surveys/[slug]` — so a
+database error surfaced as an unhandled rejection with nothing searchable in
+the log. Each now catches, logs with `console.error("<route> failed", err)` —
+the pattern the other seventeen routes already used, kept rather than adding a
+wrapper abstraction for six call sites — and returns a JSON 500 instead of
+throwing past the handler.
 
-**Fix:** one wrapper used consistently, one structured log line per failure.
-~2 hours.
+**Regression-tested**, not just added: `trials/next/route.test.ts` mocks
+`prisma.participant.findUnique` to throw and asserts a 500 JSON response. Run
+against the unfixed route it fails — `POST` rejects instead of resolving,
+which is what the unhandled-rejection bug looked like from the caller's side.
+
+**Not verified against a database.** The other five routes are covered by the
+same reasoning but not by a test each; `trials/next` was picked as the one
+carrying real branching logic worth a regression test, not a formality.
 
 ### P2 — No integration tests
 

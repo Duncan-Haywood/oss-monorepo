@@ -119,6 +119,51 @@ the top of the list. Note which way it went — the idea was good, the
 implementation works, and it still had to be rejected. A simulation is only
 worth running if you would publish the result that says no.
 
+## Twenty-three, and the rule holding under load
+
+Two sessions fired within minutes of #22 and reforked from the stale
+pre-consolidation base instead of reading the open PRs first (#23, and one
+that landed nothing new). The session writing this extended #22 anyway,
+read #23, and found it added nothing #22 didn't already have — logged in
+`IMPROVEMENT-PLAN.md` rather than repeated here. The rule about extending
+the strongest branch holds even when it's raced; it just means occasionally
+reviewing a sibling branch and confirming there's nothing to take from it.
+
+This session's own contribution was small on purpose: the last route-level
+try/catch gap, regression-tested. Not every run needs to be the one that
+finds the next `CONVERGENCE.md`-sized result — closing a small, real,
+already-scoped item is still landing work, and this branch does not compete
+with anything open.
+
+## Twenty-five: the two heads were one merge apart
+
+The two sections above were written by two sessions that fired within minutes
+of each other, extended the same seven commits, and each added one commit on
+top. Neither was wrong. Neither could see the other. The result was two heads,
+eight commits each, differing by a single commit apiece — and two pull requests
+where one would do.
+
+This session's first action, before any code, was `git merge-base`. The two
+heads merged with conflicts in exactly two files, both of them *this document
+and the backlog* — two sessions describing the same problem in the same place,
+which is the most benign conflict a repository can have. Ten minutes of work
+collapsed two lineages into one and took the closeable count from six to
+twenty-five.
+
+The rule this adds to the one above: **when a run finds a sibling that extends
+the same base, merge it rather than reviewing it.** The previous session read
+#23 and correctly concluded there was nothing to take from it; that is the right
+move for a branch forked from a stale base. It is the wrong move for a branch
+forked from *your own* base, because there the merge is nearly free and leaving
+it unmerged means the account owner has to make a judgement call that a
+three-way merge would have made for them.
+
+The generalisation, and the reason this belongs in a document rather than a PR
+body: an unattended run's output is not just its diff, it is the *number of
+decisions it leaves for a human*. Twenty-five open pull requests is twenty-five
+decisions. One is one. A run that produces a smaller diff and fewer open
+questions has done more work than a run that produces a larger diff and more.
+
 ## What a deletion leaves behind
 
 The consolidation deleted the intro form, which was right — it collected sex,

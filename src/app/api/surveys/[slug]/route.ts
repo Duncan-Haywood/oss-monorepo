@@ -6,14 +6,20 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const survey = await prisma.survey.findUnique({
-    where: { slug },
-    select: { id: true, slug: true, title: true, description: true },
-  });
 
-  if (!survey) {
-    return NextResponse.json({ error: "Survey not found" }, { status: 404 });
+  try {
+    const survey = await prisma.survey.findUnique({
+      where: { slug },
+      select: { id: true, slug: true, title: true, description: true },
+    });
+
+    if (!survey) {
+      return NextResponse.json({ error: "Survey not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ survey });
+  } catch (err) {
+    console.error("surveys/[slug] failed", err);
+    return NextResponse.json({ error: "Could not load survey" }, { status: 500 });
   }
-
-  return NextResponse.json({ survey });
 }
