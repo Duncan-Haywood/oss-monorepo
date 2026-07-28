@@ -13,6 +13,8 @@ function createFakeStripe(): StripeProductsAndPrices & {
   productCount: () => number;
   activeProductCount: () => number;
   priceCount: () => number;
+  activePriceCount: (productId?: string) => number;
+  isPriceActive: (id: string) => boolean;
   productCreateCallsByIdempotencyKey: () => Map<string, number>;
   priceCreateCallsByIdempotencyKey: () => Map<string, number>;
 } {
@@ -104,6 +106,9 @@ function createFakeStripe(): StripeProductsAndPrices & {
     productCount: () => products.length,
     activeProductCount: () => products.filter((p) => p.active).length,
     priceCount: () => prices.length,
+    activePriceCount: (productId?: string) =>
+      prices.filter((p) => p.active && (!productId || p.product === productId)).length,
+    isPriceActive: (id: string) => prices.find((p) => p.id === id)?.active ?? false,
     productCreateCallsByIdempotencyKey: () => productCreateCallsByIdempotencyKey,
     priceCreateCallsByIdempotencyKey: () => priceCreateCallsByIdempotencyKey,
   };
@@ -157,6 +162,35 @@ describe("syncCommerceCatalogToStripe", () => {
     expect(second[0]?.stripePriceId).not.toBe(first[0]?.stripePriceId);
     expect(stripe.productCount()).toBe(2);
     expect(stripe.priceCount()).toBe(3);
+  });
+
+  it("deactivates the superseded Price on the same Product when priceCents changes, leaving no orphaned active duplicate", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    const repriced = [{ ...items[0]!, priceCents: 599 }, items[1]!];
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", repriced);
+
+    expect(stripe.isPriceActive(first[0]!.stripePriceId)).toBe(false);
+    expect(stripe.isPriceActive(second[0]!.stripePriceId)).toBe(true);
+    // Untouched SKU (sku_2) keeps its single active Price.
+    expect(stripe.isPriceActive(first[1]!.stripePriceId)).toBe(true);
+    expect(stripe.activePriceCount(second[0]!.stripeProductId)).toBe(1);
+  });
+
+  it("reactivates the original Price and deactivates the interim one when priceCents reverts back", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    const repriced = [{ ...items[0]!, priceCents: 599 }, items[1]!];
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", repriced);
+    const reverted = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    expect(reverted[0]?.stripePriceId).toBe(first[0]?.stripePriceId); // reactivated, not re-created
+    expect(stripe.isPriceActive(first[0]!.stripePriceId)).toBe(true);
+    expect(stripe.isPriceActive(second[0]!.stripePriceId)).toBe(false);
+    expect(stripe.priceCount()).toBe(3); // no third Price minted on the round trip
+    expect(stripe.activePriceCount(first[0]!.stripeProductId)).toBe(1);
   });
 
   it("renames the Stripe Product in place when the SKU name changes (keeping the same Product/Price ids)", async () => {
