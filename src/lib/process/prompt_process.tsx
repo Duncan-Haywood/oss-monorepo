@@ -893,4 +893,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "resend-webhook-suppression-write-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-kcej11",
+    summary:
+      "Unattended scheduled routine, picked up at origin/main tip 2af6ee33 (PR #914, resend-webhook-suppression-write-capture-error, merged prior session). Confirmed baseline green: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). A git fetch --prune sweep of the ~30 most-recently-pushed branches found every one already merged; mcp__github__list_pull_requests reconfirmed the sole open PR remains #202 (unrelated, weeks-stale human draft) — no live sibling claim. Per this run's own instruction to prioritize business growth over another micro-hardening pass, dispatched a research agent briefed on the ~15 same-day observability iterations already closed and told a fresh growth angle was the priority unless a real correctness/security gap surfaced.",
+    shipped: [
+      "seasonal-promo-dashboard-fulfillment: found a genuine sold-capability wiring gap — the Complete tier's own sold bullet ('Full marketing — seasonal promos, A/B variants', src/lib/pricing/bundles.ts) had zero dashboard fulfillment path. seasonal_promo/ad_copy were reachable only via the raw POST /api/marketing/generate route; /docs/marketing-automation said outright these had 'no dedicated dashboard fulfillment action yet.' A paying Complete customer had no way for the operator to actually deliver this specific promise.",
+      "Shipped generateSeasonalPromoAction (src/app/dashboard/leads/actions.ts), gated Complete-tier-only via leadEligibleForSeasonalPromo (src/lib/marketing/seasonal-promo.ts, new) — the one bullet that genuinely differentiates Complete from Growth's identical monthly pack. Requests two seasonal_promo A/B variants + one ad_copy variant. A new BusinessContext.campaignContext field (soft-capped, wired into both stub and Anthropic generators, scoped to only those two content types) lets the operator name a real occasion, defaulting to the current UTC month (never a hemisphere-dependent 'season' guess) when left blank. Deliberately NOT persisted, matching the docs' existing 'ad-hoc' framing — no schema change.",
+      "src/app/dashboard/leads/leads-client.tsx — new 'Seasonal promo' toggle + detail row (occasion input, Generate/Regenerate, variant list with Copy), mirroring the Marketing pack panel's accessible-inline-error pattern. src/app/docs/marketing-automation/page.tsx + src/app/docs/architecture/page.tsx — updated/new paragraphs.",
+      "16 new Vitest cases in seasonal-promo.test.ts, 13 in a new generate-seasonal-promo-action.test.ts (mirroring generate-marketing-pack-action.test.ts), plus extended generators/generate-limits/marketing-generate-route tests for campaignContext plumbing. Verified the eligibility gate catches a regression: temporarily hardcoded leadEligibleForSeasonalPromo to skip the tier check and confirmed two tests failed before restoring the real check. src/lib/process/business-decisions.ts — appended seasonal-promo-dashboard-fulfillment. src/lib/process/prompt_process.tsx — this ITERATIONS entry. Not a NEXT_STEPS item — no NEXT_STEPS change; the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked.",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx 224,340 bytes, business-decisions.ts 159,934 bytes at session start — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npm ci (413 packages) + npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (seasonal-promo.test.ts 16/16, generate-seasonal-promo-action.test.ts 13/13) then full suite (3670 passed, 215 files — 41 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same 61-route split, no new warnings). No dev-server smoke check — no ANTHROPIC_API_KEY in this sandboxed environment, so a live check would only exercise the already-covered stub path; the new UI is structurally identical to the already-verified Marketing pack panel it was modeled on.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "seasonal-promo-dashboard-fulfillment",
+    ),
+  },
 ];
+

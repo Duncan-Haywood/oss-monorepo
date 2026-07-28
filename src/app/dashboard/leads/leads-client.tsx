@@ -45,6 +45,7 @@ import {
   sendStarterUpsellAction,
   generateMarketingPackAction,
   sendMarketingPackToClientAction,
+  generateSeasonalPromoAction,
   saveCommerceCatalogAction,
   syncCommerceCatalogToStripeAction,
   archiveOrphanCommerceStripeProductsAction,
@@ -61,6 +62,7 @@ import {
 import type { OrderRecord } from "@/lib/orders/types";
 import { isOrderRefunded, isOrderDisputed } from "@/lib/orders/types";
 import type { MarketingPack } from "@/lib/marketing/pack";
+import type { MarketingContentVariant } from "@/lib/marketing/types";
 import type { CommerceCatalog, CommerceSku } from "@/lib/commerce/types";
 import type { CommerceOrderRecord } from "@/lib/commerce/orders";
 import { resolveDisplayedConnectStatus } from "@/lib/commerce/stripe-connect";
@@ -107,6 +109,7 @@ import {
   marketingMonthKey,
   oldestMarketingPacksDueAgeHours,
 } from "@/lib/marketing/monthly-pack";
+import { leadEligibleForSeasonalPromo } from "@/lib/marketing/seasonal-promo";
 import { leadEligibleForMarketingPackDelivery } from "@/lib/marketing/deliver-pack";
 import { resolveBufferSelection } from "@/lib/marketing/buffer";
 import {
@@ -377,6 +380,15 @@ export function LeadsClient({
   const [marketingPacks, setMarketingPacks] =
     useResyncedState<MarketingPack[]>(initialMarketingPacks);
   const [marketingPackOpenSlug, setMarketingPackOpenSlug] = useState<string | null>(null);
+  // Seasonal promo (Complete-tier only) is deliberately NOT persisted like
+  // marketingPacks above — ad-hoc, non-persisted generation per
+  // /docs/marketing-automation — so its result lives only in this component's
+  // state and is lost on refresh (the operator must copy before navigating away).
+  const [seasonalPromoOpenSlug, setSeasonalPromoOpenSlug] = useState<string | null>(null);
+  const [seasonalPromoOccasion, setSeasonalPromoOccasion] = useState<Record<string, string>>({});
+  const [seasonalPromoResults, setSeasonalPromoResults] = useState<
+    Record<string, { variants: MarketingContentVariant[]; generatedAt: string; generator: "anthropic" | "stub" }>
+  >({});
   const [commerceCatalogs, setCommerceCatalogs] =
     useResyncedState<CommerceCatalog[]>(initialCommerceCatalogs);
   const [commerceEditSlug, setCommerceEditSlug] = useState<string | null>(null);
@@ -1471,6 +1483,32 @@ export function LeadsClient({
             ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
         });
       }
+    });
+  };
+
+  const handleGenerateSeasonalPromo = (slug: string) => {
+    setLeadActionErrors((prev) => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
+    startTransition(async () => {
+      const res = await generateSeasonalPromoAction(slug, seasonalPromoOccasion[slug]);
+      if (!res.success) {
+        setLeadActionErrors((prev) => ({
+          ...prev,
+          [slug]: `Seasonal promo failed: ${res.error}`,
+        }));
+        return;
+      }
+      setSeasonalPromoResults((prev) => ({
+        ...prev,
+        [slug]: {
+          variants: res.variants,
+          generatedAt: res.generatedAt,
+          generator: res.generator,
+        },
+      }));
     });
   };
 
@@ -4640,6 +4678,12 @@ export function LeadsClient({
                   const marketingEligible = leadHasMarketingPack(lead);
                   const packOpen = marketingPackOpenSlug === lead.slug;
                   const existingPack = packForLead(lead.slug);
+                  const seasonalPromoEligible = leadEligibleForSeasonalPromo(
+                    lead,
+                    ordersByLeadSlug.get(lead.slug) ?? [],
+                  );
+                  const seasonalPromoOpen = seasonalPromoOpenSlug === lead.slug;
+                  const seasonalPromoResult = seasonalPromoResults[lead.slug] ?? null;
                   const commerceEligible = leadHasCommerceCatalog(lead);
                   const commerceOpen = commerceEditSlug === lead.slug;
                   const existingCatalog = catalogForLead(lead.slug);
@@ -4994,6 +5038,25 @@ export function LeadsClient({
                               ) : null}
                             </>
                           ) : null}
+                          {seasonalPromoEligible ? (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() =>
+                                setSeasonalPromoOpenSlug(seasonalPromoOpen ? null : lead.slug)
+                              }
+                              aria-expanded={seasonalPromoOpen}
+                              aria-controls={`lead-seasonal-promo-${lead.slug}`}
+                              aria-label={dashboardRowActionAriaLabel(
+                                seasonalPromoOpen ? "Hide seasonal promo" : "Seasonal promo",
+                                lead.businessName,
+                                lead.slug,
+                              )}
+                              className="inline-flex h-8 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-3 text-xs font-semibold text-amber-900 transition hover:border-amber-300 hover:bg-amber-100 disabled:opacity-60"
+                            >
+                              {seasonalPromoOpen ? "Hide seasonal promo" : "Seasonal promo"}
+                            </button>
+                          ) : null}
                           {commerceEligible ? (
                             <button
                               type="button"
@@ -5341,6 +5404,125 @@ export function LeadsClient({
                               </p>
                             ) : null}
                           </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                    {seasonalPromoOpen ? (
+                      <tr className="bg-amber-50/40" id={`lead-seasonal-promo-${lead.slug}`}>
+                        <td colSpan={7} className="px-6 py-4">
+                          <h3 className="text-sm font-semibold text-zinc-900">
+                            Seasonal promo &amp; ad copy
+                            <span className="ml-2 font-normal text-zinc-500">
+                              Complete — ad-hoc, not saved
+                            </span>
+                          </h3>
+                          <p className="mt-1 text-[11px] text-zinc-500">
+                            Two seasonal-promo A/B variants plus one ad-copy piece. Name
+                            the sale/event below, or leave it blank to default to the
+                            current month.
+                          </p>
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <label className="min-w-[200px] flex-1">
+                              <span className="sr-only">Occasion (optional)</span>
+                              <input
+                                type="text"
+                                value={seasonalPromoOccasion[lead.slug] ?? ""}
+                                onChange={(e) =>
+                                  setSeasonalPromoOccasion((prev) => ({
+                                    ...prev,
+                                    [lead.slug]: e.target.value,
+                                  }))
+                                }
+                                placeholder="e.g. Labor Day weekend, Grand reopening"
+                                className="h-8 w-full rounded-lg border border-zinc-200 px-2 text-xs"
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleGenerateSeasonalPromo(lead.slug)}
+                              aria-label={dashboardRowActionAriaLabel(
+                                seasonalPromoResult ? "Regenerate seasonal promo" : "Generate seasonal promo",
+                                lead.businessName,
+                                lead.slug,
+                              )}
+                              aria-describedby={
+                                leadActionErrors[lead.slug]
+                                  ? `lead-action-error-${lead.slug}`
+                                  : undefined
+                              }
+                              className="inline-flex h-8 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-3 text-xs font-semibold text-amber-900 transition hover:border-amber-300 hover:bg-amber-100 disabled:opacity-60"
+                            >
+                              {seasonalPromoResult ? "Regenerate" : "Generate"}
+                            </button>
+                          </div>
+                          {seasonalPromoResult ? (
+                            <>
+                              <p className="mt-2 text-[11px] text-zinc-500">
+                                {seasonalPromoResult.generator === "stub"
+                                  ? "Stub copy — set ANTHROPIC_API_KEY for LLM"
+                                  : "Generated via Anthropic"}{" "}
+                                · not saved — copy before navigating away
+                              </p>
+                              <ul className="mt-2 space-y-3">
+                                {seasonalPromoResult.variants.map((variant, index) => {
+                                  const copyText = [
+                                    variant.title,
+                                    variant.body,
+                                    variant.cta ? `CTA: ${variant.cta}` : null,
+                                    variant.hashtags?.length ? variant.hashtags.join(" ") : null,
+                                  ]
+                                    .filter(Boolean)
+                                    .join("\n\n");
+                                  return (
+                                    <li
+                                      key={`${variant.contentType}-${index}`}
+                                      className="rounded-lg border border-amber-100 bg-white px-3 py-2"
+                                    >
+                                      <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <p className="text-xs font-semibold text-amber-900">
+                                          {index + 1}. {contentTypeLabel(variant.contentType)}
+                                        </p>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleCopyLeadVariant(lead.slug, copyText)}
+                                          aria-label={`Copy variant ${index + 1}: ${contentTypeLabel(
+                                            variant.contentType,
+                                          )}`}
+                                          aria-describedby={
+                                            leadActionErrors[lead.slug]
+                                              ? `lead-action-error-${lead.slug}`
+                                              : undefined
+                                          }
+                                          className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-50"
+                                        >
+                                          Copy
+                                        </button>
+                                      </div>
+                                      {variant.title ? (
+                                        <p className="mt-1 text-xs font-medium text-zinc-800">
+                                          {variant.title}
+                                        </p>
+                                      ) : null}
+                                      <p className="mt-1 whitespace-pre-wrap text-xs text-zinc-600">
+                                        {variant.body}
+                                      </p>
+                                      {variant.cta ? (
+                                        <p className="mt-1 text-[11px] text-zinc-500">
+                                          CTA: {variant.cta}
+                                        </p>
+                                      ) : null}
+                                      {variant.hashtags?.length ? (
+                                        <p className="mt-1 text-[11px] text-sky-700/80">
+                                          {variant.hashtags.join(" ")}
+                                        </p>
+                                      ) : null}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </>
+                          ) : null}
                         </td>
                       </tr>
                     ) : null}

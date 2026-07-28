@@ -277,6 +277,36 @@ describe("POST /api/marketing/generate", () => {
     expect(body.error).toMatch(/business object required/);
   });
 
+  it("returns 400 when campaignContext is present but not a string", async () => {
+    const { POST } = await import("./route");
+    const res = await POST(
+      generateRequest({
+        ...validBody,
+        business: { ...validBody.business, campaignContext: 42 },
+      }),
+    );
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/business object required/);
+  });
+
+  it("accepts a string campaignContext and passes it through to the generator", async () => {
+    const { POST } = await import("./route");
+    const res = await POST(
+      generateRequest({
+        ...validBody,
+        contentTypes: ["seasonal_promo"],
+        business: { ...validBody.business, campaignContext: "Labor Day weekend" },
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        business: expect.objectContaining({ campaignContext: "Labor Day weekend" }),
+      }),
+    );
+  });
+
   it("returns stub messaging when the generator returns stub bodies and no API key is set", async () => {
     generate.mockResolvedValue({
       variants: [

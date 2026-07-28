@@ -54,3 +54,11 @@ export {
 } from "./deliver-pack";
 
 export { businessContextFromLead, monthlyPackRequestForLead } from "./build-request";
+
+export {
+  defaultSeasonalPromoOccasion,
+  leadEligibleForSeasonalPromo,
+  resolveSeasonalPromoOccasion,
+  seasonalPromoRequestForLead,
+  SEASONAL_PROMO_CONTENT_TYPES,
+} from "./seasonal-promo";

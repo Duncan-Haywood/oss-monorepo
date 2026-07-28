@@ -2495,6 +2495,42 @@ source). The same digest also lists email-critical leads with no usable address 
         run, not once per operator account. Fixed to mirror <code>listBufferProfiles</code>
         &apos;s header-only pattern (<code>buffer-update-token-header-not-body</code>).
       </p>
+      <p>
+        <code>seasonal-promo-scaffold</code>: the homepage/<DocLink href="/docs/product-bundles">
+          Product bundles
+        </DocLink>{" "}
+        Complete-tier bullet &quot;Full marketing — seasonal promos, A/B variants&quot; had no
+        dashboard fulfillment path at all — <code>seasonal_promo</code>/<code>ad_copy</code> were
+        reachable only via the raw <code>POST /api/marketing/generate</code> route, undocumented
+        beyond &quot;ad-hoc, non-persisted.&quot; Shipped{" "}
+        <code>generateSeasonalPromoAction</code> (<code>src/app/dashboard/leads/actions.ts</code>):
+        gated by <code>leadEligibleForSeasonalPromo</code> (
+        <code>src/lib/marketing/seasonal-promo.ts</code>) — paid/live stage AND an active{" "}
+        <code>complete</code>-tier order specifically, reusing <code>bestMarketingOrderTier</code>
+        &apos;s entitlement check rather than a raw tier-string compare — Growth-tier leads are not
+        eligible, since this is the one feature that genuinely differentiates Complete&apos;s
+        &quot;Full marketing&quot; from Growth&apos;s identical monthly pack (see section 7 above).
+        Requests two <code>seasonal_promo</code> A/B variants plus one <code>ad_copy</code> piece
+        via <code>seasonalPromoRequestForLead</code>. A new <code>BusinessContext.campaignContext</code>{" "}
+        field (soft-capped at the tagline bound, <code>MAX_CAMPAIGN_CONTEXT_LENGTH</code>) carries
+        an operator-named occasion (e.g. &quot;Labor Day weekend&quot;) into both the Anthropic
+        prompt and the stub generator — every content type other than{" "}
+        <code>seasonal_promo</code>/<code>ad_copy</code> ignores it. Left blank, it defaults to{" "}
+        <code>defaultSeasonalPromoOccasion</code>: the current UTC calendar month (e.g. &quot;July
+        promotion&quot;) — deliberately never a &quot;season&quot; word (summer/winter/etc.), since
+        that guess is wrong for roughly half the world&apos;s businesses depending on hemisphere
+        and this app has no reliable signal for which hemisphere a lead is in. Like the ad-hoc
+        route this is intentionally NOT persisted — no DB row, no monthly cadence — the dashboard
+        panel holds the result only in component state until the operator copies it or navigates
+        away. Direct Vitest coverage: <code>seasonal-promo.test.ts</code> (eligibility, occasion
+        default/soft-cap/override, request shape),{" "}
+        <code>generate-seasonal-promo-action.test.ts</code> (auth, rate limit, eligibility gate,
+        no-persist assertion, stub-vs-anthropic labeling — mirroring{" "}
+        <code>generate-marketing-pack-action.test.ts</code>&apos;s pattern), and extended{" "}
+        <code>generators.test.ts</code> / <code>generate-limits.test.ts</code> /{" "}
+        <code>marketing/generate/route.test.ts</code> cases for{" "}
+        <code>campaignContext</code> plumbing end to end.
+      </p>
 
       <h2>8. Client AI phone (Complete)</h2>
       <p>

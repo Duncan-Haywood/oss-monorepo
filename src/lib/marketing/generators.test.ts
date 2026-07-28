@@ -117,6 +117,18 @@ describe("StubMarketingGenerator", () => {
     );
   });
 
+  it("includes campaignContext only in seasonal_promo/ad_copy bodies, never other content types", async () => {
+    const result = await new StubMarketingGenerator().generate(
+      request({
+        contentTypes: ["seasonal_promo", "ad_copy", "gbp_post"],
+        business: { ...baseBusiness, campaignContext: "Labor Day weekend" },
+      }),
+    );
+    expect(result.variants[0]?.body).toContain("Labor Day weekend");
+    expect(result.variants[1]?.body).toContain("Labor Day weekend");
+    expect(result.variants[2]?.body).not.toContain("Labor Day weekend");
+  });
+
   it("sets titles for local_seo_meta / email_campaign / gbp_post and hashtags for social", async () => {
     const result = await new StubMarketingGenerator().generate(
       request({
@@ -414,6 +426,39 @@ describe("AnthropicMarketingGenerator", () => {
     );
     await new AnthropicMarketingGenerator("sk-test", fallback).generate(request());
     expect(spy).toHaveBeenCalledOnce();
+  });
+
+  it("passes campaignContext through to the Anthropic request body", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify([{ contentType: "seasonal_promo", body: "Sale copy" }]),
+            },
+          ],
+        }),
+      })),
+    );
+
+    await new AnthropicMarketingGenerator("sk-test").generate(
+      request({
+        contentTypes: ["seasonal_promo"],
+        business: { ...baseBusiness, campaignContext: "Labor Day weekend" },
+      }),
+    );
+
+    const [, init] = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
+    const body = JSON.parse((init as RequestInit).body as string) as {
+      messages: Array<{ content: string }>;
+    };
+    const userPayload = JSON.parse(body.messages[0]!.content) as {
+      business: { campaignContext?: string };
+    };
+    expect(userPayload.business.campaignContext).toBe("Labor Day weekend");
   });
 
   it("extracts JSON array from prose wrappers and forces expected contentTypes", async () => {
