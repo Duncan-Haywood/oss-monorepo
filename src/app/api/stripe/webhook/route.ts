@@ -96,6 +96,7 @@ import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfil
 import {
   expectedBundleCheckoutAmountCents,
   getBundle,
+  parseBundleBillingInterval,
 } from "@/lib/pricing/bundles";
 
 /**
@@ -418,6 +419,10 @@ export async function POST(request: Request) {
       const rawSlug = session.metadata?.slug;
       const tier = session.metadata?.tier;
       const metadataCommerceAddon = session.metadata?.commerceAddon === "true";
+      // Falls back to "monthly" for missing/tampered/pre-annual-feature
+      // sessions — the original, more conservative cadence (see
+      // parseBundleBillingInterval's own doc comment).
+      const billingInterval = parseBundleBillingInterval(session.metadata?.billingInterval);
       const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
       const stripeCustomerId = stripeCustomerIdFromUnknown(session.customer) ?? undefined;
       // Re-validate against the fixed allowlist rather than trusting the
@@ -897,7 +902,7 @@ export async function POST(request: Request) {
           return NextResponse.json(failure.body, { status: failure.status });
         }
 
-        const catalogPrices = bundleCatalogPriceIdsFromEnv(bundle);
+        const catalogPrices = bundleCatalogPriceIdsFromEnv(bundle, billingInterval);
         if (
           !catalogPrices ||
           !sessionLineItemsMatchBundleCatalogPrices(lineItemPriceIds, catalogPrices)
@@ -928,7 +933,7 @@ export async function POST(request: Request) {
         // exact equality to the undiscounted catalog price — a tampered/
         // mismatched amount with no corresponding Stripe-verified discount
         // still fails this check exactly as before.
-        const expectedCents = expectedBundleCheckoutAmountCents(bundle, commerceAddon);
+        const expectedCents = expectedBundleCheckoutAmountCents(bundle, commerceAddon, billingInterval);
         const amountCents = session.amount_total;
         const discountCents = session.total_details?.amount_discount ?? 0;
         const expectedAfterDiscountCents = Math.max(0, expectedCents - discountCents);

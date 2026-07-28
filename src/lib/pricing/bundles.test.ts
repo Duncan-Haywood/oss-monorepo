@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
+  annualBillingSavingsUsd,
   BUNDLES,
+  bundleAnnualPriceHeadingLabel,
+  bundleRecurringPriceUsd,
   COMMERCE_ADDON,
   bundlePriceHeadingLabel,
   commerceAddonPriceHeadingLabel,
   expectedBundleCheckoutAmountCents,
   getBundle,
   minBundleSetupPriceUsd,
+  parseBundleBillingInterval,
 } from "./bundles";
 
 /**
@@ -21,34 +25,52 @@ describe("BUNDLES", () => {
     expect(BUNDLES.map((b) => b.id)).toEqual(["starter", "growth", "complete"]);
   });
 
-  it("locks sold setup + monthly USD amounts from /docs/product-bundles", () => {
+  it("locks sold setup + monthly + annual USD amounts from /docs/product-bundles", () => {
     expect(getBundle("starter")).toMatchObject({
       name: "Starter",
       setupPriceUsd: 500,
       monthlyPriceUsd: null,
+      annualPriceUsd: null,
       setupPriceIdEnv: "STRIPE_PRICE_ID_STARTER_SETUP",
       monthlyPriceIdEnv: null,
+      annualPriceIdEnv: null,
     });
     expect(getBundle("growth")).toMatchObject({
       name: "Growth",
       setupPriceUsd: 500,
       monthlyPriceUsd: 99,
+      annualPriceUsd: 990,
       setupPriceIdEnv: "STRIPE_PRICE_ID_GROWTH_SETUP",
       monthlyPriceIdEnv: "STRIPE_PRICE_ID_GROWTH_MONTHLY",
+      annualPriceIdEnv: "STRIPE_PRICE_ID_GROWTH_ANNUAL",
     });
     expect(getBundle("complete")).toMatchObject({
       name: "Complete",
       setupPriceUsd: 500,
       monthlyPriceUsd: 199,
+      annualPriceUsd: 1990,
       setupPriceIdEnv: "STRIPE_PRICE_ID_COMPLETE_SETUP",
       monthlyPriceIdEnv: "STRIPE_PRICE_ID_COMPLETE_MONTHLY",
+      annualPriceIdEnv: "STRIPE_PRICE_ID_COMPLETE_ANNUAL",
     });
   });
 
-  it("keeps Starter one-time only (no monthly Price env)", () => {
+  it("keeps Starter one-time only (no monthly or annual Price env)", () => {
     const starter = getBundle("starter");
     expect(starter?.monthlyPriceUsd).toBeNull();
     expect(starter?.monthlyPriceIdEnv).toBeNull();
+    expect(starter?.annualPriceUsd).toBeNull();
+    expect(starter?.annualPriceIdEnv).toBeNull();
+  });
+
+  it("prices annual at 10x monthly (2 months free) for every recurring tier", () => {
+    for (const bundle of BUNDLES) {
+      if (bundle.monthlyPriceUsd == null) {
+        expect(bundle.annualPriceUsd).toBeNull();
+        continue;
+      }
+      expect(bundle.annualPriceUsd).toBe(bundle.monthlyPriceUsd * 10);
+    }
   });
 
   it("gives every tier a non-empty tagline and feature list — the homepage pricing cards and the /preview/[slug] tier upsell both render these fields directly, so an empty value would ship a blank card", () => {
@@ -122,9 +144,72 @@ describe("expectedBundleCheckoutAmountCents", () => {
     const starter = getBundle("starter");
     const growth = getBundle("growth");
     const complete = getBundle("complete");
-    expect(starter && expectedBundleCheckoutAmountCents(starter, false)).toBe(50_000);
-    expect(growth && expectedBundleCheckoutAmountCents(growth, false)).toBe(59_900);
-    expect(complete && expectedBundleCheckoutAmountCents(complete, false)).toBe(69_900);
-    expect(growth && expectedBundleCheckoutAmountCents(growth, true)).toBe(94_800);
+    expect(starter && expectedBundleCheckoutAmountCents(starter, false, "monthly")).toBe(50_000);
+    expect(growth && expectedBundleCheckoutAmountCents(growth, false, "monthly")).toBe(59_900);
+    expect(complete && expectedBundleCheckoutAmountCents(complete, false, "monthly")).toBe(69_900);
+    expect(growth && expectedBundleCheckoutAmountCents(growth, true, "monthly")).toBe(94_800);
+  });
+
+  it("sums setup + first year for annual billing", () => {
+    const starter = getBundle("starter");
+    const growth = getBundle("growth");
+    const complete = getBundle("complete");
+    // Starter has no recurring price in either cadence — annual behaves
+    // identically to monthly (setup only).
+    expect(starter && expectedBundleCheckoutAmountCents(starter, false, "annual")).toBe(50_000);
+    expect(growth && expectedBundleCheckoutAmountCents(growth, false, "annual")).toBe(149_000);
+    expect(complete && expectedBundleCheckoutAmountCents(complete, false, "annual")).toBe(249_000);
+  });
+});
+
+describe("bundleRecurringPriceUsd", () => {
+  it("resolves the monthly or annual USD amount per interval", () => {
+    const growth = getBundle("growth")!;
+    expect(bundleRecurringPriceUsd(growth, "monthly")).toBe(99);
+    expect(bundleRecurringPriceUsd(growth, "annual")).toBe(990);
+  });
+
+  it("returns null for Starter in either interval (no recurring price at all)", () => {
+    const starter = getBundle("starter")!;
+    expect(bundleRecurringPriceUsd(starter, "monthly")).toBeNull();
+    expect(bundleRecurringPriceUsd(starter, "annual")).toBeNull();
+  });
+});
+
+describe("annualBillingSavingsUsd", () => {
+  it("computes dollars saved per year vs. monthly x12", () => {
+    expect(annualBillingSavingsUsd(getBundle("growth")!)).toBe(99 * 12 - 990);
+    expect(annualBillingSavingsUsd(getBundle("complete")!)).toBe(199 * 12 - 1990);
+  });
+
+  it("returns null for a tier with no recurring price", () => {
+    expect(annualBillingSavingsUsd(getBundle("starter")!)).toBeNull();
+  });
+});
+
+describe("bundleAnnualPriceHeadingLabel", () => {
+  it("formats setup + annual for a recurring tier", () => {
+    expect(bundleAnnualPriceHeadingLabel(getBundle("growth")!)).toBe("$500 + $990/yr");
+    expect(bundleAnnualPriceHeadingLabel(getBundle("complete")!)).toBe("$500 + $1990/yr");
+  });
+
+  it("returns null for Starter (no annual price)", () => {
+    expect(bundleAnnualPriceHeadingLabel(getBundle("starter")!)).toBeNull();
+  });
+});
+
+describe("parseBundleBillingInterval", () => {
+  it("returns 'annual' only for the exact string 'annual'", () => {
+    expect(parseBundleBillingInterval("annual")).toBe("annual");
+  });
+
+  it("falls back to 'monthly' for missing, malformed, or any other value", () => {
+    expect(parseBundleBillingInterval(undefined)).toBe("monthly");
+    expect(parseBundleBillingInterval(null)).toBe("monthly");
+    expect(parseBundleBillingInterval("")).toBe("monthly");
+    expect(parseBundleBillingInterval("ANNUAL")).toBe("monthly");
+    expect(parseBundleBillingInterval("monthly")).toBe("monthly");
+    expect(parseBundleBillingInterval("yearly")).toBe("monthly");
+    expect(parseBundleBillingInterval(true)).toBe("monthly");
   });
 });

@@ -8,15 +8,34 @@ import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "@/l
 
 export type BundleTier = "starter" | "growth" | "complete";
 
+/**
+ * Which recurring cadence a bundle checkout selected — see
+ * annual-billing-option. "monthly" is the long-standing default and the only
+ * option for a tier with no annualPriceIdEnv configured (or none at all,
+ * e.g. Starter, which has no recurring price in either cadence).
+ */
+export type BundleBillingInterval = "monthly" | "annual";
+
 export interface BundleDefinition {
   id: BundleTier;
   name: string;
   setupPriceUsd: number;
   monthlyPriceUsd: number | null;
+  /**
+   * Annual price, framed as a discount vs. paying monthly × 12 (see
+   * annualBillingSavingsUsd). Null for a tier with no recurring price
+   * (Starter) — never a tier that simply hasn't bootstrapped an annual
+   * Stripe Price yet, which instead leaves annualPriceIdEnv unset while this
+   * stays non-null (mirrors how monthlyPriceIdEnv can be temporarily unset
+   * pre-bootstrap while monthlyPriceUsd is already defined).
+   */
+  annualPriceUsd: number | null;
   /** Env var holding the Stripe Price ID for the one-time setup fee. */
   setupPriceIdEnv: string;
-  /** Env var holding the Stripe Price ID for the recurring fee (null tiers have none). */
+  /** Env var holding the Stripe Price ID for the monthly recurring fee (null tiers have none). */
   monthlyPriceIdEnv: string | null;
+  /** Env var holding the Stripe Price ID for the annual recurring fee (null tiers have none). */
+  annualPriceIdEnv: string | null;
   /** One-line pitch — homepage pricing cards and /preview/[slug] tier upsell. */
   tagline: string;
   /** Short bullet list — same two acquisition surfaces as `tagline`. */
@@ -29,8 +48,10 @@ export const BUNDLES: readonly BundleDefinition[] = [
     name: "Starter",
     setupPriceUsd: 500,
     monthlyPriceUsd: null,
+    annualPriceUsd: null,
     setupPriceIdEnv: "STRIPE_PRICE_ID_STARTER_SETUP",
     monthlyPriceIdEnv: null,
+    annualPriceIdEnv: null,
     tagline: "Your site, live in days",
     features: [
       "Professional landing page",
@@ -44,8 +65,11 @@ export const BUNDLES: readonly BundleDefinition[] = [
     name: "Growth",
     setupPriceUsd: 500,
     monthlyPriceUsd: 99,
+    // 2 months free vs. 99 * 12 = 1188.
+    annualPriceUsd: 990,
     setupPriceIdEnv: "STRIPE_PRICE_ID_GROWTH_SETUP",
     monthlyPriceIdEnv: "STRIPE_PRICE_ID_GROWTH_MONTHLY",
+    annualPriceIdEnv: "STRIPE_PRICE_ID_GROWTH_ANNUAL",
     tagline: "Site + customers on autopilot",
     features: [
       "Everything in Starter",
@@ -59,8 +83,11 @@ export const BUNDLES: readonly BundleDefinition[] = [
     name: "Complete",
     setupPriceUsd: 500,
     monthlyPriceUsd: 199,
+    // 2 months free vs. 199 * 12 = 2388.
+    annualPriceUsd: 1990,
     setupPriceIdEnv: "STRIPE_PRICE_ID_COMPLETE_SETUP",
     monthlyPriceIdEnv: "STRIPE_PRICE_ID_COMPLETE_MONTHLY",
+    annualPriceIdEnv: "STRIPE_PRICE_ID_COMPLETE_ANNUAL",
     tagline: "Never miss a call or a customer",
     features: [
       "Everything in Growth",
@@ -115,19 +142,71 @@ export function commerceAddonPriceHeadingLabel(): string {
 }
 
 /**
+ * "$500 + $990/yr" — the annual-billing twin of bundlePriceHeadingLabel, or
+ * null for a tier with no annual price (Starter).
+ */
+export function bundleAnnualPriceHeadingLabel(bundle: BundleDefinition): string | null {
+  if (bundle.annualPriceUsd == null) return null;
+  return `$${bundle.setupPriceUsd} + $${bundle.annualPriceUsd}/yr`;
+}
+
+/**
+ * Dollars saved per year choosing annual billing vs. paying monthly × 12 —
+ * the "2 months free" / "$198/yr" framing on the checkout annual toggle and
+ * /docs/product-bundles. Null when the tier has no annual price (Starter).
+ */
+export function annualBillingSavingsUsd(bundle: BundleDefinition): number | null {
+  if (bundle.monthlyPriceUsd == null || bundle.annualPriceUsd == null) return null;
+  return Math.round(bundle.monthlyPriceUsd * 12 - bundle.annualPriceUsd);
+}
+
+/**
+ * Validates an untrusted billing-interval value (a client request body field
+ * or a Stripe Checkout Session's own metadata, echoed back from create) —
+ * "annual" only when exactly that string, "monthly" for every other value
+ * (including missing/malformed) so a stale/tampered/pre-annual-feature
+ * Session or a client typo always falls back to the original, more
+ * conservative cadence rather than an unrecognized value silently reaching
+ * the annual Price/amount branch.
+ */
+export function parseBundleBillingInterval(value: unknown): BundleBillingInterval {
+  return value === "annual" ? "annual" : "monthly";
+}
+
+/**
+ * Resolves which recurring Price USD amount a bundle checkout uses for a
+ * given interval — null when the tier has no recurring price at all
+ * (Starter) or the tier has no Price configured for that specific interval
+ * yet (e.g. annualPriceUsd is set but bootstrap hasn't shipped for it —
+ * callers must still gate on the env Price ID separately; this only reports
+ * the catalog USD amount).
+ */
+export function bundleRecurringPriceUsd(
+  bundle: BundleDefinition,
+  billingInterval: BundleBillingInterval,
+): number | null {
+  return billingInterval === "annual" ? bundle.annualPriceUsd : bundle.monthlyPriceUsd;
+}
+
+/**
  * Expected Checkout Session `amount_total` (integer cents) for a bundle
- * purchase — setup + first recurring month when present, plus optional
- * Commerce add-on setup+month. Mirrors POST /api/stripe/checkout line_items
- * (Price IDs from env that bootstrap from these USD amounts). The webhook
- * must require session.amount_total === this before recordLeadPayment.
+ * purchase — setup + first recurring period (monthly or annual) when
+ * present, plus optional Commerce add-on setup+month (the add-on has no
+ * annual price of its own — see annual-billing-option; a checkout combining
+ * annual billing with the Commerce add-on is rejected before this is ever
+ * called with that combination in practice). Mirrors POST /api/stripe/checkout
+ * line_items (Price IDs from env that bootstrap from these USD amounts). The
+ * webhook must require session.amount_total === this before recordLeadPayment.
  */
 export function expectedBundleCheckoutAmountCents(
   bundle: BundleDefinition,
   commerceAddon: boolean,
+  billingInterval: BundleBillingInterval,
 ): number {
   let cents = Math.round(bundle.setupPriceUsd * 100);
-  if (bundle.monthlyPriceUsd != null) {
-    cents += Math.round(bundle.monthlyPriceUsd * 100);
+  const recurringUsd = bundleRecurringPriceUsd(bundle, billingInterval);
+  if (recurringUsd != null) {
+    cents += Math.round(recurringUsd * 100);
   }
   if (commerceAddon) {
     cents += Math.round(COMMERCE_ADDON.setupPriceUsd * 100);

@@ -1,4 +1,4 @@
-import { BUNDLES, COMMERCE_ADDON, type BundleDefinition } from "@/lib/pricing/bundles";
+import { BUNDLES, COMMERCE_ADDON, type BundleBillingInterval, type BundleDefinition } from "@/lib/pricing/bundles";
 
 /**
  * Derive whether a Checkout Session actually charged the create-path catalog
@@ -99,31 +99,37 @@ export function commerceSkuLineItemQuantity(
 
 export type BundleCatalogPriceIds = {
   setupId: string;
-  /** Null when the bundle has no recurring Price (Starter). */
-  monthlyId: string | null;
+  /** Null when the bundle has no recurring Price for the requested interval (Starter, always; any tier if that interval's Price env is unset). */
+  recurringId: string | null;
 };
 
 /**
- * Trimmed BUNDLES setup (+ monthly) Price IDs from env, or null when a required
- * Price env is missing (create already 501s without those Prices).
+ * Trimmed BUNDLES setup (+ monthly or annual, per `billingInterval`) Price IDs
+ * from env, or null when a required Price env is missing (create already
+ * 501s without those Prices). Defaults to "monthly" — the long-standing
+ * cadence every existing caller predates the annual option with.
  */
 export function bundleCatalogPriceIdsFromEnv(
   bundle: BundleDefinition,
+  billingInterval: BundleBillingInterval = "monthly",
   env: NodeJS.ProcessEnv = process.env,
 ): BundleCatalogPriceIds | null {
   const setupId = env[bundle.setupPriceIdEnv]?.trim() ?? "";
   if (!setupId) return null;
-  if (!bundle.monthlyPriceIdEnv) {
-    return { setupId, monthlyId: null };
+  const recurringPriceIdEnv =
+    billingInterval === "annual" ? bundle.annualPriceIdEnv : bundle.monthlyPriceIdEnv;
+  if (!recurringPriceIdEnv) {
+    return { setupId, recurringId: null };
   }
-  const monthlyId = env[bundle.monthlyPriceIdEnv]?.trim() ?? "";
-  if (!monthlyId) return null;
-  return { setupId, monthlyId };
+  const recurringId = env[recurringPriceIdEnv]?.trim() ?? "";
+  if (!recurringId) return null;
+  return { setupId, recurringId };
 }
 
 /**
  * Pure: true only when create-path bundle catalog Prices appear among the
- * session's line-item price ids (setup always; monthly when the tier has one).
+ * session's line-item price ids (setup always; the recurring Price for
+ * whichever interval `catalogPrices` was resolved for, when the tier has one).
  * Commerce add-on Prices are additive and checked separately via
  * resolveCommerceAddonFromLineItems.
  */
@@ -134,23 +140,35 @@ export function sessionLineItemsMatchBundleCatalogPrices(
   if (!sessionLineItemsIncludePriceId(lineItemPriceIds, catalogPrices.setupId)) {
     return false;
   }
-  if (catalogPrices.monthlyId === null) return true;
-  return sessionLineItemsIncludePriceId(lineItemPriceIds, catalogPrices.monthlyId);
+  if (catalogPrices.recurringId === null) return true;
+  return sessionLineItemsIncludePriceId(lineItemPriceIds, catalogPrices.recurringId);
 }
 
 /**
- * Create-path recurring (monthly) catalog Price IDs from env — Growth/Complete
- * bundle monthlies plus Commerce add-on monthly. Empty when no recurring Price
- * envs are configured (fail closed for subscription-mode portal eligibility).
+ * Create-path recurring catalog Price IDs from env, both cadences — Growth/
+ * Complete bundle monthly AND annual, plus Commerce add-on monthly (no annual
+ * Price of its own — see annual-billing-option). Empty when no recurring
+ * Price envs are configured (fail closed for subscription-mode portal
+ * eligibility). This is a flat "any of these is a recognized recurring
+ * Price" set, not tier/interval-specific — sessionLineItemsIncludeCatalogRecurringPrice
+ * only needs to prove SOME catalog recurring Price is on the session, so an
+ * annual subscriber's Billing Portal / checkout-success eligibility works
+ * exactly the same way a monthly subscriber's already does, with no call-site
+ * change needed at either consumer (create-portal-session.ts, success-session.ts).
  */
 export function catalogRecurringPriceIdsFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): string[] {
   const ids: string[] = [];
   for (const bundle of BUNDLES) {
-    if (!bundle.monthlyPriceIdEnv) continue;
-    const monthlyId = env[bundle.monthlyPriceIdEnv]?.trim() ?? "";
-    if (monthlyId) ids.push(monthlyId);
+    if (bundle.monthlyPriceIdEnv) {
+      const monthlyId = env[bundle.monthlyPriceIdEnv]?.trim() ?? "";
+      if (monthlyId) ids.push(monthlyId);
+    }
+    if (bundle.annualPriceIdEnv) {
+      const annualId = env[bundle.annualPriceIdEnv]?.trim() ?? "";
+      if (annualId) ids.push(annualId);
+    }
   }
   const commerceMonthly = env[COMMERCE_ADDON.monthlyPriceIdEnv]?.trim() ?? "";
   if (commerceMonthly) ids.push(commerceMonthly);

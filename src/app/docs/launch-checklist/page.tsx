@@ -70,7 +70,13 @@ export default function LaunchChecklistDocPage() {
           <code>assessBundlePriceEnvReadiness</code>) — fix that before outreach
           that points at Checkout. Bootstrap stays operator-gated (flag + paste
           secrets); the banner button only removes the curl friction, it does
-          not fake-complete <code>stripe-price-objects</code>.
+          not fake-complete <code>stripe-price-objects</code>. Bootstrap also
+          creates <code>STRIPE_PRICE_ID_GROWTH_ANNUAL</code> /{" "}
+          <code>STRIPE_PRICE_ID_COMPLETE_ANNUAL</code> (annual-billing-option)
+          on the same shared Product as each tier&rsquo;s monthly Price — these
+          two are optional and excluded from the checkout-blocked banner&rsquo;s
+          required list, since checkout falls back to monthly billing when
+          either is unset.
         </li>
         <li>
           Point the Stripe webhook to <code>/api/stripe/webhook</code> (test

@@ -185,17 +185,21 @@ describe("bundleCatalogPriceIdsFromEnv", () => {
     process.env = { ...originalEnv };
   });
 
-  it("returns setup-only for Starter when setup env is set", () => {
+  it("returns setup-only for Starter when setup env is set (interval irrelevant)", () => {
     process.env.STRIPE_PRICE_ID_STARTER_SETUP = "price_starter";
     const starter = getBundle("starter");
     expect(starter).toBeDefined();
     expect(bundleCatalogPriceIdsFromEnv(starter!)).toEqual({
       setupId: "price_starter",
-      monthlyId: null,
+      recurringId: null,
+    });
+    expect(bundleCatalogPriceIdsFromEnv(starter!, "annual")).toEqual({
+      setupId: "price_starter",
+      recurringId: null,
     });
   });
 
-  it("returns null when Growth monthly env is missing", () => {
+  it("returns null when Growth monthly env is missing (defaults to monthly)", () => {
     process.env.STRIPE_PRICE_ID_GROWTH_SETUP = "price_growth_setup";
     delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
     const growth = getBundle("growth");
@@ -208,31 +212,61 @@ describe("bundleCatalogPriceIdsFromEnv", () => {
     const growth = getBundle("growth");
     expect(bundleCatalogPriceIdsFromEnv(growth!)).toEqual({
       setupId: "price_growth_setup",
-      monthlyId: "price_growth_monthly",
+      recurringId: "price_growth_monthly",
     });
+    expect(bundleCatalogPriceIdsFromEnv(growth!, "monthly")).toEqual({
+      setupId: "price_growth_setup",
+      recurringId: "price_growth_monthly",
+    });
+  });
+
+  it("returns setup+annual for Growth when billingInterval is annual and both envs are set", () => {
+    process.env.STRIPE_PRICE_ID_GROWTH_SETUP = "price_growth_setup";
+    process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL = " price_growth_annual ";
+    const growth = getBundle("growth");
+    expect(bundleCatalogPriceIdsFromEnv(growth!, "annual")).toEqual({
+      setupId: "price_growth_setup",
+      recurringId: "price_growth_annual",
+    });
+  });
+
+  it("returns null when billingInterval is annual but the annual env is missing", () => {
+    process.env.STRIPE_PRICE_ID_GROWTH_SETUP = "price_growth_setup";
+    delete process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL;
+    const growth = getBundle("growth");
+    expect(bundleCatalogPriceIdsFromEnv(growth!, "annual")).toBeNull();
   });
 });
 
 describe("sessionLineItemsMatchBundleCatalogPrices", () => {
-  it("requires setup for Starter and setup+monthly for Growth", () => {
+  it("requires setup for Starter and setup+recurring for Growth", () => {
     expect(
       sessionLineItemsMatchBundleCatalogPrices(["price_starter"], {
         setupId: "price_starter",
-        monthlyId: null,
+        recurringId: null,
       }),
     ).toBe(true);
     expect(
       sessionLineItemsMatchBundleCatalogPrices(
         ["price_growth_setup", "price_growth_monthly"],
-        { setupId: "price_growth_setup", monthlyId: "price_growth_monthly" },
+        { setupId: "price_growth_setup", recurringId: "price_growth_monthly" },
       ),
     ).toBe(true);
     expect(
       sessionLineItemsMatchBundleCatalogPrices(["price_growth_setup"], {
         setupId: "price_growth_setup",
-        monthlyId: "price_growth_monthly",
+        recurringId: "price_growth_monthly",
       }),
     ).toBe(false);
+  });
+
+  it("matches an annual recurringId the same way as monthly", () => {
+    expect(
+      sessionLineItemsMatchBundleCatalogPrices(
+        ["price_growth_setup", "price_growth_annual"],
+        { setupId: "price_growth_setup", recurringId: "price_growth_annual" },
+      ),
+    ).toBe(true);
   });
 });
 
@@ -248,6 +282,8 @@ describe("catalogRecurringPriceIdsFromEnv", () => {
     process.env.STRIPE_PRICE_ID_COMPLETE_MONTHLY = "price_complete_m";
     process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_m";
     delete process.env.STRIPE_PRICE_ID_STARTER_SETUP;
+    delete process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL;
+    delete process.env.STRIPE_PRICE_ID_COMPLETE_ANNUAL;
     expect(catalogRecurringPriceIdsFromEnv()).toEqual([
       "price_growth_m",
       "price_complete_m",
@@ -255,10 +291,24 @@ describe("catalogRecurringPriceIdsFromEnv", () => {
     ]);
   });
 
+  it("also collects Growth/Complete annual Price ids when set — either cadence is a recognized recurring Price for Billing Portal/success eligibility", () => {
+    delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
+    delete process.env.STRIPE_PRICE_ID_COMPLETE_MONTHLY;
+    delete process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;
+    process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL = "price_growth_a";
+    process.env.STRIPE_PRICE_ID_COMPLETE_ANNUAL = "price_complete_a";
+    expect(catalogRecurringPriceIdsFromEnv()).toEqual([
+      "price_growth_a",
+      "price_complete_a",
+    ]);
+  });
+
   it("returns empty when no recurring Price envs are configured", () => {
     delete process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY;
     delete process.env.STRIPE_PRICE_ID_COMPLETE_MONTHLY;
     delete process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY;
+    delete process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL;
+    delete process.env.STRIPE_PRICE_ID_COMPLETE_ANNUAL;
     expect(catalogRecurringPriceIdsFromEnv()).toEqual([]);
   });
 });
