@@ -4964,6 +4964,24 @@ source). The same digest also lists email-critical leads with no usable address 
         — which, once old and new orders share that id, would have also marked the brand-new order
         recurring-canceled the instant it was created.
       </p>
+      <p>
+        <code>operator-digest-cron-secret-env-banner</code>: a research agent auditing the
+        freshly-shipped Vercel Cron daily-digest automation found that{" "}
+        <code>OperatorDigestEmailEnvBanner</code>, the only existing digest readiness signal, never
+        checks <code>CRON_SECRET</code>. The manual <strong>Send daily digest</strong> button still
+        works fine with only <code>OPERATOR_DIGEST_EMAIL</code> set, but the cron route&apos;s own
+        gate has zero dashboard visibility if missing or later unset — the one mechanism built to
+        remove reliance on the operator remembering to click a button could be silently dead, with
+        nothing on <code>/dashboard</code> or <code>/dashboard/leads</code> showing it (only a
+        failing cron run in Vercel&apos;s own dashboard, a surface a single-operator user has no
+        routine reason to check). Added a separate <code>assessOperatorDigestCronEnvReadiness</code>{" "}
+        + <code>OperatorDigestCronEnvBanner</code> — deliberately its own readiness check and
+        banner, not folded into the email one, since the two failure modes are not equivalent (a
+        missing <code>CRON_SECRET</code> does not block the manual button) and need independent
+        wording and independent hide conditions. Verified via a dev-server smoke check that the
+        banner renders on both dashboard pages with <code>CRON_SECRET</code> unset and correctly
+        hides once it&apos;s set.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
