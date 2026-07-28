@@ -387,7 +387,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "in-progress",
     goal: "measure-honestly",
     note:
-      "Spreading a fixed answer budget evenly over 220 items meant the combined survey had zero items under rd 150 after 300 answers, so every gate on the couple screen was unreachable by construction. Pair selection now deepens a core of 14 before broadening, which gets that to roughly 34 — enough to say something true, and not a ranking of 220 items. Measured by a simulation calibrated against two real accounts; see docs/CONVERGENCE.md. Remaining: pool evidence across the three perspectives, or shrink the combined survey, or make a smaller promise up front.",
+      "Spreading a fixed answer budget evenly over 220 items meant the combined survey had zero items under rd 150 after 300 answers, so every gate on the couple screen was unreachable by construction. Pair selection now deepens a core of 14 before broadening, which gets that to roughly 34 — enough to say something true, and not a ranking of 220 items. Measured by a simulation calibrated against two real accounts; see docs/CONVERGENCE.md. Both ways of asking BETTER questions are now measured and closed: pooling the estimates manufactures the bias the blind-spots screen exists to detect (decisions/0006), and using other perspectives to pick questions moves nothing even when the prior knows the truth exactly (decisions/0007). What remains is asking fewer questions -- shrink the combined survey -- or promising less up front, and both are the account owner's call.",
   },
   {
     id: "couples-output",

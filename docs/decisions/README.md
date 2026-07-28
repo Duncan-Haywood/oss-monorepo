@@ -23,3 +23,4 @@ Copy [`0000-template.md`](0000-template.md) and number it sequentially.
 | [0004](0004-no-database-in-ci.md)              | Accept no database in CI; keep logic out of route handlers         |
 | [0005](0005-session-state-without-effects.md)  | Read stored session with `useSyncExternalStore`, not an effect     |
 | [0006](0006-no-pooling-across-perspectives.md) | Keep the three perspectives statistically separate                 |
+| [0007](0007-no-selection-only-cross-perspective-priors.md) | Do not pick questions from other perspectives — it changes nothing |

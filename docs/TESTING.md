@@ -19,6 +19,8 @@ React against a stubbed `fetch`.
 | `conjoint.test.ts` | 11 | Coefficient recovery from simulated data, separable and all-tie degenerates, convergence at large n, the line search never stepping downhill |
 | `pairing.test.ts` | 10 | Question selection: uncertainty preference, close-rating preference, coverage, recent-repeat avoidance |
 | `pairing.simulation.test.ts` | 10 | The whole selection loop against a synthetic respondent: that a realistic answer budget reaches a confidence the couple screen can use, and that the active set only grows. See [CONVERGENCE.md](CONVERGENCE.md) |
+| `selectionPrior.simulation.test.ts` | 8 | The other rejected design: cross-perspective priors used *only* to choose questions, which cannot bias an estimate and also cannot help. The oracle run — a prior that knows the truth exactly, and still moves nothing — is the one that closes it. See [decisions/0007](decisions/0007-no-selection-only-cross-perspective-priors.md) |
+| `rateLimit.test.ts` | 12 | The anonymous-write throttle: the `>= max` boundary in both directions, the fifteen-minute window, per-IP and per-route scoping, and `x-forwarded-for` parsing |
 | `pooling.simulation.test.ts` | 13 | A rejected design, kept measured rather than argued: cross-perspective pooling buys a sevenfold precision gain by turning PARTNER_GUESS into a copy of SELF. Guards the claim so a future session cannot reopen it from intuition. See [POOLING.md](POOLING.md) |
 | `tradeoffs.test.ts` | 10 | Every generated financial pair is a genuine non-dominated trade-off |
 | `dimensions.test.ts` | 9 | The dimension taxonomy stays consistent with the item catalogue |

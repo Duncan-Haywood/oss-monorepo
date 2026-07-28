@@ -19,13 +19,111 @@ export type PairItem = {
   dimensions?: string[];
 };
 
+/** One item's estimate under some other perspective of the same person. */
+export type PriorEstimate = { rating: number; rd: number };
+
 export type PairingInput = {
   items: PairItem[];
   timesShown: Map<string, number>;
   recentPairKeys: Set<string>;
   /** How many questions this person has already answered in this survey. */
   answeredCount?: number;
+  /**
+   * The same person's ratings for these items under their OTHER perspectives,
+   * used only to choose which pair to show. See `selectionRating`.
+   */
+  priorRatings?: Map<string, PriorEstimate>;
+  /**
+   * Source of randomness for the weighted picks. Defaults to `Math.random`.
+   *
+   * Injectable so a simulation can be reproduced. Selection is deliberately
+   * weighted-random rather than top-1, which means every convergence number
+   * this repo quotes comes out of a stochastic process; without a seedable
+   * stream those measurements cannot be re-derived, only re-rolled. The two
+   * simulation suites pass a seeded PRNG, so a change in a median is a change
+   * in the policy rather than a different roll.
+   */
+  rand?: () => number;
 };
+
+/**
+ * Between-perspective spread, in Glicko rating points.
+ *
+ * How far one perspective's true rating of an item sits from another's. Taken
+ * from the `tau` estimates in `docs/POOLING.md` — 60–91 at 90 answers per
+ * perspective, 155–176 at 300 — rounded to the pessimistic end. Overstating it
+ * is the safe direction: it weakens the prior's influence, so the worst case
+ * is that selection falls back to what it did before.
+ */
+const BETWEEN_PERSPECTIVE_SD = 150;
+
+/**
+ * Cross-perspective priors for question selection. **Measured, and not wired
+ * in — it buys nothing.** Kept, like `src/lib/pooling.ts`, so the finding is
+ * reproducible rather than a claim in a document.
+ *
+ * ## The idea, which was a good one
+ *
+ * The informativeness term below prefers pairing items with close ratings,
+ * because a near-toss-up shrinks Glicko-2's variance the most. But it reads
+ * those ratings from the perspective being answered, and at the start of a
+ * perspective every item sits at exactly 1500. Closeness is then identical for
+ * every candidate, so the one term that decides how much each answer is worth
+ * contributes nothing over the first several dozen questions — the stretch
+ * where the budget is tightest. A person answers three perspectives over the
+ * same items, and each restarts from that flat state having learned nothing
+ * from the last.
+ *
+ * `docs/CONVERGENCE.md` listed this as the last of three ways to make the
+ * couple screen reachable, and the only one `docs/POOLING.md` did not refute:
+ * that document's objection is about what pooling does to an *estimate*, and a
+ * pair chosen on prior data leaves the likelihood alone. A paired-comparison
+ * likelihood does not depend on how the pair was chosen, so selecting on prior
+ * data is ignorable — the same argument that already licenses every other
+ * adaptive term here.
+ *
+ * ## What the measurement says
+ *
+ * Nothing. Across correlations of 0.37 to 0.85 and budgets of 90 and 300
+ * answers, items reaching `rd < 200` and `rd < 150` move by at most one, in
+ * both directions, and rank accuracy is flat to very slightly worse.
+ *
+ * The load-bearing run is the *oracle*: a prior that knows the truth exactly,
+ * at `rd 20`. It changes nothing either. So the null is not "the prior is too
+ * noisy to help" — it is that **the closeness term has almost no leverage over
+ * how fast deviation falls.** Rating deviation is driven by how many
+ * comparisons an item gets, which the coverage term and `activeSetSize` decide,
+ * and `weightedPick` is soft enough that reshaping one multiplicative factor
+ * barely moves the allocation.
+ *
+ * That is worth more than the feature would have been. It closes the third
+ * option in `docs/CONVERGENCE.md`, and it says where the budget is *not* being
+ * lost: no amount of cleverness about which pair to show next will make the
+ * couple screen reachable. The remaining levers are the number of items and the
+ * size of the promise.
+ *
+ * ## The blend, if it is ever revisited
+ *
+ * Precision-weighted, treating the prior as an observation carrying its own
+ * deviation plus `BETWEEN_PERSPECTIVE_SD` of genuine between-perspective
+ * disagreement. It dominates while this perspective knows nothing (rd 350
+ * against a prior at rd 100 gives the prior ~79% of the weight) and fades out
+ * on its own as answers arrive (at rd 100 the item's own rating carries ~76%).
+ * Nothing switches at a threshold and nothing needs tuning per survey.
+ *
+ * @see src/lib/selectionPrior.simulation.test.ts — the measurement
+ * @see docs/CONVERGENCE.md
+ * @see docs/decisions/0007-no-selection-only-cross-perspective-priors.md
+ */
+export function selectionRating(item: PairItem, priorRatings?: Map<string, PriorEstimate>): number {
+  const prior = priorRatings?.get(item.id);
+  if (!prior) return item.rating;
+
+  const ownPrecision = 1 / (item.rd * item.rd);
+  const priorSd = Math.hypot(prior.rd, BETWEEN_PERSPECTIVE_SD);
+  const priorPrecision = 1 / (priorSd * priorSd);
+  return (item.rating * ownPrecision + prior.rating * priorPrecision) / (ownPrecision + priorPrecision);
+}
 
 /**
  * Progressive broadening.
@@ -139,10 +237,10 @@ export function pairKey(aId: string, bId: string): string {
   return [aId, bId].sort().join("::");
 }
 
-function weightedPick<T>(items: T[], weight: (item: T) => number): T {
+function weightedPick<T>(items: T[], weight: (item: T) => number, rand: () => number = Math.random): T {
   const weights = items.map((i) => Math.max(weight(i), 0.0001));
   const total = weights.reduce((sum, w) => sum + w, 0);
-  let r = Math.random() * total;
+  let r = rand() * total;
   for (let i = 0; i < items.length; i++) {
     r -= weights[i];
     if (r <= 0) return items[i];
@@ -155,6 +253,8 @@ export function selectNextPair({
   timesShown,
   recentPairKeys,
   answeredCount = 0,
+  priorRatings,
+  rand = Math.random,
 }: PairingInput): [string, string] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
 
@@ -170,7 +270,7 @@ export function selectNextPair({
     return item.rd + underShownBonus;
   };
 
-  const first = weightedPick(pool, priority);
+  const first = weightedPick(pool, priority, rand);
   const candidates = pool.filter((i) => i.id !== first.id);
 
   // Early: reward crossing categories (broad structure). Later: reward
@@ -178,9 +278,13 @@ export function selectNextPair({
   const bias = sameCategoryBias(answeredCount);
 
   const firstDim = first.dimensions?.[0];
+  // Only the closeness term reads this. The uncertainty term below stays on
+  // the item's OWN rd on purpose: the point is to measure what THIS
+  // perspective is unsure about, which another perspective cannot tell us.
+  const firstSelectionRating = selectionRating(first, priorRatings);
 
   const score = (other: PairItem) => {
-    const ratingDiff = Math.abs(other.rating - first.rating);
+    const ratingDiff = Math.abs(selectionRating(other, priorRatings) - firstSelectionRating);
     const closeness = 1 / (1 + ratingDiff / 100);
     const uncertaintyBonus = other.rd / 350;
 
@@ -200,12 +304,16 @@ export function selectNextPair({
     return (closeness * 2 + uncertaintyBonus) * (0.25 + 1.75 * phaseFactor) * conflictBonus * repeatPenalty;
   };
 
-  const second = weightedPick(candidates, score);
+  const second = weightedPick(candidates, score, rand);
   return [first.id, second.id];
 }
 
 /** Picks two distinct identity items for a CONJOINED-survey trial, favoring under-shown items. */
-export function selectIdentityPair(items: PairItem[], timesShown: Map<string, number>): [PairItem, PairItem] {
+export function selectIdentityPair(
+  items: PairItem[],
+  timesShown: Map<string, number>,
+  rand: () => number = Math.random
+): [PairItem, PairItem] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
   const shownCounts = items.map((i) => timesShown.get(i.id) ?? 0);
   const avgShown = shownCounts.reduce((a, b) => a + b, 0) / items.length;
@@ -213,10 +321,11 @@ export function selectIdentityPair(items: PairItem[], timesShown: Map<string, nu
     const shown = timesShown.get(item.id) ?? 0;
     return 1 + Math.max(0, avgShown - shown) * 3;
   };
-  const first = weightedPick(items, priority);
+  const first = weightedPick(items, priority, rand);
   const second = weightedPick(
     items.filter((i) => i.id !== first.id),
-    priority
+    priority,
+    rand
   );
   return [first, second];
 }

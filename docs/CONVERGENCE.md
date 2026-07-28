@@ -90,12 +90,30 @@ The remaining honest options are the ones
   and it works by pulling PARTNER_GUESS onto SELF (correlation 0.97–0.99
   against a true 0.37), which is the egocentric bias the blind-spots screen
   exists to detect. See [POOLING.md](POOLING.md) and
-  [decisions/0006](decisions/0006-no-pooling-across-perspectives.md). What is
-  *not* closed is using other perspectives to choose which questions to ask,
-  which cannot bias an estimate and has never been measured.
+  [decisions/0006](decisions/0006-no-pooling-across-perspectives.md).
+- ~~**Use other perspectives to choose which questions to ask.**~~ **Measured
+  and closed.** This was the one form of pooling nothing above refuted — a pair
+  chosen on prior data leaves the likelihood alone, so it cannot bias an
+  estimate. It also cannot help. Across correlations of 0.37 to 0.85 and
+  budgets of 90 and 300, items reaching rd 150 move by at most one in either
+  direction. The run that settles it is an *oracle* prior that knows the truth
+  exactly: it moves the same measure by two items out of 41. So the null is not
+  "the prior is too noisy" — **the closeness term has almost no leverage over
+  how fast deviation falls**, because deviation is set by how many comparisons
+  an item gets, which the coverage term and `activeSetSize` decide. See
+  [decisions/0007](decisions/0007-no-selection-only-cross-perspective-priors.md)
+  and `src/lib/selectionPrior.simulation.test.ts`.
+
+That leaves two options, and **both are product decisions rather than
+engineering ones.** Every route that made the screen reachable by asking better
+questions is now measured and closed; what remains is asking *fewer* questions
+or promising *less*:
+
 - **Shrink the combined survey.** 220 items is a superset of the other six. If
   the couple screen only ever needs the top of the ranking, it does not need
-  the tail.
+  the tail. This is now the only remaining lever that increases what a person
+  gets for a fixed number of answers, and it needs someone to decide which
+  items matter.
 - **Make a smaller promise up front.** Tell people what 60 answers buys before
   they start, rather than showing a complete-looking ranking that is not one.
 

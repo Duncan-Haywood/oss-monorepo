@@ -71,6 +71,7 @@ function simulate(itemCount: number, budget: number, seed: number): SimResult {
       timesShown,
       recentPairKeys: new Set(recent),
       answeredCount: answered,
+      rand,
     });
 
     // Bradley-Terry: the stronger latent preference wins more often, but not

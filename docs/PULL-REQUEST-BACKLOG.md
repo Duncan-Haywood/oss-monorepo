@@ -1,7 +1,14 @@
 # The open pull requests, and what to do with each
 
-Twenty-three scheduled sessions have opened twenty-three pull requests against
+Twenty-five scheduled sessions have opened twenty-five pull requests against
 `main`. **None has been merged.** `main` is still at `b887731`.
+
+**Every one of them is closeable by merging this single branch.** Eight are
+ancestors of it and close by containment; the other seventeen were checked
+file-by-file, and the one artifact that was genuinely distinct and uncarried —
+a test for the rate limiter — has now been written here rather than left in a
+branch nobody will merge. There is no longer anything in the queue that this
+branch does not have.
 
 [UNATTENDED-SESSIONS.md](UNATTENDED-SESSIONS.md) records why this happened and
 what changed in response — the branch rule now holds, and sessions extend the
@@ -46,15 +53,24 @@ branch deletes.
 | #17 | `kind-ptolemy-fyyehh` | Stopped collecting the six fields no screen asks for; privacy policy corrected |
 | #21 | `kind-ptolemy-2deutw` | Confidence filtering in `compareRankings`; `docs/STATISTICAL-INTEGRITY.md` |
 | #22 | `kind-ptolemy-q4tje6` | Progressive broadening; `docs/CONVERGENCE.md`; the pairing simulation |
+| #24 | `keen-gates-9o7vfd` | The last route-level `try`/`catch` gap, with a regression test |
+| #25 | `kind-ptolemy-2lb265` | Cross-perspective pooling measured and rejected; `docs/POOLING.md`; this document |
 
-Merging this branch closes all six.
+Merging this branch closes all eight.
+
+**#24 and #25 are the two heads this branch merged.** They fired within minutes
+of each other, extended the same seven commits, and each added one on top —
+neither could see the other. They conflicted only in `IMPROVEMENT-PLAN.md` and
+`UNATTENDED-SESSIONS.md`, where both were describing this same problem, and both
+sides were kept. A sibling that extends your own base should be merged, not
+reviewed; see [UNATTENDED-SESSIONS.md](UNATTENDED-SESSIONS.md).
 
 ### Superseded — close, but read the note first
 
 Sixteen branches, each a single commit off `b887731`, most of them adding a
 `DEVELOPMENT-PROCESS.md` and a rewritten `IMPROVEMENT-PLAN.md`. They are the
 duplicate-work episode itself. This branch carries the same material as
-`developmentprocess.tsx` plus `docs/`, kept current across seven commits.
+`developmentprocess.tsx` plus `docs/`, kept current across nine commits.
 
 | PR | Branch | Unique artifact | Note |
 | --- | --- | --- | --- |
@@ -95,18 +111,28 @@ stale corrected:
 taken because its numbering and content are a superset. **#8 and #19 should
 still be closed** — their remaining content is duplicate.
 
-## The one real gap this leaves
+## The one real gap this left — now closed
 
-**`src/lib/rateLimit.ts` has no test.** #4 wrote one, but against a different
+**`src/lib/rateLimit.ts` had no test.** #4 wrote one, but against a different
 rate-limit design (`RateLimitEvent`, not the `AnonRequestLog` table this branch
-uses), so it does not port across. It is the only thing in twenty-three pull
-requests that is both distinct and not carried here. Worth writing fresh; it
-needs a Prisma stub, so it is a small job rather than a free one.
+uses), so it did not port across. It was the only thing in twenty-five pull
+requests that was both distinct and not carried here.
+
+Written fresh as `src/lib/rateLimit.test.ts`: twelve tests over a Prisma stub,
+covering the `>= max` boundary in both directions, the fifteen-minute window,
+per-IP and per-route scoping, and `x-forwarded-for` parsing. Mutation-checked
+rather than assumed — flipping `>=` to `>` fails exactly one test, the one
+named for that boundary.
+
+With that written, **nothing distinct remains in the queue.** Closing the other
+seventeen loses nothing at all.
 
 ## What to actually do
 
-1. Merge this branch. That closes #6, #12, #14, #17, #21, #22 by containment.
-2. Close the other seventeen with a one-line comment pointing here.
+1. Merge this branch. That closes #6, #12, #14, #17, #21, #22, #24 and #25 by
+   containment.
+2. Close the other seventeen with a one-line comment pointing here. Nothing
+   distinct is left in any of them.
 3. Decide whether this task should keep firing while nothing it produces can
    land. That is the question underneath all of the above, and it is the only
    one a scheduled session cannot answer for itself.

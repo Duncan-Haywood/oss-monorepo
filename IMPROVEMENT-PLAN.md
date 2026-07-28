@@ -212,11 +212,25 @@ the implementation kept unimported in `src/lib/pooling.ts` so the decision can b
 re-argued against a real estimator. See
 [`decisions/0006`](docs/decisions/0006-no-pooling-across-perspectives.md).
 
-**Still open, in the order I would take them:** shrink the combined survey,
-which is a superset of the other six; say up front what 60 answers buys; or
-pool across perspectives *for question selection only*, which cannot bias an
-estimate and is the one form of the idea nothing above refutes. See
-[`docs/CONVERGENCE.md`](docs/CONVERGENCE.md).
+**Selection-only pooling is now measured and closed too.** It was the last of
+the three, and the one nothing above refuted: a pair chosen on prior data
+leaves the likelihood alone, so it cannot bias an estimate. It also cannot
+help. Across correlations 0.37–0.85 and budgets of 90 and 300, items reaching
+rd 150 move by at most one either way. The run that settles it is an *oracle*
+prior that knows the truth exactly — two items out of 41, against progressive
+broadening's 0 → 34. So the closeness term has almost no leverage over how fast
+deviation falls; deviation is set by how many comparisons an item gets, which
+the coverage term and `activeSetSize` decide. Kept unwired in
+`src/lib/pairing.ts` with the measurement in
+`src/lib/selectionPrior.simulation.test.ts`; see
+[`decisions/0007`](docs/decisions/0007-no-selection-only-cross-perspective-priors.md).
+
+**So this is now a product decision, not an engineering one.** Every route to
+making the couple screen reachable by asking *better* questions has been
+measured and closed. The two that remain are asking *fewer* questions — shrink
+the combined survey, a superset of the other six — or promising less up front by
+saying what 60 answers buys before someone starts. Both need the account owner.
+See [`docs/CONVERGENCE.md`](docs/CONVERGENCE.md).
 
 ### P1 → resolved on this branch — The comparison screen reported its own noise as findings
 

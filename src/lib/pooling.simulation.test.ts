@@ -82,6 +82,7 @@ function runPerspective(truth: Map<string, number>, budget: number, seed: number
       timesShown,
       recentPairKeys: new Set(recent),
       answeredCount: answered,
+      rand,
     });
 
     const pA = 1 / (1 + Math.exp(-2 * (truth.get(aId)! - truth.get(bId)!)));
