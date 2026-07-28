@@ -5016,6 +5016,30 @@ source). The same digest also lists email-critical leads with no usable address 
         write type) stay out of scope, same reasoning as every prior single-site/cluster fix here.
       </p>
       <p>
+        <code>orders-recurring-reactivated-capture-error</code>: the mirror-image gap left over from{" "}
+        <code>orders-recurring-canceled-capture-error</code>, which wired the 5-site{" "}
+        <em>pause</em> cluster but explicitly left its reactivate/renew counterpart in the same two
+        handlers out of scope. Wired <code>captureError</code> into the 5 remaining sites: the{" "}
+        <code>customer.subscription.updated</code> and <code>invoice.paid</code> restore branches
+        (each calling <code>clearOrdersRecurringCanceledByCustomer</code> +{" "}
+        <code>syncOrdersRecurringEntitlementByCustomer</code>,{" "}
+        <code>failureKind: &quot;orders_recurring_reactivated&quot;</code>), the{" "}
+        <code>invoice.payment_failed</code> and <code>invoice.paid</code>{" "}
+        <code>stripe.subscriptions.retrieve</code> calls (
+        <code>failureKind: &quot;subscription_retrieve&quot;</code>), and{" "}
+        <code>invoice.paid</code>&apos;s <code>recordSubscriptionRenewalPayment</code> call (
+        <code>failureKind: &quot;subscription_renewal_revenue&quot;</code>). Same stakes as the
+        pause cluster: a silent failure here means a reactivated subscriber stays wrongly flagged as
+        paused (marketing/voice packs withheld, stuck in the dashboard&apos;s paused-MRR-recovery
+        queue) or a renewal invoice&apos;s amount silently never lands in{" "}
+        <code>lifetimeRevenueUsd</code>/<code>revenueTotalUsd</code> — invisible except as a 5xx in
+        Stripe&apos;s own dashboard. All 5 existing failure-path tests already asserted the 500
+        response and <code>step</code>; extended each with the matching{" "}
+        <code>captureError</code> assertion rather than adding new tests, since every branch already
+        had failure-path coverage. The remaining ~16{" "}
+        <code>webhookFulfillmentFailureResponse(...)</code> sites in this file stay out of scope.
+      </p>
+      <p>
         <code>db-getLeads-convex-fallback-capture-error</code>: a closer look at the{" "}
         <code>db.ts</code> Convex-fallback gap named above (84{" "}
         <code>console.warn</code> &quot;falling back to SQLite&quot; sites, twice deferred as

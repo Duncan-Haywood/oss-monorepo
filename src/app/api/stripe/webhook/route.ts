@@ -1646,6 +1646,13 @@ export async function POST(request: Request) {
             `Failed to restore/sync recurring entitlement for customer ${customerId} after ${event.type} ${subscription.id}`,
             e,
           );
+          // See orders-recurring-canceled-capture-error in /docs/architecture.
+          await captureError(e, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "orders_recurring_reactivated",
+          });
           const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");
           return NextResponse.json(failure.body, { status: failure.status });
         }
@@ -1806,6 +1813,13 @@ export async function POST(request: Request) {
           `Failed to retrieve subscription ${subscriptionId} for invoice.payment_failed ${invoice.id}`,
           e,
         );
+        // See orders-recurring-canceled-capture-error in /docs/architecture.
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "subscription_retrieve",
+        });
         const failure = webhookFulfillmentFailureResponse("subscription_retrieve");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -1920,6 +1934,13 @@ export async function POST(request: Request) {
           `Failed to retrieve subscription ${subscriptionId} for invoice.paid ${invoice.id}`,
           e,
         );
+        // See orders-recurring-canceled-capture-error in /docs/architecture.
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "subscription_retrieve",
+        });
         const failure = webhookFulfillmentFailureResponse("subscription_retrieve");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -2002,6 +2023,13 @@ export async function POST(request: Request) {
           `Failed to restore/sync recurring entitlement for customer ${customerId} after invoice.paid ${invoice.id}`,
           e,
         );
+        // See orders-recurring-canceled-capture-error in /docs/architecture.
+        await captureError(e, {
+          component: "stripe-webhook",
+          eventType: event.type,
+          eventId: event.id,
+          failureKind: "orders_recurring_reactivated",
+        });
         const failure = webhookFulfillmentFailureResponse("orders_recurring_reactivated");
         return NextResponse.json(failure.body, { status: failure.status });
       }
@@ -2029,6 +2057,13 @@ export async function POST(request: Request) {
               `Failed to record subscription renewal payment for customer ${customerId} after invoice.paid ${invoice.id}`,
               e,
             );
+            // See orders-recurring-canceled-capture-error in /docs/architecture.
+            await captureError(e, {
+              component: "stripe-webhook",
+              eventType: event.type,
+              eventId: event.id,
+              failureKind: "subscription_renewal_revenue",
+            });
             const failure = webhookFulfillmentFailureResponse("subscription_renewal_revenue");
             return NextResponse.json(failure.body, { status: failure.status });
           }
