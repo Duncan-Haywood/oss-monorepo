@@ -85,6 +85,22 @@ questions a simulation can answer**, because those are exactly the questions a
 person with the app in front of them will not think to ask, and they do not
 need a database, a browser, or a merge to be worth doing.
 
+## Twenty-three, and the rule holding under load
+
+Two sessions fired within minutes of #22 and reforked from the stale
+pre-consolidation base instead of reading the open PRs first (#23, and one
+that landed nothing new). The session writing this extended #22 anyway,
+read #23, and found it added nothing #22 didn't already have — logged in
+`IMPROVEMENT-PLAN.md` rather than repeated here. The rule about extending
+the strongest branch holds even when it's raced; it just means occasionally
+reviewing a sibling branch and confirming there's nothing to take from it.
+
+This session's own contribution was small on purpose: the last route-level
+try/catch gap, regression-tested. Not every run needs to be the one that
+finds the next `CONVERGENCE.md`-sized result — closing a small, real,
+already-scoped item is still landing work, and this branch does not compete
+with anything open.
+
 ## What a deletion leaves behind
 
 The consolidation deleted the intro form, which was right — it collected sex,

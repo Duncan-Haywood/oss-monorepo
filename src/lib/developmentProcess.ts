@@ -402,10 +402,10 @@ export const WORKSTREAMS: Workstream[] = [
     id: "observability",
     title: "Know when it breaks",
     priority: "P2",
-    status: "next",
+    status: "done",
     goal: "measure-honestly",
     note:
-      "Error boundaries exist; the remaining routes need consistent try/catch and one structured log line per failure. A silent failure is indistinguishable from a number that is simply wrong.",
+      "Error boundaries exist, and every API route now catches its own failures and logs them rather than throwing past the handler. A silent failure is indistinguishable from a number that is simply wrong. Remaining: the routes are still unit-tested with a stubbed Prisma, not against a real database — see the P2 integration-test gap.",
   },
   {
     id: "accessibility",
