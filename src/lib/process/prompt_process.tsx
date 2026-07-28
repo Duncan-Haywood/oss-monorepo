@@ -891,4 +891,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "contact-form-notify-send-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-ujz9qn",
+    summary:
+      "Continuation of the same scheduled routine. Had independently built a complete duplicate of stripe-webhook-checkout-completed-capture-error (the entry two above) and was about to push when a routine pre-push fetch showed origin/main had already moved — a sibling session had merged the identical fix as PR #970 moments earlier. Compared the two implementations side by side per the established dual-build-collision-review precedent rather than discarding outright.",
+    shipped: [
+      "15 of 17 wired sites were structurally identical between the two implementations. The two diverged only on the two flag-based failure kinds (commerce_client_receipt_send, bundle_email_send) where a boolean flag is set from either of two independent origins (a resolved success:false response or a caught thrown error) and checked once after both attempts. The merged version captures once at that shared check with one generic synthesized Error regardless of which origin failed — discarding the real thrown error's message/stack in the thrown-error case, exactly the diagnostic value captureError exists to preserve.",
+      "Judged this a genuine, narrow, shippable improvement rather than a stylistic difference — it directly affects what an operator's error-tracking tool shows when one of these sends fails in production. Rather than reintroducing the full 17-site duplicate, shipped a small follow-up: moved captureError at both flag-based sites from the shared if(flagSet) check into each of their 4 underlying failure-origin branches (2 per site — the real caught error in the throw branch, a synthesized Error carrying the real reason/error field in the resolved-failure branch), removing the now-redundant shared-check capture.",
+      "src/app/api/stripe/webhook/route.ts (captureError moved from 2 shared sites to 4 per-origin branches); route.test.ts (6 existing tests tightened to assert the real error/message instead of expect.any(Error)); src/app/docs/architecture/page.tsx (new paragraph after stripe-webhook-checkout-completed-capture-error's own); src/lib/process/business-decisions.ts (appended checkout-completed-capture-error-per-origin-fix); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change — all six gated items remain operator/legal/business-blocked, unchanged.",
+      "Proved via git-stash: stashed only route.ts, confirmed all 6 tightened assertions failed exactly as expected (257 passed, 6 failed — each surfacing the generic synthesized message instead of the real error/reason), then restored and confirmed all 263 tests pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (route.test.ts — 263 passed) then full suite (3996 passed, 234 files, unchanged by this fix) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only Stripe webhook observability change, fully exercised by automated tests.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "checkout-completed-capture-error-per-origin-fix",
+    ),
+  },
 ];

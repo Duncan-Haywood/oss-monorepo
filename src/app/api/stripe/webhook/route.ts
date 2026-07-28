@@ -860,6 +860,22 @@ export async function POST(request: Request) {
                   console.error(
                     `Commerce client receipt not sent for ${orderSlug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
                   );
+                  // Capture at the origin, not the merged flag check below —
+                  // a resolved success:false has no thrown Error to carry a
+                  // real stack, but its reason/error field is real diagnostic
+                  // signal a generic synthesized message at the merged check
+                  // would otherwise discard.
+                  await captureError(
+                    new Error(
+                      `Commerce client receipt send resolved failure: ${sent.reason ?? sent.error ?? "unknown"}`,
+                    ),
+                    {
+                      component: "stripe-webhook",
+                      eventType: event.type,
+                      eventId: event.id,
+                      failureKind: "commerce_client_receipt_send",
+                    },
+                  );
                 }
               } catch (emailError) {
                 clientReceiptSendFailed = true;
@@ -867,24 +883,18 @@ export async function POST(request: Request) {
                   `Failed to email commerce client receipt for ${orderSlug}`,
                   emailError,
                 );
+                // Capture the real thrown error here (with its actual
+                // message/stack) rather than at the merged flag check below,
+                // which would otherwise discard it behind a generic
+                // synthesized message.
+                await captureError(emailError, {
+                  component: "stripe-webhook",
+                  eventType: event.type,
+                  eventId: event.id,
+                  failureKind: "commerce_client_receipt_send",
+                });
               }
               if (clientReceiptSendFailed) {
-                // No single caught error survives to this merged flag check
-                // (it is set from either a resolved success:false send or a
-                // thrown emailError, each scoped to its own inner catch) —
-                // synthesize one for captureError, mirroring the
-                // missing-session.subscription capture above.
-                await captureError(
-                  new Error(
-                    `commerce client receipt send failed for ${orderSlug} (session ${session.id})`,
-                  ),
-                  {
-                    component: "stripe-webhook",
-                    eventType: event.type,
-                    eventId: event.id,
-                    failureKind: "commerce_client_receipt_send",
-                  },
-                );
                 const failure = webhookFulfillmentFailureResponse(
                   "commerce_client_receipt_send",
                 );
@@ -1397,10 +1407,36 @@ export async function POST(request: Request) {
                 console.error(
                   `Receipt email not sent for ${slug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
                 );
+                // Capture at the origin, not the merged flag check below — a
+                // resolved success:false has no thrown Error to carry a real
+                // stack, but its reason/error field is real diagnostic
+                // signal a generic synthesized message at the merged check
+                // would otherwise discard.
+                await captureError(
+                  new Error(
+                    `Bundle receipt email send resolved failure: ${sent.reason ?? sent.error ?? "unknown"}`,
+                  ),
+                  {
+                    component: "stripe-webhook",
+                    eventType: event.type,
+                    eventId: event.id,
+                    failureKind: "bundle_email_send",
+                  },
+                );
               }
             } catch (emailError) {
               emailSendFailed = true;
               console.error(`Failed to send receipt email for ${slug}:`, emailError);
+              // Capture the real thrown error here (with its actual
+              // message/stack) rather than at the merged flag check below,
+              // which would otherwise discard it behind a generic
+              // synthesized message.
+              await captureError(emailError, {
+                component: "stripe-webhook",
+                eventType: event.type,
+                eventId: event.id,
+                failureKind: "bundle_email_send",
+              });
             }
           }
 
@@ -1443,29 +1479,30 @@ export async function POST(request: Request) {
                 console.error(
                   `DNS handoff email not sent for ${slug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
                 );
+                await captureError(
+                  new Error(
+                    `Bundle DNS handoff email send resolved failure: ${sent.reason ?? sent.error ?? "unknown"}`,
+                  ),
+                  {
+                    component: "stripe-webhook",
+                    eventType: event.type,
+                    eventId: event.id,
+                    failureKind: "bundle_email_send",
+                  },
+                );
               }
             } catch (emailError) {
               emailSendFailed = true;
               console.error(`Failed to send DNS handoff email for ${slug}:`, emailError);
-            }
-          }
-          if (emailSendFailed) {
-            // No single caught error survives to this merged flag check (it
-            // is set from either a resolved success:false send or a thrown
-            // emailError, each scoped to its own inner catch) — synthesize
-            // one for captureError, mirroring the missing-
-            // session.subscription capture above.
-            await captureError(
-              new Error(
-                `bundle receipt/DNS handoff email send failed for ${slug} (session ${session.id})`,
-              ),
-              {
+              await captureError(emailError, {
                 component: "stripe-webhook",
                 eventType: event.type,
                 eventId: event.id,
                 failureKind: "bundle_email_send",
-              },
-            );
+              });
+            }
+          }
+          if (emailSendFailed) {
             const failure = webhookFulfillmentFailureResponse("bundle_email_send");
             return NextResponse.json(failure.body, { status: failure.status });
           }
