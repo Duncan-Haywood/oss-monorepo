@@ -2045,6 +2045,35 @@ export default function ArchitectureDocPage() {
         the stored interval is exactly <code>&quot;annual&quot;</code>.
       </p>
       <p>
+        <code>checkout-setup-fee-skip-on-upgrade</code>: both{" "}
+        <code>sendStarterUpsellEmail</code> and <code>sendGrowthUpsellEmail</code> (
+        <code>src/lib/email/resend.ts</code>) tell a paying customer &quot;Setup is already covered
+        by what you paid&quot; before linking to <code>/checkout?slug=...&amp;tier=...</code> — but{" "}
+        <code>POST /api/stripe/checkout</code> priced in the one-time setup fee for{" "}
+        <em>every</em> checkout unconditionally, with no check for whether the lead already had a
+        prior order. Every <code>BundleDefinition</code> in <code>bundles.ts</code> carries the
+        same <code>setupPriceUsd: 500</code>, so a Starter customer clicking the upsell link (or a
+        Growth customer clicking the newer Growth→Complete one) landed on a checkout page charging
+        a second $500 setup fee plus the new recurring price — directly contradicting the email,
+        and a real billing-trust/chargeback risk if the customer didn&apos;t notice before paying.
+        Fixed by resolving <code>leadSlug</code> earlier in the route and fetching{" "}
+        <code>listOrdersByLeadSlug(leadSlug)</code> unconditionally (reused for the existing{" "}
+        <code>existingCustomerId</code> derivation too, avoiding a second lookup): when the lead
+        already has any prior order, the setup-fee Stripe Price ID is neither required nor added to{" "}
+        <code>line_items</code> — every tier&apos;s setup fee covers the same one-time site build,
+        so any prior order (regardless of which tier) means it was already paid. Deliberately does
+        not filter out refunded/disputed prior orders, mirroring{" "}
+        <code>existingRecurringStripeCustomerId</code>&apos;s own no-filter precedent — the only
+        paths that ever reach this route with a lead that has prior orders are the two upsell
+        emails, whose own eligibility checks already exclude a refunded/disputed source order. The
+        Commerce add-on&apos;s own separate setup fee is unaffected — an existing Growth customer
+        adding Commerce for the first time still pays that add-on&apos;s setup fee, since they
+        never paid it before. Added a guard returning 400 for the one degenerate case this could
+        otherwise create (a repeat Starter request for a lead that already has an order, with no
+        recurring price and no add-on selected — nothing left to charge) rather than sending Stripe
+        an empty <code>line_items</code> array.
+      </p>
+      <p>
         <code>acquisition-source-checkout-attribution</code>: the homepage pricing grid and each
         of the three <code>/websites-for-*</code> SEO category landing pages funneled to the same{" "}
         <code>/checkout</code> page with no way to tell which surface actually converted — no

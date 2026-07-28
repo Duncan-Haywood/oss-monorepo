@@ -84,9 +84,44 @@ export async function POST(request: Request) {
     );
   }
 
-  const setupPriceId = process.env[bundle.setupPriceIdEnv];
-  if (!setupPriceId) {
-    return notConfigured(`Set ${bundle.setupPriceIdEnv} to the Stripe Price ID for the ${bundle.name} setup fee.`);
+  // Resolved early (normally derived further down, alongside customerEmail/
+  // acquisitionSource) purely so the setup-fee skip below can run before the
+  // line items are built — see the doc comment on hasExistingOrder.
+  const idempotencyKey = parseClientIdempotencyKey(body.idempotencyKey);
+  const { leadSlug, mintedOrganic } = resolveBundleCheckoutLeadSlug(body.slug, {
+    idempotencyKey,
+  });
+
+  // A tier-upgrade checkout for a lead that already has ANY prior bundle
+  // order (Starter/Growth/Complete all share the same one-time setup fee —
+  // see BUNDLES) must not charge the one-time setup fee again — every tier's
+  // setupPriceUsd covers the same site build, done once. Both the Starter
+  // and Growth upsell emails (sendStarterUpsellEmail / sendGrowthUpsellEmail
+  // in src/lib/email/resend.ts) explicitly tell the customer "Setup is
+  // already covered by what you paid" before linking to this exact route
+  // with no other signal of "this is an upgrade" — the promise is only true
+  // if this route independently rediscovers the same fact via the lead's own
+  // order history. Previously it did not: every checkout unconditionally
+  // priced in the setup fee regardless of prior orders, silently
+  // overcharging an upgrading customer by the full setup amount and
+  // contradicting the email they just read. See
+  // checkout-setup-fee-skip-on-upgrade.
+  //
+  // Deliberately does not filter out refunded/disputed prior orders (mirrors
+  // existingRecurringStripeCustomerId's own no-filter precedent just below):
+  // the only two paths that ever reach this route with a lead that has prior
+  // orders are the upsell emails above, whose own eligibility checks
+  // (isStarterOnlyOrder / isLiveGrowthOrder) already exclude a
+  // refunded/disputed source order before the email is ever sent.
+  const existingOrders = await listOrdersByLeadSlug(leadSlug);
+  const hasExistingOrder = existingOrders.length > 0;
+
+  let setupPriceId: string | undefined;
+  if (!hasExistingOrder) {
+    setupPriceId = process.env[bundle.setupPriceIdEnv];
+    if (!setupPriceId) {
+      return notConfigured(`Set ${bundle.setupPriceIdEnv} to the Stripe Price ID for the ${bundle.name} setup fee.`);
+    }
   }
 
   const commerceAddonApplied = body.commerceAddon === true;
@@ -107,9 +142,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-    { price: setupPriceId, quantity: 1 },
-  ];
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = setupPriceId
+    ? [{ price: setupPriceId, quantity: 1 }]
+    : [];
   let hasRecurring = false;
 
   const recurringPriceIdEnv =
@@ -137,22 +172,29 @@ export async function POST(request: Request) {
     hasRecurring = true;
   }
 
+  // Only reachable when hasExistingOrder skipped the setup fee AND the tier
+  // has no recurring price AND no Commerce add-on was requested (e.g. a
+  // repeat Starter checkout for a lead that already has an order) — nothing
+  // legitimate to charge, and Stripe rejects an empty line_items array
+  // anyway. No real entry point hits this (the upsell emails only ever link
+  // to growth/complete, both of which always have a recurring price), but
+  // fail with a clear 400 rather than letting a malformed/replayed request
+  // reach Stripe with nothing to sell.
+  if (lineItems.length === 0) {
+    return NextResponse.json(
+      {
+        error: "Nothing to purchase",
+        message: `${bundle.name} has no setup fee to charge for a lead that already has an order, and no recurring plan or add-on was selected.`,
+      },
+      { status: 400 },
+    );
+  }
+
   // Never trust request.url / Host for Stripe redirect bases — see
   // resolveStripeRedirectAppUrl (Host spoof → post-payment phishing).
   const appUrl = resolveStripeRedirectAppUrl();
   const stripe = new Stripe(secretKey);
 
-  // Client-minted per-attempt key — see idempotency-key.ts for why this must
-  // NOT be a stable server-derived key like the catalog/bootstrap/Connect ones.
-  const idempotencyKey = parseClientIdempotencyKey(body.idempotencyKey);
-  // Homepage CTAs omit slug — mint organic-* so webhook fulfillment + payment
-  // stubs still create CRM/handoff rows after Stripe collects money. Derive
-  // the organic slug from idempotencyKey (when present) rather than a fresh
-  // random one, so a same-key retry sends Stripe the same metadata.slug —
-  // see resolveBundleCheckoutLeadSlug's doc comment.
-  const { leadSlug, mintedOrganic } = resolveBundleCheckoutLeadSlug(body.slug, {
-    idempotencyKey,
-  });
   // Soft-cap before Stripe + persist — rate limits blunt count, not size.
   const customerEmail = normalizeCheckoutCustomerEmail(body.customerEmail);
   // Never trust a client-supplied acquisition-source string — validate
@@ -173,8 +215,10 @@ export async function POST(request: Request) {
   // active Subscriptions, silently doubling their bill. See
   // stripe-checkout-recurring-upgrade-dedup. A brand-new subscriber has no
   // prior orders, so this resolves to null and behaves exactly as before.
+  // Reuses existingOrders (fetched above for the setup-fee-skip check) rather
+  // than a second listOrdersByLeadSlug call.
   const existingCustomerId = hasRecurring
-    ? existingRecurringStripeCustomerId(await listOrdersByLeadSlug(leadSlug))
+    ? existingRecurringStripeCustomerId(existingOrders)
     : null;
 
   const cancelParams = new URLSearchParams({ cancelled: "1" });

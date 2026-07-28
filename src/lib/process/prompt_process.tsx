@@ -834,5 +834,23 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "leads-client-pending-announcement-shared-status-region",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 68f886ef (PR #948, leads-client-pending-announcement-shared-status-region, merged this session). git fetch --prune + list_pull_requests found no live sibling PR beyond the unrelated stale draft #202. Dispatched a research agent steering toward fresh angles and told it to cross-check the live process-log tail plus git log for freshness before proposing anything.",
+    shipped: [
+      "Found and independently re-verified a real billing-trust bug: sendStarterUpsellEmail and sendGrowthUpsellEmail (src/lib/email/resend.ts) both tell a paying customer 'Setup is already covered by what you paid' before linking to /checkout — but POST /api/stripe/checkout unconditionally priced in the one-time setup fee for every checkout, with no check for whether the lead already had a prior order. Every BundleDefinition (bundles.ts) carries the same setupPriceUsd: 500 — one setup fee per site build, not per tier — so a Starter or Growth customer clicking either upsell link landed on a checkout charging a second $500 setup fee plus the new recurring price, directly contradicting the email. Distinct from the already-closed recurring-upgrade-dedup family (duplicate Customers/Subscriptions, not the setup line item) and orthogonal to the just-shipped annual-billing work.",
+      "Why it matters: a concrete billing-trust/chargeback risk (a customer who reads 'setup is already covered' then sees $500 due has a legitimate dispute), and an accidental $500 overcharge if unnoticed before paying.",
+      "Fixed by moving leadSlug resolution earlier in route.ts and fetching listOrdersByLeadSlug(leadSlug) unconditionally — reused for the existing existingCustomerId derivation too, no second lookup. When the lead already has any prior order (any tier), the setup-fee Price ID is neither required nor added to line_items. Deliberately does not filter refunded/disputed prior orders, mirroring existingRecurringStripeCustomerId's own no-filter precedent — the only paths reaching this route with prior orders are the two upsell emails, whose own eligibility checks already exclude a refunded/disputed source order. The Commerce add-on's own separate setup fee is untouched. Added a 400 guard for the one degenerate case this could create (a repeat Starter request for a lead with an existing order and no recurring price/add-on selected) rather than sending Stripe an empty line_items array.",
+      "Proved via git-stash: stashed only route.ts, confirmed all 5 new/updated assertions failed exactly as expected, then restored and confirmed all 46 tests in the file pass. Tests: updated the one pre-existing test whose 'orders not looked up' assumption no longer holds (re-asserted the Customer-reuse behavior it actually protects, unchanged), plus 5 new cases covering the skip, the still-charges-for-new-lead case, the no-longer-required env var, the 400 guard, and the Commerce add-on setup fee still charging correctly.",
+      "src/app/api/stripe/checkout/route.ts, route.test.ts — the fix + tests. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended checkout-setup-fee-skip-on-upgrade. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 68f886ef (origin/main tip, PR #948 merge).",
+      "File-size check: prompt_process.tsx (202,556 bytes) and business-decisions.ts (220,524 bytes) both measured via wc -c before this entry — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (checkout/route.test.ts, 46/46 passed) then full suite (3932 passed, 231 files, +5 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only Stripe line-item change, no UI component touched.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "checkout-setup-fee-skip-on-upgrade",
+    ),
+  },
 ];
 

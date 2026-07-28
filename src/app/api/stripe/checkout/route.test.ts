@@ -511,8 +511,9 @@ describe("POST /api/stripe/checkout", () => {
       expect(createArgs.customer_email).toBeUndefined();
     });
 
-    it("does not look up orders or reuse a Customer for a one-time Starter (non-recurring) checkout", async () => {
+    it("does not reuse a Customer for a one-time Starter (non-recurring) checkout, even though orders are now looked up for the setup-fee-skip check (checkout-setup-fee-skip-on-upgrade)", async () => {
       setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([]);
       sessionsCreate.mockResolvedValue({
         id: "cs_test_starter_no_lookup",
         url: "https://checkout.stripe.com/starter",
@@ -526,7 +527,13 @@ describe("POST /api/stripe/checkout", () => {
         }),
       );
       expect(res.status).toBe(200);
-      expect(listOrdersByLeadSlug).not.toHaveBeenCalled();
+      expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer).toBeUndefined();
+      expect(createArgs.customer_email).toBe("owner@demo-cafe.test");
     });
 
     it("falls back to customer_email when the lead's prior recurring order has no Stripe Customer id", async () => {
@@ -553,6 +560,108 @@ describe("POST /api/stripe/checkout", () => {
       };
       expect(createArgs.customer).toBeUndefined();
       expect(createArgs.customer_email).toBe("owner@demo-cafe.test");
+    });
+  });
+
+  describe("setup-fee skip on upgrade (checkout-setup-fee-skip-on-upgrade)", () => {
+    it("omits the setup-fee line item for a Growth checkout when the lead already has a prior order (e.g. Starter -> Growth upsell)", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_starter", tier: "starter", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_upgrade_no_setup",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", customerEmail: "owner@demo-cafe.test" }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        line_items: { price: string; quantity: number }[];
+      };
+      expect(createArgs.line_items).toEqual([{ price: "price_growth_monthly", quantity: 1 }]);
+    });
+
+    it("still charges the setup fee for a brand-new lead with no prior orders", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_new_lead_setup",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "brand-new-cafe", customerEmail: "owner@brand-new-cafe.test" }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        line_items: { price: string; quantity: number }[];
+      };
+      expect(createArgs.line_items).toEqual([
+        { price: "price_growth_setup", quantity: 1 },
+        { price: "price_growth_monthly", quantity: 1 },
+      ]);
+    });
+
+    it("does not require the setup-fee Stripe Price ID to be configured when the lead already has a prior order", async () => {
+      setBundlePriceEnv();
+      delete process.env.STRIPE_PRICE_ID_GROWTH_SETUP;
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_starter", tier: "starter", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_upgrade_no_setup_env",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", customerEmail: "owner@demo-cafe.test" }),
+      );
+      expect(res.status).toBe(200);
+    });
+
+    it("returns 400 rather than sending an empty line_items array to Stripe for a repeat Starter request from a lead that already has an order", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_starter", tier: "starter", commerceAddon: false },
+      ]);
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "starter", slug: "demo-cafe", customerEmail: "owner@demo-cafe.test" }),
+      );
+      expect(res.status).toBe(400);
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("still charges the Commerce add-on setup fee for an existing lead adding Commerce for the first time, even though the bundle setup fee is skipped", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_growth", tier: "growth", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_upgrade_add_commerce",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "growth",
+          commerceAddon: true,
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        line_items: { price: string; quantity: number }[];
+      };
+      expect(createArgs.line_items).toEqual([
+        { price: "price_growth_monthly", quantity: 1 },
+        { price: "price_commerce_setup", quantity: 1 },
+        { price: "price_commerce_monthly", quantity: 1 },
+      ]);
     });
   });
 
