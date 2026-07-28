@@ -55,6 +55,8 @@ import {
   sqliteClearMarketingPackSentToClient,
   sqliteClearClientVoicePackSentToClient,
   sqliteUpdateDeployHandoffCustomDomain,
+  sqliteReserveBundleBuyerEmailNotes,
+  sqliteReleaseBundleBuyerEmailNotes,
   sqliteOrderAlreadyRecorded,
   sqliteRecordLeadPayment,
 } from "./db/sqlite-queries";
@@ -222,6 +224,8 @@ const api: any = {
     updateStatus: "deployHandoffs:updateStatus",
     updateVercelProject: "deployHandoffs:updateVercelProject",
     updateCustomDomain: "deployHandoffs:updateCustomDomain",
+    reserveBuyerEmailNotes: "deployHandoffs:reserveBuyerEmailNotes",
+    releaseBuyerEmailNotes: "deployHandoffs:releaseBuyerEmailNotes",
   },
 };
 
@@ -2038,6 +2042,100 @@ export async function updateDeployHandoffStatus(
     notes,
     updatedAt,
   };
+}
+
+/**
+ * Atomically reserves the buyer receipt / DNS handoff sent-marker note(s)
+ * before resendBundleBuyerEmailAction sends the corresponding email — see
+ * bundle-buyer-email-resend-race-guard-ordering-fix. Callers must pass
+ * requireConvex (DEPLOY_HANDOFF_CONVEX_PRIMARY) and skip the guarded send
+ * entirely on a ConvexPrimaryWriteError or a false reservedX flag, matching
+ * every other reserve-then-send-then-release marker in this file.
+ */
+export async function reserveBundleBuyerEmailNotes(
+  leadSlug: string,
+  stripeSessionId: string,
+  wantReceipt: boolean,
+  wantDns: boolean,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<{ handoff: DeployHandoff; reservedReceipt: boolean; reservedDns: boolean } | null> {
+  const updatedAt = new Date().toISOString();
+
+  if (convexClient) {
+    try {
+      const result = await convexClient.mutation(api.deployHandoffs.reserveBuyerEmailNotes, {
+        leadSlug,
+        stripeSessionId,
+        wantReceipt,
+        wantDns,
+        updatedAt,
+        apiSecret: convexApiSecret,
+      });
+      if (!result) return null;
+      return result as {
+        handoff: DeployHandoff;
+        reservedReceipt: boolean;
+        reservedDns: boolean;
+      };
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("reserveBundleBuyerEmailNotes", e);
+      }
+      console.warn(
+        `Failed to reserve bundle buyer email notes for ${leadSlug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  return sqliteReserveBundleBuyerEmailNotes(
+    getSqliteDb(),
+    leadSlug,
+    stripeSessionId,
+    wantReceipt,
+    wantDns,
+    updatedAt,
+  );
+}
+
+/**
+ * Releases a reservation made by reserveBundleBuyerEmailNotes when the send
+ * it was guarding failed — see bundle-buyer-email-resend-race-guard-ordering-fix.
+ * Best-effort by design at the call site: a failed release leaves the
+ * marker recorded as sent until an operator manually re-checks Resend
+ * delivery status, mirroring clearMarketingPackSentToClient's own
+ * best-effort release contract.
+ */
+export async function releaseBundleBuyerEmailNotes(
+  leadSlug: string,
+  stripeSessionId: string,
+  releaseReceipt: boolean,
+  releaseDns: boolean,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.deployHandoffs.releaseBuyerEmailNotes, {
+        leadSlug,
+        stripeSessionId,
+        releaseReceipt,
+        releaseDns,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      console.warn(
+        `Failed to release bundle buyer email notes for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  return sqliteReleaseBundleBuyerEmailNotes(
+    getSqliteDb(),
+    leadSlug,
+    stripeSessionId,
+    releaseReceipt,
+    releaseDns,
+  );
 }
 
 /** Set (or clear) the dedicated Vercel project isolating this client's deploy. */

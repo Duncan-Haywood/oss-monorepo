@@ -3,6 +3,12 @@ import { v } from "convex/values";
 import { preferAdvancedHandoffStatus as preferAdvancedHandoffStatusCanonical } from "../src/lib/deploy/handoff-preserve";
 import type { DeployHandoffStatus } from "../src/lib/deploy/types";
 import { requireApiSecret } from "./lib/apiSecret";
+import {
+  bundleReceiptEmailSentNote,
+  bundleDnsHandoffEmailSentNote,
+  hasBundleReceiptEmailNote,
+  hasBundleDnsHandoffEmailNote,
+} from "../src/lib/payments/bundle-side-effect-recovery";
 
 const dnsInstruction = v.object({
   type: v.string(),
@@ -262,6 +268,110 @@ export const updateStatus = mutation({
       notes,
       updatedAt: args.updatedAt,
     });
+  },
+});
+
+/**
+ * Atomically reserves the buyer receipt / DNS handoff sent-marker note(s)
+ * for resendBundleBuyerEmailAction, mirroring markSentToClient's
+ * reserve-then-send-then-release pattern (see
+ * bundle-buyer-email-resend-race-guard-ordering-fix). Re-checks each
+ * marker's absence atomically with the append — a concurrent reservation (a
+ * second open dashboard tab, or a double-click landing before the button's
+ * isPending-disabled state applies) sees the marker already reserved and is
+ * told not to send, instead of both callers sending their own real email to
+ * the paying buyer before either persists a marker. Only reserves the
+ * marker(s) actually requested (wantReceipt/wantDns) and still absent;
+ * returns which one(s) were reserved so the caller knows exactly which
+ * send(s) are cleared to proceed.
+ */
+export const reserveBuyerEmailNotes = mutation({
+  args: {
+    leadSlug: v.string(),
+    stripeSessionId: v.string(),
+    wantReceipt: v.boolean(),
+    wantDns: v.boolean(),
+    updatedAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.union(
+    v.object({
+      handoff: handoffReturn,
+      reservedReceipt: v.boolean(),
+      reservedDns: v.boolean(),
+    }),
+    v.null(),
+  ),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const existing = await ctx.db
+      .query("deployHandoffs")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .unique();
+    if (!existing) return null;
+
+    const hasReceipt = hasBundleReceiptEmailNote(existing.notes, args.stripeSessionId);
+    const hasDns = hasBundleDnsHandoffEmailNote(existing.notes, args.stripeSessionId);
+    const reservedReceipt = args.wantReceipt && !hasReceipt;
+    const reservedDns = args.wantDns && !hasDns;
+
+    if (!reservedReceipt && !reservedDns) {
+      return { handoff: toHandoff(existing), reservedReceipt: false, reservedDns: false };
+    }
+
+    const notesToAdd: string[] = [];
+    if (reservedReceipt) notesToAdd.push(bundleReceiptEmailSentNote(args.stripeSessionId));
+    if (reservedDns) notesToAdd.push(bundleDnsHandoffEmailSentNote(args.stripeSessionId));
+    const notes = [...existing.notes, ...notesToAdd];
+    await ctx.db.patch(existing._id, { notes, updatedAt: args.updatedAt });
+
+    return {
+      handoff: toHandoff({ ...existing, notes, updatedAt: args.updatedAt }),
+      reservedReceipt,
+      reservedDns,
+    };
+  },
+});
+
+/**
+ * Releases a reservation made by reserveBuyerEmailNotes when the send it was
+ * guarding turned out to fail — see
+ * bundle-buyer-email-resend-race-guard-ordering-fix. Best-effort by design at
+ * the call site (a failed release leaves the marker showing sent until a
+ * manual retry recomputes it — there is no periodic sweep for this specific
+ * marker, unlike the one-shot pack/receipt markers' regenerate-clears-it
+ * escape hatch). Removes only the exact marker note(s) requested; a safe
+ * no-op when a marker isn't currently present (e.g. never reserved, or
+ * already released).
+ */
+export const releaseBuyerEmailNotes = mutation({
+  args: {
+    leadSlug: v.string(),
+    stripeSessionId: v.string(),
+    releaseReceipt: v.boolean(),
+    releaseDns: v.boolean(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const existing = await ctx.db
+      .query("deployHandoffs")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .unique();
+    if (!existing) return false;
+
+    const receiptMarker = bundleReceiptEmailSentNote(args.stripeSessionId);
+    const dnsMarker = bundleDnsHandoffEmailSentNote(args.stripeSessionId);
+    const notes = existing.notes.filter((note: string) => {
+      if (args.releaseReceipt && note === receiptMarker) return false;
+      if (args.releaseDns && note === dnsMarker) return false;
+      return true;
+    });
+    if (notes.length === existing.notes.length) return false;
+
+    await ctx.db.patch(existing._id, { notes });
+    return true;
   },
 });
 

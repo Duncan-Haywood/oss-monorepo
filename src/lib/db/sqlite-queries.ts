@@ -28,6 +28,12 @@ import { mapClientInquiryRow, type SqliteClientInquiryRow } from "../inquiries/s
 import type { DeployHandoff } from "../deploy/types";
 import { mapDeployHandoffRow, type SqliteDeployHandoffRow } from "../deploy/sqlite-row-mapping";
 import { customDomainHostAliases, CustomDomainConflictError } from "../deploy/custom-domain-routing";
+import {
+  bundleReceiptEmailSentNote,
+  bundleDnsHandoffEmailSentNote,
+  hasBundleReceiptEmailNote,
+  hasBundleDnsHandoffEmailNote,
+} from "../payments/bundle-side-effect-recovery";
 
 /**
  * Newest-first bundle order ledger (digest + dashboard aggregates). Must
@@ -604,6 +610,91 @@ export function sqliteUpdateDeployHandoffCustomDomain(
     customDomain: customDomain || undefined,
     updatedAt,
   };
+}
+
+/**
+ * Atomically reserves the buyer receipt / DNS handoff sent-marker note(s),
+ * mirroring convex/deployHandoffs.ts's reserveBuyerEmailNotes. Safe without
+ * an explicit CAS-on-previous-value guard (unlike sqliteClearCommerceOrder-
+ * ClientReceiptSent's exact-match UPDATE): the SELECT and UPDATE below are
+ * both synchronous node:sqlite calls with no `await` between them, so no
+ * concurrent async call can interleave mid-reservation — the same reasoning
+ * updateDeployHandoffStatus's own SQLite-fallback branch already relies on
+ * for its read-then-write notes append.
+ */
+export function sqliteReserveBundleBuyerEmailNotes(
+  db: DatabaseSync,
+  leadSlug: string,
+  stripeSessionId: string,
+  wantReceipt: boolean,
+  wantDns: boolean,
+  updatedAt: string,
+): { handoff: DeployHandoff; reservedReceipt: boolean; reservedDns: boolean } | null {
+  const row = db
+    .prepare("SELECT * FROM deploy_handoffs WHERE leadSlug = ?")
+    .get(leadSlug) as SqliteDeployHandoffRow | undefined;
+  if (!row) return null;
+
+  const existing = mapDeployHandoffRow(row);
+  const reservedReceipt = wantReceipt && !hasBundleReceiptEmailNote(existing.notes, stripeSessionId);
+  const reservedDns = wantDns && !hasBundleDnsHandoffEmailNote(existing.notes, stripeSessionId);
+
+  if (!reservedReceipt && !reservedDns) {
+    return { handoff: existing, reservedReceipt: false, reservedDns: false };
+  }
+
+  const notesToAdd: string[] = [];
+  if (reservedReceipt) notesToAdd.push(bundleReceiptEmailSentNote(stripeSessionId));
+  if (reservedDns) notesToAdd.push(bundleDnsHandoffEmailSentNote(stripeSessionId));
+  const notes = [...existing.notes, ...notesToAdd];
+
+  db.prepare("UPDATE deploy_handoffs SET notes = ?, updatedAt = ? WHERE leadSlug = ?").run(
+    JSON.stringify(notes),
+    updatedAt,
+    leadSlug,
+  );
+
+  return {
+    handoff: { ...existing, notes, updatedAt },
+    reservedReceipt,
+    reservedDns,
+  };
+}
+
+/**
+ * Releases a reservation made by sqliteReserveBundleBuyerEmailNotes when the
+ * send it was guarding failed — see
+ * bundle-buyer-email-resend-race-guard-ordering-fix. Removes only the exact
+ * marker note(s) requested; a safe no-op when a marker isn't currently
+ * present (never reserved, or already released).
+ */
+export function sqliteReleaseBundleBuyerEmailNotes(
+  db: DatabaseSync,
+  leadSlug: string,
+  stripeSessionId: string,
+  releaseReceipt: boolean,
+  releaseDns: boolean,
+): boolean {
+  const row = db
+    .prepare("SELECT notes FROM deploy_handoffs WHERE leadSlug = ?")
+    .get(leadSlug) as { notes: string } | undefined;
+  if (!row) return false;
+
+  const existingNotes: string[] = JSON.parse(row.notes);
+  const receiptMarker = bundleReceiptEmailSentNote(stripeSessionId);
+  const dnsMarker = bundleDnsHandoffEmailSentNote(stripeSessionId);
+  const notes = existingNotes.filter((note) => {
+    if (releaseReceipt && note === receiptMarker) return false;
+    if (releaseDns && note === dnsMarker) return false;
+    return true;
+  });
+  if (notes.length === existingNotes.length) return false;
+
+  db.prepare("UPDATE deploy_handoffs SET notes = ? WHERE leadSlug = ?").run(
+    JSON.stringify(notes),
+    leadSlug,
+  );
+  return true;
 }
 
 /**

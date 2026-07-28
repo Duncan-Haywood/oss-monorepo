@@ -3146,6 +3146,159 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     });
   });
 
+  describe("reserveBundleBuyerEmailNotes (requireConvex fail-closed write — bundle-buyer-email-resend-race-guard-ordering-fix)", () => {
+    it("returns the Convex mutation's result directly on success, without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertDeployHandoff(testDeployHandoff("convex-reserve-lead"));
+
+      convexMutation.mockResolvedValueOnce({
+        handoff: {
+          ...testDeployHandoff("convex-reserve-lead"),
+          notes: ["Buyer receipt email sent — Stripe session cs_convex-reserve-lead"],
+        },
+        reservedReceipt: true,
+        reservedDns: false,
+      });
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.reserveBundleBuyerEmailNotes(
+        "convex-reserve-lead",
+        "cs_convex-reserve-lead",
+        true,
+        false,
+        { requireConvex: true },
+      );
+      expect(result?.reservedReceipt).toBe(true);
+      expect(result?.reservedDns).toBe(false);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // The pure-SQLite row (seeded above, still no notes) proves the
+      // Convex-success path never fell through and wrote SQLite too.
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stillUnmarked = await db.getDeployHandoffBySlug("convex-reserve-lead");
+      expect(stillUnmarked?.notes).toEqual([]);
+    });
+
+    it("throws ConvexPrimaryWriteError instead of silently falling back when requireConvex is set and Convex fails", async () => {
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const db = await loadDb(CONVEX_URL);
+      await expect(
+        db.reserveBundleBuyerEmailNotes("some-lead", "cs_some-lead", true, true, {
+          requireConvex: true,
+        }),
+      ).rejects.toThrow(/reserveBundleBuyerEmailNotes/);
+    });
+
+    it("returns null via the SQLite fallback when the leadSlug does not exist", async () => {
+      const db = await loadDb(undefined);
+      await expect(
+        db.reserveBundleBuyerEmailNotes("missing-lead", "cs_missing-lead", true, true),
+      ).resolves.toBeNull();
+      expect(convexMutation).not.toHaveBeenCalled();
+    });
+
+    it("SQLite fallback reserves both markers when neither is present", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("reserve-both-lead"));
+
+      const result = await db.reserveBundleBuyerEmailNotes(
+        "reserve-both-lead",
+        "cs_reserve-both-lead",
+        true,
+        true,
+      );
+      expect(result?.reservedReceipt).toBe(true);
+      expect(result?.reservedDns).toBe(true);
+      expect(result?.handoff.notes).toEqual([
+        "Buyer receipt email sent — Stripe session cs_reserve-both-lead",
+        "DNS handoff email sent — Stripe session cs_reserve-both-lead",
+      ]);
+
+      const reread = await db.getDeployHandoffBySlug("reserve-both-lead");
+      expect(reread?.notes).toEqual(result?.handoff.notes);
+    });
+
+    it("SQLite fallback refuses to re-reserve a marker that's already present (the race this fix closes)", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(
+        testDeployHandoff("reserve-race-lead", {
+          notes: ["Buyer receipt email sent — Stripe session cs_reserve-race-lead"],
+        }),
+      );
+
+      const result = await db.reserveBundleBuyerEmailNotes(
+        "reserve-race-lead",
+        "cs_reserve-race-lead",
+        true,
+        true,
+      );
+      expect(result?.reservedReceipt).toBe(false);
+      expect(result?.reservedDns).toBe(true);
+    });
+  });
+
+  describe("releaseBundleBuyerEmailNotes (best-effort release after a failed reserved send)", () => {
+    it("returns Convex's result directly without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertDeployHandoff(
+        testDeployHandoff("convex-release-lead", {
+          notes: ["Buyer receipt email sent — Stripe session cs_convex-release-lead"],
+        }),
+      );
+
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.releaseBundleBuyerEmailNotes(
+        "convex-release-lead",
+        "cs_convex-release-lead",
+        true,
+        false,
+      );
+      expect(result).toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // The pure-SQLite row (seeded above, still marked) proves the
+      // Convex-success path never fell through and wrote SQLite too.
+      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const stillMarked = await db.getDeployHandoffBySlug("convex-release-lead");
+      expect(stillMarked?.notes).toEqual([
+        "Buyer receipt email sent — Stripe session cs_convex-release-lead",
+      ]);
+    });
+
+    it("falls back to SQLite on Convex failure — not requireConvex-gated, since this is a best-effort release", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertDeployHandoff(
+        testDeployHandoff("release-fallback-lead", {
+          notes: ["Buyer receipt email sent — Stripe session cs_release-fallback-lead"],
+        }),
+      );
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const result = await (
+        await loadDb(CONVEX_URL)
+      ).releaseBundleBuyerEmailNotes("release-fallback-lead", "cs_release-fallback-lead", true, false);
+      expect(result).toBe(true);
+
+      const afterRelease = await (
+        await loadDb(undefined)
+      ).getDeployHandoffBySlug("release-fallback-lead");
+      expect(afterRelease?.notes).toEqual([]);
+    });
+
+    it("is a safe no-op when the marker is not present", async () => {
+      const db = await loadDb(undefined);
+      await db.insertDeployHandoff(testDeployHandoff("release-noop-lead"));
+
+      const result = await db.releaseBundleBuyerEmailNotes(
+        "release-noop-lead",
+        "cs_release-noop-lead",
+        true,
+        true,
+      );
+      expect(result).toBe(false);
+    });
+  });
+
   describe("updateDeployHandoffVercelProject (requireConvex fail-closed write)", () => {
     it("returns the Convex mutation's result directly on success, without touching SQLite", async () => {
       const seedDb = await loadDb(undefined);
