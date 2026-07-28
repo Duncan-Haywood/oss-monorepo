@@ -816,5 +816,23 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "db-ts-convex-fallback-capture-error-full-sweep",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 57c53a88 (PR #945, process-log-archive-27-iterations-split, merged this session). git fetch --prune + list_pull_requests found no live sibling PR beyond the unrelated stale draft #202 at dispatch time. Dispatched a research agent told to cross-check the live process-log tail (including the newly-split archive/iterations-archive-27.ts) plus git log for freshness before proposing anything. While shipping, sibling PRs #946 (dual-build-collision-review-billing-interval-and-process-log-archive) and #947 (db-ts-convex-fallback-capture-error-full-sweep) both merged into origin/main — both process-log/db-only, no file overlap with this leads-client.tsx fix; merged both in and resolved the resulting append-position conflicts by keeping every entry, origin/main's first each time, this one last.",
+    shipped: [
+      "Re-surfaced leads-client-pending-announcement-deferred-needs-rtl-infra: ~61 of /dashboard/leads' ~64 action buttons give a screen-reader/keyboard-only operator zero feedback that a click registered while their shared isPending is true. That entry deliberately deferred a fix, naming the correct design (a single shared aria-live region decoupled from any button's focus/label state, since most buttons' accessible name comes from a static dashboardRowActionAriaLabel(...) that never varies with isPending, and the component's own documented focus-loss-on-disable race means per-button label edits wouldn't reliably be announced anyway) and two prerequisites: decide on render-test infra vs. a git-stash-exemption carve-out, and design the shared-region fix.",
+      "Resolved the infra question without adding new dependencies: this is a new-capability addition (nothing was ever announced before), which AGENT_PROTOCOL already exempts from the git-stash regression technique — verified via new pure-function unit tests plus a dev-server smoke check instead, exactly the carve-out the deferred entry anticipated. Confirmed no render-test infra has been added since (grep -i testing-library package.json — no match).",
+      "Shipped the exact design called for: src/lib/leads/pending-operation-announcement.ts (pure pendingOperationAnnouncementText(isPending): string, no DOM/JSX) plus a single always-mounted `<div aria-live=\"assertive\" role=\"status\" className=\"sr-only\">` at the top of leads-client.tsx's returned JSX, driven directly by the existing shared isPending — covers all ~64 buttons uniformly with zero per-button/per-panel changes, and is immune to the focus-loss race since it depends only on isPending, never on focus.",
+      "Dev-server smoke check: confirmed OPERATOR_DASHBOARD_PASSWORD is unset so /dashboard/leads is directly reachable, curled the rendered HTML to confirm the region renders at rest with the exact expected empty-state markup and the page still returns 200. Did not attempt a live-click Playwright check — this repo has no Playwright npm dependency installed (npm ls playwright — none), and adding one ad hoc would itself be the out-of-scope structural decision the deferred entry called out; the static-render check plus pure-function tests are the correctly-scoped verification for a new-capability addition.",
+      "src/lib/leads/pending-operation-announcement.ts, .test.ts — new files. src/app/dashboard/leads/leads-client.tsx — the wiring. src/lib/process/business-decisions.ts — appended leads-client-pending-announcement-shared-status-region. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 67d22fc8 (origin/main tip after sibling PRs #946/#947 merged mid-iteration).",
+      "File-size check: both process-log files re-measured via wc -c after merging both sibling PRs in — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (pending-operation-announcement.test.ts, 2/2 passed) then full suite (green, including both sibling PRs' own changes) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + the dev-server smoke check described above.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "leads-client-pending-announcement-shared-status-region",
+    ),
+  },
 ];
 
