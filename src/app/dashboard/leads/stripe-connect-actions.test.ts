@@ -130,6 +130,11 @@ vi.mock("stripe", () => ({
   },
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 function fakeLead(overrides: Partial<Lead> = {}): Lead {
   return {
     slug: "demo-cafe",
@@ -165,6 +170,7 @@ describe("Stripe Connect dashboard actions", () => {
     recordStripeConnectOnboardingLinkSent.mockReset().mockResolvedValue(true);
     stripeCtor.mockReset();
     revalidatePath.mockReset();
+    captureError.mockReset().mockResolvedValue(undefined);
     process.env = { ...originalEnv };
     process.env.ALLOW_STRIPE_CONNECT_ONBOARDING = "1";
     process.env.STRIPE_SECRET_KEY = "sk_test_connect";
@@ -531,14 +537,15 @@ describe("Stripe Connect dashboard actions", () => {
       expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
     });
 
-    it("still returns the live status when persisting it fails (best-effort, never surfaces as an error) but does not revalidate a stale cache", async () => {
+    it("still returns the live status when persisting it fails (best-effort, never surfaces as an error) but does not revalidate a stale cache, and reports the failure via captureError (stripe-connect-status-cache-write-capture-error)", async () => {
       getLeadBySlug.mockResolvedValue(fakeLead({ stripeConnectAccountId: "acct_existing" }));
       fetchConnectAccountStatus.mockResolvedValue({
         chargesEnabled: true,
         payoutsEnabled: true,
         detailsSubmitted: true,
       });
-      updateLeadStripeConnectStatus.mockRejectedValue(new Error("Convex down"));
+      const persistError = new Error("Convex down");
+      updateLeadStripeConnectStatus.mockRejectedValue(persistError);
       const { checkStripeConnectAccountStatusAction } = await import("./actions");
       const result = await checkStripeConnectAccountStatusAction("demo-cafe");
 
@@ -552,6 +559,11 @@ describe("Stripe Connect dashboard actions", () => {
       // SSR'd pipeline-health/digest read to pick up — revalidating here
       // would just be a wasted re-render, not a correctness fix.
       expect(revalidatePath).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(persistError, {
+        component: "stripe-connect-status",
+        failureKind: "check_status_action",
+        leadSlug: "demo-cafe",
+      });
     });
 
     it("still returns the live status when the persist fails closed (ConvexPrimaryWriteError, not just a generic error) and does not revalidate", async () => {
@@ -572,6 +584,11 @@ describe("Stripe Connect dashboard actions", () => {
         detailsSubmitted: true,
       });
       expect(revalidatePath).not.toHaveBeenCalled();
+      expect(captureError).toHaveBeenCalledWith(expect.any(MockConvexPrimaryWriteError), {
+        component: "stripe-connect-status",
+        failureKind: "check_status_action",
+        leadSlug: "demo-cafe",
+      });
     });
   });
 });

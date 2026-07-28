@@ -6710,7 +6710,7 @@ describe("POST /api/stripe/webhook", () => {
       expect(updateLeadStripeConnectStatus).not.toHaveBeenCalled();
     });
 
-    it("still returns 200 (never 5xx — this is a display cache, not a ledger write) when the persist call fails", async () => {
+    it("still returns 200 (never 5xx — this is a display cache, not a ledger write) when the persist call fails, and reports it via captureError since this swallow-and-continue catch has no path to the outer catch (stripe-connect-status-cache-write-capture-error)", async () => {
       getLeads.mockResolvedValueOnce([
         { slug: "demo-cafe", stripeConnectAccountId: "acct_connect_1" },
       ]);
@@ -6721,6 +6721,11 @@ describe("POST /api/stripe/webhook", () => {
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(updateLeadStripeConnectStatus).toHaveBeenCalledTimes(1);
+      expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+        component: "stripe-connect-status",
+        failureKind: "account_updated_webhook",
+        leadSlug: "demo-cafe",
+      });
     });
 
     it("defaults missing charges_enabled/payouts_enabled/details_submitted to false", async () => {

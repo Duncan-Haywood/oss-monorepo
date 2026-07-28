@@ -1050,5 +1050,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "stripe-webhook-dispute-resolution-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #961 merged. The next dispatched research agent found a two-site captureError gap entirely outside the webhook file's own catch clusters: both places that persist the Stripe Connect onboarding status cache — route.ts's account.updated handler and actions.ts's checkStripeConnectAccountStatusAction — swallow their own write failure with zero path to captureError.",
+    shipped: [
+      "Different axis from every prior capture-error fix this session: both catches deliberately and correctly swallow-and-continue (a display-cache write, not a ledger write — a 5xx or operator-facing error would be wrong), but neither had ever been wired to captureError at all. actions.ts had zero captureError usage anywhere in its ~3600 lines before this fix.",
+      "A failure here is a real, silent no-op on the value pipeline-health's connectOnboardingIncompleteCount MetricCard and the daily digest both read (updateLeadStripeConnectStatus fails closed on a Convex error via LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY) — the dashboard action even returns success: true since the live Stripe fetch itself succeeded, so there was no operator-visible signal either. Added one captureError call to each catch (component: 'stripe-connect-status', distinct failureKind per site, plus leadSlug).",
+      "src/app/api/stripe/webhook/route.ts, src/app/dashboard/leads/actions.ts (the two calls + new import); route.test.ts, stripe-connect-actions.test.ts (3 existing tests updated, new captureError mock added to the latter); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended stripe-connect-status-cache-write-capture-error); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed both pre-existing source files, confirmed all 3 new/updated assertions failed exactly as expected (277 passed, 3 failed), then restored and confirmed all 280 targeted tests pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (280 passed, 2 files) then full suite (3989 passed, 234 files) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only observability change.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-connect-status-cache-write-capture-error",
+    ),
+  },
 ];
 

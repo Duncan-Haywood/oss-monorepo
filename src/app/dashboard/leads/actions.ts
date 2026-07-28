@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { requireOperatorAuth } from "@/lib/auth/operator";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
+import { captureError } from "@/lib/observability/error-tracking";
 import {
   updateLeadStage,
   upsertLead,
@@ -3667,6 +3668,15 @@ export async function checkStripeConnectAccountStatusAction(slug: string) {
         `Failed to persist Stripe Connect status for ${slug}`,
         persistError,
       );
+      // Swallowed here so an already-successful live Stripe check never
+      // reports as a failure to the operator — but that policy also means
+      // this catch has no path back to the outer catch's own error
+      // handling. See stripe-connect-status-cache-write-capture-error.
+      await captureError(persistError, {
+        component: "stripe-connect-status",
+        failureKind: "check_status_action",
+        leadSlug: slug,
+      });
     }
 
     return { success: true as const, ...status };
