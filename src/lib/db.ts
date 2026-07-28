@@ -1085,6 +1085,7 @@ export async function listOrdersByLeadSlug(
         `Failed to fetch orders for ${leadSlug} from Convex, falling back to SQLite`,
         e,
       );
+      await captureError(e, { component: "db-listOrdersByLeadSlug-convex-fallback" });
     }
   }
 
@@ -1129,6 +1130,7 @@ export async function getOrderByStripeSessionId(
         `Failed to get order ${stripeSessionId} from Convex, falling back to SQLite`,
         e,
       );
+      await captureError(e, { component: "db-getOrderByStripeSessionId-convex-fallback" });
     }
   }
 
@@ -1192,6 +1194,7 @@ export async function getOrdersByStripeCustomerId(
         `Failed to get orders for customer ${customerId} from Convex, falling back to SQLite`,
         e,
       );
+      await captureError(e, { component: "db-getOrdersByStripeCustomerId-convex-fallback" });
     }
   }
 
@@ -2933,6 +2936,7 @@ export async function listOpenCheckoutSessions(): Promise<CheckoutSessionRecord[
         "Failed to list open checkout sessions from Convex, falling back to SQLite",
         e,
       );
+      await captureError(e, { component: "db-listOpenCheckoutSessions-convex-fallback" });
     }
   }
 

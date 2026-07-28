@@ -498,6 +498,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "db-order-read-family-capture-error-sweep",
+    summary:
+      "Continuation of the db.ts captureError observability sweep. Wired captureError into the next tier of live Convex-fallback reads in the bundle-order family: listOrdersByLeadSlug (Manage billing, preview Commerce gate, per-lead dashboard eligibility), getOrderByStripeSessionId (webhook refund/dispute correlation), getOrdersByStripeCustomerId (dunning/renewal-recovery), and listOpenCheckoutSessions (pipeline health, daily digest, Work-next scorer, abandoned-checkout recovery). The Commerce (Buy now) ledger's equivalent read family (getCommerceOrderByStripeSessionId, listCommerceOrders*) has the identical unwired shape and is the next deferred slice. See db-order-read-family-capture-error-sweep in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-uo5mws",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -761,6 +769,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "checkout-session-record-capture-error-wiring",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-uo5mws",
+    summary:
+      "Unattended scheduled routine (\"continue toward a profitable and growing business, merge changes when done — use prompt_process.tsx and similar files to progress, improve the process, document business decisions, cooperate with other agents on other branches\"), picked up at origin/main tip 73bd1328 (PR #908, checkout-session-record-capture-error-wiring, merged prior session) — HEAD matched origin/main exactly after a full fetch --prune. Baseline green: npm ci (413 packages) + tsc + lint + full vitest (3603 passed, matching the documented baseline). A sort-by-push-time fold-scan of the ~30 most-recently-pushed branches found every one already merged except origin/claude/nice-euler-ykzos1, whose sole commit was confirmed (via pull_request_read, not the stale list_pull_requests boolean) already squash-merged as PR #879 — no live sibling claim.",
+    shipped: [
+      "Dispatched a research agent to find the next genuinely fresh, high-leverage angle now that today's captureError sweep had closed getLeads/getLeadBySlug/listOrders (db.ts) and both checkout-create routes, and the same-day social-proof-testimonials-scaffold session had already thoroughly audited the conversion/funnel surface. It confirmed only 3 of ~50 db.ts catch blocks called captureError and named the next tier of live (non-requireConvex) Convex-fallback reads: listOrdersByLeadSlug, getOrderByStripeSessionId, getOrdersByStripeCustomerId, and listOpenCheckoutSessions.",
+      "src/lib/db.ts — wired captureError into all four functions' existing Convex-fallback catches (db-listOrdersByLeadSlug-convex-fallback / db-getOrderByStripeSessionId-convex-fallback / db-getOrdersByStripeCustomerId-convex-fallback / db-listOpenCheckoutSessions-convex-fallback), same one-line pattern as every prior entry in this series.",
+      "src/lib/db.test.ts — extended listOrdersByLeadSlug's existing SQLite-fallback test with a captureError assertion plus a new no-call test, and added four new tests covering the other three functions (none had a dedicated Convex-fallback test of their own before — they were only exercised indirectly via loadDb(undefined), no Convex client at all). Verified all four new/extended assertions actually catch the regression: git stash'd only db.ts's source change (keeping the tests) and confirmed all four failed with '0 calls' before restoring.",
+      "src/app/docs/architecture/page.tsx — one new paragraph naming all four sites, their blast radius, and the deferred Commerce-ledger sibling (getCommerceOrderByStripeSessionId, listCommerceOrders*). src/lib/process/business-decisions.ts — appended db-order-read-family-capture-error-sweep. src/lib/process/prompt_process.tsx — a new NEXT_STEPS done entry plus this ITERATIONS entry. No other NEXT_STEPS change — the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 73bd1328 (this session's own starting tip, post-PR-#908).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: both process-log files measured via wc -c before this entry, well under the 262,144-byte re-archive trigger (both split earlier the same day) — no re-archive needed this round.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (db.test.ts, 284/284 passed) then full suite (3613 passed, 212 files — 10 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check beyond the automated gate — server-only orchestration fix with no route/UI surface change beyond a docs paragraph.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "db-order-read-family-capture-error-sweep",
     ),
   },
 ];
