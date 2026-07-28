@@ -37,7 +37,10 @@ describe("listBufferProfiles", () => {
     const [calledUrl, calledInit] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(calledUrl).not.toContain("access_token");
     expect(calledUrl).not.toContain("tok_x");
-    expect(calledInit).toEqual({ headers: { Authorization: "Bearer tok_x" } });
+    expect(calledInit).toEqual({
+      headers: { Authorization: "Bearer tok_x" },
+      signal: expect.any(AbortSignal),
+    });
   });
 
   it("throws on a non-ok response", async () => {
@@ -46,6 +49,18 @@ describe("listBufferProfiles", () => {
       .mockResolvedValue({ ok: false, status: 401, text: async () => "invalid token" });
 
     await expect(listBufferProfiles("bad")).rejects.toThrow(/401/);
+  });
+
+  it("bounds its fetch with an AbortSignal (buffer-fetch-timeout)", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => [],
+    });
+
+    await listBufferProfiles("tok_x");
+    const [, calledInit] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(calledInit.signal).toBeInstanceOf(AbortSignal);
   });
 });
 
@@ -103,6 +118,30 @@ describe("createBufferUpdate", () => {
 
     const result = await createBufferUpdate("tok_x", { profileIds: ["p1"], text: "x" });
     expect(result).toEqual({ success: false, error: "ECONNRESET" });
+  });
+
+  it("bounds its fetch with an AbortSignal (buffer-fetch-timeout)", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true, updates: [] }),
+    });
+
+    await createBufferUpdate("tok_x", { profileIds: ["p1"], text: "x" });
+    const call = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(call[1].signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("resolves { success: false } (not a hang or uncaught throw) when the fetch aborts on timeout", async () => {
+    global.fetch = vi.fn().mockRejectedValue(
+      new DOMException("The operation was aborted.", "TimeoutError"),
+    );
+
+    const result = await createBufferUpdate("tok_x", { profileIds: ["p1"], text: "x" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toMatch(/aborted/i);
+    }
   });
 });
 

@@ -5721,6 +5721,23 @@ source). The same digest also lists email-critical leads with no usable address 
         test seeding a colliding SQLite row and confirming a mocked Convex <code>null</code>{" "}
         still wins.
       </p>
+      <p>
+        <code>buffer-fetch-timeout</code>: a research agent found{" "}
+        <code>src/lib/marketing/buffer.ts</code>&apos;s two raw fetch calls to the Buffer classic
+        REST API (<code>listBufferProfiles</code>, <code>createBufferUpdate</code>) were the last
+        remaining unbounded outbound-fetch call site in the codebase — every sibling third-party
+        API call (Anthropic, Vercel Domains, the error-tracking webhook, Resend) already bounds
+        itself with an <code>AbortSignal.timeout</code>, but the fetch-timeout pass never reached
+        this file despite it having received other hardening passes (token moved to the
+        Authorization header, a CTA-label leak fix). These functions back{" "}
+        <code>listBufferProfilesAction</code>, <code>saveLeadBufferProfilesAction</code>, and{" "}
+        <code>scheduleMarketingPackToBufferAction</code> (the auto-post-to-a-client&apos;s-live-
+        social-profile path) — a hung Buffer connection previously tied up the operator&apos;s
+        dashboard action for the full duration ceiling instead of failing fast. Added{" "}
+        <code>BUFFER_REQUEST_TIMEOUT_MS = 30_000</code> (mirroring{" "}
+        <code>ANTHROPIC_REQUEST_TIMEOUT_MS</code>&apos;s value and comment style) and passed{" "}
+        <code>signal: AbortSignal.timeout(BUFFER_REQUEST_TIMEOUT_MS)</code> on both fetch calls.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
