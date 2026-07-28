@@ -184,6 +184,12 @@ const COLLISION_REGRESSION_CASES: readonly CollisionRegressionCase[] = [
     tier: "complete",
     note: "pizzazz flourish word, not pizza restaurant",
   },
+  {
+    slug: "bishop-family-law",
+    category: "legal",
+    tier: "growth",
+    note: "Bishop surname/title, not retail shop",
+  },
 ];
 
 describe("DEMO_LEADS", () => {

@@ -1107,4 +1107,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "category-substring-collision-audit-07",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #986 merged. The next research agent found an 8th round of the same audit: the retail branch's regex (src/lib/leads/demo-catalog.ts) still had a bare, unscoped 'shop' alternative, unlike its already-fixed siblings market/goods in the same alternation.",
+    shipped: [
+      "Confirmed with a direct regex test: bare shop matches inside 'bishop', a common real-world surname/title ('Bishop Family Law'). Retail runs before salon/health/fitness/legal in the if/else-if chain, so a bishop-named business of any of those categories gets swallowed by retail, not just legal.",
+      "Fixed by scoping shop to \\bshop\\b, mirroring market/goods's existing treatment. Verified via direct regex tests before committing that every existing shop-keyword test fixture (gift-shop, barber-shop, electric-bike-shop, etc.) behaves identically scoped.",
+      "src/lib/leads/demo-catalog.ts (word-boundary-scoped shop, extended doc comment); demo-catalog.test.ts (1 new row, bishop-family-law -> legal — 66 total, +1 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended category-substring-collision-audit-08); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change.",
+      "Proved via git-stash: stashed only demo-catalog.ts, confirmed the new assertion failed exactly as expected (65 passed, 1 failed — bishop-family-law resolved to retail instead of legal), then restored and confirmed all 66 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (66 passed) then full suite (4030 passed, 235 files, +1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — pure regex-scoping fix. File-size headroom now down to ~13.6KB/~11.9KB under the trigger — the NEXT iteration should treat a re-archive split as its own dedicated priority.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "category-substring-collision-audit-08",
+    ),
+  },
 ];

@@ -5852,6 +5852,23 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>downtown-pizza</code>/<code>joes-pizza-place</code>, no longer matches{" "}
         <code>pizzazz</code>.
       </p>
+      <p>
+        <code>category-substring-collision-audit-08</code>: an eighth round of the same audit
+        found the retail branch&apos;s own bare <code>shop</code> keyword, unlike its already
+        word-boundary-scoped siblings <code>market</code>/<code>goods</code> in the same
+        alternation, matched inside <code>bishop</code> — a common real-world surname/title (e.g.
+        &quot;Bishop Family Law&quot;). Since the retail branch runs before salon/health/fitness/
+        legal in <code>resolvePreviewLead</code>&apos;s if/else-if chain, a slug like{" "}
+        <code>bishop-family-law</code> resolved to <code>retail</code>/<code>growth</code> instead
+        of <code>legal</code>/<code>growth</code>&apos;s own tier — swallowing whichever
+        later-checked category the slug&apos;s real keyword would otherwise have matched, not just
+        legal. Fixed by scoping <code>shop</code> to <code>\bshop\b</code>, mirroring{" "}
+        <code>market</code>/<code>goods</code>&apos;s existing treatment — confirmed via direct
+        regex tests that every existing &quot;shop&quot;-keyword test fixture (
+        <code>gift-shop</code>, <code>barber-shop</code>, <code>electric-bike-shop</code>, etc.)
+        behaves identically scoped, since the hyphen already provides the boundary in every
+        genuine case.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
