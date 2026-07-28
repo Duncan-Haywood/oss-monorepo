@@ -441,6 +441,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "stripe-webhook-payment-write-capture-error",
+    summary:
+      "Found a structural blind spot in the Stripe webhook's outer try/catch (the observability scaffold's first wiring): it only fires for an exception escaping every inner catch, but nearly every one of this file's ~40 webhookFulfillmentFailureResponse(...) sites returns its own 5xx from inside its catch rather than re-throwing — a return in a catch is control flow, not a thrown exception, so it structurally can't reach the outer capture. This included the single highest-stakes site: the catch wrapping recordLeadPayment + enqueueProductionHandoff for bundle checkouts. Wired captureError directly into that one site (failureKind: \"bundle_payment_or_handoff\", alongside the usual component/eventType/eventId) rather than sweeping all ~40 sites, matching the same regression-risk reasoning already applied to db.ts's 84 SQLite-fallback sites. The other ~39 sites remain unwired — a real but deliberately deferred gap. See stripe-webhook-payment-write-capture-error in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -848,6 +856,23 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "bundle-buyer-email-doc-drift-fix",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 20d1184f (PR #900, resend-email-capture-error-wiring, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run (3596 passed, 211 files). No live sibling branch; the sole other open PR remains #202 (unrelated, weeks-stale human draft).",
+    shipped: [
+      "Dispatched a research agent explicitly briefed on all five things closed today and told the remaining named observability candidate (db.ts's 84 scattered SQLite-fallback sites) was already ruled out. It found a structural blind spot none of today's three prior observability entries noticed: the webhook's outer try/catch only fires for an exception escaping every inner catch, but nearly every one of this file's ~40 webhookFulfillmentFailureResponse(...) sites returns its own 5xx from inside its catch rather than re-throwing — including the catch wrapping recordLeadPayment + enqueueProductionHandoff, the single highest-stakes write in the file. Independently re-verified the JS semantics directly before implementing.",
+      "src/app/api/stripe/webhook/route.ts — wired captureError directly into that one catch (failureKind: \"bundle_payment_or_handoff\" alongside the usual component/eventType/eventId), rather than sweeping all ~40 sites (same regression-risk reasoning already applied to db.ts's 84 sites in the prior entry).",
+      "src/app/api/stripe/webhook/route.test.ts — extended the existing 'returns 500 (bundle_payment_or_handoff)' test with a captureError call assertion rather than duplicating a parallel test. Verified it actually catches the regression: git stash'd route.ts's source change alone and confirmed the extended assertion failed (0 calls) before restoring.",
+      "src/app/docs/architecture/page.tsx — one new paragraph naming the structural gap, why it evaded the outer catch, the fix, and flagging the other ~39 unwired sites as a real but deliberately deferred gap. src/lib/process/business-decisions.ts — appended stripe-webhook-payment-write-capture-error. src/lib/process/prompt_process.tsx — a new NEXT_STEPS done entry plus this ITERATIONS entry. No other NEXT_STEPS change — the five gated items (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect, github-actions-runner-unavailable) remain operator/legal/infra-blocked. Diff-gate anchor moves to 20d1184f (this session's own starting tip, post-PR-#900).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx 237,031 bytes, business-decisions.ts 220,025 bytes at session start (both via wc -c) — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (route.test.ts, 229/229 passed) then full suite (3596 passed, 211 files, unchanged count — an existing test was extended, not duplicated) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). Server-only orchestration fix with no route/UI surface change beyond a docs paragraph — no dev-server smoke check needed beyond the automated build/test/lint gate.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "stripe-webhook-payment-write-capture-error",
     ),
   },
 ];

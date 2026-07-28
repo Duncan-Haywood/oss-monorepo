@@ -4565,10 +4565,11 @@ describe("POST /api/stripe/webhook", () => {
       expect(recordLeadPayment).not.toHaveBeenCalled();
     });
 
-    it("returns 500 (bundle_payment_or_handoff) so Stripe retries when recordLeadPayment fails", async () => {
+    it("returns 500 (bundle_payment_or_handoff) so Stripe retries when recordLeadPayment fails, and reports it via captureError since this inner catch returns rather than re-throwing (stripe-webhook-payment-write-capture-error)", async () => {
       const session = checkoutSession({ metadata: { slug: "demo-cafe", tier: "growth" } });
+      const paymentError = new Error("db down");
       constructEvent.mockReturnValue(completedEvent(session));
-      recordLeadPayment.mockRejectedValue(new Error("db down"));
+      recordLeadPayment.mockRejectedValue(paymentError);
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -4576,6 +4577,15 @@ describe("POST /api/stripe/webhook", () => {
       expect(response.status).toBe(500);
       expect(json.step).toBe("bundle_payment_or_handoff");
       expect(sendReceiptEmail).not.toHaveBeenCalled();
+      // This catch returns a 5xx response instead of re-throwing, so it never
+      // reaches the outer try/catch's own captureError call — it must be
+      // wired here directly (see stripe-webhook-payment-write-capture-error).
+      expect(captureError).toHaveBeenCalledWith(paymentError, {
+        component: "stripe-webhook",
+        eventType: "checkout.session.completed",
+        eventId: undefined,
+        failureKind: "bundle_payment_or_handoff",
+      });
     });
 
     it("returns 500 (bundle_email_sent_marker) when the durable sent-marker write fails after a successful send, forcing Stripe to redeliver", async () => {

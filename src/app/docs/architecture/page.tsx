@@ -4451,6 +4451,28 @@ source). The same digest also lists email-critical leads with no usable address 
         which is a distinct, larger iteration in the most heavily-tested file in the repo, not a
         same-session addition.
       </p>
+      <p>
+        <code>stripe-webhook-payment-write-capture-error</code>: a fresh-angle audit found a
+        structural blind spot in the Stripe webhook&apos;s own outer{" "}
+        <code>try</code>/<code>catch</code> (the very first wiring above) — it only fires for an
+        exception that escapes <em>every</em> inner <code>catch</code>, but nearly every one of
+        this file&apos;s ~40 <code>webhookFulfillmentFailureResponse(...)</code> sites — including
+        the one wrapping the single highest-stakes write in the file, <code>recordLeadPayment</code>{" "}
+        + <code>enqueueProductionHandoff</code> for bundle checkouts — <code>return</code>s its own
+        5xx JSON response instead of re-throwing. A <code>return</code> inside a{" "}
+        <code>catch</code> is ordinary control flow, not a thrown exception, so it can never reach
+        the outer <code>catch</code>&apos;s <code>captureError</code> call. Net effect: the scaffold
+        already captured a genuinely unhandled bug, but not the file&apos;s actual designed failure
+        contract (a local write failure returning 5xx so Stripe retries) — including the one case
+        that most directly means a paying customer&apos;s payment isn&apos;t recorded and their site
+        handoff didn&apos;t happen. Rather than sweep all ~40 sites (the same regression-risk
+        reasoning already applied to <code>db.ts</code>&apos;s 84 sites above), wired{" "}
+        <code>captureError</code> into just this one — the highest-value single site — with{" "}
+        <code>failureKind: &quot;bundle_payment_or_handoff&quot;</code> added to the usual{" "}
+        <code>component</code>/<code>eventType</code>/<code>eventId</code> context so it&apos;s
+        distinguishable from the outer catch&apos;s own captures. The other ~39 sites remain
+        unwired, a real gap but an explicitly deferred one, not a full sweep.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

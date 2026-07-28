@@ -958,6 +958,22 @@ export async function POST(request: Request) {
           );
         } catch (dbError) {
           console.error(`Failed to record lead payment or enqueue handoff for ${slug}:`, dbError);
+          // This catch returns a response (a 5xx so Stripe retries) rather
+          // than re-throwing, so it never reaches the outer try/catch's own
+          // captureError call below — that one only fires for a genuinely
+          // unhandled exception escaping every inner catch like this one.
+          // Wired directly here since this is the single highest-stakes
+          // write in the file: a failure means a paying customer's payment
+          // isn't recorded and their site handoff didn't happen. See
+          // stripe-webhook-payment-write-capture-error in /docs/architecture
+          // for why this is wired individually rather than sweeping all the
+          // other webhookFulfillmentFailureResponse catch sites in this file.
+          await captureError(dbError, {
+            component: "stripe-webhook",
+            eventType: event.type,
+            eventId: event.id,
+            failureKind: "bundle_payment_or_handoff",
+          });
           const failure = webhookFulfillmentFailureResponse("bundle_payment_or_handoff");
           return NextResponse.json(failure.body, { status: failure.status });
         }
