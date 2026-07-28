@@ -266,14 +266,30 @@ export async function listOrphanCommerceStripeProducts(
  * re-reads the catalog in that window so a concurrent saveCommerceCatalogAction
  * that re-adds/renames a SKU into the same skuId is not archived out from
  * under it.
+ *
+ * The optional isStillOrphan callback is invoked before EACH individual
+ * archive call, not just once before the whole loop — this list can contain
+ * several orphans, each archived via its own sequential awaited Stripe call,
+ * so a concurrent catalog save that re-adds a SKU between two orphans' turns
+ * (not only before the loop starts) must still be caught
+ * (buffer-schedule-stale-pack-variant-guard fixed the identical bug shape in
+ * scheduleMarketingPackToBufferAction's Buffer-posting loop; this closes the
+ * same shape here). Orphans for which isStillOrphan resolves false are
+ * skipped, not archived.
  */
 export async function archiveCommerceStripeProducts(
   stripe: StripeProductsAndPrices,
   orphans: ReadonlyArray<OrphanCommerceStripeProduct>,
+  options?: {
+    isStillOrphan?: (orphan: OrphanCommerceStripeProduct) => Promise<boolean>;
+  },
 ): Promise<{ archived: OrphanCommerceStripeProduct[] }> {
   const archived: OrphanCommerceStripeProduct[] = [];
 
   for (const orphan of orphans) {
+    if (options?.isStillOrphan && !(await options.isStillOrphan(orphan))) {
+      continue;
+    }
     await stripe.products.update(orphan.productId, { active: false });
     archived.push(orphan);
   }

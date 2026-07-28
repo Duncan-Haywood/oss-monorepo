@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { parseCheckoutAcquisitionSource } from "@/lib/checkout/acquisition-source";
+import {
+  normalizeCheckoutBusinessName,
+  normalizeCheckoutBusinessPhone,
+} from "@/lib/checkout/business-fields";
 import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
 import { parseClientIdempotencyKey } from "@/lib/checkout/idempotency-key";
 import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attribution";
@@ -28,6 +32,8 @@ interface CheckoutRequestBody {
   customerEmail?: string;
   idempotencyKey?: string;
   acquisitionSource?: string;
+  businessName?: string;
+  businessPhone?: string;
 }
 
 function notConfigured(message: string) {
@@ -130,6 +136,12 @@ export async function POST(request: Request) {
   // against the fixed allowlist and silently drop anything else (see
   // acquisition-source-checkout-attribution).
   const acquisitionSource = parseCheckoutAcquisitionSource(body.acquisitionSource);
+  // Only meaningful on the organic no-preexisting-lead path (mintedOrganic) —
+  // a real lead's businessName already lives in the CRM, and CheckoutForm
+  // only renders this field when prefill.businessName is absent. Soft-capped,
+  // never trusted for anything beyond display/CRM stub defaults.
+  const businessName = normalizeCheckoutBusinessName(body.businessName);
+  const businessPhone = normalizeCheckoutBusinessPhone(body.businessPhone);
 
   const cancelParams = new URLSearchParams({ cancelled: "1" });
   cancelParams.set("slug", leadSlug);
@@ -156,6 +168,8 @@ export async function POST(request: Request) {
           slug: leadSlug,
           ...(mintedOrganic ? { organicAttribution: "1" } : {}),
           ...(acquisitionSource ? { acquisitionSource } : {}),
+          ...(businessName ? { businessName } : {}),
+          ...(businessPhone ? { businessPhone } : {}),
         },
       },
       idempotencyKey ? { idempotencyKey } : undefined,
