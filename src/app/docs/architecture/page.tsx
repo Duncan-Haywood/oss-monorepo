@@ -4245,6 +4245,33 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>sentToClientAt</code>) is the documented manual recovery.
       </p>
 
+      <p>
+        <code>commerce-client-receipt-resend-race-guard-ordering-fix</code>: the same
+        reserve-then-send-then-release pattern the entry above shipped for the marketing/voice pack
+        sends was never checked against the third one-shot-marker send action,{" "}
+        <code>resendCommerceClientReceiptAction</code> (the operator&apos;s row-level remedy for a
+        Commerce Buy now order stuck on{" "}
+        <code>listCommerceOrdersMissingClientReceipt</code>). It still sent the client receipt
+        email first and only called <code>markCommerceOrderClientReceiptSent</code>&apos;s CAS
+        marker afterward, so two concurrent resend clicks (a second dashboard tab, or a
+        double-click before the button&apos;s <code>isPending</code>-disabled state applied) could
+        both pass the not-yet-sent check and both send a real duplicate receipt email before either
+        reached the mark. Fixed the same way: the marker is now reserved <em>before</em> the send (a
+        lost reservation or a fail-closed <code>ConvexPrimaryWriteError</code> skips the send
+        entirely), and a new <code>clearCommerceOrderClientReceiptSent</code> mutation (Convex{" "}
+        <code>commerceOrders.clearClientReceiptSent</code>, plus the SQLite-fallback twin) releases
+        the reservation — an exact-match compare-and-swap on the timestamp this call itself wrote —
+        only if the send then fails, so the order correctly reappears as not-yet-sent for a retry.
+        Deliberately left untouched: the Stripe webhook&apos;s own call to{" "}
+        <code>markCommerceOrderClientReceiptSent</code> (the order&apos;s <em>initial</em> receipt
+        send) stays mark-after-send — its idempotency comes from checking the marker before
+        deciding whether to attempt a send at all and recovering on redelivery
+        (<code>hasCommerceClientReceiptSentMarker</code> /{" "}
+        <code>planCommerceWebhookSideEffects</code>), a fundamentally different, already
+        deliberately-designed model from a dashboard button click, and the release mutation is
+        never called from the webhook path.
+      </p>
+
       <h2>Tech stack</h2>
       <ul>
         <li>Next.js 16 + TypeScript + Tailwind v4</li>

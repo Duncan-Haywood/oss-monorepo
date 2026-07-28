@@ -34,6 +34,7 @@ import {
   getCommerceOrderByStripeSessionId,
   markCommerceOrderPaidOut,
   markCommerceOrderClientReceiptSent,
+  clearCommerceOrderClientReceiptSent,
   upsertClientVoicePack,
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
@@ -1770,29 +1771,20 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const previewUrl = `${leadPreviewAbsoluteUrl(baseUrl, order.leadSlug)}#catalog`;
-    const sent = await sendCommerceBuyNowClientReceipt({
-      to,
-      businessName: lead.businessName || order.leadSlug,
-      slug: order.leadSlug,
-      skuName: order.skuName,
-      amountTotalUsd: order.amountPaidUsd,
-      stripeSessionId: order.stripeSessionId,
-      previewUrl,
-      quantity: order.quantity,
-      customerEmail: order.customerEmail,
-    });
-    if (!sent.success) {
-      return {
-        success: false as const,
-        error:
-          "reason" in sent && sent.reason === "suppressed"
-            ? "Email is on the suppression list"
-            : "error" in sent && typeof sent.error === "string"
-              ? sent.error
-              : "Failed to send client receipt email",
-      };
-    }
 
+    // Reserve the one-shot sent-marker BEFORE sending (mirroring
+    // sendMarketingPackToClientAction's reserve-then-send-then-release
+    // ordering — see commerce-client-receipt-resend-race-guard-ordering-fix,
+    // marketing-voice-pack-client-send-race-guard-ordering-fix). Closes the
+    // window where two concurrent resend clicks (a second tab, a
+    // double-click before the button's isPending-disabled state applied)
+    // both read the order as not-yet-sent and both send a real duplicate
+    // receipt email before either reaches a mark-after-send check. A lost
+    // reservation (marked === false) or a fail-closed reservation write
+    // skips the send entirely — no email goes out on the losing side. The
+    // Stripe webhook's own call to markCommerceOrderClientReceiptSent is
+    // untouched by this change and stays mark-after-send (see that
+    // mutation's own doc comment for why).
     const clientReceiptEmailSentAt = new Date().toISOString();
     let marked: boolean;
     try {
@@ -1806,7 +1798,7 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
         return {
           success: false as const,
           error:
-            "Receipt email was sent but the sent-marker could not be recorded in the shared store — it may show as missing again until this is retried.",
+            "Could not reserve the client receipt sent-marker in the shared store — email was not sent. Retry in a moment.",
         };
       }
       throw error;
@@ -1815,7 +1807,43 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
       return {
         success: false as const,
         error:
-          "Client receipt was already marked sent by a concurrent request (e.g. a webhook redelivery) — this click may have sent a duplicate notification email.",
+          "Client receipt was already marked sent by a concurrent request (e.g. a webhook redelivery) — skipped duplicate send.",
+      };
+    }
+
+    const sent = await sendCommerceBuyNowClientReceipt({
+      to,
+      businessName: lead.businessName || order.leadSlug,
+      slug: order.leadSlug,
+      skuName: order.skuName,
+      amountTotalUsd: order.amountPaidUsd,
+      stripeSessionId: order.stripeSessionId,
+      previewUrl,
+      quantity: order.quantity,
+      customerEmail: order.customerEmail,
+    });
+    if (!sent.success) {
+      // Release the reservation so the order correctly reappears as
+      // not-yet-sent (listCommerceOrdersMissingClientReceipt /
+      // pipeline-health / digest) and a retry click isn't blocked by the
+      // one-shot gate this marker enforces. Best-effort at the call site,
+      // mirroring sendMarketingPackToClientAction's release step.
+      try {
+        await clearCommerceOrderClientReceiptSent(sessionId, clientReceiptEmailSentAt);
+      } catch (clearError) {
+        console.error(
+          `Failed to release commerce order client receipt sent-to-client reservation for ${sessionId} after a failed send:`,
+          clearError,
+        );
+      }
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send client receipt email",
       };
     }
 

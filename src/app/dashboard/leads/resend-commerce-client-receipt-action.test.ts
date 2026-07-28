@@ -12,9 +12,13 @@ import { MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH } from "@/lib/billing/checkout-se
  * Locks: requireOperatorAuth, missing/empty/over-long session id, not-found,
  * already-sent guard, lead not-found, missing lead email, send failure
  * (including suppression defense-in-depth), COMMERCE_CLIENT_RECEIPT_RESEND_CONVEX_PRIMARY
- * persist + ConvexPrimaryWriteError fail-closed (no revalidate, but a
- * distinct "receipt sent but marker failed" message since the email already
- * went out), and success revalidate.
+ * persist + ConvexPrimaryWriteError fail-closed, and success revalidate.
+ *
+ * The sent-marker reservation now runs BEFORE the send, and is released on a
+ * failed send (commerce-client-receipt-resend-race-guard-ordering-fix,
+ * mirroring marketing-voice-pack-client-send-race-guard-ordering-fix) — see
+ * the "reserves the sent-marker before sending" / "skips the send" /
+ * "releases the reservation" tests below for the ordering this closes.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -43,6 +47,7 @@ function headerStore(entries: Record<string, string | null> = {}) {
 const getCommerceOrderByStripeSessionId = vi.fn();
 const getLeadBySlug = vi.fn();
 const markCommerceOrderClientReceiptSent = vi.fn();
+const clearCommerceOrderClientReceiptSent = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -72,6 +77,8 @@ vi.mock("@/lib/db", () => ({
   markCommerceOrderPaidOut: vi.fn(),
   markCommerceOrderClientReceiptSent: (...args: unknown[]) =>
     markCommerceOrderClientReceiptSent(...args),
+  clearCommerceOrderClientReceiptSent: (...args: unknown[]) =>
+    clearCommerceOrderClientReceiptSent(...args),
   upsertClientVoicePack: vi.fn(),
   getClientVoicePackByLeadSlug: vi.fn(),
   listClientVoicePacks: vi.fn(),
@@ -153,6 +160,7 @@ describe("resendCommerceClientReceiptAction", () => {
       .mockReset()
       .mockResolvedValue({ success: true, id: "email_1" });
     markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(true);
+    clearCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -259,8 +267,17 @@ describe("resendCommerceClientReceiptAction", () => {
     expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
   });
 
-  it("sends with preview URL, marks the sent-marker, and revalidates on success", async () => {
+  it("reserves the sent-marker before sending, and revalidates on success", async () => {
     process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const callOrder: string[] = [];
+    markCommerceOrderClientReceiptSent.mockImplementation(async () => {
+      callOrder.push("mark");
+      return true;
+    });
+    sendCommerceBuyNowClientReceipt.mockImplementation(async () => {
+      callOrder.push("send");
+      return { success: true, id: "email_1" };
+    });
     const { resendCommerceClientReceiptAction } = await import("./actions");
     const res = await resendCommerceClientReceiptAction("cs_test_commerce_receipt");
 
@@ -268,6 +285,7 @@ describe("resendCommerceClientReceiptAction", () => {
     if (!res.success) throw new Error("expected success");
     expect(typeof res.clientReceiptEmailSentAt).toBe("string");
     expect(Number.isNaN(Date.parse(res.clientReceiptEmailSentAt))).toBe(false);
+    expect(callOrder).toEqual(["mark", "send"]);
 
     expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledWith({
       to: "hello@demo-cafe.example",
@@ -285,6 +303,7 @@ describe("resendCommerceClientReceiptAction", () => {
       res.clientReceiptEmailSentAt,
       { requireConvex: true },
     );
+    expect(clearCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
@@ -325,7 +344,7 @@ describe("resendCommerceClientReceiptAction", () => {
     );
   });
 
-  it("surfaces a suppressed helper return without marking or revalidating (defense-in-depth)", async () => {
+  it("surfaces a suppressed helper return, releases the reservation, and does not revalidate (defense-in-depth)", async () => {
     // sendCommerceBuyNowClientReceipt passes skipSuppression: true, so
     // production should not hit this path — keep the mapping in case a
     // future change to that helper regresses it.
@@ -339,11 +358,15 @@ describe("resendCommerceClientReceiptAction", () => {
       success: false,
       error: "Email is on the suppression list",
     });
-    expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
+    expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledOnce();
+    expect(clearCommerceOrderClientReceiptSent).toHaveBeenCalledWith(
+      "cs_test_commerce_receipt",
+      expect.any(String),
+    );
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("surfaces Resend send failures without marking or revalidating", async () => {
+  it("surfaces Resend send failures, releases the reservation, and does not revalidate", async () => {
     sendCommerceBuyNowClientReceipt.mockResolvedValue({
       success: false,
       error: "Resend 429",
@@ -354,8 +377,23 @@ describe("resendCommerceClientReceiptAction", () => {
       success: false,
       error: "Resend 429",
     });
-    expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
+    expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledOnce();
+    expect(clearCommerceOrderClientReceiptSent).toHaveBeenCalledWith(
+      "cs_test_commerce_receipt",
+      expect.any(String),
+    );
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("still reports the original send failure when the release itself also fails (logged, not thrown)", async () => {
+    sendCommerceBuyNowClientReceipt.mockResolvedValue({
+      success: false,
+      error: "Resend 429",
+    });
+    clearCommerceOrderClientReceiptSent.mockRejectedValue(new Error("convex outage"));
+    const { resendCommerceClientReceiptAction } = await import("./actions");
+    const res = await resendCommerceClientReceiptAction("cs_test_commerce_receipt");
+    expect(res).toEqual({ success: false, error: "Resend 429" });
   });
 
   it("returns mock:true when the email layer mocks the send", async () => {
@@ -369,7 +407,7 @@ describe("resendCommerceClientReceiptAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("reports the send-succeeded-but-marker-failed case distinctly on ConvexPrimaryWriteError, without revalidate", async () => {
+  it("skips the send and reports a not-sent error when the reservation write fails closed on Convex (ConvexPrimaryWriteError)", async () => {
     markCommerceOrderClientReceiptSent.mockRejectedValue(
       new MockConvexPrimaryWriteError("mutation failed"),
     );
@@ -378,32 +416,32 @@ describe("resendCommerceClientReceiptAction", () => {
     expect(res).toEqual({
       success: false,
       error:
-        "Receipt email was sent but the sent-marker could not be recorded in the shared store — it may show as missing again until this is retried.",
+        "Could not reserve the client receipt sent-marker in the shared store — email was not sent. Retry in a moment.",
     });
-    expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledOnce();
+    expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("reports a likely duplicate when a concurrent writer (e.g. webhook redelivery) already set the marker", async () => {
-    // Regression test for commerce-client-receipt-marker-race-guard:
-    // markCommerceOrderClientReceiptSent now re-checks clientReceiptEmailSentAt
-    // atomically with the write and returns false when a racing caller (a
-    // Stripe webhook redelivery, or a second click) already set it between
-    // this action's read and its write — the email above already sent, so
-    // this must surface as a distinct duplicate-risk error, not silent success.
+  it("skips the send entirely and reports a duplicate-risk error when a concurrent writer (e.g. webhook redelivery) already reserved the marker (commerce-client-receipt-resend-race-guard-ordering-fix)", async () => {
+    // markCommerceOrderClientReceiptSent's atomic CAS write resolves false
+    // (not throw) when a racing caller (a Stripe webhook redelivery, or a
+    // second dashboard tab) already set it between this action's read and
+    // its reservation write — since the reservation now runs BEFORE the
+    // send, this must skip the send entirely rather than detect the
+    // duplicate only after a real second email already went out.
     markCommerceOrderClientReceiptSent.mockResolvedValue(false);
     const { resendCommerceClientReceiptAction } = await import("./actions");
     const res = await resendCommerceClientReceiptAction("cs_test_commerce_receipt");
     expect(res).toEqual({
       success: false,
       error:
-        "Client receipt was already marked sent by a concurrent request (e.g. a webhook redelivery) — this click may have sent a duplicate notification email.",
+        "Client receipt was already marked sent by a concurrent request (e.g. a webhook redelivery) — skipped duplicate send.",
     });
-    expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledOnce();
+    expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("surfaces unexpected marker-persist errors as action failures", async () => {
+  it("re-throws a non-ConvexPrimaryWriteError from the reservation write (unexpected bug, not a fail-closed guard)", async () => {
     markCommerceOrderClientReceiptSent.mockRejectedValue(new Error("disk full"));
     const { resendCommerceClientReceiptAction } = await import("./actions");
     const res = await resendCommerceClientReceiptAction("cs_test_commerce_receipt");
@@ -411,6 +449,7 @@ describe("resendCommerceClientReceiptAction", () => {
       success: false,
       error: "disk full",
     });
+    expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 

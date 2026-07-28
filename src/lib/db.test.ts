@@ -1561,6 +1561,105 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
     });
   });
 
+  describe("clearCommerceOrderClientReceiptSent (reservation release after a failed send — commerce-client-receipt-resend-race-guard-ordering-fix)", () => {
+    it("returns Convex's result directly without touching SQLite", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-receipt-clear-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_receipt_clear",
+      });
+      await seedDb.markCommerceOrderClientReceiptSent(
+        "cs_commerce_receipt_clear",
+        "2026-01-01T00:00:00.000Z",
+      );
+
+      convexMutation.mockResolvedValueOnce(true);
+      const db = await loadDb(CONVEX_URL);
+      const result = await db.clearCommerceOrderClientReceiptSent(
+        "cs_commerce_receipt_clear",
+        "2026-01-01T00:00:00.000Z",
+      );
+      expect(result).toBe(true);
+      expect(convexMutation).toHaveBeenCalledTimes(1);
+
+      // A missing early-`return;` would have also run the SQLite UPDATE —
+      // reading through the pure-SQLite path confirms it did not (the
+      // SQLite-side marker set by the seed write above is untouched).
+      const order = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_receipt_clear");
+      expect(order?.clientReceiptEmailSentAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+
+    it("falls back to SQLite on Convex failure — not requireConvex-gated, since this is a best-effort release", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-receipt-clear-fallback-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_receipt_clear_fallback",
+      });
+      await seedDb.markCommerceOrderClientReceiptSent(
+        "cs_commerce_receipt_clear_fallback",
+        "2026-01-01T00:00:00.000Z",
+      );
+
+      convexMutation.mockRejectedValueOnce(new Error("convex outage"));
+      const result = await (
+        await loadDb(CONVEX_URL)
+      ).clearCommerceOrderClientReceiptSent(
+        "cs_commerce_receipt_clear_fallback",
+        "2026-01-01T00:00:00.000Z",
+      );
+      expect(result).toBe(true);
+
+      const afterClear = await (
+        await loadDb(undefined)
+      ).getCommerceOrderByStripeSessionId("cs_commerce_receipt_clear_fallback");
+      expect(afterClear?.clientReceiptEmailSentAt).toBeUndefined();
+
+      // A re-reservation with a fresh timestamp must succeed now that the
+      // marker is genuinely unset.
+      const reMarked = await (
+        await loadDb(undefined)
+      ).markCommerceOrderClientReceiptSent(
+        "cs_commerce_receipt_clear_fallback",
+        "2026-01-02T00:00:00.000Z",
+      );
+      expect(reMarked).toBe(true);
+    });
+
+    it("is a safe no-op when the marker no longer matches the expected value", async () => {
+      const seedDb = await loadDb(undefined);
+      await seedDb.insertCommerceOrder({
+        leadSlug: "commerce-receipt-clear-mismatch-lead",
+        skuId: "sku_1",
+        skuName: "Test SKU",
+        amountPaidUsd: 25,
+        stripeSessionId: "cs_commerce_receipt_clear_mismatch",
+      });
+      await seedDb.markCommerceOrderClientReceiptSent(
+        "cs_commerce_receipt_clear_mismatch",
+        "2026-01-01T00:00:00.000Z",
+      );
+
+      const result = await seedDb.clearCommerceOrderClientReceiptSent(
+        "cs_commerce_receipt_clear_mismatch",
+        "2026-01-05T00:00:00.000Z",
+      );
+      expect(result).toBe(false);
+
+      const stillMarked = await seedDb.getCommerceOrderByStripeSessionId(
+        "cs_commerce_receipt_clear_mismatch",
+      );
+      expect(stillMarked?.clientReceiptEmailSentAt).toBe("2026-01-01T00:00:00.000Z");
+    });
+  });
+
   describe("markClientVoicePackSentToClient (sent-marker idempotency, optional requireConvex)", () => {
     it("returns Convex's result directly without touching SQLite", async () => {
       const seedDb = await loadDb(undefined);
