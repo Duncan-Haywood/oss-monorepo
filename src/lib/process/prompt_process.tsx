@@ -814,4 +814,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "billing-notice-send-failed-leads-panel",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, immediately after PR #967 merged. The next dispatched research agent found one more instance of the same third-due-queue-surface gap: listMarketingPacksMissingClientSend and listClientVoicePacksMissingClientSend each already fed a pipeline-health MetricCard and a daily-digest section, but leads-client.tsx had zero references to either.",
+    shipped: [
+      "The generated-vs-delivered gap is real sold-fulfillment visibility: marketing-voice-pack-client-send-visibility already fixed the due-count accuracy and added an inline emailed/not-yet-emailed badge on the per-lead detail row, but that badge only surfaces once an operator has scrolled to that specific lead — no at-a-glance, filtered due-queue view existed, the same gap billing-notice-send-failed-leads-panel closed one iteration earlier for a different queue.",
+      "Added two new sections to leads-client.tsx mirroring the MRR-paused/billing-notice-failed panels' shape: Marketing packs not emailed and Complete voice packs not emailed. Both list helpers were already generic/exported/fully tested and consume the same client-side state the pipeline-health cards already use — no new backend plumbing. Each row's Send to client button reuses the existing handleEmailMarketingPack/handleEmailClientVoicePack handlers, so sends from either surface stay in sync automatically.",
+      "src/app/dashboard/leads/leads-client.tsx (new imports, 2 heading-id constants, 2 computed list/age pairs, 2 section JSX blocks); src/app/docs/architecture/page.tsx (new paragraph after marketing-voice-pack-client-send-visibility's own); src/lib/process/business-decisions.ts (appended marketing-voice-pack-missing-client-send-leads-panel); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change. No library function was modified (both list helpers were already correct and tested) — a pure-UI-consumption addition, so no git-stash proof applied; verified instead via a dev-server smoke check.",
+      "Smoke-tested with a dev server: seeded a paid Growth lead with an unsent current-month marketing pack and a paid Complete lead with an unsent voice pack directly into local.db; confirmed both new panels rendered the correct business name, age, and a working Send to client button. Cleaned up the seeded local.db afterward.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3991 passed, 234 files, unchanged — no library function changed, leads-client.tsx has no dedicated test harness) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + the dev-server smoke check described above.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "marketing-voice-pack-missing-client-send-leads-panel",
+    ),
+  },
 ];
