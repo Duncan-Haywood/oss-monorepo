@@ -191,6 +191,31 @@ describe("GET /api/cron/checkout-recovery", () => {
       component: "cron-checkout-recovery",
       failures: [{ stripeSessionId: "cs_bundle_1", error: "No email on file for this checkout session" }],
     });
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "checkout-recovery",
+      expect.objectContaining({
+        success: false,
+        error: "1 of 2 recovery sends failed",
+      }),
+    );
+  });
+
+  it("records run health as failed when every attempted send fails, even though the HTTP response is still 200", async () => {
+    listOpenCheckoutSessions.mockResolvedValue([bundleDueSession(), bundleDueSession({ stripeSessionId: "cs_bundle_2" })]);
+    recoverAbandonedBundleCheckout.mockResolvedValue({ success: false, error: "Resend API key revoked" });
+    const { GET } = await import("./route");
+    const response = await GET(cronRequest({ bearer: "test-cron-secret-value" }));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.failed).toBe(2);
+    expect(recordCronRunOutcome).toHaveBeenCalledWith(
+      "checkout-recovery",
+      expect.objectContaining({
+        success: false,
+        error: "2 of 2 recovery sends failed",
+      }),
+    );
   });
 
   it("returns 500 and captures the error when a ledger read throws", async () => {
