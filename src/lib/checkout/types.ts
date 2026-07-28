@@ -5,6 +5,8 @@
  * checkout.session.completed webhook. See /docs/architecture#payments.
  */
 
+import type { BundleBillingInterval } from "@/lib/pricing/bundles";
+
 export type CheckoutSessionStatus = "open" | "complete";
 
 /**
@@ -46,6 +48,15 @@ export interface CheckoutSessionRecord {
   kind?: CheckoutSessionKind;
   /** Present when kind === "commerce_sku". */
   skuId?: string;
+  /**
+   * Billing cadence selected at checkout creation (kind=bundle only — see
+   * annual-billing-option). Undefined on legacy pre-feature rows and on
+   * commerce_sku rows (no recurring concept); recovery emails must thread
+   * this through so an abandoned annual-checkout shopper is never nudged
+   * back onto a monthly link they never chose (see
+   * checkout-recovery-billing-interval-carry-through).
+   */
+  billingInterval?: BundleBillingInterval;
 }
 
 /**

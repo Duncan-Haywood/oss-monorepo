@@ -260,6 +260,7 @@ describe("sendCheckoutRecoveryAction", () => {
       "demo-cafe",
       "growth",
       1,
+      undefined,
     );
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
     const markOrder = recordCheckoutRecoverySent.mock.invocationCallOrder[0]!;
@@ -288,6 +289,7 @@ describe("sendCheckoutRecoveryAction", () => {
       "demo-cafe",
       "growth",
       3,
+      undefined,
     );
   });
 

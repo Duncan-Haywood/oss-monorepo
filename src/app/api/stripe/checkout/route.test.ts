@@ -216,6 +216,7 @@ describe("POST /api/stripe/checkout", () => {
         commerceAddon: false,
         customerEmail: "owner@demo-cafe.test",
         kind: "bundle",
+        billingInterval: "monthly",
       },
       CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
     );
@@ -329,6 +330,13 @@ describe("POST /api/stripe/checkout", () => {
         { price: "price_growth_annual", quantity: 1 },
       ]);
       expect(createArgs.metadata.billingInterval).toBe("annual");
+      // checkout-recovery-billing-interval-carry-through: the persisted
+      // checkout_sessions row must carry the same interval, so an abandoned
+      // annual shopper's recovery email links back to annual, not monthly.
+      expect(recordCheckoutSessionCreated).toHaveBeenCalledWith(
+        expect.objectContaining({ billingInterval: "annual" }),
+        CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+      );
     });
 
     it("defaults to monthly when billingInterval is omitted, malformed, or unrecognized", async () => {

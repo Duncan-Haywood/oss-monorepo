@@ -2024,6 +2024,27 @@ export default function ArchitectureDocPage() {
         a computed monthly-price formula.
       </p>
       <p>
+        <code>checkout-recovery-billing-interval-carry-through</code>: the very same annual
+        toggle above was never threaded through abandoned-checkout recovery
+        (<code>checkout-recovery-cron-automation</code>). A shopper who selected Annual, then
+        abandoned before paying, got a recovery email whose link pointed at plain{" "}
+        <code>/checkout?slug=...&amp;tier=...</code> — no billing-interval information — so{" "}
+        <code>CheckoutForm</code> silently re-prefilled them onto Monthly (
+        <code>parseBundleBillingInterval</code> falls back to <code>&quot;monthly&quot;</code>{" "}
+        for a missing param, same as a tampered/legacy value). The checkout route&apos;s own{" "}
+        <code>cancel_url</code> already round-trips <code>billing=annual</code> for a same-session
+        Stripe-cancel-and-return, proving the recovery-email gap was an oversight, not a
+        deliberate omission. Fixed by adding <code>billingInterval</code> to{" "}
+        <code>CheckoutSessionRecord</code> (both the SQLite <code>checkout_sessions</code> table,
+        additive-migration style, and the Convex <code>checkoutSessions</code> table/mutation) so
+        it round-trips through <code>recordCheckoutSessionCreated</code> exactly like{" "}
+        <code>tier</code>/<code>kind</code> already do; <code>sendCheckoutAbandonedRecovery</code>{" "}
+        now accepts it and appends <code>&amp;billing=annual</code> to the recovery link,
+        mirroring the <code>cancel_url</code> pattern exactly. Undefined/legacy rows and
+        commerce_sku rows (no recurring concept) are unaffected — the param is only appended when
+        the stored interval is exactly <code>&quot;annual&quot;</code>.
+      </p>
+      <p>
         <code>acquisition-source-checkout-attribution</code>: the homepage pricing grid and each
         of the three <code>/websites-for-*</code> SEO category landing pages funneled to the same{" "}
         <code>/checkout</code> page with no way to tell which surface actually converted — no

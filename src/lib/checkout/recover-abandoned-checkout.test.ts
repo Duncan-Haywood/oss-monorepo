@@ -99,6 +99,7 @@ describe("recoverAbandonedBundleCheckout", () => {
       "demo-cafe",
       "starter",
       1,
+      undefined,
     );
   });
 
@@ -112,6 +113,20 @@ describe("recoverAbandonedBundleCheckout", () => {
       "demo-cafe",
       "starter",
       1,
+      undefined,
+    );
+  });
+
+  it("carries session.billingInterval through to the recovery email (checkout-recovery-billing-interval-carry-through)", async () => {
+    const { recoverAbandonedBundleCheckout } = await import("./recover-abandoned-checkout");
+    await recoverAbandonedBundleCheckout(bundleSession({ tier: "growth", billingInterval: "annual" }));
+    expect(sendCheckoutAbandonedRecovery).toHaveBeenCalledWith(
+      "buyer@example.com",
+      "Demo Cafe",
+      "demo-cafe",
+      "growth",
+      1,
+      "annual",
     );
   });
 

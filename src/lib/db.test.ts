@@ -4048,6 +4048,47 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       expect(matches).toHaveLength(1);
       expect(matches[0]?.tier).toBe("starter");
     });
+
+    it("persists billingInterval through the SQLite fallback round-trip, and passes it through to the Convex mutation call (checkout-recovery-billing-interval-carry-through)", async () => {
+      const sqliteDb = await loadDb(undefined);
+      await sqliteDb.recordCheckoutSessionCreated({
+        leadSlug: "annual-checkout-lead",
+        stripeSessionId: "cs_annual",
+        tier: "growth",
+        commerceAddon: false,
+        billingInterval: "annual",
+      });
+      const open = await sqliteDb.listOpenCheckoutSessions();
+      const created = open.find((s) => s.stripeSessionId === "cs_annual");
+      expect(created?.billingInterval).toBe("annual");
+
+      convexMutation.mockResolvedValueOnce(undefined);
+      const convexDb = await loadDb(CONVEX_URL);
+      await convexDb.recordCheckoutSessionCreated({
+        leadSlug: "annual-checkout-lead-convex",
+        stripeSessionId: "cs_annual_convex",
+        tier: "complete",
+        commerceAddon: false,
+        billingInterval: "annual",
+      });
+      expect(convexMutation).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ billingInterval: "annual" }),
+      );
+    });
+
+    it("leaves billingInterval undefined when the caller omits it (legacy/commerce_sku rows)", async () => {
+      const db = await loadDb(undefined);
+      await db.recordCheckoutSessionCreated({
+        leadSlug: "no-interval-lead",
+        stripeSessionId: "cs_no_interval",
+        tier: "starter",
+        commerceAddon: false,
+      });
+      const open = await db.listOpenCheckoutSessions();
+      const created = open.find((s) => s.stripeSessionId === "cs_no_interval");
+      expect(created?.billingInterval).toBeUndefined();
+    });
   });
 
   describe("recordLeadPayment (bundle money-ledger write, idempotent, optional requireConvex, live-never-downgrades guard)", () => {

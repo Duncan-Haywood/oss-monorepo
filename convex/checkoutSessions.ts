@@ -32,6 +32,7 @@ const checkoutSessionReturn = v.object({
   recoverySentCount: v.optional(v.number()),
   kind: v.optional(v.string()),
   skuId: v.optional(v.string()),
+  billingInterval: v.optional(v.string()),
 });
 
 function mapCheckoutSessionRow(row: {
@@ -46,6 +47,7 @@ function mapCheckoutSessionRow(row: {
   recoverySentCount?: number;
   kind?: string;
   skuId?: string;
+  billingInterval?: string;
 }) {
   return {
     leadSlug: row.leadSlug,
@@ -59,6 +61,7 @@ function mapCheckoutSessionRow(row: {
     recoverySentCount: row.recoverySentCount,
     kind: row.kind,
     skuId: row.skuId,
+    billingInterval: row.billingInterval,
   };
 }
 
@@ -72,6 +75,7 @@ export const create = mutation({
     createdAt: v.string(),
     kind: v.optional(v.union(v.literal("bundle"), v.literal("commerce_sku"))),
     skuId: v.optional(v.string()),
+    billingInterval: v.optional(v.string()),
     apiSecret: v.string(),
   },
   returns: v.null(),

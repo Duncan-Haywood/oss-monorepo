@@ -24,6 +24,7 @@ interface CheckoutSessionRow {
   customerEmail?: string;
   recoverySentAt?: string;
   recoverySentCount?: number;
+  billingInterval?: string;
 }
 
 function createArgs(overrides: Partial<Record<string, unknown>> = {}) {
@@ -49,6 +50,21 @@ test("create is idempotent on stripeSessionId and inserts new rows with status o
   });
   expect(rows).toHaveLength(1);
   expect(rows[0].status).toBe("open");
+});
+
+test("create persists billingInterval and listOpen round-trips it (checkout-recovery-billing-interval-carry-through); omitted on a legacy/no-interval row", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(
+    api.checkoutSessions.create,
+    createArgs({ stripeSessionId: "cs_annual", billingInterval: "annual" }),
+  );
+  await t.mutation(api.checkoutSessions.create, createArgs({ stripeSessionId: "cs_no_interval" }));
+
+  const rows: CheckoutSessionRow[] = await t.query(api.checkoutSessions.listOpen, {
+    apiSecret: TEST_API_SECRET,
+  });
+  expect(rows.find((r) => r.stripeSessionId === "cs_annual")?.billingInterval).toBe("annual");
+  expect(rows.find((r) => r.stripeSessionId === "cs_no_interval")?.billingInterval).toBeUndefined();
 });
 
 test("markComplete / markOpen round-trip a session's status and are safe no-ops on an unknown stripeSessionId", async () => {
@@ -349,6 +365,7 @@ test("listOpen never leaks Convex's own _id/_creationTime system fields onto a C
   // itself drops unset-optional keys from the wire response, so this only
   // asserts no *extra* (system or otherwise unexpected) key ever appears.
   const allowedKeys = new Set([
+    "billingInterval",
     "commerceAddon",
     "createdAt",
     "customerEmail",

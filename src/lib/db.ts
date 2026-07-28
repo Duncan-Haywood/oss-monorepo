@@ -2750,6 +2750,7 @@ export async function recordCheckoutSessionCreated(
     customerEmail?: string;
     kind?: "bundle" | "commerce_sku";
     skuId?: string;
+    billingInterval?: "monthly" | "annual";
   },
   options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
@@ -2778,8 +2779,8 @@ export async function recordCheckoutSessionCreated(
 
   const db = getSqliteDb();
   db.prepare(`
-    INSERT INTO checkout_sessions (id, leadSlug, stripeSessionId, tier, commerceAddon, customerEmail, status, createdAt, kind, skuId)
-    VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)
+    INSERT INTO checkout_sessions (id, leadSlug, stripeSessionId, tier, commerceAddon, customerEmail, status, createdAt, kind, skuId, billingInterval)
+    VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?, ?)
     ON CONFLICT(stripeSessionId) DO NOTHING
   `).run(
     newCheckoutSessionId(),
@@ -2791,6 +2792,7 @@ export async function recordCheckoutSessionCreated(
     createdAt,
     kind,
     params.skuId ?? null,
+    params.billingInterval ?? null,
   );
 }
 
