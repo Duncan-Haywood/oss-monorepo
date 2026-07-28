@@ -174,6 +174,27 @@ export function stripeSubscriptionCancellationWasInternalSupersede(subscription:
 }
 
 /**
+ * Derives "monthly" | "annual" from a Stripe Subscription's own first line
+ * item Price — the win-back notice's only source of truth for which cadence
+ * actually lapsed (see subscription-canceled-notice-annual-billing-copy).
+ * Subscription.items.data[].price is always a full Price object, never an
+ * unexpanded id string, so no `expand` param is needed at the retrieve/list
+ * call site. Falls back to "monthly" for a missing/unrecognized interval
+ * (e.g. a malformed test fixture, or Stripe's own "week"/"day" cadences this
+ * product never sells) — same conservative default as
+ * parseBundleBillingInterval, so a resubscribe link never silently steers an
+ * annual subscriber into a cadence more expensive than what they actually
+ * had, while never claiming annual for anyone but a confirmed annual Price.
+ */
+export function stripeSubscriptionBillingInterval(subscription: {
+  items?: { data?: Array<{ price?: { recurring?: { interval?: string | null } | null } | null }> };
+}): "monthly" | "annual" {
+  return subscription.items?.data?.[0]?.price?.recurring?.interval === "year"
+    ? "annual"
+    : "monthly";
+}
+
+/**
  * Full gate for sold monthly capability delivery (marketing packs / voice
  * packs / commerce catalog + Buy now checkout): active recurring entitlement
  * AND the charge itself was never refunded or disputed. A Stripe refund or

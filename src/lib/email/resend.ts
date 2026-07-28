@@ -813,6 +813,14 @@ export async function sendSubscriptionResumedNotice(params: {
  * tier here means only the add-on lapsed, not any bundle feature.
  * Passes skipSuppression: true — billing-critical, same class as the other
  * four billing-status notices, not cold marketing.
+ *
+ * billingInterval names which cadence actually lapsed (see
+ * subscription-canceled-notice-annual-billing-copy) — derive it from the
+ * canceled Stripe Subscription itself via stripeSubscriptionBillingInterval,
+ * never trust an order/lead field, since orders never persisted their own
+ * billingInterval (a documented scope-out of annual-billing-option). Also
+ * carried onto the resubscribe link (?billing=annual) so a former annual
+ * subscriber isn't silently steered back to monthly.
  */
 export async function sendSubscriptionCanceledNotice(params: {
   to: string;
@@ -820,14 +828,18 @@ export async function sendSubscriptionCanceledNotice(params: {
   slug: string;
   tier: string;
   commerceAddon: boolean;
+  billingInterval: BundleBillingInterval;
 }) {
-  const { to, businessName, slug, tier, commerceAddon } = params;
+  const { to, businessName, slug, tier, commerceAddon, billingInterval } = params;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const bundle = getBundle(tier);
   const isRecurringBundleTier = bundle != null && bundle.monthlyPriceUsd != null;
-  const resubscribeUrl = isRecurringBundleTier
-    ? `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}`
-    : `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+  const resubscribeParams = new URLSearchParams({ slug });
+  if (isRecurringBundleTier) {
+    resubscribeParams.set("tier", tier);
+    if (billingInterval === "annual") resubscribeParams.set("billing", "annual");
+  }
+  const resubscribeUrl = `${baseUrl}/checkout?${resubscribeParams.toString()}`;
   const safeBiz = escapeHtmlForEmail(businessName);
   const safeBrand = escapeHtmlForEmail(brand.name);
   const safeResubscribeUrl = escapeHtmlForEmail(resubscribeUrl);
@@ -846,7 +858,7 @@ export async function sendSubscriptionCanceledNotice(params: {
   const subject = `Your ${brand.name} subscription for ${businessName} has ended`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Sorry to see you go</h2>
-    <p style="margin-bottom: 16px;">Your <strong>${safeBiz}</strong> monthly ${escapeHtmlForEmail(brand.name)} subscription has ended and no further charges will be made.</p>
+    <p style="margin-bottom: 16px;">Your <strong>${safeBiz}</strong> ${billingInterval === "annual" ? "annual" : "monthly"} ${escapeHtmlForEmail(brand.name)} subscription has ended and no further charges will be made.</p>
     ${lostFeaturesParagraph}
     <div style="margin-bottom: 16px; text-align: center;">
       <a href="${safeResubscribeUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Resubscribe</a>

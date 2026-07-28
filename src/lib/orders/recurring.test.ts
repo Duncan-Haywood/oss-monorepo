@@ -14,6 +14,7 @@ import {
   orderHasActiveRecurringEntitlement,
   orderRecurringIsCanceled,
   otherLiveRecurringOrdersToSupersede,
+  stripeSubscriptionBillingInterval,
   stripeSubscriptionCancellationWasInternalSupersede,
   stripeSubscriptionGrantsRecurringEntitlement,
   stripeSubscriptionHasPauseCollection,
@@ -182,6 +183,45 @@ describe("stripeSubscriptionCancellationWasInternalSupersede", () => {
     expect(
       stripeSubscriptionCancellationWasInternalSupersede({ cancellation_details: null }),
     ).toBe(false);
+  });
+});
+
+describe("stripeSubscriptionBillingInterval", () => {
+  it("returns \"annual\" for a Subscription whose first item Price recurs yearly", () => {
+    expect(
+      stripeSubscriptionBillingInterval({
+        items: { data: [{ price: { recurring: { interval: "year" } } }] },
+      }),
+    ).toBe("annual");
+  });
+
+  it("returns \"monthly\" for a Subscription whose first item Price recurs monthly", () => {
+    expect(
+      stripeSubscriptionBillingInterval({
+        items: { data: [{ price: { recurring: { interval: "month" } } }] },
+      }),
+    ).toBe("monthly");
+  });
+
+  it("falls back to \"monthly\" when items/price/recurring is missing (conservative default, never invents annual)", () => {
+    expect(stripeSubscriptionBillingInterval({})).toBe("monthly");
+    expect(stripeSubscriptionBillingInterval({ items: { data: [] } })).toBe("monthly");
+    expect(
+      stripeSubscriptionBillingInterval({ items: { data: [{ price: null }] } }),
+    ).toBe("monthly");
+    expect(
+      stripeSubscriptionBillingInterval({
+        items: { data: [{ price: { recurring: null } }] },
+      }),
+    ).toBe("monthly");
+  });
+
+  it("only ever matches the exact \"year\" interval string, never an unrecognized cadence", () => {
+    expect(
+      stripeSubscriptionBillingInterval({
+        items: { data: [{ price: { recurring: { interval: "week" } } }] },
+      }),
+    ).toBe("monthly");
   });
 });
 

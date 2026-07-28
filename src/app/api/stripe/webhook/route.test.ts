@@ -647,6 +647,7 @@ describe("POST /api/stripe/webhook", () => {
         slug: "churned-cafe",
         tier: "growth",
         commerceAddon: false,
+        billingInterval: "monthly",
       });
       expect(recordBillingNoticeSendOutcome).toHaveBeenCalledWith(
         "cs_churned_win_back",
@@ -654,6 +655,45 @@ describe("POST /api/stripe/webhook", () => {
         true,
         1_720_002_000_000,
       );
+    });
+
+    it("passes billingInterval: \"annual\" when the canceled Subscription's own Price recurring.interval is \"year\" (subscription-canceled-notice-annual-billing-copy)", async () => {
+      getOrdersByStripeCustomerId.mockResolvedValueOnce([]).mockResolvedValueOnce([
+        {
+          leadSlug: "annual-churned-cafe",
+          stripeSessionId: "cs_annual_churned",
+          tier: "growth",
+          commerceAddon: false,
+        },
+      ]);
+      getLeadBySlug.mockResolvedValueOnce({
+        slug: "annual-churned-cafe",
+        businessName: "Annual Churned Cafe",
+        email: "owner@annual-churned-cafe.test",
+      });
+      constructEvent.mockReturnValue({
+        type: "customer.subscription.deleted",
+        data: {
+          object: {
+            id: "sub_annual_win_back",
+            customer: "cus_annual_win_back",
+            ended_at: 1_720_002_000,
+            items: { data: [{ price: { recurring: { interval: "year" } } }] },
+          },
+        },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendSubscriptionCanceledNotice).toHaveBeenCalledWith({
+        to: "owner@annual-churned-cafe.test",
+        businessName: "Annual Churned Cafe",
+        slug: "annual-churned-cafe",
+        tier: "growth",
+        commerceAddon: false,
+        billingInterval: "annual",
+      });
     });
 
     it("records a failed send via recordBillingNoticeSendOutcome without turning it into a 5xx", async () => {
