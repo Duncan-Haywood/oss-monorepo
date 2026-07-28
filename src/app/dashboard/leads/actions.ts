@@ -3284,15 +3284,21 @@ export async function archiveOrphanCommerceStripeProductsAction(slug: string) {
     const stripe = new Stripe(secretKey);
     // listOrphanCommerceStripeProducts paginates every active Stripe Product
     // on the account — a real, materially long window. Re-read the catalog
-    // right before actually archiving anything and drop any candidate whose
-    // skuId reappears, so a concurrent saveCommerceCatalogAction that
-    // re-adds/renames a SKU into the same id during that window doesn't get
-    // its live Stripe Product archived out from under it.
+    // right before archiving EACH candidate (not just once before the whole
+    // batch) and drop any whose skuId has reappeared by its turn, so a
+    // concurrent saveCommerceCatalogAction that re-adds/renames a SKU into
+    // the same id — whether before the archive loop starts or between two
+    // other candidates' turns within it — never gets its live Stripe Product
+    // archived out from under it (buffer-schedule-stale-pack-variant-guard
+    // fixed the identical per-iteration-not-just-once-per-loop bug shape).
     const candidates = await listOrphanCommerceStripeProducts(stripe, lead.slug, items);
-    const freshCatalog = await getCommerceCatalog(slug);
-    const freshSkuIds = new Set((freshCatalog?.items ?? []).map((item) => item.id));
-    const toArchive = candidates.filter((orphan) => !freshSkuIds.has(orphan.skuId));
-    const { archived } = await archiveCommerceStripeProducts(stripe, toArchive);
+    const { archived } = await archiveCommerceStripeProducts(stripe, candidates, {
+      isStillOrphan: async (orphan) => {
+        const freshCatalog = await getCommerceCatalog(slug);
+        const freshSkuIds = new Set((freshCatalog?.items ?? []).map((item) => item.id));
+        return !freshSkuIds.has(orphan.skuId);
+      },
+    });
 
     revalidatePath("/dashboard/leads");
     return {

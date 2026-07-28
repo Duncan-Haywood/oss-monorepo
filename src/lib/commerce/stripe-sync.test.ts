@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  archiveCommerceStripeProducts,
   archiveOrphanCommerceStripeProducts,
   commerceSkuStripeKey,
   listOrphanCommerceStripeProducts,
@@ -427,5 +428,63 @@ describe("listOrphanCommerceStripeProducts / archiveOrphanCommerceStripeProducts
     ]);
     expect(archived).toHaveLength(1);
     expect(archived[0]?.skuId).toBe("sku_2");
+  });
+
+  it("archives every orphan when no isStillOrphan option is passed (unchanged default behavior)", async () => {
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+    const orphans = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", []);
+
+    const { archived } = await archiveCommerceStripeProducts(stripe, orphans);
+    expect(archived).toHaveLength(2);
+    expect(stripe.activeProductCount()).toBe(0);
+  });
+
+  it("skips an orphan whose isStillOrphan check reports it is no longer orphaned", async () => {
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+    const orphans = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", []);
+
+    const { archived } = await archiveCommerceStripeProducts(stripe, orphans, {
+      isStillOrphan: async (orphan) => orphan.skuId !== "sku_1",
+    });
+
+    expect(archived.map((o) => o.skuId)).toEqual(["sku_2"]);
+    expect(stripe.activeProductCount()).toBe(1);
+    const stillActive = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", [items[0]!]);
+    expect(stillActive).toHaveLength(0);
+  });
+
+  it("re-checks isStillOrphan before EACH orphan's own archive call, not just once before the batch (buffer-schedule-stale-pack-variant-guard bug shape)", async () => {
+    // Three orphans archived sequentially. Simulate a concurrent catalog
+    // save re-adding the SECOND orphan's SKU between the first and second
+    // archive calls — a bug that a single once-before-the-loop check (rather
+    // than a check before every individual iteration) would miss entirely.
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", [
+      { id: "sku_1", name: "Latte", priceCents: 499 },
+      { id: "sku_2", name: "Croissant", priceCents: 350 },
+      { id: "sku_3", name: "Muffin", priceCents: 375 },
+    ]);
+    const orphans = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", []);
+    expect(orphans.map((o) => o.skuId)).toEqual(["sku_1", "sku_2", "sku_3"]);
+
+    const checkedSkuIds: string[] = [];
+    const { archived } = await archiveCommerceStripeProducts(stripe, orphans, {
+      isStillOrphan: async (orphan) => {
+        checkedSkuIds.push(orphan.skuId);
+        return orphan.skuId !== "sku_2";
+      },
+    });
+
+    // Every orphan gets its own check, in order — not a single upfront check.
+    expect(checkedSkuIds).toEqual(["sku_1", "sku_2", "sku_3"]);
+    // sku_2 reappeared mid-loop and must survive; its neighbors still archive.
+    expect(archived.map((o) => o.skuId)).toEqual(["sku_1", "sku_3"]);
+    expect(stripe.activeProductCount()).toBe(1);
+    const stillActive = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", [
+      { id: "sku_2", name: "Croissant", priceCents: 350 },
+    ]);
+    expect(stillActive).toHaveLength(0);
   });
 });
