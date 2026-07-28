@@ -7,6 +7,7 @@ import {
 } from "@/lib/email/unsubscribe-token";
 import { MAX_CONTACT_EMAIL_LENGTH } from "@/lib/inquiries/contact-fields";
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
+import { captureError } from "@/lib/observability/error-tracking";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
@@ -67,6 +68,7 @@ async function verifyAndSuppress(
     return { email };
   } catch (error) {
     console.error("Unsubscribe error:", error);
+    await captureError(error, { component: "unsubscribe", failureKind: "suppression_write" });
     if (error instanceof ConvexPrimaryWriteError) {
       return {
         errorResponse: new NextResponse(
