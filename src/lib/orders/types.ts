@@ -53,19 +53,24 @@ export interface OrderRecord {
   lastRenewalInvoiceId?: string;
   /**
    * Unix ms of the most recent best-effort billing-notice send (dunning /
-   * payment-recovered / subscription-paused / subscription-resumed — see
-   * src/app/api/stripe/webhook/route.ts) that resolved `{ success: false }`.
-   * Cleared the next time ANY of the four sends for this order succeeds —
-   * this is a "is billing communication currently reaching this customer"
-   * signal, not a per-notice-type ledger. Absent means either no send has
-   * ever failed, or the most recent attempt succeeded. These four notices
-   * have no other durable "sent" marker (Stripe's own retry/redelivery is
-   * the recovery path, not a stored idempotency flag), so a sustained Resend
-   * outage or a persistently-bad email address had zero operator-facing
-   * signal before this field existed — see billing-notice-send-failure-visibility.
+   * payment-recovered / subscription-paused / subscription-resumed /
+   * subscription-canceled — see src/app/api/stripe/webhook/route.ts) that
+   * resolved `{ success: false }`. Cleared the next time ANY of the five
+   * sends for this order succeeds — this is a "is billing communication
+   * currently reaching this customer" signal, not a per-notice-type ledger.
+   * Absent means either no send has ever failed, or the most recent attempt
+   * succeeded. These five notices have no other durable "sent" marker
+   * (Stripe's own retry/redelivery is the recovery path, not a stored
+   * idempotency flag), so a sustained Resend outage or a persistently-bad
+   * email address had zero operator-facing signal before this field existed
+   * — see billing-notice-send-failure-visibility. subscription_canceled is a
+   * terminal event with no further subscription-lifecycle webhook to retry
+   * a failed send, so a failure recorded here can only ever be cleared by an
+   * unrelated future resubscribe's own notice succeeding, or never — see
+   * subscription-canceled-win-back-notice.
    */
   lastBillingNoticeSendFailedAt?: number;
-  /** Which of the four notice types most recently failed. Paired with lastBillingNoticeSendFailedAt. */
+  /** Which of the five notice types most recently failed. Paired with lastBillingNoticeSendFailedAt. */
   lastBillingNoticeSendFailedType?: BillingNoticeType;
   /**
    * Which marketing surface (homepage vs. a /websites-for-* category landing
@@ -79,12 +84,13 @@ export interface OrderRecord {
   acquisitionSource?: string;
 }
 
-/** The four best-effort, customer-facing Stripe billing-status emails. */
+/** The five best-effort, customer-facing Stripe billing-status emails. */
 export type BillingNoticeType =
   | "payment_failed"
   | "payment_recovered"
   | "subscription_paused"
-  | "subscription_resumed";
+  | "subscription_resumed"
+  | "subscription_canceled";
 
 /** True when Stripe has refunded (fully or partially) this bundle order's charge. */
 export function isOrderRefunded(order: Pick<OrderRecord, "refundedAt">): boolean {
