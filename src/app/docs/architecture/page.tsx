@@ -4671,6 +4671,18 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>failureKind: &quot;suppression_write&quot;</code>), mirroring the established pattern
         exactly.
       </p>
+      <p>
+        <code>db-commerce-order-read-family-capture-error-sweep</code>: closed the Commerce (Buy
+        now) ledger read family named as the next deferred slice above —{" "}
+        <code>listCommerceOrders</code>, <code>listUnpaidCommerceOrders</code>,{" "}
+        <code>listCommerceOrdersRefunded</code>, <code>listCommerceOrdersDisputed</code>,{" "}
+        <code>listCommerceOrdersMissingClientReceipt</code>, and{" "}
+        <code>getCommerceOrderByStripeSessionId</code> — six functions backing the Commerce
+        payouts panel, refund/dispute clawback visibility, the missing-client-receipt due queue,
+        and Mark-paid-out lookups, all sharing the same unwired Convex-fallback shape the
+        bundle-order family closed above. Same one-line <code>captureError</code> pattern,
+        completing the read-path axis for both order families.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

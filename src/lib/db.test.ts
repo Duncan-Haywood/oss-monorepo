@@ -4193,12 +4193,16 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       });
       expect(result).toEqual({ alreadyRecorded: false });
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage (read)"));
+      const convexReadError = new Error("convex outage (read)");
+      convexQuery.mockRejectedValueOnce(convexReadError);
       const order = await db.getCommerceOrderByStripeSessionId("cs_fallback_commerce_order");
       expect(order?.skuName).toBe("Fallback SKU");
       expect(order?.amountPaidUsd).toBe(40);
       expect(order?.quantity).toBe(2);
       expect(order?.customerEmail).toBe("shopper@example.com");
+      expect(captureError).toHaveBeenCalledWith(convexReadError, {
+        component: "db-getCommerceOrderByStripeSessionId-convex-fallback",
+      });
     });
 
     it("SQLite fallback ignores a redelivered stripeSessionId instead of double-recording the sale", async () => {
@@ -4405,12 +4409,16 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
         stripeSessionId: "cs_convex_failure_fallback",
       });
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
       const db = await loadDb(CONVEX_URL);
       const orders = await db.listCommerceOrders();
       expect(orders.map((o) => o.stripeSessionId)).toContain(
         "cs_convex_failure_fallback",
       );
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-listCommerceOrders-convex-fallback",
+      });
     });
 
     it("listUnpaidCommerceOrders excludes a Convex row already marked paid out", async () => {
@@ -4444,12 +4452,16 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       });
       await seedDb.markCommerceOrderPaidOut("cs_convex_failure_paidout");
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
       const db = await loadDb(CONVEX_URL);
       const unpaid = await db.listUnpaidCommerceOrders();
       expect(unpaid.map((o) => o.stripeSessionId)).toEqual([
         "cs_convex_failure_unpaid",
       ]);
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-listUnpaidCommerceOrders-convex-fallback",
+      });
     });
 
     it("listCommerceOrdersRefunded returns a Convex row carrying refundedAt", async () => {
@@ -4486,12 +4498,16 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       });
       await seedDb.markCommerceOrderRefunded("cs_convex_failure_refunded");
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
       const db = await loadDb(CONVEX_URL);
       const refunded = await db.listCommerceOrdersRefunded();
       expect(refunded.map((o) => o.stripeSessionId)).toEqual([
         "cs_convex_failure_refunded",
       ]);
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-listCommerceOrdersRefunded-convex-fallback",
+      });
     });
 
     it("listCommerceOrdersDisputed returns a Convex row carrying disputedAt", async () => {
@@ -4528,12 +4544,16 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       });
       await seedDb.markCommerceOrderDisputed("cs_convex_failure_disputed");
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
       const db = await loadDb(CONVEX_URL);
       const disputed = await db.listCommerceOrdersDisputed();
       expect(disputed.map((o) => o.stripeSessionId)).toEqual([
         "cs_convex_failure_disputed",
       ]);
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-listCommerceOrdersDisputed-convex-fallback",
+      });
     });
 
     it("listCommerceOrdersMissingClientReceipt excludes a Convex row already carrying clientReceiptEmailSentAt", async () => {
@@ -4566,12 +4586,27 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       });
       await seedDb.markCommerceOrderClientReceiptSent("cs_convex_failure_receipt_sent");
 
-      convexQuery.mockRejectedValueOnce(new Error("convex outage"));
+      const convexError = new Error("convex outage");
+      convexQuery.mockRejectedValueOnce(convexError);
       const db = await loadDb(CONVEX_URL);
       const missing = await db.listCommerceOrdersMissingClientReceipt();
       expect(missing.map((o) => o.stripeSessionId)).toEqual([
         "cs_convex_failure_receipt_missing",
       ]);
+      expect(captureError).toHaveBeenCalledWith(convexError, {
+        component: "db-listCommerceOrdersMissingClientReceipt-convex-fallback",
+      });
+    });
+
+    it("does not call captureError when any of the commerce order read functions succeed against Convex", async () => {
+      convexQuery.mockResolvedValue([]);
+      const db = await loadDb(CONVEX_URL);
+      await db.listCommerceOrders();
+      await db.listUnpaidCommerceOrders();
+      await db.listCommerceOrdersRefunded();
+      await db.listCommerceOrdersDisputed();
+      await db.listCommerceOrdersMissingClientReceipt();
+      expect(captureError).not.toHaveBeenCalled();
     });
   });
 
