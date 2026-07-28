@@ -921,4 +921,19 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "preview-open-persist-capture-error",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-jfjgpn",
+    summary:
+      "Scheduled routine. Fold-scan (`git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune`, ranked ~50 newest branches by push time) found every one of the 15 most-recently-pushed siblings already fully merged (0 ahead of origin/main), and the next tier down shared no git ancestry with origin/main at all — no live fold candidate. Only open PR is the pre-existing unrelated stale draft #202. All six NEXT_STEPS items reconfirmed operator/legal/business-gated. Mechanically verified (a small script checking every webhookFulfillmentFailureResponse(...) call site's enclosing catch for a captureError call) that the long-running Stripe webhook captureError sweep documented across the ~15 entries above is now fully closed — 0 gaps remain in that file — so searched adjacent files for the same blind spot instead of re-treading it.",
+    shipped: [
+      "Found src/lib/deploy/handoff.ts — the module every sold bundle checkout's post-payment Vercel domain provisioning/reassignment funnels through — had zero captureError usage in either of its two catch blocks, unlike the now-fully-audited webhook/contact-form/preview-open/Resend-webhook/billing-portal surfaces. Both catches (tryProvisionVercelDomain's domain-create network/timeout failure, releaseVercelDomains' domain-release network failure) already recorded the failure as a note on the handoff record, but that's per-record/pull-based visibility only — no centralized, aggregable error-tracking signal existed for either.",
+      "Wired captureError into both catches: tryProvisionVercelDomain's (component: 'deploy-handoff', failureKind: 'vercel_domain_provision_network', leadSlug) and releaseVercelDomains' (component: 'deploy-handoff', failureKind: 'vercel_domain_release_network', domain, projectId). Deliberately left the handled non-exception branches (409 already-exists, a non-2xx hard error, a DELETE 404 treated as already-released) uninstrumented — expected control flow, not an unexpected failure, matching this codebase's established catch-only convention.",
+      "src/lib/deploy/handoff.ts (captureError import + 2 call sites); handoff.test.ts (new captureError mock, 1 test extended, 2 new tests — one negative/success-path, one for the previously-uncovered release-network-error path — 30 total, +2 net new); src/app/docs/architecture/page.tsx (new paragraph); src/lib/process/business-decisions.ts (appended deploy-handoff-vercel-network-capture-error); src/lib/process/prompt_process.tsx (this entry). No NEXT_STEPS change — all six gated items remain operator/legal/business-blocked.",
+      "Proved via git-stash: stashed only handoff.ts, confirmed both new/updated captureError assertions failed exactly as expected (28 passed, 2 failed of 30), then restored and confirmed all 30 pass. Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (handoff.test.ts — 30 passed) then full suite (3999 passed, 234 files, +2 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, no new warnings) + a dev-server smoke check (GET /dashboard/leads and /preview/demo-cafe both 200), even though this is a server-only observability change with no dashboard-visible behavior change.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "deploy-handoff-vercel-network-capture-error",
+    ),
+  },
 ];
