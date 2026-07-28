@@ -399,6 +399,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-pkkaj0",
   },
+  {
+    id: "marketing-voice-pack-send-stale-content-race-guard",
+    summary:
+      "Follow-up to marketing-voice-pack-client-send-race-guard-ordering-fix (PRs #890/#891): the reserve-then-send-then-release pattern those PRs shipped closes the duplicate-send race but not a distinct one — sendMarketingPackToClientAction/sendClientVoicePackToClientAction read the pack's `variants` once at the top of the action, then reserve the sentToClientAt marker by leadSlug (+yearMonth for marketing) only, with no check that the pack is still the same version that was read. A concurrent regenerate between the read and the reserve clears sentToClientAt and swaps in new variants/generatedAt; the in-flight reserve then succeeds against the now-unset marker and stamps sentToClientAt onto the NEW row, while the send that follows still emails the STALE captured variants — the client receives superseded content while every consumer of sentToClientAt (pipeline-health, digest, listMarketingPacksMissingClientSend) reports the current (new) pack as delivered. In progress.",
+    status: "in_progress",
+    phase: "Phase 6 — Marketing automation",
+    owner: "claude/upbeat-dijkstra-u6ohkh",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
