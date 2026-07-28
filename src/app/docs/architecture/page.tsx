@@ -4609,6 +4609,22 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>createBufferUpdate</code> call, so a regenerate detected mid-profile stops the
         remaining variants for that profile too (not just the remaining profiles).
       </p>
+      <p>
+        <code>archive-orphan-stripe-products-per-item-guard</code>: the identical bug shape found
+        again in a different subsystem —{" "}
+        <code>archiveOrphanCommerceStripeProductsAction</code> re-read the Commerce catalog once,
+        before its archive loop, to drop any orphan Stripe Product whose SKU had reappeared via a
+        concurrent catalog save. But <code>archiveCommerceStripeProducts</code> archives its
+        caller-supplied orphan list sequentially, one <code>stripe.products.update</code> call per
+        item — a reappearance landing between two orphans&apos; own turns (not only before the loop
+        started) still got the reappeared SKU&apos;s Product archived, breaking its live Buy now
+        checkout with no operator signal until the next Sync to Stripe reactivated it.{" "}
+        <code>archiveCommerceStripeProducts</code> now accepts an optional{" "}
+        <code>isStillOrphan</code> callback invoked before EACH individual archive call rather than
+        once before the batch; the action wires it to a fresh <code>getCommerceCatalog</code> read
+        per candidate. <code>MAX_COMMERCE_SKUS</code> caps a catalog at 50 items, so the extra
+        per-item reads are affordable for an operator-triggered, low-frequency cleanup action.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>

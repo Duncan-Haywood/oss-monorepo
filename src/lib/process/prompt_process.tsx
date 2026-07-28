@@ -506,6 +506,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 6 — Marketing automation",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "archive-orphan-stripe-products-per-item-guard",
+    summary:
+      "Found the identical bug shape as buffer-schedule-stale-pack-variant-guard in a different subsystem: archiveOrphanCommerceStripeProductsAction re-read the Commerce catalog once before its archive loop, but archiveCommerceStripeProducts archives its orphan list sequentially — a concurrent catalog save reappearance landing between two orphans' own archive turns still got that SKU's Stripe Product archived. archiveCommerceStripeProducts now accepts an isStillOrphan callback checked before EACH individual archive call, not once before the batch. See archive-orphan-stripe-products-per-item-guard in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -799,5 +807,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (344 passed) then full suite (3623 passed, 213 files - 19 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + npm run dev smoke check curling /checkout (200, new fields render), /checkout?slug=example-bakery (200, fields correctly do NOT render), /, /dashboard/leads, and /preview/example-bakery (all 200). Killed the dev server, removed the stray gitignored local.db/local.db-shm/local.db-wal it created, and confirmed git status showed only the intended files changed before this commit.",
     ],
     decisions: BUSINESS_DECISIONS.filter((d) => d.id === "checkout-business-fields-capture"),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 9736d9c9 (PR #909, buffer-schedule-stale-pack-variant-guard, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). No live sibling branch; the sole other open PR remains #202 (unrelated, weeks-stale human draft).",
+    shipped: [
+      "A dispatched research agent, told both the observability axis and the Buffer stale-content-guard family were now thoroughly covered, was explicitly pointed at hunting for a DIFFERENT instance of the same 'staleness checked once before a loop, not once per iteration' bug shape elsewhere — since buffer-schedule-stale-pack-variant-guard had just proven it a real, previously-missed pattern. It found one: archiveOrphanCommerceStripeProductsAction re-reads the Commerce catalog once before its archive loop (orphan-archive-lost-update-guard), but archiveCommerceStripeProducts then archives its orphan list in a plain sequential for-loop with no re-check between iterations — a concurrent saveCommerceCatalogAction reappearance landing between two orphans' own archive turns still gets that SKU's Stripe Product archived, breaking its live Buy now checkout with no operator signal until the next Sync to Stripe reactivates it.",
+      "src/lib/commerce/stripe-sync.ts — archiveCommerceStripeProducts gained an optional isStillOrphan async callback, checked before EACH stripe.products.update call inside the existing loop (default omitted = unchanged always-archive behavior, so the archiveOrphanCommerceStripeProducts convenience wrapper used by tests/scripts is unaffected). src/app/dashboard/leads/actions.ts — archiveOrphanCommerceStripeProductsAction no longer pre-filters a toArchive array once; it passes the full candidate list plus an isStillOrphan callback wired to a fresh getCommerceCatalog read per candidate, mirroring the per-iteration fix pattern just established for Buffer scheduling.",
+      "src/lib/commerce/stripe-sync.test.ts — added archiveCommerceStripeProducts to the file's imports and three new tests against the real function with a fake Stripe client, including the core regression case: three orphans, a reappearance detected on the second one only, proving the callback runs once per orphan (not once for the batch) and only the reappeared item survives. src/app/dashboard/leads/archive-orphan-commerce-stripe-products-action.test.ts — updated the call-shape assertion for the new three-argument signature and replaced the old inline drop-behavior test (whose logic moved inside the now-mocked archiveCommerceStripeProducts) with two tests that capture and directly invoke the action's isStillOrphan callback. Verified all five new/changed assertions actually catch the regression: git stash'd both source files together and confirmed all five failed before restoring the fix. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended archive-orphan-stripe-products-per-item-guard. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 9736d9c9.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (stripe-sync.test.ts 24/24, archive-orphan-commerce-stripe-products-action.test.ts 12/12) then full suite (3611 passed, 212 files — 4 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-action-only change requiring a live STRIPE_SECRET_KEY and a real Commerce catalog, not meaningfully exercisable beyond the automated test coverage in this sandboxed environment.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "archive-orphan-stripe-products-per-item-guard",
+    ),
   },
 ];
