@@ -3799,6 +3799,23 @@ describe("db.ts dual-backend orchestration (real module, mocked Convex client)",
       const stored = await db.getClientInquiryById(inquiry.id);
       expect(stored?.message.length).toBe(5000);
     });
+
+    it("getClientInquiryById returns Convex's null directly, never inventing a stale SQLite row on a legitimate miss", async () => {
+      // Seed a SQLite row under the same id a fresh Convex read will report
+      // null for — e.g. an orphaned row left over from before Convex was
+      // configured. Convex's answer must win; the stale row must never be
+      // silently served as if it were the live record.
+      const seedDb = await loadDb(undefined);
+      const seeded = await seedDb.insertClientInquiry(
+        testInquiryInput("stale-sqlite-inquiry-lead"),
+      );
+
+      convexQuery.mockResolvedValueOnce(null);
+      const db = await loadDb(CONVEX_URL);
+      const stored = await db.getClientInquiryById(seeded.id);
+      expect(stored).toBeNull();
+      expect(convexQuery).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("updateClientInquiryStatus (requireConvex fail-closed write)", () => {
