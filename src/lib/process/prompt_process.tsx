@@ -919,5 +919,21 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "payment-failed-notice-annual-billing-copy",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Housekeeping, done as its own dedicated iteration per AGENT_PROTOCOL's own note that a file-size re-archive should never be blended with feature work. Picked up at origin/main tip b4116edb (PR #953, payment-failed-notice-annual-billing-copy, merged this session's own prior PR). A dispatched research agent's own report flagged business-decisions.ts at 256,258 bytes — within ~5.9KB of the 262,144-byte trigger — independently re-measured to confirm before acting now rather than deferring.",
+    shipped: [
+      "Followed the exact precedent set by business-decisions-archive-20-split and process-log-archive-27-iterations-split: moved the oldest entries out of the live BUSINESS_DECISIONS array into a new archive/business-decisions-archive-21.ts file, keeping the most recent entries live. The live array held 35 entries at the trigger point; moved the oldest 25 into business-decisions-archive-21.ts, keeping the newest 10 live — matching the established ~10-live-entry steady state.",
+      "Verified losslessness: counted `{` entry-open braces before extraction (35) against the sum after (25 archived + 10 live = 35, exact parity), confirmed the extraction boundary fell exactly between two complete entries, added the new import + `...BUSINESS_DECISIONS_ARCHIVE_21` spread line immediately after `...BUSINESS_DECISIONS_ARCHIVE_20`, and ran decisions-link-audit.test.ts (10/10 passed) to confirm every archived entry's id still resolves. business-decisions.ts dropped from 256,258 to 70,826 bytes.",
+      "src/lib/process/archive/business-decisions-archive-21.ts — new file, the 25 archived entries verbatim. src/lib/process/business-decisions.ts — removed those 25 entries from the live array, added the import/spread, appended business-decisions-archive-21-split. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to b4116edb (origin/main tip, PR #953 merge).",
+      "The research agent's own report also surfaced a real, fresh follow-on finding (the growth-upsell nudge system never learned about annual billing, the same bug class fixed three times already this session for other billing-cadence-carrying links) — deliberately not implemented in this iteration, per AGENT_PROTOCOL's instruction never to blend a re-archive with feature work; left for the very next iteration to pick up fresh.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (decisions-link-audit.test.ts, 10/10 passed) then full suite (3955 passed, 232 files, unchanged — process-log-only change) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — this iteration touched only the process log.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "business-decisions-archive-21-split",
+    ),
+  },
 ];
 
