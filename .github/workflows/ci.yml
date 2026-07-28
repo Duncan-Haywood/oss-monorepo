@@ -44,6 +44,22 @@ jobs:
       - name: Build
         run: npm run build
 
+      # The routes against the service container above. Kept after the build
+      # so an environment failure here can't be mistaken for a code failure in
+      # the fast gates.
+      - name: Integration tests
+        run: |
+          # A database of its own: the migration-parity step below uses
+          # `shadow` as a scratch database and drops objects in it.
+          PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -d shadow \
+            -c "CREATE DATABASE integration"
+          npx prisma migrate deploy
+          npx prisma db seed
+          npm run test:integration
+        env:
+          POSTGRES_PRISMA_URL: postgresql://postgres:postgres@127.0.0.1:5432/integration?schema=public
+          POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@127.0.0.1:5432/integration?schema=public
+
       # A schema edit with no migration behind it deploys cleanly and then
       # fails on the first query, so it is worth catching here even though it
       # needs a database to compare against.

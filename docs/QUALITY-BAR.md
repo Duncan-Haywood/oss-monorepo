@@ -39,6 +39,24 @@ Two things follow, and the second matters more:
 | Test | `npm test` | The numerical core, and the contracts between the catalogue, the session bundle and the perspectives |
 | Build | `npm run build` | Server/client boundary mistakes and route config errors that only appear when the app is compiled |
 
+## When the change touches a route, a query, or the schema
+
+```bash
+scripts/test-db.sh start     # first run creates, migrates and seeds it
+npm run test:integration
+```
+
+Deliberately not part of `npm run verify`: that command has to stay fast and
+runnable with nothing installed, and a gate needing setup is a gate people
+route around. This one is required by the definition of done instead, for the
+changes it applies to.
+
+What it protects is the set of claims a mocked Prisma client cannot check —
+that two answers racing on one trial apply once, that one person's ratings
+cannot reach another's, that an invite is claimable exactly once, and that no
+raw answer crosses between two partners. See
+[TESTING.md](TESTING.md) and [decisions/0008](decisions/0008-integration-tests-against-a-real-database.md).
+
 ## Before deploying
 
 Migrations must match the schema. A schema edit with no migration behind it
@@ -78,6 +96,9 @@ category.
 Read this before saying a change is finished.
 
 - [ ] Every blocking gate passes.
+- [ ] If it touches a route handler, a query or the schema: it has been run
+      against a real database, and the behaviour worth changing is asserted
+      there — `npm run test:integration`.
 - [ ] A test exists that fails on the old behaviour. Not "a test exists" — a
       test that goes red if you revert the fix. Check by reverting it.
 - [ ] No personal data was added to the repo, a seed file, or the client bundle.

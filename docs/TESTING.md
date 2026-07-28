@@ -1,15 +1,32 @@
 # Testing
 
+Two suites. The first needs nothing; the second needs a database.
+
 ```bash
-npm test          # once
+npm test                      # unit + component, ~2s, no database, no network
 npm run test:watch
 npx vitest run src/lib/conjoint.test.ts   # one file
+
+scripts/test-db.sh start      # create, migrate and seed a throwaway Postgres
+npm run test:integration      # real route handlers against it
 ```
 
-Vitest, `src/**/*.test.ts(x)`. No database and no network. Most files run in
-the node environment against pure functions; the component tests opt into
-jsdom with a `// @vitest-environment jsdom` pragma on the first line and drive
-React against a stubbed `fetch`.
+**Unit and component** — Vitest, `src/**/*.test.ts(x)`. Most files run in the
+node environment against pure functions; the component tests opt into jsdom
+with a `// @vitest-environment jsdom` pragma on the first line and drive React
+against a stubbed `fetch`.
+
+**Integration** — Vitest, `src/**/*.integration.test.ts`, config in
+`vitest.integration.config.ts`. Route handlers are imported and called
+directly, with `next/headers` mocked so a test can say which account a call is
+signed in as. Files run one at a time because they share one database. Seeded
+surveys and items are fixture and are never truncated; everything a session
+writes is cleared between tests by `resetData()`.
+
+`scripts/test-db.sh` finds the Postgres server binaries even when only `psql`
+is on PATH, and drops to the `postgres` system user when run as root — both of
+which are what an agent sandbox looks like. If it cannot find a server it says
+what to install. See [decisions/0008](decisions/0008-integration-tests-against-a-real-database.md).
 
 ## What is covered
 
@@ -29,32 +46,40 @@ React against a stubbed `fetch`.
 | `sessionStore.test.ts` | 6 | A partial or tampered session bundle is rejected rather than half-used |
 | `couples.test.ts` | 18 | Cross-person comparison: percentile positions, the answer-volume trap, overlap floors before a match score |
 | `UnifiedRunner.test.tsx` | 8 | The swipe loop: cold start, resume, one question per resume, a half-written bundle, a failed fetch, a thrown fetch, advancing on an answer, and the consent line on the welcome screen |
-| `developmentProcess.test.ts` | 12 | The process document stays internally consistent |
+| `developmentProcess.test.ts` | 13 | The process document stays internally consistent |
 | `InsightsView.test.tsx` | 4 | The insight catalogue's contract with the content map |
 | `AuthView.test.tsx` | 3 | Signup names what it stores, links the policy, and collects only the three fields it names |
 | `api/session/start/route.test.ts` | 3 | The route writes a first name and a perspective and nothing else — the six profile fields the old intro form sent are refused |
 
+### Against a real database
+
+| File | Tests | Guards |
+| --- | --- | --- |
+| `api/trials/trials.integration.test.ts` | 10 | The swipe loop: an answer moves both items and stores the snapshot undo replays, a resent answer is acknowledged and applied once, two submits racing on one trial apply once, one participant's answers never touch another's ratings, undo restores exactly, and a reload returns the pending question instead of minting a row |
+| `api/session/session.integration.test.ts` | 8 | Participant creation and reuse: switching perspective and back lands on the same rows, the six removed profile fields cannot be written, the per-IP throttle counts and exempts accounts, and the status fan-out stays capped |
+| `api/couple/couple.integration.test.ts` | 9 | The couple screen: an invite is claimable exactly once under a race, no raw answer or participant id crosses between two people, and the actionable sections stay shut while the data is thin and open when it is not |
+
 ## What is not covered, and why it matters
 
-- **The API routes.** No integration harness exists. The transactional
-  claim-then-apply in `trials/answer` and the participant reuse in
-  `session/start` are verified by hand against a local Postgres, which does not
-  survive a future edit. This is the largest gap.
-
-  `api/session/start/route.test.ts` is the one exception and shows the cheap
-  half of the pattern: `vi.mock` the Prisma client and assert on the payload
-  the route hands it. That catches the whole class of "this route writes
-  something it should not" without a database — and for that class it is
-  *better* than an integration test, because a column that was never written
-  and a column written as null look identical in psql. It proves nothing
-  about transactions, constraints or concurrency; those still need Postgres.
-- **Anything requiring two linked accounts.** The couple comparison is
-  exercised through its pure helpers in `couples.ts`, not end to end. Nobody
-  has looked at real blind-spots output with two accounts and three
-  perspectives filled in.
+- **The financial and conjoined routes.** `financial-trials/next` and
+  `/answer` run the conjoint refit inside the request; the fitter itself is
+  well covered, the route around it is not. This is now the largest gap.
+- **The admin portal.** Login, rate limiting and the CSV export have no test
+  at any level.
+- **Real blind-spots output.** The comparison is exercised end to end with
+  planted rankings, but no human has read what two real accounts with three
+  perspectives filled in actually produces. That is a judgement call, not a
+  coverage gap.
 - **The runner against a real server.** `UnifiedRunner.test.tsx` drives the
   real component, but every response is stubbed. It proves the component reacts
   correctly to a shape; it cannot prove the server sends that shape.
+
+`api/session/start/route.test.ts` stays even though the integration suite now
+covers the same route, and it is worth understanding why: it `vi.mock`s Prisma
+and asserts on the payload the route *hands* it. For "this route writes
+something it should not" that is strictly better than an integration test,
+because a column that was never written and a column written as null look
+identical in psql. The two suites prove different things about the same code.
 
 ## How to write one here
 
@@ -83,14 +108,39 @@ this is easier to get wrong than it sounds — see
 edge-shaped: no data, all ties, perfectly separable, one huge outlier. Simulated
 well-behaved data will not find them.
 
+**Plant the state when the state is not what you are testing.** The couple
+tests write `ParticipantItemRating` rows directly at a chosen deviation rather
+than answering the several hundred questions it would take to earn one. What
+those tests are for is the route, the privacy boundary and the confidence gate;
+how fast a deviation actually falls is measured in
+`pairing.simulation.test.ts`, and mixing the two would make both slow and
+neither clear.
+
+## Writing an integration test
+
+```ts
+vi.mock("next/headers", () => import("@/test/integration/cookieMock"));
+
+import { POST as start } from "./start/route";
+import { createAccount, jsonRequest, resetData, signInAs } from "@/test/integration/db";
+
+beforeEach(async () => { await resetData(); });
+```
+
+`signInAs(userId)` issues a real `UserSession` row and puts its token in the
+mocked cookie jar, so `getSessionUser()` resolves the way it does in
+production. `jsonRequest(url, body, headers)` builds the POST the handler
+expects. `createParticipant(slug)` and `surveyIdBySlug(slug)` read the seeded
+content.
+
 ## Manual verification, when a change touches the database
 
-There is no automated integration layer yet, so a route change is checked
-against a local Postgres by hand. Setup is in the [README](../README.md); the
-short version is `prisma migrate deploy`, `prisma db seed`, `npm run build`,
-`npm start`, then drive the routes with `curl` and inspect the rows with `psql`.
+Most of what used to be on this list is now in the integration suite. What is
+left is the part a test cannot do: looking at the screen. Setup is in the
+[README](../README.md); the short version is `scripts/test-db.sh start`,
+`npm run build`, `npm start`.
 
-Worth checking after any change to session or participant handling:
+Worth checking by hand after any change to session or participant handling:
 
 - Starting with each of the three perspectives records that perspective.
 - An unrecognised perspective falls back rather than being accepted.

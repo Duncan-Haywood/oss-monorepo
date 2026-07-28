@@ -216,18 +216,35 @@ because only they can merge. Send it as soon as you see it, not at the end.
 ## What only a person can do
 
 An unattended session cannot merge, cannot deploy, and should not close
-somebody else's pull request. It also cannot see the app: there is no Postgres
-in the sandbox and no browser pointed at a running server, so nothing that
-depends on a real database is verified by anything a scheduled run produces.
+somebody else's pull request. It also cannot *look* at the app: there is no
+browser pointed at a running server, so how a screen actually reads — whether
+the blind-spots output is worth showing at all — is not something a scheduled
+run can settle.
 
-Say so plainly. "Not run against a database" is useful; a test plan that
-implies otherwise is worse than no test plan, because it gets believed.
+It can, however, run the database. That was assumed impossible for several
+sessions and was not: PostgreSQL 16 is installed in the sandbox, with the
+server binaries off `PATH` and `initdb` refusing to run as root, which is why
+`which pg_ctl` came back empty and nobody looked further. `scripts/test-db.sh
+start` handles both. Anything that was going to be written up as "not verified
+against a database" should be checked first — see
+[decisions/0008](decisions/0008-integration-tests-against-a-real-database.md).
+
+The wider lesson is worth more than the database: **an environment declared
+impossible, by a session that could not check, propagated into four documents
+and a decision record before anyone ran `ls`.** Constraints inherited from an
+earlier session's write-up are claims, not facts. Test the cheap ones.
+
+Say plainly what was and was not exercised. "Not run against a database" is
+useful; a test plan that implies otherwise is worse than no test plan, because
+it gets believed.
 
 ## The gate is the substitute for looking
 
-Since a session cannot look at the app, `npm run verify` is the whole of what
-it can honestly claim. That is why the runner has behavioural tests driving the
-real component against a stubbed `fetch` (`src/components/UnifiedRunner.test.tsx`)
+Since a session cannot look at the app, the gates are the whole of what it can
+honestly claim: `npm run verify` for everything, and
+`npm run test:integration` when the change touches a route, a query or the
+schema. That is also why the runner has behavioural tests driving the real
+component against a stubbed `fetch` (`src/components/UnifiedRunner.test.tsx`)
 rather than none: it is the only way a change to the swipe loop can be checked
 by something that cannot swipe.
 

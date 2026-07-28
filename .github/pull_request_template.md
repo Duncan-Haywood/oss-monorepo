@@ -17,10 +17,15 @@ See developmentprocess.tsx for the definition of done.
 <!--
 `npm run verify` is the floor, not the answer. Say what you actually
 exercised — which tests were added, what was tried by hand, and what
-could not be verified because there is no database in the sandbox.
+could not be verified and why.
+
+A database is available anywhere the Postgres binaries are, including an
+agent sandbox: `scripts/test-db.sh start`. "Not verified against a database"
+now needs a reason.
 -->
 
 - [ ] `npm run verify` passes (typecheck, lint, test, build)
+- [ ] Touches a route, a query or the schema? `npm run test:integration` passes
 - [ ] New behaviour has a test, or the reason it can't is written down below
 
 ## What this does not cover

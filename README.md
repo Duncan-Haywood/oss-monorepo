@@ -23,7 +23,17 @@ The repo is at `Duncan-Haywood/quick-pick-survey` (private).
 
 ## Running locally
 
-Needs a local Postgres. With Homebrew's:
+Needs a local Postgres. The quickest way to one, on a laptop or in an agent
+sandbox, is the script the integration tests use:
+
+```bash
+scripts/test-db.sh start      # initdb, start, migrate, seed — idempotent
+scripts/test-db.sh env        # the export lines, if you want them in a shell
+scripts/test-db.sh stop
+```
+
+It finds the server binaries when only `psql` is on `PATH`, and drops to the
+`postgres` system user when run as root. Or do it by hand, with Homebrew's:
 
 ```bash
 initdb -D ./pgdata -U postgres -A trust
@@ -56,7 +66,10 @@ Prisma CLI loads `.env`, plain `tsx` does not, and the seed script fails with
 ## Before you commit
 
 ```bash
-npm run verify   # typecheck → lint → test → build
+npm run verify            # typecheck → lint → test → build; needs nothing running
+
+scripts/test-db.sh start  # and, if the change touches a route or the schema:
+npm run test:integration  # the real handlers against a real Postgres
 ```
 
 `.github/workflows/ci.yml` is configured to run the same four gates plus a
@@ -111,5 +124,7 @@ It is typed data guarded by a test, so it cannot drift from what is enforced.
 
 See [IMPROVEMENT-PLAN.md](IMPROVEMENT-PLAN.md) — the live backlog, ordered by
 priority, with effort estimates and a record of what has already been closed.
-The largest open items are rate limiting on anonymous session creation, a
-consent notice on the intro form, and integration tests for the API routes.
+The two largest open items both need the account owner rather than more code:
+a queue of unmerged pull requests, and GitHub Actions never allocating a
+runner. After those, the remaining coverage gaps are the financial/conjoined
+routes and the admin portal.

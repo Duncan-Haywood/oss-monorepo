@@ -1,6 +1,18 @@
 # 0004. Accept no database in CI; keep logic out of route handlers
 
-**Status:** accepted
+**Status:** partly superseded by
+[0008](0008-integration-tests-against-a-real-database.md)
+
+Its premise — that no database is reachable from the environments this project
+is developed in — was wrong: the agent sandbox ships PostgreSQL 16, with the
+server binaries off `PATH` and `initdb` refusing to run as root, which is why
+it read as absent. The condition this record itself set for reversing (a
+service container **and** a documented way for a sandboxed agent to get the
+same database) is now met by `scripts/test-db.sh`.
+
+Everything below about handler design still holds, and the reasoning is kept
+because the shape of the mistake is the useful part: an environment was
+declared impossible without anyone running `ls /usr/lib/postgresql`.
 
 ## Context
 

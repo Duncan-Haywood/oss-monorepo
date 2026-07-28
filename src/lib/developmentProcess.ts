@@ -262,6 +262,13 @@ export const GATES: Gate[] = [
     blocking: true,
   },
   {
+    id: "integration",
+    command: "npm run test:integration",
+    catches:
+      "Everything that is a claim about the database rather than about the handler: the transactional claim on an answer, a resent answer applying twice, one person's ratings leaking into another's, the invite that must be claimable once, and whether a partner's raw answers can cross to the other side. Needs a database — `scripts/test-db.sh start` creates one anywhere the Postgres binaries exist, including an agent sandbox. Required for any change touching a route handler, a query, or the schema.",
+    blocking: false,
+  },
+  {
     id: "migration-parity",
     command: "npx prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma --shadow-database-url $POSTGRES_URL_NON_POOLING --exit-code",
     catches:
@@ -310,6 +317,12 @@ export const DEFINITION_OF_DONE: DoneCheck[] = [
     id: "docs-true",
     check: "Every document the change made wrong has been corrected in the same commit.",
     defends: "one-source-per-fact",
+  },
+  {
+    id: "database-claims-tested",
+    check:
+      "A change to a route handler, a query, or the schema has been run against a real database, and the behaviour that made it worth changing is asserted there.",
+    defends: "correctness-before-surface",
   },
   {
     id: "failure-visible",
@@ -405,7 +418,7 @@ export const WORKSTREAMS: Workstream[] = [
     status: "done",
     goal: "measure-honestly",
     note:
-      "Error boundaries exist, and every API route now catches its own failures and logs them rather than throwing past the handler. A silent failure is indistinguishable from a number that is simply wrong. Remaining: the routes are still unit-tested with a stubbed Prisma, not against a real database — see the P2 integration-test gap.",
+      "Error boundaries exist, and every API route now catches its own failures and logs them rather than throwing past the handler. A silent failure is indistinguishable from a number that is simply wrong. The swipe loop, session start and the couple link are now covered against a real Postgres as well as a stubbed one; the financial/conjoint routes and the admin portal are not yet.",
   },
   {
     id: "accessibility",

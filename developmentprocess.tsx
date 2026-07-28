@@ -129,7 +129,7 @@ export function DevelopmentProcess() {
 
       <Section
         title="Gates"
-        lead="npm run verify runs the blocking ones — and is currently the only thing that does. The CI workflow exists but has never started a runner, so nothing is checked after a push."
+        lead="npm run verify runs the blocking ones — and is currently the only thing that does. The two below it need a database (scripts/test-db.sh start), and are required for any change touching a route, a query or the schema. The CI workflow exists but has never started a runner, so nothing is checked after a push."
       >
         {GATES.map((g) => (
           <Card key={g.id}>
@@ -144,7 +144,7 @@ export function DevelopmentProcess() {
                     : "text-xs font-semibold text-neutral-500 dark:text-neutral-400"
                 }
               >
-                {g.blocking ? "blocking" : "before deploy"}
+                {g.blocking ? "blocking" : "needs a database"}
               </span>
             </p>
             <p className="mt-1 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">{g.catches}</p>

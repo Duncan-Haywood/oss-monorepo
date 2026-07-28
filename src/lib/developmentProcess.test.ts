@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { describe, expect, it } from "vitest";
 import {
   DEFINITION_OF_DONE,
@@ -65,6 +66,18 @@ describe("development process document", () => {
     expect(scripted.length).toBeGreaterThanOrEqual(4);
     for (const g of scripted) {
       expect(g.command).toMatch(/^npm (run )?[a-z:-]+$/);
+    }
+  });
+
+  /**
+   * A gate naming a script that does not exist is worse than no gate: it reads
+   * as enforcement and fails with "missing script" if anyone ever runs it.
+   */
+  it("only names npm scripts that actually exist", () => {
+    const pkg = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8"));
+    for (const g of GATES.filter((x) => x.command.startsWith("npm"))) {
+      const script = g.command.replace(/^npm (run )?/, "");
+      expect(Object.keys(pkg.scripts)).toContain(script);
     }
   });
 

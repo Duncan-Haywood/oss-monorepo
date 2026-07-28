@@ -16,7 +16,14 @@ mean:
 
 ## Open
 
-### P0 — Twenty-five parallel pull requests, none merged — *one merge closes all of them*
+### P0 — Twenty-seven parallel pull requests, none merged — *one merge closes all of them*
+
+**This branch is the twenty-eighth, and it extends the twenty-seventh rather
+than starting beside it.** Every commit below #27's head is carried forward
+unchanged, so merging this one branch still closes the entire queue. The count
+has now gone 9 → 12 → 15 → 19 → 21 → 23 → 25 → 27 across eight write-ups of
+this item; the notification each session sent did not change it, and neither
+will a ninth. Merging or pausing the schedule are the only two things that do.
 
 **The queue had grown two heads.** Two sessions fired minutes apart, both
 extended the same seven commits, and each added one commit: #25 (the pooling
@@ -28,20 +35,17 @@ This branch is their merge. It conflicted in exactly two files — this document
 and `docs/UNATTENDED-SESSIONS.md`, i.e. two sessions writing up the same problem
 in the same place — and both sides were kept.
 
-**Every one of the twenty-five open pull requests is now closeable by merging
-this one branch.** Dispositions, computed from the commit graph rather than the
-titles, are in [`docs/PULL-REQUEST-BACKLOG.md`](docs/PULL-REQUEST-BACKLOG.md).
-Nothing in the queue is lost by closing it: the eight that are ancestors close
-by containment, and the rest were checked file-by-file for anything this branch
-does not already have.
+**Every one of the open pull requests is closeable by merging this one branch.**
+Dispositions, computed from the commit graph rather than the titles, are in
+[`docs/PULL-REQUEST-BACKLOG.md`](docs/PULL-REQUEST-BACKLOG.md). Nothing in the
+queue is lost by closing it: the ancestors close by containment, and the rest
+were checked file-by-file for anything this branch does not already have.
 
-The consolidation chain is #12 ⊂ #14 ⊂ #17 ⊂ #21 ⊂ #22 ⊂ {#24, #25} ⊂ here.
+The consolidation chain is #12 ⊂ #14 ⊂ #17 ⊂ #21 ⊂ #22 ⊂ {#24, #25} ⊂ #27 ⊂ here.
 
 **Nothing merges without the account owner**, and until it does, every scheduled
-run adds a pull request without moving the project. The count has gone
-9 → 12 → 15 → 19 → 21 → 23 → 25 across seven write-ups of this same item. Each
-of those sessions sent a notification; the notification is not the missing
-piece either.
+run adds a pull request without moving the project. Each of those sessions sent
+a notification; the notification is not the missing piece either.
 
 The open question is not technical, and it is now the *only* thing blocking this
 project: **whether this task should keep firing while nothing it produces can
@@ -74,14 +78,22 @@ billing page, then re-run one of the failed workflows and confirm it produces
 steps. The docs now say CI is not running; that correction should be reverted
 once it is.
 
-### P1 — `trials/next` creates a Trial row on every page load
+### P1 → resolved on this branch — `trials/next` created a Trial row on every page load
 
-A trial is recorded as "shown" before it has been displayed for any length of
-time, so the abandonment metric is currently measuring refreshes and crawlers
-rather than people giving up.
+A trial was recorded as "shown" on every call, so the abandonment metric — the
+count of shown-but-unanswered rows — was measuring refreshes, back-buttons and
+crawlers rather than people giving up.
 
-**Fix:** only count a trial as shown once it has been on screen briefly, or
-reconcile against `msToAnswer` when reading the metric. ~2 hours.
+**Fixed.** The endpoint now hands back the participant's pending question if it
+was shown within the last 30 minutes, instead of minting a new row. Past that
+window the old row is left alone (someone who closed the tab and came back
+tomorrow genuinely did abandon that question) and a fresh pair is chosen. Two
+integration tests cover both halves; the first fails against the old route.
+
+**What it does not fix:** two *concurrent* calls can still both find no pending
+row and create two. The duplicate-fetch path that used to do that on every
+resume is gone (the runner picks its domain outside the effect), so what
+remains is a genuine double-tap rather than a structural bug.
 
 ### P1 — Decide what to do with six dead columns on `Participant`
 
@@ -110,18 +122,52 @@ throwing past the handler.
 against the unfixed route it fails — `POST` rejects instead of resolving,
 which is what the unhandled-rejection bug looked like from the caller's side.
 
-**Not verified against a database.** The other five routes are covered by the
-same reasoning but not by a test each; `trials/next` was picked as the one
-carrying real branching logic worth a regression test, not a formality.
+**Since verified against a database too** — `trials/next` is now driven end to
+end in `trials.integration.test.ts`. The other five routes are covered by the
+same reasoning but not by a test each.
 
-### P2 — No integration tests
+### P2 → resolved on this branch — No integration tests, because "there is no database"
 
-The transactional answer path and the participant reuse in `session/start` are
-verified by hand against a local Postgres. That does not survive the next edit.
-This is the largest coverage gap; see [`docs/TESTING.md`](docs/TESTING.md).
+The premise was wrong, and it had been repeated in four documents and a
+decision record. **PostgreSQL 16 is installed in the agent sandbox.** Two
+things hid it: only the client is on `PATH` (the server binaries live in
+`/usr/lib/postgresql/16/bin`), and sessions run as root, which `initdb`
+refuses. Both are a few lines of shell.
 
-**Fix:** a Vitest project with a Postgres service and a migrate-and-seed
-fixture. ~4 hours.
+**Done:** `scripts/test-db.sh start` creates, migrates and seeds a throwaway
+cluster — same command on a laptop and in a sandbox — and
+`npm run test:integration` runs the real route handlers against it. 27 tests
+across the three paths the product rests on:
+
+| Suite | Covers |
+| --- | --- |
+| `trials.integration.test.ts` | An answer moves both items and stores the snapshot undo replays; a resent answer applies once; two submits racing on one trial apply once; one participant's answers never reach another's ratings; undo restores exactly; a reload returns the pending question |
+| `session.integration.test.ts` | Switching perspective and back lands on the same participant rows; the six removed profile fields cannot be written; the per-IP throttle counts rows and exempts accounts; the status fan-out stays capped at 20 |
+| `couple.integration.test.ts` | An invite is claimable exactly once under a race; no raw answer or participant id crosses between two people; the actionable sections stay shut on thin data and open on good data |
+
+Those concurrency and isolation claims are exactly what a mocked Prisma client
+cannot check — a mock can prove the handler *called* `updateMany` with a
+`result: null` guard, only a database can prove the second caller loses.
+
+CI runs the same suite against its existing Postgres service. `npm run verify`
+deliberately does not: a gate that needs setup is a gate people route around.
+See [`decisions/0008`](docs/decisions/0008-integration-tests-against-a-real-database.md).
+
+**Still uncovered:** the financial/conjoined routes (the refit runs inside the
+request) and the admin portal. That is now the largest coverage gap.
+
+### P2 — The premise that was wrong for four documents
+
+Worth keeping separate from the fix, because the failure was not technical.
+"No database is reachable here" was written by a session that could not check,
+became `decisions/0004`, and was then quoted by `TESTING.md`, `QUALITY-BAR.md`,
+`UNATTENDED-SESSIONS.md` and the pull request template. Every subsequent
+session inherited it as a fact and designed around it.
+
+**What to do about it:** constraints inherited from an earlier write-up are
+claims. When one is cheap to test — one `ls`, one command — test it before
+building on it. Written into
+[`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
 
 ### P1 — The actionable half of the couple screen is gated past where anyone reaches
 
@@ -265,9 +311,12 @@ once `rd` reaches 100. Empty lists now say what they are waiting for rather than
 vanishing. Written up in
 [`docs/STATISTICAL-INTEGRITY.md`](docs/STATISTICAL-INTEGRITY.md).
 
-**Not verified against a database.** No Postgres in this sandbox — the
-statistics are covered by seeded simulation and the component by jsdom tests,
-but nobody has seen the new empty states on a real screen with real data.
+**Since verified against a database, up to a point.**
+`couple.integration.test.ts` drives `/api/couple/compare` with planted
+rankings and asserts that the four actionable sections stay shut on thin data
+and open on good data, and that the readiness object names who it is waiting
+on. What still nobody has done is *look* at the resulting screen with real
+answers behind it — a browser, not a test.
 
 ### P2 — Blind spots now has data, but no human has read it
 
