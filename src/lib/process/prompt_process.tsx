@@ -1066,4 +1066,20 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "growth-upsell-dashboard-billing-display-dual-build-collision-review",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/nice-euler-h666on",
+    summary:
+      "Scheduled routine, picked up at origin/main tip 3df9b1a (PR #960, growth-upsell-dashboard-candidate-annual-billing-display) — HEAD matched origin/main exactly at session start. git fetch --prune found no live sibling PR beyond the pre-existing unrelated stale draft #202, and the one branch showing ahead of main (claude/upbeat-dijkstra-xygg8r) carried only a stale merge commit with zero unique content. Dispatched a research agent explicitly told to re-verify the annual-billing-cadence axis was genuinely exhausted (not merely under-searched) before looking elsewhere.",
+    shipped: [
+      "It independently identified the same target sibling PR #961 also picked: the remaining 26-site refund/dispute/clawback catch cluster (charge.refunded, charge.dispute.created, charge.dispute.closed, refund.updated) in src/app/api/stripe/webhook/route.ts, left unwired by the prior single-site and 5-site captureError passes. Implemented a full, independently-tested fix (all 26 captureError call sites, 24 updated + 2 new failure-path tests, a new architecture-docs paragraph) with a git-stash-verified regression proof, and independently re-verified the full result (tsc, lint, full test suite 3989/3989, full clean rebuild) before the routine pre-push git fetch --prune.",
+      "That fetch showed sibling PR #961 (claude/upbeat-dijkstra-tg1n4z, stripe-webhook-dispute-resolution-capture-error, the entry above) had already merged, with PR #962 landing an unrelated docs-only collision entry on top. Diffed the two route.ts changesets directly: byte-for-byte identical — same 26 insertion points, same component/eventType/eventId/failureKind literal at every site, same 157 added lines. No design choice to compare this time (unlike the two prior collision-reviews, which each had genuine implementation differences) — two agents converged on the identical mechanical fix because the file's own established captureError convention leaves essentially one reasonable shape.",
+      "Discarded the entire duplicate implementation via git reset --hard origin/main (never pushed, so nothing shared was lost) and re-ran the full verification gate against the reset tip. No product/test code ships from this entry — per the established dual-build-collision-review precedent, the honest, cooperative outcome is to verify the merged version, confirm the duplication, and move on. src/lib/process/business-decisions.ts — appended webhook-refund-dispute-capture-error-dual-build-collision-review. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all six gated items remain operator/legal/business-blocked, unchanged.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run full suite (3989 passed, 234 files, unchanged by this review) + a full clean rebuild (rm -rf .next && npm run build, clean, 69 routes, no new warnings).",
+      "File-size check per AGENT_PROTOCOL's re-archive note: prompt_process.tsx now measures 257,612 bytes after this entry — within ~4.5KB of the 262,144-byte trigger, business-decisions.ts is at 122,240 bytes (comfortable headroom). Deliberately not re-archiving in this same commit, per AGENT_PROTOCOL's explicit rule that a file-size re-archive should never be blended with feature/review work — left as a genuine next slice for the very next iteration.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "webhook-refund-dispute-capture-error-dual-build-collision-review",
+    ),
+  },
 ];
