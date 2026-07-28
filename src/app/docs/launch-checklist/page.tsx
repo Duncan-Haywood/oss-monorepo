@@ -697,6 +697,19 @@ export default function LaunchChecklistDocPage() {
           pipeline-health <strong>Voice packs due</strong> counts eligible
           Complete leads missing a pack (and that the daily digest lists them).
         </li>
+        <li>
+          Optional, dormant by default: <code>ERROR_TRACKING_WEBHOOK_URL</code>{" "}
+          (plus an optional <code>ERROR_TRACKING_WEBHOOK_SECRET</code>) sends a
+          best-effort error-tracking payload to any HTTP(S) endpoint you
+          control on an otherwise-unexpected failure — currently wired at the
+          Stripe webhook handler&apos;s outer catch-all, see{" "}
+          <DocLink href="/docs/architecture#observability">
+            architecture
+          </DocLink>
+          . Leave unset until you have somewhere to send it; every failure
+          path keeps logging via <code>console.error</code> exactly as before
+          either way.
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>

@@ -158,6 +158,11 @@ vi.mock("@/lib/email/resend", () => ({
   sendSubscriptionResumedNotice: (...args: unknown[]) => sendSubscriptionResumedNotice(...args),
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 /** Growth setup ($500) + first month ($99) — matches expectedBundleCheckoutAmountCents. */
 const GROWTH_CHECKOUT_AMOUNT_CENTS = 59_900;
 /** Create-path Growth Price IDs — webhook catalog Price line-item gate requires these. */
@@ -351,6 +356,7 @@ describe("POST /api/stripe/webhook", () => {
     sendPaymentRecoveredNotice.mockReset().mockResolvedValue({ success: true });
     sendSubscriptionPausedNotice.mockReset().mockResolvedValue({ success: true });
     sendSubscriptionResumedNotice.mockReset().mockResolvedValue({ success: true });
+    captureError.mockReset().mockResolvedValue(undefined);
 
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_123";
@@ -5683,6 +5689,46 @@ describe("POST /api/stripe/webhook", () => {
         expect.any(String),
         { requireConvex: true },
       );
+    });
+  });
+
+  describe("unexpected error capture (observability-error-tracking-scaffold)", () => {
+    it("captures and re-throws (still failing the request, preserving Stripe retry-on-5xx) on a genuinely unexpected error", async () => {
+      // account.updated's `getLeads()` call has no inner try/catch of its own
+      // (every other failure in this switch is already caught at its own call
+      // site) — use it as the one real "escapes every inner catch" trigger.
+      getLeads.mockRejectedValueOnce(new Error("unexpected db outage"));
+      constructEvent.mockReturnValue({
+        type: "account.updated",
+        id: "evt_unexpected_1",
+        data: { object: { id: "acct_connect_1" } },
+      });
+      const { POST } = await import("./route");
+
+      await expect(POST(webhookRequest())).rejects.toThrow("unexpected db outage");
+      expect(captureError).toHaveBeenCalledTimes(1);
+      expect(captureError).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({
+          component: "stripe-webhook",
+          eventType: "account.updated",
+          eventId: "evt_unexpected_1",
+        }),
+      );
+    });
+
+    it("never calls captureError when every branch completes normally", async () => {
+      getLeads.mockResolvedValueOnce([]);
+      constructEvent.mockReturnValue({
+        type: "account.updated",
+        id: "evt_ok_1",
+        data: { object: { id: "acct_connect_1" } },
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(captureError).not.toHaveBeenCalled();
     });
   });
 });
