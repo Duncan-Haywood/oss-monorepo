@@ -554,6 +554,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-tg1n4z",
   },
+  {
+    id: "billing-portal-capture-error-wiring",
+    summary:
+      "Closed the last uninstrumented live-external-API-call surface: createBillingPortalForCheckoutSession's two Stripe-call catches (line-item verification, portal-session creation) never called captureError, unlike every other Stripe-touching surface swept today. Wired captureError into both (component: billing-portal, failureKind: line_items_verify / session_create), mirroring the checkout routes' pattern. Deliberately left each dashboard action's own outer safety-net catch untouched, consistent with the established scoping precedent. See billing-portal-capture-error-wiring in BUSINESS_DECISIONS for full detail.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-tg1n4z",
+  },
 ];
 export const ITERATIONS: ProcessIteration[] = [
   ...ITERATIONS_ARCHIVE_01,
@@ -937,6 +945,21 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.filter(
       (d) => d.id === "nav-header-checkout-cta-acquisition-source-fix",
+    ),
+  },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip 80897c46 (PR #916, nav-header-checkout-cta-acquisition-source-fix, merged this session). Confirmed baseline green: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean). A live sibling PR (#917, shipping a new Seasonal promo dashboard action) was found in flight with no file overlap, so proceeded independently.",
+    shipped: [
+      "A dispatched research agent, told the observability axis and the staleness-guard bug family were both stated fully closed, found a genuinely different failure surface never brought into the sweep: the Stripe Billing Portal flow (src/lib/billing/create-portal-session.ts) — the self-serve 'Manage billing' path from /checkout/success and the dashboard. createBillingPortalForCheckoutSession has two distinct try/catch blocks around real Stripe calls (line-item verification, portal-session creation) that already return a proper { ok: false } result but never called captureError, a structurally identical shape to the checkout routes already wired earlier today.",
+      "src/lib/billing/create-portal-session.ts — added captureError calls inside both catches (component: billing-portal, failureKind: line_items_verify / session_create). Deliberately left openBillingPortalAction's and the public billing-portal route's own outer/absent catches untouched, consistent with the established precedent (archive-orphan-stripe-products-per-item-guard) of not wiring a per-action safety-net catch that's unreachable except for a genuine programming error, since both billing-portal functions already handle every real failure internally via a result object.",
+      "src/lib/billing/create-portal-session.test.ts — added a captureError mock, extended three existing failure tests (listLineItems throws, sessions.retrieve throws, billingPortal.sessions.create throws) with a captureError-call assertion each, and added a no-call-on-success test. Verified all three new/extended assertions actually catch the regression: git stash'd only the source change and confirmed all three failed with '0 calls' before restoring the fix. Added one paragraph to /docs/architecture. src/lib/process/business-decisions.ts — appended billing-portal-capture-error-wiring. src/lib/process/prompt_process.tsx — a NEXT_STEPS done entry plus this entry. No NEXT_STEPS change — the five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to 80897c46.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (create-portal-session.test.ts, 26/26 passed) then full suite (3639 passed, 213 files — 1 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings). No dev-server smoke check needed — server-only Stripe-call orchestration fix requiring a live STRIPE_SECRET_KEY and a real paid Checkout Session, not meaningfully exercisable beyond the automated test coverage in this sandboxed environment.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "billing-portal-capture-error-wiring",
     ),
   },
 ];

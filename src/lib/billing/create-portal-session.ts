@@ -4,6 +4,7 @@ import {
   latestEligibleOrder,
   stripeCustomerIdFromUnknown,
 } from "@/lib/billing/portal";
+import { captureError } from "@/lib/observability/error-tracking";
 import {
   commerceAddonPriceIdsFromEnv,
   priceIdsFromStripeLineItems,
@@ -178,6 +179,10 @@ export async function createBillingPortalForCheckoutSession(
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown Stripe error";
+      await captureError(error, {
+        component: "billing-portal",
+        failureKind: "line_items_verify",
+      });
       return {
         ok: false,
         error: modeIsSubscription
@@ -219,6 +224,10 @@ export async function createBillingPortalForCheckoutSession(
     return { ok: true, url: portal.url };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown Stripe error";
+    await captureError(error, {
+      component: "billing-portal",
+      failureKind: "session_create",
+    });
     return { ok: false, error: message, status: 502 };
   }
 }

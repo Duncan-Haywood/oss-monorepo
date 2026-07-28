@@ -4699,6 +4699,25 @@ source). The same digest also lists email-critical leads with no usable address 
         the header link to <code>/checkout?source=nav</code>, matching the established
         per-CTA-token pattern exactly.
       </p>
+      <p>
+        <code>billing-portal-capture-error-wiring</code>: closed the last uninstrumented
+        live-external-API-call failure surface — <code>createBillingPortalForCheckoutSession</code>{" "}
+        (<code>src/lib/billing/create-portal-session.ts</code>), the self-serve &quot;Manage
+        billing&quot; flow customers use from <code>/checkout/success</code> and operators use from
+        the dashboard, had two distinct Stripe-call catches (line-item verification, portal-session
+        creation) that returned a 502/error result but never called <code>captureError</code> —
+        unlike every other Stripe-touching surface swept earlier today. A Stripe outage, a
+        Price/env misconfiguration, or a systematic eligibility bug would silently break every
+        subscription cancel/update-card click with zero operator-visible signal. Wired{" "}
+        <code>captureError</code> into both catches (<code>component: &quot;billing-portal&quot;</code>
+        , <code>failureKind: &quot;line_items_verify&quot;</code> /{" "}
+        <code>&quot;session_create&quot;</code>), mirroring the checkout routes&apos; exact pattern.
+        Left each dashboard action&apos;s own outer safety-net catch untouched, consistent with
+        every prior entry in this sweep — <code>createBillingPortalForLead</code> and{" "}
+        <code>createBillingPortalForCheckoutSession</code> already handle every real failure
+        internally via a result object, so that outer catch is unreachable except for a genuine
+        programming error.
+      </p>
 
       <h2>Tech stack</h2>
       <ul>
