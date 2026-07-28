@@ -96,7 +96,24 @@ function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
 }
 
 const EXPECTED_SPEC_COUNT =
-  BUNDLES.reduce((count, bundle) => count + (bundle.monthlyPriceIdEnv ? 2 : 1), 0) + 2; // + Commerce setup/monthly
+  BUNDLES.reduce(
+    (count, bundle) =>
+      count + 1 + (bundle.monthlyPriceIdEnv ? 1 : 0) + (bundle.annualPriceIdEnv ? 1 : 0),
+    0,
+  ) + 2; // + Commerce setup/monthly
+
+/**
+ * One Product per DISTINCT spec key — lower than EXPECTED_SPEC_COUNT because
+ * a bundle with both a monthly and an annual Price shares ONE Product for
+ * both (key `${bundle.id}_recurring`, see annual-billing-option), while each
+ * still gets its own Price object (Stripe Prices are immutable per interval).
+ */
+const EXPECTED_PRODUCT_COUNT = new Set(
+  BUNDLES.flatMap((bundle) => [
+    `${bundle.id}_setup`,
+    bundle.monthlyPriceIdEnv || bundle.annualPriceIdEnv ? `${bundle.id}_recurring` : null,
+  ]).filter(Boolean),
+).size + 2; // + Commerce setup/monthly Products (distinct keys, no sharing)
 
 describe("bootstrapStripePrices", () => {
   it("creates one Product + Price per bundle/commerce price spec", async () => {
@@ -105,7 +122,7 @@ describe("bootstrapStripePrices", () => {
 
     expect(results).toHaveLength(EXPECTED_SPEC_COUNT);
     expect(results.every((r) => r.created)).toBe(true);
-    expect(stripe.productCount()).toBe(EXPECTED_SPEC_COUNT);
+    expect(stripe.productCount()).toBe(EXPECTED_PRODUCT_COUNT);
     expect(stripe.priceCount()).toBe(EXPECTED_SPEC_COUNT);
 
     const starterSetup = results.find((r) => r.envVar === "STRIPE_PRICE_ID_STARTER_SETUP");
@@ -122,18 +139,20 @@ describe("bootstrapStripePrices", () => {
     expect(second.results.every((r) => !r.created)).toBe(true);
     expect(second.results.map((r) => r.priceId)).toEqual(first.results.map((r) => r.priceId));
     expect(second.results.map((r) => r.productId)).toEqual(first.results.map((r) => r.productId));
-    expect(stripe.productCount()).toBe(EXPECTED_SPEC_COUNT);
+    expect(stripe.productCount()).toBe(EXPECTED_PRODUCT_COUNT);
     expect(stripe.priceCount()).toBe(EXPECTED_SPEC_COUNT);
   });
 
   it("reuses the existing Product but creates a fresh Price when no Price on it matches the current amount", async () => {
     const stripe = createFakeStripe();
-    // Pre-seed a Product for Growth monthly (metadata key matches the spec)
-    // with only a stale/mismatched Price on it — simulates an account where
-    // the bundle's price changed since the last bootstrap run.
+    // Pre-seed a Product for Growth's shared recurring key (metadata key
+    // matches the spec — monthly and annual share one Product, see
+    // annual-billing-option) with only a stale/mismatched Price on it —
+    // simulates an account where the bundle's price changed since the last
+    // bootstrap run.
     const product = await stripe.products.create({
-      name: "Growth — monthly",
-      metadata: { local_site_studio_key: "growth_monthly" },
+      name: "Growth — recurring",
+      metadata: { local_site_studio_key: "growth_recurring" },
     });
     const stalePrice = await stripe.prices.create({
       product: product.id,
@@ -206,7 +225,10 @@ describe("bootstrapStripePrices", () => {
     const envVars = results.map((r) => r.envVar).sort();
 
     const expected = [
-      ...BUNDLES.flatMap((b) => [b.setupPriceIdEnv, b.monthlyPriceIdEnv].filter(Boolean) as string[]),
+      ...BUNDLES.flatMap(
+        (b) =>
+          [b.setupPriceIdEnv, b.monthlyPriceIdEnv, b.annualPriceIdEnv].filter(Boolean) as string[],
+      ),
       COMMERCE_ADDON.setupPriceIdEnv,
       COMMERCE_ADDON.monthlyPriceIdEnv,
     ].sort();
@@ -221,11 +243,33 @@ describe("bootstrapStripePrices", () => {
     const productCalls = stripe.productCreateCallsByIdempotencyKey();
     const priceCalls = stripe.priceCreateCallsByIdempotencyKey();
 
-    expect(productCalls.size).toBe(EXPECTED_SPEC_COUNT);
+    expect(productCalls.size).toBe(EXPECTED_PRODUCT_COUNT);
     expect(priceCalls.size).toBe(EXPECTED_SPEC_COUNT);
     expect([...productCalls.values()].every((count) => count === 1)).toBe(true);
     expect([...priceCalls.values()].every((count) => count === 1)).toBe(true);
     expect([...productCalls.keys()]).toContain("local_site_studio_starter_setup_product");
+  });
+
+  it("creates both a monthly and an annual Price under the SAME shared Product for Growth/Complete", async () => {
+    const stripe = createFakeStripe();
+    const { results } = await bootstrapStripePrices(stripe);
+
+    const growthMonthly = results.find((r) => r.envVar === "STRIPE_PRICE_ID_GROWTH_MONTHLY");
+    const growthAnnual = results.find((r) => r.envVar === "STRIPE_PRICE_ID_GROWTH_ANNUAL");
+    expect(growthMonthly?.productId).toBeDefined();
+    expect(growthAnnual?.productId).toBe(growthMonthly?.productId);
+    expect(growthAnnual?.priceId).not.toBe(growthMonthly?.priceId);
+
+    const completeMonthly = results.find((r) => r.envVar === "STRIPE_PRICE_ID_COMPLETE_MONTHLY");
+    const completeAnnual = results.find((r) => r.envVar === "STRIPE_PRICE_ID_COMPLETE_ANNUAL");
+    expect(completeAnnual?.productId).toBe(completeMonthly?.productId);
+    expect(completeAnnual?.priceId).not.toBe(completeMonthly?.priceId);
+
+    // Only ONE Product created per bundle+setup pairing (setup + shared
+    // recurring), not one per Price — confirms the rename to a shared
+    // `${bundle.id}_recurring` key actually collapsed monthly/annual onto one
+    // Product rather than accidentally minting two.
+    expect(stripe.productCount()).toBe(EXPECTED_PRODUCT_COUNT);
   });
 
   it("never mints a duplicate Product/Price when two concurrent calls both race past the list-based precheck", async () => {

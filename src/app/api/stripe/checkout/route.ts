@@ -10,7 +10,7 @@ import { parseClientIdempotencyKey } from "@/lib/checkout/idempotency-key";
 import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attribution";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { existingRecurringStripeCustomerId } from "@/lib/orders/recurring";
-import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
+import { BUNDLES, COMMERCE_ADDON, getBundle, parseBundleBillingInterval } from "@/lib/pricing/bundles";
 import { listOrdersByLeadSlug, recordCheckoutSessionCreated } from "@/lib/db";
 import { captureError } from "@/lib/observability/error-tracking";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
@@ -29,6 +29,7 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 interface CheckoutRequestBody {
   tier?: string;
   commerceAddon?: boolean;
+  billingInterval?: string;
   slug?: string;
   customerEmail?: string;
   idempotencyKey?: string;
@@ -88,18 +89,39 @@ export async function POST(request: Request) {
     return notConfigured(`Set ${bundle.setupPriceIdEnv} to the Stripe Price ID for the ${bundle.name} setup fee.`);
   }
 
+  const commerceAddonApplied = body.commerceAddon === true;
+  const billingInterval = parseBundleBillingInterval(body.billingInterval);
+  // The Commerce add-on has no annual Price of its own (annual-billing-option
+  // deliberately scoped it out — a single Stripe subscription's recurring
+  // line items must share one billing interval, and adding a second annual
+  // Price for the add-on is a separate, later change). Reject the combination
+  // outright rather than silently billing the add-on monthly inside an
+  // otherwise-annual subscription, which Stripe would likely reject anyway.
+  if (billingInterval === "annual" && commerceAddonApplied) {
+    return NextResponse.json(
+      {
+        error: "Annual billing cannot be combined with the Commerce add-on yet",
+        message: "Choose monthly billing to add the Commerce add-on, or purchase it separately afterward.",
+      },
+      { status: 400 },
+    );
+  }
+
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
     { price: setupPriceId, quantity: 1 },
   ];
   let hasRecurring = false;
-  const commerceAddonApplied = body.commerceAddon === true;
 
-  if (bundle.monthlyPriceIdEnv) {
-    const monthlyPriceId = process.env[bundle.monthlyPriceIdEnv];
-    if (!monthlyPriceId) {
-      return notConfigured(`Set ${bundle.monthlyPriceIdEnv} to the Stripe Price ID for the ${bundle.name} monthly plan.`);
+  const recurringPriceIdEnv =
+    billingInterval === "annual" ? bundle.annualPriceIdEnv : bundle.monthlyPriceIdEnv;
+  if (recurringPriceIdEnv) {
+    const recurringPriceId = process.env[recurringPriceIdEnv];
+    if (!recurringPriceId) {
+      return notConfigured(
+        `Set ${recurringPriceIdEnv} to the Stripe Price ID for the ${bundle.name} ${billingInterval} plan.`,
+      );
     }
-    lineItems.push({ price: monthlyPriceId, quantity: 1 });
+    lineItems.push({ price: recurringPriceId, quantity: 1 });
     hasRecurring = true;
   }
 
@@ -159,6 +181,7 @@ export async function POST(request: Request) {
   cancelParams.set("slug", leadSlug);
   cancelParams.set("tier", bundle.id);
   if (commerceAddonApplied) cancelParams.set("commerce", "1");
+  if (billingInterval === "annual") cancelParams.set("billing", "annual");
   // Carry the validated acquisition source back onto /checkout so a
   // shopper who backs out of Stripe and retries doesn't lose attribution
   // (checkout-cancel-url-acquisition-source-round-trip) — CheckoutPage
@@ -182,6 +205,7 @@ export async function POST(request: Request) {
         metadata: {
           tier: bundle.id,
           commerceAddon: String(commerceAddonApplied),
+          billingInterval,
           slug: leadSlug,
           ...(mintedOrganic ? { organicAttribution: "1" } : {}),
           ...(acquisitionSource ? { acquisitionSource } : {}),

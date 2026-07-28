@@ -51,8 +51,10 @@ function setBundlePriceEnv() {
   process.env.STRIPE_PRICE_ID_STARTER_SETUP = "price_starter_setup";
   process.env.STRIPE_PRICE_ID_GROWTH_SETUP = "price_growth_setup";
   process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+  process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL = "price_growth_annual";
   process.env.STRIPE_PRICE_ID_COMPLETE_SETUP = "price_complete_setup";
   process.env.STRIPE_PRICE_ID_COMPLETE_MONTHLY = "price_complete_monthly";
+  process.env.STRIPE_PRICE_ID_COMPLETE_ANNUAL = "price_complete_annual";
   process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
   process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
   process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
@@ -202,6 +204,7 @@ describe("POST /api/stripe/checkout", () => {
     expect(createArgs.metadata).toEqual({
       tier: "starter",
       commerceAddon: "false",
+      billingInterval: "monthly",
       slug: "demo-cafe",
     });
 
@@ -300,6 +303,119 @@ describe("POST /api/stripe/checkout", () => {
       { price: "price_growth_setup", quantity: 1 },
       { price: "price_growth_monthly", quantity: 1 },
     ]);
+  });
+
+  describe("annual billing (annual-billing-option)", () => {
+    it("creates a Growth subscription session with the annual Price when billingInterval=annual", async () => {
+      setBundlePriceEnv();
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_growth_annual",
+        url: "https://checkout.stripe.com/growth-annual",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", billingInterval: "annual" }),
+      );
+      expect(res.status).toBe(200);
+
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        mode: string;
+        line_items: { price: string; quantity: number }[];
+        metadata: Record<string, string>;
+      };
+      expect(createArgs.mode).toBe("subscription");
+      expect(createArgs.line_items).toEqual([
+        { price: "price_growth_setup", quantity: 1 },
+        { price: "price_growth_annual", quantity: 1 },
+      ]);
+      expect(createArgs.metadata.billingInterval).toBe("annual");
+    });
+
+    it("defaults to monthly when billingInterval is omitted, malformed, or unrecognized", async () => {
+      setBundlePriceEnv();
+      for (const billingInterval of [undefined, "yearly", "ANNUAL", ""]) {
+        sessionsCreate.mockReset().mockResolvedValue({
+          id: "cs_test_growth_default",
+          url: "https://checkout.stripe.com/growth",
+        });
+        const { POST } = await import("./route");
+        const res = await POST(
+          checkoutRequest({ tier: "growth", slug: "demo-cafe", billingInterval }),
+        );
+        expect(res.status).toBe(200);
+        const createArgs = sessionsCreate.mock.calls[0]![0] as {
+          line_items: { price: string; quantity: number }[];
+          metadata: Record<string, string>;
+        };
+        expect(createArgs.line_items).toEqual([
+          { price: "price_growth_setup", quantity: 1 },
+          { price: "price_growth_monthly", quantity: 1 },
+        ]);
+        expect(createArgs.metadata.billingInterval).toBe("monthly");
+      }
+    });
+
+    it("returns 400 rejecting annual billing combined with the Commerce add-on, without creating a Stripe session", async () => {
+      setBundlePriceEnv();
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "growth",
+          slug: "demo-cafe",
+          billingInterval: "annual",
+          commerceAddon: true,
+        }),
+      );
+      expect(res.status).toBe(400);
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("returns 501 when the Growth annual Price ID env is missing", async () => {
+      setBundlePriceEnv();
+      delete process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL;
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", billingInterval: "annual" }),
+      );
+      expect(res.status).toBe(501);
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("Starter (no recurring price at all) is unaffected by billingInterval=annual", async () => {
+      setBundlePriceEnv();
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_starter_annual_noop",
+        url: "https://checkout.stripe.com/starter",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "starter", slug: "demo-cafe", billingInterval: "annual" }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        mode: string;
+        line_items: { price: string; quantity: number }[];
+      };
+      expect(createArgs.mode).toBe("payment");
+      expect(createArgs.line_items).toEqual([{ price: "price_starter_setup", quantity: 1 }]);
+    });
+
+    it("carries billing=annual onto cancel_url so a back-out/retry doesn't lose the selection", async () => {
+      setBundlePriceEnv();
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_growth_annual_cancel",
+        url: "https://checkout.stripe.com/growth-annual",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", billingInterval: "annual" }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as { cancel_url: string };
+      expect(createArgs.cancel_url).toBe(
+        "https://app.example.com/checkout?cancelled=1&slug=demo-cafe&tier=growth&billing=annual",
+      );
+    });
   });
 
   describe("recurring-upgrade Customer reuse (stripe-checkout-recurring-upgrade-dedup)", () => {
@@ -576,6 +692,7 @@ describe("POST /api/stripe/checkout", () => {
     expect(createArgs.metadata).toEqual({
       tier: "starter",
       commerceAddon: "false",
+      billingInterval: "monthly",
       slug: "demo-cafe",
     });
     expect(createArgs.metadata.acquisitionSource).toBeUndefined();

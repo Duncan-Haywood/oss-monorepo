@@ -7,7 +7,7 @@ import { cancelledCheckoutBanner } from "@/lib/checkout/cancelled-banner";
 import { planCheckoutPageAccess } from "@/lib/checkout/checkout-page-access";
 import { loadCheckoutPrefillLead } from "@/lib/checkout/prefill-slug";
 import { brand } from "@/lib/brand";
-import type { BundleTier } from "@/lib/pricing/bundles";
+import { parseBundleBillingInterval, type BundleTier } from "@/lib/pricing/bundles";
 import { staticPageMetadata } from "@/lib/seo";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 import { CheckoutForm, type CheckoutPrefill } from "./checkout-form";
@@ -23,6 +23,7 @@ type CheckoutPageProps = {
     slug?: string;
     tier?: string;
     commerce?: string;
+    billing?: string;
     cancelled?: string;
     source?: string;
   }>;
@@ -59,6 +60,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     recommendedTier: lead?.recommendedTier,
     initialTier: parseTier(params.tier) ?? lead?.recommendedTier,
     initialCommerce: params.commerce === "1" || params.commerce === "true",
+    initialBillingInterval: parseBundleBillingInterval(params.billing),
     acquisitionSource: parseCheckoutAcquisitionSource(params.source),
   };
 
