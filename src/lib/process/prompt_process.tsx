@@ -868,5 +868,22 @@ export const ITERATIONS: ProcessIteration[] = [
       (d) => d.id === "checkout-setup-fee-skip-on-upgrade",
     ),
   },
+  {
+    date: "2026-07-28",
+    branch: "claude/upbeat-dijkstra-tg1n4z",
+    summary:
+      "Continuation of the same scheduled routine, picked up at origin/main tip d9d6680f (PR #950, checkout-setup-fee-skip-on-upgrade, merged this session's own prior PR). git fetch --prune + list_pull_requests found no live sibling PR beyond the unrelated stale draft #202. Dispatched a research agent asked to look for other email-vs-behavior mismatches similar to the just-shipped setup-fee bug, and told to cross-check the live process-log tail plus git log for freshness first.",
+    shipped: [
+      "Found and independently re-verified a direct residual gap left by the immediately prior fix: checkout-setup-fee-skip-on-upgrade only changed what POST /api/stripe/checkout charges server-side — checkout-form.tsx never learned about the waiver, so it kept displaying the full setup fee in 'Due today' even on the exact upgrade checkouts the server now discounts. The mirror image of the original bug: a Growth customer following the upsell email's 'setup already covered' link would see 'Due today: $699' on this page, then actually be charged only $199 at Stripe — confusing regardless of which direction the mismatch points.",
+      "Fixed by threading the same signal through: loadCheckoutPrefillLead (prefill-slug.ts) now also calls listOrdersByLeadSlug when a CRM lead resolves and returns a new optional hasExistingOrder field (optional specifically so unrelated checkout-page-access.test.ts mocks didn't need touching); checkout/page.tsx passes it to CheckoutForm. Extracted the 'Due today' total/subtitle logic into a new pure module, src/lib/checkout/due-today.ts, unit-tested in the normal node environment rather than needing this repo's absent render-test infra — same new-capability carve-out precedent as leads-client-pending-announcement-shared-status-region.",
+      "Proved via git-stash: stashed the three pre-existing source files, confirmed all 6 updated/new prefill-slug.test.ts assertions failed exactly as expected, then restored and confirmed all 135 tests across src/lib/checkout + src/app/checkout pass. Dev-server smoke check (UI touched): confirmed the default checkout page renders the full setup fee and $699 total; seeded a lead + prior order directly into local.db via raw node:sqlite (db.ts can't be imported outside the Next.js runtime due to its server-only guard), confirmed the same tier for that lead rendered 'First month only — setup already covered' and a $199 total — exactly the $500 difference — then cleaned up.",
+      "src/lib/checkout/prefill-slug.ts, .test.ts — the dep/field addition + updated tests. src/app/checkout/page.tsx, checkout-form.tsx — the wiring. src/lib/checkout/due-today.ts, .test.ts — new pure module + 10 tests. src/app/docs/architecture/page.tsx — one new paragraph. src/lib/process/business-decisions.ts — appended checkout-form-setup-fee-display-parity. src/lib/process/prompt_process.tsx — this entry. No NEXT_STEPS change — all five gated items remain operator/legal/infra-blocked. Diff-gate anchor moves to d9d6680f (origin/main tip, PR #950 merge).",
+      "File-size check: prompt_process.tsx (210,844 bytes) and business-decisions.ts (233,616 bytes) both measured via wc -c before this entry — both comfortably under the 262,144-byte trigger, no re-archive needed this round.",
+      "Verified: npx tsc --noEmit -p tsconfig.json (0 errors) + npm run lint (clean) + npx vitest run targeted (checkout suites, 135 passed, 16 files) then full suite (3945 passed, 232 files, +11 net new) + a full clean rebuild (rm -rf .next && npm run build, clean, same route split, no new warnings) + the dev-server smoke check described above.",
+    ],
+    decisions: BUSINESS_DECISIONS.filter(
+      (d) => d.id === "checkout-form-setup-fee-display-parity",
+    ),
+  },
 ];
 

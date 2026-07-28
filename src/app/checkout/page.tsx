@@ -50,8 +50,10 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     loadPrefillLead: loadCheckoutPrefillLead,
     checkRateLimit,
   });
-  const { slug, lead } =
-    plan.kind === "rate_limited" ? { slug: undefined, lead: null } : plan.result;
+  const { slug, lead, hasExistingOrder } =
+    plan.kind === "rate_limited"
+      ? { slug: undefined, lead: null, hasExistingOrder: false }
+      : plan.result;
 
   const prefill: CheckoutPrefill = {
     slug,
@@ -62,6 +64,10 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     initialCommerce: params.commerce === "1" || params.commerce === "true",
     initialBillingInterval: parseBundleBillingInterval(params.billing),
     acquisitionSource: parseCheckoutAcquisitionSource(params.source),
+    // Mirrors POST /api/stripe/checkout's own setup-fee-skip predicate (see
+    // checkout-setup-fee-skip-on-upgrade) so the displayed "Due today" total
+    // never promises a setup fee Stripe won't actually charge.
+    hasExistingOrder: hasExistingOrder === true,
   };
 
   const banner = cancelledCheckoutBanner(lead);
