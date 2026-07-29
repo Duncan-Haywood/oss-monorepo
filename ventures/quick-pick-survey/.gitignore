@@ -42,3 +42,6 @@ next-env.d.ts
 
 # integration test database (scripts/test-db.sh)
 /.testdb/
+
+# build outputs
+/output/
