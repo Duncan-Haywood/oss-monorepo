@@ -1,19 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: quick-pick-survey-ingress
-  namespace: default
+  name: quick-pick-survey
   annotations:
-    kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-security-headers@kubernetescrd
 spec:
+  ingressClassName: traefik
   tls:
   - hosts:
     - pairwise.marisstella.dev
-    secretName: pairwise-marisstella-tls
+    secretName: pairwise-survey-tls
   rules:
   - host: pairwise.marisstella.dev
     http:

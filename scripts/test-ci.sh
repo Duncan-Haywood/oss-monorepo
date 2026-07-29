@@ -32,16 +32,16 @@ run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/
 # 2. Security Policy Scanner Unit Tests
 run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/scripts/security/test-scan-repository.sh"
 
-# 3. Shell Script Syntax Check
+# 3. Shell Script Static Analysis (if shellcheck installed)
 if command -v shellcheck >/dev/null 2>&1; then
   run_ci_test "Shell Script Static Analysis (ShellCheck)" shellcheck "${REPO_ROOT}/scripts/"*.sh "${REPO_ROOT}/scripts/security/"*.sh
 else
   echo "ℹ ShellCheck not installed; skipping shell script linting."
 fi
 
-# 4. GitHub/Gitea Actions Workflow Validation
+# 4. GitHub/Gitea Actions Workflow Validation (if actionlint installed)
 if command -v actionlint >/dev/null 2>&1; then
-  run_ci_test "GitHub Actions Workflow Linting (actionlint)" actionlint "${REPO_ROOT}/.github/workflows/"*.yml
+  run_ci_test "GitHub Actions Workflow Linting (actionlint)" bash -c "cd '${REPO_ROOT}' && actionlint"
 else
   echo "ℹ actionlint not installed; skipping workflow linting."
 fi
