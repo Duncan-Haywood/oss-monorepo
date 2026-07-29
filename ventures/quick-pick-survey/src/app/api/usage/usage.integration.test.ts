@@ -23,9 +23,11 @@ describe("POST /api/usage", () => {
       sessionKey: "session-key-1234567890-test",
       events: [
         {
-          eventName: "survey_started",
-          domain: "behaviours",
-          clientTimestamp: new Date().toISOString(),
+          clientEventId: "event-key-1234567890",
+          sequence: 1,
+          occurredAt: Date.now(),
+          event: "survey_start",
+          domain: "behaviors",
         },
       ],
     };
