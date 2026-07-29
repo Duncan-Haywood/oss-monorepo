@@ -16,7 +16,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { UnifiedRunner } from "@/components/UnifiedRunner";
 
 const LS_KEY = "survey:unified:session";
@@ -76,7 +76,7 @@ describe("UnifiedRunner", () => {
   it("shows the welcome screen when there is no stored session", async () => {
     stubFetch({ "/api/auth/me": noAccount });
     render(<UnifiedRunner />);
-    expect(await screen.findByText("What I want in a partner")).toBeTruthy();
+    expect(await screen.findByRole("button", { name: /Start our couples check-in/i })).toBeTruthy();
   });
 
   it("says what starting costs a signed-out person, before they start", async () => {
@@ -105,7 +105,7 @@ describe("UnifiedRunner", () => {
     expect(await screen.findByText("Hiking")).toBeTruthy();
     expect(screen.getByText("Museums")).toBeTruthy();
     // The welcome screen must not flash in front of a resumable session.
-    expect(screen.queryByText("What I want in a partner")).toBeNull();
+    expect(screen.queryByText("Start our couples check-in")).toBeNull();
   });
 
   it("asks for exactly one question when resuming", async () => {
@@ -139,7 +139,7 @@ describe("UnifiedRunner", () => {
 
     // A half-written bundle used to leave the runner spinning on "Loading next…"
     // with nothing to fetch. It must fall back to the welcome screen.
-    expect(await screen.findByText("What I want in a partner")).toBeTruthy();
+    expect(await screen.findByRole("button", { name: /Start our couples check-in/i })).toBeTruthy();
   });
 
   it("offers a retry when the next question cannot be fetched", async () => {
@@ -189,5 +189,48 @@ describe("UnifiedRunner", () => {
     first.click();
 
     await waitFor(() => expect(screen.getByText("Cooking")).toBeTruthy());
+  });
+
+  it("automatically offers a clearly labelled switch from partner preferences to self values", async () => {
+    let served = 0;
+    const fetchMock = stubFetch({
+      "/api/auth/me": noAccount,
+      "/api/session/start": (body) => {
+        const perspective = (body as { perspective: string }).perspective;
+        return {
+          json: {
+            participants: { activities: perspective === "PARTNER" ? "p-partner" : "p-self" },
+            surveys: [{ slug: "activities", title: "Activities", kind: "ITEMS" }],
+          },
+        };
+      },
+      "/api/trials/next": () => {
+        served += 1;
+        return itemsTrial(`t${served}`, `Choice ${served}A`, `Choice ${served}B`, served - 1);
+      },
+      "/api/trials/answer": () => ({ json: { ok: true } }),
+      "/api/insights": () => ({ json: {} }),
+      "/api/couple/compare": () => ({ json: {} }),
+    });
+
+    render(<UnifiedRunner />);
+    fireEvent.click(await screen.findByRole("button", { name: /The partner I would choose|Start our couples check-in/i }));
+    expect(await screen.findByText("Choice 1A")).toBeTruthy();
+    expect(screen.getAllByText(/The partner I would choose|Partner preferences/i).length).toBeGreaterThan(0);
+
+    for (let answer = 1; answer <= 10; answer += 1) {
+      fireEvent.click(await screen.findByText(`Choice ${answer}A`));
+      if (answer < 10) await screen.findByText(`Choice ${answer + 1}A`);
+    }
+
+    expect(await screen.findByRole("dialog", { name: /Switching to Self Values/i })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Continue with Self Values|Start Self Values Mode/i }));
+    expect(await screen.findByText(/Focus:/i)).toBeTruthy();
+    expect(screen.getAllByText(/Self Values/i).length).toBeGreaterThan(0);
+
+    const perspectives = fetchMock.mock.calls
+      .filter(([url]) => url === "/api/session/start")
+      .map(([, init]) => JSON.parse(String((init as RequestInit).body)).perspective);
+    expect(perspectives).toEqual(["PARTNER", "SELF"]);
   });
 });

@@ -72,6 +72,19 @@ undone, and progress survives a refresh, a new device, and a switch between
 perspectives. A flow that loses answers is not a slow flow, it is a broken
 promise.
 
+The core couple journey does not ask someone to operate those perspectives as
+settings. It alternates short partner-preference and self-value rounds, pauses
+at each handoff with an explicit explanation, and labels the active focus above
+every question. The data stays separate; only the navigation is unified.
+
+Level boundaries may check whether a new finding is ready, but they do not
+earn an interruption by themselves. The card flow stops only for a concrete,
+newly supported preference or trade-off that gives the person a useful
+question to take to their partner. The app checks every five answers once a
+person has answered ten, but leaves at least ten answers between interruptions.
+Generic progress remains in the header, and the same kind of finding is not
+promoted twice.
+
 ### 5. Safe to hand to someone you love
 
 No personal data in the repo or the client bundle. Nothing indexable. Consent

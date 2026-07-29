@@ -13,13 +13,28 @@ The repo is at `Duncan-Haywood/quick-pick-survey` (private).
    build command alone (`vercel.json` sets it).
 2. **Attach a database.** In the project → Storage → Create Database → Postgres.
    Vercel injects `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` automatically.
-3. **Add the two secrets** from `~/Desktop/quick-pick-secrets.txt` as Environment
+3. **Add the app secrets** as Environment
    Variables (all environments):
    - `ADMIN_KEY`
    - `ADMIN_SESSION_SECRET`
+   - `RATE_LIMIT_SECRET`
+   - `APP_ORIGIN=https://pairwise.marisstella.dev`
+   - `RESEND_API_KEY`
+   - `PASSWORD_RESET_FROM=Quick Pick <noreply@marisstella.dev>`
+
+   In Resend, verify `marisstella.dev` and add the DNS records it provides.
+   The existing domain is sufficient: the app can stay on
+   `pairwise.marisstella.dev` while reset mail comes from
+   `noreply@marisstella.dev`.
 4. **Redeploy.** The build runs `prisma migrate deploy` then seeds the surveys, so
    the schema and content are in place before the app serves a request. Both steps
    are idempotent and safe on every deploy.
+
+The app sets HTTP-only, host-only production session cookies, invalidates all
+sessions after a password reset, rate-limits authentication writes in Postgres,
+and sends browser hardening headers from `next.config.ts`. Keep `APP_ORIGIN`
+fixed to the canonical HTTPS origin; never derive reset links from request
+headers.
 
 ## Running locally
 
@@ -48,6 +63,8 @@ POSTGRES_PRISMA_URL="postgresql://postgres@127.0.0.1:5544/surveysite?schema=publ
 POSTGRES_URL_NON_POOLING="postgresql://postgres@127.0.0.1:5544/surveysite?schema=public"
 ADMIN_KEY="anything-for-local"
 ADMIN_SESSION_SECRET="anything-for-local"
+RATE_LIMIT_SECRET="anything-else-for-local"
+APP_ORIGIN="http://localhost:3000"
 ```
 
 Then:
@@ -100,10 +117,12 @@ so screen position can't bias the result. It also runs **coarse-to-fine** — ea
 questions cross categories to fix the broad shape fast, later ones stay within a
 category where the hard discriminations are.
 
-**Perspectives.** The same content is rated under three framings that never share
-state: what you want for yourself, what you want in a partner, and what you *think*
-your partner wants. Comparing the last two across a linked couple is the sharpest
-output — not what you each want, but where you're wrong about each other.
+**Perspectives.** The same content is rated under two framings that never share
+state: what you want for your own life and future self, and what you want in a
+partner. The couples-first flow alternates ten-pick rounds automatically,
+announces every transition in a dialog, and keeps the current focus visible
+above every card. The rankings remain separate even though the person no
+longer has to manage modes in settings.
 
 ## How this gets built
 

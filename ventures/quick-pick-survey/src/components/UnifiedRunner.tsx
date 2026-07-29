@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Celebration } from "@/components/Celebration";
 import { cuteBreakForCount } from "@/lib/cuteMessages";
 import { DomainState, pickNextDomain, randomStreakTarget } from "@/lib/domainScheduler";
@@ -20,16 +20,99 @@ import {
 import {
   CenteredNote,
   FinancialTrialView,
-  INSTRUCTIONS,
+  getInstructions,
   isFinancial,
   ItemsTrialView,
   Trial,
+  type InteractionMethod,
 } from "@/components/CardViews";
+import { recordUsage } from "@/lib/usageClient";
+import {
+  selectCoupleInsightBreak,
+  selectInsightBreak,
+  shouldCheckForInsight,
+  type InsightBreak,
+} from "@/lib/insightBreaks";
+import { InsightInterrupt } from "@/components/InsightInterrupt";
+import { ModeTransitionModal } from "@/components/ModeTransitionModal";
 
-/** Always on screen while swiping, so it's never ambiguous who you're rating for. */
-const PERSPECTIVE_SHORT: Record<PerspectiveValue, string> = Object.fromEntries(
-  PERSPECTIVE_ORDER.map((k) => [k, `${PERSPECTIVE_META[k].glyph} ${PERSPECTIVE_META[k].short}`])
-) as Record<PerspectiveValue, string>;
+const SHOWN_INSIGHT_BREAKS_KEY = "survey:shown-insight-breaks";
+const LAST_INSIGHT_BREAK_ANSWER_KEY = "survey:last-insight-break-answer";
+const GUIDED_SESSIONS_KEY = "survey:guided-couples-sessions";
+const PICKS_PER_FOCUS = 10;
+
+function rememberedPerspective(perspective: PerspectiveValue): SessionBundle | null {
+  try {
+    const stored = JSON.parse(localStorage.getItem(GUIDED_SESSIONS_KEY) ?? "{}") as Record<string, unknown>;
+    return coerceSessionBundle(stored[perspective]);
+  } catch {
+    return null;
+  }
+}
+
+function rememberPerspective(bundle: SessionBundle) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(GUIDED_SESSIONS_KEY) ?? "{}") as Record<string, unknown>;
+    localStorage.setItem(GUIDED_SESSIONS_KEY, JSON.stringify({ ...stored, [String(bundle.perspective)]: bundle }));
+  } catch {
+    // The active session still works when private browsing denies storage.
+  }
+}
+
+function shownInsightBreaks(perspective: PerspectiveValue): Set<string> {
+  try {
+    const stored = JSON.parse(localStorage.getItem(SHOWN_INSIGHT_BREAKS_KEY) ?? "{}") as Record<string, unknown>;
+    const keys = stored[perspective];
+    return new Set(Array.isArray(keys) ? keys.filter((key): key is string => typeof key === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function rememberInsightBreak(perspective: PerspectiveValue, key: string) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(SHOWN_INSIGHT_BREAKS_KEY) ?? "{}") as Record<string, unknown>;
+    const prior = Array.isArray(stored[perspective])
+      ? stored[perspective].filter((item): item is string => typeof item === "string")
+      : [];
+    const next = { ...stored, [perspective]: [...new Set([...prior, key])] };
+    if (key.startsWith("couple-")) {
+      for (const p of PERSPECTIVE_ORDER) {
+        const values = Array.isArray(stored[p])
+          ? stored[p].filter((item): item is string => typeof item === "string")
+          : [];
+        next[p] = [...new Set([...values, key])];
+      }
+    }
+    localStorage.setItem(
+      SHOWN_INSIGHT_BREAKS_KEY,
+      JSON.stringify(next)
+    );
+  } catch {
+    // Private browsing can deny storage. The insight is still useful once.
+  }
+}
+
+function lastInsightBreakAnswer(perspective: PerspectiveValue): number {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LAST_INSIGHT_BREAK_ANSWER_KEY) ?? "{}") as Record<string, unknown>;
+    return typeof stored[perspective] === "number" ? stored[perspective] : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function rememberInsightBreakAnswer(perspective: PerspectiveValue, answers: number) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LAST_INSIGHT_BREAK_ANSWER_KEY) ?? "{}") as Record<string, unknown>;
+    localStorage.setItem(
+      LAST_INSIGHT_BREAK_ANSWER_KEY,
+      JSON.stringify({ ...stored, [perspective]: answers })
+    );
+  } catch {
+    // The once-per-kind check still limits interruptions when storage works.
+  }
+}
 
 /**
  * A session in progress: the stored bundle plus the bookkeeping that only
@@ -60,7 +143,7 @@ function openSession(bundle: SessionBundle): LiveSession {
     perspective: bundle.perspective ?? DEFAULT_PERSPECTIVE,
     participants: bundle.participants,
     domains,
-    currentSlug: pickNextDomain(domains, null),
+    currentSlug: pickNextDomain(domains, null, bundle.perspective ?? DEFAULT_PERSPECTIVE),
     streakRemaining: randomStreakTarget(),
   };
 }
@@ -77,16 +160,71 @@ export function UnifiedRunner() {
   const [trial, setTrial] = useState<Trial | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [cuteNote, setCuteNote] = useState<{ en: string; fa: string } | null>(null);
+  const [cuteNote, setCuteNote] = useState<{ en: string } | null>(null);
   const [burst, setBurst] = useState(0);
   const [undoableSlug, setUndoableSlug] = useState<string | null>(null);
   const [retryTick, setRetryTick] = useState(0);
   const [accountName, setAccountName] = useState<string | null>(null);
+  const [insightBreak, setInsightBreak] = useState<InsightBreak | null>(null);
+  const [isModeModalOpen, setIsModeModalOpen] = useState(false);
+  const [targetPerspective, setTargetPerspective] = useState<PerspectiveValue>("PARTNER");
+  const [isModalAutoSuggested, setIsModalAutoSuggested] = useState(false);
+  const [focusAnswers, setFocusAnswers] = useState(0);
+  const cardShownAt = useRef(0);
 
   // A session the person has touched wins over the stored one, so a late
   // account response can't yank the question out from under them.
   const session = live ?? restored;
   const phase = !hydrated ? "loading" : paused ? "thanks" : session ? "running" : "welcome";
+
+  async function switchPerspective(p: PerspectiveValue) {
+    setError(null);
+    setTrial(null);
+    const remembered = rememberedPerspective(p);
+    if (remembered) {
+      writeSessionBundle(remembered);
+      setLive(openSession(remembered));
+      setTrial(null);
+      setFocusAnswers(0);
+      setIsModeModalOpen(false);
+      setRetryTick((n) => n + 1);
+      recordUsage("survey_start", { perspective: p, success: true });
+      return;
+    }
+    const name = accountName ?? "Anonymous";
+    try {
+      const res = await fetch("/api/session/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ perspective: p, firstName: name }),
+      });
+      const data = await res.json().catch(() => null);
+      const started = res.ok
+        ? coerceSessionBundle({
+            firstName: name,
+            perspective: p,
+            participants: data?.participants,
+            domains: data?.surveys,
+          })
+        : null;
+      if (!started) {
+        recordUsage("survey_start", { perspective: p, success: false });
+        setError("Couldn't switch mode. Try again.");
+        return;
+      }
+      writeSessionBundle(started);
+      rememberPerspective(started);
+      setLive(openSession(started));
+      setTrial(null);
+      setFocusAnswers(0);
+      setIsModeModalOpen(false);
+      setRetryTick((n) => n + 1);
+      recordUsage("survey_start", { perspective: p, success: true });
+    } catch {
+      recordUsage("survey_start", { perspective: p, success: false });
+      setError("Couldn't switch mode. Try again.");
+    }
+  }
 
   const update = useCallback(
     (fn: (s: LiveSession) => LiveSession) => setLive((prev) => (prev ? fn(prev) : restored ? fn(restored) : null)),
@@ -155,12 +293,13 @@ export function UnifiedRunner() {
   }, [restored, update]);
 
   const fetchNext = useCallback(
-    async (slug: string, pid: string, kind: DomainState["kind"], totalPoints: number) => {
+    async (slug: string, pid: string, kind: DomainState["kind"], totalPoints: number, perspective: PerspectiveValue) => {
       // Nothing is set before the first await on purpose: this runs from an
       // effect, and a synchronous setState there cascades a second render
       // before the first has painted. Clearing a stale error is the job of
       // whatever event triggered the reload (Retry, an answer, a restart).
       const endpoint = kind === "ITEMS" ? "/api/trials/next" : "/api/financial-trials/next";
+      const startedAt = performance.now();
       try {
         const res = await fetch(endpoint, {
           method: "POST",
@@ -168,6 +307,7 @@ export function UnifiedRunner() {
           body: JSON.stringify({ participantId: pid }),
         });
         if (!res.ok) {
+          recordUsage("question_load", { perspective, domain: slug, durationMs: Math.round(performance.now() - startedAt), success: false });
           setError("Couldn't load the next question. Try again.");
           return;
         }
@@ -175,10 +315,13 @@ export function UnifiedRunner() {
         // A body without a trial id would leave `trial` falsy and re-trigger
         // this fetch forever, so it counts as a failure, not a question.
         if (!data?.trialId) {
+          recordUsage("question_load", { perspective, domain: slug, durationMs: Math.round(performance.now() - startedAt), success: false });
           setError("Couldn't load the next question. Try again.");
           return;
         }
         setTrial(data);
+        recordUsage("question_load", { perspective, domain: slug, durationMs: Math.round(performance.now() - startedAt), success: true });
+        cardShownAt.current = performance.now();
         setError(null);
         setCuteNote(cuteBreakForCount(totalPoints));
         update((s) => ({
@@ -188,6 +331,7 @@ export function UnifiedRunner() {
           ),
         }));
       } catch {
+        recordUsage("question_load", { perspective, domain: slug, durationMs: Math.round(performance.now() - startedAt), success: false });
         // A dropped connection rejects rather than returning !ok. Without
         // this the rejection went unhandled and the screen sat on "Loading
         // next…" with no Retry and no way out but a hard refresh — the
@@ -199,15 +343,15 @@ export function UnifiedRunner() {
   );
 
   useEffect(() => {
-    if (phase !== "running" || trial || !session) return;
+    if (phase !== "running" || trial || !session || isModeModalOpen) return;
     const pid = session.participants[session.currentSlug];
     const domain = session.domains.find((d) => d.slug === session.currentSlug);
     if (!pid || !domain) return;
     const totalPoints = session.domains.reduce((sum, d) => sum + d.answeredCount, 0);
     void (async () => {
-      await fetchNext(session.currentSlug, pid, domain.kind, totalPoints);
+      await fetchNext(session.currentSlug, pid, domain.kind, totalPoints, session.perspective);
     })();
-  }, [phase, trial, session, fetchNext, retryTick]);
+  }, [phase, trial, session, fetchNext, retryTick, isModeModalOpen]);
 
   /**
    * Straight from the welcome screen into swiping — no form first. Details
@@ -233,17 +377,22 @@ export function UnifiedRunner() {
           })
         : null;
       if (!started) {
+        recordUsage("survey_start", { perspective: p, success: false });
         setError("Couldn't start. Try again.");
         return;
       }
       writeSessionBundle(started);
+      rememberPerspective(started);
       setLive(openSession(started));
+      setFocusAnswers(0);
+      recordUsage("survey_start", { perspective: p, success: true });
     } catch {
+      recordUsage("survey_start", { perspective: p, success: false });
       setError("Couldn't start. Try again.");
     }
   }
 
-  async function handleAnswer(result: "A" | "B" | "EQUAL") {
+  async function handleAnswer(result: "A" | "B", interactionMethod: InteractionMethod) {
     if (!session || !trial || submitting) return;
     const answeredSlug = session.currentSlug;
     const domain = session.domains.find((d) => d.slug === answeredSlug);
@@ -252,11 +401,19 @@ export function UnifiedRunner() {
     setError(null);
     const endpoint = domain.kind === "ITEMS" ? "/api/trials/answer" : "/api/financial-trials/answer";
     let ok = false;
+    const startedAt = performance.now();
     try {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ trialId: trial.trialId, result }),
+        body: JSON.stringify({
+          trialId: trial.trialId,
+          result,
+          interactionMethod,
+          clientMsToAnswer: cardShownAt.current
+            ? Math.max(0, Math.round(performance.now() - cardShownAt.current))
+            : null,
+        }),
       });
       // 409 means the server already has this answer — a retry after a
       // timeout, not a failure. Treating it as one wedged the session
@@ -266,19 +423,87 @@ export function UnifiedRunner() {
       ok = false;
     }
     setSubmitting(false);
+    recordUsage("answer_save", {
+      perspective: session.perspective,
+      domain: answeredSlug,
+      durationMs: Math.round(performance.now() - startedAt),
+      success: ok,
+    });
     if (!ok) {
       setError("That didn't save — check your connection and tap again.");
       return;
     }
     setBurst((n) => n + 1);
     setUndoableSlug(answeredSlug);
-    setTrial(null);
+    const answersAfterThis = session.domains.reduce((sum, d) => sum + d.answeredCount, 0) + 1;
+    setFocusAnswers(answersAfterThis % PICKS_PER_FOCUS || PICKS_PER_FOCUS);
+    if (answersAfterThis % 10 === 0 && !insightBreak) {
+      const alternatePerspective: PerspectiveValue = session.perspective === "SELF" ? "PARTNER" : "SELF";
+      setTargetPerspective(alternatePerspective);
+      setIsModalAutoSuggested(true);
+      setIsModeModalOpen(true);
+    } else {
+      setTrial(null);
+    }
+    if (shouldCheckForInsight(answersAfterThis, lastInsightBreakAnswer(session.perspective))) {
+      void Promise.all([
+        fetch("/api/insights", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ participants: session.participants }),
+        }).then((res) => (res.ok ? res.json() : null)),
+        fetch("/api/couple/compare").then((res) => (res.ok ? res.json() : null)),
+      ])
+        .then(([personalData, coupleData]) => {
+          const shown = shownInsightBreaks(session.perspective);
+          const nextBreak =
+            selectCoupleInsightBreak(coupleData ?? {}, answersAfterThis, shown) ??
+            selectInsightBreak(personalData ?? {}, session.perspective, shown);
+          if (!nextBreak) return;
+          rememberInsightBreak(session.perspective, nextBreak.key);
+          rememberInsightBreakAnswer(session.perspective, nextBreak.answers);
+          setInsightBreak(nextBreak);
+          recordUsage("insight_break", { perspective: session.perspective, domain: answeredSlug });
+        })
+        .catch(() => {});
+    }
     update((s) => {
       const remaining = s.streakRemaining - 1;
       return remaining <= 0
-        ? { ...s, currentSlug: pickNextDomain(s.domains, s.currentSlug), streakRemaining: randomStreakTarget() }
+        ? {
+            ...s,
+            currentSlug: pickNextDomain(s.domains, s.currentSlug, s.perspective),
+            streakRemaining: randomStreakTarget(),
+          }
         : { ...s, streakRemaining: remaining };
     });
+  }
+
+  /**
+   * Skipping is not an equality judgment. It records where the person
+   * hesitated, leaves both ratings untouched, and moves to a fresh pair.
+   */
+  function handleSkip() {
+    if (!trial || submitting || !session) return;
+    const clientMsToAnswer = cardShownAt.current
+      ? Math.max(0, Math.round(performance.now() - cardShownAt.current))
+      : null;
+    const perspective = session.perspective;
+    const domain = session.currentSlug;
+    void fetch("/api/trials/skip", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        trialId: trial.trialId,
+        kind: isFinancial(trial) ? "FINANCIAL" : "ITEMS",
+        clientMsToAnswer,
+      }),
+      keepalive: true,
+    })
+      .then((res) => recordUsage("question_skip", { perspective, domain, durationMs: clientMsToAnswer ?? undefined, success: res.ok }))
+      .catch(() => recordUsage("question_skip", { perspective, domain, durationMs: clientMsToAnswer ?? undefined, success: false }));
+    setTrial(null);
+    setRetryTick((n) => n + 1);
   }
 
   /** Tinder-style rewind of the most recent answer in the domain it was made in. */
@@ -289,6 +514,7 @@ export function UnifiedRunner() {
     if (!domain || !pid) return;
     setSubmitting(true);
     setError(null);
+    const startedAt = performance.now();
     try {
       const res = await fetch("/api/trials/undo", {
         method: "POST",
@@ -296,16 +522,19 @@ export function UnifiedRunner() {
         body: JSON.stringify({ participantId: pid, kind: domain.kind }),
       });
       if (!res.ok) {
+        recordUsage("answer_undo", { perspective: session.perspective, domain: undoableSlug, durationMs: Math.round(performance.now() - startedAt), success: false });
         setError("Couldn't undo that one.");
         setSubmitting(false);
         return;
       }
     } catch {
+      recordUsage("answer_undo", { perspective: session.perspective, domain: undoableSlug, durationMs: Math.round(performance.now() - startedAt), success: false });
       setError("Couldn't undo that one.");
       setSubmitting(false);
       return;
     }
     setSubmitting(false);
+    recordUsage("answer_undo", { perspective: session.perspective, domain: undoableSlug, durationMs: Math.round(performance.now() - startedAt), success: true });
     setUndoableSlug(null);
     // Go back to the domain the undone answer belonged to, and pull a fresh question there.
     update((s) => ({
@@ -318,59 +547,61 @@ export function UnifiedRunner() {
     setTrial(null);
   }
 
+  useEffect(() => {
+    if (phase !== "running" || !trial || submitting) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        void handleAnswer("A", "button");
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        void handleAnswer("B", "button");
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        handleSkip();
+      } else if (e.key.toLowerCase() === "z" && undoableSlug) {
+        e.preventDefault();
+        void handleUndo();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [phase, trial, submitting, undoableSlug, handleAnswer, handleSkip, handleUndo]);
+
   if (phase === "loading") {
     return <CenteredNote>Loading…</CenteredNote>;
   }
 
   if (phase === "welcome") {
     return (
-      <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-7 px-6 py-10">
+      <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 px-5 py-8">
         <div className="flex flex-col items-center gap-3 text-center">
-          <div className="text-5xl">💛</div>
-          <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Quick pick</h1>
+          <div className="text-4xl" aria-hidden="true">💛</div>
+          <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">A clearer picture of both of you</h1>
           <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Two options at a time. Pick the one you like more — that&apos;s the whole thing.
-            <br />
-            About 30 seconds gets you your first insight.
+            You&apos;ll answer both parts automatically: what you value in a partner, then what you value for your own life.
           </p>
         </div>
 
-        <ol className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4 text-sm dark:border-neutral-800 dark:bg-neutral-900">
-          <li className="flex items-start gap-3">
-            <span className="text-lg leading-none">👆</span>
-            <span className="text-neutral-700 dark:text-neutral-300">
-              Swipe up for the top card, down for the bottom
-            </span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-lg leading-none">⭐</span>
-            <span className="text-neutral-700 dark:text-neutral-300">Every 10 picks levels you up</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-lg leading-none">✨</span>
-            <span className="text-neutral-700 dark:text-neutral-300">
-              Each level unlocks a new insight about what you actually want
-            </span>
-          </li>
-        </ol>
-
         <div className="flex flex-col gap-3">
-          <p className="text-center text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-            What are we figuring out?
-          </p>
-          {PERSPECTIVE_ORDER.map((key, i) => (
-            <button
-              key={key}
-              onClick={() => beginSwiping(key)}
-              className={
-                i === 0
-                  ? "rounded-2xl bg-amber-500 px-4 py-4 text-base font-semibold text-neutral-950 shadow-sm transition active:scale-[0.98]"
-                  : "rounded-2xl border-2 border-neutral-300 px-4 py-4 text-base font-semibold text-neutral-800 transition active:scale-[0.98] dark:border-neutral-700 dark:text-neutral-200"
-              }
-            >
-              {PERSPECTIVE_META[key].cta}
-            </button>
-          ))}
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-2xl border border-neutral-200 bg-white p-4 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+            <div>
+              <span className="block text-xl" aria-hidden="true">💛</span>
+              <span className="mt-1 block text-xs font-bold">Partner preferences</span>
+            </div>
+            <span className="text-neutral-700 dark:text-neutral-300" aria-hidden="true">→</span>
+            <div>
+              <span className="block text-xl" aria-hidden="true">👤</span>
+              <span className="mt-1 block text-xs font-bold">Self values</span>
+            </div>
+          </div>
+          <button
+            onClick={() => beginSwiping("PARTNER")}
+            className="rounded-2xl bg-amber-500 px-5 py-4 text-sm font-bold text-neutral-950 shadow-sm transition active:scale-[0.98]"
+          >
+            Start our couples check-in
+          </button>
           {error && <p role="alert" className="text-center text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
           {/*
             What starting actually costs someone, said before they tap rather
@@ -385,6 +616,9 @@ export function UnifiedRunner() {
             <a href="/privacy" className="underline underline-offset-2">
               Privacy
             </a>
+          </p>
+          <p className="rounded-xl bg-neutral-100 px-3 py-2 text-center text-xs leading-relaxed text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
+            On the next screen: choose the card that feels closer. Tap it, use the buttons, or swipe toward it.
           </p>
           {accountName ? (
             <p className="text-center text-xs text-neutral-500 dark:text-neutral-400">Signed in as {accountName}</p>
@@ -433,29 +667,69 @@ export function UnifiedRunner() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {/* Two dense rows instead of five stacked strips: identity + progress on
-          top, the actual question prompt below. Everything else (level-up
-          nudges, notes) is transient and only appears when it has something
-          to say. */}
+      <ModeTransitionModal
+        isOpen={isModeModalOpen}
+        targetPerspective={targetPerspective}
+        currentPerspective={perspective}
+        isAutoSuggested={isModalAutoSuggested}
+        onConfirm={() => {
+          setIsModeModalOpen(false);
+          void switchPerspective(targetPerspective);
+        }}
+        onCancel={() => {
+          setIsModeModalOpen(false);
+          setTrial(null);
+        }}
+      />
+      {insightBreak && (
+        <InsightInterrupt
+          moment={{
+            key: insightBreak.key,
+            eyebrow: `${insightBreak.eyebrow} · ${insightBreak.answers} picks`,
+            title: insightBreak.headline,
+            body: insightBreak.detail,
+            details: insightBreak.details ?? [],
+            conversationPrompt: insightBreak.prompt,
+            experiment: insightBreak.experiment,
+          }}
+          onContinue={() => setInsightBreak(null)}
+        />
+      )}
       <header className="flex flex-col gap-2 border-b border-neutral-200 bg-neutral-50/95 px-4 pb-2.5 pt-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95">
-        <div className="flex items-center gap-2">
-          <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-800 dark:text-amber-300">
-            {PERSPECTIVE_SHORT[perspective]}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+            Couples check-in · part {perspective === "SELF" ? "2" : "1"} of 2
           </span>
-          {currentDomain && (
-            <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
-              {currentDomain.title}
+
+          <div className="flex items-center gap-1.5">
+            <span className="shrink-0 text-[11px] font-bold tabular-nums text-neutral-500 dark:text-neutral-400">
+              Lv {level}
             </span>
-          )}
-          <span className="shrink-0 text-[11px] font-bold tabular-nums text-neutral-500 dark:text-neutral-400">
-            Lv {level}
+            <a
+              href="/insights"
+              className="shrink-0 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-800 hover:bg-amber-500/20 dark:bg-amber-400/10 dark:text-amber-300"
+            >
+              ✨ Insights
+            </a>
+            <button
+              onClick={() => setPaused(true)}
+              className="shrink-0 rounded-full border border-neutral-300 px-2 py-0.5 text-[11px] font-semibold text-neutral-600 transition active:scale-95 dark:border-neutral-700 dark:text-neutral-300"
+            >
+              Pause
+            </button>
+          </div>
+        </div>
+
+        <div className={`flex items-center justify-between rounded-xl border-2 px-3.5 py-2 text-xs font-semibold shadow-xs ${PERSPECTIVE_META[perspective].badgeStyle} ${PERSPECTIVE_META[perspective].accentBorder}`}>
+          <div className="flex items-center gap-2 truncate">
+            <span className="text-base">{PERSPECTIVE_META[perspective].glyph}</span>
+            <span className="truncate font-bold tracking-tight">
+              Focus: {PERSPECTIVE_META[perspective].short} · {PERSPECTIVE_META[perspective].label}
+            </span>
+          </div>
+          <span className="shrink-0 text-[10px] font-extrabold uppercase tracking-wide opacity-90">
+            {focusAnswers || 1}/{PICKS_PER_FOCUS}
           </span>
-          <button
-            onClick={() => setPaused(true)}
-            className="shrink-0 rounded-full border border-neutral-300 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600 transition active:scale-95 dark:border-neutral-700 dark:text-neutral-300"
-          >
-            Pause
-          </button>
         </div>
 
         <div
@@ -473,10 +747,14 @@ export function UnifiedRunner() {
         </div>
 
         {currentDomain && (
-          <p className="text-center text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-            {INSTRUCTIONS[currentDomain.kind]}
+          <p className="text-center text-sm font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+            {getInstructions(currentDomain.kind, perspective)}
           </p>
         )}
+
+        <p className="text-center text-[10px] font-medium text-neutral-500 dark:text-neutral-400">
+          Choose the closer card · first impressions are enough
+        </p>
 
         {toNextLevel === SWIPES_PER_LEVEL && totalPoints > 0 && (
           <p className="text-center text-[11px] font-bold text-amber-700 dark:text-amber-300">
@@ -485,10 +763,7 @@ export function UnifiedRunner() {
         )}
         {cuteNote && (
           <p className="text-center text-[11px] font-medium text-amber-700 dark:text-amber-300">
-            {cuteNote.en} ·{" "}
-            <span className="italic" lang="fa" dir="rtl">
-              {cuteNote.fa}
-            </span>
+            {cuteNote.en}
           </p>
         )}
         {/* Announced, not just shown: a failure while swiping is otherwise
@@ -522,6 +797,7 @@ export function UnifiedRunner() {
             trial={trial}
             submitting={submitting}
             onAnswer={handleAnswer}
+            onSkip={handleSkip}
             onUndo={handleUndo}
             canUndo={!!undoableSlug}
           />
@@ -530,9 +806,15 @@ export function UnifiedRunner() {
             trial={trial}
             submitting={submitting}
             onAnswer={handleAnswer}
+            onSkip={handleSkip}
             onUndo={handleUndo}
             canUndo={!!undoableSlug}
           />
+        )}
+        {trial && (
+          <p className="mt-1 hidden text-center text-[10px] font-medium text-neutral-500 sm:block dark:text-neutral-400">
+            Keyboard: <kbd className="rounded border border-neutral-300 px-1 dark:border-neutral-700">←</kbd> Left &bull; <kbd className="rounded border border-neutral-300 px-1 dark:border-neutral-700">→</kbd> Right &bull; <kbd className="rounded border border-neutral-300 px-1 dark:border-neutral-700">↓</kbd> Skip &bull; <kbd className="rounded border border-neutral-300 px-1 dark:border-neutral-700">Z</kbd> Undo
+          </p>
         )}
       </div>
     </div>
