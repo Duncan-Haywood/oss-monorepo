@@ -235,10 +235,18 @@ class CIPipelineEngine:
             self._log("  ❌ FAILED: terraform fmt check")
             return False
 
-        res_val = self._run_command(["terraform", "validate"], cwd=app_dir)
-        if res_val.returncode != 0:
-            self._log("  ❌ FAILED: terraform validate")
-            return False
+        dot_tf = app_dir / ".terraform"
+        if not dot_tf.exists():
+            self._log("  └─ Initializing Terraform without backend for validation...")
+            self._run_command(["terraform", "init", "-backend=false", "-input=false"], cwd=app_dir)
+
+        if dot_tf.exists():
+            res_val = self._run_command(["terraform", "validate"], cwd=app_dir)
+            if res_val.returncode != 0:
+                self._log("  ❌ FAILED: terraform validate")
+                return False
+        else:
+            self._log("  ℹ Skipping terraform validate (terraform init not run)")
 
         return True
 

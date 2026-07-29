@@ -14,13 +14,37 @@ platform/
     │   ├── cluster-autoscaler.yaml # Hetzner worker pool autoscaler (1-3 nodes)
     │   ├── cert-manager.yaml     # Let's Encrypt SSL/TLS ClusterIssuers
     │   └── install-system.sh     # System dependencies installer
-    └── apps/
-        └── service-template/     # Kustomize blueprint for deploying web services
-            ├── deployment.yaml
-            ├── service.yaml
-            ├── ingress.yaml
-            └── kustomization.yaml
+    ├── argocd-apps/             # ArgoCD GitOps Application manifests
+    │   ├── root-app-of-apps.yaml # Root GitOps App-of-Apps controller
+    │   ├── marisstella-homepage.yaml
+    │   ├── quick-pick-survey.yaml
+    │   ├── ai-first-markets.yaml
+    │   ├── ai-engineering-academy.yaml
+    │   ├── local-site-studio.yaml
+    │   ├── real-estate-photo-app.yaml
+    │   ├── retail-pilot-intel.yaml
+    │   └── print-atelier.yaml
+    └── apps/                     # Declarative Kustomize manifests for business sites
+        ├── marisstella-homepage/
+        ├── quick-pick-survey/
+        ├── ai-first-markets/
+        ├── ai-engineering-academy/
+        ├── local-site-studio/
+        ├── real-estate-photo-app/
+        ├── retail-pilot-intel/
+        ├── print-atelier/
+        └── service-template/
 ```
+
+## ArgoCD GitOps Architecture & Security
+
+Applications are deployed continuously via **ArgoCD GitOps** using the App-of-Apps pattern (`platform/k8s/argocd-apps/root-app-of-apps.yaml`).
+
+### Security Controls & Exposure Management
+1. **Control Plane Isolation**: ArgoCD (`argocd.marisstella.dev`) is protected via Traefik `monitoring-admin-auth` middleware and TLS. Public unauthenticated access is strictly blocked.
+2. **Internal Service Protection**: Internal services such as `pairwise-db` run on private `ClusterIP` networks with no public Ingress endpoint exposed.
+3. **Secrets Injection**: Application credentials and connection strings are injected via Kubernetes `Secret` resources (`secretKeyRef`) rather than committed plain text.
+4. **Ingress Security**: All public venture Ingresses enforce `kube-system-security-headers` middleware (HSTS, frame-deny, content type nosniff, XSS protection) and Let's Encrypt production SSL certificates.
 
 ## Quick Start: Deploying a New Service
 
