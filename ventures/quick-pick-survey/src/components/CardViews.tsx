@@ -32,6 +32,7 @@ export type FinancialTrialResp = {
 };
 
 export type Trial = ItemsTrial | FinancialTrialResp;
+export type InteractionMethod = "swipe" | "card_tap" | "button";
 
 export function isFinancial(t: Trial): t is FinancialTrialResp {
   return "profileA" in t;
@@ -44,10 +45,41 @@ const SLOT_EMOJI: Record<SlotLine["icon"], string> = {
   rocket: "🚀",
 };
 
+export function getInstructions(kind: SurveyKind, perspective?: string): string {
+  if (perspective === "SELF") {
+    switch (kind) {
+      case "ITEMS":
+        return "For yourself: Which do you want more in your own future?";
+      case "FINANCIAL":
+        return "For yourself: Which future would you rather build for your own life?";
+      case "CONJOINED":
+        return "For yourself: Which way of life would you rather grow into?";
+    }
+  }
+  if (perspective === "PARTNER_GUESS") {
+    switch (kind) {
+      case "ITEMS":
+        return "What your partner wants: Which do you think your partner would choose?";
+      case "FINANCIAL":
+        return "What your partner wants: Which situation do you think your partner prefers?";
+      case "CONJOINED":
+        return "What your partner wants: Which overall person do you think your partner would choose?";
+    }
+  }
+  switch (kind) {
+    case "ITEMS":
+      return "In a partner: Which matters more in the partner you would choose?";
+    case "FINANCIAL":
+      return "In a partner: Which situation would you prefer in a romantic partner?";
+    case "CONJOINED":
+      return "In a partner: Which overall scenario would you prefer in a partner?";
+  }
+}
+
 export const INSTRUCTIONS: Record<SurveyKind, string> = {
-  ITEMS: "Which is more attractive?",
-  FINANCIAL: "Which situation is more attractive?",
-  CONJOINED: "Which overall is more attractive?",
+  ITEMS: "Which describes you better or matters more to you?",
+  FINANCIAL: "Which situation do you prefer?",
+  CONJOINED: "Which overall scenario fits you better?",
 };
 
 export function CenteredNote({ children }: { children: React.ReactNode }) {
@@ -66,7 +98,11 @@ const SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
  * the commit threshold, and flies off-screen with a spring on release; the
  * other card recedes and dims. Tapping a card also picks it.
  */
-function useSwipeStage(onUp: () => void, onDown: () => void, disabled: boolean) {
+function useSwipeStage(
+  onUp: (method: InteractionMethod) => void,
+  onDown: (method: InteractionMethod) => void,
+  disabled: boolean
+) {
   const [dragY, setDragY] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [flying, setFlying] = useState<"up" | "down" | null>(null);
@@ -84,14 +120,14 @@ function useSwipeStage(onUp: () => void, onDown: () => void, disabled: boolean) 
     setDragY(e.clientY - startY.current);
   }
 
-  function commit(direction: "up" | "down") {
+  function commit(direction: "up" | "down", method: InteractionMethod = "button") {
     if (disabled || flying) return;
     setFlying(direction);
     setDragging(false);
     setTimeout(
       () => {
-        if (direction === "up") onUp();
-        else onDown();
+        if (direction === "up") onUp(method);
+        else onDown(method);
         setFlying(null);
         setDragY(0);
       },
@@ -103,8 +139,8 @@ function useSwipeStage(onUp: () => void, onDown: () => void, disabled: boolean) 
     if (startY.current === null) return;
     startY.current = null;
     setDragging(false);
-    if (dragY < -THRESHOLD) commit("up");
-    else if (dragY > THRESHOLD) commit("down");
+    if (dragY < -THRESHOLD) commit("up", "swipe");
+    else if (dragY > THRESHOLD) commit("down", "swipe");
     else setDragY(0);
   }
 
@@ -159,7 +195,7 @@ function PickStamp({ progress, position }: { progress: number; position: "top" |
 }
 
 const cardBase =
-  "relative flex flex-1 items-center justify-center overflow-hidden rounded-3xl border border-neutral-200 bg-white px-6 py-4 text-center shadow-lg disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 select-none";
+  "group relative flex flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-amber-200/80 bg-[#fff8e8] bg-[url('/card-art/intuition-background.webp')] bg-cover bg-center px-6 py-4 text-center shadow-[0_18px_45px_-24px_rgba(120,53,15,.55)] disabled:opacity-50 dark:border-amber-900/60 dark:bg-neutral-950 dark:bg-blend-soft-light select-none";
 
 /**
  * The action row under the deck. Buttons are explicitly labelled ("Top" /
@@ -169,14 +205,14 @@ const cardBase =
 function ActionBar({
   onUp,
   onDown,
-  onEqual,
+  onSkip,
   onUndo,
   canUndo,
   disabled,
 }: {
   onUp: () => void;
   onDown: () => void;
-  onEqual: () => void;
+  onSkip: () => void;
   onUndo?: () => void;
   canUndo: boolean;
   disabled: boolean;
@@ -187,7 +223,7 @@ function ActionBar({
     <div className="flex shrink-0 flex-col gap-1.5 py-2">
       <div className="flex items-center gap-3">
         <button onClick={onUp} disabled={disabled} className={pickClass}>
-          <span aria-hidden="true">↑</span> Top
+          <span aria-hidden="true">↑</span> Choose top
         </button>
         {onUndo && (
           <button
@@ -201,18 +237,17 @@ function ActionBar({
           </button>
         )}
         <button onClick={onDown} disabled={disabled} className={pickClass}>
-          <span aria-hidden="true">↓</span> Bottom
+          <span aria-hidden="true">↓</span> Choose bottom
         </button>
       </div>
-      {/* Secondary by weight, not by being a link: an escape hatch for a
-          genuinely hard pair, not a default. Recorded as a real tie, which
-          the rating model uses — taking the out costs nothing. */}
+      {/* Skipping asks for another pair and deliberately does not update
+          either option's rating. It is not an "about equal" answer. */}
       <button
-        onClick={onEqual}
+        onClick={onSkip}
         disabled={disabled}
         className="w-full rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50 py-2.5 text-sm font-semibold text-neutral-600 transition active:scale-[0.98] disabled:opacity-40 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
       >
-        Too close to call
+        Neither / show another pair
       </button>
     </div>
   );
@@ -222,18 +257,20 @@ export function ItemsTrialView({
   trial,
   submitting,
   onAnswer,
+  onSkip,
   onUndo,
   canUndo,
 }: {
   trial: ItemsTrial;
   submitting: boolean;
-  onAnswer: (r: "A" | "B" | "EQUAL") => void;
+  onAnswer: (r: "A" | "B", method: InteractionMethod) => void;
+  onSkip: () => void;
   onUndo?: () => void;
   canUndo?: boolean;
 }) {
   const { stageHandlers, topStyle, bottomStyle, commit, progressUp, progressDown } = useSwipeStage(
-    () => onAnswer("A"),
-    () => onAnswer("B"),
+    (method) => onAnswer("A", method),
+    (method) => onAnswer("B", method),
     submitting
   );
   return (
@@ -241,29 +278,45 @@ export function ItemsTrialView({
       <div className="flex flex-1 touch-pan-x flex-col gap-3 overflow-hidden" {...stageHandlers}>
         <button
           style={topStyle}
-          onClick={() => commit("up")}
+          onClick={() => commit("up", "card_tap")}
           disabled={submitting}
           className={`${cardBase} flex-col gap-4 text-2xl font-bold leading-snug text-neutral-900 dark:text-neutral-50`}
         >
           <PickStamp progress={progressUp} position="top" />
-          <CategoryIcon category={trial.itemA.category} slug={trial.itemA.slug} size="lg" />
-          {trial.itemA.label}
+          <span className="absolute left-4 top-3 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-neutral-500 backdrop-blur dark:bg-black/30 dark:text-neutral-300">
+            Top choice
+          </span>
+          <span className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(251,191,36,.22),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(249,115,22,.13),transparent_36%)]" />
+          <span className="relative flex flex-col items-center gap-4">
+            <span className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/10">
+              <CategoryIcon category={trial.itemA.category} slug={trial.itemA.slug} label={trial.itemA.label} size="lg" />
+            </span>
+            <span>{trial.itemA.label}</span>
+          </span>
         </button>
         <button
           style={bottomStyle}
-          onClick={() => commit("down")}
+          onClick={() => commit("down", "card_tap")}
           disabled={submitting}
           className={`${cardBase} flex-col gap-4 text-2xl font-bold leading-snug text-neutral-900 dark:text-neutral-50`}
         >
           <PickStamp progress={progressDown} position="bottom" />
-          <CategoryIcon category={trial.itemB.category} slug={trial.itemB.slug} size="lg" />
-          {trial.itemB.label}
+          <span className="absolute bottom-3 left-4 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-neutral-500 backdrop-blur dark:bg-black/30 dark:text-neutral-300">
+            Bottom choice
+          </span>
+          <span className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,rgba(251,191,36,.22),transparent_35%),radial-gradient(circle_at_15%_80%,rgba(249,115,22,.13),transparent_36%)]" />
+          <span className="relative flex flex-col items-center gap-4">
+            <span className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/10">
+              <CategoryIcon category={trial.itemB.category} slug={trial.itemB.slug} label={trial.itemB.label} size="lg" />
+            </span>
+            <span>{trial.itemB.label}</span>
+          </span>
         </button>
       </div>
       <ActionBar
-        onUp={() => commit("up")}
-        onDown={() => commit("down")}
-        onEqual={() => onAnswer("EQUAL")}
+        onUp={() => commit("up", "button")}
+        onDown={() => commit("down", "button")}
+        onSkip={onSkip}
         onUndo={onUndo}
         canUndo={!!canUndo}
         disabled={submitting}
@@ -297,18 +350,20 @@ export function FinancialTrialView({
   trial,
   submitting,
   onAnswer,
+  onSkip,
   onUndo,
   canUndo,
 }: {
   trial: FinancialTrialResp;
   submitting: boolean;
-  onAnswer: (r: "A" | "B" | "EQUAL") => void;
+  onAnswer: (r: "A" | "B", method: InteractionMethod) => void;
+  onSkip: () => void;
   onUndo?: () => void;
   canUndo?: boolean;
 }) {
   const { stageHandlers, topStyle, bottomStyle, commit, progressUp, progressDown } = useSwipeStage(
-    () => onAnswer("A"),
-    () => onAnswer("B"),
+    (method) => onAnswer("A", method),
+    (method) => onAnswer("B", method),
     submitting
   );
   return (
@@ -316,7 +371,7 @@ export function FinancialTrialView({
       <div className="flex flex-1 touch-pan-x flex-col gap-3 overflow-hidden" {...stageHandlers}>
         <button
           style={topStyle}
-          onClick={() => commit("up")}
+          onClick={() => commit("up", "card_tap")}
           disabled={submitting}
           className={`${cardBase} flex-col items-stretch justify-center gap-2`}
         >
@@ -325,7 +380,7 @@ export function FinancialTrialView({
         </button>
         <button
           style={bottomStyle}
-          onClick={() => commit("down")}
+          onClick={() => commit("down", "card_tap")}
           disabled={submitting}
           className={`${cardBase} flex-col items-stretch justify-center gap-2`}
         >
@@ -334,9 +389,9 @@ export function FinancialTrialView({
         </button>
       </div>
       <ActionBar
-        onUp={() => commit("up")}
-        onDown={() => commit("down")}
-        onEqual={() => onAnswer("EQUAL")}
+        onUp={() => commit("up", "button")}
+        onDown={() => commit("down", "button")}
+        onSkip={onSkip}
         onUndo={onUndo}
         canUndo={!!canUndo}
         disabled={submitting}
