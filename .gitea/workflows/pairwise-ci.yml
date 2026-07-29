@@ -26,8 +26,8 @@ defaults:
     working-directory: ventures/quick-pick-survey
 
 env:
-  POSTGRES_PRISMA_URL: postgresql://postgres:postgres@127.0.0.1:5432/integration?schema=public
-  POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@127.0.0.1:5432/integration?schema=public
+  POSTGRES_PRISMA_URL: postgresql://postgres:postgres@postgres:5432/integration?schema=public
+  POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@postgres:5432/integration?schema=public
   ADMIN_KEY: ci-placeholder
   ADMIN_SESSION_SECRET: ci-placeholder-session-secret
   RATE_LIMIT_SECRET: ci-placeholder-rate-limit-secret
@@ -111,11 +111,11 @@ jobs:
 
       - name: Verify migration history matches Prisma schema
         run: |
-          PGPASSWORD=postgres createdb -h 127.0.0.1 -U postgres shadow
+          PGPASSWORD=postgres createdb -h postgres -U postgres shadow
           npx prisma migrate diff \
             --from-migrations prisma/migrations \
             --to-schema-datamodel prisma/schema.prisma \
-            --shadow-database-url postgresql://postgres:postgres@127.0.0.1:5432/shadow \
+            --shadow-database-url postgresql://postgres:postgres@postgres:5432/shadow \
             --exit-code
 
   container:
