@@ -111,10 +111,14 @@ jobs:
 
       - name: Verify migration history matches Prisma schema
         run: |
+          printf 'CREATE DATABASE shadow;' |
+            npx prisma db execute \
+              --url postgresql://postgres:postgres@postgres:5432/postgres \
+              --stdin
           npx prisma migrate diff \
             --from-migrations prisma/migrations \
             --to-schema-datamodel prisma/schema.prisma \
-            --shadow-database-url 'postgresql://postgres:postgres@postgres:5432/integration?schema=shadow' \
+            --shadow-database-url postgresql://postgres:postgres@postgres:5432/shadow \
             --exit-code
 
   container:
