@@ -139,7 +139,7 @@ fi
 
 # Patch the live Helm-managed Deployment before changing its image. This also
 # corrects older releases that were created with Kubernetes' 25% defaults.
-kubectl -n "$namespace" patch deployment "$deployment" --type=merge -p "$(
+kubectl -n "$namespace" patch deployment "$deployment" --type=strategic -p "$(
   jq -cn \
     --arg secret "$registry_secret" \
     --arg container "$container" \
