@@ -199,7 +199,7 @@ function ChoiceCard({ label, detail, tone, symbol, selected = false }: { label: 
       <div className="relative">
         {selected ? <span className="mb-2 inline-block rounded-full bg-[#f4b942] px-2 py-1 text-[10px] font-black uppercase tracking-wider text-[#332200]">Your pick</span> : null}
         <h3 className="text-xl font-black tracking-[-0.03em] sm:text-2xl">{label}</h3>
-        <p className="mt-1 text-xs font-medium leading-5 text-white sm:text-sm">{detail}</p>
+        <p className="mt-1 text-xs leading-5 text-amber-50 sm:text-sm">{detail}</p>
       </div>
     </div>
   );
