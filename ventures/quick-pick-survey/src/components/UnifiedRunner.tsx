@@ -428,13 +428,13 @@ export function UnifiedRunner() {
   }
 
   async function handleAnswer(result: "A" | "B", interactionMethod: InteractionMethod) {
-    if (!session || !trial || submitting) return;
+    if (!session || !trial || submittingTrialIdRef.current === trial.trialId) return;
+    submittingTrialIdRef.current = trial.trialId;
     const currentTrial = trial;
     const answeredSlug = session.currentSlug;
     const domain = session.domains.find((d) => d.slug === answeredSlug);
     if (!domain) return;
 
-    setSubmitting(true);
     setError(null);
     const timeSpent = cardShownAt.current
       ? Math.max(0, Math.round(performance.now() - cardShownAt.current))
