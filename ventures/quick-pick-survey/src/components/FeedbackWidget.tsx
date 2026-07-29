@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStoredSession } from "@/lib/sessionStore";
-import { recordUsage } from "@/lib/usageClient";
+import { createUsageId, getUsageSessionKey, recordUsage } from "@/lib/usageClient";
 
 type SaveState = "idle" | "saving" | "sent" | "error";
 
@@ -22,11 +22,11 @@ function useFeedbackContext() {
   return { path: pathname, perspective: bundle?.perspective };
 }
 
-async function postFeedback(payload: Record<string, unknown>): Promise<void> {
+async function postFeedback(payload: Record<string, unknown>, clientFeedbackId: string): Promise<void> {
   const response = await fetch("/api/feedback", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ...payload, clientFeedbackId, sessionKey: getUsageSessionKey() }),
   });
   if (!response.ok) throw new Error("feedback rejected");
 }
@@ -37,6 +37,17 @@ export function InsightFeedback({ subject }: { subject: string }) {
   const [reason, setReason] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [state, setState] = useState<SaveState>("idle");
+  const [clientFeedbackId] = useState(createUsageId);
+  const completed = useRef(false);
+
+  useEffect(() => {
+    recordUsage("feedback_prompt", { perspective: context.perspective, domain: subject });
+    return () => {
+      if (!completed.current) {
+        recordUsage("feedback_dismiss", { perspective: context.perspective, domain: subject });
+      }
+    };
+  }, [context.perspective, subject]);
 
   async function save(useful: boolean) {
     if (state === "saving") return;
@@ -48,11 +59,12 @@ export function InsightFeedback({ subject }: { subject: string }) {
         reason: useful ? undefined : reason,
         note: note.trim() || undefined,
         ...context,
-      });
-      recordUsage("feedback_submit", { perspective: context.perspective, success: true });
+      }, clientFeedbackId);
+      completed.current = true;
+      recordUsage("feedback_submit", { perspective: context.perspective, domain: subject, success: true });
       setState("sent");
     } catch {
-      recordUsage("feedback_submit", { perspective: context.perspective, success: false });
+      recordUsage("feedback_submit", { perspective: context.perspective, domain: subject, success: false });
       setState("error");
     }
   }
@@ -66,8 +78,8 @@ export function InsightFeedback({ subject }: { subject: string }) {
       {vote === null ? (
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-neutral-500 dark:text-neutral-400">Did this tell you something useful?</span>
-          <button onClick={() => { setVote("up"); recordUsage("feedback_open", { perspective: context.perspective }); void save(true); }} aria-label="This insight was useful" className="rounded-full px-2 py-0.5 text-sm transition active:scale-90 hover:bg-neutral-100 dark:hover:bg-neutral-800">👍</button>
-          <button onClick={() => { setVote("down"); recordUsage("feedback_open", { perspective: context.perspective }); }} aria-label="This insight was not useful" className="rounded-full px-2 py-0.5 text-sm transition active:scale-90 hover:bg-neutral-100 dark:hover:bg-neutral-800">👎</button>
+          <button onClick={() => { setVote("up"); recordUsage("feedback_open", { perspective: context.perspective, domain: subject }); void save(true); }} aria-label="This insight was useful" className="rounded-full px-2 py-0.5 text-sm transition active:scale-90 hover:bg-neutral-100 dark:hover:bg-neutral-800">👍</button>
+          <button onClick={() => { setVote("down"); recordUsage("feedback_open", { perspective: context.perspective, domain: subject }); }} aria-label="This insight was not useful" className="rounded-full px-2 py-0.5 text-sm transition active:scale-90 hover:bg-neutral-100 dark:hover:bg-neutral-800">👎</button>
         </div>
       ) : vote === "down" ? (
         <div className="flex flex-col gap-2">
@@ -93,13 +105,25 @@ export function InsightFeedback({ subject }: { subject: string }) {
 export function SessionPulse({ totalAnswers, onDone }: { totalAnswers: number; onDone: () => void }) {
   const context = useFeedbackContext();
   const [state, setState] = useState<SaveState>("idle");
+  const [clientFeedbackId] = useState(createUsageId);
+  const completed = useRef(false);
+
+  useEffect(() => {
+    recordUsage("feedback_prompt", { perspective: context.perspective, domain: "session" });
+    return () => {
+      if (!completed.current) {
+        recordUsage("feedback_dismiss", { perspective: context.perspective, domain: "session" });
+      }
+    };
+  }, [context.perspective]);
 
   async function rate(enjoyment: number) {
     if (state === "saving") return;
     setState("saving");
     try {
-      await postFeedback({ subject: "session", enjoyment, answerCount: totalAnswers, ...context });
+      await postFeedback({ subject: "session", enjoyment, answerCount: totalAnswers, ...context }, clientFeedbackId);
       recordUsage("nps_submitted", { perspective: context.perspective, success: true });
+      completed.current = true;
       setState("sent");
       onDone();
     } catch {
@@ -116,8 +140,7 @@ export function SessionPulse({ totalAnswers, onDone }: { totalAnswers: number; o
         {[1, 2, 3, 4, 5].map((n) => <button key={n} onClick={() => void rate(n)} disabled={state === "saving"} aria-label={`Rate ${n} out of 5`} className="h-9 w-9 rounded-full border-2 border-amber-400 text-sm font-bold text-amber-700 transition active:scale-90 disabled:opacity-50 dark:text-amber-300">{n}</button>)}
       </div>
       {state === "error" && <p role="alert" className="mt-2 text-[11px] text-red-700 dark:text-red-300">Couldn&apos;t save that. Please tap a rating again.</p>}
-      <button onClick={onDone} className="mt-2 text-[11px] text-amber-800 underline dark:text-amber-300/60">Skip</button>
+      <button onClick={() => { completed.current = true; recordUsage("feedback_dismiss", { perspective: context.perspective, domain: "session" }); onDone(); }} className="mt-2 text-[11px] text-amber-800 underline dark:text-amber-300/60">Skip</button>
     </div>
   );
 }
-

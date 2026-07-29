@@ -27,7 +27,7 @@ type Overview = {
   usage: {
     uniqueSessions: number;
     funnel: { event: string; sessions: number }[];
-    operations: { event: string; count: number; failures: number; medianMs: number | null; p95Ms: number | null }[];
+    operations: { event: string; count: number; failures: number; failureStatuses: number[]; medianMs: number | null; p95Ms: number | null }[];
     transitions: { from: string; to: string; n: number; medianMs: number | null; p95Ms: number | null }[];
   };
   hardest: Timing[];
@@ -318,7 +318,7 @@ export function AdminView() {
                   <tr key={row.event} className="border-t border-neutral-200 dark:border-neutral-800">
                     <Td>{row.event.replaceAll("_", " ")}</Td>
                     <Td>{row.count}</Td>
-                    <Td>{row.failures}</Td>
+                    <Td>{row.failures}{row.failureStatuses.length ? ` (${row.failureStatuses.join(", ")})` : ""}</Td>
                     <Td>{row.medianMs === null ? "—" : `${row.medianMs}ms`}</Td>
                     <Td>{row.p95Ms === null ? "—" : `${row.p95Ms}ms`}</Td>
                   </tr>

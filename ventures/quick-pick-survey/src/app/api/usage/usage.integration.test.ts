@@ -25,6 +25,7 @@ describe("usage telemetry", () => {
         perspective: "SELF",
         domain: "shared-life",
         durationMs: 321,
+        statusCode: 503,
         success: true,
         ignored: "never stored",
       }],
@@ -41,6 +42,7 @@ describe("usage telemetry", () => {
       perspective: "SELF",
       domain: "shared-life",
       durationMs: 321,
+      statusCode: 503,
       success: true,
     });
     expect(stored.sessionKeyHash).not.toContain(sessionKey);

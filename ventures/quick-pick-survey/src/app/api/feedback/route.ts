@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, hashToken } from "@/lib/auth";
 import { getClientIp, isWriteRateLimited, recordWrite } from "@/lib/rateLimit";
 import { parsePerspective } from "@/lib/perspective";
 
@@ -20,7 +20,7 @@ import { parsePerspective } from "@/lib/perspective";
  * working through a survey may do that many times in a sitting.
  */
 const MAX_FEEDBACK_PER_IP = 60;
-const REASONS = new Set(["too_obvious", "not_true", "too_vague", "not_actionable", "need_more_context"]);
+const REASONS = new Set(["too_obvious", "not_true", "too_vague", "not_actionable", "need_more_context", "unclear_cards"]);
 
 function clampRating(v: unknown): number | null {
   if (typeof v !== "number" || !Number.isFinite(v)) return null;
@@ -41,6 +41,12 @@ export async function POST(req: NextRequest) {
     : null;
   const perspective = parsePerspective(body?.perspective);
   const path = typeof body?.path === "string" && body.path.startsWith("/") ? body.path.slice(0, 300) : null;
+  const clientFeedbackId = typeof body?.clientFeedbackId === "string" && /^[A-Za-z0-9_-]{16,100}$/.test(body.clientFeedbackId)
+    ? body.clientFeedbackId
+    : null;
+  const sessionKeyHash = typeof body?.sessionKey === "string" && /^[A-Za-z0-9_-]{16,100}$/.test(body.sessionKey)
+    ? hashToken(body.sessionKey)
+    : null;
   if (usefulness === null && enjoyment === null && !note) {
     return NextResponse.json({ error: "nothing to record" }, { status: 400 });
   }
@@ -58,10 +64,11 @@ export async function POST(req: NextRequest) {
       await recordWrite(ip, "feedback");
     }
 
-    await prisma.insightFeedback.create({
-      data: { userId: user?.id ?? null, subject, usefulness, enjoyment, reason, note, answerCount, perspective, path },
+    const inserted = await prisma.insightFeedback.createMany({
+      data: [{ userId: user?.id ?? null, subject, usefulness, enjoyment, reason, note, answerCount, perspective, path, clientFeedbackId, sessionKeyHash }],
+      skipDuplicates: true,
     });
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, accepted: inserted.count });
   } catch (err) {
     console.error("feedback failed", err);
     return NextResponse.json({ error: "Could not save that" }, { status: 500 });

@@ -492,6 +492,7 @@ export function UnifiedRunner() {
     // Save answer asynchronously in background without blocking interaction on the next card
     void (async () => {
       let ok = false;
+      let statusCode: number | undefined;
       try {
         const res = await fetch(endpoint, {
           method: "POST",
@@ -503,6 +504,7 @@ export function UnifiedRunner() {
             clientMsToAnswer: timeSpent,
           }),
         });
+        statusCode = res.status;
         // 409 means the server already has this answer — a retry after a
         // timeout, not a failure. Treating it as one wedged the session
         // permanently, since every retry returned 409 too.
@@ -514,6 +516,7 @@ export function UnifiedRunner() {
         perspective: session.perspective,
         domain: answeredSlug,
         durationMs: Math.round(performance.now() - startedAt),
+        statusCode,
         success: ok,
       });
       if (!ok) {

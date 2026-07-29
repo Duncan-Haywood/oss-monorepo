@@ -117,11 +117,16 @@ model InsightFeedback {
   answerCount Int?
   perspective Perspective?
   path       String?
+  /// Random client id makes retries safe; no browser identity is encoded.
+  clientFeedbackId String? @unique
+  /// Same one-way browser-session digest as UsageEvent, for funnel correlation.
+  sessionKeyHash String?
   createdAt  DateTime @default(now())
 
   @@index([subject, createdAt])
   @@index([reason, createdAt])
   @@index([userId])
+  @@index([sessionKeyHash, createdAt])
 }
 
 /// An LLM-written narrative read of someone's own ranking data. Cached
@@ -183,6 +188,7 @@ model UsageEvent {
   perspective    Perspective?
   domain         String?
   durationMs     Int?
+  statusCode     Int?
   success        Boolean?
   occurredAt     DateTime     @default(now())
   createdAt      DateTime     @default(now())

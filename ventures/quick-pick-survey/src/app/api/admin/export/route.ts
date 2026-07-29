@@ -138,7 +138,9 @@ export async function GET(req: NextRequest) {
       const fb = await prisma.insightFeedback.findMany({ orderBy: { createdAt: "desc" }, take: 5000 });
       rows = fb.map((f) => ({
         id: f.id, userId: f.userId, subject: f.subject,
-        usefulness: f.usefulness, enjoyment: f.enjoyment, note: f.note,
+        usefulness: f.usefulness, enjoyment: f.enjoyment, reason: f.reason, note: f.note,
+        answerCount: f.answerCount, perspective: f.perspective, path: f.path,
+        sessionKeyHash: f.sessionKeyHash,
         createdAt: f.createdAt.toISOString(),
       }));
     } else if (what === "reports") {

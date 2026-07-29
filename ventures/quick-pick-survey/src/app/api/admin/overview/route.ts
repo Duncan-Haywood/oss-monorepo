@@ -56,7 +56,7 @@ export async function GET() {
       prisma.couple.count({ where: { joinerId: { not: null } } }),
       prisma.usageEvent.findMany({
         where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
-        select: { event: true, sessionKeyHash: true, sequence: true, occurredAt: true, durationMs: true, success: true },
+        select: { event: true, sessionKeyHash: true, sequence: true, occurredAt: true, durationMs: true, statusCode: true, success: true },
         orderBy: { createdAt: "desc" },
         take: 20_000,
       }),
@@ -212,6 +212,7 @@ export async function GET() {
           event,
           count: rows.length,
           failures: rows.filter((row) => row.success === false).length,
+          failureStatuses: [...new Set(rows.filter((row) => row.success === false).map((row) => row.statusCode).filter((value): value is number => value !== null))].sort(),
           medianMs: median(durations),
           p95Ms: percentile(durations, 0.95),
         };

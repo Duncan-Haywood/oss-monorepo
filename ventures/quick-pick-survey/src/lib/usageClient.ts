@@ -7,6 +7,7 @@ type UsageContext = {
   perspective?: "SELF" | "PARTNER" | "PARTNER_GUESS";
   domain?: string;
   durationMs?: number;
+  statusCode?: number;
   success?: boolean;
 };
 type QueuedEvent = UsageContext & {
@@ -33,7 +34,7 @@ function storageSet(key: string, value: string) {
   try { sessionStorage.setItem(key, value); } catch { /* telemetry must never interrupt the app */ }
 }
 
-function randomKey(): string {
+export function createUsageId(): string {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID().replaceAll("-", "");
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
@@ -43,9 +44,13 @@ function randomKey(): string {
 function sessionKey(): string {
   const existing = storageGet(SESSION_KEY);
   if (existing && /^[A-Za-z0-9_-]{16,100}$/.test(existing)) return existing;
-  const created = randomKey();
+  const created = createUsageId();
   storageSet(SESSION_KEY, created);
   return created;
+}
+
+export function getUsageSessionKey(): string | undefined {
+  return typeof window === "undefined" ? undefined : sessionKey();
 }
 
 function pending(): QueuedEvent[] {
@@ -74,7 +79,7 @@ export function recordUsage(event: UsageEventName, context: UsageContext = {}) {
   if (typeof window === "undefined") return;
   const events = pending();
   events.push({
-    clientEventId: randomKey(),
+    clientEventId: createUsageId(),
     sequence: nextSequence(),
     occurredAt: Date.now(),
     event,
@@ -96,10 +101,10 @@ export async function flushUsage(useBeacon = false) {
   const body = JSON.stringify({ sessionKey: sessionKey(), events });
 
   if (useBeacon && navigator.sendBeacon) {
-    if (navigator.sendBeacon("/api/usage", new Blob([body], { type: "application/json" }))) {
-      queue = pending().filter((event) => !sentIds.has(event.clientEventId));
-      persist();
-    }
+    // `true` only means the browser queued the request, not that the server
+    // accepted it. Keep these idempotent events until a normal fetch can
+    // acknowledge them; otherwise a rejected unload beacon is silent loss.
+    navigator.sendBeacon("/api/usage", new Blob([body], { type: "application/json" }));
     return;
   }
 

@@ -11,6 +11,8 @@ export const USAGE_EVENTS = [
   "insight_break",
   "insight_view",
   "feedback_open",
+  "feedback_prompt",
+  "feedback_dismiss",
   "feedback_submit",
   "couple_invite_created",
   "couple_joined",
@@ -33,6 +35,7 @@ export type ParsedUsageEvent = {
   perspective: PerspectiveValue | null;
   domain: string | null;
   durationMs: number | null;
+  statusCode: number | null;
   success: boolean | null;
 };
 
@@ -60,6 +63,9 @@ export function parseUsageBatch(value: unknown): { sessionKey: string; events: P
     const durationMs = Number.isInteger(item.durationMs) && (item.durationMs as number) >= 0 && (item.durationMs as number) <= 300_000
       ? item.durationMs as number
       : null;
+    const statusCode = Number.isInteger(item.statusCode) && (item.statusCode as number) >= 100 && (item.statusCode as number) <= 599
+      ? item.statusCode as number
+      : null;
     events.push({
       clientEventId: item.clientEventId,
       sequence: item.sequence as number,
@@ -69,6 +75,7 @@ export function parseUsageBatch(value: unknown): { sessionKey: string; events: P
       perspective: parsePerspective(item.perspective),
       domain: boundedSlug(item.domain),
       durationMs,
+      statusCode,
       success: typeof item.success === "boolean" ? item.success : null,
     });
   }

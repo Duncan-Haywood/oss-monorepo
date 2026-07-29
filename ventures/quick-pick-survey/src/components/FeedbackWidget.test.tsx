@@ -4,12 +4,19 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { InsightFeedback, SessionPulse } from "@/components/FeedbackWidget";
 import { SESSION_KEY } from "@/lib/sessionStore";
+import { recordUsage } from "@/lib/usageClient";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/insights" }));
+vi.mock("@/lib/usageClient", () => ({
+  createUsageId: () => "feedbackkey123456",
+  getUsageSessionKey: () => "sessionkey1234567",
+  recordUsage: vi.fn(),
+}));
 
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.mocked(recordUsage).mockReset();
   window.localStorage.clear();
 });
 
@@ -56,10 +63,31 @@ describe("InsightFeedback", () => {
       perspective: "SELF",
       path: "/insights",
     });
+    expect(recordUsage).toHaveBeenCalledWith("feedback_submit", expect.objectContaining({
+      domain: "top-pick",
+      success: true,
+    }));
+  });
+
+  it("records exposure and dismissal with the insight subject", () => {
+    const { unmount } = render(<InsightFeedback subject="top-pick" />);
+    expect(recordUsage).toHaveBeenCalledWith("feedback_prompt", expect.objectContaining({ domain: "top-pick" }));
+
+    unmount();
+    expect(recordUsage).toHaveBeenCalledWith("feedback_dismiss", expect.objectContaining({ domain: "top-pick" }));
   });
 });
 
 describe("SessionPulse", () => {
+  it("records prompt exposure and an explicit skip", () => {
+    const onDone = vi.fn();
+    render(<SessionPulse totalAnswers={50} onDone={onDone} />);
+
+    expect(recordUsage).toHaveBeenCalledWith("feedback_prompt", expect.objectContaining({ domain: "session" }));
+    fireEvent.click(screen.getByRole("button", { name: "Skip" }));
+    expect(recordUsage).toHaveBeenCalledWith("feedback_dismiss", expect.objectContaining({ domain: "session" }));
+  });
+
   it("keeps the prompt open when saving fails and closes only after a saved retry", async () => {
     const onDone = vi.fn();
     let attempt = 0;

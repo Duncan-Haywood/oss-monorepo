@@ -83,6 +83,33 @@ describe("feedback", () => {
     });
   });
 
+  it("keeps the cards-unclear reason offered by the feedback UI", async () => {
+    await feedback(feedbackRequest({
+      subject: "top-pick",
+      usefulness: 1,
+      reason: "unclear_cards",
+    }));
+    expect((await prisma.insightFeedback.findFirstOrThrow()).reason).toBe("unclear_cards");
+  });
+
+  it("deduplicates a feedback retry and correlates it to the usage session digest", async () => {
+    const body = {
+      subject: "session",
+      enjoyment: 4,
+      clientFeedbackId: "feedbackEventKey12345",
+      sessionKey: "browserSessionKey123456",
+    };
+    expect((await feedback(feedbackRequest(body))).status).toBe(200);
+    const retry = await feedback(feedbackRequest(body));
+    expect(retry.status).toBe(200);
+    expect(await retry.json()).toMatchObject({ ok: true, accepted: 0 });
+    expect(await prisma.insightFeedback.count()).toBe(1);
+    expect(await prisma.insightFeedback.findFirstOrThrow()).toMatchObject({
+      clientFeedbackId: "feedbackEventKey12345",
+      sessionKeyHash: expect.not.stringContaining(body.sessionKey),
+    });
+  });
+
   it("attributes it to the account when there is one", async () => {
     const user = await createAccount();
     await signInAs(user.id);
@@ -102,6 +129,11 @@ describe("feedback", () => {
     const row = await prisma.insightFeedback.findFirstOrThrow();
     expect(row.usefulness).toBe(5);
     expect(row.enjoyment).toBe(1);
+  });
+
+  it("stores every structured reason offered by the feedback UI", async () => {
+    await feedback(feedbackRequest({ subject: "top-pick", usefulness: 1, reason: "unclear_cards" }));
+    expect(await prisma.insightFeedback.findFirstOrThrow()).toMatchObject({ reason: "unclear_cards" });
   });
 
   it("bounds an anonymous caller", async () => {

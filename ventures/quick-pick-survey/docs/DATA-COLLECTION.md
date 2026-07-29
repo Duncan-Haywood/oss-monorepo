@@ -18,10 +18,10 @@ reason for the rule is at the bottom — it has already been broken once.
 | Which option was picked, when it was shown, browser-observed decision time, and whether it was chosen by swipe, card tap, button, or tie | Every comparison | `Trial`, `FinancialTrial` | The person and admin analysis. A linked partner sees **aggregate comparisons only** |
 | Fitted ratings and model coefficients | Derived from the above | `ParticipantItemRating`, `SurveyFit` | Same as answers |
 | Bugs, confusing experiences, questionable content, ideas, impact, current mode, and optionally an email | Feedback widget | `UserReport` | The admin portal |
-| Was an insight useful, why it missed, was swiping enjoyable, optional free text, current mode, page, and answer count | Feedback widget, after an insight and periodically | `InsightFeedback` | The admin portal |
+| Was an insight useful, why it missed, was swiping enjoyable, optional free text, current mode, page, answer count, a retry-safe random feedback id, and the same one-way browser-session digest used by usage events | Feedback widget, after an insight and periodically | `InsightFeedback` | The admin portal |
 | Browser user-agent and the page it was sent from | Attached to a bug report | `UserReport.userAgent`, `UserReport.path` | The admin portal |
 | Keyed IP digest | Every write to an anonymous route, and every sign-in attempt | `AnonRequestLog`, `LoginAttempt`, `AdminLoginAttempt` for at most 30 days (anonymous-write events are retained for at most 24 hours) | Nobody; used only for rate limiting. The raw IP is not stored |
-| First-party usage event, page, self/partner mode, topic, operation duration, success/failure, event order, and client-observed time | Automatically while navigating and using core survey actions | `UsageEvent`, linked to a random browser-session digest and retained for at most 30 days | Admin analysis only |
+| First-party usage event, page, self/partner mode, topic, operation duration, success/failure, HTTP status when available, event order, and client-observed time | Automatically while navigating and using core survey actions | `UsageEvent`, linked to a random browser-session digest and retained for at most 30 days | Admin analysis only |
 | Invite code linking two accounts | Couple screen | `Couple` | Both partners |
 
 ## Not collected
@@ -36,6 +36,9 @@ a fixed event vocabulary and bounded operational fields—never arbitrary page
 content, card answers, free text, email, or a raw browser-session identifier.
 Pending events are kept only in browser session storage until acknowledged;
 client-generated event ids make network retries idempotent.
+Structured feedback uses the same pattern, so a retry cannot create a second
+rating and can be joined to the session funnel without storing the raw random
+session key.
 There is one cookie: the
 sign-in session.
 
