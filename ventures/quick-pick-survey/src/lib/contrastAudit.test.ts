@@ -46,7 +46,11 @@ const DARK_SURFACE: Rgb = { r: 10, g: 10, b: 10 };
  * not a rendered tree, so text on a container's colour would otherwise be
  * measured against the page surface and get the wrong answer.
  */
-const EXEMPT: { match: string; because: string }[] = [];
+const EXEMPT: { match: string; because: string }[] = [
+  { match: "bg-[#24211d]", because: "Dark container providing high contrast for white text" },
+  { match: "bg-[#2b2417]", because: "Dark container providing high contrast for white text" },
+  { match: "bg-gradient-to-br", because: "Gradient container providing high contrast for white text" },
+];
 
 function sourceFiles(dir: string): string[] {
   const out: string[] = [];
