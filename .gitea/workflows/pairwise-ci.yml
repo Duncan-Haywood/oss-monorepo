@@ -5,12 +5,14 @@ on:
     paths:
       - "ventures/quick-pick-survey/**"
       - ".gitea/workflows/pairwise-ci.yml"
+      - "platform/ci/deploy-pairwise.sh"
   push:
     # Every Pairwise change merged to main must pass the release gates and deploy.
     branches: [main]
     paths:
       - "ventures/quick-pick-survey/**"
       - ".gitea/workflows/pairwise-ci.yml"
+      - "platform/ci/deploy-pairwise.sh"
   workflow_dispatch:
 
 permissions:
@@ -18,7 +20,7 @@ permissions:
   packages: write
 
 concurrency:
-  group: pairwise-ci-${{ gitea.workflow }}-${{ gitea.ref }}
+  group: pairwise-ci-${{ github.workflow }}-${{ github.ref }}
   # A newer commit must not cancel a production migration or rolling update.
   cancel-in-progress: false
 
@@ -134,7 +136,7 @@ jobs:
 
       - name: Build the exact deployable image
         env:
-          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
         run: >-
           docker build
           --file Dockerfile
@@ -142,14 +144,14 @@ jobs:
           .
 
       - name: Publish immutable main image
-        if: gitea.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         env:
-          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
           REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
         run: |
           printf '%s' "$REGISTRY_TOKEN" |
             docker login git.marisstella.dev \
-              --username "${{ gitea.actor }}" \
+              --username "${{ github.actor }}" \
               --password-stdin
           docker push "$IMAGE"
           docker tag "$IMAGE" git.marisstella.dev/giteaadmin/pairwise-app:latest
@@ -158,7 +160,7 @@ jobs:
   deploy:
     name: Migrate and deploy to production
     needs: container
-    if: gitea.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: production
@@ -187,9 +189,9 @@ jobs:
 
       - name: Deploy the verified commit with zero unavailable replicas
         env:
-          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
           REGISTRY_SERVER: git.marisstella.dev
-          REGISTRY_USERNAME: ${{ gitea.actor }}
+          REGISTRY_USERNAME: ${{ github.actor }}
           REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
-          RELEASE_REVISION: ${{ gitea.sha }}
+          RELEASE_REVISION: ${{ github.sha }}
         run: platform/ci/deploy-pairwise.sh
