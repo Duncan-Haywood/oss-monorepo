@@ -11,6 +11,7 @@ on:
       - "platform/terraform/helm/web-service/**"
       - "platform/terraform/services.tf"
       - "platform/terraform/autoscaling.tf"
+      - "platform/terraform/gitea_runner.tf"
   push:
     # Every Pairwise change merged to main must pass the release gates and deploy.
     branches: [main]
@@ -23,6 +24,7 @@ on:
       - "platform/terraform/helm/web-service/**"
       - "platform/terraform/services.tf"
       - "platform/terraform/autoscaling.tf"
+      - "platform/terraform/gitea_runner.tf"
   workflow_dispatch:
 
 permissions:
@@ -239,6 +241,10 @@ jobs:
         env:
           HETZNER_KUBECONFIG_B64: ${{ secrets.HETZNER_KUBECONFIG_B64 }}
         run: |
+          test -n "$HETZNER_KUBECONFIG_B64" || {
+            echo "HETZNER_KUBECONFIG_B64 is not configured" >&2
+            exit 1
+          }
           install -d -m 0700 "$RUNNER_TEMP/kube"
           printf '%s' "$HETZNER_KUBECONFIG_B64" |
             base64 --decode > "$RUNNER_TEMP/kube/config"

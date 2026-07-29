@@ -15,6 +15,11 @@ const PAIRWISE_CI = existsSync(pairwiseCiPath) ? readFileSync(pairwiseCiPath, "u
 const MONOREPO_CI = existsSync(monorepoCiPath) ? readFileSync(monorepoCiPath, "utf8") : "";
 const PAIRWISE_DEPLOY = readFileSync(join(ROOT, "platform/ci/deploy-pairwise.sh"), "utf8");
 const PAIRWISE_SMOKE = readFileSync(join(ROOT, "platform/ci/smoke-test-pairwise.sh"), "utf8");
+const GITEA_RUNNER = readFileSync(join(ROOT, "platform/terraform/gitea_runner.tf"), "utf8");
+const PAIRWISE_DEPLOYER_RBAC = readFileSync(
+  join(ROOT, "platform/k8s/apps/quick-pick-survey/ci-deployer-rbac.yaml"),
+  "utf8",
+);
 
 describe("Pairwise CI contract", () => {
   it.skipIf(!PAIRWISE_CI)("is a repository-root workflow scoped to Pairwise changes", () => {
@@ -24,6 +29,7 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain('"platform/terraform/helm/web-service/**"');
     expect(PAIRWISE_CI).toContain('"platform/terraform/services.tf"');
     expect(PAIRWISE_CI).toContain('"platform/terraform/autoscaling.tf"');
+    expect(PAIRWISE_CI).toContain('"platform/terraform/gitea_runner.tf"');
     expect(PAIRWISE_CI).toMatch(/timeout-minutes:\s*20/);
   });
 
@@ -70,6 +76,13 @@ describe("Pairwise CI contract", () => {
   it("gives migrations and the idempotent seed enough memory to complete", () => {
     expect(PAIRWISE_DEPLOY).toContain('memory: "512Mi"');
     expect(PAIRWISE_DEPLOY).toContain('memory: "1Gi"');
+  });
+
+  it("keeps the CI runner stable and authorizes the zero-downtime rollout contract", () => {
+    expect(GITEA_RUNNER).toContain("fs.inotify.max_user_instances=1024");
+    expect(GITEA_RUNNER).toContain("fs.inotify.max_user_watches=524288");
+    expect(PAIRWISE_DEPLOYER_RBAC).toContain('apiGroups: ["policy"]');
+    expect(PAIRWISE_DEPLOYER_RBAC).toContain('resources: ["poddisruptionbudgets"]');
   });
 
   it.skipIf(!MONOREPO_CI)("publishes Pairwise images by immutable commit, never a mutable latest tag", () => {
