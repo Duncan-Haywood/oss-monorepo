@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   title: "Quick pick",
   description: "Two options at a time. Find out what you actually want.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Quick pick" },
   // The app shows one person's private preference data; there's no reason
   // for any of it to be indexed.
