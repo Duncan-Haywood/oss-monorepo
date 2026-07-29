@@ -138,12 +138,12 @@ jobs:
           IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
         run: >-
           docker build
-          --file ventures/quick-pick-survey/Dockerfile
+          --file Dockerfile
           --tag "$IMAGE"
-          ventures/quick-pick-survey
+          .
 
       - name: Publish immutable main image
-        if: gitea.event_name == 'push' && gitea.ref == 'refs/heads/main'
+        if: gitea.ref == 'refs/heads/main' && (gitea.event_name == 'push' || gitea.event_name == 'workflow_dispatch')
         env:
           IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
           REGISTRY_TOKEN: ${{ secrets.GITEA_TOKEN }}
@@ -159,7 +159,7 @@ jobs:
   deploy:
     name: Migrate and deploy to production
     needs: container
-    if: gitea.event_name == 'push' && gitea.ref == 'refs/heads/main'
+    if: gitea.ref == 'refs/heads/main' && (gitea.event_name == 'push' || gitea.event_name == 'workflow_dispatch')
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: production
