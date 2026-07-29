@@ -7,8 +7,8 @@ that gate.
 
 ## Pipeline
 
-1. `.gitea/workflows/pairwise-ci.yml` runs only when Pairwise or its workflow
-   changes.
+1. `.gitea/workflows/pairwise-ci.yml` runs only when Pairwise, its workflow,
+   or its production deployment script changes.
 2. Dependencies are installed from `package-lock.json` with lifecycle scripts
    disabled, then the Prisma client is generated explicitly.
 3. Typecheck, lint, unit/component tests, and a production build run.

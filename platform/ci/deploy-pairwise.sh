@@ -68,6 +68,12 @@ if [[ -z "$container_json" ]]; then
   exit 1
 fi
 
+# A manual retry of the same release uses the same deterministic Job name.
+# Remove an earlier failed or completed attempt so the retry actually runs.
+kubectl -n "$namespace" delete job "$migration_job" \
+  --ignore-not-found \
+  --wait=true
+
 jq -n \
   --arg namespace "$namespace" \
   --arg job "$migration_job" \

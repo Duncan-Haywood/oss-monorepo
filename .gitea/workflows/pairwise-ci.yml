@@ -5,12 +5,16 @@ on:
     paths:
       - "ventures/quick-pick-survey/**"
       - ".gitea/workflows/pairwise-ci.yml"
+      - "platform/ci/deploy-pairwise.sh"
+      - "platform/k8s/apps/quick-pick-survey/**"
   push:
     # Every Pairwise change merged to main must pass the release gates and deploy.
     branches: [main]
     paths:
       - "ventures/quick-pick-survey/**"
       - ".gitea/workflows/pairwise-ci.yml"
+      - "platform/ci/deploy-pairwise.sh"
+      - "platform/k8s/apps/quick-pick-survey/**"
   workflow_dispatch:
 
 permissions:
@@ -18,7 +22,7 @@ permissions:
   packages: write
 
 concurrency:
-  group: pairwise-ci-${{ gitea.workflow }}-${{ gitea.ref }}
+  group: pairwise-ci-${{ github.workflow }}-${{ github.ref }}
   # A newer commit must not cancel a production migration or rolling update.
   cancel-in-progress: false
 
@@ -134,7 +138,7 @@ jobs:
 
       - name: Build the exact deployable image
         env:
-          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
         run: >-
           docker build
           --file Dockerfile
@@ -142,14 +146,14 @@ jobs:
           .
 
       - name: Publish immutable main image
-        if: gitea.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         env:
-          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
           REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
         run: |
           printf '%s' "$REGISTRY_TOKEN" |
             docker login git.marisstella.dev \
-              --username "${{ gitea.actor }}" \
+              --username "${{ github.actor }}" \
               --password-stdin
           docker push "$IMAGE"
           docker tag "$IMAGE" git.marisstella.dev/giteaadmin/pairwise-app:latest
@@ -158,7 +162,7 @@ jobs:
   deploy:
     name: Migrate and deploy to production
     needs: container
-    if: gitea.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: production
@@ -170,10 +174,25 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install kubectl matching the production cluster
-        uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4
-        with:
-          version: v1.36.2
+      - name: Install pinned Kubernetes client
+        shell: bash
+        env:
+          KUBECTL_VERSION: v1.36.2
+        run: |
+          install -d -m 0755 "$RUNNER_TEMP/bin"
+          curl --fail --silent --show-error --location \
+            --output "$RUNNER_TEMP/bin/kubectl" \
+            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          curl --fail --silent --show-error --location \
+            --output "$RUNNER_TEMP/bin/kubectl.sha256" \
+            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
+          printf '%s  %s\n' \
+            "$(cat "$RUNNER_TEMP/bin/kubectl.sha256")" \
+            "$RUNNER_TEMP/bin/kubectl" |
+            sha256sum --check
+          chmod 0755 "$RUNNER_TEMP/bin/kubectl"
+          echo "$RUNNER_TEMP/bin" >> "${GITHUB_PATH:-$GITEA_PATH}"
+          "$RUNNER_TEMP/bin/kubectl" version --client
 
       - name: Configure production cluster access
         shell: bash
@@ -188,9 +207,9 @@ jobs:
       - name: Deploy the verified commit with zero unavailable replicas
         env:
           KUBECONFIG: ${{ runner.temp }}/kube/config
-          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
           REGISTRY_SERVER: git.marisstella.dev
-          REGISTRY_USERNAME: ${{ gitea.actor }}
+          REGISTRY_USERNAME: ${{ github.actor }}
           REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
-          RELEASE_REVISION: ${{ gitea.sha }}
+          RELEASE_REVISION: ${{ github.sha }}
         run: platform/ci/deploy-pairwise.sh
