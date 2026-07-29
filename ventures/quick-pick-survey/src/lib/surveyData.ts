@@ -675,6 +675,48 @@ const PLAY_GROWTH: SeedItem[] = [
   { slug: "future-still-exciting", label: "Can imagine a shared future that feels exciting, not only responsible", category: "Play and growth", dimensions: ["adventure", "family"] },
 ];
 
+/** Care is most revealing when capacity, bodies, and plans are changing. */
+const CARE_HEALTH: SeedItem[] = [
+  { slug: "believes-health-experience", label: "Takes your account of pain or symptoms seriously", category: "Care and health", dimensions: ["warmth", "stability"] },
+  { slug: "care-with-dignity", label: "Can help with intimate care while protecting your dignity", category: "Care and health", dimensions: ["service", "warmth"] },
+  { slug: "health-decisions-together", label: "Makes major health decisions with you rather than for you", category: "Care and health", dimensions: ["stability", "independence"] },
+  { slug: "sustainable-caregiving", label: "Can care deeply without pretending one person has unlimited capacity", category: "Care and health", dimensions: ["service", "independence"] },
+  { slug: "adapts-to-disability", label: "Can adapt shared plans if illness or disability changes what is possible", category: "Care and health", dimensions: ["stability", "warmth"] },
+  { slug: "supports-prevention", label: "Encourages checkups and healthy habits without policing your body", category: "Care and health", dimensions: ["physicality", "independence"] },
+  { slug: "mental-health-without-shame", label: "Can discuss mental health and treatment without shame or dismissal", category: "Care and health", dimensions: ["warmth", "intellect"] },
+  { slug: "caregiving-outside-help", label: "Is willing to bring in outside help before caregiving becomes unsustainable", category: "Care and health", dimensions: ["service", "intellect"] },
+  { slug: "recovery-not-rushed", label: "Lets recovery take the time it takes instead of demanding a quick return to normal", category: "Care and health", dimensions: ["warmth", "stability"] },
+  { slug: "medical-advocacy", label: "Can advocate for you in a medical setting while still following your lead", category: "Care and health", dimensions: ["service", "independence"] },
+];
+
+/** A couple also lives inside friendships, cultures, neighbourhoods, and obligations. */
+const COMMUNITY_BELONGING: SeedItem[] = [
+  { slug: "welcomes-each-others-people", label: "Makes genuine room for the people who matter to you", category: "Community and belonging", dimensions: ["warmth", "family"] },
+  { slug: "shared-community-effort", label: "Contributes time to a community instead of only consuming from it", category: "Community and belonging", dimensions: ["service", "family"] },
+  { slug: "cross-cultural-curiosity", label: "Approaches differences in culture or upbringing with curiosity", category: "Community and belonging", dimensions: ["intellect", "warmth"] },
+  { slug: "traditions-negotiated", label: "Can combine traditions without treating either person's as the default", category: "Community and belonging", dimensions: ["spirituality", "independence"] },
+  { slug: "friendship-investment", label: "Protects close friendships even when couple life gets busy", category: "Community and belonging", dimensions: ["warmth", "independence"] },
+  { slug: "community-privacy", label: "Can be connected to community without making the relationship public property", category: "Community and belonging", dimensions: ["family", "independence"] },
+  { slug: "language-belonging", label: "Makes an effort with the language that helps your family feel at home", category: "Community and belonging", dimensions: ["intellect", "family"] },
+  { slug: "different-social-worlds", label: "Can enjoy having some separate social worlds without suspicion", category: "Community and belonging", dimensions: ["independence", "stability"] },
+  { slug: "shared-hospitality-limits", label: "Can agree how generous to be with hosting, time, and community obligations", category: "Community and belonging", dimensions: ["service", "stability"] },
+  { slug: "belonging-after-move", label: "Would help build new belonging if one of you moved for the relationship", category: "Community and belonging", dimensions: ["warmth", "adventure"] },
+];
+
+/** Careers compete with shared time in ways that salary and job title do not capture. */
+const WORK_TIME: SeedItem[] = [
+  { slug: "work-emergency-boundary", label: "Can distinguish a real work emergency from work expanding into every evening", category: "Work and time", dimensions: ["ambition", "stability"] },
+  { slug: "career-seasons-take-turns", label: "Can take turns being the person whose career gets more support", category: "Work and time", dimensions: ["ambition", "service"] },
+  { slug: "unpaid-work-counts", label: "Treats unpaid care and household work as real contributions", category: "Work and time", dimensions: ["service", "stability"] },
+  { slug: "calendar-is-shared-resource", label: "Treats shared time as something both people have a claim on", category: "Work and time", dimensions: ["warmth", "stability"] },
+  { slug: "success-without-competition", label: "Can celebrate your career success without turning it into a competition", category: "Work and time", dimensions: ["warmth", "ambition"] },
+  { slug: "work-travel-negotiated", label: "Negotiates work travel around its real cost to both people", category: "Work and time", dimensions: ["ambition", "family"] },
+  { slug: "right-to-disconnect", label: "Can be fully off work often enough to be present in shared life", category: "Work and time", dimensions: ["warmth", "stability"] },
+  { slug: "career-change-identity", label: "Would still respect you through a career change, setback, or loss of status", category: "Work and time", dimensions: ["warmth", "status"] },
+  { slug: "time-fairness-not-sameness", label: "Can make time feel fair even when your schedules look very different", category: "Work and time", dimensions: ["stability", "service"] },
+  { slug: "defines-ambition-together", label: "Can revisit how much ambition is enough for this season of life", category: "Work and time", dimensions: ["ambition", "family"] },
+];
+
 function insightFirst(items: SeedItem[], firstSlugs: string[]): SeedItem[] {
   const rank = new Map(firstSlugs.map((slug, index) => [slug, index]));
   return [...items].sort((a, b) => {
@@ -801,6 +843,24 @@ const ORDERED_PLAY_GROWTH = insightFirst(PLAY_GROWTH, [
   "new-things-together",
   "future-still-exciting",
 ]);
+const ORDERED_CARE_HEALTH = insightFirst(CARE_HEALTH, [
+  "believes-health-experience",
+  "care-with-dignity",
+  "mental-health-without-shame",
+  "sustainable-caregiving",
+]);
+const ORDERED_COMMUNITY_BELONGING = insightFirst(COMMUNITY_BELONGING, [
+  "welcomes-each-others-people",
+  "cross-cultural-curiosity",
+  "traditions-negotiated",
+  "friendship-investment",
+]);
+const ORDERED_WORK_TIME = insightFirst(WORK_TIME, [
+  "work-emergency-boundary",
+  "career-seasons-take-turns",
+  "unpaid-work-counts",
+  "right-to-disconnect",
+]);
 
 export const SEED_SURVEYS: SeedSurvey[] = [
   {
@@ -894,6 +954,24 @@ export const SEED_SURVEYS: SeedSurvey[] = [
     items: ORDERED_PLAY_GROWTH,
   },
   {
+    slug: "care-health",
+    title: "Care and health",
+    description: "When health or capacity changes, which kind of care would matter more?",
+    items: ORDERED_CARE_HEALTH,
+  },
+  {
+    slug: "community-belonging",
+    title: "Community and belonging",
+    description: "Which pattern would help both people feel they belong?",
+    items: ORDERED_COMMUNITY_BELONGING,
+  },
+  {
+    slug: "work-time",
+    title: "Work and shared time",
+    description: "Which work-and-time pattern would matter more in your shared life?",
+    items: ORDERED_WORK_TIME,
+  },
+  {
     slug: "combined",
     title: "Everything together",
     description: "Across all of it — what actually matters most?",
@@ -913,6 +991,9 @@ export const SEED_SURVEYS: SeedSurvey[] = [
       ...ORDERED_STRESS_SUPPORT.map((i) => ({ ...i, slug: `stress-${i.slug}` })),
       ...ORDERED_TRUST_BOUNDARIES.map((i) => ({ ...i, slug: `trust-${i.slug}` })),
       ...ORDERED_PLAY_GROWTH.map((i) => ({ ...i, slug: `growth-${i.slug}` })),
+      ...ORDERED_CARE_HEALTH.map((i) => ({ ...i, slug: `care-${i.slug}` })),
+      ...ORDERED_COMMUNITY_BELONGING.map((i) => ({ ...i, slug: `community-${i.slug}` })),
+      ...ORDERED_WORK_TIME.map((i) => ({ ...i, slug: `work-${i.slug}` })),
     ],
   },
 ];

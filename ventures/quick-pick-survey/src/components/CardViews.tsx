@@ -6,10 +6,22 @@ export type SurveyKind = "ITEMS" | "FINANCIAL" | "CONJOINED";
 
 export type ItemsTrial = {
   trialId: string;
-  itemA: { id: string; label: string; category?: string | null; slug?: string | null };
-  itemB: { id: string; label: string; category?: string | null; slug?: string | null };
+  itemA: CardOption;
+  itemB: CardOption;
   answeredCount: number;
   confidence: number;
+};
+
+export type CardOption = {
+  id: string;
+  label: string;
+  category?: string | null;
+  slug?: string | null;
+  meaning?: {
+    mayReflect: string[];
+    tradeoffs: string[];
+    caveat: string;
+  };
 };
 
 export type SlotLine = { icon: "money" | "bank" | "clock" | "rocket"; text: string };
@@ -96,6 +108,29 @@ export function CenteredNote({ children }: { children: React.ReactNode }) {
 const cardBase =
   "group relative flex flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-amber-200/80 bg-[#fff8e8] bg-[url('/card-art/intuition-background.webp')] bg-cover bg-center px-6 py-4 text-center shadow-[0_18px_45px_-24px_rgba(120,53,15,.55)] disabled:opacity-50 dark:border-amber-900/60 dark:bg-neutral-950 dark:bg-blend-soft-light";
 
+function CardChoiceContent({ item }: { item: CardOption }) {
+  const meaning = item.meaning;
+  return (
+    <span className="relative flex w-full flex-col items-center gap-2.5">
+      <span className="rounded-3xl border border-white/70 bg-white/75 p-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/10">
+        <CategoryIcon category={item.category} slug={item.slug} label={item.label} size="lg" />
+      </span>
+      <span className="text-xl font-bold leading-snug">{item.label}</span>
+      {meaning?.mayReflect?.length ? (
+        <span className="max-w-md text-xs font-medium leading-relaxed text-neutral-600 dark:text-neutral-300">
+          <span className="font-bold text-neutral-700 dark:text-neutral-200">May reflect: </span>
+          {meaning.mayReflect.slice(0, 2).join(" · ")}
+          {meaning.tradeoffs[0] ? (
+            <span className="block pt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+              Possible tension: {meaning.tradeoffs[0]}
+            </span>
+          ) : null}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 /**
  * The action row under the deck. Buttons are explicitly labelled ("Top" /
  * "Bottom") rather than bare arrows, which read ambiguously — an arrow
@@ -179,12 +214,7 @@ export function ItemsTrialView({
             Top choice
           </span>
           <span className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(251,191,36,.22),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(249,115,22,.13),transparent_36%)]" />
-          <span className="relative flex flex-col items-center gap-4">
-            <span className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/10">
-              <CategoryIcon category={trial.itemA.category} slug={trial.itemA.slug} label={trial.itemA.label} size="lg" />
-            </span>
-            <span>{trial.itemA.label}</span>
-          </span>
+          <CardChoiceContent item={trial.itemA} />
         </button>
         <button
           onClick={() => onAnswer("B", "card_tap")}
@@ -195,12 +225,7 @@ export function ItemsTrialView({
             Bottom choice
           </span>
           <span className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,rgba(251,191,36,.22),transparent_35%),radial-gradient(circle_at_15%_80%,rgba(249,115,22,.13),transparent_36%)]" />
-          <span className="relative flex flex-col items-center gap-4">
-            <span className="rounded-3xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/10">
-              <CategoryIcon category={trial.itemB.category} slug={trial.itemB.slug} label={trial.itemB.label} size="lg" />
-            </span>
-            <span>{trial.itemB.label}</span>
-          </span>
+          <CardChoiceContent item={trial.itemB} />
         </button>
       </div>
       <ActionBar

@@ -465,53 +465,6 @@ const DEFAULT_ICON = (
   </Svg>
 );
 
-const PALETTES: Record<string, { bg: string; badge: string }> = {
-  air: {
-    bg: "from-sky-500 via-blue-600 to-indigo-700",
-    badge: "bg-sky-100 text-sky-950 dark:bg-sky-950/90 dark:text-sky-200",
-  },
-  water: {
-    bg: "from-cyan-500 via-teal-600 to-blue-800",
-    badge: "bg-cyan-100 text-cyan-950 dark:bg-cyan-950/90 dark:text-cyan-200",
-  },
-  nature: {
-    bg: "from-emerald-500 via-teal-600 to-green-800",
-    badge: "bg-emerald-100 text-emerald-950 dark:bg-emerald-950/90 dark:text-emerald-200",
-  },
-  warmth: {
-    bg: "from-amber-500 via-orange-600 to-rose-700",
-    badge: "bg-amber-100 text-amber-950 dark:bg-amber-950/90 dark:text-amber-200",
-  },
-  mind: {
-    bg: "from-violet-600 via-purple-600 to-indigo-800",
-    badge: "bg-violet-100 text-violet-950 dark:bg-violet-950/90 dark:text-violet-200",
-  },
-  creative: {
-    bg: "from-fuchsia-500 via-pink-600 to-purple-800",
-    badge: "bg-fuchsia-100 text-fuchsia-950 dark:bg-fuchsia-950/90 dark:text-fuchsia-200",
-  },
-  rugged: {
-    bg: "from-stone-600 via-amber-700 to-neutral-900",
-    badge: "bg-stone-200 text-stone-900 dark:bg-stone-900 dark:text-stone-200",
-  },
-  rescue: {
-    bg: "from-rose-600 via-red-600 to-orange-700",
-    badge: "bg-rose-100 text-rose-950 dark:bg-rose-950/90 dark:text-rose-200",
-  },
-  finance: {
-    bg: "from-emerald-600 via-teal-700 to-slate-900",
-    badge: "bg-teal-100 text-teal-950 dark:bg-teal-950/90 dark:text-teal-200",
-  },
-  law: {
-    bg: "from-slate-600 via-indigo-900 to-slate-950",
-    badge: "bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-slate-200",
-  },
-  default: {
-    bg: "from-amber-500 via-amber-600 to-orange-700",
-    badge: "bg-amber-100 text-amber-950 dark:bg-amber-950/90 dark:text-amber-200",
-  },
-};
-
 export function CategoryIcon({
   category,
   slug,
@@ -527,20 +480,19 @@ export function CategoryIcon({
 }) {
   const icon = (slug && ITEM_ICONS[slug]) || (category && ICONS[category]) || DEFAULT_ICON;
   const scene = describeCardVisual({ slug, label, category });
-  const theme = PALETTES[scene.paletteKey] ?? PALETTES.default;
 
   if (size === "lg") {
     return (
       <div
         aria-hidden="true"
-        className={`relative isolate flex h-32 w-44 shrink-0 flex-col items-center justify-between overflow-hidden rounded-3xl bg-gradient-to-br ${theme.bg} p-3.5 shadow-lg ring-2 ring-amber-400/40 backdrop-blur transition-transform active:scale-95 dark:ring-amber-400/20 ${className ?? ""}`}
+        className={`relative isolate flex h-32 w-44 shrink-0 flex-col items-center justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-amber-100 via-orange-100 to-stone-200 p-3.5 shadow-lg ring-2 ring-amber-400/40 backdrop-blur transition-transform active:scale-95 dark:from-neutral-800 dark:via-amber-950 dark:to-neutral-900 dark:ring-amber-400/20 ${className ?? ""}`}
       >
         <span className="absolute -left-6 -top-6 h-24 w-24 rounded-full bg-white/20 blur-md" />
         <span className="absolute -bottom-8 -right-6 h-28 w-28 rounded-full bg-black/20 blur-md" />
 
         {/* Category/Domain Badge Header */}
         <div className="z-10 flex w-full items-center justify-between">
-          <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${theme.badge} shadow-xs`}>
+          <span className="rounded-full bg-white/80 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-neutral-700 shadow-xs dark:bg-black/35 dark:text-neutral-200">
             {scene.context}
           </span>
           <span className="text-xs text-amber-950 dark:text-amber-100" role="presentation">
@@ -645,6 +597,14 @@ const CATEGORY_VISUALS: Record<string, [string, string, string]> = {
   Lifestyle: ["🏡", "🌿", "daily life"],
   Values: ["🧭", "⚖️", "values"],
   Character: ["💎", "🧍", "character"],
+  "Care and health": ["🫶", "🩺", "care + health"],
+  "Community and belonging": ["🫂", "🏘️", "belonging"],
+  "Work and time": ["🕰️", "💼", "work + time"],
+  "Future and family": ["🌱", "🏡", "shared future"],
+  "Money and power": ["⚖️", "💰", "money + fairness"],
+  "Stress and support": ["🛟", "🫂", "support"],
+  "Trust and boundaries": ["🤝", "🔐", "trust"],
+  "Play and growth": ["✨", "🌱", "growth + play"],
 };
 
 export function describeCardVisual({

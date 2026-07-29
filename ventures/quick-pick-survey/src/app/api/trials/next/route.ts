@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { pairKey, selectNextPair, surveyConfidence } from "@/lib/pairing";
 import { loadRatedItems } from "@/lib/participantRatings";
 import { mayAccessOwnedParticipant } from "@/lib/participantAccess";
+import { metadataForCard } from "@/lib/cardMetadata";
 
 const RECENT_TRIALS_TO_AVOID = 10;
 
@@ -22,6 +23,23 @@ const RECENT_TRIALS_TO_AVOID = 10;
  * next day genuinely did abandon that question — and a fresh pair is chosen.
  */
 const PENDING_REUSE_MS = 30 * 60 * 1000;
+
+function cardPayload(item: {
+  id: string; label: string; category: string | null; slug: string; dimensions: string[];
+}) {
+  const metadata = metadataForCard(item);
+  return {
+    id: item.id,
+    label: item.label,
+    category: item.category,
+    slug: item.slug,
+    meaning: {
+      mayReflect: metadata.meaning.mayReflect,
+      tradeoffs: metadata.meaning.tradeoffs,
+      caveat: metadata.meaning.notNecessarily,
+    },
+  };
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -68,8 +86,8 @@ export async function POST(req: NextRequest) {
       if (a && b) {
         return NextResponse.json({
           trialId: pending.id,
-          itemA: { id: a.id, label: a.label, category: a.category, slug: a.slug },
-          itemB: { id: b.id, label: b.label, category: b.category, slug: b.slug },
+          itemA: cardPayload(a),
+          itemB: cardPayload(b),
           answeredCount: answeredCountForPending,
           confidence: surveyConfidence(items),
           pending: true,
@@ -126,8 +144,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       trialId: trial.id,
-      itemA: { id: itemA.id, label: itemA.label, category: itemA.category, slug: itemA.slug },
-      itemB: { id: itemB.id, label: itemB.label, category: itemB.category, slug: itemB.slug },
+      itemA: cardPayload(itemA),
+      itemB: cardPayload(itemB),
       answeredCount,
       confidence: surveyConfidence(items),
     });

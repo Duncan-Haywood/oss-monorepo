@@ -26,7 +26,9 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "pairwise_hpa" {
     # Keep two ready replicas so a node loss and a rolling update do not
     # collapse the service to a single point of failure.
     min_replicas = 2
-    max_replicas = 10
+    # Prisma maintains a pool per process. Bound scaling so app replicas cannot
+    # consume every PostgreSQL connection and lock out backups or migrations.
+    max_replicas = 4
 
     scale_target_ref {
       api_version = "apps/v1"
@@ -45,16 +47,9 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "pairwise_hpa" {
       }
     }
 
-    metric {
-      type = "Resource"
-      resource {
-        name = "memory"
-        target {
-          type                = "Utilization"
-          average_utilization = 80
-        }
-      }
-    }
+    # Memory is intentionally excluded: Pairwise has a stable per-process
+    # baseline, so adding replicas does not lower utilization and previously
+    # drove this HPA to its maximum continuously.
   }
 }
 

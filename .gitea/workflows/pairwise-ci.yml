@@ -133,27 +133,28 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Log in to the Gitea container registry
+      - name: Build the exact deployable image
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
+        run: >-
+          docker build
+          --file ventures/quick-pick-survey/Dockerfile
+          --tag "$IMAGE"
+          ventures/quick-pick-survey
+
+      - name: Publish immutable main image
         if: gitea.event_name == 'push' && gitea.ref == 'refs/heads/main'
         env:
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
           REGISTRY_TOKEN: ${{ secrets.GITEA_TOKEN }}
         run: |
           printf '%s' "$REGISTRY_TOKEN" |
             docker login git.marisstella.dev \
               --username "${{ gitea.actor }}" \
               --password-stdin
-
-      - name: Build the Dockerfile and publish immutable main images
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
-        with:
-          context: ventures/quick-pick-survey
-          file: ventures/quick-pick-survey/Dockerfile
-          push: ${{ gitea.event_name == 'push' && gitea.ref == 'refs/heads/main' }}
-          tags: |
-            git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
-            git.marisstella.dev/giteaadmin/pairwise-app:latest
-          cache-from: type=gha,scope=pairwise
-          cache-to: type=gha,mode=max,scope=pairwise
+          docker push "$IMAGE"
+          docker tag "$IMAGE" git.marisstella.dev/giteaadmin/pairwise-app:latest
+          docker push git.marisstella.dev/giteaadmin/pairwise-app:latest
 
   deploy:
     name: Migrate and deploy to production

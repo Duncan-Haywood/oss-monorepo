@@ -22,6 +22,9 @@ describe("survey content", () => {
           "stress-support",
           "trust-boundaries",
           "play-growth",
+          "care-health",
+          "community-belonging",
+          "work-time",
         ].includes(survey.slug)
       )
       .flatMap((survey) => survey.items.map((item) => item.label));
@@ -36,12 +39,23 @@ describe("survey content", () => {
         "Can temporarily carry more without turning it into permanent scorekeeping",
         "Never uses something vulnerable you shared as ammunition later",
         "Keeps getting curious about who you are becoming",
+        "Takes your account of pain or symptoms seriously",
+        "Can combine traditions without treating either person's as the default",
+        "Treats unpaid care and household work as real contributions",
       ])
     );
   });
 
   it("keeps each couple topic deep enough to support within-topic trade-offs", () => {
-    for (const slug of ["money-power", "stress-support", "trust-boundaries", "play-growth"]) {
+    for (const slug of [
+      "money-power",
+      "stress-support",
+      "trust-boundaries",
+      "play-growth",
+      "care-health",
+      "community-belonging",
+      "work-time",
+    ]) {
       const survey = SEED_SURVEYS.find((candidate) => candidate.slug === slug);
       expect(survey?.items.length, `${slug} is too shallow`).toBeGreaterThanOrEqual(10);
     }
