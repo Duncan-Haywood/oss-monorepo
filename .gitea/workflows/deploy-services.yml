@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: service-release-validation-${{ github.ref }}
+  group: service-release-validation-${{ gitea.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -40,7 +40,7 @@ jobs:
           helm template web-service platform/terraform/helm/web-service
           --namespace web-services
           --set image.repository=example.invalid/service
-          --set image.tag=ci-${{ github.sha }}
+          --set image.tag=ci-${{ gitea.sha }}
           --set ingress.host=service.example.invalid
           > "$RUNNER_TEMP/web-service.yaml"
       - name: Reject mutable image tags

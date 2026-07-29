@@ -12,7 +12,7 @@ record_failure() {
 
 {
   printf '# Repository security policy scan\n\n'
-  printf 'Commit: `%s`\n\n' "${GITHUB_SHA:-$(git rev-parse HEAD)}"
+  printf 'Commit: `%s`\n\n' "${GITEA_SHA:-${GITEA_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}}"
   printf '## Blocking findings\n\n'
 } >"$report_path"
 

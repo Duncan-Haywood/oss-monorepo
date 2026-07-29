@@ -20,11 +20,11 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-008** | Medium | Application | `src/lib/http.ts` | Raw IP addresses retained in rate-limiter tables | **Fixed** |
 | **SEC-009** | Medium | Application | `src/lib/auth.ts` | Unlimited long-lived user session accumulation | **Fixed** |
 | **SEC-010** | Low | Application | `src/lib/adminAuth.ts` | Excessively long admin session lifetime (12h -> 4h) | **Fixed** |
-| **SEC-011** | High | CI / Automation | `.github/workflows/` | Absence of automated security scanning pipeline in CI | **Fixed** |
+| **SEC-011** | High | CI / Automation | `.gitea/workflows/` | Absence of automated security scanning pipeline in CI | **Fixed** |
 | **SEC-012** | High | Infrastructure | `platform/terraform/pairwise_db.tf` | Hardcoded database password in deployment environment variables | **Fixed** |
 | **SEC-013** | Medium | Infrastructure | `platform/terraform/firewall.tf` | K3s API port 6443 publicly accessible without IP restriction | **Mitigated / Scheduled** |
 | **SEC-014** | Medium | Container | `portfolio/marisstella-homepage/Dockerfile` | Root execution in static container image | **Fixed** |
-| **SEC-015** | Medium | CI / Security | `.github/workflows/*.yml` | Workflows running without top-level restrictive permissions | **Fixed** |
+| **SEC-015** | Medium | CI / Security | `.gitea/workflows/*.yml` | Workflows running without top-level restrictive permissions | **Fixed** |
 | **SEC-016** | Low | Supply Chain | `ventures/*/package.json` | Dependency vulnerability auditing not enforced on PRs | **Fixed** |
 
 ---
@@ -81,7 +81,7 @@ This log records all identified application, infrastructure, container, and CI s
 - **Fix**: Reduced signed admin token validity from 12 hours to 4 hours.
 
 ### SEC-011 — High — Missing CI Security Scanning Pipeline
-- **Location**: `.github/workflows/security-scan.yml`
+- **Location**: `.gitea/workflows/security-scan.yml`
 - **Impact**: Vulnerabilities, exposed secrets, or IaC misconfigurations could be introduced undetected.
 - **Fix**: Configured automated daily and PR security scans covering secrets (Trivy), dependencies (`npm audit`), container images, and IaC manifests.
 
@@ -101,8 +101,8 @@ This log records all identified application, infrastructure, container, and CI s
 - **Fix**: Migrated to `nginxinc/nginx-unprivileged:alpine` running explicitly as UID 101.
 
 ### SEC-015 — Medium — Unconstrained CI Workflow Permissions
-- **Location**: `.github/workflows/*.yml`
-- **Impact**: Default GitHub Actions token permissions could allow write access if compromised.
+- **Location**: `.gitea/workflows/*.yml`
+- **Impact**: Default Gitea Actions token permissions could allow write access if compromised.
 - **Fix**: Enforced top-level `permissions: contents: read` across all workflow definitions.
 
 ### SEC-016 — Low — Dependency Vulnerability Audit Gate

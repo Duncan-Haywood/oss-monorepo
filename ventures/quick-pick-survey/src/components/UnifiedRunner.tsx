@@ -296,6 +296,26 @@ export function UnifiedRunner() {
     };
   }, [restored, update]);
 
+  const prefetchNext = useCallback(
+    async (slug: string, pid: string, kind: DomainState["kind"]) => {
+      const endpoint = kind === "ITEMS" ? "/api/trials/next" : "/api/financial-trials/next";
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ participantId: pid }),
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data?.trialId) return;
+        setNextTrial(data);
+      } catch {
+        // Ignored background prefetch failure
+      }
+    },
+    []
+  );
+
   const fetchNext = useCallback(
     async (slug: string, pid: string, kind: DomainState["kind"], totalPoints: number, perspective: PerspectiveValue) => {
       // Nothing is set before the first await on purpose: this runs from an
@@ -334,6 +354,8 @@ export function UnifiedRunner() {
             d.slug === slug ? { ...d, confidence: data.confidence, answeredCount: data.answeredCount } : d
           ),
         }));
+        // Prefetch the following question in the background for instant transitions
+        void prefetchNext(slug, pid, kind);
       } catch {
         recordUsage("question_load", { perspective, domain: slug, durationMs: Math.round(performance.now() - startedAt), success: false });
         // A dropped connection rejects rather than returning !ok. Without
@@ -343,7 +365,7 @@ export function UnifiedRunner() {
         setError("Couldn't load the next question. Try again.");
       }
     },
-    [update]
+    [update, prefetchNext]
   );
 
   useEffect(() => {
@@ -356,39 +378,6 @@ export function UnifiedRunner() {
       await fetchNext(session.currentSlug, pid, domain.kind, totalPoints, session.perspective);
     })();
   }, [phase, trial, session, fetchNext, retryTick, isModeModalOpen]);
-
-  // Background prefetching effect for zero-latency card transitions
-  useEffect(() => {
-    if (phase !== "running" || !trial || nextTrial || !session || isModeModalOpen) return;
-    let cancelled = false;
-    const pid = session.participants[session.currentSlug];
-    const domain = session.domains.find((d) => d.slug === session.currentSlug);
-    if (!pid || !domain) return;
-    const endpoint = domain.kind === "ITEMS" ? "/api/trials/next" : "/api/financial-trials/next";
-
-    const timer = setTimeout(() => {
-      void (async () => {
-        try {
-          const res = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ participantId: pid }),
-          });
-          if (cancelled || !res.ok) return;
-          const data = await res.json();
-          if (cancelled || !data?.trialId) return;
-          setNextTrial(data);
-        } catch {
-          // Ignored background prefetch failure
-        }
-      })();
-    }, 0);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [phase, trial, nextTrial, session, isModeModalOpen]);
 
   /**
    * Straight from the welcome screen into swiping — no form first. Details

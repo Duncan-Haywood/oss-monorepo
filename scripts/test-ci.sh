@@ -41,7 +41,7 @@ fi
 
 # 4. GitHub/Gitea Actions Workflow Validation (if actionlint installed)
 if command -v actionlint >/dev/null 2>&1; then
-  run_ci_test "Workflow Linting" actionlint
+  run_ci_test "Workflow Linting" actionlint .gitea/workflows/*.yml
 else
   echo "ℹ actionlint not installed; skipping workflow linting."
 fi

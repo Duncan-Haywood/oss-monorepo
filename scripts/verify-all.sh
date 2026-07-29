@@ -20,7 +20,7 @@ run_step "Repository policy scanner tests" bash "$repo_root/scripts/security/tes
 run_step "CI Engine unit tests" env PYTHONPATH="$repo_root" python3 -m unittest discover -s "$repo_root/platform/ci"
 
 if command -v actionlint >/dev/null 2>&1; then
-  run_step "Workflow syntax" actionlint "$repo_root"/.github/workflows/*.yml
+  run_step "Workflow syntax" actionlint "$repo_root"/.gitea/workflows/*.yml
 fi
 if command -v shellcheck >/dev/null 2>&1; then
   run_step "Shell scripts" shellcheck -S warning "$repo_root"/scripts/*.sh "$repo_root"/scripts/ci/*.sh "$repo_root"/scripts/security/*.sh

@@ -33,8 +33,8 @@ This command runs, without swallowing failures:
 
 Every Pull Request and push to `main` triggers automated CI gates:
 
-### Security & Compliance (`.github/workflows/security.yml`)
-- **Action Pinning**: All third-party GitHub Actions are pinned to immutable commit SHAs with release tags in comments.
+### Security & Compliance (`.gitea/workflows/security.yml`)
+- **Action Pinning**: All third-party Gitea Actions are pinned to immutable commit SHAs with release tags in comments.
 - **Repository Policy Scan**: Scans tracked files for tracked `.env`, credentials, private keys, or unresolved merge conflicts.
 - **Trivy Scanner**: Audits dependencies, IaC (Terraform/K8s) configurations, and secret patterns.
 - **Gitleaks**: Scans complete Git history for exposed credentials with redacted evidence.
@@ -50,7 +50,7 @@ Every Pull Request and push to `main` triggers automated CI gates:
 
 ## 3. Security Ownership & Triage Policy
 
-- **Code Ownership (`.github/CODEOWNERS`)**: Changes to `.github/workflows/`, `platform/terraform/`, `platform/k8s/`, or security scripts require approval from designated security & infrastructure owners.
+- **Code Ownership (`.gitea/CODEOWNERS`)**: Changes to `.gitea/workflows/`, `platform/terraform/`, `platform/k8s/`, or security scripts require approval from designated security & infrastructure owners.
 - **Triage SLA**:
   - **Critical Findings**: Must be resolved immediately; blocks production deployments.
   - **High Findings**: Must be resolved within 7 days or risk-accepted with an owner and expiration in `SECURITY-ROADMAP.md`.

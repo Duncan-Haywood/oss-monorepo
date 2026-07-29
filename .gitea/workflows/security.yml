@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: security-${{ github.ref }}
+  group: security-${{ gitea.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -129,8 +129,8 @@ jobs:
       - name: Create or update remediation issue
         env:
           GITEA_API_TOKEN: ${{ secrets.GITEA_TOKEN }}
-          GITEA_SERVER_URL: ${{ github.server_url }}
-          GITEA_REPOSITORY: ${{ github.repository }}
-          GITEA_RUN_ID: ${{ github.run_id }}
-          GITEA_SHA: ${{ github.sha }}
+          GITEA_SERVER_URL: ${{ gitea.server_url }}
+          GITEA_REPOSITORY: ${{ gitea.repository }}
+          GITEA_RUN_ID: ${{ gitea.run_id }}
+          GITEA_SHA: ${{ gitea.sha }}
         run: bash scripts/security/log-gitea-failure.sh
