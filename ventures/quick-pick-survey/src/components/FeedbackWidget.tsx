@@ -122,12 +122,12 @@ export function SessionPulse({ totalAnswers, onDone }: { totalAnswers: number; o
     setState("saving");
     try {
       await postFeedback({ subject: "session", enjoyment, answerCount: totalAnswers, ...context }, clientFeedbackId);
-      recordUsage("nps_submitted", { perspective: context.perspective, success: true });
+      recordUsage("nps_submitted", { perspective: context.perspective, domain: "session", success: true });
       completed.current = true;
       setState("sent");
       onDone();
     } catch {
-      recordUsage("nps_submitted", { perspective: context.perspective, success: false });
+      recordUsage("nps_submitted", { perspective: context.perspective, domain: "session", success: false });
       setState("error");
     }
   }

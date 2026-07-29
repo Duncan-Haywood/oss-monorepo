@@ -29,6 +29,7 @@ type Overview = {
     funnel: { event: string; sessions: number }[];
     operations: { event: string; count: number; failures: number; failureStatuses: number[]; medianMs: number | null; p95Ms: number | null }[];
     transitions: { from: string; to: string; n: number; medianMs: number | null; p95Ms: number | null }[];
+    feedbackResponse: { subject: string; prompted: number; submitted: number; dismissed: number; responseRate: number | null }[];
   };
   hardest: Timing[];
   easiest: Timing[];
@@ -341,6 +342,30 @@ export function AdminView() {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+        {data.usage.feedbackResponse?.length > 0 && (
+          <div className="mt-4 overflow-x-auto">
+            <h3 className="mb-2 text-xs font-semibold text-neutral-600 dark:text-neutral-400">Feedback response by prompt</h3>
+            <table className="w-full text-left text-xs">
+              <thead className="text-neutral-500 dark:text-neutral-400">
+                <tr><Th>Prompt</Th><Th>Shown</Th><Th>Answered</Th><Th>Skipped</Th><Th>Response</Th></tr>
+              </thead>
+              <tbody>
+                {data.usage.feedbackResponse.map((row) => (
+                  <tr key={row.subject} className="border-t border-neutral-200 dark:border-neutral-800">
+                    <Td>{row.subject.replaceAll("_", " ")}</Td>
+                    <Td>{row.prompted}</Td>
+                    <Td>{row.submitted}</Td>
+                    <Td>{row.dismissed}</Td>
+                    <Td>{row.responseRate === null ? "—" : `${Math.round(row.responseRate * 100)}%`}</Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+              Distinct browser sessions per prompt; failed submissions are excluded.
+            </p>
           </div>
         )}
       </Section>

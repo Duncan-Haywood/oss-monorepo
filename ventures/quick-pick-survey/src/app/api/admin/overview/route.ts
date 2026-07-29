@@ -56,7 +56,7 @@ export async function GET() {
       prisma.couple.count({ where: { joinerId: { not: null } } }),
       prisma.usageEvent.findMany({
         where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
-        select: { event: true, sessionKeyHash: true, sequence: true, occurredAt: true, durationMs: true, statusCode: true, success: true },
+        select: { event: true, sessionKeyHash: true, sequence: true, occurredAt: true, domain: true, durationMs: true, statusCode: true, success: true },
         orderBy: { createdAt: "desc" },
         take: 20_000,
       }),
@@ -200,6 +200,27 @@ export async function GET() {
       }
       return { from, to, n: durations.length, medianMs: median(durations), p95Ms: percentile(durations, 0.95) };
     });
+    const feedbackSubjects = new Set(
+      usageEvents
+        .filter((event) => ["feedback_prompt", "feedback_dismiss", "feedback_submit", "nps_submitted"].includes(event.event))
+        .map((event) => event.domain)
+        .filter((domain): domain is string => domain !== null),
+    );
+    const feedbackResponse = [...feedbackSubjects].map((subject) => {
+      const rows = usageEvents.filter((event) => event.domain === subject);
+      const sessionCount = (eventName: string) => new Set(
+        rows.filter((row) => row.event === eventName && row.success !== false).map((row) => row.sessionKeyHash),
+      ).size;
+      const prompted = sessionCount("feedback_prompt");
+      const submitted = subject === "session" ? sessionCount("nps_submitted") : sessionCount("feedback_submit");
+      return {
+        subject,
+        prompted,
+        submitted,
+        dismissed: sessionCount("feedback_dismiss"),
+        responseRate: prompted ? submitted / prompted : null,
+      };
+    }).sort((a, b) => b.prompted - a.prompted);
     const usage = {
       uniqueSessions: new Set(usageEvents.map((event) => event.sessionKeyHash)).size,
       funnel: funnelEvents.map((event) => ({
@@ -218,6 +239,7 @@ export async function GET() {
         };
       }).sort((a, b) => b.count - a.count),
       transitions: transitionTimes,
+      feedbackResponse,
     };
 
     return NextResponse.json({
