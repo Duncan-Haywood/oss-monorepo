@@ -47,7 +47,11 @@ container_json="$(
       | .name = "migrate"
       | .image = $image
       | .imagePullPolicy = "IfNotPresent"
-      | .command = ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/prisma db seed"]
+      | .command = [
+          "sh",
+          "-c",
+          "export PATH=\"/app/node_modules/.bin:$PATH\"; prisma migrate deploy && prisma db seed"
+        ]
       | del(
           .args,
           .ports,
