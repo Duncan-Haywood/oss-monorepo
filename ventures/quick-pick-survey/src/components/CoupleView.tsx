@@ -63,12 +63,24 @@ type ExplainableInsight = {
   actionablePrescription: string;
 };
 
+type TopSharedItem = {
+  label: string;
+  myPercentile: number;
+  theirPercentile: number;
+  combined: number;
+  category: string | null;
+};
+
 type CompareData = {
   couple: { inviteCode: string; partner: { id: string; firstName: string } | null } | null;
   fit?: Comparison;
   theirFit?: Comparison;
   mirror?: Comparison;
   blindSpots?: Comparison;
+  theirBlindSpots?: Comparison;
+  selfAlignment?: Comparison;
+  topSharedItems?: TopSharedItem[];
+  topSelfMatches?: TopSharedItem[];
   makeThemHappy?: ActionItem[];
   makeYouHappy?: ActionItem[];
   shared?: SharedValue[];
@@ -910,6 +922,45 @@ export function CoupleView() {
         )}
       </section>
 
+      {data.topSharedItems && data.topSharedItems.length > 0 && (
+        <section className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🌟</span>
+            <div>
+              <h2 className="font-semibold text-amber-950 dark:text-amber-100">Top Shared Answer Favorites</h2>
+              <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
+                Exact options you both placed in your highest percentile tiers.
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {data.topSharedItems.map((item) => (
+              <div
+                key={item.label}
+                className="flex items-center justify-between rounded-xl border border-amber-200/80 bg-white p-3 dark:border-amber-800/50 dark:bg-neutral-900"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{item.label}</p>
+                  {item.category && (
+                    <span className="inline-block text-[10px] uppercase font-bold tracking-wider text-amber-700 dark:text-amber-400">
+                      {item.category}
+                    </span>
+                  )}
+                </div>
+                <div className="text-right">
+                  <span className="rounded-lg bg-amber-100 px-2 py-1 text-xs font-bold text-amber-900 dark:bg-amber-900/50 dark:text-amber-200">
+                    {item.combined}% Match
+                  </span>
+                  <p className="mt-0.5 text-[10px] text-neutral-500 dark:text-neutral-400">
+                    You: {item.myPercentile}% | {partnerName}: {item.theirPercentile}%
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <Section
         title="Are you what they want?"
         subtitle={`What ${partnerName} wants in a partner vs. what you want for yourself`}
@@ -930,12 +981,30 @@ export function CoupleView() {
       />
 
       <Section
+        title={`${partnerName}'s blind spots`}
+        subtitle={`What ${partnerName} GUESSED you want vs. what you actually want`}
+        comparison={data.theirBlindSpots}
+        needs={`${partnerName} needs to answer a round in “guess what they want” mode.`}
+        alignedLabel={`${partnerName} read you well here`}
+        divergedLabel={`${partnerName} was most wrong here`}
+      />
+
+      <Section
         title="Shared taste"
         subtitle={`What you each want in a partner`}
         comparison={data.mirror}
         needs="Both of you need to answer the “in a partner” questions."
         alignedLabel="You agree most on"
         divergedLabel="You disagree most on"
+      />
+
+      <Section
+        title="Lifestyle & Values Alignment"
+        subtitle={`What you value in yourself vs. what ${partnerName} values in themselves`}
+        comparison={data.selfAlignment}
+        needs="Both of you need to answer the “for myself” questions."
+        alignedLabel="Shared personal habits & identity"
+        divergedLabel="Different personal priorities"
       />
 
       <Link

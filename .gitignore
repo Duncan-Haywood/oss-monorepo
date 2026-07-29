@@ -29,6 +29,7 @@ trivy-report.json
 
 tmp/
 *.tmp
+.backups/
 .dev-security-report.tmp
 .playwright-cli/
 

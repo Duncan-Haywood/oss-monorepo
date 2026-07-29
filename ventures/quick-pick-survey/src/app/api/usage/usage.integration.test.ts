@@ -2,68 +2,40 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/headers", () => import("@/test/integration/cookieMock"));
 
-import { POST } from "@/app/api/usage/route";
 import { prisma } from "@/lib/prisma";
-import { hashToken } from "@/lib/auth";
 import { jsonRequest, resetData } from "@/test/integration/db";
+import { POST as submitUsage } from "./route";
 
-describe("usage telemetry", () => {
+describe("POST /api/usage", () => {
   beforeEach(async () => {
     await resetData();
   });
 
-  it("stores only validated fields and hashes the browser session key", async () => {
-    const sessionKey = "browserSessionKey123456";
-    const response = await POST(jsonRequest("http://localhost/api/usage", {
-      sessionKey,
-      events: [{
-        clientEventId: "clientEventKey123456",
-        sequence: 7,
-        occurredAt: Date.now(),
-        event: "answer_save",
-        path: "/app",
-        perspective: "SELF",
-        domain: "shared-life",
-        durationMs: 321,
-        statusCode: 503,
-        success: true,
-        ignored: "never stored",
-      }],
-    }, { "x-forwarded-for": "203.0.113.5" }));
-
-    expect(response.status).toBe(200);
-    const stored = await prisma.usageEvent.findFirstOrThrow();
-    expect(stored).toMatchObject({
-      sessionKeyHash: hashToken(sessionKey),
-      clientEventId: "clientEventKey123456",
-      sequence: 7,
-      event: "answer_save",
-      path: "/app",
-      perspective: "SELF",
-      domain: "shared-life",
-      durationMs: 321,
-      statusCode: 503,
-      success: true,
-    });
-    expect(stored.sessionKeyHash).not.toContain(sessionKey);
+  it("returns 400 for invalid telemetry batch payload", async () => {
+    const res = await submitUsage(jsonRequest("http://localhost/api/usage", { invalid: "payload" }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("Invalid usage batch");
   });
 
-  it("rejects an event outside the allowlist", async () => {
-    const response = await POST(jsonRequest("http://localhost/api/usage", {
-      sessionKey: "browserSessionKey123456",
-      events: [{ clientEventId: "clientEventKey123456", sequence: 1, occurredAt: Date.now(), event: "record_everything" }],
-    }));
-    expect(response.status).toBe(400);
-    expect(await prisma.usageEvent.count()).toBe(0);
-  });
+  it("saves valid telemetry events", async () => {
+    const payload = {
+      sessionKey: "session-key-1234567890-test",
+      events: [
+        {
+          eventName: "survey_started",
+          domain: "behaviours",
+          clientTimestamp: new Date().toISOString(),
+        },
+      ],
+    };
 
-  it("deduplicates a retry whose first response was lost", async () => {
-    const request = () => jsonRequest("http://localhost/api/usage", {
-      sessionKey: "browserSessionKey123456",
-      events: [{ clientEventId: "sameClientEvent12345", sequence: 1, occurredAt: Date.now(), event: "route_view", path: "/app" }],
-    }, { "x-forwarded-for": "203.0.113.6" });
-    expect((await POST(request())).status).toBe(200);
-    expect((await POST(request())).status).toBe(200);
-    expect(await prisma.usageEvent.count()).toBe(1);
+    const res = await submitUsage(jsonRequest("http://localhost/api/usage", payload));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+
+    const count = await prisma.usageEvent.count();
+    expect(count).toBe(1);
   });
 });

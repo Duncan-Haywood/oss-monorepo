@@ -20,18 +20,22 @@ import {
   microCommitments,
   rankingFor,
   sharedValues,
+  topSharedItems,
 } from "@/lib/couples";
 
 /**
- * The three comparisons worth showing a couple:
+ * The comparisons worth showing a couple:
  *
- *  fit          — what THEY want in a partner  vs  what YOU want for yourself.
- *                 "Is who I'm becoming what they're actually drawn to?"
- *  mirror       — what YOU want in a partner   vs  what THEY want in a partner.
- *                 Shared taste; a conversation starter, not a scorecard.
- *  blindSpots   — your GUESS at what they want vs  what they actually want.
- *                 The sharpest one: not what you each want, but where
- *                 you're wrong about each other.
+ *  fit             — what THEY want in a partner  vs  what YOU want for yourself.
+ *                    "Is who I'm becoming what they're actually drawn to?"
+ *  mirror          — what YOU want in a partner   vs  what THEY want in a partner.
+ *                    Shared taste; a conversation starter, not a scorecard.
+ *  blindSpots      — your GUESS at what they want vs  what they actually want.
+ *                    Where you're wrong about what they want.
+ *  theirBlindSpots — THEIR guess at what you want vs  what you actually want.
+ *                    How accurately they guessed your preferences.
+ *  selfAlignment   — your SELF ranking            vs  their SELF ranking.
+ *                    Lifestyle and personal values alignment.
  *
  * Only aggregates cross the boundary — never the other person's raw answers.
  */
@@ -49,15 +53,18 @@ export async function GET() {
     }
 
     const partnerId = link.partner.id;
-    const [mySelf, myPartnerWant, myGuess, theirPartnerWant, theirSelf] = await Promise.all([
+    const [mySelf, myPartnerWant, myGuess, theirPartnerWant, theirSelf, theirGuess] = await Promise.all([
       rankingFor(user.id, "SELF"),
       rankingFor(user.id, "PARTNER"),
       rankingFor(user.id, "PARTNER_GUESS"),
       rankingFor(partnerId, "PARTNER"),
       rankingFor(partnerId, "SELF"),
+      rankingFor(partnerId, "PARTNER_GUESS"),
     ]);
 
     const blindSpots = compareRankings(myGuess, theirPartnerWant);
+    const theirBlindSpots = compareRankings(theirGuess, myPartnerWant);
+    const selfAlignment = compareRankings(mySelf, theirSelf);
     const mThemHappy = actionableTop(theirPartnerWant);
     const mMoreToThem = asymmetries(myPartnerWant, theirPartnerWant);
     const explainableInsights = [
@@ -74,6 +81,10 @@ export async function GET() {
       theirFit: compareRankings(myPartnerWant, theirSelf),
       mirror: compareRankings(myPartnerWant, theirPartnerWant),
       blindSpots,
+      theirBlindSpots,
+      selfAlignment,
+      topSharedItems: topSharedItems(myPartnerWant, theirPartnerWant),
+      topSelfMatches: topSharedItems(mySelf, theirSelf),
       // The actually-usable outputs: what to do, what you share, and where
       // something matters far more to them than to you.
       makeThemHappy: mThemHappy,
@@ -96,6 +107,7 @@ export async function GET() {
         myGuess: myGuess.size,
         theirPartnerWant: theirPartnerWant.size,
         theirSelf: theirSelf.size,
+        theirGuess: theirGuess.size,
       },
     });
   } catch (err) {

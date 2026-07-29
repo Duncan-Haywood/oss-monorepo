@@ -17,6 +17,7 @@ import {
   expressionProfiles,
   microCommitments,
   coupleThemeInsights,
+  topSharedItems,
   type Ranking,
 } from "@/lib/couples";
 import { SEED_SURVEYS } from "@/lib/surveyData";
@@ -579,3 +580,16 @@ describe("microCommitments", () => {
     expect(commitments[0].itemLabel).toBe("Bring morning coffee");
   });
 });
+
+describe("topSharedItems", () => {
+  it("returns items where both partners rank the option above the percentile threshold", () => {
+    const mine = padded([["Cooking together", 1900], ["Hiking", 1850], ["Low item", 1000]]);
+    const theirs = padded([["Cooking together", 1900], ["Hiking", 1800], ["Low item", 1000]]);
+
+    const shared = topSharedItems(mine, theirs, 60);
+    expect(shared.length).toBeGreaterThanOrEqual(1);
+    expect(shared[0].label).toBe("Cooking together");
+    expect(shared[0].combined).toBeGreaterThan(60);
+  });
+});
+

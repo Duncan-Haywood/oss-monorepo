@@ -26,20 +26,23 @@ run_ci_test() {
   fi
 }
 
-# 1. Dagger CI Engine Unit Tests
+# 1. Pairwise Unit & Component Tests
+run_ci_test "Pairwise (Quick Pick Survey) Unit Suite" npm --prefix "${REPO_ROOT}/ventures/quick-pick-survey" test
+
+# 2. Dagger CI Engine Unit Tests
 run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/test/pipeline.test.mjs"
 
-# 2. Security Policy Scanner Unit Tests
+# 3. Security Policy Scanner Unit Tests
 run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/scripts/security/test-scan-repository.sh"
 
-# 3. Shell Script Static Analysis (if shellcheck installed)
+# 4. Shell Script Static Analysis (if shellcheck installed)
 if command -v shellcheck >/dev/null 2>&1; then
   run_ci_test "Shell Script Static Analysis (ShellCheck)" shellcheck "${REPO_ROOT}/scripts/"*.sh "${REPO_ROOT}/scripts/security/"*.sh
 else
   echo "ℹ ShellCheck not installed; skipping shell script linting."
 fi
 
-# 4. GitHub/Gitea Actions Workflow Validation (if actionlint installed)
+# 5. GitHub/Gitea Actions Workflow Validation (if actionlint installed)
 if command -v actionlint >/dev/null 2>&1; then
   run_ci_test "Workflow Linting" actionlint .gitea/workflows/*.yml
 else

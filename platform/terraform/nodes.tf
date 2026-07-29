@@ -17,6 +17,7 @@ resource "hcloud_server" "primary_node" {
   server_type        = var.primary_node_type
   location           = var.node_location
   placement_group_id = hcloud_placement_group.cluster_ha_group.id
+  backups            = true
 
   labels = {
     role        = "control-plane"
@@ -25,7 +26,9 @@ resource "hcloud_server" "primary_node" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    # This node owns the local-path volumes for stateful workloads. Replacing or
+    # destroying it must be an explicit break-glass change after a restore test.
+    prevent_destroy = true
   }
 }
 

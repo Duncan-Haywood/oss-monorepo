@@ -283,5 +283,11 @@ describe("the comparison screen", () => {
     // And a real asymmetry, in points out of 100 rather than raw rating.
     expect(body.mattersMoreToThem.length).toBeGreaterThan(0);
     for (const row of body.mattersMoreToThem) expect(row.gap).toBeGreaterThanOrEqual(20);
+
+    // New shared comparison dimensions
+    expect(body.theirBlindSpots).toBeDefined();
+    expect(body.selfAlignment).toBeDefined();
+    expect(Array.isArray(body.topSharedItems)).toBe(true);
+    expect(Array.isArray(body.topSelfMatches)).toBe(true);
   });
 });

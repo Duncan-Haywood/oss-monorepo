@@ -1158,3 +1158,36 @@ export function growthAmbitionMatrix(mine: Ranking, theirs: Ranking): Explainabl
     actionablePrescription: `Draft a joint 3-year vision note highlighting how you'll nurture ${sharedVisions[0].label.toLowerCase()} together.`,
   };
 }
+
+export type TopSharedItem = {
+  label: string;
+  myPercentile: number;
+  theirPercentile: number;
+  combined: number;
+  category: string | null;
+};
+
+/**
+ * Returns exact items where both partners ranked the option in their top percentile tier.
+ */
+export function topSharedItems(myRanking: Ranking, theirRanking: Ranking, minPercentile = 60): TopSharedItem[] {
+  const sMine = strengthScores(myRanking);
+  const sTheirs = strengthScores(theirRanking);
+  const out: TopSharedItem[] = [];
+
+  for (const [label, myPct] of sMine.entries()) {
+    const theirPct = sTheirs.get(label);
+    if (theirPct !== undefined && myPct >= minPercentile && theirPct >= minPercentile) {
+      out.push({
+        label,
+        myPercentile: Math.round(myPct),
+        theirPercentile: Math.round(theirPct),
+        combined: Math.round((myPct + theirPct) / 2),
+        category: myRanking.get(label)?.category ?? null,
+      });
+    }
+  }
+
+  return out.sort((a, b) => b.combined - a.combined).slice(0, 10);
+}
+

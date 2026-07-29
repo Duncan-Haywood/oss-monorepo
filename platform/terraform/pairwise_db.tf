@@ -18,6 +18,9 @@ resource "kubernetes_deployment" "pairwise_db" {
 
   spec {
     replicas = 1
+    strategy {
+      type = "Recreate"
+    }
 
     selector {
       match_labels = {
@@ -66,6 +69,37 @@ resource "kubernetes_deployment" "pairwise_db" {
             container_port = 5432
           }
 
+          readiness_probe {
+            exec {
+              command = ["pg_isready", "-U", "postgres", "-d", "pairwise"]
+            }
+            initial_delay_seconds = 5
+            period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 6
+          }
+
+          liveness_probe {
+            exec {
+              command = ["pg_isready", "-U", "postgres", "-d", "pairwise"]
+            }
+            initial_delay_seconds = 30
+            period_seconds        = 20
+            timeout_seconds       = 5
+            failure_threshold     = 6
+          }
+
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "256Mi"
+            }
+            limits = {
+              cpu    = "1"
+              memory = "1Gi"
+            }
+          }
+
           volume_mount {
             name       = "db-data"
             mount_path = "/var/lib/postgresql/data"
@@ -112,6 +146,12 @@ resource "kubernetes_persistent_volume_claim" "pairwise_db_pvc" {
         storage = "10Gi"
       }
     }
+  }
+
+  lifecycle {
+    # The database volume must survive Terraform destroy and refactors. Removing
+    # it requires temporarily deleting this guard as an explicit break-glass act.
+    prevent_destroy = true
   }
 }
 
