@@ -15,8 +15,8 @@
 - Complete SEC-004 through SEC-006.
 - Pin deployment and scanner images by digest and external actions by reviewed
   commit SHA.
-- Enforce deployment approval in Gitea-compatible workflow logic; Gitea ignores
-  the GitHub `environment` approval feature.
+- Enforce deployment approval in Gitea-compatible workflow logic; Gitea does
+  not use an `environment` declaration as a production approval gate.
 - Add a Gitea-compatible dependency updater such as Renovate.
 - Add container-image scanning before publication and again on a weekly schedule.
 - Define patch service levels: critical within 24 hours, high within 7 days,

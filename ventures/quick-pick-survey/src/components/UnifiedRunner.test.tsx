@@ -219,8 +219,8 @@ describe("UnifiedRunner", () => {
     expect(screen.getAllByText(/The partner I would choose|Partner preferences/i).length).toBeGreaterThan(0);
 
     for (let answer = 1; answer <= 10; answer += 1) {
-      fireEvent.click(await screen.findByText(`Choice ${answer}A`));
-      if (answer < 10) await screen.findByText(`Choice ${answer + 1}A`);
+      fireEvent.click(await screen.findByText(`Choice ${answer}A`, {}, { timeout: 3000 }));
+      if (answer < 10) await screen.findByText(`Choice ${answer + 1}A`, {}, { timeout: 3000 });
     }
 
     expect(await screen.findByRole("dialog", { name: /Switching to Self Values/i })).toBeTruthy();

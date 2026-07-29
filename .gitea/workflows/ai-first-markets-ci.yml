@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ai-first-markets-ci-${{ gitea.workflow }}-${{ gitea.ref }}
+  group: ai-first-markets-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 defaults:
@@ -37,5 +37,5 @@ jobs:
           cache-dependency-path: ventures/ai-first-markets/package-lock.json
       - run: npm ci
       - name: Run the same fail-closed application gate used locally
-        working-directory: ${{ gitea.workspace }}
+        working-directory: ${{ github.workspace }}
         run: bash scripts/ci/verify-component.sh ai-first-markets
