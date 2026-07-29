@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/headers", () => import("@/test/integration/cookieMock"));
+vi.mock("@/lib/email", () => ({
+  sendPasswordResetEmail: vi.fn().mockResolvedValue(undefined),
+}));
 
 import { rateLimitKey } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
