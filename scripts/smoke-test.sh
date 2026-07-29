@@ -81,7 +81,7 @@ echo "--- 2. PAIRWISE APPLICATION SMOKE TESTS ---"
 test_endpoint "Pairwise Landing Page" "https://${PAIRWISE_DOMAIN}" 200
 test_endpoint "Pairwise Process Liveness" "https://${PAIRWISE_DOMAIN}/api/health" 200
 test_endpoint "Pairwise Database Readiness" "https://${PAIRWISE_DOMAIN}/api/health/ready" 200
-test_content "Pairwise App Section" "https://${PAIRWISE_DOMAIN}" "What you’ll do"
+test_content "Pairwise App Section" "https://${PAIRWISE_DOMAIN}" "How It Works"
 test_content "Pairwise CTA Check" "https://${PAIRWISE_DOMAIN}" "Start choosing"
 test_endpoint "Pairwise Try Page" "https://${PAIRWISE_DOMAIN}/app" 200
 test_endpoint "Pairwise Couple Linking Page" "https://${PAIRWISE_DOMAIN}/couple" 200
