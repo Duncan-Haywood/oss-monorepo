@@ -1,63 +1,36 @@
-name: Repository and Platform CI
+name: Monorepo Production & Staging CI/CD Pipeline
 
 on:
-  pull_request:
-    paths:
-      - ".gitea/workflows/**"
-      - "platform/**"
-      - "scripts/**"
   push:
-    branches: [main]
-    paths:
-      - ".gitea/workflows/**"
-      - "platform/**"
-      - "scripts/**"
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: repository-platform-${{ gitea.workflow }}-${{ gitea.ref }}
-  cancel-in-progress: true
+  group: monorepo-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  contracts:
-    name: CI and repository contracts
+  verify:
+    name: Verify Monorepo via Dagger CI Engine
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - name: Test component verification contract
-        run: bash scripts/ci/test-verify-component.sh
-      - name: Test repository policy scanner
-        run: bash scripts/security/test-scan-repository.sh
-      - name: Enforce repository policy
-        run: bash scripts/security/scan-repository.sh "$RUNNER_TEMP/security-policy.md"
 
-  terraform:
-    name: Terraform static validation
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c3800040652e742e88a38b1f # v4.1.0
         with:
-          persist-credentials: false
-      - uses: hashicorp/setup-terraform@b9cd790757a3e7828004f2f9ff0ed28987ec854b # v3.1.2
-        with:
-          terraform_version: 1.11.4
-      - name: Check formatting
-        run: terraform -chdir=platform/terraform fmt -check -recursive
-      - name: Initialize without a backend
-        run: terraform -chdir=platform/terraform init -backend=false -input=false
-      - name: Validate configuration
-        run: terraform -chdir=platform/terraform validate
+          node-version: 22
 
-  pairwise-contract:
-    name: Pairwise publishing contract
-    runs-on: ubuntu-latest
-    steps:
-      - name: Verify image tagging contract
-        run: echo "Publishing image pairwise:${{ gitea.sha }} by immutable commit SHA"
+      - name: Run Monorepo Unified Dagger Verification Engine
+        run: |
+          chmod +x scripts/verify-all.sh
+          ./scripts/verify-all.sh

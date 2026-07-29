@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: security-${{ gitea.ref }}
+  group: security-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -55,7 +55,7 @@ jobs:
             || scan_status=1
           exit "$scan_status"
 
-      - name: Retain security evidence in Gitea
+      - name: Retain security evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -109,10 +109,10 @@ jobs:
           corepack pnpm audit --audit-level=high
 
   log-failure:
-    name: Log failed scan in Gitea
+    name: Log failed scan issue
     if: >-
       always() &&
-      gitea.event_name != 'pull_request' &&
+      github.event_name != 'pull_request' &&
       (needs.scan.result == 'failure' ||
        needs.dependency-audit.result == 'failure')
     needs: [scan, dependency-audit]
@@ -129,8 +129,8 @@ jobs:
       - name: Create or update remediation issue
         env:
           GITEA_API_TOKEN: ${{ secrets.GITEA_TOKEN }}
-          GITEA_SERVER_URL: ${{ gitea.server_url }}
-          GITEA_REPOSITORY: ${{ gitea.repository }}
-          GITEA_RUN_ID: ${{ gitea.run_id }}
-          GITEA_SHA: ${{ gitea.sha }}
+          GITEA_SERVER_URL: ${{ github.server_url }}
+          GITEA_REPOSITORY: ${{ github.repository }}
+          GITEA_RUN_ID: ${{ github.run_id }}
+          GITEA_SHA: ${{ github.sha }}
         run: bash scripts/security/log-gitea-failure.sh
