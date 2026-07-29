@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: repository-platform-${{ github.workflow }}-${{ github.ref }}
+  group: repository-platform-${{ gitea.workflow }}-${{ gitea.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -60,4 +60,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Verify image tagging contract
-        run: echo "Publishing image pairwise:${{ github.sha }} by immutable commit SHA"
+        run: echo "Publishing image pairwise:${{ gitea.sha }} by immutable commit SHA"

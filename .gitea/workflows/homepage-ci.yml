@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: homepage-${{ github.workflow }}-${{ github.ref }}
+  group: homepage-${{ gitea.workflow }}-${{ gitea.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -32,6 +32,6 @@ jobs:
         with:
           context: portfolio/marisstella-homepage
           push: false
-          tags: marisstella-homepage-ci:${{ github.sha }}
+          tags: marisstella-homepage-ci:${{ gitea.sha }}
           cache-from: type=gha,scope=homepage
           cache-to: type=gha,mode=max,scope=homepage

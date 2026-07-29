@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: terraform-${{ github.ref }}
+  group: terraform-${{ gitea.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -50,7 +50,7 @@ jobs:
         run: terraform validate
 
       - name: Setup Kubeconfig for manual plan
-        if: github.event_name == 'workflow_dispatch'
+        if: gitea.event_name == 'workflow_dispatch'
         shell: bash
         env:
           HETZNER_KUBECONFIG: ${{ secrets.HETZNER_KUBECONFIG }}
@@ -61,7 +61,7 @@ jobs:
           echo "KUBECONFIG=$RUNNER_TEMP/kube/config" >> "$GITEA_ENV"
 
       - name: Terraform Plan
-        if: github.event_name == 'workflow_dispatch'
+        if: gitea.event_name == 'workflow_dispatch'
         env:
           TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           TF_VAR_mimo_api_key: ${{ secrets.MIMO_API_KEY }}
@@ -72,8 +72,8 @@ jobs:
   apply:
     name: Apply reviewed Terraform
     if: >-
-      github.event_name == 'workflow_dispatch' &&
-      github.ref == 'refs/heads/main' &&
+      gitea.event_name == 'workflow_dispatch' &&
+      gitea.ref == 'refs/heads/main' &&
       inputs.confirm_apply == 'APPLY'
     needs: plan
     runs-on: ubuntu-24.04
