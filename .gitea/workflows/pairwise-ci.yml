@@ -6,6 +6,7 @@ on:
       - "ventures/quick-pick-survey/**"
       - ".gitea/workflows/pairwise-ci.yml"
   push:
+    # Every Pairwise change merged to main must pass the release gates and deploy.
     branches: [main]
     paths:
       - "ventures/quick-pick-survey/**"
