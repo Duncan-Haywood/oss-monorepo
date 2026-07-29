@@ -197,7 +197,7 @@ function PickStamp({ progress, position }: { progress: number; position: "top" |
 }
 
 const cardBase =
-  "group relative flex flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-amber-200/80 bg-[#fff8e8] bg-[url('/card-art/intuition-background.webp')] bg-cover bg-center px-6 py-4 text-center shadow-[0_18px_45px_-24px_rgba(120,53,15,.55)] disabled:opacity-50 dark:border-amber-900/60 dark:bg-neutral-950 dark:bg-blend-soft-light select-none";
+  "group relative flex flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-amber-200/80 bg-[#fff8e8] bg-[url('/card-art/intuition-background.webp')] bg-cover bg-center px-6 py-4 text-center shadow-[0_18px_45px_-24px_rgba(120,53,15,.55)] disabled:opacity-50 dark:border-amber-900/60 dark:bg-neutral-950 dark:bg-blend-soft-light select-none touch-manipulation";
 
 /**
  * The action row under the deck. Buttons are explicitly labelled ("Top" /
