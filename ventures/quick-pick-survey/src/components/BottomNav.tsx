@@ -18,6 +18,10 @@ const TABS = [
 export function BottomNav() {
   const pathname = usePathname();
 
+  // The public landing page has its own focused navigation and calls to action.
+  // Showing app tabs here makes it read like an already-active session.
+  if (pathname === "/") return null;
+
   return (
     <nav
       aria-label="Main"
