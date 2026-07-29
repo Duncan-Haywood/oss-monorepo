@@ -23,6 +23,7 @@ resource "helm_release" "argocd" {
           annotations = {
             "cert-manager.io/cluster-issuer"                   = "letsencrypt-prod"
             "traefik.ingress.kubernetes.io/router.entrypoints" = "web,websecure"
+            "traefik.ingress.kubernetes.io/router.middlewares" = "monitoring-admin-auth@kubernetescrd,kube-system-security-headers@kubernetescrd"
           }
         }
       }
@@ -31,6 +32,6 @@ resource "helm_release" "argocd" {
 }
 
 output "argocd_url" {
-  value       = "http://argocd.marisstella.dev"
+  value       = "https://argocd.marisstella.dev"
   description = "ArgoCD GitOps Dashboard URL"
 }
