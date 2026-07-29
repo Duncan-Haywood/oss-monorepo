@@ -19,7 +19,11 @@ describe("GET /api/surveys/[slug]", () => {
       title: "Behaviours",
       description: "Survey on daily relationship behaviours",
     };
-    vi.mocked(prisma.survey.findUnique).mockResolvedValue(mockSurvey as any);
+    vi.mocked(prisma.survey.findUnique).mockResolvedValue(
+      mockSurvey as unknown as NonNullable<
+        Awaited<ReturnType<typeof prisma.survey.findUnique>>
+      >,
+    );
 
     const req = new NextRequest("http://localhost/api/surveys/behaviours");
     const params = Promise.resolve({ slug: "behaviours" });
