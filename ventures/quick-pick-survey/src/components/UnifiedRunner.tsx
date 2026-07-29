@@ -297,7 +297,7 @@ export function UnifiedRunner() {
     };
   }, [restored, update]);
 
-  const pendingPrefetchRef = useRef<Promise<any> | null>(null);
+  const pendingPrefetchRef = useRef<Promise<unknown> | null>(null);
 
   const prefetchNext = useCallback(
     async (slug: string, pid: string, kind: DomainState["kind"]) => {

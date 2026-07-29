@@ -1,0 +1,16 @@
+{
+  "destination_root": "/Users/duncan/Projects/monorepo-projects/ventures/photo-editing/tmpj_kkkjfu/library",
+  "items": [
+    {
+      "checksum_sha256": "79fd615a866fe7f9eb4da8d9c41ab57e3bd48056df42fd2c13e4d461a87afbe3",
+      "destination": "/Users/duncan/Projects/monorepo-projects/ventures/photo-editing/tmpj_kkkjfu/library/2026-05-09_production-report/originals/DCIM/A001.MOV",
+      "relative_path": "DCIM/A001.MOV",
+      "size_bytes": 11,
+      "source": "/Users/duncan/Projects/monorepo-projects/ventures/photo-editing/tmpj_kkkjfu/card/DCIM/A001.MOV"
+    }
+  ],
+  "shoot_date": "2026-05-09",
+  "shoot_slug": "production-report",
+  "source_deleted": false,
+  "source_root": "/Users/duncan/Projects/monorepo-projects/ventures/photo-editing/tmpj_kkkjfu/card"
+}

@@ -29,12 +29,15 @@
 ## Security Hardening Roadmap & Action Items
 
 ### Phase 1: High-Priority Baseline Hardening (Current Sprint)
-- [x] Enforce least-privilege permissions (`permissions: contents: read`) across all Gitea Actions workflows.
+- [x] Enforce least-privilege permissions (`permissions: contents: read`) across all Gitea and GitHub Actions workflows.
 - [x] Configure non-root unprivileged container users in application Dockerfiles.
 - [x] Harden `.gitignore` to prevent credential, token, and SSH/TLS private key accidental check-ins.
-- [x] Implement automated CI security scanning workflow (`.gitea/workflows/security-scan.yml`).
+- [x] Implement automated CI security scanning workflow (`.gitea/workflows/security.yml` and `.github/workflows/security.yml`).
+- [x] Implement programmable Dagger CI engine (`platform/ci/`) with BuildKit container caching and monorepo affected-path change detection.
+- [x] Implement CI self-testing test runner (`scripts/test-ci.sh`) to test CI engine unit logic, policy scanners, shell scripts, and workflow YAML syntax.
 
 ### Phase 2: Dependency & Infrastructure Remediation (Short-Term)
+- [x] Eliminate workflow syntax bugs and align Gitea/GitHub Actions context variable references across all pipelines.
 - [ ] Remediate high/critical dependency vulnerabilities reported in package audit logs using `npm audit fix`.
 - [ ] Enforce automated secret scanning with Gitleaks / Trivy in pre-commit hooks and PR builds.
 - [ ] Implement automated Trivy IaC static analysis for Terraform (`platform/terraform`) and K8s (`platform/k8s`).

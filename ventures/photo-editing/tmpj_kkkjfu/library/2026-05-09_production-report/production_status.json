@@ -1,0 +1,75 @@
+{
+  "job_statuses": [
+    {
+      "attempts": 1,
+      "error_message": null,
+      "job_id": "proxy_asset_00000",
+      "output_checksums": [
+        {
+          "path": "proxies/proxy_asset_00000/A001.MOV",
+          "sha256": "0019fe5dffabc85ae44e4522f1c2bc477897cfc85e69c6805ce17ca3dc4a57bf"
+        }
+      ],
+      "state": "succeeded",
+      "updated_at": "2026-05-09T17:02:05Z",
+      "worker_adapter": "dry-run-production-local"
+    },
+    {
+      "attempts": 1,
+      "error_message": null,
+      "job_id": "analyze_asset_00000",
+      "output_checksums": [],
+      "state": "running",
+      "updated_at": "2026-05-09T17:02:00Z",
+      "worker_adapter": "dry-run-production-local"
+    },
+    {
+      "attempts": 0,
+      "error_message": null,
+      "job_id": "group_scene_sets",
+      "output_checksums": [],
+      "state": "pending",
+      "updated_at": null,
+      "worker_adapter": null
+    },
+    {
+      "attempts": 0,
+      "error_message": null,
+      "job_id": "develop_shoot_look",
+      "output_checksums": [],
+      "state": "pending",
+      "updated_at": null,
+      "worker_adapter": null
+    },
+    {
+      "attempts": 0,
+      "error_message": null,
+      "job_id": "grade_asset_00000",
+      "output_checksums": [],
+      "state": "pending",
+      "updated_at": null,
+      "worker_adapter": null
+    },
+    {
+      "attempts": 0,
+      "error_message": null,
+      "job_id": "rank_instagram_storylines",
+      "output_checksums": [],
+      "state": "pending",
+      "updated_at": null,
+      "worker_adapter": null
+    },
+    {
+      "attempts": 0,
+      "error_message": null,
+      "job_id": "assemble_instagram_reel",
+      "output_checksums": [],
+      "state": "pending",
+      "updated_at": null,
+      "worker_adapter": null
+    }
+  ],
+  "production_plan_fingerprint": "257eb06be3c6417d0ec774a9f4e85728951c0be6622718651e2a07d5335ca8df",
+  "schema_version": 1,
+  "shoot_slug": "production-report"
+}
