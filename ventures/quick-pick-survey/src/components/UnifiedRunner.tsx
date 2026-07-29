@@ -448,7 +448,7 @@ export function UnifiedRunner() {
 
     let upcomingTrial = nextTrial;
     if (!upcomingTrial && pendingPrefetchRef.current) {
-      upcomingTrial = await pendingPrefetchRef.current;
+      upcomingTrial = (await pendingPrefetchRef.current) as Trial | null;
     }
     pendingPrefetchRef.current = null;
 
