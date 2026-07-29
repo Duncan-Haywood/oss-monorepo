@@ -158,7 +158,11 @@ jobs:
           IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
         run: |
           cleanup() {
-            docker rm --force pairwise-container-smoke >/dev/null 2>&1 || true
+            if docker ps --all --quiet \
+              --filter name=pairwise-container-smoke |
+                grep -q .; then
+              docker rm --force pairwise-container-smoke >/dev/null
+            fi
           }
           trap cleanup EXIT
           docker run --detach \
