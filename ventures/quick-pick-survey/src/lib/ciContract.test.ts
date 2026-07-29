@@ -14,12 +14,16 @@ const monorepoCiPath = existsSync(monorepoCiPathGitea) ? monorepoCiPathGitea : m
 const PAIRWISE_CI = existsSync(pairwiseCiPath) ? readFileSync(pairwiseCiPath, "utf8") : "";
 const MONOREPO_CI = existsSync(monorepoCiPath) ? readFileSync(monorepoCiPath, "utf8") : "";
 const PAIRWISE_DEPLOY = readFileSync(join(ROOT, "platform/ci/deploy-pairwise.sh"), "utf8");
+const PAIRWISE_SMOKE = readFileSync(join(ROOT, "platform/ci/smoke-test-pairwise.sh"), "utf8");
 
 describe("Pairwise CI contract", () => {
   it.skipIf(!PAIRWISE_CI)("is a repository-root workflow scoped to Pairwise changes", () => {
     expect(PAIRWISE_CI).toContain('"ventures/quick-pick-survey/**"');
     expect(PAIRWISE_CI).toMatch(/workflows\/pairwise-ci\.yml/);
     expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
+    expect(PAIRWISE_CI).toContain('"platform/terraform/helm/web-service/**"');
+    expect(PAIRWISE_CI).toContain('"platform/terraform/services.tf"');
+    expect(PAIRWISE_CI).toContain('"platform/terraform/autoscaling.tf"');
     expect(PAIRWISE_CI).toMatch(/timeout-minutes:\s*20/);
   });
 
@@ -44,6 +48,7 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain("image: postgres:16");
     expect(PAIRWISE_CI).toContain("prisma migrate deploy");
     expect(PAIRWISE_CI).toContain("docker build");
+    expect(PAIRWISE_CI).toContain("pairwise-container-smoke");
     expect(PAIRWISE_CI).toContain("docker push");
     expect(PAIRWISE_CI).toContain("git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}");
     expect(PAIRWISE_CI).toContain("needs: [app, database]");
@@ -54,6 +59,12 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain("HETZNER_KUBECONFIG");
     expect(PAIRWISE_CI).toContain("PAIRWISE_REGISTRY_TOKEN");
     expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
+    expect(PAIRWISE_DEPLOY).toContain("create poddisruptionbudget");
+    expect(PAIRWISE_DEPLOY).toContain("maxUnavailable");
+    expect(PAIRWISE_DEPLOY).toContain("smoke-test-pairwise.sh");
+    expect(PAIRWISE_SMOKE).toContain("/api/health/ready");
+    expect(PAIRWISE_SMOKE).toContain("/api/surveys/combined");
+    expect(PAIRWISE_SMOKE).toContain("/couple");
   });
 
   it("gives migrations and the idempotent seed enough memory to complete", () => {

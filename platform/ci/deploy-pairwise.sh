@@ -5,6 +5,7 @@ namespace="${PAIRWISE_NAMESPACE:-web-services}"
 deployment="${PAIRWISE_DEPLOYMENT:-quick-pick-survey-web-service}"
 container="${PAIRWISE_CONTAINER:-web-service}"
 registry_secret="${PAIRWISE_REGISTRY_SECRET:-pairwise-registry}"
+instance="${PAIRWISE_INSTANCE:-quick-pick-survey}"
 rollout_timeout="${PAIRWISE_ROLLOUT_TIMEOUT:-10m}"
 
 : "${IMAGE:?IMAGE is required}"
@@ -28,6 +29,13 @@ kubectl -n "$namespace" create secret docker-registry "$registry_secret" \
   --docker-server="$REGISTRY_SERVER" \
   --docker-username="$REGISTRY_USERNAME" \
   --docker-password="$REGISTRY_TOKEN" \
+  --dry-run=client \
+  -o yaml |
+  kubectl apply -f -
+
+kubectl -n "$namespace" create poddisruptionbudget "$deployment" \
+  --selector="app.kubernetes.io/name=web-service,app.kubernetes.io/instance=${instance}" \
+  --min-available=1 \
   --dry-run=client \
   -o yaml |
   kubectl apply -f -
@@ -134,6 +142,7 @@ fi
 kubectl -n "$namespace" patch deployment "$deployment" --type=merge -p "$(
   jq -cn \
     --arg secret "$registry_secret" \
+    --arg container "$container" \
     '{
       spec: {
         minReadySeconds: 5,
@@ -148,7 +157,13 @@ kubectl -n "$namespace" patch deployment "$deployment" --type=merge -p "$(
         template: {
           spec: {
             imagePullSecrets: [{name: $secret}],
-            terminationGracePeriodSeconds: 30
+            terminationGracePeriodSeconds: 30,
+            containers: [
+              {
+                name: $container,
+                imagePullPolicy: "Always"
+              }
+            ]
           }
         }
       }
@@ -173,13 +188,55 @@ if ! kubectl -n "$namespace" rollout status \
   exit 1
 fi
 
+deployment_json="$(kubectl -n "$namespace" get deployment "$deployment" -o json)"
+actual_image="$(
+  jq -r \
+    --arg container "$container" \
+    '.spec.template.spec.containers[] | select(.name == $container) | .image' \
+    <<<"$deployment_json"
+)"
+[[ "$actual_image" == "$IMAGE" ]] || {
+  printf 'Deployment image mismatch: expected %s, got %s\n' "$IMAGE" "$actual_image" >&2
+  exit 1
+}
+
+jq -e '
+  .spec.strategy.type == "RollingUpdate"
+  and (.spec.strategy.rollingUpdate.maxUnavailable | tostring) == "0"
+  and (.spec.strategy.rollingUpdate.maxSurge | tostring) == "1"
+  and .spec.minReadySeconds >= 5
+  and .status.replicas > 0
+  and .status.readyReplicas == .status.replicas
+  and .status.updatedReplicas == .status.replicas
+  and ((.status.unavailableReplicas // 0) == 0)
+' <<<"$deployment_json" >/dev/null || {
+  printf 'Deployment failed its zero-downtime readiness invariants.\n' >&2
+  exit 1
+}
+
+pod_json="$(
+  kubectl -n "$namespace" get pods \
+    -l "app.kubernetes.io/name=web-service,app.kubernetes.io/instance=${instance}" \
+    -o json
+)"
+jq -e \
+  --arg image "$IMAGE" \
+  --arg container "$container" \
+  '
+    .items | length > 0
+    and all(.[];
+      (.spec.containers[] | select(.name == $container) | .image) == $image
+      and (.status.containerStatuses[] | select(.name == $container) | .ready)
+    )
+  ' <<<"$pod_json" >/dev/null || {
+  printf 'Not every Pairwise pod is ready on the promoted image.\n' >&2
+  exit 1
+}
+
 ingress_host="$(
   kubectl -n "$namespace" get ingress "$deployment" \
     -o jsonpath='{.spec.rules[0].host}'
 )"
-curl --fail --silent --show-error --retry 5 --retry-all-errors \
-  "https://${ingress_host}/api/health" >/dev/null
-curl --fail --silent --show-error --retry 5 --retry-all-errors \
-  "https://${ingress_host}/api/health/ready" >/dev/null
+"$(dirname "$0")/smoke-test-pairwise.sh" "$ingress_host"
 
 printf 'Deployed %s with zero unavailable replicas.\n' "$IMAGE"

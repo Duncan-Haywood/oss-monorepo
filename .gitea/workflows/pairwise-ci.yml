@@ -6,7 +6,11 @@ on:
       - "ventures/quick-pick-survey/**"
       - ".gitea/workflows/pairwise-ci.yml"
       - "platform/ci/deploy-pairwise.sh"
+      - "platform/ci/smoke-test-pairwise.sh"
       - "platform/k8s/apps/quick-pick-survey/**"
+      - "platform/terraform/helm/web-service/**"
+      - "platform/terraform/services.tf"
+      - "platform/terraform/autoscaling.tf"
   push:
     # Every Pairwise change merged to main must pass the release gates and deploy.
     branches: [main]
@@ -14,7 +18,11 @@ on:
       - "ventures/quick-pick-survey/**"
       - ".gitea/workflows/pairwise-ci.yml"
       - "platform/ci/deploy-pairwise.sh"
+      - "platform/ci/smoke-test-pairwise.sh"
       - "platform/k8s/apps/quick-pick-survey/**"
+      - "platform/terraform/helm/web-service/**"
+      - "platform/terraform/services.tf"
+      - "platform/terraform/autoscaling.tf"
   workflow_dispatch:
 
 permissions:
@@ -145,6 +153,38 @@ jobs:
           --tag "$IMAGE"
           .
 
+      - name: Smoke test the exact deployable image
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
+        run: |
+          cleanup() {
+            if docker ps --all --quiet \
+              --filter name=pairwise-container-smoke |
+                grep -q .; then
+              docker rm --force pairwise-container-smoke >/dev/null
+            fi
+          }
+          trap cleanup EXIT
+          docker run --detach \
+            --name pairwise-container-smoke \
+            --env POSTGRES_PRISMA_URL=postgresql://unused:unused@127.0.0.1:5432/unused \
+            --env POSTGRES_URL_NON_POOLING=postgresql://unused:unused@127.0.0.1:5432/unused \
+            --env ADMIN_KEY=container-smoke-admin \
+            --env ADMIN_SESSION_SECRET=container-smoke-session \
+            --env RATE_LIMIT_SECRET=container-smoke-rate-limit \
+            "$IMAGE"
+          for attempt in $(seq 1 30); do
+            if docker exec pairwise-container-smoke \
+              wget --quiet --output-document=- \
+                http://127.0.0.1:3000/api/health |
+                grep -Fq '"status":"ok"'; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs pairwise-container-smoke
+          exit 1
+
       - name: Publish immutable main image
         if: github.ref == 'refs/heads/main'
         env:
@@ -153,7 +193,7 @@ jobs:
         run: |
           printf '%s' "$REGISTRY_TOKEN" |
             docker login git.marisstella.dev \
-              --username "${{ github.actor }}" \
+              --username giteaadmin \
               --password-stdin
           docker push "$IMAGE"
           docker tag "$IMAGE" git.marisstella.dev/giteaadmin/pairwise-app:latest
@@ -210,7 +250,7 @@ jobs:
           KUBECONFIG: ${{ runner.temp }}/kube/config
           IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
           REGISTRY_SERVER: git.marisstella.dev
-          REGISTRY_USERNAME: ${{ github.actor }}
+          REGISTRY_USERNAME: giteaadmin
           REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
           RELEASE_REVISION: ${{ github.sha }}
         run: platform/ci/deploy-pairwise.sh

@@ -25,8 +25,16 @@ that gate.
    The migration/seed job has a dedicated 1 GiB memory limit because the full
    idempotent seed exceeds the web container's steady-state memory envelope.
 9. Kubernetes keeps every existing ready replica available while the new
-   ReplicaSet becomes ready. CI waits for the rollout and both health endpoints.
-   A failed rollout is returned to the previous ReplicaSet.
+   ReplicaSet becomes ready. CI verifies the immutable image, rollout strategy,
+   ready replicas, pod image consistency, and PodDisruptionBudget.
+10. The production smoke suite checks liveness, database readiness, seeded
+    survey reads, public application pages, and required security headers.
+    A failed rollout is returned to the previous ReplicaSet.
+
+An attached recurring Codex task follows
+`platform/ci/PAIRWISE-AI-REPAIR.md`: it inspects failed runs, makes only
+Pairwise-scoped fixes, reruns every gate, and stops for human input after three
+unsuccessful attempts at the same blocker.
 
 Production promotion is serialized: a newer commit cannot cancel a migration
 or rollout already in progress. No `latest`, `main`, or other mutable image tag
