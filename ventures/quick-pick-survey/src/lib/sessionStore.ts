@@ -30,6 +30,8 @@ export type SessionDomain = { slug: string; title: string; kind: DomainState["ki
 
 export type SessionBundle = {
   firstName: string;
+  /** The person this relationship check-in is about; kept client-side. */
+  partnerName?: string;
   perspective?: PerspectiveValue;
   participants: Record<string, string>;
   domains: SessionDomain[];
@@ -61,7 +63,7 @@ export function parseSessionBundle(raw: string | null): SessionBundle | null {
 export function coerceSessionBundle(parsed: unknown): SessionBundle | null {
   if (!parsed || typeof parsed !== "object") return null;
 
-  const { firstName, perspective, participants, domains } = parsed as Record<string, unknown>;
+  const { firstName, partnerName, perspective, participants, domains } = parsed as Record<string, unknown>;
   if (!participants || typeof participants !== "object") return null;
   if (!Array.isArray(domains) || domains.length === 0) return null;
 
@@ -79,6 +81,9 @@ export function coerceSessionBundle(parsed: unknown): SessionBundle | null {
 
   return {
     firstName: typeof firstName === "string" ? firstName : "",
+    partnerName: typeof partnerName === "string" && partnerName.trim()
+      ? partnerName.trim().slice(0, 60)
+      : undefined,
     perspective: parsePerspective(perspective) ?? undefined,
     participants: Object.fromEntries(usable.map((d) => [d.slug, ids[d.slug] as string])),
     domains: usable,

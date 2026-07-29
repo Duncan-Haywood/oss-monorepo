@@ -23,6 +23,7 @@ const LS_KEY = "survey:unified:session";
 
 const BUNDLE = {
   firstName: "Ada",
+  partnerName: "Grace",
   perspective: "PARTNER" as const,
   participants: { activities: "p-act" },
   domains: [{ slug: "activities", title: "Activities", kind: "ITEMS" as const }],
@@ -77,6 +78,21 @@ describe("UnifiedRunner", () => {
     stubFetch({ "/api/auth/me": noAccount });
     render(<UnifiedRunner />);
     expect(await screen.findByRole("button", { name: /Start our couples check-in/i })).toBeTruthy();
+    expect(screen.getByLabelText(/partner's name/i)).toBeTruthy();
+  });
+
+  it("uses the partner's name instead of generic partner language", async () => {
+    localStorage.setItem(LS_KEY, JSON.stringify(BUNDLE));
+    stubFetch({
+      "/api/auth/me": noAccount,
+      "/api/session/status": emptyStatus,
+      "/api/trials/next": () => itemsTrial("t1", "Listens without checking a phone", "Plans a date"),
+    });
+
+    render(<UnifiedRunner />);
+
+    expect(await screen.findByText(/For your relationship with Grace: Which would matter more?/i)).toBeTruthy();
+    expect(screen.getByText(/Focus: Your relationship with Grace/i)).toBeTruthy();
   });
 
   it("says what starting costs a signed-out person, before they start", async () => {
@@ -87,7 +103,7 @@ describe("UnifiedRunner", () => {
     // last point before data is written, and it is the only screen someone
     // who never signs in is guaranteed to see, so the claim and the policy
     // link belong here rather than only in /privacy.
-    expect(await screen.findByText(/no name, no email/i)).toBeTruthy();
+    expect(await screen.findByText(/name you enter stay on this device/i)).toBeTruthy();
     const policy = screen.getByRole("link", { name: "Privacy" });
     expect(policy.getAttribute("href")).toBe("/privacy");
   });
@@ -214,9 +230,10 @@ describe("UnifiedRunner", () => {
     });
 
     render(<UnifiedRunner />);
+    fireEvent.change(await screen.findByLabelText(/partner's name/i), { target: { value: "Grace" } });
     fireEvent.click(await screen.findByRole("button", { name: /The partner I would choose|Start our couples check-in/i }));
     expect(await screen.findByText("Choice 1A")).toBeTruthy();
-    expect(screen.getAllByText(/The partner I would choose|Partner preferences/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Your relationship with Grace/i).length).toBeGreaterThan(0);
 
     for (let answer = 1; answer <= 10; answer += 1) {
       fireEvent.click(await screen.findByText(`Choice ${answer}A`, {}, { timeout: 3000 }));

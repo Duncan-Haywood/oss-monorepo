@@ -128,6 +128,7 @@ function rememberInsightBreakAnswer(perspective: PerspectiveValue, answers: numb
  */
 type LiveSession = {
   firstName: string;
+  partnerName?: string;
   perspective: PerspectiveValue;
   participants: Record<string, string>;
   domains: DomainState[];
@@ -140,6 +141,7 @@ function openSession(bundle: SessionBundle): LiveSession {
   const domains: DomainState[] = bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 }));
   return {
     firstName: bundle.firstName,
+    partnerName: bundle.partnerName,
     perspective: bundle.perspective ?? DEFAULT_PERSPECTIVE,
     participants: bundle.participants,
     domains,
@@ -166,6 +168,7 @@ export function UnifiedRunner() {
   const [undoableSlug, setUndoableSlug] = useState<string | null>(null);
   const [retryTick, setRetryTick] = useState(0);
   const [accountName, setAccountName] = useState<string | null>(null);
+  const [partnerNameInput, setPartnerNameInput] = useState("");
   const [insightBreak, setInsightBreak] = useState<InsightBreak | null>(null);
   const [isModeModalOpen, setIsModeModalOpen] = useState(false);
   const [targetPerspective, setTargetPerspective] = useState<PerspectiveValue>("PARTNER");
@@ -177,7 +180,15 @@ export function UnifiedRunner() {
   // A session the person has touched wins over the stored one, so a late
   // account response can't yank the question out from under them.
   const session = live ?? restored;
-  const phase = !hydrated ? "loading" : paused ? "thanks" : session ? "running" : "welcome";
+  const phase = !hydrated
+    ? "loading"
+    : paused
+      ? "thanks"
+      : session && !session.partnerName
+        ? "partner-name"
+        : session
+          ? "running"
+          : "welcome";
 
   async function switchPerspective(p: PerspectiveValue) {
     setError(null);
@@ -185,8 +196,12 @@ export function UnifiedRunner() {
     setNextTrial(null);
     const remembered = rememberedPerspective(p);
     if (remembered) {
-      writeSessionBundle(remembered);
-      setLive(openSession(remembered));
+      const contextualized = {
+        ...remembered,
+        partnerName: remembered.partnerName ?? session?.partnerName,
+      };
+      writeSessionBundle(contextualized);
+      setLive(openSession(contextualized));
       setTrial(null);
       setNextTrial(null);
       setFocusAnswers(0);
@@ -206,6 +221,7 @@ export function UnifiedRunner() {
       const started = res.ok
         ? coerceSessionBundle({
             firstName: name,
+            partnerName: session?.partnerName,
             perspective: p,
             participants: data?.participants,
             domains: data?.surveys,
@@ -249,6 +265,7 @@ export function UnifiedRunner() {
         setAccountName(data.user.firstName);
         const fromAccount = coerceSessionBundle({
           firstName: data.user.firstName,
+          partnerName: bundle?.partnerName,
           // Without this the account-resume path drops which perspective the
           // participants belong to, and the badge above the cards then claims
           // you're rating something you aren't.
@@ -264,7 +281,7 @@ export function UnifiedRunner() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [bundle?.partnerName]);
 
   useEffect(() => {
     /**
@@ -390,7 +407,7 @@ export function UnifiedRunner() {
    * are asked for later (or never), because the fastest possible path to
    * the first card is what makes people actually start.
    */
-  async function beginSwiping(p: PerspectiveValue) {
+  async function beginSwiping(p: PerspectiveValue, partnerName: string) {
     setError(null);
     setTrial(null);
     setNextTrial(null);
@@ -405,6 +422,7 @@ export function UnifiedRunner() {
       const started = res.ok
         ? coerceSessionBundle({
             firstName: name,
+            partnerName,
             perspective: p,
             participants: data?.participants,
             domains: data?.surveys,
@@ -656,11 +674,22 @@ export function UnifiedRunner() {
           <div className="text-4xl" aria-hidden="true">💛</div>
           <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">A clearer picture of both of you</h1>
           <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            You&apos;ll answer both parts automatically: what you value in a partner, then what you value for your own life.
+            Start with the person you&apos;re actually with, then explore what you value for your own life.
           </p>
         </div>
 
         <div className="flex flex-col gap-3">
+          <label className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            What&apos;s your partner&apos;s name?
+            <input
+              value={partnerNameInput}
+              onChange={(event) => setPartnerNameInput(event.target.value)}
+              maxLength={60}
+              autoComplete="off"
+              placeholder="Partner's first name"
+              className="mt-2 w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base font-normal text-neutral-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50"
+            />
+          </label>
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-2xl border border-neutral-200 bg-white p-4 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
             <div>
               <span className="block text-xl" aria-hidden="true">💛</span>
@@ -673,7 +702,14 @@ export function UnifiedRunner() {
             </div>
           </div>
           <button
-            onClick={() => beginSwiping("PARTNER")}
+            onClick={() => {
+              const partnerName = partnerNameInput.trim();
+              if (!partnerName) {
+                setError("Enter your partner's name to make this check-in personal.");
+                return;
+              }
+              void beginSwiping("PARTNER", partnerName);
+            }}
             className="rounded-2xl bg-amber-500 px-5 py-4 text-sm font-bold text-neutral-950 shadow-sm transition active:scale-[0.98]"
           >
             Start our couples check-in
@@ -687,8 +723,8 @@ export function UnifiedRunner() {
           */}
           <p className="text-center text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">
             {accountName
-              ? "Your picks are saved to your account. A linked partner sees how your rankings compare, never what you picked."
-              : "Answering without an account saves your picks and nothing else — no name, no email."}{" "}
+              ? "Your picks are saved to your account. Your partner's name stays on this device. A linked partner sees how your rankings compare, never what you picked."
+              : "Your picks and the name you enter stay on this device — no account or email needed."}{" "}
             <a href="/privacy" className="underline underline-offset-2">
               Privacy
             </a>
@@ -707,6 +743,55 @@ export function UnifiedRunner() {
             </a>
           )}
         </div>
+      </main>
+    );
+  }
+
+  if (phase === "partner-name" && session) {
+    return (
+      <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-5 px-5 py-8">
+        <div className="text-center">
+          <div className="text-4xl" aria-hidden="true">💛</div>
+          <h1 className="mt-3 text-2xl font-bold">Who is this relationship check-in about?</h1>
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            We&apos;ll use their name in the questions so they feel about your real relationship.
+          </p>
+        </div>
+        <label className="text-sm font-semibold">
+          Partner&apos;s name
+          <input
+            value={partnerNameInput}
+            onChange={(event) => setPartnerNameInput(event.target.value)}
+            maxLength={60}
+            autoFocus
+            autoComplete="off"
+            className="mt-2 w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base font-normal outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900"
+          />
+        </label>
+        <button
+          onClick={() => {
+            const partnerName = partnerNameInput.trim();
+            if (!partnerName) {
+              setError("Enter your partner's name to continue.");
+              return;
+            }
+            const updated: SessionBundle = {
+              firstName: session.firstName,
+              partnerName,
+              perspective: session.perspective,
+              participants: session.participants,
+              domains: session.domains.map(({ slug, title, kind }) => ({ slug, title, kind })),
+            };
+            writeSessionBundle(updated);
+            rememberPerspective(updated);
+            setLive(openSession(updated));
+            setError(null);
+          }}
+          className="rounded-2xl bg-amber-500 px-5 py-4 text-sm font-bold text-neutral-950 shadow-sm transition active:scale-[0.98]"
+        >
+          Continue with {partnerNameInput.trim() || "my partner"}
+        </button>
+        {error && <p role="alert" className="text-center text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
       </main>
     );
   }
@@ -800,7 +885,11 @@ export function UnifiedRunner() {
           <div className="flex items-center gap-2 truncate">
             <span className="text-base">{PERSPECTIVE_META[perspective].glyph}</span>
             <span className="truncate font-bold tracking-tight">
-              Focus: {PERSPECTIVE_META[perspective].short} · {PERSPECTIVE_META[perspective].label}
+              Focus: {perspective === "PARTNER" && session.partnerName
+                ? `Your relationship with ${session.partnerName}`
+                : perspective === "PARTNER_GUESS" && session.partnerName
+                  ? `What ${session.partnerName} wants`
+                  : `${PERSPECTIVE_META[perspective].short} · ${PERSPECTIVE_META[perspective].label}`}
             </span>
           </div>
           <span className="shrink-0 text-[10px] font-extrabold uppercase tracking-wide opacity-90">
@@ -824,7 +913,7 @@ export function UnifiedRunner() {
 
         {currentDomain && (
           <p className="text-center text-sm font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
-            {getInstructions(currentDomain.kind, perspective)}
+            {getInstructions(currentDomain.kind, perspective, session.partnerName)}
           </p>
         )}
 

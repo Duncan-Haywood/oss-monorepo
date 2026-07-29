@@ -43,7 +43,8 @@ const SLOT_EMOJI: Record<SlotLine["icon"], string> = {
   rocket: "🚀",
 };
 
-export function getInstructions(kind: SurveyKind, perspective?: string): string {
+export function getInstructions(kind: SurveyKind, perspective?: string, partnerName?: string): string {
+  const partner = partnerName?.trim() || "your partner";
   if (perspective === "SELF") {
     switch (kind) {
       case "ITEMS":
@@ -57,20 +58,26 @@ export function getInstructions(kind: SurveyKind, perspective?: string): string 
   if (perspective === "PARTNER_GUESS") {
     switch (kind) {
       case "ITEMS":
-        return "What your partner wants: Which do you think your partner would choose?";
+        return `What ${partner} wants: Which do you think ${partner} would choose?`;
       case "FINANCIAL":
-        return "What your partner wants: Which situation do you think your partner prefers?";
+        return `What ${partner} wants: Which situation do you think ${partner} prefers?`;
       case "CONJOINED":
-        return "What your partner wants: Which overall person do you think your partner would choose?";
+        return `What ${partner} wants: Which overall person do you think ${partner} would choose?`;
     }
   }
   switch (kind) {
     case "ITEMS":
-      return "In a partner: Which matters more in the partner you would choose?";
+      return partnerName
+        ? `For your relationship with ${partner}: Which would matter more?`
+        : "In a partner: Which matters more in the partner you would choose?";
     case "FINANCIAL":
-      return "In a partner: Which situation would you prefer in a romantic partner?";
+      return partnerName
+        ? `For life with ${partner}: Which situation would you prefer?`
+        : "In a partner: Which situation would you prefer in a romantic partner?";
     case "CONJOINED":
-      return "In a partner: Which overall scenario would you prefer in a partner?";
+      return partnerName
+        ? `Thinking about ${partner}: Which overall scenario would you prefer?`
+        : "In a partner: Which overall scenario would you prefer in a partner?";
   }
 }
 
