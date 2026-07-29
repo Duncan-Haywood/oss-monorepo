@@ -19,8 +19,8 @@ describe("POST /api/trials/skip", () => {
   });
 
   it("records skip on an ITEMS trial", async () => {
-    const surveyId = await surveyIdBySlug("behaviours");
-    const participant = await createParticipant("behaviours");
+    const surveyId = await surveyIdBySlug("behaviors");
+    const participant = await createParticipant("behaviors");
 
     const items = await prisma.item.findMany({ where: { surveyId }, take: 2 });
     const trial = await prisma.trial.create({
@@ -50,8 +50,8 @@ describe("POST /api/trials/skip", () => {
   });
 
   it("returns alreadyHandled true when skipping an already handled trial", async () => {
-    const surveyId = await surveyIdBySlug("behaviours");
-    const participant = await createParticipant("behaviours");
+    const surveyId = await surveyIdBySlug("behaviors");
+    const participant = await createParticipant("behaviors");
     const items = await prisma.item.findMany({ where: { surveyId }, take: 2 });
 
     const trial = await prisma.trial.create({
