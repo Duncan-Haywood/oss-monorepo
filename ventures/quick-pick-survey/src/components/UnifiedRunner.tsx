@@ -362,7 +362,6 @@ export function UnifiedRunner() {
             d.slug === slug ? { ...d, confidence: data.confidence, answeredCount: data.answeredCount } : d
           ),
         }));
-        void prefetchNext(slug, pid, kind);
       } catch {
         recordUsage("question_load", { perspective, domain: slug, durationMs: Math.round(performance.now() - startedAt), success: false });
         // A dropped connection rejects rather than returning !ok. Without
