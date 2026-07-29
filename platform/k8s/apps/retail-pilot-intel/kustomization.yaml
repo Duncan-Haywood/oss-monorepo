@@ -5,6 +5,12 @@ resources:
 - deployment.yaml
 - service.yaml
 - ingress.yaml
+- pdb.yaml
+
+images:
+- name: git.marisstella.dev/giteaadmin/retail-pilot-intel
+  newName: git.marisstella.dev/giteaadmin/retail-pilot-intel
+  newTag: latest
 
 commonLabels:
   app.kubernetes.io/managed-by: argocd

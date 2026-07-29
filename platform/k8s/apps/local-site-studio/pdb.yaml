@@ -1,0 +1,9 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: local-site-studio-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: local-site-studio

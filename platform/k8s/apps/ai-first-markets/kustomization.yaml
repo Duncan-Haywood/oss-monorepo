@@ -5,6 +5,12 @@ resources:
 - deployment.yaml
 - service.yaml
 - ingress.yaml
+- pdb.yaml
+
+images:
+- name: git.marisstella.dev/giteaadmin/ai-first-markets
+  newName: git.marisstella.dev/giteaadmin/ai-first-markets
+  newTag: latest
 
 commonLabels:
   app.kubernetes.io/managed-by: argocd

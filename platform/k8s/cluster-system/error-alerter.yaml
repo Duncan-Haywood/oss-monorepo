@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-error-alerter
+  namespace: monitoring
+  labels:
+    app: log-error-alerter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-error-alerter
+  template:
+    metadata:
+      labels:
+        app: log-error-alerter
+    spec:
+      containers:
+      - name: vector-alerter
+        image: timberio/vector:0.38.0-alpine
+        command:
+        - vector
+        - --config-yaml
+        - |
+          sources:
+            kubernetes_logs:
+              type: kubernetes_logs
+              exclude_namespaces: ["kube-system"]
+
+          transforms:
+            filter_5xx_errors:
+              type: filter
+              inputs: ["kubernetes_logs"]
+              condition: '.status >= 500 || (.message != null && contains(string!(.message), "OOMKilled"))'
+
+          sinks:
+            stdout_alert:
+              type: console
+              inputs: ["filter_5xx_errors"]
+              target: stdout
+              encoding:
+                codec: json
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ProfileView } from "@/components/ProfileView";
 import { SESSION_KEY } from "@/lib/sessionStore";
 
@@ -34,6 +34,7 @@ function stubFetch(status: number, body: unknown) {
 
 beforeEach(() => {
   window.localStorage.setItem(SESSION_KEY, JSON.stringify(STORED));
+  document.documentElement.classList.remove("dark");
 });
 
 afterEach(() => {
@@ -41,6 +42,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
   vi.clearAllMocks();
   window.localStorage.clear();
+  document.documentElement.classList.remove("dark");
 });
 
 describe("ProfileView", () => {
@@ -97,4 +99,24 @@ describe("ProfileView", () => {
     expect(await screen.findByRole("alert")).toBeTruthy();
     expect(screen.queryByText("14")).toBeNull();
   });
+
+  it("toggles dark mode when dark mode toggle button is clicked in header", async () => {
+    stubFetch(200, {});
+
+    render(<ProfileView />);
+
+    const toggleButton = screen.getByRole("button", { name: /switch to dark mode|switch to light mode/i });
+    expect(toggleButton).toBeTruthy();
+
+    fireEvent.click(toggleButton);
+
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(window.localStorage.getItem("pairwise_theme")).toBe("dark");
+
+    fireEvent.click(toggleButton);
+
+    expect(document.documentElement.classList.contains("dark")).toBe(false);
+    expect(window.localStorage.getItem("pairwise_theme")).toBe("light");
+  });
 });
+

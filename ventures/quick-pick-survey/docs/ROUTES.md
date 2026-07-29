@@ -58,6 +58,7 @@ participant may only be read or changed by that signed-in account.
 | `auth/me` | GET | session | no | — | unit |
 | `auth/reset-password` | POST | none | `User`, `PasswordResetToken` | per-IP, single-use token | — |
 | `auth/signup` | POST | none | `User`, `UserSession` | 8 successful signups per IP per 15 min | unit |
+| `couple/challenge` | GET, POST | session | `CoupleChallenge` | paired couples | unit |
 | `couple/compare` | GET | session | no | — | integration |
 | `couple/create` | POST | session | `Couple` | one couple per user | integration |
 | `couple/join` | POST | session | no | claimable once, conditionally | integration |
@@ -66,6 +67,7 @@ participant may only be read or changed by that signed-in account.
 | `financial-trials/next` | POST | none | `FinancialTrial` | pending row reused for 30 min | integration |
 | `health` | GET | none | no | liveness only; no database dependency | unit |
 | `health/ready` | GET | none | no | deployment readiness; one database query | integration |
+| `og/couple-card` | GET | none | no | — | unit |
 | `insights` | POST | owns the participant | `GeneratedInsight` | gated on data readiness | unit + integration |
 | `report` | POST | optional session | `UserReport` | per-IP, accounts exempt | integration |
 | `session/start` | POST | optional session | `Participant` | per-IP, accounts exempt | unit + integration |

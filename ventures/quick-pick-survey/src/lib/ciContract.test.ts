@@ -51,7 +51,7 @@ describe("Pairwise CI contract", () => {
   it.skipIf(!PAIRWISE_CI)("deploys immutable main images without taking ready replicas offline", () => {
     expect(PAIRWISE_CI).toContain("platform/ci/deploy-pairwise.sh");
     expect(PAIRWISE_CI).toContain("HETZNER_KUBECONFIG");
-    expect(PAIRWISE_CI).toContain("GITEA_TOKEN");
+    expect(PAIRWISE_CI).toContain("PAIRWISE_REGISTRY_TOKEN");
     expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
   });
 

@@ -5,6 +5,12 @@ resources:
 - deployment.yaml
 - service.yaml
 - ingress.yaml
+- pdb.yaml
+
+images:
+- name: git.marisstella.dev/giteaadmin/marisstella-homepage
+  newName: git.marisstella.dev/giteaadmin/marisstella-homepage
+  newTag: latest
 
 commonLabels:
   app.kubernetes.io/managed-by: argocd
