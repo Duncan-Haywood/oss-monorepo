@@ -187,6 +187,7 @@ jobs:
 
       - name: Deploy the verified commit with zero unavailable replicas
         env:
+          KUBECONFIG: ${{ runner.temp }}/kube/config
           IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
           REGISTRY_SERVER: git.marisstella.dev
           REGISTRY_USERNAME: ${{ gitea.actor }}
