@@ -13,6 +13,19 @@ resource "helm_release" "gitea_runner" {
       existingSecret    = "gitea-runner-registration"
       existingSecretKey = "token"
       giteaRootURL      = "http://gitea-http.git-system.svc.cluster.local:3000"
+      # DinD and Next.js/BuildKit share the node's inotify pool. Ubuntu's
+      # default of 128 instances is exhausted by parallel Actions jobs, which
+      # causes docker.sock context cancellations after otherwise-successful
+      # builds. This privileged init runs on every runner start and persists
+      # the required node-level capacity across runner rollouts.
+      postExtraInitContainers = [{
+        name    = "raise-inotify-limits"
+        image   = "busybox:1.38.0"
+        command = ["sh", "-c", "sysctl -w fs.inotify.max_user_instances=1024 fs.inotify.max_user_watches=524288 fs.inotify.max_queued_events=32768"]
+        securityContext = {
+          privileged = true
+        }
+      }]
       statefulset = {
         replicas = 2
         runner = {
