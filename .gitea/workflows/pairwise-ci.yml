@@ -28,9 +28,9 @@ defaults:
 env:
   POSTGRES_PRISMA_URL: postgresql://postgres:postgres@postgres:5432/integration?schema=public
   POSTGRES_URL_NON_POOLING: postgresql://postgres:postgres@postgres:5432/integration?schema=public
-  ADMIN_KEY: ci-placeholder
-  ADMIN_SESSION_SECRET: ci-placeholder-session-secret
-  RATE_LIMIT_SECRET: ci-placeholder-rate-limit-secret
+  ADMIN_KEY: integration-admin-key
+  ADMIN_SESSION_SECRET: integration-session-secret
+  RATE_LIMIT_SECRET: integration-rate-limit-secret
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
