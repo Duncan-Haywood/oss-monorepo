@@ -22,6 +22,8 @@ that gate.
 8. The production job creates or rotates the cluster registry pull secret,
    applies forward-only Prisma migrations from that exact image, and updates
    the Deployment to the immutable image.
+   The migration/seed job has a dedicated 1 GiB memory limit because the full
+   idempotent seed exceeds the web container's steady-state memory envelope.
 9. Kubernetes keeps every existing ready replica available while the new
    ReplicaSet becomes ready. CI waits for the rollout and both health endpoints.
    A failed rollout is returned to the previous ReplicaSet.

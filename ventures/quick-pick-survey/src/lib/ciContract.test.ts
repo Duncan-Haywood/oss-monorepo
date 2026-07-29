@@ -13,6 +13,7 @@ const monorepoCiPath = existsSync(monorepoCiPathGitea) ? monorepoCiPathGitea : m
 
 const PAIRWISE_CI = existsSync(pairwiseCiPath) ? readFileSync(pairwiseCiPath, "utf8") : "";
 const MONOREPO_CI = existsSync(monorepoCiPath) ? readFileSync(monorepoCiPath, "utf8") : "";
+const PAIRWISE_DEPLOY = readFileSync(join(ROOT, "platform/ci/deploy-pairwise.sh"), "utf8");
 
 describe("Pairwise CI contract", () => {
   it.skipIf(!PAIRWISE_CI)("is a repository-root workflow scoped to Pairwise changes", () => {
@@ -53,6 +54,11 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain("HETZNER_KUBECONFIG");
     expect(PAIRWISE_CI).toContain("PAIRWISE_REGISTRY_TOKEN");
     expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
+  });
+
+  it("gives migrations and the idempotent seed enough memory to complete", () => {
+    expect(PAIRWISE_DEPLOY).toContain('memory: "512Mi"');
+    expect(PAIRWISE_DEPLOY).toContain('memory: "1Gi"');
   });
 
   it.skipIf(!MONOREPO_CI)("publishes Pairwise images by immutable commit, never a mutable latest tag", () => {
