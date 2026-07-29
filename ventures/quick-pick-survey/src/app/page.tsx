@@ -193,13 +193,13 @@ function ComparisonPreview() {
 
 function ChoiceCard({ label, detail, tone, symbol, selected = false }: { label: string; detail: string; tone: string; symbol: string; selected?: boolean }) {
   return (
-    <div className={`relative flex min-h-64 flex-col justify-between overflow-hidden rounded-[1.4rem] bg-gradient-to-br ${tone} p-4 text-white shadow-sm sm:min-h-80 sm:p-5 ${selected ? "ring-4 ring-[#f4b942] ring-offset-2 ring-offset-white dark:ring-offset-[#1a1816]" : ""}`}>
+    <div className={`relative flex min-h-64 flex-col justify-between overflow-hidden rounded-[1.4rem] bg-gradient-to-br ${tone} p-4 text-white shadow-sm sm:min-h-80 sm:p-5 ${selected ? "bg-gradient-to-br ring-4 ring-[#f4b942] ring-offset-2 ring-offset-white dark:ring-offset-[#1a1816]" : ""}`}>
       <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full border-[28px] border-white/10" />
       <span className="relative text-4xl font-light opacity-90">{symbol}</span>
       <div className="relative">
         {selected ? <span className="mb-2 inline-block rounded-full bg-[#f4b942] px-2 py-1 text-[10px] font-black uppercase tracking-wider text-[#332200]">Your pick</span> : null}
         <h3 className="text-xl font-black tracking-[-0.03em] sm:text-2xl">{label}</h3>
-        <p className="mt-1 text-xs leading-5 text-white/80 sm:text-sm">{detail}</p>
+        <p className="mt-1 text-xs font-medium leading-5 text-white sm:text-sm">{detail}</p>
       </div>
     </div>
   );
