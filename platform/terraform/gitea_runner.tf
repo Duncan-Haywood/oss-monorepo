@@ -14,7 +14,7 @@ resource "helm_release" "gitea_runner" {
       existingSecretKey = "token"
       giteaRootURL      = "http://gitea-http.git-system.svc.cluster.local:3000"
       statefulset = {
-        replicas = 1
+        replicas = 2
         runner = {
           resources = {
             requests = {
