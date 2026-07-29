@@ -300,13 +300,20 @@ export async function runDaggerContainerizedPipeline(affectedIds, catalog = VENT
         console.log(`\n🚀 [Dagger Engine] Running containerized pipeline job for: ${component.name}`);
 
         if (component.type === 'node') {
-          const container = client
+          let container = client
             .container()
             .from('node:22-alpine')
             .withDirectory('/app', hostSource)
             .withWorkdir(`/app/${component.dir}`)
-            .withExec(['npm', 'ci', '--ignore-scripts'])
-            .withExec(['npm', 'run', component.scripts[0] || 'test']);
+            .withExec(['npm', 'ci', '--ignore-scripts']);
+
+          if (component.hasPrisma) {
+            container = container.withExec(['npx', 'prisma', 'generate']);
+          }
+
+          for (const script of component.scripts || []) {
+            container = container.withExec(['npm', 'run', script]);
+          }
 
           await container.sync();
           console.log(`✔ [Dagger Engine] ${component.name} completed successfully.`);
