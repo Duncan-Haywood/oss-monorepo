@@ -296,22 +296,29 @@ export function UnifiedRunner() {
     };
   }, [restored, update]);
 
+  const pendingPrefetchRef = useRef<Promise<any> | null>(null);
+
   const prefetchNext = useCallback(
     async (slug: string, pid: string, kind: DomainState["kind"]) => {
       const endpoint = kind === "ITEMS" ? "/api/trials/next" : "/api/financial-trials/next";
-      try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ participantId: pid }),
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!data?.trialId) return;
-        setNextTrial(data);
-      } catch {
-        // Ignored background prefetch failure
-      }
+      const promise = (async () => {
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ participantId: pid }),
+          });
+          if (!res.ok) return null;
+          const data = await res.json();
+          if (!data?.trialId) return null;
+          setNextTrial(data);
+          return data;
+        } catch {
+          return null;
+        }
+      })();
+      pendingPrefetchRef.current = promise;
+      return promise;
     },
     []
   );
