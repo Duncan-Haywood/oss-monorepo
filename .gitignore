@@ -30,6 +30,7 @@ trivy-report.json
 tmp/
 *.tmp
 .dev-security-report.tmp
+.playwright-cli/
 
 # Local one-off test environments.
 pytest-of-*/
