@@ -124,14 +124,14 @@ function useSwipeStage(
     if (disabled || flying) return;
     setFlying(direction);
     setDragging(false);
+    if (direction === "up") onUp(method);
+    else onDown(method);
     setTimeout(
       () => {
-        if (direction === "up") onUp(method);
-        else onDown(method);
         setFlying(null);
         setDragY(0);
       },
-      reducedMotion ? 20 : 100
+      reducedMotion ? 20 : 120
     );
   }
 
@@ -154,7 +154,7 @@ function useSwipeStage(
     ? "none"
     : reducedMotion
       ? "transform 0.05s linear, opacity 0.05s linear"
-      : `transform 0.18s ${SPRING}, opacity 0.15s ease`;
+      : `transform 0.12s ${SPRING}, opacity 0.12s ease`;
 
   const topScale = flying === "up" ? 1.04 : 1 + progressUp * 0.03 - progressDown * 0.05;
   const bottomScale = flying === "down" ? 1.04 : 1 + progressDown * 0.03 - progressUp * 0.05;
@@ -163,11 +163,13 @@ function useSwipeStage(
     transform: `translateY(${topOffset}px) scale(${topScale}) rotate(${Math.max(-8, Math.min(0, topOffset / 18))}deg)`,
     opacity: flying === "down" ? 0.4 : 1 - progressDown * 0.35,
     transition,
+    willChange: "transform, opacity",
   };
   const bottomStyle: React.CSSProperties = {
     transform: `translateY(${bottomOffset}px) scale(${bottomScale}) rotate(${Math.max(0, Math.min(8, bottomOffset / 18))}deg)`,
     opacity: flying === "up" ? 0.4 : 1 - progressUp * 0.35,
     transition,
+    willChange: "transform, opacity",
   };
 
   return {

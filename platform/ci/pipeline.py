@@ -166,7 +166,7 @@ class CIPipelineEngine:
         global_triggers = [
             "scripts/", "platform/ci/", ".github/", "SECURITY", "package.json"
         ]
-        if any(any(f.startswith(trig) for trig in changed_files):
+        if any(f.startswith(trig) for trig in global_triggers for f in changed_files):
             self._log("Global files changed. Running full suite across all components.")
             return components
 

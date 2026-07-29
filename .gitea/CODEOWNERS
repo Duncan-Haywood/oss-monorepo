@@ -1,7 +1,7 @@
 # Repository Ownership & Security Review Boundaries
 
 # Gitea Actions workflows and security policies
-/.github/workflows/         @infrastructure-team @security-team
+/.gitea/workflows/          @infrastructure-team @security-team
 /scripts/security/          @security-team
 /SECURITY.md                @security-team
 /SECURITY-ROADMAP.md        @security-team

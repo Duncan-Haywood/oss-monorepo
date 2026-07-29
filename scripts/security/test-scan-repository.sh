@@ -2,6 +2,7 @@
 set -euo pipefail
 
 scanner="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scan-repository.sh"
+export GIT_CONFIG_GLOBAL=/dev/null
 test_root="$(mktemp -d "${TMPDIR:-/tmp}/repository-policy-test.XXXXXX")"
 trap 'rm -rf "$test_root"' EXIT
 

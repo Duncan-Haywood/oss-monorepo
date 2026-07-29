@@ -158,6 +158,7 @@ export function UnifiedRunner() {
   const [live, setLive] = useState<LiveSession | null>(null);
   const [paused, setPaused] = useState(false);
   const [trial, setTrial] = useState<Trial | null>(null);
+  const [nextTrial, setNextTrial] = useState<Trial | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cuteNote, setCuteNote] = useState<{ en: string } | null>(null);
@@ -180,11 +181,13 @@ export function UnifiedRunner() {
   async function switchPerspective(p: PerspectiveValue) {
     setError(null);
     setTrial(null);
+    setNextTrial(null);
     const remembered = rememberedPerspective(p);
     if (remembered) {
       writeSessionBundle(remembered);
       setLive(openSession(remembered));
       setTrial(null);
+      setNextTrial(null);
       setFocusAnswers(0);
       setIsModeModalOpen(false);
       setRetryTick((n) => n + 1);
@@ -216,6 +219,7 @@ export function UnifiedRunner() {
       rememberPerspective(started);
       setLive(openSession(started));
       setTrial(null);
+      setNextTrial(null);
       setFocusAnswers(0);
       setIsModeModalOpen(false);
       setRetryTick((n) => n + 1);
@@ -353,6 +357,39 @@ export function UnifiedRunner() {
     })();
   }, [phase, trial, session, fetchNext, retryTick, isModeModalOpen]);
 
+  // Background prefetching effect for zero-latency card transitions
+  useEffect(() => {
+    if (phase !== "running" || !trial || nextTrial || !session || isModeModalOpen) return;
+    let cancelled = false;
+    const pid = session.participants[session.currentSlug];
+    const domain = session.domains.find((d) => d.slug === session.currentSlug);
+    if (!pid || !domain) return;
+    const endpoint = domain.kind === "ITEMS" ? "/api/trials/next" : "/api/financial-trials/next";
+
+    const timer = setTimeout(() => {
+      void (async () => {
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ participantId: pid }),
+          });
+          if (cancelled || !res.ok) return;
+          const data = await res.json();
+          if (cancelled || !data?.trialId) return;
+          setNextTrial(data);
+        } catch {
+          // Ignored background prefetch failure
+        }
+      })();
+    }, 50);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [phase, trial, nextTrial, session, isModeModalOpen]);
+
   /**
    * Straight from the welcome screen into swiping — no form first. Details
    * are asked for later (or never), because the fastest possible path to
@@ -360,6 +397,8 @@ export function UnifiedRunner() {
    */
   async function beginSwiping(p: PerspectiveValue) {
     setError(null);
+    setTrial(null);
+    setNextTrial(null);
     const name = accountName ?? "Anonymous";
     try {
       const res = await fetch("/api/session/start", {
@@ -394,25 +433,46 @@ export function UnifiedRunner() {
 
   async function handleAnswer(result: "A" | "B", interactionMethod: InteractionMethod) {
     if (!session || !trial || submitting) return;
+    const currentTrial = trial;
     const answeredSlug = session.currentSlug;
     const domain = session.domains.find((d) => d.slug === answeredSlug);
     if (!domain) return;
+
     setSubmitting(true);
     setError(null);
+    const timeSpent = cardShownAt.current
+      ? Math.max(0, Math.round(performance.now() - cardShownAt.current))
+      : null;
+
+    setBurst((n) => n + 1);
+    setUndoableSlug(answeredSlug);
+    const answersAfterThis = session.domains.reduce((sum, d) => sum + d.answeredCount, 0) + 1;
+    setFocusAnswers(answersAfterThis % PICKS_PER_FOCUS || PICKS_PER_FOCUS);
+
+    const willOpenModeModal = answersAfterThis % 10 === 0 && !insightBreak;
+
+    // Optimistic UI update: advance instantly to pre-fetched trial if available
+    if (!willOpenModeModal && nextTrial) {
+      setTrial(nextTrial);
+      setNextTrial(null);
+      cardShownAt.current = performance.now();
+    } else {
+      setTrial(null);
+      setNextTrial(null);
+    }
+
     const endpoint = domain.kind === "ITEMS" ? "/api/trials/answer" : "/api/financial-trials/answer";
-    let ok = false;
     const startedAt = performance.now();
+    let ok = false;
     try {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          trialId: trial.trialId,
+          trialId: currentTrial.trialId,
           result,
           interactionMethod,
-          clientMsToAnswer: cardShownAt.current
-            ? Math.max(0, Math.round(performance.now() - cardShownAt.current))
-            : null,
+          clientMsToAnswer: timeSpent,
         }),
       });
       // 409 means the server already has this answer — a retry after a
@@ -433,18 +493,14 @@ export function UnifiedRunner() {
       setError("That didn't save — check your connection and tap again.");
       return;
     }
-    setBurst((n) => n + 1);
-    setUndoableSlug(answeredSlug);
-    const answersAfterThis = session.domains.reduce((sum, d) => sum + d.answeredCount, 0) + 1;
-    setFocusAnswers(answersAfterThis % PICKS_PER_FOCUS || PICKS_PER_FOCUS);
-    if (answersAfterThis % 10 === 0 && !insightBreak) {
+
+    if (willOpenModeModal) {
       const alternatePerspective: PerspectiveValue = session.perspective === "SELF" ? "PARTNER" : "SELF";
       setTargetPerspective(alternatePerspective);
       setIsModalAutoSuggested(true);
       setIsModeModalOpen(true);
-    } else {
-      setTrial(null);
     }
+
     if (shouldCheckForInsight(answersAfterThis, lastInsightBreakAnswer(session.perspective))) {
       void Promise.all([
         fetch("/api/insights", {
@@ -474,8 +530,13 @@ export function UnifiedRunner() {
             ...s,
             currentSlug: pickNextDomain(s.domains, s.currentSlug, s.perspective),
             streakRemaining: randomStreakTarget(),
+            domains: s.domains.map((d) => (d.slug === answeredSlug ? { ...d, answeredCount: d.answeredCount + 1 } : d)),
           }
-        : { ...s, streakRemaining: remaining };
+        : {
+            ...s,
+            streakRemaining: remaining,
+            domains: s.domains.map((d) => (d.slug === answeredSlug ? { ...d, answeredCount: d.answeredCount + 1 } : d)),
+          };
     });
   }
 
