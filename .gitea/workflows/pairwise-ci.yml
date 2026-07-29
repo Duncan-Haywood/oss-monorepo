@@ -111,6 +111,8 @@ jobs:
 
       - name: Verify migration history matches Prisma schema
         run: |
+          apt-get update
+          apt-get install -y --no-install-recommends postgresql-client
           PGPASSWORD=postgres createdb -h postgres -U postgres shadow
           npx prisma migrate diff \
             --from-migrations prisma/migrations \
