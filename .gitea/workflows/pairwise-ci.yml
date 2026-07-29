@@ -43,7 +43,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@39370e3970a6d050c3800040652e742e88a38b1f # v4.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
@@ -89,7 +89,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@39370e3970a6d050c3800040652e742e88a38b1f # v4.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
@@ -128,7 +128,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Log in to the Gitea container registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -141,7 +141,7 @@ jobs:
           --password-stdin
 
       - name: Build the Dockerfile and publish immutable main images
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: ventures/quick-pick-survey
           file: ventures/quick-pick-survey/Dockerfile
