@@ -188,15 +188,20 @@ class CIPipelineEngine:
         name = comp["name"]
         self._log(f"Verifying Node component: {name} ({comp['dir']})")
 
-        if comp.get("lockfile") == "package-lock.json":
-            res = self._run_command(["npm", "ci", "--ignore-scripts", "--quiet"], cwd=app_dir)
-            if res.returncode != 0:
-                self._run_command(["npm", "install", "--ignore-scripts", "--quiet"], cwd=app_dir)
-        elif comp.get("lockfile") == "pnpm-lock.yaml":
-            self._run_command(["corepack", "pnpm", "install", "--frozen-lockfile"], cwd=app_dir)
+        node_modules = app_dir / "node_modules"
+        force_install = os.environ.get("CI_INSTALL_DEPENDENCIES") == "1"
+        ci_env = {"CI": "true"}
+
+        if not node_modules.exists() or force_install:
+            if comp.get("lockfile") == "package-lock.json":
+                res = self._run_command(["npm", "ci", "--ignore-scripts", "--quiet"], cwd=app_dir, env=ci_env)
+                if res.returncode != 0:
+                    self._run_command(["npm", "install", "--ignore-scripts", "--quiet"], cwd=app_dir, env=ci_env)
+            elif comp.get("lockfile") == "pnpm-lock.yaml":
+                self._run_command(["corepack", "pnpm", "install", "--frozen-lockfile"], cwd=app_dir, env=ci_env)
 
         if comp.get("has_prisma"):
-            self._run_command(["npx", "prisma", "generate"], cwd=app_dir)
+            self._run_command(["npx", "prisma", "generate"], cwd=app_dir, env=ci_env)
 
         scripts = comp.get("scripts", {})
         success = True
@@ -204,7 +209,7 @@ class CIPipelineEngine:
         for step in ["typecheck", "lint", "test", "build"]:
             if step in scripts:
                 self._log(f"  └─ Executing `npm run {step}`...")
-                res = self._run_command(["npm", "run", step], cwd=app_dir)
+                res = self._run_command(["npm", "run", step], cwd=app_dir, env=ci_env)
                 if res.returncode != 0:
                     self._log(f"  ❌ FAILED: npm run {step} in {comp['dir']}")
                     success = False
