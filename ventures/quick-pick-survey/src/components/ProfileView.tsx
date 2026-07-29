@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSessionBundle } from "@/lib/sessionStore";
+import { useTheme } from "@/lib/theme";
 
 type DomainProgress = {
   answeredCount: number;
@@ -16,6 +17,44 @@ type UsageStats = {
 };
 
 const EMPTY_STATS: UsageStats = { choices: 0, topics: 0, strength: 0 };
+
+function SunIcon({ className, "aria-hidden": ariaHidden }: { className?: string; "aria-hidden"?: boolean | "true" | "false" }) {
+  return (
+    <svg
+      className={className}
+      aria-hidden={ariaHidden}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="2"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25m-13.5 0H3m15.364 6.364l-1.591-1.591M6.758 6.758L5.167 5.167m12.728 0l-1.591 1.591M6.758 17.242l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z"
+      />
+    </svg>
+  );
+}
+
+function MoonIcon({ className, "aria-hidden": ariaHidden }: { className?: string; "aria-hidden"?: boolean | "true" | "false" }) {
+  return (
+    <svg
+      className={className}
+      aria-hidden={ariaHidden}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="2"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+      />
+    </svg>
+  );
+}
 
 function parseProgress(value: unknown): DomainProgress[] | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -54,6 +93,7 @@ function summarizeProgress(progress: DomainProgress[]): UsageStats {
 
 export function ProfileView() {
   const bundle = useSessionBundle();
+  const { isDark, toggleTheme } = useTheme();
   const [stats, setStats] = useState<UsageStats | null>(null);
   const [error, setError] = useState(false);
 
@@ -95,7 +135,27 @@ export function ProfileView() {
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-5 py-6">
-      <h1 className="text-2xl font-bold">You</h1>
+      <header className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">You</h1>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-800 shadow-xs transition hover:bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800"
+        >
+          {isDark ? (
+            <>
+              <SunIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+              <span>Light mode</span>
+            </>
+          ) : (
+            <>
+              <MoonIcon className="h-4 w-4 text-neutral-600 dark:text-neutral-400" aria-hidden="true" />
+              <span>Dark mode</span>
+            </>
+          )}
+        </button>
+      </header>
 
       <section className="flex flex-col gap-3" aria-labelledby="usage-heading">
         <div>

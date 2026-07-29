@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { ShareInsightModal } from "./ShareInsightModal";
 
 type Row = { label: string; a: number; b: number; gap: number };
 type Comparison = {
@@ -111,6 +112,32 @@ export function CoupleView() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [activeShareInsight, setActiveShareInsight] = useState<{
+    title: string;
+    headline: string;
+    discovery: string;
+    alignmentPct?: number;
+  } | null>(null);
+  const [challengeLink, setChallengeLink] = useState<string | null>(null);
+  const [creatingChallenge, setCreatingChallenge] = useState(false);
+
+  async function handleCreateChallenge() {
+    setCreatingChallenge(true);
+    try {
+      const res = await fetch("/api/couple/challenge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deckId: "core-values" }),
+      });
+      if (res.ok) {
+        const result = await res.json();
+        setChallengeLink(`${window.location.origin}${result.challengeUrl}`);
+      }
+    } catch (err) {
+      console.error("Failed to create challenge", err);
+    }
+    setCreatingChallenge(false);
+  }
 
   const load = useCallback(async () => {
     try {
@@ -542,6 +569,24 @@ export function CoupleView() {
                 <p className="mt-0.5 text-xs font-semibold text-amber-950 dark:text-amber-100">
                   {insight.actionablePrescription}
                 </p>
+              </div>
+
+              {/* Viral Share Action */}
+              <div className="mt-3 flex justify-end">
+                <button
+                  onClick={() =>
+                    setActiveShareInsight({
+                      title: insight.title,
+                      headline: insight.headline,
+                      discovery: insight.discovery,
+                      alignmentPct: Math.round((data.fit?.overlap ?? 0.85) * 100),
+                    })
+                  }
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-700 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold shadow transition"
+                >
+                  <span>✨</span>
+                  <span>Share This Insight</span>
+                </button>
               </div>
             </div>
           ))}
@@ -1007,12 +1052,65 @@ export function CoupleView() {
         divergedLabel="Different personal priorities"
       />
 
+      {/* Double-Date & Couple-to-Couple Challenge Section */}
+      <section className="rounded-2xl border-2 border-purple-300 bg-purple-50 p-5 shadow-sm dark:border-purple-800/60 dark:bg-neutral-900">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-2xl">👥</span>
+            <div>
+              <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-50">Double-Date Challenge</h2>
+              <p className="text-xs text-neutral-700 dark:text-neutral-400">Challenge another couple &amp; compare relationship archetypes!</p>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-3 text-xs leading-relaxed text-neutral-800 dark:text-neutral-300">
+          Send a challenge link to your friends in relationships. Once they complete 8 quick choices, you can see how your couples align on travel, date nights, and life priorities.
+        </p>
+
+        {challengeLink ? (
+          <div className="mt-4 rounded-xl bg-white p-3 border border-purple-200 dark:bg-neutral-950 dark:border-purple-900/60">
+            <p className="text-[11px] font-mono font-semibold text-purple-900 dark:text-purple-300 break-all">{challengeLink}</p>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(challengeLink);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              className="mt-2 w-full py-2 rounded-lg bg-purple-700 hover:bg-purple-800 dark:bg-purple-600 dark:hover:bg-purple-500 text-white font-medium text-xs transition"
+            >
+              {copied ? "✓ Challenge Link Copied!" : "📋 Copy Challenge Link"}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleCreateChallenge}
+            disabled={creatingChallenge}
+            className="mt-4 w-full py-3 rounded-xl bg-purple-700 hover:bg-purple-800 dark:bg-purple-600 dark:hover:bg-purple-500 text-white font-bold text-sm shadow transition disabled:opacity-50"
+          >
+            {creatingChallenge ? "Creating Challenge..." : "🔥 Generate Couple Challenge Link"}
+          </button>
+        )}
+      </section>
+
       <Link
         href="/"
         className="mt-1 rounded-2xl bg-amber-500 px-4 py-4 text-center text-base font-semibold text-neutral-950"
       >
         Answer more to sharpen this
       </Link>
+
+      {activeShareInsight && (
+        <ShareInsightModal
+          isOpen={!!activeShareInsight}
+          onClose={() => setActiveShareInsight(null)}
+          title={activeShareInsight.title}
+          headline={activeShareInsight.headline}
+          discovery={activeShareInsight.discovery}
+          alignmentPct={activeShareInsight.alignmentPct}
+          coupleNames={{ mine: "You", theirs: partnerName }}
+        />
+      )}
     </main>
   );
 }

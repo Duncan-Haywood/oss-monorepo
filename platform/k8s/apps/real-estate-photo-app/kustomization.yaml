@@ -5,6 +5,12 @@ resources:
 - deployment.yaml
 - service.yaml
 - ingress.yaml
+- pdb.yaml
+
+images:
+- name: git.marisstella.dev/giteaadmin/real-estate-photo-app
+  newName: git.marisstella.dev/giteaadmin/real-estate-photo-app
+  newTag: latest
 
 commonLabels:
   app.kubernetes.io/managed-by: argocd

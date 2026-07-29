@@ -5,6 +5,12 @@ resources:
 - deployment.yaml
 - service.yaml
 - ingress.yaml
+- pdb.yaml
+
+images:
+- name: git.marisstella.dev/giteaadmin/ai-engineering-academy
+  newName: git.marisstella.dev/giteaadmin/ai-engineering-academy
+  newTag: latest
 
 commonLabels:
   app.kubernetes.io/managed-by: argocd

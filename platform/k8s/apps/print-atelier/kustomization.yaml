@@ -5,6 +5,12 @@ resources:
 - deployment.yaml
 - service.yaml
 - ingress.yaml
+- pdb.yaml
+
+images:
+- name: git.marisstella.dev/giteaadmin/print-atelier
+  newName: git.marisstella.dev/giteaadmin/print-atelier
+  newTag: latest
 
 commonLabels:
   app.kubernetes.io/managed-by: argocd

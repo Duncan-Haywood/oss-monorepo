@@ -66,8 +66,26 @@ model Couple {
   createdAt  DateTime  @default(now())
   joinedAt   DateTime?
 
+  challengesSent     CoupleChallenge[] @relation("ChallengerCouple")
+  challengesReceived CoupleChallenge[] @relation("ChallengedCouple")
+
   @@index([creatorId])
   @@index([joinerId])
+}
+
+/// Couple-to-Couple Challenge link model for multi-couple virality.
+model CoupleChallenge {
+  id                  String   @id @default(cuid())
+  inviteCode          String   @unique
+  challengerCoupleId  String
+  challengerCouple    Couple   @relation("ChallengerCouple", fields: [challengerCoupleId], references: [id], onDelete: Cascade)
+  challengedCoupleId  String?
+  challengedCouple    Couple?  @relation("ChallengedCouple", fields: [challengedCoupleId], references: [id], onDelete: Cascade)
+  deckId              String?  @default("core-values")
+  createdAt           DateTime @default(now())
+
+  @@index([challengerCoupleId])
+  @@index([challengedCoupleId])
 }
 
 /// A logged-in browser session. The raw token lives only in an HTTP-only

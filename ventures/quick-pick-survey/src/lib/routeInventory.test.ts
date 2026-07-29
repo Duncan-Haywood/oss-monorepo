@@ -27,7 +27,7 @@ function routesOnDisk(dir = API_ROOT, prefix = ""): Map<string, string[]> {
       for (const [name, methods] of routesOnDisk(path, prefix ? `${prefix}/${entry.name}` : entry.name)) {
         found.set(name, methods);
       }
-    } else if (entry.name === "route.ts") {
+    } else if (entry.name === "route.ts" || entry.name === "route.tsx") {
       const source = readFileSync(path, "utf8");
       const methods = [...source.matchAll(/export async function ([A-Z]+)/g)].map((m) => m[1]);
       found.set(prefix, methods.sort());
