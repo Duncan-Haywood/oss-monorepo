@@ -50,7 +50,7 @@ const EXEMPT: { match: string; because: string }[] = [
   { match: "bg-[#24211d]", because: "Dark container providing high contrast for white text" },
   { match: "bg-[#2b2417]", because: "Dark container providing high contrast for white text" },
   { match: "bg-gradient-to-br", because: "Gradient container providing high contrast for white text" },
-  { match: "text-white/95", because: "White text at 95% opacity inside dark gradient choice card" },
+  { match: "text-amber-100", because: "Amber text inside dark gradient choice card" },
 ];
 
 function sourceFiles(dir: string): string[] {
