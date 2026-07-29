@@ -30,6 +30,11 @@ Production promotion is serialized: a newer commit cannot cancel a migration
 or rollout already in progress. No `latest`, `main`, or other mutable image tag
 is used for promotion.
 
+Terraform owns the service baseline and always points Pairwise at the Gitea
+registry. CI owns the running immutable commit tag. If Terraform later restores
+the registry's `latest` baseline, that alias still comes from the same verified
+main build rather than the obsolete node-local image.
+
 ## Health contracts
 
 - `GET /api/health` is liveness. It proves the process can answer and does not
