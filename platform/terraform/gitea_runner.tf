@@ -9,8 +9,36 @@ resource "helm_release" "gitea_runner" {
 
   values = [
     yamlencode({
-      gitea = {
-        url = "http://gitea-http.git-system.svc.cluster.local:3000"
+      enabled           = true
+      existingSecret    = "gitea-runner-registration"
+      existingSecretKey = "token"
+      giteaRootURL      = "http://gitea-http.git-system.svc.cluster.local:3000"
+      statefulset = {
+        replicas = 1
+        runner = {
+          resources = {
+            requests = {
+              cpu    = "100m"
+              memory = "128Mi"
+            }
+            limits = {
+              cpu    = "1000m"
+              memory = "1Gi"
+            }
+          }
+        }
+        dind = {
+          resources = {
+            requests = {
+              cpu    = "100m"
+              memory = "256Mi"
+            }
+            limits = {
+              cpu    = "2000m"
+              memory = "2Gi"
+            }
+          }
+        }
       }
     })
   ]
