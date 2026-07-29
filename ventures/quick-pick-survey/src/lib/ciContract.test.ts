@@ -43,7 +43,7 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain("image: postgres:16");
     expect(PAIRWISE_CI).toContain("prisma migrate deploy");
     expect(PAIRWISE_CI).toContain("docker/build-push-action");
-    expect(PAIRWISE_CI).toContain("git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}");
+    expect(PAIRWISE_CI).toContain("git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}");
     expect(PAIRWISE_CI).toContain("needs: [app, database]");
   });
 
