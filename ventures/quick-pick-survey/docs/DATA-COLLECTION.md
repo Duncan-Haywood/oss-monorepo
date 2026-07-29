@@ -21,7 +21,7 @@ reason for the rule is at the bottom — it has already been broken once.
 | Was an insight useful, why it missed, was swiping enjoyable, optional free text, current mode, page, answer count, a retry-safe random feedback id, and the same one-way browser-session digest used by usage events | Feedback widget, after an insight and periodically | `InsightFeedback` | The admin portal |
 | Browser user-agent and the page it was sent from | Attached to a bug report | `UserReport.userAgent`, `UserReport.path` | The admin portal |
 | Keyed IP digest | Every write to an anonymous route, and every sign-in attempt | `AnonRequestLog`, `LoginAttempt`, `AdminLoginAttempt` for at most 30 days (anonymous-write events are retained for at most 24 hours) | Nobody; used only for rate limiting. The raw IP is not stored |
-| First-party usage event, page, self/partner mode, topic, operation duration, success/failure, HTTP status when available, event order, and client-observed time | Automatically while navigating and using core survey actions | `UsageEvent`, linked to a random browser-session digest and retained for at most 30 days | Admin analysis only |
+| First-party usage event (including when a feedback prompt is shown or skipped), page, self/partner mode, topic or feedback subject, operation duration, success/failure, HTTP status when available, event order, and client-observed time | Automatically while navigating and using core survey actions | `UsageEvent`, linked to a random browser-session digest and retained for at most 30 days | Admin analysis only |
 | Invite code linking two accounts | Couple screen | `Couple` | Both partners |
 
 ## Not collected

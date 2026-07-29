@@ -61,6 +61,9 @@ const OVERVIEW = {
     transitions: [
       { from: "survey_start", to: "question_load", n: 5, medianMs: 900, p95Ms: 1800 },
     ],
+    feedbackResponse: [
+      { subject: "top-pick", prompted: 10, submitted: 4, dismissed: 5, responseRate: 0.4 },
+    ],
   },
   hardest: [{ label: "Cooking together", medianMs: 7000, n: 5 }],
   easiest: [{ label: "Doing taxes", medianMs: 900, n: 4 }],
@@ -156,6 +159,7 @@ describe("AdminView", () => {
     expect(screen.getByText("Accounts")).toBeTruthy();
     expect(screen.getByText("140")).toBeTruthy();
     expect(screen.getByText("The couple screen stayed empty")).toBeTruthy();
+    expect(screen.getByText("40%")).toBeTruthy();
   });
 
   it("says so when nothing has been answered, rather than showing a wall of zeroes", async () => {
