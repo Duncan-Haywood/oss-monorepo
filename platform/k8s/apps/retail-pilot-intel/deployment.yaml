@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: retail-pilot-intel
+  labels:
+    app: retail-pilot-intel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: retail-pilot-intel
+  template:
+    metadata:
+      labels:
+        app: retail-pilot-intel
+    spec:
+      containers:
+      - name: retail-pilot-intel
+        image: ghcr.io/marisstella/retail-pilot-intel:latest
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10

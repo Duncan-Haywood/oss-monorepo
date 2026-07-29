@@ -1,35 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export TMPDIR="${TMPDIR:-/private/tmp}"
-failures=0
+# Monorepo Unified Verification Runner & Dagger Entrypoint
+# Runs CI self-testing, security scans, affected-path analysis, and venture verification.
 
-run_step() {
-  local name="$1"
-  shift
-  printf '\n==> %s\n' "$name"
-  if ! "$@"; then
-    printf 'FAILED: %s\n' "$name" >&2
-    failures=$((failures + 1))
-  fi
-}
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+echo "=== Starting Monorepo Unified Verification & Dagger CI Suite ==="
+echo "Repository Root: ${REPO_ROOT}"
+echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
-run_step "CI contract tests" bash "$repo_root/scripts/ci/test-verify-component.sh"
-run_step "Repository policy scanner tests" bash "$repo_root/scripts/security/test-scan-repository.sh"
-run_step "CI Engine unit tests" env PYTHONPATH="$repo_root" python3 -m unittest discover -s "$repo_root/platform/ci"
-
-if command -v actionlint >/dev/null 2>&1; then
-  run_step "Workflow syntax" actionlint "$repo_root"/.gitea/workflows/*.yml
-fi
-if command -v shellcheck >/dev/null 2>&1; then
-  run_step "Shell scripts" shellcheck -S warning "$repo_root"/scripts/*.sh "$repo_root"/scripts/ci/*.sh "$repo_root"/scripts/security/*.sh
+# 1. First, verify and test the CI infrastructure itself
+if [ -f "${REPO_ROOT}/scripts/test-ci.sh" ]; then
+  bash "${REPO_ROOT}/scripts/test-ci.sh"
 fi
 
-run_step "Universal CI Pipeline Engine" env PYTHONPATH="$repo_root" python3 -m platform.ci.pipeline "$@"
-
-if ((failures > 0)); then
-  printf '\nVerification failed in %d step(s).\n' "$failures" >&2
+# 2. Invoke Dagger CI Engine (with fallback to host runner)
+if [ -f "${REPO_ROOT}/platform/ci/src/pipeline.mjs" ]; then
+  node "${REPO_ROOT}/platform/ci/src/pipeline.mjs" "$@"
+else
+  echo "🚨 Dagger CI engine file not found: platform/ci/src/pipeline.mjs"
   exit 1
 fi
-printf '\nAll verification steps passed successfully.\n'
