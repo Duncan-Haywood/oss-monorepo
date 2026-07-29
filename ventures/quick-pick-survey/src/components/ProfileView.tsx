@@ -1,115 +1,136 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { PERSPECTIVE_META, PERSPECTIVE_ORDER, type PerspectiveValue } from "@/lib/perspective";
-import { useSessionBundle, writeSessionBundle } from "@/lib/sessionStore";
+import { useEffect, useState } from "react";
+import { useSessionBundle } from "@/lib/sessionStore";
+
+type DomainProgress = {
+  answeredCount: number;
+  confidence: number;
+};
+
+type UsageStats = {
+  choices: number;
+  topics: number;
+  strength: number;
+};
+
+const EMPTY_STATS: UsageStats = { choices: 0, topics: 0, strength: 0 };
+
+function parseProgress(value: unknown): DomainProgress[] | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+
+  const rows: DomainProgress[] = [];
+  for (const progress of Object.values(value)) {
+    if (!progress || typeof progress !== "object" || Array.isArray(progress)) return null;
+    const { answeredCount, confidence } = progress as Record<string, unknown>;
+    if (
+      typeof answeredCount !== "number" ||
+      !Number.isInteger(answeredCount) ||
+      answeredCount < 0 ||
+      typeof confidence !== "number" ||
+      !Number.isFinite(confidence) ||
+      confidence < 0 ||
+      confidence > 1
+    ) {
+      return null;
+    }
+    rows.push({ answeredCount, confidence });
+  }
+  return rows;
+}
+
+function summarizeProgress(progress: DomainProgress[]): UsageStats {
+  if (progress.length === 0) return EMPTY_STATS;
+
+  return {
+    choices: progress.reduce((sum, row) => sum + row.answeredCount, 0),
+    topics: progress.filter((row) => row.answeredCount > 0).length,
+    strength: Math.round(
+      (progress.reduce((sum, row) => sum + row.confidence, 0) / progress.length) * 100,
+    ),
+  };
+}
 
 export function ProfileView() {
-  const modes = PERSPECTIVE_ORDER.map((key) => PERSPECTIVE_META[key]);
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Read during render from the session store rather than mirrored into
-  // state, so the highlighted row is right on the first paint.
   const bundle = useSessionBundle();
-  const current: PerspectiveValue | null = bundle?.perspective ?? null;
+  const [stats, setStats] = useState<UsageStats | null>(null);
+  const [error, setError] = useState(false);
 
-  const name = bundle?.firstName?.trim() || "Anonymous";
+  useEffect(() => {
+    if (!bundle) return;
 
-  /**
-   * Switching mode resumes that perspective's existing sessions — the
-   * server hands back the participants already tied to the account, so the
-   * answers given in the other modes are untouched and switching back
-   * lands on them rather than on an empty ranking.
-   */
-  async function switchTo(p: PerspectiveValue) {
-    if (busy) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/session/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ perspective: p, firstName: name }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.surveys?.length || !data?.participants) {
-        setError("Couldn't switch. Try again.");
-        setBusy(false);
-        return;
+    const controller = new AbortController();
+    async function loadStats() {
+      try {
+        const response = await fetch("/api/session/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ participants: bundle?.participants }),
+          signal: controller.signal,
+        });
+        const data = await response.json().catch(() => null);
+        const progress = response.ok ? parseProgress(data?.status) : null;
+        if (!progress) throw new Error("Invalid progress response");
+        setStats(summarizeProgress(progress));
+        setError(false);
+      } catch (loadError) {
+        if ((loadError as Error).name !== "AbortError") {
+          setError(true);
+          setStats(null);
+        }
       }
-      writeSessionBundle({
-        firstName: name,
-        perspective: p,
-        participants: data.participants,
-        domains: data.surveys,
-      });
-      router.push("/");
-    } catch {
-      setError("Couldn't switch. Try again.");
-      setBusy(false);
     }
-  }
+
+    loadStats();
+    return () => controller.abort();
+  }, [bundle]);
+
+  const displayedStats = bundle === null ? EMPTY_STATS : stats;
+  const cards = [
+    { label: "Choices made", value: displayedStats?.choices ?? "—", glyph: "✓" },
+    { label: "Topics explored", value: displayedStats?.topics ?? "—", glyph: "◫" },
+    { label: "Ranking strength", value: displayedStats ? `${displayedStats.strength}%` : "—", glyph: "↗" },
+  ];
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-5 py-6">
       <h1 className="text-2xl font-bold">You</h1>
 
-      <section className="flex flex-col gap-3">
+      <section className="flex flex-col gap-3" aria-labelledby="usage-heading">
         <div>
-          <h2 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">What you&apos;re rating</h2>
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
-            Each mode keeps its own separate ranking — switching never overwrites the other.
+          <h2 id="usage-heading" className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
+            Your activity
+          </h2>
+          <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+            A snapshot of the ranking you&apos;re currently building.
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 pt-1">
-          {modes.map((m) => {
-            const active = current === m.key;
-            const activeClass =
-              m.key === "PARTNER"
-                ? "border-amber-400 bg-amber-50/70 dark:border-amber-600 dark:bg-amber-950/40"
-                : m.key === "SELF"
-                ? "border-sky-400 bg-sky-50/70 dark:border-sky-600 dark:bg-sky-950/40"
-                : "border-purple-400 bg-purple-50/70 dark:border-purple-600 dark:bg-purple-950/40";
+        <dl className="grid grid-cols-2 gap-3">
+          {cards.map((card, index) => (
+            <div
+              key={card.label}
+              className={`rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900 ${
+                index === 0 ? "col-span-2" : ""
+              }`}
+            >
+              <dt className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                <span aria-hidden="true">{card.glyph}</span>
+                {card.label}
+              </dt>
+              <dd className="mt-2 text-2xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100">
+                {card.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
 
-            return (
-              <button
-                key={m.key}
-                onClick={() => switchTo(m.key)}
-                disabled={busy}
-                className={`relative flex flex-col gap-2 rounded-2xl border-2 p-4 text-left transition-all active:scale-[0.98] disabled:opacity-50 ${
-                  active
-                    ? `${activeClass} shadow-xs`
-                    : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <span aria-hidden="true" className="text-xl">
-                      {m.glyph}
-                    </span>
-                    <span className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
-                      {m.label}
-                    </span>
-                  </div>
-                  {active && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                      Active
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-300 pl-7">
-                  {m.blurb}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-        {error && <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
+        {error ? (
+          <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+            Couldn&apos;t load your activity. Try again later.
+          </p>
+        ) : null}
       </section>
 
       <section className="flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400">
