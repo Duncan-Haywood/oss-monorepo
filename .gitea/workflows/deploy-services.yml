@@ -5,13 +5,13 @@ on:
     paths:
       - "platform/terraform/helm/web-service/**"
       - "platform/k8s/apps/**"
-      - ".github/workflows/deploy-services.yml"
+      - ".gitea/workflows/deploy-services.yml"
   push:
     branches: [main]
     paths:
       - "platform/terraform/helm/web-service/**"
       - "platform/k8s/apps/**"
-      - ".github/workflows/deploy-services.yml"
+      - ".gitea/workflows/deploy-services.yml"
   workflow_dispatch:
 
 permissions:

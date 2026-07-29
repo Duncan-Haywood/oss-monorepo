@@ -4,12 +4,12 @@ on:
   pull_request:
     paths:
       - "ventures/ai-first-markets/**"
-      - ".github/workflows/ai-first-markets-ci.yml"
+      - ".gitea/workflows/ai-first-markets-ci.yml"
   push:
     branches: [main]
     paths:
       - "ventures/ai-first-markets/**"
-      - ".github/workflows/ai-first-markets-ci.yml"
+      - ".gitea/workflows/ai-first-markets-ci.yml"
 
 permissions:
   contents: read

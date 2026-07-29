@@ -4,12 +4,12 @@ on:
   pull_request:
     paths:
       - "ventures/quick-pick-survey/**"
-      - ".github/workflows/pairwise-ci.yml"
+      - ".gitea/workflows/pairwise-ci.yml"
   push:
     branches: [main]
     paths:
       - "ventures/quick-pick-survey/**"
-      - ".github/workflows/pairwise-ci.yml"
+      - ".gitea/workflows/pairwise-ci.yml"
   workflow_dispatch:
 
 permissions:

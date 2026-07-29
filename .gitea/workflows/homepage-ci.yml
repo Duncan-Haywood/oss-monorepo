@@ -4,12 +4,12 @@ on:
   pull_request:
     paths:
       - "portfolio/marisstella-homepage/**"
-      - ".github/workflows/homepage-ci.yml"
+      - ".gitea/workflows/homepage-ci.yml"
   push:
     branches: [main]
     paths:
       - "portfolio/marisstella-homepage/**"
-      - ".github/workflows/homepage-ci.yml"
+      - ".gitea/workflows/homepage-ci.yml"
 
 permissions:
   contents: read
