@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: ai-first-markets
-        image: ghcr.io/marisstella/ai-first-markets:latest
+        image: git.marisstella.dev/giteaadmin/ai-first-markets:latest
         ports:
         - containerPort: 3000
         resources:

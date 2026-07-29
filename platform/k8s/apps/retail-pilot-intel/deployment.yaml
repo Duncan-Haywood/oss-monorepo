@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: retail-pilot-intel
-        image: ghcr.io/marisstella/retail-pilot-intel:latest
+        image: git.marisstella.dev/giteaadmin/retail-pilot-intel:latest
         ports:
         - containerPort: 3000
         resources:

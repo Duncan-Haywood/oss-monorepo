@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: real-estate-photo-app
-        image: ghcr.io/marisstella/real-estate-photo-app:latest
+        image: git.marisstella.dev/giteaadmin/real-estate-photo-app:latest
         ports:
         - containerPort: 80
         resources:

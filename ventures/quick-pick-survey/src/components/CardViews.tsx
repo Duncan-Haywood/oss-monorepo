@@ -1,8 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { CategoryIcon } from "@/components/CategoryIcon";
-import { usePrefersReducedMotion } from "@/lib/clientStore";
 
 export type SurveyKind = "ITEMS" | "FINANCIAL" | "CONJOINED";
 
@@ -32,7 +30,7 @@ export type FinancialTrialResp = {
 };
 
 export type Trial = ItemsTrial | FinancialTrialResp;
-export type InteractionMethod = "swipe" | "card_tap" | "button";
+export type InteractionMethod = "card_tap" | "button";
 
 export function isFinancial(t: Trial): t is FinancialTrialResp {
   return "profileA" in t;
@@ -88,116 +86,8 @@ export function CenteredNote({ children }: { children: React.ReactNode }) {
   );
 }
 
-const THRESHOLD = 90;
-const SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
-
-/**
- * Swipe gesture captured anywhere in the stage. Drag up commits the top
- * card, drag down commits the bottom card. Tinder-style feedback: the
- * targeted card follows the finger 1:1, grows and shows a stamp once past
- * the commit threshold, and flies off-screen with a spring on release; the
- * other card recedes and dims. Tapping a card also picks it.
- */
-function useSwipeStage(
-  onUp: (method: InteractionMethod) => void,
-  onDown: (method: InteractionMethod) => void,
-  disabled: boolean
-) {
-  const [dragY, setDragY] = useState(0);
-  const [dragging, setDragging] = useState(false);
-  const [flying, setFlying] = useState<"up" | "down" | null>(null);
-  const startY = useRef<number | null>(null);
-  const reducedMotion = usePrefersReducedMotion();
-
-  function onPointerDown(e: React.PointerEvent) {
-    if (disabled || flying) return;
-    startY.current = e.clientY;
-    setDragging(true);
-  }
-
-  function onPointerMove(e: React.PointerEvent) {
-    if (startY.current === null || disabled) return;
-    setDragY(e.clientY - startY.current);
-  }
-
-  function commit(direction: "up" | "down", method: InteractionMethod = "button") {
-    if (disabled || flying) return;
-    setFlying(direction);
-    setDragging(false);
-    if (direction === "up") onUp(method);
-    else onDown(method);
-    setTimeout(
-      () => {
-        setFlying(null);
-        setDragY(0);
-      },
-      reducedMotion ? 20 : 120
-    );
-  }
-
-  function endDrag() {
-    if (startY.current === null) return;
-    startY.current = null;
-    setDragging(false);
-    if (dragY < -THRESHOLD) commit("up", "swipe");
-    else if (dragY > THRESHOLD) commit("down", "swipe");
-    else setDragY(0);
-  }
-
-  const progressUp = dragY < 0 ? Math.min(1, -dragY / THRESHOLD) : 0;
-  const progressDown = dragY > 0 ? Math.min(1, dragY / THRESHOLD) : 0;
-
-  const flyDistance = reducedMotion ? 40 : 900;
-  const topOffset = flying === "up" ? -flyDistance : dragY < 0 ? dragY : dragY * 0.12;
-  const bottomOffset = flying === "down" ? flyDistance : dragY > 0 ? dragY : dragY * 0.12;
-  const transition = dragging
-    ? "none"
-    : reducedMotion
-      ? "transform 0.05s linear, opacity 0.05s linear"
-      : `transform 0.12s ${SPRING}, opacity 0.12s ease`;
-
-  const topScale = flying === "up" ? 1.04 : 1 + progressUp * 0.03 - progressDown * 0.05;
-  const bottomScale = flying === "down" ? 1.04 : 1 + progressDown * 0.03 - progressUp * 0.05;
-
-  const topStyle: React.CSSProperties = {
-    transform: `translateY(${topOffset}px) scale(${topScale}) rotate(${Math.max(-8, Math.min(0, topOffset / 18))}deg)`,
-    opacity: flying === "down" ? 0.4 : 1 - progressDown * 0.35,
-    transition,
-    willChange: "transform, opacity",
-  };
-  const bottomStyle: React.CSSProperties = {
-    transform: `translateY(${bottomOffset}px) scale(${bottomScale}) rotate(${Math.max(0, Math.min(8, bottomOffset / 18))}deg)`,
-    opacity: flying === "up" ? 0.4 : 1 - progressUp * 0.35,
-    transition,
-    willChange: "transform, opacity",
-  };
-
-  return {
-    stageHandlers: { onPointerDown, onPointerMove, onPointerUp: endDrag, onPointerCancel: endDrag },
-    topStyle,
-    bottomStyle,
-    commit,
-    progressUp,
-    progressDown,
-  };
-}
-
-/** The Tinder-style "LIKE"/"NOPE" stamp — here it reads as the pick confirmation. */
-function PickStamp({ progress, position }: { progress: number; position: "top" | "bottom" }) {
-  if (progress < 0.12) return null;
-  return (
-    <span
-      aria-hidden="true"
-      className={`pointer-events-none absolute ${position === "top" ? "bottom-3" : "top-3"} right-3 rotate-[-12deg] rounded-lg border-[3px] border-amber-500 px-3 py-1 text-base font-extrabold uppercase tracking-wide text-amber-700 dark:text-amber-400`}
-      style={{ opacity: Math.min(1, progress * 1.4), transform: `rotate(-12deg) scale(${0.8 + progress * 0.25})` }}
-    >
-      This one
-    </span>
-  );
-}
-
 const cardBase =
-  "group relative flex flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-amber-200/80 bg-[#fff8e8] bg-[url('/card-art/intuition-background.webp')] bg-cover bg-center px-6 py-4 text-center shadow-[0_18px_45px_-24px_rgba(120,53,15,.55)] disabled:opacity-50 dark:border-amber-900/60 dark:bg-neutral-950 dark:bg-blend-soft-light select-none touch-manipulation";
+  "group relative flex flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-amber-200/80 bg-[#fff8e8] bg-[url('/card-art/intuition-background.webp')] bg-cover bg-center px-6 py-4 text-center shadow-[0_18px_45px_-24px_rgba(120,53,15,.55)] disabled:opacity-50 dark:border-amber-900/60 dark:bg-neutral-950 dark:bg-blend-soft-light";
 
 /**
  * The action row under the deck. Buttons are explicitly labelled ("Top" /
@@ -270,21 +160,14 @@ export function ItemsTrialView({
   onUndo?: () => void;
   canUndo?: boolean;
 }) {
-  const { stageHandlers, topStyle, bottomStyle, commit, progressUp, progressDown } = useSwipeStage(
-    (method) => onAnswer("A", method),
-    (method) => onAnswer("B", method),
-    submitting
-  );
   return (
     <>
-      <div className="flex flex-1 touch-pan-x flex-col gap-3 overflow-hidden" {...stageHandlers}>
+      <div className="flex flex-1 flex-col gap-3 overflow-hidden">
         <button
-          style={topStyle}
-          onClick={() => commit("up", "card_tap")}
+          onClick={() => onAnswer("A", "card_tap")}
           disabled={submitting}
           className={`${cardBase} flex-col gap-4 text-2xl font-bold leading-snug text-neutral-900 dark:text-neutral-50`}
         >
-          <PickStamp progress={progressUp} position="top" />
           <span className="absolute left-4 top-3 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-neutral-500 backdrop-blur dark:bg-black/30 dark:text-neutral-300">
             Top choice
           </span>
@@ -297,12 +180,10 @@ export function ItemsTrialView({
           </span>
         </button>
         <button
-          style={bottomStyle}
-          onClick={() => commit("down", "card_tap")}
+          onClick={() => onAnswer("B", "card_tap")}
           disabled={submitting}
           className={`${cardBase} flex-col gap-4 text-2xl font-bold leading-snug text-neutral-900 dark:text-neutral-50`}
         >
-          <PickStamp progress={progressDown} position="bottom" />
           <span className="absolute bottom-3 left-4 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-neutral-500 backdrop-blur dark:bg-black/30 dark:text-neutral-300">
             Bottom choice
           </span>
@@ -316,8 +197,8 @@ export function ItemsTrialView({
         </button>
       </div>
       <ActionBar
-        onUp={() => commit("up", "button")}
-        onDown={() => commit("down", "button")}
+        onUp={() => onAnswer("A", "button")}
+        onDown={() => onAnswer("B", "button")}
         onSkip={onSkip}
         onUndo={onUndo}
         canUndo={!!canUndo}
@@ -363,36 +244,27 @@ export function FinancialTrialView({
   onUndo?: () => void;
   canUndo?: boolean;
 }) {
-  const { stageHandlers, topStyle, bottomStyle, commit, progressUp, progressDown } = useSwipeStage(
-    (method) => onAnswer("A", method),
-    (method) => onAnswer("B", method),
-    submitting
-  );
   return (
     <>
-      <div className="flex flex-1 touch-pan-x flex-col gap-3 overflow-hidden" {...stageHandlers}>
+      <div className="flex flex-1 flex-col gap-3 overflow-hidden">
         <button
-          style={topStyle}
-          onClick={() => commit("up", "card_tap")}
+          onClick={() => onAnswer("A", "card_tap")}
           disabled={submitting}
           className={`${cardBase} flex-col items-stretch justify-center gap-2`}
         >
-          <PickStamp progress={progressUp} position="top" />
           <ProfileContent profile={trial.profileA} />
         </button>
         <button
-          style={bottomStyle}
-          onClick={() => commit("down", "card_tap")}
+          onClick={() => onAnswer("B", "card_tap")}
           disabled={submitting}
           className={`${cardBase} flex-col items-stretch justify-center gap-2`}
         >
-          <PickStamp progress={progressDown} position="bottom" />
           <ProfileContent profile={trial.profileB} />
         </button>
       </div>
       <ActionBar
-        onUp={() => commit("up", "button")}
-        onDown={() => commit("down", "button")}
+        onUp={() => onAnswer("A", "button")}
+        onDown={() => onAnswer("B", "button")}
         onSkip={onSkip}
         onUndo={onUndo}
         canUndo={!!canUndo}

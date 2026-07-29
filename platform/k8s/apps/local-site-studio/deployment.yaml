@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: local-site-studio
-        image: ghcr.io/marisstella/local-site-studio:latest
+        image: git.marisstella.dev/giteaadmin/local-site-studio:latest
         ports:
         - containerPort: 3000
         resources:

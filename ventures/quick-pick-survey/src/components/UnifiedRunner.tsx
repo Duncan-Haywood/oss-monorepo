@@ -694,7 +694,7 @@ export function UnifiedRunner() {
             </a>
           </p>
           <p className="rounded-xl bg-neutral-100 px-3 py-2 text-center text-xs leading-relaxed text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
-            On the next screen: choose the card that feels closer. Tap it, use the buttons, or swipe toward it.
+            On the next screen: choose the card that feels closer. Tap it or use the labeled buttons.
           </p>
           {accountName ? (
             <p className="text-center text-xs text-neutral-500 dark:text-neutral-400">Signed in as {accountName}</p>

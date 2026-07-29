@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: ai-engineering-academy
-        image: ghcr.io/marisstella/ai-engineering-academy:latest
+        image: git.marisstella.dev/giteaadmin/ai-engineering-academy:latest
         ports:
         - containerPort: 80
         resources:

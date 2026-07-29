@@ -43,7 +43,7 @@ export default function LandingPage() {
         <Step
           n="2"
           title="React to each pair"
-          body="Tap a card, use the labeled buttons, or swipe toward it. Skip if neither choice gives a useful signal."
+          body="Tap a card or use the labeled buttons. Skip if neither choice gives a useful signal."
         />
         <Step
           n="3"
@@ -56,7 +56,7 @@ export default function LandingPage() {
         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-200">Compare as a couple</h2>
         <p className="text-sm leading-relaxed text-amber-900/90 dark:text-amber-200/90">
           You each build your own ranking, then compare shared priorities and differences. Individual
-          answers stay private; your partner sees aggregate comparisons rather than each swipe.
+          answers stay private; your partner sees aggregate comparisons rather than each individual choice.
         </p>
         <Link
           href="/couple"

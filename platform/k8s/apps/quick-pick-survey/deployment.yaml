@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: quick-pick-survey
-        image: ghcr.io/marisstella/pairwise-app:latest
+        image: git.marisstella.dev/giteaadmin/pairwise-app:latest
         ports:
         - containerPort: 3000
         env:
