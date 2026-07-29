@@ -170,6 +170,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install kubectl matching the production cluster
+        uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4
+        with:
+          version: v1.36.2
+
       - name: Configure production cluster access
         shell: bash
         env:
