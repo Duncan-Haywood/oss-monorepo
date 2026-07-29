@@ -16,7 +16,9 @@ resource "helm_release" "web_service" {
     yamlencode({
       replicas = each.value.replicas
       image = {
-        repository = each.value.image
+        # Pairwise releases are built by Gitea Actions and pulled from Gitea's
+        # registry. Never restore the obsolete node-local image name.
+        repository = each.key == "quick-pick-survey" ? "git.marisstella.dev/giteaadmin/pairwise-app" : each.value.image
         tag        = each.value.tag
       }
       imagePullSecrets = each.key == "quick-pick-survey" ? [
