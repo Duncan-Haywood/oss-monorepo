@@ -109,18 +109,12 @@ jobs:
       - name: Database integration tests
         run: npm run test:integration
 
-      - name: Install PostgreSQL client for migration drift check
-        run: |
-          apt-get update -qq
-          apt-get install -y --no-install-recommends postgresql-client
-
       - name: Verify migration history matches Prisma schema
         run: |
-          PGPASSWORD=postgres createdb -h postgres -U postgres shadow
           npx prisma migrate diff \
             --from-migrations prisma/migrations \
             --to-schema-datamodel prisma/schema.prisma \
-            --shadow-database-url postgresql://postgres:postgres@postgres:5432/shadow \
+            --shadow-database-url 'postgresql://postgres:postgres@postgres:5432/integration?schema=shadow' \
             --exit-code
 
   container:
