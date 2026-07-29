@@ -1,7 +1,7 @@
 import type { Dimension } from "@/lib/surveyData";
 
 /** Versioned, auditable interpretation metadata produced by AI-assisted curation. */
-export const CARD_METADATA_VERSION = "relationship-signals-v1";
+export const CARD_METADATA_VERSION = "relationship-signals-v2";
 export type SignalFamily = "need" | "bond" | "style" | "future" | "tension";
 export type RelationshipTheme =
   | "emotional-safety"
@@ -27,6 +27,13 @@ export type CardMetadata = {
   signals: CardSignal[];
   contexts: string[];
   themes: RelationshipTheme[];
+  /** Plain-language interpretation for the card UI and exports. */
+  meaning: {
+    mayReflect: string[];
+    tradeoffs: string[];
+    notNecessarily: string;
+    evidenceNeeded: string;
+  };
 };
 
 type SignalSeed = Omit<CardSignal, "weight">;
@@ -103,6 +110,24 @@ const CONTEXTS: Record<string, string[]> = {
   Lifestyle: ["daily rhythm", "home life", "time use"],
   Values: ["identity", "meaning", "life priorities"],
   Character: ["partner character", "trust", "admiration"],
+  "Care and health": ["illness", "caregiving", "health decisions"],
+  "Community and belonging": ["friendships", "community", "cultural belonging"],
+  "Work and time": ["career seasons", "time boundaries", "shared priorities"],
+};
+
+const TENSION_LABELS: Partial<Record<Dimension, string>> = {
+  warmth: "care for connection vs room for honest disagreement",
+  ambition: "growth and achievement vs time and presence",
+  status: "public recognition vs private ease",
+  adventure: "novelty and freedom vs predictability",
+  stability: "security and consistency vs flexibility",
+  intellect: "analysis and depth vs emotional immediacy",
+  creativity: "expression and spontaneity vs routine",
+  service: "helpful contribution vs over-giving",
+  physicality: "embodied closeness and vitality vs differing capacity",
+  spirituality: "shared meaning or tradition vs individual conviction",
+  family: "family belonging and duty vs couple or individual boundaries",
+  independence: "autonomy and space vs ready access and togetherness",
 };
 
 export function metadataForCard(item: { label?: string; dimensions?: readonly string[]; category?: string | null }): CardMetadata {
@@ -137,6 +162,16 @@ export function metadataForCard(item: { label?: string; dimensions?: readonly st
     signals,
     contexts: item.category ? (CONTEXTS[item.category] ?? [item.category.toLowerCase()]) : [],
     themes: [...themesSet],
+    meaning: {
+      mayReflect: [...new Set(signals
+        .filter((signal) => signal.family !== "tension")
+        .map((signal) => signal.label))].slice(0, 3),
+      tradeoffs: [...new Set(dims
+        .map((dimension) => TENSION_LABELS[dimension as Dimension])
+        .filter((value): value is string => Boolean(value)))].slice(0, 2),
+      notNecessarily: "Choosing this once does not prove a fixed trait, attachment style, or relationship need.",
+      evidenceNeeded: "Meaning becomes more reliable only when the same pattern appears across several differently worded choices.",
+    },
   };
 }
 
@@ -146,7 +181,9 @@ export const buildCardMetadata = metadataForCard;
 export function parseCardMetadata(value: unknown): CardMetadata | null {
   if (!value || typeof value !== "object") return null;
   const candidate = value as Partial<CardMetadata>;
-  return candidate.version && Array.isArray(candidate.signals)
+  return candidate.version === CARD_METADATA_VERSION
+    && Array.isArray(candidate.signals)
+    && Boolean(candidate.meaning)
     ? (candidate as CardMetadata)
     : null;
 }

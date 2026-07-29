@@ -42,7 +42,8 @@ describe("Pairwise CI contract", () => {
   it.skipIf(!PAIRWISE_CI)("checks the database and the deployable artifact", () => {
     expect(PAIRWISE_CI).toContain("image: postgres:16");
     expect(PAIRWISE_CI).toContain("prisma migrate deploy");
-    expect(PAIRWISE_CI).toContain("docker/build-push-action");
+    expect(PAIRWISE_CI).toContain("docker build");
+    expect(PAIRWISE_CI).toContain("docker push");
     expect(PAIRWISE_CI).toContain("git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}");
     expect(PAIRWISE_CI).toContain("needs: [app, database]");
   });

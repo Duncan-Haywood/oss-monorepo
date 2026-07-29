@@ -8,6 +8,7 @@ LOCAL_BACKUP_DIR="${PAIRWISE_LOCAL_BACKUP_DIR:-.backups/pairwise}"
 
 echo "===> 1. Backing up K3s datastore & persistent volumes on Hetzner server ($SERVER_IP)..."
 ssh -i "$SSH_KEY" "root@$SERVER_IP" << EOF
+set -euo pipefail
 mkdir -p /var/backups/k3s
 tar -czf /var/backups/k3s/k3s_data_backup_${BACKUP_TIMESTAMP}.tar.gz \
     /var/lib/rancher/k3s/server/db \
@@ -23,12 +24,14 @@ mkdir -p /var/backups/pairwise
 chmod 700 /var/backups/pairwise
 pairwise_pod=\$(kubectl -n web-services get pod -l app=pairwise-db \
     -o jsonpath='{.items[0].metadata.name}')
+pairwise_temporary=/var/backups/pairwise/.pairwise_${BACKUP_TIMESTAMP}.dump.tmp
+pairwise_output=/var/backups/pairwise/pairwise_${BACKUP_TIMESTAMP}.dump
 kubectl -n web-services exec "\$pairwise_pod" -- \
     pg_dump -U postgres -d pairwise --format=custom --compress=9 \
-    > /var/backups/pairwise/pairwise_${BACKUP_TIMESTAMP}.dump
-test -s /var/backups/pairwise/pairwise_${BACKUP_TIMESTAMP}.dump
-sha256sum /var/backups/pairwise/pairwise_${BACKUP_TIMESTAMP}.dump \
-    > /var/backups/pairwise/pairwise_${BACKUP_TIMESTAMP}.dump.sha256
+    > "\$pairwise_temporary"
+test -s "\$pairwise_temporary"
+mv "\$pairwise_temporary" "\$pairwise_output"
+sha256sum "\$pairwise_output" > "\$pairwise_output.sha256"
 find /var/backups/pairwise -name "pairwise_*.dump" -mtime +30 -delete
 find /var/backups/pairwise -name "pairwise_*.dump.sha256" -mtime +30 -delete
 EOF
@@ -56,26 +59,13 @@ if [ -f platform/terraform/terraform.tfstate ]; then
 fi
 
 echo "===> 4. Setting up automated 12-hour cron backup on server..."
+scp -i "$SSH_KEY" \
+    platform/infrastructure/backup-pairwise-db.sh \
+    "root@$SERVER_IP:/tmp/backup-pairwise-db.sh"
 ssh -i "$SSH_KEY" "root@$SERVER_IP" << 'EOF'
-install -m 0750 /dev/stdin /usr/local/sbin/backup-pairwise-db <<'SCRIPT'
-#!/usr/bin/env bash
 set -euo pipefail
-backup_dir=/var/backups/pairwise
-timestamp=$(date +%Y%m%d_%H%M%S)
-mkdir -p "$backup_dir"
-chmod 700 "$backup_dir"
-pod=$(kubectl -n web-services get pod -l app=pairwise-db \
-  -o jsonpath='{.items[0].metadata.name}')
-temporary="$backup_dir/.pairwise_${timestamp}.dump.tmp"
-output="$backup_dir/pairwise_${timestamp}.dump"
-kubectl -n web-services exec "$pod" -- \
-  pg_dump -U postgres -d pairwise --format=custom --compress=9 > "$temporary"
-test -s "$temporary"
-mv "$temporary" "$output"
-sha256sum "$output" > "$output.sha256"
-find "$backup_dir" -name 'pairwise_*.dump' -mtime +30 -delete
-find "$backup_dir" -name 'pairwise_*.dump.sha256' -mtime +30 -delete
-SCRIPT
+install -m 0750 /tmp/backup-pairwise-db.sh /usr/local/sbin/backup-pairwise-db
+rm -f /tmp/backup-pairwise-db.sh
 
 (crontab -l 2>/dev/null | grep -vE "k3s_data_backup|backup-pairwise-db" ; \
  echo "0 */12 * * * tar -czf /var/backups/k3s/k3s_data_backup_\$(date +\%Y\%m\%d_\%H\%M\%S).tar.gz /var/lib/rancher/k3s/server/db /var/lib/rancher/k3s/storage 2>/dev/null; find /var/backups/k3s -name 'k3s_data_backup_*.tar.gz' -mtime +7 -delete"; \

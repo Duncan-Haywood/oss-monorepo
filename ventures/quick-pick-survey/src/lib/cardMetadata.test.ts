@@ -8,6 +8,9 @@ describe("card interpretation metadata", () => {
     expect(metadata.signals.length).toBeGreaterThanOrEqual(6);
     expect(metadata.contexts).toContain("mental load");
     expect(metadata.signals[0].weight).toBeGreaterThan(metadata.signals.at(-1)!.weight);
+    expect(metadata.meaning.mayReflect.length).toBeGreaterThanOrEqual(2);
+    expect(metadata.meaning.tradeoffs).toContain("care for connection vs room for honest disagreement");
+    expect(metadata.meaning.notNecessarily).toContain("does not prove");
   });
 
   it("builds claims with item-level provenance", () => {
