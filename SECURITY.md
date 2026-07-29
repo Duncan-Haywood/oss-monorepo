@@ -32,7 +32,7 @@ and on demand. It provides:
   maintained Gitea issue when a default-branch or scheduled scan fails.
 
 Scanner findings are triaged using the
-[security roadmap](docs/security/ROADMAP.md) and recorded in the
+[security roadmap](SECURITY_ROADMAP.md) and recorded in the
 [remediation log](docs/security/REMEDIATION_LOG.md).
 
 ## Credential exposure procedure

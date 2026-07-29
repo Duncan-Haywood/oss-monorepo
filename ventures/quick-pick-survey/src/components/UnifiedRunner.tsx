@@ -446,9 +446,15 @@ export function UnifiedRunner() {
 
     const willOpenModeModal = answersAfterThis % 10 === 0 && !insightBreak;
 
+    let upcomingTrial = nextTrial;
+    if (!upcomingTrial && pendingPrefetchRef.current) {
+      upcomingTrial = await pendingPrefetchRef.current;
+    }
+    pendingPrefetchRef.current = null;
+
     // Optimistic UI update: advance instantly to pre-fetched trial if available
-    if (!willOpenModeModal && nextTrial) {
-      setTrial(nextTrial);
+    if (!willOpenModeModal && upcomingTrial) {
+      setTrial(upcomingTrial);
       setNextTrial(null);
       cardShownAt.current = performance.now();
       const pid = session.participants[answeredSlug];
