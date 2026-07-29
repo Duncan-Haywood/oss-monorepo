@@ -172,6 +172,7 @@ export function UnifiedRunner() {
   const [isModalAutoSuggested, setIsModalAutoSuggested] = useState(false);
   const [focusAnswers, setFocusAnswers] = useState(0);
   const cardShownAt = useRef(0);
+  const submittingTrialIdRef = useRef<string | null>(null);
 
   // A session the person has touched wins over the stored one, so a late
   // account response can't yank the question out from under them.
