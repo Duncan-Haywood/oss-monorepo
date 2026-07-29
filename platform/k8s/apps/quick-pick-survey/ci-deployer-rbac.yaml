@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pairwise-ci-deployer
+  namespace: web-services
+  labels:
+    app.kubernetes.io/name: pairwise-ci-deployer
+    app.kubernetes.io/part-of: quick-pick-survey
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pairwise-ci-deployer-token
+  namespace: web-services
+  annotations:
+    kubernetes.io/service-account.name: pairwise-ci-deployer
+  labels:
+    app.kubernetes.io/name: pairwise-ci-deployer
+    app.kubernetes.io/part-of: quick-pick-survey
+type: kubernetes.io/service-account-token
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pairwise-ci-deployer
+  namespace: web-services
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "patch", "update"]
+- apiGroups: ["apps"]
+  resources: ["replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create", "get", "patch", "update"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pairwise-ci-deployer
+  namespace: web-services
+subjects:
+- kind: ServiceAccount
+  name: pairwise-ci-deployer
+  namespace: web-services
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pairwise-ci-deployer
