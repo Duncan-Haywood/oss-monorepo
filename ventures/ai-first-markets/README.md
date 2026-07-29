@@ -1,50 +1,102 @@
-# React + TypeScript + Vite
+# AI-First Markets
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A market-selection and business-idea evaluation platform for solo founders
+targeting **$100k ARR** and **$1M ARR** with zero employees.
 
-Currently, two official plugins are available:
+This combines the original AI-First Markets opportunity map with the business
+idea reports formerly maintained in `Duncan-Haywood/projects`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Built with Next.js 15, TypeScript, Tailwind CSS, and deployable to **Cloudflare Workers** via OpenNext.
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **AI-first market map** with ripeness signals, market tiers, and winning patterns
+- **8 evaluated business ideas** across devtools, vertical SaaS, AI agents, API infrastructure, and content automation
+- **6 analytical reports**: executive summary, $100k path, $1M path, automation playbook, scoring methodology, category analysis
+- **Scoring framework** across AI leverage, zero-employee ops, time-to-revenue, margin, defensibility, and distribution
+- **Whitelist-only access** for `duncan.andrew.haywood@gmail.com`
+- **Cloudflare deployment** ready with OpenNext adapter
 
-- Configure the top-level `parserOptions` property like this:
+## Quick start (local)
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm install
+cp .env.example .env.local
+# Set AUTH_SECRET and optionally GOOGLE_CLIENT_ID/SECRET for OAuth
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Open [http://localhost:3000](http://localhost:3000). You'll be redirected to `/login`.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+### Local auth options
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+1. **Google OAuth** — Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env.local`. Only the whitelisted email can sign in.
+2. **Dev bypass** — For local testing without OAuth, temporarily comment out the middleware redirect (not recommended for production).
+
+## Deploy to Cloudflare
+
+See **[cloudflare/DEPLOY.md](cloudflare/DEPLOY.md)** for full setup (Workers Builds, Wrangler, Access whitelist, GitHub Actions).
+
+### Quick deploy
+
+```bash
+npm install
+npx wrangler login
+npx wrangler secret put AUTH_SECRET
+npm run deploy
 ```
+
+### After deploy — enable Access whitelist
+
+1. **Workers & Pages → ai-first-markets → Settings → Domains & Routes**
+2. Click **Enable Cloudflare Access** on `workers.dev`
+3. Restrict policy to `duncan.andrew.haywood@gmail.com`
+4. Add `TEAM_DOMAIN` and `POLICY_AUD` env vars from the Access modal
+
+### MCP verification
+
+After deployment, use the Cloudflare MCP in Cursor:
+
+- `Cloudflare-bindings` → `workers_list` — confirm worker exists
+- `Cloudflare-builds` → `workers_builds_list_builds` — check CI builds
+
+## Project structure
+
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── reports/[slug]/     # Analytical reports
+│   ├── ideas/[slug]/       # Individual idea deep-dives
+│   ├── login/              # Auth page
+│   └── api/auth/           # OAuth + session endpoints
+├── components/             # UI components (TSX)
+├── data/                   # Business ideas + report metadata (TS)
+└── lib/                    # Auth, evaluation, types, utils (TS)
+```
+
+## Reports
+
+| Report | Description |
+|--------|-------------|
+| Executive Summary | Portfolio overview and top recommendations |
+| Path to $100k ARR | Ranked ideas for first revenue milestone |
+| Path to $1M ARR | Scaling analysis and platform distribution patterns |
+| AI + Zero-Employee Playbook | Operational stack for solo AI-first SaaS |
+| Scoring Methodology | How ideas are evaluated |
+| Category Analysis | Comparison across idea categories |
+
+## Top recommendations
+
+**$100k ARR (strong fit):**
+1. AI PR Review Agent
+2. AI Receptionist for Trades
+3. LinkedIn Content Engine
+
+**$1M ARR (viable+):**
+1. AI QA for E-commerce
+2. AI PR Review Agent
+3. API Uptime Intelligence
+
+## License
+
+Private — authorized access only.
