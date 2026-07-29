@@ -7,7 +7,11 @@ import {
   isValidEmail,
   normalizeEmail,
   passwordProblem,
+  recordLoginAttempt,
 } from "@/lib/auth";
+import { isWriteRateLimited, recordWrite } from "@/lib/rateLimit";
+
+const MAX_SIGNUPS_PER_IP = 8;
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -21,6 +25,11 @@ export async function POST(req: NextRequest) {
   if (pwProblem) return NextResponse.json({ error: pwProblem }, { status: 400 });
 
   try {
+    const ip = getClientIp(req.headers);
+    if (await isWriteRateLimited(ip, "auth/signup", MAX_SIGNUPS_PER_IP)) {
+      return NextResponse.json({ error: "Too many accounts created. Try again later." }, { status: 429 });
+    }
+
     const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
     if (existing) {
       return NextResponse.json({ error: "An account with that email already exists." }, { status: 409 });
@@ -31,9 +40,9 @@ export async function POST(req: NextRequest) {
       select: { id: true, email: true, firstName: true },
     });
 
-    await prisma.loginAttempt.create({
-      data: { email, ip: getClientIp(req.headers), success: true },
-    });
+    await recordWrite(ip, "auth/signup");
+
+    await recordLoginAttempt(email, ip, true);
     await createSession(user.id);
 
     return NextResponse.json({ user });

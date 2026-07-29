@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quick-pick-survey
+  namespace: default
+  labels:
+    app: quick-pick-survey
+    tier: frontend
+    ha-topology: dual-node
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: quick-pick-survey
+  template:
+    metadata:
+      labels:
+        app: quick-pick-survey
+        tier: frontend
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - quick-pick-survey
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: quick-pick-survey
+        image: ghcr.io/duncan-haywood/quick-pick-survey:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        - name: POSTGRES_PRISMA_URL
+          valueFrom:
+            secretKeyRef:
+              name: quick-pick-secrets
+              key: POSTGRES_PRISMA_URL
+        - name: POSTGRES_URL_NON_POOLING
+          valueFrom:
+            secretKeyRef:
+              name: quick-pick-secrets
+              key: POSTGRES_URL_NON_POOLING
+        - name: ADMIN_KEY
+          valueFrom:
+            secretKeyRef:
+              name: quick-pick-secrets
+              key: ADMIN_KEY
+        - name: ADMIN_SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quick-pick-secrets
+              key: ADMIN_SESSION_SECRET
+        - name: RATE_LIMIT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quick-pick-secrets
+              key: RATE_LIMIT_SECRET
+        - name: APP_ORIGIN
+          value: "https://pairwise.marisstella.dev"
+        resources:
+          requests:
+            cpu: 250m
+            memory: 384Mi
+          limits:
+            cpu: 1000m
+            memory: 768Mi
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health/ready
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 2

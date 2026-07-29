@@ -139,8 +139,12 @@ describe("a couple who actually answered the questions", () => {
 
     // Near-opposite preferences, so "matters more to them" has something true
     // to find rather than having to invent a difference.
+    await signInAs(a.id);
     await answerSession(ada.id, await latentPreferences(false), 11);
+    signOut();
+    await signInAs(b.id);
     await answerSession(bo.id, await latentPreferences(true), 29);
+    signOut();
 
     await signInAs(a.id);
     const body = await (await compare()).json();
@@ -175,7 +179,9 @@ describe("a couple who actually answered the questions", () => {
     const ada = await createParticipant(SURVEY, { userId: a.id, perspective: "PARTNER", firstName: "Ada" });
     await createParticipant(SURVEY, { userId: b.id, perspective: "PARTNER", firstName: "Bo" });
 
+    await signInAs(a.id);
     await answerSession(ada.id, await latentPreferences(false), 11);
+    signOut();
 
     await signInAs(a.id);
     const body = await (await compare()).json();

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -21,10 +21,9 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "5.22.0",
+    "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
     "next": "16.2.12",
-    "prisma": "5.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -33,15 +32,20 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^20",
+    "@types/node": "^20.19.43",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
     "jsdom": "^30.0.0",
+    "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
     "typescript": "^5",
     "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "postcss": "^8.5.18",
+    "sharp": "^0.35.0"
   }
 }

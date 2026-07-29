@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PairItem, pairKey, sameCategoryBias, selectNextPair, surveyConfidence } from "./pairing";
+import { admissionOrder, PairItem, pairKey, sameCategoryBias, selectNextPair, surveyConfidence } from "./pairing";
 
 function items(n: number, category = "cat"): PairItem[] {
   return Array.from({ length: n }, (_, i) => ({
@@ -98,5 +98,22 @@ describe("surveyConfidence", () => {
   it("stays within 0..1 for out-of-range input", () => {
     expect(surveyConfidence([{ rd: 5 }])).toBeLessThanOrEqual(1);
     expect(surveyConfidence([{ rd: 9999 }])).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("admissionOrder", () => {
+  it("admits relationship insight categories and curated items first", () => {
+    const ordered = admissionOrder([
+      { id: "job", rating: 1500, rd: 350, category: "Medicine", sortOrder: 0 },
+      { id: "later-value", rating: 1500, rd: 350, category: "Values", sortOrder: 8 },
+      { id: "first-value", rating: 1500, rd: 350, category: "Values", sortOrder: 1 },
+      { id: "communication", rating: 1500, rd: 350, category: "Communication", sortOrder: 0 },
+    ]);
+    expect(ordered.map((item) => item.id)).toEqual([
+      "first-value",
+      "communication",
+      "job",
+      "later-value",
+    ]);
   });
 });

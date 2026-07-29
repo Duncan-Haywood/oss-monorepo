@@ -30,6 +30,7 @@ import { createHmac } from "crypto";
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, createSessionToken } from "@/lib/adminAuth";
+import { rateLimitKey } from "@/lib/http";
 import { setCookie, clearCookies } from "@/test/integration/cookieMock";
 import { createAccount, createParticipant, jsonRequest, resetData, surveyIdBySlug } from "@/test/integration/db";
 
@@ -236,7 +237,7 @@ describe("login", () => {
 
     // Age them past the 15-minute window rather than waiting for it.
     await prisma.adminLoginAttempt.updateMany({
-      where: { ip: "10.9.9.11" },
+      where: { ip: rateLimitKey("10.9.9.11") },
       data: { createdAt: new Date(Date.now() - 16 * 60 * 1000) },
     });
     expect((await login(loginRequest(ADMIN_KEY, "10.9.9.11"))).status).toBe(200);

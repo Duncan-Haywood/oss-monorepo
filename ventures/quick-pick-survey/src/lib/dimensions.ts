@@ -20,21 +20,20 @@ export type DimensionScore = {
   se: number;
 };
 
+export type PersonalityArchetype = {
+  name: string;
+  tagline: string;
+  traits: string[];
+  description: string;
+};
+
 /**
- * Rolls per-item ratings up into per-dimension scores. An item can signal
- * several dimensions, and contributes to each — this is deliberately a
- * simple weighted mean rather than a factor model, because with one
- * respondent and a few dozen answers anything fancier would be fitting
- * noise.
- *
- * Items are weighted by certainty (1/rd²), so an item the model is still
- * unsure about barely moves its dimension.
+ * Rolls per-item ratings up into per-dimension scores weighted by certainty (1/rd²).
  */
 export function scoreDimensions(items: ScoredItem[]): DimensionScore[] {
   const rated = items.filter((i) => i.rd < 349 && i.dimensions.length > 0);
   if (rated.length === 0) return [];
 
-  // Overall weighted mean, used as the baseline each dimension is compared to.
   let wSum = 0;
   let wxSum = 0;
   for (const i of rated) {
@@ -57,8 +56,6 @@ export function scoreDimensions(items: ScoredItem[]): DimensionScore[] {
       wx += wi * m.rating;
     }
     const score = wx / w;
-
-    // SE of a weighted mean under the same weights.
     const se = Math.sqrt(1 / w);
 
     out.push({
@@ -75,25 +72,94 @@ export function scoreDimensions(items: ScoredItem[]): DimensionScore[] {
 }
 
 /**
- * A short, plain-language read of the strongest signals — deliberately
- * hedged when the data is thin, since overclaiming from 20 answers is how
- * these products lose trust.
+ * Maps top dimension scores into deep psychometric personality archetypes.
  */
+export function synthesizeArchetype(scores: DimensionScore[]): PersonalityArchetype | null {
+  const solid = scores.filter((s) => s.n >= 2 && s.delta > 0);
+  if (solid.length === 0) return null;
+
+  const topKeys = new Set(solid.slice(0, 3).map((s) => s.key));
+
+  if (topKeys.has("warmth") && (topKeys.has("service") || topKeys.has("family"))) {
+    return {
+      name: "The Devoted Anchor",
+      tagline: "High Empathy & Relational Depth",
+      traits: ["Deeply Altruistic", "Family-Oriented", "Emotionally Attuned"],
+      description: "You prioritize genuine warmth, mutual care, and emotional safety over external competition or status.",
+    };
+  }
+
+  if (topKeys.has("ambition") && (topKeys.has("status") || topKeys.has("stability"))) {
+    return {
+      name: "The Driven Architect",
+      tagline: "High Mastery & Future Building",
+      traits: ["Purpose-Driven", "High Standards", "Resilient Focus"],
+      description: "You are energized by tangible accomplishment, leadership, and building a secure, high-achieving life together.",
+    };
+  }
+
+  if (topKeys.has("adventure") && (topKeys.has("independence") || topKeys.has("physicality"))) {
+    return {
+      name: "The Fearless Co-Pilot",
+      tagline: "High Autonomy & Experiential Curiosity",
+      traits: ["Self-Directed", "Risk-Tolerant", "Exploratory Spirit"],
+      description: "You value freedom, novel experiences, and exploring the world as partners over predictable routines.",
+    };
+  }
+
+  if (topKeys.has("intellect") && (topKeys.has("creativity") || topKeys.has("independence"))) {
+    return {
+      name: "The Mindful Craftsperson",
+      tagline: "High Curiosity & Creative Expression",
+      traits: ["Deep Thinker", "Creative Problem Solver", "Original Mind"],
+      description: "You seek intellectual depth, rich conversation, and meaningful creative expression in your shared life.",
+    };
+  }
+
+  if (topKeys.has("stability") && (topKeys.has("physicality") || topKeys.has("warmth"))) {
+    return {
+      name: "The Grounded Sanctuary",
+      tagline: "High Reliability & Calm Strength",
+      traits: ["Calm Under Pressure", "Grounded Discipline", "Rock-Solid Partner"],
+      description: "You provide steady, unshakeable calm and practical dependability when life gets noisy or chaotic.",
+    };
+  }
+
+  if (topKeys.has("creativity") && (topKeys.has("warmth") || topKeys.has("adventure"))) {
+    return {
+      name: "The Playful Spark",
+      tagline: "High Spontaneity & Joyful Connection",
+      traits: ["Shared Laughter", "Naturally Romantic", "Expressive"],
+      description: "You thrive on spontaneous romance, shared humor, and keeping a joyful, vibrant energy in your relationship.",
+    };
+  }
+
+  return {
+    name: "The Balanced Harmonizer",
+    tagline: "Well-Rounded Preference Profile",
+    traits: ["Adaptable", "Multifaceted", "Harmonious Focus"],
+    description: "Your preferences show an exceptionally balanced integration of warmth, ambition, independence, and stability.",
+  };
+}
+
 export function describeDimensions(scores: DimensionScore[], totalAnswers: number): string | null {
-  const solid = scores.filter((s) => s.n >= 3);
+  const solid = scores.filter((s) => s.n >= 2);
   if (solid.length < 2) return null;
 
   const top = solid[0];
   const bottom = solid[solid.length - 1];
-  if (top.delta - bottom.delta < 20) {
-    return "So far your preferences look fairly even across the board — no single thing is dominating yet.";
+  const archetype = synthesizeArchetype(scores);
+
+  if (top.delta - bottom.delta < 15) {
+    return "So far your preferences look fairly even across the board — no single trait is dominating yet.";
   }
 
   const hedge =
     totalAnswers < 40
-      ? "Early read, but "
+      ? "Early read: "
       : totalAnswers < 100
-        ? "Fairly consistent so far: "
+        ? "Fairly consistent profile: "
         : "Clear pattern: ";
-  return `${hedge}you lean toward ${top.label.toLowerCase()} and away from ${bottom.label.toLowerCase()}.`;
+
+  return `${hedge}You align strongly with ${top.label.toLowerCase()}${archetype ? ` (${archetype.name})` : ""}, while placing lower priority on ${bottom.label.toLowerCase()}.`;
 }

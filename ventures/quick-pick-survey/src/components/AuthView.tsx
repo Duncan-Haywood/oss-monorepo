@@ -90,8 +90,12 @@ export function AuthView() {
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
             required
           />
-          {mode === "signup" && (
+          {mode === "signup" ? (
             <span className="text-[11px] text-neutral-500 dark:text-neutral-400">At least 10 characters, with a letter and a number.</span>
+          ) : (
+            <Link href="/forgot-password" className="mt-1 text-right text-xs text-amber-700 hover:underline dark:text-amber-400">
+              Forgot your password?
+            </Link>
           )}
         </label>
 

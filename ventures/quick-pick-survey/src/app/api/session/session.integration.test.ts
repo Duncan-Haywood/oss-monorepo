@@ -15,6 +15,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("next/headers", () => import("@/test/integration/cookieMock"));
 
 import { prisma } from "@/lib/prisma";
+import { rateLimitKey } from "@/lib/http";
 import {
   createAccount,
   createParticipant,
@@ -99,7 +100,7 @@ describe("POST /api/session/start", () => {
     // Fill the window directly rather than by making forty real calls: the
     // limit is a count of AnonRequestLog rows, and that is what is under test.
     await prisma.anonRequestLog.createMany({
-      data: Array.from({ length: 40 }, () => ({ ip, route: "session/start" })),
+      data: Array.from({ length: 40 }, () => ({ ip: rateLimitKey(ip), route: "session/start" })),
     });
 
     const blocked = await startSession({ firstName: "Ada" }, headers);

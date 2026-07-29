@@ -14,13 +14,6 @@
  * behind it: which perspective is sent, what name goes with it, what is
  * written to the session store, and what happens to the stored session when
  * the switch fails.
- *
- * The bug these were written against: the name sent with a switch was
- * `user?.firstName ?? "Anonymous"`, and `user` arrives from `/api/auth/me`
- * some time after the first paint. Tapping a mode before it landed sent
- * "Anonymous" for a signed-in person — which sticks on the Participant row
- * created for a mode they had not used before, and is read back to them at
- * the end of the round.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -29,10 +22,9 @@ import { ProfileView } from "@/components/ProfileView";
 import { SESSION_KEY } from "@/lib/sessionStore";
 
 const push = vi.fn();
-const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push, refresh }),
+  useRouter: () => ({ push }),
 }));
 
 const STORED = {
@@ -86,25 +78,23 @@ afterEach(() => {
 
 describe("ProfileView", () => {
   it("marks the stored perspective as the active one on the first paint", async () => {
-    stubFetch({ "/api/auth/me": { status: 200, body: { user: null } } });
+    stubFetch({});
     render(<ProfileView />);
 
     // Read from the store during render, not mirrored into state through an
     // effect: the highlight must be right immediately, not after a flash of
     // the wrong row.
     const active = screen.getByText("Active").closest("button");
-    expect(active?.textContent).toContain("In a partner");
+    expect(active?.textContent).toContain("The partner I would choose");
   });
 
   it("sends the chosen perspective and stores it, then leaves for the cards", async () => {
     const calls = stubFetch({
-      "/api/auth/me": { status: 200, body: { user: { firstName: "Ada", email: "a@b.c" } } },
       "/api/session/start": { status: 200, body: STARTED },
     });
     render(<ProfileView />);
-    await screen.findByText(/Signed in as/);
 
-    fireEvent.click(screen.getByText("Your guess at your partner's answers.").closest("button")!);
+    fireEvent.click(screen.getByText("What I think my partner wants").closest("button")!);
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
     expect(lastStart(calls)).toMatchObject({ perspective: "PARTNER_GUESS", firstName: "Ada" });
@@ -114,16 +104,13 @@ describe("ProfileView", () => {
     expect(stored.participants).toEqual(STARTED.participants);
   });
 
-  it("uses the name already on the session when the account has not loaded yet", async () => {
-    // `/api/auth/me` never answers here, which is the race in its most
-    // visible form. Was: "Anonymous" went to the server and into the store.
+  it("uses the name already on the session", async () => {
     const calls = stubFetch({
-      "/api/auth/me": { status: 0 },
       "/api/session/start": { status: 200, body: STARTED },
     });
     render(<ProfileView />);
 
-    fireEvent.click(screen.getByText("What you want to build in your own life.").closest("button")!);
+    fireEvent.click(screen.getByText("What I want for myself").closest("button")!);
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
     expect(lastStart(calls)).toMatchObject({ perspective: "SELF", firstName: "Ada" });
@@ -133,12 +120,11 @@ describe("ProfileView", () => {
   it("falls back to Anonymous only when there is no name anywhere", async () => {
     window.localStorage.setItem(SESSION_KEY, JSON.stringify({ ...STORED, firstName: "  " }));
     const calls = stubFetch({
-      "/api/auth/me": { status: 200, body: { user: null } },
       "/api/session/start": { status: 200, body: STARTED },
     });
     render(<ProfileView />);
 
-    fireEvent.click(screen.getByText("For myself").closest("button")!);
+    fireEvent.click(screen.getByText("What I want for myself").closest("button")!);
 
     await waitFor(() => expect(push).toHaveBeenCalled());
     expect(lastStart(calls)).toMatchObject({ firstName: "Anonymous" });
@@ -149,19 +135,17 @@ describe("ProfileView", () => {
     // perspective while the participant ids belong to another, and every
     // answer after that is filed under the wrong question.
     stubFetch({
-      "/api/auth/me": { status: 200, body: { user: { firstName: "Ada", email: "a@b.c" } } },
       "/api/session/start": { status: 500, body: { error: "nope" } },
     });
     render(<ProfileView />);
-    await screen.findByText(/Signed in as/);
 
-    fireEvent.click(screen.getByText("For myself").closest("button")!);
+    fireEvent.click(screen.getByText("What I want for myself").closest("button")!);
 
     expect(await screen.findByText("Couldn't switch. Try again.")).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
     expect(JSON.parse(window.localStorage.getItem(SESSION_KEY)!)).toEqual(STORED);
     // And the buttons are usable again, rather than left disabled.
-    expect(screen.getByText("For myself").closest("button")!.hasAttribute("disabled")).toBe(false);
+    expect(screen.getByText("What I want for myself").closest("button")!.hasAttribute("disabled")).toBe(false);
   });
 
   it("treats a 200 with no participants as a failed switch", async () => {
@@ -169,38 +153,22 @@ describe("ProfileView", () => {
     // a success would write a bundle with no ids in it and leave the runner
     // with nothing to fetch.
     stubFetch({
-      "/api/auth/me": { status: 200, body: { user: null } },
       "/api/session/start": { status: 200, body: { surveys: [], participants: null } },
     });
     render(<ProfileView />);
 
-    fireEvent.click(screen.getByText("For myself").closest("button")!);
+    fireEvent.click(screen.getByText("What I want for myself").closest("button")!);
 
     expect(await screen.findByText("Couldn't switch. Try again.")).toBeTruthy();
     expect(JSON.parse(window.localStorage.getItem(SESSION_KEY)!)).toEqual(STORED);
   });
 
-  it("clears the local session when signing out", async () => {
-    // The bundle holds participant ids. Leaving them behind on a shared
-    // device would let the next person answer into this account's ranking —
-    // and a couple is the most likely pair of people to share one.
-    stubFetch({
-      "/api/auth/me": { status: 200, body: { user: { firstName: "Ada", email: "a@b.c" } } },
-      "/api/auth/logout": { status: 200, body: {} },
-    });
+  it("does not show account controls on the profile page", () => {
+    stubFetch({});
     render(<ProfileView />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Sign out" }));
-
-    await waitFor(() => expect(window.localStorage.getItem(SESSION_KEY)).toBeNull());
-    expect(push).toHaveBeenCalledWith("/");
-  });
-
-  it("offers a sign-in link, not a sign-out button, when signed out", async () => {
-    stubFetch({ "/api/auth/me": { status: 200, body: { user: null } } });
-    render(<ProfileView />);
-
-    expect(await screen.findByRole("link", { name: /Sign in to sync/ })).toBeTruthy();
+    expect(screen.queryByText("Account")).toBeNull();
+    expect(screen.queryByRole("link", { name: /Sign in to sync/ })).toBeNull();
     expect(screen.queryByRole("button", { name: "Sign out" })).toBeNull();
   });
 });

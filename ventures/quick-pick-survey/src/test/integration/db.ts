@@ -13,6 +13,7 @@ import { setCookie, clearCookies } from "./cookieMock";
 
 /** Everything written by a session, in an order that satisfies the FKs. */
 const DYNAMIC_TABLES = [
+  "UsageEvent",
   "Trial",
   "FinancialTrial",
   "ParticipantItemRating",
@@ -27,6 +28,7 @@ const DYNAMIC_TABLES = [
   "LoginAttempt",
   "AdminLoginAttempt",
   "AnonRequestLog",
+  "PasswordResetToken",
   "User",
 ];
 

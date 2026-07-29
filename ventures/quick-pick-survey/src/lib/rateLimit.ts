@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
+import { rateLimitKey } from "@/lib/http";
 
 export { getClientIp } from "@/lib/http";
 
 const WINDOW_MS = 15 * 60 * 1000;
+const RETENTION_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Coarse per-IP throttling for the anonymous write endpoints, which have no
@@ -19,10 +21,15 @@ const WINDOW_MS = 15 * 60 * 1000;
  */
 export async function isWriteRateLimited(ip: string, route: string, max: number): Promise<boolean> {
   const since = new Date(Date.now() - WINDOW_MS);
-  const count = await prisma.anonRequestLog.count({ where: { ip, route, createdAt: { gte: since } } });
+  const count = await prisma.anonRequestLog.count({
+    where: { ip: rateLimitKey(ip), route, createdAt: { gte: since } },
+  });
   return count >= max;
 }
 
 export async function recordWrite(ip: string, route: string): Promise<void> {
-  await prisma.anonRequestLog.create({ data: { ip, route } });
+  await prisma.$transaction([
+    prisma.anonRequestLog.deleteMany({ where: { createdAt: { lt: new Date(Date.now() - RETENTION_MS) } } }),
+    prisma.anonRequestLog.create({ data: { ip: rateLimitKey(ip), route } }),
+  ]);
 }

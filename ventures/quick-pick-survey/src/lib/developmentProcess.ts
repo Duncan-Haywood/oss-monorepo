@@ -234,9 +234,10 @@ export type Gate = {
 };
 
 /**
- * `npm run verify` runs all of these, and is currently the only thing that
- * does: the CI workflow exists but has never allocated a runner, so nothing
- * is checked after a push. See docs/QUALITY-BAR.md.
+ * `npm run verify` runs the fast gates. Repository-root Pairwise CI also runs
+ * the real-database and migration-parity gates; repository runners are
+ * allocating, but a completed Pairwise run is still required before claiming
+ * this workflow is green. See docs/QUALITY-BAR.md.
  */
 export const GATES: Gate[] = [
   {

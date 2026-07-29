@@ -47,11 +47,40 @@ beforeEach(async () => {
 
 describe("feedback", () => {
   it("records a note from someone with no account", async () => {
-    expect((await feedback(feedbackRequest({ subject: "top-pick", note: "loved it" }))).status).toBe(200);
+    expect((await feedback(feedbackRequest({
+      subject: "top-pick",
+      usefulness: 1,
+      reason: "too_vague",
+      note: "loved the idea, needed specifics",
+      answerCount: 42,
+      perspective: "SELF",
+      path: "/insights",
+    }))).status).toBe(200);
     const rows = await prisma.insightFeedback.findMany();
     expect(rows).toHaveLength(1);
     expect(rows[0].userId).toBeNull();
-    expect(rows[0].note).toBe("loved it");
+    expect(rows[0]).toMatchObject({
+      reason: "too_vague",
+      note: "loved the idea, needed specifics",
+      answerCount: 42,
+      perspective: "SELF",
+      path: "/insights",
+    });
+  });
+
+  it("rejects unknown context values instead of storing arbitrary categories", async () => {
+    await feedback(feedbackRequest({
+      subject: "top-pick",
+      usefulness: 1,
+      reason: "drop_table",
+      perspective: "NOT_A_MODE",
+      path: "https://elsewhere.example",
+    }));
+    expect(await prisma.insightFeedback.findFirstOrThrow()).toMatchObject({
+      reason: null,
+      perspective: null,
+      path: null,
+    });
   });
 
   it("attributes it to the account when there is one", async () => {
@@ -105,12 +134,19 @@ describe("feedback", () => {
 
 describe("report", () => {
   it("records a bug report from someone with no account", async () => {
-    const res = await report(reportRequest({ kind: "bug", message: "the card froze", path: "/app" }));
+    const res = await report(reportRequest({
+      kind: "question",
+      impact: "hard",
+      perspective: "SELF",
+      message: "the wording felt loaded",
+      path: "/app",
+    }));
     expect(res.status).toBe(200);
+    expect((await res.json()).reference).toMatch(/^[A-Z0-9]{8}$/);
     const rows = await prisma.userReport.findMany();
     expect(rows).toHaveLength(1);
     expect(rows[0].userId).toBeNull();
-    expect(rows[0].kind).toBe("bug");
+    expect(rows[0]).toMatchObject({ kind: "question", impact: "hard", perspective: "SELF" });
     expect(rows[0].resolved).toBe(false);
   });
 
@@ -123,6 +159,25 @@ describe("report", () => {
     expect((await report(reportRequest({ kind: "bug" }))).status).toBe(400);
     expect((await report(reportRequest({ kind: "bug", message: "  " }))).status).toBe(400);
     expect(await prisma.userReport.count()).toBe(0);
+  });
+
+  it("validates reply addresses and discards unrecognised context", async () => {
+    expect((await report(reportRequest({ kind: "idea", message: "x", email: "not-an-email" }))).status).toBe(400);
+    expect(await prisma.userReport.count()).toBe(0);
+
+    await report(reportRequest({
+      kind: "made-up",
+      impact: "catastrophic",
+      perspective: "NOT_A_MODE",
+      message: "x",
+      path: "https://evil.example",
+    }));
+    expect(await prisma.userReport.findFirstOrThrow()).toMatchObject({
+      kind: "other",
+      impact: null,
+      perspective: null,
+      path: null,
+    });
   });
 
   it("falls back to the account's email when none is given", async () => {

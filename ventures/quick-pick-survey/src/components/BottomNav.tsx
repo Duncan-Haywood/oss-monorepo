@@ -21,7 +21,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Main"
-      className="sticky bottom-0 z-20 flex shrink-0 border-t border-neutral-200 bg-neutral-50/95 pb-[env(safe-area-inset-bottom)] backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95"
+      className="sticky bottom-0 z-20 flex shrink-0 border-t border-neutral-200/80 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md dark:border-neutral-800/80 dark:bg-neutral-950/95"
     >
       {TABS.map((tab) => {
         const active = pathname === tab.href;
@@ -30,16 +30,19 @@ export function BottomNav() {
             key={tab.href}
             href={tab.href}
             aria-current={active ? "page" : undefined}
-            className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-semibold transition ${
+            className={`relative flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-semibold transition-all duration-200 ${
               active
-                ? "text-amber-700 dark:text-amber-400"
-                : "text-neutral-500 dark:text-neutral-400"
+                ? "text-amber-700 dark:text-amber-400 font-bold"
+                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
             }`}
           >
-            <span aria-hidden="true" className={`text-lg ${active ? "" : "opacity-60 grayscale"}`}>
+            {active && (
+              <span className="absolute top-0 h-0.5 w-8 rounded-full bg-amber-500 transition-all" />
+            )}
+            <span aria-hidden="true" className={`text-lg transition-transform duration-200 ${active ? "scale-110" : "opacity-60 grayscale hover:opacity-90"}`}>
               {tab.glyph}
             </span>
-            {tab.label}
+            <span>{tab.label}</span>
           </Link>
         );
       })}

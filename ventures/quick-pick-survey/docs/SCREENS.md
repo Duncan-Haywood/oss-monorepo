@@ -50,10 +50,13 @@ row are true; those are facts you confirm by opening the file.
 | `Celebration` | via `UnifiedRunner` | — | — | — | no |
 | `CoupleView` | `/couple` | `couple/compare`, `couple/create`, `couple/join` | error + retry in place | sign-in prompt | yes |
 | `FeedbackWidget` | via `InsightsView` | `feedback` | swallowed on purpose — see below | swallowed | no |
+| `InsightInterrupt` | via `UnifiedRunner` | — | — | — | no |
 | `InsightsView` | `/insights` | `insights` | error + retry in place | same as any failure | yes |
+| `ModeTransitionModal` | via `UnifiedRunner` | — | — | — | no |
 | `ProfileView` | `/profile` | `auth/me`, `session/start`, `auth/logout` | inline error, stored session untouched | reads as signed out | yes |
 | `ReportWidget` | layout | `report` | inline error, message kept | — | no |
 | `UnifiedRunner` | `/app` | `auth/me`, `session/status`, `session/start`, `trials/next`, `trials/answer`, `trials/undo`, and the two financial twins | error + Retry; a 409 on an answer is "already recorded", not a failure | falls back to the anonymous session | yes |
+| `UsageTracker` | layout | `usage` (batched) | retries a bounded in-memory batch; beacon on exit | — | no |
 
 `FeedbackWidget` is the one deliberate blank. It posts a thumbs-up, a thumbs-
 down or a one-line note and shows the acknowledgement optimistically; a failed

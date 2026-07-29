@@ -17,11 +17,19 @@ vi.mock("next/headers", () => import("@/test/integration/cookieMock"));
 
 import { prisma } from "@/lib/prisma";
 import { applyComparison, DEFAULT_GLICKO_STATE } from "@/lib/glicko2";
-import { createParticipant, jsonRequest, resetData } from "@/test/integration/db";
+import {
+  createAccount,
+  createParticipant,
+  jsonRequest,
+  resetData,
+  signInAs,
+  signOut,
+} from "@/test/integration/db";
 
 import { POST as nextQuestion } from "./next/route";
 import { POST as answer } from "./answer/route";
 import { POST as undo } from "./undo/route";
+import { POST as skip } from "./skip/route";
 
 /** A small survey keeps the pairing cheap; 16 items is enough to be real. */
 const SURVEY = "values";
@@ -233,5 +241,50 @@ describe("asking for the next question", () => {
       jsonRequest("http://localhost/api/trials/next", { participantId: "not-a-participant" })
     );
     expect(res.status).toBe(404);
+  });
+
+  it("does not let another account mutate an owned participant", async () => {
+    const owner = await createAccount("owner@example.com");
+    const stranger = await createAccount("stranger@example.com");
+    const participant = await createParticipant(SURVEY, { userId: owner.id });
+
+    await signInAs(stranger.id);
+    const blockedNext = await nextQuestion(
+      jsonRequest("http://localhost/api/trials/next", { participantId: participant.id })
+    );
+    expect(blockedNext.status).toBe(404);
+    expect(await prisma.trial.count({ where: { participantId: participant.id } })).toBe(0);
+
+    signOut();
+    await signInAs(owner.id);
+    const question = await ask(participant.id);
+
+    signOut();
+    await signInAs(stranger.id);
+    expect((await respond(question.trialId, "A")).status).toBe(404);
+    expect(
+      (
+        await skip(
+          jsonRequest("http://localhost/api/trials/skip", {
+            trialId: question.trialId,
+            kind: "ITEMS",
+          })
+        )
+      ).status
+    ).toBe(404);
+    expect(
+      (
+        await undo(
+          jsonRequest("http://localhost/api/trials/undo", {
+            participantId: participant.id,
+            kind: "ITEMS",
+          })
+        )
+      ).status
+    ).toBe(404);
+
+    const untouched = await prisma.trial.findUniqueOrThrow({ where: { id: question.trialId } });
+    expect(untouched.result).toBeNull();
+    expect(untouched.interactionMethod).toBeNull();
   });
 });

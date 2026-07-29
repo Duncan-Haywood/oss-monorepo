@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { pairKey, selectNextPair, surveyConfidence } from "@/lib/pairing";
 import { loadRatedItems } from "@/lib/participantRatings";
+import { mayAccessOwnedParticipant } from "@/lib/participantAccess";
 
 const RECENT_TRIALS_TO_AVOID = 10;
 
@@ -32,9 +33,12 @@ export async function POST(req: NextRequest) {
   try {
     const participant = await prisma.participant.findUnique({
       where: { id: participantId },
-      select: { id: true, surveyId: true },
+      select: { id: true, surveyId: true, userId: true },
     });
     if (!participant) {
+      return NextResponse.json({ error: "Participant not found" }, { status: 404 });
+    }
+    if (!(await mayAccessOwnedParticipant(participant.userId))) {
       return NextResponse.json({ error: "Participant not found" }, { status: 404 });
     }
 
@@ -50,6 +54,7 @@ export async function POST(req: NextRequest) {
       where: {
         participantId,
         result: null,
+        interactionMethod: null,
         shownAt: { gte: new Date(Date.now() - PENDING_REUSE_MS) },
       },
       orderBy: { shownAt: "desc" },
@@ -97,7 +102,14 @@ export async function POST(req: NextRequest) {
     const recentPairKeys = new Set(recentTrials.map((t) => pairKey(t.itemAId, t.itemBId)));
 
     const [pickedA, pickedB] = selectNextPair({
-      items: items.map((i) => ({ id: i.id, rating: i.rating, rd: i.rd, category: i.category, dimensions: i.dimensions })),
+      items: items.map((i) => ({
+        id: i.id,
+        rating: i.rating,
+        rd: i.rd,
+        category: i.category,
+        dimensions: i.dimensions,
+        sortOrder: i.sortOrder,
+      })),
       timesShown,
       recentPairKeys,
       answeredCount,

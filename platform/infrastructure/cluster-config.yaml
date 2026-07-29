@@ -1,0 +1,29 @@
+# Hetzner K3s Cluster Configuration (IaC)
+cluster_name: hetzner-web-cluster
+hetzner:
+  primary_server_ip: 89.167.29.39
+  user: root
+  ssh_key_path: ~/.ssh/hetzner_server
+  location: hel1 # Helsinki
+  primary_server_type: cpx31 # ubuntu-16gb-hel1-1
+  secondary_worker_enabled: true
+  secondary_server_type: cpx11 # Small node for High Availability & failover
+  placement_group: k3s-ha-spread-group # Physical hardware anti-affinity
+
+k3s:
+  version: v1.30.2+k3s1
+  disable_flannel: false
+  disable_traefik: false
+  kubeconfig_output: ~/.kube/config-hetzner
+
+nodes:
+  high_availability: true
+  min_nodes: 2
+  max_nodes: 5
+  horizontal_autoscaling: enabled
+
+services:
+  max_apps: 8+
+  ingress_controller: traefik
+  cert_manager: enabled
+

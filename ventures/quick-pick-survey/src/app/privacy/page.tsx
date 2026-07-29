@@ -6,7 +6,7 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 px-5 py-8 text-sm leading-relaxed">
       <h1 className="text-2xl font-bold">Privacy policy</h1>
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">Last updated: 28 July 2026</p>
+      <p className="text-xs text-neutral-500 dark:text-neutral-400">Last updated: 29 July 2026</p>
 
       <p>
         This is a small personal project, not a company. It is written plainly because you should be
@@ -16,8 +16,9 @@ export default function PrivacyPage() {
       <H>What is collected</H>
       <ul className="list-disc pl-5">
         <li>
-          <strong>Your answers.</strong> Which option you picked, when it was shown, and how long you
-          took. This is the whole point of the app.
+          <strong>Your answers.</strong> Which option you picked, when it was shown, how long you
+          took, and whether you chose by swiping, tapping a card, using a button, or marking a tie.
+          This helps calculate your ranking and identify places where the experience slows people down.
         </li>
         <li>
           <strong>Account details</strong>, if you create one: your email, a first name, and a hashed
@@ -28,16 +29,25 @@ export default function PrivacyPage() {
           apart from your partner&apos;s on a shared device. Nothing else.
         </li>
         <li>
-          <strong>Anything you write to us</strong>: a bug report or an idea, a rating of whether an
-          insight was useful, and any note you leave with it. If you send a bug report we also record
+          <strong>Anything you write to us</strong>: a bug report, confusing experience, question/content concern, idea, a rating of whether an
+          insight was useful, why it missed, and any note you leave with it. Feedback also includes
+          the page, survey mode, impact you selected, and how many answers you had completed so we can identify where the
+          experience needs work. If you send a bug report we also record
           which page you were on and your browser&apos;s user-agent string, because that is what makes
           a bug findable. You can leave an email address so we can reply; it is optional.
         </li>
         <li>
-          <strong>Technical basics</strong> needed to run the service: your IP address is recorded
-          when you sign in, start answering without an account, or send feedback, and is used only to
-          stop the same address doing any of those thousands of times over. It is not used to build a
-          profile of you.
+          <strong>Technical basics</strong> needed to run the service: a server-keyed digest of your IP
+          address is recorded when you sign in, start answering without an account, or send feedback.
+          The raw address is not stored. The digest is used only to stop one address doing any of those
+          thousands of times over and is deleted on a short retention schedule.
+        </li>
+        <li>
+          <strong>Limited first-party usage events</strong> used to find where people get held up:
+          page visits and time on page, self/partner mode, survey topic, core actions, their order, operation
+          duration, and whether an operation succeeded. A random browser-session identifier is stored
+          only as a one-way digest. Events use a fixed vocabulary, never include your card choices or
+          feedback text, and are deleted after 30 days.
         </li>
       </ul>
 

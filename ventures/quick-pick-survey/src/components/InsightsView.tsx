@@ -24,6 +24,10 @@ export function InsightsView() {
   // how the request is made again without duplicating it here.
   const [reloadTick, setReloadTick] = useState(0);
 
+  const [selectedTab, setSelectedTab] = useState<"ALL" | "COUPLE" | "PICKS" | "CATEGORIES" | "FINANCIAL">("ALL");
+  const [leaderboardSearch, setLeaderboardSearch] = useState("");
+  const [copiedInsightKey, setCopiedInsightKey] = useState<string | null>(null);
+
   const bundle = useSessionBundle();
   // `undefined` is "we don't know yet" (server render / hydration) and must
   // not be shown as "you haven't started" — that flashed the empty state on
@@ -85,12 +89,29 @@ export function InsightsView() {
   }
 
   const intoLevel = data.totalAnswers % SWIPES_PER_LEVEL;
-  // At an exact level boundary the bar would sit at 0% right after levelling
-  // up, which reads as "stuck". Show it full instead — the level number
-  // already ticked over, so a full bar is the honest picture of that moment.
   const justLevelled = intoLevel === 0 && data.totalAnswers > 0;
   const pct = justLevelled ? 100 : Math.round((intoLevel / SWIPES_PER_LEVEL) * 100);
   const readyCount = data.ready?.length ?? 0;
+
+  const filteredInsights = INSIGHTS.filter((def) => {
+    if (selectedTab === "ALL") return true;
+    if (selectedTab === "COUPLE") return ["couple-prompt", "value-profile", "deep-profile"].includes(def.key);
+    if (selectedTab === "PICKS") return ["top-pick", "bottom-pick", "top-three", "disfavored-items", "confidence-map", "full-ranking"].includes(def.key);
+    if (selectedTab === "CATEGORIES") return def.key === "category-lean" || def.key === "disfavored-categories";
+    if (selectedTab === "FINANCIAL") return ["tradeoffs", "hours-price", "money-vs-identity"].includes(def.key);
+    return true;
+  });
+
+  async function handleCopyInsight(key: string, title: string) {
+    const text = `Check out my Pairwise insight: "${title}" — https://pairwise.marisstella.dev/insights`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedInsightKey(key);
+      setTimeout(() => setCopiedInsightKey(null), 2500);
+    } catch {
+      // Swallowed
+    }
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-5 py-6">
@@ -119,11 +140,37 @@ export function InsightsView() {
             {data.totalAnswers} answered · {data.answersUntilNextLevel} to level {data.level + 1}
           </p>
         </div>
+
+        {/* Filter Tabs */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs font-semibold">
+          {[
+            { id: "ALL", label: `All (${INSIGHTS.length})` },
+            { id: "COUPLE", label: "Couples & Values" },
+            { id: "PICKS", label: "Picks & Ranking" },
+            { id: "CATEGORIES", label: "Categories" },
+            { id: "FINANCIAL", label: "Trade-offs" },
+          ].map((tab) => {
+            const active = selectedTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedTab(tab.id as typeof selectedTab)}
+                className={`shrink-0 rounded-full px-3 py-1.5 transition-all ${
+                  active
+                    ? "bg-amber-500 text-neutral-950 font-bold shadow-sm"
+                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
       </header>
 
       <ul className="flex flex-col gap-3">
-        {INSIGHTS.map((def) => {
-          const body = renderInsight(def.key, data.content);
+        {filteredInsights.map((def) => {
+          const body = renderInsight(def.key, data.content, leaderboardSearch, setLeaderboardSearch);
           const isReady = !!body;
           return (
             <li
@@ -134,11 +181,21 @@ export function InsightsView() {
                   : "border-dashed border-neutral-300 bg-neutral-100/60 dark:border-neutral-700 dark:bg-neutral-900/40"
               }`}
             >
-              <h2
-                className={`font-semibold ${isReady ? "" : "text-neutral-500 dark:text-neutral-400"}`}
-              >
-                {def.title}
-              </h2>
+              <div className="flex items-center justify-between gap-2">
+                <h2
+                  className={`font-semibold ${isReady ? "" : "text-neutral-500 dark:text-neutral-400"}`}
+                >
+                  {def.title}
+                </h2>
+                {isReady && (
+                  <button
+                    onClick={() => handleCopyInsight(def.key, def.title)}
+                    className="shrink-0 text-[11px] font-semibold text-amber-700 hover:underline dark:text-amber-400"
+                  >
+                    {copiedInsightKey === def.key ? "✓ Copied!" : "📋 Share"}
+                  </button>
+                )}
+              </div>
               {isReady ? (
                 <>
                   {body}
@@ -165,7 +222,12 @@ export function InsightsView() {
   );
 }
 
-function renderInsight(key: string, content: Record<string, unknown>): React.ReactNode | null {
+function renderInsight(
+  key: string,
+  content: Record<string, unknown>,
+  search = "",
+  onSearchChange?: (val: string) => void
+): React.ReactNode | null {
   const value = content[key];
   if (!value) return null;
 
@@ -186,23 +248,82 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
     );
   }
 
-  if (key === "top-three") {
+  if (key === "couple-prompt") {
+    const prompt = value as { label: string; category: string; contrast?: string };
+    const promptText = `Which one did you think I would choose: ${prompt.label}${prompt.contrast ? ` or ${prompt.contrast}` : ""}?`;
+    const partnerText = `Hey! Quick question for us:\n\n“${promptText}”`;
+
+    const copyPrompt = async () => {
+      try {
+        await navigator.clipboard.writeText(partnerText);
+      } catch {}
+    };
+
+    const handleSharePartnerPrompt = async () => {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        try {
+          await navigator.share({
+            title: "Question for Us",
+            text: partnerText,
+          });
+          return;
+        } catch {}
+      }
+      await copyPrompt();
+    };
+
+    return (
+      <div className="mt-2 rounded-xl bg-amber-50 p-3.5 border border-amber-200/70 dark:bg-amber-950/40 dark:border-amber-800/60">
+        <p className="text-base font-bold text-neutral-900 dark:text-neutral-100">{prompt.label}</p>
+        {prompt.contrast && (
+          <p className="mt-1 text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
+            This currently sits clearly ahead of “{prompt.contrast}.”
+          </p>
+        )}
+        <div className="mt-3 rounded-lg bg-amber-100/70 p-2.5 dark:bg-amber-900/40">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+            💬 Text for your partner
+          </p>
+          <p className="mt-1 text-xs font-semibold text-amber-950 dark:text-amber-100">
+            &ldquo;{promptText}&rdquo;
+          </p>
+        </div>
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            onClick={() => void handleSharePartnerPrompt()}
+            className="flex-1 rounded-lg bg-amber-500 py-1.5 px-3 text-xs font-bold text-neutral-950 shadow-2xs transition active:scale-[0.98] hover:bg-amber-400"
+          >
+            📲 Text your partner
+          </button>
+          <button
+            onClick={() => void copyPrompt()}
+            className="rounded-lg border border-amber-300 bg-amber-100/60 px-3 py-1.5 text-xs font-bold text-amber-900 transition dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-200"
+          >
+            📋 Copy
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (key === "top-three" || key === "disfavored-items") {
     const rows = value as RankedItem[];
     const max = Math.max(...rows.map((r) => r.rating));
     const min = Math.min(...rows.map((r) => r.rating));
+    const isDisfavored = key === "disfavored-items";
     return (
       <ol className="mt-2 flex flex-col gap-2">
         {rows.map((r, i) => (
           <li key={r.label} className="flex flex-col gap-1">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-sm font-semibold">
+              <span className={`text-sm font-semibold ${isDisfavored ? "text-rose-700 dark:text-rose-400" : ""}`}>
                 {i + 1}. {r.label}
               </span>
               <span className="shrink-0 text-xs text-neutral-500 dark:text-neutral-400">{Math.round(r.rating)}</span>
             </div>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
               <div
-                className="h-full rounded-full bg-amber-500"
+                className={`h-full rounded-full ${isDisfavored ? "bg-rose-500" : "bg-amber-500"}`}
                 style={{ width: `${max === min ? 100 : 20 + (80 * (r.rating - min)) / (max - min)}%` }}
               />
             </div>
@@ -212,16 +333,33 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
     );
   }
 
-  if (key === "category-lean") {
-    const cats = value as { name: string; avg: number; n: number }[];
+  if (key === "category-lean" || key === "disfavored-categories") {
+    const cats = value as { name: string; avg: number; n: number; strongestItems?: string[] }[];
+    const isDisfavored = key === "disfavored-categories";
+    const shown = cats.slice(0, 5);
+    const max = Math.max(...shown.map((c) => c.avg));
+    const min = Math.min(...shown.map((c) => c.avg));
     return (
-      <ol className="mt-2 flex flex-col gap-1.5">
-        {cats.slice(0, 4).map((c, i) => (
-          <li key={c.name} className="flex items-baseline justify-between gap-2 text-sm">
-            <span className={i === 0 ? "font-semibold" : ""}>
-              {i + 1}. {c.name}
-            </span>
-            <span className="shrink-0 text-xs text-neutral-500 dark:text-neutral-400">{Math.round(c.avg)}</span>
+      <ol className="mt-3 flex flex-col gap-3">
+        {shown.map((c, i) => (
+          <li key={c.name} className="rounded-xl bg-neutral-50 p-3 dark:bg-neutral-800/60">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className={`text-sm font-semibold ${i === 0 && isDisfavored ? "text-rose-700 dark:text-rose-400" : ""}`}>
+                {i + 1}. {c.name}
+              </span>
+              <span className="text-[10px] text-neutral-500 dark:text-neutral-400">{c.n} measured</span>
+            </div>
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+              <div
+                className={`h-full rounded-full ${isDisfavored ? "bg-rose-500" : "bg-amber-500"}`}
+                style={{ width: `${max === min ? 100 : 25 + (75 * (c.avg - min)) / (max - min)}%` }}
+              />
+            </div>
+            {!!c.strongestItems?.length && (
+              <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+                Driven by {c.strongestItems.join(", ")}
+              </p>
+            )}
           </li>
         ))}
       </ol>
@@ -232,12 +370,28 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
     const v = value as {
       scores: { key: string; label: string; score: number; delta: number; n: number; se: number }[];
       summary: string | null;
+      archetype?: { name: string; tagline: string; traits: string[]; description: string } | null;
     };
     const solid = v.scores.filter((s) => s.n >= 2);
     if (!solid.length) return null;
     const maxAbs = Math.max(...solid.map((s) => Math.abs(s.delta)), 1);
     return (
       <div className="mt-2">
+        {v.archetype && (
+          <div className="mb-4 rounded-xl border border-amber-300/70 bg-gradient-to-br from-amber-50 to-amber-100/50 p-3.5 dark:border-amber-400/30 dark:from-amber-950/50 dark:to-amber-900/20">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">Personality Archetype</span>
+            <h3 className="mt-0.5 text-base font-bold text-amber-950 dark:text-amber-100">{v.archetype.name}</h3>
+            <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">{v.archetype.tagline}</p>
+            <p className="mt-1.5 text-xs text-amber-900/90 dark:text-amber-200">{v.archetype.description}</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {v.archetype.traits.map((t) => (
+                <span key={t} className="rounded-md bg-amber-200/80 px-2 py-0.5 text-[10px] font-semibold text-amber-900 dark:bg-amber-900/60 dark:text-amber-200">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
         {v.summary && <p className="mb-3 text-sm font-medium">{v.summary}</p>}
         <ul className="flex flex-col gap-2">
           {solid.map((s) => {
@@ -268,6 +422,77 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
         <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
           Relative to your own average. Bars right = you value it more.
         </p>
+      </div>
+    );
+  }
+
+  if (key === "deep-profile") {
+    const profile = value as {
+      version: string;
+      coverage: number;
+      signals: {
+        key: string;
+        label: string;
+        family: "need" | "bond" | "style" | "future" | "tension";
+        evidenceCount: number;
+        confidence: "early" | "developing" | "strong";
+        explanation: string;
+        evidence: {
+          label: string;
+          direction: "supports" | "pushes-against";
+          rationale: string;
+        }[];
+      }[];
+    };
+    const familyLabel = {
+      need: "What helps you thrive",
+      bond: "How connection forms",
+      style: "How care is expressed",
+      future: "The life you are building toward",
+      tension: "A trade-off worth discussing",
+    };
+    return (
+      <div className="mt-3 flex flex-col gap-3">
+        <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
+          Built from {profile.coverage} rated cards. Open any pattern to see exactly which choices produced it.
+        </p>
+        {profile.signals.slice(0, 8).map((signal) => (
+          <details key={signal.key} className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+            <summary className="cursor-pointer list-none">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+                    {familyLabel[signal.family]}
+                  </p>
+                  <p className="mt-0.5 text-sm font-bold">{signal.label}</p>
+                </div>
+                <span className="shrink-0 rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-neutral-600 shadow-sm dark:bg-neutral-900 dark:text-neutral-300">
+                  {signal.confidence} · {signal.evidenceCount} cards
+                </span>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">{signal.explanation}</p>
+            </summary>
+            <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Where this came from</p>
+              <ul className="mt-2 flex flex-col gap-2">
+                {signal.evidence.map((row) => (
+                  <li key={`${signal.key}-${row.label}`} className="text-xs">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="font-semibold">{row.label}</span>
+                      <span className={row.direction === "supports" ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}>
+                        {row.direction === "supports" ? "supports" : "counter-signal"}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">{row.rationale}</p>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-[10px] text-neutral-500 dark:text-neutral-400">
+                Relative pattern, not a diagnosis. Taxonomy {profile.version}.
+              </p>
+            </div>
+          </details>
+        ))}
       </div>
     );
   }
@@ -334,20 +559,100 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
 
   if (key === "full-ranking") {
     const rows = value as RankedItem[];
+    if (!rows.length) return null;
+    const max = Math.max(...rows.map((r) => r.rating));
+    const min = Math.min(...rows.map((r) => r.rating));
+    const filteredRows = search.trim()
+      ? rows.filter((r) => r.label.toLowerCase().includes(search.toLowerCase()))
+      : rows;
+
     return (
-      <ol className="mt-2 flex flex-col gap-1 text-sm">
-        {rows.map((r, i) => (
-          <li key={r.label} className="flex items-baseline justify-between gap-2">
-            <span>
-              {i + 1}. {r.label}
-            </span>
-            <span className="shrink-0 text-xs text-neutral-500 dark:text-neutral-400">
-              {Math.round(r.rating)} ±{Math.round(1.96 * r.rd)}
-            </span>
-          </li>
-        ))}
-      </ol>
+      <div className="mt-2 flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+            Visual Leaderboard across all {rows.length} rated items:
+          </p>
+        </div>
+        {rows.length > 5 && onSearchChange && (
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search rated items…"
+            className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs outline-none focus:border-amber-500 dark:border-neutral-800 dark:bg-neutral-800 dark:text-neutral-100"
+          />
+        )}
+        <ol className="flex flex-col gap-2 max-h-96 overflow-y-auto pr-1">
+          {filteredRows.map((r) => {
+            const originalIndex = rows.findIndex((item) => item.label === r.label);
+            const i = originalIndex >= 0 ? originalIndex : 0;
+            const pct = max === min ? 100 : Math.round(12 + (88 * (r.rating - min)) / (max - min));
+            const tier = i < 3 ? "S-TIER" : i < 8 ? "A-TIER" : i >= rows.length - 3 ? "DISFAVORED" : "B-TIER";
+            const tierBg = i < 3 ? "bg-amber-500 text-neutral-950 font-bold" : i < 8 ? "bg-emerald-700 text-white font-semibold" : i >= rows.length - 3 ? "bg-rose-700 text-white font-semibold" : "bg-neutral-300 text-neutral-800 dark:bg-neutral-700 dark:text-neutral-200";
+            return (
+              <li key={r.label} className="flex items-center gap-2.5 rounded-xl border border-neutral-200 bg-white p-2.5 text-xs dark:border-neutral-800 dark:bg-neutral-900">
+                <span className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] ${tierBg}`}>
+                  #{i + 1} &bull; {tier}
+                </span>
+                <div className="flex flex-1 flex-col gap-1 min-w-0">
+                  <div className="flex justify-between gap-1">
+                    <span className="truncate font-bold text-neutral-900 dark:text-neutral-100">{r.label}</span>
+                    <span className="shrink-0 font-mono font-semibold text-neutral-500 dark:text-neutral-400">{Math.round(r.rating)}</span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+                    <div
+                      className={`h-full rounded-full ${i >= rows.length - 3 ? "bg-rose-500" : "bg-gradient-to-r from-amber-400 to-amber-500"}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     );
+  }
+
+  if (key === "trait-profile") {
+    const p = value as {
+      topLoveLanguages: { trait: string; score: number }[];
+      topRelationalDrivers: { trait: string; score: number }[];
+      stressResponseProfile: { trait: string; score: number }[];
+    };
+    return (
+      <div className="mt-2.5 flex flex-col gap-3 text-xs">
+        {p.topLoveLanguages?.length > 0 && (
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">Primary Love Languages</span>
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {p.topLoveLanguages.slice(0, 3).map((ll) => (
+                <span key={ll.trait} className="rounded-lg bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-900 dark:bg-amber-900/60 dark:text-amber-200">
+                  💖 {ll.trait} ({ll.score})
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {p.topRelationalDrivers?.length > 0 && (
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">Core Relational Drivers</span>
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {p.topRelationalDrivers.slice(0, 4).map((rd) => (
+                <span key={rd.trait} className="rounded-lg bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-medium text-amber-950 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200">
+                  🧭 {rd.trait}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (key === "emotional-harmony" || key === "stress-dynamics" || key === "energy-pace" || key === "vulnerability-bridge" || key === "growth-ambition") {
+    return <ExplainableInsightCard insight={value as ExplainableInsightValue} />;
   }
 
   if (key === "hours-price") {
@@ -392,6 +697,94 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
   }
 
   return null;
+}
+
+type ExplainableInsightValue = {
+  headline: string;
+  discovery: string;
+  actionablePrescription?: string;
+  relationalImpact?: string;
+  evidenceTrail?: {
+    underlyingMechanism: string;
+    cards?: {
+      label: string;
+      traits?: string[];
+      myPercentile: number;
+      theirPercentile: number;
+    }[];
+  };
+};
+
+function ExplainableInsightCard({ insight }: { insight?: ExplainableInsightValue }) {
+  const [showEvidence, setShowEvidence] = useState(false);
+  if (!insight) return null;
+
+  return (
+    <div className="mt-2.5 rounded-xl border border-amber-300/60 bg-amber-50/70 p-3.5 dark:border-amber-700/50 dark:bg-amber-950/40">
+      <h3 className="text-sm font-bold text-amber-950 dark:text-amber-100">{insight.headline}</h3>
+      <p className="mt-1 text-xs text-neutral-800 dark:text-neutral-200">{insight.discovery}</p>
+
+      {/* Prescription */}
+      {insight.actionablePrescription && (
+        <div className="mt-3 rounded-lg bg-amber-100/80 p-2.5 dark:bg-amber-900/50">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+            🎯 Prescribed Micro-Step for Couple
+          </span>
+          <p className="mt-0.5 text-xs font-semibold text-amber-950 dark:text-amber-100">
+            {insight.actionablePrescription}
+          </p>
+        </div>
+      )}
+
+      {/* Relational Impact */}
+      {insight.relationalImpact && (
+        <p className="mt-2 text-[11px] font-medium text-neutral-600 dark:text-neutral-400">
+          💡 {insight.relationalImpact}
+        </p>
+      )}
+
+      {/* Evidence Drawer */}
+      {insight.evidenceTrail && (
+        <div className="mt-3 border-t border-amber-200/60 pt-2 dark:border-amber-800/60">
+          <button
+            onClick={() => setShowEvidence(!showEvidence)}
+            className="flex items-center justify-between text-[11px] font-bold text-amber-800 hover:underline dark:text-amber-300 w-full"
+          >
+            <span>🔍 {showEvidence ? "Hide Evidence & Trait Analysis" : "Where did this insight come from? (Evidence Trail)"}</span>
+            <span>{showEvidence ? "▲" : "▼"}</span>
+          </button>
+
+          {showEvidence && (
+            <div className="mt-2 flex flex-col gap-2 text-xs">
+              <p className="text-[11px] italic text-neutral-600 dark:text-neutral-400">
+                {insight.evidenceTrail.underlyingMechanism}
+              </p>
+              <div className="flex flex-col gap-1.5">
+                {insight.evidenceTrail.cards?.map((c, i) => (
+                  <div key={i} className="flex items-center justify-between rounded-md bg-white p-2 border border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800">
+                    <div>
+                      <p className="font-semibold text-neutral-900 dark:text-neutral-100">{c.label}</p>
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {c.traits?.map((t: string) => (
+                          <span key={t} className="rounded bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-900 dark:bg-amber-900/60 dark:text-amber-200">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="text-right text-[10px] font-mono text-neutral-600 dark:text-neutral-400 shrink-0">
+                      <div>Mine: {c.myPercentile}%ile</div>
+                      <div>Theirs: {c.theirPercentile}%ile</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function Shell({ children }: { children: React.ReactNode }) {

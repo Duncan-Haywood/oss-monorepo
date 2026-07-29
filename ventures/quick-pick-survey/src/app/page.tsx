@@ -8,85 +8,86 @@ import Link from "next/link";
  */
 export default function LandingPage() {
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-10 px-6 py-10">
+    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-9 px-5 py-8 sm:px-6 sm:py-10">
       <section className="flex flex-col items-center gap-4 text-center">
-        <div className="text-5xl">💛</div>
-        <h1 className="text-4xl font-bold leading-tight tracking-tight">
-          Find out what you
+        <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
+          <span aria-hidden="true">💛</span> Pairwise
+        </div>
+        <h1 className="text-4xl font-bold leading-[1.08] tracking-tight">
+          Discover what you value
           <br />
-          actually want
+          one choice at a time
         </h1>
         <p className="text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Ask someone what they want in a partner and you get a list of adjectives. Make them choose
-          between two real options, forty times, and you get the truth.
+          Choose between two cards using your first impression. Your choices build a personal
+          ranking of the traits, values, lifestyles, and relationship qualities that matter to you.
         </p>
         <Link
           href="/app"
           className="mt-2 w-full rounded-2xl bg-amber-500 px-6 py-4 text-lg font-bold text-neutral-950 shadow-sm transition active:scale-[0.98]"
         >
-          Start — it takes 30 seconds
+          Start choosing
         </Link>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">No account needed to try it.</p>
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          No account needed · pause whenever you want · early insights appear as the evidence builds
+        </p>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-center text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          How it works
-        </h2>
+      <section className="flex flex-col gap-4 rounded-3xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+        <h2 className="text-lg font-bold">What you’ll do</h2>
         <Step
           n="1"
-          title="Pick between two"
-          body="One card against another. Swipe up or down. No sliders, no essays, no 1-to-10 scales you'd use inconsistently anyway."
+          title="Choose your focus"
+          body="Explore the partner you would choose, or the person you want to become. Each mode keeps its own ranking."
         />
         <Step
           n="2"
-          title="It learns as you go"
-          body="Every choice narrows it down. The questions adapt to whatever it's least sure about, so nothing is wasted."
+          title="React to each pair"
+          body="Tap a card, use the labeled buttons, or swipe toward it. Skip if neither choice gives a useful signal."
         />
         <Step
           n="3"
-          title="Insights unlock"
-          body="Every 10 picks levels you up and opens something new — your top choices, what you value, what you're still torn on."
+          title="See the pattern emerge"
+          body="Your ranking, strongest themes, lower-priority qualities, and uncertain areas become clearer as you answer."
         />
       </section>
 
       <section className="flex flex-col gap-4 rounded-2xl border-2 border-amber-300/60 bg-amber-50 p-5 dark:border-amber-400/30 dark:bg-amber-950/30">
-        <h2 className="text-lg font-bold text-amber-900 dark:text-amber-200">Better with two 💞</h2>
+        <h2 className="text-lg font-bold text-amber-900 dark:text-amber-200">Compare as a couple</h2>
         <p className="text-sm leading-relaxed text-amber-900/90 dark:text-amber-200/90">
-          You each answer on your own, then compare. Not just where you agree — the interesting part
-          is <strong>where you were wrong about each other</strong>. Guess what your partner wants,
-          then find out.
+          You each build your own ranking, then compare shared priorities and differences. Individual
+          answers stay private; your partner sees aggregate comparisons rather than each swipe.
         </p>
         <Link
           href="/couple"
           className="self-start rounded-xl bg-amber-500 px-4 py-2 text-sm font-bold text-neutral-950"
         >
-          Link with your partner
+          See the couple view
         </Link>
       </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-center text-sm font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          What you&apos;ll find out
+          What the results can show
         </h2>
         <div className="grid grid-cols-2 gap-2 text-sm">
-          <Tile>Whether you value warmth or ambition more</Tile>
-          <Tile>What an extra hour a week is worth to you in money</Tile>
-          <Tile>Which matters more: who they are, or what they have</Tile>
-          <Tile>Where you&apos;re still genuinely undecided</Tile>
+          <Tile><strong>Your priorities</strong><br />Traits and values that consistently rise to the top.</Tile>
+          <Tile><strong>Your pattern</strong><br />The kind of person or life you repeatedly lean toward.</Tile>
+          <Tile><strong>Your trade-offs</strong><br />What tends to win when two good qualities conflict.</Tile>
+          <Tile><strong>Your uncertainty</strong><br />Choices that need more evidence before the order is clear.</Tile>
         </div>
       </section>
 
       <section className="flex flex-col items-center gap-3 text-center">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Built on the same rating maths chess uses to rank players — so every result comes with an
-          honest confidence interval instead of false certainty.
+          Results show uncertainty as well as rank. Early findings are labeled as early, and they
+          sharpen as you make more choices.
         </p>
         <Link
           href="/app"
           className="w-full rounded-2xl bg-amber-500 px-6 py-4 text-lg font-bold text-neutral-950 shadow-sm transition active:scale-[0.98]"
         >
-          Try it
+          Start choosing
         </Link>
         <p className="flex gap-3 text-xs text-neutral-500 dark:text-neutral-400">
           <Link href="/privacy" className="underline underline-offset-2">
@@ -117,7 +118,7 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
 
 function Tile({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-3 text-neutral-700 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
+    <div className="rounded-xl border border-neutral-200 bg-white p-3 leading-relaxed text-neutral-700 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
       {children}
     </div>
   );

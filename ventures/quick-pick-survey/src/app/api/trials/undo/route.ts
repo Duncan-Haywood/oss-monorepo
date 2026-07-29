@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { refitParticipant } from "@/lib/financialFit";
+import { mayAccessOwnedParticipant } from "@/lib/participantAccess";
 
 /**
  * Tinder-style rewind for the most recent answer. For ITEMS surveys the
@@ -18,6 +19,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const participant = await prisma.participant.findUnique({
+      where: { id: participantId },
+      select: { userId: true },
+    });
+    if (!participant || !(await mayAccessOwnedParticipant(participant.userId))) {
+      return NextResponse.json({ error: "Participant not found" }, { status: 404 });
+    }
+
     if (kind === "ITEMS") {
       const last = await prisma.trial.findFirst({
         where: { participantId, result: { not: null } },

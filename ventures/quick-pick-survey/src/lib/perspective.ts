@@ -1,15 +1,9 @@
 /**
- * The three framings the same content is rated under. They never share
- * rating state, which is what makes the couples comparison possible:
- * PARTNER_GUESS vs. the other person's real PARTNER ranking is the whole
- * point of the app, so a value that gets silently coerced to something
- * else here destroys the headline output.
- *
- * Kept as one module because the value, its label, and its blurb were
- * previously restated in three places and had already drifted apart.
+ * The core framings under which preference content is rated.
+ * "PARTNER" (In a partner) and "SELF" (About myself).
  */
 
-export const PERSPECTIVES = ["SELF", "PARTNER", "PARTNER_GUESS"] as const;
+export const PERSPECTIVES = ["PARTNER", "SELF", "PARTNER_GUESS"] as const;
 
 export type PerspectiveValue = (typeof PERSPECTIVES)[number];
 
@@ -18,49 +12,67 @@ export const DEFAULT_PERSPECTIVE: PerspectiveValue = "PARTNER";
 
 export type PerspectiveMeta = {
   key: PerspectiveValue;
-  /** Decorative only — always paired with text, never the sole label. */
+  /** Decorative glyph paired with text. */
   glyph: string;
   /** Fits in the always-on badge above the cards. */
   short: string;
   /** Row label on the profile screen. */
   label: string;
-  /** One line of "what am I actually answering". */
+  /** One line explanation of what you are answering. */
   blurb: string;
   /** Full-sentence call to action on the welcome screen. */
   cta: string;
+  /** Modal headline when switching to this mode. */
+  modalHeadline: string;
+  /** Detailed instruction popup text for mode transition. */
+  modalInstruction: string;
+  /** Tailwind color class for active mode badge. */
+  badgeStyle: string;
+  /** Tailwind accent border class for cards. */
+  accentBorder: string;
 };
 
 /**
- * Display order everywhere a chooser is rendered. "In a partner" leads
- * because it is the one perspective that is useful on its own; the other
- * two only pay off once there is something to compare them against.
+ * Display order everywhere a chooser is rendered.
  */
 export const PERSPECTIVE_ORDER: PerspectiveValue[] = ["PARTNER", "SELF", "PARTNER_GUESS"];
 
 export const PERSPECTIVE_META: Record<PerspectiveValue, PerspectiveMeta> = {
   PARTNER: {
     key: "PARTNER",
-    glyph: "💞",
-    short: "In a partner",
-    label: "In a partner",
-    blurb: "What you want in someone else.",
-    cta: "What I want in a partner",
+    glyph: "💛",
+    short: "Partner Preferences",
+    label: "The partner I would choose",
+    blurb: "Rate the traits, life, and relationship qualities you want in a romantic partner.",
+    cta: "The partner I would choose",
+    modalHeadline: "Switching to Partner Preferences 💛",
+    modalInstruction: "Rate the traits, life, and relationship qualities you want in a romantic partner.",
+    badgeStyle: "bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-700/60",
+    accentBorder: "border-amber-400 dark:border-amber-600",
   },
   SELF: {
     key: "SELF",
-    glyph: "⭐",
-    short: "For me",
-    label: "For myself",
-    blurb: "What you want to build in your own life.",
-    cta: "What I want for myself",
+    glyph: "👤",
+    short: "Self Values",
+    label: "What I want for myself",
+    blurb: "Choose the qualities, work, relationships, and way of life you want in your own future—not what you want in a partner.",
+    cta: "What I want for my own life",
+    modalHeadline: "Switching to Self Values 👤",
+    modalInstruction: "Choose the qualities, work, relationships, and way of life you want in your own future—not what you want in a partner.",
+    badgeStyle: "bg-sky-50 text-sky-900 border-sky-300 dark:bg-sky-950/60 dark:text-sky-200 dark:border-sky-700/60",
+    accentBorder: "border-sky-400 dark:border-sky-600",
   },
   PARTNER_GUESS: {
     key: "PARTNER_GUESS",
-    glyph: "🔮",
-    short: "Their view",
-    label: "What they want",
-    blurb: "Your guess at your partner's answers.",
+    glyph: "🔎",
+    short: "Partner Read",
+    label: "What I think my partner wants",
+    blurb: "A comparison mode used for couple blind spots; it stays separate from your own and ideal-partner rankings. this gets dropped from profile. it happens automatically.",
     cta: "What I think my partner wants",
+    modalHeadline: "Switching to Partner Read 🔎",
+    modalInstruction: "A comparison mode used for couple blind spots; it stays separate from your own and ideal-partner rankings. this gets dropped from profile. it happens automatically.",
+    badgeStyle: "bg-purple-50 text-purple-900 border-purple-300 dark:bg-purple-950/60 dark:text-purple-200 dark:border-purple-700/60",
+    accentBorder: "border-purple-400 dark:border-purple-600",
   },
 };
 

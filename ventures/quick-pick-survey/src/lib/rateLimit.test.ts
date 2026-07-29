@@ -19,16 +19,21 @@ type CountArgs = { where: { ip: string; route: string; createdAt: { gte: Date } 
 
 const count = vi.fn<(args: CountArgs) => Promise<number>>(async () => 0);
 const create = vi.fn<(args: { data: { ip: string; route: string } }) => Promise<object>>(async () => ({}));
+const deleteMany = vi.fn(async () => ({ count: 0 }));
+const transaction = vi.fn(async (operations: Promise<unknown>[]) => Promise.all(operations));
 
 vi.mock("@/lib/prisma", () => ({
-  prisma: { anonRequestLog: { count, create } },
+  prisma: { anonRequestLog: { count, create, deleteMany }, $transaction: transaction },
 }));
 
 const { getClientIp, isWriteRateLimited, recordWrite } = await import("@/lib/rateLimit");
+const { rateLimitKey } = await import("@/lib/http");
 
 beforeEach(() => {
   count.mockClear();
   create.mockClear();
+  deleteMany.mockClear();
+  transaction.mockClear();
 });
 
 /** The `where` clause the limiter built for its count query. */
@@ -56,7 +61,8 @@ describe("isWriteRateLimited", () => {
   it("counts only this IP and this route", async () => {
     await isWriteRateLimited("9.9.9.9", "couple/create", 3);
     const where = whereClause();
-    expect(where.ip).toBe("9.9.9.9");
+    expect(where.ip).toBe(rateLimitKey("9.9.9.9"));
+    expect(where.ip).not.toContain("9.9.9.9");
     expect(where.route).toBe("couple/create");
   });
 
@@ -80,9 +86,12 @@ describe("isWriteRateLimited", () => {
 });
 
 describe("recordWrite", () => {
-  it("logs the IP and route it was given", async () => {
+  it("logs a keyed digest rather than the raw IP", async () => {
     await recordWrite("5.6.7.8", "feedback");
-    expect(create).toHaveBeenCalledWith({ data: { ip: "5.6.7.8", route: "feedback" } });
+    expect(create).toHaveBeenCalledWith({
+      data: { ip: rateLimitKey("5.6.7.8"), route: "feedback" },
+    });
+    expect(create.mock.calls[0][0].data.ip).not.toContain("5.6.7.8");
   });
 });
 

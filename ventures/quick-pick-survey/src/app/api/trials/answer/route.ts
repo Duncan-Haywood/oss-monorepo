@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { applyComparison, DEFAULT_GLICKO_STATE } from "@/lib/glicko2";
+import { mayAccessOwnedParticipant } from "@/lib/participantAccess";
 
 const VALID_RESULTS = new Set(["A", "B", "EQUAL"]);
+const VALID_INTERACTIONS = new Set(["swipe", "card_tap", "button", "tie"]);
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const trialId = typeof body?.trialId === "string" ? body.trialId : null;
   const result = typeof body?.result === "string" ? body.result : null;
+  const interactionMethod =
+    typeof body?.interactionMethod === "string" && VALID_INTERACTIONS.has(body.interactionMethod)
+      ? body.interactionMethod
+      : null;
+  const clientMsToAnswer =
+    Number.isInteger(body?.clientMsToAnswer) && body.clientMsToAnswer >= 0 && body.clientMsToAnswer <= 120_000
+      ? body.clientMsToAnswer
+      : null;
 
   if (!trialId || !result || !VALID_RESULTS.has(result)) {
     return NextResponse.json({ error: "trialId and a valid result are required" }, { status: 400 });
@@ -15,9 +25,20 @@ export async function POST(req: NextRequest) {
 
   const trial = await prisma.trial.findUnique({
     where: { id: trialId },
-    select: { id: true, participantId: true, itemAId: true, itemBId: true, shownAt: true, result: true },
+    select: {
+      id: true,
+      participantId: true,
+      itemAId: true,
+      itemBId: true,
+      shownAt: true,
+      result: true,
+      participant: { select: { userId: true } },
+    },
   });
   if (!trial) {
+    return NextResponse.json({ error: "Trial not found" }, { status: 404 });
+  }
+  if (!(await mayAccessOwnedParticipant(trial.participant.userId))) {
     return NextResponse.json({ error: "Trial not found" }, { status: 404 });
   }
   if (trial.result) {
@@ -45,7 +66,7 @@ export async function POST(req: NextRequest) {
       // stops one answer being applied to the ratings twice.
       const claimed = await tx.trial.updateMany({
         where: { id: trialId, result: null },
-        data: { result, answeredAt: now, msToAnswer, msSincePrevAnswer },
+        data: { result, answeredAt: now, msToAnswer, msSincePrevAnswer, interactionMethod, clientMsToAnswer },
       });
       if (claimed.count === 0) throw new AlreadyAnswered();
 

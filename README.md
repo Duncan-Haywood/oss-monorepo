@@ -16,6 +16,15 @@ platform/     shared agent definitions, skills, and CI — versioned once
 portfolio/    the ledger and the router that allocates agent effort
 ```
 
+## Security & Quality Assurance
+
+Repository-wide security scanning and verification run on pull requests, `main`, and a weekly schedule.
+- **Unified Verification Suite**: Execute `bash scripts/verify-all.sh` to run security policy scans, secret/vulnerability audits, Node/Python tests, and Terraform validations across all ventures locally or in CI.
+- **Security Policy**: See [SECURITY.md](SECURITY.md) for vulnerability reporting
+  guidelines and [docs/security/ROADMAP.md](docs/security/ROADMAP.md) for the
+  active Gitea security roadmap. Remaining third-party Action and container
+  digest pinning is tracked there.
+
 ### ventures/
 
 Each venture is self-contained and carries a `VENTURE.yaml` at its root. That

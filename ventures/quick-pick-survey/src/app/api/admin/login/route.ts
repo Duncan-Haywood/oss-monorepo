@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       sameSite: "lax",
       path: "/",
       maxAge: 12 * 60 * 60,
+      priority: "high",
     });
 
     return NextResponse.json({ ok: true });

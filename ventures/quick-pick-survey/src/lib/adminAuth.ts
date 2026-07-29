@@ -1,11 +1,13 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/prisma";
+import { rateLimitKey } from "@/lib/http";
 
-export const ADMIN_COOKIE_NAME = "admin_session";
-const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
+export const ADMIN_COOKIE_NAME = process.env.NODE_ENV === "production" ? "__Host-admin_session" : "admin_session";
+const SESSION_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const RATE_LIMIT_MAX_FAILURES = 8;
+const ATTEMPT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 function getSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET;
@@ -55,13 +57,18 @@ export function verifyAdminKey(candidate: string): boolean {
 export async function isRateLimited(ip: string): Promise<boolean> {
   const since = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
   const failures = await prisma.adminLoginAttempt.count({
-    where: { ip, success: false, createdAt: { gte: since } },
+    where: { ip: rateLimitKey(ip), success: false, createdAt: { gte: since } },
   });
   return failures >= RATE_LIMIT_MAX_FAILURES;
 }
 
 export async function recordLoginAttempt(ip: string, success: boolean): Promise<void> {
-  await prisma.adminLoginAttempt.create({ data: { ip, success } });
+  await prisma.$transaction([
+    prisma.adminLoginAttempt.deleteMany({
+      where: { createdAt: { lt: new Date(Date.now() - ATTEMPT_RETENTION_MS) } },
+    }),
+    prisma.adminLoginAttempt.create({ data: { ip: rateLimitKey(ip), success } }),
+  ]);
 }
 
 /** Re-exported so existing call sites keep their single auth import. */

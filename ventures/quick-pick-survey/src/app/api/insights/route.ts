@@ -4,9 +4,12 @@ import { loadRatedItems } from "@/lib/participantRatings";
 import { confidenceInterval95 } from "@/lib/glicko2";
 import { answersUntilNextLevel, INSIGHTS, levelForAnswers } from "@/lib/insights";
 import { RANGES } from "@/lib/financialProfiles";
-import { describeDimensions, scoreDimensions } from "@/lib/dimensions";
+import { describeDimensions, scoreDimensions, synthesizeArchetype } from "@/lib/dimensions";
 import { computeTradeOffs, describeTradeOff, HeadToHead } from "@/lib/tradeoffs";
 import { accessibleParticipantIds } from "@/lib/participantAccess";
+import { buildDeepProfile } from "@/lib/cardMetadata";
+import { getTraitsForItem } from "@/lib/cardTraitsData";
+import { computeTraitVectorProfile } from "@/lib/aiTraitTagger";
 
 const MAX_ENTRIES = 20;
 
@@ -138,6 +141,7 @@ export async function POST(req: NextRequest) {
 
     if (ranked.length >= 5) {
       content["top-three"] = ranked.slice(0, ranked.length >= 12 ? 5 : 3);
+      content["disfavored-items"] = ranked.slice(-5).reverse();
     }
 
     if (ranked.length >= 4) {
@@ -151,15 +155,36 @@ export async function POST(req: NextRequest) {
       }
       const cats = [...byCat.entries()]
         .filter(([, v]) => v.n >= 2)
-        .map(([name, v]) => ({ name, avg: v.sum / v.n, n: v.n }))
+        .map(([name, v]) => ({
+          name,
+          avg: v.sum / v.n,
+          n: v.n,
+          strongestItems: ranked.filter((r) => r.category === name).slice(0, 3).map((r) => r.label),
+        }))
         .sort((a, b) => b.avg - a.avg);
-      if (cats.length >= 2) content["category-lean"] = cats;
+      if (cats.length >= 2) {
+        content["category-lean"] = cats;
+        content["disfavored-categories"] = [...cats].reverse();
+      }
     }
 
     if (ranked.length) {
       const scores = scoreDimensions(ranked);
       if (scores.length >= 2) {
-        content["value-profile"] = { scores, summary: describeDimensions(scores, totalAnswers) };
+        content["value-profile"] = {
+          scores,
+          summary: describeDimensions(scores, totalAnswers),
+          archetype: synthesizeArchetype(scores),
+        };
+      }
+
+      if (ranked.length >= 3) {
+        const enriched = ranked.map((r, index) => ({
+          ...r,
+          strengthPercentile: Math.round(((ranked.length - 1 - index) / Math.max(1, ranked.length - 1)) * 100),
+          traits: getTraitsForItem({ label: r.label, category: r.category, dimensions: r.dimensions }),
+        }));
+        content["trait-profile"] = computeTraitVectorProfile(enriched, false);
       }
     }
 
@@ -169,6 +194,38 @@ export async function POST(req: NextRequest) {
       if (tradeoffs.length) {
         content["tradeoffs"] = { tradeoffs: tradeoffs.slice(0, 8), summary: describeTradeOff(tradeoffs[0]) };
       }
+    }
+
+    // A couple prompt must come from a relationship-facing topic and must
+    // beat the next candidate by more than the uncertainty carried by both.
+    // Otherwise a pleasant-sounding question would be promoted merely
+    // because its item happened to be asked first.
+    const coupleCategories = new Set([
+      "Behaviour",
+      "Affection",
+      "Relationship",
+      "Communication",
+      "Lifestyle",
+      "Intimacy",
+      "Future and family",
+      "Money and power",
+      "Stress and support",
+      "Trust and boundaries",
+      "Play and growth",
+    ]);
+    const coupleItems = ranked.filter((item) => item.category && coupleCategories.has(item.category));
+    if (coupleItems.length >= 2) {
+      const [first, second] = coupleItems;
+      const combinedUncertainty = Math.sqrt(first.rd ** 2 + second.rd ** 2);
+      if (first.rd < 180 && first.rating - second.rating > combinedUncertainty) {
+        content["couple-prompt"] = {
+          label: first.label,
+          category: first.category,
+          contrast: second.label,
+        };
+      }
+      const deepProfile = buildDeepProfile(ranked);
+      if (deepProfile) content["deep-profile"] = deepProfile;
     }
 
     if (ranked.length >= 8) {

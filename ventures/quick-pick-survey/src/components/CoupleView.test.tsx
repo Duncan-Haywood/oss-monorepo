@@ -290,3 +290,63 @@ describe("CoupleView when the request fails", () => {
     expect(screen.queryByRole("button", { name: /try again/i })).toBeNull();
   });
 });
+
+describe("CoupleView enhanced features & partner quiz", () => {
+  it("renders expression profiles, date night ideas, conversation starters, and micro commitments", async () => {
+    stubCompare({
+      ...LINKED,
+      expressionProfiles: [
+        { name: "Care & Action", glyph: "🤝", mineScore: 80, theirsScore: 85, alignmentPct: 95 },
+      ],
+      dateNightIdeas: [
+        { title: "Chef's Challenge", category: "Behaviour", sharedItem: "Cooking", description: "Cook together tonight." },
+      ],
+      conversationStarters: [
+        { type: "BLIND_SPOT", itemLabel: "Tidiness", headline: "Surprise preference: Tidiness", prompt: "Ask about tidiness over coffee." },
+      ],
+      microCommitments: [
+        { itemLabel: "Cooking", category: "Behaviour", challenge: "Surprise them by cooking dinner." },
+      ],
+    });
+
+    render(<CoupleView />);
+
+    await waitFor(() => expect(screen.getByText("Relationship expression profile")).toBeTruthy());
+    expect(screen.getByText("Care & Action")).toBeTruthy();
+    expect(screen.getByText("95% alignment")).toBeTruthy();
+
+    expect(screen.getByText("Date Night & Activity Ideas")).toBeTruthy();
+    expect(screen.getByText("Chef's Challenge")).toBeTruthy();
+
+    expect(screen.getByText("Spark Conversation Starters")).toBeTruthy();
+    expect(screen.getByText("Ask about tidiness over coffee.")).toBeTruthy();
+
+    expect(screen.getByText(/Weekly Action Challenge for Sam/)).toBeTruthy();
+    expect(screen.getByText("Surprise them by cooking dinner.")).toBeTruthy();
+  });
+
+  it("opens the partner quiz modal and allows revealing the answer", async () => {
+    stubCompare({
+      ...LINKED,
+      makeThemHappy: [{ label: "Cooking dinner together", rating: 1800, rd: 90, category: "Behaviour" }],
+    });
+
+    render(<CoupleView />);
+
+    const startQuizBtn = await waitFor(() => screen.getByRole("button", { name: /Start Quiz/i }));
+    fireEvent.click(startQuizBtn);
+
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText(/Guess Sam's Top Preference!/i)).toBeTruthy();
+
+    // Select an option inside the dialog
+    const optionBtn = within(dialog).getByRole("button", { name: /Cooking dinner together/i });
+    fireEvent.click(optionBtn);
+
+    const revealBtn = within(dialog).getByRole("button", { name: /Reveal Answer/i });
+    fireEvent.click(revealBtn);
+
+    expect(within(dialog).getByText(/Spot on! You know them well!/i)).toBeTruthy();
+  });
+});
+

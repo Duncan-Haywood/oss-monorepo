@@ -2,9 +2,13 @@ import { createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { rateLimitKey } from "@/lib/http";
 
-export const SESSION_COOKIE = "qp_session";
-const SESSION_TTL_DAYS = 60;
+export const SESSION_COOKIE = process.env.NODE_ENV === "production" ? "__Host-qp_session" : "qp_session";
+const LEGACY_SESSION_COOKIE = "qp_session";
+const SESSION_TTL_DAYS = 30;
+const MAX_ACTIVE_SESSIONS = 10;
+const ATTEMPT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 const BCRYPT_ROUNDS = 12;
 
 /** Failed-login rate limits, applied per email and per IP independently. */
@@ -47,23 +51,40 @@ export { getClientIp } from "@/lib/http";
 
 export async function isLoginRateLimited(email: string, ip: string): Promise<boolean> {
   const since = new Date(Date.now() - WINDOW_MS);
+  const ipKey = rateLimitKey(ip);
   const [byEmail, byIp] = await Promise.all([
     prisma.loginAttempt.count({ where: { email, success: false, createdAt: { gte: since } } }),
-    prisma.loginAttempt.count({ where: { ip, success: false, createdAt: { gte: since } } }),
+    prisma.loginAttempt.count({ where: { ip: ipKey, success: false, createdAt: { gte: since } } }),
   ]);
   return byEmail >= MAX_FAILURES_PER_EMAIL || byIp >= MAX_FAILURES_PER_IP;
 }
 
 export async function recordLoginAttempt(email: string, ip: string, success: boolean): Promise<void> {
-  await prisma.loginAttempt.create({ data: { email, ip, success } });
+  await prisma.$transaction([
+    prisma.loginAttempt.deleteMany({
+      where: { createdAt: { lt: new Date(Date.now() - ATTEMPT_RETENTION_MS) } },
+    }),
+    prisma.loginAttempt.create({ data: { email, ip: rateLimitKey(ip), success } }),
+  ]);
 }
 
 /** Issues a session and sets the HTTP-only cookie. Returns the raw token. */
 export async function createSession(userId: string): Promise<string> {
   const raw = randomBytes(32).toString("base64url");
   const expiresAt = new Date(Date.now() + SESSION_TTL_DAYS * 24 * 60 * 60 * 1000);
-  await prisma.userSession.create({
-    data: { tokenHash: hashToken(raw), userId, expiresAt },
+  await prisma.$transaction(async (tx) => {
+    const now = new Date();
+    await tx.userSession.deleteMany({ where: { expiresAt: { lt: now } } });
+    const excess = await tx.userSession.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      skip: MAX_ACTIVE_SESSIONS - 1,
+      select: { id: true },
+    });
+    if (excess.length > 0) {
+      await tx.userSession.deleteMany({ where: { id: { in: excess.map(({ id }) => id) } } });
+    }
+    await tx.userSession.create({ data: { tokenHash: hashToken(raw), userId, expiresAt } });
   });
 
   const store = await cookies();
@@ -73,6 +94,7 @@ export async function createSession(userId: string): Promise<string> {
     sameSite: "lax",
     path: "/",
     expires: expiresAt,
+    priority: "high",
   });
   return raw;
 }
@@ -82,26 +104,33 @@ export type SessionUser = { id: string; email: string; firstName: string };
 /** Resolves the current user from the session cookie, or null. */
 export async function getSessionUser(): Promise<SessionUser | null> {
   const store = await cookies();
-  const raw = store.get(SESSION_COOKIE)?.value;
+  // Keep accepting the old cookie for one release so the production cookie
+  // hardening does not unexpectedly sign everyone out during deployment.
+  const raw = store.get(SESSION_COOKIE)?.value ?? store.get(LEGACY_SESSION_COOKIE)?.value;
   if (!raw) return null;
 
   const session = await prisma.userSession.findUnique({
     where: { tokenHash: hashToken(raw) },
     include: { user: { select: { id: true, email: true, firstName: true } } },
   });
-  if (!session || session.expiresAt < new Date()) return null;
+  if (!session) return null;
+  if (session.expiresAt < new Date()) {
+    await prisma.userSession.deleteMany({ where: { id: session.id } });
+    return null;
+  }
   return session.user;
 }
 
 export async function destroySession(): Promise<void> {
   const store = await cookies();
-  const raw = store.get(SESSION_COOKIE)?.value;
+  const raw = store.get(SESSION_COOKIE)?.value ?? store.get(LEGACY_SESSION_COOKIE)?.value;
   // The cookie goes first. Deleting the row can throw — the database is the
   // one thing here that can be down — and if it does after the cookie is
   // already gone, the person who asked to sign out is signed out on their
   // device, which is what they asked for. The other order leaves them signed
   // in behind a 500, which is the failure that actually matters.
   store.delete(SESSION_COOKIE);
+  if (LEGACY_SESSION_COOKIE !== SESSION_COOKIE) store.delete(LEGACY_SESSION_COOKIE);
   if (raw) {
     await prisma.userSession.deleteMany({ where: { tokenHash: hashToken(raw) } });
   }

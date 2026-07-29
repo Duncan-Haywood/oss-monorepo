@@ -22,6 +22,13 @@ type Overview = {
     abandonRate: number | null;
     returnsAfterBreak: number;
     velocity: Velocity[];
+    interactionMethods: { method: string; count: number }[];
+  };
+  usage: {
+    uniqueSessions: number;
+    funnel: { event: string; sessions: number }[];
+    operations: { event: string; count: number; failures: number; medianMs: number | null; p95Ms: number | null }[];
+    transitions: { from: string; to: string; n: number; medianMs: number | null; p95Ms: number | null }[];
   };
   hardest: Timing[];
   easiest: Timing[];
@@ -30,12 +37,24 @@ type Overview = {
     usefulDown: number;
     medianEnjoyment: number | null;
     bySubject: { subject: string; up: number; down: number }[];
-    notes: { subject: string; note: string | null; at: string }[];
+    negativeReasons: { reason: string; count: number }[];
+    notes: {
+      subject: string;
+      note: string | null;
+      reason: string | null;
+      answerCount: number | null;
+      perspective: string | null;
+      path: string | null;
+      at: string;
+    }[];
   };
   openReports: number;
   reports: {
     id: string;
     kind: string;
+    impact: string | null;
+    perspective: string | null;
+    reference: string;
     message: string;
     email: string | null;
     path: string | null;
@@ -231,9 +250,22 @@ export function AdminView() {
           <Stat label="Returns after a break" value={engagement.returnsAfterBreak} />
         </Grid>
         <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
-          Abandonment counts sessions whose last shown card was never answered — not every
-          unanswered row, since those are mostly page reloads.
+          Decision time is measured in the browser, excluding network latency when available.
+          Abandonment counts sessions whose last shown card was never answered.
         </p>
+
+        {(engagement.interactionMethods?.length ?? 0) > 0 && (
+          <div className="mt-4">
+            <h3 className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">How people choose</h3>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {engagement.interactionMethods!.map((row) => (
+                <span key={row.method} className="rounded-full bg-neutral-100 px-3 py-1 text-xs dark:bg-neutral-800">
+                  {row.method.replaceAll("_", " ")} · {row.count}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {engagement.velocity.length > 0 && (
           <div className="mt-4">
@@ -262,6 +294,53 @@ export function AdminView() {
             <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
               Bars getting longer = slowing down (fatigue). Shorter = speeding up.
             </p>
+          </div>
+        )}
+      </Section>
+
+      <Section title="Usage funnel and app latency">
+        <p className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">
+          {data.usage.uniqueSessions} browser sessions in the last 30 days. Counts are distinct sessions, not clicks.
+        </p>
+        <Grid>
+          {data.usage.funnel.map((step) => (
+            <Stat key={step.event} label={step.event.replaceAll("_", " ")} value={step.sessions} />
+          ))}
+        </Grid>
+        {data.usage.operations.length > 0 && (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="text-neutral-500 dark:text-neutral-400">
+                <tr><Th>Action</Th><Th>Count</Th><Th>Failed</Th><Th>Median</Th><Th>P95</Th></tr>
+              </thead>
+              <tbody>
+                {data.usage.operations.map((row) => (
+                  <tr key={row.event} className="border-t border-neutral-200 dark:border-neutral-800">
+                    <Td>{row.event.replaceAll("_", " ")}</Td>
+                    <Td>{row.count}</Td>
+                    <Td>{row.failures}</Td>
+                    <Td>{row.medianMs === null ? "—" : `${row.medianMs}ms`}</Td>
+                    <Td>{row.p95Ms === null ? "—" : `${row.p95Ms}ms`}</Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {data.usage.transitions.some((row) => row.n > 0) && (
+          <div className="mt-4">
+            <h3 className="mb-2 text-xs font-semibold text-neutral-600 dark:text-neutral-400">Time between key steps</h3>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {data.usage.transitions.filter((row) => row.n > 0).map((row) => (
+                <li key={`${row.from}-${row.to}`} className="rounded-xl bg-neutral-100 px-3 py-2 text-xs dark:bg-neutral-800">
+                  <span className="block">{row.from.replaceAll("_", " ")} → {row.to.replaceAll("_", " ")}</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">
+                    median {row.medianMs === null ? "—" : `${(row.medianMs / 1000).toFixed(1)}s`}
+                    {" · "}P95 {row.p95Ms === null ? "—" : `${(row.p95Ms / 1000).toFixed(1)}s`} · n={row.n}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </Section>
@@ -301,6 +380,18 @@ export function AdminView() {
             ))}
           </ul>
         )}
+        {(feedback.negativeReasons?.length ?? 0) > 0 && (
+          <div className="mt-4">
+            <h3 className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Why insights missed</h3>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {feedback.negativeReasons.map((row) => (
+                <span key={row.reason} className="rounded-full bg-rose-50 px-2.5 py-1 text-xs text-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
+                  {row.reason.replaceAll("_", " ")} · {row.count}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
         {feedback.notes.length > 0 && (
           <div className="mt-3">
             <h3 className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">What people said</h3>
@@ -308,6 +399,11 @@ export function AdminView() {
               {feedback.notes.map((n, i) => (
                 <li key={i} className="rounded-lg bg-neutral-100 px-2 py-1.5 dark:bg-neutral-900">
                   <span className="font-mono text-neutral-500 dark:text-neutral-400">{n.subject}</span> — {n.note}
+                  <span className="mt-0.5 block text-[10px] text-neutral-500 dark:text-neutral-400">
+                    {[n.reason?.replaceAll("_", " "), n.perspective, n.answerCount === null ? null : `after ${n.answerCount} answers`, n.path]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -361,7 +457,7 @@ export function AdminView() {
               >
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-semibold">
-                    {r.kind === "bug" ? "🐞 Bug" : r.kind === "idea" ? "💡 Idea" : "💬 Other"}
+                    {r.kind === "bug" ? "🐞 Bug" : r.kind === "confusing" ? "🧭 Confusing" : r.kind === "question" ? "🃏 Question/content" : r.kind === "idea" ? "💡 Idea" : "💬 Other"}
                     {r.path && <span className="ml-2 font-mono text-neutral-500 dark:text-neutral-400">{r.path}</span>}
                   </span>
                   <button
@@ -380,6 +476,10 @@ export function AdminView() {
                 </div>
                 <p className="mt-1 whitespace-pre-wrap">{r.message}</p>
                 <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                  <span className="font-mono">{r.reference}</span>
+                  {r.impact && ` · ${r.impact.replaceAll("_", " ")}`}
+                  {r.perspective && ` · ${r.perspective}`}
+                  {" · "}
                   {new Date(r.createdAt).toLocaleString()}
                   {r.email && ` · ${r.email}`}
                 </p>

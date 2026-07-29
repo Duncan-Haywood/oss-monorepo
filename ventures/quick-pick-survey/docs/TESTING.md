@@ -62,6 +62,8 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
 | `sessionStore.test.ts` | 6 | A partial or tampered session bundle is rejected rather than half-used |
 | `couples.test.ts` | 37 | Cross-person comparison: percentile positions, the answer-volume trap, overlap floors before a match score |
 | `UnifiedRunner.test.tsx` | 8 | The swipe loop: cold start, resume, one question per resume, a half-written bundle, a failed fetch, a thrown fetch, advancing on an answer, and the consent line on the welcome screen |
+| `insightBreaks.test.ts` | 9 | Insight interruptions: no generic level-boundary modal, no contested leader or weak category lead presented as a discovery, perspective-aware personal and linked-couple prompts, a couple-specific prompt wins over a generic profile, no repeat interruption for the same kind of finding, and at least ten answers separate interruptions |
+| `surveyData.test.ts` | 2 | Content quality: every survey has unique item slugs, and the couple-facing pool retains concrete prompts covering repair, financial autonomy, intimacy through hard seasons, and caregiving |
 | `developmentProcess.test.ts` | 13 | The process document stays internally consistent |
 | `contrast.test.ts` | 14 | The colour maths the audit below reports: oklch → sRGB, WCAG relative luminance, the ratio, and alpha compositing — each against a value fixed by the WCAG definition or published by Tailwind for its own palette, so the numbers are checkable against something other than themselves |
 | `contrastAudit.test.ts` | 4 | Every class list in the app against the WCAG AA floor, in both colour schemes. Found 72 failures on its first run, 30 of them the same 2.58:1 grey. See [ACCESSIBILITY.md](ACCESSIBILITY.md) |

@@ -48,3 +48,14 @@ export async function accessibleParticipantIds(ids: string[]): Promise<Set<strin
     rows.filter((p) => p.userId === null || p.userId === user?.id).map((p) => p.id)
   );
 }
+
+/**
+ * Write-side form of the same boundary. Anonymous participants intentionally
+ * remain capability-based; once a participant belongs to an account, only
+ * that signed-in account may create, answer, skip, or undo its trials.
+ */
+export async function mayAccessOwnedParticipant(userId: string | null): Promise<boolean> {
+  if (userId === null) return true;
+  const user = await getSessionUser();
+  return user?.id === userId;
+}

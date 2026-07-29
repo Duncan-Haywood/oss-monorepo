@@ -1,6 +1,13 @@
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import type { Perspective } from "@prisma/client";
+import {
+  CARD_METADATA_VERSION,
+  metadataForCard,
+  THEME_LABELS,
+  type CardMetadata,
+  type RelationshipTheme,
+} from "@/lib/cardMetadata";
 
 /** Short, readable, unambiguous invite codes (no 0/O/1/I). */
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -14,7 +21,7 @@ export function generateInviteCode(): string {
 
 export type Ranking = Map<
   string,
-  { label: string; rating: number; rd: number; category: string | null; dimensions: string[] }
+  { label: string; rating: number; rd: number; category: string | null; dimensions: string[]; metadata?: CardMetadata }
 >;
 
 /**
@@ -40,7 +47,7 @@ export async function rankingFor(userId: string, perspective: Perspective): Prom
     select: {
       rating: true,
       rd: true,
-      item: { select: { label: true, category: true, dimensions: true } },
+      item: { select: { label: true, category: true, dimensions: true, metadata: true } },
     },
   });
 
@@ -55,6 +62,8 @@ export async function rankingFor(userId: string, perspective: Perspective): Prom
         rd: r.rd,
         category: r.item.category,
         dimensions: r.item.dimensions ?? [],
+        metadata: (r.item.metadata as CardMetadata | null) ??
+          metadataForCard({ dimensions: r.item.dimensions ?? [], category: r.item.category }),
       });
     }
   }
@@ -128,7 +137,13 @@ export type ActionItem = { label: string; rating: number; rd: number; category: 
  * the difference between a curiosity and something that strengthens a
  * relationship.
  */
-export const ACTIONABLE_CATEGORIES = new Set(["Behaviour", "Affection", "Relationship"]);
+export const ACTIONABLE_CATEGORIES = new Set([
+  "Behaviour",
+  "Affection",
+  "Relationship",
+  "Communication",
+  "Intimacy",
+]);
 
 export function actionableTop(ranking: Ranking, limit = 6): ActionItem[] {
   return [...ranking.values()]
@@ -242,6 +257,213 @@ export function sharedValues(a: Ranking, b: Ranking, limit = 6): SharedValue[] {
 
 export type Asymmetry = { label: string; theirStrength: number; myStrength: number; gap: number };
 
+export type CategoryCompass = {
+  shared: { category: string; mine: number; theirs: number; combined: number }[];
+  differences: { category: string; mine: number; theirs: number; gap: number }[];
+};
+
+export type ThemeEvidence = {
+  label: string;
+  strength: number;
+  contribution: number;
+};
+
+export type CoupleThemeInsight = {
+  key: RelationshipTheme;
+  label: string;
+  mine: number;
+  theirs: number;
+  pattern: "shared-strength" | "difference" | "complement";
+  headline: string;
+  interpretation: string;
+  prompt: string;
+  confidence: { mineCards: number; theirCards: number; overlapCards: number };
+  evidence: { mine: ThemeEvidence[]; theirs: ThemeEvidence[] };
+  provenance: { taxonomyVersion: string; calculation: string };
+};
+
+type ThemeScore = { score: number; evidence: ThemeEvidence[] };
+
+function deriveThemesFromCategoryAndLabel(label: string, category: string | null): RelationshipTheme[] {
+  const l = label.toLowerCase();
+  const c = (category ?? "").toLowerCase();
+  const themes: RelationshipTheme[] = [];
+
+  if (c.includes("communication") || c.includes("stress") || c.includes("relationship") || l.includes("listen") || l.includes("comfort") || l.includes("repair") || l.includes("overwhelmed")) {
+    themes.push("emotional-safety");
+  }
+  if (c.includes("lifestyle") || c.includes("behaviour") || l.includes("plan") || l.includes("routine")) {
+    themes.push("practical-support");
+  }
+  if (c.includes("intimacy") || c.includes("affection") || l.includes("desire") || l.includes("hug")) {
+    themes.push("intimacy-affection");
+  }
+  if (c.includes("values") || c.includes("future") || l.includes("family") || l.includes("vision")) {
+    themes.push("shared-vision");
+  }
+  if (c.includes("character") || l.includes("prestige") || l.includes("work") || l.includes("private")) {
+    themes.push("autonomy-boundaries");
+  }
+
+  return themes.length > 0 ? themes : ["emotional-safety"];
+}
+
+function scoresByTheme(ranking: Ranking): Map<RelationshipTheme, ThemeScore> {
+  const strengths = strengthScores(ranking);
+  const grouped = new Map<RelationshipTheme, ThemeEvidence[]>();
+  for (const [label, strength] of strengths) {
+    const item = ranking.get(label);
+    const themes = (item?.metadata?.themes && item.metadata.themes.length > 0)
+      ? item.metadata.themes
+      : deriveThemesFromCategoryAndLabel(label, item?.category ?? null);
+    for (const theme of themes) {
+      const rows = grouped.get(theme) ?? [];
+      // Extremes are informative; a card at the midpoint contributes zero.
+      rows.push({ label, strength, contribution: Math.abs(strength - 50) });
+      grouped.set(theme, rows);
+    }
+  }
+  return new Map(
+    [...grouped].flatMap(([theme, evidence]) => {
+      if (evidence.length < 2) return [];
+      const weighted = evidence.reduce((sum, row) => sum + row.strength * Math.max(row.contribution, 10), 0);
+      const weight = evidence.reduce((sum, row) => sum + Math.max(row.contribution, 10), 0);
+      return [[theme, {
+        score: weighted / weight,
+        evidence: evidence.sort((a, b) => b.contribution - a.contribution).slice(0, 4),
+      }] as const];
+    }),
+  );
+}
+
+/**
+ * Higher-order couple findings built from semantic card tags. Each finding
+ * carries the cards that produced it, sample counts, taxonomy version, and
+ * calculation text so it can be challenged rather than merely believed.
+ */
+export function coupleThemeInsights(mine: Ranking, theirs: Ranking, limit = 6): CoupleThemeInsight[] {
+  const my = scoresByTheme(mine);
+  const their = scoresByTheme(theirs);
+  const rows: (CoupleThemeInsight & { priority: number })[] = [];
+  for (const [key, myTheme] of my) {
+    const theirTheme = their.get(key);
+    if (!theirTheme) continue;
+    const gap = Math.abs(myTheme.score - theirTheme.score);
+    const shared = Math.min(myTheme.score, theirTheme.score);
+    const pattern = shared >= 50
+      ? "shared-strength"
+      : gap >= 22
+        ? "difference"
+        : myTheme.score >= 55 || theirTheme.score >= 55
+          ? "complement"
+          : null;
+    if (!pattern) continue;
+
+    const label = THEME_LABELS[key as RelationshipTheme] ?? String(key).replaceAll("-", " ");
+    const highIsMine = myTheme.score >= theirTheme.score;
+    const headline = pattern === "shared-strength"
+      ? `${label} is part of your shared relationship blueprint`
+      : pattern === "difference"
+        ? `${label} may feel more central to ${highIsMine ? "you" : "your partner"}`
+        : `You may express ${label.toLowerCase()} in different ways`;
+    const interpretation = pattern === "shared-strength"
+      ? `You both repeatedly place ${label.toLowerCase()} above other needs. This is common ground worth protecting when life gets busy.`
+      : pattern === "difference"
+        ? `This is not a compatibility verdict. It suggests the same situation may carry different emotional weight for each of you, which can create missed bids unless it is named.`
+        : `The overall priority is similar enough, but different cards are driving it. Agreeing on the value may hide a useful conversation about what it looks like in practice.`;
+    const prompt = pattern === "shared-strength"
+      ? `What is one ritual that would protect ${label.toLowerCase()} for us this month?`
+      : `When do you feel most—and least—supported around ${label.toLowerCase()}? What would a small improvement look like?`;
+
+    rows.push({
+      key,
+      label,
+      mine: Math.round(myTheme.score),
+      theirs: Math.round(theirTheme.score),
+      pattern,
+      headline,
+      interpretation,
+      prompt,
+      confidence: {
+        mineCards: myTheme.evidence.length,
+        theirCards: theirTheme.evidence.length,
+        overlapCards: myTheme.evidence.filter((m) => theirTheme.evidence.some((t) => t.label === m.label)).length,
+      },
+      evidence: { mine: myTheme.evidence, theirs: theirTheme.evidence },
+      provenance: {
+        taxonomyVersion: CARD_METADATA_VERSION,
+        calculation: "Within-person percentile strengths, grouped by semantic theme; at least two measured cards per person.",
+      },
+      priority: pattern === "difference" ? gap + 20 : shared,
+    });
+  }
+  return rows.sort((a, b) => b.priority - a.priority).slice(0, limit).map(({ priority: _, ...row }) => row);
+}
+
+/**
+ * Rolls item-level positions into relationship themes. Item differences are
+ * useful but noisy and literal; this is the "what kind of relationship are
+ * we each trying to build?" layer above them.
+ */
+export function categoryCompass(mine: Ranking, theirs: Ranking, limit = 5): CategoryCompass {
+  const scoresFor = (ranking: Ranking) => {
+    const strengths = strengthScores(ranking);
+    const grouped = new Map<string, number[]>();
+    for (const [label, score] of strengths) {
+      const category = ranking.get(label)?.category;
+      if (!category) continue;
+      const values = grouped.get(category) ?? [];
+      values.push(score);
+      grouped.set(category, values);
+    }
+    return new Map(
+      [...grouped]
+        .filter(([, values]) => values.length >= 2)
+        .map(([category, values]) => [
+          category,
+          values.reduce((sum, value) => sum + value, 0) / values.length,
+        ])
+    );
+  };
+
+  const myScores = scoresFor(mine);
+  const theirScores = scoresFor(theirs);
+  const rows = [...myScores].flatMap(([category, myScore]) => {
+    const theirScore = theirScores.get(category);
+    if (theirScore === undefined) return [];
+    return [{
+      category,
+      mine: myScore,
+      theirs: theirScore,
+      combined: Math.min(myScore, theirScore),
+      gap: Math.abs(myScore - theirScore),
+    }];
+  });
+
+  return {
+    shared: rows
+      .filter((row) => row.mine > 50 && row.theirs > 50)
+      .sort((a, b) => b.combined - a.combined)
+      .slice(0, limit)
+      .map(({ category, mine: myScore, theirs: theirScore, combined }) => ({
+        category,
+        mine: myScore,
+        theirs: theirScore,
+        combined,
+      })),
+    differences: rows
+      .filter((row) => row.gap >= 15)
+      .sort((a, b) => b.gap - a.gap)
+      .slice(0, limit)
+      .map(({ category, mine: myScore, theirs: theirScore, gap }) => ({
+        category,
+        mine: myScore,
+        theirs: theirScore,
+        gap,
+      })),
+  };
+}
+
 /**
  * Where one person cares far more than the other. Framed as "this matters
  * to them much more than to you" — the actionable asymmetry, not a fault.
@@ -266,6 +488,162 @@ export function asymmetries(mine: Ranking, theirs: Ranking, limit = 5): Asymmetr
     .filter((r) => r.gap >= 20)
     .sort((a, b) => b.gap - a.gap)
     .slice(0, limit);
+}
+
+export type DateNightIdea = {
+  title: string;
+  category: string | null;
+  sharedItem: string;
+  description: string;
+};
+
+/**
+  * Generates concrete Date Night ideas and shared micro-adventures from items
+  * that both partners rate highly.
+  */
+export function dateNightIdeas(mine: Ranking, theirs: Ranking, limit = 4): DateNightIdea[] {
+  const shared = sharedValues(mine, theirs, 10);
+  if (shared.length === 0) return [];
+
+  const ideas: DateNightIdea[] = [];
+  for (const s of shared) {
+    const cat = mine.get(s.label)?.category ?? null;
+    let description = `Plan an evening centered around ${s.label.toLowerCase()} together.`;
+    if (s.label.toLowerCase().includes("cook") || s.label.toLowerCase().includes("food") || cat === "Behaviour") {
+      description = `Chef's Challenge: Cook a menu built around ${s.label.toLowerCase()} together tonight.`;
+    } else if (s.label.toLowerCase().includes("trip") || s.label.toLowerCase().includes("travel") || s.label.toLowerCase().includes("outdoor")) {
+      description = `Micro-Adventure: Spend a Saturday morning exploring ${s.label.toLowerCase()}.`;
+    } else if (cat === "Intimacy" || cat === "Affection") {
+      description = `Uninterrupted Evening: Dedicate 2 phone-free hours to ${s.label.toLowerCase()}.`;
+    } else if (cat === "Communication" || cat === "Relationship") {
+      description = `Coffee & Conversation: Grab drinks and share what you both love about ${s.label.toLowerCase()}.`;
+    }
+    ideas.push({
+      title: `${s.label}`,
+      category: cat,
+      sharedItem: s.label,
+      description,
+    });
+    if (ideas.length >= limit) break;
+  }
+  return ideas;
+}
+
+export type ConversationStarter = {
+  type: "BLIND_SPOT" | "ASYMMETRY";
+  itemLabel: string;
+  headline: string;
+  prompt: string;
+};
+
+/**
+  * Generates curious, non-judgmental conversation prompts for blind spots
+  * and major preference gaps between partners.
+  */
+export function conversationStarters(
+  blindSpots?: Comparison,
+  mattersMoreToThem?: Asymmetry[],
+  limit = 4,
+): ConversationStarter[] {
+  const starters: ConversationStarter[] = [];
+
+  if (blindSpots && blindSpots.diverged.length > 0) {
+    for (const d of blindSpots.diverged.slice(0, 2)) {
+      starters.push({
+        type: "BLIND_SPOT",
+        itemLabel: d.label,
+        headline: `Surprise preference: ${d.label}`,
+        prompt: `You guessed differently than they rated "${d.label}". Over coffee, ask: "What does ${d.label.toLowerCase()} mean for you right now?"`,
+      });
+    }
+  }
+
+  if (mattersMoreToThem && mattersMoreToThem.length > 0) {
+    for (const a of mattersMoreToThem.slice(0, 2)) {
+      starters.push({
+        type: "ASYMMETRY",
+        itemLabel: a.label,
+        headline: `Matters deeply to them: ${a.label}`,
+        prompt: `"${a.label}" sits near the top of their list. Try asking: "How can I support you more with ${a.label.toLowerCase()}?"`,
+      });
+    }
+  }
+
+  return starters.slice(0, limit);
+}
+
+export type ExpressionDimension = {
+  name: string;
+  glyph: string;
+  mineScore: number;
+  theirsScore: number;
+  alignmentPct: number;
+};
+
+/**
+  * Synthesizes preferences into 4 core relationship dimensions.
+  */
+export function expressionProfiles(mine: Ranking, theirs: Ranking): ExpressionDimension[] {
+  const sMine = strengthScores(mine);
+  const sTheirs = strengthScores(theirs);
+  if (sMine.size === 0 || sTheirs.size === 0) return [];
+
+  const dimDefs = [
+    { name: "Care & Action", glyph: "🤝", categories: ["Behaviour", "Relationship"] },
+    { name: "Quality Time & Adventure", glyph: "🎒", categories: ["Activity", "Lifestyle", "Adventure"] },
+    { name: "Affection & Connection", glyph: "💗", categories: ["Affection", "Intimacy", "Communication"] },
+    { name: "Autonomy & Values", glyph: "🧭", categories: ["Ambition", "Identity", "Values"] },
+  ];
+
+  return dimDefs.map((d) => {
+    let mSum = 0, mN = 0;
+    let tSum = 0, tN = 0;
+
+    for (const [label, score] of sMine) {
+      const cat = mine.get(label)?.category;
+      if (cat && d.categories.includes(cat)) {
+        mSum += score;
+        mN++;
+      }
+    }
+    for (const [label, score] of sTheirs) {
+      const cat = theirs.get(label)?.category;
+      if (cat && d.categories.includes(cat)) {
+        tSum += score;
+        tN++;
+      }
+    }
+
+    const mineScore = mN > 0 ? Math.round(mSum / mN) : 50;
+    const theirsScore = tN > 0 ? Math.round(tSum / tN) : 50;
+    const gap = Math.abs(mineScore - theirsScore);
+    const alignmentPct = Math.max(0, 100 - gap);
+
+    return {
+      name: d.name,
+      glyph: d.glyph,
+      mineScore,
+      theirsScore,
+      alignmentPct,
+    };
+  });
+}
+
+export type MicroCommitment = {
+  itemLabel: string;
+  category: string | null;
+  challenge: string;
+};
+
+/**
+  * Maps top actionable items for them into weekly couple challenges.
+  */
+export function microCommitments(makeThemHappy: ActionItem[], limit = 3): MicroCommitment[] {
+  return makeThemHappy.slice(0, limit).map((item) => ({
+    itemLabel: item.label,
+    category: item.category,
+    challenge: `Surprise them by doing or planning "${item.label}" this week without being asked.`,
+  }));
 }
 
 export type ComparisonRow = {
@@ -509,4 +887,274 @@ export async function coupleFor(userId: string) {
   const isCreator = couple.creatorId === userId;
   const partner = isCreator ? couple.joiner : couple.creator;
   return { couple, partner };
+}
+
+// ---------------------------------------------------------------------------
+// DEEP EXPLAINABLE COUPLE INSIGHTS ENGINE
+// ---------------------------------------------------------------------------
+
+import { getTraitsForItem, LoveLanguage, RelationalDriver, StressResponse } from "@/lib/cardTraitsData";
+
+export type ExplainableInsight = {
+  id: string;
+  title: string;
+  headline: string;
+  discovery: string;
+  evidenceTrail: {
+    cards: { label: string; myPercentile: number; theirPercentile: number; traits: string[] }[];
+    underlyingMechanism: string;
+    confidence: "High" | "Medium" | "Developing";
+  };
+  relationalImpact: string;
+  actionablePrescription: string;
+};
+
+/**
+ * 1. Emotional & Relational Harmony Index
+ * Evaluates Love Language and Relational Driver alignment with explicit evidence trail.
+ */
+export function emotionalHarmonyIndex(mine: Ranking, theirs: Ranking): ExplainableInsight | null {
+  const sMine = strengthScores(mine);
+  const sTheirs = strengthScores(theirs);
+  if (sMine.size < MIN_ITEMS_FOR_CROSS_PERSON || sTheirs.size < MIN_ITEMS_FOR_CROSS_PERSON) return null;
+
+  const sharedCards: { label: string; myPct: number; theirPct: number; traits: ReturnType<typeof getTraitsForItem> }[] = [];
+  for (const [label, myPct] of sMine) {
+    const theirPct = sTheirs.get(label);
+    if (theirPct !== undefined && (myPct > 60 || theirPct > 60)) {
+      const traits = getTraitsForItem({ label, category: mine.get(label)?.category });
+      sharedCards.push({ label, myPct: Math.round(myPct), theirPct: Math.round(theirPct), traits });
+    }
+  }
+
+  if (sharedCards.length < 3) return null;
+
+  // Aggregate love languages
+  const loveLangCountsMine: Record<string, number> = {};
+  const loveLangCountsTheirs: Record<string, number> = {};
+  for (const c of sharedCards) {
+    for (const ll of c.traits.loveLanguages) {
+      if (c.myPct > 60) loveLangCountsMine[ll] = (loveLangCountsMine[ll] || 0) + (c.myPct / 100);
+      if (c.theirPct > 60) loveLangCountsTheirs[ll] = (loveLangCountsTheirs[ll] || 0) + (c.theirPct / 100);
+    }
+  }
+
+  const topMineLL = Object.entries(loveLangCountsMine).sort((a, b) => b[1] - a[1])[0]?.[0] || "Quality Time";
+  const topTheirsLL = Object.entries(loveLangCountsTheirs).sort((a, b) => b[1] - a[1])[0]?.[0] || "Quality Time";
+
+  const isExactMatch = topMineLL === topTheirsLL;
+  const topEvidence = sharedCards
+    .sort((a, b) => b.myPct + b.theirPct - (a.myPct + a.theirPct))
+    .slice(0, 4)
+    .map((c) => ({
+      label: c.label,
+      myPercentile: c.myPct,
+      theirPercentile: c.theirPct,
+      traits: c.traits.loveLanguages,
+    }));
+
+  return {
+    id: "emotional-harmony",
+    title: "Emotional & Relational Harmony Index",
+    headline: isExactMatch
+      ? `Shared Emotional Dialect: Both prioritize ${topMineLL}`
+      : `Complementary Needs: ${topMineLL} & ${topTheirsLL}`,
+    discovery: isExactMatch
+      ? `You and your partner speak the exact same primary love language (${topMineLL}). You naturally express and receive affection through similar channels.`
+      : `Your primary emotional driver leans toward ${topMineLL}, while your partner's top choices emphasize ${topTheirsLL}. Understanding this difference prevents feeling unappreciated when giving what you'd prefer yourself.`,
+    evidenceTrail: {
+      cards: topEvidence,
+      underlyingMechanism: `Derived from cross-referencing your top-ranked cards against tagged Love Language vectors (${topMineLL} vs ${topTheirsLL}).`,
+      confidence: sharedCards.length >= 6 ? "High" : "Medium",
+    },
+    relationalImpact: isExactMatch
+      ? "High alignment reduces friction in daily affection, though you must guard against assuming you always know what the other needs without checking."
+      : "Provides clarity on why certain heartfelt gestures might land quietly—translating between your preferred styles unlocks deeper intimacy.",
+    actionablePrescription: isExactMatch
+      ? `Double down on ${topMineLL} this weekend by setting aside dedicated, distraction-free time together.`
+      : `Trade one explicit gesture of ${topTheirsLL} for them while noticing how they offer ${topMineLL} to you.`,
+  };
+}
+
+/**
+ * 2. Stress & Conflict Co-Regulation Profile
+ * Analyzes how each partner seeks comfort during stress (e.g., Solitude vs Co-Regulation).
+ */
+export function stressCoRegulationProfile(mine: Ranking, theirs: Ranking): ExplainableInsight | null {
+  const sMine = strengthScores(mine);
+  const sTheirs = strengthScores(theirs);
+  if (sMine.size < MIN_ITEMS_FOR_CROSS_PERSON || sTheirs.size < MIN_ITEMS_FOR_CROSS_PERSON) return null;
+
+  const getStressProfile = (ranking: Ranking, scores: Map<string, number>) => {
+    const counts: Record<StressResponse, number> = {
+      "Co-Regulation": 0,
+      "Solitude / Space": 0,
+      "Practical Problem Solving": 0,
+      "Emotional Reassurance": 0,
+    };
+    for (const [label, pct] of scores) {
+      if (pct > 55) {
+        const traits = getTraitsForItem({ label, category: ranking.get(label)?.category });
+        for (const sr of traits.stressResponse) {
+          counts[sr] += (pct / 100);
+        }
+      }
+    }
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] as StressResponse || "Co-Regulation";
+  };
+
+  const mineStress = getStressProfile(mine, sMine);
+  const theirsStress = getStressProfile(theirs, sTheirs);
+
+  const evidenceCards: { label: string; myPercentile: number; theirPercentile: number; traits: string[] }[] = [];
+  for (const [label, myPct] of sMine) {
+    const theirPct = sTheirs.get(label);
+    if (theirPct !== undefined && (myPct > 60 || theirPct > 60)) {
+      const traits = getTraitsForItem({ label });
+      if (traits.stressResponse.includes(mineStress) || traits.stressResponse.includes(theirsStress)) {
+        evidenceCards.push({
+          label,
+          myPercentile: Math.round(myPct),
+          theirPercentile: Math.round(theirPct),
+          traits: traits.stressResponse,
+        });
+      }
+    }
+  }
+
+  const isCoRegulators = mineStress === theirsStress;
+
+  return {
+    id: "stress-dynamics",
+    title: "Stress & Conflict Co-Regulation Profile",
+    headline: isCoRegulators
+      ? `Unified Stress Rhythm: ${mineStress}`
+      : `Complementary Regulation: ${mineStress} vs ${theirsStress}`,
+    discovery: isCoRegulators
+      ? `Under stress, you both default to ${mineStress}. You naturally seek similar environmental cues when overwhelmed.`
+      : `When pressure builds, your system seeks ${mineStress}, whereas your partner turns toward ${theirsStress}. Recognizing this pattern stops space-seeking from looking like rejection or reassurance-seeking from looking like pressure.`,
+    evidenceTrail: {
+      cards: evidenceCards.slice(0, 4),
+      underlyingMechanism: `Evaluated by analyzing choices on cards tagged with stress regulation mechanisms (${mineStress} vs ${theirsStress}).`,
+      confidence: evidenceCards.length >= 4 ? "High" : "Medium",
+    },
+    relationalImpact: isCoRegulators
+      ? "Fast recovery after tense moments, though you must ensure external stress doesn't overwhelm both of you simultaneously."
+      : "Crucial for preventing pursuer-distancer loops during disagreements.",
+    actionablePrescription: `Establish a pre-agreed 20-minute reset protocol when tension rises, respecting ${theirsStress} before re-engaging.`,
+  };
+}
+
+/**
+ * 3. Energy, Pace & Spontaneity Compatibility
+ */
+export function energyPaceCompatibility(mine: Ranking, theirs: Ranking): ExplainableInsight | null {
+  const sMine = strengthScores(mine);
+  const sTheirs = strengthScores(theirs);
+  if (sMine.size < MIN_ITEMS_FOR_CROSS_PERSON || sTheirs.size < MIN_ITEMS_FOR_CROSS_PERSON) return null;
+
+  const shared = sharedValues(mine, theirs, 5);
+  if (shared.length === 0) return null;
+
+  const topEvidence = shared.slice(0, 3).map((s) => ({
+    label: s.label,
+    myPercentile: Math.round(s.aStrength),
+    theirPercentile: Math.round(s.bStrength),
+    traits: getTraitsForItem({ label: s.label }).relationalDrivers,
+  }));
+
+  return {
+    id: "energy-pace",
+    title: "Energy, Pace & Spontaneity Compatibility",
+    headline: "Balanced Adventure & Shared Ground",
+    discovery: `Your choices show high mutual value for ${shared[0].label.toLowerCase()} and shared life rhythms, balancing structure with novel experiences.`,
+    evidenceTrail: {
+      cards: topEvidence,
+      underlyingMechanism: "Calculated from shared top quartile selections in Lifestyle & Activity domains.",
+      confidence: "High",
+    },
+    relationalImpact: "Allows planning joint weekends and trips that feel energizing to both rather than exhausting to one.",
+    actionablePrescription: `Schedule an unstructured half-day centered around ${shared[0].label} this month.`,
+  };
+}
+
+/**
+ * 4. Vulnerability & Intimacy Bridge
+ */
+export function vulnerabilityBridge(mine: Ranking, theirs: Ranking): ExplainableInsight | null {
+  const sMine = strengthScores(mine);
+  const sTheirs = strengthScores(theirs);
+  if (sMine.size < MIN_ITEMS_FOR_CROSS_PERSON || sTheirs.size < MIN_ITEMS_FOR_CROSS_PERSON) return null;
+
+  const highVulnCards: { label: string; myPct: number; theirPct: number; traits: string[] }[] = [];
+  for (const [label, myPct] of sMine) {
+    const theirPct = sTheirs.get(label);
+    if (theirPct !== undefined && myPct >= 50 && theirPct >= 50) {
+      const t = getTraitsForItem({ label, category: mine.get(label)?.category });
+      if (t.effortProfile.vulnerabilityLevel === "High") {
+        highVulnCards.push({
+          label,
+          myPct: Math.round(myPct),
+          theirPct: Math.round(theirPct),
+          traits: t.relationalDrivers,
+        });
+      }
+    }
+  }
+
+  if (highVulnCards.length === 0) return null;
+
+  const topCard = highVulnCards[0];
+
+  return {
+    id: "vulnerability-bridge",
+    title: "Vulnerability & Intimacy Bridge",
+    headline: `Deep Connection Target: ${topCard.label}`,
+    discovery: `Both of you placed "${topCard.label}" high in your personal rankings. This represents a prime bridge for deepening trust and emotional intimacy.`,
+    evidenceTrail: {
+      cards: highVulnCards.slice(0, 3).map((c) => ({
+        label: c.label,
+        myPercentile: c.myPct,
+        theirPercentile: c.theirPct,
+        traits: c.traits,
+      })),
+      underlyingMechanism: "Identified by isolating items tagged with High Vulnerability that sit in both partners' top half.",
+      confidence: "High",
+    },
+    relationalImpact: "Engaging directly with high-vulnerability shared preferences builds long-term psychological safety and romantic longevity.",
+    actionablePrescription: `Set aside 30 minutes of quiet, phone-free time to talk openly about "${topCard.label}".`,
+  };
+}
+
+/**
+ * 5. Growth & Shared Ambition Matrix
+ */
+export function growthAmbitionMatrix(mine: Ranking, theirs: Ranking): ExplainableInsight | null {
+  const sMine = strengthScores(mine);
+  const sTheirs = strengthScores(theirs);
+  if (sMine.size < MIN_ITEMS_FOR_CROSS_PERSON || sTheirs.size < MIN_ITEMS_FOR_CROSS_PERSON) return null;
+
+  const sharedVisions = sharedValues(mine, theirs, 5);
+  if (sharedVisions.length === 0) return null;
+
+  const evidence = sharedVisions.slice(0, 3).map((v) => ({
+    label: v.label,
+    myPercentile: Math.round(v.aStrength),
+    theirPercentile: Math.round(v.bStrength),
+    traits: getTraitsForItem({ label: v.label }).lifeVision,
+  }));
+
+  return {
+    id: "growth-ambition",
+    title: "Growth & Shared Ambition Alignment",
+    headline: `Unified Direction around ${sharedVisions[0].label}`,
+    discovery: `Your joint ranking reveals strong alignment on core long-term aspirations—especially around ${sharedVisions[0].label.toLowerCase()}.`,
+    evidenceTrail: {
+      cards: evidence,
+      underlyingMechanism: "Derived from shared top percentile ratings in Values and Future & Family domains.",
+      confidence: "High",
+    },
+    relationalImpact: "Protects the relationship during major life pivots (moves, career shifts, financial decisions) by grounding choices in shared goals.",
+    actionablePrescription: `Draft a joint 3-year vision note highlighting how you'll nurture ${sharedVisions[0].label.toLowerCase()} together.`,
+  };
 }

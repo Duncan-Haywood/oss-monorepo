@@ -144,7 +144,8 @@ export async function GET(req: NextRequest) {
     } else if (what === "reports") {
       const reports = await prisma.userReport.findMany({ orderBy: { createdAt: "desc" }, take: 5000 });
       rows = reports.map((r) => ({
-        id: r.id, kind: r.kind, message: r.message, email: r.email,
+        id: r.id, reference: r.id.slice(-8).toUpperCase(), kind: r.kind, impact: r.impact,
+        perspective: r.perspective, message: r.message, email: r.email,
         path: r.path, resolved: r.resolved, createdAt: r.createdAt.toISOString(),
       }));
     } else {

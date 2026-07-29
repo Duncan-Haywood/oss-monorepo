@@ -9,6 +9,7 @@ export default defineConfig({
     // Postgres, and this suite's whole point is that it needs nothing. It runs
     // via `npm run test:integration` — see vitest.integration.config.ts.
     exclude: ["**/node_modules/**", "**/*.integration.test.ts"],
+    setupFiles: ["./src/test/setup.ts"],
     // The simulation suites drive thousands of real answering sessions to
     // produce the numbers docs/CONVERGENCE.md, docs/POOLING.md and the
     // decision records quote. The heaviest of them ran 5.1s against vitest's

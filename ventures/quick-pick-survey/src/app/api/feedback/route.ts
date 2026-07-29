@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { getClientIp, isWriteRateLimited, recordWrite } from "@/lib/rateLimit";
+import { parsePerspective } from "@/lib/perspective";
 
 /**
  * This route does not require an account, and should not: the feedback
@@ -19,6 +20,7 @@ import { getClientIp, isWriteRateLimited, recordWrite } from "@/lib/rateLimit";
  * working through a survey may do that many times in a sitting.
  */
 const MAX_FEEDBACK_PER_IP = 60;
+const REASONS = new Set(["too_obvious", "not_true", "too_vague", "not_actionable", "need_more_context"]);
 
 function clampRating(v: unknown): number | null {
   if (typeof v !== "number" || !Number.isFinite(v)) return null;
@@ -32,7 +34,13 @@ export async function POST(req: NextRequest) {
 
   const usefulness = clampRating(body?.usefulness);
   const enjoyment = clampRating(body?.enjoyment);
+  const reason = typeof body?.reason === "string" && REASONS.has(body.reason) ? body.reason : null;
   const note = typeof body?.note === "string" ? body.note.trim().slice(0, 1000) || null : null;
+  const answerCount = Number.isInteger(body?.answerCount) && body.answerCount >= 0 && body.answerCount <= 100_000
+    ? body.answerCount
+    : null;
+  const perspective = parsePerspective(body?.perspective);
+  const path = typeof body?.path === "string" && body.path.startsWith("/") ? body.path.slice(0, 300) : null;
   if (usefulness === null && enjoyment === null && !note) {
     return NextResponse.json({ error: "nothing to record" }, { status: 400 });
   }
@@ -51,7 +59,7 @@ export async function POST(req: NextRequest) {
     }
 
     await prisma.insightFeedback.create({
-      data: { userId: user?.id ?? null, subject, usefulness, enjoyment, note },
+      data: { userId: user?.id ?? null, subject, usefulness, enjoyment, reason, note, answerCount, perspective, path },
     });
     return NextResponse.json({ ok: true });
   } catch (err) {

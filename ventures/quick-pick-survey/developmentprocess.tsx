@@ -135,7 +135,7 @@ export function DevelopmentProcess() {
 
       <Section
         title="Gates"
-        lead="npm run verify runs the blocking ones — and is currently the only thing that does. Run it on the head you are handing over, not only on your own change: the tip of the consolidation was red for two sessions because a simulation overran its timeout by 2%. The two gates below need a database (scripts/test-db.sh start), and are required for any change touching a route, a query or the schema. The CI workflow exists but has never started a runner, so nothing is checked after a push."
+        lead="npm run verify runs the fast blocking gates. Run it on the head you are handing over, not only on your own change: the tip of the consolidation was red for two sessions because a simulation overran its timeout by 2%. The two database gates are required for changes touching a route, query or schema and now run in the repository-root Pairwise CI workflow. Repository runners are allocating again, but this workflow itself is not green until a pushed run completes."
       >
         {GATES.map((g) => (
           <Card key={g.id}>

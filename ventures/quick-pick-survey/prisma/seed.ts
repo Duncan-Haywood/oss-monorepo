@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { SEED_SURVEYS } from "../src/lib/surveyData";
+import { buildCardMetadata } from "../src/lib/cardMetadata";
 
 const prisma = new PrismaClient();
 
@@ -17,9 +18,10 @@ async function main() {
 
     for (let i = 0; i < survey.items.length; i++) {
       const item = survey.items[i];
+      const metadata = buildCardMetadata({ dimensions: item.dimensions ?? [], category: item.category ?? null });
       await prisma.item.upsert({
         where: { surveyId_slug: { surveyId: existing.id, slug: item.slug } },
-        update: { label: item.label, category: item.category, sortOrder: i, dimensions: item.dimensions ?? [] },
+        update: { label: item.label, category: item.category, sortOrder: i, dimensions: item.dimensions ?? [], metadata },
         create: {
           surveyId: existing.id,
           slug: item.slug,
@@ -27,6 +29,7 @@ async function main() {
           category: item.category,
           sortOrder: i,
           dimensions: item.dimensions ?? [],
+          metadata,
         },
       });
     }

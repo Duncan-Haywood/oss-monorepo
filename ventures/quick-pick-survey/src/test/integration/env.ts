@@ -19,4 +19,5 @@ export function applyTestEnv(): void {
   process.env.POSTGRES_URL_NON_POOLING ??= process.env.POSTGRES_PRISMA_URL;
   process.env.ADMIN_KEY ??= "integration-admin-key";
   process.env.ADMIN_SESSION_SECRET ??= "integration-session-secret";
+  process.env.RATE_LIMIT_SECRET ??= "integration-rate-limit-secret";
 }

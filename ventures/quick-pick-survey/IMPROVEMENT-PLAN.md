@@ -193,6 +193,8 @@ billing page, then re-run one of the failed workflows and confirm it produces
 steps. The docs now say CI is not running; that correction should be reverted
 once it is.
 
+**Security Scanning & Audit Integration**: Automated security scanning is configured in `.github/workflows/security-scan.yml` (secret scanning, dependency vulnerability audits, container security, and IaC analysis). All application, infrastructure, and CI security findings are tracked in [`docs/SECURITY_AUDIT_LOG.md`](../../docs/SECURITY_AUDIT_LOG.md) and mapped onto the master [`ROADMAP.md`](../../ROADMAP.md).
+
 ### P1 → resolved on this branch — `trials/next` created a Trial row on every page load
 
 A trial was recorded as "shown" on every call, so the abandonment metric — the

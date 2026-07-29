@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maris Stella Labs | Software Development & Venture Studio</title>
+  <meta name="description" content="Maris Stella Labs is a software development studio building autonomous AI systems, high-performance cloud infrastructure, and specialized digital ventures.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glow & Grid -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+  <div class="bg-grid"></div>
+
+  <!-- Header / Navigation -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="#" class="brand-logo">
+        <div class="logo-icon">★</div>
+        <span class="brand-name">MARIS STELLA <span class="brand-tag">LABS</span></span>
+      </a>
+      <nav class="nav-links">
+        <a href="#ventures">Ventures</a>
+        <a href="#architecture">Platform</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#about">About</a>
+      </nav>
+      <div class="header-actions">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">K3s Cluster Online</span>
+        </div>
+        <a href="https://pairwise.marisstella.dev" class="btn btn-sm btn-primary">Featured: Pairwise ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-container">
+      <div class="hero-badge">
+        <span class="sparkle">✨</span> Software Development &amp; Venture Engineering
+      </div>
+      <h1 class="hero-title">
+        Building Next-Generation <span class="text-gradient">Autonomous AI Systems</span> &amp; Digital Ventures.
+      </h1>
+      <p class="hero-subtitle">
+        Maris Stella Labs designs, architects, and operates specialized software products—from econometrically backed relationship engines to autonomous agent infrastructure.
+      </p>
+      <div class="hero-cta">
+        <a href="#ventures" class="btn btn-lg btn-primary">Explore Venture Portfolio ↓</a>
+        <a href="https://pairwise.marisstella.dev" target="_blank" class="btn btn-lg btn-secondary">Launch Pairwise App ↗</a>
+      </div>
+
+      <!-- Quick Metrics Bar -->
+      <div class="hero-metrics">
+        <div class="metric-card">
+          <div class="metric-value">99.9%</div>
+          <div class="metric-label">Cluster Uptime</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">7+</div>
+          <div class="metric-label">Active Ventures</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">Glicko-2 &amp; BT</div>
+          <div class="metric-label">Psychometric Engines</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">Zero-Trust</div>
+          <div class="metric-label">Infrastructure Security</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ventures Section -->
+  <section id="ventures" class="ventures-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">VENTURE PORTFOLIO</div>
+        <h2 class="section-title">Specialized Software &amp; Applications</h2>
+        <p class="section-desc">Our flagship products engineered for high performance, modern user experiences, and deep domain utility.</p>
+
+        <!-- Filter Tags -->
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">All Projects</button>
+          <button class="filter-btn" data-filter="ai">AI &amp; Algorithms</button>
+          <button class="filter-btn" data-filter="consumer">Consumer Apps</button>
+          <button class="filter-btn" data-filter="enterprise">Enterprise Tools</button>
+        </div>
+      </div>
+
+      <div class="ventures-grid">
+        <!-- Venture 1: Pairwise -->
+        <div class="venture-card featured" data-category="ai consumer">
+          <div class="venture-badge">FLAGSHIP VENTURE</div>
+          <div class="venture-header">
+            <div class="venture-icon icon-pairwise">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 28s-10-6.5-10-13a6.5 6.5 0 0111.7-3.9A6.5 6.5 0 0126 15c0 6.5-10 13-10 13z" fill="rgba(56,189,248,0.2)"/>
+                <circle cx="10" cy="12" r="2.5" fill="#38bdf8" />
+                <circle cx="22" cy="12" r="2.5" fill="#c084fc" />
+                <path d="M12.5 12h7" stroke="#38bdf8" stroke-width="2" stroke-dasharray="2 2"/>
+                <path d="M6 6l4 3M26 6l-4 3" stroke="#a78bfa"/>
+              </svg>
+            </div>
+            <div class="venture-status status-live">Live at pairwise.marisstella.dev</div>
+          </div>
+          <h3 class="venture-name">Pairwise Engine</h3>
+          <p class="venture-tagline">Psychometric Relationship Alignment &amp; Preference Engine</p>
+          <p class="venture-description">
+            A pairwise-comparison preference engine that maps true underlying preferences using Glicko-2 chess rating algorithms and Bradley-Terry logit models. Designed specifically for linked couples to reveal hidden blind spots and shared alignment.
+          </p>
+          <div class="venture-tech">
+            <span class="tech-tag">Next.js 16</span>
+            <span class="tech-tag">React 19</span>
+            <span class="tech-tag">Glicko-2</span>
+            <span class="tech-tag">Bradley-Terry</span>
+            <span class="tech-tag">Prisma PostgreSQL</span>
+          </div>
+          <div class="venture-footer">
+            <a href="https://pairwise.marisstella.dev" target="_blank" class="venture-link">Open Pairwise ↗</a>
+            <button class="btn-details" onclick="openModal('pairwise')">View Technical Specs</button>
+          </div>
+        </div>
+
+        <!-- Venture 2: AI Engineering Academy -->
+        <div class="venture-card" data-category="ai enterprise">
+          <div class="venture-header">
+            <div class="venture-icon icon-academy">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="16" cy="8" r="3.5" fill="rgba(192,132,252,0.3)" />
+                <circle cx="8" cy="22" r="3.5" fill="rgba(56,189,248,0.3)" />
+                <circle cx="24" cy="22" r="3.5" fill="rgba(52,211,153,0.3)" />
+                <path d="M14 10.5L9.5 19.5M18 10.5l4.5 9.5M11.5 22h9" stroke-width="2"/>
+                <path d="M16 4v2M7 7l2 1M25 7l-2 1" stroke="#c084fc" stroke-width="1.8"/>
+              </svg>
+            </div>
+            <div class="venture-status status-beta">Private Beta</div>
+          </div>
+          <h3 class="venture-name">AI Engineering Academy</h3>
+          <p class="venture-tagline">Autonomous Agent Architecture &amp; LLM Training Platform</p>
+          <p class="venture-description">
+            Interactive curriculum and sandbox environment for software engineers building production-ready multi-agent workflows, tool routing, and RAG pipelines.
+          </p>
+          <div class="venture-tech">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">FastAPI</span>
+            <span class="tech-tag">LangGraph</span>
+            <span class="tech-tag">TypeScript</span>
+          </div>
+          <div class="venture-footer">
+            <span class="venture-link disabled">In Development</span>
+            <button class="btn-details" onclick="openModal('academy')">View Specs</button>
+          </div>
+        </div>
+
+        <!-- Venture 3: Real Estate Agent Photo App -->
+        <div class="venture-card" data-category="consumer enterprise">
+          <div class="venture-header">
+            <div class="venture-icon icon-realestate">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="7" width="26" height="19" rx="3" fill="rgba(52,211,153,0.15)"/>
+                <circle cx="16" cy="16.5" r="5.5" stroke-width="2"/>
+                <circle cx="16" cy="16.5" r="2.5" fill="#34d399"/>
+                <path d="M10 7l2-3h8l2 3" stroke-width="2"/>
+                <path d="M5 11h3M24 11h3" opacity="0.5"/>
+              </svg>
+            </div>
+            <div class="venture-status status-active">Active Venture</div>
+          </div>
+          <h3 class="venture-name">Real Estate Photo Suite</h3>
+          <p class="venture-tagline">Computer Vision &amp; HDR Property Presentation</p>
+          <p class="venture-description">
+            Automated image enhancement and spatial composition pipeline designed for realtors to turn raw property photos into high-converting architectural assets.
+          </p>
+          <div class="venture-tech">
+            <span class="tech-tag">OpenCV</span>
+            <span class="tech-tag">PyTorch</span>
+            <span class="tech-tag">React Native</span>
+            <span class="tech-tag">Cloudflare R2</span>
+          </div>
+          <div class="venture-footer">
+            <span class="venture-link disabled">Staging</span>
+            <button class="btn-details" onclick="openModal('realestate')">View Specs</button>
+          </div>
+        </div>
+
+        <!-- Venture 4: Local Site Studio -->
+        <div class="venture-card" data-category="enterprise">
+          <div class="venture-header">
+            <div class="venture-icon icon-sitestudio">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="26" height="18" rx="2.5" fill="rgba(56,189,248,0.15)"/>
+                <path d="M3 10h26M9 7.5h.01M13 7.5h.01M17 7.5h.01"/>
+                <path d="M18 13l-4 6h5l-2 6" stroke="#fbbf24" stroke-width="2"/>
+                <path d="M7 15h5M7 18h3" opacity="0.6"/>
+              </svg>
+            </div>
+            <div class="venture-status status-active">Active Venture</div>
+          </div>
+          <h3 class="venture-name">Local Site Studio</h3>
+          <p class="venture-tagline">Automated Web Studio for Service Businesses</p>
+          <p class="venture-description">
+            Automated website generation and local SEO management engine helping local service providers maintain ultra-fast, high-converting digital storefronts.
+          </p>
+          <div class="venture-tech">
+            <span class="tech-tag">Next.js</span>
+            <span class="tech-tag">TailwindCSS</span>
+            <span class="tech-tag">Vercel API</span>
+          </div>
+          <div class="venture-footer">
+            <span class="venture-link disabled">Internal Tool</span>
+            <button class="btn-details" onclick="openModal('sitestudio')">View Specs</button>
+          </div>
+        </div>
+
+        <!-- Venture 5: Retail Pilot Intel -->
+        <div class="venture-card" data-category="ai enterprise">
+          <div class="venture-header">
+            <div class="venture-icon icon-retail">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 27h24" stroke-width="2"/>
+                <rect x="6" y="16" width="4" height="11" rx="1" fill="rgba(251,191,36,0.3)"/>
+                <rect x="14" y="10" width="4" height="17" rx="1" fill="rgba(56,189,248,0.4)"/>
+                <rect x="22" y="5" width="4" height="22" rx="1" fill="rgba(52,211,153,0.5)"/>
+                <path d="M6 14l7-6 5 3 8-7" stroke="#38bdf8" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="venture-status status-beta">Pilot Testing</div>
+          </div>
+          <h3 class="venture-name">Retail Pilot Intel</h3>
+          <p class="venture-tagline">Real-Time Inventory &amp; Foot-Traffic Intelligence</p>
+          <p class="venture-description">
+            Predictive store analytics dashboard utilizing real-time sensor streams and sales data to optimize inventory turnover and staff deployment.
+          </p>
+          <div class="venture-tech">
+            <span class="tech-tag">Go</span>
+            <span class="tech-tag">TimescaleDB</span>
+            <span class="tech-tag">Apache Kafka</span>
+          </div>
+          <div class="venture-footer">
+            <span class="venture-link disabled">Pilot Stage</span>
+            <button class="btn-details" onclick="openModal('retail')">View Specs</button>
+          </div>
+        </div>
+
+        <!-- Venture 6: Print Atelier -->
+        <div class="venture-card" data-category="consumer">
+          <div class="venture-header">
+            <div class="venture-icon icon-print">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4a12 12 0 100 24c2 0 3-1.5 3-3s-1.5-2.5-1.5-4 1.5-2 3.5-2H24a4 4 0 004-4c0-6.6-5.4-11-12-11z" fill="rgba(244,63,94,0.15)"/>
+                <circle cx="10" cy="13" r="2" fill="#f43f5e" />
+                <circle cx="16" cy="9" r="2" fill="#38bdf8" />
+                <circle cx="22" cy="13" r="2" fill="#fbbf24" />
+              </svg>
+            </div>
+            <div class="venture-status status-active">Active Venture</div>
+          </div>
+          <h3 class="venture-name">Print Atelier</h3>
+          <p class="venture-tagline">Fine Art Digital Processing &amp; Print Studio</p>
+          <p class="venture-description">
+            High-resolution color management and print workflow system tailored for digital artists, photographers, and print production workflows.
+          </p>
+          <div class="venture-tech">
+            <span class="tech-tag">ICC Profiles</span>
+            <span class="tech-tag">WebAssembly</span>
+            <span class="tech-tag">Canvas API</span>
+          </div>
+          <div class="venture-footer">
+            <span class="venture-link disabled">Active</span>
+            <button class="btn-details" onclick="openModal('print')">View Specs</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platform Architecture Section -->
+  <section id="architecture" class="arch-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">PLATFORM INFRASTRUCTURE</div>
+        <h2 class="section-title">Cloud Native Architecture</h2>
+        <p class="section-desc">Every Maris Stella venture runs on our battle-tested, high-availability container platform.</p>
+      </div>
+
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="arch-icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="16" cy="16" r="10" stroke-width="2"/>
+              <circle cx="16" cy="16" r="3.5" fill="#38bdf8"/>
+              <path d="M16 3v3M16 23v3M3 16h3M23 16h3M6.8 6.8l2.1 2.1M20.9 20.9l2.1 2.1M25.2 6.8l-2.1 2.1M11.1 20.9l-2.1 2.1"/>
+            </svg>
+          </div>
+          <h3>K3s Kubernetes Cluster</h3>
+          <p>Lightweight, high-performance orchestration running on dedicated cloud bare-metal with automated failover and zero downtime.</p>
+        </div>
+        <div class="arch-card">
+          <div class="arch-icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 3l12 5v8c0 7-5 12.5-12 14C9 28.5 4 23 4 16V8l12-5z" fill="rgba(52,211,153,0.15)"/>
+              <rect x="11" y="14" width="10" height="8" rx="1.5" stroke-width="2"/>
+              <path d="M13 14v-3a3 3 0 016 0v3" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>Traefik &amp; Zero-Trust</h3>
+          <p>Automated ingress routing with Let's Encrypt TLS certificates, Tailscale network overlay, and Traefik middleware protection.</p>
+        </div>
+        <div class="arch-card">
+          <div class="arch-icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="9" r="3" fill="#c084fc"/>
+              <circle cx="9" cy="23" r="3" fill="#38bdf8"/>
+              <circle cx="23" cy="16" r="3" fill="#34d399"/>
+              <path d="M9 12v8M11.5 10.5L20.5 14.5M11.5 21.5L20.5 17.5" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>GitOps &amp; ArgoCD</h3>
+          <p>Declarative infrastructure as code managed via Terraform and synchronized continuously through ArgoCD GitOps pipelines.</p>
+        </div>
+        <div class="arch-card">
+          <div class="arch-icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 3a7 7 0 017 7c0 6-7 12-7 18 0-6-7-12-7-18a7 7 0 017-7z" fill="rgba(251,191,36,0.25)"/>
+              <path d="M16 11a3 3 0 013 3c0 3-3 6-3 9 0-3-3-6-3-9a3 3 0 013-3z" fill="#f59e0b"/>
+            </svg>
+          </div>
+          <h3>Prometheus &amp; Loki</h3>
+          <p>Real-time metrics monitoring, distributed tracing, and centralized log aggregation across all active microservices.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-brand">
+        <div class="logo-icon">★</div>
+        <div class="footer-title">MARIS STELLA LABS</div>
+        <p class="footer-copy">© 2026 Maris Stella Labs. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Ventures</h4>
+          <a href="https://pairwise.marisstella.dev" target="_blank">Pairwise Engine</a>
+          <a href="#ventures">AI Engineering Academy</a>
+          <a href="#ventures">Real Estate Photo Suite</a>
+        </div>
+        <div class="footer-col">
+          <h4>Infrastructure</h4>
+          <a href="https://marisstella.dev">Cluster Gateway</a>
+          <a href="#architecture">Traefik Ingress</a>
+          <a href="#architecture">GitOps Pipeline</a>
+        </div>
+        <div class="footer-col">
+          <h4>Domain</h4>
+          <a href="https://marisstella.dev">marisstella.dev</a>
+          <a href="https://duncanhaywood.dev">duncanhaywood.dev</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Detail Modal -->
+  <div id="techModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <h3 id="modalTitle">Venture Details</h3>
+      <p id="modalDescription"></p>
+      <div id="modalDetails"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

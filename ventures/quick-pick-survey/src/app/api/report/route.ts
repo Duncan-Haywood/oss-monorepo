@@ -1,9 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isValidEmail } from "@/lib/auth";
 import { getClientIp, isWriteRateLimited, recordWrite } from "@/lib/rateLimit";
+import { createGiteaIssue } from "@/lib/gitea";
+import { parsePerspective } from "@/lib/perspective";
 
-const VALID_KINDS = new Set(["bug", "idea", "other"]);
+const VALID_KINDS = new Set(["bug", "confusing", "question", "idea", "other"]);
+const VALID_IMPACTS = new Set(["blocked", "hard", "minor"]);
 
 /**
  * Like `/api/feedback`, this route takes an anonymous POST on purpose —
@@ -32,7 +35,12 @@ export async function POST(req: NextRequest) {
   }
 
   const email = typeof body?.email === "string" ? body.email.trim().slice(0, 200) || null : null;
-  const path = typeof body?.path === "string" ? body.path.slice(0, 300) : null;
+  if (email && !isValidEmail(email)) {
+    return NextResponse.json({ error: "That email address doesn't look right." }, { status: 400 });
+  }
+  const path = typeof body?.path === "string" && body.path.startsWith("/") ? body.path.slice(0, 300) : null;
+  const impact = typeof body?.impact === "string" && VALID_IMPACTS.has(body.impact) ? body.impact : null;
+  const perspective = parsePerspective(body?.perspective);
   const userAgent = req.headers.get("user-agent")?.slice(0, 300) ?? null;
 
   try {
@@ -45,10 +53,23 @@ export async function POST(req: NextRequest) {
       }
       await recordWrite(ip, "report");
     }
-    await prisma.userReport.create({
-      data: { userId: user?.id ?? null, kind, message, email: email ?? user?.email ?? null, path, userAgent },
+    const report = await prisma.userReport.create({
+      data: { userId: user?.id ?? null, kind, impact, perspective, message, email: email ?? user?.email ?? null, path, userAgent },
     });
-    return NextResponse.json({ ok: true });
+    const reference = report.id.slice(-8).toUpperCase();
+    if (process.env.GITEA_URL && process.env.GITEA_TOKEN) {
+      after(() => createGiteaIssue({
+        kind: kind as "bug" | "confusing" | "question" | "idea" | "other",
+        message,
+        email: email ?? user?.email,
+        path,
+        impact,
+        perspective,
+        reference,
+      }));
+    }
+
+    return NextResponse.json({ ok: true, reference });
   } catch (err) {
     console.error("report failed", err);
     return NextResponse.json({ error: "Could not send that." }, { status: 500 });

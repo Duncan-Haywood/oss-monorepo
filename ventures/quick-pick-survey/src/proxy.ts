@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { checkOrigin } from "@/lib/originCheck";
+import { requestBodyTooLarge } from "@/lib/http";
 
 /**
  * Runs before every `/api` request.
@@ -15,6 +16,10 @@ import { checkOrigin } from "@/lib/originCheck";
  * `node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md`.
  */
 export function proxy(req: NextRequest) {
+  if (requestBodyTooLarge(req.headers)) {
+    return NextResponse.json({ error: "Request body is too large." }, { status: 413 });
+  }
+
   const verdict = checkOrigin(req.method, req.headers);
   if (!verdict.allowed) {
     console.warn("blocked cross-origin request", {
@@ -24,7 +29,9 @@ export function proxy(req: NextRequest) {
     });
     return NextResponse.json({ error: "Request blocked." }, { status: 403 });
   }
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("Cache-Control", "private, no-store, max-age=0");
+  return response;
 }
 
 export const config = {

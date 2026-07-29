@@ -46,15 +46,7 @@ const DARK_SURFACE: Rgb = { r: 10, g: 10, b: 10 };
  * not a rendered tree, so text on a container's colour would otherwise be
  * measured against the page surface and get the wrong answer.
  */
-const EXEMPT: { match: string; because: string }[] = [
-  {
-    match: "text-amber-500/85 dark:text-amber-400/75",
-    because:
-      "CategoryIcon: aria-hidden decorative art, always rendered beside the item's own " +
-      "text label. WCAG 1.4.11 exempts a graphic that carries no information the text " +
-      "does not. Darkening it would repaint every card to fix nothing.",
-  },
-];
+const EXEMPT: { match: string; because: string }[] = [];
 
 function sourceFiles(dir: string): string[] {
   const out: string[] = [];

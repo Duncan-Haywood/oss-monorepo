@@ -1,0 +1,17 @@
+# Repository Ownership & Security Review Boundaries
+
+# Gitea Actions workflows and security policies
+/.github/workflows/         @infrastructure-team @security-team
+/scripts/security/          @security-team
+/SECURITY.md                @security-team
+/SECURITY-ROADMAP.md        @security-team
+/security_best_practices_report.md @security-team
+
+# Cloud Infrastructure & Kubernetes Configurations
+/platform/terraform/        @infrastructure-team
+/platform/k8s/              @infrastructure-team
+/platform/infrastructure/   @infrastructure-team
+
+# Global Governance & Scripts
+/scripts/smoke-test.sh      @infrastructure-team @qa-team
+/scripts/dev-verify.sh      @infrastructure-team

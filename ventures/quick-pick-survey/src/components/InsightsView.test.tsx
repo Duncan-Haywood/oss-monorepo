@@ -102,4 +102,24 @@ describe("InsightsView when the request fails", () => {
     expect(await screen.findByText(/Nothing here yet/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: /try again/i })).toBeNull();
   });
+
+  it("filters insights by category tabs", async () => {
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify(BUNDLE));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, status: 200, json: async () => READY }) as Response)
+    );
+
+    render(<InsightsView />);
+
+    await waitFor(() => expect(screen.getByText(`All (${INSIGHTS.length})`)).toBeTruthy());
+
+    // Switch to Categories tab
+    const categoriesTab = screen.getByRole("button", { name: "Categories" });
+    fireEvent.click(categoriesTab);
+
+    expect(screen.getByText("The kind of person you lean toward")).toBeTruthy();
+    expect(screen.queryByText("The price of time")).toBeNull();
+  });
 });
+

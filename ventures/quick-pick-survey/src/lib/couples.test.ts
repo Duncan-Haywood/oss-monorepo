@@ -4,6 +4,7 @@ import {
   actionableCount,
   actionableTop,
   asymmetries,
+  categoryCompass,
   compareRankings,
   generateInviteCode,
   reliabilityOf,
@@ -11,9 +12,15 @@ import {
   coupleReadiness,
   sharedValues,
   strengthScores,
+  dateNightIdeas,
+  conversationStarters,
+  expressionProfiles,
+  microCommitments,
+  coupleThemeInsights,
   type Ranking,
 } from "@/lib/couples";
 import { SEED_SURVEYS } from "@/lib/surveyData";
+import { metadataForCard } from "@/lib/cardMetadata";
 
 /**
  * Builds a ranking from `[label, rating]` pairs. Everything is confidently
@@ -65,6 +72,37 @@ describe("strengthScores", () => {
   it("does not divide by zero on an empty or single-item ranking", () => {
     expect(strengthScores(ranking([])).size).toBe(0);
     expect(strengthScores(ranking([["only", 1500]])).get("only")).toBe(50);
+  });
+});
+
+describe("coupleThemeInsights", () => {
+  function themed(rows: [string, number, string][]): Ranking {
+    return new Map(rows.map(([label, rating, category]) => [label, {
+      label,
+      rating,
+      rd: 60,
+      category,
+      dimensions: ["warmth"],
+      metadata: metadataForCard({ category, dimensions: ["warmth"] }),
+    }]));
+  }
+
+  it("turns several cards into a traceable shared pattern", () => {
+    const rows: [string, number, string][] = [
+      ["Listens fully before responding", 1900, "Communication"],
+      ["Asks what would help when overwhelmed", 1850, "Stress and support"],
+      ["Offers comfort without immediately fixing", 1800, "Stress and support"],
+      ["Repairs after a difficult conversation", 1750, "Relationship"],
+      ["Plans every detail", 1500, "Lifestyle"],
+      ["Values prestige", 1300, "Character"],
+      ["Works constantly", 1200, "Character"],
+      ["Keeps feelings private", 1100, "Character"],
+    ];
+    const insights = coupleThemeInsights(themed(rows), themed(rows));
+    const safety = insights.find((i) => i.key === "emotional-safety");
+    expect(safety).toMatchObject({ pattern: "shared-strength" });
+    expect(safety?.evidence.mine.length).toBeGreaterThanOrEqual(2);
+    expect(safety?.provenance.calculation).toContain("semantic theme");
   });
 });
 
@@ -465,5 +503,79 @@ describe("ACTIONABLE_CATEGORIES", () => {
     for (const category of ACTIONABLE_CATEGORIES) {
       expect(real, `no survey item has category "${category}"`).toContain(category);
     }
+  });
+});
+
+describe("categoryCompass", () => {
+  it("surfaces shared relationship themes and category-level differences", () => {
+    const make = (communication: number[], intimacy: number[], lifestyle: number[]): Ranking => {
+      const out: Ranking = new Map();
+      const add = (category: string, dimensions: string[], ratings: number[]) => {
+        ratings.forEach((ratingValue, index) => {
+          const label = `${category.toLowerCase()}-${index}`;
+          out.set(label, { label, rating: ratingValue, rd: 40, category, dimensions });
+        });
+      };
+      add("Communication", ["warmth"], communication);
+      add("Intimacy", ["physicality"], intimacy);
+      add("Lifestyle", ["stability"], lifestyle);
+      return out;
+    };
+
+    const compass = categoryCompass(
+      make([1900, 1850], [1100, 1150], [1500, 1500]),
+      make([1900, 1850], [1600, 1650], [1100, 1150])
+    );
+    expect(compass.shared.map((row) => row.category)).toContain("Communication");
+    expect(compass.differences.map((row) => row.category)).toContain("Intimacy");
+  });
+});
+
+describe("dateNightIdeas", () => {
+  it("creates date night micro-adventures from shared high items", () => {
+    const mine = padded([["Cooking together", 1900], ["Hiking", 1850]]);
+    const theirs = padded([["Cooking together", 1900], ["Hiking", 1800]]);
+
+    const ideas = dateNightIdeas(mine, theirs);
+    expect(ideas.length).toBeGreaterThan(0);
+    expect(ideas[0].sharedItem).toBe("Cooking together");
+  });
+});
+
+describe("conversationStarters", () => {
+  it("generates curiosity prompts for blind spots and asymmetries", () => {
+    const blindSpots = {
+      overlap: 8,
+      agreement: 0.5,
+      reliability: 0.8,
+      aligned: [],
+      diverged: [{ label: "Weekend getaway", a: 1, b: 8, gap: 7 }],
+    };
+    const asymmetriesList = [{ label: "Deep talks", theirStrength: 90, myStrength: 30, gap: 60 }];
+
+    const starters = conversationStarters(blindSpots, asymmetriesList);
+    expect(starters.length).toBe(2);
+    expect(starters[0].type).toBe("BLIND_SPOT");
+    expect(starters[1].type).toBe("ASYMMETRY");
+  });
+});
+
+describe("expressionProfiles", () => {
+  it("computes relationship dimension alignments", () => {
+    const mine = padded([["Cooking together", 1900]]);
+    const theirs = padded([["Cooking together", 1850]]);
+
+    const dims = expressionProfiles(mine, theirs);
+    expect(dims.length).toBe(4);
+    expect(dims[0].alignmentPct).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("microCommitments", () => {
+  it("turns top actionable items for partner into weekly commitments", () => {
+    const actionItems = [{ label: "Bring morning coffee", rating: 1800, rd: 40, category: "Affection" }];
+    const commitments = microCommitments(actionItems);
+    expect(commitments.length).toBe(1);
+    expect(commitments[0].itemLabel).toBe("Bring morning coffee");
   });
 });

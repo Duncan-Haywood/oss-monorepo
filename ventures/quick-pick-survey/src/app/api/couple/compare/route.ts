@@ -3,9 +3,21 @@ import { getSessionUser } from "@/lib/auth";
 import {
   actionableTop,
   asymmetries,
+  categoryCompass,
   compareRankings,
+  conversationStarters,
   coupleFor,
   coupleReadiness,
+  coupleThemeInsights,
+  dateNightIdeas,
+  expressionProfiles,
+  emotionalHarmonyIndex,
+  stressCoRegulationProfile,
+  energyPaceCompatibility,
+  vulnerabilityBridge,
+  growthAmbitionMatrix,
+  type ExplainableInsight,
+  microCommitments,
   rankingFor,
   sharedValues,
 } from "@/lib/couples";
@@ -45,18 +57,36 @@ export async function GET() {
       rankingFor(partnerId, "SELF"),
     ]);
 
+    const blindSpots = compareRankings(myGuess, theirPartnerWant);
+    const mThemHappy = actionableTop(theirPartnerWant);
+    const mMoreToThem = asymmetries(myPartnerWant, theirPartnerWant);
+    const explainableInsights = [
+      emotionalHarmonyIndex(myPartnerWant, theirPartnerWant),
+      stressCoRegulationProfile(myPartnerWant, theirPartnerWant),
+      energyPaceCompatibility(myPartnerWant, theirPartnerWant),
+      vulnerabilityBridge(myPartnerWant, theirPartnerWant),
+      growthAmbitionMatrix(myPartnerWant, theirPartnerWant),
+    ].filter((insight): insight is ExplainableInsight => insight !== null);
+
     return NextResponse.json({
       couple: { inviteCode: link.couple.inviteCode, partner: link.partner },
       fit: compareRankings(theirPartnerWant, mySelf),
       theirFit: compareRankings(myPartnerWant, theirSelf),
       mirror: compareRankings(myPartnerWant, theirPartnerWant),
-      blindSpots: compareRankings(myGuess, theirPartnerWant),
+      blindSpots,
       // The actually-usable outputs: what to do, what you share, and where
       // something matters far more to them than to you.
-      makeThemHappy: actionableTop(theirPartnerWant),
+      makeThemHappy: mThemHappy,
       makeYouHappy: actionableTop(myPartnerWant),
       shared: sharedValues(myPartnerWant, theirPartnerWant),
-      mattersMoreToThem: asymmetries(myPartnerWant, theirPartnerWant),
+      mattersMoreToThem: mMoreToThem,
+      categoryCompass: categoryCompass(myPartnerWant, theirPartnerWant),
+      dateNightIdeas: dateNightIdeas(myPartnerWant, theirPartnerWant),
+      conversationStarters: conversationStarters(blindSpots, mMoreToThem),
+      expressionProfiles: expressionProfiles(myPartnerWant, theirPartnerWant),
+      microCommitments: microCommitments(mThemHappy),
+      semanticInsights: coupleThemeInsights(myPartnerWant, theirPartnerWant),
+      explainableInsights,
       // Why any of the four above are empty, so the screen can say what it is
       // waiting for instead of silently dropping the sections.
       readiness: coupleReadiness(myPartnerWant, theirPartnerWant),

@@ -17,6 +17,8 @@ export type PairItem = {
   category?: string | null;
   /** Dimensions this item signals; first is primary. */
   dimensions?: string[];
+  /** Curated seed order. Lower values are admitted earlier. */
+  sortOrder?: number;
 };
 
 /** One item's estimate under some other perspective of the same person. */
@@ -174,6 +176,19 @@ export function activeSetSize(answeredCount: number, totalItems: number): number
  * one corner of it.
  */
 export function admissionOrder(items: PairItem[]): PairItem[] {
+  const categoryPriority = new Map(
+    [
+      "Values",
+      "Character",
+      "Communication",
+      "Relationship",
+      "Lifestyle",
+      "Future and family",
+      "Intimacy",
+      "Behaviour",
+      "Affection",
+    ].map((category, index) => [category, index])
+  );
   const byCategory = new Map<string, PairItem[]>();
   for (const item of items) {
     const key = item.category ?? "";
@@ -183,8 +198,14 @@ export function admissionOrder(items: PairItem[]): PairItem[] {
   }
 
   const groups = [...byCategory.entries()]
-    .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
-    .map(([, group]) => group.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)));
+    .sort((a, b) => {
+      const pa = categoryPriority.get(a[0]) ?? 100;
+      const pb = categoryPriority.get(b[0]) ?? 100;
+      return pa - pb || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
+    })
+    .map(([, group]) =>
+      group.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    );
 
   const ordered: PairItem[] = [];
   for (let round = 0; ordered.length < items.length; round++) {

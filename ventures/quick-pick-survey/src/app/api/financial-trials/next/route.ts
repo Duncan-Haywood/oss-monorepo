@@ -5,6 +5,7 @@ import { selectFinancialPair } from "@/lib/financialProfiles";
 import { financialFeatureCoverage, paramNames } from "@/lib/financialFit";
 import { describeProfiles } from "@/lib/financialProfiles";
 import { loadRatedItems } from "@/lib/participantRatings";
+import { mayAccessOwnedParticipant } from "@/lib/participantAccess";
 
 /**
  * How long a shown-but-unanswered trade-off stays the *same* trade-off.
@@ -38,6 +39,9 @@ export async function POST(req: NextRequest) {
     if (!participant) {
       return NextResponse.json({ error: "Participant not found" }, { status: 404 });
     }
+    if (!(await mayAccessOwnedParticipant(participant.userId))) {
+      return NextResponse.json({ error: "Participant not found" }, { status: 404 });
+    }
     const survey = participant.survey;
     if (survey.kind === "ITEMS") {
       return NextResponse.json({ error: "This survey uses /api/trials/next instead" }, { status: 400 });
@@ -53,6 +57,7 @@ export async function POST(req: NextRequest) {
       where: {
         participantId,
         result: null,
+        interactionMethod: null,
         shownAt: { gte: new Date(Date.now() - PENDING_REUSE_MS) },
       },
       orderBy: { shownAt: "desc" },

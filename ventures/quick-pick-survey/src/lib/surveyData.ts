@@ -35,12 +35,66 @@ export const DIMENSION_LABELS: Record<Dimension, string> = {
   independence: "Independence & self-direction",
 };
 
+export type AttachmentSignal =
+  | "secure-building"
+  | "anxious-soothing"
+  | "avoidant-triggering"
+  | "autonomy-preserving"
+  | "merger-oriented";
+
+export type ConflictStyle =
+  | "de-escalating"
+  | "direct-repair"
+  | "reflective-pause"
+  | "expressive-venting"
+  | "problem-solving";
+
+export type LoveLanguage =
+  | "acts_of_service"
+  | "words_of_affirmation"
+  | "quality_time"
+  | "physical_touch"
+  | "emotional_attunement"
+  | "shared_meaning";
+
+export type GottmanTier =
+  | "bids_for_connection"
+  | "admiration_appreciation"
+  | "turning_towards"
+  | "shared_meaning"
+  | "de_escalation";
+
+export type LifestylePace =
+  | "fast_active"
+  | "steady_routine"
+  | "contemplative_slow"
+  | "flexible_spontaneous";
+
+export type StressResponse =
+  | "co_regulation"
+  | "solitary_space"
+  | "practical_action"
+  | "verbal_processing";
+
+export type CardMetadata = {
+  attachmentSignal: AttachmentSignal;
+  conflictStyle: ConflictStyle;
+  loveLanguage: LoveLanguage;
+  gottmanTier: GottmanTier;
+  lifestylePace: LifestylePace;
+  stressResponse: StressResponse;
+  vulnerabilityScore: number; // 1-5
+  relationalImportance: number; // 1-5
+  explainableRationale: string;
+};
+
 export type SeedItem = {
   slug: string;
   label: string;
   category?: string;
   /** Dimensions this item signals, strongest first. */
   dimensions?: Dimension[];
+  metadata?: Partial<CardMetadata>;
 };
 
 export type SeedSurvey = {
@@ -49,6 +103,113 @@ export type SeedSurvey = {
   description?: string;
   items: SeedItem[];
 };
+
+/**
+ * Intelligent rule-augmented psychometric tagger that bulk tags heavy metadata
+ * onto cards based on label, category, and signal dimensions.
+ */
+export function deriveCardMetadata(item: { label: string; category?: string | null; dimensions?: string[] }): CardMetadata {
+  const l = item.label.toLowerCase();
+  const c = (item.category ?? "").toLowerCase();
+  const dims = item.dimensions ?? [];
+
+  // Attachment Signal
+  let attachmentSignal: AttachmentSignal = "secure-building";
+  if (l.includes("space") || l.includes("alone") || l.includes("private") || dims.includes("independence")) {
+    attachmentSignal = "autonomy-preserving";
+  } else if (l.includes("check in") || l.includes("texts") || l.includes("reconnects") || l.includes("reassure")) {
+    attachmentSignal = "anxious-soothing";
+  } else if (l.includes("contempt") || l.includes("cold") || l.includes("withdrawal")) {
+    attachmentSignal = "avoidant-triggering";
+  } else if (l.includes("hug") || l.includes("sit close") || l.includes("phone down") || l.includes("listens")) {
+    attachmentSignal = "secure-building";
+  } else if (c.includes("intimacy") || l.includes("family comes before")) {
+    attachmentSignal = "merger-oriented";
+  }
+
+  // Conflict Style
+  let conflictStyle: ConflictStyle = "problem-solving";
+  if (l.includes("repair") || l.includes("apologis") || l.includes("de-escalat") || l.includes("gently")) {
+    conflictStyle = "de-escalating";
+  } else if (l.includes("direct") || l.includes("names what") || l.includes("room during hard")) {
+    conflictStyle = "direct-repair";
+  } else if (l.includes("pause") || l.includes("timeout") || l.includes("reflect")) {
+    conflictStyle = "reflective-pause";
+  } else if (l.includes("vent") || l.includes("express") || l.includes("laugh")) {
+    conflictStyle = "expressive-venting";
+  }
+
+  // Love Language
+  let loveLanguage: LoveLanguage = "quality_time";
+  if (c.includes("affection") || l.includes("hug") || l.includes("touch") || l.includes("hand") || l.includes("physical")) {
+    loveLanguage = "physical_touch";
+  } else if (l.includes("cook") || l.includes("task") || l.includes("logistics") || l.includes("fixes") || c.includes("behaviour")) {
+    loveLanguage = "acts_of_service";
+  } else if (l.includes("compliment") || l.includes("says") || l.includes("note") || l.includes("proud")) {
+    loveLanguage = "words_of_affirmation";
+  } else if (l.includes("listens") || l.includes("inner world") || l.includes("understands") || l.includes("bids")) {
+    loveLanguage = "emotional_attunement";
+  } else if (dims.includes("spirituality") || dims.includes("family") || c.includes("values")) {
+    loveLanguage = "shared_meaning";
+  }
+
+  // Gottman Tier
+  let gottmanTier: GottmanTier = "bids_for_connection";
+  if (l.includes("proud") || l.includes("admire") || l.includes("celebrates") || l.includes("compliment")) {
+    gottmanTier = "admiration_appreciation";
+  } else if (l.includes("listens") || l.includes("notices") || l.includes("responds") || l.includes("coffee")) {
+    gottmanTier = "turning_towards";
+  } else if (l.includes("repair") || l.includes("apolog") || l.includes("calm") || l.includes("pause")) {
+    gottmanTier = "de_escalation";
+  } else if (dims.includes("spirituality") || dims.includes("family") || l.includes("vision")) {
+    gottmanTier = "shared_meaning";
+  }
+
+  // Lifestyle Pace
+  let lifestylePace: LifestylePace = "steady_routine";
+  if (dims.includes("adventure") || l.includes("pilot") || l.includes("travel") || l.includes("expedition") || l.includes("spontaneous")) {
+    lifestylePace = "fast_active";
+  } else if (l.includes("quiet") || l.includes("silence") || l.includes("reading") || dims.includes("intellect")) {
+    lifestylePace = "contemplative_slow";
+  } else if (l.includes("spontaneous") || l.includes("change the plan")) {
+    lifestylePace = "flexible_spontaneous";
+  }
+
+  // Stress Response
+  let stressResponse: StressResponse = "practical_action";
+  if (l.includes("calmer when you are stressed") || l.includes("hug") || l.includes("co-regulate") || l.includes("steady")) {
+    stressResponse = "co_regulation";
+  } else if (l.includes("alone") || l.includes("space") || l.includes("private")) {
+    stressResponse = "solitary_space";
+  } else if (l.includes("talks") || l.includes("shares inner world") || l.includes("asks whether")) {
+    stressResponse = "verbal_processing";
+  }
+
+  // Scores
+  let vulnerabilityScore = 3;
+  if (c.includes("intimacy") || l.includes("inner world") || l.includes("apologis") || l.includes("desire")) vulnerabilityScore = 5;
+  else if (c.includes("affection") || c.includes("communication")) vulnerabilityScore = 4;
+  else if (c.includes("fitness") || c.includes("aviation")) vulnerabilityScore = 2;
+
+  let relationalImportance = 3;
+  if (c.includes("relationship") || c.includes("communication") || c.includes("intimacy") || l.includes("money") || l.includes("family")) relationalImportance = 5;
+  else if (c.includes("behaviour") || c.includes("values")) relationalImportance = 4;
+
+  const explainableRationale = `Selecting "${item.label}" signals a high preference for ${loveLanguage.replace("_", " ")} and ${attachmentSignal} relational dynamics.`;
+
+  return {
+    attachmentSignal,
+    conflictStyle,
+    loveLanguage,
+    gottmanTier,
+    lifestylePace,
+    stressResponse,
+    vulnerabilityScore,
+    relationalImportance,
+    explainableRationale,
+  };
+}
+
 
 const ACTIVITIES: SeedItem[] = [
   { slug: "helicopter-pilot", label: "Private helicopter pilot", category: "Aviation and travel", dimensions: ["adventure", "status"] },
@@ -232,6 +393,22 @@ const TRAITS: SeedItem[] = [
   { slug: "hardworking", label: "Relentlessly hardworking", category: "Character", dimensions: ["ambition"] },
   { slug: "forgiving", label: "Quick to forgive", category: "Character", dimensions: ["warmth", "spirituality"] },
   { slug: "attentive", label: "Notices the small things", category: "Character", dimensions: ["warmth"] },
+  { slug: "emotionally-regulated", label: "Can feel deeply without losing control", category: "Character", dimensions: ["stability", "warmth"] },
+  { slug: "direct-communicator", label: "Says what they mean without playing games", category: "Character", dimensions: ["stability", "independence"] },
+  { slug: "playful", label: "Playful and a little mischievous", category: "Character", dimensions: ["creativity", "warmth"] },
+  { slug: "intellectually-humble", label: "Can change their mind when the evidence changes", category: "Character", dimensions: ["intellect", "stability"] },
+  { slug: "resourceful", label: "Figures things out when plans fall apart", category: "Character", dimensions: ["independence", "intellect"] },
+  { slug: "courageous", label: "Does the difficult thing when it matters", category: "Character", dimensions: ["ambition", "service"] },
+  { slug: "romantic", label: "Naturally romantic", category: "Character", dimensions: ["warmth", "creativity"] },
+  { slug: "grounded", label: "Grounded and hard to rattle", category: "Character", dimensions: ["stability"] },
+  { slug: "charismatic", label: "Magnetic in a room", category: "Character", dimensions: ["status", "warmth"] },
+  { slug: "private", label: "Private and selective about who gets close", category: "Character", dimensions: ["independence"] },
+  { slug: "competitive", label: "Thrives on competition", category: "Character", dimensions: ["ambition", "status"] },
+  { slug: "spontaneous", label: "Happy to change the plan on a whim", category: "Character", dimensions: ["adventure", "independence"] },
+  { slug: "nurturing", label: "Naturally nurturing", category: "Character", dimensions: ["warmth", "family"] },
+  { slug: "worldly", label: "Worldly and culturally fluent", category: "Character", dimensions: ["adventure", "intellect"] },
+  { slug: "sensual", label: "Comfortable with sensuality and desire", category: "Character", dimensions: ["physicality", "warmth"] },
+  { slug: "self-respecting", label: "Has strong boundaries and self-respect", category: "Character", dimensions: ["independence", "stability"] },
 ];
 
 /** What a person orients their life around. */
@@ -272,6 +449,12 @@ const BEHAVIORS: SeedItem[] = [
   { slug: "includes-your-family", label: "Makes an effort with your family", category: "Behaviour", dimensions: ["family"] },
   { slug: "shares-plans", label: "Includes you in big decisions", category: "Behaviour", dimensions: ["stability", "family"] },
   { slug: "fixes-things", label: "Fixes things around the house", category: "Behaviour", dimensions: ["service", "stability"] },
+  { slug: "notices-bids", label: "Notices small bids for attention and responds", category: "Behaviour", dimensions: ["warmth"] },
+  { slug: "mental-load", label: "Notices and carries the invisible mental load", category: "Behaviour", dimensions: ["service", "stability"] },
+  { slug: "supports-friendships", label: "Supports your friendships instead of competing with them", category: "Behaviour", dimensions: ["warmth", "independence"] },
+  { slug: "co-regulates-stress", label: "Helps the room feel calmer when you are stressed", category: "Behaviour", dimensions: ["warmth", "stability"] },
+  { slug: "money-transparency", label: "Is completely transparent about money and debt", category: "Behaviour", dimensions: ["stability"] },
+  { slug: "follows-through", label: "Does what they said they would do without reminders", category: "Behaviour", dimensions: ["stability", "service"] },
 ];
 
 /** Love-language concretes — the specific gesture, not the abstract category. */
@@ -317,7 +500,307 @@ const RELATIONSHIP: SeedItem[] = [
   { slug: "same-social-appetite", label: "Wants to go out about as often as you do", category: "Relationship", dimensions: ["independence", "warmth"] },
   { slug: "handles-money-stress", label: "Stays calm when money is tight", category: "Relationship", dimensions: ["stability"] },
   { slug: "grows-over-time", label: "Keeps growing rather than settling", category: "Relationship", dimensions: ["ambition", "intellect"] },
+  { slug: "assumes-good-intent", label: "You usually assume good intent in each other", category: "Relationship", dimensions: ["warmth", "stability"] },
+  { slug: "individual-identities", label: "You stay two whole people, not one merged identity", category: "Relationship", dimensions: ["independence", "warmth"] },
+  { slug: "fair-influence", label: "Both people have real influence over major decisions", category: "Relationship", dimensions: ["stability", "independence"] },
+  { slug: "stress-team", label: "Stress makes you operate more like a team, not opponents", category: "Relationship", dimensions: ["stability", "service"] },
+  { slug: "admiration-remains", label: "You continue to admire who the other person is", category: "Relationship", dimensions: ["warmth", "status"] },
+  { slug: "fair-not-equal", label: "Can divide responsibilities fairly even when 50/50 is impossible", category: "Relationship", dimensions: ["service", "stability"] },
+  { slug: "names-relationship-season", label: "Recognises when the relationship is in a hard season, not a bad relationship", category: "Relationship", dimensions: ["stability", "warmth"] },
+  { slug: "protects-us-time", label: "Protects time for the relationship when life gets crowded", category: "Relationship", dimensions: ["warmth", "service"] },
+  { slug: "allows-changing-minds", label: "Lets both people change their minds and grow without keeping score", category: "Relationship", dimensions: ["independence", "warmth"] },
+  { slug: "shared-definition-enough", label: "Can agree on what 'enough' money, work, and success look like", category: "Relationship", dimensions: ["stability", "ambition"] },
+  { slug: "keeps-fun-alive", label: "Keeps making room for fun when life gets busy", category: "Relationship", dimensions: ["warmth", "creativity"] },
+  { slug: "decisions-without-scorekeeping", label: "Can compromise without keeping score", category: "Relationship", dimensions: ["warmth", "stability"] },
 ];
+
+/** The day-to-day communication patterns couples often discover too late. */
+const COMMUNICATION: SeedItem[] = [
+  { slug: "names-needs-directly", label: "Names what they need directly", category: "Communication", dimensions: ["stability", "warmth"] },
+  { slug: "asks-before-advising", label: "Asks whether you want comfort or advice", category: "Communication", dimensions: ["warmth", "intellect"] },
+  { slug: "hard-talks-early", label: "Raises difficult topics before resentment builds", category: "Communication", dimensions: ["stability", "warmth"] },
+  { slug: "curious-in-conflict", label: "Stays curious about your side during conflict", category: "Communication", dimensions: ["warmth", "intellect"] },
+  { slug: "clear-digital-contact", label: "Has a similar rhythm for texts and calls", category: "Communication", dimensions: ["stability", "warmth"] },
+  { slug: "shares-inner-world", label: "Lets you into their inner world", category: "Communication", dimensions: ["warmth"] },
+  { slug: "can-disagree-kindly", label: "Can disagree without becoming cruel or cold", category: "Communication", dimensions: ["stability", "warmth"] },
+  { slug: "checks-understanding", label: "Checks that they understood instead of assuming", category: "Communication", dimensions: ["intellect", "warmth"] },
+  { slug: "keeps-private-private", label: "Keeps private conversations private", category: "Communication", dimensions: ["stability"] },
+  { slug: "humor-without-deflection", label: "Uses humour without dodging serious moments", category: "Communication", dimensions: ["creativity", "stability"] },
+  { slug: "timeout-and-return", label: "Can pause a heated argument—and reliably return to it", category: "Communication", dimensions: ["stability", "warmth"] },
+  { slug: "validates-before-solving", label: "Makes you feel understood before trying to solve it", category: "Communication", dimensions: ["warmth"] },
+  { slug: "private-disagreement", label: "Handles disagreements privately instead of recruiting an audience", category: "Communication", dimensions: ["stability"] },
+  { slug: "regular-check-ins", label: "Makes space for regular relationship check-ins", category: "Communication", dimensions: ["stability", "warmth"] },
+  { slug: "receives-feedback", label: "Can hear loving criticism without punishing honesty", category: "Communication", dimensions: ["stability", "intellect"] },
+  { slug: "soft-startup", label: "Starts a complaint gently instead of opening with blame", category: "Communication", dimensions: ["warmth", "stability"] },
+  { slug: "money-without-moralising", label: "Can discuss spending without treating one person as irresponsible or controlling", category: "Communication", dimensions: ["stability", "warmth"] },
+  { slug: "asks-story-under-reaction", label: "Asks what fear or story sits underneath a strong reaction", category: "Communication", dimensions: ["warmth", "intellect"] },
+  { slug: "specific-appreciation", label: "Says what they appreciate before it becomes invisible routine", category: "Communication", dimensions: ["warmth"] },
+  { slug: "ends-hard-talk-connected", label: "Ends a hard conversation feeling like you are still on the same side", category: "Communication", dimensions: ["warmth", "stability"] },
+  { slug: "conflict-recovery-speed", label: "Wants to reconnect soon after conflict instead of staying distant", category: "Communication", dimensions: ["warmth", "stability"] },
+  { slug: "public-private-boundary", label: "Agrees on what belongs between you and what can be shared with others", category: "Communication", dimensions: ["stability", "independence"] },
+  { slug: "talks-about-relationship", label: "Can talk about the relationship itself without treating it as a crisis", category: "Communication", dimensions: ["warmth", "stability"] },
+  { slug: "specific-apology", label: "Can apologise specifically and change what happens next", category: "Communication", dimensions: ["warmth", "stability"] },
+  { slug: "asks-not-mindreads", label: "Asks what you meant instead of mind-reading the worst", category: "Communication", dimensions: ["warmth", "intellect"] },
+];
+
+/** Compatibility in the ordinary shape of a shared week. */
+const LIFESTYLE: SeedItem[] = [
+  { slug: "similar-social-energy", label: "Wants a similar balance of going out and staying in", category: "Lifestyle", dimensions: ["independence", "warmth"] },
+  { slug: "home-order", label: "Keeps the home at a level of order you can live with", category: "Lifestyle", dimensions: ["stability"] },
+  { slug: "shared-health-habits", label: "Supports healthy sleep, food, and movement", category: "Lifestyle", dimensions: ["physicality", "stability"] },
+  { slug: "travel-compatible", label: "Travels at a pace and comfort level that fits yours", category: "Lifestyle", dimensions: ["adventure", "stability"] },
+  { slug: "time-alone", label: "Respects the amount of alone time you need", category: "Lifestyle", dimensions: ["independence", "warmth"] },
+  { slug: "money-rhythm", label: "Has compatible instincts about spending and saving", category: "Lifestyle", dimensions: ["stability"] },
+  { slug: "work-life-boundaries", label: "Protects a life outside work", category: "Lifestyle", dimensions: ["stability", "family"] },
+  { slug: "hosting-community", label: "Enjoys building a home people gather in", category: "Lifestyle", dimensions: ["warmth", "family"] },
+  { slug: "simple-vs-luxury", label: "Wants a similar balance of simplicity and luxury", category: "Lifestyle", dimensions: ["status", "stability"] },
+  { slug: "pace-of-life", label: "Wants a similar pace of life", category: "Lifestyle", dimensions: ["adventure", "stability"] },
+  { slug: "substance-fit", label: "Has compatible boundaries around alcohol and other substances", category: "Lifestyle", dimensions: ["stability", "physicality"] },
+  { slug: "screen-boundaries", label: "Wants similar boundaries around phones, gaming, and screens", category: "Lifestyle", dimensions: ["stability", "warmth"] },
+  { slug: "sleep-schedule", label: "Keeps a daily schedule that can coexist with yours", category: "Lifestyle", dimensions: ["stability"] },
+  { slug: "cleanliness-standard", label: "Shares a workable standard for cleanliness and chores", category: "Lifestyle", dimensions: ["stability", "service"] },
+  { slug: "city-country", label: "Wants the same balance of city life, nature, and space", category: "Lifestyle", dimensions: ["adventure", "stability"] },
+  { slug: "weekly-ritual", label: "Has a small weekly ritual you both protect", category: "Lifestyle", dimensions: ["warmth", "stability"] },
+  { slug: "micro-adventures", label: "Creates small adventures instead of waiting for a big holiday", category: "Lifestyle", dimensions: ["adventure", "creativity"] },
+  { slug: "parallel-play", label: "Enjoys doing separate things together in the same room", category: "Lifestyle", dimensions: ["independence", "warmth"] },
+  { slug: "recovery-compatible", label: "Understands whether you recover through company, quiet, movement, or rest", category: "Lifestyle", dimensions: ["warmth", "physicality"] },
+  { slug: "celebrates-ordinary", label: "Finds ways to make ordinary weeks feel worth remembering", category: "Lifestyle", dimensions: ["creativity", "warmth"] },
+  { slug: "financial-autonomy", label: "Balances shared money with some financial independence for each person", category: "Lifestyle", dimensions: ["independence", "stability"] },
+  { slug: "political-life-fit", label: "Can live comfortably with each other's political values and involvement", category: "Lifestyle", dimensions: ["stability", "service"] },
+  { slug: "rest-ambition-balance", label: "Wants a similar balance between ambition, rest, and enjoying life now", category: "Lifestyle", dimensions: ["ambition", "stability"] },
+  { slug: "unstructured-weekend", label: "Enjoys a similar balance of plans and unstructured weekends", category: "Lifestyle", dimensions: ["adventure", "independence"] },
+  { slug: "guests-boundaries", label: "Agrees on how often friends or family stay in your home", category: "Lifestyle", dimensions: ["family", "independence"] },
+];
+
+/** Closeness, boundaries, and affection without presuming one right style. */
+const INTIMACY: SeedItem[] = [
+  { slug: "talks-about-desire", label: "Can talk openly and respectfully about desire", category: "Intimacy", dimensions: ["warmth", "physicality"] },
+  { slug: "affection-outside-sex", label: "Offers affectionate touch without it always leading somewhere", category: "Intimacy", dimensions: ["warmth", "physicality"] },
+  { slug: "respects-no", label: "Treats boundaries and a 'no' as complete answers", category: "Intimacy", dimensions: ["stability", "warmth"] },
+  { slug: "initiates-closeness", label: "Initiates closeness instead of leaving it all to you", category: "Intimacy", dimensions: ["warmth", "physicality"] },
+  { slug: "private-playfulness", label: "Builds a playful private world with you", category: "Intimacy", dimensions: ["creativity", "warmth"] },
+  { slug: "reconnects-after-distance", label: "Notices distance and helps you reconnect", category: "Intimacy", dimensions: ["warmth", "stability"] },
+  { slug: "body-kindness", label: "Makes you feel accepted in your body", category: "Intimacy", dimensions: ["warmth", "physicality"] },
+  { slug: "compatible-affection", label: "Naturally wants a similar amount of physical affection", category: "Intimacy", dimensions: ["physicality", "warmth"] },
+  { slug: "desire-without-shame", label: "Can discuss preferences and fantasies without shame", category: "Intimacy", dimensions: ["physicality", "warmth"] },
+  { slug: "navigates-mismatch", label: "Can navigate differences in desire without pressure or withdrawal", category: "Intimacy", dimensions: ["stability", "warmth"] },
+  { slug: "protects-private-life", label: "Protects your intimate life from friends, family, and social media", category: "Intimacy", dimensions: ["stability", "independence"] },
+  { slug: "keeps-romance-alive", label: "Makes an effort to keep romance alive after the novelty fades", category: "Intimacy", dimensions: ["warmth", "creativity"] },
+  { slug: "intimacy-after-stress", label: "Can rebuild closeness after stress, illness, or a difficult season", category: "Intimacy", dimensions: ["warmth", "stability"] },
+  { slug: "initiation-balance", label: "Shares responsibility for initiating affection and intimacy", category: "Intimacy", dimensions: ["warmth", "physicality"] },
+  { slug: "privacy-vs-openness", label: "Wants a similar balance between intimate privacy and open conversation", category: "Intimacy", dimensions: ["independence", "warmth"] },
+];
+
+/** Decisions that determine whether two futures can actually fit together. */
+const FUTURE_FAMILY: SeedItem[] = [
+  { slug: "children-alignment", label: "Is aligned on whether and how to have children", category: "Future and family", dimensions: ["family", "stability"] },
+  { slug: "parenting-team", label: "Would operate as a team through the exhausting parts of parenting", category: "Future and family", dimensions: ["family", "service"] },
+  { slug: "caregiving-parents", label: "Can plan fairly for ageing parents and family obligations", category: "Future and family", dimensions: ["family", "service"] },
+  { slug: "where-to-live", label: "Can agree on where and how to build a home", category: "Future and family", dimensions: ["stability", "family"] },
+  { slug: "career-tradeoffs", label: "Can negotiate whose career takes priority when", category: "Future and family", dimensions: ["ambition", "warmth"] },
+  { slug: "shared-financial-plan", label: "Can build and follow a shared financial plan", category: "Future and family", dimensions: ["stability", "family"] },
+  { slug: "traditions-together", label: "Wants to create traditions that belong to both of you", category: "Future and family", dimensions: ["family", "creativity"] },
+  { slug: "handles-big-change", label: "Can adapt together through illness, moves, and major change", category: "Future and family", dimensions: ["stability", "warmth"] },
+  { slug: "retirement-vision", label: "Imagines a later life that fits with yours", category: "Future and family", dimensions: ["family", "stability"] },
+  { slug: "community-belonging", label: "Wants to belong to a community together", category: "Future and family", dimensions: ["family", "service"] },
+  { slug: "religion-children", label: "Can agree on how faith, culture, or tradition shape family life", category: "Future and family", dimensions: ["family", "spirituality"] },
+  { slug: "fertility-uncertainty", label: "Can face fertility uncertainty or alternative paths as a team", category: "Future and family", dimensions: ["family", "stability"] },
+  { slug: "debt-risk-honesty", label: "Can make honest joint decisions about debt and financial risk", category: "Future and family", dimensions: ["stability", "family"] },
+  { slug: "family-boundaries", label: "Can set healthy boundaries with both extended families", category: "Future and family", dimensions: ["family", "independence"] },
+  { slug: "crisis-decisions", label: "Trusts each other to make hard medical and crisis decisions", category: "Future and family", dimensions: ["stability", "service"] },
+  { slug: "relocation-sacrifice", label: "Can negotiate relocation without one person's future automatically winning", category: "Future and family", dimensions: ["ambition", "warmth"] },
+  { slug: "care-work-division", label: "Can divide childcare and caregiving without defaulting silently to one person", category: "Future and family", dimensions: ["family", "service"] },
+  { slug: "uncertain-future-team", label: "Can make good joint decisions even when the future is genuinely uncertain", category: "Future and family", dimensions: ["stability", "intellect"] },
+];
+
+/** Money is rarely only about money; these expose safety, freedom, fairness, and power. */
+const MONEY_POWER: SeedItem[] = [
+  { slug: "full-money-transparency", label: "Can talk openly about every account, debt, and financial obligation", category: "Money and power", dimensions: ["stability", "warmth"] },
+  { slug: "equal-financial-voice", label: "Gives both people an equal voice even when one earns much more", category: "Money and power", dimensions: ["warmth", "independence"] },
+  { slug: "shared-spending-threshold", label: "Agrees on when a purchase becomes a joint decision", category: "Money and power", dimensions: ["stability", "independence"] },
+  { slug: "money-no-control", label: "Never uses money to control the other person's choices", category: "Money and power", dimensions: ["independence", "stability"] },
+  { slug: "save-and-live-now", label: "Can balance future security with enjoying life now", category: "Money and power", dimensions: ["stability", "adventure"] },
+  { slug: "supports-career-risk", label: "Can support a thoughtful career risk without panicking or dismissing it", category: "Money and power", dimensions: ["ambition", "warmth"] },
+  { slug: "fair-sacrifice-recovery", label: "Makes a plan to rebalance after one person sacrifices financially for the relationship", category: "Money and power", dimensions: ["service", "stability"] },
+  { slug: "family-money-boundaries", label: "Can set fair boundaries around giving money to extended family", category: "Money and power", dimensions: ["family", "stability"] },
+  { slug: "different-money-upbringing", label: "Can understand how different childhoods shaped each person's money habits", category: "Money and power", dimensions: ["warmth", "intellect"] },
+  { slug: "defines-enough-together", label: "Can agree when earning more is no longer worth the time it costs", category: "Money and power", dimensions: ["stability", "ambition"] },
+  { slug: "no-secret-spending", label: "Would rather disclose an uncomfortable purchase than hide it", category: "Money and power", dimensions: ["stability", "warmth"] },
+  { slug: "joint-crisis-buffer", label: "Builds a financial buffer that makes both people feel safer", category: "Money and power", dimensions: ["stability", "service"] },
+];
+
+/** What care looks like when one or both people have little capacity left. */
+const STRESS_SUPPORT: SeedItem[] = [
+  { slug: "asks-support-under-stress", label: "Asks what would help instead of guessing when you are overwhelmed", category: "Stress and support", dimensions: ["warmth", "intellect"] },
+  { slug: "takes-over-without-score", label: "Can temporarily carry more without turning it into permanent scorekeeping", category: "Stress and support", dimensions: ["service", "stability"] },
+  { slug: "spots-overload-early", label: "Notices overload before it becomes a crisis", category: "Stress and support", dimensions: ["warmth", "service"] },
+  { slug: "does-not-personalize-withdrawal", label: "Can give you recovery space without assuming distance means rejection", category: "Stress and support", dimensions: ["independence", "warmth"] },
+  { slug: "protects-sleep-in-crisis", label: "Protects each other's sleep and basic needs during a demanding season", category: "Stress and support", dimensions: ["physicality", "service"] },
+  { slug: "calms-before-planning", label: "Helps both of you regulate before trying to solve the problem", category: "Stress and support", dimensions: ["stability", "warmth"] },
+  { slug: "outside-help-without-shame", label: "Is willing to seek outside help before the relationship is in crisis", category: "Stress and support", dimensions: ["intellect", "stability"] },
+  { slug: "protects-team-language", label: "Still speaks as 'we' when stress makes blame tempting", category: "Stress and support", dimensions: ["warmth", "stability"] },
+  { slug: "care-without-fixing", label: "Can offer comfort without immediately trying to fix your feelings", category: "Stress and support", dimensions: ["warmth"] },
+  { slug: "returns-after-shutdown", label: "Comes back and reconnects after shutting down under pressure", category: "Stress and support", dimensions: ["stability", "warmth"] },
+  { slug: "shares-invisible-planning", label: "Shares the invisible planning when life becomes complicated", category: "Stress and support", dimensions: ["service", "family"] },
+  { slug: "celebrates-survival-seasons", label: "Can recognise that getting through a hard season together is an achievement", category: "Stress and support", dimensions: ["warmth", "stability"] },
+];
+
+/** Trust is built through negotiated boundaries, not mind-reading or surveillance. */
+const TRUST_BOUNDARIES: SeedItem[] = [
+  { slug: "defines-fidelity-together", label: "Can define fidelity and betrayal explicitly instead of relying on assumptions", category: "Trust and boundaries", dimensions: ["stability", "warmth"] },
+  { slug: "phone-privacy-with-trust", label: "Can respect phone privacy without creating secrecy", category: "Trust and boundaries", dimensions: ["independence", "stability"] },
+  { slug: "friendship-boundaries", label: "Can agree on boundaries with friends either person could be attracted to", category: "Trust and boundaries", dimensions: ["stability", "warmth"] },
+  { slug: "exes-boundaries", label: "Can set clear, mutual boundaries around former partners", category: "Trust and boundaries", dimensions: ["stability", "warmth"] },
+  { slug: "social-media-respect", label: "Represents the relationship respectfully online without performing it", category: "Trust and boundaries", dimensions: ["status", "stability"] },
+  { slug: "jealousy-without-control", label: "Can talk about jealousy without turning it into control or accusation", category: "Trust and boundaries", dimensions: ["warmth", "independence"] },
+  { slug: "protects-private-vulnerability", label: "Never uses something vulnerable you shared as ammunition later", category: "Trust and boundaries", dimensions: ["warmth", "stability"] },
+  { slug: "keeps-small-promises", label: "Treats small promises as part of trust, not as optional details", category: "Trust and boundaries", dimensions: ["stability", "service"] },
+  { slug: "admits-boundary-crossing", label: "Would disclose crossing a boundary before being discovered", category: "Trust and boundaries", dimensions: ["stability", "warmth"] },
+  { slug: "family-access-boundaries", label: "Protects the couple's decisions from family pressure on both sides", category: "Trust and boundaries", dimensions: ["family", "independence"] },
+  { slug: "trust-after-rupture", label: "Can rebuild trust through consistent behaviour rather than repeated reassurance", category: "Trust and boundaries", dimensions: ["stability", "service"] },
+  { slug: "freedom-with-reliability", label: "Makes room for independence while remaining reliably reachable and accountable", category: "Trust and boundaries", dimensions: ["independence", "stability"] },
+];
+
+/** Return-worthy prompts about keeping the relationship alive rather than merely functional. */
+const PLAY_GROWTH: SeedItem[] = [
+  { slug: "learns-you-again", label: "Keeps getting curious about who you are becoming", category: "Play and growth", dimensions: ["intellect", "warmth"] },
+  { slug: "creates-inside-jokes", label: "Builds a private world of stories and inside jokes with you", category: "Play and growth", dimensions: ["creativity", "warmth"] },
+  { slug: "tries-each-others-world", label: "Sometimes enters your interests simply because they matter to you", category: "Play and growth", dimensions: ["warmth", "adventure"] },
+  { slug: "new-things-together", label: "Regularly tries something neither of you already knows how to do", category: "Play and growth", dimensions: ["adventure", "creativity"] },
+  { slug: "supports-reinvention", label: "Can support you becoming different from the person they first met", category: "Play and growth", dimensions: ["independence", "warmth"] },
+  { slug: "dreams-without-demand", label: "Makes room for impractical dreams without turning every dream into a plan", category: "Play and growth", dimensions: ["creativity", "warmth"] },
+  { slug: "marks-small-moments", label: "Creates small rituals to mark wins, transitions, and ordinary milestones", category: "Play and growth", dimensions: ["creativity", "family"] },
+  { slug: "laughs-at-chaos", label: "Can find humour together when plans go wrong", category: "Play and growth", dimensions: ["creativity", "stability"] },
+  { slug: "relationship-project", label: "Treats the relationship as something you can keep learning to do better", category: "Play and growth", dimensions: ["intellect", "warmth"] },
+  { slug: "future-still-exciting", label: "Can imagine a shared future that feels exciting, not only responsible", category: "Play and growth", dimensions: ["adventure", "family"] },
+];
+
+function insightFirst(items: SeedItem[], firstSlugs: string[]): SeedItem[] {
+  const rank = new Map(firstSlugs.map((slug, index) => [slug, index]));
+  return [...items].sort((a, b) => {
+    const aRank = rank.get(a.slug);
+    const bRank = rank.get(b.slug);
+    if (aRank !== undefined || bRank !== undefined) {
+      return (aRank ?? firstSlugs.length) - (bRank ?? firstSlugs.length);
+    }
+    return 0;
+  });
+}
+
+const ORDERED_TRAITS = insightFirst(TRAITS, [
+  "kind",
+  "disciplined",
+  "socially-confident",
+  "adventurous-trait",
+  "calm-under-pressure",
+  "curious",
+  "funny",
+  "principled",
+  "sensual",
+  "protective",
+  "independent-trait",
+  "honest",
+  "playful",
+  "resourceful",
+]);
+const ORDERED_VALUES = insightFirst(VALUES, [
+  "family-first",
+  "personal-freedom",
+  "achievement",
+  "financial-security",
+  "helping-others",
+  "lifelong-learning",
+  "health-longevity",
+  "experiences-over-things",
+  "faith-centered",
+  "creative-legacy",
+]);
+const ORDERED_BEHAVIORS = insightFirst(BEHAVIORS, [
+  "listens-fully",
+  "handles-conflict",
+  "handles-logistics",
+  "encourages-goals",
+  "protects-your-time",
+  "plans-dates",
+  "includes-your-family",
+  "keeps-fit-together",
+]);
+const ORDERED_RELATIONSHIP = insightFirst(RELATIONSHIP, [
+  "repairs-after-fights",
+  "shared-life-vision",
+  "equal-domestic-load",
+  "physical-chemistry",
+  "gives-you-space",
+  "same-money-values",
+  "same-parenting",
+  "laughs-together",
+]);
+const ORDERED_COMMUNICATION = insightFirst(COMMUNICATION, [
+  "names-needs-directly",
+  "validates-before-solving",
+  "timeout-and-return",
+  "specific-apology",
+  "asks-not-mindreads",
+  "receives-feedback",
+]);
+const ORDERED_LIFESTYLE = insightFirst(LIFESTYLE, [
+  "money-rhythm",
+  "cleanliness-standard",
+  "time-alone",
+  "work-life-boundaries",
+  "similar-social-energy",
+  "screen-boundaries",
+  "travel-compatible",
+  "guests-boundaries",
+]);
+const ORDERED_INTIMACY = insightFirst(INTIMACY, [
+  "talks-about-desire",
+  "respects-no",
+  "affection-outside-sex",
+  "navigates-mismatch",
+  "reconnects-after-distance",
+  "keeps-romance-alive",
+]);
+const ORDERED_FUTURE_FAMILY = insightFirst(FUTURE_FAMILY, [
+  "children-alignment",
+  "where-to-live",
+  "career-tradeoffs",
+  "shared-financial-plan",
+  "family-boundaries",
+  "caregiving-parents",
+  "handles-big-change",
+]);
+const ORDERED_MONEY_POWER = insightFirst(MONEY_POWER, [
+  "equal-financial-voice",
+  "full-money-transparency",
+  "save-and-live-now",
+  "defines-enough-together",
+  "fair-sacrifice-recovery",
+  "family-money-boundaries",
+]);
+const ORDERED_STRESS_SUPPORT = insightFirst(STRESS_SUPPORT, [
+  "asks-support-under-stress",
+  "calms-before-planning",
+  "takes-over-without-score",
+  "does-not-personalize-withdrawal",
+  "outside-help-without-shame",
+  "shares-invisible-planning",
+]);
+const ORDERED_TRUST_BOUNDARIES = insightFirst(TRUST_BOUNDARIES, [
+  "defines-fidelity-together",
+  "protects-private-vulnerability",
+  "phone-privacy-with-trust",
+  "jealousy-without-control",
+  "freedom-with-reliability",
+  "trust-after-rupture",
+]);
+const ORDERED_PLAY_GROWTH = insightFirst(PLAY_GROWTH, [
+  "learns-you-again",
+  "supports-reinvention",
+  "creates-inside-jokes",
+  "new-things-together",
+  "future-still-exciting",
+]);
 
 export const SEED_SURVEYS: SeedSurvey[] = [
   {
@@ -336,19 +819,19 @@ export const SEED_SURVEYS: SeedSurvey[] = [
     slug: "traits",
     title: "Character",
     description: "Which of these two matters more to you?",
-    items: TRAITS,
+    items: ORDERED_TRAITS,
   },
   {
     slug: "values",
     title: "Values",
     description: "Which of these two would you rather they built their life around?",
-    items: VALUES,
+    items: ORDERED_VALUES,
   },
   {
     slug: "behaviors",
     title: "What they do",
     description: "Which of these two would mean more to you day to day?",
-    items: BEHAVIORS,
+    items: ORDERED_BEHAVIORS,
   },
   {
     slug: "affection",
@@ -360,7 +843,55 @@ export const SEED_SURVEYS: SeedSurvey[] = [
     slug: "relationship",
     title: "What makes it work",
     description: "Which of these two matters more for the relationship itself?",
-    items: RELATIONSHIP,
+    items: ORDERED_RELATIONSHIP,
+  },
+  {
+    slug: "communication",
+    title: "How you communicate",
+    description: "Which communication pattern matters more in a shared life?",
+    items: ORDERED_COMMUNICATION,
+  },
+  {
+    slug: "lifestyle",
+    title: "Everyday compatibility",
+    description: "Which part of day-to-day compatibility matters more?",
+    items: ORDERED_LIFESTYLE,
+  },
+  {
+    slug: "intimacy",
+    title: "Closeness and intimacy",
+    description: "Which kind of closeness matters more?",
+    items: ORDERED_INTIMACY,
+  },
+  {
+    slug: "future-family",
+    title: "Future and family",
+    description: "Which part of building a life together matters more?",
+    items: ORDERED_FUTURE_FAMILY,
+  },
+  {
+    slug: "money-power",
+    title: "Money and power",
+    description: "Which money pattern would matter more to feeling like equal partners?",
+    items: ORDERED_MONEY_POWER,
+  },
+  {
+    slug: "stress-support",
+    title: "Stress and support",
+    description: "When life is hard, which kind of support would matter more?",
+    items: ORDERED_STRESS_SUPPORT,
+  },
+  {
+    slug: "trust-boundaries",
+    title: "Trust and boundaries",
+    description: "Which pattern would do more to protect trust between you?",
+    items: ORDERED_TRUST_BOUNDARIES,
+  },
+  {
+    slug: "play-growth",
+    title: "Play and growth",
+    description: "Which would do more to keep a long relationship alive and interesting?",
+    items: ORDERED_PLAY_GROWTH,
   },
   {
     slug: "combined",
@@ -369,11 +900,19 @@ export const SEED_SURVEYS: SeedSurvey[] = [
     items: [
       ...ACTIVITIES.map((i) => ({ ...i, slug: `act-${i.slug}` })),
       ...PROFESSIONS.map((i) => ({ ...i, slug: `prof-${i.slug}` })),
-      ...TRAITS.map((i) => ({ ...i, slug: `trait-${i.slug}` })),
-      ...VALUES.map((i) => ({ ...i, slug: `val-${i.slug}` })),
-      ...BEHAVIORS.map((i) => ({ ...i, slug: `beh-${i.slug}` })),
+      ...ORDERED_TRAITS.map((i) => ({ ...i, slug: `trait-${i.slug}` })),
+      ...ORDERED_VALUES.map((i) => ({ ...i, slug: `val-${i.slug}` })),
+      ...ORDERED_BEHAVIORS.map((i) => ({ ...i, slug: `beh-${i.slug}` })),
       ...AFFECTION.map((i) => ({ ...i, slug: `aff-${i.slug}` })),
-      ...RELATIONSHIP.map((i) => ({ ...i, slug: `rel-${i.slug}` })),
+      ...ORDERED_RELATIONSHIP.map((i) => ({ ...i, slug: `rel-${i.slug}` })),
+      ...ORDERED_COMMUNICATION.map((i) => ({ ...i, slug: `com-${i.slug}` })),
+      ...ORDERED_LIFESTYLE.map((i) => ({ ...i, slug: `life-${i.slug}` })),
+      ...ORDERED_INTIMACY.map((i) => ({ ...i, slug: `int-${i.slug}` })),
+      ...ORDERED_FUTURE_FAMILY.map((i) => ({ ...i, slug: `future-${i.slug}` })),
+      ...ORDERED_MONEY_POWER.map((i) => ({ ...i, slug: `money-${i.slug}` })),
+      ...ORDERED_STRESS_SUPPORT.map((i) => ({ ...i, slug: `stress-${i.slug}` })),
+      ...ORDERED_TRUST_BOUNDARIES.map((i) => ({ ...i, slug: `trust-${i.slug}` })),
+      ...ORDERED_PLAY_GROWTH.map((i) => ({ ...i, slug: `growth-${i.slug}` })),
     ],
   },
 ];

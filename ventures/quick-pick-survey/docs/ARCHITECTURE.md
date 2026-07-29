@@ -22,6 +22,20 @@ the survey — that is what makes "her ranking" a thing the schema can express.
 A `Couple` links exactly two `User` rows by invite code. Only aggregates cross
 that boundary.
 
+Answered `Trial` and `FinancialTrial` rows keep both server-observed elapsed
+time and browser-observed decision time. The browser measure excludes request
+latency and is preferred when identifying hesitation. `interactionMethod`
+separates gestures, card taps, explicit buttons, and ties so interface friction
+is not mistaken for a difficult comparison.
+
+Every ten saved answers, the runner may ask the existing insights endpoint
+whether a new, supported finding is ready. It interrupts only for the small
+set that can prompt a useful couple conversation: a repeated direct trade-off,
+a meaningfully separated multi-dimension value profile or category pattern,
+or an uncontested front-runner. Close results remain on the insights page.
+Seen insight keys are stored per perspective in localStorage, so the same
+finding does not repeatedly interrupt the person.
+
 ## The three perspectives
 
 `SELF`, `PARTNER`, `PARTNER_GUESS` — declared once, in
@@ -97,12 +111,24 @@ rather than a large one they cannot. This is the difference between the couple
 screen being reachable and not; the measurements are in
 [CONVERGENCE.md](CONVERGENCE.md).
 
+Admission into that active set is curated rather than database-id order.
+Relationship-value categories (values, character, communication, relationship,
+lifestyle, future/family, intimacy, behaviour, affection) enter first, and
+`sortOrder` preserves the intentionally broad first questions within each
+category. This is what stops a newly seeded database from producing a
+different, accidental opening sequence just because its CUIDs differ.
+
 ## Scheduling across domains
 
 [`src/lib/domainScheduler.ts`](../src/lib/domainScheduler.ts). One continuous
 session pulls from several surveys, staying in one for a short random streak so
-it does not feel like context-switching, then moving to whichever domain has
-the least confidence.
+it does not feel like context-switching. The first pass is a shared
+**insight foundation** across perspectives: values, traits, communication,
+relationship, lifestyle, future/family, intimacy, behaviour, affection, and
+the combined domain each receive a small block. That deliberate overlap is
+what makes individual category insights and couple comparisons possible early.
+Once the foundation is covered, scheduling returns to perspective-weighted
+uncertainty and whichever domain has the least confidence.
 
 Domains are **staged**, and the reason is not cosmetic:
 
@@ -112,6 +138,29 @@ Domains are **staged**, and the reason is not cosmetic:
   is noise, and the answer teaches the model nothing. It stays locked.
 - The financial survey is self-contained and fine from the start, but opening
   with money reads badly, so it unlocks slightly later.
+
+## Explainable card metadata
+
+[`src/lib/cardMetadata.ts`](../src/lib/cardMetadata.ts) is the interpretation
+layer between literal cards and higher-order insights. Every seeded item is
+bulk-tagged with a versioned, AI-assisted taxonomy: weighted needs, bonding
+styles, future orientation, relationship tensions, contexts, and broader
+couple themes. The same metadata is stored on `Item.metadata` and can be
+reconstructed from the card's dimensions, so old response history remains
+usable when content is reseeded.
+
+Metadata is evidence, not a conclusion. `buildDeepProfile` combines several
+settled cards relative to the person's own average, discounts uncertain
+ratings, requires repeated support for a signal, and returns the strongest
+supporting and countervailing cards with the tag rationale. Couple insights
+similarly compare within-person percentile positions rather than raw Glicko
+scores. The UI exposes those card receipts, the calculation, coverage, and
+taxonomy version. A single card may therefore contribute to multiple insights,
+but no insight should be presented as if it came from a single opaque AI
+judgment.
+
+Changing tag semantics requires a new `CARD_METADATA_VERSION`, a migration or
+reseed plan, and tests that assert both the claim and its evidence trail.
 
 ## Client session state
 

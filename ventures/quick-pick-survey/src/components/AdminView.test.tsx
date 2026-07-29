@@ -48,6 +48,20 @@ const OVERVIEW = {
     returnsAfterBreak: 3,
     velocity: [{ from: 0, medianMs: 3000, n: 10 }],
   },
+  usage: {
+    uniqueSessions: 7,
+    funnel: [
+      { event: "route_view", sessions: 7 },
+      { event: "survey_start", sessions: 5 },
+      { event: "answer_save", sessions: 4 },
+    ],
+    operations: [
+      { event: "answer_save", count: 20, failures: 1, medianMs: 180, p95Ms: 900 },
+    ],
+    transitions: [
+      { from: "survey_start", to: "question_load", n: 5, medianMs: 900, p95Ms: 1800 },
+    ],
+  },
   hardest: [{ label: "Cooking together", medianMs: 7000, n: 5 }],
   easiest: [{ label: "Doing taxes", medianMs: 900, n: 4 }],
   feedback: {
@@ -55,13 +69,17 @@ const OVERVIEW = {
     usefulDown: 1,
     medianEnjoyment: 4,
     bySubject: [{ subject: "insights", up: 3, down: 1 }],
-    notes: [{ subject: "insights", note: "liked it", at: "2026-01-01T00:00:00.000Z" }],
+    negativeReasons: [{ reason: "too_vague", count: 1 }],
+    notes: [{ subject: "insights", note: "liked it", reason: null, answerCount: 40, perspective: "SELF", path: "/insights", at: "2026-01-01T00:00:00.000Z" }],
   },
   openReports: 1,
   reports: [
     {
       id: "rep1",
       kind: "bug",
+      impact: "blocked",
+      perspective: "SELF",
+      reference: "ABC12345",
       message: "The couple screen stayed empty",
       email: null,
       path: "/couple",

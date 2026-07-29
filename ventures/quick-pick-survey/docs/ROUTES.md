@@ -38,6 +38,11 @@ and does not claim. It is not listed per row because it applies to all of them
 without exception, and a column that reads `yes` twenty-three times is a column
 that stops being read.
 
+The same proxy rejects declared request bodies over 64 KiB and marks every API
+response `private, no-store`. Trial routes also enforce the ownership rule:
+anonymous participants remain usable by their opaque id, while an account-owned
+participant may only be read or changed by that signed-in account.
+
 ## The table
 
 | Route | Method | Auth | Writes | Limit | Tested |
@@ -48,15 +53,19 @@ that stops being read.
 | `admin/overview` | GET | admin | no | — | integration |
 | `admin/report` | POST | admin | `UserReport` | admin-only | integration |
 | `auth/login` | POST | none | `UserSession` | per-email and per-IP | — |
+| `auth/forgot-password` | POST | none | `PasswordResetToken` | per-IP | — |
 | `auth/logout` | POST | session | no | — | — |
 | `auth/me` | GET | session | no | — | unit |
-| `auth/signup` | POST | none | `User`, `UserSession` | per-IP | unit |
+| `auth/reset-password` | POST | none | `User`, `PasswordResetToken` | per-IP, single-use token | — |
+| `auth/signup` | POST | none | `User`, `UserSession` | 8 successful signups per IP per 15 min | unit |
 | `couple/compare` | GET | session | no | — | integration |
 | `couple/create` | POST | session | `Couple` | one couple per user | integration |
 | `couple/join` | POST | session | no | claimable once, conditionally | integration |
 | `feedback` | POST | optional session | `InsightFeedback` | per-IP, accounts exempt | integration |
 | `financial-trials/answer` | POST | none | no | claims its own trial once | integration |
 | `financial-trials/next` | POST | none | `FinancialTrial` | pending row reused for 30 min | integration |
+| `health` | GET | none | no | liveness only; no database dependency | unit |
+| `health/ready` | GET | none | no | deployment readiness; one database query | integration |
 | `insights` | POST | owns the participant | `GeneratedInsight` | gated on data readiness | unit + integration |
 | `report` | POST | optional session | `UserReport` | per-IP, accounts exempt | integration |
 | `session/start` | POST | optional session | `Participant` | per-IP, accounts exempt | unit + integration |
@@ -64,7 +73,9 @@ that stops being read.
 | `surveys/[slug]` | GET | none | no | — | — |
 | `trials/answer` | POST | none | no | claims its own trial once | integration |
 | `trials/next` | POST | none | `Trial` | pending row reused for 30 min | unit + integration |
+| `trials/skip` | POST | none | no | marks only its own pending row once | — |
 | `trials/undo` | POST | none | no | replays a stored snapshot | integration |
+| `usage` | POST | optional session | `UsageEvent` | 60 anonymous batches per IP; 25 allowlisted events per batch | unit + integration |
 
 ## What the gaps say
 
