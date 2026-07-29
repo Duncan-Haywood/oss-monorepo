@@ -567,8 +567,14 @@ export function UnifiedRunner() {
     })
       .then((res) => recordUsage("question_skip", { perspective, domain, durationMs: clientMsToAnswer ?? undefined, success: res.ok }))
       .catch(() => recordUsage("question_skip", { perspective, domain, durationMs: clientMsToAnswer ?? undefined, success: false }));
-    setTrial(null);
-    setRetryTick((n) => n + 1);
+    if (nextTrial) {
+      setTrial(nextTrial);
+      setNextTrial(null);
+      cardShownAt.current = performance.now();
+    } else {
+      setTrial(null);
+      setRetryTick((n) => n + 1);
+    }
   }
 
   /** Tinder-style rewind of the most recent answer in the domain it was made in. */
