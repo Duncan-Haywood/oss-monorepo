@@ -17,7 +17,7 @@ permissions:
   packages: write
 
 concurrency:
-  group: pairwise-ci-${{ github.workflow }}-${{ github.ref }}
+  group: pairwise-ci-${{ gitea.workflow }}-${{ gitea.ref }}
   # A newer commit must not cancel a production migration or rolling update.
   cancel-in-progress: false
 
@@ -138,13 +138,13 @@ jobs:
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Log in to the Gitea container registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: gitea.event_name == 'push' && gitea.ref == 'refs/heads/main'
         env:
           REGISTRY_TOKEN: ${{ secrets.GITEA_TOKEN }}
         run: >-
           printf '%s' "$REGISTRY_TOKEN" |
           docker login git.marisstella.dev
-          --username "${{ github.actor }}"
+          --username "${{ gitea.actor }}"
           --password-stdin
 
       - name: Build the Dockerfile and publish immutable main images
@@ -152,9 +152,9 @@ jobs:
         with:
           context: ventures/quick-pick-survey
           file: ventures/quick-pick-survey/Dockerfile
-          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          push: ${{ gitea.event_name == 'push' && gitea.ref == 'refs/heads/main' }}
           tags: |
-            git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
+            git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
             git.marisstella.dev/giteaadmin/pairwise-app:latest
           cache-from: type=gha,scope=pairwise
           cache-to: type=gha,mode=max,scope=pairwise
@@ -162,7 +162,7 @@ jobs:
   deploy:
     name: Migrate and deploy to production
     needs: container
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: gitea.event_name == 'push' && gitea.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: production
@@ -186,9 +186,9 @@ jobs:
 
       - name: Deploy the verified commit with zero unavailable replicas
         env:
-          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
+          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
           REGISTRY_SERVER: git.marisstella.dev
-          REGISTRY_USERNAME: ${{ github.actor }}
+          REGISTRY_USERNAME: ${{ gitea.actor }}
           REGISTRY_TOKEN: ${{ secrets.GITEA_TOKEN }}
-          RELEASE_REVISION: ${{ github.sha }}
+          RELEASE_REVISION: ${{ gitea.sha }}
         run: platform/ci/deploy-pairwise.sh
