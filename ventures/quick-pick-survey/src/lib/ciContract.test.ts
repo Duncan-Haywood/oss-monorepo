@@ -18,7 +18,7 @@ describe("Pairwise CI contract", () => {
   it.skipIf(!PAIRWISE_CI)("is a repository-root workflow scoped to Pairwise changes", () => {
     expect(PAIRWISE_CI).toContain('"ventures/quick-pick-survey/**"');
     expect(PAIRWISE_CI).toMatch(/workflows\/pairwise-ci\.yml/);
-    expect(PAIRWISE_CI).toContain("cancel-in-progress: true");
+    expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
     expect(PAIRWISE_CI).toMatch(/timeout-minutes:\s*20/);
   });
 
@@ -43,8 +43,15 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain("image: postgres:16");
     expect(PAIRWISE_CI).toContain("prisma migrate deploy");
     expect(PAIRWISE_CI).toContain("docker/build-push-action");
-    expect(PAIRWISE_CI).toContain("push: false");
+    expect(PAIRWISE_CI).toContain("git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}");
     expect(PAIRWISE_CI).toContain("needs: [app, database]");
+  });
+
+  it.skipIf(!PAIRWISE_CI)("deploys immutable main images without taking ready replicas offline", () => {
+    expect(PAIRWISE_CI).toContain("platform/ci/deploy-pairwise.sh");
+    expect(PAIRWISE_CI).toContain("HETZNER_KUBECONFIG");
+    expect(PAIRWISE_CI).toContain("GITEA_TOKEN");
+    expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
   });
 
   it.skipIf(!MONOREPO_CI)("publishes Pairwise images by immutable commit, never a mutable latest tag", () => {

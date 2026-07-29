@@ -7,6 +7,8 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicas }}
+  minReadySeconds: 5
+  progressDeadlineSeconds: 600
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -22,6 +24,11 @@ spec:
         app.kubernetes.io/name: {{ include "web-service.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      terminationGracePeriodSeconds: 30
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
@@ -43,13 +50,13 @@ spec:
               protocol: TCP
           readinessProbe:
             httpGet:
-              path: /
+              path: {{ .Values.probes.readinessPath }}
               port: http
             initialDelaySeconds: 3
             periodSeconds: 5
           livenessProbe:
             httpGet:
-              path: /
+              path: {{ .Values.probes.livenessPath }}
               port: http
             initialDelaySeconds: 10
             periodSeconds: 15

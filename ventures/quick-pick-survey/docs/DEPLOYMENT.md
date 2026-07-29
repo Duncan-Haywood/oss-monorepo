@@ -1,13 +1,13 @@
 # Deployment and recovery
 
-Pairwise is built by Vercel from `ventures/quick-pick-survey`. GitHub CI is a
-separate required gate: it proves the application, database behavior, and
-migration history before a change should merge. A Vercel preview looking
-healthy is not a substitute for that gate.
+Pairwise production runs on the Hetzner K3s cluster. Gitea Actions proves the
+application, database behavior, migration history, and container before a
+change can be promoted. Preview hosting, when enabled, is not a substitute for
+that gate.
 
 ## Pipeline
 
-1. `.github/workflows/pairwise-ci.yml` runs only when Pairwise or its workflow
+1. `.gitea/workflows/pairwise-ci.yml` runs only when Pairwise or its workflow
    changes.
 2. Dependencies are installed from `package-lock.json` with lifecycle scripts
    disabled, then the Prisma client is generated explicitly.
@@ -16,16 +16,19 @@ healthy is not a substitute for that gate.
 5. The full integration suite runs against that database.
 6. Prisma compares the migration history with `schema.prisma`; drift blocks
    merge.
-7. A dependent job builds the production Dockerfile without publishing it, so
-   a broken standalone image cannot pass merely because `next build` worked.
-8. Vercel Git integration builds the reviewed revision. Its build applies
-   migrations before compiling, but does not re-seed production on every
-   deployment.
+7. A dependent job builds the production Dockerfile. Pull requests build
+   without publishing; a successful push to `main` publishes exactly one image
+   tagged with the full Git commit SHA.
+8. The production job creates or rotates the cluster registry pull secret,
+   applies forward-only Prisma migrations from that exact image, and updates
+   the Deployment to the immutable image.
+9. Kubernetes keeps every existing ready replica available while the new
+   ReplicaSet becomes ready. CI waits for the rollout and both health endpoints.
+   A failed rollout is returned to the previous ReplicaSet.
 
-Production promotion remains owned by Vercel Git integration. The monorepo
-container workflow publishes images, but does not deploy Pairwise; its domain
-smoke test is therefore named an availability check and must not be read as
-proof that a newly built image is live.
+Production promotion is serialized: a newer commit cannot cancel a migration
+or rollout already in progress. No `latest`, `main`, or other mutable image tag
+is used for promotion.
 
 ## Health contracts
 
@@ -40,8 +43,9 @@ as liveness—restarting the web process cannot repair a database outage.
 
 ## Rollback
 
-For an application-only regression, use Vercel rollback or promote the last
-known-good deployment. Do not reverse a database migration automatically:
+For an application-only regression, run `kubectl rollout undo
+deployment/quick-pick-survey-web-service -n web-services` or promote the last
+known-good immutable image. Do not reverse a database migration automatically:
 Prisma migrations may contain irreversible data changes. Restore or repair the
 database separately, using a reviewed forward migration whenever possible.
 

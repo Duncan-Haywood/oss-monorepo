@@ -8,6 +8,8 @@ image:
   tag: alpine
   pullPolicy: IfNotPresent
 
+imagePullSecrets: []
+
 service:
   type: ClusterIP
   port: 80
@@ -31,3 +33,11 @@ resources:
     memory: 256Mi
 
 env: {}
+
+probes:
+  livenessPath: /
+  readinessPath: /
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

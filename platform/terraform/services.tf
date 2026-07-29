@@ -19,6 +19,9 @@ resource "helm_release" "web_service" {
         repository = each.value.image
         tag        = each.value.tag
       }
+      imagePullSecrets = each.key == "quick-pick-survey" ? [
+        { name = "pairwise-registry" }
+      ] : []
       service = {
         port       = each.value.port
         targetPort = each.value.port
@@ -30,6 +33,13 @@ resource "helm_release" "web_service" {
         clusterIssuer = "letsencrypt-prod"
       }
       env = each.value.env
+      probes = each.key == "quick-pick-survey" ? {
+        livenessPath  = "/api/health"
+        readinessPath = "/api/health/ready"
+        } : {
+        livenessPath  = "/"
+        readinessPath = "/"
+      }
     })
   ]
 }

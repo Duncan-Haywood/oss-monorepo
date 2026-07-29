@@ -6,6 +6,13 @@ metadata:
     app: quick-pick-survey
 spec:
   replicas: 2
+  minReadySeconds: 5
+  progressDeadlineSeconds: 600
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: quick-pick-survey
@@ -14,9 +21,12 @@ spec:
       labels:
         app: quick-pick-survey
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: quick-pick-survey
-        image: git.marisstella.dev/giteaadmin/pairwise-app:latest
+        # CI replaces this with the immutable commit SHA before promotion.
+        image: git.marisstella.dev/giteaadmin/pairwise-app:bootstrap
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         env:
@@ -55,7 +65,7 @@ spec:
           periodSeconds: 20
         readinessProbe:
           httpGet:
-            path: /api/health
+            path: /api/health/ready
             port: 3000
           initialDelaySeconds: 10
           periodSeconds: 10

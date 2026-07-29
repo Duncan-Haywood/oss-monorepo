@@ -23,7 +23,9 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "pairwise_hpa" {
   }
 
   spec {
-    min_replicas = 1
+    # Keep two ready replicas so a node loss and a rolling update do not
+    # collapse the service to a single point of failure.
+    min_replicas = 2
     max_replicas = 10
 
     scale_target_ref {
