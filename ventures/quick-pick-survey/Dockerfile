@@ -7,7 +7,10 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
-RUN npm ci
+# Prisma Client is generated explicitly in the builder stage. Skipping
+# lifecycle scripts here avoids a redundant generator run and keeps image
+# dependency installation consistent with CI.
+RUN npm ci --ignore-scripts --no-audit --fund=false
 
 FROM base AS builder
 WORKDIR /app
