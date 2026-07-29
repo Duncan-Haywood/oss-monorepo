@@ -197,10 +197,11 @@ jobs:
       - name: Configure production cluster access
         shell: bash
         env:
-          HETZNER_KUBECONFIG: ${{ secrets.HETZNER_KUBECONFIG }}
+          HETZNER_KUBECONFIG_B64: ${{ secrets.HETZNER_KUBECONFIG_B64 }}
         run: |
           install -d -m 0700 "$RUNNER_TEMP/kube"
-          printf '%s' "$HETZNER_KUBECONFIG" > "$RUNNER_TEMP/kube/config"
+          printf '%s' "$HETZNER_KUBECONFIG_B64" |
+            base64 --decode > "$RUNNER_TEMP/kube/config"
           chmod 0600 "$RUNNER_TEMP/kube/config"
           echo "KUBECONFIG=$RUNNER_TEMP/kube/config" >> "${GITHUB_ENV:-$GITEA_ENV}"
 
