@@ -21,16 +21,16 @@ describe("aiTraitTagger", () => {
       strengthPercentile: 85,
       traits: {
         loveLanguages: ["Quality Time", "Words of Affirmation"],
-        relationalDrivers: ["Emotional Connection"],
-        stressResponse: ["Seeks Closeness"],
-        lifeVision: ["Deep Relationship"],
+        relationalDrivers: ["Vulnerability & Intimacy"],
+        stressResponse: ["Co-Regulation"],
+        lifeVision: ["Shared Growth"],
+        communicationStyle: ["Reflective & Deep"],
         effortProfile: {
-          timeInvestment: "Low",
-          emotionalCost: "Medium",
-          financialCost: "Free",
+          timeIntensity: "Low",
+          costLevel: "Low",
           vulnerabilityLevel: "High",
+          frequency: "Periodic Event",
         },
-        conflictRepairStyle: ["Direct Discussion"],
       },
     };
 
