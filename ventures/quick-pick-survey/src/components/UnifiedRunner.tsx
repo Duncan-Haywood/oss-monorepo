@@ -382,7 +382,7 @@ export function UnifiedRunner() {
           // Ignored background prefetch failure
         }
       })();
-    }, 50);
+    }, 0);
 
     return () => {
       cancelled = true;
@@ -461,38 +461,42 @@ export function UnifiedRunner() {
       setNextTrial(null);
     }
 
+    setSubmitting(false);
+
     const endpoint = domain.kind === "ITEMS" ? "/api/trials/answer" : "/api/financial-trials/answer";
     const startedAt = performance.now();
-    let ok = false;
-    try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          trialId: currentTrial.trialId,
-          result,
-          interactionMethod,
-          clientMsToAnswer: timeSpent,
-        }),
+
+    // Save answer asynchronously in background without blocking interaction on the next card
+    void (async () => {
+      let ok = false;
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            trialId: currentTrial.trialId,
+            result,
+            interactionMethod,
+            clientMsToAnswer: timeSpent,
+          }),
+        });
+        // 409 means the server already has this answer — a retry after a
+        // timeout, not a failure. Treating it as one wedged the session
+        // permanently, since every retry returned 409 too.
+        ok = res.ok || res.status === 409;
+      } catch {
+        ok = false;
+      }
+      recordUsage("answer_save", {
+        perspective: session.perspective,
+        domain: answeredSlug,
+        durationMs: Math.round(performance.now() - startedAt),
+        success: ok,
       });
-      // 409 means the server already has this answer — a retry after a
-      // timeout, not a failure. Treating it as one wedged the session
-      // permanently, since every retry returned 409 too.
-      ok = res.ok || res.status === 409;
-    } catch {
-      ok = false;
-    }
-    setSubmitting(false);
-    recordUsage("answer_save", {
-      perspective: session.perspective,
-      domain: answeredSlug,
-      durationMs: Math.round(performance.now() - startedAt),
-      success: ok,
-    });
-    if (!ok) {
-      setError("That didn't save — check your connection and tap again.");
-      return;
-    }
+      if (!ok) {
+        setError("That didn't save — check your connection and tap again.");
+      }
+    })();
 
     if (willOpenModeModal) {
       const alternatePerspective: PerspectiveValue = session.perspective === "SELF" ? "PARTNER" : "SELF";

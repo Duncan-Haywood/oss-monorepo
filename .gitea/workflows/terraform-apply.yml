@@ -66,6 +66,7 @@ jobs:
           TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           TF_VAR_mimo_api_key: ${{ secrets.MIMO_API_KEY }}
           TF_VAR_opencode_password: ${{ secrets.OPENCODE_PASSWORD }}
+          TF_VAR_code_server_password: ${{ secrets.CODE_SERVER_PASSWORD }}
         run: terraform plan -input=false -lock-timeout=5m -no-color
 
   apply:
@@ -112,6 +113,7 @@ jobs:
           TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
           TF_VAR_mimo_api_key: ${{ secrets.MIMO_API_KEY }}
           TF_VAR_opencode_password: ${{ secrets.OPENCODE_PASSWORD }}
+          TF_VAR_code_server_password: ${{ secrets.CODE_SERVER_PASSWORD }}
         run: terraform plan -input=false -lock-timeout=5m -out="$RUNNER_TEMP/apply.tfplan"
 
       - name: Apply the saved plan

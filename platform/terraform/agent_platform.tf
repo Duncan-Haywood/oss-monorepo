@@ -1,4 +1,15 @@
 # AI Coding Agent Infrastructure & Web IDE Environment
+variable "code_server_password" {
+  type        = string
+  sensitive   = true
+  description = "Code Server password supplied by the protected Gitea Actions secret store"
+
+  validation {
+    condition     = length(var.code_server_password) >= 20
+    error_message = "code_server_password must be at least 20 characters."
+  }
+}
+
 resource "kubernetes_namespace" "agent_system" {
   metadata {
     name = "agent-system"
@@ -64,7 +75,7 @@ resource "helm_release" "code_server" {
         clusterIssuer = "letsencrypt-prod"
       }
       env = {
-        PASSWORD = "HetznerAgentIDE2026!"
+        PASSWORD = var.code_server_password
       }
     })
   ]
