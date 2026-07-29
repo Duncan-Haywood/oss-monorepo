@@ -146,7 +146,7 @@ jobs:
         if: gitea.ref == 'refs/heads/main'
         env:
           IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
-          REGISTRY_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
         run: |
           printf '%s' "$REGISTRY_TOKEN" |
             docker login git.marisstella.dev \
@@ -186,6 +186,6 @@ jobs:
           IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ gitea.sha }}
           REGISTRY_SERVER: git.marisstella.dev
           REGISTRY_USERNAME: ${{ gitea.actor }}
-          REGISTRY_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
           RELEASE_REVISION: ${{ gitea.sha }}
         run: platform/ci/deploy-pairwise.sh
