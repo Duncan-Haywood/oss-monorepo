@@ -131,7 +131,7 @@ function useSwipeStage(
         setFlying(null);
         setDragY(0);
       },
-      reducedMotion ? 20 : 220
+      reducedMotion ? 20 : 100
     );
   }
 
@@ -154,7 +154,7 @@ function useSwipeStage(
     ? "none"
     : reducedMotion
       ? "transform 0.05s linear, opacity 0.05s linear"
-      : `transform 0.32s ${SPRING}, opacity 0.25s ease`;
+      : `transform 0.18s ${SPRING}, opacity 0.15s ease`;
 
   const topScale = flying === "up" ? 1.04 : 1 + progressUp * 0.03 - progressDown * 0.05;
   const bottomScale = flying === "down" ? 1.04 : 1 + progressDown * 0.03 - progressUp * 0.05;
