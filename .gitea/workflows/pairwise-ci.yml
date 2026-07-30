@@ -249,6 +249,8 @@ jobs:
           printf '%s' "$HETZNER_KUBECONFIG_B64" |
             base64 --decode > "$RUNNER_TEMP/kube/config"
           chmod 0600 "$RUNNER_TEMP/kube/config"
+          KUBECONFIG="$RUNNER_TEMP/kube/config" kubectl config current-context
+          KUBECONFIG="$RUNNER_TEMP/kube/config" kubectl get --raw=/readyz
           echo "KUBECONFIG=$RUNNER_TEMP/kube/config" >> "${GITHUB_ENV:-$GITEA_ENV}"
 
       - name: Deploy the verified commit with zero unavailable replicas
