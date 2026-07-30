@@ -226,8 +226,9 @@ jq -e \
   --arg image "$IMAGE" \
   --arg container "$container" \
   '
-    .items | length > 0
-    and all(.[];
+    [.items[] | select(.metadata.deletionTimestamp == null)] as $active
+    | ($active | length) > 0
+    and all($active[];
       (.spec.containers[] | select(.name == $container) | .image) == $image
       and (.status.containerStatuses[] | select(.name == $container) | .ready)
     )

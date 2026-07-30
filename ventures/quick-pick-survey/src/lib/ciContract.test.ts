@@ -68,6 +68,7 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_DEPLOY).toContain("create poddisruptionbudget");
     expect(PAIRWISE_DEPLOY).toContain("maxUnavailable");
     expect(PAIRWISE_DEPLOY).toContain("--type=strategic");
+    expect(PAIRWISE_DEPLOY).toContain(".metadata.deletionTimestamp == null");
     expect(PAIRWISE_DEPLOY).toContain("smoke-test-pairwise.sh");
     expect(PAIRWISE_SMOKE).toContain("/api/health/ready");
     expect(PAIRWISE_SMOKE).toContain("/api/surveys/combined");
