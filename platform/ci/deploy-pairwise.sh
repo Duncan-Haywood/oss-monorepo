@@ -139,7 +139,10 @@ fi
 
 # Patch the live Helm-managed Deployment before changing its image. This also
 # corrects older releases that were created with Kubernetes' 25% defaults.
-kubectl -n "$namespace" patch deployment "$deployment" --type=merge -p "$(
+# A strategic merge preserves required fields (especially the existing image)
+# while merging the named container entry. JSON merge would replace the entire
+# containers array and make the Deployment invalid before `set image` runs.
+kubectl -n "$namespace" patch deployment "$deployment" --type=strategic -p "$(
   jq -cn \
     --arg secret "$registry_secret" \
     --arg container "$container" \
