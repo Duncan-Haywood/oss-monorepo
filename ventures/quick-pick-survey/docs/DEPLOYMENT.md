@@ -45,10 +45,10 @@ registry. CI owns the running immutable commit tag. If Terraform later restores
 the registry's `latest` baseline, that alias still comes from the same verified
 main build rather than the obsolete node-local image.
 
-The `HETZNER_KUBECONFIG` Actions secret authenticates as the namespace-scoped
-`pairwise-ci-deployer` service account. Its Role can update only the workload,
-migration Jobs, registry pull secret, and read-only rollout resources needed by
-this pipeline; it is not a cluster administrator.
+The base64-encoded `HETZNER_KUBECONFIG_B64` Actions secret authenticates as the
+namespace-scoped `pairwise-ci-deployer` service account. Its Role can update
+only the workload, migration Jobs, registry pull secret, and read-only rollout
+resources needed by this pipeline; it is not a cluster administrator.
 
 ## Health contracts
 
