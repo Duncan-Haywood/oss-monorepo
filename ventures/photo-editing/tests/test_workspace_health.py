@@ -142,7 +142,7 @@ class WorkspaceHealthTests(unittest.TestCase):
             (
                 "dry-run-render-scheduler",
                 "--workspace",
-                str(workspace),
+                str(workspace.resolve()),
                 "--completed-dependency",
                 "rank_instagram_storylines",
                 "--completed-dependency",
@@ -244,7 +244,7 @@ class WorkspaceHealthTests(unittest.TestCase):
             (
                 "init-production-status",
                 "--ingest-manifest",
-                str(demo.shoot_folder / "ingest_manifest.json"),
+                str((demo.shoot_folder / "ingest_manifest.json").resolve()),
             ),
         )
         self.assertTrue(summary.next_action.writes_files)
@@ -273,7 +273,7 @@ class WorkspaceHealthTests(unittest.TestCase):
             (
                 "dry-run-production-scheduler",
                 "--ingest-manifest",
-                str(demo.shoot_folder / "ingest_manifest.json"),
+                str((demo.shoot_folder / "ingest_manifest.json").resolve()),
             ),
         )
         self.assertEqual(
