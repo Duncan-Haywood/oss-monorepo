@@ -6,6 +6,7 @@ on:
     paths:
       - "ventures/ai-first-markets/**"
       - ".gitea/workflows/ai-first-markets-*.yml"
+      - "scripts/ci/verify-component.sh"
   workflow_dispatch:
 
 permissions:

@@ -52,7 +52,7 @@ export default function ArtistOnboardingIntakeForm({
   );
   const [savedIntakes, setSavedIntakes] = useState<ArtistOnboardingIntake[]>([]);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
-  const captureSessions = useMemo(() => loadCaptureSessionsFromStorage(), [savedIntakes]);
+  const captureSessions = useMemo(() => loadCaptureSessionsFromStorage(), []);
 
   const readiness = useMemo(() => calculateArtistOnboardingReadiness(intake), [intake]);
 

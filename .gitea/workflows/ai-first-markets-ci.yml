@@ -5,11 +5,15 @@ on:
     paths:
       - "ventures/ai-first-markets/**"
       - ".gitea/workflows/ai-first-markets-ci.yml"
+      - ".gitea/workflows/ai-first-markets-deploy.yml"
+      - "scripts/ci/verify-component.sh"
   push:
     branches: [main]
     paths:
       - "ventures/ai-first-markets/**"
       - ".gitea/workflows/ai-first-markets-ci.yml"
+      - ".gitea/workflows/ai-first-markets-deploy.yml"
+      - "scripts/ci/verify-component.sh"
 
 permissions:
   contents: read

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test src/**/*.test.ts",
     "cf:build": "opennextjs-cloudflare build",
     "cf:deploy": "bash scripts/deploy-cloudflare.sh",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",

@@ -19,7 +19,7 @@ export default defineConfig({
     // that a busy machine cannot fail the suite for a reason that is not a
     // regression. A genuine blow-up still trips it.
     testTimeout: 120_000,
-    fileParallelism: true,
+    fileParallelism: false,
   },
   resolve: {
     alias: {

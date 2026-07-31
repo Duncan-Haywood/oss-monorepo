@@ -10,10 +10,7 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
 - [ ] [platform] Persist Stripe webhook events to artist payout ledger (transfer.created, payout.paid)
-- [ ] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
 - [ ] [platform] Persist creative tests with predicted CAC, actual CAC, winning concept, and channel
-- [ ] [platform] Persist weekly channel budget plans with actual spend, CAC, orders, and room-preview lift by source channel
-- [ ] [ops] Add budget exception queue for channels held back by LTV:CAC or negative contribution guardrails
 - [ ] [platform] Persist outreach prospects, replies, source channel, and next-action state as first-class CRM records
 - [ ] [ai-ml] Add audited LLM reply classifier with confidence thresholds and deterministic fallback categories
 - [ ] [legal] Add payout/licensing objection templates for artists asking about rights and terms
@@ -37,6 +34,10 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 _(agent assigns at run start)_
 
 ## done
+
+- [x] [platform] Persist weekly channel budget plans with actual spend, CAC, orders, and room-preview lift by source channel
+- [x] [ops] Add budget exception queue for channels held back by LTV:CAC or negative contribution guardrails
+- [x] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
 
 - [x] [legal] Add artist terms explainer for copyright retention, POD license, ad rights, and payout acknowledgement
 - [x] [platform] Persist proof-mockup kit send events with channel, artwork slug, and copy version
