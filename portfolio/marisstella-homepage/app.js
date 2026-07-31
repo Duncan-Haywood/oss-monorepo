@@ -30,69 +30,77 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Spec Detail Data
+// Venture brief data
 const specsData = {
   pairwise: {
-    title: 'Pairwise Engine',
-    desc: 'Psychometric Preference & Relationship Alignment Engine',
+    title: 'Pairwise',
+    desc: 'Consumer decision intelligence for couples',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Algorithm:</strong> Glicko-2 chess rating algorithm for discrete items</li>
-        <li>• <strong>Econometrics:</strong> Davidson tie-extended Bradley-Terry logit models for continuous attributes</li>
-        <li>• <strong>3 Perspectives:</strong> Personal preference, partner desired, guess of partner desire</li>
-        <li>• <strong>Output:</strong> Uncovers relationship blind spots, shared ground, and high-confidence actionable insights</li>
-        <li>• <strong>Deployment:</strong> Next.js 16 + Prisma PostgreSQL on K3s Kubernetes</li>
+        <li>• <strong>Customer:</strong> Couples who want to make plans and trade-offs with less friction</li>
+        <li>• <strong>Problem:</strong> Important preferences often stay implicit until they create conflict</li>
+        <li>• <strong>Product:</strong> Fast pairwise choices reveal priorities, shared ground, and blind spots</li>
+        <li>• <strong>Stage:</strong> Live product with active market learning</li>
       </ul>
     `
   },
   academy: {
     title: 'AI Engineering Academy',
-    desc: 'Autonomous Agent Architecture Sandbox',
+    desc: 'Practical AI capability for technical teams',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Focus:</strong> Multi-agent systems, tool calling, and RAG optimization</li>
-        <li>• <strong>Stack:</strong> Python, LangGraph, FastAPI, Next.js</li>
-        <li>• <strong>Environment:</strong> Isolated container sandboxes with real-time execution logs</li>
+        <li>• <strong>Customer:</strong> Software teams moving from AI experiments to dependable products</li>
+        <li>• <strong>Problem:</strong> Existing training rarely reflects real production constraints</li>
+        <li>• <strong>Product:</strong> Guided curriculum, realistic practice, and immediate technical feedback</li>
+        <li>• <strong>Stage:</strong> Private beta</li>
       </ul>
     `
   },
   realestate: {
     title: 'Real Estate Photo Suite',
-    desc: 'Computer Vision & HDR Property Presentation',
+    desc: 'Faster listing-ready imagery for property professionals',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Focus:</strong> Automated tone-mapping, window pull, and deskewing</li>
-        <li>• <strong>Pipeline:</strong> OpenCV & PyTorch batch processing microservices</li>
+        <li>• <strong>Customer:</strong> Independent agents, teams, and property marketers</li>
+        <li>• <strong>Problem:</strong> Professional listing imagery is slow and expensive to produce</li>
+        <li>• <strong>Product:</strong> Consistent enhancement and delivery through an agent-friendly workflow</li>
+        <li>• <strong>Stage:</strong> Product validation</li>
       </ul>
     `
   },
   sitestudio: {
     title: 'Local Site Studio',
-    desc: 'Automated Local Business Studio',
+    desc: 'Managed digital storefronts for local businesses',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Focus:</strong> Instant high-converting local service storefronts</li>
-        <li>• <strong>Performance:</strong> 100/100 Google Lighthouse Core Web Vitals score</li>
+        <li>• <strong>Customer:</strong> Local service operators without dedicated digital teams</li>
+        <li>• <strong>Problem:</strong> Agency-built sites are costly to launch and difficult to maintain</li>
+        <li>• <strong>Product:</strong> A managed, conversion-focused presence built around the business</li>
+        <li>• <strong>Stage:</strong> Venture build</li>
       </ul>
     `
   },
   retail: {
     title: 'Retail Pilot Intel',
-    desc: 'Real-Time Inventory & Foot-Traffic Analytics',
+    desc: 'Clearer operating decisions for physical retail',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Focus:</strong> Sub-second streaming telemetry and predictive restocking</li>
-        <li>• <strong>Backend:</strong> High-throughput Go services with TimescaleDB</li>
+        <li>• <strong>Customer:</strong> Multi-location retailers and store operators</li>
+        <li>• <strong>Problem:</strong> Demand, inventory, and staffing signals arrive too late or stay fragmented</li>
+        <li>• <strong>Product:</strong> One operating view that surfaces the decisions needing attention</li>
+        <li>• <strong>Stage:</strong> Pilot testing</li>
       </ul>
     `
   },
   print: {
     title: 'Print Atelier',
-    desc: 'Fine Art Digital Processing & Print Studio',
+    desc: 'Professional print commerce for independent creators',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Focus:</strong> WebAssembly-based client-side color profile management</li>
-        <li>• <strong>Target:</strong> Photographers and digital art print shops</li>
+        <li>• <strong>Customer:</strong> Artists and photographers selling premium physical work</li>
+        <li>• <strong>Problem:</strong> Print preparation, quality control, and fulfillment remain fragmented</li>
+        <li>• <strong>Product:</strong> A simpler path from finished digital work to a fulfilled print order</li>
+        <li>• <strong>Stage:</strong> Venture build</li>
       </ul>
     `
   }
