@@ -279,10 +279,10 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Wait for the promoted revision to serve traffic
-        run: ../../platform/ci/wait-for-pairwise-release.sh "${{ github.sha }}"
+        run: platform/ci/wait-for-pairwise-release.sh "${{ github.sha }}"
 
       - name: Run database-backed production smoke tests
-        run: ../../platform/ci/smoke-test-pairwise.sh
+        run: platform/ci/smoke-test-pairwise.sh
 
       - name: Queue a bounded AI repair task
         if: failure()
@@ -293,4 +293,4 @@ jobs:
           GITEA_RUN_ID: ${{ github.run_id }}
           PAIRWISE_RELEASE_REVISION: ${{ github.sha }}
           PAIRWISE_FAILED_GATE: exact-revision production smoke
-        run: ../../platform/ci/report-pairwise-release-failure.sh
+        run: platform/ci/report-pairwise-release-failure.sh
