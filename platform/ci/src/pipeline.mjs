@@ -51,6 +51,15 @@ export const VENTURE_CATALOG = [
     type: 'node',
     hasPrisma: false,
     scripts: ['typecheck', 'lint', 'test', 'build'],
+    // `cf:build` runs the Cloudflare Workers adapter over the Next output. It is
+    // a required gate in .gitea/workflows/ai-first-markets-ci.yml, which reaches
+    // it through scripts/ci/verify-component.sh, but it is deliberately kept out
+    // of the monorepo pipeline and the pre-push hook: it rebuilds and rewrites
+    // the whole output on top of `build`, for a deploy target only that workflow
+    // publishes. Declared here so the difference is a recorded decision — the
+    // verify-contract test fails closed if the two declarations differ any
+    // other way.
+    workflowOnlyScripts: ['cf:build'],
   },
   {
     id: 'local-site-studio',
@@ -58,7 +67,7 @@ export const VENTURE_CATALOG = [
     dir: 'ventures/local-site-studio',
     type: 'node',
     hasPrisma: false,
-    scripts: ['typecheck', 'lint', 'test'],
+    scripts: ['typecheck', 'lint', 'test', 'build'],
   },
   {
     id: 'print-atelier',

@@ -10,6 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const VENTURES_DIR = path.join(REPO_ROOT, 'ventures');
+const VERIFY_COMPONENT = path.join(REPO_ROOT, 'scripts/ci/verify-component.sh');
 
 /**
  * A venture's quality gates are declared in more than one place, and only some
@@ -26,6 +27,15 @@ const VENTURES_DIR = path.join(REPO_ROOT, 'ventures');
  *
  * These tests make VENTURE.yaml a checked mirror of the executed catalog rather
  * than prose that happens to sit next to it.
+ *
+ * `scripts/ci/verify-component.sh` is the third declaration, and the one
+ * docs/CI-CD-ARCHITECTURE.md calls "the shared, fail-closed local/CI contract so
+ * YAML and developer checks do not diverge". Nothing enforced that either, and
+ * they had diverged: the script ran `npm run build` for local-site-studio and
+ * `npm run cf:build` for ai-first-markets, neither of which the catalog ran.
+ * local-site-studio's production build was the live hole — no workflow invokes
+ * that arm, so the only declaration that executed was the catalog's, and the
+ * build was verified nowhere.
  */
 
 function ventureRootOf(dir) {
@@ -124,5 +134,163 @@ test('Verify Contract - every venture with a contract is registered in the catal
     'These ventures declare a VENTURE.yaml contract but no catalog entry executes it, ' +
       'so their gates never run and the build is green regardless:\n  ' +
       unregistered.join('\n  ')
+  );
+});
+
+/**
+ * A gate as `tool:script`. The two declarations spell the same gate differently
+ * — the catalog runs `npm --prefix <pkg> run x`, the shared script `cd`s into the
+ * package first — so comparing shell strings would report drift where there is
+ * none. The tokens carry what actually differs: which gates run, in what order.
+ */
+function catalogGatesFor(component) {
+  if (component.type === 'python') return ['pytest'];
+  if (component.type === 'pnpm') return [`pnpm:${component.ciScript || 'ci'}`];
+  if (component.type === 'node') {
+    return [...(component.scripts || []), ...(component.workflowOnlyScripts || [])].map(
+      (script) => `npm:${script}`
+    );
+  }
+  return [];
+}
+
+/** Commands that prepare the tree so the gates can run. Not gates themselves. */
+const SETUP_COMMANDS = [/^npm ci\b/, /^corepack pnpm install\b/, /^npx prisma generate$/];
+
+/** Shell scaffolding inside a case arm: neither a gate nor a setup step. */
+const SCAFFOLDING = [/^$/, /^\($/, /^\)$/, /^if\b/, /^fi$/, /^#/];
+
+function gateTokenFor(command) {
+  if (command === 'npm test') return 'npm:test';
+  const npmRun = command.match(/^npm run (\S+)$/);
+  if (npmRun) return `npm:${npmRun[1]}`;
+  const pnpmRun = command.match(/^(?:corepack )?pnpm run (\S+)$/);
+  if (pnpmRun) return `pnpm:${pnpmRun[1]}`;
+  return null;
+}
+
+/**
+ * Read the gate sequence out of each `case` arm of scripts/ci/verify-component.sh.
+ *
+ * An unrecognised command is thrown, never skipped. A parser that quietly
+ * ignores what it does not understand would report agreement precisely when the
+ * script grew the gate nobody checked.
+ */
+function parseVerifyComponentArms() {
+  const arms = new Map();
+  let inCase = false;
+  let arm = null;
+  let subshellDir = null;
+
+  for (const raw of fs.readFileSync(VERIFY_COMPONENT, 'utf8').split('\n')) {
+    const line = raw.trim();
+
+    if (!inCase) {
+      if (line === 'case "$component" in') inCase = true;
+      continue;
+    }
+    if (arm === null) {
+      // `*)` is the usage arm; it runs no gates.
+      const opened = line.match(/^([a-z0-9-]+)\)$/);
+      if (opened) {
+        arm = { name: opened[1], ventureRoots: new Set(), gates: [], generatesPrisma: false };
+        subshellDir = null;
+      }
+      continue;
+    }
+    if (line === ';;') {
+      arms.set(arm.name, arm);
+      arm = null;
+      continue;
+    }
+
+    let directory = subshellDir;
+    let command = line;
+    const runNpm = line.match(/^run_npm\s+(\S+)\s+(.+)$/);
+    if (runNpm) {
+      directory = runNpm[1];
+      command = runNpm[2];
+    } else {
+      const changeDir = line.match(/^cd "\$repo_root\/([^"]+)"$/);
+      if (changeDir) {
+        subshellDir = changeDir[1];
+        continue;
+      }
+      if (SCAFFOLDING.some((pattern) => pattern.test(line))) continue;
+    }
+
+    if (command === 'npx prisma generate') arm.generatesPrisma = true;
+    if (SETUP_COMMANDS.some((pattern) => pattern.test(command))) {
+      if (directory) arm.ventureRoots.add(ventureRootOf(directory) || directory);
+      continue;
+    }
+
+    const token = gateTokenFor(command);
+    if (!token) {
+      throw new Error(
+        `scripts/ci/verify-component.sh arm '${arm.name}' runs a command this contract ` +
+          `test cannot classify as a gate or a setup step: ${command}\n` +
+          'Teach gateTokenFor/SETUP_COMMANDS about it rather than leaving it unchecked.'
+      );
+    }
+    assert.ok(directory, `'${arm.name}' runs ${command} outside any package directory`);
+    arm.ventureRoots.add(ventureRootOf(directory) || directory);
+    arm.gates.push(token);
+  }
+
+  assert.equal(arm, null, 'scripts/ci/verify-component.sh has an unterminated case arm');
+  return arms;
+}
+
+test('Verify Contract - verify-component.sh runs the same gates as the CI catalog', () => {
+  const catalog = catalogByVenture();
+  const drift = [];
+
+  for (const [name, componentArm] of parseVerifyComponentArms()) {
+    const roots = [...componentArm.ventureRoots];
+    assert.equal(
+      roots.length,
+      1,
+      `verify-component.sh arm '${name}' spans several ventures (${roots.join(', ')}), ` +
+        'which this contract cannot map onto a single catalog entry'
+    );
+
+    const [ventureRoot] = roots;
+    const components = catalog.get(ventureRoot);
+    assert.ok(
+      components,
+      `verify-component.sh arm '${name}' verifies ${ventureRoot}, which has no catalog entry, ` +
+        'so the monorepo pipeline runs none of these gates'
+    );
+
+    const ordered = [...components].sort((a, b) =>
+      (a.packageDir || a.dir).localeCompare(b.packageDir || b.dir)
+    );
+    const expected = ordered.flatMap(catalogGatesFor);
+    if (componentArm.gates.join(' && ') !== expected.join(' && ')) {
+      drift.push(
+        `  ${name} (${ventureRoot})\n` +
+          `    verify-component.sh: ${componentArm.gates.join(', ') || '(none)'}\n` +
+          `    CI catalog         : ${expected.join(', ') || '(none)'}`
+      );
+    }
+
+    const hasPrisma = ordered.some((component) => component.hasPrisma);
+    assert.equal(
+      componentArm.generatesPrisma,
+      hasPrisma,
+      `verify-component.sh arm '${name}' ${componentArm.generatesPrisma ? 'runs' : 'does not run'} ` +
+        `\`npx prisma generate\`, but the catalog says hasPrisma: ${hasPrisma}. ` +
+        'One of the two gates runs against a client the other regenerated.'
+    );
+  }
+
+  assert.equal(
+    drift.length,
+    0,
+    'scripts/ci/verify-component.sh drifted from the gates the CI catalog executes.\n' +
+      'Strengthen the weaker declaration; if a gate is deliberately not in the monorepo ' +
+      'pipeline, declare it as `workflowOnlyScripts` on the catalog entry with the reason.\n' +
+      drift.join('\n')
   );
 });

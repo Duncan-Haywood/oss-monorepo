@@ -36,6 +36,16 @@ Application workflows are path-filtered. The repository/platform workflow does
 not repeat application builds. `scripts/ci/verify-component.sh` is the shared,
 fail-closed local/CI contract so YAML and developer checks do not diverge.
 
+That non-divergence is now checked rather than asserted.
+`platform/ci/test/verify-contract.test.mjs` derives the gate sequence from
+`VENTURE_CATALOG` and requires each venture's `VENTURE.yaml` `verify:` and each
+`verify-component.sh` case arm to match it exactly. A gate the shared script
+runs but the monorepo pipeline deliberately does not must be declared as
+`workflowOnlyScripts` on the catalog entry, with the reason, so the difference
+is a recorded decision instead of drift. Before this was enforced,
+local-site-studio's production build was declared in the shared script, omitted
+from the catalog, and verified by no pipeline at all.
+
 ## Deployment boundary
 
 CI must build, test, scan, and publish an immutable image identified by the full
