@@ -28,6 +28,7 @@ case "$component" in
   ai-first-markets)
     run_npm ventures/ai-first-markets npm run typecheck
     run_npm ventures/ai-first-markets npm run lint
+    run_npm ventures/ai-first-markets npm test
     run_npm ventures/ai-first-markets npm run build
     run_npm ventures/ai-first-markets npm run cf:build
     ;;
