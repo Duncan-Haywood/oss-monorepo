@@ -8,14 +8,14 @@ coverage command that dies, a report that measures nothing. The last tests are
 contract tests against the real repository — they are what make this run on
 every push rather than only when someone remembers.
 
-No test here is skipped or conditionally skipped. `scripts/ci/audit_exceptions.py`
-treats `@unittest.skip` as a suppression that needs a registered owner and
-expiry, and it is right to: a coverage gate that quietly does not run on the
-machine that matters is the exact failure this file exists to prevent.
+No test here is skipped or conditionally skipped, and none should be.
+`scripts/ci/audit_exceptions.py` treats a skipped Python test as a suppression
+needing a registered owner and expiry, and it is right to: a coverage gate that
+quietly does not run on the machine that matters is the exact failure this file
+exists to prevent.
 """
 
 import json
-import os
 import subprocess
 import sys
 import tempfile
@@ -28,8 +28,7 @@ CI_DIR = REPO_ROOT / "scripts" / "ci"
 if str(CI_DIR) not in sys.path:
     sys.path.insert(0, str(CI_DIR))
 
-import coverage_ratchet  # noqa: E402
-from coverage_ratchet import (  # noqa: E402
+from coverage_ratchet import (
     BASELINE_PATH,
     MAX_TOLERANCE_POINTS,
     METRICS,
