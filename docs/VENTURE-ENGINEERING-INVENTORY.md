@@ -100,8 +100,8 @@ Two aggravating details:
   and it triggers on changes to `platform/k8s/apps/**` — but it greps a Helm
   render of `platform/terraform/helm/web-service` with an injected
   `image.tag=ci-${{ github.sha }}`. It never reads the kustomizations that
-  actually define desired state. It has passed every time while seven manifests
-  said `latest`.
+  actually define desired state, so no value of those manifests can make it
+  fail.
 
 ### 3. The verify contract diverges from itself, per venture
 
