@@ -25,6 +25,8 @@ spec:
       app.kubernetes.io/instance: quick-pick-survey
   template:
     metadata:
+      annotations:
+        pairwise.marisstella.dev/revision: "cd67f02201ec680b408dd6bfc653a1e491902af7"
       labels:
         app.kubernetes.io/name: web-service
         app.kubernetes.io/instance: quick-pick-survey
@@ -52,6 +54,10 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
+            - name: RELEASE_REVISION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['pairwise.marisstella.dev/revision']
             - name: POSTGRES_PRISMA_URL
               value: null
               valueFrom:

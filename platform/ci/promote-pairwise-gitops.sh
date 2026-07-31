@@ -18,17 +18,17 @@ kustomization="$root/platform/k8s/apps/quick-pick-survey/kustomization.yaml"
 deployment="$root/platform/k8s/apps/quick-pick-survey/deployment.yaml"
 
 grep -Eq '^  digest: sha256:[0-9a-f]{64}$' "$kustomization"
-grep -Eq '^    pairwise\.marisstella\.dev/revision: "[0-9a-f]{40}"$' "$deployment"
+[[ "$(grep -Ec '^[[:space:]]+pairwise\.marisstella\.dev/revision: "[0-9a-f]{40}"$' "$deployment")" == 2 ]]
 
 sed -E -i.bak \
   "s#^  digest: sha256:[0-9a-f]{64}\$#  digest: ${IMAGE_DIGEST}#" \
   "$kustomization"
 sed -E -i.bak \
-  "s#^    pairwise\\.marisstella\\.dev/revision: \"[0-9a-f]{40}\"\$#    pairwise.marisstella.dev/revision: \"${RELEASE_REVISION}\"#" \
+  "s#^([[:space:]]+)pairwise\\.marisstella\\.dev/revision: \"[0-9a-f]{40}\"\$#\\1pairwise.marisstella.dev/revision: \"${RELEASE_REVISION}\"#" \
   "$deployment"
 rm "$kustomization.bak" "$deployment.bak"
 
 grep -Fq "  digest: $IMAGE_DIGEST" "$kustomization"
-grep -Fq "    pairwise.marisstella.dev/revision: \"$RELEASE_REVISION\"" "$deployment"
+[[ "$(grep -Fc "pairwise.marisstella.dev/revision: \"$RELEASE_REVISION\"" "$deployment")" == 2 ]]
 
 printf 'Recorded Pairwise %s at %s\n' "$RELEASE_REVISION" "$IMAGE_DIGEST"

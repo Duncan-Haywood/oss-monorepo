@@ -9,14 +9,20 @@
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { AuthView } from "@/components/AuthView";
 
+const { push, refresh } = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }));
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push, refresh }),
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+  vi.clearAllMocks();
+});
 
 function showSignup() {
   render(<AuthView />);
@@ -54,5 +60,25 @@ describe("AuthView", () => {
     );
     expect(labels).toEqual(["First name", "Email", "Password"]);
     expect(document.querySelectorAll("form input")).toHaveLength(3);
+  });
+
+  it("opens the swipe flow after a successful sign-in", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ user: { id: "user-1" } }),
+      })
+    );
+    render(<AuthView />);
+
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "ada@example.com" } });
+    fireEvent.change(document.querySelector("input[type='password']")!, {
+      target: { value: "secure-password-123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/app"));
+    expect(refresh).toHaveBeenCalledOnce();
   });
 });

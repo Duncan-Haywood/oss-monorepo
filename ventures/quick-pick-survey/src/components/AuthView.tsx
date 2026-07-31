@@ -31,7 +31,7 @@ export function AuthView() {
         setBusy(false);
         return;
       }
-      router.push("/");
+      router.push("/app");
       router.refresh();
     } catch {
       setError("Couldn't reach the server.");

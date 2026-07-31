@@ -202,7 +202,7 @@ export function verifyNodeHost(component, repoRoot = REPO_ROOT) {
     // Prisma generate if needed
     if (component.hasPrisma && fs.existsSync(path.join(fullDir, 'prisma/schema.prisma'))) {
       console.log('  Generating Prisma schema...');
-      execSync('npx prisma generate --quiet || npx prisma generate', { cwd: fullDir, stdio: 'inherit' });
+      execSync('npx prisma generate', { cwd: fullDir, stdio: 'inherit' });
     }
 
     const pkgJson = JSON.parse(fs.readFileSync(path.join(fullDir, 'package.json'), 'utf8'));

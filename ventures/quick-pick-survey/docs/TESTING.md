@@ -74,7 +74,7 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
 | `ProfileView.test.tsx` | 8 | The perspective switch: which perspective is sent, that the name is not "Anonymous" for a signed-in person whose account has not loaded yet, and that a failed switch leaves the stored session exactly as it was |
 | `originCheck.test.ts` | 16 | The CSRF rule: a subdomain is not the same origin, the proxy's forwarded host is what a browser is compared against, a non-browser caller is not blocked, and reads are never touched |
 | `InsightsView.test.tsx` | 6 | The insight catalogue's contract with the content map, and that a dropped request can be retried in place instead of sending someone back to the cards |
-| `AuthView.test.tsx` | 3 | Signup names what it stores, links the policy, and collects only the three fields it names |
+| `AuthView.test.tsx` | 4 | Signup names what it stores, links the policy, and collects only the three fields it names; successful authentication opens the swipe flow |
 | `api/session/start/route.test.ts` | 3 | The route writes a first name and a perspective and nothing else — the six profile fields the old intro form sent are refused |
 
 ### Against a real database

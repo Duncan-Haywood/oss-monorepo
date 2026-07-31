@@ -14,6 +14,11 @@ const monorepoCiPath = existsSync(monorepoCiPathGitea) ? monorepoCiPathGitea : m
 const PAIRWISE_CI = existsSync(pairwiseCiPath) ? readFileSync(pairwiseCiPath, "utf8") : "";
 const MONOREPO_CI = existsSync(monorepoCiPath) ? readFileSync(monorepoCiPath, "utf8") : "";
 const PAIRWISE_PROMOTE = readFileSync(join(ROOT, "platform/ci/promote-pairwise-gitops.sh"), "utf8");
+const PAIRWISE_WAIT = readFileSync(join(ROOT, "platform/ci/wait-for-pairwise-release.sh"), "utf8");
+const PAIRWISE_REPAIR = readFileSync(
+  join(ROOT, "platform/ci/report-pairwise-release-failure.sh"),
+  "utf8",
+);
 const GITEA_RUNNER = readFileSync(join(ROOT, "platform/terraform/gitea_runner.tf"), "utf8");
 const PAIRWISE_ARGO_APP = readFileSync(
   join(ROOT, "platform/k8s/argocd-apps/quick-pick-survey.yaml"),
@@ -94,6 +99,18 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_HOOKS).toContain("/api/health/ready");
     expect(PAIRWISE_HOOKS).toContain("/api/surveys/combined");
     expect(PAIRWISE_HOOKS).toContain("/couple");
+  });
+
+  it.skipIf(!PAIRWISE_CI)("verifies the exact live revision and queues bounded repair work", () => {
+    expect(PAIRWISE_CI).toContain("verify-production:");
+    expect(PAIRWISE_CI).toContain('wait-for-pairwise-release.sh "${{ github.sha }}"');
+    expect(PAIRWISE_CI).toContain("smoke-test-pairwise.sh");
+    expect(PAIRWISE_CI).toContain("report-pairwise-release-failure.sh");
+    expect(PAIRWISE_CI).toContain("if: failure()");
+    expect(PAIRWISE_WAIT).toContain('.revision == $revision');
+    expect(PAIRWISE_REPAIR).toContain("Repair budget: at most 3 distinct fixes");
+    expect(PAIRWISE_REPAIR).toContain("agent pairwise production-smoke");
+    expect(PAIRWISE_REPAIR).toContain("Do not weaken a gate");
   });
 
   it("keeps the CI runner stable without retaining a CI cluster deployer", () => {
