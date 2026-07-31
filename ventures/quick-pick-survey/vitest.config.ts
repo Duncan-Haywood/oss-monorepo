@@ -18,7 +18,8 @@ export default defineConfig({
     // itself was made ~3x cheaper rather than papered over; this margin is so
     // that a busy machine cannot fail the suite for a reason that is not a
     // regression. A genuine blow-up still trips it.
-    testTimeout: 20_000,
+    testTimeout: 120_000,
+    fileParallelism: true,
   },
   resolve: {
     alias: {

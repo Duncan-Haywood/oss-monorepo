@@ -7,6 +7,7 @@ import {
   buildArtistOnboardingDeepLink,
   buildOutreachCohortAttribution,
   buildOutreachQueue,
+  buildPayoutSafeOutreachSegment,
   calculateOutreachSummary,
   calculateReplyToListingCompression,
   isOnboardingDeepLinkEligible,
@@ -23,6 +24,7 @@ export default function SalesPortal() {
   const summary = calculateOutreachSummary(outreachProspects);
   const compression = calculateReplyToListingCompression({ now: "2026-06-12T12:00:00Z" });
   const attribution = buildOutreachCohortAttribution({ now: "2026-06-12T12:00:00Z" });
+  const payoutSafeSegment = buildPayoutSafeOutreachSegment(outreachProspects);
   const outreachQueue = buildOutreachQueue(outreachProspects);
   const visibleQueue =
     statusFilter === "All" ? outreachQueue : outreachQueue.filter((prospect) => prospect.status === statusFilter);
@@ -255,6 +257,25 @@ export default function SalesPortal() {
         <ProofMockupResponseKitPanel />
 
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+          <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50/80 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+                  <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  Payout-Safe Outreach Guardrail Active
+                </div>
+                <p className="mt-1 text-xs text-emerald-800 dark:text-emerald-200">
+                  {payoutSafeSegment.summaryLabel}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium">
+                <span className="rounded-full bg-emerald-200/80 px-2.5 py-1 text-emerald-900 dark:bg-emerald-900/60 dark:text-emerald-200">
+                  {payoutSafeSegment.safeEnrollmentRate}% Safe Rate
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="text-2xl font-semibold flex items-center gap-3 text-gray-900 dark:text-white">
@@ -334,7 +355,21 @@ export default function SalesPortal() {
                           <ArrowUpRight className="h-3 w-3 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                         </button>
                       )}
-                      {prospect.replyClassification === "Needs payout/licensing answer" && (
+                      {prospect.payoutTrustCopy && (
+                        <div className="mt-2 max-w-xs rounded-md border border-emerald-200 bg-emerald-50/70 p-2 text-xs text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200">
+                          <span className="font-semibold text-emerald-950 dark:text-emerald-100">Payout Trust Copy:</span>{" "}
+                          {prospect.payoutTrustCopy}
+                        </div>
+                      )}
+                      {prospect.objectionTemplate && (
+                        <div className="mt-2 max-w-xs rounded-md border border-indigo-200 bg-indigo-50/70 p-2 text-xs text-indigo-900 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-200">
+                          <div className="font-semibold text-indigo-950 dark:text-indigo-100">
+                            {prospect.objectionTemplate.title ?? prospect.objectionTemplate.category} ({prospect.objectionTemplate.legalClause})
+                          </div>
+                          <div className="mt-1 italic">"{prospect.objectionTemplate.quickReplySnippet ?? prospect.objectionTemplate.channelCopySnippet}"</div>
+                        </div>
+                      )}
+                      {prospect.replyClassification === "Needs payout/licensing answer" && !prospect.objectionTemplate && (
                         <p className="mt-2 max-w-xs text-xs text-indigo-700 dark:text-indigo-300 italic">
                           Battlecard: {buildBattlecardReplySnippet("payout")}
                         </p>

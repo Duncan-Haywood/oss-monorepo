@@ -78,14 +78,30 @@ class CIPipelineEngine:
     def discover_components(self) -> List[Dict[str, Any]]:
         components = []
         
+        def _safe_walk_find(root_path: Path, match_fn) -> List[Path]:
+            results = []
+            if not root_path.exists():
+                return results
+            try:
+                for dirpath, dirnames, filenames in os.walk(root_path, topdown=True):
+                    dirnames[:] = [
+                        d for d in dirnames 
+                        if d not in {"node_modules", ".next", "dist", "build", ".turbo", ".pytest_cache", ".venv", "venv", "__pycache__"}
+                        and not d.startswith("tmp")
+                    ]
+                    for found in match_fn(Path(dirpath), dirnames, filenames):
+                        results.append(found)
+            except FileNotFoundError:
+                pass
+            return results
+
         # Search Node ventures and portfolio
         for search_dir in ["ventures", "portfolio", "platform"]:
             target_path = self.repo_root / search_dir
-            if not target_path.exists():
-                continue
-            for pkg_json in target_path.glob("**/package.json"):
-                if any(part in pkg_json.parts for part in ["node_modules", ".next", "dist", "build", ".turbo"]):
-                    continue
+            def find_package_json(dpath, dnames, fnames):
+                return [dpath / "package.json"] if "package.json" in fnames else []
+
+            for pkg_json in _safe_walk_find(target_path, find_package_json):
                 app_dir = pkg_json.parent
                 rel_path = str(app_dir.relative_to(self.repo_root))
                 
@@ -109,12 +125,16 @@ class CIPipelineEngine:
         # Search Python ventures
         for search_dir in ["ventures", "platform", "portfolio"]:
             target_path = self.repo_root / search_dir
-            if not target_path.exists():
-                continue
-            for py_indicator in list(target_path.glob("**/tests")) + list(target_path.glob("**/pyproject.toml")):
+            def find_py_indicators(dpath, dnames, fnames):
+                res = []
+                if "tests" in dnames:
+                    res.append(dpath / "tests")
+                if "pyproject.toml" in fnames:
+                    res.append(dpath / "pyproject.toml")
+                return res
+
+            for py_indicator in _safe_walk_find(target_path, find_py_indicators):
                 app_dir = py_indicator if py_indicator.is_dir() and py_indicator.name != "tests" else py_indicator.parent
-                if any(part in app_dir.parts for part in ["node_modules", ".pytest_cache", ".venv", "venv", "__pycache__"]):
-                    continue
                 rel_path = str(app_dir.relative_to(self.repo_root))
                 if not any(c["dir"] == rel_path and c["type"] == "python" for c in components):
                     components.append({

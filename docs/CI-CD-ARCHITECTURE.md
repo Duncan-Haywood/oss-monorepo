@@ -16,8 +16,8 @@ scheduling, and run history.
 
 | Change | Required checks | Release effect |
 | --- | --- | --- |
-| Pairwise | Typecheck, lint, unit/component tests, production build, disposable PostgreSQL migrations/seed/integration tests, schema drift, container build | No automatic production mutation |
-| AI-First Markets | Typecheck, lint, Next.js build, Cloudflare build | Manual production deployment |
+| Pairwise | Typecheck, lint, unit/component tests, production build, disposable PostgreSQL migrations/seed/integration tests, schema drift, container build | Automated production deploy on main branch push |
+| AI-First Markets | Typecheck, lint, Next.js build, Cloudflare build | Automated production deploy on main branch push |
 | Homepage | Container build | No automatic production mutation |
 | Terraform/platform | CI contract tests, repository policy, format, init without backend, validate | Apply requires main, manual dispatch, exact `APPLY` confirmation, and a saved plan |
 | Security | Repository-policy tests, history secret scan, dependency/IaC scan, per-venture lockfile audit | Failure blocks release; default-branch failures open or update one remediation issue |

@@ -1,11 +1,11 @@
 name: ai-first-markets
-description: Market-selection intelligence and evaluated AI-first business ideas for a solo founder.
+description: Quantitative research platform evaluating economic leverage and AI market opportunities across vertical sectors.
 stage: prototype
 
 owner: duncan
 
 hypotheses:
-  - claim: A unified market map and idea-scoring system improves which AI-first venture to validate next.
+  - claim: Proprietary market efficiency reports will attract premium newsletter/research subscribers at $29/mo.
     status: untested
     checked: null
 
@@ -16,12 +16,11 @@ economics:
   customers: null
 
 budget:
-  monthly_cap: 50
+  monthly_cap: 30
   protected: true
 
 kill_criteria:
-  - No decision or validation workflow uses the platform within 90 days.
-  - The research cannot produce a testable customer experiment for a top-ranked idea.
+  - Fewer than 100 newsletter signups within 30 days of release.
 
 links:
   production: null

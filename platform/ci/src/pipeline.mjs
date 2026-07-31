@@ -81,6 +81,13 @@ export const VENTURE_CATALOG = [
     dir: 'platform/terraform',
     type: 'terraform',
   },
+  {
+    id: 'portfolio-router',
+    name: 'Portfolio Router & Ledger',
+    dir: 'portfolio/router',
+    type: 'python',
+    testDir: '.',
+  },
 ];
 
 /**
@@ -228,13 +235,21 @@ export function verifyPythonHost(component, repoRoot = REPO_ROOT) {
 
   console.log(`\n▶ Verifying Python Component: ${component.name} (${component.dir})`);
   try {
-    const testDir = path.join(fullDir, component.testDir || 'tests');
-    if (fs.existsSync(testDir)) {
-      console.log('  Running pytest...');
-      execSync('TMPDIR="/private/tmp" PYTHONPATH="src:." pytest tests/ -v -q --tb=short', {
-        cwd: fullDir,
-        stdio: 'inherit',
-      });
+    const targetPath = component.testDir || 'tests';
+    const checkPath = path.join(fullDir, targetPath);
+    if (fs.existsSync(checkPath) || targetPath === '.' || targetPath.endsWith('.py')) {
+      console.log('  Running Python test suite...');
+      if (fs.existsSync(path.join(fullDir, 'test_router.py'))) {
+        execSync('TMPDIR="/private/tmp" python3 test_router.py', {
+          cwd: fullDir,
+          stdio: 'inherit',
+        });
+      } else {
+        execSync(`TMPDIR="/private/tmp" PYTHONPATH="src:." pytest ${targetPath} -v -q --tb=short`, {
+          cwd: fullDir,
+          stdio: 'inherit',
+        });
+      }
     }
     console.log(`✔ ${component.name} PASSED`);
     return true;
@@ -318,13 +333,14 @@ export async function runDaggerContainerizedPipeline(affectedIds, catalog = VENT
           await container.sync();
           console.log(`✔ [Dagger Engine] ${component.name} completed successfully.`);
         } else if (component.type === 'python') {
+          const testPath = component.testDir || 'tests';
           const container = client
             .container()
             .from('python:3.11-slim')
             .withDirectory('/app', hostSource)
             .withWorkdir(`/app/${component.dir}`)
-            .withExec(['pip', 'install', 'pytest'])
-            .withExec(['pytest', 'tests/']);
+            .withExec(['pip', 'install', 'pytest', 'pyyaml'])
+            .withExec(['pytest', testPath]);
 
           await container.sync();
           console.log(`✔ [Dagger Engine] ${component.name} completed successfully.`);

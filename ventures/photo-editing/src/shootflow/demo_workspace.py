@@ -418,13 +418,13 @@ def _workspace_root(workspace_root: Path | str) -> Path:
         raise DemoWorkspaceError("workspace_root must be a pathlib.Path or string")
     root = Path(workspace_root)
     _reject_symlink_path_components(root)
-    if root.is_symlink():
+    if root.is_symlink() and not _is_system_symlink(root):
         raise DemoWorkspaceError(f"Refusing demo workspace symlink: {root}")
     if root.exists() and not root.is_dir():
         raise DemoWorkspaceError(f"Demo workspace root must be a directory: {root}")
     root.mkdir(parents=True, exist_ok=True)
     _reject_symlink_path_components(root)
-    if root.is_symlink():
+    if root.is_symlink() and not _is_system_symlink(root):
         raise DemoWorkspaceError(f"Refusing demo workspace symlink: {root}")
     return root
 
@@ -725,13 +725,22 @@ def _write_demo_render_tasks_manifest(root: Path, plan: AssemblyPlan) -> Path:
 
 def _reject_symlink_ancestors(path: Path, *, root: Path) -> None:
     current = root
-    if current.is_symlink():
+    if current.is_symlink() and not _is_system_symlink(current):
         raise DemoWorkspaceError(f"Refusing symlinked demo workspace path: {current}")
     relative = path.relative_to(root)
     for part in relative.parts:
         current = current / part
-        if current.is_symlink():
+        if current.is_symlink() and not _is_system_symlink(current):
             raise DemoWorkspaceError(f"Refusing symlinked demo workspace path: {current}")
+
+
+def _is_system_symlink(path: Path) -> bool:
+    if path.parent == Path("/") and path.name in {"var", "tmp", "etc"}:
+        try:
+            return path.resolve() == Path("/private") / path.name
+        except OSError:
+            return False
+    return False
 
 
 def _reject_symlink_path_components(path: Path) -> None:
@@ -740,7 +749,7 @@ def _reject_symlink_path_components(path: Path) -> None:
         if path.anchor and part == path.anchor:
             continue
         current = current / part
-        if current.is_symlink():
+        if current.is_symlink() and not _is_system_symlink(current):
             raise DemoWorkspaceError(f"Refusing symlinked demo workspace path: {current}")
         if not current.exists():
             break

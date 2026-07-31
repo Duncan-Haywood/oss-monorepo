@@ -1,0 +1,27 @@
+name: real-estate-agent-photo-app
+description: AI-first mobile real estate photography app and concierge enhancement pipeline for agents.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Mid-market real estate agents will pay $19/listing concierge or $49/mo for instant MLS-ready photo enhancement and property microsites.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: true
+
+kill_criteria:
+  - Fewer than 5 agent shoots booked after 30 days of active concierge outreach.
+
+links:
+  production: https://listing-lens-docs.pages.dev
+  analytics: null

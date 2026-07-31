@@ -1,5 +1,9 @@
 import type { ArtistOnboardingSource } from "./artist-onboarding";
 import {
+  ArtistLicensingObjectionTemplate,
+  findObjectionTemplateByQuery,
+} from "./artist-terms";
+import {
   buildPayoutExceptionQueue,
   calculatePrintEconomics,
   catalogArtworks,
@@ -33,6 +37,8 @@ export type OutreachQueueItem = OutreachProspect & {
   priorityScore: number;
   replyClassification: ReplyClassification;
   nextAction: string;
+  payoutTrustCopy: string;
+  objectionTemplate?: ArtistLicensingObjectionTemplate;
   payoutGuardrail?: Pick<
     PayoutExceptionQueueItem,
     "severity" | "blockers" | "nextAction" | "suggestedRetailPrice"
@@ -200,6 +206,108 @@ export function isOnboardingDeepLinkEligible(item: OutreachQueueItem): boolean {
   );
 }
 
+export function generateArtistPayoutTrustCopy(
+  prospect: OutreachProspect,
+  artwork?: CatalogArtwork,
+): string {
+  const targetArtwork =
+    artwork ?? (prospect.catalogArtworkSlug ? catalogArtworks.find((a) => a.slug === prospect.catalogArtworkSlug) : undefined);
+  const targetAny = targetArtwork as any;
+  const retailPrice = targetAny?.retailPrice ?? targetAny?.pricing?.retailPrice ?? 120;
+  const fulfillmentCost =
+    targetAny?.fulfillmentCost ??
+    targetAny?.podCost ??
+    (targetAny?.pricing ? targetAny.pricing.podItemCost + (targetAny.pricing.podShippingCost ?? 0) : undefined) ??
+    32;
+  const economics = calculatePrintEconomics({ retailPrice, fulfillmentCost });
+
+  if (prospect.projectedMonthlyArtistPayout > 0) {
+    return `${prospect.name}'s portfolio is projected at $${prospect.projectedMonthlyArtistPayout}/mo under our 30% net profit split ($${economics.artistShare.toFixed(2)} payout per $${retailPrice} order vs ~$12.00 on 10% royalty platforms).`;
+  }
+
+  return `Our transparent 30% net profit split yields $${economics.artistShare.toFixed(2)} per $${retailPrice} print sale with 100% artist copyright retention.`;
+}
+
+export type PayoutSafeSegmentItem = {
+  prospect: OutreachProspect;
+  artworkSlug?: string;
+  statusCategory: "payout-safe" | "needs-price-floor-adjustment" | "blocked";
+  reason: string;
+  suggestedRetailPrice?: number;
+  payoutTrustCopy: string;
+};
+
+export type PayoutSafeSegmentResult = {
+  totalAnalyzed: number;
+  payoutSafeCount: number;
+  needsAdjustmentCount: number;
+  blockedCount: number;
+  safeEnrollmentRate: number;
+  items: PayoutSafeSegmentItem[];
+  summaryLabel: string;
+};
+
+export function buildPayoutSafeOutreachSegment(
+  prospects: OutreachProspect[] = outreachProspects,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): PayoutSafeSegmentResult {
+  const artworkBySlug = new Map(artworks.map((a) => [a.slug, a]));
+  const payoutExceptionBySlug = new Map(
+    buildPayoutExceptionQueue(artworks).map((e) => [e.artwork.slug, e]),
+  );
+
+  const items: PayoutSafeSegmentItem[] = prospects.map((prospect) => {
+    const artwork = prospect.catalogArtworkSlug ? artworkBySlug.get(prospect.catalogArtworkSlug) : undefined;
+    const exception = prospect.catalogArtworkSlug ? payoutExceptionBySlug.get(prospect.catalogArtworkSlug) : undefined;
+    const payoutTrustCopy = generateArtistPayoutTrustCopy(prospect, artwork);
+
+    if (exception) {
+      if (exception.severity === "critical") {
+        return {
+          prospect,
+          artworkSlug: prospect.catalogArtworkSlug,
+          statusCategory: "blocked",
+          reason: `Blocked by payout guardrail: ${exception.blockers.join("; ")}`,
+          suggestedRetailPrice: exception.suggestedRetailPrice,
+          payoutTrustCopy,
+        };
+      }
+      return {
+        prospect,
+        artworkSlug: prospect.catalogArtworkSlug,
+        statusCategory: "needs-price-floor-adjustment",
+        reason: `Thin payout margin: ${exception.blockers.join("; ")}. Adjust retail price floor to $${exception.suggestedRetailPrice}.`,
+        suggestedRetailPrice: exception.suggestedRetailPrice,
+        payoutTrustCopy,
+      };
+    }
+
+    return {
+      prospect,
+      artworkSlug: prospect.catalogArtworkSlug,
+      statusCategory: "payout-safe",
+      reason: "SKU economics clear payout trust guardrails with positive 30% net profit split.",
+      payoutTrustCopy,
+    };
+  });
+
+  const payoutSafeCount = items.filter((i) => i.statusCategory === "payout-safe").length;
+  const needsAdjustmentCount = items.filter((i) => i.statusCategory === "needs-price-floor-adjustment").length;
+  const blockedCount = items.filter((i) => i.statusCategory === "blocked").length;
+  const totalAnalyzed = prospects.length;
+  const safeEnrollmentRate = totalAnalyzed > 0 ? Math.round((payoutSafeCount / totalAnalyzed) * 100) : 0;
+
+  return {
+    totalAnalyzed,
+    payoutSafeCount,
+    needsAdjustmentCount,
+    blockedCount,
+    safeEnrollmentRate,
+    items,
+    summaryLabel: `${payoutSafeCount}/${totalAnalyzed} prospects payout-safe (${safeEnrollmentRate}%) • ${needsAdjustmentCount} need price floor edit • ${blockedCount} blocked`,
+  };
+}
+
 export function buildOutreachQueue(prospects: OutreachProspect[]): OutreachQueueItem[] {
   const payoutExceptionBySlug = new Map(
     buildPayoutExceptionQueue(catalogArtworks).map((exception) => [exception.artwork.slug, exception]),
@@ -220,11 +328,18 @@ export function buildOutreachQueue(prospects: OutreachProspect[]): OutreachQueue
           }
         : undefined;
 
+      const payoutTrustCopy = generateArtistPayoutTrustCopy(prospect);
+      const objectionTemplate = prospect.replyText
+        ? findObjectionTemplateByQuery(prospect.replyText)
+        : undefined;
+
       return {
         ...prospect,
         priorityScore: prospect.fitScore + getStatusWeight(prospect.status),
         replyClassification,
         nextAction: getNextAction(replyClassification, prospect.status, payoutGuardrail),
+        payoutTrustCopy,
+        objectionTemplate,
         payoutGuardrail,
       };
     })
@@ -316,6 +431,101 @@ export const outreachPipelineCohort: OutreachPipelineEntry[] = [
     },
   },
 ];
+
+export type OutreachAttributionEvent = {
+  eventId: string;
+  prospectHandle: string;
+  artistName: string;
+  sourceChannel: OutreachProspect["platform"];
+  stage: PipelineStage;
+  stageTimestamp: string;
+  catalogArtworkSlug?: string;
+  projectedMonthlyPayout?: number;
+  recordedAt: string;
+};
+
+const attributionEventStore: OutreachAttributionEvent[] = [];
+
+export function recordOutreachAttributionEvent(
+  event: Omit<OutreachAttributionEvent, "eventId" | "recordedAt"> & {
+    eventId?: string;
+    recordedAt?: string;
+  },
+): OutreachAttributionEvent {
+  const recordedAt = event.recordedAt ?? new Date().toISOString();
+  const eventId =
+    event.eventId ??
+    `oae_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  const record: OutreachAttributionEvent = {
+    ...event,
+    eventId,
+    recordedAt,
+  };
+
+  attributionEventStore.push(record);
+  return record;
+}
+
+export function getOutreachAttributionEvents(): OutreachAttributionEvent[] {
+  return [...attributionEventStore];
+}
+
+export function clearOutreachAttributionEventsForTests(): void {
+  attributionEventStore.length = 0;
+}
+
+const STAGE_ORDER: Record<PipelineStage, number> = {
+  "outreach-sent": 1,
+  replied: 2,
+  "capture-uploaded": 3,
+  "ai-processing": 4,
+  "proof-pending": 5,
+  "live-listing": 6,
+};
+
+export function hydrateCohortFromAttributionEvents(
+  baseCohort: OutreachPipelineEntry[] = outreachPipelineCohort,
+  events: OutreachAttributionEvent[] = attributionEventStore,
+): OutreachPipelineEntry[] {
+  const cohortMap = new Map<string, OutreachPipelineEntry>(
+    baseCohort.map((entry) => [
+      entry.prospectHandle,
+      {
+        ...entry,
+        stageTimestamps: { ...entry.stageTimestamps },
+      },
+    ]),
+  );
+
+  for (const ev of events) {
+    let entry = cohortMap.get(ev.prospectHandle);
+    if (!entry) {
+      entry = {
+        prospectHandle: ev.prospectHandle,
+        artistName: ev.artistName,
+        currentStage: ev.stage,
+        stageTimestamps: { [ev.stage]: ev.stageTimestamp },
+        projectedMonthlyPayout: ev.projectedMonthlyPayout ?? 0,
+        catalogArtworkSlug: ev.catalogArtworkSlug,
+      };
+      cohortMap.set(ev.prospectHandle, entry);
+    } else {
+      entry.stageTimestamps[ev.stage] = ev.stageTimestamp;
+      if (STAGE_ORDER[ev.stage] >= STAGE_ORDER[entry.currentStage]) {
+        entry.currentStage = ev.stage;
+      }
+      if (ev.catalogArtworkSlug) {
+        entry.catalogArtworkSlug = ev.catalogArtworkSlug;
+      }
+      if (ev.projectedMonthlyPayout) {
+        entry.projectedMonthlyPayout = ev.projectedMonthlyPayout;
+      }
+    }
+  }
+
+  return Array.from(cohortMap.values());
+}
 
 const PIPELINE_STAGE_ORDER: PipelineStage[] = [
   "outreach-sent",
@@ -699,6 +909,7 @@ export type OutreachCohortAttributionOptions = {
   now?: string;
   prospects?: OutreachProspect[];
   cohort?: OutreachPipelineEntry[];
+  events?: OutreachAttributionEvent[];
 };
 
 function mapPipelineToAttributionStage(
@@ -758,12 +969,30 @@ export function buildOutreachCohortAttribution(
     now = new Date().toISOString(),
     prospects = outreachProspects,
     cohort = outreachPipelineCohort,
+    events = getOutreachAttributionEvents(),
   } = options;
+  const hydratedCohort = hydrateCohortFromAttributionEvents(cohort, events);
   const nowMs = Date.parse(now);
-  const queue = buildOutreachQueue(prospects);
-  const cohortByHandle = new Map(cohort.map((entry) => [entry.prospectHandle, entry]));
 
-  const rows: OutreachCohortAttributionRow[] = prospects.map((prospect) => {
+  const prospectHandles = new Set(prospects.map((p) => p.handle));
+  const extraProspects: OutreachProspect[] = hydratedCohort
+    .filter((entry) => !prospectHandles.has(entry.prospectHandle))
+    .map((entry) => ({
+      handle: entry.prospectHandle,
+      name: entry.artistName,
+      platform: "Instagram" as const,
+      followers: 0,
+      fitScore: 80,
+      styleSignal: "General Art",
+      projectedMonthlyArtistPayout: entry.projectedMonthlyPayout,
+      status: "Onboarded" as const,
+    }));
+
+  const allProspects = [...prospects, ...extraProspects];
+  const queue = buildOutreachQueue(allProspects);
+  const cohortByHandle = new Map(hydratedCohort.map((entry) => [entry.prospectHandle, entry]));
+
+  const rows: OutreachCohortAttributionRow[] = allProspects.map((prospect) => {
     const queueItem = queue.find((item) => item.handle === prospect.handle);
     const cohortEntry = cohortByHandle.get(prospect.handle) ?? null;
     const pipelineStage = cohortEntry?.currentStage ?? null;

@@ -4,12 +4,9 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
-- [ ] [platform] Persist outreach cohort attribution events with stage timestamps and source channel
 - [ ] [platform] Convex order persistence — migrate in-memory `src/lib/orders.ts` records to database
-- [ ] [platform] Persist Printful fulfillment submissions with HTTP status, payload snapshot, and retry queue
 - [ ] [platform] Persist Printful variant mappings to Convex with operator audit log
 - [ ] [platform] Wire partner credential vault to Vercel env pull and mask secrets in admin UI
-- [ ] [platform] Persist proof-mockup kit send events with channel, artwork slug, and copy version
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
 - [ ] [platform] Persist Stripe webhook events to artist payout ledger (transfer.created, payout.paid)
@@ -26,7 +23,6 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [legal] Add consent gate for artist artwork in AI-generated room scenes and paid ad previews
 - [ ] [sales] Add outreach personalization field for why each artist should trust the payout math
 - [ ] [finance] Add payout sensitivity price-floor optimizer by artist trust, CAC, and POD cost
-- [ ] [legal] Add artist terms explainer for copyright retention, POD license, ad rights, and payout acknowledgement
 - [ ] [platform] Persist payout exception decisions with current economics, suggested retail, override reason, and remediation history
 - [ ] [gtm] Add payout-safe outreach segment builder that only enrolls artists whose SKU economics clear trust guardrails
 - [ ] [ai-ml] Add POD cost sensitivity recommender for cheaper fulfillment options before raising retail price
@@ -42,6 +38,10 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [legal] Add artist terms explainer for copyright retention, POD license, ad rights, and payout acknowledgement
+- [x] [platform] Persist proof-mockup kit send events with channel, artwork slug, and copy version
+- [x] [platform] Persist Printful fulfillment submissions with HTTP status, payload snapshot, and retry queue
+- [x] [platform] Persist outreach cohort attribution events with stage timestamps and source channel
 - [x] [platform] Google/Pinterest CAPI HTTP fire on checkout session (parity with Meta)
 - [x] [platform] Gelato order API scaffold from Stripe webhook (parity with Printful)
 - [x] [ops] Fulfillment submissions dashboard on `/admin-portal` with `GET /api/fulfillment/submissions`

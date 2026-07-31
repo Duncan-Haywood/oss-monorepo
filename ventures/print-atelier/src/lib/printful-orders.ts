@@ -48,6 +48,10 @@ export type PrintfulOrderSubmission = {
   httpStatus?: number;
   httpOk?: boolean;
   responseSnippet?: string;
+  retryCount?: number;
+  maxRetries?: number;
+  lastAttemptAt?: string;
+  canRetry?: boolean;
 };
 
 export type FetchLike = (
@@ -169,7 +173,7 @@ export async function queuePrintfulFulfillmentFromOrder(
   const envStatus = getPrintfulEnvStatus(env);
 
   if (!envStatus.ready) {
-    return {
+    return recordPrintfulFulfillmentSubmission({
       orderId: order.orderId,
       partner: "printful",
       mode: "dry_run",
@@ -177,11 +181,11 @@ export async function queuePrintfulFulfillmentFromOrder(
       apiEndpoint: PRINTFUL_ORDERS_ENDPOINT,
       payload,
       message: `Printful order queued (dry run) — configure ${envStatus.blockers.join(", ")}`,
-    };
+    });
   }
 
   if (!fetchFn) {
-    return {
+    return recordPrintfulFulfillmentSubmission({
       orderId: order.orderId,
       partner: "printful",
       mode: "api_submit",
@@ -189,11 +193,12 @@ export async function queuePrintfulFulfillmentFromOrder(
       apiEndpoint: PRINTFUL_ORDERS_ENDPOINT,
       payload,
       message: `Printful payload ready — ${payload.items.length} line items for ${payload.recipient.countryCode}`,
-    };
+    });
   }
 
   const http = await submitPrintfulOrder(payload, env, fetchFn);
-  return {
+  const isBlocked = !http.ok;
+  return recordPrintfulFulfillmentSubmission({
     orderId: order.orderId,
     partner: "printful",
     mode: "api_submit",
@@ -206,13 +211,68 @@ export async function queuePrintfulFulfillmentFromOrder(
     message: http.ok
       ? `Printful order submitted for ${order.orderId}`
       : `Printful API error (${http.status})`,
-  };
+    retryCount: 0,
+    maxRetries: 3,
+    lastAttemptAt: new Date().toISOString(),
+    canRetry: isBlocked,
+  });
 }
 
 const fulfillmentStore: PrintfulOrderSubmission[] = [];
 
 export function getPrintfulFulfillmentSubmissions(): PrintfulOrderSubmission[] {
   return [...fulfillmentStore];
+}
+
+export function getPrintfulRetryQueue(): PrintfulOrderSubmission[] {
+  return fulfillmentStore.filter(
+    (item) => item.status === "blocked" && (item.canRetry ?? true) && (item.retryCount ?? 0) < (item.maxRetries ?? 3),
+  );
+}
+
+export async function retryPrintfulFulfillmentSubmission(
+  orderId: string,
+  env: Record<string, string | undefined> = {},
+  fetchFn?: FetchLike,
+): Promise<PrintfulOrderSubmission | null> {
+  const existing = fulfillmentStore.find((item) => item.orderId === orderId);
+  if (!existing || existing.status !== "blocked") {
+    return null;
+  }
+
+  const currentRetries = existing.retryCount ?? 0;
+  const maxRetries = existing.maxRetries ?? 3;
+  if (currentRetries >= maxRetries) {
+    existing.canRetry = false;
+    existing.message = `Printful retry limit exceeded (${maxRetries} max retries)`;
+    return existing;
+  }
+
+  if (!fetchFn) {
+    existing.retryCount = currentRetries + 1;
+    existing.lastAttemptAt = new Date().toISOString();
+    existing.message = `Printful retry #${existing.retryCount} queued — waiting for active API key or fetch handler`;
+    return existing;
+  }
+
+  const http = await submitPrintfulOrder(existing.payload, env, fetchFn);
+  existing.retryCount = currentRetries + 1;
+  existing.lastAttemptAt = new Date().toISOString();
+  existing.httpStatus = http.status;
+  existing.httpOk = http.ok;
+  existing.responseSnippet = http.body.slice(0, 200);
+
+  if (http.ok) {
+    existing.status = "submitted";
+    existing.canRetry = false;
+    existing.message = `Printful order submitted on retry #${existing.retryCount} for ${orderId}`;
+  } else {
+    existing.status = "blocked";
+    existing.canRetry = existing.retryCount < maxRetries;
+    existing.message = `Printful API error on retry #${existing.retryCount} (${http.status})`;
+  }
+
+  return existing;
 }
 
 export function recordPrintfulFulfillmentSubmission(

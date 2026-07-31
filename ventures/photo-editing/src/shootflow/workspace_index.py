@@ -889,9 +889,11 @@ def _normalize_workspace_health_authority(
 
 def _validate_index_binding(index: WorkspaceIndex, root: Path) -> None:
     expected_index_path = root / WORKSPACE_INDEX_PATH
-    if index.workspace_root.resolve() != root.resolve():
+    index_root = index.workspace_root if index.workspace_root.is_absolute() else (root / index.workspace_root)
+    index_path = index.index_path if index.index_path.is_absolute() else (root / index.index_path)
+    if index_root.resolve() != root.resolve():
         raise WorkspaceIndexError("workspace index workspace_root does not match requested workspace")
-    if index.index_path.resolve(strict=False) != expected_index_path.resolve(strict=False):
+    if index_path.resolve(strict=False) != expected_index_path.resolve(strict=False):
         raise WorkspaceIndexError("workspace index index_path does not match requested workspace")
 
 
@@ -910,17 +912,26 @@ def _validate_artifact(artifact: WorkspaceArtifactSummary) -> None:
         raise WorkspaceIndexError("artifact summary must be a dictionary")
 
 
+def _is_system_symlink(path: Path) -> bool:
+    if path.parent == Path("/") and path.name in {"var", "tmp", "etc"}:
+        try:
+            return path.resolve() == Path("/private") / path.name
+        except OSError:
+            return False
+    return False
+
+
 def _workspace_root(workspace_root: Path | str) -> Path:
     if not isinstance(workspace_root, (Path, str)):
         raise WorkspaceIndexError("workspace_root must be a pathlib.Path or string")
-    root = Path(workspace_root)
-    if root.is_symlink():
+    root = Path(workspace_root).absolute()
+    if root.is_symlink() and not _is_system_symlink(root):
         raise WorkspaceIndexError(f"Refusing workspace symlink: {root}")
     if not root.exists():
         raise WorkspaceIndexError(f"workspace_root does not exist: {root}")
     if root.exists() and not root.is_dir():
         raise WorkspaceIndexError(f"workspace_root must be a directory: {root}")
-    return root.resolve()
+    return root
 
 
 def _validate_timestamp(timestamp: str) -> None:
@@ -932,7 +943,7 @@ def _validate_timestamp(timestamp: str) -> None:
 
 def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
     try:
-        if path.is_symlink():
+        if path.is_symlink() and not _is_system_symlink(path):
             raise WorkspaceIndexError(f"Refusing symlinked {label}: {path}")
     except OSError as exc:
         raise WorkspaceIndexError(f"Unable to inspect {label}: {path}") from exc
@@ -940,7 +951,7 @@ def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
     current = path.parent
     while current != root and current != current.parent:
         try:
-            if current.exists() and current.is_symlink():
+            if current.exists() and current.is_symlink() and not _is_system_symlink(current):
                 raise WorkspaceIndexError(f"Refusing symlinked parent for {label}: {current}")
         except OSError as exc:
             raise WorkspaceIndexError(f"Unable to inspect parent for {label}: {current}") from exc

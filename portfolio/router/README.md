@@ -38,5 +38,4 @@ A ranked work queue. Each entry names a venture, a task, and a spend ceiling.
 
 ## Status
 
-Not implemented. The schema and the layout come first so that ventures start
-emitting the data the router will need.
+Implemented in `portfolio/router/router.py` with unit tests in `portfolio/router/test_router.py`. Run `python3 portfolio/router/router.py` or `python3 portfolio/router/router.py --json` to generate the ranked work queue. Integrated into monorepo CI verification (`scripts/test-ci.sh`).

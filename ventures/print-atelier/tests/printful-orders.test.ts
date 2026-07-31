@@ -4,7 +4,9 @@ import { test } from "node:test";
 import {
   buildPrintfulOrderPayload,
   clearPrintfulFulfillmentForTests,
+  getPrintfulRetryQueue,
   queuePrintfulFulfillmentFromOrder,
+  retryPrintfulFulfillmentSubmission,
   type FetchLike,
 } from "../src/lib/printful-orders.ts";
 import type { OrderRecord } from "../src/lib/orders.ts";
@@ -71,4 +73,47 @@ test("queuePrintfulFulfillmentFromOrder skips non-printful partners", async () =
   const gelatoOrder: OrderRecord = { ...sampleOrder, fulfillmentPartnerId: "gelato" };
   const submission = await queuePrintfulFulfillmentFromOrder(gelatoOrder, {}, {});
   assert.equal(submission, null);
+});
+
+test("getPrintfulRetryQueue tracks blocked submissions and handles retries", async () => {
+  clearPrintfulFulfillmentForTests();
+
+  const failFetch: FetchLike = async () => ({
+    ok: false,
+    status: 503,
+    text: async () => '{"error":"Service unavailable"}',
+  });
+
+  const submission = await queuePrintfulFulfillmentFromOrder(
+    sampleOrder,
+    {},
+    { PRINTFUL_API_KEY: "pf_key", PRINTFUL_STORE_ID: "store_1" },
+    failFetch,
+  );
+
+  assert.ok(submission);
+  assert.equal(submission?.status, "blocked");
+  assert.equal(submission?.canRetry, true);
+
+  const retryQueue = getPrintfulRetryQueue();
+  assert.equal(retryQueue.length, 1);
+  assert.equal(retryQueue[0]?.orderId, sampleOrder.orderId);
+
+  const successFetch: FetchLike = async () => ({
+    ok: true,
+    status: 200,
+    text: async () => '{"result":{"id":999}}',
+  });
+
+  const retried = await retryPrintfulFulfillmentSubmission(
+    sampleOrder.orderId,
+    { PRINTFUL_API_KEY: "pf_key", PRINTFUL_STORE_ID: "store_1" },
+    successFetch,
+  );
+
+  assert.ok(retried);
+  assert.equal(retried?.status, "submitted");
+  assert.equal(retried?.retryCount, 1);
+  assert.equal(retried?.canRetry, false);
+  assert.equal(getPrintfulRetryQueue().length, 0);
 });

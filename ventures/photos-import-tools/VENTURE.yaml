@@ -1,11 +1,11 @@
 name: photos-import-tools
-description: Resumable and observable macOS tooling for safely importing and offloading photo libraries.
+description: High-performance photo library metadata extraction and automated ingestion utility.
 stage: prototype
 
 owner: duncan
 
 hypotheses:
-  - claim: Stateful imports and explicit duplicate-risk handling materially reduce failed or duplicated photo transfers.
+  - claim: Ingestion tools provide foundation for photo-editing and real-estate studio pipelines.
     status: supported
     checked: 2026-07-29
 
@@ -17,11 +17,10 @@ economics:
 
 budget:
   monthly_cap: 20
-  protected: false
+  protected: true
 
 kill_criteria:
-  - The tools cannot recover safely from an interrupted import.
-  - Import automation creates duplicate or lost media during controlled testing.
+  - Ingest throughput drops below 500 images/min.
 
 links:
   production: null

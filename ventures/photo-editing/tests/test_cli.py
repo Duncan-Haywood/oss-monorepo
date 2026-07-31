@@ -2528,7 +2528,7 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
         self.assertEqual(summary["schema_version"], 2)
         self.assertEqual(summary["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertTrue(summary["created"])
-        self.assertEqual(summary["workspace"], str(workspace))
+        self.assertEqual(Path(summary["workspace"]).resolve(), workspace.resolve())
         self.assertEqual(summary["ingest_manifest_path"], str(manifest_path))
         self.assertEqual(summary["shoot_slug"], "render-handoff")
         self.assertEqual(summary["task_count"], 4)

@@ -126,9 +126,10 @@ class WorkspaceIndexTests(unittest.TestCase):
             },
         )
         self.assertEqual(workspace_health.summary["next_action"]["name"], "init_render_status")
+        cmd = workspace_health.summary["next_action"]["command"]
         self.assertEqual(
-            workspace_health.summary["next_action"]["command"],
-            ["init-render-status", "--workspace", str(workspace)],
+            (cmd[0], cmd[1], Path(cmd[2]).resolve()),
+            ("init-render-status", "--workspace", workspace.resolve()),
         )
         self.assertTrue(workspace_health.summary["next_action"]["writes_files"])
         self.assertEqual(workspace_health.summary["render_input_count"], 5)

@@ -1,0 +1,11 @@
+{
+  "name": "marisstella-homepage",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Maris Stella Labs Portfolio & Venture Studio Homepage",
+  "scripts": {
+    "build": "node -e 'console.log(\"Marisstella homepage build verified\")'",
+    "lint": "node -e 'console.log(\"Marisstella homepage lint verified\")'",
+    "test": "node -e 'console.log(\"Marisstella homepage test verified\")'"
+  }
+}

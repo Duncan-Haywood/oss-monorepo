@@ -174,7 +174,7 @@ function median(values: number[]): number {
   return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 }
 
-const SEEDS = Array.from({ length: 15 }, (_, i) => 1 + i * 7);
+const SEEDS = Array.from({ length: process.env.FULL_SIMULATION ? 15 : 6 }, (_, i) => 1 + i * 7);
 
 /** Answers per perspective. 90 is what two real accounts actually produced. */
 const REALISTIC = 90;

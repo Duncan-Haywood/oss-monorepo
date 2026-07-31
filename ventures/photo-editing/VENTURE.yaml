@@ -1,0 +1,27 @@
+name: photo-editing
+description: Batch automated photography editing, color calibration, and catalog processing service.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Professional photographers will pay $0.25/photo for automated raw color calibration and catalog delivery.
+    status: supported
+    checked: 2026-07-29
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 35
+  protected: true
+
+kill_criteria:
+  - Batch render throughput fails to process 1,000 images per hour.
+
+links:
+  production: null
+  analytics: null

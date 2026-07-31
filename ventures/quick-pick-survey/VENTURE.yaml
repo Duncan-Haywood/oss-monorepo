@@ -1,0 +1,28 @@
+name: quick-pick-survey
+description: Pairwise-comparison preference engine using Glicko-2 and Bradley-Terry rating models.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Pairwise comparisons yield higher user engagement and more accurate preference rankings than standard rating forms.
+    status: supported
+    checked: 2026-07-29
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 30
+  protected: false
+
+kill_criteria:
+  - Unmaintained infrastructure or unmerged PR backlog prevents automated deployments.
+  - Active participant retention drops below 10% after 30 days.
+
+links:
+  production: https://pairwise.marisstella.dev
+  analytics: null

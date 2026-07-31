@@ -104,6 +104,8 @@ export type ListingConsentRecord = {
   paidAdRightsAccepted: boolean;
   aiRoomSceneAccepted: boolean;
   payoutAcknowledged: boolean;
+  signerHandle?: string;
+  signedAt?: string;
 };
 
 export type ListingConsentStatus = "cleared" | "missing-consent" | "release-blocked";
@@ -154,6 +156,18 @@ export type ChannelBudgetAllocation = {
   eligible: boolean;
   blockers: string[];
   recommendedWeeklyBudget: number;
+};
+
+export type ChannelSpendAllocation = {
+  allocations: ChannelBudgetAllocation[];
+  allocatedBudget: number;
+  unallocatedBudget: number;
+  recommendedChannelId: string | null;
+  plans: Array<{
+    channel: string;
+    allocatedBudget: number;
+    baselineCap: number;
+  }>;
 };
 
 export type CreativeChannel = "paid-social" | "search" | "artist-referral";
@@ -326,6 +340,9 @@ export const catalogArtworks: CatalogArtwork[] = [
 ];
 
 export function roundCurrency(value: number) {
+  if (value === undefined || value === null || Number.isNaN(value)) {
+    return 0;
+  }
   return Number(value.toFixed(2));
 }
 
@@ -765,15 +782,44 @@ export function calculateChannelScenario({
   };
 }
 
-export function allocateWeeklyChannelBudget({
-  retailPrice,
-  fulfillmentCost,
-  paymentFeeRate,
-  aiComputeCost,
-  totalWeeklyBudget,
-  minLtvToCacRatio,
-  channels,
-}: WeeklyChannelBudgetInput) {
+export const defaultAcquisitionChannels: BudgetChannelInput[] = [
+  {
+    id: "meta_ads",
+    label: "Meta Paid Social",
+    weeklyBudgetCap: 250,
+    baselineCAC: 42,
+    purchasesPerCustomer: 1.2,
+    previewLiftPercent: 20,
+  },
+  {
+    id: "google_shopping",
+    label: "Google Shopping (Intent)",
+    weeklyBudgetCap: 150,
+    baselineCAC: 34,
+    purchasesPerCustomer: 1.1,
+    previewLiftPercent: 10,
+  },
+  {
+    id: "pinterest_ads",
+    label: "Pinterest Decor Discovery",
+    weeklyBudgetCap: 100,
+    baselineCAC: 48,
+    purchasesPerCustomer: 1.0,
+    previewLiftPercent: 25,
+  },
+];
+
+export function allocateWeeklyChannelBudget(
+  input?: Partial<WeeklyChannelBudgetInput>,
+) {
+  const safeInput = input ?? {};
+  const retailPrice = safeInput.retailPrice ?? 120;
+  const fulfillmentCost = safeInput.fulfillmentCost ?? 32;
+  const paymentFeeRate = safeInput.paymentFeeRate ?? 0.03;
+  const aiComputeCost = safeInput.aiComputeCost ?? 0.35;
+  const totalWeeklyBudget = safeInput.totalWeeklyBudget ?? 500;
+  const minLtvToCacRatio = safeInput.minLtvToCacRatio ?? 1.5;
+  const channels = safeInput.channels ?? defaultAcquisitionChannels;
   const allocations: ChannelBudgetAllocation[] = channels.map((channel) => {
     const previewLift = Math.max(channel.previewLiftPercent, 0);
     const adjustedCAC = roundCurrency(channel.baselineCAC * (1 - Math.min(previewLift, 100) / 100));
@@ -853,11 +899,18 @@ export function allocateWeeklyChannelBudget({
     .filter((allocation) => allocation.recommendedWeeklyBudget > 0)
     .sort((a, b) => b.recommendedWeeklyBudget - a.recommendedWeeklyBudget || b.score - a.score)[0];
 
+  const plans = allocations.map((a) => ({
+    channel: a.id,
+    allocatedBudget: a.recommendedWeeklyBudget,
+    baselineCap: a.weeklyBudgetCap,
+  }));
+
   return {
     allocations,
     allocatedBudget,
     unallocatedBudget: Math.max(Math.round(totalWeeklyBudget - allocatedBudget), 0),
     recommendedChannelId: recommended?.id ?? null,
+    plans,
   };
 }
 

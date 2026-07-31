@@ -9,7 +9,7 @@ const LEGACY_SESSION_COOKIE = "qp_session";
 const SESSION_TTL_DAYS = 30;
 const MAX_ACTIVE_SESSIONS = 10;
 const ATTEMPT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
-const BCRYPT_ROUNDS = 12;
+const BCRYPT_ROUNDS = process.env.NODE_ENV === "test" || Boolean(process.env.VITEST) ? 4 : 12;
 
 /** Failed-login rate limits, applied per email and per IP independently. */
 const WINDOW_MS = 15 * 60 * 1000;

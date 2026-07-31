@@ -1,0 +1,27 @@
+name: mat-470-real-analysis
+description: Interactive mathematical proof exploration and real analysis study companion platform.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Interactive visual proof walkthroughs increase STEM student retention and subscription interest.
+    status: untested
+    checked: null
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - Fewer than 20 regular users per month.
+
+links:
+  production: null
+  analytics: null

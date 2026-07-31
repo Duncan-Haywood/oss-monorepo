@@ -8,7 +8,9 @@ import os
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from platform.ci.pipeline import CIPipelineEngine
+import sys
+sys.path.insert(0, str(Path(__file__).parent))
+from pipeline import CIPipelineEngine
 
 class TestCIPipelineEngine(unittest.TestCase):
     def setUp(self):

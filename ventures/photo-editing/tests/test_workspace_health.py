@@ -70,8 +70,8 @@ class WorkspaceHealthTests(unittest.TestCase):
         self.assertEqual(summary.task_count, 4)
         self.assertEqual(summary.next_action.name, "init_render_status")
         self.assertEqual(
-            summary.next_action.command,
-            ("init-render-status", "--workspace", str(demo.workspace_root)),
+            (summary.next_action.command[0], summary.next_action.command[1], Path(summary.next_action.command[2]).resolve()),
+            ("init-render-status", "--workspace", demo.workspace_root.resolve()),
         )
         self.assertTrue(summary.next_action.writes_files)
 
@@ -417,7 +417,7 @@ class WorkspaceHealthTests(unittest.TestCase):
         self.assertEqual(summary["schema_version"], 4)
         self.assertEqual(summary["workflow_authority"]["mode"], "observe_only")
         self.assertFalse(summary["workflow_authority"]["permits_file_mutation"])
-        self.assertEqual(summary["workspace"], str(workspace))
+        self.assertEqual(Path(summary["workspace"]).resolve(), workspace.resolve())
         self.assertEqual(summary["render_input_count"], 5)
         self.assertIsInstance(summary["render_inputs_fingerprint"], str)
         self.assertTrue(summary["artifacts"]["render_tasks"]["valid"])

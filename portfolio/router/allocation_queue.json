@@ -1,0 +1,130 @@
+{
+  "total_budget_usd": 500.0,
+  "mature_pool_usd": 300.0,
+  "explore_pool_usd": 200.0,
+  "active_count": 11,
+  "killed_count": 0,
+  "work_queue": [
+    {
+      "venture": "ai-engineering-academy",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 40,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "ai-first-markets",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 30,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "local-site-studio",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 50,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "mat-470-real-analysis",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 20,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "photo-editing",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 35,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "photos-import-tools",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 20,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "print-atelier",
+      "stage": "launched",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 60,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "quick-pick-survey",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 30,
+      "mrr": null,
+      "protected": false,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "real-estate-agent-photo-app",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 30,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "retail-pilot-intel",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 50,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    },
+    {
+      "venture": "ubuntu-agent-server",
+      "stage": "prototype",
+      "pool": "protected_explore_40%",
+      "allocated_usd": 18.18,
+      "cap_usd": 40,
+      "mrr": null,
+      "protected": true,
+      "status": "active",
+      "priority": 3
+    }
+  ]
+}

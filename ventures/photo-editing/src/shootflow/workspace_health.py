@@ -408,17 +408,26 @@ def workspace_health_summary_to_dict(summary: WorkspaceHealthSummary) -> dict[st
     }
 
 
+def _is_system_symlink(path: Path) -> bool:
+    if path.parent == Path("/") and path.name in {"var", "tmp", "etc"}:
+        try:
+            return path.resolve() == Path("/private") / path.name
+        except OSError:
+            return False
+    return False
+
+
 def _workspace_root(workspace_root: Path | str) -> Path:
     if not isinstance(workspace_root, (Path, str)):
         raise WorkspaceHealthError("workspace_root must be a pathlib.Path or string")
-    root = Path(workspace_root)
-    if root.is_symlink():
+    root = Path(workspace_root).absolute()
+    if root.is_symlink() and not _is_system_symlink(root):
         raise WorkspaceHealthError(f"Refusing workspace symlink: {root}")
     if not root.exists():
         raise WorkspaceHealthError(f"workspace_root does not exist: {root}")
     if root.exists() and not root.is_dir():
         raise WorkspaceHealthError(f"Workspace root must be a directory: {root}")
-    return root.resolve()
+    return root
 
 
 def _path_exists_or_is_symlink(path: Path) -> bool:
@@ -429,7 +438,7 @@ def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
     current = path
     while True:
         try:
-            if current.is_symlink():
+            if current.is_symlink() and not _is_system_symlink(current):
                 raise WorkspaceHealthError(f"Refusing symlinked {label}: {current}")
         except OSError as exc:
             raise WorkspaceHealthError(f"Unable to inspect {label}: {current}") from exc
