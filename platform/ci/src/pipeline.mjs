@@ -221,8 +221,18 @@ export function runSecuritySuite(repoRoot = REPO_ROOT) {
   let passed = true;
 
   // 1. Repository policy scan
+  //
+  // A missing scanner used to be indistinguishable from a passing one: both
+  // arms below were `if (fs.existsSync(script))` with no else, so renaming or
+  // deleting either file left this suite returning true having scanned nothing.
+  // These two scripts are tracked repository fixtures, not optional tooling —
+  // their absence is a broken checkout or a bad rename, and both should stop
+  // the run rather than quietly shrink the security suite.
   const scanPolicyScript = path.join(repoRoot, 'scripts/security/scan-repository.sh');
-  if (fs.existsSync(scanPolicyScript)) {
+  if (!fs.existsSync(scanPolicyScript)) {
+    console.error(`✖ Security Policy Scan MISSING: ${scanPolicyScript}`);
+    passed = false;
+  } else {
     console.log('\n▶ Running Security Policy Scan...');
     const res = spawnSync('bash', [scanPolicyScript], { cwd: repoRoot, stdio: 'inherit' });
     if (res.status !== 0) {
@@ -235,7 +245,10 @@ export function runSecuritySuite(repoRoot = REPO_ROOT) {
 
   // 2. Secret & Vulnerability Audit
   const secScanScript = path.join(repoRoot, 'scripts/security-scan.sh');
-  if (fs.existsSync(secScanScript)) {
+  if (!fs.existsSync(secScanScript)) {
+    console.error(`✖ Vulnerability & Secret Audit MISSING: ${secScanScript}`);
+    passed = false;
+  } else {
     console.log('\n▶ Running Monorepo Vulnerability & Secret Audit...');
     // Inherited, never forced. Waiving the dependency audit is a policy
     // exception: it has to be set where a reviewer can see it (the workflow
@@ -266,9 +279,15 @@ export function verifyNodeHost(component, repoRoot = REPO_ROOT) {
   // They differ when a venture keeps its Node package in a subdirectory, so a
   // change anywhere in the venture still selects the component for verification.
   const fullDir = path.join(repoRoot, component.packageDir || component.dir);
+  // Fail closed, for the reason already stated below about catalog-claimed
+  // scripts: a stale registry entry must not become a green run that verified
+  // nothing. A catalog entry naming a directory that does not exist is the same
+  // defect one level up, and it used to return true.
   if (!fs.existsSync(fullDir) || !fs.existsSync(path.join(fullDir, 'package.json'))) {
-    console.log(`ℹ Skipping missing Node directory: ${component.packageDir || component.dir}`);
-    return true;
+    console.error(
+      `✖ ${component.id}: catalog claims a Node package at ${component.packageDir || component.dir}, which has no package.json`
+    );
+    return false;
   }
 
   console.log(`\n▶ Verifying Node Component: ${component.name} (${component.dir})`);
@@ -322,8 +341,10 @@ export function verifyNodeHost(component, repoRoot = REPO_ROOT) {
 export function verifyPnpmHost(component, repoRoot = REPO_ROOT) {
   const fullDir = path.join(repoRoot, component.dir);
   if (!fs.existsSync(fullDir) || !fs.existsSync(path.join(fullDir, 'package.json'))) {
-    console.log(`ℹ Skipping missing pnpm workspace: ${component.dir}`);
-    return true;
+    console.error(
+      `✖ ${component.id}: catalog claims a pnpm workspace at ${component.dir}, which has no package.json`
+    );
+    return false;
   }
 
   console.log(`\n▶ Verifying pnpm Workspace: ${component.name} (${component.dir})`);
@@ -357,15 +378,25 @@ export function verifyPnpmHost(component, repoRoot = REPO_ROOT) {
 export function verifyPythonHost(component, repoRoot = REPO_ROOT) {
   const fullDir = path.join(repoRoot, component.dir);
   if (!fs.existsSync(fullDir)) {
-    console.log(`ℹ Skipping missing Python directory: ${component.dir}`);
-    return true;
+    console.error(`✖ ${component.id}: catalog claims a Python component at ${component.dir}, which does not exist`);
+    return false;
   }
 
   console.log(`\n▶ Verifying Python Component: ${component.name} (${component.dir})`);
   try {
     const targetPath = component.testDir || 'tests';
     const checkPath = path.join(fullDir, targetPath);
-    if (fs.existsSync(checkPath) || targetPath === '.' || targetPath.endsWith('.py')) {
+    // The `if` below had no `else`, so a catalog entry pointing at a test
+    // directory that had been moved or never created ran nothing and printed
+    // PASSED. A Python component registered here exists to have its suite run;
+    // no suite is a failure, not a pass.
+    if (!fs.existsSync(checkPath) && targetPath !== '.' && !targetPath.endsWith('.py')) {
+      console.error(
+        `✖ ${component.id}: catalog claims a test path at ${path.join(component.dir, targetPath)}, which does not exist`
+      );
+      return false;
+    }
+    {
       console.log('  Running Python test suite...');
       if (fs.existsSync(path.join(fullDir, 'test_router.py'))) {
         execSync('TMPDIR="/private/tmp" python3 test_router.py', {
@@ -396,19 +427,27 @@ export function verifyTerraformHost(component, repoRoot = REPO_ROOT) {
   try {
     const hasTf = spawnSync('command', ['-v', 'terraform'], { shell: true }).status === 0;
     if (!hasTf) {
-      console.log('ℹ Terraform CLI not installed on host; skipping terraform checks.');
+      // Still returns true — a host without the CLI cannot verify, and failing
+      // every developer machine that lacks Terraform would only teach people to
+      // skip the pipeline. But it must not print PASSED. It did, and since
+      // .gitea/workflows/ci-cd.yml installs no Terraform either, this component
+      // reported success in CI on every run while checking nothing.
+      console.warn(
+        `⚠ ${component.name} NOT VERIFIED: Terraform CLI not installed on this host. ` +
+          'This run proves nothing about platform/terraform.'
+      );
       return true;
     }
     const env = { ...process.env, TF_CLI_CONFIG_FILE: '/dev/null' };
     execSync('terraform fmt -check -recursive', { cwd: fullDir, env, stdio: 'inherit' });
     if (fs.existsSync(path.join(fullDir, '.terraform'))) {
-      try {
-        execSync('terraform validate', { cwd: fullDir, env, stdio: 'inherit' });
-      } catch (e) {
-        console.log('ℹ Terraform validation skipped (uninitialized or offline environment).');
-      }
+      // `validate` is only reached when .terraform exists, so the directory is
+      // already initialized and a failure here is an invalid configuration, not
+      // an offline environment. Catching it and printing "skipped" turned the
+      // one real Terraform gate in the pipeline into a message.
+      execSync('terraform validate', { cwd: fullDir, env, stdio: 'inherit' });
     } else {
-      console.log('ℹ Terraform backend not initialized; verified formatting successfully.');
+      console.log('ℹ Terraform backend not initialized; verified formatting only.');
     }
     console.log(`✔ ${component.name} PASSED`);
     return true;
