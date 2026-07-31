@@ -138,16 +138,59 @@ type LiveSession = {
 };
 
 function openSession(bundle: SessionBundle): LiveSession {
-  const domains: DomainState[] = bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 }));
+  const seedSurveysMap: Record<string, { title: string; kind: DomainState["kind"] }> = {
+    activities: { title: "Free-time activities", kind: "ITEMS" },
+    professions: { title: "Professions", kind: "ITEMS" },
+    traits: { title: "Character", kind: "ITEMS" },
+    values: { title: "Values", kind: "ITEMS" },
+    behaviors: { title: "What they do", kind: "ITEMS" },
+    affection: { title: "How they show it", kind: "ITEMS" },
+    relationship: { title: "What makes it work", kind: "ITEMS" },
+    communication: { title: "Communication", kind: "ITEMS" },
+    lifestyle: { title: "Lifestyle", kind: "ITEMS" },
+    intimacy: { title: "Closeness & intimacy", kind: "ITEMS" },
+    "future-family": { title: "Future & family", kind: "ITEMS" },
+    "money-power": { title: "Financial fit", kind: "FINANCIAL" },
+    "stress-support": { title: "Co-regulation & support", kind: "ITEMS" },
+    "trust-boundaries": { title: "Trust & boundaries", kind: "ITEMS" },
+    "play-growth": { title: "Play & humor", kind: "ITEMS" },
+    "care-health": { title: "Care & health", kind: "ITEMS" },
+    "community-belonging": { title: "Social world", kind: "ITEMS" },
+    "work-time": { title: "Time allocation", kind: "ITEMS" },
+    combined: { title: "Adaptive All-in-One", kind: "ITEMS" },
+  };
+
   const urlDomain = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("domain") : null;
+  const isSeedDomain = urlDomain ? seedSurveysMap[urlDomain] : null;
+
+  const domains: DomainState[] = bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 }));
+  const participants = { ...bundle.participants };
+
+  if (urlDomain && isSeedDomain && !domains.some((d) => d.slug === urlDomain)) {
+    domains.push({
+      slug: urlDomain,
+      title: isSeedDomain.title,
+      kind: isSeedDomain.kind,
+      confidence: 0,
+      answeredCount: 0,
+    });
+    if (!participants[urlDomain]) {
+      const firstPid = Object.values(participants)[0];
+      if (firstPid) {
+        participants[urlDomain] = firstPid;
+      }
+    }
+  }
+
   const initialDomain = urlDomain && domains.some((d) => d.slug === urlDomain)
     ? urlDomain
     : pickNextDomain(domains, null, bundle.perspective ?? DEFAULT_PERSPECTIVE);
+
   return {
     firstName: bundle.firstName,
     partnerName: bundle.partnerName,
     perspective: bundle.perspective ?? DEFAULT_PERSPECTIVE,
-    participants: bundle.participants,
+    participants,
     domains,
     currentSlug: initialDomain,
     streakRemaining: randomStreakTarget(),
@@ -495,7 +538,6 @@ export function UnifiedRunner() {
 
     // Optimistic UI update: advance instantly to pre-fetched trial if available and staying in same domain
     if (!willOpenModeModal && !isDomainSwitching && upcomingTrial) {
-      submittingTrialIdRef.current = null;
       setTrial(upcomingTrial);
       cardShownAt.current = performance.now();
       const pid = session.participants[answeredSlug];
