@@ -68,6 +68,7 @@ REQUIRED_FIELDS = (
 TS_EXTENSIONS = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"}
 PY_EXTENSIONS = {".py"}
 YAML_EXTENSIONS = {".yml", ".yaml"}
+SH_EXTENSIONS = {".sh", ".bash"}
 
 # Files that describe suppressions rather than containing them. Scanning them
 # would make this tool trip over its own documentation and test fixtures.
@@ -137,7 +138,10 @@ DETECTORS: Sequence[Detector] = (
     Detector(
         kind="test-skip",
         pattern=(
-            r"\b(?:it|test|describe|context|suite)\s*\.\s*(?:skip|only|todo|failing)\s*\("
+            # `skipIf` precedes `skip` in the alternation: it is a conditional
+            # skip, so the suite reports success on the machine where the
+            # condition is false, which is exactly where nobody is looking.
+            r"\b(?:it|test|describe|context|suite)\s*\.\s*(?:skipIf|skip|only|todo|failing)\s*\("
             r"|\bx(?:it|describe|test)\s*\("
         ),
         extensions=frozenset(TS_EXTENSIONS),
@@ -148,6 +152,25 @@ DETECTORS: Sequence[Detector] = (
         pattern=r"continue-on-error:\s*true",
         extensions=frozenset(YAML_EXTENSIONS),
         description="CI step failure does not fail the job",
+    ),
+    Detector(
+        kind="lint-suppression",
+        pattern=r"shellcheck\s+disable=",
+        extensions=frozenset(SH_EXTENSIONS | YAML_EXTENSIONS),
+        description="ShellCheck rule disabled inline",
+    ),
+    # Scoped to workflow YAML on purpose. The same flag names appear in shell
+    # comments in `ventures/ubuntu-agent-server` that explain why that host
+    # refuses to use them, and registering a warning against its own footgun
+    # would invert the meaning of the entry.
+    Detector(
+        kind="agent-permission-bypass",
+        pattern=(
+            r"--dangerously-skip-permissions\b|bypassPermissions\b"
+            r"|--yolo\b|--always-approve\b"
+        ),
+        extensions=frozenset(YAML_EXTENSIONS),
+        description="unattended agent runs with its confirmation gates disabled",
     ),
 )
 

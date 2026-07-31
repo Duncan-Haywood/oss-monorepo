@@ -170,3 +170,59 @@ exceptions:
     compensating_control: >-
       The match is inside a string literal in a data file. If it ever became a
       real suppression the count would rise and the audit would fail.
+
+  - id: EXC-011
+    kind: lint-suppression
+    path: scripts/*
+    code: shellcheck disable=SC2016
+    count: 3
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-011
+    expires: 2027-01-27
+    reason: >-
+      SC2016 warns that single-quoted `$` and backticks do not expand. These
+      three scripts emit Markdown reports where backticks and dollar signs are
+      literal output, so the non-expansion is the intent rather than the bug.
+    compensating_control: >-
+      All three are covered by ShellCheck for every other rule, and
+      `scripts/security/test-security-scan.sh` asserts against the generated
+      report text, so a genuinely broken interpolation changes the output the
+      tests compare.
+
+  - id: EXC-012
+    kind: lint-suppression
+    path: .gitea/workflows/pairwise-ci.yml
+    code: shellcheck disable=SC2317
+    count: 1
+    owner: duncan
+    issue: docs/EXCEPTION-REGISTER.md#exc-012
+    expires: 2027-01-27
+    reason: >-
+      SC2317 reports the container-smoke `cleanup()` body as unreachable code.
+      It is reached through a `trap`, which ShellCheck does not follow.
+    compensating_control: >-
+      Narrowly scoped to the one function. If the trap were removed the cleanup
+      really would be dead, and the smoke step leaks its container, which the
+      job's own teardown surfaces.
+
+  - id: EXC-013
+    kind: agent-permission-bypass
+    path: ventures/local-site-studio/.github/workflows/*-scheduled.yml
+    count: 3
+    owner: duncan
+    expires: 2026-10-29
+    issue: docs/EXCEPTION-REGISTER.md#exc-013
+    reason: >-
+      The Claude, Gemini and Grok scheduled workflows each start their CLI with
+      every confirmation gate disabled (`--dangerously-skip-permissions` with
+      `--permission-mode bypassPermissions`, `--yolo`, and `--always-approve`
+      respectively). Unattended agents cannot answer a prompt, so a scheduled
+      run either bypasses the gates or does nothing.
+    compensating_control: >-
+      Runs are non-interactive on ephemeral GitHub-hosted runners, and the
+      workflows unset the provider API keys before handing control to the agent.
+      This is the weakest compensating control in the register and the reason
+      this entry expires in 90 days rather than 180: the bypass is real, the
+      blast radius is a writable checkout plus whatever the workflow token can
+      reach, and `ventures/ubuntu-agent-server` already documents a narrower
+      per-tool allowlist as the pattern these three should adopt.

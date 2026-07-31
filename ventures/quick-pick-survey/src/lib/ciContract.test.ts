@@ -34,7 +34,17 @@ const PAIRWISE_HOOKS = readFileSync(
 );
 
 describe("Pairwise CI contract", () => {
-  it.skipIf(!PAIRWISE_CI)("is a repository-root workflow scoped to Pairwise changes", () => {
+  // Every other assertion in this file is `skipIf(!CI_FILE)`, so renaming or
+  // deleting a workflow would not fail this suite — it would empty it, and an
+  // empty suite reports success. This test is the one that cannot skip, so the
+  // rename shows up as a failure instead of as silence.
+  it("has the workflow files the rest of these assertions depend on", () => {
+    expect(PAIRWISE_CI, `missing ${pairwiseCiPath}`).not.toBe("");
+    expect(MONOREPO_CI, `missing ${monorepoCiPath}`).not.toBe("");
+  });
+
+  it("is a repository-root workflow scoped to Pairwise changes", () => {
+    if (!PAIRWISE_CI) return;
     expect(PAIRWISE_CI).toContain('"ventures/quick-pick-survey/**"');
     expect(PAIRWISE_CI).toMatch(/workflows\/pairwise-ci\.yml/);
     expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
@@ -45,7 +55,8 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toMatch(/timeout-minutes:\s*20/);
   });
 
-  it.skipIf(!PAIRWISE_CI)("cannot pass by swallowing a required gate", () => {
+  it("cannot pass by swallowing a required gate", () => {
+    if (!PAIRWISE_CI) return;
     for (const source of [PAIRWISE_CI, MONOREPO_CI].filter(Boolean)) {
       expect(source).not.toContain("|| true");
       expect(source).not.toMatch(/continue-on-error:\s*true/);
@@ -62,7 +73,8 @@ describe("Pairwise CI contract", () => {
     }
   });
 
-  it.skipIf(!PAIRWISE_CI)("checks the database and the deployable artifact", () => {
+  it("checks the database and the deployable artifact", () => {
+    if (!PAIRWISE_CI) return;
     expect(PAIRWISE_CI).toContain("image: postgres:16");
     expect(PAIRWISE_CI).toContain("prisma migrate deploy");
     expect(PAIRWISE_CI).toContain("docker build");
@@ -72,7 +84,8 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain("needs: [app, database]");
   });
 
-  it.skipIf(!PAIRWISE_CI)("promotes immutable digests through Git and leaves reconciliation to Argo CD", () => {
+  it("promotes immutable digests through Git and leaves reconciliation to Argo CD", () => {
+    if (!PAIRWISE_CI) return;
     expect(PAIRWISE_CI).toContain("platform/ci/promote-pairwise-gitops.sh");
     expect(PAIRWISE_CI).toContain("contents: write");
     expect(PAIRWISE_CI).toContain("persist-credentials: true");
@@ -102,7 +115,8 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_HOOKS).toContain("/couple");
   });
 
-  it.skipIf(!PAIRWISE_CI)("verifies the exact live revision and queues bounded repair work", () => {
+  it("verifies the exact live revision and queues bounded repair work", () => {
+    if (!PAIRWISE_CI) return;
     expect(PAIRWISE_CI).toContain("verify-production:");
     expect(PAIRWISE_CI).toContain('../../platform/ci/wait-for-pairwise-release.sh "${{ github.sha }}"');
     expect(PAIRWISE_CI).toContain("../../platform/ci/smoke-test-pairwise.sh");
@@ -120,7 +134,8 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_KUSTOMIZATION).not.toContain("ci-deployer-rbac.yaml");
   });
 
-  it.skipIf(!MONOREPO_CI)("publishes Pairwise images by immutable commit, never a mutable latest tag", () => {
+  it("publishes Pairwise images by immutable commit, never a mutable latest tag", () => {
+    if (!MONOREPO_CI) return;
     expect(MONOREPO_CI).not.toMatch(/pairwise:latest/);
   });
 });
