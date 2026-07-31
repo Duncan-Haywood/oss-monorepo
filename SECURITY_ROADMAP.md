@@ -1,7 +1,7 @@
 # Security Roadmap & Vulnerability Log
 
 > **Automated Security Scanning & Governance Status**
-> - **Last Scan Execution**: `2026-07-31 04:39:39 UTC`
+> - **Last Scan Execution**: `2026-07-31 04:43:01 UTC`
 > - **CI Pipeline Scanner**: Enabled (`.gitea/workflows/security-scan.yml`)
 > - **Policy Enforcement**: Block PR merges on Critical/High vulnerabilities; track all findings in this roadmap.
 
@@ -72,7 +72,7 @@
 | ventures/photo-editing/docs-site | `postcss` | **HIGH** | <=8.5.17 | PostCSS has XSS via Unescaped </style> in its CSS Stringify Output, PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments, PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure | npm audit fix | [ ] Scheduled |
 | ventures/photo-editing/docs-site | `qs` | **MODERATE** | <6.14.1 | qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion | Upgrade htmltojsx@0.2.2 | [ ] Scheduled |
 | ventures/photo-editing/docs-site | `react` | **HIGH** | 0.15.0-alpha.1 - 16.4.2 | fbjs | Upgrade htmltojsx@0.2.2 | [ ] Scheduled |
-| ventures/photo-editing/docs-site | `react-dom` | **HIGH** | 0.15.0-alpha.1 - 16.4.2 | fbjs, react | npm audit fix | [ ] Scheduled |
+| ventures/photo-editing/docs-site | `react-dom` | **HIGH** | 0.15.0-alpha.1 - 16.4.2 | fbjs, react | Upgrade htmltojsx@0.2.2 | [ ] Scheduled |
 | ventures/photo-editing/docs-site | `request` | **CRITICAL** | * | Server-Side Request Forgery in Request, form-data, qs, tough-cookie, uuid | Upgrade htmltojsx@0.2.2 | [ ] Scheduled |
 | ventures/photo-editing/docs-site | `sharp` | **HIGH** | <0.35.0 | sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591 | npm audit fix | [ ] Scheduled |
 | ventures/photo-editing/docs-site | `tough-cookie` | **MODERATE** | <4.1.3 | tough-cookie Prototype Pollution vulnerability | Upgrade htmltojsx@0.2.2 | [ ] Scheduled |
@@ -84,14 +84,14 @@
 | ventures/ai-first-markets | `@node-minify/core` | **HIGH** | <=5.3.0 || 8.0.6 || 9.0.1 - 9.0.2 | glob | Upgrade @opennextjs/cloudflare@0.2.1 | [ ] Scheduled |
 | ventures/ai-first-markets | `@opennextjs/aws` | **HIGH** | * | @node-minify/core | Upgrade @opennextjs/cloudflare@0.2.1 | [ ] Scheduled |
 | ventures/ai-first-markets | `@opennextjs/cloudflare` | **HIGH** | >=0.3.0 | @opennextjs/aws | Upgrade @opennextjs/cloudflare@0.2.1 | [ ] Scheduled |
-| ventures/ai-first-markets | `brace-expansion` | **HIGH** | <=5.0.7 | brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash | Upgrade eslint@10.8.0 | [ ] Scheduled |
+| ventures/ai-first-markets | `brace-expansion` | **HIGH** | <=5.0.7 | brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash | Upgrade @eslint/eslintrc@0.1.0 | [ ] Scheduled |
 | ventures/ai-first-markets | `eslint` | **HIGH** | 0.12.0 - 2.0.0-rc.1 || 4.1.0 - 10.0.0-rc.2 | @eslint/config-array, @eslint/eslintrc, minimatch | Upgrade eslint@10.8.0 | [ ] Scheduled |
 | ventures/ai-first-markets | `eslint-config-next` | **HIGH** | >=10.2.1-canary.2 | eslint, eslint-plugin-import, eslint-plugin-jsx-a11y, eslint-plugin-react | Upgrade eslint-config-next@0.2.4 | [ ] Scheduled |
 | ventures/ai-first-markets | `eslint-plugin-import` | **HIGH** | >=1.15.0 | minimatch | Upgrade eslint-config-next@0.2.4 | [ ] Scheduled |
 | ventures/ai-first-markets | `eslint-plugin-jsx-a11y` | **HIGH** | >=6.5.0 | minimatch | Upgrade eslint-config-next@0.2.4 | [ ] Scheduled |
 | ventures/ai-first-markets | `eslint-plugin-react` | **HIGH** | >=7.23.0 | minimatch | npm audit fix | [ ] Scheduled |
 | ventures/ai-first-markets | `glob` | **HIGH** | 4.3.0 - 10.5.0 | minimatch | Upgrade @opennextjs/cloudflare@0.2.1 | [ ] Scheduled |
-| ventures/ai-first-markets | `minimatch` | **HIGH** | 2.0.0 - 10.0.2 | brace-expansion | Upgrade eslint@10.8.0 | [ ] Scheduled |
+| ventures/ai-first-markets | `minimatch` | **HIGH** | 2.0.0 - 10.0.2 | brace-expansion | Upgrade @eslint/eslintrc@0.1.0 | [ ] Scheduled |
 | ventures/print-atelier | `@next/eslint-plugin-next` | **HIGH** | 14.0.5-canary.0 - 15.0.0-rc.1 | glob | Upgrade eslint-config-next@16.2.12 | [ ] Scheduled |
 | ventures/print-atelier | `brace-expansion` | **HIGH** | <=5.0.7 | brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups, brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups, brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups, brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash | npm audit fix | [ ] Scheduled |
 | ventures/print-atelier | `esbuild` | **LOW** | 0.27.3 - 0.28.0 | esbuild allows arbitrary file read when running the development server on Windows | npm audit fix | [ ] Scheduled |

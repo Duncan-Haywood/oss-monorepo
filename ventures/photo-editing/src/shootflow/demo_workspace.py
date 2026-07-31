@@ -416,12 +416,11 @@ def _json_payload(payload: dict[str, object]) -> str:
 def _workspace_root(workspace_root: Path | str) -> Path:
     if not isinstance(workspace_root, (Path, str)):
         raise DemoWorkspaceError("workspace_root must be a pathlib.Path or string")
-    root = Path(workspace_root)
-    if not root.is_absolute():
-        root = root.resolve()
-    _reject_symlink_path_components(root)
-    if root.is_symlink() and not _is_system_symlink(root):
-        raise DemoWorkspaceError(f"Refusing demo workspace symlink: {root}")
+    raw_root = Path(workspace_root)
+    _reject_symlink_path_components(raw_root)
+    if raw_root.is_symlink() and not _is_system_symlink(raw_root):
+        raise DemoWorkspaceError(f"Refusing demo workspace symlink: {raw_root}")
+    root = raw_root
     if root.exists() and not root.is_dir():
         raise DemoWorkspaceError(f"Demo workspace root must be a directory: {root}")
     root.mkdir(parents=True, exist_ok=True)

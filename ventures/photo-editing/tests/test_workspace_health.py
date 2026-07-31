@@ -326,7 +326,7 @@ class WorkspaceHealthTests(unittest.TestCase):
             (
                 "dry-run-production-scheduler",
                 "--ingest-manifest",
-                str(demo.shoot_folder / "ingest_manifest.json"),
+                str((demo.shoot_folder / "ingest_manifest.json").resolve()),
             ),
         )
         self.assertEqual(status_after, status_before)
