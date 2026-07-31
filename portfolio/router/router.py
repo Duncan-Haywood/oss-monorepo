@@ -28,6 +28,53 @@ STAGE_WEIGHTS = {
     "winding-down": 0.05,
 }
 
+# Economics credit bounds.
+#
+# `EXPLORE_CREDIT` is what an unmeasured venture (`economics.mrr: null`) earns,
+# and it is deliberately higher than `MEASURED_ZERO_CREDIT` — see README.md,
+# "Unmeasured is not zero". A brand new venture must not be punished for being
+# new.
+#
+# But that credit was previously permanent, which inverted the incentive it
+# exists to serve: every venture the router has ever funded reported an honest
+# `mrr_end: 0` in the ledger and immediately scored *below* the ventures that
+# had never been funded and never measured. Reporting a real number cost 0.35
+# economics credit, while reporting nothing cost nothing. The router paid more
+# for not measuring, and it paid most for the ventures it knew least about.
+#
+# So the explore credit is now a grant with a size rather than a standing
+# entitlement. It stays at full value while a venture has drawn no recorded
+# spend, and decays linearly toward the measured-zero floor as the venture
+# consumes `EXPLORE_GRANT_USD` of cumulative agent spend. A venture that has
+# never been funded is still treated as new; one that has absorbed real budget
+# and still reports nothing is treated as declining to measure.
+#
+# This is not automated spend escalation on an ROI signal — the README warns
+# against that, and it still applies. Nothing here rewards measured revenue
+# more aggressively; it only stops rewarding the *absence* of a measurement.
+EXPLORE_CREDIT = 0.65
+MEASURED_ZERO_CREDIT = 0.30
+EXPLORE_GRANT_USD = 50.0
+
+
+def economics_score(mrr: Optional[float], cumulative_spend: float = 0.0) -> float:
+    """Economics component of the composite score.
+
+    `cumulative_spend` is the venture's lifetime recorded agent spend from the
+    ledger. It only affects unmeasured ventures, where it decays the explore
+    grant; a measured venture is scored on its number regardless of spend.
+    """
+    if mrr is not None:
+        if mrr > 0:
+            return 1.0 + math.log10(float(mrr) + 1.0)
+        return MEASURED_ZERO_CREDIT
+
+    if EXPLORE_GRANT_USD <= 0:
+        return MEASURED_ZERO_CREDIT
+
+    consumed = min(max(cumulative_spend, 0.0), EXPLORE_GRANT_USD) / EXPLORE_GRANT_USD
+    return EXPLORE_CREDIT - consumed * (EXPLORE_CREDIT - MEASURED_ZERO_CREDIT)
+
 
 @dataclass
 class Hypothesis:
@@ -138,34 +185,37 @@ class PortfolioRouter:
 
         return contracts
 
-    def load_recent_spend(self) -> Dict[str, float]:
-        """Reads latest monthly ledger file to get recorded spend per venture."""
+    def load_cumulative_spend(self) -> Dict[str, float]:
+        """Lifetime recorded agent spend per venture, across every ledger month.
+
+        The explore grant decays against a venture's whole funding history, not
+        just the current month, so a venture cannot refresh its credit simply by
+        crossing a month boundary while still reporting no measurement.
+        """
         spend_map: Dict[str, float] = {}
         if not self.ledger_dir.exists():
             return spend_map
 
-        ledger_files = sorted(self.ledger_dir.glob("*.yaml"))
-        if not ledger_files:
-            return spend_map
-
-        latest_ledger = ledger_files[-1]
-        try:
-            with open(latest_ledger, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-
-            for entry in data.get("entries", []):
-                v_name = entry.get("venture")
-                s_amount = entry.get("agent_spend_usd", 0.0)
-                if v_name:
-                    spend_map[v_name] = float(s_amount)
-        except Exception as e:
-            print(f"Warning: Failed to parse ledger {latest_ledger}: {e}", file=sys.stderr)
+        for ledger_file in sorted(self.ledger_dir.glob("*.yaml")):
+            try:
+                with open(ledger_file, "r", encoding="utf-8") as f:
+                    data = yaml.safe_load(f) or {}
+                for entry in data.get("entries", []):
+                    v_name = entry.get("venture")
+                    if v_name:
+                        spend_map[v_name] = round(
+                            spend_map.get(v_name, 0.0)
+                            + float(entry.get("agent_spend_usd", 0.0)),
+                            2,
+                        )
+            except Exception as e:
+                print(f"Warning: Failed to parse ledger {ledger_file}: {e}", file=sys.stderr)
 
         return spend_map
 
     def compute_allocation(self, total_budget_usd: float = 300.0) -> List[AllocationResult]:
         ventures = self.load_ventures()
-        recent_spend = self.load_recent_spend()
+        cumulative_spend = self.load_cumulative_spend()
 
         if not ventures:
             return []
@@ -174,14 +224,9 @@ class PortfolioRouter:
         for v in ventures:
             stage_w = STAGE_WEIGHTS.get(v.stage.lower(), 0.5)
 
-            # Economics scoring logic
-            if v.economics.mrr is not None:
-                if v.economics.mrr > 0:
-                    econ_score = 1.0 + math.log10(v.economics.mrr + 1.0)
-                else:
-                    econ_score = 0.3  # Measured zero: penalized compared to unmeasured
-            else:
-                econ_score = 0.65  # Unmeasured: baseline explore credit
+            econ_score = economics_score(
+                v.economics.mrr, cumulative_spend.get(v.name, 0.0)
+            )
 
             # Protection bonus
             protected_bonus = 0.4 if v.budget.protected else 0.0
@@ -230,7 +275,16 @@ class PortfolioRouter:
             if v.economics.mrr is not None:
                 rationale_parts.append(f"MRR: ${v.economics.mrr:.2f}")
             else:
-                rationale_parts.append("MRR: Unmeasured")
+                spent = cumulative_spend.get(v.name, 0.0)
+                if spent > 0:
+                    # Name the decay in the report, so a venture losing explore
+                    # credit shows why rather than just sliding down the table.
+                    rationale_parts.append(
+                        f"MRR: Unmeasured after ${spent:.2f} spend "
+                        f"(explore grant {min(spent / EXPLORE_GRANT_USD, 1.0):.0%} consumed)"
+                    )
+                else:
+                    rationale_parts.append("MRR: Unmeasured (explore grant intact)")
 
             results.append(
                 AllocationResult(
@@ -337,17 +391,10 @@ def load_ledger(repo_root: Optional[Path] = None) -> Dict[str, Any]:
     return res
 
 
-def calculate_score(venture: Dict[str, Any]) -> float:
+def calculate_score(venture: Dict[str, Any], cumulative_spend: float = 0.0) -> float:
     stage = str(venture.get("stage", "prototype")).lower()
     stage_w = STAGE_WEIGHTS.get(stage, 0.5)
-    mrr = venture.get("mrr")
-    if mrr is not None:
-        if mrr > 0:
-            econ_score = 1.0 + math.log10(float(mrr) + 1.0)
-        else:
-            econ_score = 0.3
-    else:
-        econ_score = 0.65
+    econ_score = economics_score(venture.get("mrr"), cumulative_spend)
     protected_bonus = 0.4 if venture.get("protected") else 0.0
     hypotheses = venture.get("hypotheses", [])
     tested_count = sum(

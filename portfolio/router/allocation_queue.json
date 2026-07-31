@@ -33,7 +33,7 @@
       "pool": "protected_explore_40%",
       "allocated_usd": 18.18,
       "cap_usd": 50,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
       "priority": 3
@@ -55,7 +55,7 @@
       "pool": "protected_explore_40%",
       "allocated_usd": 18.18,
       "cap_usd": 35,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
       "priority": 3
@@ -73,11 +73,11 @@
     },
     {
       "venture": "print-atelier",
-      "stage": "launched",
+      "stage": "prototype",
       "pool": "protected_explore_40%",
       "allocated_usd": 18.18,
       "cap_usd": 60,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
       "priority": 3
@@ -88,7 +88,7 @@
       "pool": "protected_explore_40%",
       "allocated_usd": 18.18,
       "cap_usd": 30,
-      "mrr": null,
+      "mrr": 0,
       "protected": false,
       "status": "active",
       "priority": 3
@@ -99,7 +99,7 @@
       "pool": "protected_explore_40%",
       "allocated_usd": 18.18,
       "cap_usd": 30,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
       "priority": 3
@@ -110,7 +110,7 @@
       "pool": "protected_explore_40%",
       "allocated_usd": 18.18,
       "cap_usd": 50,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
       "priority": 3
@@ -121,7 +121,7 @@
       "pool": "protected_explore_40%",
       "allocated_usd": 18.18,
       "cap_usd": 40,
-      "mrr": null,
+      "mrr": 0,
       "protected": true,
       "status": "active",
       "priority": 3
