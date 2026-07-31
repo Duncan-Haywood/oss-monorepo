@@ -924,7 +924,9 @@ def _is_system_symlink(path: Path) -> bool:
 def _workspace_root(workspace_root: Path | str) -> Path:
     if not isinstance(workspace_root, (Path, str)):
         raise WorkspaceIndexError("workspace_root must be a pathlib.Path or string")
-    root = Path(workspace_root).resolve()
+    root = Path(workspace_root)
+    if not root.is_absolute():
+        root = root.resolve()
     if root.is_symlink() and not _is_system_symlink(root):
         raise WorkspaceIndexError(f"Refusing workspace symlink: {root}")
     if not root.exists():

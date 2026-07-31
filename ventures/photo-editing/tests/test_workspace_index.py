@@ -413,7 +413,7 @@ class WorkspaceIndexTests(unittest.TestCase):
         self.assertEqual(printed_index, persisted_index)
         self.assertEqual(printed_index["generated_at"], "2026-05-09T00:03:00Z")
         self.assertEqual(printed_index["shoot_slug"], "cli-demo-shoot")
-        self.assertEqual(printed_index["index_path"], str(index_path))
+        self.assertEqual(printed_index["index_path"], str(index_path.resolve()))
         self.assertEqual(
             self._artifact_payload(printed_index, "render_scheduler_report")["summary"][
                 "stopped_reason"
