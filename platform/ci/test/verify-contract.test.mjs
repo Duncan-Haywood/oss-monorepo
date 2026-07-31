@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const VENTURES_DIR = path.join(REPO_ROOT, 'ventures');
 const VERIFY_COMPONENT = path.join(REPO_ROOT, 'scripts/ci/verify-component.sh');
+const WORKFLOWS_DIR = path.join(REPO_ROOT, '.gitea/workflows');
 
 /**
  * A venture's quality gates are declared in more than one place, and only some
@@ -36,6 +37,11 @@ const VERIFY_COMPONENT = path.join(REPO_ROOT, 'scripts/ci/verify-component.sh');
  * local-site-studio's production build was the live hole — no workflow invokes
  * that arm, so the only declaration that executed was the catalog's, and the
  * build was verified nowhere.
+ *
+ * The fourth declaration is a venture workflow that spells its gates out inline
+ * instead of calling the shared script. `.gitea/workflows/pairwise-ci.yml` does,
+ * for the one venture that actually deploys to production on merge, so a step
+ * deleted there is a release gate deleted with nothing else to catch it.
  */
 
 function ventureRootOf(dir) {
@@ -291,6 +297,89 @@ test('Verify Contract - verify-component.sh runs the same gates as the CI catalo
     'scripts/ci/verify-component.sh drifted from the gates the CI catalog executes.\n' +
       'Strengthen the weaker declaration; if a gate is deliberately not in the monorepo ' +
       'pipeline, declare it as `workflowOnlyScripts` on the catalog entry with the reason.\n' +
+      drift.join('\n')
+  );
+});
+
+/**
+ * Workflows that pin themselves to one venture with a top-level
+ * `defaults.run.working-directory`. Anything they run inline is a gate for that
+ * venture, so the catalog is the floor they have to clear.
+ */
+function ventureWorkflows() {
+  if (!fs.existsSync(WORKFLOWS_DIR)) return [];
+
+  return fs
+    .readdirSync(WORKFLOWS_DIR)
+    .filter((name) => name.endsWith('.yml') || name.endsWith('.yaml'))
+    .map((name) => {
+      const source = fs.readFileSync(path.join(WORKFLOWS_DIR, name), 'utf8');
+      const pinned = source.match(/^defaults:\n\s+run:\n\s+working-directory:\s*(\S+)\s*$/m);
+      const ventureRoot = pinned ? ventureRootOf(pinned[1]) : null;
+      if (!ventureRoot) return null;
+
+      // A `run:` step, single line or block scalar opener. Steps that delegate
+      // to scripts/ci/verify-component.sh are already held to the catalog by the
+      // contract above, so the workflow inherits that guarantee.
+      const gates = [];
+      let delegatesToSharedScript = false;
+      let generatesPrisma = false;
+      for (const line of source.split('\n')) {
+        const step = line.trim().match(/^(?:- )?run:\s*(.+)$/);
+        if (!step) continue;
+        const command = step[1].trim();
+        if (/verify-component\.sh\s/.test(command)) delegatesToSharedScript = true;
+        if (command === 'npx prisma generate') generatesPrisma = true;
+        const token = gateTokenFor(command);
+        if (token) gates.push(token);
+      }
+
+      return { name, ventureRoot, gates, delegatesToSharedScript, generatesPrisma };
+    })
+    .filter(Boolean);
+}
+
+test('Verify Contract - workflows that inline a venture gate run the whole catalog', () => {
+  const catalog = catalogByVenture();
+  const drift = [];
+
+  for (const workflow of ventureWorkflows()) {
+    const components = catalog.get(workflow.ventureRoot);
+    if (!components || workflow.delegatesToSharedScript) continue;
+
+    const expected = new Set(
+      components.flatMap(catalogGatesFor).filter((gate) => !gate.startsWith('pytest'))
+    );
+    // A workflow that runs none of the catalog gates is a deploy or publish
+    // workflow, not an application gate; only a partial sequence is drift.
+    const runs = workflow.gates.filter((gate) => expected.has(gate));
+    if (runs.length === 0) continue;
+
+    const missing = [...expected].filter((gate) => !workflow.gates.includes(gate));
+    if (missing.length > 0) {
+      drift.push(
+        `  ${workflow.name} (${workflow.ventureRoot})\n` +
+          `    runs   : ${workflow.gates.join(', ')}\n` +
+          `    missing: ${missing.join(', ')}`
+      );
+    }
+
+    const hasPrisma = components.some((component) => component.hasPrisma);
+    if (hasPrisma) {
+      assert.ok(
+        workflow.generatesPrisma,
+        `${workflow.name} runs ${workflow.ventureRoot} gates inline but never runs ` +
+          '`npx prisma generate`, so they check a stale or absent client'
+      );
+    }
+  }
+
+  assert.equal(
+    drift.length,
+    0,
+    'A workflow runs part of a venture\'s catalog gate sequence inline and drops the rest.\n' +
+      'A gate deleted from a venture workflow is deleted from the release path: this workflow ' +
+      'is what runs on a merge to main, and nothing else re-checks it.\n' +
       drift.join('\n')
   );
 });

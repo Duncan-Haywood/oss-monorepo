@@ -46,6 +46,13 @@ is a recorded decision instead of drift. Before this was enforced,
 local-site-studio's production build was declared in the shared script, omitted
 from the catalog, and verified by no pipeline at all.
 
+A venture workflow that spells its gates out inline rather than calling the
+shared script is held to the same floor: if it runs any of the venture's catalog
+gates, it must run all of them, and must generate the Prisma client first where
+the catalog says the venture has one. Extra gates are welcome; a partial
+sequence is drift. `pairwise-ci.yml` is the case that matters, because it is
+what runs on a merge to main for the one venture that deploys to production.
+
 ## Deployment boundary
 
 CI must build, test, scan, and publish an immutable image identified by the full
