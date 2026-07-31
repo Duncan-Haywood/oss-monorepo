@@ -33,7 +33,12 @@ run_ci_test() {
 run_ci_test "Pairwise (Quick Pick Survey) Unit Suite" npm --prefix "${REPO_ROOT}/ventures/quick-pick-survey" test
 
 # 2. Dagger CI Engine Unit Tests
-run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/test/pipeline.test.mjs"
+# Every test file under platform/ci/test, not a named one. This line used to
+# name `pipeline.test.mjs` alone, so `verify-contract.test.mjs` — the gate that
+# fails closed when VENTURE.yaml, verify-component.sh and the catalog drift
+# apart — was executed by nothing at all. A contract test no pipeline runs is
+# the same failure it exists to catch, one level up.
+run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/test/"*.test.mjs
 
 # 3. Security Policy Scanner Unit Tests
 run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/scripts/security/test-scan-repository.sh"
@@ -59,7 +64,10 @@ run_ci_test "Exception Register Audit" python3 "${REPO_ROOT}/scripts/ci/audit_ex
 
 # 5. Shell Script Static Analysis (if shellcheck installed)
 if command -v shellcheck >/dev/null 2>&1; then
-  run_ci_test "Shell Script Static Analysis (ShellCheck)" shellcheck "${REPO_ROOT}/scripts/"*.sh "${REPO_ROOT}/scripts/security/"*.sh
+  # scripts/ci/ was excluded, which left `verify-component.sh` unlinted — the
+  # file docs/CI-CD-ARCHITECTURE.md calls the shared, fail-closed local/CI
+  # contract, and the one every venture workflow shells into.
+  run_ci_test "Shell Script Static Analysis (ShellCheck)" shellcheck "${REPO_ROOT}/scripts/"*.sh "${REPO_ROOT}/scripts/ci/"*.sh "${REPO_ROOT}/scripts/security/"*.sh
 else
   echo "ℹ ShellCheck not installed; skipping shell script linting."
 fi
