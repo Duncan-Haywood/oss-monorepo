@@ -253,7 +253,21 @@ const ACTIVITIES: SeedItem[] = [
   { slug: "rural-land-owner", label: "Owns and manages rural land", category: "Practical and rugged", dimensions: ["independence", "stability"] },
   { slug: "combat-sports", label: "Competes in a combat sport", category: "Fitness", dimensions: ["physicality", "ambition"] },
   { slug: "engineering-hobby-projects", label: "Builds engineering projects for fun", category: "Intellectual and practical", dimensions: ["intellect", "creativity"] },
+  // Non-standard hobbies
+  { slug: "urban-exploration", label: "Urban exploration & abandoned structure photography", category: "Non-standard hobbies", dimensions: ["adventure", "creativity"] },
+  { slug: "modular-synths", label: "Building analog & modular synthesizers", category: "Non-standard hobbies", dimensions: ["creativity", "intellect"] },
+  { slug: "ant-keeping", label: "Ant keeping & formicarium design", category: "Non-standard hobbies", dimensions: ["intellect", "independence"] },
+  { slug: "falconry", label: "Falconry & raptor training", category: "Non-standard hobbies", dimensions: ["adventure", "independence"] },
+  { slug: "historical-blacksmithing", label: "Historical reenactment & blacksmithing", category: "Non-standard hobbies", dimensions: ["creativity", "physicality"] },
+  { slug: "mushroom-foraging", label: "Wild mushroom foraging & mycology", category: "Non-standard hobbies", dimensions: ["adventure", "intellect"] },
+  { slug: "retro-speedrunning", label: "Retro video game speedrunning & CRT hardware restoration", category: "Non-standard hobbies", dimensions: ["intellect", "creativity"] },
+  { slug: "bonsai-shaping", label: "Bonsai tree cultivation & aesthetic pruning", category: "Non-standard hobbies", dimensions: ["creativity", "stability"] },
+  { slug: "lockpicking-puzzles", label: "Lockpicking & mechanical puzzle solving", category: "Non-standard hobbies", dimensions: ["intellect", "independence"] },
+  { slug: "amateur-radio-ham", label: "Amateur radio (HAM) operations & satellite tracking", category: "Non-standard hobbies", dimensions: ["intellect", "service"] },
+  { slug: "deep-sky-astrophotography", label: "Deep-sky astrophotography & telescope building", category: "Non-standard hobbies", dimensions: ["intellect", "creativity"] },
+  { slug: "tabletop-wargaming", label: "Tabletop wargaming & miniature painting", category: "Non-standard hobbies", dimensions: ["creativity", "intellect"] },
 ];
+
 
 const PROFESSIONS: SeedItem[] = [
   { slug: "business-owner", label: "Business owner", category: "Business and finance", dimensions: ["ambition", "independence"] },

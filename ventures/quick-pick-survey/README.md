@@ -124,6 +124,8 @@ announces every transition in a dialog, and keeps the current focus visible
 above every card. The rankings remain separate even though the person no
 longer has to manage modes in settings.
 
+**Broad Topic Range & Topic Picker (`/topics`).** Pairwise covers a broad range of topics touching on all aspects of a relationship — personal topics, professions, standard and non-standard hobbies (e.g. modular synths, urban exploration, falconry, mycology), values, communication styles, intimacy, and financial trade-offs. The questions can measure attraction or any multi-dimensional preference. This is a loosely held design goal: the core value is the **pairwise ranking and data gathering methodology**, which generates rich couple insights regardless of the topic domain. A dedicated Topic Picker screen (`/topics`) lets users choose specific topics or run an adaptive all-in-one survey.
+
 ## How this gets built
 
 [developmentprocess.tsx](developmentprocess.tsx) is the front door — goals,

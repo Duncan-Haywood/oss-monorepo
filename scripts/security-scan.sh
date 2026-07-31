@@ -17,8 +17,14 @@ CRITICAL_COUNT=0
 HIGH_COUNT=0
 MEDIUM_COUNT=0
 LOW_COUNT=0
+AUDITED_COUNT=0
 
 FINDINGS_TMP=$(mktemp)
+# An audit that could not run is not the same as an audit that found nothing.
+# Every unusable result lands here, and a non-empty file means this run may not
+# overwrite the recorded findings.
+AUDIT_GAPS_TMP=$(mktemp)
+trap 'rm -f "${FINDINGS_TMP}" "${AUDIT_GAPS_TMP}"' EXIT
 
 # Function to audit a single package directory
 audit_node_package() {
@@ -29,45 +35,60 @@ audit_node_package() {
     echo "Auditing Node package: ${component_name}..."
     pushd "${target_dir}" >/dev/null
 
-    local audit_json
-    audit_json=$(npm audit --json 2>/dev/null || true)
-
-    if [ -n "${audit_json}" ] && echo "${audit_json}" | grep -q '"vulnerabilities"'; then
-      local counts
-      counts=$(node -e '
-        try {
-          const data = JSON.parse(process.argv[1]);
-          const meta = data.metadata || {};
-          const vulns = meta.vulnerabilities || {};
-          console.log(`${vulns.critical || 0} ${vulns.high || 0} ${vulns.moderate || 0} ${vulns.low || 0}`);
-        } catch(e) {
-          console.log("0 0 0 0");
-        }
-      ' "${audit_json}")
-
-      read -r crit high med low <<< "${counts}"
-      CRITICAL_COUNT=$((CRITICAL_COUNT + crit))
-      HIGH_COUNT=$((HIGH_COUNT + high))
-      MEDIUM_COUNT=$((MEDIUM_COUNT + med))
-      LOW_COUNT=$((LOW_COUNT + low))
-
-      node -e '
-        try {
-          const data = JSON.parse(process.argv[1]);
-          const component = process.argv[2];
-          const vulns = data.vulnerabilities || {};
-          
-          for (const [pkg, info] of Object.entries(vulns)) {
-            const severity = (info.severity || "info").toUpperCase();
-            const via = Array.isArray(info.via) ? info.via.map(v => typeof v === "string" ? v : v.title || v.name).join(", ") : info.via;
-            const fixAvailable = info.fixAvailable ? (typeof info.fixAvailable === "boolean" ? "npm audit fix" : `Upgrade ${info.fixAvailable.name}@${info.fixAvailable.version}`) : "Manual fix required";
-            const range = info.range || "N/A";
-            
-            console.log(`| ${component} | \`${pkg}\` | **${severity}** | ${range} | ${via || "Vulnerability in dependency"} | ${fixAvailable} | [ ] Scheduled |`);
-          }
-        } catch(e) {}
-      ' "${audit_json}" "${component_name}" >> "${FINDINGS_TMP}"
+    if [ ! -f package-lock.json ] && [ ! -f npm-shrinkwrap.json ]; then
+      printf '%s\tno npm lockfile to audit\n' "${component_name}" >> "${AUDIT_GAPS_TMP}"
+      popd >/dev/null
+      return
     fi
+
+    local audit_json audit_stderr
+    audit_stderr=$(mktemp)
+    # npm audit exits non-zero when it finds vulnerabilities, so the exit code
+    # alone cannot distinguish findings from a failed run. The payload does.
+    audit_json=$(npm audit --json 2>"${audit_stderr}" || true)
+
+    local counts
+    if ! counts=$(node -e '
+      const data = JSON.parse(process.argv[1]);
+      const vulns = (data.metadata || {}).vulnerabilities;
+      if (!vulns || typeof vulns.total !== "number") {
+        throw new Error("npm audit returned no vulnerability metadata");
+      }
+      console.log(`${vulns.critical || 0} ${vulns.high || 0} ${vulns.moderate || 0} ${vulns.low || 0}`);
+    ' "${audit_json}" 2>/dev/null); then
+      local reason
+      reason=$(head -n 1 "${audit_stderr}")
+      printf '%s\t%s\n' \
+        "${component_name}" \
+        "${reason:-npm audit produced no usable JSON report}" >> "${AUDIT_GAPS_TMP}"
+      rm -f "${audit_stderr}"
+      popd >/dev/null
+      return
+    fi
+    rm -f "${audit_stderr}"
+
+    AUDITED_COUNT=$((AUDITED_COUNT + 1))
+
+    read -r crit high med low <<< "${counts}"
+    CRITICAL_COUNT=$((CRITICAL_COUNT + crit))
+    HIGH_COUNT=$((HIGH_COUNT + high))
+    MEDIUM_COUNT=$((MEDIUM_COUNT + med))
+    LOW_COUNT=$((LOW_COUNT + low))
+
+    node -e '
+      const data = JSON.parse(process.argv[1]);
+      const component = process.argv[2];
+      const vulns = data.vulnerabilities || {};
+
+      for (const [pkg, info] of Object.entries(vulns)) {
+        const severity = (info.severity || "info").toUpperCase();
+        const via = Array.isArray(info.via) ? info.via.map(v => typeof v === "string" ? v : v.title || v.name).join(", ") : info.via;
+        const fixAvailable = info.fixAvailable ? (typeof info.fixAvailable === "boolean" ? "npm audit fix" : `Upgrade ${info.fixAvailable.name}@${info.fixAvailable.version}`) : "Manual fix required";
+        const range = info.range || "N/A";
+
+        console.log(`| ${component} | \`${pkg}\` | **${severity}** | ${range} | ${via || "Vulnerability in dependency"} | ${fixAvailable} | [ ] Scheduled |`);
+      }
+    ' "${audit_json}" "${component_name}" >> "${FINDINGS_TMP}"
 
     popd >/dev/null
   fi
@@ -138,6 +159,25 @@ echo "  Critical: ${CRITICAL_COUNT}"
 echo "  High:     ${HIGH_COUNT}"
 echo "  Medium:   ${MEDIUM_COUNT}"
 echo "  Low:      ${LOW_COUNT}"
+echo "  Packages audited: ${AUDITED_COUNT}"
+
+# The roadmap is the release gate, so it may only be rewritten by a scan that
+# actually observed every package. A run that cannot reach the registry, or that
+# runs before dependencies are installed, otherwise reports a clean bill of
+# health and erases the recorded findings.
+if [ -s "${AUDIT_GAPS_TMP}" ] || [ "${AUDITED_COUNT}" -eq 0 ]; then
+  echo "" >&2
+  echo "Incomplete audit: refusing to rewrite ${ROADMAP_FILE#"${REPO_ROOT}/"}." >&2
+  if [ "${AUDITED_COUNT}" -eq 0 ]; then
+    echo "  No package produced a usable npm audit report." >&2
+  fi
+  while IFS=$'\t' read -r gap_component gap_reason; do
+    [ -n "${gap_component}" ] && echo "  ${gap_component}: ${gap_reason}" >&2
+  done < "${AUDIT_GAPS_TMP}"
+  echo "" >&2
+  echo "Install dependencies and restore registry access, then re-run." >&2
+  exit 1
+fi
 
 # Write updated SECURITY_ROADMAP.md
 cat << EOF > "${ROADMAP_FILE}"
@@ -145,7 +185,7 @@ cat << EOF > "${ROADMAP_FILE}"
 
 > **Automated Security Scanning & Governance Status**
 > - **Last Scan Execution**: \`${TIMESTAMP}\`
-> - **CI Pipeline Scanner**: Enabled (\`.gitea/workflows/security-scan.yml\`)
+> - **CI Pipeline Scanner**: Enabled (\`.gitea/workflows/security.yml\`)
 > - **Policy Enforcement**: Block PR merges on Critical/High vulnerabilities; track all findings in this roadmap.
 
 ---
@@ -183,7 +223,7 @@ cat << EOF >> "${ROADMAP_FILE}"
 - [x] Enforce least-privilege permissions (\`permissions: contents: read\`) across all Gitea Actions workflows.
 - [x] Configure non-root unprivileged container users in application Dockerfiles.
 - [x] Harden \`.gitignore\` to prevent credential, token, and SSH/TLS private key accidental check-ins.
-- [x] Implement automated CI security scanning workflow (\`.gitea/workflows/security-scan.yml\`).
+- [x] Implement automated CI security scanning workflow (\`.gitea/workflows/security.yml\`).
 
 ### Phase 2: Dependency & Infrastructure Remediation (Short-Term)
 - [ ] Remediate high/critical dependency vulnerabilities reported in package audit logs using \`npm audit fix\`.
@@ -197,7 +237,7 @@ cat << EOF >> "${ROADMAP_FILE}"
 
 ---
 
-*Note: This file is automatically generated and updated by \`scripts/security-scan.sh\` and \`.gitea/workflows/security-scan.yml\`.*
+*Note: This file is automatically generated and updated by \`scripts/security-scan.sh\` and \`.gitea/workflows/security.yml\`.*
 EOF
 
 rm -f "${FINDINGS_TMP}"

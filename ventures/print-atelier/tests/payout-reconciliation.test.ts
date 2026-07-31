@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   buildArtistPayoutReconciliation,
   buildExpectationsFromOrders,
+  buildPayoutReconciliationWithDiagnostics,
   formatCents,
   toCents,
   type ArtistPayoutExpectation,
@@ -281,6 +282,36 @@ test("buildExpectationsFromOrders reports unattributable orders instead of dropp
     ["ord_cancelled", "ord_no_total", "ord_no_account"],
   );
   assert.match(skipped[1]!.reason, /30% split/);
+});
+
+test("diagnostics report the attribution gap rather than claiming a clean reconciliation", () => {
+  const { report, attributionGap } = buildPayoutReconciliationWithDiagnostics({
+    orders: [order({ orderId: "ord_a" }), order({ orderId: "ord_b" })],
+    payoutEvents: [],
+    now: "2026-07-05T00:00:00Z",
+  });
+
+  assert.equal(attributionGap.ordersConsidered, 2);
+  assert.equal(attributionGap.ordersAttributed, 0);
+  assert.equal(attributionGap.skippedOrders.length, 2);
+  assert.ok(attributionGap.blocker);
+  assert.match(attributionGap.blocker, /checkout must stamp the artist account/);
+  assert.equal(report.rows.length, 0);
+});
+
+test("diagnostics reconcile fully once checkout resolves the artist account", () => {
+  const { report, attributionGap } = buildPayoutReconciliationWithDiagnostics({
+    orders: [order({ orderId: "ord_a", artistTransferTotal: 24.6 })],
+    payoutEvents: [payoutEvent({ status: "settled", amountCents: 2460 })],
+    resolveArtistAccount: () => ({ artistAccountId: "acct_maya", artistHandle: "@maya_ceramics" }),
+    now: "2026-07-05T00:00:00Z",
+  });
+
+  assert.equal(attributionGap.ordersAttributed, 1);
+  assert.equal(attributionGap.blocker, null);
+  assert.equal(report.rows.length, 1);
+  assert.equal(report.rows[0]!.status, "balanced");
+  assert.equal(report.rows[0]!.artistHandle, "@maya_ceramics");
 });
 
 test("formatCents renders cent-precise currency for operator-facing copy", () => {

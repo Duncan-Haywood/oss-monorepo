@@ -94,6 +94,16 @@ linked people — never raw answers.
 The bar is not "compliant". The bar is that you would be comfortable if the
 other person read the source.
 
+### 6. Broad topic range & flexible measurement (Loosely held design goal)
+
+The topic range is intentionally broad, touching on all aspects of a relationship,
+including personal preferences, professions, and hobbies (both standard and non-standard).
+
+**This is a loosely held design goal**:
+- The questions can measure attraction, but they do not necessarily have to measure one single trait. Attraction can be part of it, alongside personal lifestyle habits, communication styles, values, stress responses, and financial trade-offs.
+- The underlying engine does not depend on a single topic schema; it is the **method of pairwise comparison, data gathering, and rating models** (Glicko-2 & Bradley–Terry) that unlocks genuine insights for couples.
+- A dedicated Topic Selection Page (`/topics`) allows users to pick any specific topic they want to focus on (e.g. Professions, Free-time Activities & Hobbies, Communication, Intimacy, Values) or choose an adaptive multi-domain mode.
+
 ## Explicit non-goals
 
 - **A compatibility score.** A single number invites a verdict, and the data
@@ -113,3 +123,4 @@ other person read the source.
 | Usable output | The couple screen leads with actions and shared ground; blind spots have real data behind them |
 | Worth continuing | Progress survives refresh, device change and mode switch; the drop-off point is somewhere other than question three |
 | Safe to hand over | No PII in the bundle or the repo; nothing indexable; consent stated before collection |
+| Broad topic scope | Topic range spans professions, standard & non-standard hobbies, and relational topics; topic selection page (/topics) available; multi-dimensional measurement |

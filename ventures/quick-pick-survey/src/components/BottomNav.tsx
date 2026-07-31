@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
  */
 const TABS = [
   { href: "/app", label: "Swipe", glyph: "🔥" },
+  { href: "/topics", label: "Topics", glyph: "🎯" },
   { href: "/insights", label: "Insights", glyph: "✨" },
   { href: "/couple", label: "Together", glyph: "💞" },
   { href: "/profile", label: "You", glyph: "👤" },

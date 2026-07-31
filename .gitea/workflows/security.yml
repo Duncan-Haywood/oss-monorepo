@@ -33,6 +33,9 @@ jobs:
       - name: Test repository engineering policy contract
         run: bash scripts/ci/test-engineering-policy.sh
 
+      - name: Test vulnerability roadmap scanner
+        run: bash scripts/security/test-security-scan.sh
+
       - name: Scan tracked repository policy
         run: bash scripts/security/scan-repository.sh security-policy-report.md
 

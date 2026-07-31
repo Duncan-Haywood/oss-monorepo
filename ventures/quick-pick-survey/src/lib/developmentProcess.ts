@@ -67,6 +67,13 @@ export const GOALS: Goal[] = [
     signal:
       "No personal data in the client bundle or the repo, consent stated before anything is collected, and nothing indexable.",
   },
+  {
+    id: "broad-topic-scope",
+    statement:
+      "Cover a broad range of personal and relational topics—including professions and standard & non-standard hobbies—using multi-dimensional pairwise measurement to derive couple insights.",
+    signal:
+      "Users can choose specific topics via /topics, and questions measure diverse relational and personal traits without restricting measurement to a single metric.",
+  },
 ];
 
 export type Principle = {
@@ -441,5 +448,14 @@ export const WORKSTREAMS: Workstream[] = [
     goal: "worth-continuing",
     note:
       "Progress bars carry roles and values, errors announce, the Persian copy carries lang/dir, decorative emoji are hidden, and the card animations honour prefers-reduced-motion. Contrast is now computed rather than eyeballed: contrastAudit.test.ts reads every class list in the app, resolves each colour against the palette Tailwind actually ships, and fails below the WCAG AA floor. It found seventy-two failures on its first run — thirty of them the same 2.58:1 grey, which is what reading colour by eye does: each label looked fine beside the ones next to it because they were all the same wrong grey. Remaining: a pass with an actual screen reader, and the things no class list can answer — focus visibility, and colour used as the only cue. See docs/ACCESSIBILITY.md.",
+  },
+  {
+    id: "topic-selection-and-range",
+    title: "Broad topic selection & non-standard hobbies",
+    priority: "P2",
+    status: "done",
+    goal: "broad-topic-scope",
+    note:
+      "Added non-standard hobbies (modular synths, urban exploration, falconry, mycology, etc.) to activities and created a dedicated Topic Picker screen (/topics) for selecting specific survey domains.",
   },
 ];

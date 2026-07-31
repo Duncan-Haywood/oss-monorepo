@@ -870,6 +870,12 @@ export function UnifiedRunner() {
               Lv {level}
             </span>
             <a
+              href="/topics"
+              className="shrink-0 rounded-full bg-stone-200/80 px-2 py-0.5 text-[11px] font-bold text-stone-800 hover:bg-stone-300 dark:bg-stone-800 dark:text-stone-200"
+            >
+              🎯 Topics
+            </a>
+            <a
               href="/insights"
               className="shrink-0 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-800 hover:bg-amber-500/20 dark:bg-amber-400/10 dark:text-amber-300"
             >

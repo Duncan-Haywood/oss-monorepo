@@ -7,6 +7,7 @@
     "build": "pnpm -r run build",
     "typecheck": "pnpm -r run typecheck",
     "lint": "eslint .",
+    "test": "pnpm -r run test",
     "ci": "tsx scripts/ci.ts",
     "bootstrap": "tsx scripts/bootstrap.ts",
     "docs:convert-html": "tsx scripts/convert-html-to-tsx.ts",

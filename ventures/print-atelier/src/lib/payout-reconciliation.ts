@@ -1,4 +1,4 @@
-import type { OrderRecord } from "./orders";
+import { getOrderRecords, type OrderRecord } from "./orders";
 import {
   queryPersistedStripePayoutEvents,
   type PersistedStripePayoutEvent,
@@ -390,5 +390,64 @@ export function buildArtistPayoutReconciliation(
     statusCounts,
     exceptionCount: rows.reduce((sum, row) => sum + row.exceptions.length, 0),
     summaryLabel,
+  };
+}
+
+export type PayoutReconciliationDiagnostics = {
+  report: ArtistPayoutReconciliationReport;
+  attributionGap: {
+    ordersConsidered: number;
+    ordersAttributed: number;
+    skippedOrders: OrderExpectationSkip[];
+    /** Non-null when the report cannot be trusted as a complete reconciliation. */
+    blocker: string | null;
+  };
+};
+
+/**
+ * Wires the reconciliation to the live in-memory stores.
+ *
+ * Orders do not yet carry the destination Connect account — `POST /api/stripe/checkout`
+ * stamps `artistTransferTotal` into payment metadata but not the artist account —
+ * so without an injected resolver every order lands in `skippedOrders` and the
+ * gap is reported rather than papered over. Pass `resolveArtistAccount` once
+ * checkout carries the account through.
+ */
+export function buildPayoutReconciliationWithDiagnostics(
+  options: {
+    orders?: OrderRecord[];
+    payoutEvents?: PersistedStripePayoutEvent[];
+    resolveArtistAccount?: (order: OrderRecord) => ArtistAccountResolution | null;
+    now?: string;
+    toleranceCents?: number;
+    testMode?: boolean;
+  } = {},
+): PayoutReconciliationDiagnostics {
+  const orders = options.orders ?? getOrderRecords();
+  const resolveArtistAccount = options.resolveArtistAccount ?? (() => null);
+  const { expectations, skipped } = buildExpectationsFromOrders(orders, resolveArtistAccount);
+
+  const report = buildArtistPayoutReconciliation({
+    expectations,
+    payoutEvents: options.payoutEvents,
+    now: options.now,
+    toleranceCents: options.toleranceCents,
+    testMode: options.testMode,
+  });
+
+  const unattributable = skipped.filter((entry) => entry.reason.includes("Connect account")).length;
+  const blocker =
+    unattributable > 0
+      ? `${unattributable} order(s) carry no Connect account — checkout must stamp the artist account into payment metadata before payouts can be fully reconciled`
+      : null;
+
+  return {
+    report,
+    attributionGap: {
+      ordersConsidered: orders.length,
+      ordersAttributed: expectations.length,
+      skippedOrders: skipped,
+      blocker,
+    },
   };
 }
