@@ -39,14 +39,20 @@ jobs:
           cache-dependency-path: ventures/ai-first-markets/package-lock.json
       - name: Install dependencies
         run: npm ci
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Lint
-        run: npm run lint
-      - name: Build application
-        run: npm run build
-      - name: Build Cloudflare OpenNext bundle
-        run: npm run cf:build
+      # The gate sequence used to be inlined here, and it had lost `npm test`.
+      # Typecheck, lint, build and cf:build ran; the venture's unit tests did
+      # not, so a failing test never stopped a production release. The CI
+      # workflow on the same push paths does run them, but this job carries no
+      # `needs:` on it, so the two race and the deploy does not wait.
+      #
+      # Calling the shared script instead of restating its steps is the fix:
+      # scripts/ci/verify-component.sh is the one declaration CI, the pre-push
+      # hook and a developer's terminal all execute, so this job cannot drift
+      # below it again. platform/ci/test/deploy-gate-contract.test.mjs fails
+      # closed if a deploy step reappears without it.
+      - name: Run the same fail-closed application gate used locally and in CI
+        working-directory: ${{ github.workspace }}
+        run: bash scripts/ci/verify-component.sh ai-first-markets
       - name: Deploy to Cloudflare
         run: npm run deploy
         env:
