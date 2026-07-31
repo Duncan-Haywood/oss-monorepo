@@ -12,12 +12,42 @@ evidence, and completion date before it can be marked done.
   contract; remove swallowed failures and undocumented test exclusions.
 - [ ] Publish coverage reports in CI, capture current baselines, ratchet changed
   code upward, then meet the repository targets without low-value assertions.
+  Not started, and worse than not started: the only automated check carrying the
+  word coverage is `scripts/ci/test-engineering-policy.sh:42`, which greps
+  `ENGINEERING-PRINCIPLES.md` for the sentence stating the 90% floor. Deleting
+  every test in the repository leaves it green. No coverage tool is installed
+  anywhere (`@vitest/coverage-v8`, `c8`, `nyc`, `pytest-cov` all absent), no
+  venture defines a `coverage` script, and no `VENTURE.yaml` carries the
+  `engineering.coverage` block `platform/VENTURE.template.yaml` declares. Start
+  with a measured baseline and a two-directional ratchet — fail below it and
+  fail when it is exceeded without being raised — modelled on the `count` field
+  in `platform/exception-register.yaml`. Do not start at 90%.
 - [ ] Require regression tests for fixes and negative authorization/input tests
   for public APIs and server actions.
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
+  Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports
+  PASSED for a component it never verified — a missing scanner script, a stale
+  catalog directory, a moved Python test path and a failing `terraform validate`
+  were all skip-and-pass, and `platform/ci/test/fail-closed.test.mjs` now covers
+  each. `.gitea/workflows/security.yml` fails if a run retains no evidence.
+  Still open: no SAST (Semgrep/CodeQL/Bandit), Trivy runs `vuln,misconfig` but
+  not `license`, no SBOM, no container or published-image scanning. Two host
+  gaps keep named checks from executing in CI: `.gitea/workflows/ci-cd.yml`
+  installs no Python/pytest, no venture node modules, and no Terraform,
+  ShellCheck or actionlint, so `scripts/test-ci.sh` cannot pass on a clean
+  runner and the lint and IaC gates never run there.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
+  Blocked on Gitea server administration; nothing in this repository can
+  complete it. Prepared 2026-07-31: `.gitea/CODEOWNERS` had a rule for
+  `/SECURITY-ROADMAP.md`, which matches no file, so the vulnerability register
+  was unowned; the CI engine, the exception register and the audit scripts were
+  unowned too. Corrected and held by
+  `platform/ci/test/codeowners-contract.test.mjs`. This is inert until
+  protection is switched on. `platform/terraform/` still has no Gitea provider
+  or `branch_protection` resource, and there is one Act Runner, so the split
+  between untrusted verification and protected release runners does not exist.
 - [x] Define an owner and expiry for every suppression, quarantine, skipped
   check, accepted vulnerability, and policy exception.
   Owner duncan, completed 2026-07-31. `platform/exception-register.yaml` holds
