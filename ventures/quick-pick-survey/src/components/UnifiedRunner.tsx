@@ -139,13 +139,17 @@ type LiveSession = {
 
 function openSession(bundle: SessionBundle): LiveSession {
   const domains: DomainState[] = bundle.domains.map((d) => ({ ...d, confidence: 0, answeredCount: 0 }));
+  const urlDomain = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("domain") : null;
+  const initialDomain = urlDomain && domains.some((d) => d.slug === urlDomain)
+    ? urlDomain
+    : pickNextDomain(domains, null, bundle.perspective ?? DEFAULT_PERSPECTIVE);
   return {
     firstName: bundle.firstName,
     partnerName: bundle.partnerName,
     perspective: bundle.perspective ?? DEFAULT_PERSPECTIVE,
     participants: bundle.participants,
     domains,
-    currentSlug: pickNextDomain(domains, null, bundle.perspective ?? DEFAULT_PERSPECTIVE),
+    currentSlug: initialDomain,
     streakRemaining: randomStreakTarget(),
   };
 }
@@ -180,6 +184,28 @@ export function UnifiedRunner() {
   // A session the person has touched wins over the stored one, so a late
   // account response can't yank the question out from under them.
   const session = live ?? restored;
+
+  const update = useCallback(
+    (fn: (s: LiveSession) => LiveSession) => setLive((prev) => (prev ? fn(prev) : restored ? fn(restored) : null)),
+    [restored]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !session) return;
+    const requestedDomain = new URLSearchParams(window.location.search).get("domain");
+    if (!requestedDomain) return;
+    const targetDomain = session.domains.find((d) => d.slug === requestedDomain);
+    if (!targetDomain || session.currentSlug === requestedDomain) return;
+
+    update((s) => ({
+      ...s,
+      currentSlug: requestedDomain,
+      streakRemaining: randomStreakTarget(),
+    }));
+    submittingTrialIdRef.current = null;
+    setTrial(null);
+    setNextTrial(null);
+  }, [session, update]);
   const phase = !hydrated
     ? "loading"
     : paused
@@ -246,11 +272,6 @@ export function UnifiedRunner() {
       setError("Couldn't switch mode. Try again.");
     }
   }
-
-  const update = useCallback(
-    (fn: (s: LiveSession) => LiveSession) => setLive((prev) => (prev ? fn(prev) : restored ? fn(restored) : null)),
-    [restored]
-  );
 
   useEffect(() => {
     // A signed-in account is the source of truth — it lets progress resume on

@@ -247,6 +247,43 @@ describe("UnifiedRunner", () => {
     expect(served).toBe(4);
   });
 
+  it("honors topic requested in URL search param ?domain=...", async () => {
+    delete (window as unknown as Record<string, unknown>).location;
+    (window as unknown as Record<string, unknown>).location = new URL("http://localhost/app?domain=professions");
+
+    const BUNDLE_WITH_PROFESSIONS = {
+      firstName: "Ada",
+      partnerName: "Grace",
+      perspective: "PARTNER" as const,
+      participants: { activities: "p-act", professions: "p-prof" },
+      domains: [
+        { slug: "activities", title: "Activities", kind: "ITEMS" as const, confidence: 0, answeredCount: 0 },
+        { slug: "professions", title: "Professions", kind: "ITEMS" as const, confidence: 0, answeredCount: 0 },
+      ],
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(BUNDLE_WITH_PROFESSIONS));
+
+    const servedDomains: string[] = [];
+    stubFetch({
+      "/api/auth/me": noAccount,
+      "/api/session/status": emptyStatus,
+      "/api/trials/next": (body: unknown) => {
+        const participantId = (body as { participantId?: string })?.participantId;
+        if (participantId === "p-prof") {
+          servedDomains.push("professions");
+          return itemsTrial("t-prof", "Private helicopter pilot", "Volunteer firefighter");
+        } else {
+          servedDomains.push("activities");
+          return itemsTrial("t-act", "Hiking", "Museums");
+        }
+      },
+    });
+
+    render(<UnifiedRunner />);
+    expect(await screen.findByText("Private helicopter pilot")).toBeTruthy();
+    expect(servedDomains[0]).toBe("professions");
+  });
+
   it("switches domain when the streak completes", async () => {
     const MULTI_DOMAIN_BUNDLE = {
       firstName: "Ada",
