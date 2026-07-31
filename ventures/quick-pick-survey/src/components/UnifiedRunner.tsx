@@ -190,22 +190,12 @@ export function UnifiedRunner() {
     [restored]
   );
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !session) return;
-    const requestedDomain = new URLSearchParams(window.location.search).get("domain");
-    if (!requestedDomain) return;
-    const targetDomain = session.domains.find((d) => d.slug === requestedDomain);
-    if (!targetDomain || session.currentSlug === requestedDomain) return;
-
-    update((s) => ({
-      ...s,
-      currentSlug: requestedDomain,
-      streakRemaining: randomStreakTarget(),
-    }));
-    submittingTrialIdRef.current = null;
-    setTrial(null);
-    setNextTrial(null);
-  }, [session, update]);
+  // `?domain=` is honoured in `openSession`, where the opening domain is chosen
+  // once from the restored bundle. It was also being applied a second time from
+  // an effect here, which set state synchronously in the effect body and made
+  // the session an input to the effect that rewrites it — a cascading render
+  // that only settled because of a `currentSlug === requestedDomain` guard.
+  // Choosing the domain at construction is the same behaviour without the loop.
   const phase = !hydrated
     ? "loading"
     : paused

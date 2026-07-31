@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import HtmlToJsx from "htmltojsx";
+import { convert as htmlToJsx } from "./html-to-jsx.mjs";
 import { marked } from "marked";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -13,8 +13,6 @@ const DOCS_ROOT = path.resolve(__dirname, "../../docs");
 const APP_ROOT = path.resolve(__dirname, "../src/app");
 const CONTENT_ROOT = path.resolve(__dirname, "../src/generated/doc-content");
 const MANIFEST_FILE = path.resolve(__dirname, "../src/generated/manifest.ts");
-
-const jsxConverter = new HtmlToJsx({ createClass: false });
 
 const HTML_SLUGS = {
   "commercial-viability-report.html": "commercial-viability-assessment",
@@ -82,7 +80,7 @@ function contentExportName(slug) {
 }
 
 function htmlToJsxFragment(html) {
-  let jsx = jsxConverter.convert(html).trim();
+  let jsx = htmlToJsx(html).trim();
   const wrapped = jsx.match(/^<div>\s*([\s\S]*)\s*<\/div>$/);
   if (wrapped) {
     jsx = wrapped[1].trim();

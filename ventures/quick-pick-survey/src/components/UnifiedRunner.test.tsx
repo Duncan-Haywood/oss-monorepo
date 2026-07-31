@@ -248,8 +248,16 @@ describe("UnifiedRunner", () => {
   });
 
   it("honors topic requested in URL search param ?domain=...", async () => {
-    delete (window as unknown as Record<string, unknown>).location;
-    (window as unknown as Record<string, unknown>).location = new URL("http://localhost/app?domain=professions");
+    // jsdom's `location` is a non-writable accessor, so it has to be redefined
+    // rather than assigned. Restored at the end of the test: `recordUsage`
+    // stamps `location.pathname` onto every event, so leaking a replacement
+    // into the rest of the file would quietly re-path later tests.
+    const realLocation = Object.getOwnPropertyDescriptor(window, "location");
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      writable: true,
+      value: new URL("http://localhost/app?domain=professions"),
+    });
 
     const BUNDLE_WITH_PROFESSIONS = {
       firstName: "Ada",
@@ -282,6 +290,8 @@ describe("UnifiedRunner", () => {
     render(<UnifiedRunner />);
     expect(await screen.findByText("Private helicopter pilot")).toBeTruthy();
     expect(servedDomains[0]).toBe("professions");
+
+    if (realLocation) Object.defineProperty(window, "location", realLocation);
   });
 
   it("switches domain when the streak completes", async () => {

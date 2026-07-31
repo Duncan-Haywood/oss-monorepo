@@ -88,6 +88,17 @@ export const VENTURE_CATALOG = [
     testDir: 'tests',
   },
   {
+    // The venture itself is a Python component; its documentation site is a
+    // separate Node package that nothing verified until it was registered here.
+    // A change under docs-site matches this entry and `photo-editing`, so both run.
+    id: 'photo-editing-docs-site',
+    name: 'Photo Editing Docs Site (ShootFlow)',
+    dir: 'ventures/photo-editing/docs-site',
+    type: 'node',
+    hasPrisma: false,
+    scripts: ['typecheck', 'test', 'build'],
+  },
+  {
     id: 'ubuntu-agent-server',
     name: 'Ubuntu Agent Server',
     dir: 'ventures/ubuntu-agent-server',

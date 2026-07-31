@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -105,6 +106,66 @@ test('CI Pipeline Catalog - every venture with tests is registered and runs them
       );
     }
   }
+});
+
+/**
+ * Venture-level registration is not enough. A venture registered as a Python
+ * component can contain a Node package (photo-editing/docs-site did) whose test
+ * script nothing ever invokes, which again looks exactly like a green build.
+ * Every package that defines tests must be covered by an entry that runs them.
+ */
+test('CI Pipeline Catalog - every Node package defining tests is run by some entry', () => {
+  // Only git-tracked manifests count. Build output such as `.open-next/` and
+  // vendored `node_modules` contain package.json files that are not ours to
+  // verify, and enumerating via git keeps that exclusion self-maintaining.
+  const packageDirs = execFileSync('git', ['ls-files', '--', 'ventures'], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+  })
+    .split('\n')
+    .filter((file) => path.basename(file) === 'package.json')
+    .map((file) => path.join(REPO_ROOT, path.dirname(file)));
+
+  // An entry covers a package when it points at that exact package directory.
+  const coveredDirs = new Map();
+  for (const component of VENTURE_CATALOG) {
+    const dir = path.join(REPO_ROOT, component.packageDir || component.dir);
+    coveredDirs.set(dir, component);
+  }
+
+  const uncovered = [];
+  for (const dir of packageDirs) {
+    let manifest;
+    try {
+      manifest = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'));
+    } catch {
+      continue;
+    }
+    const testScript = (manifest.scripts || {}).test;
+    if (!testScript) continue;
+
+    const component = coveredDirs.get(dir);
+    const relative = path.relative(REPO_ROOT, dir);
+
+    if (!component) {
+      // A workspace member is covered by its root running a recursive script.
+      const coveredByWorkspaceRoot = [...coveredDirs.entries()].some(
+        ([coveredDir, entry]) => dir.startsWith(coveredDir + path.sep) && entry.type === 'pnpm',
+      );
+      if (!coveredByWorkspaceRoot) uncovered.push(relative);
+      continue;
+    }
+
+    if (component.type === 'node' && !(component.scripts || []).includes('test')) {
+      uncovered.push(relative);
+    }
+  }
+
+  assert.deepEqual(
+    uncovered,
+    [],
+    `Node packages define a "test" script that no catalog entry runs: ${uncovered.join(', ')}`,
+  );
 });
 
 test('CI Pipeline Affected Path Resolver - Venture Path Matching', () => {

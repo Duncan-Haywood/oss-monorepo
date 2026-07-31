@@ -7,7 +7,9 @@
     "build": "next build",
     "dev": "node scripts/build-docs.mjs && next dev",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test scripts/test-html-to-jsx.mjs scripts/test-generated-docs-current.mjs"
   },
   "dependencies": {
     "marked": "^15.0.7",
@@ -19,7 +21,7 @@
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
-    "htmltojsx": "^0.3.0",
+    "parse5": "^8.0.1",
     "typescript": "^5.8.2"
   }
 }
