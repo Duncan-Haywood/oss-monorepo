@@ -6,7 +6,9 @@ on:
       - "ventures/quick-pick-survey/**"
       - ".gitea/workflows/pairwise-ci.yml"
       - "platform/ci/deploy-pairwise.sh"
+      - "platform/ci/promote-pairwise-gitops.sh"
       - "platform/ci/smoke-test-pairwise.sh"
+      - "platform/k8s/argocd-apps/quick-pick-survey.yaml"
       - "platform/k8s/apps/quick-pick-survey/**"
       - "platform/terraform/helm/web-service/**"
       - "platform/terraform/services.tf"
@@ -19,7 +21,9 @@ on:
       - "ventures/quick-pick-survey/**"
       - ".gitea/workflows/pairwise-ci.yml"
       - "platform/ci/deploy-pairwise.sh"
+      - "platform/ci/promote-pairwise-gitops.sh"
       - "platform/ci/smoke-test-pairwise.sh"
+      - "platform/k8s/argocd-apps/quick-pick-survey.yaml"
       - "platform/k8s/apps/quick-pick-survey/**"
       - "platform/terraform/helm/web-service/**"
       - "platform/terraform/services.tf"
@@ -28,7 +32,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 concurrency:
@@ -141,6 +145,8 @@ jobs:
     needs: [app, database]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    outputs:
+      image_digest: ${{ steps.publish.outputs.digest }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -189,7 +195,8 @@ jobs:
           exit 1
 
       - name: Publish immutable main image
-        if: github.ref == 'refs/heads/main'
+        id: publish
+        if: github.ref == 'refs/heads/main' || gitea.ref == 'refs/heads/main'
         env:
           IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
           REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
@@ -201,13 +208,27 @@ jobs:
           docker push "$IMAGE"
           docker tag "$IMAGE" git.marisstella.dev/giteaadmin/pairwise-app:latest
           docker push git.marisstella.dev/giteaadmin/pairwise-app:latest
+          digest="$(
+            docker manifest inspect --verbose "$IMAGE" |
+              jq -r '
+                if type == "array"
+                then .[0].Descriptor.digest
+                else .Descriptor.digest // .digest
+                end
+              '
+          )"
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "Registry returned an invalid digest: $digest" >&2
+            exit 1
+          }
+          echo "digest=$digest" >> "${GITHUB_OUTPUT:-$GITEA_OUTPUT}"
 
-  deploy:
-    name: Migrate and deploy to production
+  promote:
+    name: Promote verified digest to GitOps production
     needs: container
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || gitea.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 10
     environment: production
     defaults:
       run:
@@ -215,51 +236,30 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          persist-credentials: false
+          fetch-depth: 0
+          persist-credentials: true
+          token: ${{ secrets.PAIRWISE_GITOPS_TOKEN }}
 
-      - name: Install pinned Kubernetes client
-        shell: bash
+      - name: Commit the verified digest to the production branch
         env:
-          KUBECTL_VERSION: v1.36.2
-        run: |
-          install -d -m 0755 "$RUNNER_TEMP/bin"
-          curl --fail --silent --show-error --location \
-            --output "$RUNNER_TEMP/bin/kubectl" \
-            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-          curl --fail --silent --show-error --location \
-            --output "$RUNNER_TEMP/bin/kubectl.sha256" \
-            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
-          printf '%s  %s\n' \
-            "$(cat "$RUNNER_TEMP/bin/kubectl.sha256")" \
-            "$RUNNER_TEMP/bin/kubectl" |
-            sha256sum --check
-          chmod 0755 "$RUNNER_TEMP/bin/kubectl"
-          echo "$RUNNER_TEMP/bin" >> "${GITHUB_PATH:-$GITEA_PATH}"
-          "$RUNNER_TEMP/bin/kubectl" version --client
-
-      - name: Configure production cluster access
-        shell: bash
-        env:
-          HETZNER_KUBECONFIG_B64: ${{ secrets.HETZNER_KUBECONFIG_B64 }}
-        run: |
-          test -n "$HETZNER_KUBECONFIG_B64" || {
-            echo "HETZNER_KUBECONFIG_B64 is not configured" >&2
-            exit 1
-          }
-          install -d -m 0700 "$RUNNER_TEMP/kube"
-          printf '%s' "$HETZNER_KUBECONFIG_B64" |
-            base64 --decode > "$RUNNER_TEMP/kube/config"
-          chmod 0600 "$RUNNER_TEMP/kube/config"
-          KUBECONFIG="$RUNNER_TEMP/kube/config" kubectl config current-context
-          KUBECONFIG="$RUNNER_TEMP/kube/config" kubectl get --raw=/readyz
-          echo "KUBECONFIG=$RUNNER_TEMP/kube/config" >> "${GITHUB_ENV:-$GITEA_ENV}"
-
-      - name: Deploy the verified commit with zero unavailable replicas
-        env:
-          KUBECONFIG: ${{ runner.temp }}/kube/config
-          IMAGE: git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}
-          REGISTRY_SERVER: git.marisstella.dev
-          REGISTRY_USERNAME: giteaadmin
-          REGISTRY_TOKEN: ${{ secrets.PAIRWISE_REGISTRY_TOKEN }}
+          IMAGE_DIGEST: ${{ needs.container.outputs.image_digest }}
           RELEASE_REVISION: ${{ github.sha }}
-        run: platform/ci/deploy-pairwise.sh
+        run: |
+          git config user.name "Pairwise GitOps promoter"
+          git config user.email "pairwise-gitops@marisstella.dev"
+          if git fetch origin gitops-production; then
+            git switch --force-create gitops-production origin/gitops-production
+            git merge --no-edit "$RELEASE_REVISION"
+          else
+            git switch --create gitops-production
+          fi
+          platform/ci/promote-pairwise-gitops.sh
+          git add \
+            platform/k8s/apps/quick-pick-survey/deployment.yaml \
+            platform/k8s/apps/quick-pick-survey/kustomization.yaml
+          if git diff --cached --quiet; then
+            echo "Production already records $IMAGE_DIGEST"
+            exit 0
+          fi
+          git commit -m "deploy(pairwise): promote ${RELEASE_REVISION}"
+          git push origin HEAD:gitops-production

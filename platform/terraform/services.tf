@@ -5,7 +5,14 @@ resource "kubernetes_namespace" "web_services" {
 }
 
 resource "helm_release" "web_service" {
-  for_each   = var.services
+  # Pairwise is reconciled by Argo CD from the gitops-production branch.
+  # Before applying this ownership change to an existing cluster, detach the
+  # old release from state without uninstalling its live objects:
+  # terraform state rm 'helm_release.web_service["quick-pick-survey"]'
+  for_each = {
+    for name, service in var.services : name => service
+    if name != "quick-pick-survey"
+  }
   depends_on = [helm_release.cert_manager, kubernetes_namespace.web_services]
 
   name      = each.key

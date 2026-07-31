@@ -13,11 +13,18 @@ const monorepoCiPath = existsSync(monorepoCiPathGitea) ? monorepoCiPathGitea : m
 
 const PAIRWISE_CI = existsSync(pairwiseCiPath) ? readFileSync(pairwiseCiPath, "utf8") : "";
 const MONOREPO_CI = existsSync(monorepoCiPath) ? readFileSync(monorepoCiPath, "utf8") : "";
-const PAIRWISE_DEPLOY = readFileSync(join(ROOT, "platform/ci/deploy-pairwise.sh"), "utf8");
-const PAIRWISE_SMOKE = readFileSync(join(ROOT, "platform/ci/smoke-test-pairwise.sh"), "utf8");
+const PAIRWISE_PROMOTE = readFileSync(join(ROOT, "platform/ci/promote-pairwise-gitops.sh"), "utf8");
 const GITEA_RUNNER = readFileSync(join(ROOT, "platform/terraform/gitea_runner.tf"), "utf8");
-const PAIRWISE_DEPLOYER_RBAC = readFileSync(
-  join(ROOT, "platform/k8s/apps/quick-pick-survey/ci-deployer-rbac.yaml"),
+const PAIRWISE_ARGO_APP = readFileSync(
+  join(ROOT, "platform/k8s/argocd-apps/quick-pick-survey.yaml"),
+  "utf8",
+);
+const PAIRWISE_KUSTOMIZATION = readFileSync(
+  join(ROOT, "platform/k8s/apps/quick-pick-survey/kustomization.yaml"),
+  "utf8",
+);
+const PAIRWISE_HOOKS = readFileSync(
+  join(ROOT, "platform/k8s/apps/quick-pick-survey/release-hooks.yaml"),
   "utf8",
 );
 
@@ -60,31 +67,38 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain("needs: [app, database]");
   });
 
-  it.skipIf(!PAIRWISE_CI)("deploys immutable main images without taking ready replicas offline", () => {
-    expect(PAIRWISE_CI).toContain("platform/ci/deploy-pairwise.sh");
-    expect(PAIRWISE_CI).toContain("HETZNER_KUBECONFIG");
+  it.skipIf(!PAIRWISE_CI)("promotes immutable digests through Git and leaves reconciliation to Argo CD", () => {
+    expect(PAIRWISE_CI).toContain("platform/ci/promote-pairwise-gitops.sh");
+    expect(PAIRWISE_CI).toContain("PAIRWISE_GITOPS_TOKEN");
     expect(PAIRWISE_CI).toContain("PAIRWISE_REGISTRY_TOKEN");
     expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
-    expect(PAIRWISE_DEPLOY).toContain("create poddisruptionbudget");
-    expect(PAIRWISE_DEPLOY).toContain("maxUnavailable");
-    expect(PAIRWISE_DEPLOY).toContain("--type=strategic");
-    expect(PAIRWISE_DEPLOY).toContain(".metadata.deletionTimestamp == null");
-    expect(PAIRWISE_DEPLOY).toContain("smoke-test-pairwise.sh");
-    expect(PAIRWISE_SMOKE).toContain("/api/health/ready");
-    expect(PAIRWISE_SMOKE).toContain("/api/surveys/combined");
-    expect(PAIRWISE_SMOKE).toContain("/couple");
+    expect(PAIRWISE_CI).toContain("gitops-production");
+    expect(PAIRWISE_CI).not.toContain("HETZNER_KUBECONFIG");
+    expect(PAIRWISE_CI).not.toContain("kubectl set image");
+    expect(PAIRWISE_PROMOTE).toContain("IMAGE_DIGEST");
+    expect(PAIRWISE_PROMOTE).toContain("RELEASE_REVISION");
+    expect(PAIRWISE_ARGO_APP).toContain("targetRevision: gitops-production");
+    expect(PAIRWISE_ARGO_APP).toContain("selfHeal: true");
+    expect(PAIRWISE_ARGO_APP).toContain("RespectIgnoreDifferences=true");
+    expect(PAIRWISE_KUSTOMIZATION).toMatch(/digest: sha256:[0-9a-f]{64}/);
+    expect(PAIRWISE_KUSTOMIZATION).not.toContain("newTag: latest");
   });
 
-  it("gives migrations and the idempotent seed enough memory to complete", () => {
-    expect(PAIRWISE_DEPLOY).toContain('memory: "512Mi"');
-    expect(PAIRWISE_DEPLOY).toContain('memory: "1Gi"');
+  it("runs migrations before sync and smoke checks after sync on the promoted digest", () => {
+    expect(PAIRWISE_HOOKS).toContain("argocd.argoproj.io/hook: PreSync");
+    expect(PAIRWISE_HOOKS).toContain("argocd.argoproj.io/hook: PostSync");
+    expect(PAIRWISE_HOOKS).toContain("prisma migrate deploy && prisma db seed");
+    expect(PAIRWISE_HOOKS).toContain('memory: 512Mi');
+    expect(PAIRWISE_HOOKS).toContain('memory: 1Gi');
+    expect(PAIRWISE_HOOKS).toContain("/api/health/ready");
+    expect(PAIRWISE_HOOKS).toContain("/api/surveys/combined");
+    expect(PAIRWISE_HOOKS).toContain("/couple");
   });
 
-  it("keeps the CI runner stable and authorizes the zero-downtime rollout contract", () => {
+  it("keeps the CI runner stable without retaining a CI cluster deployer", () => {
     expect(GITEA_RUNNER).toContain("fs.inotify.max_user_instances=1024");
     expect(GITEA_RUNNER).toContain("fs.inotify.max_user_watches=524288");
-    expect(PAIRWISE_DEPLOYER_RBAC).toContain('apiGroups: ["policy"]');
-    expect(PAIRWISE_DEPLOYER_RBAC).toContain('resources: ["poddisruptionbudgets"]');
+    expect(PAIRWISE_KUSTOMIZATION).not.toContain("ci-deployer-rbac.yaml");
   });
 
   it.skipIf(!MONOREPO_CI)("publishes Pairwise images by immutable commit, never a mutable latest tag", () => {

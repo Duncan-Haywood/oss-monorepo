@@ -1,7 +1,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: quick-pick-survey
+  name: quick-pick-survey-web-service
+  namespace: web-services
+  labels:
+    app.kubernetes.io/name: web-service
+    app.kubernetes.io/instance: quick-pick-survey
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
@@ -9,17 +13,17 @@ metadata:
 spec:
   ingressClassName: traefik
   tls:
-  - hosts:
-    - pairwise.marisstella.dev
-    secretName: pairwise-survey-tls
+    - hosts:
+        - pairwise.marisstella.dev
+      secretName: quick-pick-survey-web-service-tls
   rules:
-  - host: pairwise.marisstella.dev
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: quick-pick-survey
-            port:
-              number: 80
+    - host: pairwise.marisstella.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: quick-pick-survey-web-service
+                port:
+                  number: 3000

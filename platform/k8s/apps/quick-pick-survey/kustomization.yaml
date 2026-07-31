@@ -6,15 +6,9 @@ resources:
 - service.yaml
 - ingress.yaml
 - pdb.yaml
-- sealed-secret.yaml
-- pairwise-db-backup-cronjob.yaml
-- ci-deployer-rbac.yaml
+- release-hooks.yaml
 
 images:
 - name: git.marisstella.dev/giteaadmin/pairwise-app
   newName: git.marisstella.dev/giteaadmin/pairwise-app
-  newTag: latest
-
-commonLabels:
-  app.kubernetes.io/managed-by: argocd
-  app.kubernetes.io/part-of: platform-ventures
+  digest: sha256:831599f3131f3d68003ffdac5a75cf40de92b663e510f1ae440af60fea8970ca

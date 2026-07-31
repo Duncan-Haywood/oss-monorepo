@@ -1,9 +1,11 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: quick-pick-survey-pdb
+  name: quick-pick-survey-web-service
+  namespace: web-services
 spec:
   minAvailable: 1
   selector:
     matchLabels:
-      app: quick-pick-survey
+      app.kubernetes.io/name: web-service
+      app.kubernetes.io/instance: quick-pick-survey
