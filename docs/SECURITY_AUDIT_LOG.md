@@ -26,6 +26,7 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-014** | Medium | Container | `portfolio/marisstella-homepage/Dockerfile` | Root execution in static container image | **Fixed** |
 | **SEC-015** | Medium | CI / Security | `.gitea/workflows/*.yml` | Workflows running without top-level restrictive permissions | **Fixed** |
 | **SEC-016** | Low | Supply Chain | `ventures/*/package.json` | Dependency vulnerability auditing not enforced on PRs | **Fixed** |
+| **SEC-017** | **Critical** | Supply Chain | `ventures/photo-editing/docs-site` | Abandoned `htmltojsx` pulled in `request` (SSRF) and `form-data` (CRLF injection) | **Fixed** |
 
 ---
 
@@ -108,6 +109,36 @@ This log records all identified application, infrastructure, container, and CI s
 ### SEC-016 — Low — Dependency Vulnerability Audit Gate
 - **Location**: `ventures/*/package.json`
 - **Fix**: Added automated `npm audit` execution to the CI security scan workflow.
+
+### SEC-017 — Critical — Abandoned Build Dependency Carrying Two Critical Advisories
+- **Location**: `ventures/photo-editing/docs-site/scripts/build-docs.mjs`
+- **Impact**: The documentation build converted repository HTML and Markdown to
+  TSX using `htmltojsx@0.3.0` (last published 2016). Through
+  `jsdom-no-contextify` it carried both of the repository's outstanding CRITICAL
+  findings — `request` (server-side request forgery; deprecated upstream with no
+  fixed version) and `form-data` (CRLF injection via unescaped multipart field
+  names) — plus React 15 and yargs 4 inside a React 19 project. Exposure was
+  build-time rather than served to users, but the packages were unfixable in
+  place: the scanner's suggested "upgrade to htmltojsx@0.2.2" is a downgrade.
+- **Fix**: Replaced the dependency with `scripts/html-to-jsx.mjs`, a
+  behaviour-preserving port of htmltojsx's traversal onto `parse5` (maintained,
+  spec-compliant). React 15's attribute mapping is frozen into the module as a
+  literal table so no React internals are needed at build time. Removal drops
+  139 transitive packages; parse5 adds two.
+- **Evidence**: All 11 generated doc pages plus the manifest regenerate
+  byte-for-byte identical from an empty `src/generated`; 42 differential
+  fixtures covering behaviour the doc corpus does not exercise (pre whitespace,
+  curly braces, comments, textarea/style hoisting, script stripping, multi-root
+  wrapping, SVG camelCasing, entity and nbsp escaping) convert identically under
+  both implementations; `next build` prerenders all 11 pages and `tsc --noEmit`
+  is clean. `npm audit` for the package reports 0 critical, down from 2.
+- **Regression protection**: 26 converter contract tests and a drift test
+  asserting the committed `src/generated` still matches a fresh build. The
+  package was previously invisible to CI — `photo-editing` is registered as a
+  Python component, so its nested Node package was never verified — and is now a
+  registered catalog entry. The catalog contract test additionally fails when
+  any git-tracked package under `ventures/` defines a `test` script that no
+  entry runs.
 
 ---
 
