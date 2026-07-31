@@ -91,22 +91,28 @@ land.** Two answers are both fine — merge this branch and let the schedule
 continue, or pause the schedule — and one is not: leaving it firing into a queue
 nobody drains. See [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
 
-### P1 → resolved on this branch — undo sent a body the route rejects, so every rewind 400'd
+### P1 → caught before it shipped — undo had been rewritten to send a body the route rejects
 
-`handleUndo` was changed to post `{ domainSlug }`. `/api/trials/undo` reads
-`participantId` and `kind` and returns 400 without the former; `domainSlug`
-appears nowhere in the route. Every rewind therefore failed and showed
-"Couldn't undo that answer. Try again." The server cannot resolve the domain
-slug on its own — the participant ids only exist in the device's session
-bundle, which is what the route's `mayAccessOwnedParticipant` check is layered
-on top of — so the fix restores `{ participantId, kind }` rather than teaching
-the route a slug.
+Scope first, because it matters: this was in the working tree, not in any
+commit on any branch. `git log -S domainSlug --all` on the runner is empty. No
+released version ever sent it, so nobody's rewind broke. What follows is why it
+got as far as it did.
 
-No test saw it: `UnifiedRunner.test.tsx` had no coverage of undo at all, and
-the integration test still exercised the endpoint directly with the old body,
-so it stayed green while the app was broken. There is now a runner test
-asserting the exact request body, and it was confirmed red against the
-`{ domainSlug }` version before being kept.
+`handleUndo` had been changed to post `{ domainSlug }`. `/api/trials/undo` reads
+`participantId` and `kind`, returns 400 without the former, and never mentions
+`domainSlug`. Had it landed, every rewind would have failed with "Couldn't undo
+that answer. Try again." The route cannot resolve the slug on its own — the
+participant ids exist only in the device's session bundle, which is what its
+`mayAccessOwnedParticipant` check is layered on top of — so the right shape is
+`{ participantId, kind }`, which is what the committed runner sends.
+
+The gap worth fixing is the coverage, not the line. `UnifiedRunner.test.tsx` had
+no undo coverage at all, and the integration test calls the endpoint directly
+with the correct body, so both stayed green against a client that had stopped
+speaking the route's language. Renaming a request field is invisible to every
+test that never drives the component. There is now a runner test asserting the
+exact body, confirmed red against the `{ domainSlug }` version before being
+kept.
 
 ### P2 — The optimistic prefetch has never run, and the reason it should stay off is a metric, not a bug
 
