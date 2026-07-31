@@ -4,34 +4,44 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
-- [ ] [platform] Convex order persistence — migrate in-memory `src/lib/orders.ts` records to database
-- [ ] [platform] Persist Printful variant mappings to Convex with operator audit log
-- [ ] [platform] Wire partner credential vault to Vercel env pull and mask secrets in admin UI
-- [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
-- [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
-- [ ] [platform] Persist Stripe webhook events to artist payout ledger (transfer.created, payout.paid)
-- [ ] [platform] Persist creative tests with predicted CAC, actual CAC, winning concept, and channel
-- [ ] [platform] Persist outreach prospects, replies, source channel, and next-action state as first-class CRM records
-- [ ] [ai-ml] Add audited LLM reply classifier with confidence thresholds and deterministic fallback categories
-- [ ] [legal] Add payout/licensing objection templates for artists asking about rights and terms
-- [ ] [platform] Persist room-preview experiment events with preview opens, add-to-cart, orders, and source channel
-- [ ] [ai-ml] Generate prioritized room mockup assets by style tag, margin, and missing-preview demand
-- [ ] [finance] Feed actual room-preview lift into weekly channel budget allocation
-- [ ] [legal] Add consent gate for artist artwork in AI-generated room scenes and paid ad previews
-- [ ] [finance] Add payout sensitivity price-floor optimizer by artist trust, CAC, and POD cost
-- [ ] [platform] Persist payout exception decisions with current economics, suggested retail, override reason, and remediation history
-- [ ] [gtm] Add payout-safe outreach segment builder that only enrolls artists whose SKU economics clear trust guardrails
-- [ ] [ai-ml] Add POD cost sensitivity recommender for cheaper fulfillment options before raising retail price
-- [ ] [platform] Persist listing release decisions with owner, status, override reason, and artist-facing copy snapshot
-- [ ] [ops] Add release SLA aging for finance override reviews and ops holds
-- [ ] [platform] Persist consent ledger events with signer, timestamp, source, copy version, and accepted channel rights
-- [ ] [legal] Add channel-specific artist terms copy preview for storefront, outreach, paid ads, and AI room-scene use
+- [ ] [analytics] Add payout exception resolution velocity metrics to admin portal
+- [ ] [ops] Add automated Printful and Gelato SKU sync status health check
+- [ ] [marketing] Add automated CAPI event delivery health dashboard across Meta, Google, and Pinterest
+- [ ] [finance] Add automated Stripe Connect payout reconciliation report per artist account
 
 ## in_progress
 
 _(agent assigns at run start)_
 
 ## done
+
+- [x] [platform] Add Convex database sync status indicator to partner setup dashboard
+
+- [x] [platform] Wire partner credential vault to Vercel env pull and mask secrets in admin UI
+- [x] [platform] Persist Stripe webhook events to artist payout ledger (transfer.created, payout.paid)
+- [x] [platform] Persist payout exception decisions with current economics, suggested retail, override reason, and remediation history
+- [x] [platform] Persist listing release decisions with owner, status, override reason, and artist-facing copy snapshot
+- [x] [platform] Persist consent ledger events with signer, timestamp, source, copy version, and accepted channel rights
+- [x] [platform] Convex order persistence — migrate in-memory `src/lib/orders.ts` records to database
+- [x] [platform] Persist Printful variant mappings to Convex with operator audit log
+- [x] [platform] Persist cohort retention metrics (LTV, CAC, payback period, channel status)
+
+- [x] [platform] Persist outreach prospects, replies, source channel, and next-action state as first-class CRM records
+- [x] [platform] Persist creative tests with predicted CAC, actual CAC, winning concept, and channel
+- [x] [platform] Persist room-preview experiment events with preview opens, add-to-cart, orders, and source channel
+- [x] [ai-ml] Generate prioritized room mockup assets by style tag, margin, and missing-preview demand
+- [x] [finance] Feed actual room-preview lift into weekly channel budget allocation
+- [x] [ops] Add release SLA aging for finance override reviews and ops holds
+- [x] [analytics] Add real-time contribution margin dashboard per acquisition channel
+- [x] [gtm] Add automated B2B trade program tier discount calculator for interior design partners
+
+- [x] [ai-ml] Add audited LLM reply classifier with confidence thresholds and deterministic fallback categories
+- [x] [legal] Add payout/licensing objection templates for artists asking about rights and terms
+- [x] [legal] Add consent gate for artist artwork in AI-generated room scenes and paid ad previews
+- [x] [finance] Add payout sensitivity price-floor optimizer by artist trust, CAC, and POD cost
+- [x] [gtm] Add payout-safe outreach segment builder that only enrolls artists whose SKU economics clear trust guardrails
+- [x] [ai-ml] Add POD cost sensitivity recommender for cheaper fulfillment options before raising retail price
+- [x] [legal] Add channel-specific artist terms copy preview for storefront, outreach, paid ads, and AI room-scene use
 
 - [x] [sales] Add outreach personalization field for why each artist should trust the payout math
 - [x] [ops] Add consent SLA aging for release-ready listings blocked by missing rights

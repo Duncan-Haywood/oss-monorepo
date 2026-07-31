@@ -1,4 +1,4 @@
-import type { ArtistOnboardingConsent } from "./artist-onboarding.ts";
+import type { ArtistOnboardingConsent } from "./artist-onboarding";
 
 export type ArtistObjectionTemplate = {
   id: string;

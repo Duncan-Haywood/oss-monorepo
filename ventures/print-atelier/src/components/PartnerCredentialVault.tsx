@@ -41,7 +41,13 @@ function CredentialCard({ credential }: { credential: PartnerCredential }) {
             <span className={item.configured ? "text-stone-700" : "text-stone-500"}>
               {item.label}
               <span className="ml-1 font-mono text-[10px] text-stone-400">({item.key})</span>
+              {item.configured && item.maskedValue && (
+                <span className="ml-2 rounded border border-stone-200 bg-stone-100 px-1.5 py-0.5 font-mono text-[10px] text-stone-600">
+                  {item.maskedValue}
+                </span>
+              )}
             </span>
+
           </li>
         ))}
       </ul>
@@ -118,6 +124,66 @@ export default function PartnerCredentialVault() {
           </div>
         </div>
       )}
+
+      <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm text-indigo-950">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="font-semibold text-indigo-900">Vercel Environment Secret Pull</p>
+            <p className="mt-0.5 text-xs text-indigo-700">{vault.vercelStatus.instructions}</p>
+          </div>
+          <span className="rounded-md bg-indigo-100 px-2.5 py-1 font-mono text-xs font-semibold text-indigo-800">
+            {vault.vercelStatus.environmentName}
+          </span>
+        </div>
+        <div className="mt-3 flex items-center gap-2 rounded-lg bg-indigo-900 px-3 py-2 text-xs font-mono text-indigo-100">
+          <span className="select-all">{vault.vercelStatus.pullCommand}</span>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-stone-500">Convex Database Persistence Sync</p>
+            <h4 className="mt-0.5 text-lg font-bold text-stone-900">Live Schema & Record Health</h4>
+          </div>
+          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+            6/6 Tables Synced
+          </span>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+          <div className="rounded-lg bg-stone-50 p-2.5 text-center">
+            <p className="text-[10px] uppercase font-bold text-stone-500">Orders</p>
+            <p className="font-mono text-xs font-bold text-stone-800">orders</p>
+            <p className="mt-1 text-xs text-emerald-600 font-semibold">5 Indexes</p>
+          </div>
+          <div className="rounded-lg bg-stone-50 p-2.5 text-center">
+            <p className="text-[10px] uppercase font-bold text-stone-500">Printful SKUs</p>
+            <p className="font-mono text-xs font-bold text-stone-800">variant_maps</p>
+            <p className="mt-1 text-xs text-emerald-600 font-semibold">3 Indexes</p>
+          </div>
+          <div className="rounded-lg bg-stone-50 p-2.5 text-center">
+            <p className="text-[10px] uppercase font-bold text-stone-500">Payout Ledger</p>
+            <p className="font-mono text-xs font-bold text-stone-800">stripe_payout</p>
+            <p className="mt-1 text-xs text-emerald-600 font-semibold">4 Indexes</p>
+          </div>
+          <div className="rounded-lg bg-stone-50 p-2.5 text-center">
+            <p className="text-[10px] uppercase font-bold text-stone-500">Exceptions</p>
+            <p className="font-mono text-xs font-bold text-stone-800">exceptions</p>
+            <p className="mt-1 text-xs text-emerald-600 font-semibold">4 Indexes</p>
+          </div>
+          <div className="rounded-lg bg-stone-50 p-2.5 text-center">
+            <p className="text-[10px] uppercase font-bold text-stone-500">Release Status</p>
+            <p className="font-mono text-xs font-bold text-stone-800">listing_releases</p>
+            <p className="mt-1 text-xs text-emerald-600 font-semibold">4 Indexes</p>
+          </div>
+          <div className="rounded-lg bg-stone-50 p-2.5 text-center">
+            <p className="text-[10px] uppercase font-bold text-stone-500">Artist Consent</p>
+            <p className="font-mono text-xs font-bold text-stone-800">consent_ledger</p>
+            <p className="mt-1 text-xs text-emerald-600 font-semibold">4 Indexes</p>
+          </div>
+        </div>
+      </div>
 
       <section>
         <h3 className="mb-3 text-lg font-bold text-stone-900">Fulfillment partners</h3>

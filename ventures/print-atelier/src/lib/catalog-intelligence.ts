@@ -186,3 +186,87 @@ export function buildCatalogMetadataDashboard(
 export function getMetadataDimensionLabel(dimension: MetadataDimension): string {
   return dimensionLabels[dimension];
 }
+
+export type PrioritizedRoomMockupItem = {
+  artworkSlug: string;
+  artworkTitle: string;
+  artistName: string;
+  tags: string[];
+  marginPercent: number;
+  netProfitUsd: number;
+  hasRoomMockups: boolean;
+  missingPreviewDemandScore: number;
+  generationPriorityScore: number;
+  recommendedSceneStyles: string[];
+  blockers: string[];
+};
+
+export type PrioritizedRoomMockupQueue = {
+  items: PrioritizedRoomMockupItem[];
+  missingMockupCount: number;
+  totalPotentialMarginUsd: number;
+};
+
+export function buildPrioritizedRoomMockupQueue(
+  artworks: CatalogArtwork[] = catalogArtworks,
+  missingPreviewDemandMap: Record<string, number> = {},
+): PrioritizedRoomMockupQueue {
+  const items: PrioritizedRoomMockupItem[] = artworks.map((artwork) => {
+    const economics = calculatePrintEconomics({
+      retailPrice: artwork.retailPrice,
+      fulfillmentCost: artwork.fulfillmentCost,
+    });
+    const demandScore =
+      missingPreviewDemandMap[artwork.slug] ??
+      Math.min(100, artwork.tags.length * 20 + (artwork.hasApprovedProof ? 30 : 10));
+
+    const recommendedSceneStyles: string[] = [];
+    const lowerTags = artwork.tags.map((t) => t.toLowerCase());
+    if (lowerTags.some((t) => t.includes("abstract") || t.includes("modern"))) {
+      recommendedSceneStyles.push("Modern Loft", "Minimalist Gallery");
+    }
+    if (lowerTags.some((t) => t.includes("nature") || t.includes("botanical") || t.includes("floral"))) {
+      recommendedSceneStyles.push("Scandinavian Sunroom", "Biophilic Bedroom");
+    }
+    if (lowerTags.some((t) => t.includes("coastal") || t.includes("ocean") || t.includes("blue"))) {
+      recommendedSceneStyles.push("Coastal Dining Room");
+    }
+    if (recommendedSceneStyles.length === 0) {
+      recommendedSceneStyles.push("Contemporary Living Room", "Studio Office");
+    }
+
+    const blockers: string[] = [];
+    if (!artwork.hasApprovedProof) {
+      blockers.push("Requires proof approval before generation");
+    }
+
+    const generationPriorityScore = artwork.hasRoomMockups
+      ? 0
+      : Math.round(economics.netProfit * 2 + economics.marginPercent + demandScore * 1.5);
+
+    return {
+      artworkSlug: artwork.slug,
+      artworkTitle: artwork.title,
+      artistName: artwork.artistName,
+      tags: artwork.tags,
+      marginPercent: economics.marginPercent,
+      netProfitUsd: economics.netProfit,
+      hasRoomMockups: artwork.hasRoomMockups,
+      missingPreviewDemandScore: demandScore,
+      generationPriorityScore,
+      recommendedSceneStyles,
+      blockers,
+    };
+  });
+
+  items.sort((a, b) => b.generationPriorityScore - a.generationPriorityScore || b.netProfitUsd - a.netProfitUsd);
+
+  const missingMockupItems = items.filter((item) => !item.hasRoomMockups);
+  const totalPotentialMarginUsd = missingMockupItems.reduce((sum, item) => sum + item.netProfitUsd, 0);
+
+  return {
+    items,
+    missingMockupCount: missingMockupItems.length,
+    totalPotentialMarginUsd: Math.round(totalPotentialMarginUsd * 100) / 100,
+  };
+}

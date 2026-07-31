@@ -2,6 +2,61 @@
 
 Orchestrator runs append here (newest first).
 
+## 2026-07-31 14:10 UTC — Partner Credential Vercel Secret Pull & Convex Event Persistence Modules
+
+- **Orient:** Verified monorepo structure and ran `portfolio/router/router.py` identifying `print-atelier` as Rank 1 venture (`launched` stage).
+- **Theme Shipped:** Secret management UX with Vercel env pull integration, plus full Convex persistence schema generators & stores for Stripe payouts, payout exceptions, listing release decisions, consent ledger events, and live sync status dashboard.
+- **Shipped:**
+  - `src/lib/partner-credentials.ts` & `src/components/PartnerCredentialVault.tsx`: Integrated Vercel environment detection (`getVercelIntegrationStatus`), secret pull CLI helper copy, UI badge, and `POST /api/credentials/vercel-pull` endpoint.
+  - `src/lib/convex-sync-status.ts`: Database sync health status calculator across all 6 persistent tables (`orders`, `printful_variant_mappings`, `stripe_payout_ledger`, `payout_exceptions`, `listing_release_decisions`, `artist_consent_ledger`).
+  - `src/lib/stripe-payout-persistence.ts`: Convex schema generator (`stripe_payout_ledger`), transfer/payout event store, status updater, query filter, and memory sync.
+  - `src/lib/payout-exception-persistence.ts`: Convex schema generator (`payout_exceptions`), active exception store, manual override logger, price adjustment / POD switch remediation audit trail.
+  - `src/lib/listing-release-persistence.ts`: Convex schema generator (`listing_release_decisions`), owner & status query filter, operator action logger, trust copy snapshot preserver, and override approval logger.
+  - `src/lib/consent-ledger-persistence.ts`: Convex schema generator (`artist_consent_ledger`), rights breakdown recorder, terms version tracker, source channel logger, and memory sync.
+  - Unit tests in `tests/convex-sync-status.test.ts`, `tests/stripe-payout-persistence.test.ts`, `tests/payout-exception-persistence.test.ts`, `tests/listing-release-persistence.test.ts`, and `tests/consent-ledger-persistence.test.ts`.
+- **Validation:** `npm test` in `ventures/print-atelier` passed 100% cleanly with 197 passing unit tests (up from 184).
+- **Backlog Updated:** Marked 6 major `[platform]` items complete in `BACKLOG.md`.
+
+---
+
+## 2026-07-31 13:10 UTC — Convex Order Persistence, Variant Mapping Audit Log & Cohort Retention Engine
+
+- **Orient:** Verified monorepo structure and ran `portfolio/router/router.py` identifying `print-atelier` as Rank 1 venture (`launched` stage).
+- **Theme Shipped:** Production database persistence schemas, partner variant mapping audit trail, and customer cohort LTV/CAC economics engine.
+- **Shipped:**
+  - `src/lib/order-persistence.ts`: Convex schema generator (`orders` table + 5 compound indexes), order persistence wrapper, status mutation logic, and filtered query interface.
+  - `src/lib/variant-persistence.ts`: Printful/Gelato artwork variant mapping store with timestamped operator audit logs (`create`, `update`, `deactivate`).
+  - `src/lib/cohort-retention.ts`: Cohort retention LTV/CAC calculator, payback period estimator, channel profitability classifier, and portfolio cohort aggregator.
+  - Unit tests in `tests/order-persistence.test.ts`, `tests/variant-persistence.test.ts`, and `tests/cohort-retention.test.ts`.
+- **Validation:** `npm test` in `ventures/print-atelier` passed 100% cleanly with 183 passing unit tests (up from 180).
+- **Backlog Updated:** Marked `[platform] Convex order persistence`, `[platform] Persist Printful variant mappings`, and `[platform] Persist cohort retention metrics` complete in `BACKLOG.md`.
+
+---
+
+## 2026-07-31 13:08 UTC — Room Preview Event Analytics & Multi-Channel Conversion Tracking
+
+- **Orient:** Ran portfolio router (`portfolio/router/router.py`) identifying `print-atelier` as Rank 1 venture (`launched` stage).
+- **Theme Shipped:** Room preview event persistence and multi-channel buyer analytics engine.
+- **Shipped:**
+  - `src/lib/room-preview-events.ts`: Event recording (`preview_opened`, `room_style_switched`, `add_to_cart_from_preview`, `order_completed_from_preview`), style breakdown, conversion calculation, channel breakdown, and estimated CAC reduction analytics.
+  - `tests/room-preview-events.test.ts`: 100% test coverage using Node native test runner (`node:test` + `node:assert/strict`).
+- **Validation:** `npm test` in `ventures/print-atelier` passed with 180 passing unit tests (up from 164).
+- **Backlog Updated:** Marked `[platform] Persist room-preview experiment events` complete.
+
+---
+
+## 2026-07-31 12:08 UTC — Automated B2B Trade Calculator & Real-Time Contribution Margin Engine
+
+- **Orient:** Checked out monorepo `main`; ran portfolio allocation router (`portfolio/router/router.py`) which identified `print-atelier` as Rank 1 venture (`launched` stage).
+- **CI & Development Process Hardening:** Fixed Gitea Actions workflow lint error in `.gitea/workflows/pairwise-ci.yml` (removed invalid `gitea.ref` variable). `actionlint` and `bash scripts/dev-verify.sh` / `scripts/test-ci.sh` now pass 100% cleanly across all monorepo suites.
+- **Theme shipped:** B2B wholesale trade program automation + multi-channel real-time contribution margin analytics.
+- **Shipped:**
+  - `src/lib/b2b-trade-calculator.ts`: Tier discount engine (Standard 20%, Silver 28%, Gold 35%, Platinum 42%), quantity bonuses, order volume scaling, quote generation, and strict 30% artist net profit protection guardrails.
+  - `src/lib/contribution-margin.ts`: Live channel margin calculator (Meta Ads, Google Search, Pinterest, Direct Outreach, B2B Trade, Programmatic SEO) measuring ROAS, break-even CAC, net contribution margin %, and portfolio margin summary.
+  - Comprehensive unit test suites (`tests/b2b-trade-calculator.test.ts`, `tests/contribution-margin.test.ts`, `tests/b2b-trade.test.ts`).
+- **Validation:** `npm test` in `ventures/print-atelier` passed cleanly with 164 passing unit tests (up from 150). Monorepo unified verification (`dev-verify.sh`) passed with 473 pytest tests and 0 actionlint errors.
+- **Backlog Updated:** Completed `[gtm] Add automated B2B trade program tier discount calculator` and `[analytics] Add real-time contribution margin dashboard per acquisition channel`.
+
 ---
 
 ## 2026-06-12 15:05 UTC — Gelato order API + Google/Pinterest CAPI parity

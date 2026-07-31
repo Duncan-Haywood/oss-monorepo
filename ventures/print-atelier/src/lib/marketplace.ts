@@ -58,6 +58,7 @@ export type PayoutExceptionQueueOptions = {
   maxSuggestedRetailPrice?: number;
   paymentFeeRate?: number;
   aiComputeCost?: number;
+  agingDaysMap?: Record<string, number>;
 };
 
 export type PayoutExceptionQueueItem = {
@@ -89,6 +90,8 @@ export type ListingReleaseDecision = {
   overrideReasons: string[];
   artistFacingCopy: string;
   operatorAction: string;
+  agingDays: number;
+  slaStatus: "on-track" | "warning" | "breached";
 };
 
 export type ListingReleaseDecisionQueue = {
@@ -96,6 +99,9 @@ export type ListingReleaseDecisionQueue = {
   releaseReadyCount: number;
   holdCount: number;
   overrideReviewCount: number;
+  agingWarningCount: number;
+  agingBreachedCount: number;
+  oldestUnresolvedDays: number;
 };
 
 export type ListingConsentRecord = {
@@ -140,6 +146,7 @@ export type WeeklyChannelBudgetInput = PrintEconomicsInput & {
   totalWeeklyBudget: number;
   minLtvToCacRatio: number;
   channels: BudgetChannelInput[];
+  actualChannelLiftMap?: Record<string, number>;
 };
 
 export type ChannelBudgetAllocation = {
@@ -149,6 +156,7 @@ export type ChannelBudgetAllocation = {
   baselineCAC: number;
   adjustedCAC: number;
   previewLiftPercent: number;
+  actualLiftApplied?: boolean;
   purchasesPerCustomer: number;
   ltvToCacRatio: number;
   profitAfterCAC: number;
@@ -473,7 +481,7 @@ function findSuggestedRetailPrice(
     maxSuggestedRetailPrice,
     paymentFeeRate,
     aiComputeCost,
-  }: Required<PayoutExceptionQueueOptions>,
+  }: Omit<Required<PayoutExceptionQueueOptions>, "agingDaysMap">,
 ) {
   for (let price = Math.ceil(artwork.retailPrice); price <= maxSuggestedRetailPrice; price += 1) {
     const comparison = compareArtistPayoutModels({
@@ -600,6 +608,7 @@ export function buildListingReleaseDecisions(
     maxSuggestedRetailPrice: options.maxSuggestedRetailPrice ?? 250,
     paymentFeeRate: options.paymentFeeRate ?? 0.03,
     aiComputeCost: options.aiComputeCost ?? 0.35,
+    agingDaysMap: options.agingDaysMap ?? {},
   };
   const exceptionBySlug = new Map(
     buildPayoutExceptionQueue(artworks, resolvedOptions).map((item) => [item.artwork.slug, item]),
@@ -631,6 +640,25 @@ export function buildListingReleaseDecisions(
           ? `beats ${bestPodAlternativeLabel} by $${comparison.podAdvantagePerOrder.toFixed(2)}/print`
           : `trails ${bestPodAlternativeLabel} by $${Math.abs(comparison.podAdvantagePerOrder).toFixed(2)}/print`;
 
+      const agingDays = resolvedOptions.agingDaysMap[artwork.slug] ?? 0;
+      let slaStatus: "on-track" | "warning" | "breached" = "on-track";
+      if (releaseStatus === "override-review") {
+        slaStatus = agingDays >= 5 ? "breached" : agingDays >= 3 ? "warning" : "on-track";
+      } else if (releaseStatus === "hold") {
+        slaStatus = agingDays >= 7 ? "breached" : agingDays >= 5 ? "warning" : "on-track";
+      }
+
+      let baseAction =
+        releaseStatus === "release-ready"
+          ? "Release to outreach with transparent payout proof and rights acknowledgement."
+          : (exception?.nextAction ?? "Review payout proof before release.");
+
+      if (slaStatus === "breached") {
+        baseAction = `[SLA BREACHED ${agingDays}d] Urgent ${releaseStatus === "override-review" ? "Finance" : "Ops"} review required to unblock release. ${baseAction}`;
+      } else if (slaStatus === "warning") {
+        baseAction = `[SLA WARNING ${agingDays}d] Priority review recommended. ${baseAction}`;
+      }
+
       return {
         artwork,
         releaseStatus,
@@ -648,23 +676,29 @@ export function buildListingReleaseDecisions(
         artistFacingCopy: canUsePayoutPromise
           ? `${artwork.artistName} keeps copyright, grants a limited POD/marketing license, and earns $${comparison.printAtelier.artistPayoutPerOrder.toFixed(2)}/print; Print Atelier ${podAdvantagePhrase} at today's costs.`
           : `Artist-facing payout copy is withheld for ${artwork.title}. Resolve guardrail blockers before showing earnings, rights, or ad-use language.`,
-        operatorAction:
-          releaseStatus === "release-ready"
-            ? "Release to outreach with transparent payout proof and rights acknowledgement."
-            : (exception?.nextAction ?? "Review payout proof before release."),
+        operatorAction: baseAction,
+        agingDays,
+        slaStatus,
       } satisfies ListingReleaseDecision;
     })
     .sort(
       (a, b) =>
         statusRank[a.releaseStatus] - statusRank[b.releaseStatus] ||
+        b.agingDays - a.agingDays ||
         a.podAdvantagePerOrder - b.podAdvantagePerOrder,
     );
+
+  const unresolved = decisions.filter((d) => d.releaseStatus !== "release-ready");
+  const oldestUnresolvedDays = unresolved.reduce((max, d) => Math.max(max, d.agingDays), 0);
 
   return {
     decisions,
     releaseReadyCount: decisions.filter((decision) => decision.releaseStatus === "release-ready").length,
     holdCount: decisions.filter((decision) => decision.releaseStatus === "hold").length,
     overrideReviewCount: decisions.filter((decision) => decision.releaseStatus === "override-review").length,
+    agingWarningCount: decisions.filter((decision) => decision.slaStatus === "warning").length,
+    agingBreachedCount: decisions.filter((decision) => decision.slaStatus === "breached").length,
+    oldestUnresolvedDays,
   };
 }
 
@@ -820,8 +854,11 @@ export function allocateWeeklyChannelBudget(
   const totalWeeklyBudget = safeInput.totalWeeklyBudget ?? 500;
   const minLtvToCacRatio = safeInput.minLtvToCacRatio ?? 1.5;
   const channels = safeInput.channels ?? defaultAcquisitionChannels;
+  const actualChannelLiftMap = safeInput.actualChannelLiftMap ?? {};
   const allocations: ChannelBudgetAllocation[] = channels.map((channel) => {
-    const previewLift = Math.max(channel.previewLiftPercent, 0);
+    const liftFromMap = actualChannelLiftMap[channel.id];
+    const actualLiftApplied = liftFromMap !== undefined;
+    const previewLift = actualLiftApplied ? Math.max(liftFromMap, 0) : Math.max(channel.previewLiftPercent, 0);
     const adjustedCAC = roundCurrency(channel.baselineCAC * (1 - Math.min(previewLift, 100) / 100));
     const scenario = calculateChannelScenario({
       retailPrice,
@@ -848,6 +885,7 @@ export function allocateWeeklyChannelBudget(
       baselineCAC: channel.baselineCAC,
       adjustedCAC,
       previewLiftPercent: previewLift,
+      actualLiftApplied,
       purchasesPerCustomer: channel.purchasesPerCustomer,
       ltvToCacRatio: scenario.ltvToCacRatio,
       profitAfterCAC: scenario.profitAfterCAC,
@@ -1212,3 +1250,494 @@ export const defaultListingConsentRecords: ListingConsentRecord[] = [
     payoutAcknowledged: true,
   },
 ];
+
+export type PayoutSensitivityPriceFloorInput = {
+  fulfillmentCost: number;
+  targetArtistPayout?: number;
+  customerAcquisitionCost?: number;
+  paymentFeeRate?: number;
+  aiComputeCost?: number;
+  artistShareRate?: number;
+};
+
+export type PayoutSensitivityPriceFloorResult = {
+  priceFloorForArtistTrust: number;
+  priceFloorForPlatformContribution: number;
+  recommendedRetailPriceFloor: number;
+  artistPayoutAtFloor: number;
+  platformShareAtFloor: number;
+  platformContributionPostCac: number;
+  status: "optimal" | "tight-margin" | "price-adjustment-needed";
+  recommendations: string[];
+};
+
+export function optimizePayoutSensitivityPriceFloor({
+  fulfillmentCost,
+  targetArtistPayout = 20.0,
+  customerAcquisitionCost = 15.0,
+  paymentFeeRate = 0.03,
+  aiComputeCost = 0.5,
+  artistShareRate = 0.3,
+}: PayoutSensitivityPriceFloorInput): PayoutSensitivityPriceFloorResult {
+  const netRequiredForArtist = targetArtistPayout / artistShareRate;
+  const netRequiredForPlatform = customerAcquisitionCost / (1 - artistShareRate);
+
+  const priceFloorForArtistTrust = roundCurrency(
+    (netRequiredForArtist + fulfillmentCost + aiComputeCost) / (1 - paymentFeeRate),
+  );
+  const priceFloorForPlatformContribution = roundCurrency(
+    (netRequiredForPlatform + fulfillmentCost + aiComputeCost) / (1 - paymentFeeRate),
+  );
+
+  const recommendedRetailPriceFloor = Math.ceil(
+    Math.max(priceFloorForArtistTrust, priceFloorForPlatformContribution),
+  );
+
+  const economicsAtFloor = calculatePrintEconomics({
+    retailPrice: recommendedRetailPriceFloor,
+    fulfillmentCost,
+    paymentFeeRate,
+    aiComputeCost,
+  });
+
+  const artistPayoutAtFloor = economicsAtFloor.artistShare;
+  const platformShareAtFloor = economicsAtFloor.platformShare;
+  const platformContributionPostCac = roundCurrency(platformShareAtFloor - customerAcquisitionCost);
+
+  let status: PayoutSensitivityPriceFloorResult["status"] = "optimal";
+  const recommendations: string[] = [];
+
+  if (platformContributionPostCac < 0) {
+    status = "price-adjustment-needed";
+    recommendations.push(
+      `Raise retail price floor above $${recommendedRetailPriceFloor} or reduce CAC below $${customerAcquisitionCost.toFixed(2)}.`,
+    );
+  } else if (platformContributionPostCac < 5) {
+    status = "tight-margin";
+    recommendations.push(
+      `Contribution post-CAC ($${platformContributionPostCac.toFixed(2)}) is thin. Monitor ad spend efficiency.`,
+    );
+  } else {
+    recommendations.push(`Strong economics at $${recommendedRetailPriceFloor} retail floor.`);
+  }
+
+  if (priceFloorForArtistTrust >= priceFloorForPlatformContribution) {
+    recommendations.push(
+      `Artist trust target ($${targetArtistPayout.toFixed(2)}) drives the retail floor requirement.`,
+    );
+  } else {
+    recommendations.push(
+      `Platform CAC recovery ($${customerAcquisitionCost.toFixed(2)}) drives the retail floor requirement.`,
+    );
+  }
+
+  return {
+    priceFloorForArtistTrust,
+    priceFloorForPlatformContribution,
+    recommendedRetailPriceFloor,
+    artistPayoutAtFloor,
+    platformShareAtFloor,
+    platformContributionPostCac,
+    status,
+    recommendations,
+  };
+}
+
+export type ArtistTrustTier = "VIP" | "Established" | "Emerging";
+
+export type PayoutPriceFloorOptimizerInput = {
+  trustTier?: ArtistTrustTier;
+  fulfillmentCost: number;
+  customerAcquisitionCost?: number;
+  targetPodAdvantagePerOrder?: number;
+  paymentFeeRate?: number;
+  aiComputeCost?: number;
+};
+
+export type PayoutPriceFloorSensitivityRow = {
+  cac: number;
+  recommendedPriceFloor: number;
+  artistPayout: number;
+  platformNetContribution: number;
+  isViable: boolean;
+};
+
+export type PayoutPriceFloorOptimizerResult = {
+  trustTier: ArtistTrustTier;
+  targetArtistPayoutPerOrder: number;
+  fulfillmentCost: number;
+  customerAcquisitionCost: number;
+  recommendedPriceFloor: number;
+  minimumPriceForPayoutFloor: number;
+  minimumPriceForPodAdvantage: number;
+  artistPayoutAtFloor: number;
+  platformNetProfitAtFloor: number;
+  netMarginPercentAtFloor: number;
+  podAdvantageAtFloor: number;
+  blockers: string[];
+  sensitivityMatrix: PayoutPriceFloorSensitivityRow[];
+  operatorAction: string;
+};
+
+export function calculatePayoutPriceFloorOptimizer({
+  trustTier = "Established",
+  fulfillmentCost,
+  customerAcquisitionCost = 35,
+  targetPodAdvantagePerOrder = 2.0,
+  paymentFeeRate = 0.03,
+  aiComputeCost = 0.35,
+}: PayoutPriceFloorOptimizerInput): PayoutPriceFloorOptimizerResult {
+  const payoutTargetByTier: Record<ArtistTrustTier, number> = {
+    VIP: 10.0,
+    Established: 8.0,
+    Emerging: 6.0,
+  };
+  const targetArtistPayoutPerOrder = payoutTargetByTier[trustTier];
+  const safeFulfillmentCost = Math.max(fulfillmentCost, 0);
+
+  const costBase = safeFulfillmentCost + aiComputeCost;
+  const netFeeMultiplier = 1 - paymentFeeRate;
+
+  const minimumPriceForPayoutFloor = Math.ceil(
+    (targetArtistPayoutPerOrder / 0.3 + costBase) / netFeeMultiplier,
+  );
+
+  let minimumPriceForPodAdvantage = minimumPriceForPayoutFloor;
+  for (let p = Math.ceil(costBase + 10); p <= 300; p += 1) {
+    const comparison = compareArtistPayoutModels({
+      retailPrice: p,
+      fulfillmentCost: safeFulfillmentCost,
+      monthlyOrders: 10,
+      paymentFeeRate,
+      aiComputeCost,
+    });
+    if (comparison.podAdvantagePerOrder >= targetPodAdvantagePerOrder) {
+      minimumPriceForPodAdvantage = p;
+      break;
+    }
+  }
+
+  const recommendedPriceFloor = Math.max(minimumPriceForPayoutFloor, minimumPriceForPodAdvantage);
+
+  const economicsAtFloor = calculatePrintEconomics({
+    retailPrice: recommendedPriceFloor,
+    fulfillmentCost: safeFulfillmentCost,
+    paymentFeeRate,
+    aiComputeCost,
+  });
+
+  const comparisonAtFloor = compareArtistPayoutModels({
+    retailPrice: recommendedPriceFloor,
+    fulfillmentCost: safeFulfillmentCost,
+    monthlyOrders: 10,
+    paymentFeeRate,
+    aiComputeCost,
+  });
+
+  const blockers: string[] = [];
+  if (economicsAtFloor.artistShare < targetArtistPayoutPerOrder) {
+    blockers.push(`Artist payout $${economicsAtFloor.artistShare} below $${targetArtistPayoutPerOrder} ${trustTier} target`);
+  }
+  if (comparisonAtFloor.podAdvantagePerOrder < targetPodAdvantagePerOrder) {
+    blockers.push(`POD advantage $${comparisonAtFloor.podAdvantagePerOrder} below $${targetPodAdvantagePerOrder} target`);
+  }
+  if (economicsAtFloor.platformShare < customerAcquisitionCost) {
+    blockers.push(`Platform share $${economicsAtFloor.platformShare} is below CAC $${customerAcquisitionCost}`);
+  }
+
+  const cacVariants = [
+    roundCurrency(customerAcquisitionCost * 0.8),
+    customerAcquisitionCost,
+    roundCurrency(customerAcquisitionCost * 1.2),
+  ];
+
+  const sensitivityMatrix: PayoutPriceFloorSensitivityRow[] = cacVariants.map((cac) => {
+    const platformContrib = roundCurrency(economicsAtFloor.platformShare - cac);
+    const isViable = platformContrib >= 0 && blockers.length === 0;
+    return {
+      cac,
+      recommendedPriceFloor,
+      artistPayout: economicsAtFloor.artistShare,
+      platformNetContribution: platformContrib,
+      isViable,
+    };
+  });
+
+  const operatorAction =
+    blockers.length === 0
+      ? `Set minimum retail price floor to $${recommendedPriceFloor} for ${trustTier} artists. Artist earns $${economicsAtFloor.artistShare.toFixed(2)}/order.`
+      : `Price floor of $${recommendedPriceFloor} requires review: ${blockers.join("; ")}.`;
+
+  return {
+    trustTier,
+    targetArtistPayoutPerOrder,
+    fulfillmentCost: safeFulfillmentCost,
+    customerAcquisitionCost,
+    recommendedPriceFloor,
+    minimumPriceForPayoutFloor,
+    minimumPriceForPodAdvantage,
+    artistPayoutAtFloor: economicsAtFloor.artistShare,
+    platformNetProfitAtFloor: economicsAtFloor.platformShare,
+    netMarginPercentAtFloor: economicsAtFloor.marginPercent,
+    podAdvantageAtFloor: comparisonAtFloor.podAdvantagePerOrder,
+    blockers,
+    sensitivityMatrix,
+    operatorAction,
+  };
+}
+
+
+
+export type PodProviderOption = {
+  providerName: string;
+  fulfillmentCost: number;
+  qualityRating?: number;
+};
+
+export type PodCostOptimizationInput = {
+  artwork: CatalogArtwork;
+  alternativeProviders: PodProviderOption[];
+  targetArtistPayout?: number;
+};
+
+export type PodCostOptimizationResult = {
+  artworkSlug: string;
+  currentFulfillmentCost: number;
+  recommendedProvider: PodProviderOption | null;
+  costSavingsPerOrder: number;
+  artistPayoutWithRecommendation: number;
+  canAvoidPriceRaise: boolean;
+  recommendationCopy: string;
+};
+
+export function recommendPodCostOptimization({
+  artwork,
+  alternativeProviders,
+  targetArtistPayout = 8,
+}: PodCostOptimizationInput): PodCostOptimizationResult {
+  const currentCost = artwork.fulfillmentCost;
+  const sortedAlternatives = [...alternativeProviders].sort((a, b) => a.fulfillmentCost - b.fulfillmentCost);
+  const bestAlternative = sortedAlternatives[0] ?? null;
+
+  if (!bestAlternative || bestAlternative.fulfillmentCost >= currentCost) {
+    return {
+      artworkSlug: artwork.slug,
+      currentFulfillmentCost: currentCost,
+      recommendedProvider: null,
+      costSavingsPerOrder: 0,
+      artistPayoutWithRecommendation: calculatePrintEconomics({
+        retailPrice: artwork.retailPrice,
+        fulfillmentCost: currentCost,
+      }).artistShare,
+      canAvoidPriceRaise: false,
+      recommendationCopy: `Current fulfillment cost ($${currentCost}) is already optimal across available POD providers.`,
+    };
+  }
+
+  const costSavingsPerOrder = roundCurrency(currentCost - bestAlternative.fulfillmentCost);
+  const econWithAlt = calculatePrintEconomics({
+    retailPrice: artwork.retailPrice,
+    fulfillmentCost: bestAlternative.fulfillmentCost,
+  });
+  const currentEcon = calculatePrintEconomics({
+    retailPrice: artwork.retailPrice,
+    fulfillmentCost: currentCost,
+  });
+
+  const canAvoidPriceRaise =
+    currentEcon.artistShare < targetArtistPayout && econWithAlt.artistShare >= targetArtistPayout;
+
+  const recommendationCopy = canAvoidPriceRaise
+    ? `Switch POD fulfillment for ${artwork.title} to ${bestAlternative.providerName} (saves $${costSavingsPerOrder.toFixed(2)}/print). Avoids retail price raise while restoring artist payout to $${econWithAlt.artistShare.toFixed(2)}.`
+    : `Switch POD fulfillment for ${artwork.title} to ${bestAlternative.providerName} to save $${costSavingsPerOrder.toFixed(2)}/print, raising artist payout from $${currentEcon.artistShare.toFixed(2)} to $${econWithAlt.artistShare.toFixed(2)}.`;
+
+  return {
+    artworkSlug: artwork.slug,
+    currentFulfillmentCost: currentCost,
+    recommendedProvider: bestAlternative,
+    costSavingsPerOrder,
+    artistPayoutWithRecommendation: econWithAlt.artistShare,
+    canAvoidPriceRaise,
+    recommendationCopy,
+  };
+}
+
+export type B2bTradeTier = "Bronze" | "Silver" | "Gold";
+
+export type B2bTradeTierDefinition = {
+  tier: B2bTradeTier;
+  minimumAnnualSpend: number;
+  discountPercent: number;
+  perks: string[];
+};
+
+export const B2B_TRADE_TIERS: B2bTradeTierDefinition[] = [
+  {
+    tier: "Bronze",
+    minimumAnnualSpend: 2500,
+    discountPercent: 15,
+    perks: ["15% trade discount", "Dedicated trade support", "Digital room proofing"],
+  },
+  {
+    tier: "Silver",
+    minimumAnnualSpend: 7500,
+    discountPercent: 25,
+    perks: ["25% trade discount", "Priority fulfillment", "Custom sizing & framing options"],
+  },
+  {
+    tier: "Gold",
+    minimumAnnualSpend: 20000,
+    discountPercent: 35,
+    perks: ["35% trade discount", "White-glove curation concierge", "Exclusive edition rights"],
+  },
+];
+
+export type B2bTradeProgramCalculatorInput = {
+  tier: B2bTradeTier;
+  orderRetailTotal: number;
+  fulfillmentCostTotal: number;
+  paymentFeeRate?: number;
+  aiComputeCost?: number;
+};
+
+export type B2bTradeProgramCalculatorResult = {
+  tier: B2bTradeTier;
+  discountPercent: number;
+  orderRetailTotal: number;
+  designerSavings: number;
+  wholesaleNetPrice: number;
+  fulfillmentCostTotal: number;
+  paymentProcessingFee: number;
+  netProfitBeforePayout: number;
+  artistPayoutTotal: number;
+  platformNetProfit: number;
+  platformMarginPercent: number;
+  isEconomicallyViable: boolean;
+  operatorGuidance: string;
+};
+
+export function calculateB2bTradeProgramTierDiscount({
+  tier,
+  orderRetailTotal,
+  fulfillmentCostTotal,
+  paymentFeeRate = 0.03,
+  aiComputeCost = 0.5,
+}: B2bTradeProgramCalculatorInput): B2bTradeProgramCalculatorResult {
+  const tierDef = B2B_TRADE_TIERS.find((t) => t.tier === tier) ?? B2B_TRADE_TIERS[0];
+  const discountPercent = tierDef.discountPercent;
+  const designerSavings = roundCurrency(orderRetailTotal * (discountPercent / 100));
+  const wholesaleNetPrice = roundCurrency(orderRetailTotal - designerSavings);
+
+  const paymentProcessingFee = roundCurrency(wholesaleNetPrice * paymentFeeRate);
+  const netProfitBeforePayout = Math.max(
+    0,
+    roundCurrency(wholesaleNetPrice - fulfillmentCostTotal - paymentProcessingFee - aiComputeCost),
+  );
+
+  const artistPayoutTotal = roundCurrency(netProfitBeforePayout * 0.3);
+  const platformNetProfit = roundCurrency(netProfitBeforePayout * 0.7);
+
+  const platformMarginPercent =
+    wholesaleNetPrice > 0 ? roundCurrency((platformNetProfit / wholesaleNetPrice) * 100) : 0;
+  const isEconomicallyViable = platformNetProfit > 0 && artistPayoutTotal > 0;
+
+  const operatorGuidance = isEconomicallyViable
+    ? `${tier} Trade order ($${wholesaleNetPrice.toFixed(2)}) yields $${artistPayoutTotal.toFixed(2)} artist payout and $${platformNetProfit.toFixed(2)} platform net margin (${platformMarginPercent}%).`
+    : `Warning: ${tier} Trade order discount creates negative margin; adjust order volume or fulfillment source.`;
+
+  return {
+    tier,
+    discountPercent,
+    orderRetailTotal,
+    designerSavings,
+    wholesaleNetPrice,
+    fulfillmentCostTotal,
+    paymentProcessingFee,
+    netProfitBeforePayout,
+    artistPayoutTotal,
+    platformNetProfit,
+    platformMarginPercent,
+    isEconomicallyViable,
+    operatorGuidance,
+  };
+}
+
+export type ChannelContributionData = {
+  channelId: string;
+  channelName: string;
+  monthlySpend: number;
+  ordersCount: number;
+  averageOrderValue: number;
+  averageFulfillmentCostPerOrder: number;
+  roomPreviewUpliftPercent?: number;
+  paymentFeeRate?: number;
+};
+
+export type ChannelContributionMarginSummary = {
+  channelId: string;
+  channelName: string;
+  grossRevenue: number;
+  totalFulfillmentCost: number;
+  totalPaymentFees: number;
+  customerAcquisitionCost: number;
+  cacPerOrder: number;
+  totalContributionMargin: number;
+  contributionMarginPercent: number;
+  status: "high-margin" | "viable" | "unprofitable";
+  recommendation: string;
+};
+
+export function calculateChannelContributionMarginDashboard(
+  channels: ChannelContributionData[],
+): ChannelContributionMarginSummary[] {
+  return channels.map((channel) => {
+    const feeRate = channel.paymentFeeRate ?? 0.03;
+    const roomUplift = channel.roomPreviewUpliftPercent ?? 0;
+    const grossRevenue = roundCurrency(
+      channel.ordersCount * channel.averageOrderValue * (1 + roomUplift / 100),
+    );
+    const totalFulfillmentCost = roundCurrency(
+      channel.ordersCount * channel.averageFulfillmentCostPerOrder,
+    );
+    const totalPaymentFees = roundCurrency(grossRevenue * feeRate);
+    const customerAcquisitionCost = channel.monthlySpend;
+    const cacPerOrder =
+      channel.ordersCount > 0 ? roundCurrency(customerAcquisitionCost / channel.ordersCount) : 0;
+
+    const netBeforeCac = grossRevenue - totalFulfillmentCost - totalPaymentFees;
+    const totalContributionMargin = roundCurrency(netBeforeCac - customerAcquisitionCost);
+    const contributionMarginPercent =
+      grossRevenue > 0 ? roundCurrency((totalContributionMargin / grossRevenue) * 100) : 0;
+
+    let status: "high-margin" | "viable" | "unprofitable" = "unprofitable";
+    let recommendation = "";
+
+    if (totalContributionMargin > 0 && contributionMarginPercent >= 20) {
+      status = "high-margin";
+      recommendation = `Scale spend on ${channel.channelName}: strong contribution margin of ${contributionMarginPercent}%.`;
+    } else if (totalContributionMargin > 0) {
+      status = "viable";
+      recommendation = `Maintain ${channel.channelName}: positive contribution ($${totalContributionMargin.toFixed(2)}), but monitor CAC ($${cacPerOrder.toFixed(2)}/order).`;
+    } else {
+      status = "unprofitable";
+      recommendation = `Optimize or pause spend on ${channel.channelName}: negative contribution of -$${Math.abs(totalContributionMargin).toFixed(2)}.`;
+    }
+
+    return {
+      channelId: channel.channelId,
+      channelName: channel.channelName,
+      grossRevenue,
+      totalFulfillmentCost,
+      totalPaymentFees,
+      customerAcquisitionCost,
+      cacPerOrder,
+      totalContributionMargin,
+      contributionMarginPercent,
+      status,
+      recommendation,
+    };
+  });
+}
+
+
+

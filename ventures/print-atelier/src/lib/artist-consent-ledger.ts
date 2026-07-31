@@ -230,7 +230,7 @@ export function calculateConsentSlaAging(
       pendingItems.push({
         artworkSlug: slug,
         artworkTitle: gateItem.artwork.title,
-        artistHandle: gateItem.artwork.artistHandle,
+        artistHandle: gateItem.artwork.artistName,
         pendingDays,
         slaStatus,
         missingConsents: gateItem.missingConsents,

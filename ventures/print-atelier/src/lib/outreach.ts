@@ -36,6 +36,7 @@ export type OutreachProspect = {
 export type OutreachQueueItem = OutreachProspect & {
   priorityScore: number;
   replyClassification: ReplyClassification;
+  auditedClassification?: AuditedReplyClassificationResult;
   nextAction: string;
   payoutTrustCopy: string;
   payoutTrustMathPersonalization?: string;
@@ -354,6 +355,9 @@ export function buildOutreachQueue(prospects: OutreachProspect[]): OutreachQueue
   return prospects
     .map((prospect) => {
       const replyClassification = classifyProspectReply(prospect.replyText);
+      const auditedClassification = prospect.replyText
+        ? classifyAuditedOutreachReply(prospect.replyText)
+        : undefined;
       const payoutException = prospect.catalogArtworkSlug
         ? payoutExceptionBySlug.get(prospect.catalogArtworkSlug)
         : undefined;
@@ -376,6 +380,7 @@ export function buildOutreachQueue(prospects: OutreachProspect[]): OutreachQueue
         ...prospect,
         priorityScore: prospect.fitScore + getStatusWeight(prospect.status),
         replyClassification,
+        auditedClassification,
         nextAction: getNextAction(replyClassification, prospect.status, payoutGuardrail),
         payoutTrustCopy,
         payoutTrustMathPersonalization,
@@ -401,6 +406,12 @@ export type OutreachPipelineEntry = {
   currentStage: PipelineStage;
   stageTimestamps: Partial<Record<PipelineStage, string>>;
   projectedMonthlyPayout: number;
+  /**
+   * Channel the artist actually came from. Carried through from attribution
+   * events so the platform breakdown — which feeds channel budget allocation —
+   * does not silently attribute every event-sourced artist to one channel.
+   */
+  sourceChannel?: OutreachProspect["platform"];
 };
 
 /** Mock cohort pipeline for reply-to-live-listing velocity (Phase 1). */
@@ -548,10 +559,12 @@ export function hydrateCohortFromAttributionEvents(
         stageTimestamps: { [ev.stage]: ev.stageTimestamp },
         projectedMonthlyPayout: ev.projectedMonthlyPayout ?? 0,
         catalogArtworkSlug: ev.catalogArtworkSlug,
+        sourceChannel: ev.sourceChannel,
       };
       cohortMap.set(ev.prospectHandle, entry);
     } else {
       entry.stageTimestamps[ev.stage] = ev.stageTimestamp;
+      entry.sourceChannel = ev.sourceChannel;
       if (STAGE_ORDER[ev.stage] >= STAGE_ORDER[entry.currentStage]) {
         entry.currentStage = ev.stage;
       }
@@ -1020,7 +1033,7 @@ export function buildOutreachCohortAttribution(
     .map((entry) => ({
       handle: entry.prospectHandle,
       name: entry.artistName,
-      platform: "Instagram" as const,
+      platform: entry.sourceChannel ?? "Instagram",
       followers: 0,
       fitScore: 80,
       styleSignal: "General Art",
@@ -1142,3 +1155,158 @@ export function calculateOutreachSummary(prospects: OutreachProspect[]) {
     automationLabel: `${repliedProspects} replies need AI follow-up; ${readyForOnboarding} can enter onboarding now`,
   };
 }
+
+export type ProspectReplyClassification =
+  | ReplyClassification
+  | "Rights inquiry"
+  | "Pricing objection"
+  | "Not interested"
+  | "Needs operator review";
+
+export type OutreachReplyIntentCategory =
+  | "upload_link"
+  | "rights_inquiry"
+  | "proof_mockup"
+  | "pricing_objection"
+  | "unsubscribe_request"
+  | "ambiguous";
+
+export type AuditedReplyClassificationResult = {
+  primaryClassification: ProspectReplyClassification;
+  intentCategory: OutreachReplyIntentCategory;
+  confidenceScore: number;
+  confidenceLevel: "high" | "medium" | "low";
+  matchedKeywords: string[];
+  deterministicFallbackApplied: boolean;
+  requiresOperatorReview: boolean;
+  auditTrail: {
+    classifiedAt: string;
+    replyLength: number;
+    decisionReason: string;
+    recommendedNextAction: string;
+  };
+};
+
+export function classifyAuditedOutreachReply(
+  replyText: string | undefined | null,
+  options: { confidenceThreshold?: number; now?: string } = {},
+): AuditedReplyClassificationResult {
+  const { confidenceThreshold = 0.75, now = new Date().toISOString() } = options;
+  const normalized = (replyText ?? "").trim().toLowerCase();
+  const matchedKeywords: string[] = [];
+
+  if (!normalized) {
+    return {
+      primaryClassification: "Needs operator review",
+      intentCategory: "ambiguous",
+      confidenceScore: 1.0,
+      confidenceLevel: "high",
+      matchedKeywords: [],
+      deterministicFallbackApplied: true,
+      requiresOperatorReview: true,
+      auditTrail: {
+        classifiedAt: now,
+        replyLength: 0,
+        decisionReason: "Empty or null reply text provided",
+        recommendedNextAction: "Wait for artist response or manual follow-up",
+      },
+    };
+  }
+
+  // Define intent keyword sets
+  const uploadKeywords = ["link", "upload", "send link", "ready", "yes", "sure", "sign me up", "in", "do it"];
+  const mockupKeywords = ["mockup", "preview", "room", "example", "how it looks", "show me", "proof"];
+  const rightsKeywords = ["rights", "copyright", "terms", "license", "exclusivity", "ownership", "keep copyright"];
+  const pricingKeywords = ["royalty", "payout", "price", "cut", "percentage", "fee", "how much", "cost", "30%"];
+  const optOutKeywords = ["no", "stop", "unsubscribe", "not interested", "pass", "remove", "don't message"];
+
+  // Helper matcher
+  const matchHits = (keywords: string[]) => {
+    const hits: string[] = [];
+    for (const kw of keywords) {
+      if (normalized.includes(kw)) {
+        hits.push(kw);
+      }
+    }
+    return hits;
+  };
+
+  const uploadHits = matchHits(uploadKeywords);
+  const mockupHits = matchHits(mockupKeywords);
+  const rightsHits = matchHits(rightsKeywords);
+  const pricingHits = matchHits(pricingKeywords);
+  const optOutHits = matchHits(optOutKeywords);
+
+  let intentCategory: OutreachReplyIntentCategory = "ambiguous";
+  let primaryClassification: ProspectReplyClassification = "Needs operator review";
+  let rawConfidence = 0.5;
+  let decisionReason = "";
+  let recommendedNextAction = "";
+
+  if (optOutHits.length > 0) {
+    intentCategory = "unsubscribe_request";
+    primaryClassification = "Not interested";
+    matchedKeywords.push(...optOutHits);
+    rawConfidence = 0.95;
+    decisionReason = `Opt-out intent detected via keywords: [${optOutHits.join(", ")}]`;
+    recommendedNextAction = "Mark prospect status as Opted out and do not contact";
+  } else if (uploadHits.length > 0 && rightsHits.length === 0 && pricingHits.length === 0) {
+    intentCategory = "upload_link";
+    primaryClassification = "Ready for upload link";
+    matchedKeywords.push(...uploadHits);
+    rawConfidence = uploadHits.includes("upload") || uploadHits.includes("send link") ? 0.95 : 0.85;
+    decisionReason = `Upload readiness detected via keywords: [${uploadHits.join(", ")}]`;
+    recommendedNextAction = "Generate and send secure artist upload link";
+  } else if (mockupHits.length > 0 && rightsHits.length === 0) {
+    intentCategory = "proof_mockup";
+    primaryClassification = "Send proof mockup";
+    matchedKeywords.push(...mockupHits);
+    rawConfidence = mockupHits.includes("mockup") || mockupHits.includes("preview") ? 0.9 : 0.8;
+    decisionReason = `Room mockup request detected via keywords: [${mockupHits.join(", ")}]`;
+    recommendedNextAction = "Assemble proof mockup kit and send example scenes";
+  } else if (rightsHits.length > 0) {
+    intentCategory = "rights_inquiry";
+    primaryClassification = "Rights inquiry";
+    matchedKeywords.push(...rightsHits);
+    rawConfidence = 0.85;
+    decisionReason = `Licensing and copyright inquiry detected via keywords: [${rightsHits.join(", ")}]`;
+    recommendedNextAction = "Send transparent artist terms & non-exclusive POD licensing copy";
+  } else if (pricingHits.length > 0) {
+    intentCategory = "pricing_objection";
+    primaryClassification = "Pricing objection";
+    matchedKeywords.push(...pricingHits);
+    rawConfidence = 0.85;
+    decisionReason = `Payout and royalty structure query detected via keywords: [${pricingHits.join(", ")}]`;
+    recommendedNextAction = "Send payout proof breakdown comparing 30% net profit to flat royalties";
+  } else {
+    // Fallback to legacy rule-based classifyProspectReply for safety
+    primaryClassification = classifyProspectReply(replyText ?? undefined);
+    rawConfidence = 0.6;
+    decisionReason = "Low keyword density; fell back to deterministic rule classifier";
+    recommendedNextAction = "Operator review recommended before sending response";
+  }
+
+  const confidenceScore = Math.round(rawConfidence * 100) / 100;
+  const confidenceLevel: "high" | "medium" | "low" =
+    confidenceScore >= 0.85 ? "high" : confidenceScore >= 0.7 ? "medium" : "low";
+  const deterministicFallbackApplied = confidenceScore < confidenceThreshold;
+  const requiresOperatorReview =
+    deterministicFallbackApplied || (primaryClassification as string) === "Needs operator review";
+
+  return {
+    primaryClassification,
+    intentCategory,
+    confidenceScore,
+    confidenceLevel,
+    matchedKeywords,
+    deterministicFallbackApplied,
+    requiresOperatorReview,
+    auditTrail: {
+      classifiedAt: now,
+      replyLength: replyText?.length ?? 0,
+      decisionReason,
+      recommendedNextAction,
+    },
+  };
+}
+

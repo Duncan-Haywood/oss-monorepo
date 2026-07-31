@@ -77,6 +77,74 @@ test("recordOutreachAttributionEvent persists events and updates cohort attribut
   clearOutreachAttributionEventsForTests();
 });
 
+test("event-sourced artists are attributed to their real channel, not defaulted to Instagram", () => {
+  clearOutreachAttributionEventsForTests();
+
+  recordOutreachAttributionEvent({
+    prospectHandle: "@tiktok_only_artist",
+    artistName: "Rina Okada",
+    sourceChannel: "TikTok",
+    stage: "live-listing",
+    stageTimestamp: "2026-06-11T16:00:00Z",
+    projectedMonthlyPayout: 400,
+  });
+  recordOutreachAttributionEvent({
+    prospectHandle: "@pinterest_only_artist",
+    artistName: "Cole Bennett",
+    sourceChannel: "Pinterest",
+    stage: "replied",
+    stageTimestamp: "2026-06-11T17:00:00Z",
+    projectedMonthlyPayout: 250,
+  });
+
+  const attribution = buildOutreachCohortAttribution({ now: "2026-06-12T12:00:00Z" });
+
+  const rina = attribution.rows.find((row) => row.handle === "@tiktok_only_artist");
+  const cole = attribution.rows.find((row) => row.handle === "@pinterest_only_artist");
+  assert.ok(rina);
+  assert.ok(cole);
+  assert.equal(rina.platform, "TikTok");
+  assert.equal(cole.platform, "Pinterest");
+
+  // The breakdown feeds channel budget allocation, so misattribution here
+  // would shift real spend toward the wrong channel.
+  const tiktok = attribution.platformBreakdown.find((row) => row.platform === "TikTok");
+  const pinterest = attribution.platformBreakdown.find((row) => row.platform === "Pinterest");
+  assert.ok(tiktok);
+  assert.ok(pinterest);
+  assert.equal(tiktok.live, 1);
+  assert.ok(tiktok.projectedPayout >= 400);
+  assert.ok(pinterest.projectedPayout >= 250);
+
+  clearOutreachAttributionEventsForTests();
+});
+
+test("a later attribution event corrects the recorded source channel", () => {
+  clearOutreachAttributionEventsForTests();
+
+  recordOutreachAttributionEvent({
+    prospectHandle: "@rechanneled_artist",
+    artistName: "Ada Silva",
+    sourceChannel: "Instagram",
+    stage: "outreach-sent",
+    stageTimestamp: "2026-06-10T10:00:00Z",
+  });
+  recordOutreachAttributionEvent({
+    prospectHandle: "@rechanneled_artist",
+    artistName: "Ada Silva",
+    sourceChannel: "Pinterest",
+    stage: "replied",
+    stageTimestamp: "2026-06-11T10:00:00Z",
+  });
+
+  const attribution = buildOutreachCohortAttribution({ now: "2026-06-12T12:00:00Z" });
+  const ada = attribution.rows.find((row) => row.handle === "@rechanneled_artist");
+  assert.ok(ada);
+  assert.equal(ada.platform, "Pinterest");
+
+  clearOutreachAttributionEventsForTests();
+});
+
 test("buildOutreachQueue enriches items with payout trust copy and objection templates", () => {
   const { buildOutreachQueue, generateArtistPayoutTrustCopy } = require("../src/lib/outreach");
   const queue = buildOutreachQueue(outreachProspects);

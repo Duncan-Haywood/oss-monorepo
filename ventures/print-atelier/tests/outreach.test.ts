@@ -5,6 +5,7 @@ import {
   buildOutreachQueue,
   calculateOutreachSummary,
   classifyProspectReply,
+  classifyAuditedOutreachReply,
   outreachProspects,
   generateOutreachPayoutTrustMathPersonalization,
 } from "../src/lib/outreach";
@@ -119,4 +120,28 @@ test("generates personalized payout trust math for outreach prospects", () => {
   assert.ok(queue[0].payoutTrustMathPersonalization);
   assert.ok(queue[0].payoutTrustMathPersonalization.includes("Society6"));
 });
+
+test("classifyAuditedOutreachReply computes confidence, intent category, and audit metadata", () => {
+  const uploadResult = classifyAuditedOutreachReply("Yes, send me the upload link!");
+  assert.equal(uploadResult.primaryClassification, "Ready for upload link");
+  assert.equal(uploadResult.intentCategory, "upload_link");
+  assert.equal(uploadResult.confidenceLevel, "high");
+  assert.ok(uploadResult.confidenceScore >= 0.85);
+  assert.equal(uploadResult.deterministicFallbackApplied, false);
+  assert.equal(uploadResult.requiresOperatorReview, false);
+
+  const rightsResult = classifyAuditedOutreachReply("Do I keep copyright and original rights?");
+  assert.equal(rightsResult.primaryClassification, "Rights inquiry");
+  assert.equal(rightsResult.intentCategory, "rights_inquiry");
+  assert.equal(rightsResult.confidenceLevel, "high");
+
+  const optOutResult = classifyAuditedOutreachReply("Stop contacting me, not interested.");
+  assert.equal(optOutResult.primaryClassification, "Not interested");
+  assert.equal(optOutResult.intentCategory, "unsubscribe_request");
+
+  const emptyResult = classifyAuditedOutreachReply("");
+  assert.equal(emptyResult.primaryClassification, "Needs operator review");
+  assert.equal(emptyResult.requiresOperatorReview, true);
+});
+
 

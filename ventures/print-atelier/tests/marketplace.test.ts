@@ -13,6 +13,10 @@ import {
   calculatePrintEconomics,
   calculateRoomPreviewExperiment,
   compareArtistPayoutModels,
+  optimizePayoutSensitivityPriceFloor,
+  recommendPodCostOptimization,
+  calculateB2bTradeProgramTierDiscount,
+  calculateChannelContributionMarginDashboard,
   catalogArtworks,
   generateAdCreativeConcepts,
 } from "../src/lib/marketplace";
@@ -436,3 +440,152 @@ test("buildListingConsentGate blocks release channels until license, ads, AI roo
   assert.deepEqual(abstractNo4.allowedChannels, []);
   assert.match(abstractNo4.operatorAction, /Resolve release hold before collecting consent/);
 });
+
+test("optimizePayoutSensitivityPriceFloor calculates optimal retail floor for artist trust and CAC recovery", () => {
+  const result = optimizePayoutSensitivityPriceFloor({
+    fulfillmentCost: 28,
+    targetArtistPayout: 20,
+    customerAcquisitionCost: 15,
+    paymentFeeRate: 0.03,
+    aiComputeCost: 0.5,
+  });
+
+  assert.equal(result.priceFloorForArtistTrust, 98.11);
+  assert.equal(result.priceFloorForPlatformContribution, 51.47);
+  assert.equal(result.recommendedRetailPriceFloor, 99);
+  assert.equal(result.status, "optimal");
+  assert.ok(result.platformContributionPostCac > 5);
+  assert.equal(result.artistPayoutAtFloor, 20.26);
+  assert.match(result.recommendations[0], /Strong economics at \$99 retail floor/);
+  assert.match(result.recommendations[1], /Artist trust target \(\$20\.00\) drives the retail floor requirement/);
+});
+
+test("buildListingReleaseDecisions flags SLA warnings and breaches based on aging days", () => {
+  const releaseQueue = buildListingReleaseDecisions(catalogArtworks, {
+    monthlyOrders: 20,
+    targetPodAdvantagePerOrder: 4,
+    agingDaysMap: {
+      "spring-bloom": 6,
+      "desert-sun": 3,
+      "abstract-no-4": 8,
+    },
+  });
+
+  const springBloom = releaseQueue.decisions.find((d) => d.artwork.slug === "spring-bloom");
+  const desertSun = releaseQueue.decisions.find((d) => d.artwork.slug === "desert-sun");
+  const abstractNo4 = releaseQueue.decisions.find((d) => d.artwork.slug === "abstract-no-4");
+
+  assert.ok(springBloom);
+  assert.equal(springBloom.slaStatus, "breached");
+  assert.match(springBloom.operatorAction, /\[SLA BREACHED 6d\]/);
+
+  assert.ok(desertSun);
+  assert.equal(desertSun.slaStatus, "warning");
+  assert.match(desertSun.operatorAction, /\[SLA WARNING 3d\]/);
+
+  assert.ok(abstractNo4);
+  assert.equal(abstractNo4.slaStatus, "breached");
+  assert.match(abstractNo4.operatorAction, /\[SLA BREACHED 8d\]/);
+
+  assert.equal(releaseQueue.agingWarningCount, 1);
+  assert.equal(releaseQueue.agingBreachedCount, 2);
+  assert.equal(releaseQueue.oldestUnresolvedDays, 8);
+});
+
+test("recommendPodCostOptimization suggests switching to lower-cost POD provider when available", () => {
+  const artwork = catalogArtworks.find((item) => item.slug === "desert-sun")!;
+  const result = recommendPodCostOptimization({
+    artwork,
+    alternativeProviders: [
+      { providerName: "ProPrint Global", fulfillmentCost: 22 },
+      { providerName: "EcoArt Labs", fulfillmentCost: 26 },
+    ],
+    targetArtistPayout: 20,
+  });
+
+  assert.equal(result.currentFulfillmentCost, 32);
+  assert.ok(result.recommendedProvider);
+  assert.equal(result.recommendedProvider.providerName, "ProPrint Global");
+  assert.equal(result.costSavingsPerOrder, 10);
+  assert.equal(result.canAvoidPriceRaise, true);
+  assert.match(result.recommendationCopy, /Switch POD fulfillment for Desert Sun to ProPrint Global/);
+});
+
+test("calculateB2bTradeProgramTierDiscount calculates wholesale discount, artist payout, and platform net margin", () => {
+  const result = calculateB2bTradeProgramTierDiscount({
+    tier: "Silver",
+    orderRetailTotal: 1000,
+    fulfillmentCostTotal: 250,
+  });
+
+  assert.equal(result.tier, "Silver");
+  assert.equal(result.discountPercent, 25);
+  assert.equal(result.designerSavings, 250);
+  assert.equal(result.wholesaleNetPrice, 750);
+  assert.equal(result.fulfillmentCostTotal, 250);
+  assert.equal(result.paymentProcessingFee, 22.5);
+  assert.ok(result.isEconomicallyViable);
+  assert.ok(result.artistPayoutTotal > 100);
+  assert.ok(result.platformNetProfit > 200);
+  assert.match(result.operatorGuidance, /Silver Trade order \(\$750\.00\) yields \$143\.10 artist payout/);
+});
+
+test("calculateChannelContributionMarginDashboard calculates net contribution and provides channel recommendations", () => {
+  const summaries = calculateChannelContributionMarginDashboard([
+    {
+      channelId: "instagram_ads",
+      channelName: "Instagram Ads",
+      monthlySpend: 500,
+      ordersCount: 40,
+      averageOrderValue: 90,
+      averageFulfillmentCostPerOrder: 30,
+      roomPreviewUpliftPercent: 10,
+    },
+    {
+      channelId: "unprofitable_ads",
+      channelName: "Unprofitable Ads",
+      monthlySpend: 1000,
+      ordersCount: 10,
+      averageOrderValue: 50,
+      averageFulfillmentCostPerOrder: 35,
+    },
+  ]);
+
+  assert.equal(summaries.length, 2);
+
+  const insta = summaries[0];
+  assert.equal(insta.channelId, "instagram_ads");
+  assert.equal(insta.status, "high-margin");
+  assert.ok(insta.totalContributionMargin > 1000);
+  assert.match(insta.recommendation, /Scale spend on Instagram Ads/);
+
+  const unprof = summaries[1];
+  assert.equal(unprof.channelId, "unprofitable_ads");
+  assert.equal(unprof.status, "unprofitable");
+  assert.ok(unprof.totalContributionMargin < 0);
+  assert.match(unprof.recommendation, /Optimize or pause spend on Unprofitable Ads/);
+});
+
+test("allocateWeeklyChannelBudget applies actualChannelLiftMap over baseline preview lift", () => {
+  const defaultResult = allocateWeeklyChannelBudget({
+    totalWeeklyBudget: 500,
+  });
+  const customLiftResult = allocateWeeklyChannelBudget({
+    totalWeeklyBudget: 500,
+    actualChannelLiftMap: {
+      meta_ads: 45,
+    },
+  });
+
+  const defaultMeta = defaultResult.allocations.find((a) => a.id === "meta_ads");
+  const customMeta = customLiftResult.allocations.find((a) => a.id === "meta_ads");
+
+  assert.ok(defaultMeta);
+  assert.ok(customMeta);
+  assert.equal(customMeta.actualLiftApplied, true);
+  assert.equal(customMeta.previewLiftPercent, 45);
+  assert.ok(customMeta.adjustedCAC < defaultMeta.adjustedCAC);
+});
+
+
+
