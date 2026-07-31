@@ -28,6 +28,12 @@
 
 ## Security Hardening Roadmap & Action Items
 
+This vulnerability log is governed by the repository
+[engineering principles](ENGINEERING-PRINCIPLES.md) and the detailed
+[security roadmap](docs/security/ROADMAP.md). A clean scanner result is not a
+claim that the system is secure; controls also require threat modeling,
+negative tests, runtime verification, ownership, and remediation evidence.
+
 ### Phase 1: High-Priority Baseline Hardening (Current Sprint)
 - [x] Enforce least-privilege permissions (`permissions: contents: read`) across all Gitea Actions workflows.
 - [x] Configure non-root unprivileged container users in application Dockerfiles.
@@ -43,6 +49,11 @@
 - [ ] Enable Renovate automated security update pull requests.
 - [ ] Configure dynamic application security testing (DAST) for staging environment endpoints.
 - [ ] Establish periodic automated dependency license compliance and vulnerability reports.
+- [ ] Generate SBOMs and build provenance, scan immutable images before
+  promotion and on a schedule, and verify signatures/digests in GitOps.
+- [ ] Add SAST, isolated DAST, and authorization/abuse-case regression suites.
+- [ ] Test privacy controls for telemetry: redaction, consent/opt-out, retention,
+  access, deletion, and data minimization.
 
 ---
 

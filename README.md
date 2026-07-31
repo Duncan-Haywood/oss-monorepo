@@ -8,6 +8,16 @@ setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new
 directory that inherits the platform automatically.
 
+## Engineering standard
+
+The repository-wide standard is defined in
+[ENGINEERING-PRINCIPLES.md](ENGINEERING-PRINCIPLES.md): **if it is not tested,
+it is broken**. Every venture inherits high meaningful test coverage,
+shift-left quality and security, everything-as-code, immutable CI and GitOps,
+measured reliability, and lawful and ethical product-learning requirements.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the change contract and the
+[engineering systems roadmap](docs/ENGINEERING-ROADMAP.md) for rollout.
+
 ## Layout
 
 ```

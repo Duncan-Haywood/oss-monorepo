@@ -17,6 +17,9 @@ shared credential or platform component is affected.
 
 ## CI security controls
 
+Security follows [the engineering principles](ENGINEERING-PRINCIPLES.md): it is
+designed and tested before release, not inspected only at the end.
+
 The `Security` workflow runs on pull requests, default-branch pushes, weekly,
 and on demand. It provides:
 
@@ -30,6 +33,13 @@ and on demand. It provides:
   examples and rejects each prohibited class.
 - Reports retained as Gitea Actions artifacts for 30 days and an automatically
   maintained Gitea issue when a default-branch or scheduled scan fails.
+
+The target control set also includes SAST, license checks, container and
+published-image scanning, SBOM/provenance, authorization and abuse-case tests,
+and DAST against an isolated environment. Critical findings block immediately;
+high findings block release unless narrowly risk-accepted by an owner with
+compensating controls and an expiry. Suppressions must be evidence-based,
+scoped, reviewed, and temporary.
 
 Scanner findings are triaged using the
 [security roadmap](SECURITY_ROADMAP.md) and recorded in the
@@ -46,6 +56,10 @@ Scanner findings are triaged using the
 5. Rewrite history only with repository-owner coordination, then invalidate old
    clones and caches.
 6. Add a regression test or scanner rule before closing the finding.
+
+Security telemetry follows data minimization and redaction. It must not log
+credentials, session material, unnecessary personal data, raw sensitive
+payloads, or scanner-discovered secret values.
 
 Local `.env*`, `*.tfvars`, and Terraform state files must remain ignored.
 Examples must contain placeholders only.

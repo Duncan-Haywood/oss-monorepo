@@ -2,6 +2,10 @@
 
 ## Decision
 
+This architecture enforces [the engineering principles](../ENGINEERING-PRINCIPLES.md),
+especially "if it is not tested, it is broken," everything as code, immutable
+artifacts, least privilege, and evidence-based release completion.
+
 Keep Gitea Actions as the event, identity, status, and audit plane. Improve the
 current Act Runner setup before adding a second CI server. Pilot Dagger as a
 portable execution layer for one application; do not migrate deployment or
@@ -22,6 +26,12 @@ scheduling, and run history.
 | Terraform/platform | CI contract tests, repository policy, format, init without backend, validate | Apply requires main, manual dispatch, exact `APPLY` confirmation, and a saved plan |
 | Security | Repository-policy tests, history secret scan, dependency/IaC scan, per-venture lockfile audit | Failure blocks release; default-branch failures open or update one remediation issue |
 
+Coverage is ratcheted: changed code cannot reduce it, active production
+ventures target 90% line/function/statement and 85% branch coverage, and
+critical security, privacy, money, migration, and integrity paths target 95%
+line and 90% branch. These thresholds complement—not replace—contract,
+integration, end-to-end, negative/abuse, migration, and recovery tests.
+
 Application workflows are path-filtered. The repository/platform workflow does
 not repeat application builds. `scripts/ci/verify-component.sh` is the shared,
 fail-closed local/CI contract so YAML and developer checks do not diverge.
@@ -37,6 +47,11 @@ image and never built the selected service. It is now a credential-free Helm
 rendering gate. Production service rollout should remain disabled until the
 Gitea package registry path, immutable image naming, Argo CD repository access,
 health checks, and rollback policy are verified end to end.
+
+Every released image should carry an SBOM and provenance, be scanned before
+promotion, and be re-scanned on a schedule. Promotion updates only the reviewed
+GitOps desired-state branch with the verified digest. Argo CD owns cluster
+reconciliation, drift correction, health, hooks, and rollback history.
 
 ## Dagger pilot
 
@@ -90,3 +105,10 @@ Track queue time, execution time, cache-hit rate, flaky reruns, failure cause,
 time to diagnose, artifact digest, deployment lead time, rollback time, and
 runner CPU/storage consumption. A CI engine change without an improvement in
 these measures is churn rather than progress.
+
+Also track coverage trend and mutation strength for critical modules,
+flaky/quarantined tests, escaped defects, security finding age and recurrence,
+deployment frequency, lead time, change-failure/rollback rate, MTTD/MTTR,
+SLO/error-budget consumption, restore success, capacity/saturation, cost per
+useful transaction, and post-release customer task success. Measurements and
+dashboards are versioned, owned, privacy-reviewed, and tied to decisions.

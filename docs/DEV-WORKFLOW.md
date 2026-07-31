@@ -2,9 +2,21 @@
 
 This document outlines the standard ongoing development, security, reliability, and testability practices for all projects in this monorepo.
 
+It implements [the repository engineering principles](../ENGINEERING-PRINCIPLES.md).
+The governing philosophy is: **if it is not tested, it is broken**.
+
 ---
 
 ## 1. Local Developer Setup & Pre-Push Quality Gate
+
+### Before coding
+
+For every material change, record the intended customer outcome and acceptance
+criteria, trust/data boundaries, failure and rollback behavior, test strategy,
+observability, privacy/ethical implications, and the decision supported by any
+new usage or satisfaction measurement. Bug fixes should begin with a failing
+regression test. High-risk work requires a threat model or FMEA proportional to
+the risk.
 
 ### Quick Start: Install Pre-Push Hooks
 To ensure security policy scans and verification checks run automatically before every `git push`, run:
@@ -27,6 +39,21 @@ This command runs, without swallowing failures:
 - Terraform formatting and initialized validation.
 - Each active venture's typecheck, lint, tests, and production build where defined.
 
+### Test and coverage contract
+
+- Add meaningful unit, contract/integration, and end-to-end or smoke coverage at
+  the lowest effective layer. Test failures, boundaries, authorization, abuse,
+  migration, recovery, and accessibility as applicable.
+- Changed code may not reduce coverage. Production ventures target 90%
+  line/function/statement and 85% branch coverage; critical security, money,
+  privacy, migration, and integrity paths target 95% line and 90% branch.
+- A passing percentage does not replace useful assertions or real dependency
+  tests. Database behavior uses the real engine; release smoke tests use the
+  exact promoted image digest.
+- Flakes and skipped checks are tracked defects. Quarantine and policy/scanner
+  exceptions require an owner, issue, justification, compensating control, and
+  expiry.
+
 ---
 
 ## 2. CI/CD Pipeline & Automated Security Controls
@@ -40,6 +67,9 @@ Every Pull Request and push to `main` triggers automated CI gates:
 - **Gitleaks**: Scans complete Git history for exposed credentials with redacted evidence.
 - **Trivy**: Scans dependencies and infrastructure configuration for high/critical findings.
 - **Lockfile audits**: Blocks on high/critical npm or pnpm advisories.
+- **Required evolution**: SAST, license policy, SBOM/provenance, container and
+  published-image scanning become required gates per the engineering roadmap.
+  Scanner findings are fixed and regression-protected, not broadly suppressed.
 
 ### Runtime smoke testing (`scripts/smoke-test.sh`)
 - Run only after a deployment controller reports the intended immutable image healthy.
@@ -53,4 +83,40 @@ Every Pull Request and push to `main` triggers automated CI gates:
 - **Code Ownership (`.gitea/CODEOWNERS`)**: Changes to `.gitea/workflows/`, `platform/terraform/`, `platform/k8s/`, or security scripts require approval from designated security & infrastructure owners.
 - **Triage SLA**:
   - **Critical Findings**: Must be resolved immediately; blocks production deployments.
-  - **High Findings**: Must be resolved within 7 days or risk-accepted with an owner and expiration in `SECURITY-ROADMAP.md`.
+  - **High Findings**: Must be resolved within 7 days or risk-accepted with an owner and expiration in `SECURITY_ROADMAP.md`.
+
+---
+
+## 4. Review, release, and evidence
+
+A change is reviewable only when its description includes acceptance criteria,
+test and scan results, coverage effect, migrations/data impact, telemetry and
+privacy impact, rollout/rollback, and known limitations. Reviewers challenge
+missing negative tests and measurements, not only code style.
+
+CI builds one immutable full-SHA artifact and records its digest. CD changes
+Git-tracked desired state; Argo CD reconciles it. CI does not use mutable tags
+or hold broad cluster credentials. A release is done only after migration,
+readiness, smoke/security, data-quality, and customer-journey checks pass for
+that digest. Emergency manual changes are recorded and reconciled to Git.
+
+---
+
+## 5. Operate, learn, and improve
+
+- Define and version SLIs/SLOs, error budgets, dashboards, alerts, runbooks,
+  retention rules, and recovery procedures with the service.
+- Review availability, latency, correctness, task success, DORA measures,
+  MTTD/MTTR, change failure, flakes, escaped defects, capacity, cost, scanner
+  remediation, and restore evidence on a regular cadence.
+- Instrument product hypotheses with minimal governed event schemas and data
+  quality tests. Measure task success and failure, time to value, retention,
+  accessibility, performance, and support burden.
+- Gather optional, accessible, non-leading customer feedback using contextual
+  CSAT/effort measures, open text, interviews, support and churn themes. Report
+  sample size, response rate, uncertainty, and selection bias, then close the
+  loop with customers where appropriate.
+- Collect only data needed for a declared lawful and ethical purpose. Document
+  ownership, classification, notice/consent, access, retention, opt-out and
+  deletion. Do not use dark patterns, covert surveillance, sensitive inference,
+  or discriminatory/manipulative experiments.

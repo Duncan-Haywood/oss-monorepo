@@ -2,13 +2,15 @@
 
 ## Overview
 
-The monorepo utilizes a **programmable, containerized Dagger CI engine** (`platform/ci/`) that provides 100% execution parity between local developer environments and remote CI runners (GitHub Actions & Gitea Actions).
+The monorepo uses a **programmable, containerized Dagger CI engine**
+(`platform/ci/`) to provide execution parity between local development and the
+self-hosted Gitea Actions runners.
 
 ---
 
 ## Key Capabilities
 
-1. **Local = CI Parity**: The exact same CI engine runs locally via `bash scripts/verify-all.sh` and inside GitHub/Gitea Actions runners (`.github/workflows/ci-cd.yml`).
+1. **Local = CI Parity**: The same CI engine runs locally via `bash scripts/verify-all.sh` and in Gitea Actions (`.gitea/workflows/ci-cd.yml`).
 2. **BuildKit Caching**: When Docker/Dagger is available, step builds, npm dependencies, and pytest runs are cached automatically.
 3. **Monorepo Affected Path Resolution**: The CI engine analyzes `git diff` against `main` to identify changed components. Pull requests only build and verify affected ventures, saving build time.
 4. **CI Self-Testing**: The CI infrastructure tests itself! Run `bash scripts/test-ci.sh` to run unit tests on the CI engine, validate security scanner logic, analyze shell scripts with ShellCheck, and lint workflow YAML files with actionlint.
@@ -57,7 +59,6 @@ scripts/
 ├── verify-all.sh        # Primary monorepo verification entrypoint
 ├── test-ci.sh           # Dedicated CI self-test runner
 └── security/            # Security policy & failure logging scripts
-.github/workflows/       # GitHub Actions workflow definitions
 .gitea/workflows/        # Gitea Actions workflow definitions
 ```
 
@@ -66,5 +67,7 @@ scripts/
 ## Security & Reliability Principles
 
 - **Least Privilege**: All workflows enforce `permissions: contents: read` by default.
-- **Action Pinning**: Third-party GitHub Actions are pinned to immutable 40-character commit SHAs.
-- **Provider Agnostic Contexts**: Workflows use standard GitHub Action context variables (`github.ref`, `github.sha`, `github.workspace`) supported natively across GitHub and Gitea.
+- **Action Pinning**: Third-party Actions used by Gitea are pinned to immutable
+  40-character commit SHAs.
+- **Gitea Contexts**: Workflows use the Actions-compatible context variables
+  (`github.ref`, `github.sha`, `github.workspace`) exposed by Gitea.
