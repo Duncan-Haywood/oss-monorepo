@@ -6,9 +6,9 @@ evidence, and completion date before it can be marked done.
 
 ## Now: establish and enforce the baseline
 
-- [ ] Inventory every active venture's verify commands, test types, coverage,
+- [x] Inventory every active venture's verify commands, test types, coverage,
   production path, data classes, security boundaries, telemetry, and owner.
-- [ ] Make one fail-closed `verify` command per active venture the local and CI
+- [x] Make one fail-closed `verify` command per active venture the local and CI
   contract; remove swallowed failures and undocumented test exclusions.
 - [ ] Publish coverage reports in CI, capture current baselines, ratchet changed
   code upward, then meet the repository targets without low-value assertions.
@@ -18,8 +18,14 @@ evidence, and completion date before it can be marked done.
   and image scanning required checks; repair the current failing security jobs.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
-- [ ] Define an owner and expiry for every suppression, quarantine, skipped
+- [x] Define an owner and expiry for every suppression, quarantine, skipped
   check, accepted vulnerability, and policy exception.
+  Owner duncan, completed 2026-07-31. `platform/exception-register.yaml` holds
+  the register, `scripts/ci/audit_exceptions.py` fails closed on unregistered,
+  expired, and stale entries, and `tests/test_audit_exceptions.py` runs it as a
+  repository contract. Process and remediation plan in
+  [the exception register](EXCEPTION-REGISTER.md); accepted vulnerabilities
+  remain tracked as `SEC-xxx` in [the security audit log](SECURITY_AUDIT_LOG.md).
 
 ## Next 30 days: prove releases and operations
 

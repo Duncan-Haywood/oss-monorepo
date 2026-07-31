@@ -30,6 +30,8 @@ for path in \
   docs/DEV-WORKFLOW.md \
   docs/CI-CD-ARCHITECTURE.md \
   SECURITY.md \
+  docs/EXCEPTION-REGISTER.md \
+  platform/exception-register.yaml \
   platform/VENTURE.template.yaml; do
   require_file "$path"
 done

@@ -50,6 +50,12 @@ run_ci_test "Portfolio Router Allocation Report Generation" python3 "${REPO_ROOT
 # off those fields. The backlog that kept this advisory is now cleared, so a new
 # warning means new drift, not inherited debt.
 run_ci_test "Venture Contract Validation" python3 "${REPO_ROOT}/portfolio/router/validate_ventures.py" --strict
+# Every suppression needs an owner, reason, issue and expiry — four documents
+# say so and nothing enforced it. Fails on an unregistered suppression, an
+# expired grant, and a register that drifted above the code it covers.
+# `tests/test_audit_exceptions.py` runs the same audit under pytest, so this
+# entry is the named gate rather than the only enforcement.
+run_ci_test "Exception Register Audit" python3 "${REPO_ROOT}/scripts/ci/audit_exceptions.py"
 
 # 5. Shell Script Static Analysis (if shellcheck installed)
 if command -v shellcheck >/dev/null 2>&1; then
