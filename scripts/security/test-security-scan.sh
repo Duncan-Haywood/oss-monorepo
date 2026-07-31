@@ -133,6 +133,39 @@ if grep -q '| \*\*CLEAN\*\* |' "$offline_fixture/SECURITY_ROADMAP.md"; then
   fail "an offline scan must never publish a clean bill of health"
 fi
 
+# The offline escape hatch may waive the non-zero exit, but never the rewrite.
+# Regression: SECURITY_SCAN_ALLOW_OFFLINE=1 was honoured at the completeness
+# guard itself, conditioned on HIGH_COUNT and CRITICAL_COUNT being zero. Those
+# counters are zero offline precisely because nothing was audited, so the
+# condition was always true and the run fell through and republished the roadmap
+# as CLEAN over every recorded finding. platform/ci/src/pipeline.mjs sets the
+# variable unconditionally, so this ran on every pipeline invocation.
+#
+# Both causes of an incomplete audit are covered: the counters carry no evidence
+# about whether packages were audited, so the waiver must key on the audit gaps.
+for case_name in offline broken-npm; do
+  if [ "$case_name" = "offline" ]; then
+    allow_fixture="$(new_fixture "allow-$case_name" "$(audit_json 0 0 0 '{}')" lockfile)"
+    allow_env=(SECURITY_SCAN_OFFLINE=1)
+  else
+    allow_fixture="$(new_fixture "allow-$case_name" 'echo "npm error code ENOTFOUND" >&2; exit 1' lockfile)"
+    allow_env=(SECURITY_SCAN_OFFLINE=0)
+  fi
+  printf '%s\n' "$recorded_row" >"$allow_fixture/SECURITY_ROADMAP.md"
+
+  env "${allow_env[@]}" SECURITY_SCAN_ALLOW_OFFLINE=1 PATH="$allow_fixture/bin:$PATH" \
+    bash "$allow_fixture/scripts/security-scan.sh" \
+    >"$allow_fixture/stdout.log" 2>"$allow_fixture/stderr.log" || true
+
+  grep -qF "$recorded_row" "$allow_fixture/SECURITY_ROADMAP.md" ||
+    fail "SECURITY_SCAN_ALLOW_OFFLINE ($case_name) must not overwrite the recorded findings"
+  if grep -q '| \*\*CLEAN\*\* |' "$allow_fixture/SECURITY_ROADMAP.md"; then
+    fail "SECURITY_SCAN_ALLOW_OFFLINE ($case_name) must never publish a clean bill of health"
+  fi
+  grep -q 'Incomplete audit' "$allow_fixture/stderr.log" ||
+    fail "SECURITY_SCAN_ALLOW_OFFLINE ($case_name) should still report the incomplete audit"
+done
+
 if [ "$failures" -ne 0 ]; then
   printf 'security-scan contract tests failed: %d\n' "$failures" >&2
   exit 1

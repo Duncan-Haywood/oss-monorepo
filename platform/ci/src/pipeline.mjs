@@ -228,8 +228,16 @@ export function runSecuritySuite(repoRoot = REPO_ROOT) {
   const secScanScript = path.join(repoRoot, 'scripts/security-scan.sh');
   if (fs.existsSync(secScanScript)) {
     console.log('\n▶ Running Monorepo Vulnerability & Secret Audit...');
-    const env = { ...process.env, SECURITY_SCAN_ALLOW_OFFLINE: '1' };
-    const res = spawnSync('bash', [secScanScript], { cwd: repoRoot, stdio: 'inherit', env });
+    // Inherited, never forced. Waiving the dependency audit is a policy
+    // exception: it has to be set where a reviewer can see it (the workflow
+    // file) rather than applied silently to every run from here.
+    if (process.env.SECURITY_SCAN_ALLOW_OFFLINE === '1') {
+      console.warn(
+        '⚠ SECURITY_SCAN_ALLOW_OFFLINE=1 — the dependency audit may be skipped. ' +
+          'A pass is not evidence that recorded vulnerabilities are resolved.',
+      );
+    }
+    const res = spawnSync('bash', [secScanScript], { cwd: repoRoot, stdio: 'inherit' });
     if (res.status !== 0) {
       console.error('✖ Vulnerability & Secret Audit FAILED');
       passed = false;

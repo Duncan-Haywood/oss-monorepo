@@ -18,6 +18,10 @@ HIGH_COUNT=0
 MEDIUM_COUNT=0
 LOW_COUNT=0
 AUDITED_COUNT=0
+# Secret findings come from a filesystem search, so they remain trustworthy on a
+# run that could not reach the registry. Tracked apart from HIGH_COUNT so the
+# offline waiver can key on evidence the scan actually produced.
+SECRET_COUNT=0
 
 IS_OFFLINE=0
 if [ -n "${SECURITY_SCAN_OFFLINE+x}" ]; then
@@ -181,6 +185,7 @@ if [ -n "${SECRET_RESULTS}" ]; then
     if [ -n "${secret_file}" ]; then
       echo "| \`${secret_file}\` | Hardcoded Credential Pattern | **HIGH** | File Search | Potential hardcoded credential pattern detected | Rotate and migrate to environment variables | [ ] Action Required |" >> "${FINDINGS_TMP}"
       HIGH_COUNT=$((HIGH_COUNT + 1))
+      SECRET_COUNT=$((SECRET_COUNT + 1))
     fi
   done <<< "${SECRET_RESULTS}"
 fi
@@ -206,6 +211,21 @@ if [ -s "${AUDIT_GAPS_TMP}" ] || [ "${AUDITED_COUNT}" -eq 0 ]; then
     [ -n "${gap_component}" ] && echo "  ${gap_component}: ${gap_reason}" >&2
   done < "${AUDIT_GAPS_TMP}"
   echo "" >&2
+  # SECURITY_SCAN_ALLOW_OFFLINE may waive the non-zero exit so a network-isolated
+  # runner can still complete the secret audit. It may never waive the refusal to
+  # rewrite: both branches below exit before the roadmap is touched. Severity
+  # counters must not appear in this condition — offline they are zero precisely
+  # because nothing was audited, which made an earlier version of this waiver
+  # unconditionally true and let every pipeline run erase the recorded findings.
+  if [ "${SECURITY_SCAN_ALLOW_OFFLINE:-0}" -eq 1 ] && [ "${SECRET_COUNT}" -eq 0 ]; then
+    echo "SECURITY_SCAN_ALLOW_OFFLINE=1: exiting zero with the recorded findings left" >&2
+    echo "in place. The dependency audit did not run, so this run is not evidence" >&2
+    echo "that the recorded vulnerabilities are resolved." >&2
+    exit 0
+  fi
+  if [ "${SECRET_COUNT}" -ne 0 ]; then
+    echo "  ${SECRET_COUNT} hardcoded credential pattern(s) detected; the offline waiver does not apply." >&2
+  fi
   echo "Install dependencies and restore registry access, then re-run." >&2
   exit 1
 fi
