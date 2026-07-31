@@ -1,6 +1,7 @@
 name: print-atelier
 description: AI-first software marketplace digitizing physical art with POD fulfillment and 30% net profit payouts to artists.
 stage: prototype
+verify: npm run typecheck && npm run lint && npm test && npm run build
 
 owner: duncan
 

@@ -1,6 +1,7 @@
 name: photo-editing
 description: Batch automated photography editing, color calibration, and catalog processing service.
 stage: prototype
+verify: pytest tests && npm --prefix docs-site run typecheck && npm --prefix docs-site test && npm --prefix docs-site run build
 
 owner: duncan
 

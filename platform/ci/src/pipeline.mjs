@@ -22,12 +22,27 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
  */
 export const VENTURE_CATALOG = [
   {
+    id: 'mat-470-real-analysis',
+    name: 'MAT-470 Real Analysis',
+    dir: 'ventures/mat-470-real-analysis',
+    type: 'python',
+    testDir: 'tests',
+  },
+  {
+    id: 'ai-engineering-academy-site',
+    name: 'AI Engineering Academy Site',
+    dir: 'ventures/ai-engineering-academy/site',
+    type: 'node',
+    hasPrisma: false,
+    scripts: ['test', 'build'],
+  },
+  {
     id: 'quick-pick-survey',
     name: 'Quick Pick Survey (Pairwise)',
     dir: 'ventures/quick-pick-survey',
     type: 'node',
     hasPrisma: true,
-    scripts: ['typecheck', 'lint', 'test'],
+    scripts: ['typecheck', 'lint', 'test', 'build'],
   },
   {
     id: 'ai-first-markets',
@@ -140,6 +155,7 @@ export function getChangedFiles(baseRef = 'HEAD~1') {
     const output = execSync(`git diff --name-only ${diffTarget}`, {
       cwd: REPO_ROOT,
       encoding: 'utf8',
+      env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
       stdio: ['pipe', 'pipe', 'ignore'],
     });
 
@@ -212,7 +228,8 @@ export function runSecuritySuite(repoRoot = REPO_ROOT) {
   const secScanScript = path.join(repoRoot, 'scripts/security-scan.sh');
   if (fs.existsSync(secScanScript)) {
     console.log('\n▶ Running Monorepo Vulnerability & Secret Audit...');
-    const res = spawnSync('bash', [secScanScript], { cwd: repoRoot, stdio: 'inherit' });
+    const env = { ...process.env, SECURITY_SCAN_ALLOW_OFFLINE: '1' };
+    const res = spawnSync('bash', [secScanScript], { cwd: repoRoot, stdio: 'inherit', env });
     if (res.status !== 0) {
       console.error('✖ Vulnerability & Secret Audit FAILED');
       passed = false;
@@ -258,7 +275,15 @@ export function verifyNodeHost(component, repoRoot = REPO_ROOT) {
       );
     }
 
+    // Clean stale Next.js build cache before verification starts
+    if (fs.existsSync(path.join(fullDir, '.next'))) {
+      fs.rmSync(path.join(fullDir, '.next'), { recursive: true, force: true });
+    }
+
     for (const script of component.scripts) {
+      if (script === 'build' && fs.existsSync(path.join(fullDir, '.next'))) {
+        fs.rmSync(path.join(fullDir, '.next'), { recursive: true, force: true });
+      }
       console.log(`  Running: npm run ${script}...`);
       execSync(`npm run ${script}`, { cwd: fullDir, stdio: 'inherit' });
     }
@@ -287,17 +312,19 @@ export function verifyPnpmHost(component, repoRoot = REPO_ROOT) {
   console.log(`\n▶ Verifying pnpm Workspace: ${component.name} (${component.dir})`);
 
   try {
+    const env = { ...process.env, COREPACK_ENABLE_NETWORK: '0' };
     if (!fs.existsSync(path.join(fullDir, 'node_modules'))) {
       console.log('  Installing workspace dependencies...');
-      execSync('corepack pnpm install --frozen-lockfile --ignore-scripts', {
+      execSync('pnpm install --frozen-lockfile --ignore-scripts', {
         cwd: fullDir,
+        env,
         stdio: 'inherit',
       });
     }
 
     const script = component.ciScript || 'ci';
     console.log(`  Running: pnpm run ${script}...`);
-    execSync(`corepack pnpm run ${script}`, { cwd: fullDir, stdio: 'inherit' });
+    execSync(`pnpm run ${script}`, { cwd: fullDir, env, stdio: 'inherit' });
 
     console.log(`✔ ${component.name} PASSED`);
     return true;

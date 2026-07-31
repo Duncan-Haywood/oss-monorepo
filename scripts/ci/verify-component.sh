@@ -33,6 +33,7 @@ case "$component" in
     run_npm ventures/ai-first-markets npm run cf:build
     ;;
   local-site-studio)
+    run_npm ventures/local-site-studio npm run typecheck
     run_npm ventures/local-site-studio npm run lint
     run_npm ventures/local-site-studio npm test
     run_npm ventures/local-site-studio npm run build

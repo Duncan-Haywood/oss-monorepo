@@ -121,6 +121,7 @@ test('CI Pipeline Catalog - every Node package defining tests is run by some ent
   const packageDirs = execFileSync('git', ['ls-files', '--', 'ventures'], {
     cwd: REPO_ROOT,
     encoding: 'utf8',
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
   })
     .split('\n')
     .filter((file) => path.basename(file) === 'package.json')

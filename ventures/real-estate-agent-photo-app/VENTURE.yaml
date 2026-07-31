@@ -1,6 +1,7 @@
 name: real-estate-agent-photo-app
 description: AI-first mobile real estate photography app and concierge enhancement pipeline for agents.
 stage: prototype
+verify: npm --prefix pipeline test
 
 owner: duncan
 

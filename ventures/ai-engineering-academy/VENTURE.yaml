@@ -1,6 +1,7 @@
 name: ai-engineering-academy
 description: Hands-on AI engineering interactive sandbox and agent architecture learning platform.
 stage: prototype
+verify: npm --prefix site test && npm --prefix site run build
 
 owner: duncan
 

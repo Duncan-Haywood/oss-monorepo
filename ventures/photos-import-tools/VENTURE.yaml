@@ -1,6 +1,7 @@
 name: photos-import-tools
 description: High-performance photo library metadata extraction and automated ingestion utility.
 stage: prototype
+verify: pytest tests
 
 owner: duncan
 

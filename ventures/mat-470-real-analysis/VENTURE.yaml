@@ -1,6 +1,7 @@
 name: mat-470-real-analysis
 description: Interactive mathematical proof exploration and real analysis study companion platform.
 stage: prototype
+verify: pytest tests
 
 owner: duncan
 

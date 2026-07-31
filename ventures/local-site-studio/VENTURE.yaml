@@ -1,6 +1,7 @@
 name: local-site-studio
 description: Pre-built websites for local businesses with instant client previews and flat $500 pricing.
 stage: prototype
+verify: npm run typecheck && npm run lint && npm test
 
 owner: duncan
 

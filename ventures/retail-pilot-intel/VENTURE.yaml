@@ -1,6 +1,7 @@
 name: retail-pilot-intel
 description: Privacy-first retail foot-traffic and POS analytics for small-format pilot boutiques.
 stage: prototype
+verify: pnpm run ci
 
 owner: duncan
 

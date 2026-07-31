@@ -1,6 +1,7 @@
 name: ai-first-markets
 description: Quantitative research platform evaluating economic leverage and AI market opportunities across vertical sectors.
 stage: prototype
+verify: npm run typecheck && npm run lint && npm test && npm run build
 
 owner: duncan
 
