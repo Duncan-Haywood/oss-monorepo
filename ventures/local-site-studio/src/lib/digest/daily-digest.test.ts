@@ -2,7 +2,20 @@ import { describe, expect, it } from "vitest";
 import type { ClientInquiry } from "../inquiries/types";
 import type { CheckoutSessionRecord } from "../checkout/types";
 import type { Lead } from "../leads/types";
+import type { CommerceSku } from "../commerce/types";
+import type { CommerceOrderRecord } from "../commerce/orders";
 import { buildDailyDigest, formatSnoozeRemainingHours, renderDailyDigestHtml } from "./daily-digest";
+
+/**
+ * A stored Commerce catalog row (CommerceCatalog minus updatedAt), so SKU
+ * fixtures are typed as real CommerceSku rather than ad-hoc literals.
+ */
+function catalogRow(
+  leadSlug: string,
+  items: CommerceSku[],
+): { leadSlug: string; items: CommerceSku[] } {
+  return { leadSlug, items };
+}
 
 const NOW = Date.parse("2026-07-12T12:00:00.000Z");
 
@@ -363,14 +376,12 @@ describe("buildDailyDigest", () => {
         { leadSlug: "synced-shop", tier: "growth", commerceAddon: true },
       ],
       commerceCatalogs: [
-        {
-          leadSlug: "unsynced-shop",
-          items: [{ id: "a", priceCents: 100 }],
-        },
-        {
-          leadSlug: "synced-shop",
-          items: [{ id: "b", priceCents: 200, stripePriceId: "price_b" }],
-        },
+        catalogRow("unsynced-shop", [
+          { id: "a", name: "Handmade Mug", priceCents: 100 },
+        ]),
+        catalogRow("synced-shop", [
+          { id: "b", name: "Linen Tote", priceCents: 200, stripePriceId: "price_b" },
+        ]),
       ],
       nowMs: NOW,
     });
@@ -696,7 +707,7 @@ describe("buildDailyDigest", () => {
       businessName: "Old Client Cafe",
       stage: "live",
     });
-    const olderUnpaid = {
+    const olderUnpaid: CommerceOrderRecord = {
       id: "co_old",
       leadSlug: "old-client",
       skuId: "sku_old",
@@ -705,7 +716,7 @@ describe("buildDailyDigest", () => {
       stripeSessionId: "cs_old",
       createdAt: "2026-01-01T00:00:00.000Z",
     };
-    const recentPaidOut = Array.from({ length: 5 }, (_, i) => ({
+    const recentPaidOut: CommerceOrderRecord[] = Array.from({ length: 5 }, (_, i) => ({
       id: `co_new_${i}`,
       leadSlug: "new-client",
       skuId: `sku_new_${i}`,
@@ -837,10 +848,9 @@ describe("renderDailyDigestHtml", () => {
       ],
       marketingPacksThisMonth: [],
       commerceCatalogs: [
-        {
-          leadSlug: "commerce-unsynced",
-          items: [{ id: "sku_1", priceCents: 1200 }],
-        },
+        catalogRow("commerce-unsynced", [
+          { id: "sku_1", name: "Signature Blend", priceCents: 1200 },
+        ]),
       ],
       clientVoicePacks: [],
       nowMs: NOW,

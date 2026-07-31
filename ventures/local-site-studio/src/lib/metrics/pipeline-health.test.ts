@@ -11,7 +11,19 @@ import type { DeployHandoff } from "../deploy/types";
 import type { ClientInquiry } from "../inquiries/types";
 import type { OrderRecord } from "../orders/types";
 import type { CheckoutSessionRecord } from "../checkout/types";
+import type { CommerceSku } from "../commerce/types";
 import { ABANDONED_AFTER_HOURS } from "../checkout/abandoned-recovery";
+
+/**
+ * A stored Commerce catalog row (CommerceCatalog minus updatedAt), so SKU
+ * fixtures are typed as real CommerceSku rather than ad-hoc literals.
+ */
+function catalogRow(
+  leadSlug: string,
+  items: CommerceSku[],
+): { leadSlug: string; items: CommerceSku[] } {
+  return { leadSlug, items };
+}
 
 const NOW = Date.parse("2026-07-12T12:00:00.000Z");
 const HOUR_MS = 60 * 60 * 1000;
@@ -561,14 +573,12 @@ describe("computePipelineHealth", () => {
       handoffs: [],
       inquiries: [],
       commerceCatalogs: [
-        {
-          leadSlug: "unsynced-shop",
-          items: [{ id: "a", stripePriceId: undefined }],
-        },
-        {
-          leadSlug: "synced-shop",
-          items: [{ id: "b", stripePriceId: "price_b" }],
-        },
+        catalogRow("unsynced-shop", [
+          { id: "a", name: "Handmade Mug", priceCents: 1800, stripePriceId: undefined },
+        ]),
+        catalogRow("synced-shop", [
+          { id: "b", name: "Linen Tote", priceCents: 2400, stripePriceId: "price_b" },
+        ]),
       ],
       nowMs: NOW,
     });

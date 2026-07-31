@@ -35,7 +35,7 @@ export const VENTURE_CATALOG = [
     dir: 'ventures/ai-first-markets',
     type: 'node',
     hasPrisma: false,
-    scripts: ['typecheck', 'lint', 'build'],
+    scripts: ['typecheck', 'lint', 'test', 'build'],
   },
   {
     id: 'local-site-studio',
@@ -54,6 +54,31 @@ export const VENTURE_CATALOG = [
     // Kept in step with scripts/ci/verify-component.sh so the YAML gate and the
     // local developer gate do not diverge.
     scripts: ['typecheck', 'lint', 'test', 'build'],
+  },
+  {
+    id: 'retail-pilot-intel',
+    name: 'Retail Pilot Intel',
+    dir: 'ventures/retail-pilot-intel',
+    type: 'pnpm',
+    ciScript: 'ci',
+  },
+  {
+    id: 'real-estate-agent-photo-app',
+    name: 'Real Estate Agent Photo App (Listing Lens)',
+    dir: 'ventures/real-estate-agent-photo-app',
+    // The Node package lives one level down; `dir` stays at the venture root so
+    // any change in the venture still selects this component.
+    packageDir: 'ventures/real-estate-agent-photo-app/pipeline',
+    type: 'node',
+    hasPrisma: false,
+    scripts: ['test'],
+  },
+  {
+    id: 'photos-import-tools',
+    name: 'Photos Import Tools',
+    dir: 'ventures/photos-import-tools',
+    type: 'python',
+    testDir: 'tests',
   },
   {
     id: 'photo-editing',
@@ -192,9 +217,12 @@ export function runSecuritySuite(repoRoot = REPO_ROOT) {
  * Execute verification for a single Node component on host
  */
 export function verifyNodeHost(component, repoRoot = REPO_ROOT) {
-  const fullDir = path.join(repoRoot, component.dir);
+  // `dir` is the affected-path prefix; `packageDir` is where package.json lives.
+  // They differ when a venture keeps its Node package in a subdirectory, so a
+  // change anywhere in the venture still selects the component for verification.
+  const fullDir = path.join(repoRoot, component.packageDir || component.dir);
   if (!fs.existsSync(fullDir) || !fs.existsSync(path.join(fullDir, 'package.json'))) {
-    console.log(`ℹ Skipping missing Node directory: ${component.dir}`);
+    console.log(`ℹ Skipping missing Node directory: ${component.packageDir || component.dir}`);
     return true;
   }
 
@@ -210,12 +238,55 @@ export function verifyNodeHost(component, repoRoot = REPO_ROOT) {
     const pkgJson = JSON.parse(fs.readFileSync(path.join(fullDir, 'package.json'), 'utf8'));
     const availableScripts = pkgJson.scripts || {};
 
-    for (const script of component.scripts) {
-      if (availableScripts[script]) {
-        console.log(`  Running: npm run ${script}...`);
-        execSync(`npm run ${script}`, { cwd: fullDir, stdio: 'inherit' });
-      }
+    // Fail closed. Silently skipping a catalog-claimed script turns a stale
+    // registry entry into a green run that verified nothing.
+    const undefinedScripts = component.scripts.filter((script) => !availableScripts[script]);
+    if (undefinedScripts.length > 0) {
+      throw new Error(
+        `${component.id}: catalog claims script(s) not defined in ${component.packageDir || component.dir}/package.json: ${undefinedScripts.join(', ')}`
+      );
     }
+
+    for (const script of component.scripts) {
+      console.log(`  Running: npm run ${script}...`);
+      execSync(`npm run ${script}`, { cwd: fullDir, stdio: 'inherit' });
+    }
+
+    console.log(`✔ ${component.name} PASSED`);
+    return true;
+  } catch (err) {
+    console.error(`✖ ${component.name} FAILED`);
+    return false;
+  }
+}
+
+/**
+ * Execute verification for a pnpm-workspace component on host.
+ *
+ * These ventures own their gate sequence in their own `ci` script rather than
+ * exposing a flat list of npm scripts, so the catalog defers to it.
+ */
+export function verifyPnpmHost(component, repoRoot = REPO_ROOT) {
+  const fullDir = path.join(repoRoot, component.dir);
+  if (!fs.existsSync(fullDir) || !fs.existsSync(path.join(fullDir, 'package.json'))) {
+    console.log(`ℹ Skipping missing pnpm workspace: ${component.dir}`);
+    return true;
+  }
+
+  console.log(`\n▶ Verifying pnpm Workspace: ${component.name} (${component.dir})`);
+
+  try {
+    if (!fs.existsSync(path.join(fullDir, 'node_modules'))) {
+      console.log('  Installing workspace dependencies...');
+      execSync('corepack pnpm install --frozen-lockfile --ignore-scripts', {
+        cwd: fullDir,
+        stdio: 'inherit',
+      });
+    }
+
+    const script = component.ciScript || 'ci';
+    console.log(`  Running: pnpm run ${script}...`);
+    execSync(`corepack pnpm run ${script}`, { cwd: fullDir, stdio: 'inherit' });
 
     console.log(`✔ ${component.name} PASSED`);
     return true;
@@ -321,7 +392,7 @@ export async function runDaggerContainerizedPipeline(affectedIds, catalog = VENT
             .container()
             .from('node:22-alpine')
             .withDirectory('/app', hostSource)
-            .withWorkdir(`/app/${component.dir}`)
+            .withWorkdir(`/app/${component.packageDir || component.dir}`)
             .withExec(['npm', 'ci', '--ignore-scripts']);
 
           if (component.hasPrisma) {
@@ -346,6 +417,28 @@ export async function runDaggerContainerizedPipeline(affectedIds, catalog = VENT
 
           await container.sync();
           console.log(`✔ [Dagger Engine] ${component.name} completed successfully.`);
+        } else if (component.type === 'pnpm') {
+          const container = client
+            .container()
+            .from('node:22-alpine')
+            .withDirectory('/app', hostSource)
+            .withWorkdir(`/app/${component.dir}`)
+            .withExec(['corepack', 'pnpm', 'install', '--frozen-lockfile', '--ignore-scripts'])
+            .withExec(['corepack', 'pnpm', 'run', component.ciScript || 'ci']);
+
+          await container.sync();
+          console.log(`✔ [Dagger Engine] ${component.name} completed successfully.`);
+        } else if (component.type === 'terraform') {
+          // Terraform verification is host-side; run it rather than letting the
+          // container path report an unverified component as successful.
+          if (!verifyTerraformHost(component, repoRoot)) {
+            allPassed = false;
+          }
+        } else {
+          // Never let an unhandled type report success from the container path.
+          throw new Error(
+            `[Dagger Engine] ${component.id}: unsupported component type "${component.type}"`
+          );
         }
       }
 
@@ -416,10 +509,16 @@ export async function main() {
       let passed = true;
       if (component.type === 'node') {
         passed = verifyNodeHost(component, REPO_ROOT);
+      } else if (component.type === 'pnpm') {
+        passed = verifyPnpmHost(component, REPO_ROOT);
       } else if (component.type === 'python') {
         passed = verifyPythonHost(component, REPO_ROOT);
       } else if (component.type === 'terraform') {
         passed = verifyTerraformHost(component, REPO_ROOT);
+      } else {
+        // An unrecognized type must not count as a pass.
+        console.error(`✖ ${component.id}: unknown component type "${component.type}"`);
+        passed = false;
       }
 
       if (!passed) totalFailures++;

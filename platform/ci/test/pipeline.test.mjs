@@ -31,6 +31,82 @@ test('CI Pipeline Catalog - Directory Integrity', () => {
   }
 });
 
+/**
+ * A venture whose tests exist but which is absent from the catalog is never
+ * marked affected by resolveAffectedComponents, so its tests never run. That is
+ * indistinguishable from a green build, which is why it is asserted here.
+ */
+test('CI Pipeline Catalog - every venture with tests is registered and runs them', () => {
+  const venturesRoot = path.join(REPO_ROOT, 'ventures');
+  const registeredDirs = new Set(VENTURE_CATALOG.map((c) => c.dir));
+
+  const hasTests = (dir) => {
+    const stack = [dir];
+    while (stack.length > 0) {
+      const current = stack.pop();
+      let entries;
+      try {
+        entries = fs.readdirSync(current, { withFileTypes: true });
+      } catch {
+        continue;
+      }
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          if (['node_modules', '.next', 'dist', 'build', '__pycache__', '.git'].includes(entry.name)) {
+            continue;
+          }
+          stack.push(path.join(current, entry.name));
+        } else if (
+          /\.test\.(ts|tsx|js|mjs)$/.test(entry.name) ||
+          /^test_.*\.py$/.test(entry.name)
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  const unregistered = fs
+    .readdirSync(venturesRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => ({ name: entry.name, dir: `ventures/${entry.name}` }))
+    .filter((venture) => !registeredDirs.has(venture.dir))
+    .filter((venture) => hasTests(path.join(REPO_ROOT, venture.dir)))
+    .map((venture) => venture.name);
+
+  assert.deepEqual(
+    unregistered,
+    [],
+    `Ventures ship tests but are absent from VENTURE_CATALOG, so their tests never run in CI: ${unregistered.join(', ')}`
+  );
+
+  // A Node component must actually run its tests, not merely be registered.
+  for (const component of VENTURE_CATALOG) {
+    if (component.type !== 'node' || !component.dir.startsWith('ventures/')) continue;
+
+    const packageJsonPath = path.join(REPO_ROOT, component.packageDir || component.dir, 'package.json');
+    if (!fs.existsSync(packageJsonPath)) continue;
+
+    const scripts = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')).scripts || {};
+
+    // Fail-closed contract: the catalog may not claim a script the package lacks.
+    for (const script of component.scripts || []) {
+      assert.ok(
+        scripts[script],
+        `${component.id}: catalog claims "${script}" but package.json does not define it, so it is skipped`
+      );
+    }
+
+    if (scripts.test) {
+      assert.ok(
+        (component.scripts || []).includes('test'),
+        `${component.id}: defines a test script but the catalog does not run it`
+      );
+    }
+  }
+});
+
 test('CI Pipeline Affected Path Resolver - Venture Path Matching', () => {
   const mockCatalog = [
     { id: 'app1', dir: 'ventures/app1', type: 'node' },

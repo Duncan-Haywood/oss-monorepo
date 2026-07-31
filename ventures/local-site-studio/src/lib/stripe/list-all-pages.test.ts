@@ -2,8 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { listAllPages } from "./list-all-pages";
 
 type Item = { id: string; key?: string };
+type ItemPage = { data: Item[]; has_more: boolean };
+/** Mirrors the `fetchPage` parameter of listAllPages, so T infers as Item. */
+type FetchPage = (startingAfter?: string) => Promise<ItemPage>;
 
-function pageOf(ids: string[], has_more: boolean): { data: Item[]; has_more: boolean } {
+function pageOf(ids: string[], has_more: boolean): ItemPage {
   return { data: ids.map((id) => ({ id })), has_more };
 }
 
@@ -17,7 +20,7 @@ describe("listAllPages", () => {
 
   it("walks has_more/starting_after until the list is exhausted", async () => {
     const fetchPage = vi
-      .fn()
+      .fn<FetchPage>()
       .mockResolvedValueOnce(pageOf(["p1", "p2"], true))
       .mockResolvedValueOnce(pageOf(["p3"], true))
       .mockResolvedValueOnce(pageOf(["p4", "p5"], false));
@@ -34,7 +37,7 @@ describe("listAllPages", () => {
 
   it("stops early when until matches an item on the current page", async () => {
     const fetchPage = vi
-      .fn()
+      .fn<FetchPage>()
       .mockResolvedValueOnce({
         data: [
           { id: "prod_1", key: "other" },
@@ -52,7 +55,7 @@ describe("listAllPages", () => {
 
   it("keeps paging when until does not match until a later page", async () => {
     const fetchPage = vi
-      .fn()
+      .fn<FetchPage>()
       .mockResolvedValueOnce({
         data: [{ id: "prod_1", key: "no" }],
         has_more: true,
@@ -70,7 +73,7 @@ describe("listAllPages", () => {
 
   it("stops when a page returns empty data even if has_more is true", async () => {
     const fetchPage = vi
-      .fn()
+      .fn<FetchPage>()
       .mockResolvedValueOnce(pageOf(["only"], true))
       .mockResolvedValueOnce({ data: [], has_more: true });
 

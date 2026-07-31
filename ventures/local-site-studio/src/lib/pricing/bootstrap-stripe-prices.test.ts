@@ -153,7 +153,10 @@ describe("bootstrapStripePrices", () => {
     // Fill the account with >100 active Products unrelated to bootstrap so the
     // bootstrap Products/Prices fall past the first list() page.
     for (let i = 0; i < 110; i++) {
-      await stripe.products.create({ metadata: { local_site_studio_key: `filler_${i}` } });
+      await stripe.products.create({
+        name: `Filler product ${i}`,
+        metadata: { local_site_studio_key: `filler_${i}` },
+      });
     }
     const first = await bootstrapStripePrices(stripe);
     expect(stripe.productCount()).toBeGreaterThan(110);

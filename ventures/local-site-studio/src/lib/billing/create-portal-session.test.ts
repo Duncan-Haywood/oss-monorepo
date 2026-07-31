@@ -6,10 +6,10 @@ import {
   type StripeBillingPortalClient,
 } from "./create-portal-session";
 
-const listOrders = vi.fn<[], Promise<OrderRecord[]>>();
+const listOrders = vi.fn<() => Promise<OrderRecord[]>>();
 
 vi.mock("@/lib/db", () => ({
-  listOrders: (...args: unknown[]) => listOrders(...(args as [])),
+  listOrders: () => listOrders(),
 }));
 
 function baseOrder(overrides: Partial<OrderRecord> = {}): OrderRecord {

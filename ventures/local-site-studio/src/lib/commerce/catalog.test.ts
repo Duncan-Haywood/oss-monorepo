@@ -10,7 +10,7 @@ import {
   normalizeCommerceItems,
   preserveCommerceStripeIds,
 } from "./catalog";
-import { MAX_COMMERCE_SKUS } from "./types";
+import { MAX_COMMERCE_SKUS, type CommerceSku } from "./types";
 
 describe("leadEligibleForCommerceCatalog", () => {
   it("requires paid/live stage and a commerceAddon order", () => {
@@ -150,7 +150,7 @@ describe("listCommerceCatalogsUnsynced", () => {
       { leadSlug: "old-unsynced", commerceAddon: true },
       ...filler.map((l) => ({ leadSlug: l.slug, commerceAddon: true })),
     ];
-    const fullCatalogs = [
+    const fullCatalogs: Array<{ leadSlug: string; items: CommerceSku[] }> = [
       {
         leadSlug: "old-unsynced",
         items: [{ id: "a", name: "A", priceCents: 100 }],
