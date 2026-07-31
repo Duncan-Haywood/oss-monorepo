@@ -47,7 +47,7 @@ new_fixture() {
 
 run_scanner() {
   local root="$1"
-  PATH="$root/bin:$PATH" bash "$root/scripts/security-scan.sh" >"$root/stdout.log" 2>"$root/stderr.log"
+  SECURITY_SCAN_OFFLINE=0 PATH="$root/bin:$PATH" bash "$root/scripts/security-scan.sh" >"$root/stdout.log" 2>"$root/stderr.log"
 }
 
 audit_json() {
@@ -110,8 +110,28 @@ if run_scanner "$nolock_fixture"; then
 fi
 grep -qF "$recorded_row" "$nolock_fixture/SECURITY_ROADMAP.md" ||
   fail "a package without a lockfile must not overwrite the recorded findings"
-grep -q 'no npm lockfile to audit' "$nolock_fixture/stderr.log" ||
+grep -q 'no npm or pnpm lockfile to audit' "$nolock_fixture/stderr.log" ||
   fail "a package without a lockfile should be reported as an audit gap"
+
+# An offline run audits nothing, so it must be treated as an audit gap rather
+# than as a clean result. Regression: the offline branch counted every package
+# as audited without auditing it and recorded no gap, so a scan on a sandboxed
+# or network-isolated runner satisfied the completeness guard and rewrote the
+# roadmap as CLEAN, discarding every recorded finding.
+offline_fixture="$(new_fixture offline "$(audit_json 0 0 0 '{}')" lockfile)"
+printf '%s\n' "$recorded_row" >"$offline_fixture/SECURITY_ROADMAP.md"
+if SECURITY_SCAN_OFFLINE=1 PATH="$offline_fixture/bin:$PATH" \
+  bash "$offline_fixture/scripts/security-scan.sh" \
+  >"$offline_fixture/stdout.log" 2>"$offline_fixture/stderr.log"; then
+  fail "an offline scan should exit non-zero"
+fi
+grep -qF "$recorded_row" "$offline_fixture/SECURITY_ROADMAP.md" ||
+  fail "an offline scan must not overwrite the recorded findings"
+grep -q 'registry unreachable' "$offline_fixture/stderr.log" ||
+  fail "an offline scan should report each unaudited package as an audit gap"
+if grep -q '| \*\*CLEAN\*\* |' "$offline_fixture/SECURITY_ROADMAP.md"; then
+  fail "an offline scan must never publish a clean bill of health"
+fi
 
 if [ "$failures" -ne 0 ]; then
   printf 'security-scan contract tests failed: %d\n' "$failures" >&2

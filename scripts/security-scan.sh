@@ -19,6 +19,15 @@ MEDIUM_COUNT=0
 LOW_COUNT=0
 AUDITED_COUNT=0
 
+IS_OFFLINE=0
+if [ -n "${SECURITY_SCAN_OFFLINE+x}" ]; then
+  IS_OFFLINE="${SECURITY_SCAN_OFFLINE}"
+elif ! node -e 'require("dns").lookup("registry.npmjs.org", (err) => process.exit(err ? 1 : 0))' >/dev/null 2>&1; then
+  IS_OFFLINE=1
+  echo "ℹ Network access to registry.npmjs.org is unavailable (offline/sandboxed environment)."
+  echo "  Skipping remote dependency audit; running local secret exposure audit..."
+fi
+
 FINDINGS_TMP=$(mktemp)
 # An audit that could not run is not the same as an audit that found nothing.
 # Every unusable result lands here, and a non-empty file means this run may not
@@ -31,36 +40,58 @@ audit_node_package() {
   local target_dir="$1"
   local component_name="$2"
 
+  # Being offline is an audit that could not run, not an audit that found
+  # nothing. Counting these as audited would satisfy the completeness guard
+  # below and republish the roadmap as CLEAN, erasing every recorded finding —
+  # the precise failure that guard exists to prevent.
+  if [ "${IS_OFFLINE}" -eq 1 ]; then
+    if [ -f "${target_dir}/package.json" ]; then
+      printf '%s\tregistry unreachable, dependency audit skipped\n' \
+        "${component_name}" >> "${AUDIT_GAPS_TMP}"
+    fi
+    return
+  fi
+
   if [ -f "${target_dir}/package.json" ]; then
-    echo "Auditing Node package: ${component_name}..."
     pushd "${target_dir}" >/dev/null
 
-    if [ ! -f package-lock.json ] && [ ! -f npm-shrinkwrap.json ]; then
-      printf '%s\tno npm lockfile to audit\n' "${component_name}" >> "${AUDIT_GAPS_TMP}"
+    if [ ! -f package-lock.json ] && [ ! -f npm-shrinkwrap.json ] && [ ! -f pnpm-lock.yaml ]; then
+      local parent_dir
+      parent_dir="$(dirname "${target_dir}")"
+      if [ -f "${parent_dir}/pnpm-lock.yaml" ] || [ -f "${parent_dir}/../pnpm-lock.yaml" ] || [ -f "${parent_dir}/pnpm-workspace.yaml" ]; then
+        popd >/dev/null
+        return
+      fi
+      printf '%s\tno npm or pnpm lockfile to audit\n' "${component_name}" >> "${AUDIT_GAPS_TMP}"
       popd >/dev/null
       return
     fi
 
+    echo "Auditing Node package: ${component_name}..."
+
     local audit_json audit_stderr
     audit_stderr=$(mktemp)
-    # npm audit exits non-zero when it finds vulnerabilities, so the exit code
-    # alone cannot distinguish findings from a failed run. The payload does.
-    audit_json=$(npm audit --json 2>"${audit_stderr}" || true)
+    if [ -f pnpm-lock.yaml ]; then
+      audit_json=$(pnpm audit --json 2>"${audit_stderr}" || true)
+    else
+      audit_json=$(npm audit --json 2>"${audit_stderr}" || true)
+    fi
 
     local counts
     if ! counts=$(node -e '
       const data = JSON.parse(process.argv[1]);
       const vulns = (data.metadata || {}).vulnerabilities;
-      if (!vulns || typeof vulns.total !== "number") {
-        throw new Error("npm audit returned no vulnerability metadata");
+      if (!vulns) {
+        throw new Error("audit returned no vulnerability metadata");
       }
+      const total = typeof vulns.total === "number" ? vulns.total : (vulns.critical || 0) + (vulns.high || 0) + (vulns.moderate || 0) + (vulns.low || 0);
       console.log(`${vulns.critical || 0} ${vulns.high || 0} ${vulns.moderate || 0} ${vulns.low || 0}`);
     ' "${audit_json}" 2>/dev/null); then
       local reason
       reason=$(head -n 1 "${audit_stderr}")
       printf '%s\t%s\n' \
         "${component_name}" \
-        "${reason:-npm audit produced no usable JSON report}" >> "${AUDIT_GAPS_TMP}"
+        "${reason:-audit produced no usable JSON report}" >> "${AUDIT_GAPS_TMP}"
       rm -f "${audit_stderr}"
       popd >/dev/null
       return
@@ -101,7 +132,7 @@ while IFS= read -r pkg_file; do
     rel_dir="${pkg_dir#"${REPO_ROOT}/"}"
     audit_node_package "${pkg_dir}" "${rel_dir}"
   fi
-done < <(find "${REPO_ROOT}/ventures" "${REPO_ROOT}/portfolio" -type d \( -name "node_modules" -o -name ".next" -o -name "dist" -o -name "build" \) -prune -o -name "package.json" -print 2>/dev/null)
+done < <(find "${REPO_ROOT}/ventures" "${REPO_ROOT}/portfolio" -type d \( -name "node_modules" -o -name ".next" -o -name ".open-next" -o -name "dist" -o -name "build" -o -name ".pnpm-store" \) -prune -o -name "package.json" -print 2>/dev/null)
 
 # Secret Scanning in Node.js
 echo "Running Secret Exposure Audit..."
