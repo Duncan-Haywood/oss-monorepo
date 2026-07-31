@@ -18,7 +18,6 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [ai-ml] Generate prioritized room mockup assets by style tag, margin, and missing-preview demand
 - [ ] [finance] Feed actual room-preview lift into weekly channel budget allocation
 - [ ] [legal] Add consent gate for artist artwork in AI-generated room scenes and paid ad previews
-- [ ] [sales] Add outreach personalization field for why each artist should trust the payout math
 - [ ] [finance] Add payout sensitivity price-floor optimizer by artist trust, CAC, and POD cost
 - [ ] [platform] Persist payout exception decisions with current economics, suggested retail, override reason, and remediation history
 - [ ] [gtm] Add payout-safe outreach segment builder that only enrolls artists whose SKU economics clear trust guardrails
@@ -27,7 +26,6 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [ops] Add release SLA aging for finance override reviews and ops holds
 - [ ] [platform] Persist consent ledger events with signer, timestamp, source, copy version, and accepted channel rights
 - [ ] [legal] Add channel-specific artist terms copy preview for storefront, outreach, paid ads, and AI room-scene use
-- [ ] [ops] Add consent SLA aging for release-ready listings blocked by missing rights
 
 ## in_progress
 
@@ -35,6 +33,8 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [sales] Add outreach personalization field for why each artist should trust the payout math
+- [x] [ops] Add consent SLA aging for release-ready listings blocked by missing rights
 - [x] [platform] Persist weekly channel budget plans with actual spend, CAC, orders, and room-preview lift by source channel
 - [x] [ops] Add budget exception queue for channels held back by LTV:CAC or negative contribution guardrails
 - [x] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights

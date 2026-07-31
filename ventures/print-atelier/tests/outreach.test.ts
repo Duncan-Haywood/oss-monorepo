@@ -6,6 +6,7 @@ import {
   calculateOutreachSummary,
   classifyProspectReply,
   outreachProspects,
+  generateOutreachPayoutTrustMathPersonalization,
 } from "../src/lib/outreach";
 
 test("classifyProspectReply turns reply intent into onboarding actions", () => {
@@ -106,3 +107,16 @@ test("calculateOutreachSummary excludes held payout-guardrail replies from onboa
   assert.equal(summary.readyForOnboarding, 0);
   assert.equal(summary.automationLabel, "1 replies need AI follow-up; 0 can enter onboarding now");
 });
+
+test("generates personalized payout trust math for outreach prospects", () => {
+  const result = generateOutreachPayoutTrustMathPersonalization(outreachProspects[0]);
+
+  assert.ok(result.personalizationText.includes("At a $"));
+  assert.ok(result.personalizationText.includes("Society6's"));
+  assert.ok(result.earningsAdvantagePercent > 0);
+
+  const queue = buildOutreachQueue(outreachProspects);
+  assert.ok(queue[0].payoutTrustMathPersonalization);
+  assert.ok(queue[0].payoutTrustMathPersonalization.includes("Society6"));
+});
+

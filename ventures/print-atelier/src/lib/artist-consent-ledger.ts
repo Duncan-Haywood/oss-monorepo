@@ -169,3 +169,82 @@ export function summarizeArtistConsentLedger(
     aiRoomSceneCount,
   };
 }
+
+export type ConsentSLAStatus = "ON_TRACK" | "WARNING" | "CRITICAL";
+
+export type ConsentSlaAgingItem = {
+  artworkSlug: string;
+  artworkTitle: string;
+  artistHandle: string;
+  pendingDays: number;
+  slaStatus: ConsentSLAStatus;
+  missingConsents: string[];
+  operatorAction: string;
+};
+
+export type ConsentSlaAgingSummary = {
+  totalPendingCount: number;
+  onTrackCount: number;
+  warningCount: number;
+  criticalCount: number;
+  items: ConsentSlaAgingItem[];
+};
+
+export function calculateConsentSlaAging(
+  artworks: CatalogArtwork[],
+  events: ArtistConsentEvent[] = getArtistConsentLedger(),
+  options: { nowTimestamp?: string; overridePendingDaysBySlug?: Record<string, number> } = {},
+): ConsentSlaAgingSummary {
+  const gateQueue = evaluateLedgerListingConsentGate(artworks, events);
+  const now = options.nowTimestamp ? new Date(options.nowTimestamp).getTime() : Date.now();
+  const consentBySlug = new Map(events.map((e) => [e.artworkSlug, e]));
+
+  const pendingItems: ConsentSlaAgingItem[] = [];
+
+  for (const gateItem of gateQueue.items) {
+    if (gateItem.consentStatus === "missing-consent") {
+      const slug = gateItem.artwork.slug;
+      let pendingDays = options.overridePendingDaysBySlug?.[slug] ?? 0;
+
+      if (!options.overridePendingDaysBySlug?.[slug]) {
+        const event = consentBySlug.get(slug);
+        const refTime = event ? new Date(event.timestamp).getTime() : now - 4 * 86400 * 1000;
+        pendingDays = Math.max(0, Math.floor((now - refTime) / (86400 * 1000)));
+      }
+
+      let slaStatus: ConsentSLAStatus = "ON_TRACK";
+      if (pendingDays > 7) {
+        slaStatus = "CRITICAL";
+      } else if (pendingDays > 3) {
+        slaStatus = "WARNING";
+      }
+
+      const missingText = gateItem.missingConsents.join(", ");
+      const operatorAction =
+        slaStatus === "CRITICAL"
+          ? `CRITICAL SLA (${pendingDays}d pending): Contact artist directly to finalize ${missingText}`
+          : slaStatus === "WARNING"
+            ? `WARNING SLA (${pendingDays}d pending): Send reminder for missing ${missingText}`
+            : `ON TRACK (${pendingDays}d pending): Awaiting artist consent for ${missingText}`;
+
+      pendingItems.push({
+        artworkSlug: slug,
+        artworkTitle: gateItem.artwork.title,
+        artistHandle: gateItem.artwork.artistHandle,
+        pendingDays,
+        slaStatus,
+        missingConsents: gateItem.missingConsents,
+        operatorAction,
+      });
+    }
+  }
+
+  return {
+    totalPendingCount: pendingItems.length,
+    onTrackCount: pendingItems.filter((i) => i.slaStatus === "ON_TRACK").length,
+    warningCount: pendingItems.filter((i) => i.slaStatus === "WARNING").length,
+    criticalCount: pendingItems.filter((i) => i.slaStatus === "CRITICAL").length,
+    items: pendingItems,
+  };
+}
+

@@ -38,6 +38,7 @@ export type OutreachQueueItem = OutreachProspect & {
   replyClassification: ReplyClassification;
   nextAction: string;
   payoutTrustCopy: string;
+  payoutTrustMathPersonalization?: string;
   objectionTemplate?: ArtistLicensingObjectionTemplate;
   payoutGuardrail?: Pick<
     PayoutExceptionQueueItem,
@@ -228,6 +229,43 @@ export function generateArtistPayoutTrustCopy(
   return `Our transparent 30% net profit split yields $${economics.artistShare.toFixed(2)} per $${retailPrice} print sale with 100% artist copyright retention.`;
 }
 
+export function generateOutreachPayoutTrustMathPersonalization(
+  prospect: OutreachProspect,
+  artwork?: CatalogArtwork,
+): {
+  personalizationText: string;
+  retailPrice: number;
+  artistShare: number;
+  society6Benchmark: number;
+  earningsAdvantagePercent: number;
+} {
+  const targetArtwork =
+    artwork ?? (prospect.catalogArtworkSlug ? catalogArtworks.find((a) => a.slug === prospect.catalogArtworkSlug) : undefined);
+  const targetAny = targetArtwork as any;
+  const retailPrice = targetAny?.retailPrice ?? targetAny?.pricing?.retailPrice ?? 120;
+  const fulfillmentCost =
+    targetAny?.fulfillmentCost ??
+    targetAny?.podCost ??
+    (targetAny?.pricing ? targetAny.pricing.podItemCost + (targetAny.pricing.podShippingCost ?? 0) : undefined) ??
+    32;
+  const economics = calculatePrintEconomics({ retailPrice, fulfillmentCost });
+  const society6Benchmark = Math.round(retailPrice * 0.1 * 100) / 100;
+  const advantagePercent = Math.max(0, Math.round(((economics.artistShare - society6Benchmark) / society6Benchmark) * 100));
+
+  const titleText = targetArtwork?.title ? ` for '${targetArtwork.title}'` : "";
+  const personalizationText = `At a $${retailPrice} retail price${titleText}, your 30% net profit payout delivers $${economics.artistShare.toFixed(
+    2,
+  )} per print vs Society6's $${society6Benchmark.toFixed(2)} flat royalty (+${advantagePercent}% higher earnings per sale).`;
+
+  return {
+    personalizationText,
+    retailPrice,
+    artistShare: economics.artistShare,
+    society6Benchmark,
+    earningsAdvantagePercent: advantagePercent,
+  };
+}
+
 export type PayoutSafeSegmentItem = {
   prospect: OutreachProspect;
   artworkSlug?: string;
@@ -329,6 +367,7 @@ export function buildOutreachQueue(prospects: OutreachProspect[]): OutreachQueue
         : undefined;
 
       const payoutTrustCopy = generateArtistPayoutTrustCopy(prospect);
+      const payoutTrustMathPersonalization = generateOutreachPayoutTrustMathPersonalization(prospect).personalizationText;
       const objectionTemplate = prospect.replyText
         ? findObjectionTemplateByQuery(prospect.replyText)
         : undefined;
@@ -339,6 +378,7 @@ export function buildOutreachQueue(prospects: OutreachProspect[]): OutreachQueue
         replyClassification,
         nextAction: getNextAction(replyClassification, prospect.status, payoutGuardrail),
         payoutTrustCopy,
+        payoutTrustMathPersonalization,
         objectionTemplate,
         payoutGuardrail,
       };

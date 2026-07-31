@@ -8,6 +8,7 @@ import {
   clearArtistConsentLedger,
   summarizeArtistConsentLedger,
   evaluateLedgerListingConsentGate,
+  calculateConsentSlaAging,
 } from "../src/lib/artist-consent-ledger.ts";
 import { CatalogArtwork } from "../src/lib/marketplace.ts";
 
@@ -116,3 +117,23 @@ test("evaluates listing consent gate from recorded consent events", () => {
   assert.equal(gate.clearedCount, 1);
   assert.equal(gate.items[0].consentStatus, "cleared");
 });
+
+test("calculates consent SLA aging for release-ready listings blocked by missing rights", () => {
+  const artworkPending: CatalogArtwork = {
+    ...sampleArtwork,
+    slug: "pending-rights-print",
+    title: "Pending Rights Print",
+  };
+
+  const agingSummary = calculateConsentSlaAging([artworkPending], [], {
+    overridePendingDaysBySlug: {
+      "pending-rights-print": 9,
+    },
+  });
+
+  assert.equal(agingSummary.totalPendingCount, 1);
+  assert.equal(agingSummary.criticalCount, 1);
+  assert.equal(agingSummary.items[0].slaStatus, "CRITICAL");
+  assert.ok(agingSummary.items[0].operatorAction.includes("CRITICAL SLA (9d pending)"));
+});
+
