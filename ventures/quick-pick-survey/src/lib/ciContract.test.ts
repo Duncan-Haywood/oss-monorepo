@@ -69,7 +69,8 @@ describe("Pairwise CI contract", () => {
 
   it.skipIf(!PAIRWISE_CI)("promotes immutable digests through Git and leaves reconciliation to Argo CD", () => {
     expect(PAIRWISE_CI).toContain("platform/ci/promote-pairwise-gitops.sh");
-    expect(PAIRWISE_CI).toContain("PAIRWISE_GITOPS_TOKEN");
+    expect(PAIRWISE_CI).toContain("contents: write");
+    expect(PAIRWISE_CI).toContain("persist-credentials: true");
     expect(PAIRWISE_CI).toContain("PAIRWISE_REGISTRY_TOKEN");
     expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
     expect(PAIRWISE_CI).toContain("gitops-production");

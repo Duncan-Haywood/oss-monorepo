@@ -49,8 +49,8 @@ earlier release while it is publishing or promoting. The HPA owns
   Workload manifests reference their keys and never contain plaintext values.
 
 CI has no kubeconfig and no Kubernetes RBAC. Argo has read-only repository
-credentials; the Gitea promotion token can write repository contents but has no
-cluster access.
+credentials; promotion uses the run-scoped Gitea Actions token with repository
+contents permission and no cluster access.
 
 ## One-time ownership handoff
 

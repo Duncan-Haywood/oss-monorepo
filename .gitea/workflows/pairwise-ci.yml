@@ -237,18 +237,15 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Commit the verified digest to the production branch
         env:
           IMAGE_DIGEST: ${{ needs.container.outputs.image_digest }}
-          PAIRWISE_GITOPS_TOKEN: ${{ secrets.PAIRWISE_GITOPS_TOKEN }}
           RELEASE_REVISION: ${{ github.sha }}
         run: |
           git config user.name "Pairwise GitOps promoter"
           git config user.email "pairwise-gitops@marisstella.dev"
-          git remote set-url origin \
-            "https://giteaadmin:${PAIRWISE_GITOPS_TOKEN}@git.marisstella.dev/giteaadmin/monorepo-projects.git"
           if git fetch origin gitops-production; then
             git switch --force-create gitops-production origin/gitops-production
             git merge --no-edit "$RELEASE_REVISION"
@@ -265,5 +262,3 @@ jobs:
           fi
           git commit -m "deploy(pairwise): promote ${RELEASE_REVISION}"
           git push origin HEAD:gitops-production
-          git remote set-url origin \
-            "https://git.marisstella.dev/giteaadmin/monorepo-projects.git"
