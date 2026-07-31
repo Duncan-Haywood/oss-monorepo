@@ -61,22 +61,48 @@ run_ci_test "Venture Contract Validation" python3 "${REPO_ROOT}/portfolio/router
 # `tests/test_audit_exceptions.py` runs the same audit under pytest, so this
 # entry is the named gate rather than the only enforcement.
 run_ci_test "Exception Register Audit" python3 "${REPO_ROOT}/scripts/ci/audit_exceptions.py"
+# Coverage was a sentence in ENGINEERING-PRINCIPLES.md and a grep asserting the
+# sentence was still there; deleting every test left it green. This measures
+# each declared component and compares both ways: below baseline means a test
+# was removed, above it means the baseline is stale and nobody raised it.
+# `tests/test_coverage_ratchet.py` runs the same audit under pytest, so this
+# entry is the named gate rather than the only enforcement.
+run_ci_test "Coverage Baseline Ratchet" python3 "${REPO_ROOT}/scripts/ci/coverage_ratchet.py"
 
-# 5. Shell Script Static Analysis (if shellcheck installed)
-if command -v shellcheck >/dev/null 2>&1; then
+# Linter gates below are host-tool dependent. Absence used to print a notice
+# and touch nothing — neither branch incremented FAILURES, so "not installed"
+# and "passed" were the same exit code. That is a reasonable convenience on a
+# developer laptop and a hole in CI, where `.gitea/workflows/ci-cd.yml` installs
+# both linters explicitly: a missing tool there means the install step did not
+# run, and the gate must not report success for a check that never executed.
+have_linter() {
+  local tool="$1"
+  if command -v "${tool}" >/dev/null 2>&1; then
+    return 0
+  fi
+  if [ -n "${CI:-}" ]; then
+    echo ""
+    echo "✖ FAILED: ${tool} is not installed on this CI runner."
+    echo "  .gitea/workflows/ci-cd.yml installs it; its absence means that"
+    echo "  install step did not run. Not skipping — the check never executed."
+    FAILURES=$((FAILURES + 1))
+  else
+    echo "ℹ ${tool} not installed; skipping locally. CI installs it and fails without it."
+  fi
+  return 1
+}
+
+# 5. Shell Script Static Analysis
+if have_linter shellcheck; then
   # scripts/ci/ was excluded, which left `verify-component.sh` unlinted — the
   # file docs/CI-CD-ARCHITECTURE.md calls the shared, fail-closed local/CI
   # contract, and the one every venture workflow shells into.
   run_ci_test "Shell Script Static Analysis (ShellCheck)" shellcheck "${REPO_ROOT}/scripts/"*.sh "${REPO_ROOT}/scripts/ci/"*.sh "${REPO_ROOT}/scripts/security/"*.sh
-else
-  echo "ℹ ShellCheck not installed; skipping shell script linting."
 fi
 
-# 6. GitHub/Gitea Actions Workflow Validation (if actionlint installed)
-if command -v actionlint >/dev/null 2>&1; then
+# 6. GitHub/Gitea Actions Workflow Validation
+if have_linter actionlint; then
   run_ci_test "Workflow Linting" actionlint "${REPO_ROOT}/.gitea/workflows/"*.yml
-else
-  echo "ℹ actionlint not installed; skipping workflow linting."
 fi
 
 echo ""
