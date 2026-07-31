@@ -47,7 +47,7 @@ than `untested` adds to the composite score whether or not it was ever tested.
 `python3 portfolio/router/validate_ventures.py` reports that drift by comparing
 each `VENTURE.yaml` against the ledger. Add `--strict` to fail on warnings as
 well as errors, or `--json` for machine-readable findings. It runs in
-`scripts/test-ci.sh` in report mode; errors block, warnings do not — yet.
+`scripts/test-ci.sh` with `--strict`, so errors and warnings both block.
 
 This is deliberately a validator, not an auto-fixer. Correcting a stage or an
 MRR reallocates budget, and that is the portfolio owner's call.
