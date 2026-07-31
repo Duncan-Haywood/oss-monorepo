@@ -202,8 +202,13 @@ class Entry:
 
     @property
     def count(self) -> int:
+        """Occurrences this entry accepts, or -1 when unusable. A missing count
+        is -1 rather than 0 so it is reported once as invalid, not a second time
+        as an exceeded ratchet."""
+        if "count" not in self.raw:
+            return -1
         try:
-            return int(self.raw.get("count", 0))
+            return int(self.raw["count"])
         except (TypeError, ValueError):
             return -1
 
@@ -347,7 +352,7 @@ def audit(
                 )
             )
 
-        if "count" not in entry.raw or entry.count < 0:
+        if entry.count < 0:
             findings.append(
                 Finding(
                     severity="error",

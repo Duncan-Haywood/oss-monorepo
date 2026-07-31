@@ -185,14 +185,19 @@ class TestAuditFailsClosed(unittest.TestCase):
                     f"dropping '{missing_field}' should fail the audit",
                 )
 
-    def test_missing_count_is_an_error(self):
+    def test_missing_count_is_reported_once_as_invalid(self):
+        # Not also as an exceeded ratchet: one defect, one finding.
         entry = complete_entry()
         del entry["count"]
         findings = audit([occurrence()], [entry], today=TODAY)
-        self.assertIn("invalid-count", codes(findings))
+        self.assertEqual(codes(findings), ["invalid-count"])
 
     def test_negative_count_is_an_error(self):
         findings = audit([occurrence()], [complete_entry(count=-1)], today=TODAY)
+        self.assertIn("invalid-count", codes(findings))
+
+    def test_non_numeric_count_is_an_error(self):
+        findings = audit([occurrence()], [complete_entry(count="many")], today=TODAY)
         self.assertIn("invalid-count", codes(findings))
 
     def test_new_suppression_beyond_the_registered_count_is_an_error(self):
