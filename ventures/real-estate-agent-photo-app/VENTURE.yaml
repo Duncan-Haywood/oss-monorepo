@@ -11,7 +11,7 @@ hypotheses:
 
 economics:
   currency: USD
-  mrr: null
+  mrr: 0
   monthly_cost: null
   customers: null
 

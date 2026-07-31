@@ -6,12 +6,12 @@ owner: duncan
 
 hypotheses:
   - claim: Small boutiques in Europe will pay €99/mo for door-to-POS conversion insights that increase sales by 1 unit/month.
-    status: supported
-    checked: 2026-07-29
+    status: untested
+    checked: null
 
 economics:
   currency: EUR
-  mrr: null
+  mrr: 0
   monthly_cost: null
   customers: null
 

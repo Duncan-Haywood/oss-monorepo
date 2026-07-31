@@ -6,12 +6,12 @@ owner: duncan
 
 hypotheses:
   - claim: Secure isolated execution sandboxes reduce subagent operational latency by 40%.
-    status: supported
-    checked: 2026-07-29
+    status: untested
+    checked: null
 
 economics:
   currency: USD
-  mrr: null
+  mrr: 0
   monthly_cost: null
   customers: null
 

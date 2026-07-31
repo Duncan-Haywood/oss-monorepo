@@ -9,7 +9,9 @@ move money, and nothing currently checks that any of them reflect reality:
   `0` earns 0.30. A venture that has been measured at zero but still says `null`
   collects more than double the economics credit it earned.
 - `hypotheses[].status` — every status other than `untested` adds +0.1 to the
-  composite score. Nothing verifies the claim was actually tested.
+  composite score. Nothing verifies the claim was actually tested. A `supported`
+  claim must be backed by either measured revenue or an explicit `evidence:`
+  citation; "we believe it" is `untested`.
 - `stage` — `launched` weights 0.75 against `prototype` at 0.55. A venture with
   no production link is not launched.
 
@@ -154,20 +156,27 @@ def validate_venture(
             )
             continue
 
-        if status == "supported" and not has_revenue_evidence:
+        # Not every hypothesis is a willingness-to-pay claim, so revenue is not
+        # the only admissible proof — but something has to be cited. An
+        # `evidence:` line naming the benchmark, experiment, or customer that
+        # settled the question is enough; an unsourced assertion is not.
+        cited_evidence = str(hypothesis.get("evidence") or "").strip()
+
+        if status == "supported" and not has_revenue_evidence and not cited_evidence:
             findings.append(
                 Finding(
                     venture=name,
                     severity="warn",
                     code="unearned-hypothesis-support",
                     message=(
-                        f"hypothesis[{index}] is marked 'supported' with no measured "
-                        f"revenue: {claim[:80]}"
+                        f"hypothesis[{index}] is marked 'supported' with neither "
+                        f"measured revenue nor cited evidence: {claim[:80]}"
                     ),
                     remedy=(
-                        "Either record the evidence that supports it, or set status "
-                        "to 'untested'. Each non-untested hypothesis adds +0.1 to the "
-                        "venture's composite allocation score."
+                        "Add an `evidence:` line naming the benchmark, experiment, or "
+                        "paying customer that settled it, or set status to 'untested'. "
+                        "Each non-untested hypothesis adds +0.1 to the venture's "
+                        "composite allocation score."
                     ),
                 )
             )

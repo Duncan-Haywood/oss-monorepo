@@ -6,8 +6,8 @@ owner: duncan
 
 hypotheses:
   - claim: Ingestion tools provide foundation for photo-editing and real-estate studio pipelines.
-    status: supported
-    checked: 2026-07-29
+    status: untested
+    checked: null
 
 economics:
   currency: USD

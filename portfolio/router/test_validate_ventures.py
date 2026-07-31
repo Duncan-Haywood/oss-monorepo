@@ -87,6 +87,49 @@ class TestValidateVenture(unittest.TestCase):
         findings = validate_venture(contract, "demo", {"demo": 400})
         self.assertNotIn("unearned-hypothesis-support", codes(findings))
 
+    def test_supported_hypothesis_with_cited_evidence_is_accepted(self):
+        """A technical claim can be settled by a benchmark rather than revenue."""
+        contract = base_contract(
+            hypotheses=[
+                {
+                    "claim": "Sandboxes cut provisioning latency by 40%",
+                    "status": "supported",
+                    "checked": "2026-07-01",
+                    "evidence": "bench/provisioning.md — 12.1s to 7.0s median over 50 runs",
+                }
+            ]
+        )
+        findings = validate_venture(contract, "demo", {})
+        self.assertNotIn("unearned-hypothesis-support", codes(findings))
+
+    def test_blank_evidence_does_not_count_as_evidence(self):
+        contract = base_contract(
+            hypotheses=[
+                {
+                    "claim": "People will pay",
+                    "status": "supported",
+                    "checked": "2026-07-01",
+                    "evidence": "   ",
+                }
+            ]
+        )
+        findings = validate_venture(contract, "demo", {})
+        self.assertIn("unearned-hypothesis-support", codes(findings))
+
+    def test_null_evidence_does_not_count_as_evidence(self):
+        contract = base_contract(
+            hypotheses=[
+                {
+                    "claim": "People will pay",
+                    "status": "supported",
+                    "checked": "2026-07-01",
+                    "evidence": None,
+                }
+            ]
+        )
+        findings = validate_venture(contract, "demo", {})
+        self.assertIn("unearned-hypothesis-support", codes(findings))
+
     def test_untested_hypothesis_needs_no_check_date(self):
         contract = base_contract(hypotheses=[{"claim": "Unknown", "status": "untested"}])
         findings = validate_venture(contract, "demo", {})
