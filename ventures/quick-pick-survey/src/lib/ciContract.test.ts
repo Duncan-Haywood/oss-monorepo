@@ -76,6 +76,7 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain("platform/ci/promote-pairwise-gitops.sh");
     expect(PAIRWISE_CI).toContain("contents: write");
     expect(PAIRWISE_CI).toContain("persist-credentials: true");
+    expect(PAIRWISE_CI).not.toContain("PAIRWISE_GITOPS_TOKEN");
     expect(PAIRWISE_CI).toContain("PAIRWISE_REGISTRY_TOKEN");
     expect(PAIRWISE_CI).toContain("cancel-in-progress: false");
     expect(PAIRWISE_CI).toContain("gitops-production");
