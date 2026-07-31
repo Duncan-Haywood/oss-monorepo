@@ -38,6 +38,7 @@ case "$component" in
     run_npm ventures/local-site-studio npm run build
     ;;
   print-atelier)
+    run_npm ventures/print-atelier npm run typecheck
     run_npm ventures/print-atelier npm run lint
     run_npm ventures/print-atelier npm test
     run_npm ventures/print-atelier npm run build

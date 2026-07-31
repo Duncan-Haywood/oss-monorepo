@@ -19,3 +19,6 @@ private/
 .next/
 next-env.d.ts
 out/
+
+# TypeScript incremental build state, written by `npm run typecheck`.
+*.tsbuildinfo

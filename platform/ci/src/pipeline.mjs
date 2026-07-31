@@ -51,7 +51,9 @@ export const VENTURE_CATALOG = [
     dir: 'ventures/print-atelier',
     type: 'node',
     hasPrisma: false,
-    scripts: ['lint', 'test'],
+    // Kept in step with scripts/ci/verify-component.sh so the YAML gate and the
+    // local developer gate do not diverge.
+    scripts: ['typecheck', 'lint', 'test', 'build'],
   },
   {
     id: 'photo-editing',
