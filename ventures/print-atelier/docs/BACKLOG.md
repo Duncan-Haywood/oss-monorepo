@@ -4,10 +4,11 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
+- [ ] [platform] Stamp the destination Connect account into `POST /api/stripe/checkout` payment metadata — until then every order lands in the reconciliation attribution gap and per-artist payout variance cannot be verified
 - [ ] [analytics] Add payout exception resolution velocity metrics to admin portal
 - [ ] [ops] Add automated Printful and Gelato SKU sync status health check
 - [ ] [marketing] Add automated CAPI event delivery health dashboard across Meta, Google, and Pinterest
-- [ ] [finance] Add automated Stripe Connect payout reconciliation report per artist account
+- [ ] [ops] Surface `GET /api/payouts/reconciliation` on `/admin-portal` with underpaid accounts ranked first
 
 ## in_progress
 
@@ -15,6 +16,7 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [finance] Add automated Stripe Connect payout reconciliation report per artist account (`src/lib/payout-reconciliation.ts`, `GET /api/payouts/reconciliation`, 18 tests)
 - [x] [platform] Add Convex database sync status indicator to partner setup dashboard
 
 - [x] [platform] Wire partner credential vault to Vercel env pull and mask secrets in admin UI

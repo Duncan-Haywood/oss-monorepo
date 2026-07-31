@@ -36,6 +36,22 @@ against outcomes for at least a few cycles.
 
 A ranked work queue. Each entry names a venture, a task, and a spend ceiling.
 
+## Contract validation
+
+The router spends real budget off three fields that nothing else checks:
+`economics.mrr`, `hypotheses[].status`, and `stage`. Each drifts in the
+flattering direction by default — an unmeasured MRR earns more than double the
+economics credit of a measured zero, and every hypothesis marked anything other
+than `untested` adds to the composite score whether or not it was ever tested.
+
+`python3 portfolio/router/validate_ventures.py` reports that drift by comparing
+each `VENTURE.yaml` against the ledger. Add `--strict` to fail on warnings as
+well as errors, or `--json` for machine-readable findings. It runs in
+`scripts/test-ci.sh` in report mode; errors block, warnings do not — yet.
+
+This is deliberately a validator, not an auto-fixer. Correcting a stage or an
+MRR reallocates budget, and that is the portfolio owner's call.
+
 ## Status
 
 Implemented in `portfolio/router/router.py` with unit tests in `portfolio/router/test_router.py`. Run `python3 portfolio/router/router.py` or `python3 portfolio/router/router.py --json` to generate the ranked work queue. Integrated into monorepo CI verification (`scripts/test-ci.sh`).

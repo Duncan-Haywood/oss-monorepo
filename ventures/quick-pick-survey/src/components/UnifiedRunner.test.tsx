@@ -207,6 +207,67 @@ describe("UnifiedRunner", () => {
     await waitFor(() => expect(screen.getByText("Cooking")).toBeTruthy());
   });
 
+  it("discards prefetched card when domain switches on streak completion", async () => {
+    const MULTI_DOMAIN_BUNDLE = {
+      firstName: "Ada",
+      partnerName: "Grace",
+      perspective: "PARTNER" as const,
+      participants: { values: "p-val", traits: "p-tr" },
+      domains: [
+        { slug: "values", title: "Values", kind: "ITEMS" as const, confidence: 0, answeredCount: 0 },
+        { slug: "traits", title: "Traits", kind: "ITEMS" as const, confidence: 0, answeredCount: 0 },
+      ],
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(MULTI_DOMAIN_BUNDLE));
+
+    let valCount = 0;
+    let trCount = 0;
+    const servedDomains: string[] = [];
+    stubFetch({
+      "/api/auth/me": noAccount,
+      "/api/session/status": emptyStatus,
+      "/api/trials/next": (body: unknown) => {
+        const participantId = (body as { participantId?: string })?.participantId;
+        if (participantId === "p-val") {
+          valCount++;
+          servedDomains.push("values");
+          return itemsTrial(`t-val-${valCount}`, `Honesty ${valCount}`, `Kindness ${valCount}`);
+        } else {
+          trCount++;
+          servedDomains.push("traits");
+          return itemsTrial(`t-tr-${trCount}`, `Patience ${trCount}`, `Humor ${trCount}`);
+        }
+      },
+      "/api/trials/answer": () => ({ json: { ok: true } }),
+    });
+
+    render(<UnifiedRunner />);
+    await screen.findByText("Honesty 1");
+
+    // Answer values cards until the scheduler switches domains.
+    //
+    // `randomStreakTarget()` returns 4..8, so 12 iterations always covers the
+    // switch. Each iteration waits for the runner to settle on *either* the
+    // next values card or the traits card that ends the streak — a fixed sleep
+    // here breaks early whenever the re-render loses the race, which made this
+    // test flaky rather than wrong.
+    for (let i = 1; i <= 12; i++) {
+      await waitFor(() =>
+        expect(
+          screen.queryByText(`Honesty ${i}`) ?? screen.queryByText(/Patience/i),
+        ).toBeTruthy(),
+      );
+
+      const option = screen.queryByText(`Honesty ${i}`);
+      if (!option) break;
+      fireEvent.click(option);
+    }
+
+    // Verify that the runner fetched and displayed a traits trial once the values streak ended
+    await waitFor(() => expect(screen.getByText(/Patience/i)).toBeTruthy());
+    expect(servedDomains).toContain("traits");
+  });
+
   it("automatically offers a clearly labelled switch from partner preferences to self values", async () => {
     let served = 0;
     const fetchMock = stubFetch({
@@ -251,3 +312,5 @@ describe("UnifiedRunner", () => {
     expect(perspectives).toEqual(["PARTNER", "SELF"]);
   });
 });
+
+

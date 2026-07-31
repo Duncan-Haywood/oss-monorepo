@@ -44,6 +44,10 @@ run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/sc
 run_ci_test "Portfolio Router & Allocation Unit Suite" python3 "${REPO_ROOT}/tests/test_portfolio_router.py"
 run_ci_test "Monorepo Python Test Suite (pytest)" pytest
 run_ci_test "Portfolio Router Allocation Report Generation" python3 "${REPO_ROOT}/portfolio/router/router.py"
+# Reports VENTURE.yaml drift against the ledger. Deliberately not --strict yet:
+# the current warnings are pre-existing debt, and gating on them would block
+# unrelated work. Promote to --strict once the backlog below is cleared.
+run_ci_test "Venture Contract Validation" python3 "${REPO_ROOT}/portfolio/router/validate_ventures.py"
 
 # 5. Shell Script Static Analysis (if shellcheck installed)
 if command -v shellcheck >/dev/null 2>&1; then
