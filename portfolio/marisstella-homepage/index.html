@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maris Stella Labs | Software Development & Venture Studio</title>
   <meta name="description" content="Maris Stella Labs is a software development studio building autonomous AI systems, high-performance cloud infrastructure, and specialized digital ventures.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%230c1110'/%3E%3Cpath d='M16 5l2.7 8.3L27 16l-8.3 2.7L16 27l-2.7-8.3L5 16l8.3-2.7z' fill='%23d7ff67'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
@@ -82,10 +83,10 @@
 
         <!-- Filter Tags -->
         <div class="filter-bar">
-          <button class="filter-btn active" data-filter="all">All Projects</button>
-          <button class="filter-btn" data-filter="ai">AI &amp; Algorithms</button>
-          <button class="filter-btn" data-filter="consumer">Consumer Apps</button>
-          <button class="filter-btn" data-filter="enterprise">Enterprise Tools</button>
+          <button class="filter-btn active" data-filter="all" aria-pressed="true">All Projects</button>
+          <button class="filter-btn" data-filter="ai" aria-pressed="false">AI &amp; Algorithms</button>
+          <button class="filter-btn" data-filter="consumer" aria-pressed="false">Consumer Apps</button>
+          <button class="filter-btn" data-filter="enterprise" aria-pressed="false">Enterprise Tools</button>
         </div>
       </div>
 
@@ -366,9 +367,9 @@
   </footer>
 
   <!-- Detail Modal -->
-  <div id="techModal" class="modal">
+  <div id="techModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
-      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <button class="close-modal" type="button" onclick="closeModal()" aria-label="Close venture details">&times;</button>
       <h3 id="modalTitle">Venture Details</h3>
       <p id="modalDescription"></p>
       <div id="modalDetails"></div>

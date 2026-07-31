@@ -327,6 +327,7 @@ a:focus-visible, button:focus-visible {
 .modal-content h3 { margin-bottom: 6px; font-family: var(--heading); font-size: 27px; }
 .modal-content > p { color: var(--mint); font-size: 13px; }
 .close-modal { position: absolute; top: 15px; right: 20px; color: var(--ink-muted); font-size: 26px; cursor: pointer; }
+.close-modal { border: 0; background: none; line-height: 1; }
 .close-modal:hover { color: var(--ink); }
 
 @media (max-width: 980px) {

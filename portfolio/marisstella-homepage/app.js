@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       filterBtns.forEach(b => b.classList.remove('active'));
+      filterBtns.forEach(b => b.setAttribute('aria-pressed', 'false'));
       btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
 
       const filter = btn.getAttribute('data-filter');
 
@@ -107,17 +109,24 @@ function openModal(key) {
     desc.innerText = specsData[key].desc;
     details.innerHTML = specsData[key].details;
     modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    modal.querySelector('.close-modal').focus();
   }
 }
 
 function closeModal() {
   const modal = document.getElementById('techModal');
   modal.style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 window.onclick = function(event) {
   const modal = document.getElementById('techModal');
   if (event.target === modal) {
-    modal.style.display = 'none';
+    closeModal();
   }
 };
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeModal();
+});
