@@ -7,7 +7,7 @@
   <meta name="description" content="Maris Stella Labs is a software development studio building autonomous AI systems, high-performance cloud infrastructure, and specialized digital ventures.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,21 +21,19 @@
   <header class="site-header">
     <div class="container header-container">
       <a href="#" class="brand-logo">
-        <div class="logo-icon">★</div>
-        <span class="brand-name">MARIS STELLA <span class="brand-tag">LABS</span></span>
+        <div class="logo-icon" aria-hidden="true">✦</div>
+        <span class="brand-name">Maris Stella <span class="brand-tag">Labs</span></span>
       </a>
       <nav class="nav-links">
         <a href="#ventures">Ventures</a>
-        <a href="#architecture">Platform</a>
-        <a href="#capabilities">Capabilities</a>
-        <a href="#about">About</a>
+        <a href="#architecture">How we build</a>
       </nav>
       <div class="header-actions">
         <div class="status-indicator">
           <span class="status-dot"></span>
-          <span class="status-text">K3s Cluster Online</span>
+          <span class="status-text">Systems operational</span>
         </div>
-        <a href="https://pairwise.marisstella.dev" class="btn btn-sm btn-primary">Featured: Pairwise ↗</a>
+        <a href="#ventures" class="btn btn-sm btn-primary">View our work <span aria-hidden="true">↘</span></a>
       </div>
     </div>
   </header>
@@ -43,38 +41,33 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="container hero-container">
-      <div class="hero-badge">
-        <span class="sparkle">✨</span> Software Development &amp; Venture Engineering
+      <div class="hero-copy">
+        <div class="hero-badge"><span class="eyebrow-line"></span> Independent venture studio</div>
+        <h1 class="hero-title">We turn difficult ideas into <span class="text-gradient">useful software.</span></h1>
+        <p class="hero-subtitle">Maris Stella Labs designs, builds, and operates focused digital ventures across applied AI, decision tools, and modern infrastructure.</p>
+        <div class="hero-cta">
+          <a href="#ventures" class="btn btn-lg btn-primary">Explore the portfolio <span aria-hidden="true">↓</span></a>
+          <a href="https://pairwise.marisstella.dev" target="_blank" rel="noopener" class="btn btn-lg btn-secondary">Try Pairwise <span aria-hidden="true">↗</span></a>
+        </div>
       </div>
-      <h1 class="hero-title">
-        Building Next-Generation <span class="text-gradient">Autonomous AI Systems</span> &amp; Digital Ventures.
-      </h1>
-      <p class="hero-subtitle">
-        Maris Stella Labs designs, architects, and operates specialized software products—from econometrically backed relationship engines to autonomous agent infrastructure.
-      </p>
-      <div class="hero-cta">
-        <a href="#ventures" class="btn btn-lg btn-primary">Explore Venture Portfolio ↓</a>
-        <a href="https://pairwise.marisstella.dev" target="_blank" class="btn btn-lg btn-secondary">Launch Pairwise App ↗</a>
-      </div>
-
-      <!-- Quick Metrics Bar -->
-      <div class="hero-metrics">
-        <div class="metric-card">
-          <div class="metric-value">99.9%</div>
-          <div class="metric-label">Cluster Uptime</div>
+      <aside class="hero-feature" aria-label="Featured venture">
+        <div class="feature-topline"><span>Featured venture</span><span class="feature-index">01 / 06</span></div>
+        <div class="feature-mark" aria-hidden="true">
+          <span class="orbit orbit-one"></span>
+          <span class="orbit orbit-two"></span>
+          <span class="feature-star">✦</span>
         </div>
-        <div class="metric-card">
-          <div class="metric-value">7+</div>
-          <div class="metric-label">Active Ventures</div>
+        <div class="feature-content">
+          <div class="feature-meta"><span class="status-dot"></span> Live product</div>
+          <h2>Pairwise</h2>
+          <p>A faster, more revealing way for two people to discover what they value—together.</p>
+          <a href="https://pairwise.marisstella.dev" target="_blank" rel="noopener">Visit Pairwise <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="metric-card">
-          <div class="metric-value">Glicko-2 &amp; BT</div>
-          <div class="metric-label">Psychometric Engines</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value">Zero-Trust</div>
-          <div class="metric-label">Infrastructure Security</div>
-        </div>
+      </aside>
+      <div class="hero-metrics" aria-label="Studio highlights">
+        <div class="metric-card"><div class="metric-value">06</div><div class="metric-label">Products in the portfolio</div></div>
+        <div class="metric-card"><div class="metric-value">01</div><div class="metric-label">Shared product platform</div></div>
+        <div class="metric-card metric-wide"><div class="metric-label">Built from first principles</div><div class="metric-note">Research → product → operations</div></div>
       </div>
     </div>
   </section>
@@ -83,9 +76,9 @@
   <section id="ventures" class="ventures-section">
     <div class="container">
       <div class="section-header">
-        <div class="section-tag">VENTURE PORTFOLIO</div>
-        <h2 class="section-title">Specialized Software &amp; Applications</h2>
-        <p class="section-desc">Our flagship products engineered for high performance, modern user experiences, and deep domain utility.</p>
+        <div class="section-tag">Selected ventures <span>01</span></div>
+        <h2 class="section-title">Products with a point of view.</h2>
+        <p class="section-desc">A portfolio of focused software businesses, each built around a specific, durable user problem.</p>
 
         <!-- Filter Tags -->
         <div class="filter-bar">
@@ -287,9 +280,9 @@
   <section id="architecture" class="arch-section">
     <div class="container">
       <div class="section-header">
-        <div class="section-tag">PLATFORM INFRASTRUCTURE</div>
-        <h2 class="section-title">Cloud Native Architecture</h2>
-        <p class="section-desc">Every Maris Stella venture runs on our battle-tested, high-availability container platform.</p>
+        <div class="section-tag">How we build <span>02</span></div>
+        <h2 class="section-title">One studio. A compounding platform.</h2>
+        <p class="section-desc">Shared infrastructure lets every new venture begin with production-grade foundations—not a blank page.</p>
       </div>
 
       <div class="arch-grid">
@@ -345,8 +338,9 @@
   <footer class="site-footer">
     <div class="container footer-container">
       <div class="footer-brand">
-        <div class="logo-icon">★</div>
-        <div class="footer-title">MARIS STELLA LABS</div>
+        <div class="logo-icon">✦</div>
+        <div class="footer-title">Maris Stella Labs</div>
+        <p class="footer-statement">Independent software and venture engineering.</p>
         <p class="footer-copy">© 2026 Maris Stella Labs. All rights reserved.</p>
       </div>
       <div class="footer-links">
