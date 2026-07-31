@@ -34,6 +34,7 @@ run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/
 
 # 3. Security Policy Scanner Unit Tests
 run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/scripts/security/test-scan-repository.sh"
+run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"
 run_ci_test "Repository Engineering Policy Contract" bash "${REPO_ROOT}/scripts/ci/test-engineering-policy.sh"
 
 # 4. Portfolio Router & Ledger Verification Suite
