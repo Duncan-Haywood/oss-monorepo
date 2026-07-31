@@ -33,11 +33,17 @@ run_ci_test() {
 run_ci_test "Pairwise (Quick Pick Survey) Unit Suite" npm --prefix "${REPO_ROOT}/ventures/quick-pick-survey" test
 
 # 2. Dagger CI Engine Unit Tests
-run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/test/pipeline.test.mjs"
+# Globbed, not named file by file. Naming one file meant a new CI test file was
+# added, committed, and never run — indistinguishable from a passing test.
+run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/test/"*.test.mjs
 
 # 3. Security Policy Scanner Unit Tests
 run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/scripts/security/test-scan-repository.sh"
 run_ci_test "Repository Engineering Policy Contract" bash "${REPO_ROOT}/scripts/ci/test-engineering-policy.sh"
+# The contract test for the per-venture Gitea gate script. It asserts that the
+# script fails closed on unknown components and never swallows a gate failure,
+# and until now nothing invoked it.
+run_ci_test "Component Verification Contract" bash "${REPO_ROOT}/scripts/ci/test-verify-component.sh"
 run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"
 
 # 4. Portfolio Router & Ledger Verification Suite
@@ -53,7 +59,9 @@ run_ci_test "Venture Contract Validation" python3 "${REPO_ROOT}/portfolio/router
 
 # 5. Shell Script Static Analysis (if shellcheck installed)
 if command -v shellcheck >/dev/null 2>&1; then
-  run_ci_test "Shell Script Static Analysis (ShellCheck)" shellcheck "${REPO_ROOT}/scripts/"*.sh "${REPO_ROOT}/scripts/security/"*.sh
+  # scripts/ci/ holds the gate script the per-venture workflows execute, so it
+  # is linted on the same terms as the rest.
+  run_ci_test "Shell Script Static Analysis (ShellCheck)" shellcheck "${REPO_ROOT}/scripts/"*.sh "${REPO_ROOT}/scripts/security/"*.sh "${REPO_ROOT}/scripts/ci/"*.sh
 else
   echo "ℹ ShellCheck not installed; skipping shell script linting."
 fi

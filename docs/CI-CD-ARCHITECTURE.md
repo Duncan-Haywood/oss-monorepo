@@ -36,6 +36,18 @@ Application workflows are path-filtered. The repository/platform workflow does
 not repeat application builds. `scripts/ci/verify-component.sh` is the shared,
 fail-closed local/CI contract so YAML and developer checks do not diverge.
 
+That non-divergence is asserted, not assumed. A component's gates are declared
+in two places that both execute: `VENTURE_CATALOG` in `platform/ci/src/pipeline.mjs`
+(the monorepo Dagger engine and the pre-push hook) and `verify-component.sh`
+(the per-venture Gitea workflows). `platform/ci/src/gate-contract.mjs` parses
+the script, compares it to the catalog, and `platform/ci/test/gate-contract.test.mjs`
+fails closed on any divergence in either direction. A gate the per-venture
+workflow runs but the catalog does not must be justified in `CI_ONLY_GATES`
+with the reason it is deliberately CI-only; anything else is drift. This
+matters because drift is silent: a gate present in one declaration and absent
+from the other still reports green from whichever pipeline runs, so a missing
+gate is indistinguishable from a passing one.
+
 ## Deployment boundary
 
 CI must build, test, scan, and publish an immutable image identified by the full
