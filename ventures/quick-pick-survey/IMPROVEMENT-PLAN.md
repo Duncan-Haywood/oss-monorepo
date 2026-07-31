@@ -91,6 +91,46 @@ land.** Two answers are both fine — merge this branch and let the schedule
 continue, or pause the schedule — and one is not: leaving it firing into a queue
 nobody drains. See [`docs/UNATTENDED-SESSIONS.md`](docs/UNATTENDED-SESSIONS.md).
 
+### P1 → resolved on this branch — undo sent a body the route rejects, so every rewind 400'd
+
+`handleUndo` was changed to post `{ domainSlug }`. `/api/trials/undo` reads
+`participantId` and `kind` and returns 400 without the former; `domainSlug`
+appears nowhere in the route. Every rewind therefore failed and showed
+"Couldn't undo that answer. Try again." The server cannot resolve the domain
+slug on its own — the participant ids only exist in the device's session
+bundle, which is what the route's `mayAccessOwnedParticipant` check is layered
+on top of — so the fix restores `{ participantId, kind }` rather than teaching
+the route a slug.
+
+No test saw it: `UnifiedRunner.test.tsx` had no coverage of undo at all, and
+the integration test still exercised the endpoint directly with the old body,
+so it stayed green while the app was broken. There is now a runner test
+asserting the exact request body, and it was confirmed red against the
+`{ domainSlug }` version before being kept.
+
+### P2 — The optimistic prefetch has never run, and the reason it should stay off is a metric, not a bug
+
+`prefetchNext` is called from exactly one place: inside the optimistic branch
+of `handleAnswer`. That branch only executes when a prefetched card already
+exists, and nothing bootstraps the first one, so `nextTrial` is always null and
+every card costs a full round trip. Measured, not inferred: four cards shown =
+four `/api/trials/next` calls, now pinned by a test.
+
+This matters because the obvious fix is wrong on its own. `/api/trials/next`
+writes a Trial row per call — the same property behind the two resolved
+"created a row on every page load" items below. A prefetched card that is never
+answered (domain switch, or the person simply stops) is a shown-but-unanswered
+row, which is exactly what the abandonment metric counts. Turning prefetch on
+without deciding how those rows are distinguished trades a latency win for a
+corrupted drop-rate signal.
+
+So the work is not "call `prefetchNext` in `loadTrial`". It is: decide whether
+a prefetched-but-unshown trial is a distinct state on the row, then enable
+prefetch and make the discard-on-domain-switch guard load-bearing. That guard
+(`isDomainSwitching`, plus the `activePrefetchRef` generation counter) is
+already written and correct — it is just unreachable, so it cannot be covered
+by a test that proves anything until this is decided.
+
 ### P1 → resolved on this branch — three screens had no way back from a dropped request
 
 Every screen in this app loads its data over one `fetch` on mount, from a

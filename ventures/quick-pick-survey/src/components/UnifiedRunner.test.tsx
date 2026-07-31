@@ -207,7 +207,47 @@ describe("UnifiedRunner", () => {
     await waitFor(() => expect(screen.getByText("Cooking")).toBeTruthy());
   });
 
-  it("discards prefetched card when domain switches on streak completion", async () => {
+  /**
+   * The runner reads as though it prefetches the next card and advances
+   * optimistically, but that path never runs: `prefetchNext` is only called
+   * from inside the optimistic branch, and that branch only executes when a
+   * prefetched card already exists. Nothing bootstraps the first one, so every
+   * card costs a full round trip and `nextTrial` is always null.
+   *
+   * This is a tripwire, not an endorsement. It goes red the moment someone
+   * wires up the first prefetch — at which point they have to answer the
+   * question that made this worth leaving alone: `/api/trials/next` writes a
+   * Trial row per call, so a prefetched card that is discarded (on a domain
+   * switch, or when the session ends) becomes a shown-but-unanswered row and
+   * inflates the abandonment metric. See IMPROVEMENT-PLAN.md.
+   */
+  it("costs exactly one trials/next call per card shown", async () => {
+    localStorage.setItem(LS_KEY, JSON.stringify(BUNDLE));
+    let served = 0;
+    stubFetch({
+      "/api/auth/me": noAccount,
+      "/api/session/status": emptyStatus,
+      "/api/trials/next": () => {
+        served++;
+        return itemsTrial(`t${served}`, `Hiking ${served}`, `Museums ${served}`);
+      },
+      "/api/trials/answer": () => ({ json: { ok: true } }),
+    });
+
+    render(<UnifiedRunner />);
+    await screen.findByText("Hiking 1");
+    expect(served).toBe(1);
+
+    for (let i = 1; i <= 3; i++) {
+      await waitFor(() => expect(screen.queryByText(`Hiking ${i}`)).toBeTruthy());
+      fireEvent.click(screen.getByText(`Hiking ${i}`));
+    }
+
+    await waitFor(() => expect(screen.queryByText("Hiking 4")).toBeTruthy());
+    expect(served).toBe(4);
+  });
+
+  it("switches domain when the streak completes", async () => {
     const MULTI_DOMAIN_BUNDLE = {
       firstName: "Ada",
       partnerName: "Grace",
@@ -241,31 +281,150 @@ describe("UnifiedRunner", () => {
       "/api/trials/answer": () => ({ json: { ok: true } }),
     });
 
+    // Pin the scheduler. `randomStreakTarget()` is `4 + floor(rand() * 5)`, so
+    // rand()=0 fixes the values streak at exactly four answers, and
+    // `pickNextDomain` is then left with only "traits" in the pool. Pinning it
+    // is what lets this assert the exact card the switch lands on instead of
+    // "a traits card turns up eventually", which holds either way.
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
     render(<UnifiedRunner />);
     await screen.findByText("Honesty 1");
 
-    // Answer values cards until the scheduler switches domains.
-    //
-    // `randomStreakTarget()` returns 4..8, so 12 iterations always covers the
-    // switch. Each iteration waits for the runner to settle on *either* the
-    // next values card or the traits card that ends the streak — a fixed sleep
-    // here breaks early whenever the re-render loses the race, which made this
-    // test flaky rather than wrong.
-    for (let i = 1; i <= 12; i++) {
-      await waitFor(() =>
-        expect(
-          screen.queryByText(`Honesty ${i}`) ?? screen.queryByText(/Patience/i),
-        ).toBeTruthy(),
-      );
-
-      const option = screen.queryByText(`Honesty ${i}`);
-      if (!option) break;
-      fireEvent.click(option);
+    for (let i = 1; i <= 4; i++) {
+      await waitFor(() => expect(screen.queryByText(`Honesty ${i}`)).toBeTruthy());
+      fireEvent.click(screen.getByText(`Honesty ${i}`));
     }
 
-    // Verify that the runner fetched and displayed a traits trial once the values streak ended
-    await waitFor(() => expect(screen.getByText(/Patience/i)).toBeTruthy());
-    expect(servedDomains).toContain("traits");
+    // The fourth answer ends the streak, so the next card must come from the
+    // traits participant — and must be its first, not a fifth values card.
+    await waitFor(() => expect(screen.getByText("Patience 1")).toBeTruthy());
+    expect(screen.queryByText("Honesty 5")).toBeNull();
+    expect(servedDomains).toEqual(["values", "values", "values", "values", "traits"]);
+  });
+
+  it("sends the participant and kind that the undo route requires", async () => {
+    localStorage.setItem(LS_KEY, JSON.stringify(BUNDLE));
+
+    let undoBody: unknown = null;
+    let served = 0;
+    stubFetch({
+      "/api/auth/me": noAccount,
+      "/api/session/status": emptyStatus,
+      "/api/trials/next": () => {
+        served++;
+        return itemsTrial(`t${served}`, `Hiking ${served}`, `Museums ${served}`);
+      },
+      "/api/trials/answer": () => ({ json: { ok: true } }),
+      "/api/trials/undo": (body: unknown) => {
+        undoBody = body;
+        return { json: { ok: true } };
+      },
+    });
+
+    render(<UnifiedRunner />);
+    fireEvent.click(await screen.findByText("Hiking 1"));
+
+    const undo = await screen.findByLabelText("Undo last answer");
+    await waitFor(() => expect((undo as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(undo);
+
+    await waitFor(() => expect(undoBody).not.toBeNull());
+    // `/api/trials/undo` rejects with 400 unless `participantId` is present, and
+    // routes ITEMS against FINANCIAL_LIKE off `kind`. Neither is derivable from
+    // a domain slug server-side, because the participant ids only exist in this
+    // device's session bundle. Renaming this body silently turns every rewind
+    // into "Couldn't undo that answer" in production, which no other test sees.
+    expect(undoBody).toEqual({ participantId: "p-act", kind: "ITEMS" });
+  });
+
+  /**
+   * Undo rolls the answer back on the server, which makes that pair unanswered
+   * again — so `/api/trials/next` is entitled to hand back the very same trial.
+   * `submittingTrialIdRef` is the double-submit guard, keyed on trial id, and it
+   * was set on every answer and never cleared. So the re-served card matched the
+   * guard and `handleAnswer` returned on its first line: the card rendered, the
+   * tap registered, and nothing happened. No error, no spinner, no next card.
+   *
+   * It reads as the app freezing right after a rewind, which is the moment
+   * someone is already unsure they did the right thing. Nothing else catches it
+   * — every other test answers a fresh trial id each time, which always clears
+   * the guard by accident.
+   */
+  it("lets a card be answered again when undo re-serves the same trial", async () => {
+    localStorage.setItem(LS_KEY, JSON.stringify(BUNDLE));
+
+    const servedIds: string[] = [];
+    let served = 0;
+    stubFetch({
+      "/api/auth/me": noAccount,
+      "/api/session/status": emptyStatus,
+      "/api/trials/next": () => {
+        served++;
+        // Call 3 lands after the undo, so it re-serves the rolled-back pair
+        // under its original id — exactly what the real route does.
+        const id = served === 3 ? "t1" : `t${served}`;
+        servedIds.push(id);
+        return itemsTrial(id, `Hiking ${id}`, `Museums ${id}`);
+      },
+      "/api/trials/answer": () => ({ json: { ok: true } }),
+      "/api/trials/undo": () => ({ json: { ok: true } }),
+    });
+
+    render(<UnifiedRunner />);
+    fireEvent.click(await screen.findByText("Hiking t1"));
+    await screen.findByText("Hiking t2");
+
+    const undo = await screen.findByLabelText("Undo last answer");
+    await waitFor(() => expect((undo as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(undo);
+
+    // Back on the original pair, same trial id as the answer that was undone.
+    await waitFor(() => expect(servedIds).toEqual(["t1", "t2", "t1"]));
+    const reserved = await screen.findByText("Hiking t1");
+
+    fireEvent.click(reserved);
+
+    // The tap must actually advance. Before the guard was cleared on undo this
+    // stayed on "Hiking t1" forever and `served` never reached 4.
+    await waitFor(() => expect(screen.getByText("Hiking t4")).toBeTruthy());
+    expect(served).toBe(4);
+  });
+
+  /**
+   * The failure branch of undo. The person must be told, and — because undo is
+   * the one action that leaves the current card on screen — the card must stay
+   * answerable rather than being swallowed by the submit guard.
+   */
+  it("reports a failed undo and leaves the current card answerable", async () => {
+    localStorage.setItem(LS_KEY, JSON.stringify(BUNDLE));
+
+    let served = 0;
+    stubFetch({
+      "/api/auth/me": noAccount,
+      "/api/session/status": emptyStatus,
+      "/api/trials/next": () => {
+        served++;
+        return itemsTrial(`t${served}`, `Hiking ${served}`, `Museums ${served}`);
+      },
+      "/api/trials/answer": () => ({ json: { ok: true } }),
+      "/api/trials/undo": () => ({ status: 500 }),
+    });
+
+    render(<UnifiedRunner />);
+    fireEvent.click(await screen.findByText("Hiking 1"));
+    await screen.findByText("Hiking 2");
+
+    const undo = await screen.findByLabelText("Undo last answer");
+    await waitFor(() => expect((undo as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(undo);
+
+    expect(await screen.findByText(/Couldn't undo that answer/i)).toBeTruthy();
+
+    // The rewind failed, so the answer stands and the card in front of them is
+    // still the live one. Tapping it has to keep the session moving.
+    fireEvent.click(screen.getByText("Hiking 2"));
+    await waitFor(() => expect(screen.getByText("Hiking 3")).toBeTruthy());
   });
 
   it("automatically offers a clearly labelled switch from partner preferences to self values", async () => {
@@ -312,5 +471,3 @@ describe("UnifiedRunner", () => {
     expect(perspectives).toEqual(["PARTNER", "SELF"]);
   });
 });
-
-

@@ -315,10 +315,12 @@ export function UnifiedRunner() {
   }, [restored, update]);
 
   const pendingPrefetchRef = useRef<Promise<Trial | null> | null>(null);
+  const activePrefetchRef = useRef<number>(0);
 
   const prefetchNext = useCallback(
     async (slug: string, pid: string, kind: DomainState["kind"]) => {
       const endpoint = kind === "ITEMS" ? "/api/trials/next" : "/api/financial-trials/next";
+      const prefetchId = ++activePrefetchRef.current;
       const promise = (async () => {
         try {
           const res = await fetch(endpoint, {
@@ -329,7 +331,9 @@ export function UnifiedRunner() {
           if (!res.ok) return null;
           const data = await res.json();
           if (!data?.trialId) return null;
-          setNextTrial(data);
+          if (activePrefetchRef.current === prefetchId) {
+            setNextTrial(data);
+          }
           return data;
         } catch {
           return null;
@@ -368,6 +372,7 @@ export function UnifiedRunner() {
           setError("Couldn't load the next question. Try again.");
           return;
         }
+        submittingTrialIdRef.current = null;
         setTrial(data);
         recordUsage("question_load", { perspective, domain: slug, durationMs: Math.round(performance.now() - startedAt), success: true });
         cardShownAt.current = performance.now();
@@ -388,7 +393,7 @@ export function UnifiedRunner() {
         setError("Couldn't load the next question. Try again.");
       }
     },
-    [update, prefetchNext]
+    [update]
   );
 
   useEffect(() => {
@@ -447,10 +452,14 @@ export function UnifiedRunner() {
   async function handleAnswer(result: "A" | "B", interactionMethod: InteractionMethod) {
     if (!session || !trial || submittingTrialIdRef.current === trial.trialId) return;
     submittingTrialIdRef.current = trial.trialId;
+    setSubmitting(true);
     const currentTrial = trial;
     const answeredSlug = session.currentSlug;
     const domain = session.domains.find((d) => d.slug === answeredSlug);
-    if (!domain) return;
+    if (!domain) {
+      setSubmitting(false);
+      return;
+    }
 
     setError(null);
     const timeSpent = cardShownAt.current
@@ -462,26 +471,29 @@ export function UnifiedRunner() {
     const answersAfterThis = session.domains.reduce((sum, d) => sum + d.answeredCount, 0) + 1;
     setFocusAnswers(answersAfterThis % PICKS_PER_FOCUS || PICKS_PER_FOCUS);
 
+    const isDomainSwitching = session.streakRemaining <= 1;
     const willOpenModeModal = answersAfterThis % 10 === 0 && !insightBreak;
 
     let upcomingTrial = nextTrial;
     if (!upcomingTrial && pendingPrefetchRef.current) {
       upcomingTrial = (await pendingPrefetchRef.current) as Trial | null;
     }
+    activePrefetchRef.current++;
     pendingPrefetchRef.current = null;
+    setNextTrial(null);
 
-    // Optimistic UI update: advance instantly to pre-fetched trial if available
-    if (!willOpenModeModal && upcomingTrial) {
+    // Optimistic UI update: advance instantly to pre-fetched trial if available and staying in same domain
+    if (!willOpenModeModal && !isDomainSwitching && upcomingTrial) {
+      submittingTrialIdRef.current = null;
       setTrial(upcomingTrial);
-      setNextTrial(null);
       cardShownAt.current = performance.now();
       const pid = session.participants[answeredSlug];
       if (pid) {
         void prefetchNext(answeredSlug, pid, domain.kind);
       }
     } else {
+      submittingTrialIdRef.current = null;
       setTrial(null);
-      setNextTrial(null);
     }
 
     setSubmitting(false);
@@ -593,6 +605,7 @@ export function UnifiedRunner() {
     })
       .then((res) => recordUsage("question_skip", { perspective, domain, durationMs: clientMsToAnswer ?? undefined, success: res.ok }))
       .catch(() => recordUsage("question_skip", { perspective, domain, durationMs: clientMsToAnswer ?? undefined, success: false }));
+    submittingTrialIdRef.current = null;
     if (nextTrial) {
       setTrial(nextTrial);
       setNextTrial(null);
@@ -606,30 +619,35 @@ export function UnifiedRunner() {
   /** Tinder-style rewind of the most recent answer in the domain it was made in. */
   async function handleUndo() {
     if (!session || !undoableSlug || submitting) return;
+    // The route resolves the answer to roll back from the participant, and
+    // routes ITEMS vs FINANCIAL_LIKE off `kind`. Both live in the local session
+    // bundle, so they have to be sent — a domain slug alone means nothing to
+    // the server and the request 400s.
     const domain = session.domains.find((d) => d.slug === undoableSlug);
     const pid = session.participants[undoableSlug];
     if (!domain || !pid) return;
     setSubmitting(true);
     setError(null);
     const startedAt = performance.now();
+    let ok = false;
     try {
       const res = await fetch("/api/trials/undo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ participantId: pid, kind: domain.kind }),
       });
-      if (!res.ok) {
-        recordUsage("answer_undo", { perspective: session.perspective, domain: undoableSlug, durationMs: Math.round(performance.now() - startedAt), success: false });
-        setError("Couldn't undo that one.");
-        setSubmitting(false);
-        return;
-      }
+      ok = res.ok;
     } catch {
+      ok = false;
+    }
+    if (!ok) {
       recordUsage("answer_undo", { perspective: session.perspective, domain: undoableSlug, durationMs: Math.round(performance.now() - startedAt), success: false });
-      setError("Couldn't undo that one.");
+      setError("Couldn't undo that answer. Try again.");
+      submittingTrialIdRef.current = null;
       setSubmitting(false);
       return;
     }
+    submittingTrialIdRef.current = null;
     setSubmitting(false);
     recordUsage("answer_undo", { perspective: session.perspective, domain: undoableSlug, durationMs: Math.round(performance.now() - startedAt), success: true });
     setUndoableSlug(null);
