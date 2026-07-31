@@ -103,6 +103,9 @@ describe("Pairwise CI contract", () => {
 
   it.skipIf(!PAIRWISE_CI)("verifies the exact live revision and queues bounded repair work", () => {
     expect(PAIRWISE_CI).toContain("verify-production:");
+    expect(PAIRWISE_CI).toMatch(
+      /verify-production:[\s\S]*?defaults:\s*\n\s*run:\s*\n\s*working-directory: \./,
+    );
     expect(PAIRWISE_CI).toContain('wait-for-pairwise-release.sh "${{ github.sha }}"');
     expect(PAIRWISE_CI).toContain("smoke-test-pairwise.sh");
     expect(PAIRWISE_CI).toContain("report-pairwise-release-failure.sh");
