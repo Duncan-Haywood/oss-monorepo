@@ -70,7 +70,11 @@ jobs:
             security-policy-report.md
             gitleaks-report.json
             trivy-report.json
-          if-no-files-found: warn
+          # `warn` let a run finish green having produced no evidence at all,
+          # which is exactly the state docs/ENGINEERING-ROADMAP.md requires this
+          # step to make impossible. upload-artifact only raises this when the
+          # whole path set is empty, so a partial set still uploads.
+          if-no-files-found: error
           retention-days: 30
 
   dependency-audit:

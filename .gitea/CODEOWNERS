@@ -1,11 +1,27 @@
 # Repository Ownership & Security Review Boundaries
+#
+# Every path a reviewer would want to see a change to must appear below. A rule
+# that matches no file is worse than a missing rule: it reads as coverage and
+# reviews nothing. `/SECURITY-ROADMAP.md` was one — the tracked file is
+# `SECURITY_ROADMAP.md`, so the register holding the repository's recorded
+# vulnerabilities had no owner at all.
 
 # Gitea Actions workflows and security policies
 /.gitea/workflows/          @infrastructure-team @security-team
+/.gitea/CODEOWNERS          @infrastructure-team @security-team
 /scripts/security/          @security-team
 /SECURITY.md                @security-team
-/SECURITY-ROADMAP.md        @security-team
+/SECURITY_ROADMAP.md        @security-team
 /security_best_practices_report.md @security-team
+
+# The controls that decide whether a run is allowed to be green. These enforce
+# the suppression, coverage and gate-drift policies, so a change here can waive
+# a gate as effectively as editing the gate itself.
+/scripts/ci/                @infrastructure-team @security-team
+/scripts/test-ci.sh         @infrastructure-team @security-team
+/scripts/verify-all.sh      @infrastructure-team @security-team
+/platform/ci/               @infrastructure-team
+/platform/exception-register.yaml @security-team
 
 # Cloud Infrastructure & Kubernetes Configurations
 /platform/terraform/        @infrastructure-team
@@ -13,5 +29,8 @@
 /platform/infrastructure/   @infrastructure-team
 
 # Global Governance & Scripts
+/ENGINEERING-PRINCIPLES.md  @infrastructure-team @security-team
+/docs/ENGINEERING-ROADMAP.md @infrastructure-team
+/docs/EXCEPTION-REGISTER.md @security-team
 /scripts/smoke-test.sh      @infrastructure-team @qa-team
 /scripts/dev-verify.sh      @infrastructure-team

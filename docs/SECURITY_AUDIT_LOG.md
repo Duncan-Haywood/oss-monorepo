@@ -140,6 +140,43 @@ This log records all identified application, infrastructure, container, and CI s
   any git-tracked package under `ventures/` defines a `test` script that no
   entry runs.
 
+### SEC-018 — High — Unauthenticated Credential-State Disclosure in print-atelier
+- **Location**: `ventures/print-atelier/src/app/api/credentials/vercel-pull/route.ts`
+- **Impact**: Both methods were reachable without any authorization and read the
+  live process environment. `POST` returned `vaultSummary` verbatim, and every
+  configured key in it carried `maskedValue` from `maskSecretValue`, which
+  preserves a recognizable prefix and the last four characters. Against a
+  configured host an anonymous caller therefore learned the `sk_live_` vs
+  `sk_test_` mode and four real characters of `STRIPE_SECRET_KEY`, the same for
+  `META_ACCESS_TOKEN`, `PINTEREST_ACCESS_TOKEN`, `PRINTFUL_API_KEY` and
+  `GELATO_API_KEY`, and a complete inventory of which partner integrations are
+  live. `POST` also accepted arbitrary `envOverrides` merged over the real
+  environment, and swallowed malformed JSON into `{}` so a garbage payload
+  reported success.
+- **Exposure**: Not live. `print-atelier` is `stage: prototype` with
+  `links.production: null`, so this was found and fixed before any deploy. No
+  UI called the route, so gating it broke nothing.
+- **Fix**: Added `src/lib/api-auth.ts`, a fail-closed operator guard —
+  `Authorization: Bearer <PRINT_ATELIER_OPS_TOKEN>`, compared as SHA-256 digests
+  so neither value nor length leaks through timing. An unset token refuses every
+  request (503) rather than defaulting to open; this deliberately diverges from
+  `local-site-studio`'s `requireOperatorAuth`, which treats an unset password as
+  demo mode. Added `withoutMaskedValues` so masked key material never crosses the
+  network boundary even for authorized callers, and replaced the swallow-all body
+  parsing with explicit validation of `envOverrides` and `environment`.
+- **Evidence**: 18 new tests in `ventures/print-atelier/tests/api-auth.test.ts`
+  and `tests/credentials-route.test.ts`; 10 of the 11 route tests fail against
+  the pre-fix handler. Full venture verify green — `tsc --noEmit`, `next lint`,
+  235 tests, `next build`.
+- **Residual risk, not fixed here**: `print-atelier` has no authentication of any
+  kind elsewhere. `GET /api/payouts/reconciliation`, `/api/fulfillment/submissions`
+  and `/api/retargeting/events`, and `POST /api/ad-catalog/sync` (which triggers
+  outbound calls against ad platforms) are still unauthenticated, as are the
+  operator pages `/admin-portal`, `/ops`, `/investor`, `/sales-portal` and
+  `/partner-setup`. Three client components fetch those routes from the browser,
+  so gating them needs a session-based operator login rather than a bearer token
+  — a product decision, tracked as a blocker for this venture's first deploy.
+
 ---
 
 ## Operational Security Checklist

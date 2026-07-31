@@ -246,6 +246,33 @@ export function getVercelIntegrationStatus(env: EnvSource = {}): VercelIntegrati
   };
 }
 
+/**
+ * Strips masked secret material from a vault before it crosses a network
+ * boundary.
+ *
+ * `maskSecretValue` deliberately keeps a recognizable prefix and the last four
+ * characters so an operator reading the setup screen can tell which key is
+ * installed. That is useful beside a human and harmful in an HTTP response: it
+ * confirms live-vs-test mode and hands over four real characters of a live
+ * credential. `configured` carries everything a remote caller legitimately
+ * needs, so the mask never leaves the process.
+ */
+export function withoutMaskedValues(
+  vault: PartnerCredentialVault,
+): PartnerCredentialVault {
+  return {
+    ...vault,
+    credentials: vault.credentials.map((credential) => ({
+      ...credential,
+      envKeys: credential.envKeys.map((item) => ({
+        key: item.key,
+        label: item.label,
+        configured: item.configured,
+      })),
+    })),
+  };
+}
+
 export function getPartnerCredentialEnvFromProcess(): EnvSource {
   if (typeof process === "undefined" || !process.env) {
     return {};
