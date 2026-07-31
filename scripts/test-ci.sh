@@ -44,10 +44,12 @@ run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/sc
 run_ci_test "Portfolio Router & Allocation Unit Suite" python3 "${REPO_ROOT}/tests/test_portfolio_router.py"
 run_ci_test "Monorepo Python Test Suite (pytest)" pytest
 run_ci_test "Portfolio Router Allocation Report Generation" python3 "${REPO_ROOT}/portfolio/router/router.py"
-# Reports VENTURE.yaml drift against the ledger. Deliberately not --strict yet:
-# the current warnings are pre-existing debt, and gating on them would block
-# unrelated work. Promote to --strict once the backlog below is cleared.
-run_ci_test "Venture Contract Validation" python3 "${REPO_ROOT}/portfolio/router/validate_ventures.py"
+# Gates VENTURE.yaml drift against the ledger. --strict fails on warnings too,
+# which is the point: every warning this reports is a venture claiming more
+# allocation credit than the ledger supports, and the router spends real budget
+# off those fields. The backlog that kept this advisory is now cleared, so a new
+# warning means new drift, not inherited debt.
+run_ci_test "Venture Contract Validation" python3 "${REPO_ROOT}/portfolio/router/validate_ventures.py" --strict
 
 # 5. Shell Script Static Analysis (if shellcheck installed)
 if command -v shellcheck >/dev/null 2>&1; then
