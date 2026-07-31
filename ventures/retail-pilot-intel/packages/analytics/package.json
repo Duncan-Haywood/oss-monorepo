@@ -7,7 +7,7 @@
     "@retail-pilot/schemas": "workspace:*"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
     "build": "tsc -p tsconfig.json",
     "test": "node --import tsx --test 'tests/**/*.test.ts'"
   },
