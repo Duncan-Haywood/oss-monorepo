@@ -137,6 +137,36 @@ evidence, and completion date before it can be marked done.
   evidence is local (`bash scripts/test-ci.sh` green, actionlint and ShellCheck
   clean, each tooling pattern mutation-checked); a first CI run is what would
   confirm it.
+  The same gap one level down is closed, 2026-08-01, owner duncan (`10cbb14`).
+  The workflow installs venture dependencies for `quick-pick-survey` and
+  `print-atelier` only, because those two are needed by gates in
+  `scripts/test-ci.sh` that run before the engine. `verifyPnpmHost` installed the
+  pnpm workspace when `node_modules` was absent; `verifyNodeHost` installed
+  nothing, so every other Node component in `VENTURE_CATALOG` reached
+  `npm run <script>` on a clean runner with no dependencies and died on
+  ERR_MODULE_NOT_FOUND — a dependency failure reported as a broken component,
+  firing precisely when affected-path detection selected a changed venture. The
+  engine now installs what it verifies, with `npm ci` where a lockfile exists.
+  `platform/ci/test/venture-dependency-install.test.mjs` holds it, mutation-checked
+  four ways, and also requires a committed lockfile for every Node component that
+  declares dependencies.
+  What that turned up is the point: five components had no CI run that had ever
+  executed their suites. Four now verify end to end — `ai-first-markets`,
+  `photo-editing/docs-site`, `ai-engineering-academy/site`, and
+  `real-estate-agent-photo-app`, whose five test files were confirmed by moving
+  `node_modules` aside and watching the component fail before this change and pass
+  after it. The fifth, `local-site-studio`, is the largest suite in the repository
+  at 125 files and 1214 tests: typecheck, lint and every test pass, and
+  `next build` fails. So this venture — deployed at `studio.marisstella.dev` — has
+  a broken production build and a green-looking repository, which is exactly the
+  state the control was added to make impossible to sustain.
+  Two things still open, neither belonging to this change. The build failure is
+  under active uncommitted work by the concurrent agent, which added a `webpack`
+  config that Next.js 16 rejects because Turbopack is now the default and no
+  `turbopack` config accompanies it; whether `HEAD` builds for a different reason
+  is a separate question from whether the working tree does. And the engine
+  reaching a venture at all still depends on affected-path detection, so a
+  component nothing has touched is still verified by nothing.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
   Partially configured live on 2026-08-01 as recorded above; required status
