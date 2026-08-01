@@ -55,6 +55,17 @@ run_ci_test "Portfolio Router Allocation Report Generation" python3 "${REPO_ROOT
 # off those fields. The backlog that kept this advisory is now cleared, so a new
 # warning means new drift, not inherited debt.
 run_ci_test "Venture Contract Validation" python3 "${REPO_ROOT}/portfolio/router/validate_ventures.py" --strict
+# The other half of the same join: the ledger those contracts are checked
+# against. router.py sums `agent_spend_usd` into the explore-grant decay, so a
+# venture name matching no VENTURE.yaml, a duplicate row, or an absent spend
+# figure all move budget — those are errors and this gate fails on them.
+# Deliberately not --strict, unlike the contract validator above. Its backlog
+# was cleared before it was tightened; this one still carries 2026-07, whose
+# spend is $127.26 divided seven ways rather than seven measurements. A closed
+# month cannot be reconstructed and the ledger README forbids rewriting it, so
+# --strict here would be a gate nobody can ever turn green. Meter spend per
+# venture for a full month, then add --strict.
+run_ci_test "Portfolio Ledger Validation" python3 "${REPO_ROOT}/portfolio/router/validate_ledger.py"
 # Every suppression needs an owner, reason, issue and expiry — four documents
 # say so and nothing enforced it. Fails on an unregistered suppression, an
 # expired grant, and a register that drifted above the code it covers.
