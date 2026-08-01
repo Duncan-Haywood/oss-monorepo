@@ -83,11 +83,37 @@ evidence, and completion date before it can be marked done.
   Writing the `docs-site` one found SEC-020 — `isPublicPath` exempted
   `startsWith("/api/health")`, which matches siblings and not only children.
   That venture had no test of any kind under `src` before this.
-  Still open: three ventures with API routes have no such contract
-  (`quick-pick-survey`, `local-site-studio` — both with real route tests but no
-  posture declaration — and `print-atelier`'s page routes as distinct from its
-  API routes), and nothing repository-wide holds a venture to having one. The
-  three existing contracts are three hand-written files, not a control.
+  The contract shape is now a control rather than a habit, 2026-08-01, owner
+  duncan. `platform/ci/test/route-auth-posture-coverage.test.mjs` scans
+  `ventures/` for route handlers and requires every app package serving one to
+  hold either a registered contract or a registered gap. A registered contract
+  must exist, must read the app directory off disk rather than assert against a
+  hard-coded list, must belong to a package the CI catalog runs `test` for, and
+  must be matched by that package's real test script — both script shapes in
+  this repository are modelled and an unrecognized one fails rather than being
+  assumed to run. A registered gap carries owner, issue, reason, an expiry
+  capped at 180 days, and an exact count of undeclared handlers that fails both
+  when the unreviewed surface grows and when the register goes stale, as `count`
+  does in `platform/exception-register.yaml`. Mutation-checked eleven ways.
+  `local-site-studio` has a contract as of the same date, in
+  `src/lib/routeAuthPosture.test.ts`. It is the first of the four whose guard is
+  neither middleware nor proxy: `src/proxy.ts` matches nearly every path but
+  gates only `/dashboard`, so every `/api` handler is reached anonymously and
+  the guard is the handler's own `requireOperatorAuth()` call, with no
+  deny-by-default behind it. The contract requires each handler to declare
+  `public` with a stated reason or `operator`, checks an `operator` handler
+  actually calls the guard and acts on the result, and asserts the proxy still
+  leaves `/api` alone — if that changes, "declared public" stops meaning
+  "reachable" and the test says so. All 10 handlers were reviewed and no
+  unguarded operator surface was found; the eight public ones authenticate the
+  request (Stripe signature, HMAC unsubscribe token, checkout session id) or
+  serve anonymous visitors by design.
+  Still open: `quick-pick-survey` is the one registered gap — 32 handlers, the
+  largest route surface in the repository and the only venture deployed to
+  production, owner duncan, expiring 2026-11-01. `print-atelier`'s page routes,
+  as distinct from its API routes, remain outside every contract, and the
+  coverage control scans for `route.*` modules only, so a venture that serves
+  authenticated pages without an API is not yet in scope.
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
   Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports
