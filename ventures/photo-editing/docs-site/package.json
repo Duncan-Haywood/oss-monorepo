@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "node --test scripts/test-html-to-jsx.mjs scripts/test-generated-docs-current.mjs"
+    "test": "node --test scripts/test-html-to-jsx.mjs scripts/test-generated-docs-current.mjs src/lib/routeAuthPosture.test.ts"
   },
   "dependencies": {
     "marked": "^15.0.7",
