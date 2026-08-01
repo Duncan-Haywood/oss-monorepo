@@ -285,6 +285,29 @@ class SpendMirrorsAllocationTest(unittest.TestCase):
             [],
         )
 
+    def test_float_noise_from_a_yaml_or_json_round_trip_still_matches(self):
+        # The two sides are read by different parsers, so the same figure can
+        # arrive as 40.000000000000004. Comparing at the cent is what makes the
+        # check about money rather than about IEEE 754.
+        entries = [
+            base_entry(venture="alpha", agent_spend_usd=40.000000000000004),
+            base_entry(venture="beta", agent_spend_usd=28.499999999999996),
+            base_entry(venture="gamma", agent_spend_usd=6.8000000000000007),
+        ]
+        findings = check_spend_mirrors_allocation(entries, "2026-08", self.allocations)
+        self.assertEqual(codes(findings), ["spend-mirrors-allocation"])
+
+    def test_an_integer_spend_matches_a_float_grant(self):
+        entries = [
+            base_entry(venture="alpha", agent_spend_usd=40),
+            base_entry(venture="beta", agent_spend_usd=28.5),
+            base_entry(venture="gamma", agent_spend_usd=6.8),
+        ]
+        self.assertEqual(
+            codes(check_spend_mirrors_allocation(entries, "2026-08", self.allocations)),
+            ["spend-mirrors-allocation"],
+        )
+
     def test_no_allocation_source_means_no_finding(self):
         entries = [base_entry(venture=n, agent_spend_usd=40.0) for n in ("alpha", "beta", "gamma")]
         self.assertEqual(check_spend_mirrors_allocation(entries, "2026-08", {}), [])
@@ -412,6 +435,40 @@ class LedgerTreeTest(unittest.TestCase):
             )
             findings = validate_all(root, today=date(2026, 8, 1))
             self.assertEqual(codes(findings), ["spend-mirrors-allocation"])
+
+    def test_an_unreadable_allocation_source_surfaces_through_validate_all(self):
+        # The findings from load_allocation_figures have to reach the caller.
+        # If validate_all drops them, the one signal that this check has gone
+        # inert is the signal that disappears.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.make_root(tmp)
+            (root / "portfolio").mkdir(parents=True, exist_ok=True)
+            (root / "portfolio" / "ALLOCATION_REPORT.md").write_text(
+                "# report with no table\n", encoding="utf-8"
+            )
+            self.write_ledger(
+                root,
+                "2026-07.yaml",
+                "period: 2026-07\n"
+                "entries:\n"
+                "  - venture: demo\n    agent_spend_usd: 12.5\n"
+                "    outcomes: [Shipped.]\n    mrr_end: 0\n",
+            )
+            findings = validate_all(root, today=date(2026, 8, 1))
+            self.assertIn("unreadable-allocation-source", codes(findings))
+            self.assertEqual(severity_of(findings, "unreadable-allocation-source"), "error")
+
+    def test_an_unreadable_allocation_source_survives_a_missing_ledger_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.make_root(tmp)
+            (root / "portfolio").mkdir(parents=True, exist_ok=True)
+            (root / "portfolio" / "ALLOCATION_REPORT.md").write_text(
+                "# report with no table\n", encoding="utf-8"
+            )
+            findings = validate_all(root, today=date(2026, 8, 1))
+            self.assertEqual(
+                codes(findings), ["missing-ledger", "unreadable-allocation-source"]
+            )
 
 
 class LiveLedgerTest(unittest.TestCase):
