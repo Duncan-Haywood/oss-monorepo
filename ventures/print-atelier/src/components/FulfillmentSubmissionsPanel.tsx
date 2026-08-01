@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import { PackageCheck, Truck } from "lucide-react";
 import type { FulfillmentSubmissionSummary } from "@/lib/fulfillment-submissions";
+import { fetchOperatorJson, type OperatorFetchResult } from "@/lib/operator-client";
+import OperatorAccessNotice from "./OperatorAccessNotice";
 
 export default function FulfillmentSubmissionsPanel() {
-  const [summary, setSummary] = useState<FulfillmentSubmissionSummary | null>(null);
+  const [result, setResult] = useState<OperatorFetchResult<FulfillmentSubmissionSummary> | null>(
+    null,
+  );
+  const summary = result?.state === "ok" ? result.data : null;
 
   useEffect(() => {
-    fetch("/api/fulfillment/submissions")
-      .then((response) => response.json())
-      .then((data: FulfillmentSubmissionSummary) => setSummary(data))
-      .catch(() => setSummary(null));
+    fetchOperatorJson<FulfillmentSubmissionSummary>("/api/fulfillment/submissions").then(setResult);
   }, []);
 
   return (
@@ -27,6 +29,8 @@ export default function FulfillmentSubmissionsPanel() {
           </p>
         </div>
       </div>
+
+      <OperatorAccessNotice result={result} />
 
       <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-xl border border-stone-200 bg-white p-3">

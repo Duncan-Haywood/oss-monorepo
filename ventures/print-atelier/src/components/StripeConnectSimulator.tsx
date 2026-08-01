@@ -6,19 +6,20 @@ import {
   simulateStripeConnectPayout,
   type StripeWebhookEnvStatus,
 } from "@/lib/stripe-connect";
+import { fetchOperatorJson, type OperatorFetchResult } from "@/lib/operator-client";
+import OperatorAccessNotice from "./OperatorAccessNotice";
 
 export default function StripeConnectSimulator() {
   const [retailPrice, setRetailPrice] = useState(85);
   const [fulfillmentCost, setFulfillmentCost] = useState(28);
   const [monthlyOrders, setMonthlyOrders] = useState(42);
   const [transferDelayDays, setTransferDelayDays] = useState(7);
-  const [webhookEnv, setWebhookEnv] = useState<StripeWebhookEnvStatus | null>(null);
+  const [webhookResult, setWebhookResult] =
+    useState<OperatorFetchResult<StripeWebhookEnvStatus> | null>(null);
+  const webhookEnv = webhookResult?.state === "ok" ? webhookResult.data : null;
 
   useEffect(() => {
-    fetch("/api/stripe/webhook")
-      .then((response) => response.json())
-      .then((data) => setWebhookEnv(data as StripeWebhookEnvStatus))
-      .catch(() => setWebhookEnv(null));
+    fetchOperatorJson<StripeWebhookEnvStatus>("/api/stripe/webhook").then(setWebhookResult);
   }, []);
 
   const simulation = useMemo(
@@ -44,6 +45,8 @@ export default function StripeConnectSimulator() {
           transfer to artist. Use this before wiring test-mode keys and webhooks.
         </p>
       </header>
+
+      <OperatorAccessNotice result={webhookResult} />
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <label className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">

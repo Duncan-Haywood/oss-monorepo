@@ -14,6 +14,7 @@ import {
   type CheckoutShippingRegion,
 } from "@/lib/checkout";
 import { catalogArtworks } from "@/lib/marketplace";
+import { fetchOperatorJson, type OperatorFetchResult } from "@/lib/operator-client";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -40,7 +41,8 @@ const regions: CheckoutShippingRegion[] = ["US", "EU", "UK", "APAC"];
 export default function CheckoutLab() {
   const [cart, setCart] = useState<CheckoutLineItem[]>([]);
   const [region, setRegion] = useState<CheckoutShippingRegion>("US");
-  const [envStatus, setEnvStatus] = useState<CheckoutEnvStatus | null>(null);
+  const [envResult, setEnvResult] = useState<OperatorFetchResult<CheckoutEnvStatus> | null>(null);
+  const envStatus = envResult?.state === "ok" ? envResult.data : null;
   const [sessionPreview, setSessionPreview] = useState<CheckoutApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -56,20 +58,23 @@ export default function CheckoutLab() {
   }, [cart]);
 
   useEffect(() => {
-    fetch("/api/stripe/checkout")
-      .then((response) => response.json())
-      .then((data) => setEnvStatus(data as CheckoutEnvStatus))
-      .catch(() => setEnvStatus(null));
+    fetchOperatorJson<CheckoutEnvStatus>("/api/stripe/checkout").then(setEnvResult);
   }, []);
 
   const totals = useMemo(() => calculateCheckoutTotals(cart, region), [cart, region]);
   const route = useMemo(() => buildFulfillmentRoute(cart, region), [cart, region]);
   const readiness = useMemo(() => {
     const base = buildCheckoutReadiness(cart, catalogArtworks);
-    const envBlockers = envStatus?.blockers ?? ["Stripe env status unavailable"];
+    // Which Stripe keys are set is an operator diagnostic, and a buyer is not
+    // an operator. When the read is refused, say the status is unavailable
+    // rather than reporting the keys as missing — a shopper reading "keys
+    // missing" on a working store is told the checkout is broken when it is
+    // not. Nothing below gates the pay button on this; it drives a badge.
+    const envBlockers = envStatus?.blockers ?? [];
     return {
       ...base,
       envReady: envStatus?.readyForTestCheckout ?? false,
+      envKnown: envStatus !== null,
       blockers: [...base.blockers.filter((b) => !b.includes("STRIPE")), ...envBlockers],
     };
   }, [cart, envStatus]);
@@ -275,10 +280,15 @@ export default function CheckoutLab() {
           </span>
           <span
             className={`text-xs px-2 py-1 rounded-full ${
-              readiness.envReady ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
+              !readiness.envKnown
+                ? "bg-stone-100 text-stone-700"
+                : readiness.envReady
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-amber-100 text-amber-800"
             }`}
           >
-            Stripe {readiness.envReady ? "test-ready" : "keys missing"}
+            Stripe{" "}
+            {!readiness.envKnown ? "status operator-only" : readiness.envReady ? "test-ready" : "keys missing"}
           </span>
           <span
             className={`text-xs px-2 py-1 rounded-full ${

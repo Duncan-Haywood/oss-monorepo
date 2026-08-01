@@ -2,6 +2,8 @@
 
 import { buildAdCatalogSyncHealth, type SyncHealthStatus } from "@/lib/ad-catalog";
 import type { AdCatalogSyncResult } from "@/lib/ad-catalog-sync";
+import { fetchOperatorJson, type OperatorFetchResult } from "@/lib/operator-client";
+import OperatorAccessNotice from "./OperatorAccessNotice";
 import { useMemo, useState } from "react";
 
 const statusStyles: Record<SyncHealthStatus, string> = {
@@ -12,7 +14,10 @@ const statusStyles: Record<SyncHealthStatus, string> = {
 
 export default function AdSyncHealthMonitor() {
   const [baselineCAC, setBaselineCAC] = useState(68);
-  const [syncResult, setSyncResult] = useState<AdCatalogSyncResult | null>(null);
+  const [syncOutcome, setSyncOutcome] = useState<OperatorFetchResult<AdCatalogSyncResult> | null>(
+    null,
+  );
+  const syncResult = syncOutcome?.state === "ok" ? syncOutcome.data : null;
   const [syncLoading, setSyncLoading] = useState(false);
   const health = useMemo(
     () => buildAdCatalogSyncHealth({ baselineCAC, baseUrl: "https://printatelier.com" }),
@@ -22,11 +27,15 @@ export default function AdSyncHealthMonitor() {
   const runCatalogSync = async () => {
     setSyncLoading(true);
     try {
-      const response = await fetch("/api/ad-catalog/sync?baseUrl=https://printatelier.com", {
-        method: "POST",
-      });
-      const data = (await response.json()) as AdCatalogSyncResult;
-      setSyncResult(data);
+      // This POST writes the live Meta, Google and Pinterest catalogs, so the
+      // route refuses a browser with no operator token. Surface the refusal
+      // rather than rendering the denial body as if it were a sync result.
+      setSyncOutcome(
+        await fetchOperatorJson<AdCatalogSyncResult>(
+          "/api/ad-catalog/sync?baseUrl=https://printatelier.com",
+          { method: "POST" },
+        ),
+      );
     } finally {
       setSyncLoading(false);
     }
@@ -159,6 +168,7 @@ export default function AdSyncHealthMonitor() {
             {syncLoading ? "Syncing…" : "Run catalog sync"}
           </button>
         </div>
+        <OperatorAccessNotice result={syncOutcome} />
         {syncResult && (
           <div className="mt-4 space-y-3">
             <p className="text-sm font-medium text-fuchsia-900 dark:text-fuchsia-100">{syncResult.summaryLabel}</p>

@@ -7,17 +7,17 @@ import {
   type RetargetingEventSummary,
 } from "@/lib/retargeting-events";
 import { getPartnerCredentialEnvFromProcess } from "@/lib/partner-credentials";
+import { fetchOperatorJson, type OperatorFetchResult } from "@/lib/operator-client";
+import OperatorAccessNotice from "./OperatorAccessNotice";
 
 export default function CheckoutRetargetingPanel() {
   const env = useMemo(() => getPartnerCredentialEnvFromProcess(), []);
   const envStatus = useMemo(() => getRetargetingEnvStatus(env), [env]);
-  const [summary, setSummary] = useState<RetargetingEventSummary | null>(null);
+  const [result, setResult] = useState<OperatorFetchResult<RetargetingEventSummary> | null>(null);
+  const summary = result?.state === "ok" ? result.data : null;
 
   useEffect(() => {
-    fetch("/api/retargeting/events")
-      .then((response) => response.json())
-      .then((data: RetargetingEventSummary) => setSummary(data))
-      .catch(() => setSummary(null));
+    fetchOperatorJson<RetargetingEventSummary>("/api/retargeting/events").then(setResult);
   }, []);
 
   return (
@@ -32,6 +32,8 @@ export default function CheckoutRetargetingPanel() {
           </p>
         </div>
       </div>
+
+      <OperatorAccessNotice result={result} />
 
       <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-xl border border-stone-200 bg-white p-3">
