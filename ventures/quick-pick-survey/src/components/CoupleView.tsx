@@ -579,7 +579,10 @@ export function CoupleView() {
                       title: insight.title,
                       headline: insight.headline,
                       discovery: insight.discovery,
-                      alignmentPct: Math.round((data.fit?.overlap ?? 0.85) * 100),
+                      alignmentPct:
+                        typeof data.fit?.overlap === "number"
+                          ? Math.round(data.fit.overlap * 100)
+                          : undefined,
                     })
                   }
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-700 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold shadow transition"
