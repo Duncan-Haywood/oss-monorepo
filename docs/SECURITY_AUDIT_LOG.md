@@ -253,6 +253,41 @@ This log records all identified application, infrastructure, container, and CI s
 
 ---
 
+### SEC-021 — Low — The Homepage Container Published Its Own Configuration
+
+- **Component**: `portfolio/marisstella-homepage` (production, Kubernetes).
+- **Found**: 2026-08-01, while replacing the venture's no-op CI gates.
+- **Issue**: the `Dockerfile` does `COPY . /usr/share/nginx/html`, and the
+  `.dockerignore` excluded `Dockerfile*`, `node_modules`, dotfiles and key
+  material but not `nginx.conf` or `package.json`. nginx denies only paths
+  matching `/\.`, so both were fetchable from the public site: `/nginx.conf`
+  served the full server configuration including the Content-Security-Policy
+  and the unprivileged-user temp paths, and `/package.json` served the
+  toolchain. Rated Low because neither contains a secret and the CSP is sent on
+  every response anyway — what it gives an attacker is a free, exact read of the
+  server's rules rather than having to probe for them.
+- **Fix**: `.dockerignore` now also excludes `nginx.conf`, `package.json`,
+  `package-lock.json`, `test/` and `*.png`. The build context, not nginx, is the
+  right place for this: an exclusion in the server config would have to be kept
+  in step with every new file.
+- **Evidence**: `test/markup-contract.test.mjs`, `the container does not publish
+  its own build and config files`, which asserts the Dockerfile still copies the
+  whole context and then requires each entry by name. Mutation-checked by
+  removing each of the five entries in turn; every removal fails that test and
+  no other.
+- **Residual risk**: the exclusion list is enumerated rather than derived, so a
+  future config file added beside these would ship public until someone adds it.
+  An allow-list `COPY` of the three served files would close that properly and
+  is the better fix if this site grows past three files.
+- **Process note**: this venture is the reason
+  `platform/ci/test/gate-substance.test.mjs` exists. Its three declared gates
+  were `node -e 'console.log("... verified")'`, so the CI engine reported the
+  component PASSED without checking anything, and had done so for as long as it
+  existed. Nothing found this because nothing was looking: every control asks
+  whether a gate is declared and reachable, and this one was both.
+
+---
+
 ## Operational Security Checklist
 
 - [x] All workflows include `permissions: contents: read` top-level block.

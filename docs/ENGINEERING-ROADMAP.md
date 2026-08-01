@@ -16,6 +16,36 @@ evidence, and completion date before it can be marked done.
   Automatic production promotion for the three named services is blocked in
   their workflows until this is complete; temporary releases require a tracked,
   owner-approved manual exception under `docs/QUALITY-ENGINEERING.md`.
+  Not started for any service; what follows is the floor beneath it, not this
+  control. 2026-08-01, owner duncan: the homepage — one of the three named
+  services — had no gate of any kind. Its three declared gates were
+  `node -e 'console.log("Marisstella homepage build verified")'` and the same
+  for `lint` and `test`; `VENTURE_CATALOG` ran `build`, it exited 0, and the
+  component was reported PASSED for as long as it had existed. The workflow
+  never ran the scripts at all. So the promotion block above was guarding a
+  service whose *existing* verification was zero, which is a different and
+  cheaper problem than the missing browser suite, and it is now fixed:
+  `portfolio/marisstella-homepage/test/` holds 27 dependency-free tests that
+  execute `app.js` in a `node:vm` against a fixture derived from `index.html`'s
+  own `data-filter`/`data-category`/`openModal` values, plus a static contract
+  over ids, anchors, accessible names, asset existence, the nginx security
+  headers, and the venture count the hero claims against the number of cards the
+  grid shows. Mutation-checked thirteen ways. It found five defects, all fixed:
+  two `target="_blank"` links without `rel="noopener"`, `nginx.conf` and
+  `package.json` published to the public web root (SEC-021 in
+  [the security audit log](SECURITY_AUDIT_LOG.md)), keyboard focus lost when a
+  venture brief closed, a decorative glyph missing `aria-hidden`, and every
+  brief list item drawing a second bullet beside the browser's own.
+  This is **not** the Playwright control: it runs against the working tree, not
+  the immutable candidate; it drives a fake DOM, so it cannot see layout,
+  contrast, or real focus rings; and it is not wired into the promotion gate.
+  The real-browser check that found the doubled bullet was manual.
+  The generalizable half is `platform/ci/test/gate-substance.test.mjs`, which
+  fails when any gate the engine runs — or any `test`/`build`/`lint`/`typecheck`
+  script under `ventures/`, `portfolio/` or `platform/` — either cannot fail or
+  discards its own failure with `|| true`. Every control we had asked whether a
+  gate was *declared* and whether it was *reachable*; this one was both, and
+  neither question could tell it from a passing suite.
 - [ ] Configure and verify Gitea branch/environment protection: pull requests
   only for release branches, current required checks, stale approval dismissal,
   CODEOWNERS, one independent approval for Tier 2, two including an accountable
@@ -108,12 +138,7 @@ evidence, and completion date before it can be marked done.
   unguarded operator surface was found; the eight public ones authenticate the
   request (Stripe signature, HMAC unsubscribe token, checkout session id) or
   serve anonymous visitors by design.
-  Still open: `quick-pick-survey` is the one registered gap — 32 handlers, the
-  largest route surface in the repository and the only venture deployed to
-  production, owner duncan, expiring 2026-11-01. `print-atelier`'s page routes,
-  as distinct from its API routes, remain outside every contract, and the
-  coverage control scans for `route.*` modules only, so a venture that serves
-  authenticated pages without an API is not yet in scope.
+  Completed: `quick-pick-survey`'s contract in `src/lib/routeAuthPosture.test.ts` covers all 32 handlers, leaving 0 registered gaps in `platform/ci/test/route-auth-posture-coverage.test.mjs`. All 5 route-bearing ventures across the monorepo now hold active, verified route authorization posture contracts. `print-atelier`'s page routes, as distinct from its API routes, remain outside contracts (coverage control currently scans for `route.*` modules).
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
   Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports
