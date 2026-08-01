@@ -8,7 +8,8 @@
     "enhance": "tsx src/cli.ts",
     "microsite": "tsx src/cli-microsite.ts",
     "log-lead": "tsx src/log-lead.ts",
-    "test": "tsx src/enhance.test.ts && tsx src/log-lead.test.ts && tsx src/microsite.test.ts && tsx src/delivery-message.test.ts && tsx src/referral-followup.test.ts && tsx src/offer-claims.test.ts"
+    "//test": "verify-access-gate.test.sh belongs to docs-site, but docs-site has no test script and is not a CI catalog component — this package's `test` is the only gate the engine runs for this venture, so it is chained here rather than left unexecuted.",
+    "test": "tsx src/enhance.test.ts && tsx src/log-lead.test.ts && tsx src/microsite.test.ts && tsx src/delivery-message.test.ts && tsx src/referral-followup.test.ts && tsx src/offer-claims.test.ts && bash ../docs-site/scripts/verify-access-gate.test.sh"
   },
   "dependencies": {
     "sharp": "^0.33.2"

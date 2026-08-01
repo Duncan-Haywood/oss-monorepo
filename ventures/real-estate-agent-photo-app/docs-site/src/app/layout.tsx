@@ -5,7 +5,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Listing Lens Docs",
-  description: "Private documentation for Listing Lens — protected by Cloudflare Access.",
+  description:
+    "Internal documentation for Listing Lens. Cloudflare Access is applied and " +
+    "verified by the deploy pipeline; see docs-site/scripts/verify-access-gate.sh.",
   robots: {
     index: false,
     follow: false,
