@@ -1,6 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { shareTargetFrom } from "@/lib/shareTarget";
+
+/** The origin never changes within a session, so there is nothing to subscribe to. */
+const noSubscribe = () => () => {};
+const clientOrigin = () => window.location.origin;
+/** The server has no location; `null` keeps the two renders identical. */
+const serverOrigin = () => null;
 
 type ShareInsightModalProps = {
   isOpen: boolean;
@@ -8,6 +15,11 @@ type ShareInsightModalProps = {
   title: string;
   headline: string;
   discovery: string;
+  /**
+   * The couple's own computed alignment. Undefined when it has not been
+   * computed yet — there is deliberately no default, because a default is a
+   * number the couple would read and share as their own result.
+   */
   alignmentPct?: number;
   coupleNames?: { mine: string; theirs: string };
 };
@@ -18,20 +30,30 @@ export function ShareInsightModal({
   title,
   headline,
   discovery,
-  alignmentPct = 85,
+  alignmentPct,
   coupleNames = { mine: "You", theirs: "Partner" },
 }: ShareInsightModalProps) {
   const [includeScore, setIncludeScore] = useState(true);
   const [includeArchetype, setIncludeArchetype] = useState(true);
   const [copied, setCopied] = useState(false);
+  // Read through a store rather than during render, so the server render — which
+  // has no location — and the client render agree instead of mismatching on
+  // hydration. There is deliberately no literal fallback here; see `shareTarget`.
+  const origin = useSyncExternalStore(noSubscribe, clientOrigin, serverOrigin);
+  const target = shareTargetFrom(origin);
 
   if (!isOpen) return null;
 
+  const hasScore = typeof alignmentPct === "number";
+  const showScore = hasScore && includeScore;
+
   const shareText = `✨ ${coupleNames.mine} & ${coupleNames.theirs}'s Relationship Insight:\n` +
     (includeArchetype ? `🎯 "${headline}"\n` : "") +
-    (includeScore ? `📊 Alignment Score: ${alignmentPct}%\n` : "") +
+    (showScore ? `📊 Alignment Score: ${alignmentPct}%\n` : "") +
     `💡 "${discovery}"\n\n` +
-    `Discover how well you and your partner align on Quick Pick: https://quickpick.app`;
+    (target
+      ? `Discover how well you and your partner align on Quick Pick: ${target.url}`
+      : `Discover how well you and your partner align on Quick Pick.`);
 
   const handleCopy = async () => {
     try {
@@ -49,7 +71,7 @@ export function ShareInsightModal({
         await navigator.share({
           title: `Relationship Insight: ${title}`,
           text: shareText,
-          url: "https://quickpick.app",
+          ...(target ? { url: target.url } : {}),
         });
       } catch {
         // User cancelled or share failed
@@ -84,7 +106,7 @@ export function ShareInsightModal({
             <span className="text-xs font-mono uppercase tracking-wider text-purple-100 bg-purple-900 font-semibold">
               Quick Pick • Relationship Card
             </span>
-            {includeScore && (
+            {showScore && (
               <span className="px-2.5 py-0.5 rounded-full bg-purple-800 text-purple-100 text-xs font-bold border border-purple-600">
                 {alignmentPct}% Aligned
               </span>
@@ -100,7 +122,9 @@ export function ShareInsightModal({
           </p>
           <div className="mt-4 pt-3 border-t border-purple-800 flex justify-between items-center text-xs text-purple-100 font-medium bg-purple-900">
             <span>{coupleNames.mine} &amp; {coupleNames.theirs}</span>
-            <span className="text-purple-100 font-semibold bg-purple-900">quickpick.app</span>
+            {target && (
+              <span className="text-purple-100 font-semibold bg-purple-900">{target.host}</span>
+            )}
           </div>
         </div>
 
@@ -116,15 +140,17 @@ export function ShareInsightModal({
             />
             <span>Include Relationship Archetype</span>
           </label>
-          <label className="flex items-center space-x-3 text-sm text-neutral-800 dark:text-neutral-200 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={includeScore}
-              onChange={(e) => setIncludeScore(e.target.checked)}
-              className="rounded border-neutral-400 text-purple-600 dark:text-purple-400 focus:ring-purple-600"
-            />
-            <span>Include Alignment Score ({alignmentPct}%)</span>
-          </label>
+          {hasScore && (
+            <label className="flex items-center space-x-3 text-sm text-neutral-800 dark:text-neutral-200 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeScore}
+                onChange={(e) => setIncludeScore(e.target.checked)}
+                className="rounded border-neutral-400 text-purple-600 dark:text-purple-400 focus:ring-purple-600"
+              />
+              <span>Include Alignment Score ({alignmentPct}%)</span>
+            </label>
+          )}
         </div>
 
         {/* Action Buttons */}
