@@ -166,8 +166,14 @@ evidence, and completion date before it can be marked done.
   config: Next.js 16 makes Turbopack the default and errors when a `webpack`
   config appears with no `turbopack` config beside it. `HEAD` builds clean, so this
   is in-flight work to finish rather than a defect in the venture. And the engine
-  reaching a venture at all still depends on affected-path detection, so a
-  component nothing has touched is still verified by nothing.
+  reaching a venture at all still depends on affected-path detection, which is
+  narrower than it reads: `getChangedFiles` defaults to `HEAD~1`, so a push
+  carrying several commits verifies only the components the *last* commit touched.
+  A change to a venture in the middle of a push, followed by a docs-only commit,
+  selects nothing. `GITHUB_BASE_REF` widens this to the full branch diff on pull
+  requests, so the hole is on direct pushes — which is also where the weakest
+  review is. Fixing it means diffing the push range rather than one commit, and
+  wants a real runner to confirm what the Gitea event actually provides.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
   Partially configured live on 2026-08-01 as recorded above; required status
