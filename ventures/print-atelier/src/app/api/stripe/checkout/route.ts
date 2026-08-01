@@ -14,6 +14,7 @@ import {
 import { executeCheckoutRetargetingLive } from "@/lib/retargeting-events-http";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout-server";
 import { NextResponse } from "next/server";
+import { requireOperator } from "@/lib/api-auth";
 
 export const runtime = "nodejs";
 
@@ -56,7 +57,17 @@ function resolveBaseUrl(request: Request): string {
   return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 }
 
-export async function GET() {
+/**
+ * Operator-only, unlike the POST and PUT below. This is the diagnostic that
+ * reports which Stripe, Printful and Gelato credentials are configured — a read
+ * of the server's secret configuration, and it answered anonymous callers.
+ */
+export async function GET(request: Request) {
+  const denied = requireOperator(request);
+  if (denied) {
+    return denied;
+  }
+
   const env = readEnv();
   const status = getCheckoutEnvStatus(env);
 

@@ -1,5 +1,14 @@
 import { buildRetargetingEventSummary } from "@/lib/retargeting-events";
+import { requireOperator } from "@/lib/api-auth";
 import { NextResponse } from "next/server";
+
+/**
+ * Operator-only. The summary reports which ad platforms have working
+ * credentials — a direct read of the server's configured secrets, stated as
+ * readiness — alongside recorded checkout-abandon events carrying cart values,
+ * session ids and the items each abandoned cart held. Before the guard below
+ * both were served to anyone who requested the URL.
+ */
 
 export const runtime = "nodejs";
 
@@ -13,7 +22,12 @@ function readEnv() {
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = requireOperator(request);
+  if (denied) {
+    return denied;
+  }
+
   const summary = buildRetargetingEventSummary(readEnv());
   return NextResponse.json(summary);
 }

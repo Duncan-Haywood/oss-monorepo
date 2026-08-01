@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireOperator } from "@/lib/api-auth";
 import {
   getStripeWebhookEnvStatus,
   processStripeConnectWebhookEvent,
@@ -109,7 +110,19 @@ export async function POST(request: Request) {
   });
 }
 
-export async function GET() {
+/**
+ * Operator-only, unlike the POST above. Stripe never calls GET; this is the
+ * diagnostic that reports which of `STRIPE_SECRET_KEY`,
+ * `STRIPE_WEBHOOK_SECRET` and `STRIPE_CONNECT_CLIENT_ID` are configured. That
+ * is a read of the server's secret configuration, and it answered anonymous
+ * callers.
+ */
+export async function GET(request: Request) {
+  const denied = requireOperator(request);
+  if (denied) {
+    return denied;
+  }
+
   const envStatus = getStripeWebhookEnvStatus({
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
