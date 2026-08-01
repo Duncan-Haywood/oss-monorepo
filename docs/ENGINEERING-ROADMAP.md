@@ -32,11 +32,21 @@ evidence, and completion date before it can be marked done.
   were all skip-and-pass, and `platform/ci/test/fail-closed.test.mjs` now covers
   each. `.gitea/workflows/security.yml` fails if a run retains no evidence.
   Still open: no SAST (Semgrep/CodeQL/Bandit), Trivy runs `vuln,misconfig` but
-  not `license`, no SBOM, no container or published-image scanning. Two host
-  gaps keep named checks from executing in CI: `.gitea/workflows/ci-cd.yml`
-  installs no Python/pytest, no venture node modules, and no Terraform,
-  ShellCheck or actionlint, so `scripts/test-ci.sh` cannot pass on a clean
-  runner and the lint and IaC gates never run there.
+  not `license`, no SBOM, no container or published-image scanning.
+  The host gap that kept named checks from executing in CI is closed
+  (`316d814`): `.gitea/workflows/ci-cd.yml` installed only Node, so gate 1
+  failed on a clean runner and `set -euo pipefail` in `scripts/verify-all.sh`
+  aborted before the Dagger engine ran at all — none of the fail-closed work
+  above actually bound in CI. It now installs Python 3.11 with
+  `requirements-ci.txt`, the Pairwise and print-atelier venture dependencies,
+  ShellCheck, actionlint (checksum-verified) and Terraform, and a missing
+  linter fails instead of printing a skip notice.
+  `platform/ci/test/ci-workflow-tooling.test.mjs` holds the workflow to the
+  tools `scripts/test-ci.sh` invokes, so a new gate needing new tooling fails
+  until the install step exists. Not yet verified on a real runner — the
+  evidence is local (`bash scripts/test-ci.sh` green, actionlint and ShellCheck
+  clean, each tooling pattern mutation-checked); a first CI run is what would
+  confirm it.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
   Blocked on Gitea server administration; nothing in this repository can
