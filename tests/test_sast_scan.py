@@ -13,6 +13,7 @@ they are what make this run on every push rather than only when someone
 remembers to.
 """
 
+import importlib.util
 import sys
 import unittest
 from datetime import date, timedelta
@@ -21,23 +22,34 @@ from pathlib import Path
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCAN_DIR = REPO_ROOT / "scripts" / "ci"
-if str(SCAN_DIR) not in sys.path:
-    sys.path.insert(0, str(SCAN_DIR))
 
-import sast_scan  # noqa: E402
-from sast_scan import (  # noqa: E402
-    MAX_EXPIRY_DAYS,
-    REQUIRED_FIELDS,
-    Finding,
-    Located,
-    ScanError,
-    check_parse_coverage,
-    reconcile,
-    run_bandit,
-    run_semgrep,
-    validate_entries,
+# Loaded by path rather than by inserting scripts/ci onto sys.path and importing
+# it. The sys.path version needs an inline linter suppression on every import
+# that follows, and `scripts/ci/audit_exceptions.py` correctly reports those as
+# unregistered. Two waivers to import a module is a worse trade than one
+# explicit loader.
+#
+# The module has to be in sys.modules *before* it executes: it uses
+# `@dataclass`, which resolves field types via
+# `sys.modules[cls.__module__].__dict__` and raises AttributeError on None if
+# the module is not registered yet.
+_spec = importlib.util.spec_from_file_location(
+    "sast_scan", REPO_ROOT / "scripts" / "ci" / "sast_scan.py"
 )
+sast_scan = importlib.util.module_from_spec(_spec)
+sys.modules[_spec.name] = sast_scan
+_spec.loader.exec_module(sast_scan)
+
+MAX_EXPIRY_DAYS = sast_scan.MAX_EXPIRY_DAYS
+REQUIRED_FIELDS = sast_scan.REQUIRED_FIELDS
+Finding = sast_scan.Finding
+Located = sast_scan.Located
+ScanError = sast_scan.ScanError
+check_parse_coverage = sast_scan.check_parse_coverage
+reconcile = sast_scan.reconcile
+run_bandit = sast_scan.run_bandit
+run_semgrep = sast_scan.run_semgrep
+validate_entries = sast_scan.validate_entries
 
 TODAY = date(2026, 8, 1)
 BASELINE_PATH = REPO_ROOT / "platform" / "sast-baseline.yaml"
