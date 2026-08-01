@@ -8,7 +8,7 @@
     "enhance": "tsx src/cli.ts",
     "microsite": "tsx src/cli-microsite.ts",
     "log-lead": "tsx src/log-lead.ts",
-    "test": "tsx src/enhance.test.ts && tsx src/log-lead.test.ts && tsx src/microsite.test.ts && tsx src/delivery-message.test.ts && tsx src/referral-followup.test.ts"
+    "test": "tsx src/enhance.test.ts && tsx src/log-lead.test.ts && tsx src/microsite.test.ts && tsx src/delivery-message.test.ts && tsx src/referral-followup.test.ts && tsx src/offer-claims.test.ts"
   },
   "dependencies": {
     "sharp": "^0.33.2"
