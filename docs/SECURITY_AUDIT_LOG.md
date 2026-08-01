@@ -29,6 +29,8 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-017** | **Critical** | Supply Chain | `ventures/photo-editing/docs-site` | Abandoned `htmltojsx` pulled in `request` (SSRF) and `form-data` (CRLF injection) | **Fixed** |
 | **SEC-018** | High | Application | `ventures/print-atelier/src/app/api/credentials/vercel-pull` | Unauthenticated disclosure of configured partner credential state | **Fixed** |
 | **SEC-019** | **Critical** | Application | `ventures/print-atelier/src/app/api/*` | Six operator API handlers served anonymous callers; one writes live ad catalogs | **Fixed** |
+| **SEC-020** | Medium | Application | `ventures/print-atelier/src/app/api/stripe/webhook/route.ts` | Signed event missing `data` crashed the handler; the resulting 5xx makes Stripe redeliver indefinitely | **Fixed** |
+| **SEC-021** | Medium | Application | `ventures/print-atelier/src/lib/stripe-webhook-server.ts` | Webhook signature verification has no timestamp tolerance, so a captured payload replays indefinitely | **[ ] Open** |
 
 ---
 
@@ -215,6 +217,42 @@ This log records all identified application, infrastructure, container, and CI s
   routable, and a browser has no way to present a bearer token, so an operator
   cannot read their own dashboards until a session mechanism exists. The panels
   now say so explicitly instead of rendering zeros.
+
+### SEC-020 — Medium — Malformed Signed Stripe Event Crashed the Webhook
+- **Location**: `ventures/print-atelier/src/app/api/stripe/webhook/route.ts`
+- **Impact**: SEC-019 guarded this route's `GET` diagnostic. The `POST` — the
+  path money actually arrives on — is guarded by signature verification instead,
+  and that part was correct. What was missing came after it: the handler read
+  `event.data.object` with no shape check, so a correctly signed event without
+  `data`, or a signed body that is an array, string, number or `null`, raised a
+  `TypeError` and returned 500. Stripe retries 5xx, so one malformed event would
+  be redelivered on Stripe's retry schedule instead of being rejected once. Only
+  Stripe can trigger this, which is what holds it to Medium.
+- **Fix**: An explicit `isWebhookEventShape` check between JSON parsing and first
+  dereference, returning 400 for a shape the handler cannot process.
+- **Evidence**: 9 new tests in `ventures/print-atelier/tests/stripe-webhook-route.test.ts`.
+  This route had no route-level test of any kind — only
+  `verifyStripeWebhookSignature` was tested as a pure function, which cannot
+  observe a status code. The two shape tests fail against the pre-fix handler.
+  The other seven cover authenticity at the route layer — missing header, forged
+  signature, wrong secret, a valid signature replayed over a tampered payload,
+  and an unset secret — and passed before the change, so they are regression
+  cover for a path that previously had none. Full venture verify green:
+  `tsc --noEmit`, `next lint`, 278 tests, `next build`.
+
+### SEC-021 — Medium — Stripe Webhook Signatures Never Expire
+- **Location**: `ventures/print-atelier/src/lib/stripe-webhook-server.ts:20-22`
+- **Impact**: `verifyStripeWebhookSignature` parses the `t=` timestamp and uses
+  it to rebuild the signed payload, but never compares it against the current
+  time. Stripe's own tolerance window is what stops a captured webhook being
+  replayable; without it, an intercepted request stays valid forever. Given the
+  handler records orders and queues Gelato/Printful fulfillment, a replayed
+  `payment_intent.succeeded` could re-queue fulfillment for an order already
+  shipped.
+- **Status**: Open. Adding a tolerance window changes which deliveries are
+  accepted, and legitimate Stripe retries can arrive well after the original
+  timestamp, so the window is an operational decision rather than a default an
+  agent should pick. Tracked in `ventures/print-atelier/docs/BACKLOG.md`.
 
 ---
 
