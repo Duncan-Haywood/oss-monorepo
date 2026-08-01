@@ -22,6 +22,13 @@ evidence, and completion date before it can be marked done.
   owner for Tier 3, and protected production secrets. Owner: infrastructure.
   Retain an exported/screenshot evidence record and audit after workflow changes
   and quarterly; repository YAML cannot prove provider-side settings are active.
+  Partial live enforcement verified 2026-08-01 through the Gitea API: `main`
+  blocks direct pushes and outdated branches, requires one approval, dismisses
+  stale approvals, and blocks rejected or pending official reviews. Still open:
+  required status checks await a real pull-request run to establish exact
+  context names, production environment approvers/secrets remain unverified,
+  Tier 3 cannot yet require two approvals by path/risk tier, and runner
+  isolation remains unverified.
 
 - [x] Inventory every active venture's verify commands, test types, coverage,
   production path, data classes, security boundaries, telemetry, and owner.
@@ -56,11 +63,31 @@ evidence, and completion date before it can be marked done.
   integration tests covering auth, admin, trials, couple and usage;
   `local-site-studio` 9 routes with a `route.test.ts` beside each and ~20
   server-action tests; `ai-first-markets` 3 routes and
-  `photo-editing/docs-site` 3 routes, both with none. Neither of those two has
+  `photo-editing/docs-site` 4 routes, both with none. Neither of those two has
   an equivalent guard contract, so the same class of gap is unmeasured there.
   The generalizable piece is the contract shape, not the specific guard: a
-  venture-local test that makes every new route declare an auth posture. Nothing
-  yet holds a venture to having one.
+  venture-local test that makes every new route declare an auth posture.
+  Both of those two now have one, 2026-08-01, owner duncan, in
+  `src/lib/routeAuthPosture.test.ts` under each venture. Both guard in
+  middleware rather than in handlers, so the contract checks reachability — it
+  enumerates the handlers, requires each to declare `public` (with a reason
+  naming what makes anonymous access safe) or `guarded`, and then checks that
+  declaration against what the middleware actually does with the path. In
+  `docs-site` it imports the real `isPublicPath` so it cannot drift; in
+  `ai-first-markets` that function is module-local, so it mirrors the rule and
+  fails if the original stops matching the mirrored shape. Both fail if the
+  middleware matcher stops covering `/api`, and both fail on an empty route
+  scan. Each was mutation-checked: a new undeclared handler, a narrowed
+  `PUBLIC_PATHS`, a changed matching rule, an `/api`-excluding matcher and a
+  moved app directory each fail the intended test and no other.
+  Writing the `docs-site` one found SEC-020 — `isPublicPath` exempted
+  `startsWith("/api/health")`, which matches siblings and not only children.
+  That venture had no test of any kind under `src` before this.
+  Still open: three ventures with API routes have no such contract
+  (`quick-pick-survey`, `local-site-studio` — both with real route tests but no
+  posture declaration — and `print-atelier`'s page routes as distinct from its
+  API routes), and nothing repository-wide holds a venture to having one. The
+  three existing contracts are three hand-written files, not a control.
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
   Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports
@@ -86,8 +113,9 @@ evidence, and completion date before it can be marked done.
   confirm it.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
-  Blocked on Gitea server administration; nothing in this repository can
-  complete it. Prepared 2026-07-31: `.gitea/CODEOWNERS` had a rule for
+  Partially configured live on 2026-08-01 as recorded above; required status
+  contexts and environment/runner controls remain open. Prepared 2026-07-31:
+  `.gitea/CODEOWNERS` had a rule for
   `/SECURITY-ROADMAP.md`, which matches no file, so the vulnerability register
   was unowned; the CI engine, the exception register and the audit scripts were
   unowned too. Corrected and held by
