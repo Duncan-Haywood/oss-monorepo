@@ -1,0 +1,13 @@
+# Python dependencies for the SAST gate (`scripts/ci/sast_scan.py`).
+#
+# Kept out of `requirements-ci.txt` on purpose. That file is installed by every
+# job in `.gitea/workflows/ci-cd.yml` and its own comment says it is deliberately
+# short; semgrep pulls in a large dependency tree and a compiled binary, and no
+# gate in `scripts/test-ci.sh` needs it. Only the security workflow installs this.
+#
+# `tests/test_sast_scan.py` deliberately needs neither tool: it exercises the
+# register logic and the fail-closed paths with the tools absent, so the
+# repository-wide pytest run stays fast and offline.
+
+bandit>=1.9,<2
+semgrep>=1.172,<2

@@ -1,0 +1,1297 @@
+# SAST baseline
+#
+# Static application security testing runs zero-tolerance: `scripts/ci/sast_scan.py`
+# fails on any Semgrep or Bandit finding that is not registered below, and it
+# fails just as hard when a registered finding disappears. See
+# `docs/SAST.md` for the process.
+#
+# Required fields: id, tool, rule, path, count, owner, issue, reason, expires,
+# status.
+#
+# `status` is either `reviewed` or `inherited`, and the difference is the point
+# of this file.
+#
+# `reviewed` means somebody read the finding, established why it is not
+# exploitable, and wrote that down; the gate enforces a minimum length on the
+# reason, because "false positive" is not one.
+#
+# `inherited` means the finding was already there when SAST was switched on and
+# has been counted but not yet assessed. There were 191 of those across 73
+# rule/file pairs, and claiming each had been individually cleared would have
+# been untrue. They carry a `plan` instead of a justification, and a shorter
+# expiry, so the register describes the real state of the code rather than a
+# tidier one. Working the list down is tracked in `docs/SAST.md`.
+#
+# Both are enforced identically: exact counts, so nothing new hides among them.
+#
+# `path` is an exact repository-relative path, deliberately not a glob. A glob
+# would let a brand-new file inherit an existing waiver, which is the failure
+# mode this register exists to prevent. `count` is the exact number of findings
+# of that rule in that file: a higher real count means a new finding slipped in,
+# a lower one means the entry is stale and the waiver has outlived its subject.
+#
+# Line numbers are deliberately not matched. They churn on every unrelated edit,
+# which would make the baseline a merge-conflict generator that everybody
+# regenerates blindly — a register nobody reads is worse than no register.
+#
+# `expires` may be at most 180 days out, same rule as
+# `platform/exception-register.yaml`.
+#
+# This file is not a place to park a vulnerability you have understood and
+# decided to keep: a genuine finding goes to `docs/SECURITY_AUDIT_LOG.md` as a
+# SEC-xxx and gets fixed. `inherited` is for findings not yet triaged, not for
+# ones triaged and accepted.
+
+# Semgrep scans a file it cannot fully parse — it stops at the construct its
+# grammar rejects and leaves the rest of that file unscanned, while reporting a
+# warning rather than an error. So a file that stops parsing quietly stops being
+# covered with every gate still green.
+#
+# The count is therefore declared rather than tolerated, and it is matched
+# exactly, not as an upper bound: raising it is a deliberate statement that more
+# code is unscanned, and lowering happens automatically the moment someone fixes
+# one, because a ceiling above the real number fails too.
+#
+# All 49 are Semgrep grammar limitations, not defects in this repository:
+# `>()` on a generic arrow function, and a bare `&` in JSX text. They are listed
+# in `sast-report.md` on every run.
+coverage:
+  semgrep_unparsed_max: 49
+
+baseline:
+  - id: SAST-001
+    tool: semgrep
+    rule: javascript.express.security.injection.raw-html-format.raw-html-format
+    path: ventures/local-site-studio/src/app/api/contact/[slug]/route.ts
+    count: 1
+    status: reviewed
+    owner: duncan
+    issue: docs/SAST.md#sast-001
+    expires: 2027-01-28
+    reason: >-
+      The rule flags user data interpolated into a manually built HTML string,
+      and the notification email does build its HTML by interpolation. Every one
+      of the seven interpolated values is wrapped in `escapeHtmlForEmail` first
+      (`src/lib/inquiries/reply.ts:33`), which replaces `&`, `<`, `>`, `"` and
+      `'` with entities before the value reaches the template. Semgrep does not
+      recognise the project's own sanitizer, so it sees the interpolation and
+      not the escape. Verified by reading every interpolation site in the
+      template on 2026-08-01; there is no unescaped one.
+
+  - id: SAST-002
+    tool: semgrep
+    rule: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
+    path: ventures/local-site-studio/src/app/preview/[slug]/page.tsx
+    count: 1
+    status: reviewed
+    owner: duncan
+    issue: docs/SAST.md#sast-002
+    expires: 2027-01-28
+    reason: >-
+      `dangerouslySetInnerHTML` here emits a `application/ld+json` structured
+      data block, which is the one case where React offers no alternative — JSON-LD
+      has to be script content. The value goes through `safeJsonLdScript`
+      (`src/lib/seo.ts:69`), which is `JSON.stringify(...).replace(/</g, "\\u003c")`:
+      the standard defence, because the only escape from a JSON string inside a
+      script element is a literal `</script>`, and escaping every `<` makes that
+      unrepresentable. The rule fires on any non-constant argument and cannot see
+      that the helper is total.
+
+  - id: SAST-004
+    tool: bandit
+    rule: B108
+    path: ventures/photo-editing/tests/test_assembly.py
+    count: 1
+    status: reviewed
+    owner: duncan
+    issue: docs/SAST.md#sast-004
+    expires: 2027-01-28
+    reason: >-
+      `hardcoded_tmp_directory` matches the string `/tmp/instagram_reel.mp4`,
+      which is test input to a negative case: the assertion immediately after it
+      is that `load_render_tasks_manifest` *rejects* that path with "Unsafe
+      render task output path". The literal is the attack being tested, so
+      removing it would delete the test's subject.
+
+  - id: SAST-005
+    tool: bandit
+    rule: B108
+    path: ventures/photo-editing/tests/test_production_status_cli.py
+    count: 1
+    status: reviewed
+    owner: duncan
+    issue: docs/SAST.md#sast-005
+    expires: 2027-01-28
+    reason: >-
+      The match is `/tmp/missing-ingest-manifest.json`, passed to the CLI under
+      test as a path that is deliberately absent so the test can assert the
+      error path. Nothing is created at or read from that location.
+
+  - id: SAST-010
+    tool: semgrep
+    rule: dockerfile.security.missing-user-entrypoint.missing-user-entrypoint
+    path: ventures/ubuntu-agent-server/docker/agent-runner/Dockerfile
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add a non-root USER to the agent-runner image, matching the fix already applied to portfolio/marisstella-homepage/Dockerfile under SEC-014.
+
+  - id: SAST-011
+    tool: semgrep
+    rule: generic.secrets.security.detected-bcrypt-hash.detected-bcrypt-hash
+    path: ventures/quick-pick-survey/src/app/api/auth/login/route.ts
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Confirm the matched literal is a test fixture rather than a real credential, then either move it behind a fixture factory or mark this entry reviewed.
+
+  - id: SAST-012
+    tool: semgrep
+    rule: javascript.lang.security.audit.dangerous-spawn-shell.dangerous-spawn-shell
+    path: platform/ci/src/pipeline.mjs
+    count: 2
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Same call sites as detect-child-process in platform/ci/src/pipeline.mjs. Convert to array-argument spawn without a shell where the command is not a user-authored string.
+
+  - id: SAST-013
+    tool: semgrep
+    rule: javascript.lang.security.audit.spawn-shell-true.spawn-shell-true
+    path: platform/ci/src/pipeline.mjs
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Convert to array-argument spawn without shell:true, or document why a shell is needed.
+
+  - id: SAST-014
+    tool: semgrep
+    rule: javascript.lang.security.audit.spawn-shell-true.spawn-shell-true
+    path: ventures/retail-pilot-intel/scripts/ci.ts
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Convert to array-argument spawn without shell:true, or document why a shell is needed.
+
+  - id: SAST-015
+    tool: semgrep
+    rule: javascript.lang.security.detect-child-process.detect-child-process
+    path: platform/ci/src/pipeline.mjs
+    count: 4
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Audit each call site in the CI engine; the arguments are repository-internal, but the rule is the right one to keep enforcing on new code.
+
+  - id: SAST-016
+    tool: semgrep
+    rule: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
+    path: ventures/local-site-studio/.github/workflows/cursor-agent-grok.yml
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Replace `curl ... | sh` with a download, a checksum comparison against a pinned digest, and then execution — the pattern .gitea/workflows/ci-cd.yml already uses for actionlint.
+
+  - id: SAST-017
+    tool: semgrep
+    rule: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
+    path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Replace `curl ... | sh` with a download, a checksum comparison against a pinned digest, and then execution — the pattern .gitea/workflows/ci-cd.yml already uses for actionlint.
+
+  - id: SAST-018
+    tool: semgrep
+    rule: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
+    path: ventures/local-site-studio/.github/workflows/grok-scheduled.yml
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Replace `curl ... | sh` with a download, a checksum comparison against a pinned digest, and then execution — the pattern .gitea/workflows/ci-cd.yml already uses for actionlint.
+
+  - id: SAST-019
+    tool: semgrep
+    rule: yaml.github-actions.security.run-shell-injection.run-shell-injection
+    path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pass the input through an `env:` block and reference it as "$KIND" instead of interpolating ${{ }} directly into the run script. Highest priority in this list.
+
+  - id: SAST-020
+    tool: semgrep
+    rule: yaml.github-actions.security.run-shell-injection.run-shell-injection
+    path: ventures/local-site-studio/.github/workflows/codex-scheduled.yml
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pass the input through an `env:` block and reference it as "$KIND" instead of interpolating ${{ }} directly into the run script. Highest priority in this list.
+
+  - id: SAST-021
+    tool: semgrep
+    rule: yaml.github-actions.security.run-shell-injection.run-shell-injection
+    path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pass the input through an `env:` block and reference it as "$KIND" instead of interpolating ${{ }} directly into the run script. Highest priority in this list.
+
+  - id: SAST-022
+    tool: semgrep
+    rule: yaml.github-actions.security.run-shell-injection.run-shell-injection
+    path: ventures/local-site-studio/.github/workflows/gemini-scheduled.yml
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pass the input through an `env:` block and reference it as "$KIND" instead of interpolating ${{ }} directly into the run script. Highest priority in this list.
+
+  - id: SAST-023
+    tool: semgrep
+    rule: yaml.github-actions.security.run-shell-injection.run-shell-injection
+    path: ventures/local-site-studio/.github/workflows/grok-scheduled.yml
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pass the input through an `env:` block and reference it as "$KIND" instead of interpolating ${{ }} directly into the run script. Highest priority in this list.
+
+  - id: SAST-024
+    tool: semgrep
+    rule: yaml.github-actions.security.run-shell-injection.run-shell-injection
+    path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+    count: 1
+    status: inherited
+    severity: error
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pass the input through an `env:` block and reference it as "$KIND" instead of interpolating ${{ }} directly into the run script. Highest priority in this list.
+
+  - id: SAST-025
+    tool: semgrep
+    rule: generic.nginx.security.possible-h2c-smuggling.possible-nginx-h2c-smuggling
+    path: ventures/quick-pick-survey/scripts/nginx-lb.conf
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Confirm the proxy does not forward Upgrade/Connection headers upstream.
+
+  - id: SAST-026
+    tool: semgrep
+    rule: html.security.audit.missing-integrity.missing-integrity
+    path: portfolio/marisstella-homepage/index.html
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add an integrity attribute and crossorigin to the external script tag, or self-host it.
+
+  - id: SAST-027
+    tool: semgrep
+    rule: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
+    path: ventures/quick-pick-survey/src/app/api/admin/admin.integration.test.ts
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Test fixture in an integration test. Confirm and mark reviewed.
+
+  - id: SAST-028
+    tool: semgrep
+    rule: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    path: platform/ci/src/pipeline.mjs
+    count: 25
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Assess whether each joined segment can come from outside the repository. Most are test fixtures and CI paths; the rule stays on so a request-derived path fails.
+
+  - id: SAST-029
+    tool: semgrep
+    rule: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    path: ventures/quick-pick-survey/src/lib/contrastAudit.test.ts
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Assess whether each joined segment can come from outside the repository. Most are test fixtures and CI paths; the rule stays on so a request-derived path fails.
+
+  - id: SAST-030
+    tool: semgrep
+    rule: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    path: ventures/quick-pick-survey/src/lib/errorAnnouncement.test.ts
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Assess whether each joined segment can come from outside the repository. Most are test fixtures and CI paths; the rule stays on so a request-derived path fails.
+
+  - id: SAST-031
+    tool: semgrep
+    rule: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    path: ventures/quick-pick-survey/src/lib/routeInventory.test.ts
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Assess whether each joined segment can come from outside the repository. Most are test fixtures and CI paths; the rule stays on so a request-derived path fails.
+
+  - id: SAST-032
+    tool: semgrep
+    rule: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+    path: ventures/local-site-studio/src/lib/digest/daily-digest.test.ts
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      All three are test files asserting on rendered markup. Confirm and mark reviewed.
+
+  - id: SAST-033
+    tool: semgrep
+    rule: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+    path: ventures/real-estate-agent-photo-app/pipeline/src/microsite.test.ts
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      All three are test files asserting on rendered markup. Confirm and mark reviewed.
+
+  - id: SAST-034
+    tool: semgrep
+    rule: package_managers.pnpm.pnpm-block-exotic-sub-dependencies.pnpm-block-exotic-sub-dependencies
+    path: ventures/retail-pilot-intel/pnpm-workspace.yaml
+    count: 1
+    status: inherited
+    severity: medium
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Set the corresponding pnpm supply-chain policy in pnpm-workspace.yaml.
+
+  - id: SAST-035
+    tool: semgrep
+    rule: package_managers.pnpm.pnpm-missing-minimum-release-age.pnpm-minimum-release-age
+    path: ventures/retail-pilot-intel/pnpm-workspace.yaml
+    count: 1
+    status: inherited
+    severity: medium
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Set minimumReleaseAge in pnpm-workspace.yaml so a freshly published malicious version cannot be installed the moment it appears.
+
+  - id: SAST-036
+    tool: semgrep
+    rule: package_managers.pnpm.pnpm-trust-policy.pnpm-trust-policy
+    path: ventures/retail-pilot-intel/pnpm-workspace.yaml
+    count: 1
+    status: inherited
+    severity: medium
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Declare the pnpm trust policy for lifecycle scripts.
+
+  - id: SAST-037
+    tool: semgrep
+    rule: yaml.docker-compose.security.no-new-privileges.no-new-privileges
+    path: ventures/quick-pick-survey/docker-compose.ha.yml
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add security_opt: [no-new-privileges:true] to the two services.
+
+  - id: SAST-038
+    tool: semgrep
+    rule: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+    path: ventures/quick-pick-survey/docker-compose.ha.yml
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add read_only: true where the service does not need a writable root filesystem.
+
+  - id: SAST-039
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/local-site-studio/.github/workflows/claude-scheduled.yml
+    count: 4
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-040
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/local-site-studio/.github/workflows/codex-scheduled.yml
+    count: 4
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-041
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/local-site-studio/.github/workflows/cursor-agent-grok.yml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-042
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/local-site-studio/.github/workflows/cursor-scheduled.yml
+    count: 3
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-043
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/local-site-studio/.github/workflows/gemini-scheduled.yml
+    count: 4
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-044
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/local-site-studio/.github/workflows/grok-scheduled.yml
+    count: 3
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-045
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/local-site-studio/.github/workflows/opencode-scheduled.yml
+    count: 4
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-046
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/photo-editing/.github/workflows/docs-site.yml
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-047
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/print-atelier/.github/workflows/ci.yml
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-048
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/quick-pick-survey/.github/workflows/ci.yml
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-049
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/real-estate-agent-photo-app/.github/workflows/ci.yml
+    count: 6
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-050
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/real-estate-agent-photo-app/.github/workflows/deploy-docs.yml
+    count: 4
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-051
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/retail-pilot-intel/.github/workflows/ci.yml
+    count: 5
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-052
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/retail-pilot-intel/.github/workflows/deploy-docs.yml
+    count: 9
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-053
+    tool: semgrep
+    rule: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+    path: ventures/ubuntu-agent-server/.github/workflows/ci.yml
+    count: 6
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Pin these third-party actions to a full commit SHA. The .gitea/workflows/ set is already pinned this way; these are venture-local .github/ workflows that were not.
+
+  - id: SAST-054
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/ai-engineering-academy/deployment.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-055
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/ai-first-markets/deployment.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-056
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/local-site-studio/deployment.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-057
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/marisstella-homepage/deployment.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-058
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/print-atelier/deployment.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-059
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/quick-pick-survey/pairwise-db-backup-cronjob.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-060
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/quick-pick-survey/release-hooks.yaml
+    count: 2
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-061
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/real-estate-photo-app/deployment.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-062
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/retail-pilot-intel/deployment.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-063
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/apps/service-template/deployment.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-064
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/cluster-system/cluster-autoscaler.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-065
+    tool: semgrep
+    rule: yaml.kubernetes.security.allow-privilege-escalation-no-securitycontext.allow-privilege-escalation-no-securitycontext
+    path: platform/k8s/cluster-system/error-alerter.yaml
+    count: 1
+    status: inherited
+    severity: warning
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add allowPrivilegeEscalation: false to each container securityContext. Mechanical, and worth doing across platform/k8s in one change.
+
+  - id: SAST-066
+    tool: semgrep
+    rule: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+    path: ventures/local-site-studio/src/app/api/commerce/checkout/route.ts
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Largest group and lowest severity (INFO). Assess in one pass over local-site-studio; most are template literals in log and error strings rather than format strings.
+
+  - id: SAST-067
+    tool: semgrep
+    rule: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+    path: ventures/local-site-studio/src/app/api/contact/[slug]/route.ts
+    count: 3
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Largest group and lowest severity (INFO). Assess in one pass over local-site-studio; most are template literals in log and error strings rather than format strings.
+
+  - id: SAST-068
+    tool: semgrep
+    rule: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+    path: ventures/local-site-studio/src/app/api/stripe/checkout/route.ts
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Largest group and lowest severity (INFO). Assess in one pass over local-site-studio; most are template literals in log and error strings rather than format strings.
+
+  - id: SAST-069
+    tool: semgrep
+    rule: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+    path: ventures/local-site-studio/src/app/api/stripe/webhook/route.ts
+    count: 13
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Largest group and lowest severity (INFO). Assess in one pass over local-site-studio; most are template literals in log and error strings rather than format strings.
+
+  - id: SAST-070
+    tool: semgrep
+    rule: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+    path: ventures/local-site-studio/src/lib/db.ts
+    count: 25
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Largest group and lowest severity (INFO). Assess in one pass over local-site-studio; most are template literals in log and error strings rather than format strings.
+
+  - id: SAST-071
+    tool: semgrep
+    rule: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+    path: ventures/local-site-studio/src/lib/email/resend.ts
+    count: 2
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Largest group and lowest severity (INFO). Assess in one pass over local-site-studio; most are template literals in log and error strings rather than format strings.
+
+  - id: SAST-072
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/apps/ai-engineering-academy/deployment.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-073
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/apps/ai-first-markets/deployment.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-074
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/apps/local-site-studio/deployment.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-075
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/apps/marisstella-homepage/deployment.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-076
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/apps/print-atelier/deployment.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-077
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/apps/quick-pick-survey/pairwise-db-backup-cronjob.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-078
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/apps/real-estate-photo-app/deployment.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-079
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/apps/retail-pilot-intel/deployment.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-080
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/apps/service-template/deployment.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-081
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/cluster-system/cluster-autoscaler.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
+  - id: SAST-082
+    tool: semgrep
+    rule: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+    path: platform/k8s/cluster-system/error-alerter.yaml
+    count: 1
+    status: inherited
+    severity: info
+    owner: duncan
+    issue: docs/SAST.md#inherited-findings
+    expires: 2026-10-30
+    reason: >-
+      Present when SAST was switched on, counted but not individually assessed.
+      Locked to this exact count so it cannot grow.
+    plan: >-
+      Add runAsNonRoot: true to each pod securityContext, alongside the allowPrivilegeEscalation change.
+
