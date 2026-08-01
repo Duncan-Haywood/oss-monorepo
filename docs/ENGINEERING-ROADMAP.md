@@ -69,10 +69,17 @@ evidence, and completion date before it can be marked done.
   What generalizes: a venture-local test proves nothing until you have checked
   which CI path executes it, and a contract that asserts on the *text* of a
   workflow breaks when the gate it guards is moved rather than removed. Follow
-  the indirection instead. Still open: `ventures/ai-engineering-academy/site`
-  is registered in the Dagger catalog as running `test` while its package.json
-  defines no such script, so the catalog skips it — `platform/ci`'s own suite
-  fails on exactly this, and it is the last known instance of the class.
+  the indirection instead. The fourth and last known instance of the class was
+  `ventures/ai-engineering-academy/site`, registered in the Dagger catalog as
+  running `test` while its package.json defined no such script, so the engine
+  skipped it and `platform/ci`'s own suite failed on that assertion. Its
+  `test.mjs` existed and passed; declaring it as the `test` script closed the
+  gap, and the platform/ci suite is 38/38.
+  No instance of this class is known to remain open, which is a weaker claim
+  than it sounds: nothing generalizes the check beyond route-posture contracts
+  and the catalog's own `test`-script assertion, so a fifth would be found the
+  same way these were — by running each venture suite at a clean HEAD and
+  naming which CI path executes it.
 - [ ] Publish coverage reports in CI, capture current baselines, ratchet changed
   code upward, then meet the repository targets without low-value assertions.
   Not started, and worse than not started: the only automated check carrying the
