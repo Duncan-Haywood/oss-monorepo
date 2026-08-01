@@ -216,6 +216,41 @@ This log records all identified application, infrastructure, container, and CI s
   cannot read their own dashboards until a session mechanism exists. The panels
   now say so explicitly instead of rendering zeros.
 
+### SEC-020 — Low — Public-Path Prefix Exempted the Paths Beside It in docs-site
+
+- **Location**: `ventures/photo-editing/docs-site/src/lib/auth.ts`, `isPublicPath`
+- **Impact**: the ShootFlow documentation site is private by design — its
+  middleware matches every path and demands a password session, token session,
+  bearer token or basic auth. The single exit is `isPublicPath`, and one of its
+  clauses was `pathname.startsWith("/api/health")`. A `startsWith` prefix with no
+  trailing separator matches siblings as well as children, so `/api/healthz`,
+  `/api/health-internal` and `/api/health/secrets` were all exempt from
+  authentication. Rated Low because only `/api/health` exists today, and it
+  returns a fixed ok flag and the service name — nothing was exposed. What was
+  wrong is the rule, not the current route list: the next handler named anything
+  like `health` would have shipped public, and no test would have said so. The
+  same clause shape guards `/api/auth/` and `/_next/`, both of which correctly
+  end in `/`.
+- **Fix**: the clause is now `pathname === "/api/health"`. Behaviour for the real
+  route is unchanged.
+- **Evidence**: `src/lib/routeAuthPosture.test.ts`. `no public prefix opens a
+  path it does not name` fails against the pre-fix rule — it is what found this
+  — and `a path that merely starts like a public one is still refused` asserts
+  the seven concrete paths, with a paired test that `/login`, `/api/auth/login`,
+  `/api/health`, `/robots.txt` and `/favicon.ico` stay reachable so the fix
+  cannot pass by closing everything. Full venture verify green: `tsc --noEmit`,
+  40 tests, `next build`.
+- **Process note**: this venture had no test of any kind under `src` before now.
+  The contract that found it is the SEC-019 guard-contract shape adapted to a
+  venture that guards in middleware rather than in handlers: it imports the real
+  `isPublicPath` rather than restating it, so it cannot drift, and it fails when
+  `isPublicPath` grows a clause shape it cannot evaluate rather than passing over
+  a rule it no longer describes.
+- **Residual risk**: none for this rule. The `!isAuthConfigured()` branch in the
+  middleware still serves the whole site when neither `DOCS_SITE_PASSWORD` nor
+  `DOCS_SITE_TOKEN` is set, which is deliberate for local development and fails
+  closed with a 503 in production. Nothing tests that production branch.
+
 ---
 
 ## Operational Security Checklist
