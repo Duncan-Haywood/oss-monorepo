@@ -83,11 +83,42 @@ evidence, and completion date before it can be marked done.
   Writing the `docs-site` one found SEC-020 — `isPublicPath` exempted
   `startsWith("/api/health")`, which matches siblings and not only children.
   That venture had no test of any kind under `src` before this.
-  Still open: three ventures with API routes have no such contract
-  (`quick-pick-survey`, `local-site-studio` — both with real route tests but no
-  posture declaration — and `print-atelier`'s page routes as distinct from its
-  API routes), and nothing repository-wide holds a venture to having one. The
-  three existing contracts are three hand-written files, not a control.
+  Now a control, 2026-08-01, owner duncan.
+  `scripts/ci/route_posture_contract.py` runs as the CI gate "Route
+  Auth-Posture Contract Coverage" against
+  `platform/route-posture-registry.yaml`, and a venture that grows its first
+  HTTP route fails it until it declares a contract.
+  Writing it found that the gap was not the one recorded above. The problem was
+  never only that two ventures lacked a contract; it was that a contract which
+  exists is not a contract that runs. Measured on a clean checkout:
+  `ai-first-markets`' contract is executed by no gate at all **and fails
+  outright** — it declares `/api/subscribe POST` and floors at three route
+  modules, but that route was never committed, so it went red the moment it
+  landed in `4d16bad` and nothing noticed. `photo-editing/docs-site`' contract
+  is executed by no gate either. Only `print-atelier`'s ran, and only
+  incidentally: it happens to sit in the `tests/*.test.ts` glob the coverage
+  component already measures. So the audit checks coverage, execution and
+  freshness, and proves the execution wiring rather than believing the label —
+  including under `sh` glob semantics, since npm runs scripts under `sh` and
+  `ai-first-markets`' `src/**/*.test.ts` reaches its contract only by luck of
+  depth. Handler counts are exact and checked both ways, like `count` in the
+  exception register; above declared means a route was added and nobody
+  declared its posture, which is the case these contracts exist to catch.
+  `quick-pick-survey` now has a contract too — the largest surface in the
+  repository at 32 handlers, and the only venture serving live production
+  traffic. It needed a shape the other three did not: its guards are
+  return-value-based, so a presence check would have waved through the four
+  handlers that call `getSessionUser()` for attribution only, and its posture
+  vocabulary needs a third value for the nine handlers where an unguessable
+  participant id is the credential rather than a session. That naming is what
+  surfaced SEC-021.
+  Coverage went from 12 of 61 handlers held by a contract that runs, to 44.
+  Still open: `local-site-studio` (10 handlers) has no contract, and
+  `ai-first-markets` and `photo-editing` have contracts that no gate executes —
+  all three are registered exemptions with owners and dated expiries, so they
+  fail this gate when they lapse rather than staying quietly uncovered. Wiring
+  the latter two in needs a `test-ci.sh` gate per venture, which is the same
+  missing piece as `print-atelier`'s page routes.
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
   Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports
