@@ -9,7 +9,7 @@ import {
 import { verifyCloudflareAccessJwt, verifySessionToken } from "@/lib/session";
 import { sanitizeRedirectPath } from "@/lib/redirect";
 
-const PUBLIC_PATHS = ["/login", "/api/auth", "/unauthorized"];
+const PUBLIC_PATHS = ["/login", "/api/auth", "/unauthorized", "/subscribe", "/api/subscribe"];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some(

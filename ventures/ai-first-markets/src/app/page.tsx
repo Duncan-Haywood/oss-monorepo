@@ -2,6 +2,7 @@ import Link from "next/link";
 import { IdeaCard } from "@/components/IdeaCard";
 import { ReportCard } from "@/components/ReportCard";
 import { StatCard } from "@/components/StatCard";
+import { NewsletterSubscription } from "@/components/NewsletterSubscription";
 import { reports } from "@/data/reports";
 import { buildPortfolioSummary } from "@/lib/evaluation";
 
@@ -108,6 +109,10 @@ export default function DashboardPage() {
             <IdeaCard key={idea.id} idea={idea} milestone="1m" />
           ))}
         </div>
+      </section>
+
+      <section>
+        <NewsletterSubscription />
       </section>
 
       <section>

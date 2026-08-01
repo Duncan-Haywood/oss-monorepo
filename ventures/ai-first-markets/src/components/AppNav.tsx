@@ -5,6 +5,7 @@ const navItems = [
   { href: "/market-map", label: "Market Map" },
   { href: "/reports", label: "Reports" },
   { href: "/ideas", label: "Ideas" },
+  { href: "/subscribe", label: "Subscribe" },
 ];
 
 export function AppNav() {
