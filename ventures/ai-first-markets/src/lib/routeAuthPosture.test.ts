@@ -48,6 +48,11 @@ const POSTURE: Record<string, { posture: "public" | "guarded"; reason: string }>
     reason:
       "Sign-out, as the GET above. Deletes the auth cookie and returns success; it reads no state and reveals nothing about whether a session existed.",
   },
+  "/api/subscribe POST": {
+    posture: "public",
+    reason:
+      "Newsletter signup from the marketing page, which anonymous visitors are the entire audience for. It validates the address and returns a result; it reads no account state and echoes back only what the caller sent.",
+  },
 };
 
 /** Every route module under src/app, as served URL path → source. */
@@ -190,14 +195,10 @@ test("the middleware still runs on the paths this contract reasons about", () =>
 test("it finds the routes at all, so an empty pass cannot look like a green one", () => {
   // Without this, moving or renaming the app directory would make every check
   // above pass over nothing.
-  // These floors are the surface this venture actually ships: two route
-  // modules under /api/auth serving three handlers. They are a tripwire for a
-  // vacuous pass, not a target — raise them when a route lands, which is the
-  // same edit that adds its POSTURE entry.
   const routes = routeSources();
-  assert.ok(routes.size >= 2, `expected the route modules to be found, saw ${routes.size}`);
+  assert.ok(routes.size >= 3, `expected the route modules to be found, saw ${routes.size}`);
   const total = [...routes.values()].reduce((count, source) => count + handlers(source).size, 0);
-  assert.ok(total >= 3, `expected handlers to be parsed, saw ${total}`);
+  assert.ok(total >= 4, `expected handlers to be parsed, saw ${total}`);
   assert.ok(publicPaths().length >= 3, "expected PUBLIC_PATHS to be parsed out of the middleware");
 });
 

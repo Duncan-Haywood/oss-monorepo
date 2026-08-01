@@ -48,13 +48,16 @@ evidence, and completion date before it can be marked done.
      `verify-component.sh` from both its CI and deploy workflows, and it was red
      on every clean checkout: `npm run typecheck` rejected the `.ts` import
      extensions its own `--experimental-strip-types` runner requires (TS5097),
-     and `npm test` failed five assertions. Two contracts had drifted from the
-     repository — `ciContract` grepped the deploy workflow for gate commands that
-     d3b61a2 had *moved into the shared script*, reading a tightened deploy path
-     as a deleted one; `routeAuthPosture` declared an `/api/subscribe` handler
-     that was never committed alongside the contract declaring it. Both repaired
-     and mutation-checked; typecheck, lint, test and build now pass together for
-     the first time.
+     and `npm test` failed five assertions across two drifted contracts.
+     `ciContract` grepped the deploy workflow for gate commands that d3b61a2 had
+     *moved into the shared script*, reading a tightened deploy path as a deleted
+     one; it now follows that indirection and is mutation-checked five ways.
+     `routeAuthPosture` declared an `/api/subscribe` handler that had not been
+     committed alongside the contract declaring it — three failures that d999424
+     resolved from the other end by landing the route. Worth recording which way
+     that was fixed: the contract was right and the code caught up to it, which
+     is what the contract is for. Typecheck, lint, test and build now pass
+     together for this venture for the first time.
   3. **A gate that could not see the files it vouched for.** npm runs scripts
      under `sh`, which has no globstar, so an unquoted `src/**/*.test.ts` reaches
      the runner as `src/*/*.test.ts` — one directory level. `ai-first-markets`
