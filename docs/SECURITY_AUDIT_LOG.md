@@ -27,6 +27,8 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-015** | Medium | CI / Security | `.gitea/workflows/*.yml` | Workflows running without top-level restrictive permissions | **Fixed** |
 | **SEC-016** | Low | Supply Chain | `ventures/*/package.json` | Dependency vulnerability auditing not enforced on PRs | **Fixed** |
 | **SEC-017** | **Critical** | Supply Chain | `ventures/photo-editing/docs-site` | Abandoned `htmltojsx` pulled in `request` (SSRF) and `form-data` (CRLF injection) | **Fixed** |
+| **SEC-018** | High | Application | `ventures/print-atelier/src/app/api/credentials/vercel-pull` | Unauthenticated disclosure of configured partner credential state | **Fixed** |
+| **SEC-019** | **Critical** | Application | `ventures/print-atelier/src/app/api/*` | Six operator API handlers served anonymous callers; one writes live ad catalogs | **Fixed** |
 
 ---
 
@@ -168,14 +170,51 @@ This log records all identified application, infrastructure, container, and CI s
   and `tests/credentials-route.test.ts`; 10 of the 11 route tests fail against
   the pre-fix handler. Full venture verify green — `tsc --noEmit`, `next lint`,
   235 tests, `next build`.
-- **Residual risk, not fixed here**: `print-atelier` has no authentication of any
-  kind elsewhere. `GET /api/payouts/reconciliation`, `/api/fulfillment/submissions`
-  and `/api/retargeting/events`, and `POST /api/ad-catalog/sync` (which triggers
-  outbound calls against ad platforms) are still unauthenticated, as are the
-  operator pages `/admin-portal`, `/ops`, `/investor`, `/sales-portal` and
-  `/partner-setup`. Three client components fetch those routes from the browser,
-  so gating them needs a session-based operator login rather than a bearer token
-  — a product decision, tracked as a blocker for this venture's first deploy.
+- **Residual risk at the time**: the API half of this is now closed by SEC-019,
+  which guards the remaining six handlers. The page half is not: the operator
+  pages `/admin-portal`, `/ops`, `/investor`, `/sales-portal`, `/marketing-portal`,
+  `/payout-simulator`, `/ad-sync-health` and `/partner-setup` are still publicly
+  routable, and gating them needs a session-based operator login rather than a
+  bearer token — a product decision, tracked as a blocker for this venture's
+  first deploy.
+
+### SEC-019 — Critical — Six Operator API Handlers Served Anonymous Callers
+
+- **Location**: `ventures/print-atelier/src/app/api/ad-catalog/sync`,
+  `/fulfillment/submissions`, `/retargeting/events`, `/payouts/reconciliation`,
+  `/stripe/checkout` (GET), `/stripe/webhook` (GET)
+- **Impact**: `src/lib/api-auth.ts`, added under SEC-018, documents itself as
+  protecting the routes that report configured credentials, reconcile payouts and
+  "trigger outbound syncs that spend real ad budget". It was wired into one route.
+  The most severe of the six is `POST /api/ad-catalog/sync`: it authenticates to
+  Meta Commerce, Google Merchant Center and Pinterest with the server's own
+  credentials and rewrites the product catalog those ad accounts sell from, so any
+  anonymous caller could trigger a write against the operator's live ad accounts.
+  Its `baseUrl` query parameter was passed through unvalidated into the `link` and
+  `imageLink` of every pushed product, which turns that write into catalog
+  poisoning — an attacker could point the operator's paid ad inventory at a domain
+  they control. The other five disclosed per-artist payout amounts and Connect
+  account attribution, Printful/Gelato order records, cart values and session ids,
+  and which Stripe/Printful/Gelato secrets are configured.
+- **Fix**: `requireOperator` on all six. `baseUrl` is parsed and must be an
+  absolute `http(s)` URL, rejected before any outbound sync runs. `stripe/checkout`
+  POST and PUT stay public — a buyer has no operator token — and `stripe/webhook`
+  POST keeps its signature check, the stronger control there.
+- **Evidence**: `tests/operator-route-authorization.test.ts` asserts the refusals,
+  the fail-closed 503, that a denial body carries no catalog or order state, and
+  five rejected `baseUrl` values; each assertion fails against the pre-fix handler.
+  `tests/api-route-guard-contract.test.ts` enumerates every handler under
+  `src/app/api` and fails unless it is guarded or listed as public with a stated
+  reason — that contract is what found four of the six. Full venture verify green:
+  `tsc --noEmit`, `next lint`, 263 tests, `next build`.
+- **Process note**: the four found by the contract rather than by reading were all
+  in files nobody flagged. The pattern this closes is not "someone forgot a guard"
+  but "adding a route never prompted anyone to decide", which is why the fix
+  includes the contract and not only the guards.
+- **Residual risk**: the operator pages listed under SEC-018 remain publicly
+  routable, and a browser has no way to present a bearer token, so an operator
+  cannot read their own dashboards until a session mechanism exists. The panels
+  now say so explicitly instead of rendering zeros.
 
 ---
 

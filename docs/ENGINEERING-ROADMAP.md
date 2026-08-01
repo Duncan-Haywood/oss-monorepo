@@ -6,6 +6,23 @@ evidence, and completion date before it can be marked done.
 
 ## Now: establish and enforce the baseline
 
+- [ ] Retrofit every production UI with a deterministic Playwright critical-
+  journey suite on pull requests and the immutable candidate. Owner: QA and
+  venture owner. Priority order: Pairwise, homepage, AI-First Markets, then all
+  other production UIs. Required coverage includes primary happy paths,
+  validation and dependency failures, auth/authorization where present,
+  persistence/reload, mobile and desktop layouts, keyboard navigation,
+  accessibility scans plus manual checks, and reviewed visual artifacts.
+  Automatic production promotion for the three named services is blocked in
+  their workflows until this is complete; temporary releases require a tracked,
+  owner-approved manual exception under `docs/QUALITY-ENGINEERING.md`.
+- [ ] Configure and verify Gitea branch/environment protection: pull requests
+  only for release branches, current required checks, stale approval dismissal,
+  CODEOWNERS, one independent approval for Tier 2, two including an accountable
+  owner for Tier 3, and protected production secrets. Owner: infrastructure.
+  Retain an exported/screenshot evidence record and audit after workflow changes
+  and quarterly; repository YAML cannot prove provider-side settings are active.
+
 - [x] Inventory every active venture's verify commands, test types, coverage,
   production path, data classes, security boundaries, telemetry, and owner.
 - [x] Make one fail-closed `verify` command per active venture the local and CI
@@ -24,6 +41,26 @@ evidence, and completion date before it can be marked done.
   in `platform/exception-register.yaml`. Do not start at 90%.
 - [ ] Require regression tests for fixes and negative authorization/input tests
   for public APIs and server actions.
+  Partial, 2026-08-01, owner duncan. Done in one venture, and the way it was
+  done is the point. `print-atelier` had 7 API routes and no route-level
+  authorization tests; `ventures/print-atelier/tests/api-route-guard-contract.test.ts`
+  now enumerates every handler under `src/app/api` and fails unless it either
+  calls `requireOperator` or is listed as public with a stated reason. Writing
+  that contract found four unguarded handlers that reading the code had missed,
+  including `GET /api/stripe/webhook` and `GET /api/stripe/checkout` reporting
+  which secrets are configured — see SEC-019 in
+  [the security audit log](SECURITY_AUDIT_LOG.md). The negative tests live in
+  `tests/operator-route-authorization.test.ts` and each fails against the
+  pre-fix handler.
+  Measured surface elsewhere, 2026-08-01: `quick-pick-survey` 30 routes with
+  integration tests covering auth, admin, trials, couple and usage;
+  `local-site-studio` 9 routes with a `route.test.ts` beside each and ~20
+  server-action tests; `ai-first-markets` 3 routes and
+  `photo-editing/docs-site` 3 routes, both with none. Neither of those two has
+  an equivalent guard contract, so the same class of gap is unmeasured there.
+  The generalizable piece is the contract shape, not the specific guard: a
+  venture-local test that makes every new route declare an auth posture. Nothing
+  yet holds a venture to having one.
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
   Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports
