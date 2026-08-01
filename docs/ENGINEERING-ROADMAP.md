@@ -165,15 +165,41 @@ evidence, and completion date before it can be marked done.
   the current working tree, from the concurrent agent's uncommitted `webpack`
   config: Next.js 16 makes Turbopack the default and errors when a `webpack`
   config appears with no `turbopack` config beside it. `HEAD` builds clean, so this
-  is in-flight work to finish rather than a defect in the venture. And the engine
-  reaching a venture at all still depends on affected-path detection, which is
-  narrower than it reads: `getChangedFiles` defaults to `HEAD~1`, so a push
-  carrying several commits verifies only the components the *last* commit touched.
-  A change to a venture in the middle of a push, followed by a docs-only commit,
-  selects nothing. `GITHUB_BASE_REF` widens this to the full branch diff on pull
-  requests, so the hole is on direct pushes — which is also where the weakest
-  review is. Fixing it means diffing the push range rather than one commit, and
-  wants a real runner to confirm what the Gitea event actually provides.
+  is in-flight work to finish rather than a defect in the venture.
+  Affected-path detection is fixed, 2026-08-01, owner duncan. The entry above
+  described the defect as narrowing to the last commit of a push. That was true
+  of the code read on its own, but not of what ran in CI, and the difference
+  mattered more than the original claim. `.gitea/workflows/ci-cd.yml` checked out
+  with `actions/checkout`'s default `fetch-depth: 1`, so `HEAD~1` did not exist in
+  the checkout at all: the diff threw on every run, the `catch` returned null, and
+  `resolveAffectedComponents` read null as "verify everything". Confirmed against a
+  real `--depth 1` clone, where `HEAD~1` is an unknown revision. So the engine was
+  never selecting anything in CI — it ran the full catalog every time while
+  logging `Affected Path Detection: Found N affected component(s)`, which read as
+  a considered selection and was in fact the catalog length. The narrowing defect
+  was real only where full history existed, which is local runs.
+  `getChangedFiles` now resolves an explicit range instead of a default: the
+  branch diff on pull requests, and on pushes `before...HEAD` from the event
+  payload, which spans every commit the push carried rather than its last one.
+  `HEAD~1` is gone as a fallback and a test fails if it returns. Every path that
+  cannot resolve a base — new ref with a zero SHA, force-pushed tip that is no
+  longer present, shallow checkout, unreadable event payload, no event at all —
+  widens to the full catalog and says why, so the log distinguishes a selection
+  from a fallback. The checkout now uses `fetch-depth: 0`, and a test binds that
+  depth to the engine's need for history, since detection is inert without it.
+  Closing this made a latent hole live and it had to be closed in the same
+  change: with detection finally resolving, a changed file that matches no
+  component and no global trigger selects *nothing*, and an empty selection
+  reports as a pass. `tests/`, `pytest.ini`, `requirements-ci.txt`,
+  `platform/coverage-baseline.yaml` and `platform/exception-register.yaml` all
+  behaved that way — each decides how every component is verified — and are now
+  global triggers held by a test that also fails if one is renamed away.
+  Eleven tests in `platform/ci/test/affected-path-detection.test.mjs`, each
+  mutation-checked. Not yet observed on a real runner: the push payload shape is
+  taken from Gitea's documented GitHub compatibility, and if it turns out to
+  differ the resolver returns null and the behaviour is the full run that has
+  been happening all along. A first CI run is what would confirm it, and the
+  honest log line is what will show it.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
   Partially configured live on 2026-08-01 as recorded above; required status

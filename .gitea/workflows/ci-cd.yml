@@ -30,6 +30,12 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+          # The engine's affected-path detection diffs the pushed range. The
+          # default depth of 1 leaves the base commit absent from the checkout,
+          # so that diff could never resolve and every run silently verified
+          # the whole catalog while reporting it as a selection.
+          # platform/ci/test/affected-path-detection.test.mjs holds this depth.
+          fetch-depth: 0
 
       # This job runs scripts/verify-all.sh, which runs scripts/test-ci.sh (12
       # gates) and then the Dagger engine. Until now the only tool it installed

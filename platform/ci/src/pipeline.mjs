@@ -153,25 +153,119 @@ export const VENTURE_CATALOG = [
   },
 ];
 
-/**
- * Determine changed files between git targets.
- */
-export function getChangedFiles(baseRef = 'HEAD~1') {
-  try {
-    const diffTarget = process.env.GITHUB_BASE_REF
-      ? `origin/${process.env.GITHUB_BASE_REF}...HEAD`
-      : baseRef;
+const ZERO_SHA = /^0+$/;
 
-    const output = execSync(`git diff --name-only ${diffTarget}`, {
-      cwd: REPO_ROOT,
+/**
+ * Check that a revision names a commit that actually exists in this checkout.
+ *
+ * This is the guard that makes the shallow case honest. `actions/checkout`
+ * clones with `fetch-depth: 1` unless told otherwise, and in that checkout
+ * every revision below except `HEAD` itself is absent — including the `before`
+ * SHA the push event names. Resolving a base we cannot reach and diffing
+ * against it does not narrow the run, it throws, which is why the old code
+ * appeared to work while never once selecting a component in CI.
+ */
+function commitExists(rev, repoRoot = REPO_ROOT) {
+  const res = spawnSync('git', ['cat-file', '-e', `${rev}^{commit}`], {
+    cwd: repoRoot,
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
+    stdio: 'ignore',
+  });
+  return res.status === 0;
+}
+
+/**
+ * Resolve the revision range whose changes this run must cover.
+ *
+ * Every branch either names a range that provably contains *all* commits under
+ * verification, or returns null so the caller verifies everything. There is no
+ * middle setting: a base we cannot resolve means we do not know what changed,
+ * and the only safe reading of "unknown" is "could be anything".
+ *
+ * `HEAD~1` is deliberately not a fallback. It is a range of exactly one commit,
+ * so on a push carrying several commits it silently drops every component
+ * touched by all but the last — a change in the middle of a push followed by a
+ * docs-only commit selected nothing at all.
+ *
+ * Returns `{ range, reason }`, or `{ range: null, reason }` to force a full run.
+ */
+export function resolveDiffRange(env = process.env, exists = commitExists) {
+  // Pull requests: the full branch diff against the merge target.
+  if (env.GITHUB_BASE_REF) {
+    const base = `origin/${env.GITHUB_BASE_REF}`;
+    if (!exists(base)) {
+      return { range: null, reason: `pull-request base ${base} is not in this checkout` };
+    }
+    return { range: `${base}...HEAD`, reason: `pull request against ${env.GITHUB_BASE_REF}` };
+  }
+
+  // Pushes: the whole pushed range, not its final commit. Gitea sends the same
+  // push payload shape as GitHub, so `before` is the tip the branch had before
+  // this push; `before...HEAD` therefore spans every commit the push carried.
+  const before = readPushBeforeSha(env);
+  if (before) {
+    if (ZERO_SHA.test(before)) {
+      // A new branch or tag has no prior tip, so no range describes it.
+      return { range: null, reason: 'push created a new ref, no prior tip to diff from' };
+    }
+    if (!exists(before)) {
+      // Force-push whose old tip was discarded, or a shallow clone that never
+      // fetched it. Both mean the range is unavailable, not empty.
+      return { range: null, reason: `push base ${before.slice(0, 12)} is not in this checkout` };
+    }
+    return { range: `${before}...HEAD`, reason: `push range from ${before.slice(0, 12)}` };
+  }
+
+  return { range: null, reason: 'no pull-request or push base available' };
+}
+
+/**
+ * Read the pre-push tip from the CI event.
+ *
+ * Gitea and GitHub both expose the push payload as a JSON file at
+ * GITHUB_EVENT_PATH. GITHUB_EVENT_BEFORE is accepted first so a runner that
+ * sets it directly, or a caller overriding the range, needs no event file.
+ */
+function readPushBeforeSha(env) {
+  if (env.GITHUB_EVENT_BEFORE) return env.GITHUB_EVENT_BEFORE.trim();
+
+  if (env.GITHUB_EVENT_NAME && env.GITHUB_EVENT_NAME !== 'push') return null;
+  if (!env.GITHUB_EVENT_PATH) return null;
+
+  try {
+    const payload = JSON.parse(fs.readFileSync(env.GITHUB_EVENT_PATH, 'utf8'));
+    return typeof payload.before === 'string' ? payload.before.trim() : null;
+  } catch {
+    // An unreadable or malformed event payload tells us nothing about the
+    // range, so fall through to the full run rather than guessing at one.
+    return null;
+  }
+}
+
+/**
+ * Determine changed files for this run, or null to verify everything.
+ */
+export function getChangedFiles(env = process.env, repoRoot = REPO_ROOT) {
+  const { range, reason } = resolveDiffRange(env, rev => commitExists(rev, repoRoot));
+
+  if (!range) {
+    console.log(`ℹ Change detection unavailable (${reason}) — verifying all components.`);
+    return null;
+  }
+
+  try {
+    const output = execSync(`git diff --name-only ${range}`, {
+      cwd: repoRoot,
       encoding: 'utf8',
       env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
       stdio: ['pipe', 'pipe', 'ignore'],
     });
 
+    console.log(`ℹ Change detection: ${reason}.`);
     return output.trim().split('\n').filter(Boolean);
-  } catch (err) {
-    // If diff against base fails (e.g. initial commit or single-commit ref), return null to force full run
+  } catch {
+    // The range resolved but git still refused it. Widen rather than narrow.
+    console.log(`ℹ Change detection failed to diff ${range} — verifying all components.`);
     return null;
   }
 }
@@ -185,12 +279,24 @@ export function resolveAffectedComponents(changedFiles, catalog = VENTURE_CATALO
     return catalog.map(c => c.id);
   }
 
-  // Global paths that force verifying all components
+  // Paths that change how every component is verified, so a change to one of
+  // them cannot be attributed to a subset. This list only started to matter
+  // once detection could actually resolve a range: while it always failed open
+  // the whole catalog ran regardless, and a gap here was invisible. A repo-wide
+  // gate input missing from this list now selects nothing at all.
   const isGlobalChange = changedFiles.some(f =>
     f.startsWith('.github/') ||
     f.startsWith('.gitea/') ||
     f.startsWith('scripts/') ||
     f.startsWith('platform/ci/') ||
+    // The repository-wide pytest suite and its configuration and dependencies.
+    f.startsWith('tests/') ||
+    f === 'pytest.ini' ||
+    f === 'requirements-ci.txt' ||
+    // Inputs the coverage ratchet and exception audit gates read for every
+    // component; a threshold or expiry edit here changes every verdict.
+    f === 'platform/coverage-baseline.yaml' ||
+    f === 'platform/exception-register.yaml' ||
     f === 'package.json' ||
     f === 'README.md'
   );
@@ -616,7 +722,16 @@ export async function main() {
   } else {
     const changedFiles = getChangedFiles();
     affectedIds = resolveAffectedComponents(changedFiles, VENTURE_CATALOG);
-    console.log(`🎯 Affected Path Detection: Found ${affectedIds.length} affected component(s).`);
+    if (changedFiles === null) {
+      // Saying "found N affected" here read as a considered selection when it
+      // was the opposite: detection had failed and N was simply the catalog.
+      console.log(`🌐 Full Verification Mode: ${affectedIds.length} component(s), change detection unavailable.`);
+    } else {
+      console.log(
+        `🎯 Affected Path Detection: ${changedFiles.length} changed file(s) → ` +
+        `${affectedIds.length} affected component(s).`
+      );
+    }
   }
 
   console.log('Components to verify:', affectedIds.join(', ') || 'None');
