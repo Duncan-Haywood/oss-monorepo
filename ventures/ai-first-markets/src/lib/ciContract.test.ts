@@ -12,8 +12,26 @@ const deployPathGitea = join(ROOT, ".gitea/workflows/ai-first-markets-deploy.yml
 const deployPathGithub = join(ROOT, ".github/workflows/ai-first-markets-deploy.yml");
 const deployPath = existsSync(deployPathGitea) ? deployPathGitea : deployPathGithub;
 
+const verifyPath = join(ROOT, "scripts/ci/verify-component.sh");
+
 const AI_MARKETS_CI = existsSync(ciPath) ? readFileSync(ciPath, "utf8") : "";
 const AI_MARKETS_DEPLOY = existsSync(deployPath) ? readFileSync(deployPath, "utf8") : "";
+const VERIFY_COMPONENT = existsSync(verifyPath) ? readFileSync(verifyPath, "utf8") : "";
+
+/**
+ * The gate sequence `verify-component.sh` runs for one component.
+ *
+ * Sliced from the component's own `case` arm so that a gate present only in
+ * another component's arm — every arm runs a `typecheck` — cannot vouch for
+ * this one.
+ */
+function verifyGatesFor(component: string): string {
+  const start = VERIFY_COMPONENT.indexOf(`\n  ${component})`);
+  assert.ok(start !== -1, `scripts/ci/verify-component.sh has no ${component} case`);
+  const end = VERIFY_COMPONENT.indexOf("\n    ;;", start);
+  assert.ok(end !== -1, `the ${component} case in scripts/ci/verify-component.sh is not terminated`);
+  return VERIFY_COMPONENT.slice(start, end);
+}
 
 describe("AI-First Markets CI & Deploy Contract", () => {
   it("triggers CI verification on pull requests and main pushes scoped to AI-First Markets paths", () => {
@@ -31,11 +49,37 @@ describe("AI-First Markets CI & Deploy Contract", () => {
   });
 
   it("requires verification gates before running Cloudflare deployment", () => {
-    assert.ok(AI_MARKETS_DEPLOY.includes("npm run typecheck"));
-    assert.ok(AI_MARKETS_DEPLOY.includes("npm run lint"));
-    assert.ok(AI_MARKETS_DEPLOY.includes("npm run build"));
-    assert.ok(AI_MARKETS_DEPLOY.includes("npm run cf:build"));
-    assert.ok(AI_MARKETS_DEPLOY.includes("npm run deploy"));
+    // These gates were once inlined in this workflow, and while inlined the
+    // sequence lost `npm test` without anyone noticing. They now live in one
+    // script that this workflow, the CI workflow and the pre-push hook all
+    // call. So this contract follows that indirection instead of grepping the
+    // workflow for the commands: grepping reads "moved into the shared script"
+    // as "deleted", which is how this test came to fail against a deploy path
+    // that had just been made stricter.
+    const verifyStep = AI_MARKETS_DEPLOY.indexOf("verify-component.sh ai-first-markets");
+    const deployStep = AI_MARKETS_DEPLOY.indexOf("npm run deploy");
+    assert.ok(verifyStep !== -1, "the deploy workflow no longer runs the shared verification gate");
+    assert.ok(deployStep !== -1, "the deploy workflow no longer runs the Cloudflare deploy");
+    assert.ok(
+      verifyStep < deployStep,
+      "the verification gate must run before the Cloudflare deploy, not after it",
+    );
+
+    // `npm test` is listed here deliberately: it is the gate the inlined
+    // sequence lost, and the one this file exists to keep.
+    const gates = verifyGatesFor("ai-first-markets");
+    for (const gate of [
+      "npm run typecheck",
+      "npm run lint",
+      "npm test",
+      "npm run build",
+      "npm run cf:build",
+    ]) {
+      assert.ok(
+        gates.includes(gate),
+        `verify-component.sh no longer runs ${gate} for ai-first-markets, so the deploy no longer depends on it`,
+      );
+    }
   });
 
   it("passes required Cloudflare and Auth secrets to the deploy step", () => {
