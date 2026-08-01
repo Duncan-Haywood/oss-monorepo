@@ -91,34 +91,36 @@ ventures:
       script names its three test files explicitly, so it would reach this file.
 
   - venture: quick-pick-survey
-    contract: null
-    execution: none
-    exempt_until: 2026-09-15
+    contract: ventures/quick-pick-survey/src/lib/routeAuthPosture.test.ts
+    execution: venture-test-gate
     route_files: 31
     handlers: 32
     owner: duncan
-    # Shortest exemption in the file, deliberately: this is the largest
-    # untested surface and the only venture serving live production traffic.
-    reason: >
-      The largest API surface in the repository — 31 route modules, 32
-      handlers, one of which is a `route.tsx` that a `route.ts`-only scan
-      misses entirely (`/api/og/couple-card`) — and the only venture live in
-      production (pairwise.marisstella.dev). It has no auth-posture contract.
-      `src/lib/routeInventory.test.ts` is a close structural cousin that checks
-      the route set against docs/ROUTES.md, but not posture. Nothing forces a
-      decision about anonymous reachability. Surveyed 2026-08-01: `src/proxy.ts`
-      matches `/api/:path*` but performs no authentication at all — only an
-      origin check and a body-size cap, and the origin check allows requests
-      with no Origin header by design, so curl bypasses it. All authorization
-      is in-handler and return-value-based (`getSessionUser` returns null,
-      `mayAccessOwnedParticipant` returns a boolean), so a contract here must
-      assert the return value is branched on, not that a helper is imported:
-      four handlers (`session/start`, `feedback`, `report`, `usage`) call
-      `getSessionUser()` for attribution and rate-limit exemption only, and a
-      presence-based check would misclassify all four as guarded. This venture
-      already has a `venture-test-gate` (test-ci.sh gate 1 runs `vitest run`),
-      so a contract placed anywhere under it executes immediately — the work is
-      writing the posture declaration, not wiring it.
+    # The largest API surface in the repository and the only venture serving
+    # live production traffic (pairwise.marisstella.dev). Written 2026-08-01.
+    #
+    # Two things made this venture's contract different from the other three.
+    #
+    # Authorization is entirely in-handler: `src/proxy.ts` matches
+    # `/api/:path*` but authenticates nothing — it checks origin and body size,
+    # and `checkOrigin` allows a request with no Origin header by design, so
+    # curl bypasses it. The contract pins that, because every `public` and
+    # `capability` entry rests on it.
+    #
+    # And guards are return-value-based, so "does this handler mention an auth
+    # helper?" would have been worse than no check at all: `session/start`,
+    # `feedback`, `report` and `usage` all call `getSessionUser()` for
+    # attribution and rate-limit exemption only, and a presence test would wave
+    # all four through as guarded. The contract requires a refusal, not a
+    # mention, and that check was mutation-verified by declaring `/api/feedback`
+    # guarded and confirming it fails.
+    #
+    # The posture vocabulary carries a third value, `capability`, for the nine
+    # handlers where possession of an unguessable participant or trial id IS
+    # the credential — `mayAccessOwnedParticipant` admits anonymous
+    # participants by design. Calling those `guarded` would overstate them and
+    # `public` would understate them. Naming them accurately is what surfaced
+    # the residual risks recorded as SEC-021.
 
   - venture: local-site-studio
     contract: null
