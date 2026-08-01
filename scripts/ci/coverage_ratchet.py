@@ -264,6 +264,126 @@ def validate_component(entry: Any) -> List[Finding]:
     return findings
 
 
+# Node's ways of saying a package could not be resolved. Matched against a
+# failed command's output, never used to decide whether to run one: a component
+# may legitimately declare dependencies its test command does not import, and
+# refusing to run it would trade this misdiagnosis for a worse one.
+#
+# Split because the error code also appears in the `throw new ERR_MODULE_NOT_FOUND(...)`
+# source line Node prints above the message. That line proves the failure kind
+# but names no package, so the phrases that do are searched first.
+UNRESOLVED_IMPORT_NAMING_MARKERS = (
+    "Cannot find package",
+    "Cannot find module",
+)
+UNRESOLVED_IMPORT_CODE_MARKERS = (
+    "ERR_MODULE_NOT_FOUND",
+    "MODULE_NOT_FOUND",
+)
+UNRESOLVED_IMPORT_MARKERS = (
+    UNRESOLVED_IMPORT_NAMING_MARKERS + UNRESOLVED_IMPORT_CODE_MARKERS
+)
+
+
+def looks_like_unresolved_import(output: str) -> bool:
+    """True when a failed command died resolving an import rather than testing."""
+    return any(marker in output for marker in UNRESOLVED_IMPORT_MARKERS)
+
+
+def unresolved_import_line(output: str) -> str:
+    """The first line naming the package that could not be resolved.
+
+    Preferred over a generic tail for this finding. When a loader is missing,
+    every test file fails too, so the tail is a wall of `'test failed'` that
+    reads as a broken suite — the exact impression this diagnosis exists to
+    correct. The one line naming the missing package is the whole story.
+    """
+    lines = [line.strip() for line in output.splitlines() if line.strip()]
+    for markers in (UNRESOLVED_IMPORT_NAMING_MARKERS, UNRESOLVED_IMPORT_CODE_MARKERS):
+        for line in lines:
+            if any(marker in line for marker in markers):
+                return line
+    return ""
+
+
+def declares_uninstalled_dependencies(workdir: Path) -> bool:
+    """True when a component declares npm dependencies but never installed them.
+
+    Half of the evidence for the `component-dependencies-missing` diagnosis; the
+    other half is that the command actually died on an unresolved import. On its
+    own this is not enough, and acting on it alone was wrong: `platform/ci`
+    declares `@dagger.io/dagger` for its pipeline but tests entirely on the Node
+    standard library, so it runs green with no `node_modules` at all. Treating
+    the declaration as proof would have failed a healthy component — and, worse,
+    would have hidden the real catalog bug its suite was catching.
+    """
+    manifest_file = workdir / "package.json"
+    if not manifest_file.is_file():
+        return False
+    try:
+        manifest = json.loads(manifest_file.read_text())
+    except (OSError, ValueError):
+        # An unreadable manifest is the command's problem to report, not ours.
+        return False
+    if not isinstance(manifest, dict):
+        return False
+    declared = sum(
+        len(manifest[block])
+        for block in ("dependencies", "devDependencies")
+        if isinstance(manifest.get(block), dict)
+    )
+    if declared == 0:
+        return False
+    return not (workdir / "node_modules").is_dir()
+
+
+def without_reporter_arguments(command: Sequence[str]) -> List[str]:
+    """The same command with its `--test-reporter*` arguments removed."""
+    return [part for part in command if not part.startswith("--test-reporter")]
+
+
+def diagnostic_rerun(
+    command: Sequence[str], workdir: Path, env: Dict[str, str], timeout: int
+) -> str:
+    """Re-run a failed coverage command with its reporter off, to see why it failed.
+
+    `--test-reporter-destination` sends *everything* to the destination file,
+    including the error that killed the run. A component that dies before any
+    test executes therefore fails with empty stdout, empty stderr, and a 4-byte
+    lcov file, and the audit can only report `coverage command exited 1:` with
+    nothing after the colon. That is a true statement containing no information.
+
+    Running it again without the reporter puts the diagnostic back on stderr.
+    This only ever happens on a failure that produced no output, so it costs
+    nothing on a healthy run and cannot turn a passing component red — the
+    result is used solely to word the finding.
+    """
+    try:
+        repeat = subprocess.run(
+            without_reporter_arguments(command),
+            cwd=workdir,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return repeat.stderr or repeat.stdout or ""
+
+
+def failure_excerpt(output: str, limit: int = 8) -> List[str]:
+    """The most diagnostic lines of a failed command's output.
+
+    Taking the last N lines loses the cause whenever the runtime prints a stack
+    trace: the `Error: ...` line scrolls off and the excerpt is nothing but
+    `at ...` frames. Drop the frames first, then take the tail.
+    """
+    lines = [line.rstrip() for line in output.strip().splitlines() if line.strip()]
+    meaningful = [line for line in lines if not line.lstrip().startswith("at ")]
+    return (meaningful or lines)[-limit:]
+
+
 def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measurement], Optional[Finding]]:
     """Run one component's coverage command and parse the lcov it writes.
 
@@ -329,7 +449,31 @@ def run_coverage(repo_root: Path, entry: Dict[str, Any]) -> tuple[Optional[Measu
             )
 
         if completed.returncode != 0:
-            tail = (completed.stderr or completed.stdout or "").strip().splitlines()[-8:]
+            output = completed.stderr or completed.stdout or ""
+            if not failure_excerpt(output):
+                # The reporter ate the reason. Ask again without it.
+                output = diagnostic_rerun(
+                    resolved, workdir, env, entry.get("timeout_seconds", 900)
+                ) or output
+            tail = failure_excerpt(output)
+            # Both outcomes fail closed. They differ only in which repair they
+            # send the reader to, and sending them to the wrong one costs a
+            # search for a broken test that was never broken.
+            if looks_like_unresolved_import(output) and declares_uninstalled_dependencies(workdir):
+                return None, Finding(
+                    component=name,
+                    severity="error",
+                    code="component-dependencies-missing",
+                    message=(
+                        f"{entry['path']} declares npm dependencies but has no "
+                        "node_modules, and the coverage command died resolving an "
+                        "import: " + unresolved_import_line(output)
+                    ),
+                    remedy=(
+                        "Install the component's dependencies (npm ci) and re-run. "
+                        "This is an uninstalled component, not a failing test suite."
+                    ),
+                )
             return None, Finding(
                 component=name,
                 severity="error",
