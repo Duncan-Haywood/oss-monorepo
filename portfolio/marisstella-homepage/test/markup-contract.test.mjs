@@ -35,6 +35,17 @@ test('every brief button has a brief, and every brief has a button', () => {
   );
 });
 
+test('venture briefs do not draw their own list bullets', () => {
+  // The brief bodies are <ul><li>, so the browser draws a marker. Repeating it
+  // as a literal character inside the <li> renders "• • Customer:" and reads
+  // the bullet out twice. Caught in a browser; only visible once rendered.
+  const items = [...js.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => m[1].trim());
+  assert.ok(items.length > 0, 'no list items found in the venture briefs');
+
+  const doubled = items.filter((item) => /^[•·▪▫◦*-]\s/.test(item));
+  assert.deepEqual(doubled, [], 'list item repeats the marker the browser already draws');
+});
+
 test('every element app.js looks up by id exists exactly once', () => {
   const ids = [...js.matchAll(/getElementById\('([^']+)'\)/g)].map((m) => m[1]);
   assert.ok(ids.length > 0);

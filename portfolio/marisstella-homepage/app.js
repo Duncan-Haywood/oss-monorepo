@@ -42,10 +42,10 @@ const specsData = {
     desc: 'Consumer decision intelligence for couples',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Customer:</strong> Couples who want to make plans and trade-offs with less friction</li>
-        <li>• <strong>Problem:</strong> Important preferences often stay implicit until they create conflict</li>
-        <li>• <strong>Product:</strong> Fast pairwise choices reveal priorities, shared ground, and blind spots</li>
-        <li>• <strong>Stage:</strong> Live product with active market learning</li>
+        <li><strong>Customer:</strong> Couples who want to make plans and trade-offs with less friction</li>
+        <li><strong>Problem:</strong> Important preferences often stay implicit until they create conflict</li>
+        <li><strong>Product:</strong> Fast pairwise choices reveal priorities, shared ground, and blind spots</li>
+        <li><strong>Stage:</strong> Live product with active market learning</li>
       </ul>
     `
   },
@@ -54,10 +54,10 @@ const specsData = {
     desc: 'Practical AI capability for technical teams',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Customer:</strong> Software teams moving from AI experiments to dependable products</li>
-        <li>• <strong>Problem:</strong> Existing training rarely reflects real production constraints</li>
-        <li>• <strong>Product:</strong> Guided curriculum, realistic practice, and immediate technical feedback</li>
-        <li>• <strong>Stage:</strong> Private beta</li>
+        <li><strong>Customer:</strong> Software teams moving from AI experiments to dependable products</li>
+        <li><strong>Problem:</strong> Existing training rarely reflects real production constraints</li>
+        <li><strong>Product:</strong> Guided curriculum, realistic practice, and immediate technical feedback</li>
+        <li><strong>Stage:</strong> Private beta</li>
       </ul>
     `
   },
@@ -66,10 +66,10 @@ const specsData = {
     desc: 'Faster listing-ready imagery for property professionals',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Customer:</strong> Independent agents, teams, and property marketers</li>
-        <li>• <strong>Problem:</strong> Professional listing imagery is slow and expensive to produce</li>
-        <li>• <strong>Product:</strong> Consistent enhancement and delivery through an agent-friendly workflow</li>
-        <li>• <strong>Stage:</strong> Product validation</li>
+        <li><strong>Customer:</strong> Independent agents, teams, and property marketers</li>
+        <li><strong>Problem:</strong> Professional listing imagery is slow and expensive to produce</li>
+        <li><strong>Product:</strong> Consistent enhancement and delivery through an agent-friendly workflow</li>
+        <li><strong>Stage:</strong> Product validation</li>
       </ul>
     `
   },
@@ -78,10 +78,10 @@ const specsData = {
     desc: 'Managed digital storefronts for local businesses',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Customer:</strong> Local service operators without dedicated digital teams</li>
-        <li>• <strong>Problem:</strong> Agency-built sites are costly to launch and difficult to maintain</li>
-        <li>• <strong>Product:</strong> A managed, conversion-focused presence built around the business</li>
-        <li>• <strong>Stage:</strong> Venture build</li>
+        <li><strong>Customer:</strong> Local service operators without dedicated digital teams</li>
+        <li><strong>Problem:</strong> Agency-built sites are costly to launch and difficult to maintain</li>
+        <li><strong>Product:</strong> A managed, conversion-focused presence built around the business</li>
+        <li><strong>Stage:</strong> Venture build</li>
       </ul>
     `
   },
@@ -90,10 +90,10 @@ const specsData = {
     desc: 'Clearer operating decisions for physical retail',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Customer:</strong> Multi-location retailers and store operators</li>
-        <li>• <strong>Problem:</strong> Demand, inventory, and staffing signals arrive too late or stay fragmented</li>
-        <li>• <strong>Product:</strong> One operating view that surfaces the decisions needing attention</li>
-        <li>• <strong>Stage:</strong> Pilot testing</li>
+        <li><strong>Customer:</strong> Multi-location retailers and store operators</li>
+        <li><strong>Problem:</strong> Demand, inventory, and staffing signals arrive too late or stay fragmented</li>
+        <li><strong>Product:</strong> One operating view that surfaces the decisions needing attention</li>
+        <li><strong>Stage:</strong> Pilot testing</li>
       </ul>
     `
   },
@@ -102,10 +102,10 @@ const specsData = {
     desc: 'Professional print commerce for independent creators',
     details: `
       <ul style="margin-top: 12px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
-        <li>• <strong>Customer:</strong> Artists and photographers selling premium physical work</li>
-        <li>• <strong>Problem:</strong> Print preparation, quality control, and fulfillment remain fragmented</li>
-        <li>• <strong>Product:</strong> A simpler path from finished digital work to a fulfilled print order</li>
-        <li>• <strong>Stage:</strong> Venture build</li>
+        <li><strong>Customer:</strong> Artists and photographers selling premium physical work</li>
+        <li><strong>Problem:</strong> Print preparation, quality control, and fulfillment remain fragmented</li>
+        <li><strong>Product:</strong> A simpler path from finished digital work to a fulfilled print order</li>
+        <li><strong>Stage:</strong> Venture build</li>
       </ul>
     `
   }
