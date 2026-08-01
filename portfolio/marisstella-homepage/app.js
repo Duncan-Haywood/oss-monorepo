@@ -30,6 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// The control the brief was opened from, so focus can go back to it. Without
+// this, dismissing a brief drops keyboard focus to the top of the document and
+// the visitor has to tab through the whole page to reach the next venture.
+let briefOpener = null;
+
 // Venture brief data
 const specsData = {
   pairwise: {
@@ -113,6 +118,7 @@ function openModal(key) {
   const details = document.getElementById('modalDetails');
 
   if (specsData[key]) {
+    briefOpener = document.activeElement;
     title.innerText = specsData[key].title;
     desc.innerText = specsData[key].desc;
     details.innerHTML = specsData[key].details;
@@ -126,6 +132,14 @@ function closeModal() {
   const modal = document.getElementById('techModal');
   modal.style.display = 'none';
   document.body.style.overflow = '';
+
+  // Escape fires this on every keypress, open or not, so only restore focus
+  // when a brief actually took it — otherwise a stray Escape would yank focus
+  // back to a button the visitor has long since moved away from.
+  if (briefOpener) {
+    briefOpener.focus();
+    briefOpener = null;
+  }
 }
 
 window.onclick = function(event) {

@@ -136,7 +136,14 @@ export const VENTURE_CATALOG = [
     dir: 'portfolio/marisstella-homepage',
     type: 'node',
     hasPrisma: false,
-    scripts: ['build'],
+    // Was `['build']`, and that was the whole gate on a production UI: the
+    // script it ran was `node -e 'console.log("Marisstella homepage build
+    // verified")'`, which cannot fail, so the pipeline reported PASSED for a
+    // component nothing had checked. `build` and `lint` were removed rather
+    // than replaced — the build of a static site is the container image
+    // .gitea/workflows/homepage-ci.yml builds, and there is no linter here.
+    // `test` is real: see portfolio/marisstella-homepage/test/.
+    scripts: ['test'],
   },
   {
     id: 'platform-terraform',

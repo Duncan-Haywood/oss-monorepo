@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "description": "Maris Stella Labs Portfolio & Venture Studio Homepage",
+  "comment": "`build` and `lint` used to be `node -e console.log(...)` and were removed rather than replaced: the build of this site is the container image .gitea/workflows/homepage-ci.yml builds, and there is no linter here to run. A gate that cannot fail is worse than an absent one, because the pipeline reports it as PASSED. `test` is the real gate — see test/ and docs/QUALITY-ENGINEERING.md.",
   "scripts": {
-    "build": "node -e 'console.log(\"Marisstella homepage build verified\")'",
-    "lint": "node -e 'console.log(\"Marisstella homepage lint verified\")'",
-    "test": "node -e 'console.log(\"Marisstella homepage test verified\")'"
+    "test": "node --test 'test/*.test.mjs'"
   }
 }
