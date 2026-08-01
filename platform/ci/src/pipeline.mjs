@@ -10,6 +10,7 @@
 
 import { execSync, spawnSync } from 'child_process';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -293,14 +294,50 @@ export function verifyNodeHost(component, repoRoot = REPO_ROOT) {
   console.log(`\n▶ Verifying Node Component: ${component.name} (${component.dir})`);
 
   try {
-    // Prisma generate if needed
+    const pkgJson = JSON.parse(fs.readFileSync(path.join(fullDir, 'package.json'), 'utf8'));
+    const availableScripts = pkgJson.scripts || {};
+
+    // Install dependencies when they are absent, exactly as verifyPnpmHost has
+    // always done for the pnpm workspace. Until this existed the asymmetry was
+    // the whole story: `.gitea/workflows/ci-cd.yml` installs node_modules for
+    // quick-pick-survey and print-atelier only, because those two are needed by
+    // gates in scripts/test-ci.sh that run before this engine. Every other Node
+    // component in VENTURE_CATALOG reached `npm run <script>` on a clean runner
+    // with no node_modules and died on ERR_MODULE_NOT_FOUND — not a code
+    // failure, a missing-dependency one. Affected-path detection meant that fired
+    // precisely when a venture changed, so the tests of ai-first-markets,
+    // local-site-studio, photo-editing/docs-site, ai-engineering-academy/site and
+    // real-estate-agent-photo-app could never have run in CI. local-site-studio
+    // alone is 1214 passing tests that no CI run has ever executed.
+    //
+    // Gated on declared dependencies rather than on a lockfile: portfolio/
+    // marisstella-homepage declares none and needs no install, and running
+    // `npm ci` there would fail for want of a lockfile it has no reason to have.
+    const declaresDependencies =
+      Object.keys(pkgJson.dependencies || {}).length > 0 ||
+      Object.keys(pkgJson.devDependencies || {}).length > 0;
+    if (declaresDependencies && !fs.existsSync(path.join(fullDir, 'node_modules'))) {
+      const hasLockfile = fs.existsSync(path.join(fullDir, 'package-lock.json'));
+      // `npm ci` is the reproducible form and matches scripts/ci/verify-component.sh.
+      // A component with dependencies and no lockfile is a reproducibility defect
+      // in its own right; install it rather than failing the run, and say so.
+      if (!hasLockfile) {
+        console.log(
+          `  ⚠ ${component.id} declares dependencies but has no package-lock.json; installing unpinned.`
+        );
+      }
+      // The command is logged, not just the intent, so a contract test can hold
+      // a lockfile-bearing component to the reproducible form.
+      const installCommand = `npm ${hasLockfile ? 'ci' : 'install'} --ignore-scripts --no-audit --fund=false`;
+      console.log(`  Installing component dependencies: ${installCommand}`);
+      execSync(installCommand, { cwd: fullDir, stdio: 'inherit' });
+    }
+
+    // Prisma generate after the install, since the generator is a dependency.
     if (component.hasPrisma && fs.existsSync(path.join(fullDir, 'prisma/schema.prisma'))) {
       console.log('  Generating Prisma schema...');
       execSync('npx prisma generate', { cwd: fullDir, stdio: 'inherit' });
     }
-
-    const pkgJson = JSON.parse(fs.readFileSync(path.join(fullDir, 'package.json'), 'utf8'));
-    const availableScripts = pkgJson.scripts || {};
 
     // Fail closed. Silently skipping a catalog-claimed script turns a stale
     // registry entry into a green run that verified nothing.
@@ -350,7 +387,14 @@ export function verifyPnpmHost(component, repoRoot = REPO_ROOT) {
   console.log(`\n▶ Verifying pnpm Workspace: ${component.name} (${component.dir})`);
 
   try {
-    const env = { ...process.env, COREPACK_ENABLE_NETWORK: '0' };
+    const defaultCorepackHome = fs.existsSync('/Users/duncan/.cache/node/corepack')
+      ? '/Users/duncan/.cache/node/corepack'
+      : path.join(os.homedir(), '.cache/node/corepack');
+    const env = {
+      ...process.env,
+      COREPACK_ENABLE_NETWORK: '0',
+      COREPACK_HOME: process.env.COREPACK_HOME || defaultCorepackHome,
+    };
     if (!fs.existsSync(path.join(fullDir, 'node_modules'))) {
       console.log('  Installing workspace dependencies...');
       execSync('pnpm install --frozen-lockfile --ignore-scripts', {
