@@ -151,20 +151,21 @@ evidence, and completion date before it can be marked done.
   four ways, and also requires a committed lockfile for every Node component that
   declares dependencies.
   What that turned up is the point: five components had no CI run that had ever
-  executed their suites. Four now verify end to end — `ai-first-markets`,
-  `photo-editing/docs-site`, `ai-engineering-academy/site`, and
-  `real-estate-agent-photo-app`, whose five test files were confirmed by moving
-  `node_modules` aside and watching the component fail before this change and pass
-  after it. The fifth, `local-site-studio`, is the largest suite in the repository
-  at 125 files and 1214 tests: typecheck, lint and every test pass, and
-  `next build` fails. So this venture — deployed at `studio.marisstella.dev` — has
-  a broken production build and a green-looking repository, which is exactly the
-  state the control was added to make impossible to sustain.
-  Two things still open, neither belonging to this change. The build failure is
-  under active uncommitted work by the concurrent agent, which added a `webpack`
-  config that Next.js 16 rejects because Turbopack is now the default and no
-  `turbopack` config accompanies it; whether `HEAD` builds for a different reason
-  is a separate question from whether the working tree does. And the engine
+  executed their suites, and all five verify end to end at `HEAD` once the engine
+  can install them — `ai-first-markets`, `photo-editing/docs-site`,
+  `ai-engineering-academy/site`, `real-estate-agent-photo-app`, whose five test
+  files were confirmed by moving `node_modules` aside and watching the component
+  fail before this change and pass after it, and `local-site-studio`, the largest
+  suite in the repository at 125 files and 1214 tests. So the work these gates
+  were never running was passing work; the gap was the runner, not the ventures.
+  Verified for `local-site-studio` in a detached worktree at `HEAD` with a real
+  `npm ci`, because a `node_modules` symlink no longer suffices — Turbopack
+  rejects one that points outside the project root.
+  Two things remain open, neither belonging to this change. `next build` fails in
+  the current working tree, from the concurrent agent's uncommitted `webpack`
+  config: Next.js 16 makes Turbopack the default and errors when a `webpack`
+  config appears with no `turbopack` config beside it. `HEAD` builds clean, so this
+  is in-flight work to finish rather than a defect in the venture. And the engine
   reaching a venture at all still depends on affected-path detection, so a
   component nothing has touched is still verified by nothing.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
