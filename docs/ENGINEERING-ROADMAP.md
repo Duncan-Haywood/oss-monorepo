@@ -16,6 +16,53 @@ evidence, and completion date before it can be marked done.
   Automatic production promotion for the three named services is blocked in
   their workflows until this is complete; temporary releases require a tracked,
   owner-approved manual exception under `docs/QUALITY-ENGINEERING.md`.
+  Partial, 2026-08-01, owner duncan. Pairwise, the first of the three, has one:
+  `ventures/quick-pick-survey/e2e/` plus `playwright.config.ts`, 17 journeys
+  across a desktop and a phone viewport, run by a `journeys` job in
+  `.gitea/workflows/pairwise-ci.yml` that `container` now waits on — so a red
+  journey stops an image being *built*, not merely promoted. Before this there
+  was no Playwright anywhere in the repository. Covered: anonymous entry and
+  primary task completion, validation refusal, persistence across reload, undo,
+  keyboard voting, dependency-failure states, anonymous authorization against
+  every admin handler, cross-origin refusal, and axe scans of both screens the
+  journey passes through. It drives a production build and takes its base URL
+  from `PLAYWRIGHT_BASE_URL`, so the same specs can run against the candidate;
+  nothing under `e2e/` imports application code. `retries: 0`, deliberately —
+  Playwright exits 0 on a test that passes on attempt two, which is the
+  opposite of what this policy asks for — with traces, video and screenshots
+  retained and uploaded on failure.
+
+  **What writing it found is the reason the item exists.** Four votes produced
+  "2 answered" on the insights screen, behind four HTTP 200s. `trials/next`
+  hands a shown-but-unanswered pair back for 30 minutes so a reload does not
+  mint a new row; the runner saves an answer in the background and asks for the
+  next pair in the same tick. Both requests are therefore in flight together and
+  the next-question one normally lands first, while the row it is about to skip
+  still reads `result: null`. The identical pair came back, the person answered
+  it again, and `trials/answer` correctly refused to apply one answer twice —
+  replying `{ok: true, alreadyAnswered: true}`, which the client treats as
+  success. Not a fast-tapper edge case: a race between two simultaneous
+  requests that resolved the wrong way on essentially every answer. Roughly half
+  of all taps in the only venture serving production traffic were discarded, the
+  Glicko-2 ratings and every insight were computed from half the data, and
+  nothing anywhere reported it. Fixed in `54733cc` by naming the in-flight trial
+  so both fetchers exclude it, symmetric across `trials/next` and
+  `financial-trials/next`, with the reload behaviour left intact. Guarded twice:
+  by the journey that found it and by
+  `src/app/api/trials/pendingReuse.integration.test.ts`, which runs in the
+  existing `database` job and so binds where no browser exists — mutation-checked
+  by removing the exclusion, which fails the two in-flight cases and leaves the
+  two reload cases green.
+
+  Still open, and this item stays unchecked until all of it is done: the
+  homepage and AI-First Markets have no journey suite; Pairwise's own suite has
+  no authenticated, couple-linking, or admin-dashboard journey, no visual
+  regression evidence, and no candidate-side run — `PLAYWRIGHT_BASE_URL` is
+  supported but no workflow points it at the promoted digest yet. The accessible
+  coverage is an automated axe scan of two screens at two viewports, which is
+  roughly a third of what a person would find, and the manual checks the policy
+  asks for are still owed. Automatic promotion therefore remains blocked for all
+  three services, unchanged by this work.
 - [ ] Configure and verify Gitea branch/environment protection: pull requests
   only for release branches, current required checks, stale approval dismissal,
   CODEOWNERS, one independent approval for Tier 2, two including an accountable
