@@ -37,12 +37,15 @@ components:
       - --test-reporter=lcov
       - --test-reporter-destination=$COVERAGE_LCOV_DESTINATION
       - tests/*.test.ts
-    # Measured 2026-07-31 across 49 files / 13146 lines. Branch coverage is the
-    # weakest of the three and is where the climb to the 90% target starts.
+    # Measured 2026-08-02 across 113 files / 18749 lines, up from 49 files /
+    # 13146 lines on 2026-07-31, when the figures were 91.70/87.46/79.31. The
+    # route-authorization, payout-reconciliation and artist-cohort suites
+    # carried the surface up with the code. Branch coverage is still the weakest
+    # of the three and is where the climb to the 90% target continues.
     baseline:
-      lines: 91.70
-      functions: 87.46
-      branches: 79.31
+      lines: 94.07
+      functions: 89.04
+      branches: 81.31
     tolerance:
       lines: 0.5
       functions: 0.5
@@ -59,15 +62,19 @@ components:
       - --test-reporter=lcov
       - --test-reporter-destination=$COVERAGE_LCOV_DESTINATION
       - test/*.test.mjs
-    # Measured 2026-07-31 across `src/pipeline.mjs` / 639 lines. This is the
-    # engine that decides whether every other component passes, and it is the
-    # least covered thing in the repository. Half of it has never been executed
-    # by a test — including, until recently, the paths that report PASSED for a
-    # component that was never verified. Raising this is the priority.
+    # Measured 2026-08-02 across 13 files / 3436 lines. The 2026-07-31 figures
+    # below this line were 52.11/57.14/61.54, taken when the component was
+    # `src/pipeline.mjs` alone at 639 lines. It is no longer the least covered
+    # thing in the repository: the gate-contract, route-auth-posture and
+    # homepage-release-surface checks that landed since then execute the paths
+    # that used to report PASSED for a component nothing verified. This is the
+    # engine that decides whether every other component passes, so the floor is
+    # pinned to what is actually measured — a floor that trails reality
+    # ratchets nothing.
     baseline:
-      lines: 52.11
-      functions: 57.14
-      branches: 61.54
+      lines: 87.60
+      functions: 93.36
+      branches: 80.68
     tolerance:
       lines: 0.5
       functions: 0.5
