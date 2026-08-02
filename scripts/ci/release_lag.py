@@ -196,8 +196,10 @@ def resolve_deployment_ref(repo: Path, ref: str) -> str:
     except ReleaseLagError as exc:
         raise ReleaseLagError(
             f"deployment ref {ref!r} does not resolve in {repo}. Nothing can be "
-            f"known about what shipped without it. Run `git fetch origin` (or "
-            f"`--fetch`) and re-run. Underlying error: {exc}"
+            f"known about what shipped without it. Locally, run `git fetch "
+            f"origin` (or pass `--fetch`). In CI, this means the checkout is "
+            f"shallow: `actions/checkout` fetches only the ref being built "
+            f"unless it is given `fetch-depth: 0`. Underlying error: {exc}"
         ) from exc
 
 

@@ -30,6 +30,14 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+          # Full history and every remote branch. `scripts/ci/release_lag.py`
+          # measures how far committed work sits from `origin/main`, which is
+          # what production serves, and it fails closed when that ref does not
+          # resolve. The default shallow checkout fetches only the ref being
+          # built, so `origin/main` is absent and the audit could report nothing
+          # but "cannot measure" — a gate that can only fail is one someone
+          # eventually deletes. Confirmed against a real `--depth 1` clone.
+          fetch-depth: 0
 
       # This job runs scripts/verify-all.sh, which runs scripts/test-ci.sh (12
       # gates) and then the Dagger engine. Until now the only tool it installed

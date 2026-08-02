@@ -561,6 +561,30 @@ class RepositoryContractTests(unittest.TestCase):
         for manifest in sorted((REPO_ROOT / "ventures").glob("*/VENTURE.yaml")):
             self.assertIn(manifest.parent.name, by_id)
 
+    def test_the_ci_checkout_fetches_enough_history_to_measure(self):
+        """The audit is unmeasurable on a shallow clone, so CI must not use one.
+
+        `actions/checkout` fetches only the ref being built unless it is given
+        `fetch-depth: 0`, and `origin/main` is then absent. Confirmed against a
+        real `git clone --depth 1`: every run would report "cannot measure"
+        instead of a number. A gate that can only fail is one someone
+        eventually deletes, so this holds the workflow to the condition that
+        makes the gate satisfiable.
+        """
+        workflow = REPO_ROOT / ".gitea" / "workflows" / "ci-cd.yml"
+        self.assertTrue(workflow.is_file(), workflow)
+        data = yaml.safe_load(workflow.read_text())
+        steps = data["jobs"]["verify"]["steps"]
+        checkouts = [s for s in steps if "actions/checkout" in str(s.get("uses", ""))]
+        self.assertTrue(checkouts, "the verify job no longer checks out the repository")
+        for step in checkouts:
+            self.assertEqual(
+                (step.get("with") or {}).get("fetch-depth"),
+                0,
+                "ci-cd.yml must check out with `fetch-depth: 0` or "
+                "scripts/ci/release_lag.py cannot resolve origin/main",
+            )
+
     def test_the_audit_can_measure_this_repository(self):
         """Fails if `origin/main` is unfetched — which is itself worth failing on."""
         policy = load_policy(REPO_ROOT, POLICY_PATH)
