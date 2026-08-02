@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Radio, Target } from "lucide-react";
-import {
-  getRetargetingEnvStatus,
-  type RetargetingEventSummary,
-} from "@/lib/retargeting-events";
-import { getPartnerCredentialEnvFromProcess } from "@/lib/partner-credentials";
+import { type RetargetingEventSummary } from "@/lib/retargeting-events";
 import { fetchOperatorJson, type OperatorFetchResult } from "@/lib/operator-client";
 import OperatorAccessNotice from "./OperatorAccessNotice";
 
+/**
+ * Readiness comes from the guarded route's own `envStatus`, not from a local
+ * `process.env` read. A `"use client"` component still executes on the server
+ * during the render pass, so reading the environment here told an anonymous
+ * visitor which ad credentials are installed — the same disclosure the route's
+ * operator guard exists to prevent.
+ */
 export default function CheckoutRetargetingPanel() {
-  const env = useMemo(() => getPartnerCredentialEnvFromProcess(), []);
-  const envStatus = useMemo(() => getRetargetingEnvStatus(env), [env]);
   const [result, setResult] = useState<OperatorFetchResult<RetargetingEventSummary> | null>(null);
   const summary = result?.state === "ok" ? result.data : null;
+  const envStatus = summary?.envStatus ?? null;
 
   useEffect(() => {
     fetchOperatorJson<RetargetingEventSummary>("/api/retargeting/events").then(setResult);
@@ -38,7 +40,7 @@ export default function CheckoutRetargetingPanel() {
       <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Platforms ready</p>
-          <p className="text-2xl font-bold">{envStatus.platformsReady}/3</p>
+          <p className="text-2xl font-bold">{envStatus ? `${envStatus.platformsReady}/3` : "—"}</p>
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-3">
           <p className="text-xs text-stone-500">Sessions tracked</p>
@@ -56,7 +58,7 @@ export default function CheckoutRetargetingPanel() {
         </div>
       </div>
 
-      {envStatus.blockers.length > 0 && (
+      {envStatus && envStatus.blockers.length > 0 && (
         <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-amber-800">
           {envStatus.blockers.map((blocker) => (
             <li key={blocker}>Missing: {blocker}</li>
