@@ -32,33 +32,51 @@ elif ! node -e 'require("dns").lookup("registry.npmjs.org", (err) => process.exi
   echo "  Skipping remote dependency audit; running local secret exposure audit..."
 fi
 
+AUDITED_COUNT=0
+
 FINDINGS_TMP=$(mktemp)
-# An audit that could not run is not the same as an audit that found nothing.
-# Every unusable result lands here, and a non-empty file means this run may not
-# overwrite the recorded findings.
+# An audit that could not run is not an audit that found nothing. Every package
+# whose dependency state could not be established lands here, and a non-empty
+# file bars this run from rewriting the roadmap.
 AUDIT_GAPS_TMP=$(mktemp)
 trap 'rm -f "${FINDINGS_TMP}" "${AUDIT_GAPS_TMP}"' EXIT
 
-# Function to audit a single package directory
-audit_node_package() {
-  local target_dir="$1"
-  local component_name="$2"
+record_audit_gap() {
+  printf '%s\t%s\n' "$1" "$2" >> "${AUDIT_GAPS_TMP}"
+}
 
-  # A package that declares no dependencies of any kind has no dependency graph,
-  # so no lockfile and no registry could tell us anything about it. Recording it
-  # as a gap blocks the roadmap rewrite permanently on a package that can never
-  # produce a finding — portfolio/marisstella-homepage, whose only script runs
-  # node:test over the standard library, held the whole audit open this way.
-  #
-  # This is not an escape hatch of the kind the offline branch below guards
-  # against, and the distinction is the reason it is safe: the decision is read
-  # from the committed package.json alone and never from environment state, so
-  # it cannot be reached by a run that failed to install, lost the registry, or
-  # was sandboxed. Declaring a single dependency re-arms the lockfile
-  # requirement and the real audit on the very next run. An unparseable
-  # package.json exits non-zero here and falls through to the normal path, so a
-  # malformed manifest is still treated as an unaudited gap.
-  if [ -f "${target_dir}/package.json" ] && node -e '
+# True when the package is a member of a pnpm workspace whose root lockfile
+# already covers it, so auditing the member directory would prove nothing.
+covered_by_pnpm_workspace() {
+  local dir="$1"
+
+  while [ "${dir}" != "${REPO_ROOT}" ] && [ "${dir}" != "/" ]; do
+    dir="$(dirname "${dir}")"
+    if [ -f "${dir}/pnpm-workspace.yaml" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+# True only when the manifest parses and declares no dependency of any kind.
+#
+# Every dependency field counts, not the three that are usually present: a
+# package whose only dependency is a `peerDependencies` or `bundleDependencies`
+# entry still has a dependency graph, and calling it empty would count it as
+# audited without auditing it.
+#
+# A manifest that does not parse is deliberately *not* treated as empty. That
+# distinction is the whole point of the helper — `node` exits non-zero both when
+# the package declares dependencies and when the file is malformed, so a caller
+# that reads "non-zero means empty" turns an unreadable package.json into a
+# silent pass. Here a parse failure returns 1, the caller falls through to the
+# lockfile path, and the package is recorded as an unaudited gap.
+declares_no_dependencies() {
+  local manifest="$1"
+
+  node -e '
     const fs = require("fs");
     const pkg = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
     const fields = [
@@ -71,95 +89,110 @@ audit_node_package() {
       return Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0;
     });
     process.exit(declaresAny ? 1 : 0);
-  ' "${target_dir}/package.json" 2>/dev/null; then
-    echo "Auditing Node package: ${component_name}... no dependencies declared, nothing to audit"
-    AUDITED_COUNT=$((AUDITED_COUNT + 1))
-    return
-  fi
+  ' "${manifest}" 2>/dev/null
+}
+
+# Function to audit a single package directory
+audit_node_package() {
+  local target_dir="$1"
+  local component_name="$2"
+
+  [ -f "${target_dir}/package.json" ] || return 0
 
   # Being offline is an audit that could not run, not an audit that found
   # nothing. Counting these as audited would satisfy the completeness guard
   # below and republish the roadmap as CLEAN, erasing every recorded finding —
-  # the precise failure that guard exists to prevent.
+  # the precise failure that guard exists to prevent. Recorded here rather than
+  # left to the audit call below so the reason names the network, and so a
+  # sandboxed run does not pay a registry timeout for every package.
   if [ "${IS_OFFLINE}" -eq 1 ]; then
-    if [ -f "${target_dir}/package.json" ]; then
-      printf '%s\tregistry unreachable, dependency audit skipped\n' \
-        "${component_name}" >> "${AUDIT_GAPS_TMP}"
-    fi
-    return
+    record_audit_gap "${component_name}" "registry unreachable, dependency audit skipped"
+    return 0
   fi
 
-  if [ -f "${target_dir}/package.json" ]; then
-    pushd "${target_dir}" >/dev/null
-
-    if [ ! -f package-lock.json ] && [ ! -f npm-shrinkwrap.json ] && [ ! -f pnpm-lock.yaml ]; then
-      local parent_dir
-      parent_dir="$(dirname "${target_dir}")"
-      if [ -f "${parent_dir}/pnpm-lock.yaml" ] || [ -f "${parent_dir}/../pnpm-lock.yaml" ] || [ -f "${parent_dir}/pnpm-workspace.yaml" ]; then
-        popd >/dev/null
-        return
-      fi
-      printf '%s\tno npm or pnpm lockfile to audit\n' "${component_name}" >> "${AUDIT_GAPS_TMP}"
-      popd >/dev/null
-      return
-    fi
-
-    echo "Auditing Node package: ${component_name}..."
-
-    local audit_json audit_stderr
-    audit_stderr=$(mktemp)
-    if [ -f pnpm-lock.yaml ]; then
-      audit_json=$(pnpm audit --json 2>"${audit_stderr}" || true)
-    else
-      audit_json=$(npm audit --json 2>"${audit_stderr}" || true)
-    fi
-
-    local counts
-    if ! counts=$(node -e '
-      const data = JSON.parse(process.argv[1]);
-      const vulns = (data.metadata || {}).vulnerabilities;
-      if (!vulns) {
-        throw new Error("audit returned no vulnerability metadata");
-      }
-      const total = typeof vulns.total === "number" ? vulns.total : (vulns.critical || 0) + (vulns.high || 0) + (vulns.moderate || 0) + (vulns.low || 0);
-      console.log(`${vulns.critical || 0} ${vulns.high || 0} ${vulns.moderate || 0} ${vulns.low || 0}`);
-    ' "${audit_json}" 2>/dev/null); then
-      local reason
-      reason=$(head -n 1 "${audit_stderr}")
-      printf '%s\t%s\n' \
-        "${component_name}" \
-        "${reason:-audit produced no usable JSON report}" >> "${AUDIT_GAPS_TMP}"
-      rm -f "${audit_stderr}"
-      popd >/dev/null
-      return
-    fi
-    rm -f "${audit_stderr}"
-
+  local manager
+  if [ -f "${target_dir}/pnpm-lock.yaml" ]; then
+    manager=pnpm
+  elif [ -f "${target_dir}/package-lock.json" ] || [ -f "${target_dir}/npm-shrinkwrap.json" ]; then
+    manager=npm
+  elif covered_by_pnpm_workspace "${target_dir}"; then
+    echo "Skipping ${component_name}: covered by its pnpm workspace lockfile."
+    return 0
+  elif declares_no_dependencies "${target_dir}/package.json"; then
+    echo "Auditing Node package: ${component_name}... no dependencies declared, nothing to audit"
     AUDITED_COUNT=$((AUDITED_COUNT + 1))
-
-    read -r crit high med low <<< "${counts}"
-    CRITICAL_COUNT=$((CRITICAL_COUNT + crit))
-    HIGH_COUNT=$((HIGH_COUNT + high))
-    MEDIUM_COUNT=$((MEDIUM_COUNT + med))
-    LOW_COUNT=$((LOW_COUNT + low))
-
-    node -e '
-      const data = JSON.parse(process.argv[1]);
-      const component = process.argv[2];
-      const vulns = data.vulnerabilities || {};
-
-      for (const [pkg, info] of Object.entries(vulns)) {
-        const severity = (info.severity || "info").toUpperCase();
-        const via = Array.isArray(info.via) ? info.via.map(v => typeof v === "string" ? v : v.title || v.name).join(", ") : info.via;
-        const fixAvailable = info.fixAvailable ? (typeof info.fixAvailable === "boolean" ? "npm audit fix" : `Upgrade ${info.fixAvailable.name}@${info.fixAvailable.version}`) : "Manual fix required";
-        const range = info.range || "N/A";
-
-        console.log(`| ${component} | \`${pkg}\` | **${severity}** | ${range} | ${via || "Vulnerability in dependency"} | ${fixAvailable} | [ ] Scheduled |`);
-      }
-    ' "${audit_json}" "${component_name}" >> "${FINDINGS_TMP}"
-
-    popd >/dev/null
+    return 0
+  else
+    record_audit_gap "${component_name}" "no npm or pnpm lockfile to audit"
+    return 0
   fi
+
+  echo "Auditing Node package: ${component_name} (${manager})..."
+  pushd "${target_dir}" >/dev/null
+
+  local audit_json audit_stderr
+  audit_stderr=$(mktemp)
+  # Both package managers exit non-zero when they find vulnerabilities, so the
+  # exit code cannot distinguish findings from a failed run. The payload can.
+  audit_json=$("${manager}" audit --json 2>"${audit_stderr}" || true)
+
+  local counts
+  if ! counts=$(node -e '
+    const data = JSON.parse(process.argv[1]);
+    const vulns = (data.metadata || {}).vulnerabilities;
+    const severities = ["critical", "high", "moderate", "low"];
+    if (!vulns || severities.some((s) => typeof vulns[s] !== "number")) {
+      throw new Error("audit returned no vulnerability metadata");
+    }
+    console.log(severities.map((s) => vulns[s]).join(" "));
+  ' "${audit_json}" 2>/dev/null); then
+    local reason
+    reason=$(grep -v '^(node:' "${audit_stderr}" | head -n 1)
+    record_audit_gap \
+      "${component_name}" \
+      "${reason:-${manager} audit produced no usable JSON report}"
+    rm -f "${audit_stderr}"
+    popd >/dev/null
+    return 0
+  fi
+  rm -f "${audit_stderr}"
+
+  AUDITED_COUNT=$((AUDITED_COUNT + 1))
+
+  read -r crit high med low <<< "${counts}"
+  CRITICAL_COUNT=$((CRITICAL_COUNT + crit))
+  HIGH_COUNT=$((HIGH_COUNT + high))
+  MEDIUM_COUNT=$((MEDIUM_COUNT + med))
+  LOW_COUNT=$((LOW_COUNT + low))
+
+  # npm reports a package-keyed `vulnerabilities` map; pnpm reports an
+  # advisory-keyed `advisories` map. Normalize both into roadmap rows.
+  node -e '
+    const data = JSON.parse(process.argv[1]);
+    const component = process.argv[2];
+
+    for (const [pkg, info] of Object.entries(data.vulnerabilities || {})) {
+      const severity = (info.severity || "info").toUpperCase();
+      const via = Array.isArray(info.via) ? info.via.map(v => typeof v === "string" ? v : v.title || v.name).join(", ") : info.via;
+      const fixAvailable = info.fixAvailable ? (typeof info.fixAvailable === "boolean" ? "npm audit fix" : `Upgrade ${info.fixAvailable.name}@${info.fixAvailable.version}`) : "Manual fix required";
+      const range = info.range || "N/A";
+
+      console.log(`| ${component} | \`${pkg}\` | **${severity}** | ${range} | ${via || "Vulnerability in dependency"} | ${fixAvailable} | [ ] Scheduled |`);
+    }
+
+    for (const advisory of Object.values(data.advisories || {})) {
+      const severity = (advisory.severity || "info").toUpperCase();
+      const range = advisory.vulnerable_versions || "N/A";
+      const title = advisory.title || "Vulnerability in dependency";
+      const fix = advisory.patched_versions && advisory.patched_versions !== "<0.0.0"
+        ? `Upgrade ${advisory.module_name} to ${advisory.patched_versions}`
+        : "Manual fix required";
+
+      console.log(`| ${component} | \`${advisory.module_name}\` | **${severity}** | ${range} | ${title} | ${fix} | [ ] Scheduled |`);
+    }
+  ' "${audit_json}" "${component_name}" >> "${FINDINGS_TMP}"
+
+  popd >/dev/null
 }
 
 # Scan Node projects (recursively finding all package.json files in ventures/ and portfolio/)
@@ -169,7 +202,12 @@ while IFS= read -r pkg_file; do
     rel_dir="${pkg_dir#"${REPO_ROOT}/"}"
     audit_node_package "${pkg_dir}" "${rel_dir}"
   fi
-done < <(find "${REPO_ROOT}/ventures" "${REPO_ROOT}/portfolio" -type d \( -name "node_modules" -o -name ".next" -o -name ".open-next" -o -name "dist" -o -name "build" -o -name ".pnpm-store" \) -prune -o -name "package.json" -print 2>/dev/null)
+# The prune list is the union of the two this merge brought together. Every
+# entry names a directory that holds generated or vendored copies of packages
+# already audited at their source, so pruning one can hide no real manifest;
+# missing one costs a duplicate audit of a build artifact at best and an audit
+# of a stale vendored tree at worst.
+done < <(find "${REPO_ROOT}/ventures" "${REPO_ROOT}/portfolio" -type d \( -name "node_modules" -o -name ".next" -o -name ".open-next" -o -name ".turbo" -o -name ".vercel" -o -name ".pnpm-store" -o -name "dist" -o -name "build" \) -prune -o -name "package.json" -print 2>/dev/null)
 
 # Secret Scanning in Node.js
 echo "Running Secret Exposure Audit..."
@@ -270,6 +308,9 @@ cat << EOF > "${ROADMAP_FILE}"
 > **Automated Security Scanning & Governance Status**
 > - **Last Scan Execution**: \`${TIMESTAMP}\`
 > - **CI Pipeline Scanner**: Enabled (\`.gitea/workflows/security.yml\`)
+> - **Audit Coverage**: ${AUDITED_COUNT} package(s) audited. A scan that cannot
+>   audit every package refuses to rewrite this file, so a clean dashboard always
+>   means a complete scan rather than a failed one.
 > - **Policy Enforcement**: Block PR merges on Critical/High vulnerabilities; track all findings in this roadmap.
 
 ---
@@ -311,6 +352,7 @@ cat << EOF >> "${ROADMAP_FILE}"
 
 ### Phase 2: Dependency & Infrastructure Remediation (Short-Term)
 - [ ] Remediate high/critical dependency vulnerabilities reported in package audit logs using \`npm audit fix\`.
+- [ ] Extend the blocking \`dependency-audit\` matrix in \`.gitea/workflows/security.yml\` to every package this scan audits; it currently gates four of ${AUDITED_COUNT}.
 - [ ] Enforce automated secret scanning with Gitleaks / Trivy in pre-commit hooks and PR builds.
 - [ ] Implement automated Trivy IaC static analysis for Terraform (\`platform/terraform\`) and K8s (\`platform/k8s\`).
 

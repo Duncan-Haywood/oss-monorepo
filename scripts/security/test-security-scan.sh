@@ -234,6 +234,89 @@ for case_name in offline broken-npm; do
     fail "SECURITY_SCAN_ALLOW_OFFLINE ($case_name) should still report the incomplete audit"
 done
 
+# --- pnpm ---------------------------------------------------------------
+#
+# The cases above all drive npm. pnpm is audited by the same function through a
+# different binary and a different report shape, and this merge brought the two
+# together from branches that had each tested only their own half. Everything
+# below is the pnpm half: without it, the `manager` selection and the advisory
+# normalization are code no test executes.
+
+# Build a fixture whose package is audited by pnpm rather than npm. The stub is
+# installed as `pnpm` and a `pnpm-lock.yaml` selects it, so the scanner's own
+# manager detection is what routes the call — the test does not force it.
+new_pnpm_fixture() {
+  local name="$1"
+  local pnpm_stub_body="$2"
+  local root="$test_root/$name"
+
+  mkdir -p "$root/scripts" "$root/ventures/demo" "$root/portfolio" "$root/bin"
+  cp "$scanner" "$root/scripts/security-scan.sh"
+  printf '{"name":"demo","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
+    >"$root/ventures/demo/package.json"
+  printf 'lockfileVersion: "9.0"\n' >"$root/ventures/demo/pnpm-lock.yaml"
+
+  {
+    printf '#!/usr/bin/env bash\n'
+    printf '%s\n' "$pnpm_stub_body"
+  } >"$root/bin/pnpm"
+  chmod +x "$root/bin/pnpm"
+  # npm must not be the thing that answers. If manager detection regresses to
+  # always-npm, this stub fails the run rather than quietly passing it.
+  {
+    printf '#!/usr/bin/env bash\n'
+    printf 'echo "npm should not have been invoked for a pnpm package" >&2\n'
+    printf 'exit 1\n'
+  } >"$root/bin/npm"
+  chmod +x "$root/bin/npm"
+
+  printf '%s\n' "$root"
+}
+
+pnpm_advisory_stub='cat <<'\''JSON'\''
+{"advisories":{"1120680":{"module_name":"esbuild","severity":"high","title":"fixture advisory","vulnerable_versions":"<=0.28.0","patched_versions":">=0.28.1"}},"metadata":{"vulnerabilities":{"critical":0,"high":1,"moderate":0,"low":0}}}
+JSON'
+
+# pnpm reports advisories under a different key than npm's `vulnerabilities`
+# map. They are findings either way and belong in the roadmap; a scanner that
+# understood only npm's shape would count this package as audited and clean.
+pnpm_fixture="$(new_pnpm_fixture pnpm-findings "$pnpm_advisory_stub")"
+if run_scanner "$pnpm_fixture"; then
+  grep -q 'esbuild' "$pnpm_fixture/SECURITY_ROADMAP.md" ||
+    fail "a pnpm advisory should be listed in the findings table"
+  grep -q '\*\*HIGH\*\*' "$pnpm_fixture/SECURITY_ROADMAP.md" ||
+    fail "a pnpm advisory should carry its severity into the roadmap"
+else
+  fail "a pnpm package with a usable audit report should publish the roadmap"
+fi
+
+# A workspace member has no lockfile of its own because the workspace root
+# holds it. Demanding one from the member would hold the roadmap open forever
+# on a package whose dependencies are already audited at the root.
+workspace_fixture="$(new_pnpm_fixture pnpm-workspace "$pnpm_advisory_stub")"
+mkdir -p "$workspace_fixture/ventures/demo/packages/member"
+printf 'packages:\n  - packages/*\n' >"$workspace_fixture/ventures/demo/pnpm-workspace.yaml"
+printf '{"name":"member","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
+  >"$workspace_fixture/ventures/demo/packages/member/package.json"
+run_scanner "$workspace_fixture" ||
+  fail "a pnpm workspace member should not be reported as a missing-lockfile gap"
+grep -q 'covered by its pnpm workspace lockfile' "$workspace_fixture/stdout.log" ||
+  fail "a pnpm workspace member should say why it was not audited separately"
+
+# The exemption is the workspace root's to give. A package outside any
+# workspace that ships no lockfile must still be a gap, or adding a stray
+# pnpm-workspace.yaml anywhere above would disarm the requirement wholesale.
+outside_fixture="$(new_pnpm_fixture pnpm-workspace-scope "$pnpm_advisory_stub")"
+mkdir -p "$outside_fixture/ventures/orphan"
+printf '{"name":"orphan","version":"1.0.0","dependencies":{"left-pad":"^1.0.0"}}\n' \
+  >"$outside_fixture/ventures/orphan/package.json"
+printf '%s\n' "$recorded_row" >"$outside_fixture/SECURITY_ROADMAP.md"
+if run_scanner "$outside_fixture"; then
+  fail "a lockfile-less package outside the workspace should exit non-zero"
+fi
+grep -qF "$recorded_row" "$outside_fixture/SECURITY_ROADMAP.md" ||
+  fail "a lockfile-less package outside the workspace must not overwrite findings"
+
 if [ "$failures" -ne 0 ]; then
   printf 'security-scan contract tests failed: %d\n' "$failures" >&2
   exit 1
