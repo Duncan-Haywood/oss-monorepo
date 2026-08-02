@@ -142,9 +142,76 @@ jobs:
             --shadow-database-url postgresql://postgres:postgres@postgres:5432/shadow \
             --exit-code
 
+  journeys:
+    name: Critical browser journeys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: integration
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d integration"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ventures/quick-pick-survey/package-lock.json
+
+      - name: Install locked dependencies without package lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --fund=false
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # `npm ci --ignore-scripts` skips the browser download, so it is done
+      # here explicitly rather than left to a lifecycle script the install
+      # deliberately suppresses.
+      - name: Install the Chromium build Playwright expects
+        run: npx playwright install --with-deps chromium
+
+      - name: Apply migrations and seed disposable database
+        run: |
+          npx prisma migrate deploy
+          npx prisma db seed
+
+      # The journeys run against a production build served by `next start`. The
+      # roadmap asks for the same specs to run on the release candidate, and a
+      # suite that only works against the development server cannot.
+      - name: Build the application the journeys will drive
+        run: npm run build
+
+      - name: Critical journeys
+        run: npm run test:e2e
+
+      # A red journey with no trace becomes a re-run, and a re-run is how a real
+      # failure turns into a flake. The evidence is part of the gate.
+      - name: Retain failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pairwise-journey-evidence
+          path: |
+            ventures/quick-pick-survey/e2e-report
+            ventures/quick-pick-survey/e2e-results
+          retention-days: 14
+          if-no-files-found: ignore
+
   container:
     name: Build and publish deployable container
-    needs: [app, database]
+    needs: [app, database, journeys]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     outputs:

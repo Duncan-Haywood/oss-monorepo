@@ -81,7 +81,38 @@ describe("Pairwise CI contract", () => {
     expect(PAIRWISE_CI).toContain("pairwise-container-smoke");
     expect(PAIRWISE_CI).toContain("docker push");
     expect(PAIRWISE_CI).toContain("git.marisstella.dev/giteaadmin/pairwise-app:${{ github.sha }}");
-    expect(PAIRWISE_CI).toContain("needs: [app, database]");
+
+    // Which gates a deployable image is allowed to be built behind, asserted as
+    // a set rather than as the literal `needs: [app, database]` this used to
+    // match. That literal went red the moment the gate was made *stricter* — a
+    // browser-journey job was added and the list grew — which is the failure
+    // direction that reads like a regression and gets "fixed" by weakening the
+    // gate. Name the gates, not the punctuation.
+    const containerNeeds = PAIRWISE_CI.match(/^ {2}container:\n(?:.*\n)*? {4}needs: \[([^\]]+)\]/m)?.[1];
+    expect(containerNeeds, "the container job must declare what it waits for").toBeTruthy();
+    const gates = (containerNeeds ?? "").split(",").map((name) => name.trim());
+    for (const gate of ["app", "database", "journeys"]) {
+      expect(gates).toContain(gate);
+    }
+  });
+
+  it("runs the critical browser journeys before anything deployable is built", () => {
+    if (!PAIRWISE_CI) return;
+    // docs/ENGINEERING-ROADMAP.md's first "Now" item. A journey suite that no
+    // workflow invokes is the repository's recurring failure — declared,
+    // reachable, and never executed — so the contract is that the job exists,
+    // installs a browser, and runs the suite against a real build.
+    expect(PAIRWISE_CI).toContain("  journeys:");
+    expect(PAIRWISE_CI).toContain("playwright install");
+    expect(PAIRWISE_CI).toContain("npm run test:e2e");
+    // Against `next start`, not `next dev`: the same specs have to be able to
+    // run on the release candidate.
+    const journeysJob = PAIRWISE_CI.match(/^ {2}journeys:\n((?:.*\n)*?)(?=^ {2}[a-z-]+:\n)/m)?.[1] ?? "";
+    expect(journeysJob).toContain("npm run build");
+    expect(journeysJob).not.toContain("next dev");
+    // Failure evidence is part of the gate, not a nicety: a red journey with no
+    // trace is a re-run, and a re-run is how a real failure becomes a flake.
+    expect(journeysJob).toContain("upload-artifact");
   });
 
   it("promotes immutable digests through Git and leaves reconciliation to Argo CD", () => {
