@@ -84,6 +84,19 @@ MAX_DECLARED_AGE_DAYS = 30
 # between measured and declared that needs no review.
 MAX_DECLARED_SLACK = 40
 
+# The two dimensions below are the gameable ones: committing more work always
+# raises them, so without a ceiling the budget can be argued up forever and a
+# PASS means only that someone widened it last. That happened on the day this
+# landed — `max_unshipped_commits` went 125 -> 135 and `max_branches_ahead`
+# 32 -> 35 within one session, both keeping the gate green.
+#
+# These caps are deliberately close to the 2026-08-02 measurement (127 commits,
+# 31 branches). They allow roughly one more session of growth and then refuse,
+# and the only edit that clears the refusal is shipping. Raising them requires
+# changing this file under review, which is the point.
+MAX_DECLARED_UNSHIPPED_COMMITS = 150
+MAX_DECLARED_BRANCHES = 40
+
 # The exception register's horizon, for the same reason.
 MAX_EXPIRY_DAYS = 180
 
@@ -285,6 +298,19 @@ def load_budget(repo_root: Path, budget_path: str = BUDGET_PATH) -> Dict[str, An
         raise LagError(
             f"{budget_path}: `slack_commits` is {budget['slack_commits']}, over the "
             f"{MAX_DECLARED_SLACK} cap. Slack that wide hides a whole release."
+        )
+
+    if budget["max_unshipped_commits"] > MAX_DECLARED_UNSHIPPED_COMMITS:
+        raise LagError(
+            f"{budget_path}: `max_unshipped_commits` is {budget['max_unshipped_commits']}, over the "
+            f"{MAX_DECLARED_UNSHIPPED_COMMITS} cap. Past this the budget is not being argued down, it "
+            f"is being argued up, and the only edit that should clear this is shipping."
+        )
+
+    if budget["max_branches_ahead"] > MAX_DECLARED_BRANCHES:
+        raise LagError(
+            f"{budget_path}: `max_branches_ahead` is {budget['max_branches_ahead']}, over the "
+            f"{MAX_DECLARED_BRANCHES} cap. Opening another branch is not a way to raise the ceiling."
         )
 
     return data

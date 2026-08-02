@@ -39,7 +39,9 @@ import release_lag
 from release_lag import (
     BUDGET_PATH,
     MAX_DECLARED_AGE_DAYS,
+    MAX_DECLARED_BRANCHES,
     MAX_DECLARED_SLACK,
+    MAX_DECLARED_UNSHIPPED_COMMITS,
     MAX_EXPIRY_DAYS,
     LagError,
     Measurement,
@@ -193,6 +195,32 @@ class TestBudgetValidation(unittest.TestCase):
         with self.assertRaises(LagError) as ctx:
             load_budget(self.write(data))
         self.assertIn("cap", str(ctx.exception))
+
+    def test_declared_commit_ceiling_over_cap_fails(self):
+        # Without this the budget can be argued up forever and a PASS means only
+        # that someone widened it last — which happened the day it landed.
+        data = make_budget(budget={"max_unshipped_commits": MAX_DECLARED_UNSHIPPED_COMMITS + 1})
+        with self.assertRaises(LagError) as ctx:
+            load_budget(self.write(data))
+        self.assertIn("cap", str(ctx.exception))
+
+    def test_declared_branch_ceiling_over_cap_fails(self):
+        data = make_budget(budget={"max_branches_ahead": MAX_DECLARED_BRANCHES + 1})
+        with self.assertRaises(LagError) as ctx:
+            load_budget(self.write(data))
+        self.assertIn("cap", str(ctx.exception))
+
+    def test_declared_ceilings_at_their_cap_are_accepted(self):
+        # Prove the pass path: a cap only ever seen to reject is not known to be
+        # satisfiable, and it gates every run.
+        data = make_budget(
+            budget={
+                "max_unshipped_commits": MAX_DECLARED_UNSHIPPED_COMMITS,
+                "max_branches_ahead": MAX_DECLARED_BRANCHES,
+            }
+        )
+        loaded = load_budget(self.write(data))
+        self.assertEqual(loaded["budget"]["max_unshipped_commits"], MAX_DECLARED_UNSHIPPED_COMMITS)
 
     def test_non_integer_budget_value_fails(self):
         data = make_budget(budget={"max_unshipped_commits": "lots"})
