@@ -29,13 +29,13 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-017** | **Critical** | Supply Chain | `ventures/photo-editing/docs-site` | Abandoned `htmltojsx` pulled in `request` (SSRF) and `form-data` (CRLF injection) | **Fixed** |
 | **SEC-018** | High | Application | `ventures/print-atelier/src/app/api/credentials/vercel-pull` | Unauthenticated disclosure of configured partner credential state | **Fixed** |
 | **SEC-019** | **Critical** | Application | `ventures/print-atelier/src/app/api/*` | Six operator API handlers served anonymous callers; one writes live ad catalogs | **Fixed** |
-| **SEC-020** | Low | Application | `ventures/photo-editing/docs-site/src/lib/auth.ts` | `isPublicPath` exempted `/api/health` by prefix, so sibling paths beside it were exempt too | **Fixed** |
-| **SEC-021** | Low | Container | `portfolio/marisstella-homepage` | `nginx.conf` and `package.json` published to the public web root | **Fixed** |
-| **SEC-022** | Medium | Application | `ventures/print-atelier/src/app/api/stripe/webhook/route.ts` | Signed event missing `data` crashed the handler; the resulting 5xx makes Stripe redeliver indefinitely | **Fixed** |
-| **SEC-023** | Medium | Application | `ventures/print-atelier/src/lib/stripe-webhook-server.ts` | Webhook signature verification has no timestamp tolerance, so a captured payload replays indefinitely | **[ ] Open** |
 | **SEC-020** | Low | Application | `ventures/photo-editing/docs-site/src/lib/auth.ts` | `startsWith("/api/health")` exempted sibling paths from the private site's auth | **Fixed** |
 | **SEC-021** | Low | Container | `portfolio/marisstella-homepage/.dockerignore` | Container image published `nginx.conf` and `package.json` in its web root | **Fixed (image only — see SEC-022)** |
 | **SEC-022** | Low | Infrastructure | `platform/ci/deploy-homepage.sh` | Release ConfigMap published `Dockerfile` to the live web root, and SEC-021's fix did not govern production | **Fixed — pending deploy** |
+| **SEC-023** | High | Application | `ventures/real-estate-agent-photo-app/.github/workflows/deploy-docs.yml` | Listing Lens docs answered an unauthenticated `GET` with 200 and the whole site, behind a rendered padlock | **Fixed** |
+| **SEC-024** | Medium | Supply Chain | `scripts/security-scan.sh` | A dependency-free package held the audit open, freezing the vulnerability register for two days with no run reporting a failure | **Fixed** |
+| **SEC-025** | Medium | Application | `ventures/print-atelier/src/app/api/stripe/webhook/route.ts` | Signed event missing `data` crashed the handler; the resulting 5xx makes Stripe redeliver indefinitely | **Fixed** |
+| **SEC-026** | Medium | Application | `ventures/print-atelier/src/lib/stripe-webhook-server.ts` | Webhook signature verification has no timestamp tolerance, so a captured payload replays indefinitely | **[ ] Open** |
 
 ---
 
@@ -258,7 +258,7 @@ This log records all identified application, infrastructure, container, and CI s
   `DOCS_SITE_TOKEN` is set, which is deliberate for local development and fails
   closed with a 503 in production. Nothing tests that production branch.
 
-### SEC-021 — High — Listing Lens Docs Served the Whole Internal Site Anonymously Behind a Padlock
+### SEC-023 — High — Listing Lens Docs Served the Whole Internal Site Anonymously Behind a Padlock
 
 - **Location**: `ventures/real-estate-agent-photo-app/.github/workflows/deploy-docs.yml`,
   the `apply-access` job; claim rendered by
@@ -400,7 +400,7 @@ This log records all identified application, infrastructure, container, and CI s
 
 ---
 
-### SEC-022 — Medium — Malformed Signed Stripe Event Crashed the Webhook
+### SEC-025 — Medium — Malformed Signed Stripe Event Crashed the Webhook
 - **Location**: `ventures/print-atelier/src/app/api/stripe/webhook/route.ts`
 - **Impact**: SEC-019 guarded this route's `GET` diagnostic. The `POST` — the
   path money actually arrives on — is guarded by signature verification instead,
@@ -422,7 +422,7 @@ This log records all identified application, infrastructure, container, and CI s
   cover for a path that previously had none. Full venture verify green:
   `tsc --noEmit`, `next lint`, 278 tests, `next build`.
 
-### SEC-023 — Medium — Stripe Webhook Signatures Never Expire
+### SEC-026 — Medium — Stripe Webhook Signatures Never Expire
 - **Location**: `ventures/print-atelier/src/lib/stripe-webhook-server.ts:20-22`
 - **Impact**: `verifyStripeWebhookSignature` parses the `t=` timestamp and uses
   it to rebuild the signed payload, but never compares it against the current

@@ -290,7 +290,24 @@ evidence, and completion date before it can be marked done.
   unguarded operator surface was found; the eight public ones authenticate the
   request (Stripe signature, HMAC unsubscribe token, checkout session id) or
   serve anonymous visitors by design.
-  Completed: `quick-pick-survey`'s contract in `src/lib/routeAuthPosture.test.ts` covers all 32 handlers, leaving 0 registered gaps in `platform/ci/test/route-auth-posture-coverage.test.mjs`. All 5 route-bearing ventures across the monorepo now hold active, verified route authorization posture contracts. `print-atelier`'s page routes, as distinct from its API routes, remain outside contracts (coverage control currently scans for `route.*` modules).
+  Not yet completed for `quick-pick-survey`, and an earlier revision of this
+  paragraph said otherwise. It claimed the venture's contract "covers all 32
+  handlers, leaving 0 registered gaps" and that "all 5 route-bearing ventures
+  now hold active, verified" contracts. Neither is true on this branch:
+  `ventures/quick-pick-survey/src/lib/routeAuthPosture.test.ts` does not exist
+  here, and `platform/ci/test/route-auth-posture-coverage.test.mjs` carries
+  `quick-pick-survey` as a **registered gap of 32 undeclared handlers** expiring
+  2026-11-01. The control was right and the prose was wrong, which is the
+  dangerous direction: quick-pick-survey is the only venture serving live
+  production traffic, so the claim invited an owner to believe the production
+  route surface had been reviewed when it had not. A contract for it does exist
+  on `agent/route-posture-repo-gate` (`4be387b`) and
+  `agent/route-posture-repo-control` (`2ce17a3`) — two independent versions,
+  neither merged here, because each arrives with a competing repo-level control
+  (see the integration report). Until one is chosen, the registered gap is the
+  accurate statement. `print-atelier`'s page routes, as distinct from its API
+  routes, also remain outside contracts (the coverage control scans for
+  `route.*` modules).
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
   Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports
@@ -444,7 +461,7 @@ evidence, and completion date before it can be marked done.
   `enhance.ts` that would make its claim true, so building the capability
   unlocks the claim by itself — a contract, not a word blocklist.
   Listing Lens docs claimed "Private — Cloudflare Access" on every page while
-  answering an unauthenticated GET with 200 and the whole site. SEC-021; fixed
+  answering an unauthenticated GET with 200 and the whole site. SEC-023; fixed
   by ordering the policy before the publish and probing the result from
   outside.
   Still open, found by the same audit and not yet fixed:
@@ -493,6 +510,44 @@ evidence, and completion date before it can be marked done.
   capacity checks, graceful degradation, and zero-unavailable rollout evidence.
 - [ ] Establish DORA, MTTD/MTTR, flaky-test, escaped-defect, scanner-remediation,
   cost, saturation, and recovery-test scorecards with trend review.
+  Started 2026-08-02, owner duncan: one of the four DORA metrics, and the one
+  that was making every other control on this roadmap worth nothing. Production
+  runs `origin/main`. Measured that morning it was at `a4b8f23` from 2026-07-31
+  while **119 commits sat across 29 local branches**, and the unshipped set
+  touched all 11 ventures plus `platform/`, `portfolio/`, `scripts/` and
+  `.gitea/` — every deployable component in the repository was running without
+  its committed changes. Nothing measured this: a grep for
+  `dora|lead.time|deployment.frequency` hit only the sentence above asking for
+  it. So a "Fixed" row in [the security audit log](SECURITY_AUDIT_LOG.md) and a
+  green pipeline could both be true while the live service ran a fortnight-old
+  commit, and on the same morning both were.
+  `scripts/ci/release_lag.py` and `platform/release-lag-budget.yaml` ratchet the
+  gap two-directionally, in the shape `count` uses in
+  `platform/exception-register.yaml`: above the declared budget fails because the
+  pile grew, and more than `slack_commits` below it fails because work shipped
+  and the budget went stale. The declared numbers are themselves capped and the
+  budget expires, so it cannot be widened into permanent silence.
+  Two things are worth carrying to the other three metrics. First, a shallow CI
+  clone is reported as a **third state**, never as a pass: `actions/checkout`
+  fetches one ref at depth 1, so `origin/main` does not resolve and no branch
+  topology exists, and "nothing is undelivered" is trivially true there. The
+  report prints `NOT MEASURABLE HERE`. Verifying that in a real depth-1 clone —
+  rather than only in fixtures — is what found that the gate-substance test and
+  the JSON `ok` field were both wrong in CI. Second, the commit-count dimension
+  is gameable, because committing more always raises it; `max_unshipped_age_days`
+  is the one only shipping can lower, and it is where the teeth are.
+  46 tests, run against real temporary git repositories, mutation-checked eleven
+  ways. Not done: deployment frequency, change failure rate and time to restore
+  are all still unmeasured, nothing trends this over time, and the control
+  reports rather than ships — pushing stays a human decision.
+  It immediately paid for itself. Checking whether SEC-021's fix had reached
+  production found that it could not: the homepage is served from a ConfigMap,
+  not the container image, so the `.dockerignore` remediation governed an
+  artifact the live site does not use. `https://marisstella.dev/Dockerfile`
+  answered 200 with the build recipe while the finding was recorded as Fixed.
+  Filed as SEC-022, fixed in `platform/ci/deploy-homepage.sh`, contract in
+  `platform/ci/test/homepage-release-surface.test.mjs`.
+
   The cost side has no measurement to trend yet, and the two months on record
   each fail in a different way. `portfolio/ledger/YYYY-MM.yaml` is the only
   record of what the portfolio spends, and `router.py` sums it into cumulative

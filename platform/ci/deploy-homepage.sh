@@ -36,6 +36,12 @@ kubectl -n "$namespace" get deployment "$deployment" >/dev/null
 # fails on anything else.
 #
 # Generate the full release atomically so all replicas receive the same file set.
+#
+# This list is the public web root of marisstella.dev: every key becomes a
+# fetchable path. It is not the container image, so `.dockerignore` cannot
+# narrow it — that is how `/Dockerfile` answered 200 with the build recipe while
+# SEC-021 was recorded as fixed. Adding an entry here publishes it.
+# `platform/ci/test/homepage-release-surface.test.mjs` holds the contract.
 kubectl -n "$namespace" create configmap "$configmap" \
   --from-file="index.html=$source_dir/index.html" \
   --from-file="style.css=$source_dir/style.css" \
