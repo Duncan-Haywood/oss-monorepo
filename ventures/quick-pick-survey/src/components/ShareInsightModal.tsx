@@ -12,13 +12,20 @@ type ShareInsightModalProps = {
   coupleNames?: { mine: string; theirs: string };
 };
 
+// The card is shared with people who are not using the product yet, so the link
+// on it is the whole referral. It is read off the page the couple is actually
+// on — a literal host here has already been wrong once, sending every shared
+// card to a domain this app has never served from. `CoupleView` derives its
+// invite and challenge links the same way.
+const PRODUCT_URL = typeof window === "undefined" ? "" : window.location.origin;
+
 export function ShareInsightModal({
   isOpen,
   onClose,
   title,
   headline,
   discovery,
-  alignmentPct = 85,
+  alignmentPct,
   coupleNames = { mine: "You", theirs: "Partner" },
 }: ShareInsightModalProps) {
   const [includeScore, setIncludeScore] = useState(true);
@@ -27,11 +34,18 @@ export function ShareInsightModal({
 
   if (!isOpen) return null;
 
+  // No default. This is presented as the couple's own alignment, so with no
+  // computed overlap there is nothing to show and the option to share one is
+  // not offered.
+  const hasScore = typeof alignmentPct === "number";
+  const showScore = hasScore && includeScore;
+  const productLabel = PRODUCT_URL.replace(/^https?:\/\//, "");
+
   const shareText = `✨ ${coupleNames.mine} & ${coupleNames.theirs}'s Relationship Insight:\n` +
     (includeArchetype ? `🎯 "${headline}"\n` : "") +
-    (includeScore ? `📊 Alignment Score: ${alignmentPct}%\n` : "") +
+    (showScore ? `📊 Alignment Score: ${alignmentPct}%\n` : "") +
     `💡 "${discovery}"\n\n` +
-    `Discover how well you and your partner align on Quick Pick: https://quickpick.app`;
+    `Discover how well you and your partner align on Quick Pick: ${PRODUCT_URL}`;
 
   const handleCopy = async () => {
     try {
@@ -49,7 +63,7 @@ export function ShareInsightModal({
         await navigator.share({
           title: `Relationship Insight: ${title}`,
           text: shareText,
-          url: "https://quickpick.app",
+          url: PRODUCT_URL,
         });
       } catch {
         // User cancelled or share failed
@@ -84,7 +98,7 @@ export function ShareInsightModal({
             <span className="text-xs font-mono uppercase tracking-wider text-purple-100 bg-purple-900 font-semibold">
               Quick Pick • Relationship Card
             </span>
-            {includeScore && (
+            {showScore && (
               <span className="px-2.5 py-0.5 rounded-full bg-purple-800 text-purple-100 text-xs font-bold border border-purple-600">
                 {alignmentPct}% Aligned
               </span>
@@ -100,7 +114,7 @@ export function ShareInsightModal({
           </p>
           <div className="mt-4 pt-3 border-t border-purple-800 flex justify-between items-center text-xs text-purple-100 font-medium bg-purple-900">
             <span>{coupleNames.mine} &amp; {coupleNames.theirs}</span>
-            <span className="text-purple-100 font-semibold bg-purple-900">quickpick.app</span>
+            <span className="text-purple-100 font-semibold bg-purple-900">{productLabel}</span>
           </div>
         </div>
 
@@ -116,15 +130,17 @@ export function ShareInsightModal({
             />
             <span>Include Relationship Archetype</span>
           </label>
-          <label className="flex items-center space-x-3 text-sm text-neutral-800 dark:text-neutral-200 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={includeScore}
-              onChange={(e) => setIncludeScore(e.target.checked)}
-              className="rounded border-neutral-400 text-purple-600 dark:text-purple-400 focus:ring-purple-600"
-            />
-            <span>Include Alignment Score ({alignmentPct}%)</span>
-          </label>
+          {hasScore && (
+            <label className="flex items-center space-x-3 text-sm text-neutral-800 dark:text-neutral-200 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeScore}
+                onChange={(e) => setIncludeScore(e.target.checked)}
+                className="rounded border-neutral-400 text-purple-600 dark:text-purple-400 focus:ring-purple-600"
+              />
+              <span>Include Alignment Score ({alignmentPct}%)</span>
+            </label>
+          )}
         </div>
 
         {/* Action Buttons */}
