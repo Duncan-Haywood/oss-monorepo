@@ -12,6 +12,36 @@ echo "=== Starting CI/CD Infrastructure Self-Test Suite ==="
 echo "Repository Root: ${REPO_ROOT}"
 echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
+# Refuse to run on a Node major other than the pinned one. Putting
+# /usr/local/bin ahead on PATH — the usual way to reach this host's python3.11 —
+# also selects the node v18.16.0 in that directory, ahead of the real Node, and
+# that turns three gates below red for reasons unrelated to the tree: Pairwise
+# dies on a node:util export vitest needs, and the coverage ratchet reports
+# coverage-command-failed for print-atelier and platform-ci. Each failure names
+# a component rather than the interpreter, so the natural reading is a broken
+# venture, and the diagnosis is paid for again by every person who runs this
+# next. Stopping here costs one line; not stopping costs an hour.
+if [ -f "${REPO_ROOT}/.nvmrc" ] && command -v node >/dev/null 2>&1; then
+  EXPECTED_NODE_MAJOR="$(tr -d '[:space:]' < "${REPO_ROOT}/.nvmrc" | sed 's/^v//' | cut -d. -f1)"
+  ACTUAL_NODE_MAJOR="$(node --version | sed 's/^v//' | cut -d. -f1)"
+  if [ -n "${EXPECTED_NODE_MAJOR}" ] && [ "${ACTUAL_NODE_MAJOR}" != "${EXPECTED_NODE_MAJOR}" ]; then
+    if [ "${ALLOW_NODE_VERSION_MISMATCH:-0}" -eq 1 ]; then
+      echo "⚠ Node $(node --version) is not the pinned major ${EXPECTED_NODE_MAJOR};" \
+        "ALLOW_NODE_VERSION_MISMATCH=1 — failures below may be version artifacts."
+    else
+      echo ""
+      echo "✖ Node $(node --version) does not match the pinned major ${EXPECTED_NODE_MAJOR} (.nvmrc)."
+      echo "  The gates below only pass on Node ${EXPECTED_NODE_MAJOR}, which is what"
+      echo "  .gitea/workflows/* install. Running them here would report component"
+      echo "  failures that are artifacts of the interpreter, not of the tree."
+      echo ""
+      echo "  Fix:  nvm use          (or install Node ${EXPECTED_NODE_MAJOR})"
+      echo "  Skip: ALLOW_NODE_VERSION_MISMATCH=1 bash scripts/test-ci.sh"
+      exit 1
+    fi
+  fi
+fi
+
 FAILURES=0
 
 run_ci_test() {
