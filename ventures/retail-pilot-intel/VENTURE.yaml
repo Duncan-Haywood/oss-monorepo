@@ -25,5 +25,9 @@ kill_criteria:
   - CAC exceeds €300 per store location.
 
 links:
-  production: https://retail-pilot-intel.pages.dev
+  # Was https://retail-pilot-intel.pages.dev until 2026-08-02. That host is
+  # NXDOMAIN — it does not resolve, so the venture was declaring a production
+  # surface that has never been reachable. Restore this only with a URL that
+  # answers.
+  production: null
   analytics: null
