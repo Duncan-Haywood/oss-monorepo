@@ -236,3 +236,396 @@ footer {
 
   article h1 { font-size: 1.6rem; }
 }
+
+/* ---------------------------------------------------------------------------
+   Components for the two authored pages (sandbox.html, pricing.html).
+
+   These pages shipped referencing roughly twenty-five class names that this
+   stylesheet never defined, so the pricing cards rendered as an undifferentiated
+   run of text and the waitlist modal — the venture's only conversion path —
+   appeared as an unstyled block at the foot of the page rather than as a dialog.
+   Clicking the call to action looked, to a visitor, like nothing happening.
+   --------------------------------------------------------------------------- */
+
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.field-note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Callouts that state what is and is not real. */
+.notice {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  background: var(--bg-sidebar);
+  border-radius: 6px;
+  padding: 1rem 1.15rem;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* --- Sandbox walkthroughs --------------------------------------------- */
+
+.sandbox-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-sidebar);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.track-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.track-btn {
+  font: inherit;
+  font-size: 0.85rem;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.track-btn:hover { border-color: var(--accent); }
+
+.track-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.panel-header h3 { margin: 0; }
+
+.badge {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.badge-pro { border-color: var(--accent); color: var(--accent); }
+
+.interactive-controls { margin: 1rem 0; }
+
+.interactive-controls label { font-size: 0.9rem; }
+
+.interactive-controls textarea,
+.checkpoint-input-row textarea {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  padding: 0.6rem;
+  margin-top: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+}
+
+.interactive-controls textarea[readonly] { color: var(--text-muted); }
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.console-box {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 1rem;
+  background: var(--code-bg);
+}
+
+.console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.console-status {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.console-box pre {
+  margin: 0;
+  padding: 0.85rem;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.mastery-checkpoint {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.mastery-checkpoint h4 { margin: 0 0 0.5rem; }
+
+.checkpoint-input-row { display: block; }
+
+.alert {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  border: 1px solid var(--border);
+}
+
+.alert-success { border-left: 4px solid #4c8a4c; background: var(--bg); }
+.alert-warning { border-left: 4px solid var(--accent); background: var(--bg); }
+
+/* --- Buttons ----------------------------------------------------------- */
+
+.btn {
+  display: inline-block;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 0.9rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn:hover { border-color: var(--accent); }
+
+.btn-primary,
+.btn-accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.btn-primary:hover,
+.btn-accent:hover { filter: brightness(1.08); }
+
+.btn-outline { background: transparent; border-color: var(--accent); color: var(--accent); }
+
+.btn-block { display: block; width: 100%; margin-top: 0.5rem; }
+
+/* --- Pricing ----------------------------------------------------------- */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.pricing-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card.featured { border-color: var(--accent); border-width: 2px; }
+
+.pricing-card h3 { margin: 0.5rem 0 0.25rem; font-size: 1.15rem; }
+
+.pricing-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  flex-grow: 1;
+}
+
+.pricing-card li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+
+.pricing-card li:last-child { border-bottom: none; }
+
+/* Planned items must not read as delivered ones. */
+.pricing-card li.planned { color: var(--text-muted); font-style: italic; }
+
+.card-badge {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.pricing-card.featured .card-badge { color: var(--accent); }
+
+.price {
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+.price span { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); }
+
+.tier-desc { font-size: 0.88rem; color: var(--text-muted); margin: 0 0 0.75rem; }
+
+/* --- Usage panel -------------------------------------------------------- */
+
+.calculator-section { margin: 2.5rem 0; }
+
+.calc-box {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  background: var(--bg-sidebar);
+}
+
+.calc-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.calc-row input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+.calc-row span { font-size: 0.85rem; color: var(--text-muted); }
+
+.calc-result {
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+}
+
+.result-item.highlight strong { color: var(--accent); }
+
+/* --- Waitlist dialog ---------------------------------------------------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 50;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.modal-card {
+  position: relative;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: min(30rem, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-card h3 { margin-top: 0; }
+
+.modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.85rem;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.modal-close:hover { color: var(--accent); }
+
+.form-group { margin-bottom: 0.9rem; }
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.checkpoint-input-row textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+@media (max-width: 900px) {
+  .pricing-grid { grid-template-columns: 1fr; }
+}
+
+/* The two authored pages are card/console layouts, not prose columns. */
+body.wide article { max-width: 58rem; }
+
+.track-panel { padding-top: 0.25rem; }
+
+.btn-secondary { background: var(--bg); color: var(--text); }
