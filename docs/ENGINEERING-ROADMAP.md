@@ -195,6 +195,39 @@ evidence, and completion date before it can be marked done.
   with a measured baseline and a two-directional ratchet — fail below it and
   fail when it is exceeded without being raised — modelled on the `count` field
   in `platform/exception-register.yaml`. Do not start at 90%.
+  Partial, 2026-08-02, owner duncan. That ratchet exists:
+  `platform/coverage-baseline.yaml` declares two components,
+  `scripts/ci/coverage_ratchet.py` measures and compares them in both
+  directions, and `tests/test_coverage_ratchet.py` runs it as a repository
+  contract. Nine ventures remain unmeasured, so the paragraph above is still the
+  plan for them.
+  What the first ratcheting of that gate did is the part worth keeping.
+  Both floors were raised the same day they were set — `platform-ci` 52.11 ->
+  87.60 and `print-atelier` 91.70 -> 94.07 — each recorded as measured, each
+  measured honestly, and both wrong. Node 22 counts a component's own test files
+  as covered source and Node 24 stopped doing so. `platform-ci` has one source
+  file of 805 lines; the report it was raised onto held 13 files and 3436 lines,
+  which is `wc -l test/*.test.mjs src/pipeline.mjs` exactly. Test files execute
+  themselves, so 2631 lines of near-total coverage averaged with 805 lines of
+  63.98% and produced an apparent 87.60%. `print-atelier`'s 113 files were its 54
+  source files plus all 59 of `tests/`. The real figures are 63.98/77.78/78.72
+  and 91.81/87.53/79.76, and the engine that decides whether every other
+  component passes is again the least covered thing in the repository.
+  Three things generalize from it. First, the gate's verdict depended on the
+  runner: `.gitea/workflows/ci-cd.yml` pins Node 22 and laptops run newer, so the
+  same commit passed in CI and failed locally. Every Node coverage command now
+  passes `--test-coverage-include=src/**`, verified to produce identical figures
+  on 22.22.3 and 26.4.0, and a contract test fails any node-test component that
+  omits it. Second, a percentage is a ratio and every check here compared
+  ratios, so nothing could see the denominator move. Each component now declares
+  `measured.files` and `measured.lines` and the audit checks them, which is the
+  same shape as `count` in the exception register — the evidence was already
+  written down in a comment beside the baseline, and being prose it was compared
+  to nothing. Third, the dangerous direction is the quiet one: source silently
+  dropping out of a report makes coverage *rise*, and a two-directional ratchet
+  then reports `baseline-stale` and invites someone to raise the floor over a
+  shrinking surface. The basis check is what distinguishes those two cases, and
+  no percentage-only check ever can.
 - [ ] Require regression tests for fixes and negative authorization/input tests
   for public APIs and server actions.
   Partial, 2026-08-01, owner duncan. Done in one venture, and the way it was
