@@ -83,8 +83,16 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
+      # platform/ci/test/workflow-supply-chain.test.mjs fails when a lockfile on
+      # disk is neither listed here nor carries a dated, owned exemption. This
+      # list was hand-maintained and had drifted to four of ten lockfiles, while
+      # the scanner that writes SECURITY_ROADMAP.md walked the whole tree — so
+      # findings were logged and simultaneously ungated.
       matrix:
         include:
+          - venture: ai-engineering-academy-site
+            directory: ventures/ai-engineering-academy/site
+            manager: npm
           - venture: ai-first-markets
             directory: ventures/ai-first-markets
             manager: npm

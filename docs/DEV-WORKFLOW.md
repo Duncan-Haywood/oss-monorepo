@@ -61,7 +61,7 @@ This command runs, without swallowing failures:
 Every Pull Request and push to `main` triggers automated CI gates:
 
 ### Security & Compliance (`.gitea/workflows/security.yml`)
-- **Action Pinning**: All third-party Gitea Actions are pinned to immutable commit SHAs with release tags in comments.
+- **Action Pinning**: All third-party Gitea Actions are pinned to immutable commit SHAs with release tags in comments. Enforced by `platform/ci/test/workflow-supply-chain.test.mjs`, which fails on any `uses:` that is not `owner/repo@<40-hex>` with a version comment. `actionlint` does not check this, so until that test existed the claim was unverified and `uses: actions/checkout@v4` would have passed every gate.
 - **Repository Policy Scan**: Scans tracked files for tracked `.env`, credentials, private keys, or unresolved merge conflicts.
 - **Trivy Scanner**: Audits dependencies, IaC (Terraform/K8s) configurations, and secret patterns.
 - **Gitleaks**: Scans complete Git history for exposed credentials with redacted evidence.

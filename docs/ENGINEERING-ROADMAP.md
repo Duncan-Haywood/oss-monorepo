@@ -199,8 +199,37 @@ evidence, and completion date before it can be marked done.
   requests, so the hole is on direct pushes — which is also where the weakest
   review is. Fixing it means diffing the push range rather than one commit, and
   wants a real runner to confirm what the Gitea event actually provides.
+  Two supply-chain claims the docs stated as fact are now checked, 2026-08-02,
+  owner duncan: `platform/ci/test/workflow-supply-chain.test.mjs` fails on any
+  `uses:` that is not a 40-character SHA with a version comment (all thirty were
+  already pinned, so this guards a regression `actionlint` cannot see), and on
+  any lockfile absent from both `security.yml`'s `dependency-audit` matrix and a
+  dated, owned exemption list. That matrix named four of the ten lockfiles on
+  disk. Because the scanner writing `SECURITY_ROADMAP.md` walks the whole tree,
+  the other six had their findings logged while no merge was blocked on them —
+  the register said "tracked" and the gate covered nothing. One of the six was
+  clean and is now in the matrix; five are exempt to 2026-11-01 because every
+  remaining advisory needs a semver-major upgrade (Next 16, wrangler 4,
+  sharp 0.35), which is an upgrade with its own verification rather than
+  something to fold into this change. `npm audit fix` without `--force` was run
+  against all five and cleared none of them.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
+  The entrypoint that runs every gate above could skip them all, closed
+  2026-08-02, owner duncan. `scripts/verify-all.sh` guarded its first step with
+  a bare `if [ -f scripts/test-ci.sh ]; then … fi` and no `else`, so renaming or
+  deleting that one file made all fourteen repository-wide gates — including
+  every `platform/ci/test/*.test.mjs` — silently not run while the script still
+  exited 0. The Dagger-engine block directly beneath it already had the correct
+  `else … exit 1`, so the two halves of the same entrypoint disagreed about
+  whether a missing runner is a failure. Found alongside it:
+  `scripts/ci/test-verify-component.sh`, the contract test for the shared
+  fail-closed gate every venture workflow shells into, was named by no runner
+  and no workflow and had therefore never executed since it was written; it
+  passes, so it was dormant rather than broken, and it is now gate 4 in
+  `scripts/test-ci.sh`. `platform/ci/test/gate-wiring.test.mjs` fails on both
+  shapes: a guarded runner invocation with no failing `else`, and a `test-*.sh`
+  under `scripts/` that no runner or workflow names.
   Partially configured live on 2026-08-01 as recorded above; required status
   contexts and environment/runner controls remain open. Prepared 2026-07-31:
   `.gitea/CODEOWNERS` had a rule for
