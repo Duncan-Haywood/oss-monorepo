@@ -321,10 +321,11 @@ export default function LandingPage() {
               Simple Pricing
             </span>
             <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-              Start free. Upgrade for couples sync.
+              Free while we build it.
             </h2>
             <p className="mt-3 text-stone-700 dark:text-stone-300">
-              Everything you need for personal preference ranking is free forever.
+              Everything below works today and costs nothing. Couples sync included — we
+              have no way to take payment yet, so nothing here can charge you.
             </p>
           </div>
 
@@ -359,7 +360,7 @@ export default function LandingPage() {
             {/* Pro / Together Tier */}
             <div className="relative flex flex-col justify-between rounded-3xl border-2 border-amber-500 bg-stone-900 p-8 text-white shadow-2xl dark:bg-stone-900">
               <span className="absolute -top-3.5 right-8 rounded-full bg-amber-500 px-3 py-1 text-[11px] font-black uppercase text-stone-950">
-                Most Popular
+                Free while in beta
               </span>
 
               <div>
@@ -368,9 +369,12 @@ export default function LandingPage() {
                 </span>
                 <h3 className="mt-4 text-2xl font-black text-white">Couples & Partners</h3>
                 <p className="mt-2 text-3xl font-black text-amber-400">
-                  $9 <span className="text-sm font-normal text-stone-300">/ month</span>
+                  $0 <span className="text-sm font-normal text-stone-300">today</span>
                 </p>
-                <p className="mt-2 text-xs text-stone-300">Includes access for 2 partners.</p>
+                <p className="mt-2 text-xs text-stone-300">
+                  Access for 2 partners. The planned price is $9 / month once couples sync
+                  leaves beta; you will not be charged, and we cannot charge you.
+                </p>
 
                 <ul className="mt-8 space-y-3 text-sm text-stone-200">
                   <li className="flex items-center gap-2">✓ Everything in Free</li>
@@ -378,7 +382,6 @@ export default function LandingPage() {
                   <li className="flex items-center gap-2">✓ Shared Ground Radar & Overlap Sync</li>
                   <li className="flex items-center gap-2">✓ Bradley-Terry Financial Trade-off Models</li>
                   <li className="flex items-center gap-2">✓ Actionable Conversation Prompts</li>
-                  <li className="flex items-center gap-2">✓ Exportable Value Summary PDF</li>
                 </ul>
               </div>
 
