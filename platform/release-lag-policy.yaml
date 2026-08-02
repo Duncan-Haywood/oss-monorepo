@@ -1,0 +1,71 @@
+# Release lag policy
+#
+# `scripts/ci/release_lag.py` enforces this file and fails closed; see
+# `docs/RELEASE-LAG.md` for the process and the drain plan.
+#
+# A commit is *shipped* when it is an ancestor of `deployment_ref` — the ref
+# `.gitea/workflows/*` deploy production from. Everything committed and not
+# reachable from it is inventory: real engineering effort with, by definition,
+# zero effect on any customer.
+#
+# `target` is what good looks like. `acknowledged` is at most one entry raising
+# the limits to what is true today, with an owner, an issue, a reason and an
+# expiry, exactly as `platform/exception-register.yaml` does for suppressions.
+#
+# Unlike `count` there, these limits are not exact. The number moves with every
+# commit anyone makes, and a baseline rewritten hourly is a baseline nobody
+# reads. Each limit therefore carries a `slack`, and the audit fails in both
+# directions:
+#
+#   * above the limit fails — the backlog grew past what was reviewed
+#   * more than `slack` below it fails — the acknowledgement is stale, lower it
+#   * inside `target` while an acknowledgement exists fails — delete it
+#
+# `expires` may be at most 180 days out.
+
+version: 1
+
+deployment_ref: origin/main
+
+# One working day of lead time, and no more than a single reviewed change
+# waiting behind it. This is the floor `docs/ENGINEERING-ROADMAP.md` asks for
+# under "Establish DORA ... scorecards", not an aspiration for later.
+target:
+  max_unshipped_commits: 5
+  max_unshipped_age_days: 2
+
+# Recorded 2026-08-02. This is the state the audit was written to describe, not
+# a limit anyone chose. Lowering it is the work; see docs/RELEASE-LAG.md.
+acknowledged:
+  id: RL-001
+  owner: duncan
+  issue: docs/RELEASE-LAG.md#rl-001
+  max_unshipped_commits: 150
+  max_unshipped_age_days: 10
+  slack_commits: 55
+  slack_age_days: 8
+  expires: 2026-09-13
+  reason: >-
+    Measured 2026-08-02: `origin/main` was at `a4b8f23` from 2026-07-31 while
+    scheduled agent runs had accumulated commits across ~18 unpushed local
+    `agent/*` branches. Production serves `origin/main`, confirmed by
+    byte-comparison — live `marisstella.dev/app.js` was 5806 bytes, identical to
+    `origin/main`, while `HEAD` had 6310, so the homepage's `rel="noopener"`,
+    focus-restore, `aria-hidden` and doubled-bullet fixes were not on the page a
+    visitor loaded a day after they were written. Draining this backlog is a
+    push-and-merge action with a production deploy on the other end, so it is
+    the repository owner's call and cannot be done by the runs that created it.
+    This entry exists so the cost is measured and named rather than invisible.
+
+# Components that ship to someone outside the repository but carry no
+# `VENTURE.yaml`. Ventures are discovered automatically from theirs; anything
+# listed here is a deployed thing that would otherwise be attributed to nobody.
+# The audit fails if a declared path does not exist, so a stale entry cannot
+# quietly stop attributing.
+extra_components:
+  - id: marisstella-homepage
+    path: portfolio/marisstella-homepage
+    production: https://marisstella.dev
+  - id: platform-ci
+    path: platform/ci
+    production: null
