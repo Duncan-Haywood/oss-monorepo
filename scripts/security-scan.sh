@@ -44,6 +44,39 @@ audit_node_package() {
   local target_dir="$1"
   local component_name="$2"
 
+  # A package that declares no dependencies of any kind has no dependency graph,
+  # so no lockfile and no registry could tell us anything about it. Recording it
+  # as a gap blocks the roadmap rewrite permanently on a package that can never
+  # produce a finding — portfolio/marisstella-homepage, whose only script runs
+  # node:test over the standard library, held the whole audit open this way.
+  #
+  # This is not an escape hatch of the kind the offline branch below guards
+  # against, and the distinction is the reason it is safe: the decision is read
+  # from the committed package.json alone and never from environment state, so
+  # it cannot be reached by a run that failed to install, lost the registry, or
+  # was sandboxed. Declaring a single dependency re-arms the lockfile
+  # requirement and the real audit on the very next run. An unparseable
+  # package.json exits non-zero here and falls through to the normal path, so a
+  # malformed manifest is still treated as an unaudited gap.
+  if [ -f "${target_dir}/package.json" ] && node -e '
+    const fs = require("fs");
+    const pkg = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+    const fields = [
+      "dependencies", "devDependencies", "optionalDependencies",
+      "peerDependencies", "bundleDependencies", "bundledDependencies",
+    ];
+    const declaresAny = fields.some((field) => {
+      const value = pkg[field];
+      if (!value || typeof value !== "object") return false;
+      return Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0;
+    });
+    process.exit(declaresAny ? 1 : 0);
+  ' "${target_dir}/package.json" 2>/dev/null; then
+    echo "Auditing Node package: ${component_name}... no dependencies declared, nothing to audit"
+    AUDITED_COUNT=$((AUDITED_COUNT + 1))
+    return
+  fi
+
   # Being offline is an audit that could not run, not an audit that found
   # nothing. Counting these as audited would satisfy the completeness guard
   # below and republish the roadmap as CLEAN, erasing every recorded finding —
