@@ -14,8 +14,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Runs BEFORE the deploy, on every event. It used to run after, and only on
+  # workflow_dispatch, which meant every push published this site with no
+  # Access application in front of it while the pages themselves claimed to be
+  # gated. Applying the policy first means a publish cannot outrun its gate.
+  apply-access:
+    name: Apply Cloudflare Access policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply Cloudflare Access policy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DOCS_HOSTNAME: listing-lens-docs.pages.dev
+        run: docs-site/scripts/setup-cloudflare-access.sh
+
   deploy:
     name: Build and deploy to Cloudflare Pages
+    needs: apply-access
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -47,18 +66,19 @@ jobs:
           command: pages deploy out --project-name=listing-lens-docs --branch=main
           workingDirectory: docs-site
 
-  apply-access:
-    name: Apply Cloudflare Access policy
+  # The API call above returning success is configuration, not evidence. This
+  # job asks the public internet for the site with no credentials and fails if
+  # the content comes back — which is the check that would have caught the
+  # months this site spent publicly readable behind a padlock icon.
+  verify-access:
+    name: Verify the Access gate from outside
     needs: deploy
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Apply Cloudflare Access policy
+      - name: Probe the deployed site unauthenticated
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           DOCS_HOSTNAME: listing-lens-docs.pages.dev
-        run: docs-site/scripts/setup-cloudflare-access.sh
+        run: docs-site/scripts/verify-access-gate.sh

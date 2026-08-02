@@ -258,6 +258,58 @@ This log records all identified application, infrastructure, container, and CI s
   `DOCS_SITE_TOKEN` is set, which is deliberate for local development and fails
   closed with a 503 in production. Nothing tests that production branch.
 
+### SEC-021 — High — Listing Lens Docs Served the Whole Internal Site Anonymously Behind a Padlock
+
+- **Location**: `ventures/real-estate-agent-photo-app/.github/workflows/deploy-docs.yml`,
+  the `apply-access` job; claim rendered by
+  `docs-site/src/components/DocsShell.tsx` and `docs-site/src/app/page.tsx`.
+- **Impact**: `https://listing-lens-docs.pages.dev/` answered an unauthenticated
+  `GET` with **HTTP 200 and the full site**, verified 2026-08-01 by fetching it
+  with no credentials from outside the repository. Every page rendered a padlock
+  and the words "Cloudflare Access", the homepage stated the site "is gated by
+  Cloudflare Access with a single-email allowlist", and the page metadata said
+  "protected by Cloudflare Access". None of that was true. Readable by anyone
+  with the URL: the internal outreach templates (cold email, DM and in-person
+  scripts), the booking-intake and leads process, the concierge pricing
+  one-pager, and the owner's personal email address in plain text. The email is
+  published deliberately in the customer-facing booking link, so the exposure
+  that matters is the internal go-to-market material and the false assurance
+  itself — the owner had every on-page reason to believe this was private.
+  `public/_headers` sets `X-Robots-Tag: noindex`, which prevents indexing, not
+  reading.
+- **Root cause**: `docs-site/scripts/setup-cloudflare-access.sh` is correct and
+  complete. The job that runs it was gated on
+  `if: github.event_name == 'workflow_dispatch'` and declared `needs: deploy`, so
+  every push-triggered deploy published the site and skipped the policy
+  entirely. `infra/access-policy.json` is a document, not an applied policy. This
+  is the [ci-runner-tooling]-class defect one level out: a control that is
+  written, reviewed, and version-controlled, and that never executes.
+- **Fix**: `apply-access` now runs on every event and runs **before** `deploy`,
+  so a publish cannot outrun its gate. A new `verify-access` job then re-requests
+  the deployed site with no credentials and fails the release if the content
+  comes back (`docs-site/scripts/verify-access-gate.sh`). `docs-site`'s
+  `pages:deploy` script chains the same verification, because it bypasses the
+  workflow and would otherwise reopen exactly this hole. The on-page claim now
+  names the control and the check that earns it rather than asserting a state
+  the page cannot observe, and says plainly that until a deploy has passed the
+  check the contents should be treated as public.
+- **Evidence**: `verify-access-gate.sh` run against the live hostname
+  **fails today**, reproducing the finding rather than describing it.
+  `docs-site/scripts/verify-access-gate.test.sh` drives all five branches
+  against a local stub origin — redirect-to-Access and content-free 403 pass;
+  200-with-content, redirect-to-a-non-Access-host, and a 403 that still serves
+  the body all fail — so the check is proven to be capable of passing and is not
+  a permanent deploy block. Chained into the pipeline package's `npm test`,
+  which is the only gate the CI catalog runs for this venture. ShellCheck and
+  actionlint clean; full venture suite green.
+- **Residual risk**: **the site is still public as of this entry.** Nothing here
+  turns the gate on — that needs `CLOUDFLARE_API_TOKEN` and
+  `CLOUDFLARE_ACCOUNT_ID` with Zero Trust edit rights present in the repository
+  secrets, and a deploy to run. Until then the new job fails the deploy, which
+  is the correct direction but does not retract what is already published.
+  Separately, the verifier probes only `/`; a future per-path Access policy
+  would need per-path probes.
+
 ---
 
 ### SEC-021 — Low — The Homepage Container Published Its Own Configuration

@@ -381,6 +381,72 @@ evidence, and completion date before it can be marked done.
   repository contract. Process and remediation plan in
   [the exception register](EXCEPTION-REGISTER.md); accepted vulnerabilities
   remain tracked as `SEC-xxx` in [the security audit log](SECURITY_AUDIT_LOG.md).
+- [ ] Hold customer-facing copy to behaviour the code actually performs. Owner
+  duncan, opened 2026-08-01.
+  Every claim a venture makes to a visitor — a confirmation, a capability, a
+  price, a statistic, a security posture — is either backed by something the
+  code does or it is a false statement. The repository has no control for this,
+  and an audit of the four ventures with a live or near-live surface found it
+  is the most common defect class in the portfolio, ahead of anything found by
+  the security or coverage work. The diagnostic that finds them: ask what would
+  be *observably different* if the handler were replaced with `return ok()`.
+  Three fixed on 2026-08-01, each with a test that fails against the pre-fix
+  code:
+  Pairwise shared every insight card with the literal link
+  `https://quickpick.app` while the product is served from
+  `pairwise.marisstella.dev`, so every recipient of the one artefact that
+  reaches non-users landed off-product; and `alignmentPct` defaulted to `85`,
+  so a couple with no computed overlap could share "85% Aligned" as their own
+  result. `ShareInsightModal.test.tsx`, mutation-checked (5 of 7 fail on the
+  pre-fix component).
+  Listing Lens sold a $19 shoot including "sky replacement where needed, and
+  perspective/vertical correction applied to every kept shot"; `enhance.ts`
+  does `.rotate().resize().normalise().sharpen().jpeg()` and never did either.
+  `process/mls-compliance.ts` already said so in as many words — the venture
+  knew, and nothing connected the two files. Both named edits are also
+  disclosure-triggering in strict states (CA AB 723, NY, TX), so the copy
+  advertised an edit nobody can perform *and* a delivery this venture does not
+  produce. `pipeline/src/offer-claims.test.ts` scans the three customer-facing
+  copy files for five restricted alterations, each carrying the code signal in
+  `enhance.ts` that would make its claim true, so building the capability
+  unlocks the claim by itself — a contract, not a word blocklist.
+  Listing Lens docs claimed "Private — Cloudflare Access" on every page while
+  answering an unauthenticated GET with 200 and the whole site. SEC-021; fixed
+  by ordering the policy before the publish and probing the result from
+  outside.
+  Still open, found by the same audit and not yet fixed:
+  Pairwise's Double-Date Challenge builds a link to `/couple/challenge/<code>`
+  and `src/app/couple/` contains only `page.tsx`, so every challenge link
+  404s — and `route.test.ts` asserts the exact dead URL, pinning it. Its
+  `$9/month` "Pairwise Together" tier has no payment path anywhere in the
+  venture (no Stripe dependency, no subscription model), carries a "Most
+  Popular" badge on a plan nobody can buy, lists an "Exportable Value Summary
+  PDF" that no code generates, and gates none of its features. Its feedback
+  widget answers "that helps tune the next insight for you" while
+  `insightFeedback` is never read by insight generation, and
+  `FeedbackWidget.test.tsx` asserts that string. `api/og/couple-card/route.tsx`
+  renders the same dead host and defaults to an invented "88%" — left alone
+  because the concurrent agent has uncommitted changes in it.
+  AI Engineering Academy's checkpoint answers "Checkpoint passed! Schema
+  structure verified. Portfolio point awarded (+25 pts)" to any input over ten
+  characters, storing nothing and validating nothing; its sandbox prints a
+  hardcoded trace ending "12/12 passing" with no model or execution behind it,
+  and `site/test.mjs` asserts both handlers are *present*, so the suite
+  currently protects them. Its "Always Free" tier lists four features that do
+  not exist. Its waitlist flow, by contrast, is the model to copy — it refuses
+  to claim delivery ("your application has not been sent yet") and a test
+  guards against regression.
+  `retail-pilot-intel`'s `VENTURE.yaml` declares
+  `production: https://retail-pilot-intel.pages.dev`, which does not resolve;
+  the venture has no Cloudflare project, config or workflow, and its portal is
+  built in CI and uploaded as an artifact only. Its `kill_criteria` are
+  measured against a "sales demo availability" that was never achieved. Not
+  corrected here: `portfolio/router/README.md` reserves venture-metadata
+  changes for the portfolio owner.
+  The generalizable control is the `offer-claims.test.ts` shape — enumerate the
+  copy surface, enumerate the claims that need a capability, and name the code
+  signal that grants each one. It is not yet a repository-wide control, and it
+  should become one; a venture-local habit is what let all of the above ship.
 
 ## Next 30 days: prove releases and operations
 

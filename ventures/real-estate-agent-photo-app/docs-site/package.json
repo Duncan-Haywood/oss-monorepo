@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pages:deploy": "npm run build && wrangler pages deploy out --project-name=listing-lens-docs --branch=main"
+    "//pages:deploy": "Verification is chained here too. This script bypasses the workflow, and the workflow is where the Access gate is applied and proven — a manual deploy that skipped the check would put the site back in the state this whole control exists to catch.",
+    "pages:deploy": "npm run build && wrangler pages deploy out --project-name=listing-lens-docs --branch=main && DOCS_HOSTNAME=listing-lens-docs.pages.dev bash scripts/verify-access-gate.sh"
   },
   "dependencies": {
     "lucide-react": "^0.331.0",

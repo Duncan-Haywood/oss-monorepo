@@ -31,7 +31,7 @@ export function DocsShell({ pages, activeSlug, children }: DocsShellProps) {
           </Link>
           <div className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs text-slate-400">
             <Lock className="h-3.5 w-3.5 text-brand-400" />
-            Cloudflare Access
+            Access gate verified on deploy
           </div>
         </div>
       </header>
