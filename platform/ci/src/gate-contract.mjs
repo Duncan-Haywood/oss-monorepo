@@ -45,16 +45,9 @@ export const VERIFY_COMPONENT_SCRIPT = 'scripts/ci/verify-component.sh';
  * Anything not listed here is drift, not an exception.
  */
 export const CI_ONLY_GATES = {
-  // The production container build is the artifact CI publishes and promotes by
-  // digest. The Dagger engine verifies sources across every component in one
-  // run; making it also produce a Next.js production build for each of them
-  // turns the monorepo gate into a release pipeline. The build is still gated
-  // before anything ships: `pairwise-ci.yml` runs it on every push and PR.
-  'quick-pick-survey': ['build'],
   // `cf:build` is a Cloudflare OpenNext packaging step that only means
   // something on the deploy path; the plain `build` is in the catalog.
   'ai-first-markets': ['cf:build'],
-  'local-site-studio': ['build'],
 };
 
 /**
