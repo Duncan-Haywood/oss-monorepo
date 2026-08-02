@@ -118,9 +118,15 @@ describe("Pairwise CI contract", () => {
   it("verifies the exact live revision and queues bounded repair work", () => {
     if (!PAIRWISE_CI) return;
     expect(PAIRWISE_CI).toContain("verify-production:");
-    expect(PAIRWISE_CI).toContain('../../platform/ci/wait-for-pairwise-release.sh "${{ github.sha }}"');
-    expect(PAIRWISE_CI).toContain("../../platform/ci/smoke-test-pairwise.sh");
-    expect(PAIRWISE_CI).toContain("../../platform/ci/report-pairwise-release-failure.sh");
+    expect(PAIRWISE_CI).toMatch(
+      /verify-production:[\s\S]*?defaults:\s*\n\s*run:\s*\n\s*working-directory: \./,
+    );
+    expect(PAIRWISE_CI).toContain(
+      'run: platform/ci/wait-for-pairwise-release.sh "${{ github.sha }}"',
+    );
+    expect(PAIRWISE_CI).toContain("run: platform/ci/smoke-test-pairwise.sh");
+    expect(PAIRWISE_CI).toContain("run: platform/ci/report-pairwise-release-failure.sh");
+    expect(PAIRWISE_CI).not.toContain("../../platform/ci/");
     expect(PAIRWISE_CI).toContain("if: failure()");
     expect(PAIRWISE_WAIT).toContain('.revision == $revision');
     expect(PAIRWISE_REPAIR).toContain("Repair budget: at most 3 distinct fixes");
