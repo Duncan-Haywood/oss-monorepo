@@ -16,7 +16,7 @@ for command in kubectl jq; do
   }
 done
 
-for file in index.html style.css app.js Dockerfile; do
+for file in index.html style.css app.js; do
   [[ -f "$source_dir/$file" ]] || {
     printf 'Homepage release file is unavailable: %s/%s\n' "$source_dir" "$file" >&2
     exit 1
@@ -25,13 +25,21 @@ done
 
 kubectl -n "$namespace" get deployment "$deployment" >/dev/null
 
-# Production currently serves the static site from an Nginx-mounted ConfigMap.
+# Production serves the static site from this ConfigMap, mounted whole over
+# /usr/share/nginx/html with no key selector. Every key below is therefore a
+# file on the public web site, and the container image's own web root — and so
+# its .dockerignore — is shadowed and cannot restrict what is served.
+#
+# Until 2026-08-02 this also published Dockerfile, which served the build
+# recipe at https://marisstella.dev/Dockerfile (SEC-022). Add only files the
+# site is meant to serve; platform/ci/test/homepage-release-surface.test.mjs
+# fails on anything else.
+#
 # Generate the full release atomically so all replicas receive the same file set.
 kubectl -n "$namespace" create configmap "$configmap" \
   --from-file="index.html=$source_dir/index.html" \
   --from-file="style.css=$source_dir/style.css" \
   --from-file="app.js=$source_dir/app.js" \
-  --from-file="Dockerfile=$source_dir/Dockerfile" \
   --dry-run=client \
   -o yaml |
   kubectl apply -f -

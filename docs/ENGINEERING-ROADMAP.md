@@ -94,6 +94,31 @@ evidence, and completion date before it can be marked done.
   roughly a third of what a person would find, and the manual checks the policy
   asks for are still owed. Automatic promotion therefore remains blocked for all
   three services, unchanged by this work.
+  None of that homepage work is live, 2026-08-02, owner duncan, and checking
+  why found a further defect. `origin/main` is at `a4b8f23` from 2026-07-31; 58
+  commits — the homepage suite, its five fixes, SEC-019 through SEC-021, the CI
+  runner repairs — sit on unpushed local branches. Production still serves the
+  5806-byte `app.js` from `origin/main` rather than HEAD's 6310-byte version, so
+  the `rel="noopener"`, focus-restore, `aria-hidden` and double-bullet fixes are
+  all still absent from the live site. Nothing in the repository measures this:
+  no lead-time, deployment-frequency or unshipped-work signal exists, which is
+  the DORA item in the 30-day section below, still not started.
+  The defect that gap exposed is SEC-022. Production does not serve the
+  container image's web root at all — `web-portal-web-service` mounts the
+  `marisstella-homepage-files` ConfigMap over `/usr/share/nginx/html` with no
+  `items:` selector, so the public file set is whatever
+  `platform/ci/deploy-homepage.sh` passes to `--from-file`, and one of those
+  four keys was `Dockerfile`. `https://marisstella.dev/Dockerfile` returned the
+  repository's Dockerfile byte-for-byte. So SEC-021's `.dockerignore` fix, and
+  the test holding it, govern an artifact production overwrites — a remediation
+  recorded against the surface that was easiest to reason about rather than the
+  one that ships. `platform/ci/test/homepage-release-surface.test.mjs` now
+  allow-lists the deploy script's publish list, mutation-checked seven ways.
+  The class this belongs to is one past "a gate that cannot fail": a *fix* that
+  cannot fix, with a passing test over the wrong artifact as its evidence.
+  It also depends on cluster state the repository does not hold — the
+  Deployment and ConfigMap are created imperatively and have no desired state
+  in git, so the missing `items:` selector is visible only from `kubectl`.
 - [ ] Configure and verify Gitea branch/environment protection: pull requests
   only for release branches, current required checks, stale approval dismissal,
   CODEOWNERS, one independent approval for Tier 2, two including an accountable
