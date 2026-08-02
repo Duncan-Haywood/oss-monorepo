@@ -232,6 +232,43 @@ evidence, and completion date before it can be marked done.
   capacity checks, graceful degradation, and zero-unavailable rollout evidence.
 - [ ] Establish DORA, MTTD/MTTR, flaky-test, escaped-defect, scanner-remediation,
   cost, saturation, and recovery-test scorecards with trend review.
+  Started 2026-08-02, owner duncan: one of the four DORA metrics, and the one
+  that was making every other control on this roadmap worth nothing. Production
+  runs `origin/main`. Measured that morning it was at `a4b8f23` from 2026-07-31
+  while **119 commits sat across 29 local branches**, and the unshipped set
+  touched all 11 ventures plus `platform/`, `portfolio/`, `scripts/` and
+  `.gitea/` — every deployable component in the repository was running without
+  its committed changes. Nothing measured this: a grep for
+  `dora|lead.time|deployment.frequency` hit only the sentence above asking for
+  it. So a "Fixed" row in [the security audit log](SECURITY_AUDIT_LOG.md) and a
+  green pipeline could both be true while the live service ran a fortnight-old
+  commit, and on the same morning both were.
+  `scripts/ci/release_lag.py` and `platform/release-lag-budget.yaml` ratchet the
+  gap two-directionally, in the shape `count` uses in
+  `platform/exception-register.yaml`: above the declared budget fails because the
+  pile grew, and more than `slack_commits` below it fails because work shipped
+  and the budget went stale. The declared numbers are themselves capped and the
+  budget expires, so it cannot be widened into permanent silence.
+  Two things are worth carrying to the other three metrics. First, a shallow CI
+  clone is reported as a **third state**, never as a pass: `actions/checkout`
+  fetches one ref at depth 1, so `origin/main` does not resolve and no branch
+  topology exists, and "nothing is undelivered" is trivially true there. The
+  report prints `NOT MEASURABLE HERE`. Verifying that in a real depth-1 clone —
+  rather than only in fixtures — is what found that the gate-substance test and
+  the JSON `ok` field were both wrong in CI. Second, the commit-count dimension
+  is gameable, because committing more always raises it; `max_unshipped_age_days`
+  is the one only shipping can lower, and it is where the teeth are.
+  46 tests, run against real temporary git repositories, mutation-checked eleven
+  ways. Not done: deployment frequency, change failure rate and time to restore
+  are all still unmeasured, nothing trends this over time, and the control
+  reports rather than ships — pushing stays a human decision.
+  It immediately paid for itself. Checking whether SEC-021's fix had reached
+  production found that it could not: the homepage is served from a ConfigMap,
+  not the container image, so the `.dockerignore` remediation governed an
+  artifact the live site does not use. `https://marisstella.dev/Dockerfile`
+  answered 200 with the build recipe while the finding was recorded as Fixed.
+  Filed as SEC-022, fixed in `platform/ci/deploy-homepage.sh`, contract in
+  `platform/ci/test/homepage-release-surface.test.mjs`.
 - [ ] Add dependency update automation that opens small, tested Gitea changes
   and prioritizes supported framework/security releases.
 
