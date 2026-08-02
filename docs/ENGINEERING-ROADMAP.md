@@ -471,12 +471,33 @@ evidence, and completion date before it can be marked done.
   `$9/month` "Pairwise Together" tier has no payment path anywhere in the
   venture (no Stripe dependency, no subscription model), carries a "Most
   Popular" badge on a plan nobody can buy, lists an "Exportable Value Summary
-  PDF" that no code generates, and gates none of its features. Its feedback
-  widget answers "that helps tune the next insight for you" while
-  `insightFeedback` is never read by insight generation, and
-  `FeedbackWidget.test.tsx` asserts that string. `api/og/couple-card/route.tsx`
-  renders the same dead host and defaults to an invented "88%" — left alone
-  because the concurrent agent has uncommitted changes in it.
+  PDF" that no code generates, and gates none of its features.
+  `api/og/couple-card/route.tsx` renders the same dead host and defaults to an
+  invented "88%" — left alone because the concurrent agent has uncommitted
+  changes in it.
+  The feedback widget is fixed, 2026-08-02, owner duncan. It answered "that
+  helps tune the next insight for you" while `insightFeedback` is never read by
+  insight generation, and `FeedbackWidget.test.tsx` asserted that string. This
+  one mattered more than its size suggests: `quick-pick-survey` is the only
+  venture serving live production traffic, so it was a false statement being
+  made to real people, and the promise it made — that giving feedback improves
+  what you personally see next — is the kind a person acts on. The record is
+  written by `/api/feedback` and read by the admin overview and export, so a
+  person does read it; nothing under `src/lib`, where insight generation lives,
+  reads it at all. The copy now says the true half: "we read every one of
+  these."
+  The guard is a capability contract rather than a corrected string, which is
+  the shape this item keeps asking for. It scans every module outside the write
+  path and the two admin read paths for a consumer of `insightFeedback`, and
+  only while there is none does it forbid a personalization promise in the
+  confirmation copy. Build the loop and the claim unlocks itself. Both
+  directions were mutation-checked, and the second direction is the one worth
+  insisting on: with the claim restored *and* a consumer added, the contract
+  passes and only the copy assertion fails, which is what distinguishes a
+  contract from a word blocklist someone will later delete. A second assertion
+  ties the surviving weaker claim to the write path, so "we read every one of
+  these" fails if the route stops persisting. Venture verify green end to end:
+  typecheck, lint, 411 tests across 57 files, production build.
   AI Engineering Academy: all four fixed 2026-08-02, owner duncan, and the
   venture is worth reading as the fullest worked example of this item.
   The checkpoint answered "Checkpoint passed! Schema structure verified.
