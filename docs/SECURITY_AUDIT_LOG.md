@@ -29,6 +29,9 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-017** | **Critical** | Supply Chain | `ventures/photo-editing/docs-site` | Abandoned `htmltojsx` pulled in `request` (SSRF) and `form-data` (CRLF injection) | **Fixed** |
 | **SEC-018** | High | Application | `ventures/print-atelier/src/app/api/credentials/vercel-pull` | Unauthenticated disclosure of configured partner credential state | **Fixed** |
 | **SEC-019** | **Critical** | Application | `ventures/print-atelier/src/app/api/*` | Six operator API handlers served anonymous callers; one writes live ad catalogs | **Fixed** |
+| **SEC-020** | Low | Application | `ventures/photo-editing/docs-site/src/lib/auth.ts` | `startsWith("/api/health")` exempted sibling paths from the private site's auth | **Fixed** |
+| **SEC-021** | Low | Container | `portfolio/marisstella-homepage/.dockerignore` | Container image published `nginx.conf` and `package.json` in its web root | **Fixed (image only — see SEC-022)** |
+| **SEC-022** | Low | Infrastructure | `platform/ci/deploy-homepage.sh` | Release ConfigMap published `Dockerfile` to the live web root, and SEC-021's fix did not govern production | **Fixed — pending deploy** |
 
 ---
 
