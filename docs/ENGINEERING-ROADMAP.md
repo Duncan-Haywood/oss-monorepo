@@ -394,6 +394,33 @@ evidence, and completion date before it can be marked done.
   capacity checks, graceful degradation, and zero-unavailable rollout evidence.
 - [ ] Establish DORA, MTTD/MTTR, flaky-test, escaped-defect, scanner-remediation,
   cost, saturation, and recovery-test scorecards with trend review.
+  The cost side has no measurement to trend yet, and the two months on record
+  each fail in a different way. `portfolio/ledger/YYYY-MM.yaml` is the only
+  record of what the portfolio spends, and `router.py` sums it into cumulative
+  spend to decay each venture's next explore grant, so a wrong figure moves
+  budget. `2026-07` records $127.26 divided seven ways — detected since
+  2026-08-01 by `validate_ledger.py`'s `uniform-spend`. `2026-08` fails the same
+  way one shape further on and is harder to see, because the figures differ from
+  each other and therefore look metered: six of its nine entries record, to the
+  cent, the budget `portfolio/ALLOCATION_REPORT.md` grants that venture
+  (`$40.00`, `$30.00`, `$28.50`, `$24.22`, `$20.59`, `$6.80`), three more sit
+  within fifteen cents of it, and the month was written on its second day —
+  before the spend it describes could have happened. That closes the allocator
+  into a loop reading its own output as evidence: a venture that drew nothing
+  decays as if it had spent its whole grant.
+  Detected as of 2026-08-02, owner duncan, by `spend-mirrors-allocation` in
+  `portfolio/router/validate_ledger.py`, which compares each entry against the
+  budget the allocator is on record as granting *that same venture* across both
+  generated artefacts, reads the report by its header row rather than by cell
+  position, and treats a source that exists but yields no allocation as an
+  error — a parser that quietly matches nothing would leave this passing forever.
+  Mutation-checked twelve ways. It reports and does not repair: the ledger is
+  append-only, so the finding is a warning and the CI gate is still not
+  `--strict`. **Neither month can be reconstructed, so the portfolio still has
+  no measured cost signal at all** — the scorecard this item asks for cannot be
+  built until one month closes with spend metered per venture as it is drawn.
+  What the check cannot see is stated in `portfolio/ledger/README.md`: a venture
+  that genuinely draws its whole grant, and figures nudged a few cents off it.
 - [ ] Add dependency update automation that opens small, tested Gitea changes
   and prioritizes supported framework/security releases.
 
