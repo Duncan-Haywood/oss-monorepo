@@ -477,15 +477,69 @@ evidence, and completion date before it can be marked done.
   `FeedbackWidget.test.tsx` asserts that string. `api/og/couple-card/route.tsx`
   renders the same dead host and defaults to an invented "88%" — left alone
   because the concurrent agent has uncommitted changes in it.
-  AI Engineering Academy's checkpoint answers "Checkpoint passed! Schema
-  structure verified. Portfolio point awarded (+25 pts)" to any input over ten
-  characters, storing nothing and validating nothing; its sandbox prints a
-  hardcoded trace ending "12/12 passing" with no model or execution behind it,
-  and `site/test.mjs` asserts both handlers are *present*, so the suite
-  currently protects them. Its "Always Free" tier lists four features that do
-  not exist. Its waitlist flow, by contrast, is the model to copy — it refuses
-  to claim delivery ("your application has not been sent yet") and a test
-  guards against regression.
+  AI Engineering Academy: all four fixed 2026-08-02, owner duncan, and the
+  venture is worth reading as the fullest worked example of this item.
+  The checkpoint answered "Checkpoint passed! Schema structure verified.
+  Portfolio point awarded (+25 pts)" to any input over ten characters, storing
+  nothing and validating nothing; the sandbox printed a hardcoded trace ending
+  "12/12 passing" with no model or execution behind it; the "Always Free" tier
+  listed four features that do not exist; and `site/test.mjs` asserted both
+  handlers were *present*, so the suite protected them.
+  The checkpoint is now a real grader. `site/checkpoint-validator.mjs` holds six
+  rules the question actually asks for — parses, `type: "object"`, non-empty
+  `properties`, a `required` naming declared properties, `additionalProperties:
+  false`, and the injection-relevant one: every string parameter carries an
+  `enum`, `pattern`, `maxLength`, `format` or `const`, because an unconstrained
+  string is the hole the question is about. It is written once and inlined into
+  the page by `build.mjs`, so the rules under test are the rules the learner
+  meets; a contract fails if the built page stops carrying that source. This is
+  the direction worth preferring where it is available — the fake was replaced
+  with the real thing rather than deleted, so the free tier gained a working
+  lead magnet instead of losing a feature.
+  The sandbox trace keeps its teaching value and drops the fabrication: no
+  timings, no invented pass counts, an explicit "no model is called, no code is
+  executed" notice, and — new — stages that belong to the track selected, since
+  all three tracks previously printed Track 1's test-suite story. The pricing
+  page now separates "available now" (three items, each with a test naming the
+  file that makes it true, so a claim cannot outlive its evidence) from
+  "designed, not yet built", and marks both unbuyable tiers unavailable.
+  Two further defects the audit had not named. The cost estimator asserted
+  "$142.50 / mo Retail LLM & Compute Value" and "65% Savings" from two invented
+  rates — $1.50/sandbox-hour for a sandbox that does not exist and $0.35/mentor
+  query, roughly an order of magnitude above published API pricing — and floored
+  the saving at zero, so every input where the subscription was the worse deal
+  still displayed a saving. Both rates are visitor-editable now, labelled as
+  placeholders rather than quotes, and the difference is reported in both
+  directions. An inflated comparator manufacturing a savings percentage is the
+  shape of this class that carries the most legal exposure, and it is the one
+  the audit's "what would be observably different if the handler returned
+  `ok()`" diagnostic does not find, because there is no handler.
+  And the class this venture adds: **a page can be honest and still be
+  unreachable.** Every one of the ~20 classes the two generated pages used —
+  `.pricing-card`, `.btn`, `.console-box`, `.modal-overlay` among them — was
+  defined nowhere in `style.css`. The venture's only conversion surface rendered
+  as unstyled text, and `.modal-overlay` with no positioning meant pressing
+  "Join the waitlist" appended the form to the foot of the document instead of
+  opening it over the page, so the CTA read as broken. The suite now fails if a
+  class used by the generated markup has no rule, matched as a whole token —
+  substring matching passed on a *renamed* rule, which the mutation run caught.
+  57 classes checked.
+  The suite is the point as much as the fixes: it drives the page's own inlined
+  script in a `node:vm` and grades through `verifyCheckpoint`, so a syntax error
+  in the inlined validator fails rather than shipping silently, and it executes
+  the estimator's arithmetic rather than grepping for the old expression — the
+  first version of that assertion was pinned to a variable name and survived the
+  floor being reintroduced under a different one. Mutation-checked 20 ways, all
+  20 caught. Not done: no real-browser check ran. The browser tooling timed out
+  twice in this session, so layout, contrast, focus rings and the modal actually
+  overlaying are argued from the stylesheet rather than observed, and this
+  venture is not in the Playwright item's priority order.
+  Its waitlist flow remains the model to copy — it refuses to claim delivery
+  ("your application has not been sent yet") and a test guards against
+  regression. One gap there is closed too: the "Request Team Access" button
+  opened the individual $49/mo Pro form verbatim, so a team lead asking about
+  seats was shown a consumer signup; both routes still reach the same inbox, but
+  the copy and the mail subject now say which was pressed.
   `retail-pilot-intel`'s `VENTURE.yaml` declares
   `production: https://retail-pilot-intel.pages.dev`, which does not resolve;
   the venture has no Cloudflare project, config or workflow, and its portal is
