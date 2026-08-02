@@ -285,6 +285,59 @@ This log records all identified application, infrastructure, container, and CI s
   component PASSED without checking anything, and had done so for as long as it
   existed. Nothing found this because nothing was looking: every control asks
   whether a gate is declared and reachable, and this one was both.
+- **Correction, 2026-08-02**: the fix above hardens the container image and does
+  not change what production serves. See SEC-022.
+
+### SEC-022 — Low — Production Published Its Build Recipe, And SEC-021 Did Not Bind
+
+- **Component**: `platform/ci/deploy-homepage.sh` → `marisstella-homepage-files`
+  ConfigMap, `web-services/web-portal-web-service` (production, Kubernetes).
+- **Found**: 2026-08-02, while checking whether SEC-021's fix had shipped.
+- **Issue**: two things, and the second is the one that matters.
+  `deploy-homepage.sh` builds the release ConfigMap with four `--from-file`
+  entries — `index.html`, `style.css`, `app.js` and **`Dockerfile`** — and the
+  Deployment mounts that ConfigMap at `/usr/share/nginx/html` with no `items:`
+  selector. Every key is therefore a file on the public site, and
+  `https://marisstella.dev/Dockerfile` returned the repository's Dockerfile
+  byte-for-byte (230 bytes, `content-type: application/octet-stream`, verified
+  live). Rated Low on the same reasoning as SEC-021: it holds no secret, and
+  what it gives away is the server's construction rather than access to it.
+  The `Dockerfile` key has been in the release set since `8c9b8c8` introduced
+  the ConfigMap deploy on 2026-07-31, with no stated reason; the preflight loop
+  listed it as a required release file, so it read as deliberate.
+- **Why SEC-021's fix does not cover this**: the ConfigMap mount *shadows* the
+  image's web root. Nothing baked into the image at `/usr/share/nginx/html` is
+  ever served, so `.dockerignore` — and
+  `portfolio/marisstella-homepage/test/markup-contract.test.mjs`, which holds
+  it — cannot govern the deployed file set. Both remain correct for anyone
+  running the image directly and are kept. The live evidence is that
+  `/nginx.conf` and `/package.json` return 404 in production not because
+  `.dockerignore` excludes them but because this script never published them,
+  while `/Dockerfile`, which `.dockerignore` *did* exclude, was served anyway.
+  A remediation was recorded against the artifact that was easiest to reason
+  about rather than the one production serves.
+- **Fix**: `Dockerfile` removed from both the publish list and the preflight
+  loop in `platform/ci/deploy-homepage.sh`.
+- **Evidence**: `platform/ci/test/homepage-release-surface.test.mjs`, six tests
+  that read the publish list out of the deploy script and allow-list it: a key
+  must have a servable extension, must be named rather than swept in by a bare
+  `--from-file=<dir>`, must resolve to a file in the repository, must include
+  the three the site cannot render without, and must match the script's own
+  preflight list. Mutation-checked seven ways — republishing `Dockerfile`,
+  adding `nginx.conf`, switching to a directory publish, dropping `app.js`,
+  publishing a missing file, removing the publish list entirely, and drifting
+  the preflight list — each fails its intended test and no other. It runs in
+  `scripts/test-ci.sh` with the rest of `platform/ci/test/`.
+- **Residual risk**: the live ConfigMap still holds the `Dockerfile` key; the
+  fix takes effect on the next homepage deploy, which requires the branch to
+  reach `origin/main`. Until then the file is still served. The allow-list is
+  by extension, so a servable-looking file with sensitive content would pass —
+  this control bounds the file *type*, not its contents.
+- **Process note**: the homepage Deployment and ConfigMap are created
+  imperatively by this script and have no desired state in the repository,
+  against the GitOps requirement in `AGENTS.md`. That is why the mount's
+  missing `items:` selector — the thing that makes every key public — is
+  visible only from the cluster.
 
 ---
 
