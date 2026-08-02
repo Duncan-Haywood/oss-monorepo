@@ -32,6 +32,7 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-020** | Low | Application | `ventures/photo-editing/docs-site/src/lib/auth.ts` | Public-path prefix exempted the paths beside it, not only its children | **Fixed** |
 | **SEC-021** | Low | Container | `portfolio/marisstella-homepage/.dockerignore` | Container build context published `nginx.conf` and `package.json` into the image web root | **Fixed (not the live exposure — see SEC-022)** |
 | **SEC-022** | Low | Infrastructure | `platform/ci/deploy-homepage.sh` | The production ConfigMap published `Dockerfile` to the public web root; `/Dockerfile` served 200 | **Fixed, awaiting deploy** |
+| **SEC-023** | High | Supply chain | `.gitea/workflows/security.yml` | The dependency-audit matrix covered 4 of 10 committed lockfiles; the 6 unaudited ones held 32 high-severity advisories | **Coverage fixed; 47 advisories open** |
 
 ---
 
@@ -342,6 +343,71 @@ This log records all identified application, infrastructure, container, and CI s
   and for anything with a URL that means probing the URL. Ten seconds of `curl`
   found both the exposure and the fact that the previous fix had addressed two
   paths that were never reachable.
+
+### SEC-023 — High — The Dependency Audit Covered Four Lockfiles of Ten
+
+- **Discovered**: 2026-08-02, reviewing which committed lockfiles CI audits.
+- **Impact**: `.gitea/workflows/security.yml` has run a `dependency-audit` job
+  for as long as it has existed, and its matrix has always been a hand-written
+  list of four ventures. The repository tracks **ten** Node lockfiles. The six
+  omitted ones had never been audited by anything, and measuring them found
+  **32 high-severity advisories**:
+
+  | Package | High | Never audited |
+  | --- | --- | --- |
+  | `ventures/real-estate-agent-photo-app/docs-site` | 14 | yes |
+  | `ventures/real-estate-agent-photo-app/research` | 10 | yes |
+  | `ventures/local-site-studio` | 4 | yes |
+  | `ventures/photo-editing/docs-site` | 3 | yes |
+  | `ventures/real-estate-agent-photo-app/pipeline` | 1 | yes |
+  | `ventures/ai-engineering-academy/site` | 0 | yes |
+  | `ventures/retail-pilot-intel` | 8 | no — in the matrix, failing |
+  | `ventures/print-atelier` | 7 | no — in the matrix, failing |
+  | `ventures/ai-first-markets` | 0 | no |
+  | `ventures/quick-pick-survey` | 0 | no |
+
+  The most serious single advisory is in `local-site-studio`: a Next.js
+  **middleware / proxy bypass in App Router applications**. That venture's
+  `src/proxy.ts` gates only `/dashboard` and leaves every `/api` handler to
+  call `requireOperatorAuth()` itself, with no deny-by-default behind it — so a
+  proxy-bypass advisory lands on the one venture whose guard has no second
+  layer. Its lockfile pins a version the advisory covers.
+- **Cause**: two separate failures, and the second is the worse one. The matrix
+  was a list rather than a scan, so it covered what somebody had typed and not
+  what existed, and nothing measured the ratio. Then the two audited ventures
+  that *do* fail — print-atelier at 7 and retail-pilot-intel at 8 — have been
+  failing into a job no branch protection requires, because required status
+  checks are still unconfigured (see the roadmap's Gitea protection item). A
+  red cell nothing blocks on is indistinguishable from a green one.
+- **Fix**: the matrix now lists all ten committed lockfiles. Coverage is the
+  part that is fixed; **the 47 advisories themselves are open**, and are
+  deliberately not remediated in the same change — the available fixes are
+  semver-major bumps of Next.js, `eslint-config-next`, `wrangler` and `sharp`
+  across five ventures, which is a set of upgrades that needs each venture's
+  suite run behind it rather than a lockfile rewrite done in passing.
+- **Evidence**: `platform/ci/test/dependency-audit-coverage.test.mjs`. It scans
+  git for committed lockfiles and fails when one is neither in the matrix nor a
+  registered, owned, expiring, counted exception; it fails on a matrix entry
+  whose directory has no lockfile, on an entry whose `manager` does not match
+  the committed lockfile — `npm audit` in a pnpm workspace reports success
+  without reading anything — on an audit command carrying `|| true`, on a
+  missing `--audit-level`, on `continue-on-error`, and on `fail-fast: true`,
+  which would let one venture's advisories cancel every other venture's audit.
+  It does **not** run `npm audit` itself: advisory counts change when a CVE is
+  published against an unchanged lockfile, so asserting them would fail on days
+  nobody committed anything and would need the network to run at all.
+  Mutation-checked thirteen ways; `platform/ci` 66 tests, 9 new, all passing
+  except two that already fail at `HEAD` for an unrelated catalog defect.
+- **Residual risk**: the advisories are open and now visible. Expanding the
+  matrix means the security workflow reports failures for five ventures rather
+  than two, which is the true state and was always the true state. Remediation
+  is tracked on the roadmap's SCA item with the per-venture counts above as the
+  baseline to ratchet down.
+- **Process note**: this is the same shape as the homepage gate in SEC-021 and
+  the route-posture work — a control that was *declared* and *reachable* and
+  still covered a minority of its subject, because its subject was a list
+  somebody maintained by hand. The generalizable half is never the list; it is
+  the scan that makes the list fail when reality outgrows it.
 
 ---
 

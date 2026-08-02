@@ -148,6 +148,30 @@ evidence, and completion date before it can be marked done.
   each. `.gitea/workflows/security.yml` fails if a run retains no evidence.
   Still open: no SAST (Semgrep/CodeQL/Bandit), Trivy runs `vuln,misconfig` but
   not `license`, no SBOM, no container or published-image scanning.
+  The SCA half is measured and bound as of 2026-08-02, owner duncan, and what
+  it measured is SEC-023 in [the security audit log](SECURITY_AUDIT_LOG.md).
+  `.gitea/workflows/security.yml` has always run a `dependency-audit` job over a
+  hand-written matrix of four ventures; the repository tracks ten Node
+  lockfiles. The six nobody audited held **32 high-severity advisories**, the
+  worst a Next.js middleware/proxy bypass in `local-site-studio` — the one
+  venture whose route guard is the handler's own call with no deny-by-default
+  behind it. The matrix now lists all ten, and
+  `platform/ci/test/dependency-audit-coverage.test.mjs` scans git for lockfiles
+  and fails when one is neither audited nor a registered, owned, expiring,
+  counted exception, when an entry's manager does not match its lockfile
+  (`npm audit` in a pnpm workspace succeeds without reading anything), and when
+  the audit is made incapable of failing. Mutation-checked thirteen ways.
+  Two things are worth carrying. The advisories are **not** fixed: 47 across
+  five ventures, whose available remediations are semver-major bumps of
+  Next.js, `eslint-config-next`, `wrangler` and `sharp` that need each
+  venture's suite run behind them. And the two ventures already in the matrix
+  that fail — print-atelier at 7 and retail-pilot-intel at 8 — have been
+  failing into a job nothing blocks on, because required status checks remain
+  unconfigured. That is the same finding as the release-lag one below: a
+  control that reports into a channel with no gate behind it is a control
+  nobody has to answer. The three Python manifests are registered exceptions
+  expiring 2026-11-30, blocked on pip-audit in the runner image, which belongs
+  to this item's remaining SAST/SCA tooling work.
   The host gap that kept named checks from executing in CI is closed
   (`316d814`): `.gitea/workflows/ci-cd.yml` installed only Node, so gate 1
   failed on a clean runner and `set -euo pipefail` in `scripts/verify-all.sh`

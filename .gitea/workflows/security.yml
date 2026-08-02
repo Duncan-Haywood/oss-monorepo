@@ -83,16 +83,43 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
+      # Every committed lockfile, not a chosen subset. This matrix listed four
+      # ventures for as long as it had existed while the repository tracked ten
+      # Node lockfiles, and the six it omitted turned out to hold 32 of the 47
+      # high-severity advisories present on 2026-08-02 — including a Next.js
+      # middleware/proxy bypass in local-site-studio. The omission was not a risk
+      # judgement; it was the four somebody had typed.
+      # platform/ci/test/dependency-audit-coverage.test.mjs fails when a
+      # committed lockfile is missing from this list, so the next package with
+      # dependencies cannot be added without a decision about auditing it.
       matrix:
         include:
+          - venture: ai-engineering-academy-site
+            directory: ventures/ai-engineering-academy/site
+            manager: npm
           - venture: ai-first-markets
             directory: ventures/ai-first-markets
+            manager: npm
+          - venture: local-site-studio
+            directory: ventures/local-site-studio
+            manager: npm
+          - venture: photo-editing-docs-site
+            directory: ventures/photo-editing/docs-site
             manager: npm
           - venture: print-atelier
             directory: ventures/print-atelier
             manager: npm
           - venture: quick-pick-survey
             directory: ventures/quick-pick-survey
+            manager: npm
+          - venture: real-estate-agent-photo-app-docs-site
+            directory: ventures/real-estate-agent-photo-app/docs-site
+            manager: npm
+          - venture: real-estate-agent-photo-app-pipeline
+            directory: ventures/real-estate-agent-photo-app/pipeline
+            manager: npm
+          - venture: real-estate-agent-photo-app-research
+            directory: ventures/real-estate-agent-photo-app/research
             manager: npm
           - venture: retail-pilot-intel
             directory: ventures/retail-pilot-intel
