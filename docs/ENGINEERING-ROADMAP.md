@@ -161,10 +161,17 @@ evidence, and completion date before it can be marked done.
   counted exception, when an entry's manager does not match its lockfile
   (`npm audit` in a pnpm workspace succeeds without reading anything), and when
   the audit is made incapable of failing. Mutation-checked thirteen ways.
-  Two things are worth carrying. The advisories are **not** fixed: 47 across
-  five ventures, whose available remediations are semver-major bumps of
-  Next.js, `eslint-config-next`, `wrangler` and `sharp` that need each
-  venture's suite run behind them. And the two ventures already in the matrix
+  Two things are worth carrying. Most advisories are **not** fixed: 46 of 47
+  remain. The two whose fixes were not semver-major were taken the same day —
+  `local-site-studio` to next 16.2.12 and `photo-editing/docs-site` to 15.5.22,
+  verified at 1214 and 40 tests plus a green `next build` each — and in both,
+  `next` now carries no CVE of its own and is flagged only through `postcss`
+  and `sharp`, for which npm's proposed fix is a downgrade to next@9.3.3 and so
+  no forward fix exists. The remaining 40 need semver-major bumps of
+  `eslint-config-next`, `wrangler` and `sharp`, and two of the three
+  `real-estate-agent-photo-app` packages holding 24 of them have **no test
+  script at all** — an upgrade there has nothing to verify it, which makes the
+  missing suite the blocking work rather than the bump. And the two ventures already in the matrix
   that fail — print-atelier at 7 and retail-pilot-intel at 8 — have been
   failing into a job nothing blocks on, because required status checks remain
   unconfigured. That is the same finding as the release-lag one below: a

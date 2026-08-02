@@ -32,7 +32,7 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-020** | Low | Application | `ventures/photo-editing/docs-site/src/lib/auth.ts` | Public-path prefix exempted the paths beside it, not only its children | **Fixed** |
 | **SEC-021** | Low | Container | `portfolio/marisstella-homepage/.dockerignore` | Container build context published `nginx.conf` and `package.json` into the image web root | **Fixed (not the live exposure — see SEC-022)** |
 | **SEC-022** | Low | Infrastructure | `platform/ci/deploy-homepage.sh` | The production ConfigMap published `Dockerfile` to the public web root; `/Dockerfile` served 200 | **Fixed, awaiting deploy** |
-| **SEC-023** | High | Supply chain | `.gitea/workflows/security.yml` | The dependency-audit matrix covered 4 of 10 committed lockfiles; the 6 unaudited ones held 32 high-severity advisories | **Coverage fixed; 47 advisories open** |
+| **SEC-023** | High | Supply chain | `.gitea/workflows/security.yml` | The dependency-audit matrix covered 4 of 10 committed lockfiles; the 6 unaudited ones held 32 high-severity advisories | **Coverage fixed; 46 of 47 advisories open** |
 
 ---
 
@@ -398,11 +398,34 @@ This log records all identified application, infrastructure, container, and CI s
   nobody committed anything and would need the network to run at all.
   Mutation-checked thirteen ways; `platform/ci` 66 tests, 9 new, all passing
   except two that already fail at `HEAD` for an unrelated catalog defect.
-- **Residual risk**: the advisories are open and now visible. Expanding the
-  matrix means the security workflow reports failures for five ventures rather
-  than two, which is the true state and was always the true state. Remediation
-  is tracked on the roadmap's SCA item with the per-venture counts above as the
-  baseline to ratchet down.
+- **Partial remediation, 2026-08-02**: the two ventures whose fixes were not
+  semver-major were upgraded and verified, taking the repository from 47 high
+  to **46**. The headline number barely moves and that is the wrong thing to
+  read — what left is the directly exploitable half:
+
+  | Venture | next | High before → after | Direct Next.js CVEs resolved |
+  | --- | --- | --- | --- |
+  | `local-site-studio` | 16.2.9 → 16.2.12 | 4 → 3 | middleware/proxy bypass, DoS |
+  | `photo-editing/docs-site` | 15.2.4 → 15.5.22 | 3 → 3 | SSRF, DoS in Server Actions |
+
+  In both, `next` is now flagged **only transitively**, through `postcss` and
+  `sharp`; it carries no CVE of its own. `docs-site`'s count is unchanged
+  because the transitive row remains, which is exactly why a count is a poor
+  proxy for posture and the advisory bodies have to be read.
+  Verified: `local-site-studio` `npm ci` clean, 125 files / 1214 tests passing,
+  `next build` green; `docs-site` 40 tests passing, `next build` green. The
+  exact pin style on `next` was preserved in both.
+- **Residual risk**: 46 advisories remain and are now visible. The residue in
+  the two remediated ventures is `postcss` (<=8.5.17, XSS and arbitrary file
+  read) and `sharp` (<0.35.0, four libvips CVEs), both pulled in by Next.js
+  itself; npm's only proposed fix is a **downgrade to next@9.3.3**, so no
+  forward fix exists and these wait on an upstream Next.js release. The
+  remaining 40 sit in `real-estate-agent-photo-app` (25 across three packages,
+  two of which have **no test script at all**, so an upgrade there has nothing
+  to verify it), `print-atelier` (7) and `retail-pilot-intel` (8). Those need
+  semver-major bumps of `eslint-config-next`, `wrangler` and `sharp` behind a
+  suite each venture does not yet have. Tracked on the roadmap's SCA item with
+  the per-venture counts above as the baseline to ratchet down.
 - **Process note**: this is the same shape as the homepage gate in SEC-021 and
   the route-posture work — a control that was *declared* and *reachable* and
   still covered a minority of its subject, because its subject was a list
