@@ -19,6 +19,15 @@ import { verifyStripeWebhookSignature } from "@/lib/stripe-webhook-server";
 
 export const runtime = "nodejs";
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** The subset of the event shape this handler dereferences before use. */
+function isWebhookEventShape(value: unknown): boolean {
+  return isRecord(value) && isRecord(value.data) && isRecord(value.data.object);
+}
+
 export async function POST(request: Request) {
   const payload = await request.text();
   const signature = request.headers.get("stripe-signature");
@@ -44,12 +53,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid Stripe webhook signature" }, { status: 400 });
   }
 
-  let event: StripeConnectWebhookEvent;
+  let parsed: unknown;
   try {
-    event = JSON.parse(payload) as StripeConnectWebhookEvent;
+    parsed = JSON.parse(payload);
   } catch {
     return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
   }
+
+  // A signature only proves the payload came from Stripe, not that it has the
+  // shape this handler dereferences. `event.data.object` on an event without
+  // `data` threw a TypeError, which Next surfaces as a 500 — and Stripe retries
+  // 5xx, so one malformed event would be redelivered indefinitely. Reject the
+  // shape explicitly instead.
+  if (!isWebhookEventShape(parsed)) {
+    return NextResponse.json(
+      { error: "Malformed Stripe event: expected an object with `data.object`" },
+      { status: 400 },
+    );
+  }
+  const event = parsed as StripeConnectWebhookEvent;
 
   const result = processStripeConnectWebhookEvent(event);
   const ledgerEntry = recordStripeWebhookToLedger(event.id, event.type, result);

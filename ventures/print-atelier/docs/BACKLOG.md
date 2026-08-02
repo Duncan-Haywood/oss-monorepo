@@ -8,7 +8,8 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [analytics] Add payout exception resolution velocity metrics to admin portal
 - [ ] [ops] Add automated Printful and Gelato SKU sync status health check
 - [ ] [marketing] Add automated CAPI event delivery health dashboard across Meta, Google, and Pinterest
-- [ ] [ops] Surface `GET /api/payouts/reconciliation` on `/admin-portal` with underpaid accounts ranked first
+- [ ] [ops] Surface `GET /api/payouts/reconciliation` on `/admin-portal` with underpaid accounts ranked first — the route now requires `Authorization: Bearer $PRINT_ATELIER_OPS_TOKEN` (SEC-019), so a browser panel cannot call it directly; it needs the operator login below, or a server component that reads the token server-side
+- [ ] [security] Add a timestamp tolerance to `verifyStripeWebhookSignature` so captured webhooks stop replaying (SEC-023); pick the window deliberately — too tight rejects legitimate Stripe retries, and the handler queues real fulfillment on replay
 
 ## in_progress
 
