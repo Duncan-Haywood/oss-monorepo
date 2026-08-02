@@ -64,6 +64,52 @@ evidence, and completion date before it can be marked done.
   production path, data classes, security boundaries, telemetry, and owner.
 - [x] Make one fail-closed `verify` command per active venture the local and CI
   contract; remove swallowed failures and undocumented test exclusions.
+  The command exists per venture; two of them were not executing, 2026-08-01,
+  owner duncan. The box stays checked for what it claims — one declared
+  fail-closed command each — but "remove swallowed failures" was not true, and
+  the failures were swallowed in three distinct ways worth naming, because each
+  is a different hole:
+  1. **A gate declared and never called.** `verify-component.sh` has had a
+     `local-site-studio` arm — typecheck, lint, test, build — that no workflow
+     invoked, so 125 test files, 1214 tests and a production Next.js build were
+     verified nowhere. `.gitea/workflows/local-site-studio-ci.yml` now calls it.
+     All four steps pass, so the gate went in green.
+  2. **A gate called and failing, reported by nothing.** `ai-first-markets` runs
+     `verify-component.sh` from both its CI and deploy workflows, and it was red
+     on every clean checkout: `npm run typecheck` rejected the `.ts` import
+     extensions its own `--experimental-strip-types` runner requires (TS5097),
+     and `npm test` failed five assertions across two drifted contracts.
+     `ciContract` grepped the deploy workflow for gate commands that d3b61a2 had
+     *moved into the shared script*, reading a tightened deploy path as a deleted
+     one; it now follows that indirection and is mutation-checked five ways.
+     `routeAuthPosture` declared an `/api/subscribe` handler that had not been
+     committed alongside the contract declaring it — three failures that d999424
+     resolved from the other end by landing the route. Worth recording which way
+     that was fixed: the contract was right and the code caught up to it, which
+     is what the contract is for. Typecheck, lint, test and build now pass
+     together for this venture for the first time.
+  3. **A gate that could not see the files it vouched for.** npm runs scripts
+     under `sh`, which has no globstar, so an unquoted `src/**/*.test.ts` reaches
+     the runner as `src/*/*.test.ts` — one directory level. `ai-first-markets`
+     collected its three tests only by their happening to sit at that depth;
+     a deliberately failing test placed at `src/app/deep/` was skipped in silence
+     and the suite exited 0. The script is quoted now, and the posture-coverage
+     control models the difference rather than reading every `**` as globstar,
+     so it can no longer vouch for a contract `sh` cannot reach.
+  What generalizes: a venture-local test proves nothing until you have checked
+  which CI path executes it, and a contract that asserts on the *text* of a
+  workflow breaks when the gate it guards is moved rather than removed. Follow
+  the indirection instead. The fourth and last known instance of the class was
+  `ventures/ai-engineering-academy/site`, registered in the Dagger catalog as
+  running `test` while its package.json defined no such script, so the engine
+  skipped it and `platform/ci`'s own suite failed on that assertion. Its
+  `test.mjs` existed and passed; declaring it as the `test` script closed the
+  gap, and the platform/ci suite is 38/38.
+  No instance of this class is known to remain open, which is a weaker claim
+  than it sounds: nothing generalizes the check beyond route-posture contracts
+  and the catalog's own `test`-script assertion, so a fifth would be found the
+  same way these were — by running each venture suite at a clean HEAD and
+  naming which CI path executes it.
 - [ ] Publish coverage reports in CI, capture current baselines, ratchet changed
   code upward, then meet the repository targets without low-value assertions.
   Not started, and worse than not started: the only automated check carrying the

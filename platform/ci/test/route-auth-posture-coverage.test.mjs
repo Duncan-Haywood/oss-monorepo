@@ -155,6 +155,22 @@ function globToRegExp(glob) {
   return new RegExp(`^${pattern}$`);
 }
 
+/**
+ * What `sh` leaves of an *unquoted* glob before the test runner ever sees it.
+ *
+ * npm runs scripts under `sh`, which has no globstar, so an unquoted
+ * `src/**\/*.test.ts` expands to `src/*\/*.test.ts` — exactly one directory
+ * level. Quoting the same pattern passes it through untouched and the runner
+ * globs it itself, with globstar.
+ *
+ * The difference decides whether a contract is collected. Reading an unquoted
+ * `**` as multi-level would vouch for a contract sitting one directory deeper
+ * than `sh` can reach — a file that is never run, reported here as covered.
+ */
+function shellExpanded(glob) {
+  return glob.replace(/\*\*\//g, '*/').replace(/\*\*/g, '*');
+}
+
 /** The `include` patterns a vitest config declares, if it declares any. */
 function vitestIncludes(packageRoot) {
   for (const name of ['vitest.config.ts', 'vitest.config.mts', 'vitest.config.js']) {
@@ -180,12 +196,21 @@ function collects(packageRoot, contract, script) {
   if (!script) return { ok: false, why: 'the package.json declares no `test` script' };
 
   const tokens = script.split(/\s+/).filter(Boolean);
-  const paths = tokens.filter(
-    (token) => !token.startsWith('-') && /[/*]/.test(token) && !token.startsWith('--')
-  );
+  const paths = tokens
+    .filter((token) => !token.startsWith('-'))
+    // A quoted token reaches the runner intact; an unquoted one is whatever
+    // `sh` made of it. Both appear in this repository and they collect
+    // different files, so the quoting is carried, not discarded.
+    .map((token) => {
+      const quoted = /^(['"]).*\1$/.test(token);
+      return { glob: quoted ? token.slice(1, -1) : token, quoted };
+    })
+    .filter(({ glob }) => /[/*]/.test(glob));
 
   if (paths.length > 0) {
-    const matched = paths.some((glob) => globToRegExp(glob).test(contract));
+    const matched = paths.some(({ glob, quoted }) =>
+      globToRegExp(quoted ? glob : shellExpanded(glob)).test(contract)
+    );
     return matched
       ? { ok: true }
       : { ok: false, why: `\`${script}\` names paths, and none of them match it` };
