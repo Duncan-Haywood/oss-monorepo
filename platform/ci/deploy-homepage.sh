@@ -16,7 +16,7 @@ for command in kubectl jq; do
   }
 done
 
-for file in index.html style.css app.js Dockerfile; do
+for file in index.html style.css app.js; do
   [[ -f "$source_dir/$file" ]] || {
     printf 'Homepage release file is unavailable: %s/%s\n' "$source_dir" "$file" >&2
     exit 1
@@ -27,11 +27,16 @@ kubectl -n "$namespace" get deployment "$deployment" >/dev/null
 
 # Production currently serves the static site from an Nginx-mounted ConfigMap.
 # Generate the full release atomically so all replicas receive the same file set.
+#
+# This list is the public web root of marisstella.dev: every key becomes a
+# fetchable path. It is not the container image, so `.dockerignore` cannot
+# narrow it — that is how `/Dockerfile` answered 200 with the build recipe while
+# SEC-021 was recorded as fixed. Adding an entry here publishes it.
+# `platform/ci/test/homepage-release-surface.test.mjs` holds the contract.
 kubectl -n "$namespace" create configmap "$configmap" \
   --from-file="index.html=$source_dir/index.html" \
   --from-file="style.css=$source_dir/style.css" \
   --from-file="app.js=$source_dir/app.js" \
-  --from-file="Dockerfile=$source_dir/Dockerfile" \
   --dry-run=client \
   -o yaml |
   kubectl apply -f -
