@@ -29,6 +29,9 @@ This log records all identified application, infrastructure, container, and CI s
 | **SEC-017** | **Critical** | Supply Chain | `ventures/photo-editing/docs-site` | Abandoned `htmltojsx` pulled in `request` (SSRF) and `form-data` (CRLF injection) | **Fixed** |
 | **SEC-018** | High | Application | `ventures/print-atelier/src/app/api/credentials/vercel-pull` | Unauthenticated disclosure of configured partner credential state | **Fixed** |
 | **SEC-019** | **Critical** | Application | `ventures/print-atelier/src/app/api/*` | Six operator API handlers served anonymous callers; one writes live ad catalogs | **Fixed** |
+| **SEC-020** | Low | Application | `ventures/photo-editing/docs-site/src/lib/auth.ts` | Public-path prefix exempted the paths beside it, not only its children | **Fixed** |
+| **SEC-021** | Low | Container | `portfolio/marisstella-homepage/.dockerignore` | Container build context published `nginx.conf` and `package.json` into the image web root | **Fixed (not the live exposure — see SEC-022)** |
+| **SEC-022** | Low | Infrastructure | `platform/ci/deploy-homepage.sh` | The production ConfigMap published `Dockerfile` to the public web root; `/Dockerfile` served 200 | **Fixed, awaiting deploy** |
 
 ---
 
@@ -285,6 +288,60 @@ This log records all identified application, infrastructure, container, and CI s
   component PASSED without checking anything, and had done so for as long as it
   existed. Nothing found this because nothing was looking: every control asks
   whether a gate is declared and reachable, and this one was both.
+- **Correction, 2026-08-02**: the impact recorded above is wrong, and the fix
+  addresses an artifact production does not serve. Probed with no credentials:
+  `/nginx.conf` and `/package.json` both answer **404**, and always did.
+  Production serves the site from a ConfigMap built by
+  `platform/ci/deploy-homepage.sh`, not from the container image, so
+  `.dockerignore` cannot narrow the public web root. The real exposure was
+  `/Dockerfile`, which answered **200** — see SEC-022. This entry was reasoned
+  from the `Dockerfile` and mutation-checked five ways against the build
+  context, and every one of those checks was measuring the wrong artifact. The
+  `.dockerignore` change remains correct for anyone who builds the image; it
+  was simply never the control that governs marisstella.dev.
+
+---
+
+### SEC-022 — Low — The Production ConfigMap Published the Build Recipe
+
+- **Location**: `platform/ci/deploy-homepage.sh`, the `--from-file` list.
+- **Found**: 2026-08-02, by probing the live URL while checking whether
+  SEC-021's fix had reached production.
+- **Impact**: `https://marisstella.dev/Dockerfile` answered 200 with the full
+  build recipe: the `nginx:alpine` base, the `COPY nginx.conf
+  /etc/nginx/nginx.conf` line, the `chown` of the web root and cache paths, the
+  `USER nginx` drop and the listening port. Rated Low because it holds no
+  secret — what it gives an attacker is an exact, free read of how the service
+  is built and run instead of having to probe for it. The disclosed `COPY`
+  line also names a file that is *not* published, which is itself a map.
+- **Cause**: the deploy script builds the release ConfigMap from four explicit
+  `--from-file` entries and nginx mounts it as the web root. That list — not
+  the image, and not `.dockerignore` — is the public surface of the site, and
+  it named `Dockerfile` alongside the three real assets. Nothing consumed that
+  key. The venture's own mutation-checked test asserted the `.dockerignore`
+  exclusions, so removing the defect would not have failed a single test.
+- **Fix**: `Dockerfile` removed from both the `--from-file` list and the
+  preflight file check, and the list annotated as the public web root it is.
+- **Evidence**: `platform/ci/test/homepage-release-surface.test.mjs`. The
+  published set must equal the three served assets, no key may match a
+  build/config file shape, the preflight and published lists must agree, and
+  every published key must exist on disk. It fails against the pre-fix script,
+  which is what confirmed the defect, and was mutation-checked five ways:
+  `Dockerfile` restored to the ConfigMap, restored to the preflight alone,
+  `nginx.conf` published, a served asset dropped, and a published file that
+  does not exist. `platform/ci` 62 tests pass; homepage 27 pass.
+- **Residual risk**: **the fix is not live.** It takes effect on the next
+  homepage deploy, and `origin/main` was 2 days behind when this was written.
+  `/Dockerfile` still answers 200 until then. This is the gap
+  `scripts/ci/release_lag.py` and `platform/release-lag-budget.yaml` now
+  measure — a Fixed row in this table is a claim about the repository, not
+  about the running service. `git merge-base --is-ancestor <commit> origin/main`
+  is the check that settles it.
+- **Process note**: the generalizable lesson is SEC-021's, not this entry's. A
+  remediation must be verified against the artifact production actually serves,
+  and for anything with a URL that means probing the URL. Ten seconds of `curl`
+  found both the exposure and the fact that the previous fix had addressed two
+  paths that were never reachable.
 
 ---
 
