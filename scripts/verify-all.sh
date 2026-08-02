@@ -10,8 +10,16 @@ echo "Repository Root: ${REPO_ROOT}"
 echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
 # 1. First, verify and test the CI infrastructure itself
+# The `fi` below used to have no `else`, so renaming or deleting this file made
+# every repository-wide gate it registers vanish while this script still exited
+# 0 — the same fail-open the Dagger engine block beneath it already refuses.
 if [ -f "${REPO_ROOT}/scripts/test-ci.sh" ]; then
   bash "${REPO_ROOT}/scripts/test-ci.sh"
+else
+  echo "🚨 CI self-test runner not found: scripts/test-ci.sh"
+  echo "   Every repository-wide gate is registered there. Refusing to report"
+  echo "   success for checks that did not execute."
+  exit 1
 fi
 
 # 2. Invoke Dagger CI Engine (with fallback to host runner)

@@ -44,6 +44,12 @@ run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/
 run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/scripts/security/test-scan-repository.sh"
 run_ci_test "Repository Engineering Policy Contract" bash "${REPO_ROOT}/scripts/ci/test-engineering-policy.sh"
 run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"
+# The contract test for scripts/ci/verify-component.sh — the shared fail-closed
+# gate every venture workflow shells into. It asserts that an unknown component
+# exits non-zero, that `set -euo pipefail` is present, and that no `|| true`
+# sits on an install or quality gate. Until now it was named by no runner and no
+# workflow, so the file had been written, reviewed and never once executed.
+run_ci_test "Component Verification Contract Tests" bash "${REPO_ROOT}/scripts/ci/test-verify-component.sh"
 
 # 4. Portfolio Router & Ledger Verification Suite
 run_ci_test "Portfolio Router & Allocation Unit Suite" python3 "${REPO_ROOT}/tests/test_portfolio_router.py"
