@@ -107,6 +107,16 @@ class TestDetection(unittest.TestCase):
             ],
         )
 
+    def test_detects_semgrep_suppression_in_both_languages(self):
+        # The SAST gate's escape hatch. Semgrep honours this comment in every
+        # language, and a finding suppressed at the source never reaches
+        # `platform/sast-baseline.yaml`, so this audit is the only thing that
+        # can see it at all.
+        found = self.scan_source("a.py", "run(cmd)  # nosemgrep: rule-id\n")
+        self.assertEqual([o.kind for o in found], ["scanner-suppression"])
+        found = self.scan_source("a.ts", "// nosemgrep\nexec(cmd);\n")
+        self.assertEqual([o.kind for o in found], ["scanner-suppression"])
+
     def test_detects_focused_javascript_test(self):
         # `test.only` is the most dangerous construct this audit catches: it
         # drops every other test in the file while still reporting success.

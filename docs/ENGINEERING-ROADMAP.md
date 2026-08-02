@@ -192,8 +192,25 @@ evidence, and completion date before it can be marked done.
   catalog directory, a moved Python test path and a failing `terraform validate`
   were all skip-and-pass, and `platform/ci/test/fail-closed.test.mjs` now covers
   each. `.gitea/workflows/security.yml` fails if a run retains no evidence.
-  Still open: no SAST (Semgrep/CodeQL/Bandit), Trivy runs `vuln,misconfig` but
-  not `license`, no SBOM, no container or published-image scanning.
+  SAST landed 2026-08-01, owner duncan: `scripts/ci/sast_scan.py` runs Semgrep
+  (`p/default`, 1074 rules) and Bandit from the `sast` job in
+  `.gitea/workflows/security.yml`, fails closed on any unregistered finding, and
+  is held to its register in both directions by `platform/sast-baseline.yaml`.
+  Process, remediation order and limits in [SAST](SAST.md). Two things there are
+  worth carrying forward rather than reading as done. First, the obvious
+  configuration was nearly inert: `p/javascript` + `p/typescript` + `p/nextjs`
+  loaded 74 rules for a TypeScript file and detected neither `eval(userInput)`
+  nor `exec("ls " + userInput)`, so it would have been a green SAST check over
+  710 TypeScript files finding almost nothing. Second, 191 of the 195 findings
+  are registered as `inherited` — counted and count-locked, not assessed —
+  because claiming otherwise would have been false; 19 are error-severity and
+  the highest-value group is 6 GitHub Actions script injections.
+  Still open: Trivy runs `vuln,misconfig` but not `license`, no SBOM, no
+  container or published-image scanning. `license` specifically must not be
+  enabled by just adding the scanner: measured 2026-08-01, it returns zero
+  findings because it cannot read licences without `node_modules` installed and
+  reports clean anyway, so in the current `scan` job it would be a permanently
+  green check that measures nothing.
   The host gap that kept named checks from executing in CI is closed
   (`316d814`): `.gitea/workflows/ci-cd.yml` installed only Node, so gate 1
   failed on a clean runner and `set -euo pipefail` in `scripts/verify-all.sh`
