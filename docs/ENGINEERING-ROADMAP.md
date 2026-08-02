@@ -224,7 +224,7 @@ evidence, and completion date before it can be marked done.
 
 - [ ] Standardize full-SHA image builds, SBOMs, signatures/provenance, digest
   promotion, vulnerability gates, and Argo CD reconciliation for every service.
-  Partial, 2026-08-02, owner duncan, commit `TBD`. The mutability half is now a
+  Partial, 2026-08-02, owner duncan, commit `c24d148`. The mutability half is now a
   control. `.gitea/workflows/deploy-services.yml` had a step called "Reject
   mutable image tags" that rendered the chart with `--set
   image.tag=ci-$GITHUB_SHA` and then grepped that render for
