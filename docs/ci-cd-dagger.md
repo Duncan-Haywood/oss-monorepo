@@ -12,7 +12,9 @@ self-hosted Gitea Actions runners.
 
 1. **Local = CI Parity**: The same CI engine runs locally via `bash scripts/verify-all.sh` and in Gitea Actions (`.gitea/workflows/ci-cd.yml`).
 2. **BuildKit Caching**: When Docker/Dagger is available, step builds, npm dependencies, and pytest runs are cached automatically.
-3. **Monorepo Affected Path Resolution**: The CI engine analyzes `git diff` against `main` to identify changed components. Pull requests only build and verify affected ventures, saving build time.
+3. **Monorepo Affected Path Resolution**: The CI engine diffs an explicit range to identify changed components — the branch against its merge target on pull requests, and the whole pushed range (`before...HEAD`) on pushes, so a change in the middle of a multi-commit push is not missed. Only affected ventures are built and verified, saving build time.
+
+   Detection widens rather than narrows when it is unsure. A base it cannot resolve — a new branch, a force-pushed tip that is gone, a shallow checkout, a missing event payload — verifies the whole catalog and logs the reason. Paths that decide how everything is verified (`scripts/`, `platform/ci/`, `tests/`, `pytest.ini`, `requirements-ci.txt`, the coverage baseline and the exception register, and the workflow definitions) also force a full run. This requires `fetch-depth: 0` on the checkout; with the default depth of 1 no base is reachable and every run falls back to the full catalog.
 4. **CI Self-Testing**: The CI infrastructure tests itself! Run `bash scripts/test-ci.sh` to run unit tests on the CI engine, validate security scanner logic, analyze shell scripts with ShellCheck, and lint workflow YAML files with actionlint.
 5. **Seamless Host Fallback**: In environments without a Docker/Dagger daemon, the engine seamlessly falls back to isolated host execution, ensuring zero build breakage.
 
