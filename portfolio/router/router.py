@@ -106,7 +106,10 @@ class VentureContract:
     hypotheses: List[Hypothesis]
     economics: Economics
     budget: Budget
-    kill_criteria: List[str]
+    # Prose strings or structured criteria — see portfolio/router/kill_criteria.py
+    # for the two forms and which of them the allocator can actually evaluate.
+    # This module only carries them; `allocate.py` is what reads them.
+    kill_criteria: List[Any]
     links: Dict[str, Optional[str]]
     path: Path
 
