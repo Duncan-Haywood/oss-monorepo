@@ -349,6 +349,57 @@ evidence, and completion date before it can be marked done.
   findings because it cannot read licences without `node_modules` installed and
   reports clean anyway, so in the current `scan` job it would be a permanently
   green check that measures nothing.
+  The SCA half is measured and bound as of 2026-08-02, owner duncan, and what
+  it measured is SEC-027 in [the security audit log](SECURITY_AUDIT_LOG.md).
+  `.gitea/workflows/security.yml` has always run a `dependency-audit` job over a
+  hand-written matrix of four ventures; the repository tracks ten Node
+  lockfiles. The six nobody audited held **32 high-severity advisories**, the
+  worst a Next.js middleware/proxy bypass in `local-site-studio` — the one
+  venture whose route guard is the handler's own call with no deny-by-default
+  behind it. The matrix now lists all ten, and
+  `platform/ci/test/dependency-audit-coverage.test.mjs` scans git for lockfiles
+  and fails when one is neither audited nor a registered, owned, expiring,
+  counted exception, when an entry's manager does not match its lockfile
+  (`npm audit` in a pnpm workspace succeeds without reading anything), and when
+  the audit is made incapable of failing. Mutation-checked thirteen ways.
+  Two things are worth carrying. Most advisories are **not** fixed: 46 of 47
+  remain. The two whose fixes were not semver-major were taken the same day —
+  `local-site-studio` to next 16.2.12 and `photo-editing/docs-site` to 15.5.22,
+  verified at 1214 and 40 tests plus a green `next build` each — and in both,
+  `next` now carries no CVE of its own and is flagged only through `postcss`
+  and `sharp`, for which npm's proposed fix is a downgrade to next@9.3.3 and so
+  no forward fix exists. The remaining 40 need semver-major bumps of
+  `eslint-config-next`, `wrangler` and `sharp`, and two of the three
+  `real-estate-agent-photo-app` packages holding 24 of them have **no test
+  script at all** — an upgrade there has nothing to verify it, which makes the
+  missing suite the blocking work rather than the bump. And the two ventures already in the matrix
+  that fail — print-atelier at 7 and retail-pilot-intel at 8 — have been
+  failing into a job nothing blocks on, because required status checks remain
+  unconfigured. That is the same finding as the release-lag one below: a
+  control that reports into a channel with no gate behind it is a control
+  nobody has to answer. The three Python manifests are registered exceptions
+  expiring 2026-11-30, blocked on pip-audit in the runner image, which belongs
+  to this item's remaining SAST/SCA tooling work.
+  **Reconcile before merging.** `agent/profit-lever-2026-08-02` built the same
+  lockfile-coverage control independently, as
+  `platform/ci/test/workflow-supply-chain.test.mjs`. Whoever integrates should
+  keep one, not both, and the two differ in ways worth deciding deliberately.
+  That one additionally checks every third-party action is pinned to a commit
+  SHA, which this one does not and which should be kept. This one additionally
+  fails when a matrix entry's `manager` does not match the committed lockfile
+  (`npm audit` in a pnpm workspace reports success without reading anything),
+  when an audit command carries `|| true` or drops `--audit-level`, on
+  `continue-on-error`, and on `fail-fast: true`; and it registers the three
+  Python manifests, which that one does not scan.
+  They also disagree on policy: that branch leaves the five vulnerable
+  lockfiles out of the matrix as exceptions expiring 2026-11-01, so CI stays
+  green; this one puts all ten in and lets the failures show. **Two of those
+  five exceptions are factually wrong.** `local-site-studio`'s reads
+  "advisories need a semver-major Next 16 upgrade" — it was already on Next
+  16.2.9 and the fix was the patch to 16.2.12 taken above; `photo-editing/
+  docs-site`'s reads "need a semver-major upgrade" and its direct CVEs cleared
+  inside its existing `^15.2.4` range. An exception's stated reason is load-
+  bearing, and re-testing these two is what showed the reason had not been.
   The host gap that kept named checks from executing in CI is closed
   (`316d814`): `.gitea/workflows/ci-cd.yml` installed only Node, so gate 1
   failed on a clean runner and `set -euo pipefail` in `scripts/verify-all.sh`
