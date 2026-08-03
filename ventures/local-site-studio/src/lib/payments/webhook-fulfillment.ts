@@ -4,6 +4,29 @@
  * redelivers. Email / notify side effects stay best-effort after durable writes.
  */
 
+/**
+ * True when Stripe has actually collected the money for a Checkout Session.
+ *
+ * `checkout.session.completed` fires when the customer finishes Checkout, NOT
+ * when the payment settles. For any delayed-notification method — ACH
+ * (`us_bank_account`), Klarna, Bacs — it arrives with
+ * `payment_status: "unpaid"` and settles minutes-to-days later, or fails.
+ * Enabling one of those is a Stripe Dashboard setting that needs no code change
+ * here, so this predicate has to hold regardless of how the account is
+ * configured. Session `status: "complete"` is not a substitute: it means the
+ * Checkout flow finished, not that funds moved.
+ *
+ * `no_payment_required` is a genuine zero-total session (100% coupon) and does
+ * count as paid.
+ *
+ * Takes the payment_status field rather than the session so both the webhook
+ * and the success page can share one definition without importing Stripe types
+ * in opposite directions.
+ */
+export function isCheckoutSessionPaid(paymentStatus: string | null | undefined): boolean {
+  return paymentStatus === "paid" || paymentStatus === "no_payment_required";
+}
+
 export type WebhookFulfillmentStep =
   | "bundle_payment_or_handoff"
   | "commerce_order_ledger"
