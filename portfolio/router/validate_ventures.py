@@ -30,7 +30,7 @@ import json
 import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import yaml
 
@@ -230,6 +230,134 @@ def validate_venture(
                 remedy="Set an explicit monthly_cap; the router otherwise assumes $50.",
             )
         )
+
+    findings.extend(find_dominated_criteria(name, data.get("kill_criteria") or []))
+
+    return findings
+
+
+def _criterion_signature(criterion: Any) -> Optional[Tuple[Tuple[str, str], ...]]:
+    """The metric/comparator shape of a structured criterion, ignoring thresholds.
+
+    Two criteria that match on this shape differ only in their numbers, which is
+    what makes one of them capable of dominating the other.
+    """
+    if not isinstance(criterion, dict):
+        return None
+    conditions = criterion.get("when")
+    if not isinstance(conditions, list) or not conditions:
+        return None
+    signature = []
+    for condition in conditions:
+        if not isinstance(condition, dict):
+            return None
+        metric = condition.get("metric")
+        comparator = condition.get("comparator")
+        if not isinstance(metric, str) or not isinstance(comparator, str):
+            return None
+        signature.append((metric, comparator))
+    return tuple(sorted(signature))
+
+
+def _thresholds(criterion: Any) -> Optional[Dict[Tuple[str, str], float]]:
+    signature = _criterion_signature(criterion)
+    if signature is None:
+        return None
+    thresholds: Dict[Tuple[str, str], float] = {}
+    for condition in criterion["when"]:
+        threshold = condition.get("threshold")
+        if isinstance(threshold, bool) or not isinstance(threshold, (int, float)):
+            return None
+        key = (condition["metric"], condition["comparator"])
+        # A criterion naming the same metric/comparator twice is malformed; the
+        # evaluator ANDs both, so keep the binding one rather than guessing.
+        if key in thresholds:
+            thresholds[key] = min(thresholds[key], float(threshold))
+        else:
+            thresholds[key] = float(threshold)
+    return thresholds
+
+
+def _dominates(looser: Dict[Tuple[str, str], float], tighter: Dict[Tuple[str, str], float]) -> bool:
+    """True when `tighter` fires no later than `looser`, so `looser` never adds anything.
+
+    For a `>=` condition a lower threshold is reached first; for `<=` a higher
+    one is. `==` must match exactly to be comparable at all. Comparators outside
+    this set are left alone rather than guessed at — a wrong dedup here would
+    delete a real stopping rule.
+    """
+    if set(looser) != set(tighter):
+        return False
+    for key, looser_threshold in looser.items():
+        _, comparator = key
+        tighter_threshold = tighter[key]
+        if comparator in (">=", ">"):
+            if tighter_threshold > looser_threshold:
+                return False
+        elif comparator in ("<=", "<"):
+            if tighter_threshold < looser_threshold:
+                return False
+        elif comparator == "==":
+            if tighter_threshold != looser_threshold:
+                return False
+        else:
+            return False
+    # Every condition in `tighter` is reached no later than its counterpart in
+    # `looser`. Equal on all of them is an exact duplicate, which is dominated
+    # too — the caller keeps the earlier of such a pair.
+    return True
+
+
+def find_dominated_criteria(name: str, criteria: Sequence[Any]) -> List[Finding]:
+    """Flag a stopping rule that can never be the one that fires.
+
+    `portfolio/router/allocate.py` ORs the criteria together and a single
+    trigger kills the venture, so a criterion that cannot become true before
+    another one already has contributes nothing but a duplicated line in
+    `kill_reasons`. This exists because ten of twelve ventures acquired exactly
+    that on 2026-08-03 — three of them the same `>= 150 / == 0` rule declared
+    twice in the same file — when parallel agents each added a stopping rule to
+    ventures that already had one. Duplicated work across concurrent sessions is
+    this repository's most common defect; this makes one instance of it
+    mechanical to catch.
+
+    Conservative by construction: only structured criteria with identical
+    metric/comparator sets are compared, and only over comparators whose
+    ordering is unambiguous. Prose criteria and anything it cannot reason about
+    are left alone, because deleting a real brake is far worse than keeping a
+    redundant one.
+    """
+    findings: List[Finding] = []
+    parsed = [(index, _thresholds(criterion)) for index, criterion in enumerate(criteria)]
+    comparable = [(index, thresholds) for index, thresholds in parsed if thresholds]
+
+    for position, (index, thresholds) in enumerate(comparable):
+        for other_position, (other_index, other_thresholds) in enumerate(comparable):
+            if position == other_position:
+                continue
+            # An exact duplicate dominates both ways; keep the earlier one so
+            # the pair produces one finding rather than two.
+            if thresholds == other_thresholds and other_position > position:
+                continue
+            if _dominates(thresholds, other_thresholds):
+                findings.append(
+                    Finding(
+                        venture=name,
+                        severity="warn",
+                        code="dominated-kill-criterion",
+                        message=(
+                            f"kill_criteria[{index}] can never be the criterion that fires: "
+                            f"kill_criteria[{other_index}] has the same conditions and reaches "
+                            f"them no later"
+                        ),
+                        remedy=(
+                            "Delete the redundant criterion, or change what it measures. "
+                            "Criteria are ORed and one trigger kills the venture, so this "
+                            "one only ever duplicates a line in kill_reasons."
+                        ),
+                    )
+                )
+                break
 
     return findings
 
