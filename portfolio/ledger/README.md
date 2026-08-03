@@ -53,6 +53,24 @@ a `venture` matching no `ventures/*/VENTURE.yaml`, the same venture on two rows
 in one period, an absent or negative `agent_spend_usd`, a `period` disagreeing
 with its filename, and a file that is not a `YYYY-MM.yaml` month.
 
+It also fails on a month that is simply not here — `ledger-gap` for a month
+missing inside the recorded span, `stale-ledger` when the newest month falls two
+months behind the calendar. Both are errors, which means **not writing a month
+breaks the build.** That is deliberate. `portfolio/router/kill_criteria.py`
+measures each venture's stopping rules against `cumulative_agent_spend_usd`, and
+that figure is this directory summed: skip a month and the total silently
+understates what was spent, so a threshold the portfolio owner set is never
+reached and the rule that should stop funding a venture never fires. An absent
+month is not a missing record, it is a smaller number.
+
+The one way to clear `stale-ledger` is to close the month. Raising
+`STALE_LEDGER_MONTHS` in the validator also clears it, and doing that quietly is
+the erosion the check exists to expose — change it in a commit that says so.
+
+Months from before this ledger existed are not gaps. The span is bounded by the
+recorded months themselves, so the repository being older than its ledger is not
+reported, and rule 1 forbids backfilling it anyway.
+
 Missing `mrr_end`, empty `outcomes`, and split spend are warnings rather than
 errors, because a closed month can only be annotated. Pass `--strict` to fail on
 those too; the CI gate deliberately does not, until a full month is recorded
