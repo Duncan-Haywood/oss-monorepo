@@ -56,6 +56,25 @@ EXPLORE_CREDIT = 0.65
 MEASURED_ZERO_CREDIT = 0.30
 EXPLORE_GRANT_USD = 50.0
 
+# Guaranteed baseline for a protected venture — a floor *within* the portfolio
+# budget, never a claim against money the portfolio does not have.
+#
+# It used to be the latter. `compute_allocation` walked the ranked ventures
+# handing each protected one `max(20.0, remaining * 0.15)`, and that `max`
+# ignored `remaining` entirely, so the floor kept paying out after the budget
+# was gone. The subtraction clamped at zero and the loop carried on. With the
+# current 11 protected ventures the router allocated $200 against a budget of
+# $100, of $10, and of $0 alike — the number printed as "Total Portfolio Budget
+# Cap" could not cap anything. It only looked correct at $300 because 11
+# ventures happened to want less than $300.
+#
+# The floor is now applied and then clamped to what is left. Because ventures
+# are funded in composite-score order, a budget that cannot cover every floor
+# starves the lowest-scoring ventures rather than quietly overspending the
+# total, and an unfunded venture is reported as unfunded instead of vanishing
+# into a total nobody checks.
+PROTECTED_FLOOR_USD = 20.0
+
 
 def economics_score(mrr: Optional[float], cumulative_spend: float = 0.0) -> float:
     """Economics component of the composite score.
@@ -164,6 +183,7 @@ class AllocationResult:
     score: float
     rationale: str
     suggested_focus: str
+    funded: bool = True
 
 
 class PortfolioRouter:
@@ -256,22 +276,33 @@ class PortfolioRouter:
 
         # Allocate budget
         results = []
-        remaining_budget = total_budget_usd
+        remaining_budget = round(max(0.0, total_budget_usd), 2)
 
         for rank, (v, score, focus) in enumerate(scored_ventures, start=1):
             cap = v.budget.monthly_cap
             # Guaranteed min allocation for protected ventures
             if v.budget.protected:
-                alloc = min(cap, max(20.0, remaining_budget * 0.15))
+                target = min(cap, max(PROTECTED_FLOOR_USD, remaining_budget * 0.15))
             else:
-                alloc = min(cap, remaining_budget * 0.12)
+                target = min(cap, remaining_budget * 0.12)
 
-            alloc = round(alloc, 2)
-            remaining_budget = max(0.0, remaining_budget - alloc)
+            # The budget is a ceiling. Round before clamping so the clamp is
+            # exact — rounding afterwards can round an allocation up past the
+            # money that is actually left.
+            target = round(target, 2)
+            alloc = min(target, remaining_budget)
+            remaining_budget = round(max(0.0, remaining_budget - alloc), 2)
 
             rationale_parts = [f"Stage: {v.stage}", f"Score: {score:.2f}"]
             if v.budget.protected:
                 rationale_parts.append("Protected explore budget")
+            if alloc < target:
+                # Say so, rather than letting a starved venture read as a
+                # cheap one. This is the signal that the portfolio is trying
+                # to fund more ventures than the budget supports.
+                rationale_parts.append(
+                    f"Budget exhausted: ${target:.2f} indicated, ${alloc:.2f} available"
+                )
             if v.economics.mrr is not None:
                 rationale_parts.append(f"MRR: ${v.economics.mrr:.2f}")
             else:
@@ -298,6 +329,7 @@ class PortfolioRouter:
                     score=round(score, 3),
                     rationale=" | ".join(rationale_parts),
                     suggested_focus=focus,
+                    funded=alloc > 0.0,
                 )
             )
 
@@ -318,24 +350,52 @@ class PortfolioRouter:
         ]
 
         total_allocated = 0.0
+        unfunded = []
         for a in allocations:
             prot_str = "YES" if a.protected else "No"
             mrr_str = f"${a.mrr:.2f}" if a.mrr is not None else "Unmeasured"
+            focus_str = a.suggested_focus if a.funded else "**UNFUNDED THIS PERIOD** — budget exhausted before this rank"
             lines.append(
-                f"| {a.rank} | **[{a.venture_name}](file://{self.repo_root}/ventures/{a.venture_name})** | `{a.stage}` | {prot_str} | {mrr_str} | ${a.monthly_cap:.2f} | **${a.allocated_spend:.2f}** | {a.suggested_focus} |"
+                # Repo-relative, not `file://{self.repo_root}`. This report is a
+                # committed artifact and CI regenerates it, so an absolute path
+                # meant the checked-in file could never match what a runner
+                # produced — every worktree and every runner rewrote all 11 rows.
+                f"| {a.rank} | **[{a.venture_name}](../ventures/{a.venture_name})** | `{a.stage}` | {prot_str} | {mrr_str} | ${a.monthly_cap:.2f} | **${a.allocated_spend:.2f}** | {focus_str} |"
             )
             total_allocated += a.allocated_spend
+            if not a.funded:
+                unfunded.append(a.venture_name)
 
         lines.extend(
             [
                 "",
-                f"**Total Allocated Agent Spend:** `${total_allocated:.2f} USD`",
+                f"**Total Allocated Agent Spend:** `${total_allocated:.2f} USD` "
+                f"of `${total_budget_usd:.2f} USD` cap "
+                f"(`${total_budget_usd - total_allocated:.2f} USD` unallocated)",
+            ]
+        )
+
+        if unfunded:
+            lines.extend(
+                [
+                    "",
+                    f"**Unfunded this period ({len(unfunded)}):** "
+                    + ", ".join(f"`{n}`" for n in unfunded)
+                    + ". The portfolio is carrying more protected ventures than the"
+                    " budget cap supports. Raise the cap, lower a `monthly_cap`, or"
+                    " retire a venture — the router will not overspend to hide this.",
+                ]
+            )
+
+        lines.extend(
+            [
                 "",
                 "## Allocation Principles Applied",
                 "",
                 "1. **Protected Explore Budget**: Ventures with `budget.protected: true` are guaranteed baseline funding regardless of short-term measured MRR.",
                 "2. **Unmeasured Distinction**: Unmeasured ventures (`economics.mrr: null`) receive neutral explore credit rather than being penalized as zero-revenue.",
                 "3. **Stage-Gated Escalation**: Higher stage ventures (`launched`/`revenue`) receive priority allocations for customer acquisition and monetization scaling.",
+                "4. **The Cap Is A Ceiling**: Total allocated spend never exceeds the portfolio budget cap. The protected floor in principle 1 is a floor within the cap, not a claim against it; when the budget cannot fund every floor, the shortfall falls on the lowest-scoring ventures and is reported above.",
                 "",
             ]
         )
@@ -424,6 +484,7 @@ def route_portfolio(repo_root: Optional[Path] = None, total_monthly_budget: floa
             "score": a.score,
             "rationale": a.rationale,
             "suggested_focus": a.suggested_focus,
+            "funded": a.funded,
         })
         total_allocated += a.allocated_spend
 
@@ -432,6 +493,8 @@ def route_portfolio(repo_root: Optional[Path] = None, total_monthly_budget: floa
             "total_ventures": len(ventures),
             "total_monthly_budget_cap_usd": total_monthly_budget,
             "allocated_monthly_budget_usd": round(total_allocated, 2),
+            "unallocated_budget_usd": round(total_monthly_budget - total_allocated, 2),
+            "unfunded_ventures": [a.venture_name for a in allocations if not a.funded],
         },
         "queue": queue,
     }

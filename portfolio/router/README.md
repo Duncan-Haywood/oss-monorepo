@@ -36,6 +36,34 @@ against outcomes for at least a few cycles.
 
 A ranked work queue. Each entry names a venture, a task, and a spend ceiling.
 
+## The budget cap is a ceiling
+
+`compute_allocation` funds ventures in composite-score order and never allocates
+more than the portfolio budget cap in total. A protected venture is guaranteed
+`PROTECTED_FLOOR_USD` — but that is a floor *within* the cap, not a claim
+against money the portfolio does not have.
+
+It used to be the latter, and the cap enforced nothing. The floor was
+`max(20.0, remaining * 0.15)`, which ignored `remaining`, so it kept paying out
+after the budget was spent; the running total clamped at zero while the loop
+carried on. With the current 11 protected ventures the router allocated $200
+against a cap of $100, of $10, and of $0 alike. The figure printed at the top of
+[the allocation report](../ALLOCATION_REPORT.md) as "Total Portfolio Budget Cap"
+bounded nothing — it only looked correct at $300 because 11 ventures happened to
+want less than $300. Reachable today: dropping the declared cap to $200, one
+third below where it stands, overspent it.
+
+When the cap cannot fund every floor, the shortfall lands on the lowest-scoring
+ventures and those ventures are reported as `UNFUNDED THIS PERIOD` by name, in
+both the markdown report and `portfolio_summary.unfunded_ventures`. That is the
+signal that the portfolio is carrying more protected ventures than it can pay
+for; the fix is to raise the cap, lower a `monthly_cap`, or retire a venture.
+The router will not overspend to hide it.
+
+The report is also generated with repo-relative links. CI regenerates it, so an
+absolute `file://` path meant the committed artifact could never match a
+runner's output — every worktree and every runner rewrote all 11 rows.
+
 ## Contract validation
 
 The router spends real budget off three fields that nothing else checks:
