@@ -263,11 +263,57 @@ evidence, and completion date before it can be marked done.
   VENTURE.yaml records a launch date, so every "after 60 days post-launch"
   criterion has no clock to measure against even in principle.
 
-- [ ] Decide what a triggered criterion should *do*. Today it moves the venture
-  to `killed` in the work queue and zeroes that row's allocation, which is a
-  report, not an action — nothing stops an agent session from working on a
-  killed venture, and no alert fires. Stopping a venture is a human decision and
-  should stay one, but the decision currently has no route to a human.
+- [x] Decide what a triggered criterion should *do*, and give the decision a
+  route to a human.
+  Owner duncan, 2026-08-03. The premise of this item was wrong in a way worth
+  recording, because the same shape is elsewhere in the repository. A triggered
+  criterion did not zero "that row's allocation" in the work queue. It zeroed a
+  row in `portfolio/router/allocation_queue.json`, written by
+  `portfolio/router/allocate.py` — which no pipeline runs and no document reads.
+  The queue that exists is `portfolio/ALLOCATION_REPORT.md`, written by
+  `portfolio/router/router.py`, which `scripts/test-ci.sh:51` runs on every CI
+  run and which four venture PROGRESS logs cite as the thing that told a session
+  what to work on. That engine declared `kill_criteria` as a dataclass field and
+  never read it. Its own comment said so: "This module only carries them;
+  `allocate.py` is what reads them."
+  So the entire stopping-rule effort — the evaluator, the ratchet, the criteria
+  being written into every VENTURE.yaml — fed an engine with no consumers, while
+  the engine with the consumers ranked, funded and recommended ventures with no
+  reference to whether their own declared brake had fired. Not a report instead
+  of an action: no report either, on the path anyone reads.
+  `router.py` now evaluates every venture's criteria through the shared
+  `kill_criteria.py` — one evaluator, not a third — and a triggered venture
+  loses its allocation, sorts last in the queue regardless of score, and carries
+  a `suggested_focus` that reads STOP. `protected: true` does not exempt it;
+  print-atelier is both protected and the only venture with a measurable rule,
+  so an exemption would have made the mechanism inert on the one venture it can
+  reach. The withheld budget is **not** redistributed — total portfolio spend
+  falls by what was withheld, because a brake that hands the money to the next
+  zero-revenue venture spends the same sum either way.
+  The route to a human is `portfolio/stopping-decisions.yaml` and
+  `scripts/ci/stopping_rule_review.py`, registered as "Stopping-Rule Decision
+  Review" in `scripts/test-ci.sh`, with `tests/test_stopping_rule_review.py`
+  running the same audit under pytest. A fired criterion with no recorded
+  decision fails the build. So does a `continue` past its `review_by`, a
+  `review_by` more than 90 days out, a decision covering a criterion that has
+  stopped firing, a reason under 40 characters, and — the one that matters most
+  — a `wind-down` recorded while the venture's `stage:` still says otherwise.
+  `continue` is capped at two ventures: overriding most of the portfolio's
+  brakes is removing them. 17 router tests and 31 audit tests, all against real
+  temporary repositories; mutation-checked ten ways on the audit and nine on the
+  router, with every mutation killed by its own test.
+  What this does not do. Nothing alerts: the decision surfaces in a CI failure
+  and in the allocation report, and if nobody runs CI, nobody hears. Nothing
+  physically prevents a session from working on a stopped venture — the queue
+  says STOP and the budget is zero, which is a strong signal to a reader and no
+  barrier at all to one who ignores it. And it is dormant today: no criterion has
+  fired, ten of eleven ventures still have no criterion that *can* fire, and
+  print-atelier's stands at $18.18 against a $150 threshold that is still
+  unratified. The first real exercise of this control will be the first month
+  that crosses a threshold, and until then the evidence is fixtures.
+  `allocate.py` remains a second allocation engine with a different budget
+  ($500 against router.py's $300) and its own copy of this logic. Reconciling
+  the two is not done here.
 
 ## Next 30 days: prove releases and operations
 
