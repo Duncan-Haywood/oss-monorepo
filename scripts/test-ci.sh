@@ -88,6 +88,18 @@ run_ci_test "Coverage Baseline Ratchet" python3 "${REPO_ROOT}/scripts/ci/coverag
 # `tests/test_kill_criteria_ratchet.py` runs the same audit under pytest, so this
 # entry is the named gate rather than the only enforcement.
 run_ci_test "Kill-Criteria Stopping Rule Ratchet" python3 "${REPO_ROOT}/scripts/ci/kill_criteria_ratchet.py"
+# The ratchet above counts ventures that have no brake. This one asks what
+# happens when a brake actually fires, which until 2026-08-03 was nothing: the
+# evaluation lived in `allocate.py`, which no pipeline runs, while `router.py` —
+# the engine two lines above this one, and the author of the ranked queue a
+# session reads to pick work — carried `kill_criteria` in a dataclass field and
+# never read it. router.py now withholds a triggered venture's allocation; this
+# gate requires a human to have decided what to do about it, and fails on a
+# decision that expired, that covers a criterion no longer firing, or that says
+# wind-down while the venture's stage says otherwise.
+# `tests/test_stopping_rule_review.py` runs the same audit under pytest, so this
+# entry is the named gate rather than the only enforcement.
+run_ci_test "Stopping-Rule Decision Review" python3 "${REPO_ROOT}/scripts/ci/stopping_rule_review.py"
 
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"
