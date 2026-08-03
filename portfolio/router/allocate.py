@@ -11,7 +11,14 @@ import glob
 import json
 import yaml
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Optional, Tuple
+
+try:
+    # Importable as a package (pytest sets `pythonpath`), and runnable as a
+    # script, which puts this directory on sys.path instead of the repo root.
+    from portfolio.router import kill_criteria
+except ImportError:
+    import kill_criteria
 
 
 class PortfolioRouter:
@@ -50,24 +57,60 @@ class PortfolioRouter:
                 print(f"Warning: Failed to parse ledger {filepath}: {e}")
         return ledger_entries
 
-    def evaluate_kill_criteria(self, venture: Dict[str, Any]) -> Tuple[bool, List[str]]:
-        """Evaluates if any kill criteria are triggered."""
+    def evaluate_kill_criteria(
+        self,
+        venture: Dict[str, Any],
+        ledger_rows: Optional[Dict[str, List[Dict[str, Any]]]] = None,
+        ledger_present: Optional[bool] = None,
+    ) -> Tuple[bool, List[str]]:
+        """Evaluates whether any kill criterion has fired.
+
+        Until 2026-08-03 this method loaded the venture's declared criteria into
+        a local named `kill_rules` and never referenced it again, so the only
+        conditions that could ever stop a venture were the two stage/MRR rules
+        below — and with all eleven ventures at `prototype`, neither could fire.
+        The declared criteria are now actually evaluated, in
+        `portfolio/router/kill_criteria.py`.
+
+        A criterion that cannot be evaluated does **not** count as a pass. It is
+        reported separately and must be registered in
+        `portfolio/kill-criteria-register.yaml`; see `evaluate_all_criteria`.
+        """
         triggered = []
         stage = venture.get("stage", "prototype")
         economics = venture.get("economics") or {}
         mrr = economics.get("mrr")
-        
+
         # Rule: Winding down explicit stage
         if stage == "winding-down":
             triggered.append("Venture stage set to winding-down")
 
-        # Kill criteria strings from YAML
-        kill_rules = venture.get("kill_criteria") or []
         # Additional programmatic checks if MRR is known zero past 3 months
         if stage in ["revenue", "scaling"] and mrr == 0:
             triggered.append("MRR is 0 in revenue/scaling stage")
 
+        # The venture's own declared criteria, which used to be read and dropped.
+        if ledger_rows is None or ledger_present is None:
+            ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
+
+        name = venture.get("dir_name") or venture.get("name") or ""
+        for result in kill_criteria.evaluate_venture(venture, name, ledger_rows, ledger_present):
+            if result.outcome == kill_criteria.TRIGGERED:
+                label = result.text or result.criterion_id
+                triggered.append(f"{label} ({result.reason})")
+
         return (len(triggered) > 0, triggered)
+
+    def evaluate_all_criteria(self) -> List[kill_criteria.CriterionResult]:
+        """Every declared criterion across every venture, with its outcome."""
+        ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
+        results: List[kill_criteria.CriterionResult] = []
+        for venture in self.load_ventures():
+            name = venture.get("dir_name") or venture.get("name") or ""
+            results.extend(
+                kill_criteria.evaluate_venture(venture, name, ledger_rows, ledger_present)
+            )
+        return results
 
     def calculate_allocation(self, total_budget_usd: float = 500.0) -> Dict[str, Any]:
         ventures = self.load_ventures()
@@ -80,8 +123,11 @@ class PortfolioRouter:
         explore_ventures = []
         killed_ventures = []
 
+        # Read the ledger once rather than per venture.
+        ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
+
         for v in ventures:
-            is_killed, reasons = self.evaluate_kill_criteria(v)
+            is_killed, reasons = self.evaluate_kill_criteria(v, ledger_rows, ledger_present)
             v["is_killed"] = is_killed
             v["kill_reasons"] = reasons
 

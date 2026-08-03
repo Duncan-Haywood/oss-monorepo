@@ -89,6 +89,12 @@ run_ci_test "Portfolio Router Allocation Report Generation" python3 "${REPO_ROOT
 # allocation credit than the ledger supports, and the router spends real budget
 # off those fields. The backlog that kept this advisory is now cleared, so a new
 # warning means new drift, not inherited debt.
+# Also audits kill criteria. `budget.protected` demands them because "without
+# kill criteria there is no condition under which it stops", but until
+# 2026-08-03 a line of prose satisfied that while allocate.py read the criteria
+# into an unused variable. This now fails on a criterion nothing can evaluate
+# and that nobody has parked in portfolio/kill-criteria-register.yaml, on a
+# register that expired or drifted from what it covers, and on a typo'd metric.
 run_ci_test "Venture Contract Validation" python3 "${REPO_ROOT}/portfolio/router/validate_ventures.py" --strict
 # The other half of the same join: the ledger those contracts are checked
 # against. router.py sums `agent_spend_usd` into the explore-grant decay, so a
