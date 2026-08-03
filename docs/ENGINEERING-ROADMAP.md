@@ -675,6 +675,58 @@ evidence, and completion date before it can be marked done.
 
 ### Portfolio stopping rules
 
+- [x] Make an unrecorded ledger month fail the build, in both the shapes that
+  hide one.
+  Owner duncan, 2026-08-03. The stopping rule made evaluable below measures
+  `cumulative_agent_spend_usd`, and that figure is `portfolio/ledger/*.yaml`
+  summed — `build_ledger_facts` adds up whatever months are on disk. So the
+  brake depends on a hand-maintained, append-only directory, and stops working
+  the moment somebody stops writing to it: the cumulative total freezes, the
+  owner's threshold is never reached however much is actually spent, and the
+  rule does not fire and does not report that it could not. The one measurable
+  stopping rule in the portfolio was resting on a file nobody was obliged to
+  update.
+  Two defects, both found by reading `validate_ledger.py` rather than by it
+  failing. `check_freshness` compared only `max(periods)` against the calendar,
+  so a **hole inside** the record was invisible — a ledger holding 2026-05 and
+  2026-11 reads as one month behind in December and says nothing about the five
+  months missing between. And its finding was severity `warn` while
+  `scripts/test-ci.sh` runs the validator without `--strict`, so the tail check
+  could not fail a build either: a declared control that reported to nobody.
+  `check_continuity` now errors on every month absent between the oldest and
+  newest recorded period, one finding each, and `stale-ledger` is an error.
+  The span is bounded by the recorded months, so the repository being two months
+  older than its ledger is not reported and is not backfilled — the ledger
+  README forbids rewriting history and the figures were never captured.
+  Both are green today: the ledger holds one month, 2026-07, and August is not
+  yet closeable. **`stale-ledger` will fail CI on 2026-09-01 if 2026-08 is not
+  recorded**, which is the control working rather than breaking. It is the only
+  date-dependent check here, so the deadline is deliberately concentrated in the
+  "Portfolio Ledger Validation" gate and kept out of the unit suite — a
+  calendar-flaky test invites the repair of widening `STALE_LEDGER_MONTHS`,
+  which is the erosion the check exists to expose.
+  13 new tests in `portfolio/router/test_validate_ledger.py` (36 total), the
+  new logic mutation-checked ten ways with nine caught and the survivor an
+  equivalent mutant.
+  Not done, and the sharp edge of this control: **it creates pressure to write a
+  month, and nothing meters per-venture spend, so the cheapest way to satisfy it
+  is to invent one.** That is not hypothetical. An uncommitted
+  `portfolio/ledger/2026-08.yaml` already sits in the working tree recording
+  twelve ventures, and its figures track the grants in
+  `portfolio/ALLOCATION_REPORT.md` rather than any observed cost — $40.00,
+  $30.00, $20.00 and $20.00 match four grants to the cent, and most of the rest
+  are within a dollar. Spend equal to budget is a restatement of the plan, not a
+  measurement of the outcome, and because the allocator reads the ledger it
+  closes a loop where the allocator reads back its own output as evidence.
+  So this control raises the floor without reaching the real gap: it can prove a
+  month exists, not that the month is true. The `spend-mirrors-allocation` check
+  on `agent/portfolio-stop-loss-2026-08-02` catches the copying case and is
+  warn-level; it does not catch figures nudged a few cents off the grant, which
+  is what the file above mostly is. **Do not close 2026-08 by committing that
+  file to clear this gate** — a metered figure, including zero, is the only thing
+  worth recording. Metering per-venture agent spend is the prerequisite the
+  portfolio still has no route to, and 2026-07's even split cannot be repaired.
+
 - [x] Make the portfolio's declared kill criteria evaluable, and hold the number
   of ventures without a stopping rule.
   Owner duncan, 2026-08-03. `portfolio/router/allocate.py` read

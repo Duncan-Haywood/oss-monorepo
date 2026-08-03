@@ -15,6 +15,7 @@ from pathlib import Path
 
 try:
     from portfolio.router.validate_ledger import (
+        check_continuity,
         check_freshness,
         check_spend_mirrors_allocation,
         check_uniform_spend,
@@ -23,11 +24,13 @@ try:
         months_between,
         parse_allocation_queue,
         parse_allocation_report,
+        shift_month,
         validate_all,
         validate_period,
     )
 except ImportError:
     from validate_ledger import (
+        check_continuity,
         check_freshness,
         check_spend_mirrors_allocation,
         check_uniform_spend,
@@ -36,6 +39,7 @@ except ImportError:
         months_between,
         parse_allocation_queue,
         parse_allocation_report,
+        shift_month,
         validate_all,
         validate_period,
     )
@@ -347,6 +351,14 @@ class FreshnessTest(unittest.TestCase):
         findings = check_freshness(["2026-07"], today=date(2026, 9, 3))
         self.assertEqual(codes(findings), ["stale-ledger"])
 
+    def test_staleness_is_an_error_because_a_warning_fails_no_build(self):
+        # scripts/test-ci.sh runs this validator without --strict. As a warning
+        # an unrecorded month was reported to nobody, while being the exact
+        # failure that freezes cumulative_agent_spend_usd and stops every
+        # spend-based kill criterion from ever firing.
+        findings = check_freshness(["2026-07"], today=date(2026, 9, 3))
+        self.assertEqual(severity_of(findings, "stale-ledger"), "error")
+
     def test_freshness_uses_the_newest_period_not_the_last_listed(self):
         self.assertEqual(
             check_freshness(["2026-07", "2026-05"], today=date(2026, 8, 1)), []
@@ -355,6 +367,56 @@ class FreshnessTest(unittest.TestCase):
     def test_months_between_spans_a_year_boundary(self):
         self.assertEqual(months_between("2025-11", "2026-02"), 3)
         self.assertIsNone(months_between("nonsense", "2026-02"))
+
+
+class ContinuityTest(unittest.TestCase):
+    def test_contiguous_months_report_nothing(self):
+        self.assertEqual(check_continuity(["2026-05", "2026-06", "2026-07"]), [])
+
+    def test_a_single_month_cannot_have_a_gap(self):
+        self.assertEqual(check_continuity(["2026-07"]), [])
+
+    def test_no_months_report_nothing(self):
+        self.assertEqual(check_continuity([]), [])
+
+    def test_a_skipped_month_is_an_error(self):
+        findings = check_continuity(["2026-05", "2026-07"])
+        self.assertEqual(codes(findings), ["ledger-gap"])
+        self.assertEqual(severity_of(findings, "ledger-gap"), "error")
+        self.assertEqual(findings[0].period, "2026-06")
+
+    def test_every_missing_month_is_reported_separately(self):
+        # One finding per month, so closing three of four does not look like
+        # closing all of them.
+        findings = check_continuity(["2026-01", "2026-05"])
+        self.assertEqual([f.period for f in findings], ["2026-02", "2026-03", "2026-04"])
+
+    def test_a_gap_is_found_across_a_year_boundary(self):
+        findings = check_continuity(["2025-11", "2026-02"])
+        self.assertEqual([f.period for f in findings], ["2025-12", "2026-01"])
+
+    def test_order_on_disk_does_not_matter(self):
+        self.assertEqual([f.period for f in check_continuity(["2026-07", "2026-05"])], ["2026-06"])
+
+    def test_months_before_the_ledger_existed_are_not_reported(self):
+        # The span is bounded by the recorded months, so the repository being
+        # older than its ledger is not a gap. Backfilling is forbidden by the
+        # ledger README and the figures were never captured.
+        self.assertEqual(check_continuity(["2026-07", "2026-08"]), [])
+
+    def test_freshness_alone_never_sees_an_interior_gap(self):
+        # The defect this check was added for: check_freshness reads only the
+        # newest period, so a ledger missing five months in the middle looks
+        # perfectly current to it.
+        periods = ["2026-05", "2026-11"]
+        self.assertEqual(check_freshness(periods, today=date(2026, 12, 1)), [])
+        self.assertEqual(len(check_continuity(periods)), 5)
+
+    def test_shift_month_wraps_the_year_and_rejects_nonsense(self):
+        self.assertEqual(shift_month("2026-11", 3), "2027-02")
+        self.assertEqual(shift_month("2026-01", 0), "2026-01")
+        self.assertEqual(shift_month("2026-12", 1), "2027-01")
+        self.assertIsNone(shift_month("nonsense", 1))
 
 
 class LedgerTreeTest(unittest.TestCase):
@@ -392,6 +454,25 @@ class LedgerTreeTest(unittest.TestCase):
             self.write_ledger(root, "2026-07.yaml", "period: 2026-07\nentries: []\n")
             findings = validate_all(root, today=date(2026, 8, 1))
             self.assertIn("empty-period", codes(findings))
+
+    def test_a_skipped_month_fails_the_whole_tree(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self.make_root(tmp)
+            for period in ("2026-05", "2026-07"):
+                self.write_ledger(
+                    root,
+                    f"{period}.yaml",
+                    f"period: {period}\n"
+                    "entries:\n"
+                    "  - venture: demo\n"
+                    "    agent_spend_usd: 12.5\n"
+                    "    outcomes:\n"
+                    "      - Shipped.\n"
+                    "    mrr_end: 0\n",
+                )
+            findings = validate_all(root, today=date(2026, 8, 1))
+            self.assertIn("ledger-gap", codes(findings))
+            self.assertEqual(severity_of(findings, "ledger-gap"), "error")
 
     def test_well_formed_tree_is_clean(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -487,9 +568,28 @@ class LiveLedgerTest(unittest.TestCase):
         # Deliberately asserts on errors only. The live ledger carries a known
         # advisory finding (2026-07 spend is an even split), and pinning the
         # warning set here would make recording a real month fail the suite.
+        #
+        # `stale-ledger` is excluded because it is the one finding whose result
+        # depends on today's date, and it is enforced where a deadline belongs:
+        # the "Portfolio Ledger Validation" gate in scripts/test-ci.sh, which
+        # runs the validator and fails on any error. Asserting it here too would
+        # turn the unit suite red on a schedule, and the likely repair to a
+        # calendar-flaky test is to widen STALE_LEDGER_MONTHS — which is exactly
+        # the quiet erosion the check exists to prevent. The teeth stay in one
+        # labelled place.
         findings = validate_all(find_repo_root())
-        errors = [f for f in findings if f.severity == "error"]
+        errors = [
+            f for f in findings if f.severity == "error" and f.code != "stale-ledger"
+        ]
         self.assertEqual(errors, [], f"Ledger has structural errors: {codes(errors)}")
+
+    def test_live_ledger_has_no_skipped_months(self):
+        # Deterministic, unlike staleness: this asserts the recorded span is
+        # contiguous, which no passage of time can change.
+        findings = [f for f in validate_all(find_repo_root()) if f.code == "ledger-gap"]
+        self.assertEqual(
+            findings, [], f"Ledger skips {[f.period for f in findings]}"
+        )
 
 
 if __name__ == "__main__":
