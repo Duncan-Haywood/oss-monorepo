@@ -24,5 +24,11 @@ kill_criteria:
   - Fewer than 5 agent shoots booked after 30 days of active concierge outreach.
 
 links:
-  production: https://listing-lens-docs.pages.dev
+  # Was https://listing-lens-docs.pages.dev until 2026-08-02. That host answers,
+  # but it serves internal documentation — its own description says "Private
+  # documentation for Listing Lens" — not a surface a customer uses. Declaring
+  # it as production made the venture look shipped and made the homepage look
+  # like it was withholding a live product. The docs stay where they are; this
+  # field means the customer-facing surface, and there is not one yet.
+  production: null
   analytics: null

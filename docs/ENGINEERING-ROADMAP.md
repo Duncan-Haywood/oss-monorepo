@@ -763,6 +763,39 @@ evidence, and completion date before it can be marked done.
   never. 36 tests, mutation-checked twelve ways including restoring the original
   dead-variable defect; enforced by the existing "Venture Contract Validation"
   gate, verified to fail on an unregistered criterion and on a typo'd metric.
+  Prerequisite measured 2026-08-02, owner duncan: there is almost nothing to
+  measure yet, and the metadata said otherwise. Three of eleven ventures
+  declared a `links.production`; resolving all three found that one is real
+  (`pairwise.marisstella.dev`), one was NXDOMAIN and had never been reachable
+  (`retail-pilot-intel`), and one answers 200 but serves internal documentation
+  behind Cloudflare Access rather than a customer surface
+  (`real-estate-agent-photo-app`). Both false ones are now null with the reason
+  recorded in place. So **one** venture in the portfolio has a production
+  surface, against eleven the allocation report funds — a measurement plan for
+  the other ten would be measuring nothing. Nothing checked this: `links` was
+  free text no test resolved or compared to anything.
+- [ ] Make the studio's public surface reflect the portfolio behind it.
+  Started 2026-08-02, owner duncan. `marisstella.dev` is the only live,
+  public, revenue-facing page in the repository — the top of funnel for every
+  venture — and it had no contact route at all: no address, no form, no "work
+  with us". A visitor who read all six venture briefs and wanted to buy or hire
+  had to leave to find out how. Three routes now exist (header, closing
+  section, footer), using the address the repository already publishes and
+  tests as the studio's commercial contact on the AI Engineering Academy
+  pricing page. Two dead controls went with it: the brand logo was `href="#"`,
+  and the footer listed two ventures as links to this page's own `#ventures`
+  anchor, beside the one real product link and indistinguishable from it.
+  `portfolio/marisstella-homepage/test/shopfront-contract.test.mjs` is the
+  generalizable half: it reads `ventures/*/VENTURE.yaml` and fails when a
+  venture declares a production URL the homepage does not link, when the page
+  advertises a destination no venture declares, when an anchor has an empty
+  href, when no deliverable contact address is present, and when the footer
+  offers a venture as a link that only scrolls the page. Mutation-checked seven
+  ways. Not done: the contract proves a link is *present*, not that it
+  *resolves* — the NXDOMAIN and private-docs findings above came from resolving
+  the URLs by hand, and nothing does that on a schedule. The nav is also hidden
+  below 760px with no menu replacing it, so of the three contact routes only
+  the two below the fold survive on mobile.
 - [ ] Create governed event schemas and automated data-quality tests for
   validity, completeness, uniqueness, freshness, lineage, and deletion.
 - [ ] Add accessible, optional contextual feedback, customer-effort/CSAT where

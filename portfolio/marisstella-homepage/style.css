@@ -397,6 +397,7 @@ a:focus-visible, button:focus-visible {
 }
 .closing-action p { margin-bottom: 24px; color: var(--ink-soft); font-size: 14px; }
 .closing-action .btn { width: 100%; justify-content: space-between; }
+.closing-buttons { display: flex; flex-direction: column; gap: 10px; }
 
 .site-footer { padding: 58px 0; border-top: 1px solid var(--line); background: #050c17; }
 .footer-container { display: flex; justify-content: space-between; gap: 60px; }
@@ -409,6 +410,10 @@ a:focus-visible, button:focus-visible {
 .footer-col h4 { margin-bottom: 7px; color: var(--ink-muted); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
 .footer-col a { color: var(--ink-soft); font-size: 12px; text-decoration: none; }
 .footer-col a:hover { color: var(--lime); }
+/* Ventures with no customer-facing surface yet: named, deliberately not links,
+   and visibly distinct from the ones beside them that do open something. */
+.footer-pending { color: var(--ink-muted); font-size: 12px; }
+.footer-pending em { font-style: normal; opacity: .75; }
 
 .modal {
   display: none;

@@ -25,11 +25,13 @@ kill_criteria:
   - CAC exceeds €300 per store location.
 
 links:
-  # Was https://retail-pilot-intel.pages.dev, which resolves nowhere: the name
-  # follows the Cloudflare Pages convention while `.github/workflows/deploy-docs.yml`
-  # publishes to GitHub Pages, and that workflow sits in a venture subdirectory
-  # of a Gitea repository, so it has never run. There is no deployed docs site to
-  # point at yet. Set this once one exists — the validator requires the hostname
-  # to be named by a workflow, deploy script, or infrastructure config.
+  # Was https://retail-pilot-intel.pages.dev until 2026-08-02. That host is
+  # NXDOMAIN, so the venture was declaring a production surface that has never
+  # been reachable: the name follows the Cloudflare Pages convention while
+  # `.github/workflows/deploy-docs.yml` publishes to GitHub Pages, and that
+  # workflow sits in a venture subdirectory of a Gitea repository, so it has
+  # never run. There is no deployed docs site to point at yet. Restore this only
+  # with a URL that answers — the validator requires the hostname to be named by
+  # a workflow, deploy script, or infrastructure config.
   production: null
   analytics: null
