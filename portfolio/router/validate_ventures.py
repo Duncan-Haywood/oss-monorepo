@@ -446,54 +446,61 @@ def validate_venture(
 
 
 def validate_kill_criteria(root: Path) -> List[Finding]:
-    """Every declared kill criterion either evaluates or is registered.
+    """Surface every kill criterion that has actually fired.
 
     `budget.protected` above demands kill criteria on the grounds that without
     them "there is no condition under which it stops" — but until 2026-08-03 a
     line of prose satisfied that check while `allocate.py` read the criteria
     into an unused variable. Declaring a criterion and evaluating one were
-    entirely unrelated acts. This closes the join.
+    entirely unrelated acts. This closes the join: a criterion that fires is
+    reported here, next to the contract that demanded it, rather than only
+    inside an allocation report nobody opens.
+
+    How many ventures have no evaluable criterion at all is a portfolio-level
+    number rather than a per-venture one, and is held by
+    `scripts/ci/kill_criteria_ratchet.py` against
+    `platform/kill-criteria-baseline.yaml`. It is deliberately not duplicated
+    here — two gates counting the same thing drift apart.
     """
     findings: List[Finding] = []
-    ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(root)
 
-    results = []
+    periods: List[Dict[str, Any]] = []
+    ledger_dir = root / "portfolio" / "ledger"
+    if ledger_dir.exists():
+        for ledger_file in sorted(ledger_dir.glob("*.yaml")):
+            try:
+                data = yaml.safe_load(ledger_file.read_text(encoding="utf-8")) or {}
+            except yaml.YAMLError:
+                continue  # reported by the ledger validator, which owns that check
+            if isinstance(data, dict):
+                periods.append(data)
+    facts = kill_criteria.build_ledger_facts(periods)
+
     for venture_file in sorted((root / "ventures").glob("*/VENTURE.yaml")):
         try:
             with open(venture_file, "r", encoding="utf-8") as handle:
                 data = yaml.safe_load(handle) or {}
         except yaml.YAMLError:
             continue  # already reported as unparseable-contract
-        results.extend(
-            kill_criteria.evaluate_venture(
-                data, venture_file.parent.name, ledger_rows, ledger_present
-            )
-        )
 
-    for triggered in (r for r in results if r.outcome == kill_criteria.TRIGGERED):
-        findings.append(
-            Finding(
-                venture=triggered.venture,
-                severity="warn",
-                code="kill-criterion-triggered",
-                message=f"kill criterion fired: {triggered.text or triggered.criterion_id} — {triggered.reason}",
-                remedy=(
-                    "The allocator has zeroed this venture's budget. Wind it down, or "
-                    "change the criterion deliberately and record why."
-                ),
-            )
-        )
+        dir_name = venture_file.parent.name
+        venture_facts = facts.get(data.get("name")) or facts.get(dir_name)
 
-    for register_finding in kill_criteria.audit_register(results, kill_criteria.load_register(root)):
-        findings.append(
-            Finding(
-                venture="portfolio",
-                severity=register_finding.severity,
-                code=register_finding.code,
-                message=register_finding.message,
-                remedy=register_finding.remedy,
+        for result in kill_criteria.evaluate_venture(data, venture_facts):
+            if result.verdict != kill_criteria.TRIGGERED:
+                continue
+            findings.append(
+                Finding(
+                    venture=dir_name,
+                    severity="warn",
+                    code="kill-criterion-triggered",
+                    message=f"kill criterion fired: {result.description} — {result.detail}",
+                    remedy=(
+                        "The allocator has zeroed this venture's budget. Wind it down, or "
+                        "change the criterion deliberately and record why."
+                    ),
+                )
             )
-        )
 
     return findings
 

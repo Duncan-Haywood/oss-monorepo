@@ -34,43 +34,29 @@ budget:
   # measured return is zero, otherwise the router starves everything new.
   protected: true
 
-# Dates that start a clock. A criterion saying "60 days post-launch" needs one
-# of these, or it can never fire however the venture performs. Null means the
-# event has not happened; `days_since:<name>` then reads NOT_MEASURABLE rather
-# than quietly passing.
-anchors:
-  launched: null
-  outreach_started: null
-
-# Stop conditions. When one trips, `portfolio/router/allocate.py` zeroes the
-# allocation and flags it.
+# Stop conditions. When one trips, the router stops allocating and flags it.
+# The conditions under which the portfolio stops funding this venture.
 #
-# A criterion is evaluated by `portfolio/router/kill_criteria.py` only if it
-# declares `when` conditions. A plain string is accepted, but nothing can
-# evaluate it, so it must be parked in `portfolio/kill-criteria-register.yaml`
-# with the signal it needs, an owner and an expiry — the gate fails otherwise.
-# Prefer the structured form:
+# A criterion written as prose states intent but cannot be evaluated, and
+# `scripts/ci/kill_criteria_ratchet.py` counts a venture whose criteria are all
+# prose as having no stopping rule at all. Declare at least one against a metric.
+#
+# Metrics are read from portfolio/ledger/*.yaml and the vocabulary is fixed in
+# portfolio/router/kill_criteria.py: cumulative_agent_spend_usd,
+# cumulative_revenue_usd, months_recorded, latest_mrr_usd,
+# consecutive_months_zero_mrr. An unrecognised name is unevaluable, not a pass.
 kill_criteria:
-  - id: no-paying-customer-post-launch
-    description: No paying customer 90 days after launch.
+  - No paying customer after 90 days post-launch.
+  - description: >-
+      Spend passed the point where this venture has to show revenue, and the
+      ledger records none.
     when:
-      - metric: days_since:launched
-        op: ">="
-        value: 90
-      - metric: mrr
-        op: "=="
-        value: 0
-
-  # Metrics available today: mrr, customers, monthly_cost,
-  # cumulative_agent_spend_usd, months_recorded,
-  # consecutive_months_negative_net, and days_since:<anchor>. A metric outside
-  # that set fails as a broken rule rather than becoming a registered gap.
-  - id: sustained-negative-unit-economics
-    description: Cost exceeded revenue for 3 consecutive recorded months.
-    when:
-      - metric: consecutive_months_negative_net
-        op: ">="
-        value: 3
+      - metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 150
+      - metric: cumulative_revenue_usd
+        comparator: "=="
+        threshold: 0
 
 links:
   production: null

@@ -1,616 +1,332 @@
 #!/usr/bin/env python3
-"""
-Kill-criteria evaluator.
+"""Evaluation of the `kill_criteria` declared in `ventures/*/VENTURE.yaml`.
 
-`portfolio/router/validate_ventures.py` makes a protected venture declare
-`kill_criteria`, on the stated grounds that "without kill criteria there is no
-condition under which it stops". `portfolio/router/allocate.py` then read those
-criteria into a local named `kill_rules` and never referenced the variable
-again. Every one of the fifteen criteria across the eleven ventures was prose
-that nothing evaluated, guarded by a test named `test_kill_criteria_evaluation`
-that only exercised the `winding-down` stage flag. The portfolio's entire
-automated stop-loss was a field a human sets by hand after already deciding to
-stop.
+Until this module existed, `portfolio/router/allocate.py` read `kill_criteria`
+into a local named `kill_rules` and never looked at it again. The two rules that
+did run were hardcoded — `stage == "winding-down"`, and a zero MRR in the
+`revenue`/`scaling` stages — and every venture in the portfolio is `prototype`,
+so neither could fire. `killed_count` was therefore zero by construction, and
+the sixteen declared criteria were prose that nothing read.
 
-This module makes a criterion something that either evaluates or is registered
-as unevaluable, and never quietly does neither.
+The important design decision here is the third verdict. A criterion that cannot
+be measured must not report the same thing as a criterion that was measured and
+did not fire. Silently treating "no data" as "keep funding it" is what made the
+old behaviour look reasonable: a venture with no stopping rule and a venture
+comfortably inside its stopping rule both came back `active`. So evaluation
+returns one of:
 
-Three outcomes, never two
--------------------------
+    triggered     the condition held against recorded data
+    not-triggered the condition was measured and did not hold
+    unevaluable   there is no basis to measure it at all
 
-A criterion resolves to TRIGGERED, NOT_TRIGGERED, or NOT_MEASURABLE. The third
-is not a pass. `scripts/ci/release_lag.py` reports a shallow CI clone as its own
-state for the same reason: when the data needed to answer a question is absent,
-"the condition did not fire" is trivially true and completely uninformative.
-Conditions combine under Kleene AND — one FALSE means NOT_TRIGGERED, but any
-UNKNOWN among the rest means NOT_MEASURABLE, so a missing measurement can never
-be silently read as evidence that a venture is healthy.
+`unevaluable` is the state that costs money, because a venture whose criteria
+are all unevaluable is a venture drawing budget with no rule that can ever stop
+it. `scripts/ci/kill_criteria_ratchet.py` counts those ventures and refuses to
+let the count grow.
 
-Metrics resolve to a value or to None, and None means unknown. In particular a
-venture with no ledger rows at all has unknown spend, not zero spend:
-`portfolio/ledger/README.md` records that reading an absent figure as `0.0`
-earns the *maximum* explore credit, which is the exact bug that makes omitting
-a cost pay better than recording it. This module does not repeat it.
+Metrics come only from `portfolio/ledger/*.yaml`, which is recorded history, and
+the vocabulary is fixed in this file rather than in YAML. A venture cannot
+invent a metric that happens to be flattering; an unrecognised name is
+`unevaluable`, not a pass.
 
-Criterion forms
----------------
-
-A plain string is accepted and is always NOT_MEASURABLE — the eleven ventures
-were written that way and rewriting a venture's stated policy is the owner's
-call, not this module's. A structured criterion is evaluated::
+Criterion forms accepted in `VENTURE.yaml`:
 
     kill_criteria:
-      - id: burn-without-revenue
-        description: $150 of recorded agent spend with revenue measured at zero.
+      - Fewer than 50 active learners after 60 days.        # prose, unevaluable
+
+      - description: Spend passed the cap with no revenue.  # single condition
+        metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 150
+
+      - description: Spend passed the cap with no revenue.  # all must hold
         when:
-          - metric: cumulative_agent_spend_usd
-            op: ">="
-            value: 150
-          - metric: mrr
-            op: "=="
-            value: 0
+          - {metric: cumulative_agent_spend_usd, comparator: ">=", threshold: 150}
+          - {metric: cumulative_revenue_usd, comparator: "==", threshold: 0}
 
-Every criterion that does not evaluate must appear in
-`portfolio/kill-criteria-register.yaml` with an owner, the specific missing
-signal, and an expiry — the shape `platform/exception-register.yaml` uses. The
-register carries an exact `unmeasurable_count` that fails both when new prose
-slips in and when the register goes stale, so "this portfolio has no stop-loss"
-is a dated, reviewed admission rather than fifteen lines of confident text.
-
-Nothing here spends, stops, or refunds anything on its own. It reports, and
-`allocate.py` zeroes the allocation of a venture whose criterion actually fired.
+Prose is deliberately still valid. Rejecting it would have deleted the portfolio's
+stated intent in exchange for a green number, and the intent is the part worth
+keeping — it is what a structured criterion should eventually be derived from.
 """
 
 from __future__ import annotations
 
-import datetime as _datetime
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
-import yaml
+TRIGGERED = "triggered"
+NOT_TRIGGERED = "not-triggered"
+UNEVALUABLE = "unevaluable"
 
-TRIGGERED = "TRIGGERED"
-NOT_TRIGGERED = "NOT_TRIGGERED"
-NOT_MEASURABLE = "NOT_MEASURABLE"
-
-# An unmeasurable criterion may be parked for at most this long. A stop-loss
-# nobody re-reads is a decision to keep spending, made without review.
-MAX_REGISTER_EXPIRY_DAYS = 180
-
-REGISTER_PATH = Path("portfolio") / "kill-criteria-register.yaml"
-
-_OPERATORS: Dict[str, Callable[[float, float], bool]] = {
-    "<": lambda a, b: a < b,
-    "<=": lambda a, b: a <= b,
-    ">": lambda a, b: a > b,
-    ">=": lambda a, b: a >= b,
-    "==": lambda a, b: a == b,
-    "!=": lambda a, b: a != b,
-}
-
-# Metrics this repository can actually source today. A criterion naming
-# anything else is a typo or an aspiration, and either way it must not evaluate
-# to "not triggered".
-KNOWN_METRICS = (
-    "mrr",
-    "customers",
-    "monthly_cost",
-    "cumulative_agent_spend_usd",
-    "months_recorded",
-    "consecutive_months_negative_net",
-)
-
-# `days_since:<anchor>` reads `anchors.<anchor>` from the venture contract.
-DAYS_SINCE_PREFIX = "days_since:"
+# Why a criterion could not be measured. These are distinct because they need
+# different repairs: `prose-only` needs the criterion expressed as a metric,
+# `no-ledger-history` needs the venture's spend recorded, and `unknown-metric`
+# is a typo or an invented name.
+REASON_PROSE_ONLY = "prose-only"
+REASON_UNKNOWN_METRIC = "unknown-metric"
+REASON_MALFORMED = "malformed"
+REASON_NO_LEDGER_HISTORY = "no-ledger-history"
+REASON_METRIC_UNRECORDED = "metric-unrecorded"
 
 
 @dataclass
-class ConditionResult:
-    metric: str
-    op: str
-    value: Any
-    observed: Any
-    # True / False / None, where None is "unknown".
-    holds: Optional[bool]
-    note: str = ""
-    # A broken rule (typo'd metric, bad operator) rather than a missing signal.
-    malformed: bool = False
+class LedgerFacts:
+    """What `portfolio/ledger/*.yaml` records about one venture.
+
+    `has_history` is false when the venture appears in no ledger month at all.
+    That is different from a venture recorded as having spent nothing, and the
+    difference decides whether its criteria are measurable.
+    """
+
+    venture: str
+    has_history: bool = False
+    months_recorded: int = 0
+    cumulative_agent_spend_usd: float = 0.0
+    cumulative_revenue_usd: float = 0.0
+    latest_mrr_usd: Optional[float] = None
+    consecutive_months_zero_mrr: int = 0
+    periods: List[str] = field(default_factory=list)
+
+
+# The whole measurable vocabulary. Each entry maps a metric name to the reader
+# that pulls it off LedgerFacts. A reader returning None means "the ledger does
+# not record this yet", which is `metric-unrecorded` rather than a pass.
+METRIC_READERS: Dict[str, Callable[[LedgerFacts], Optional[float]]] = {
+    "cumulative_agent_spend_usd": lambda f: f.cumulative_agent_spend_usd,
+    "cumulative_revenue_usd": lambda f: f.cumulative_revenue_usd,
+    "months_recorded": lambda f: float(f.months_recorded),
+    "latest_mrr_usd": lambda f: f.latest_mrr_usd,
+    "consecutive_months_zero_mrr": lambda f: float(f.consecutive_months_zero_mrr),
+}
+
+COMPARATORS: Dict[str, Callable[[float, float], bool]] = {
+    ">=": lambda a, b: a >= b,
+    ">": lambda a, b: a > b,
+    "<=": lambda a, b: a <= b,
+    "<": lambda a, b: a < b,
+    "==": lambda a, b: a == b,
+}
 
 
 @dataclass
 class CriterionResult:
-    venture: str
-    criterion_id: str
-    text: str
-    outcome: str
-    conditions: List[ConditionResult] = field(default_factory=list)
+    """One criterion's verdict, carrying enough to explain itself in a report."""
+
+    description: str
+    verdict: str
     reason: str = ""
-    # Malformed criteria are NOT_MEASURABLE too, but they are not parkable:
-    # the register exists for signals nobody collects yet, not for rules that
-    # are simply wrong. A typo must fail, not become a registered gap.
-    malformed: bool = False
+    detail: str = ""
 
     @property
-    def is_prose(self) -> bool:
-        return not self.conditions and self.outcome == NOT_MEASURABLE and not self.malformed
+    def evaluable(self) -> bool:
+        return self.verdict != UNEVALUABLE
 
 
-class MetricResolver:
-    """Resolves a metric name to a number, or to None meaning 'unknown'.
+def build_ledger_facts(ledger_periods: List[Dict[str, Any]]) -> Dict[str, LedgerFacts]:
+    """Fold every ledger month into per-venture facts.
 
-    Every resolver distinguishes "measured, and the answer is zero" from "not
-    measured". Collapsing those two is how a portfolio convinces itself that
-    silence is good news.
+    `ledger_periods` is the parsed contents of `portfolio/ledger/*.yaml`. Months
+    are ordered by their `period` field, which is `YYYY-MM` and so sorts
+    correctly as a string; `consecutive_months_zero_mrr` counts backwards from
+    the newest month and stops at the first month that is not a recorded zero,
+    so an unrecorded `mrr_end` breaks the run rather than extending it.
     """
+    ordered = sorted(
+        [p for p in ledger_periods if isinstance(p, dict)],
+        key=lambda p: str(p.get("period", "")),
+    )
 
-    def __init__(
-        self,
-        venture: Dict[str, Any],
-        ledger_rows: List[Dict[str, Any]],
-        ledger_present: bool,
-        today: Optional[_datetime.date] = None,
-    ) -> None:
-        self.venture = venture
-        # Ledger rows for this venture only, ordered oldest period first.
-        self.ledger_rows = ledger_rows
-        self.ledger_present = ledger_present
-        self.today = today or _datetime.date.today()
+    facts: Dict[str, LedgerFacts] = {}
+    per_venture_months: Dict[str, List[Optional[float]]] = {}
 
-    # -- individual metrics -------------------------------------------------
+    for period in ordered:
+        period_name = str(period.get("period", ""))
+        for entry in period.get("entries") or []:
+            if not isinstance(entry, dict):
+                continue
+            name = entry.get("venture")
+            if not name:
+                continue
 
-    def _economics(self) -> Dict[str, Any]:
-        return self.venture.get("economics") or {}
+            f = facts.setdefault(name, LedgerFacts(venture=name))
+            f.has_history = True
+            f.months_recorded += 1
+            f.periods.append(period_name)
 
-    def _mrr(self) -> Optional[float]:
-        declared = self._economics().get("mrr")
-        if declared is not None:
-            return float(declared)
-        # Fall back to the most recently recorded ledger figure.
-        for row in reversed(self.ledger_rows):
-            if row.get("mrr_end") is not None:
-                return float(row["mrr_end"])
-        return None
+            try:
+                f.cumulative_agent_spend_usd = round(
+                    f.cumulative_agent_spend_usd + float(entry.get("agent_spend_usd") or 0.0), 2
+                )
+            except (TypeError, ValueError):
+                pass
 
-    def _customers(self) -> Optional[float]:
-        value = self._economics().get("customers")
-        return None if value is None else float(value)
+            mrr_raw = entry.get("mrr_end")
+            mrr: Optional[float]
+            try:
+                mrr = None if mrr_raw is None else float(mrr_raw)
+            except (TypeError, ValueError):
+                mrr = None
 
-    def _monthly_cost(self) -> Optional[float]:
-        value = self._economics().get("monthly_cost")
-        return None if value is None else float(value)
+            if mrr is not None:
+                f.cumulative_revenue_usd = round(f.cumulative_revenue_usd + mrr, 2)
+                f.latest_mrr_usd = mrr
 
-    def _cumulative_agent_spend(self) -> Optional[float]:
-        if not self.ledger_present or not self.ledger_rows:
-            # No rows is not zero spend. See portfolio/ledger/README.md.
-            return None
-        total = 0.0
-        for row in self.ledger_rows:
-            spend = row.get("agent_spend_usd")
-            if spend is None:
-                return None
-            total += float(spend)
-        return round(total, 2)
+            per_venture_months.setdefault(name, []).append(mrr)
 
-    def _months_recorded(self) -> Optional[float]:
-        if not self.ledger_present:
-            return None
-        return float(len(self.ledger_rows))
-
-    def _consecutive_months_negative_net(self) -> Optional[float]:
-        """Trailing run of recorded months where `mrr_end - agent_spend_usd < 0`.
-
-        Returns None when any month in the trailing run is missing either
-        figure — a run computed over a month with no revenue recorded is not a
-        shorter run, it is an unknown one.
-        """
-        if not self.ledger_present or not self.ledger_rows:
-            return None
+    for name, months in per_venture_months.items():
         run = 0
-        for row in reversed(self.ledger_rows):
-            mrr_end = row.get("mrr_end")
-            spend = row.get("agent_spend_usd")
-            if mrr_end is None or spend is None:
-                return None
-            if float(mrr_end) - float(spend) < 0:
+        for mrr in reversed(months):
+            if mrr == 0:
                 run += 1
             else:
                 break
-        return float(run)
+        facts[name].consecutive_months_zero_mrr = run
 
-    def _days_since(self, anchor: str) -> Tuple[Optional[float], str]:
-        anchors = self.venture.get("anchors") or {}
-        if anchor not in anchors:
-            return None, f"no `anchors.{anchor}` recorded in the venture contract"
-        raw = anchors.get(anchor)
-        if raw is None:
-            return None, f"`anchors.{anchor}` is null — the event has not happened, or was never recorded"
-        if isinstance(raw, _datetime.datetime):
-            parsed = raw.date()
-        elif isinstance(raw, _datetime.date):
-            parsed = raw
-        else:
-            try:
-                parsed = _datetime.date.fromisoformat(str(raw))
-            except ValueError:
-                return None, f"`anchors.{anchor}` is not an ISO date: {raw!r}"
-        return float((self.today - parsed).days), ""
-
-    # -- dispatch -----------------------------------------------------------
-
-    def resolve(self, metric: str) -> Tuple[Optional[float], str]:
-        if metric.startswith(DAYS_SINCE_PREFIX):
-            return self._days_since(metric[len(DAYS_SINCE_PREFIX):])
-
-        if metric == "mrr":
-            value = self._mrr()
-            return value, "" if value is not None else "economics.mrr is null and no ledger mrr_end is recorded"
-        if metric == "customers":
-            value = self._customers()
-            return value, "" if value is not None else "economics.customers is null"
-        if metric == "monthly_cost":
-            value = self._monthly_cost()
-            return value, "" if value is not None else "economics.monthly_cost is null"
-        if metric == "cumulative_agent_spend_usd":
-            value = self._cumulative_agent_spend()
-            return value, "" if value is not None else "no ledger row records spend for this venture"
-        if metric == "months_recorded":
-            value = self._months_recorded()
-            return value, "" if value is not None else "no ledger is present"
-        if metric == "consecutive_months_negative_net":
-            value = self._consecutive_months_negative_net()
-            return value, "" if value is not None else "a month in the trailing run records no mrr_end or no spend"
-
-        return None, f"unknown metric '{metric}' — this repository sources none such"
+    return facts
 
 
-def _evaluate_condition(condition: Dict[str, Any], resolver: MetricResolver) -> ConditionResult:
-    metric = str(condition.get("metric", "")).strip()
-    op = str(condition.get("op", "")).strip()
-    value = condition.get("value")
+def _normalise_conditions(criterion: Any) -> Optional[List[Dict[str, Any]]]:
+    """Return the criterion's conditions, or None if it declares none.
 
-    if not metric:
-        return ConditionResult(metric, op, value, None, None, "condition declares no metric", malformed=True)
-    if op not in _OPERATORS:
-        return ConditionResult(metric, op, value, None, None, f"unknown operator '{op}'", malformed=True)
-    if not isinstance(value, (int, float)) or isinstance(value, bool):
-        return ConditionResult(metric, op, value, None, None, "condition value is not a number", malformed=True)
-
-    is_anchor = metric.startswith(DAYS_SINCE_PREFIX)
-    if not is_anchor and metric not in KNOWN_METRICS:
-        return ConditionResult(
-            metric,
-            op,
-            value,
-            None,
-            None,
-            f"unknown metric '{metric}' — this repository sources none such",
-            malformed=True,
-        )
-    if is_anchor and not metric[len(DAYS_SINCE_PREFIX):].strip():
-        return ConditionResult(metric, op, value, None, None, "`days_since:` names no anchor", malformed=True)
-
-    observed, note = resolver.resolve(metric)
-    if observed is None:
-        # An anchor that is present but not a date is a broken rule; an anchor
-        # that is absent or null is a missing signal.
-        malformed = "not an ISO date" in note
-        return ConditionResult(metric, op, value, None, None, note, malformed=malformed)
-
-    return ConditionResult(metric, op, value, observed, _OPERATORS[op](observed, float(value)))
-
-
-def evaluate_criterion(
-    criterion: Any,
-    index: int,
-    venture_name: str,
-    resolver: MetricResolver,
-) -> CriterionResult:
-    """Evaluates one declared criterion under Kleene AND."""
+    None is the prose case. An empty list is a malformed `when:` — a criterion
+    that claims to be structured but states nothing, which must not read as a
+    satisfied rule.
+    """
     if isinstance(criterion, str):
-        return CriterionResult(
-            venture=venture_name,
-            criterion_id=f"{venture_name}[{index}]",
-            text=criterion.strip(),
-            outcome=NOT_MEASURABLE,
-            reason="prose criterion: no machine-evaluable rule is declared",
-        )
-
+        return None
     if not isinstance(criterion, dict):
+        return None
+
+    when = criterion.get("when")
+    if isinstance(when, list):
+        return [c for c in when if isinstance(c, dict)] if when else []
+
+    if "metric" in criterion:
+        return [criterion]
+
+    return None
+
+
+def _describe(criterion: Any) -> str:
+    if isinstance(criterion, str):
+        return criterion
+    if isinstance(criterion, dict):
+        return str(criterion.get("description") or criterion.get("metric") or "(undescribed)")
+    return str(criterion)
+
+
+def evaluate_criterion(criterion: Any, facts: Optional[LedgerFacts]) -> CriterionResult:
+    """Evaluate one declared criterion against recorded ledger facts.
+
+    Every condition must hold for the criterion to trigger. A condition that
+    cannot be measured makes the whole criterion unevaluable rather than false:
+    "two of three conditions held and the third is unknown" is not a rule that
+    declined to fire.
+    """
+    description = _describe(criterion)
+    conditions = _normalise_conditions(criterion)
+
+    if conditions is None:
         return CriterionResult(
-            venture=venture_name,
-            criterion_id=f"{venture_name}[{index}]",
-            text=repr(criterion),
-            outcome=NOT_MEASURABLE,
-            reason="criterion is neither a string nor a mapping",
-            malformed=True,
+            description=description,
+            verdict=UNEVALUABLE,
+            reason=REASON_PROSE_ONLY,
+            detail="stated as prose, with no metric the allocator can read",
         )
 
-    criterion_id = str(criterion.get("id") or f"{venture_name}[{index}]")
-    text = str(criterion.get("description") or criterion.get("id") or "").strip()
-    conditions = criterion.get("when")
-
-    if not isinstance(conditions, list) or not conditions:
+    if not conditions:
         return CriterionResult(
-            venture=venture_name,
-            criterion_id=criterion_id,
-            text=text,
-            outcome=NOT_MEASURABLE,
-            reason="structured criterion declares no `when` conditions",
-            malformed=True,
+            description=description,
+            verdict=UNEVALUABLE,
+            reason=REASON_MALFORMED,
+            detail="declares `when:` but lists no conditions",
         )
 
-    results = [_evaluate_condition(c if isinstance(c, dict) else {}, resolver) for c in conditions]
-    malformed = [r for r in results if r.malformed]
+    if facts is None or not facts.has_history:
+        return CriterionResult(
+            description=description,
+            verdict=UNEVALUABLE,
+            reason=REASON_NO_LEDGER_HISTORY,
+            detail="the venture appears in no ledger month, so nothing can be measured against it",
+        )
 
-    if malformed:
-        # A criterion containing a broken rule cannot be trusted to report
-        # "not triggered" even when another condition is definitely false, so
-        # the breakage settles the outcome ahead of the Kleene logic below.
-        outcome = NOT_MEASURABLE
-        reason = "; ".join(f"{r.metric or '(no metric)'}: {r.note}" for r in malformed)
-    elif any(r.holds is False for r in results):
-        # Kleene AND: any definite False settles it as not triggered; otherwise
-        # any unknown leaves the whole criterion unmeasurable.
-        outcome, reason = NOT_TRIGGERED, ""
-    elif any(r.holds is None for r in results):
-        unknown = [r for r in results if r.holds is None]
-        outcome = NOT_MEASURABLE
-        reason = "; ".join(f"{r.metric}: {r.note}" for r in unknown)
-    else:
-        outcome = TRIGGERED
-        reason = ", ".join(f"{r.metric} {r.op} {r.value} (observed {r.observed})" for r in results)
+    details: List[str] = []
+    for condition in conditions:
+        metric = condition.get("metric")
+        comparator = condition.get("comparator")
+        threshold = condition.get("threshold")
+
+        reader = METRIC_READERS.get(str(metric))
+        if reader is None:
+            return CriterionResult(
+                description=description,
+                verdict=UNEVALUABLE,
+                reason=REASON_UNKNOWN_METRIC,
+                detail=(
+                    f"metric {metric!r} is not one of "
+                    f"{', '.join(sorted(METRIC_READERS))}"
+                ),
+            )
+
+        compare = COMPARATORS.get(str(comparator))
+        if compare is None:
+            return CriterionResult(
+                description=description,
+                verdict=UNEVALUABLE,
+                reason=REASON_MALFORMED,
+                detail=(
+                    f"comparator {comparator!r} is not one of "
+                    f"{', '.join(sorted(COMPARATORS))}"
+                ),
+            )
+
+        try:
+            threshold_value = float(threshold)
+        except (TypeError, ValueError):
+            return CriterionResult(
+                description=description,
+                verdict=UNEVALUABLE,
+                reason=REASON_MALFORMED,
+                detail=f"threshold {threshold!r} is not a number",
+            )
+
+        observed = reader(facts)
+        if observed is None:
+            return CriterionResult(
+                description=description,
+                verdict=UNEVALUABLE,
+                reason=REASON_METRIC_UNRECORDED,
+                detail=f"the ledger records no value for {metric}",
+            )
+
+        details.append(f"{metric}={observed:g} {comparator} {threshold_value:g}")
+        if not compare(observed, threshold_value):
+            return CriterionResult(
+                description=description,
+                verdict=NOT_TRIGGERED,
+                detail="; ".join(details),
+            )
 
     return CriterionResult(
-        venture=venture_name,
-        criterion_id=criterion_id,
-        text=text,
-        outcome=outcome,
-        conditions=results,
-        reason=reason,
-        malformed=bool(malformed),
+        description=description,
+        verdict=TRIGGERED,
+        detail="; ".join(details),
     )
-
-
-def ledger_rows_by_venture(repo_root: Path) -> Tuple[Dict[str, List[Dict[str, Any]]], bool]:
-    """Ledger entries grouped by venture, oldest period first.
-
-    The second return value is whether a ledger exists at all, which is the
-    difference between "this venture has recorded nothing" and "there is
-    nothing to read".
-    """
-    ledger_dir = repo_root / "portfolio" / "ledger"
-    if not ledger_dir.is_dir():
-        return {}, False
-
-    files = sorted(ledger_dir.glob("*.yaml"))
-    if not files:
-        return {}, False
-
-    rows: Dict[str, List[Dict[str, Any]]] = {}
-    for ledger_file in files:
-        try:
-            with open(ledger_file, "r", encoding="utf-8") as handle:
-                data = yaml.safe_load(handle) or {}
-        except yaml.YAMLError:
-            continue
-        for entry in data.get("entries", []) or []:
-            name = entry.get("venture")
-            if name:
-                rows.setdefault(name, []).append(entry)
-    return rows, True
 
 
 def evaluate_venture(
-    venture: Dict[str, Any],
-    venture_name: str,
-    ledger_rows: Dict[str, List[Dict[str, Any]]],
-    ledger_present: bool,
-    today: Optional[_datetime.date] = None,
+    venture: Dict[str, Any], facts: Optional[LedgerFacts] = None
 ) -> List[CriterionResult]:
-    resolver = MetricResolver(
-        venture=venture,
-        ledger_rows=ledger_rows.get(venture_name, []),
-        ledger_present=ledger_present,
-        today=today,
-    )
-    criteria = venture.get("kill_criteria") or []
-    return [
-        evaluate_criterion(criterion, index, venture_name, resolver)
-        for index, criterion in enumerate(criteria)
-    ]
+    """Evaluate every criterion a venture declares, in declaration order."""
+    return [evaluate_criterion(c, facts) for c in (venture.get("kill_criteria") or [])]
 
 
-# -- register -------------------------------------------------------------
+def has_stopping_rule(results: List[CriterionResult]) -> bool:
+    """True when at least one declared criterion could actually be measured.
 
-
-@dataclass
-class RegisterFinding:
-    severity: str  # "error" | "warn"
-    code: str
-    message: str
-    remedy: str
-
-
-def load_register(repo_root: Path) -> Optional[Dict[str, Any]]:
-    path = repo_root / REGISTER_PATH
-    if not path.is_file():
-        return None
-    with open(path, "r", encoding="utf-8") as handle:
-        return yaml.safe_load(handle) or {}
-
-
-def audit_register(
-    results: List[CriterionResult],
-    register: Optional[Dict[str, Any]],
-    today: Optional[_datetime.date] = None,
-) -> List[RegisterFinding]:
-    """Every unevaluable criterion must be registered, and the register must
-    not outlive or drift from what it covers."""
-    today = today or _datetime.date.today()
-    findings: List[RegisterFinding] = []
-
-    # A broken rule is a defect to fix, not a gap to park, so it is excluded
-    # from the registerable set and reported on its own.
-    for result in (r for r in results if r.malformed):
-        findings.append(
-            RegisterFinding(
-                severity="error",
-                code="malformed-criterion",
-                message=f"{result.venture} declares a criterion that cannot be parsed: {result.reason}",
-                remedy=(
-                    "Fix the rule. The register is for signals nobody collects yet, "
-                    f"not for rules that are wrong. Known metrics: {', '.join(KNOWN_METRICS)}, "
-                    f"or '{DAYS_SINCE_PREFIX}<anchor>'."
-                ),
-            )
-        )
-
-    unmeasurable = [r for r in results if r.outcome == NOT_MEASURABLE and not r.malformed]
-
-    if register is None:
-        if unmeasurable:
-            findings.append(
-                RegisterFinding(
-                    severity="error",
-                    code="missing-kill-criteria-register",
-                    message=(
-                        f"{len(unmeasurable)} kill criteria cannot be evaluated and "
-                        f"{REGISTER_PATH} does not exist"
-                    ),
-                    remedy=(
-                        "Create the register naming each unevaluable criterion, the "
-                        "signal it needs, an owner and an expiry."
-                    ),
-                )
-            )
-        return findings
-
-    gaps = register.get("gaps") or []
-    registered: Dict[Tuple[str, str], Dict[str, Any]] = {}
-
-    for gap in gaps:
-        if not isinstance(gap, dict):
-            findings.append(
-                RegisterFinding("error", "malformed-gap", "a register entry is not a mapping", "Fix the YAML.")
-            )
-            continue
-        key = (str(gap.get("venture", "")), str(gap.get("criterion", "")).strip())
-        if key in registered:
-            findings.append(
-                RegisterFinding(
-                    "error",
-                    "duplicate-gap",
-                    f"{key[0]} registers the same criterion twice: {key[1][:60]}",
-                    "Remove the duplicate; each criterion is claimed once.",
-                )
-            )
-        registered[key] = gap
-
-        for required in ("venture", "criterion", "owner", "issue", "missing_signal", "expires"):
-            if not gap.get(required):
-                findings.append(
-                    RegisterFinding(
-                        "error",
-                        "incomplete-gap",
-                        f"{key[0]} gap '{key[1][:50]}' has no `{required}`",
-                        "Every parked criterion needs an owner, issue, missing signal and expiry.",
-                    )
-                )
-
-        expires = gap.get("expires")
-        if expires:
-            expiry_date = expires if isinstance(expires, _datetime.date) else None
-            if expiry_date is None:
-                try:
-                    expiry_date = _datetime.date.fromisoformat(str(expires))
-                except ValueError:
-                    findings.append(
-                        RegisterFinding(
-                            "error",
-                            "unparseable-expiry",
-                            f"{key[0]}: `expires: {expires}` is not an ISO date",
-                            "Use YYYY-MM-DD.",
-                        )
-                    )
-                    expiry_date = None
-            if expiry_date is not None:
-                if expiry_date < today:
-                    findings.append(
-                        RegisterFinding(
-                            "error",
-                            "expired-gap",
-                            f"{key[0]}: the parked criterion expired on {expiry_date}",
-                            "Make it measurable, restate it, or re-review and re-date it.",
-                        )
-                    )
-                elif (expiry_date - today).days > MAX_REGISTER_EXPIRY_DAYS:
-                    findings.append(
-                        RegisterFinding(
-                            "error",
-                            "overlong-expiry",
-                            (
-                                f"{key[0]}: `expires: {expiry_date}` is more than "
-                                f"{MAX_REGISTER_EXPIRY_DAYS} days out"
-                            ),
-                            f"Cap it at {MAX_REGISTER_EXPIRY_DAYS} days; a stop-loss nobody re-reads is a decision to keep spending.",
-                        )
-                    )
-
-    # Unregistered: a criterion nothing can evaluate and nobody has admitted to.
-    for result in unmeasurable:
-        key = (result.venture, result.text)
-        if key not in registered:
-            findings.append(
-                RegisterFinding(
-                    "error",
-                    "unregistered-unmeasurable-criterion",
-                    f"{result.venture} declares a criterion nothing can evaluate: {result.text[:70]}",
-                    (
-                        f"Make it structured, or register it in {REGISTER_PATH} with the "
-                        f"signal it needs. Reason: {result.reason}"
-                    ),
-                )
-            )
-
-    # Stale: registered as unevaluable, but it evaluates now (or no longer exists).
-    live_keys = {(r.venture, r.text) for r in unmeasurable}
-    for key in registered:
-        if key not in live_keys:
-            findings.append(
-                RegisterFinding(
-                    "error",
-                    "stale-gap",
-                    f"{key[0]} registers a criterion that is no longer unevaluable: {key[1][:60]}",
-                    "Remove the entry and lower `unmeasurable_count`.",
-                )
-            )
-
-    declared_count = register.get("unmeasurable_count")
-    if declared_count is None:
-        findings.append(
-            RegisterFinding(
-                "error",
-                "missing-count",
-                "the register declares no `unmeasurable_count`",
-                "Declare the exact number; it ratchets in both directions.",
-            )
-        )
-    elif int(declared_count) != len(unmeasurable):
-        direction = "grew" if len(unmeasurable) > int(declared_count) else "shrank"
-        findings.append(
-            RegisterFinding(
-                "error",
-                "count-drift",
-                (
-                    f"`unmeasurable_count: {declared_count}` but {len(unmeasurable)} criteria "
-                    f"cannot be evaluated — the unevaluable surface {direction}"
-                ),
-                (
-                    "Raising it is a reviewed admission that another criterion went "
-                    "inert; lowering it is the reward for making one real."
-                ),
-            )
-        )
-
-    return findings
+    A venture without one has no rule that can ever stop its funding, however
+    many criteria it declares. `stage: winding-down` is deliberately not counted
+    here — it is a human deciding to stop, which is the outcome a stopping rule
+    is supposed to prompt, not a measurement that prompts it.
+    """
+    return any(r.evaluable for r in results)

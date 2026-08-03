@@ -128,6 +128,15 @@ run_ci_test "Coverage Baseline Ratchet" python3 "${REPO_ROOT}/scripts/ci/coverag
 # what Argo CD renders. `tests/test_image_tags.py` runs the same audit under
 # pytest, so this entry is the named gate rather than the only enforcement.
 run_ci_test "Container Image Tag Audit" python3 "${REPO_ROOT}/scripts/ci/image_tags.py"
+# Kill criteria are the portfolio's only declared spending brake, and
+# `portfolio/router/allocate.py` read them into a variable it never used. The
+# two rules that did run were hardcoded to stages no venture occupies, so
+# `killed_count` was zero by construction while the allocator moved $199.98 of a
+# $500 pool against zero recorded revenue. This counts the ventures with no
+# criterion the allocator can evaluate and fails when that grows.
+# `tests/test_kill_criteria_ratchet.py` runs the same audit under pytest, so this
+# entry is the named gate rather than the only enforcement.
+run_ci_test "Kill-Criteria Stopping Rule Ratchet" python3 "${REPO_ROOT}/scripts/ci/kill_criteria_ratchet.py"
 
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"

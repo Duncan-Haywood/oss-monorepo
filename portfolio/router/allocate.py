@@ -13,12 +13,26 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-try:
-    # Importable as a package (pytest sets `pythonpath`), and runnable as a
-    # script, which puts this directory on sys.path instead of the repo root.
-    from portfolio.router import kill_criteria
-except ImportError:
-    import kill_criteria
+try:  # runs both as `portfolio.router.allocate` under pytest and as a script
+    from portfolio.router.kill_criteria import (
+        TRIGGERED,
+        UNEVALUABLE,
+        CriterionResult,
+        LedgerFacts,
+        build_ledger_facts,
+        evaluate_venture,
+        has_stopping_rule,
+    )
+except ImportError:  # running as a script, not as portfolio.router.allocate
+    from kill_criteria import (
+        TRIGGERED,
+        UNEVALUABLE,
+        CriterionResult,
+        LedgerFacts,
+        build_ledger_facts,
+        evaluate_venture,
+        has_stopping_rule,
+    )
 
 
 class PortfolioRouter:
@@ -58,23 +72,18 @@ class PortfolioRouter:
         return ledger_entries
 
     def evaluate_kill_criteria(
-        self,
-        venture: Dict[str, Any],
-        ledger_rows: Optional[Dict[str, List[Dict[str, Any]]]] = None,
-        ledger_present: Optional[bool] = None,
-    ) -> Tuple[bool, List[str]]:
-        """Evaluates whether any kill criterion has fired.
+        self, venture: Dict[str, Any], facts: Optional[LedgerFacts] = None
+    ) -> Tuple[bool, List[str], List[CriterionResult]]:
+        """Evaluate the stage rules and every criterion the venture declares.
 
-        Until 2026-08-03 this method loaded the venture's declared criteria into
-        a local named `kill_rules` and never referenced it again, so the only
-        conditions that could ever stop a venture were the two stage/MRR rules
-        below — and with all eleven ventures at `prototype`, neither could fire.
-        The declared criteria are now actually evaluated, in
-        `portfolio/router/kill_criteria.py`.
+        This used to load `kill_criteria` into a local and then ignore it, so the
+        only rules that ran were the two stage checks below — neither of which
+        can fire while every venture is `prototype`. The declared criteria are
+        now evaluated for real, against recorded ledger history.
 
-        A criterion that cannot be evaluated does **not** count as a pass. It is
-        reported separately and must be registered in
-        `portfolio/kill-criteria-register.yaml`; see `evaluate_all_criteria`.
+        Returns the kill decision, the human-readable reasons behind it, and the
+        per-criterion verdicts, which the caller needs in order to report the
+        criteria that could not be measured at all.
         """
         triggered = []
         stage = venture.get("stage", "prototype")
@@ -89,28 +98,32 @@ class PortfolioRouter:
         if stage in ["revenue", "scaling"] and mrr == 0:
             triggered.append("MRR is 0 in revenue/scaling stage")
 
-        # The venture's own declared criteria, which used to be read and dropped.
-        if ledger_rows is None or ledger_present is None:
-            ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
+        results = evaluate_venture(venture, facts)
+        for result in results:
+            if result.verdict == TRIGGERED:
+                triggered.append(f"{result.description} ({result.detail})")
 
-        name = venture.get("dir_name") or venture.get("name") or ""
-        for result in kill_criteria.evaluate_venture(venture, name, ledger_rows, ledger_present):
-            if result.outcome == kill_criteria.TRIGGERED:
-                label = result.text or result.criterion_id
-                triggered.append(f"{label} ({result.reason})")
+        return (len(triggered) > 0, triggered, results)
 
-        return (len(triggered) > 0, triggered)
+    @staticmethod
+    def _criteria_summary(venture: Dict[str, Any]) -> Dict[str, Any]:
+        """The stopping-rule facts that belong on every work-queue row.
 
-    def evaluate_all_criteria(self) -> List[kill_criteria.CriterionResult]:
-        """Every declared criterion across every venture, with its outcome."""
-        ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
-        results: List[kill_criteria.CriterionResult] = []
-        for venture in self.load_ventures():
-            name = venture.get("dir_name") or venture.get("name") or ""
-            results.extend(
-                kill_criteria.evaluate_venture(venture, name, ledger_rows, ledger_present)
-            )
-        return results
+        Carried on killed and active rows alike. A reader of the queue needs to
+        tell a venture that is inside its stopping rule from one that has no
+        stopping rule to be inside of, and those looked identical before.
+        """
+        results: List[CriterionResult] = venture.get("criteria_results") or []
+        return {
+            "has_stopping_rule": bool(venture.get("has_stopping_rule")),
+            "criteria_declared": len(results),
+            "criteria_evaluable": sum(1 for r in results if r.evaluable),
+            "unevaluable_criteria": [
+                {"description": r.description, "reason": r.reason, "detail": r.detail}
+                for r in results
+                if r.verdict == UNEVALUABLE
+            ],
+        }
 
     def calculate_allocation(self, total_budget_usd: float = 500.0) -> Dict[str, Any]:
         ventures = self.load_ventures()
@@ -123,13 +136,15 @@ class PortfolioRouter:
         explore_ventures = []
         killed_ventures = []
 
-        # Read the ledger once rather than per venture.
-        ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(self.repo_root)
+        ledger_facts = build_ledger_facts(self.load_ledger())
 
         for v in ventures:
-            is_killed, reasons = self.evaluate_kill_criteria(v, ledger_rows, ledger_present)
+            facts = ledger_facts.get(v.get("name")) or ledger_facts.get(v.get("dir_name"))
+            is_killed, reasons, results = self.evaluate_kill_criteria(v, facts)
             v["is_killed"] = is_killed
             v["kill_reasons"] = reasons
+            v["criteria_results"] = results
+            v["has_stopping_rule"] = has_stopping_rule(results)
 
             if is_killed:
                 killed_ventures.append(v)
@@ -157,7 +172,8 @@ class PortfolioRouter:
                     "cap_usd": cap,
                     "mrr": (v.get("economics") or {}).get("mrr"),
                     "status": "active",
-                    "priority": 1 if (v.get("economics") or {}).get("mrr") else 2
+                    "priority": 1 if (v.get("economics") or {}).get("mrr") else 2,
+                    **self._criteria_summary(v),
                 })
 
         # Allocate explore ventures
@@ -177,7 +193,8 @@ class PortfolioRouter:
                     "mrr": (v.get("economics") or {}).get("mrr"),
                     "protected": is_protected,
                     "status": "active",
-                    "priority": 3
+                    "priority": 3,
+                    **self._criteria_summary(v),
                 })
 
         # Record killed ventures
@@ -191,7 +208,8 @@ class PortfolioRouter:
                 "mrr": (v.get("economics") or {}).get("mrr"),
                 "status": "killed",
                 "kill_reasons": v.get("kill_reasons"),
-                "priority": 99
+                "priority": 99,
+                **self._criteria_summary(v),
             })
 
         # Sort allocations by priority rank
@@ -203,6 +221,21 @@ class PortfolioRouter:
             "explore_pool_usd": explore_budget_pool,
             "active_count": len(mature_ventures) + len(explore_ventures),
             "killed_count": len(killed_ventures),
+            # The number this engine could not previously produce. A venture in
+            # here draws budget every month with no criterion that can ever stop
+            # it, which is the condition `scripts/ci/kill_criteria_ratchet.py`
+            # refuses to let grow.
+            "without_stopping_rule": sorted(
+                a["venture"] for a in allocations if not a.get("has_stopping_rule")
+            ),
+            "unfunded_by_stopping_rule_usd": round(
+                sum(
+                    a["allocated_usd"]
+                    for a in allocations
+                    if not a.get("has_stopping_rule")
+                ),
+                2,
+            ),
             "work_queue": allocations
         }
 
@@ -220,10 +253,27 @@ def main():
     print(f"  - Explore Pool (40%): ${result['explore_pool_usd']:.2f}")
     print(f"Active Ventures: {result['active_count']} | Killed: {result['killed_count']}")
     print("------------------------------------------------------------")
-    print(f"{'RANK':<5} {'VENTURE':<30} {'STAGE':<12} {'ALLOCATED':<10} {'STATUS'}")
+    print(f"{'RANK':<5} {'VENTURE':<30} {'STAGE':<12} {'ALLOCATED':<10} {'STATUS':<8} {'STOP RULE'}")
     print("------------------------------------------------------------")
     for idx, item in enumerate(result["work_queue"], start=1):
-        print(f"{idx:<5} {item['venture']:<30} {item['stage']:<12} ${item['allocated_usd']:<9.2f} {item['status'].upper()}")
+        rule = "yes" if item.get("has_stopping_rule") else "NONE"
+        print(
+            f"{idx:<5} {item['venture']:<30} {item['stage']:<12} "
+            f"${item['allocated_usd']:<9.2f} {item['status'].upper():<8} {rule}"
+        )
+
+    without = result["without_stopping_rule"]
+    print("------------------------------------------------------------")
+    if without:
+        print(
+            f"{len(without)} venture(s) draw ${result['unfunded_by_stopping_rule_usd']:.2f} "
+            "with no criterion that can stop them:"
+        )
+        for name in without:
+            print(f"  - {name}")
+        print("Run scripts/ci/kill_criteria_ratchet.py for the per-criterion reasons.")
+    else:
+        print("Every venture has at least one stopping rule that can be measured.")
 
     # Export JSON report
     out_path = os.path.join(repo_root, "portfolio", "router", "allocation_queue.json")
