@@ -423,6 +423,40 @@ evidence, and completion date before it can be marked done.
   protection is switched on. `platform/terraform/` still has no Gitea provider
   or `branch_protection` resource, and there is one Act Runner, so the split
   between untrusted verification and protected release runners does not exist.
+- [ ] Hold every venture contract's `links.production` to naming a host this
+  repository can actually serve.
+  Done for the repository-side half, 2026-08-02, owner duncan. `links.production`
+  is the field that says a customer can reach a venture, and the only rule
+  guarding it asked whether it was *set*. Of the three ventures that declared
+  one, `retail-pilot-intel` pointed at `https://retail-pilot-intel.pages.dev`,
+  which resolves nowhere: the name follows the Cloudflare Pages convention while
+  the venture's `deploy-docs.yml` publishes to GitHub Pages, and that workflow
+  sits in a venture subdirectory of a Gitea repository, so it has never run. The
+  hostname appeared exactly once in the entire tree — in the contract claiming
+  it. A venture nobody can reach cannot earn, and promoting it to `launched`,
+  which raises its stage weight from 0.55 to 0.75 and moves real budget, would
+  have passed clean. Set to `null`; the two survivors are genuinely deployed
+  (`pairwise.marisstella.dev` by `platform/k8s/apps/quick-pick-survey/ingress.yaml`,
+  `listing-lens-docs.pages.dev` by its deploy workflow and Access script).
+  `portfolio/router/validate_ventures.py` now requires the hostname to be named
+  by deployment or operations machinery — a workflow, deploy script, k8s or
+  Terraform config, or a recognised host-config file. The exclusions are the
+  control: prose does not count, because a README sentence claiming a venture is
+  live is the claim under test rather than evidence for it, and a repo-wide grep
+  would let any such sentence satisfy the rule; a `VENTURE.yaml` cannot vouch for
+  itself; tests and fixtures do not count. Matching is hostname-bounded, so
+  `notexample.com` and `example.com.attacker.net` do not back `example.com`.
+  Omitting the backed set fails closed rather than skipping the rule. Severity is
+  `warn` at `prototype` and `error` once stage weighting draws budget on the
+  claim; both fail `--strict`, which is how `scripts/test-ci.sh` runs it.
+  29 tests, 17 mutations, every one killed.
+  Not done, and it is the half that would have caught this directly: nothing
+  checks that the URL *responds*. The dead hostname was found by hand with
+  `curl`. The repository-side rule is a proxy — it proves the repository knows
+  how to put something at that hostname, not that anything is there now. A live
+  check needs the third-state treatment `scripts/ci/release_lag.py` uses for a
+  shallow clone, so that "offline" reports `NOT MEASURABLE HERE` rather than a
+  pass. `links.analytics` is null for all 12 ventures and is unchecked.
 - [x] Define an owner and expiry for every suppression, quarantine, skipped
   check, accepted vulnerability, and policy exception.
   Owner duncan, completed 2026-07-31. `platform/exception-register.yaml` holds
