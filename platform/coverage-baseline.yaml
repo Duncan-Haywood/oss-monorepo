@@ -64,10 +64,18 @@ components:
     # least covered thing in the repository. Half of it has never been executed
     # by a test — including, until recently, the paths that report PASSED for a
     # component that was never verified. Raising this is the priority.
+    #
+    # Re-measured 2026-08-03. The 2026-07-31 figures were the last ones this
+    # component could produce: `ai-engineering-academy-site` claimed a `test`
+    # script its package.json did not define, so two contract tests failed, the
+    # suite exited non-zero, and the audit reported `coverage-command-failed`
+    # rather than a percentage. The gate on the engine that gates everything
+    # else was therefore unmeasurable, not merely stale. Restoring that script
+    # let the whole suite run, and these are the numbers it actually reports.
     baseline:
-      lines: 52.11
-      functions: 57.14
-      branches: 61.54
+      lines: 58.99
+      functions: 64.29
+      branches: 63.33
     tolerance:
       lines: 0.5
       functions: 0.5
