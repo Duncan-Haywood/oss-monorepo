@@ -119,6 +119,55 @@ evidence, and completion date before it can be marked done.
   It also depends on cluster state the repository does not hold — the
   Deployment and ConfigMap are created imperatively and have no desired state
   in git, so the missing `items:` selector is visible only from `kubectl`.
+- [ ] Hold every venture's customer-facing claims to what the venture can
+  actually deliver, and gate the claim rather than the copy. Owner: venture
+  owner. Not started as a portfolio-wide control; one venture is done.
+  2026-08-02, owner duncan: `ai-engineering-academy` is the portfolio's
+  highest-allocated venture (`$40/mo`, rank 1 in
+  [the allocation report](../portfolio/ALLOCATION_REPORT.md)) and its pricing
+  page is the only surface it has that could ever take money. Every branch in
+  flight that touched this venture — eight of them — changed the same single
+  line of `site/package.json`, adding the missing `test` script. None looked at
+  what the pages say. That matters in a specific way: `VENTURE.yaml` declared
+  `verify: npm --prefix site test && npm --prefix site run build`, `npm test`
+  did not exist, so the venture's verification had never once run, and the
+  moment those branches landed CI would have begun *enforcing* the following as
+  regressions:
+  the sandbox sold "test real multi-agent tool-calling workflows … directly in
+  your browser" over a handler that printed one fixed transcript ending
+  `12/12 passing` and `Subgoal satisfaction score: 100%` for any input including
+  an empty one, and ignored which of the three tracks was selected;
+  the mastery checkpoint answered "Schema structure verified. Portfolio point
+  awarded (+25 pts)" to any input over ten characters — `aaaaaaaaaaa` passed,
+  verified against the built page — and the points are stored nowhere;
+  the pricing page headlined "$93.50 / mo (65% Savings)" against a "Retail LLM &
+  Compute Value" computed from two invented rates ($1.50/sandbox-hour,
+  $0.35/mentor-query) that nothing in this repository sources, clamped at zero
+  so it could never show the usage levels where $49 costs more than it returns;
+  it badged an unbuilt tier "Most Popular" for a product with zero customers,
+  and ticked "All 50+ Project Specifications" and "Complete Engineering
+  Knowledge Graph" as delivered when both are design documents in `docs/`.
+  The savings framing also contradicted the venture's own written rule — that a
+  paid tier is priced to cover what it costs to serve plus a modest margin, "not
+  to maximize what a motivated learner is willing to pay" (`docs/05-business-
+  and-strategy.md`). `$49` appears nowhere in the venture's documentation.
+  Separately and more mundanely, the whole revenue surface was unstyled:
+  `site/style.css` defined six nav classes, and the two authored pages
+  referenced twenty-five it did not have, so the pricing cards rendered as an
+  undifferentiated run of text and the waitlist dialog — the single conversion
+  path — appeared as an unstyled block at the foot of the page. Pressing the
+  call to action looked, to a visitor, like nothing happening.
+  Fixed in `site/build.mjs` and `site/style.css`; `site/test.mjs` holds the
+  contracts, and each was confirmed to fail against the pre-change build. The
+  generalizable one is the class contract: every class name the built pages use
+  must resolve in the stylesheet, which is what catches a shipped-but-invisible
+  UI without anyone having to look at the page.
+  Not done: this is one venture. Nothing checks the other ten, the check is
+  string-and-DOM-level rather than a real browser, and `photos-import-tools`
+  has a worse instance of the same defect class still open — `sd_offload.py`
+  writes `"status": "verified"` into the manifest a user consults before
+  erasing an SD card, on a same-byte-length comparison; its `sha256_file()` is
+  defined and called from nowhere.
 - [ ] Configure and verify Gitea branch/environment protection: pull requests
   only for release branches, current required checks, stale approval dismissal,
   CODEOWNERS, one independent approval for Tier 2, two including an accountable
