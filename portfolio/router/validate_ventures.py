@@ -34,6 +34,13 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
+try:
+    # Importable as a package (pytest sets `pythonpath`), and runnable as a
+    # script, which puts this directory on sys.path instead of the repo root.
+    from portfolio.router import kill_criteria
+except ImportError:
+    import kill_criteria
+
 REVENUE_STAGES = {"launched", "revenue", "scaling"}
 VALID_STAGES = {"idea", "prototype", "launched", "revenue", "scaling", "winding-down"}
 VALID_HYPOTHESIS_STATUSES = {"untested", "supported", "refuted"}
@@ -234,6 +241,59 @@ def validate_venture(
     return findings
 
 
+def validate_kill_criteria(root: Path) -> List[Finding]:
+    """Every declared kill criterion either evaluates or is registered.
+
+    `budget.protected` above demands kill criteria on the grounds that without
+    them "there is no condition under which it stops" — but until 2026-08-03 a
+    line of prose satisfied that check while `allocate.py` read the criteria
+    into an unused variable. Declaring a criterion and evaluating one were
+    entirely unrelated acts. This closes the join.
+    """
+    findings: List[Finding] = []
+    ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(root)
+
+    results = []
+    for venture_file in sorted((root / "ventures").glob("*/VENTURE.yaml")):
+        try:
+            with open(venture_file, "r", encoding="utf-8") as handle:
+                data = yaml.safe_load(handle) or {}
+        except yaml.YAMLError:
+            continue  # already reported as unparseable-contract
+        results.extend(
+            kill_criteria.evaluate_venture(
+                data, venture_file.parent.name, ledger_rows, ledger_present
+            )
+        )
+
+    for triggered in (r for r in results if r.outcome == kill_criteria.TRIGGERED):
+        findings.append(
+            Finding(
+                venture=triggered.venture,
+                severity="warn",
+                code="kill-criterion-triggered",
+                message=f"kill criterion fired: {triggered.text or triggered.criterion_id} — {triggered.reason}",
+                remedy=(
+                    "The allocator has zeroed this venture's budget. Wind it down, or "
+                    "change the criterion deliberately and record why."
+                ),
+            )
+        )
+
+    for register_finding in kill_criteria.audit_register(results, kill_criteria.load_register(root)):
+        findings.append(
+            Finding(
+                venture="portfolio",
+                severity=register_finding.severity,
+                code=register_finding.code,
+                message=register_finding.message,
+                remedy=register_finding.remedy,
+            )
+        )
+
+    return findings
+
+
 def validate_all(repo_root: Optional[Path] = None) -> List[Finding]:
     root = repo_root or find_repo_root()
     ledger_mrr = load_latest_ledger_mrr(root)
@@ -272,6 +332,8 @@ def validate_all(repo_root: Optional[Path] = None) -> List[Finding]:
             )
 
         findings.extend(validate_venture(data, name, ledger_mrr))
+
+    findings.extend(validate_kill_criteria(root))
 
     return findings
 
