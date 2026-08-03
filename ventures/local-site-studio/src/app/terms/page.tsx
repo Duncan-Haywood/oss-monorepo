@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { brand, legalEntityLine, marketingFooterLine } from "@/lib/brand";
+import { ENTRY_SETUP_PRICE_USD } from "@/lib/pricing/bundles";
 
 export default function TermsPage() {
   return (
@@ -13,7 +14,7 @@ export default function TermsPage() {
           website packages from {brand.legalEntity} will be published here before launch.
         </p>
         <p>
-          Terms will cover the $500 website package, preview evaluation, payment via
+          Terms will cover the ${ENTRY_SETUP_PRICE_USD} website package, preview evaluation, payment via
           Stripe, deliverables, intellectual property, refunds, and governing law
           (Colorado, USA).
         </p>
