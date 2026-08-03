@@ -98,3 +98,21 @@ contact routes merged here are **not** confirmed against a rendered page.
 local `main`, which is itself 65 commits beyond `origin/main`. Every control
 described here, and every fix in the register, governs code the live services
 are not running. Pushing remains a human decision and was not taken by this run.
+
+## `main` moved while this ran, and it took the other side of one duplicate
+
+A concurrent agent committed to `main` during this integration. `main` is now at
+`aeffd6d`, three commits ahead of this branch's base, and those three are
+`continue-work-8-2026-08-03` — which carries **the rival kill-criteria
+implementation**, plus `scripts/ci/kill_criteria_ratchet.py` holding the number
+of ventures with no stopping rule.
+
+So the choice listed above as outstanding is now forced rather than optional:
+`main` has `continue-work-8`'s `portfolio/router/kill_criteria.py` and this
+branch has `portfolio-kill-criteria-2026-08-03`'s. They are incompatible, and
+merging this branch into `main` will conflict on that file. Whoever lands this
+picks one; `continue-work-8`'s is the more complete of the two because of the
+ratchet, which this branch does not have.
+
+`agent/sd-offload-verification-2026-08-03` has already been merged up to current
+`main` and is 1 commit ahead of it, conflict-free.
