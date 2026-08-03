@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { BUNDLES, COMMERCE_ADDON, ENTRY_SETUP_PRICE_USD } from "./bundles";
+import { BUNDLES, ENTRY_SETUP_PRICE_USD } from "./bundles";
 
 /**
  * No customer-facing page may hardcode a price.
@@ -36,21 +36,17 @@ function source(relative: string): string {
   return readFileSync(join(SRC, relative), "utf8");
 }
 
-/** Every amount that must come from bundles.ts, as it would be typed in copy. */
-function pricePatterns(): { label: string; pattern: RegExp }[] {
-  const amounts = new Set<number>([ENTRY_SETUP_PRICE_USD, COMMERCE_ADDON.setupPriceUsd]);
-  for (const bundle of BUNDLES) {
-    amounts.add(bundle.setupPriceUsd);
-    if (bundle.monthlyPriceUsd !== null) amounts.add(bundle.monthlyPriceUsd);
-  }
-  if (COMMERCE_ADDON.monthlyPriceUsd !== null) amounts.add(COMMERCE_ADDON.monthlyPriceUsd);
-
-  return [...amounts].map((amount) => ({
-    label: `$${amount}`,
-    // A literal dollar figure in source: "$500", "+$300", "$99/mo".
-    pattern: new RegExp(`\\$${amount}\\b`),
-  }));
-}
+/**
+ * Any literal dollar figure — "$500", "+$300", "$99/mo".
+ *
+ * Deliberately not a list of the current prices. Scanning only for today's
+ * numbers misses the drift this exists to catch: raise growth to $129 and a
+ * stale "$99/mo" left in the copy is no longer a current price, so a
+ * current-prices scan would call the file clean while the page advertises a
+ * figure the customer will not be charged. `${...}` interpolation does not
+ * match, so derived values pass.
+ */
+const HARDCODED_DOLLAR_FIGURE = /\$[0-9]/;
 
 /** Strip comments so the explanatory notes naming old literals do not trip the scan. */
 function withoutComments(text: string): string {
@@ -58,11 +54,18 @@ function withoutComments(text: string): string {
 }
 
 describe("advertised prices come from bundles.ts", () => {
-  it.each(CUSTOMER_FACING)("%s hardcodes no bundle price", (relative) => {
+  it.each(CUSTOMER_FACING)("%s hardcodes no dollar figure", (relative) => {
     const text = withoutComments(source(relative));
-    for (const { label, pattern } of pricePatterns()) {
-      expect(pattern.test(text), `${relative} hardcodes ${label}`).toBe(false);
-    }
+    const offending = text
+      .split("\n")
+      .map((line, index) => ({ line: line.trim(), number: index + 1 }))
+      .filter(({ line }) => HARDCODED_DOLLAR_FIGURE.test(line));
+
+    expect(
+      offending,
+      `${relative} hardcodes a price — derive it from BUNDLES / COMMERCE_ADDON:\n` +
+        offending.map((o) => `  ${relative}:${o.number}  ${o.line}`).join("\n"),
+    ).toEqual([]);
   });
 
   it("the landing page reads BUNDLES rather than restating it", () => {
@@ -75,11 +78,17 @@ describe("advertised prices come from bundles.ts", () => {
     expect(ENTRY_SETUP_PRICE_USD).toBe(Math.min(...BUNDLES.map((b) => b.setupPriceUsd)));
   });
 
-  it("would catch a price change that only moves checkout", () => {
-    // Proves the scan is anchored to bundles.ts and not to today's numbers:
-    // a figure that is not a current price is not what the scan looks for.
-    const notAPrice = 12345;
-    expect(pricePatterns().some((p) => p.label === `$${notAPrice}`)).toBe(false);
-    expect(pricePatterns().some((p) => p.label === `$${BUNDLES[0].setupPriceUsd}`)).toBe(true);
+  it("catches a stale figure for a price that has since changed", () => {
+    // The drift case a current-prices scan would miss: $99/mo left behind after
+    // growth moved to $129. Both must read as violations.
+    const staleAfterAPriceRise = 'recurring: "$99/mo",';
+    const currentPrice = `setup: "$${BUNDLES[0].setupPriceUsd}",`;
+    expect(HARDCODED_DOLLAR_FIGURE.test(staleAfterAPriceRise)).toBe(true);
+    expect(HARDCODED_DOLLAR_FIGURE.test(currentPrice)).toBe(true);
+  });
+
+  it("does not flag a derived value", () => {
+    expect(HARDCODED_DOLLAR_FIGURE.test("{usd(pricing.setupPriceUsd)}")).toBe(false);
+    expect(HARDCODED_DOLLAR_FIGURE.test("pay $${ENTRY_SETUP_PRICE_USD}, go live")).toBe(false);
   });
 });
