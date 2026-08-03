@@ -52,6 +52,34 @@ well as errors, or `--json` for machine-readable findings. It runs in
 This is deliberately a validator, not an auto-fixer. Correcting a stage or an
 MRR reallocates budget, and that is the portfolio owner's call.
 
+## Stopping rules
+
+Each `VENTURE.yaml` declares `kill_criteria`. `kill_criteria.py` evaluates the
+structured ones against recorded ledger history and returns `triggered`,
+`not-triggered` or `unevaluable` — never treating "no data" as "keep funding
+it". `router.py` acts on that verdict, and the report carries all three states:
+
+| State       | What the router does                                            |
+|:------------|:----------------------------------------------------------------|
+| `triggered` | Allocation withheld ($0.00), ranked last, `suggested_focus` reads STOP, escalated in the report's **Stopping Rules** section |
+| `holding`   | Funded normally; at least one criterion is measurable and none fired |
+| `none`      | Funded normally, and named in the report — no declared criterion can be measured, so nothing can ever stop this venture's funding |
+
+Withheld budget is not redistributed. Total portfolio spend falls by the amount
+withheld, because a brake that hands the money to the next venture commits the
+same sum either way. `budget.protected` does not exempt a venture: protection is
+a floor for exploration, and a fired criterion says the exploration reached its
+declared limit.
+
+Whether to wind a venture down stays a human decision. `stopping-decisions.yaml`
+is where that decision is recorded and `scripts/ci/stopping_rule_review.py`
+fails the build until it exists — including when a `wind-down` is recorded but
+the venture's `stage:` never changes.
+
+Until 2026-08-03 none of this ran: `router.py` parsed `kill_criteria` into a
+field it never read, and the evaluation lived only in `allocate.py`, which no
+pipeline invokes.
+
 ## Status
 
 Implemented in `portfolio/router/router.py` with unit tests in `portfolio/router/test_router.py`. Run `python3 portfolio/router/router.py` or `python3 portfolio/router/router.py --json` to generate the ranked work queue. Integrated into monorepo CI verification (`scripts/test-ci.sh`).
