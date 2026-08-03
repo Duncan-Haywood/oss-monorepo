@@ -408,6 +408,37 @@ evidence, and completion date before it can be marked done.
   fail this gate when they lapse rather than staying quietly uncovered. Wiring
   the latter two in needs a `test-ci.sh` gate per venture, which is the same
   missing piece as `print-atelier`'s page routes.
+  Closed 2026-08-01, owner duncan. All five ventures that serve app-router
+  handlers now have a posture contract, and
+  `platform/ci/test/route-posture-contract.test.mjs` makes having one a
+  repository-wide gate rather than a habit.
+  `quick-pick-survey` (`4be387b`) and `local-site-studio` (`ef33ce9`)
+  got the two that were missing; the gate (`c83c196`) fails when a component
+  with route handlers has no registered contract, when a contract stops being
+  collected by its venture's `npm test`, and when any handler is neither
+  declared nor guarded.
+  Neither new venture has middleware, so the contracts pin each handler to the
+  guard symbol its own body must call. That made a third posture necessary that
+  the earlier two contracts did not model: `quick-pick-survey` is anonymous by
+  design — answering a survey before making an account is the product — so the
+  boundary that matters is not whether a session exists but whose rows a
+  handler may touch. `owner-scoped` carries it, checked against
+  `participantAccess`, and a handler that reads a participant id from a request
+  body without it is an IDOR against the couples privacy promise.
+  Two things the enumeration found that reading the code had not:
+  `/api/og/couple-card` is a `route.tsx`, so a manual survey of `route.ts`
+  missed it entirely (it is public and cannot leak — it renders query
+  parameters and never looks a couple up); and `local-site-studio`'s
+  `requireOperatorAuth` admits *every* caller when `OPERATOR_DASHBOARD_PASSWORD`
+  is unset, which is a deliberate local-demo affordance but was only a code
+  comment. Its two operator routes — one of which creates live Stripe Price
+  objects — are therefore claims about a deployment, not about the code. That
+  condition is now executable in the contract; setting the password before that
+  venture serves real lead data remains an operator action, tracked on its
+  launch checklist.
+  Still open: `print-atelier`'s page routes as distinct from its API routes,
+  and the gate checks that every handler is *accounted for*, not that every
+  venture's guard is equally strong — the per-venture contracts carry that.
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
   Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports

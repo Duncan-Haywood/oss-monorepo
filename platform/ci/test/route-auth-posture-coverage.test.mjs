@@ -68,22 +68,14 @@ const REGISTRY = {
   'ventures/photo-editing/docs-site': { contract: 'src/lib/routeAuthPosture.test.ts' },
   'ventures/print-atelier': { contract: 'tests/api-route-guard-contract.test.ts' },
 
-  'ventures/quick-pick-survey': {
-    gap: {
-      owner: 'duncan',
-      issue: 'docs/ENGINEERING-ROADMAP.md#now-establish-and-enforce-the-baseline',
-      expires: '2026-11-01',
-      handlers: 32,
-      reason:
-        'The largest route surface in the repository, and the only venture with ' +
-        'a live production deployment. It has real route tests covering auth, ' +
-        'admin, trials, couple and usage, so this is not an untested surface — ' +
-        'what it lacks is the posture declaration that makes a *new* route ' +
-        'state whether it answers anonymous callers. Writing it against 32 ' +
-        'handlers is a review of 32 handlers, which is the work, not the ' +
-        'writing. Sized and scheduled rather than done badly in passing.',
-    },
-  },
+  // Was a sized, dated gap: the largest route surface in the repository, and
+  // the only venture with a live production deployment. The gap's reasoning was
+  // that writing a posture contract against 32 handlers is a review of 32
+  // handlers, which is the work rather than the writing — so it was scheduled
+  // rather than done badly in passing. `agent/route-posture-repo-gate` did that
+  // review, and the contract landed in the 2026-08-03 integration: 13 tests,
+  // passing, collected by the venture's `vitest run`. Registered on 2026-08-03.
+  'ventures/quick-pick-survey': { contract: 'src/lib/routeAuthPosture.test.ts' },
 };
 
 /** The longest number of days an unwritten contract may stay unwritten. */
