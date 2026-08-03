@@ -26,6 +26,8 @@ scheduling, and run history.
 | Terraform/platform | CI contract tests, repository policy, format, init without backend, validate | Apply requires main, manual dispatch, exact `APPLY` confirmation, and a saved plan |
 | Security | Repository-policy tests, history secret scan, dependency/IaC scan, per-venture lockfile audit | Failure blocks release; default-branch failures open or update one remediation issue |
 
+The per-venture lockfile audit is a hand-written matrix in `.gitea/workflows/security.yml`, and it had drifted to four of the ten lockfiles on disk. The scanner that writes `SECURITY_ROADMAP.md` walks the whole tree, so the six unaudited packages' findings were already logged while nothing blocked a merge on them — "tracked" and ungated at the same time. `platform/ci/test/workflow-supply-chain.test.mjs` now fails when a lockfile is in neither the matrix nor a dated, owned exemption list. Five packages are currently exempt because every remaining advisory needs a semver-major upgrade (Next 16, wrangler 4, sharp 0.35); those exemptions expire 2026-11-01 and the test fails once they do.
+
 Coverage is ratcheted: changed code cannot reduce it, active production
 ventures target 90% line/function/statement and 85% branch coverage, and
 critical security, privacy, money, migration, and integrity paths target 95%
