@@ -14,6 +14,7 @@ try:
     from portfolio.router.validate_ventures import (
         Finding,
         find_backed_hostnames,
+        find_dominated_criteria,
         find_repo_root,
         is_deployment_file,
         load_latest_ledger_mrr,
@@ -25,6 +26,7 @@ except ImportError:
     from validate_ventures import (
         Finding,
         find_backed_hostnames,
+        find_dominated_criteria,
         find_repo_root,
         is_deployment_file,
         load_latest_ledger_mrr,
@@ -456,6 +458,112 @@ class TestLedgerLoading(unittest.TestCase):
     def test_missing_ledger_directory_returns_empty(self):
         with tempfile.TemporaryDirectory() as tmp:
             self.assertEqual(load_latest_ledger_mrr(Path(tmp)), {})
+
+
+def spend_criterion(threshold, revenue=0):
+    return {
+        "description": f"${threshold} spent with no revenue.",
+        "when": [
+            {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": threshold},
+            {"metric": "cumulative_revenue_usd", "comparator": "==", "threshold": revenue},
+        ],
+    }
+
+
+class TestDominatedKillCriteria(unittest.TestCase):
+    """A stopping rule that can never be the one that fires is noise.
+
+    Criteria are ORed and one trigger kills the venture, so a rule reached only
+    after another has already fired adds a duplicated line to `kill_reasons` and
+    nothing else. Ten of twelve ventures acquired exactly that when parallel
+    sessions each added a criterion to ventures that already had one.
+    """
+
+    def codes(self, criteria):
+        return [f.code for f in find_dominated_criteria("demo", criteria)]
+
+    def test_a_higher_spend_threshold_is_dominated(self):
+        findings = find_dominated_criteria("demo", [spend_criterion(120), spend_criterion(150)])
+        self.assertEqual([f.code for f in findings], ["dominated-kill-criterion"])
+        self.assertIn("kill_criteria[1]", findings[0].message)
+        self.assertIn("kill_criteria[0]", findings[0].message)
+
+    def test_order_does_not_matter(self):
+        findings = find_dominated_criteria("demo", [spend_criterion(150), spend_criterion(120)])
+        self.assertEqual([f.code for f in findings], ["dominated-kill-criterion"])
+        self.assertIn("kill_criteria[0]", findings[0].message)
+
+    def test_an_exact_duplicate_reports_once_not_twice(self):
+        # Three ventures declared the same `>= 150 / == 0` rule twice. Each
+        # dominates the other, so a naive pass would report the pair twice.
+        self.assertEqual(
+            self.codes([spend_criterion(150), spend_criterion(150)]),
+            ["dominated-kill-criterion"],
+        )
+
+    def test_distinct_thresholds_on_different_metrics_are_kept(self):
+        other = {
+            "description": "Three months at zero MRR.",
+            "when": [
+                {"metric": "consecutive_months_zero_mrr", "comparator": ">=", "threshold": 3},
+            ],
+        }
+        self.assertEqual(self.codes([spend_criterion(120), other]), [])
+
+    def test_a_different_revenue_clause_is_not_dominated(self):
+        # The redundancy in the real tree held only because both rules demanded
+        # revenue == 0. Change that and the higher-spend rule can fire alone.
+        self.assertEqual(self.codes([spend_criterion(120), spend_criterion(150, revenue=500)]), [])
+
+    def test_prose_criteria_are_left_alone(self):
+        self.assertEqual(
+            self.codes(["Fewer than 50 learners after 60 days.", "CAC exceeds $150."]),
+            [],
+        )
+
+    def test_a_lone_criterion_is_never_dominated(self):
+        self.assertEqual(self.codes([spend_criterion(150)]), [])
+
+    def test_an_unknown_comparator_is_left_alone_rather_than_guessed(self):
+        weird = {
+            "description": "Something the evaluator does not support.",
+            "when": [
+                {"metric": "cumulative_agent_spend_usd", "comparator": "~=", "threshold": 120},
+                {"metric": "cumulative_revenue_usd", "comparator": "==", "threshold": 0},
+            ],
+        }
+        other = dict(weird)
+        other["when"] = [dict(c) for c in weird["when"]]
+        other["when"][0]["threshold"] = 150
+        self.assertEqual(self.codes([weird, other]), [])
+
+    def test_a_less_than_comparator_dominates_in_the_other_direction(self):
+        def runway(threshold):
+            return {
+                "description": f"Runway below {threshold}.",
+                "when": [
+                    {"metric": "latest_mrr_usd", "comparator": "<=", "threshold": threshold},
+                ],
+            }
+
+        # `<= 50` is reached before `<= 10`, so the `<= 10` rule is the dominated one.
+        findings = find_dominated_criteria("demo", [runway(10), runway(50)])
+        self.assertEqual([f.code for f in findings], ["dominated-kill-criterion"])
+        self.assertIn("kill_criteria[0]", findings[0].message)
+
+    def test_a_non_numeric_threshold_is_left_alone(self):
+        broken = {
+            "description": "Malformed.",
+            "when": [
+                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": "lots"},
+            ],
+        }
+        self.assertEqual(self.codes([broken, spend_criterion(150)]), [])
+
+    def test_the_finding_is_a_warning_and_carries_a_remedy(self):
+        finding = find_dominated_criteria("demo", [spend_criterion(120), spend_criterion(150)])[0]
+        self.assertEqual(finding.severity, "warn")
+        self.assertTrue(finding.remedy.strip())
 
 
 class TestValidateAllAgainstRealTree(unittest.TestCase):
