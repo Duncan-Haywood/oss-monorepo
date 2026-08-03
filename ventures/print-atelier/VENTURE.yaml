@@ -23,6 +23,26 @@ budget:
 kill_criteria:
   - Unit economics remain negative post-payout for 3 consecutive months.
   - Zero artist onboarding or catalog additions within 60 days of active outreach.
+  # The two criteria above are prose. Nothing in this repository measures artist
+  # onboarding or post-payout unit economics, so neither can ever fire, and
+  # until 2026-08-03 nothing read them at all. The one below is stated against
+  # the ledger, which is recorded history, so the allocator can evaluate it.
+  #
+  # THRESHOLD NOT YET RATIFIED. $150 is roughly 2.5 months of this venture's $60
+  # monthly cap, chosen by the change that made criteria evaluable rather than
+  # by the portfolio owner. It is deliberately conservative: recorded spend is
+  # $18.18 against $0 revenue, so this does not fire today. Confirm or replace
+  # the figure — see docs/ENGINEERING-ROADMAP.md#portfolio-stopping-rules.
+  - description: >-
+      $150 of recorded agent spend accumulated with no revenue ever recorded
+      against this venture in portfolio/ledger/.
+    when:
+      - metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 150
+      - metric: cumulative_revenue_usd
+        comparator: "=="
+        threshold: 0
 
 links:
   production: null

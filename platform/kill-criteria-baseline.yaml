@@ -1,0 +1,57 @@
+# Stopping-rule baseline
+#
+# `ventures/*/VENTURE.yaml` declares `kill_criteria`: the conditions under which
+# the portfolio stops funding a venture. This file declares how many ventures
+# are allowed to have no criterion the allocator can actually measure.
+# `scripts/ci/kill_criteria_ratchet.py` enforces it and fails closed;
+# `tests/test_kill_criteria_ratchet.py` runs the same audit under pytest.
+#
+# The ratchet is two-directional, like `platform/release-lag-budget.yaml` and
+# the coverage baselines in `platform/coverage-baseline.yaml`:
+#
+#   * Measured above `max_without_stopping_rule` fails — a venture was added
+#     without a measurable brake, or a criterion was rewritten back into prose.
+#   * Measured more than `slack` below it also fails — criteria became
+#     measurable and this ceiling is now stale. Lowering it is a deliberate act.
+#
+# `max_without_stopping_rule` is itself capped at 11 in the script
+# (MAX_DECLARED_WITHOUT_STOPPING_RULE), which is the whole portfolio as measured
+# on 2026-08-03. A ceiling that can be raised to cover every venture is not a
+# ceiling.
+#
+# Nothing here defunds, kills, or pauses anything. Which criteria a venture
+# should have, and whether to act on one that fires, are the portfolio owner's
+# decisions. This only refuses to let the number of ventures with no brake grow
+# quietly.
+
+owner: duncan
+issue: docs/ENGINEERING-ROADMAP.md#portfolio-stopping-rules
+expires: 2026-11-30
+
+budget:
+  # Measured 2026-08-03: 11 of 11 ventures had no stopping rule the allocator
+  # could evaluate. All 16 declared criteria were prose — "Fewer than 50 active
+  # learners after 60 days", "CAC exceeds $150 per client" — with no metric
+  # behind them and, in most cases, no measurement anywhere in the repository
+  # that could ever produce the number. Meanwhile `allocate.py` reported
+  # `killed_count: 0` and moved $199.98 of a $500 pool against zero recorded
+  # revenue.
+  #
+  # Lowered 11 -> 10 the same day by print-atelier's spend-without-revenue
+  # criterion, which is the worked example that the mechanism fires end to end.
+  # Every remaining 1 is a venture that can draw budget forever.
+  max_without_stopping_rule: 10
+
+  # More than this many below the ceiling and the ceiling is stale.
+  slack: 2
+
+rationale: >-
+  Kill criteria were the portfolio's only declared spending brake, and
+  portfolio/router/allocate.py loaded them into a variable it never read. The
+  two rules that did run were hardcoded to stages no venture occupies, so
+  killed_count was zero by construction rather than by merit, and the ledger
+  shows the result: seven ventures funded through 2026-07, $127.26 spent, and
+  zero revenue recorded against any of them. Making the criteria evaluable is
+  the fix. This ceiling is what stops it eroding, and it is deliberately not a
+  target — the honest number today is that 10 of 11 ventures still have no rule
+  capable of ending their funding, and each one is an open-ended cost.
