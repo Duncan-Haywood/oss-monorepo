@@ -276,6 +276,46 @@ evidence, and completion date before it can be marked done.
 
 - [ ] Give every venture a versioned measurement plan mapping hypotheses to
   events, outcomes, decision thresholds, owners, and sunset dates.
+  Started 2026-08-03, owner duncan, on the decision-threshold half, because it
+  turned out there were no thresholds — only text that resembled them.
+  `portfolio/router/validate_ventures.py` makes a protected venture declare
+  `kill_criteria`, on the stated grounds that "without kill criteria there is no
+  condition under which it stops". `portfolio/router/allocate.py` read them into
+  a local named `kill_rules` and never referenced the variable again. All
+  fifteen criteria across the eleven ventures were inert, and the test named
+  `test_kill_criteria_evaluation` passed regardless because it only exercised
+  the `winding-down` stage flag — a field a human sets by hand *after* deciding
+  to stop. So the portfolio's entire automated stop-loss was the absence of one,
+  while `portfolio/ALLOCATION_REPORT.md` allocated $250.11 a month across
+  eleven ventures with $0 or unmeasured revenue.
+  `portfolio/router/kill_criteria.py` evaluates a criterion to TRIGGERED,
+  NOT_TRIGGERED or NOT_MEASURABLE, and a triggered one now zeroes the
+  allocation, so firing moves money rather than printing a line. The third state
+  is not a pass, for the reason `scripts/ci/release_lag.py` reports a shallow
+  clone as its own state: where the data is absent, "the condition did not fire"
+  is trivially true. Conditions combine under Kleene AND — one definite false
+  settles a criterion, but any unknown among the rest leaves the whole thing
+  unmeasurable — and a venture with no ledger row has *unknown* spend, not zero,
+  which is the bug `portfolio/ledger/README.md` warns about where reading an
+  absent figure as `0.0` earns the maximum explore credit.
+  What it measured is the finding: **15 of 15 criteria are NOT_MEASURABLE.**
+  `portfolio/kill-criteria-register.yaml` names the specific missing signal for
+  each, with an owner and an expiry capped at 180 days, and an
+  `unmeasurable_count` that ratchets both ways as `count` does in
+  `platform/exception-register.yaml`. Six are conditioned on a clock nothing
+  starts — "post-launch", "of release", "of active outreach", "of sales demo
+  availability" — so even given the metric they could not fire; `anchors:` and
+  `days_since:<anchor>` are where that date goes. Two more compare a CAC nothing
+  computes, one of them in euros against a USD ledger with no recorded rate.
+  The nearest to convertible is `quick-pick-survey`'s deployment-backlog
+  criterion, which `scripts/ci/release_lag.py` already measures repository-wide.
+  Not done, and the boundary is deliberate: setting thresholds is the venture
+  owner's decision, so this ships the machinery and the dated admission rather
+  than inventing business policy across eleven ventures. Nothing fires today.
+  The register's expiry is what forces the decision inside 180 days instead of
+  never. 36 tests, mutation-checked twelve ways including restoring the original
+  dead-variable defect; enforced by the existing "Venture Contract Validation"
+  gate, verified to fail on an unregistered criterion and on a typo'd metric.
 - [ ] Create governed event schemas and automated data-quality tests for
   validity, completeness, uniqueness, freshness, lineage, and deletion.
 - [ ] Add accessible, optional contextual feedback, customer-effort/CSAT where

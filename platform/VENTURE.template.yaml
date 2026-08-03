@@ -34,10 +34,43 @@ budget:
   # measured return is zero, otherwise the router starves everything new.
   protected: true
 
-# Stop conditions. When one trips, the router stops allocating and flags it.
+# Dates that start a clock. A criterion saying "60 days post-launch" needs one
+# of these, or it can never fire however the venture performs. Null means the
+# event has not happened; `days_since:<name>` then reads NOT_MEASURABLE rather
+# than quietly passing.
+anchors:
+  launched: null
+  outreach_started: null
+
+# Stop conditions. When one trips, `portfolio/router/allocate.py` zeroes the
+# allocation and flags it.
+#
+# A criterion is evaluated by `portfolio/router/kill_criteria.py` only if it
+# declares `when` conditions. A plain string is accepted, but nothing can
+# evaluate it, so it must be parked in `portfolio/kill-criteria-register.yaml`
+# with the signal it needs, an owner and an expiry — the gate fails otherwise.
+# Prefer the structured form:
 kill_criteria:
-  - No paying customer after 90 days post-launch.
-  - Monthly cost exceeds MRR for 3 consecutive months past `revenue` stage.
+  - id: no-paying-customer-post-launch
+    description: No paying customer 90 days after launch.
+    when:
+      - metric: days_since:launched
+        op: ">="
+        value: 90
+      - metric: mrr
+        op: "=="
+        value: 0
+
+  # Metrics available today: mrr, customers, monthly_cost,
+  # cumulative_agent_spend_usd, months_recorded,
+  # consecutive_months_negative_net, and days_since:<anchor>. A metric outside
+  # that set fails as a broken rule rather than becoming a registered gap.
+  - id: sustained-negative-unit-economics
+    description: Cost exceeded revenue for 3 consecutive recorded months.
+    when:
+      - metric: consecutive_months_negative_net
+        op: ">="
+        value: 3
 
 links:
   production: null
