@@ -67,7 +67,13 @@ export default function ArchitectureDocPage() {
         guard, cookie set/clear) beside <code>operator.test.ts</code> token crypto +{" "}
         <code>requireOperatorAuth</code> / <code>isOperatorAuthenticated</code> cookie-read
         (open demo when unset, reject missing/invalid/expired, accept valid session) and{" "}
-        <code>proxy.test.ts</code> Host gate. Until the password is a non-placeholder secret,{" "}
+        <code>proxy.test.ts</code> Host gate. <code>operatorAuthMode</code> has three modes:{" "}
+        <code>enforced</code> (usable password set), <code>open-demo</code> (no password,{" "}
+        <em>not</em> a production build), and <code>locked-out</code> (no usable password on a
+        production build) — in which the proxy answers <code>/dashboard</code> with 503 and{" "}
+        <code>requireOperatorAuth</code> denies every action;{" "}
+        <code>operator-fail-closed.test.ts</code> and <code>proxy-fail-closed.test.ts</code>{" "}
+        lock that. Outside a production build, until the password is a non-placeholder secret,{" "}
         <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
         banner via <code>assessOperatorAuthEnvReadiness</code> — distinct from Stripe / Resend /

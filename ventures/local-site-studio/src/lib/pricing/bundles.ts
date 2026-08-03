@@ -44,6 +44,14 @@ export const BUNDLES: readonly BundleDefinition[] = [
   },
 ] as const;
 
+/**
+ * The "from $X" / "the $X website package" figure marketing and legal copy
+ * quote. Derived so page metadata and terms cannot drift from the tiers.
+ */
+export const ENTRY_SETUP_PRICE_USD: number = Math.min(
+  ...BUNDLES.map((bundle) => bundle.setupPriceUsd),
+);
+
 export const COMMERCE_ADDON = {
   name: "Commerce add-on",
   setupPriceUsd: 300,

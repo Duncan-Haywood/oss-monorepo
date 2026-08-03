@@ -1,5 +1,27 @@
 import Link from "next/link";
 import { brand } from "@/lib/brand";
+import {
+  BUNDLES,
+  COMMERCE_ADDON,
+  ENTRY_SETUP_PRICE_USD,
+  type BundleTier,
+} from "@/lib/pricing/bundles";
+
+/**
+ * bundles.ts calls itself the single source of truth for pricing, and checkout,
+ * the preview upsell and the Stripe bootstrap all read from it — but this page
+ * used to carry its own "$500" / "$99/mo" / "+$300" / "$49/mo" literals. Raising
+ * a price in bundles.ts moved the charge and left the shop window advertising
+ * the old number, which is the one place a customer decides to buy.
+ * Marketing copy stays here; every number comes from BUNDLES / COMMERCE_ADDON.
+ */
+function usd(amount: number): string {
+  return `$${amount.toLocaleString("en-US")}`;
+}
+
+function perMonth(amount: number | null): string | null {
+  return amount === null ? null : `${usd(amount)}/mo`;
+}
 
 const steps = [
   {
@@ -19,13 +41,13 @@ const steps = [
   },
 ];
 
-const bundles = [
-  {
-    id: "starter" as const,
-    name: "Starter",
+/** Copy per tier. Keyed by BundleTier, so a new tier in BUNDLES fails typecheck until it has copy. */
+const bundleCopy: Record<
+  BundleTier,
+  { tagline: string; features: string[]; highlighted: boolean }
+> = {
+  starter: {
     tagline: "Your site, live in days",
-    setup: "$500",
-    recurring: null as string | null,
     features: [
       "Professional landing page",
       "Contact form and Google Maps embed",
@@ -34,12 +56,8 @@ const bundles = [
     ],
     highlighted: false,
   },
-  {
-    id: "growth" as const,
-    name: "Growth",
+  growth: {
     tagline: "Site + customers on autopilot",
-    setup: "$500",
-    recurring: "$99/mo",
     features: [
       "Everything in Starter",
       "8 social/GBP posts + 2 emails per month",
@@ -48,12 +66,8 @@ const bundles = [
     ],
     highlighted: true,
   },
-  {
-    id: "complete" as const,
-    name: "Complete",
+  complete: {
     tagline: "Never miss a call or a customer",
-    setup: "$500",
-    recurring: "$199/mo",
     features: [
       "Everything in Growth",
       "Full marketing — seasonal promos, A/B variants",
@@ -62,7 +76,15 @@ const bundles = [
     ],
     highlighted: false,
   },
-];
+};
+
+const bundles = BUNDLES.map((pricing) => ({
+  id: pricing.id,
+  name: pricing.name,
+  setup: usd(pricing.setupPriceUsd),
+  recurring: perMonth(pricing.monthlyPriceUsd),
+  ...bundleCopy[pricing.id],
+}));
 
 const commerceFeatures = [
   "Stripe checkout and simple catalog (≤50 SKUs)",
@@ -84,7 +106,8 @@ export default function Home() {
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-600">
             {brand.name} creates professional websites for restaurants, salons, trades,
-            and other local businesses. Preview your site first — choose Starter from $500,
+            and other local businesses. Preview your site first — choose Starter from{" "}
+            {usd(ENTRY_SETUP_PRICE_USD)},
             or add automated marketing and an AI phone agent. Self-serve checkout, no sales
             calls.
           </p>
@@ -244,10 +267,12 @@ export default function Home() {
               </ul>
             </div>
             <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
-              <p className="text-sm font-medium text-zinc-500">Commerce add-on</p>
-              <p className="mt-2 text-4xl font-semibold tracking-tight">+$300</p>
+              <p className="text-sm font-medium text-zinc-500">{COMMERCE_ADDON.name}</p>
+              <p className="mt-2 text-4xl font-semibold tracking-tight">
+                +{usd(COMMERCE_ADDON.setupPriceUsd)}
+              </p>
               <p className="mt-2 text-sm text-zinc-600">
-                One-time setup + $49/mo · stacks on any bundle
+                One-time setup + {perMonth(COMMERCE_ADDON.monthlyPriceUsd)} · stacks on any bundle
               </p>
               <Link
                 href="/checkout?commerce=1"
