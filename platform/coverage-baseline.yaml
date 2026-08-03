@@ -90,6 +90,20 @@ components:
       - --test-reporter=lcov
       - --test-reporter-destination=$COVERAGE_LCOV_DESTINATION
       - test/*.test.mjs
+    # Measured 2026-08-03 at 5711c17 on Node 22.22.3, across the component's two
+    # source files: `src/pipeline.mjs` (805 lines) and `src/gate-contract.mjs`
+    # (290), 1095 together — `wc -l platform/ci/src/*.mjs` exactly.
+    #
+    # The basis moved because the source did. `src/gate-contract.mjs` was added by
+    # e582e0f and is the component's second source file; the previous basis of
+    # 1 file / 805 lines predates it. This is the benign direction of the drift
+    # check and it was still worth stopping on: the same symptom — a denominator
+    # that grew — is what the 13-file/3436-line report below turned out to be,
+    # where the extra files were the component's own tests. The distinction is
+    # that `--test-coverage-include=src/**` scopes this report to `src/`, and
+    # 805 + 290 accounts for the new total with nothing left over, so the added
+    # surface is real source and the percentages below are measured over it.
+    #
     # Measured 2026-08-02 across `src/pipeline.mjs` alone, 805 lines, identically
     # on Node 22.22.3 and Node 26.4.0.
     #
@@ -103,16 +117,18 @@ components:
     # suites — about 12 points of it, not 35.
     #
     # This is the engine that decides whether every other component passes, and at
-    # 63.98% it is again the least covered thing in the repository. The uncovered
-    # span is contiguous and large (roughly lines 556-805), which is where raising
-    # it should start.
+    # 69.86% it is still the least covered thing in the repository. The rise from
+    # 63.98% is not pipeline.mjs getting better tested: gate-contract.mjs arrived
+    # with its own suite and covers well, which lifts the combined ratio while the
+    # contiguous uncovered span in pipeline.mjs (roughly lines 556-805) is exactly
+    # where it was. That span is still where raising this should start.
     baseline:
-      lines: 63.98
-      functions: 77.78
-      branches: 78.72
+      lines: 69.86
+      functions: 85.29
+      branches: 82.58
     measured:
-      files: 1
-      lines: 805
+      files: 2
+      lines: 1095
     tolerance:
       lines: 0.5
       functions: 0.5
