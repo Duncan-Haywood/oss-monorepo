@@ -566,6 +566,77 @@ This log records all identified application, infrastructure, container, and CI s
 
 ---
 
+### SEC-021 — Medium — Rate Limits Keyed on a Client-Controlled Header, and the Anonymous Surface Behind Them
+
+- **Location**: `ventures/local-site-studio/src/lib/security/rate-limit.ts:109`
+  and `src/lib/auth/operator.ts` (`requireOperatorAuth`);
+  `ventures/quick-pick-survey/src/lib/http.ts` (`getClientIp`).
+- **What is actually new here**: not the individual weaknesses — the repository
+  already documents both. `rate-limit.ts:18` says the client key "derives from
+  x-forwarded-for / x-real-ip, which a client can spoof", and
+  `marketing/generate/route.ts:47` says in as many words that when the password
+  is unset "requireOperatorAuth returns ok for every caller — without a
+  limiter". What nobody had written down is what they compose into, and that
+  nothing bounds the composition. Each comment describes its own limitation and
+  stops at the edge of its own file. Found while writing the route auth-posture
+  contracts, which is the second time that exercise has surfaced something
+  reading the code did not (see SEC-019, SEC-020).
+- **Impact, local-site-studio**: `POST /api/marketing/generate` calls the
+  Anthropic API once per request — a billed call, with the caller controlling
+  the prompt content. Two things stand between it and the open internet.
+  `requireOperatorAuth` returns `{ ok: true }` to everyone when
+  `OPERATOR_DASHBOARD_PASSWORD` is unset, which is the documented open-demo
+  default; and `checkRateLimit` buckets on the leftmost `x-forwarded-for`
+  entry, which the client supplies, so rotating one header yields a fresh
+  bucket per value. On a deployment where the platform does not overwrite that
+  header, the effective limit is unbounded. The exposure is a metered spend on
+  the operator's own API key rather than a data breach, which is why this is
+  Medium and not High — but it is the one finding in this log with a direct,
+  continuous cost to the portfolio's budget, and the portfolio has no
+  per-venture spend meter that would show it happening
+  (`portfolio/ledger/README.md`). `POST /api/stripe/bootstrap-prices` sits
+  behind the same fail-open auth, with `ALLOW_STRIPE_BOOTSTRAP=1` as its only
+  other gate; a boolean env flag carries no caller identity. Mitigating: its
+  response returns price IDs only, never `STRIPE_SECRET_KEY`, and the operation
+  is additive.
+- **Impact, quick-pick-survey**: the same leftmost-entry keying defeats every
+  anonymous limit on the only venture serving live production traffic —
+  including the per-IP brake on `POST /api/admin/login`, which is a brute-force
+  control on the admin key rather than a convenience limit. **This half is
+  conditional and unresolved**: `http.ts` documents a Vercel assumption, and
+  behind Vercel the leftmost entry genuinely is the real client, so the code is
+  correct there. The repository also ships `scripts/nginx-lb.conf`, whose
+  `proxy_add_x_forwarded_for` appends rather than replaces, leaving an
+  attacker-supplied value leftmost. Which of the two fronts
+  `pairwise.marisstella.dev` is a deployment fact not recorded in the
+  repository. Determining that is the first remediation step, not a code
+  change.
+- **Fix**: none applied, deliberately. The correct fix is to count trusted
+  proxies and index from the right, and the correct count is exactly the
+  off-repo fact above — guessing it either leaves the bypass open or collapses
+  every caller into one bucket and breaks rate limiting outright. Recorded
+  rather than corrected, consistent with how this repository treats controls
+  whose inputs it cannot yet observe.
+- **Evidence**: `ventures/quick-pick-survey/src/lib/routeAuthPosture.test.ts`
+  now declares all 32 handlers, of which 15 are `public` and 9 are
+  `capability` — 24 handlers reachable without a session, which is the surface
+  these limits are the only brake on. That count is held exact by
+  `platform/route-posture-registry.yaml`.
+- **Residual risk, recorded not fixed**: three anonymous endpoints on the live
+  venture carry no bound at all beyond the limits above.
+  `POST /api/trials/undo` **deletes** the most recent answer for a participant
+  id and is the one destructive write in the capability set with no rate limit
+  on it; the capability itself is a `cuid()`, which is time-ordered rather than
+  a CSPRNG token. `GET /api/og/couple-card` renders attacker-supplied text into
+  a branded image served from the production domain, uncapped and
+  unauthenticated — a phishing asset with the site's authority and an image
+  rendering sink. `GET /api/health` returns `RELEASE_REVISION`, disclosing the
+  deployed commit; minor, and easily gated. None of these are regressions; they
+  are the honest reading of what `public` and `capability` mean on that
+  surface, which is what the contract was written to make visible.
+
+---
+
 ## Operational Security Checklist
 
 - [x] All workflows include `permissions: contents: read` top-level block.

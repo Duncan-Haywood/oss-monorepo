@@ -1,0 +1,148 @@
+# Route auth-posture contract registry
+#
+# `scripts/ci/route_posture_contract.py` enforces this file and fails closed.
+#
+# Every venture that serves HTTP route handlers must appear here with a
+# contract test that makes each handler declare whether it answers anonymous
+# callers. A venture that grows its first route fails the audit until it has
+# one — that is the whole point, and it is why this file exists rather than
+# three hand-written tests nobody is obliged to imitate.
+#
+# `execution` is the field that does the work. A contract that exists is not a
+# contract that runs, and this repository has been burned by exactly that
+# before. It names how CI reaches the file, and the audit proves the wiring
+# rather than believing the label:
+#
+#   venture-test-gate  scripts/test-ci.sh runs `npm --prefix .../<venture> test`
+#                      AND that script's arguments expand to the contract file.
+#                      Expansion is checked under `sh` semantics — no globstar —
+#                      because npm runs scripts under sh.
+#   coverage-ratchet   platform/coverage-baseline.yaml declares a component for
+#                      this venture AND its command expands to the contract file.
+#   none               nothing runs it. Requires `owner`, `reason` and a dated
+#                      `exempt_until` no more than 180 days out, so the gap
+#                      expires into a failure instead of into silence.
+#
+# `route_files` and `handlers` are exact measured counts, checked in both
+# directions like `count` in platform/exception-register.yaml. Above declared
+# means a route was added and nobody declared its posture — the case the
+# contract exists to catch. Below means one was deleted and the contract still
+# claims it. Re-measure with:
+#
+#     python3 scripts/ci/route_posture_contract.py --report
+
+ventures:
+  - venture: print-atelier
+    contract: ventures/print-atelier/tests/api-route-guard-contract.test.ts
+    execution: coverage-ratchet
+    route_files: 7
+    handlers: 12
+    owner: duncan
+    # The only one of the three original contracts that actually runs in CI,
+    # and only incidentally: it sits inside the `tests/*.test.ts` glob that the
+    # coverage component already measures. Writing it found SEC-019 — four
+    # unguarded handlers, including `GET /api/stripe/webhook` and
+    # `GET /api/stripe/checkout` reporting which secrets were configured.
+    # Its companion `tests/operator-route-authorization.test.ts` is the
+    # behavioural half: it invokes handlers and asserts anonymous callers are
+    # refused, where this one asserts the guard is present.
+
+  - venture: ai-first-markets
+    contract: ventures/ai-first-markets/src/lib/routeAuthPosture.test.ts
+    execution: none
+    exempt_until: 2026-10-30
+    route_files: 3
+    handlers: 4
+    owner: duncan
+    reason: >
+      One of the two conditions this exemption named has now been met. The
+      contract committed in 4d16bad declared `/api/subscribe POST` and floored
+      at three route modules while that route was untracked, so on 2026-08-01 it
+      did not merely fail to run — it failed outright on a clean checkout. The
+      subscribe route landed with the 2026-08-03 integration, and the suite now
+      passes 9/9 against the 3 modules and 4 handlers recorded above, measured
+      the same day. The counts moved because the venture grew a route, which is
+      the direction this audit exists to catch, and it caught it.
+      What is still missing is execution. scripts/test-ci.sh has no
+      `npm --prefix ventures/ai-first-markets test` gate and the venture is not
+      a coverage-baseline component, so a green contract is still a contract
+      nothing runs — and a suite that passes today is exactly the one whose
+      breaking nobody would notice. Wiring that gate is the remaining work, and
+      it is now unblocked: the earlier note that the test script's `src/**` glob
+      reached the contract only by luck under sh no longer applies, because the
+      script quotes the pattern (`--test 'src/**/*.test.ts'`) and node does the
+      expansion itself, globstar included.
+
+  - venture: photo-editing
+    contract: ventures/photo-editing/docs-site/src/lib/routeAuthPosture.test.ts
+    execution: none
+    exempt_until: 2026-10-30
+    route_files: 4
+    handlers: 4
+    owner: duncan
+    reason: >
+      Same execution gap as ai-first-markets: no test-ci.sh gate runs the
+      docs-site suite and it is not a coverage-baseline component, so this
+      contract has never run in CI. Unlike ai-first-markets it does pass when
+      run by hand, and it is the strongest of the three — it imports the real
+      `isPublicPath` rather than mirroring it, checks the guard is consulted
+      before the refusal path, and pins the middleware matcher. Writing it
+      found SEC-020, a `startsWith("/api/health")` prefix that also opened
+      `/api/healthz` and `/api/health-internal`. Wiring it in needs a gate that
+      runs `npm --prefix ventures/photo-editing/docs-site test`; note the
+      script names its three test files explicitly, so it would reach this file.
+
+  - venture: quick-pick-survey
+    contract: ventures/quick-pick-survey/src/lib/routeAuthPosture.test.ts
+    execution: venture-test-gate
+    route_files: 31
+    handlers: 32
+    owner: duncan
+    # The largest API surface in the repository and the only venture serving
+    # live production traffic (pairwise.marisstella.dev). Written 2026-08-01.
+    #
+    # Two things made this venture's contract different from the other three.
+    #
+    # Authorization is entirely in-handler: `src/proxy.ts` matches
+    # `/api/:path*` but authenticates nothing — it checks origin and body size,
+    # and `checkOrigin` allows a request with no Origin header by design, so
+    # curl bypasses it. The contract pins that, because every `public` and
+    # `capability` entry rests on it.
+    #
+    # And guards are return-value-based, so "does this handler mention an auth
+    # helper?" would have been worse than no check at all: `session/start`,
+    # `feedback`, `report` and `usage` all call `getSessionUser()` for
+    # attribution and rate-limit exemption only, and a presence test would wave
+    # all four through as guarded. The contract requires a refusal, not a
+    # mention, and that check was mutation-verified by declaring `/api/feedback`
+    # guarded and confirming it fails.
+    #
+    # The posture vocabulary carries a third value, `capability`, for the nine
+    # handlers where possession of an unguessable participant or trial id IS
+    # the credential — `mayAccessOwnedParticipant` admits anonymous
+    # participants by design. Calling those `guarded` would overstate them and
+    # `public` would understate them. Naming them accurately is what surfaced
+    # the residual risks recorded as SEC-021.
+
+  - venture: local-site-studio
+    contract: null
+    execution: none
+    exempt_until: 2026-10-30
+    route_files: 9
+    handlers: 10
+    owner: duncan
+    reason: >
+      Nine route modules, ten handlers, no posture contract and no CI gate that
+      runs its suite. Surveyed 2026-08-01: `src/proxy.ts` has a broad matcher
+      but gates only `/dashboard*`, so every `/api/*` path falls through
+      ungated and all authorization is in-handler. Only two handlers call
+      `requireOperatorAuth`, and that helper returns `{ ok: true }` to every
+      anonymous caller when `OPERATOR_DASHBOARD_PASSWORD` is unset — a
+      documented open-demo mode, which means a deploy that omits one env var
+      silently publishes both operator endpoints with no error and no log. One
+      of the two is `/api/marketing/generate`, which makes a billed Anthropic
+      API call per request with attacker-controlled prompt content; see
+      SEC-021 in docs/SECURITY_AUDIT_LOG.md for why its rate limit is not a
+      sufficient brake. A contract here should pin the guarded posture under a
+      fixture where the password *is* set, so the fail-open default is a
+      declared, reviewed property rather than an accident of deployment.

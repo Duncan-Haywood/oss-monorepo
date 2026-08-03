@@ -143,6 +143,16 @@ run_ci_test "Container Image Tag Audit" python3 "${REPO_ROOT}/scripts/ci/image_t
 # `tests/test_kill_criteria_ratchet.py` runs the same audit under pytest, so this
 # entry is the named gate rather than the only enforcement.
 run_ci_test "Kill-Criteria Stopping Rule Ratchet" python3 "${REPO_ROOT}/scripts/ci/kill_criteria_ratchet.py"
+# Three ventures grew a route auth-posture contract by hand and the roadmap
+# called them "three hand-written files, not a control". Measured 2026-08-01 it
+# was worse: two of the three are executed by no gate at all, and one of those
+# fails outright on a clean checkout — it declares a route that was never
+# committed. A test nothing runs cannot fail, so it controls nothing. This
+# checks all three things: every venture serving HTTP routes declares a
+# contract, that contract is reachable by a real gate, and its handler count
+# matches the measured surface both ways. The count is what catches a new
+# unguarded endpoint nobody declared.
+run_ci_test "Route Auth-Posture Contract Coverage" python3 "${REPO_ROOT}/scripts/ci/route_posture_contract.py"
 
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"
