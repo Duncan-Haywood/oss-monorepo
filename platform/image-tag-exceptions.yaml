@@ -1,0 +1,54 @@
+# Mutable container image tags, accepted with an expiry
+#
+# `scripts/ci/image_tags.py` enforces this file and fails closed;
+# `tests/test_image_tags.py` runs the same audit under pytest.
+#
+# The audit reads the *effective* reference — the manifest's `image:` after its
+# directory's Kustomize `images:` overlay — because that is what Argo CD renders
+# and the cluster pulls. A mutable reference means the running code cannot be
+# named: `:latest` resolves to whatever was pushed last, so a rollback has no
+# target, an audit has no answer, and an accidental or hostile push deploys
+# without a diff. An image with no tag is the same defect spelled differently,
+# since Kubernetes supplies `:latest` for it.
+#
+# `count` is the exact number of mutable references the entry accepts, and the
+# ratchet is two-directional, like `count` in `platform/exception-register.yaml`:
+#
+#   * More than `count` fails — the gap grew and nobody decided that.
+#   * Fewer than `count` fails — images were pinned and the register is stale.
+#
+# `expires` may be at most 180 days out, capped in `image_tags.py`
+# (MAX_EXPIRY_DAYS), so this file cannot be widened into permanent silence.
+#
+# The fix these entries are waiting for already exists in this repository.
+# `platform/k8s/apps/quick-pick-survey/kustomization.yaml` carries
+# `digest: sha256:…`, which `platform/ci/promote-pairwise-gitops.sh` rewrites on
+# each promotion after validating the digest's shape. That venture is not
+# registered below because it does not need to be — it is the worked example.
+
+exceptions:
+  - id: IMG-001
+    path: platform/k8s/apps/*/deployment.yaml
+    count: 7
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2027-01-15
+    reason: >-
+      Seven venture overlays pin `newTag: latest`: ai-engineering-academy,
+      ai-first-markets, local-site-studio, marisstella-homepage, print-atelier,
+      real-estate-photo-app and retail-pilot-intel. None of the seven can be
+      pinned today, because for each of them nothing in this repository builds
+      and pushes the image the manifest names — there is no Dockerfile for most
+      and no workflow that publishes any of them. Writing a digest now would
+      pin these Deployments to an artifact that does not exist, which is a
+      worse failure than a mutable tag: it fails at pull time in the cluster
+      rather than at review time here. The tag is a symptom of the missing
+      image pipeline, and it is the pipeline that has to land first.
+    compensating_control: >-
+      None of the seven is reachable from the public internet through this
+      manifest. `links.production` is `null` in all seven VENTURE.yaml files,
+      and the one live service among them, marisstella-homepage, is served by
+      `platform/ci/deploy-homepage.sh` from a ConfigMap rather than from this
+      image. The single venture that does deploy from its manifest,
+      quick-pick-survey, is digest-pinned and is excluded from this entry, so
+      the count cannot be quietly satisfied by the service that matters most.

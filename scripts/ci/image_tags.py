@@ -1,0 +1,376 @@
+#!/usr/bin/env python3
+"""Every container image a manifest deploys is pinned to an immutable reference.
+
+`.gitea/workflows/deploy-services.yml` already had a step called "Reject mutable
+image tags". It rendered the Helm chart with `--set image.tag=ci-$GITHUB_SHA`
+and then grepped that rendered output for `latest|main|master`. The tag it
+searched for was one it had just set itself, to a value that can never match, so
+the step passed unconditionally — a gate that is declared, reachable, executed,
+and incapable of failing. Meanwhile the manifests that actually describe what
+runs, `platform/k8s/apps/*/deployment.yaml`, were never read by it at all, and
+carried eight mutable references between them.
+
+A mutable tag means the cluster's running code cannot be named. `:latest`
+resolves to whatever was pushed last, so a rollback has no target, an audit has
+no answer, and a compromised or accidental push is deployed without a diff. An
+image reference with no tag is the same failure spelled differently — Kubernetes
+supplies `:latest` for it — which is why the omitted tag is checked here rather
+than assumed benign.
+
+Accepted violations live in `platform/image-tag-exceptions.yaml` with an owner,
+a reason, an expiry and an exact count, matching the `count` contract in
+`platform/exception-register.yaml`: the audit fails when the real number is
+higher, because the gap grew and nobody decided that, and when it is lower,
+because the register is stale.
+
+`tests/test_image_tags.py` runs the same audit under pytest and proves the
+detector rejects a mutable reference and accepts a pinned one — the property the
+step this replaces never had.
+"""
+
+from __future__ import annotations
+
+import argparse
+import fnmatch
+import sys
+from dataclasses import dataclass
+from datetime import date, datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Sequence
+
+import yaml
+
+SCAN_ROOT = "platform/k8s"
+EXCEPTIONS_PATH = "platform/image-tag-exceptions.yaml"
+
+REQUIRED_FIELDS = ("id", "path", "owner", "issue", "reason", "expires", "count")
+
+#: An exception nobody re-reads is a policy change made without review. Same cap
+#: as `platform/exception-register.yaml`.
+MAX_EXPIRY_DAYS = 180
+
+#: Tags that name a moving target rather than a build. `alpine` and friends are
+#: not listed: they are upstream base-image tags, equally mutable, and caught by
+#: the digest rule below instead of by name.
+MUTABLE_TAGS = frozenset(
+    {"latest", "main", "master", "stable", "edge", "dev", "develop", "nightly", "prod", "production"}
+)
+
+
+class ImageTagError(Exception):
+    """A failure that must not be reported as a pass."""
+
+
+@dataclass(frozen=True)
+class ImageRef:
+    """One image reference as it will actually be deployed.
+
+    `reference` is the value after the directory's Kustomize `images:` overlay
+    has been applied, because that overlay is what Argo CD renders and the
+    cluster pulls. Judging the raw `image:` line instead would fail
+    `quick-pick-survey`, which writes an untagged name in `deployment.yaml` and
+    pins the digest in `kustomization.yaml` — the correct pattern, and the one
+    this repository's own promotion script maintains.
+    """
+
+    path: str
+    reference: str
+    mutable: bool
+    why: str
+    declared: str = ""
+
+    def format(self) -> str:
+        origin = "" if self.declared in ("", self.reference) else f" (declared `{self.declared}`)"
+        return f"{self.path}: {self.reference}{origin} — {self.why}"
+
+
+@dataclass(frozen=True)
+class Finding:
+    code: str
+    message: str
+
+    def format(self) -> str:
+        return f"ERROR [{self.code}] {self.message}"
+
+
+def split_reference(reference: str) -> tuple[str, Optional[str], Optional[str]]:
+    """Splits an image reference into (name, tag, digest).
+
+    The colon in a registry's port (`registry:5000/app`) is not a tag
+    separator, so the tag is looked for after the final slash only.
+    """
+    if "@" in reference:
+        name, _, digest = reference.partition("@")
+        return name, None, digest
+
+    last_slash = reference.rfind("/")
+    tail = reference[last_slash + 1 :]
+    if ":" in tail:
+        tag = tail.rpartition(":")[2]
+        return reference[: reference.rfind(":")], tag, None
+    return reference, None, None
+
+
+def classify(reference: str) -> tuple[bool, str]:
+    """Returns (is_mutable, why)."""
+    _, tag, digest = split_reference(reference)
+
+    if digest:
+        return False, "pinned by digest"
+    if tag is None:
+        # Kubernetes defaults an absent tag to `latest`, so this is the same
+        # defect as writing it out, and easier to miss in review.
+        return True, "no tag, which Kubernetes resolves as :latest"
+    if tag.lower() in MUTABLE_TAGS:
+        return True, f"mutable tag :{tag}"
+    return False, f"pinned to :{tag}"
+
+
+def _walk_images(node: Any, found: List[str]) -> None:
+    """Collects every `image:` string value anywhere in a parsed document."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "image" and isinstance(value, str) and value.strip():
+                found.append(value.strip())
+            else:
+                _walk_images(value, found)
+    elif isinstance(node, list):
+        for item in node:
+            _walk_images(item, found)
+
+
+def load_overlay(directory: Path) -> Dict[str, Dict[str, str]]:
+    """The directory's Kustomize `images:` overrides, keyed by matched name.
+
+    Only the fields that decide mutability are read: `newName`, `newTag` and
+    `digest`.
+    """
+    kustomization = directory / "kustomization.yaml"
+    if not kustomization.is_file():
+        return {}
+    try:
+        data = yaml.safe_load(kustomization.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as exc:
+        raise ImageTagError(f"{kustomization}: could not parse as YAML: {exc}") from exc
+
+    overrides: Dict[str, Dict[str, str]] = {}
+    for entry in data.get("images") or []:
+        if not isinstance(entry, dict) or "name" not in entry:
+            continue
+        overrides[str(entry["name"])] = {
+            key: str(entry[key]) for key in ("newName", "newTag", "digest") if key in entry
+        }
+    return overrides
+
+
+def apply_overlay(reference: str, overrides: Dict[str, Dict[str, str]]) -> str:
+    """The reference Kustomize will render for this image, or it unchanged."""
+    name, tag, digest = split_reference(reference)
+    override = overrides.get(name)
+    if override is None:
+        return reference
+
+    resolved = override.get("newName", name)
+    if "digest" in override:
+        return f"{resolved}@{override['digest']}"
+    if "newTag" in override:
+        return f"{resolved}:{override['newTag']}"
+    if digest:
+        return f"{resolved}@{digest}"
+    return f"{resolved}:{tag}" if tag else resolved
+
+
+def scan(repo_root: Path, scan_root: str = SCAN_ROOT) -> List[ImageRef]:
+    """Every effective image reference under `scan_root`, in sorted path order."""
+    root = repo_root / scan_root
+    if not root.is_dir():
+        raise ImageTagError(f"nothing to scan: {scan_root} is not a directory")
+
+    refs: List[ImageRef] = []
+    for path in sorted(root.rglob("*.yaml")) + sorted(root.rglob("*.yml")):
+        if path.name == "kustomization.yaml":
+            # Read as an overlay for its own directory, not as a workload.
+            continue
+        relative = path.relative_to(repo_root).as_posix()
+        try:
+            documents = list(yaml.safe_load_all(path.read_text(encoding="utf-8")))
+        except yaml.YAMLError as exc:
+            # Unparseable is not clean. A manifest nobody can read is a manifest
+            # nobody checked.
+            raise ImageTagError(f"{relative}: could not parse as YAML: {exc}") from exc
+
+        images: List[str] = []
+        for document in documents:
+            _walk_images(document, images)
+
+        overrides = load_overlay(path.parent)
+        for declared in images:
+            reference = apply_overlay(declared, overrides)
+            mutable, why = classify(reference)
+            refs.append(
+                ImageRef(
+                    path=relative,
+                    reference=reference,
+                    mutable=mutable,
+                    why=why,
+                    declared=declared,
+                )
+            )
+
+    if not refs:
+        raise ImageTagError(
+            f"scanned {scan_root} and found no image references at all; "
+            "the scan is broken, not the manifests"
+        )
+    return sorted(refs, key=lambda ref: (ref.path, ref.reference))
+
+
+def load_exceptions(repo_root: Path, path: str = EXCEPTIONS_PATH) -> List[Dict[str, Any]]:
+    full = repo_root / path
+    if not full.is_file():
+        raise ImageTagError(f"exception file not found: {path}")
+    try:
+        data = yaml.safe_load(full.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as exc:
+        raise ImageTagError(f"{path}: could not parse as YAML: {exc}") from exc
+
+    entries = data.get("exceptions") or []
+    if not isinstance(entries, list):
+        raise ImageTagError(f"{path}: `exceptions` must be a list")
+
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            raise ImageTagError(f"{path}: entry {index} is not a mapping")
+        missing = [field for field in REQUIRED_FIELDS if field not in entry]
+        if missing:
+            raise ImageTagError(
+                f"{path}: entry {entry.get('id', index)} is missing {', '.join(missing)}"
+            )
+        if not isinstance(entry["count"], int) or entry["count"] < 0:
+            raise ImageTagError(
+                f"{path}: entry {entry['id']} has a non-integer count; "
+                "an exception whose size is not recorded grows for free"
+            )
+    return entries
+
+
+def check_expiry(entries: Sequence[Dict[str, Any]], today: date, path: str = EXCEPTIONS_PATH) -> List[Finding]:
+    findings: List[Finding] = []
+    for entry in entries:
+        raw = entry["expires"]
+        expires = raw if isinstance(raw, date) else None
+        if expires is None:
+            try:
+                expires = datetime.strptime(str(raw), "%Y-%m-%d").date()
+            except ValueError:
+                findings.append(
+                    Finding("exception-bad-date", f"{entry['id']}: `expires: {raw}` is not YYYY-MM-DD")
+                )
+                continue
+        if expires < today:
+            findings.append(
+                Finding(
+                    "exception-expired",
+                    f"{entry['id']} expired on {expires}. Pin the images or re-argue the exception in {path}.",
+                )
+            )
+        elif expires > today + timedelta(days=MAX_EXPIRY_DAYS):
+            findings.append(
+                Finding(
+                    "exception-too-long",
+                    f"{entry['id']} expires {expires}, more than {MAX_EXPIRY_DAYS} days out.",
+                )
+            )
+    return findings
+
+
+def audit(repo_root: Path, today: Optional[date] = None) -> List[Finding]:
+    """The gate. Returns findings; an empty list is a pass."""
+    today = today or date.today()
+    refs = scan(repo_root)
+    entries = load_exceptions(repo_root)
+
+    findings = check_expiry(entries, today)
+
+    mutable = [ref for ref in refs if ref.mutable]
+    # Entries are matched in file order and each reference is claimed once, so a
+    # specific entry above a broad one behaves the way it reads.
+    unclaimed = list(mutable)
+    for entry in entries:
+        pattern = entry["path"]
+        claimed = [ref for ref in unclaimed if fnmatch.fnmatch(ref.path, pattern)]
+        actual = len(claimed)
+        declared = entry["count"]
+        if actual > declared:
+            findings.append(
+                Finding(
+                    "exception-count-high",
+                    f"{entry['id']} accepts {declared} mutable reference(s) under `{pattern}` "
+                    f"but {actual} exist. New ones:\n        "
+                    + "\n        ".join(ref.format() for ref in claimed[declared:]),
+                )
+            )
+        elif actual < declared:
+            findings.append(
+                Finding(
+                    "exception-count-low",
+                    f"{entry['id']} accepts {declared} mutable reference(s) under `{pattern}` "
+                    f"but only {actual} exist. Images were pinned — lower the count.",
+                )
+            )
+        for ref in claimed:
+            unclaimed.remove(ref)
+
+    for ref in unclaimed:
+        findings.append(
+            Finding(
+                "mutable-image-tag",
+                f"{ref.format()}\n        -> Pin it to a digest or an immutable tag, or register "
+                f"it in {EXCEPTIONS_PATH} with an owner, a reason and an expiry.",
+            )
+        )
+    return findings
+
+
+def format_report(repo_root: Path, findings: Sequence[Finding]) -> str:
+    refs = scan(repo_root)
+    pinned = sum(1 for ref in refs if not ref.mutable)
+    lines = [
+        "=== Container Image Tag Audit ===",
+        f"{len(refs)} image reference(s) under {SCAN_ROOT}: {pinned} pinned, {len(refs) - pinned} mutable.",
+    ]
+    if not findings:
+        lines.append("Every mutable reference is registered, counted and unexpired.")
+        return "\n".join(lines)
+    lines.append("")
+    lines.extend(finding.format() for finding in findings)
+    lines.append("")
+    lines.append(f"image tag audit: {len(findings)} error(s). See {EXCEPTIONS_PATH}.")
+    return "\n".join(lines)
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Fail when a Kubernetes manifest deploys a mutable image reference."
+    )
+    parser.add_argument("--repo-root", default=None, help="repository root (default: two levels up)")
+    args = parser.parse_args(argv)
+
+    repo_root = Path(args.repo_root) if args.repo_root else Path(__file__).resolve().parents[2]
+
+    try:
+        findings = audit(repo_root)
+    except ImageTagError as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
+        return 1
+
+    report = format_report(repo_root, findings)
+    if findings:
+        print(report, file=sys.stderr)
+        return 1
+    print(report)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

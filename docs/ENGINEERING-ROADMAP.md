@@ -305,9 +305,24 @@ evidence, and completion date before it can be marked done.
   `agent/route-posture-repo-control` (`2ce17a3`) — two independent versions,
   neither merged here, because each arrives with a competing repo-level control
   (see the integration report). Until one is chosen, the registered gap is the
-  accurate statement. `print-atelier`'s page routes, as distinct from its API
-  routes, also remain outside contracts (the coverage control scans for
-  `route.*` modules).
+  accurate statement.
+  `print-atelier`'s page routes, as distinct from its API routes, remain
+  outside contracts — the coverage control scans for `route.*` modules — and
+  auditing those 24 pages found a real exposure rather than a paperwork gap,
+  2026-08-02, owner duncan. `/partner-setup` renders a `"use client"` component
+  that called `getPartnerCredentialEnvFromProcess()`; the directive marks the
+  hydration boundary, not where the code runs, so the server render read live
+  credentials and serialised `maskedValue` — the key's real prefix and last
+  four characters — into the HTML for anonymous visitors. That is exactly what
+  `withoutMaskedValues` exists to strip, and the route guard never saw it
+  because the read did not go through a route. `CheckoutRetargetingPanel` had
+  the milder form. Both now fetch from the guarded route, and
+  `ventures/print-atelier/tests/client-component-env-isolation.test.ts` holds
+  every client module to reading no environment and rendering no mask. Still
+  open: the other 23 pages have no authorization contract, and several
+  (`/admin-portal`, `/ops`, `/sales-portal`, `/investor`) are shaped as
+  operator consoles rendering hardcoded module constants — no live data today,
+  so wiring them to real data is the moment the gap becomes an incident.
 - [ ] Make repository policy, secret history, SAST, SCA/license, IaC, container,
   and image scanning required checks; repair the current failing security jobs.
   Partial, 2026-07-31, owner duncan. Repaired: the CI engine no longer reports
@@ -611,6 +626,23 @@ evidence, and completion date before it can be marked done.
 
 - [ ] Standardize full-SHA image builds, SBOMs, signatures/provenance, digest
   promotion, vulnerability gates, and Argo CD reconciliation for every service.
+  Partial, 2026-08-02, owner duncan, commit `c24d148`. The mutability half is now a
+  control. `.gitea/workflows/deploy-services.yml` had a step called "Reject
+  mutable image tags" that rendered the chart with `--set
+  image.tag=ci-$GITHUB_SHA` and then grepped that render for
+  `latest|main|master` — it searched for a string the same step had just made
+  impossible, so it passed on every run ever made, and it never opened
+  `platform/k8s/apps/**`, where seven overlays declared `newTag: latest`. It is
+  replaced by `scripts/ci/image_tags.py`, which judges the *effective*
+  reference after each directory's Kustomize `images:` overlay, because that is
+  what Argo CD renders; the naive check would have failed `quick-pick-survey`,
+  the one venture that does this correctly. Accepted violations are counted and
+  expiring in `platform/image-tag-exceptions.yaml`, and
+  `tests/test_image_tags.py` asserts the failing directions — unregistered tag,
+  absent tag, count grown, count stale, expired grant, empty scan. Still open:
+  nothing builds or pushes an image for those seven ventures, which is why they
+  are registered rather than pinned, and SBOMs, signatures and provenance are
+  untouched.
 - [ ] Add preview/staging integration and end-to-end tests for critical customer
   journeys; keep production smoke checks bound to the promoted digest.
 - [ ] Define per-service SLIs/SLOs and error budgets; version dashboards, alerts,

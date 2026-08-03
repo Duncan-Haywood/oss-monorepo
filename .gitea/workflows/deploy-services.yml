@@ -4,13 +4,17 @@ on:
   pull_request:
     paths:
       - "platform/terraform/helm/web-service/**"
-      - "platform/k8s/apps/**"
+      - "platform/k8s/**"
+      - "platform/image-tag-exceptions.yaml"
+      - "scripts/ci/image_tags.py"
       - ".gitea/workflows/deploy-services.yml"
   push:
     branches: [main]
     paths:
       - "platform/terraform/helm/web-service/**"
-      - "platform/k8s/apps/**"
+      - "platform/k8s/**"
+      - "platform/image-tag-exceptions.yaml"
+      - "scripts/ci/image_tags.py"
       - ".gitea/workflows/deploy-services.yml"
   workflow_dispatch:
 
@@ -43,9 +47,19 @@ jobs:
           --set image.tag=ci-${{ github.sha }}
           --set ingress.host=service.example.invalid
           > "$RUNNER_TEMP/web-service.yaml"
+      # 3.11 is the interpreter the suite is developed against, and the same
+      # pinned action ci-cd.yml uses for its Python gates.
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Install Python gate dependencies
+        run: python3 -m pip install --disable-pip-version-check -r requirements-ci.txt
       - name: Reject mutable image tags
-        run: |
-          if grep -Eq 'image:.*:(latest|main|master)([[:space:]]|$)' "$RUNNER_TEMP/web-service.yaml"; then
-            printf 'mutable image tag found in rendered manifests\n' >&2
-            exit 1
-          fi
+        # This step used to grep the render above for `latest|main|master`. The
+        # render is produced with `--set image.tag=ci-${{ github.sha }}`, so the
+        # string it searched for was one the same step had just made impossible:
+        # it passed on every run ever made, and never opened the manifests in
+        # platform/k8s that describe what actually runs. Seven of those carried
+        # `:latest` throughout.
+        run: python3 scripts/ci/image_tags.py

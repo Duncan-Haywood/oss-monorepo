@@ -114,6 +114,14 @@ run_ci_test "Exception Register Audit" python3 "${REPO_ROOT}/scripts/ci/audit_ex
 # `tests/test_coverage_ratchet.py` runs the same audit under pytest, so this
 # entry is the named gate rather than the only enforcement.
 run_ci_test "Coverage Baseline Ratchet" python3 "${REPO_ROOT}/scripts/ci/coverage_ratchet.py"
+# deploy-services.yml already had a step named "Reject mutable image tags". It
+# rendered the chart with `--set image.tag=ci-$GITHUB_SHA` and grepped that
+# render for `latest` — searching for a string it had just made impossible, over
+# manifests it never opened. This reads the effective reference in
+# platform/k8s, after each directory's Kustomize overlay, so what is judged is
+# what Argo CD renders. `tests/test_image_tags.py` runs the same audit under
+# pytest, so this entry is the named gate rather than the only enforcement.
+run_ci_test "Container Image Tag Audit" python3 "${REPO_ROOT}/scripts/ci/image_tags.py"
 
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"
