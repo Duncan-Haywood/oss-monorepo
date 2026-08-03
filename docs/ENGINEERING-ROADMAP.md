@@ -955,6 +955,35 @@ evidence, and completion date before it can be marked done.
   built until one month closes with spend metered per venture as it is drawn.
   What the check cannot see is stated in `portfolio/ledger/README.md`: a venture
   that genuinely draws its whole grant, and figures nudged a few cents off it.
+  One of the four DORA measures exists as of 2026-08-02, owner duncan: lead time
+  for changes, in its worst case, in `scripts/ci/release_lag.py` against
+  `platform/release-lag-policy.yaml`, held by `tests/test_release_lag.py` and
+  documented in [release lag](RELEASE-LAG.md). Deployment frequency,
+  change-failure rate and time to restore remain unstarted.
+  It was written because the measure was missing in the way that mattered most:
+  every control in this repository asks whether the work is *good* and none
+  asked whether it ever *shipped*. A grep for
+  `dora|lead.time|deployment.frequency|release.lag` hit only this bullet.
+  The first run measured **108 unshipped commits** across 29 local branches
+  against `origin/main` at `a4b8f23` from 2026-07-31, with four live services
+  running older code — `quick-pick-survey` 19 commits behind, and the homepage
+  2. Production staleness was confirmed by byte-comparison rather than
+  inference: live `marisstella.dev/app.js` returned 5806 bytes, identical to
+  `origin/main`, while `HEAD` had 6310, so the five homepage fixes recorded as
+  done the previous day were not on the page a visitor loaded.
+  The control is a two-directional ratchet on the model of
+  `platform/coverage-baseline.yaml` rather than a threshold, because the count
+  moves with every commit: `target` is what good looks like, one `acknowledged`
+  entry with owner, issue, reason and expiry raises it to what is true today,
+  and the audit fails above the limit, more than `slack` below it, inside the
+  target while the entry still exists, and on expiry. It fails closed on an
+  unresolvable deployment ref, a non-repository, a malformed policy and a stale
+  `extra_components` path. Mutation-checked sixteen ways; one mutation survived
+  the first pass and the test that should have caught it was corrected.
+  What it does **not** do is push or merge. Draining the backlog is an outward
+  action with a production deploy behind it and belongs to the repository owner,
+  not to the scheduled runs that created it. RL-001 in
+  [release lag](RELEASE-LAG.md) carries the drain plan and expires 2026-09-13.
 - [ ] Add dependency update automation that opens small, tested Gitea changes
   and prioritizes supported framework/security releases.
 

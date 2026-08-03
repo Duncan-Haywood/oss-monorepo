@@ -30,11 +30,22 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-          # The engine's affected-path detection diffs the pushed range. The
-          # default depth of 1 leaves the base commit absent from the checkout,
-          # so that diff could never resolve and every run silently verified
-          # the whole catalog while reporting it as a selection.
-          # platform/ci/test/affected-path-detection.test.mjs holds this depth.
+          # Full history and every remote branch. Two separate gates need it,
+          # and each was found by a different branch:
+          #
+          #   * The engine's affected-path detection diffs the pushed range. The
+          #     default depth of 1 leaves the base commit absent from the
+          #     checkout, so that diff could never resolve and every run
+          #     silently verified the whole catalog while reporting it as a
+          #     selection. platform/ci/test/affected-path-detection.test.mjs
+          #     holds this depth.
+          #   * `scripts/ci/release_lag.py` measures how far committed work sits
+          #     from `origin/main`, which is what production serves, and it
+          #     fails closed when that ref does not resolve. A shallow checkout
+          #     fetches only the ref being built, so `origin/main` is absent and
+          #     the audit could report nothing but "cannot measure" — a gate
+          #     that can only fail is one someone eventually deletes. Confirmed
+          #     against a real `--depth 1` clone.
           fetch-depth: 0
 
       # This job runs scripts/verify-all.sh, which runs scripts/test-ci.sh (12
