@@ -51,7 +51,7 @@ const REQUIRED_TOOLING = [
   },
   {
     tool: 'python3',
-    why: 'portfolio router suite, allocation report, venture contract validator, exception register audit',
+    why: 'portfolio router suite, allocation report, venture contract validator, exception register audit, kill-criteria stopping rule ratchet',
     provides: /uses: actions\/setup-python@[a-f0-9]{40}/,
   },
   {

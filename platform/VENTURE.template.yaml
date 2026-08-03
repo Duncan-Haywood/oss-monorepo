@@ -35,9 +35,28 @@ budget:
   protected: true
 
 # Stop conditions. When one trips, the router stops allocating and flags it.
+# The conditions under which the portfolio stops funding this venture.
+#
+# A criterion written as prose states intent but cannot be evaluated, and
+# `scripts/ci/kill_criteria_ratchet.py` counts a venture whose criteria are all
+# prose as having no stopping rule at all. Declare at least one against a metric.
+#
+# Metrics are read from portfolio/ledger/*.yaml and the vocabulary is fixed in
+# portfolio/router/kill_criteria.py: cumulative_agent_spend_usd,
+# cumulative_revenue_usd, months_recorded, latest_mrr_usd,
+# consecutive_months_zero_mrr. An unrecognised name is unevaluable, not a pass.
 kill_criteria:
   - No paying customer after 90 days post-launch.
-  - Monthly cost exceeds MRR for 3 consecutive months past `revenue` stage.
+  - description: >-
+      Spend passed the point where this venture has to show revenue, and the
+      ledger records none.
+    when:
+      - metric: cumulative_agent_spend_usd
+        comparator: ">="
+        threshold: 150
+      - metric: cumulative_revenue_usd
+        comparator: "=="
+        threshold: 0
 
 links:
   production: null
