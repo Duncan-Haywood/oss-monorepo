@@ -132,10 +132,11 @@ jobs:
       # writes SECURITY_ROADMAP.md walked the whole tree, so those findings were
       # logged and ungated at the same time.
       #
-      # platform/ci/test/dependency-audit-coverage.test.mjs holds this list: it
-      # enumerates lockfiles with `git ls-files` and fails when a committed one
-      # is missing here, so the next package with dependencies cannot be added
-      # without a decision about auditing it.
+      # platform/ci/test/dependency-audit-coverage.test.mjs holds this list. It
+      # fails when a committed lockfile is neither in this matrix nor carries a
+      # dated, owned, sized exception, so the next package with dependencies
+      # cannot be added without a decision about auditing it, and the escape
+      # hatch stays explicit and expiring.
       matrix:
         include:
           - venture: ai-engineering-academy-site

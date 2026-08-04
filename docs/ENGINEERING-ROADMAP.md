@@ -162,13 +162,24 @@ evidence, and completion date before it can be marked done.
   generalizable one is the class contract: every class name the built pages use
   must resolve in the stylesheet, which is what catches a shipped-but-invisible
   UI without anyone having to look at the page.
-  Not done: this is one venture. Nothing checks the other ten, the check is
-  string-and-DOM-level rather than a real browser, and `photos-import-tools`
-  has a worse instance of the same defect class still open — `sd_offload.py`
-  writes `"status": "verified"` into the manifest a user consults before
-  erasing an SD card, on a same-byte-length comparison; its `sha256_file()` is
-  defined and called from nowhere.
-
+  **Two branches fixed this independently and the tree carries one of them.**
+  `agent/continue-work-4-2026-08-02` and the base each found the same four
+  false claims and the same unstyled surface, within a day of each other, and
+  neither knew of the other. The base's implementation is the one that landed:
+  it extracts the checkpoint rules into `site/checkpoint-validator.mjs` and
+  inlines them, so the rules under test are the rules the learner meets, and
+  its suite drives the page's own inlined script in a `node:vm` rather than
+  grepping for strings — mutation-checked 20 ways, against the other's
+  authored-walkthrough rewrite. One thing was ported from the branch that the
+  base did not have: the two estimator sliders now carry the visitor's stated
+  usage into the waitlist application. `$49` is a proposal that appears nowhere
+  in the venture's documentation, so what visitors say they expect to use is
+  the only evidence that could ever set it; without that, the estimator is
+  decoration and the demand data is thrown away at the moment of conversion.
+  Held by a test that drives the real handler and reads the generated `mailto`.
+  That duplication is itself the finding. Two agents spent a session each on
+  the same four defects in the same venture, and the only reason the second
+  one's work was not silently discarded is that someone read both.
   2026-08-04, owner duncan: a second venture, and the most expensive instance
   found so far. `local-site-studio`'s Complete tier sells at `$500 + $199/mo`,
   and five public surfaces — the tier's feature list and tagline, the hero
@@ -221,34 +232,15 @@ evidence, and completion date before it can be marked done.
   and fails on that mutation. **A regression test that survives the regression
   it was written for is the defect, not the coverage** — mutate every fix whose
   test mocks the module the fix lives in.
-
-  **Two branches fixed this independently and the tree carries one of them.**
-  `agent/continue-work-4-2026-08-02` and the base each found the same four
-  false claims and the same unstyled surface, within a day of each other, and
-  neither knew of the other. The base's implementation is the one that landed:
-  it extracts the checkpoint rules into `site/checkpoint-validator.mjs` and
-  inlines them, so the rules under test are the rules the learner meets, and
-  its suite drives the page's own inlined script in a `node:vm` rather than
-  grepping for strings — mutation-checked 20 ways, against the other's
-  authored-walkthrough rewrite. One thing was ported from the branch that the
-  base did not have: the two estimator sliders now carry the visitor's stated
-  usage into the waitlist application. `$49` is a proposal that appears nowhere
-  in the venture's documentation, so what visitors say they expect to use is
-  the only evidence that could ever set it; without that, the estimator is
-  decoration and the demand data is thrown away at the moment of conversion.
-  Held by a test that drives the real handler and reads the generated `mailto`.
-  That duplication is itself the finding. Two agents spent a session each on
-  the same four defects in the same venture, and the only reason the second
-  one's work was not silently discarded is that someone read both.
-  Not done: this is one venture, and nothing checks the other ten. The check is
-  string-and-DOM-level rather than a real browser, so layout, contrast and
-  focus rings are argued from the stylesheet rather than observed. The
-  `photos-import-tools` instance of the same class — `sd_offload.py` writing
-  `"status": "verified"` into the manifest a user consults before erasing an SD
-  card, on a same-byte-length comparison, with `sha256_file()` defined and
-  called from nowhere — was open when this was written and is now closed:
-  `sha256_file` is called on both source and destination and the digests
-  compared before the status is written.
+  Not done: this is two ventures of eleven, and nothing checks the other nine.
+  The academy check is string-and-DOM-level rather than a real browser, so
+  layout, contrast and focus rings are argued from the stylesheet rather than
+  observed. The `photos-import-tools` instance of the same class —
+  `sd_offload.py` writing `"status": "verified"` into the manifest a user
+  consults before erasing an SD card, on a same-byte-length comparison, with
+  `sha256_file()` defined and called from nowhere — was open when the first half
+  of this was written and is now closed: `sha256_file` is called on both source
+  and destination and the digests compared before the status is written.
 - [ ] Configure and verify Gitea branch/environment protection: pull requests
   only for release branches, current required checks, stale approval dismissal,
   CODEOWNERS, one independent approval for Tier 2, two including an accountable
@@ -1535,7 +1527,6 @@ evidence, and completion date before it can be marked done.
   deferred this as an owner decision; it was done because deferring it was
   costing more than the decision. `scripts/ci/integration_debt.py` now reports
   **one tip over 49 refs and 48 commits** — shipping is one reviewed push.
-  Written up in [the third integration report](INTEGRATION-REPORT-2026-08-04c.md).
   The two engine choices that the deferral was protecting are stated here so
   the owner reviews two decisions rather than 39 hunks:
 
@@ -1644,6 +1635,10 @@ evidence, and completion date before it can be marked done.
   `portfolio/kill-criteria-register.yaml`, `portfolio/router/test_kill_criteria.py`
   and `docs/INTEGRATION-REPORT-2026-08-04.md`. This branch holds 14 that it does
   not, which is why this one is the base.
+  The concurrent session's own write-up of the same merge is
+  [the third integration report](INTEGRATION-REPORT-2026-08-04c.md); it
+  reaches the same two engine decisions independently, which is the closest
+  thing to a review either resolution has had.
 
   This bullet previously said "not attempted, deliberately", on the grounds that
   choosing between two stop-loss engines is an owner decision. **It was
