@@ -225,6 +225,18 @@ run_ci_test "Image Release Path Ratchet" python3 "${REPO_ROOT}/scripts/ci/image_
 # `tests/test_duplicate_definitions.py` runs the same scan under pytest, so this
 # entry is the named gate rather than the only enforcement.
 run_ci_test "Duplicate Definition Scan" python3 "${REPO_ROOT}/scripts/ci/duplicate_definitions.py"
+# A symlink is committed as a blob holding its target, so a link to
+# /Users/duncan/... travels in the history as that literal path: correct on one
+# laptop, broken in every clone and on every runner. One reached main on
+# 2026-08-04 — `ventures/real-estate-agent-photo-app/pipeline/node_modules` —
+# and no other control could see it, because to all of them it is an ordinary
+# tracked file. It got in because `.gitignore` said `node_modules/`, and a
+# trailing slash matches directories only. This runs as a named gate because
+# the failure it prevents is a clone that cannot build for reasons that point
+# nowhere near the link; `tests/test_tracked_symlinks.py` runs the same audit
+# under pytest, so this entry is the named gate rather than the only
+# enforcement.
+run_ci_test "Tracked Symlink Contract" python3 "${REPO_ROOT}/scripts/ci/tracked_symlinks.py"
 
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"
