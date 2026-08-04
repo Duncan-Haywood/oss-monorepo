@@ -58,3 +58,18 @@ test("verifyStripeWebhookSignature validates Stripe signature headers", () => {
   assert.equal(verifyStripeWebhookSignature(payload, header, secret), true);
   assert.equal(verifyStripeWebhookSignature(payload, "t=1,v1=bad", secret), false);
 });
+
+test("verifyStripeWebhookSignature rejects expired signatures when maxAgeSeconds is set", () => {
+  const secret = "whsec_test_secret";
+  const payload = JSON.stringify({ id: "evt_test", type: "transfer.created" });
+  const oldTimestamp = 1710000000;
+  const signature = createHmac("sha256", secret)
+    .update(`${oldTimestamp}.${payload}`, "utf8")
+    .digest("hex");
+  const header = `t=${oldTimestamp},v1=${signature}`;
+
+  const currentNow = oldTimestamp + 600; // 10 minutes later (max age 300s)
+  assert.equal(verifyStripeWebhookSignature(payload, header, secret, 300, currentNow), false);
+  assert.equal(verifyStripeWebhookSignature(payload, header, secret, 300, oldTimestamp + 100), true);
+});
+

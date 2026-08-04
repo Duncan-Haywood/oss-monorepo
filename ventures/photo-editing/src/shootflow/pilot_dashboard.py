@@ -138,6 +138,7 @@ def build_pilot_dashboard_summary(
             "metric counts are unavailable until trusted scheduler reports validate",
             "pilot acceptance thresholds are observational and do not authorize workflow actions",
             "dashboard summaries do not grant copy, retry, cleanup, overwrite, materialization, or deletion authority",
+            "dry-run stubs and simulated scheduler reports must be verified with live camera files before client handover",
         ),
     )
     _validate_dashboard_summary(summary)

@@ -51,6 +51,12 @@ def base_contract(**overrides):
         "budget": {"monthly_cap": 50, "protected": False},
         "kill_criteria": ["No customers in 90 days."],
         "links": {"production": None},
+        "engineering": {
+            "tier": "Tier 1",
+            "ci_component": "demo",
+            "security": {"data_classification": "public"},
+            "gitops": {"immutable_artifact": True},
+        },
     }
     contract.update(overrides)
     return contract

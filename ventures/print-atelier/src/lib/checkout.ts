@@ -142,6 +142,35 @@ export function artworkToCheckoutLine(
   };
 }
 
+export function sanitizeCheckoutLineItems(
+  lineItems: CheckoutLineItem[],
+  artworks: CatalogArtwork[] = catalogArtworks,
+): CheckoutLineItem[] {
+  return lineItems.map((item) => {
+    const artwork = artworks.find((a) => a.slug === item.artworkSlug);
+    if (!artwork) {
+      return item;
+    }
+    const accountId =
+      artwork.artistAccountId ??
+      `acct_${artwork.artistName.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+    const handle =
+      artwork.artistHandle ??
+      `@${artwork.artistName.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+
+    return {
+      ...item,
+      title: artwork.title,
+      artistName: artwork.artistName,
+      artistAccountId: accountId,
+      artistHandle: handle,
+      retailPrice: artwork.retailPrice,
+      fulfillmentCost: artwork.fulfillmentCost,
+      quantity: Math.max(1, item.quantity),
+    };
+  });
+}
+
 export function validateCheckoutLineItem(
   artwork: CatalogArtwork,
   consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
@@ -315,11 +344,20 @@ export function buildCheckoutSessionPayload(
   region: CheckoutShippingRegion,
   baseUrl: string,
   env: Record<string, string | undefined> = {},
+  artworks: CatalogArtwork[] = catalogArtworks,
 ): CheckoutSessionPayload {
-  const route = buildFulfillmentRoute(lineItems, region, env);
-  const totals = calculateCheckoutTotals(lineItems, region, env);
+  const canonicalLineItems = lineItems.map((item) => {
+    const artwork = artworks.find((art) => art.slug === item.artworkSlug);
+    if (artwork) {
+      return artworkToCheckoutLine(artwork, item.quantity);
+    }
+    return item;
+  });
 
-  const primaryItem = lineItems[0];
+  const route = buildFulfillmentRoute(canonicalLineItems, region, env);
+  const totals = calculateCheckoutTotals(canonicalLineItems, region, env);
+
+  const primaryItem = canonicalLineItems[0];
   const primaryAccountId =
     primaryItem?.artistAccountId ??
     (primaryItem
@@ -335,7 +373,7 @@ export function buildCheckoutSessionPayload(
     sessionId: generateSessionId(),
     mode: "payment",
     currency: "usd",
-    lineItems: lineItems.map((item) => ({
+    lineItems: canonicalLineItems.map((item) => ({
       name: `${item.title} — ${item.artistName}`,
       unitAmountCents: Math.round(item.retailPrice * 100),
       quantity: item.quantity,
@@ -349,13 +387,13 @@ export function buildCheckoutSessionPayload(
       shippingRegion: region,
       artistTransferTotal: totals.artistTransfers.toFixed(2),
       platformRetainedTotal: totals.platformRetained.toFixed(2),
-      lineItemCount: String(lineItems.length),
-      catalogSlug: lineItems[0]?.artworkSlug ?? "",
+      lineItemCount: String(canonicalLineItems.length),
+      catalogSlug: canonicalLineItems[0]?.artworkSlug ?? "",
       artistAccountId: primaryAccountId,
       artistHandle: primaryHandle,
       destinationConnectAccountId: primaryAccountId,
       ...Object.fromEntries(
-        lineItems.flatMap((item, index) => {
+        canonicalLineItems.flatMap((item, index) => {
           const accId =
             item.artistAccountId ??
             `acct_${item.artistName.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
@@ -429,6 +467,9 @@ export function buildCheckoutReadiness(
     if (!artwork) {
       blockers.push(`Unknown artwork slug: ${line.artworkSlug}`);
       continue;
+    }
+    if (typeof line.retailPrice === "number" && Math.abs(line.retailPrice - artwork.retailPrice) > 0.001) {
+      blockers.push(`${line.title || line.artworkSlug}: Price mismatch ($${line.retailPrice.toFixed(2)} requested vs $${artwork.retailPrice.toFixed(2)} catalog)`);
     }
     const eligibility = validateCheckoutLineItem(artwork, consentRecords);
     if (!eligibility.eligible) {

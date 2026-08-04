@@ -247,11 +247,24 @@ def load_latest_ledger_mrr(repo_root: Path) -> Dict[str, Optional[float]]:
     return recorded
 
 
+def load_catalog_component_ids(repo_root: Path) -> Set[str]:
+    """Reads component IDs registered in platform/ci/src/pipeline.mjs."""
+    pipeline_file = repo_root / "platform" / "ci" / "src" / "pipeline.mjs"
+    if not pipeline_file.is_file():
+        return set()
+    try:
+        content = pipeline_file.read_text(encoding="utf-8")
+        return set(re.findall(r"id:\s*'([^']+)'", content))
+    except OSError:
+        return set()
+
+
 def validate_venture(
     data: Dict[str, Any],
     name: str,
     ledger_mrr: Dict[str, Optional[float]],
     backed_hostnames: Optional[Set[str]] = None,
+    valid_ci_components: Optional[Set[str]] = None,
 ) -> List[Finding]:
     """Validate one contract.
 
@@ -441,6 +454,55 @@ def validate_venture(
                 remedy="Set an explicit monthly_cap; the router otherwise assumes $50.",
             )
         )
+
+    engineering = data.get("engineering")
+    if not isinstance(engineering, dict):
+        findings.append(
+            Finding(
+                venture=name,
+                severity="error",
+                code="missing-engineering-block",
+                message="VENTURE.yaml is missing an 'engineering' configuration block",
+                remedy="Add an 'engineering:' block as defined in platform/VENTURE.template.yaml.",
+            )
+        )
+    else:
+        ci_comp = engineering.get("ci_component")
+        if ci_comp is not None and valid_ci_components and ci_comp not in valid_ci_components:
+            findings.append(
+                Finding(
+                    venture=name,
+                    severity="error",
+                    code="invalid-ci-component",
+                    message=f"engineering.ci_component '{ci_comp}' is not a registered ID in platform/ci/src/pipeline.mjs",
+                    remedy=f"Align with a registered ID in VENTURE_CATALOG: {', '.join(sorted(valid_ci_components))}",
+                )
+            )
+
+        security = engineering.get("security") or {}
+        data_class = security.get("data_classification")
+        if not data_class:
+            findings.append(
+                Finding(
+                    venture=name,
+                    severity="warn",
+                    code="missing-data-classification",
+                    message="engineering.security.data_classification is not set",
+                    remedy="Specify a data classification (e.g. public, customer-pii, payment, credentials, etc.)",
+                )
+            )
+
+        gitops = engineering.get("gitops") or {}
+        if "immutable_artifact" not in gitops:
+            findings.append(
+                Finding(
+                    venture=name,
+                    severity="warn",
+                    code="missing-gitops-immutable-artifact",
+                    message="engineering.gitops.immutable_artifact is not set",
+                    remedy="Set engineering.gitops.immutable_artifact to true or false",
+                )
+            )
 
     findings.extend(find_dominated_criteria(name, data.get("kill_criteria") or []))
 
@@ -636,6 +698,7 @@ def validate_kill_criteria(root: Path) -> List[Finding]:
 def validate_all(repo_root: Optional[Path] = None) -> List[Finding]:
     root = repo_root or find_repo_root()
     ledger_mrr = load_latest_ledger_mrr(root)
+    valid_ci_components = load_catalog_component_ids(root)
 
     findings: List[Finding] = []
     contracts: List[tuple] = []
@@ -683,7 +746,7 @@ def validate_all(repo_root: Optional[Path] = None) -> List[Finding]:
                 )
             )
 
-        findings.extend(validate_venture(data, name, ledger_mrr, backed_hostnames))
+        findings.extend(validate_venture(data, name, ledger_mrr, backed_hostnames, valid_ci_components))
 
     findings.extend(validate_kill_criteria(root))
 

@@ -4,6 +4,8 @@ export function verifyStripeWebhookSignature(
   payload: string,
   signatureHeader: string | null,
   webhookSecret: string,
+  maxAgeSeconds = 0,
+  nowSeconds = Math.floor(Date.now() / 1000),
 ): boolean {
   if (!signatureHeader) {
     return false;
@@ -18,6 +20,15 @@ export function verifyStripeWebhookSignature(
   }
 
   const timestamp = timestampPart.slice(2);
+  const timestampNum = parseInt(timestamp, 10);
+  if (isNaN(timestampNum)) {
+    return false;
+  }
+
+  if (maxAgeSeconds > 0 && Math.abs(nowSeconds - timestampNum) > maxAgeSeconds) {
+    return false;
+  }
+
   const expectedSignature = signaturePart.slice(3);
   const signedPayload = `${timestamp}.${payload}`;
 

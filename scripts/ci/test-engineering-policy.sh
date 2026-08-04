@@ -52,6 +52,11 @@ require_text platform/VENTURE.template.yaml '^engineering:' 'venture engineering
 require_text platform/VENTURE.template.yaml '^  customer_feedback:' 'venture feedback controls'
 require_text platform/VENTURE.template.yaml '^  privacy:' 'venture privacy controls'
 
+for venture_file in "$repo_root"/ventures/*/VENTURE.yaml; do
+  rel_path="${venture_file#"$repo_root"/}"
+  require_text "$rel_path" '^engineering:' 'engineering controls block'
+done
+
 if ((failures > 0)); then
   printf 'engineering policy contract failed with %d issue(s)\n' "$failures" >&2
   exit 1

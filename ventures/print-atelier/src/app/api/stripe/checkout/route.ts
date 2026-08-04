@@ -4,6 +4,7 @@ import {
   calculateCheckoutTotals,
   getCheckoutEnvStatus,
   parseCheckoutCart,
+  sanitizeCheckoutLineItems,
   type CheckoutLineItem,
   type CheckoutShippingRegion,
 } from "@/lib/checkout";
@@ -90,7 +91,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const lineItems = body.lineItems ?? [];
+  const rawLineItems = body.lineItems ?? [];
+  const lineItems = sanitizeCheckoutLineItems(rawLineItems);
   const region: CheckoutShippingRegion = body.region ?? "US";
 
   if (lineItems.length === 0) {

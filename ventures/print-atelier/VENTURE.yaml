@@ -48,3 +48,41 @@ kill_criteria:
 links:
   production: null
   analytics: null
+
+engineering:
+  verify_command: npm run typecheck && npm run lint && npm test && npm run build
+  ci_component: print-atelier
+  coverage:
+    lines: 90
+    functions: 90
+    statements: 90
+    branches: 85
+  critical_paths: []
+  slo:
+    availability: null
+    latency: null
+    correctness: null
+  gitops:
+    desired_state: null
+    immutable_artifact: true
+  security:
+    threat_model: null
+    data_classification: payment, customer-pii, consent
+    scan_profile: source, history, dependencies, licenses, IaC, container, image
+  measurement:
+    outcome: null
+    decision_supported: null
+    event_schema: null
+    data_quality_tests: null
+  customer_feedback:
+    channels: []
+    satisfaction_measure: null
+    review_cadence: null
+    owner: duncan
+  privacy:
+    purpose: null
+    lawful_basis: null
+    notice_or_consent: null
+    retention: null
+    deletion: null
+    access_owner: duncan

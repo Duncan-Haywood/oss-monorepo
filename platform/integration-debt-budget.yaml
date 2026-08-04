@@ -93,16 +93,7 @@ budget:
 # `scripts/ci/integration_debt.py` now strips the configured remote, so these
 # entries mean the same thing in both, which is the environment split that
 # function's own docstring already said it had to survive.
-dropped_artifacts:
-  - path: ventures/real-estate-agent-photo-app/pipeline/node_modules
-    branch: agent/print-atelier-fulfillment-2026-08-04
-    owner: duncan
-    reason: >-
-      Not a control and not a file: a symlink committed as mode 120000 pointing
-      at its own absolute path on one machine, so it resolves nowhere on any
-      other checkout. Dropped on integration rather than carried. `.gitignore`
-      names `node_modules/` with a trailing slash, which matches a directory
-      and not this link, so it is registered here rather than filtered.
+dropped_artifacts: []
 
 rationale: >-
   Release lag says how much work has not shipped. It cannot say whether that

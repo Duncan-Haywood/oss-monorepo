@@ -114,3 +114,39 @@ test("buildCheckoutFunnelMetrics marks live checkout ready when env and POD conf
   assert.equal(funnel.checkoutSessionReady, true);
   assert.ok(funnel.overallReadiness >= 80);
 });
+
+test("buildCheckoutReadiness blocks cart with manipulated retail price", () => {
+  const midnight = catalogArtworks.find((art) => art.slug === "midnight-coast");
+  assert.ok(midnight);
+  const manipulatedCart = [
+    {
+      artworkSlug: midnight.slug,
+      title: midnight.title,
+      artistName: midnight.artistName,
+      retailPrice: 0.01, // manipulated price
+      fulfillmentCost: midnight.fulfillmentCost,
+      quantity: 1,
+    },
+  ];
+  const readiness = buildCheckoutReadiness(manipulatedCart, catalogArtworks, defaultListingConsentRecords, {});
+  assert.equal(readiness.cartEligible, false);
+  assert.ok(readiness.blockers.some((b) => b.includes("Price mismatch")));
+});
+
+test("buildCheckoutSessionPayload enforces canonical catalog price over client-supplied retailPrice", () => {
+  const midnight = catalogArtworks.find((art) => art.slug === "midnight-coast");
+  assert.ok(midnight);
+  const manipulatedCart = [
+    {
+      artworkSlug: midnight.slug,
+      title: midnight.title,
+      artistName: midnight.artistName,
+      retailPrice: 0.01, // manipulated price
+      fulfillmentCost: midnight.fulfillmentCost,
+      quantity: 1,
+    },
+  ];
+  const payload = buildCheckoutSessionPayload(manipulatedCart, "US", "https://printatelier.com");
+  assert.equal(payload.lineItems[0].unitAmountCents, Math.round(midnight.retailPrice * 100));
+});
+

@@ -58,6 +58,21 @@ export function DocLayout({
       </nav>
       <h1>{title}</h1>
       {subtitle ? <p className="subtitle">{subtitle}</p> : null}
+      <div
+        className="prototype-notice-banner"
+        style={{
+          background: "#fffbe6",
+          border: "1px solid #ffe58f",
+          padding: "8px 12px",
+          borderRadius: "4px",
+          marginBottom: "16px",
+          fontSize: "13px",
+        }}
+      >
+        <strong>Prototype Disclosure:</strong> Retail Pilot Intel is an active prototype stage
+        venture. All figures, ROI projections, and pilot metrics presented represent illustrative
+        models and pilot estimates.
+      </div>
       {children}
       {footer ? <footer>{footer}</footer> : null}
     </div>

@@ -44,7 +44,11 @@ afterEach(() => {
 });
 
 /** Builds the `t=<ts>,v1=<hmac>` header Stripe sends, for an arbitrary secret. */
-function sign(payload: string, secret = WEBHOOK_SECRET, timestamp = "1710000000"): string {
+function sign(
+  payload: string,
+  secret = WEBHOOK_SECRET,
+  timestamp = Math.floor(Date.now() / 1000).toString(),
+): string {
   const digest = createHmac("sha256", secret)
     .update(`${timestamp}.${payload}`, "utf8")
     .digest("hex");

@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   }
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-  if (!verifyStripeWebhookSignature(payload, signature, webhookSecret)) {
+  if (!verifyStripeWebhookSignature(payload, signature, webhookSecret, 300)) {
     return NextResponse.json({ error: "Invalid Stripe webhook signature" }, { status: 400 });
   }
 
