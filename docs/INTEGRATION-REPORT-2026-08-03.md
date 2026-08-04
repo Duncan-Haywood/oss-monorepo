@@ -116,3 +116,102 @@ ratchet, which this branch does not have.
 
 `agent/sd-offload-verification-2026-08-03` has already been merged up to current
 `main` and is 1 commit ahead of it, conflict-free.
+
+---
+
+# Integration continued — 2026-08-03, second pass
+
+Branch `integrate-2026-08-03`, built on `agent/integration-2026-08-03`. The
+previous pass left `main` three commits ahead with the rival kill-criteria
+engine; this pass merged `main` and the eleven branches that still held unique
+commits, and took the whole set to one branch.
+
+## Topology, re-measured
+
+`agent/integration-2026-08-03` already contained **27 of the 39** branches ahead
+of `main` outright. Only 11 held unique commits, so the job was 12 merges rather
+than 39.
+
+Merged here: `main`, `academy-test-script`, `ledger-continuity`,
+`sd-offload-verification`, `continue-work-4`, `profit-lever`,
+`release-lag-signal`, `route-posture-repo-control`, `route-posture-repo-gate`,
+`ci/cap-ratchet`, `money-path-fail-closed`. `continue-work-8` was already in
+`main`.
+
+## Four things were built twice
+
+Each cost a real choice, and in every case the losing side had merit:
+
+| Built twice | Kept | Why |
+| --- | --- | --- |
+| `portfolio/router/kill_criteria.py` | `main`'s | It has `kill_criteria_ratchet.py` behind it. An engine with a gate beats a richer engine with none. |
+| `scripts/ci/release_lag.py` | this branch's | It caps its own declared numbers, so the budget cannot be widened into silence. The rival was 159 lines longer and had no such cap. |
+| academy `site/` honesty fixes | this branch's | Same fixes or stronger on every point `continue-work-4` raised — verified point by point rather than assumed, including that the calculator is *unclamped* and will say "Subscription is more expensive by:". |
+| route auth-posture controls | both | They check different things: one that every venture declares a contract and CI reaches it, one that each handler's declared posture is the one enforced. |
+
+## What merging found that no single branch could
+
+**Two gates demanding opposite things.** The dependency-audit matrix and the
+supply-chain exemption register were built on different branches against the same
+defect (4 of 10 lockfiles gated). Merged, five packages were audited *and*
+exempted. Resolved toward full matrix coverage — see the commit for the cost,
+which was measured, not assumed: all five fail `npm audit --audit-level=high`
+today, so their jobs go red until semver-major upgrades land. **This is the one
+decision here a portfolio owner may want to reverse**, and the waiver mechanism
+is kept intact and empty so that reversing it is a two-line change.
+
+**A gate failing a contract that demonstrably runs.** `route-posture-contract`'s
+`isCollected` modelled sh globbing, where `**` collapses to one segment, and
+never stripped quotes from the token. But `--test 'src/**/*.test.ts'` is passed
+through sh untouched and expanded by node's own runner, globstar included.
+ai-first-markets' contract was reported unreachable while `npm test` was
+observably running it. A false positive on the honest configuration is what gets
+such a check deleted.
+
+**Four caps nothing watched.** `ci/cap-ratchet` reads each cap's floor from git
+history rather than from another declared number. Its contract test found that
+`image_tags`, `route_posture_contract`, `sast_scan` and `coverage_ratchet` had
+each grown a `MAX_` constant on a different branch, none of them watched. It
+also found `platform/release-lag-budget.yaml` had been raised above its own
+historical floor twice — 135 against 125, 35 against 32 — which is precisely the
+erosion that file's comment predicted. Restored.
+
+**A sized gap that was quietly already done.** `route-auth-posture-coverage`
+carried quick-pick-survey as a dated gap over 32 handlers, deferred on the honest
+grounds that the contract is a review of 32 handlers. Another branch had done
+that review. It is now a registration: 13 tests, passing, and that is the
+repository's largest route surface and its only live production deployment.
+
+**A contract that was red on arrival is now green.** The route-posture registry
+held ai-first-markets exempt because its contract declared `/api/subscribe POST`
+against a route that was never committed — "it went red the moment it landed and
+nothing noticed". The subscribe route was in-flight on another branch. Here they
+meet: 9/9 passing, counts corrected from 2/3 to the measured 3/4.
+
+## State
+
+- **978 Python tests pass**, 1 fails. 1254 local-site-studio tests pass. The
+  academy, quick-pick-survey and route-posture suites pass.
+- The **one failure is `release-lag`, and it is the designed one**: 127 commits
+  are not in `origin/main`, against a budget of 125 that the cap ratchet now
+  forbids raising. Only a push clears it. That is the control working, not a
+  regression — and it is worth noting the number understates the real gap,
+  because local `main` is itself far beyond `origin/main`.
+- The Node-version gate refuses to run under anything but Node 22. Everything
+  above was measured on **Node 22.22.3**, which is what the baselines were
+  measured on and what the workflows install.
+- Coverage ratchet passes with dependencies installed: `platform-ci` 69.86 /
+  85.29 / 82.58 over 1095 lines, `print-atelier` 91.80 / 87.53 / 79.81 over
+  13508. The `platform-ci` figure matches the baseline this merge kept, which is
+  the check on that resolution having been the right one.
+
+## Still the blocking action: a push
+
+`marisstella.dev` — the only venture with a customer surface — has had **no way
+to reach a human** and now has one, a `mailto:` contact route, sitting in this
+branch. local-site-studio's checkout no longer fulfils orders whose payment has
+not settled, its advertised prices match what `bundles.ts` charges, and its
+operator gate fails closed without a password. None of that is live.
+
+Nothing in this run pushed, merged to `main`, or deployed. Those remain human
+decisions.
