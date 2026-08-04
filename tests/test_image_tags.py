@@ -258,7 +258,7 @@ class TerraformSurfaceTest(unittest.TestCase):
     def test_a_mutable_terraform_tag_is_an_error(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 64)
+            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 63 + "e")
             write_terraform(
                 root,
                 "ide.tf",
@@ -276,7 +276,7 @@ class TerraformSurfaceTest(unittest.TestCase):
         """Cannot-see and approve must not be the same outcome."""
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 64)
+            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 63 + "e")
             write_terraform(root, "variables.tf", 'variable "t" {\n  type = string\n}\n')
             write_terraform(
                 root,
@@ -294,7 +294,7 @@ class TerraformSurfaceTest(unittest.TestCase):
     def test_a_pinned_terraform_tag_passes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 64)
+            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 63 + "e")
             write_terraform(
                 root,
                 "db.tf",
@@ -306,7 +306,7 @@ class TerraformSurfaceTest(unittest.TestCase):
     def test_an_unreadable_terraform_surface_is_an_error(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 64)
+            write_manifest(root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "d" * 63 + "e")
             (root / TERRAFORM_ROOT).mkdir(parents=True)
             write_exceptions(root, [])
             with self.assertRaises(ImageTagError):
@@ -315,9 +315,9 @@ class TerraformSurfaceTest(unittest.TestCase):
 
 class OverlayTest(unittest.TestCase):
     def test_a_digest_overlay_pins_an_untagged_image(self):
-        overrides = {"ns/app": {"newName": "ns/app", "digest": "sha256:" + "b" * 64}}
+        overrides = {"ns/app": {"newName": "ns/app", "digest": "sha256:" + "b" * 63 + "c"}}
         resolved = apply_overlay("ns/app", overrides)
-        self.assertEqual(resolved, "ns/app@sha256:" + "b" * 64)
+        self.assertEqual(resolved, "ns/app@sha256:" + "b" * 63 + "c")
         self.assertFalse(classify(resolved)[0])
 
     def test_a_newtag_overlay_is_what_gets_judged(self):
@@ -352,7 +352,7 @@ class GateCanFailTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             write_manifest(
-                root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "c" * 64
+                root / "platform/k8s/apps/demo", "deployment.yaml", "ns/demo@sha256:" + "c" * 63 + "d"
             )
             write_exceptions(root, [])
             self.assertEqual(audit(root), [])

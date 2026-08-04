@@ -58,6 +58,12 @@ describe("deploy/handoff", () => {
     delete process.env.VERCEL_TOKEN;
     delete process.env.VERCEL_PROJECT_ID;
     delete process.env.VERCEL_TEAM_ID;
+    // These cases are about the Vercel/idempotency/preserve branches, so give
+    // them a configured platform: with no production root and no public origin
+    // buildHandoffRecord deliberately produces no suggestedHost to register.
+    // handoff-fail-closed.test.ts covers the unconfigured environment.
+    process.env.NEXT_PUBLIC_APP_URL = "https://studio.marisstella.dev";
+    process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN = "harbor.studio";
   });
 
   afterEach(() => {

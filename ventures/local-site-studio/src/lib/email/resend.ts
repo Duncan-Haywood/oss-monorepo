@@ -20,7 +20,39 @@ import {
   formatCommerceBuyNowClientReceiptHtml,
 } from "../commerce/client-receipt";
 
+import { canSpamFooterFromEnv } from "./canspam-footer";
+
 const resendApiKey = process.env.RESEND_API_KEY;
+
+/**
+ * True when a real Resend key is configured, i.e. when calling sendEmail can
+ * actually put a message in someone's mailbox. False is the documented mock
+ * path (see delivery.ts): the message is logged and nothing leaves the process.
+ */
+function canTransmit(): boolean {
+  return Boolean(
+    resendApiKey &&
+      !resendApiKey.startsWith("re_placeholder") &&
+      resendApiKey !== "re_...",
+  );
+}
+
+/**
+ * Origin for links inside an email body (preview, checkout, catalog links).
+ *
+ * The localhost fallback is a local-dev convenience and is deliberately not a
+ * customer-facing value: sendEmail refuses to transmit any message whose
+ * CAN-SPAM footer cannot be built, and an unset or localhost NEXT_PUBLIC_APP_URL
+ * is one of the three conditions that blocks it (the unsubscribe link would be
+ * unreachable). A localhost link composed here can therefore reach a console
+ * log, never a recipient — see canspam-footer.ts.
+ */
+function emailLinkBaseUrl(): string {
+  return (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(
+    /\/$/,
+    "",
+  );
+}
 
 export interface SendEmailParams {
   to: string;
@@ -58,17 +90,40 @@ export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams
     return { success: false, reason: "suppressed" };
   }
 
-  // Determine base URL for unsubscribe link
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  // 2. Build the CAN-SPAM footer — or refuse.
+  //
+  // Sender identification, a reachable opt-out, and a valid physical postal
+  // address are statutory content, not decoration. Each is env-sourced and each
+  // used to fall back to a literal placeholder ("Your Brand", a localhost
+  // unsubscribe URL, "[Registered business address — Colorado, USA]") that
+  // shipped as the real footer of real mail. There is no correct substitute to
+  // guess, so an unset variable blocks the message and names itself.
+  const footer = canSpamFooterFromEnv();
+  if (!footer.ok) {
+    if (canTransmit()) {
+      console.error(`[Email Blocked] ${footer.reason} (recipient: ${to})`);
+      return { success: false, error: footer.reason };
+    }
+    // Mock path: nothing leaves this process, so there is no recipient to
+    // mislead — but say plainly that this send would be refused in production
+    // rather than logging "CAN-SPAM Footer: Applied".
+    console.warn(`[Mock Email Not Sent] ${footer.reason}
+To: ${to}
+Subject: ${subject}
+Lead: ${leadSlug || "None"}`);
+    return { success: true, mock: true, canSpamBlocked: true };
+  }
+
+  const baseUrl = footer.baseUrl;
   const unsubscribeToken = signUnsubscribeToken(normalizedTo);
   const unsubscribeUrl = `${baseUrl}/api/unsubscribe?email=${encodeURIComponent(normalizedTo)}&token=${encodeURIComponent(unsubscribeToken)}`;
 
   // Wrap HTML content with standard CAN-SPAM footer.
   // brand.* are env-sourced operator strings — same escapeHtmlForEmail rule as
   // businessName (marketing/voice/commerce templates already escape brand.name).
-  const safeBrand = escapeHtmlForEmail(brand.name);
-  const safeLegalEntity = escapeHtmlForEmail(brand.legalEntity);
-  const safePostalAddress = escapeHtmlForEmail(brand.postalAddress);
+  const safeBrand = escapeHtmlForEmail(footer.brandName);
+  const safeLegalEntity = escapeHtmlForEmail(footer.legalEntity);
+  const safePostalAddress = escapeHtmlForEmail(footer.postalAddress);
   const fullHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18181b; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="margin-bottom: 30px;">
@@ -86,19 +141,19 @@ export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams
     </div>
   `;
 
-  // 2. Check if Resend is configured
-  if (!resendApiKey || resendApiKey.startsWith("re_placeholder") || resendApiKey === "re_...") {
+  // 3. Check if Resend is configured
+  if (!canTransmit()) {
     console.log(`[Mock Email Sent]
 To: ${to}
 Subject: ${subject}
 Lead: ${leadSlug || "None"}
 Content Preview: ${html.substring(0, 150)}...
-CAN-SPAM Footer: Applied (${brand.postalAddress})
+CAN-SPAM Footer: Applied (${footer.postalAddress})
 Unsubscribe URL: ${unsubscribeUrl}`);
     return { success: true, mock: true };
   }
 
-  // 3. Make HTTP request to Resend
+  // 4. Make HTTP request to Resend
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -108,7 +163,9 @@ Unsubscribe URL: ${unsubscribeUrl}`);
       },
       body: JSON.stringify({
         // EMAIL_FROM (brand.emailFrom) — never hardcode a platform domain.
-        from: formatResendFromHeader(brand.name, brand.emailFrom),
+        // The From display name is the same validated brand as the footer's
+        // sender-identification line: §7704(a)(1) covers the header too.
+        from: formatResendFromHeader(footer.brandName, brand.emailFrom),
         to: [to],
         subject,
         html: fullHtml,
@@ -133,7 +190,7 @@ Unsubscribe URL: ${unsubscribeUrl}`);
  * Sends the initial outreach email with a preview link (Email 1).
  */
 export async function sendOutreachEmail(to: string, businessName: string, slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = emailLinkBaseUrl();
   const previewUrl = previewUrlWithOutreachTracking(`${baseUrl}/preview/${slug}`);
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
@@ -161,7 +218,7 @@ export async function sendOutreachFollowUp2(
   businessName: string,
   slug: string,
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = emailLinkBaseUrl();
   const previewUrl = previewUrlWithOutreachTracking(`${baseUrl}/preview/${slug}`);
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
@@ -191,7 +248,7 @@ export async function sendOutreachFollowUp3(
   businessName: string,
   slug: string,
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = emailLinkBaseUrl();
   const previewUrl = previewUrlWithOutreachTracking(`${baseUrl}/preview/${slug}`);
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
@@ -224,7 +281,7 @@ export async function sendCheckoutAbandonedRecovery(
   slug: string,
   tier: string,
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = emailLinkBaseUrl();
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}`;
 
   const subject = `Still want to launch ${businessName}?`;
@@ -253,7 +310,7 @@ export async function sendCommerceAbandonedRecovery(
   slug: string,
   skuLabel: string,
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = emailLinkBaseUrl();
   const catalogUrl = `${baseUrl}/preview/${encodeURIComponent(slug)}#catalog`;
   const safeSku = escapeHtmlForEmail(skuLabel);
   const safeBiz = escapeHtmlForEmail(businessName);
@@ -372,7 +429,7 @@ export async function sendStarterUpsellEmail(params: {
   monthlyPriceUsd: number;
 }) {
   const { to, businessName, slug, targetTier, monthlyPriceUsd } = params;
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = emailLinkBaseUrl();
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(targetTier)}`;
   const previewUrl = `${baseUrl}/preview/${encodeURIComponent(slug)}`;
   const tierLabel = targetTier === "complete" ? "Complete" : "Growth";

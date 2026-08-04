@@ -16,12 +16,26 @@ const ESCAPED_LEGAL = "Maris &amp; Stella &lt;Labs&gt;";
 const UNSAFE_ADDRESS = `123 Main St & <Apt> 4`;
 const ESCAPED_ADDRESS = "123 Main St &amp; &lt;Apt&gt; 4";
 
+// sendEmail refuses to transmit at all unless the CAN-SPAM footer can be built
+// from real env (src/lib/email/canspam-footer.ts). These cases are about
+// escaping and headers, so they run in a compliant environment; the refusal
+// itself is covered by canspam-send-fail-closed.test.ts.
+const COMPLIANT_ORIGIN = "https://studio.marisstella.dev";
+const COMPLIANT_ADDRESS = "1600 Pearl St Suite 200, Boulder, CO 80302";
+const COMPLIANT_BRAND = "Local Site Studio";
+
 describe("resend.ts — businessName HTML escaping", () => {
   const originalKey = process.env.RESEND_API_KEY;
+  const originalOrigin = process.env.NEXT_PUBLIC_APP_URL;
+  const originalBrandName = process.env.NEXT_PUBLIC_BRAND_NAME;
+  const originalPostal = process.env.NEXT_PUBLIC_COMPANY_ADDRESS;
   let sentHtml: string;
 
   beforeEach(() => {
     process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    process.env.NEXT_PUBLIC_APP_URL = COMPLIANT_ORIGIN;
+    process.env.NEXT_PUBLIC_BRAND_NAME = COMPLIANT_BRAND;
+    process.env.NEXT_PUBLIC_COMPANY_ADDRESS = COMPLIANT_ADDRESS;
     sentHtml = "";
     vi.stubGlobal(
       "fetch",
@@ -38,6 +52,12 @@ describe("resend.ts — businessName HTML escaping", () => {
 
   afterEach(() => {
     process.env.RESEND_API_KEY = originalKey;
+    if (originalOrigin === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = originalOrigin;
+    if (originalBrandName === undefined) delete process.env.NEXT_PUBLIC_BRAND_NAME;
+    else process.env.NEXT_PUBLIC_BRAND_NAME = originalBrandName;
+    if (originalPostal === undefined) delete process.env.NEXT_PUBLIC_COMPANY_ADDRESS;
+    else process.env.NEXT_PUBLIC_COMPANY_ADDRESS = originalPostal;
     vi.unstubAllGlobals();
     vi.resetModules();
   });
@@ -84,10 +104,12 @@ describe("resend.ts — brand.* HTML escaping", () => {
   const originalLegal = process.env.NEXT_PUBLIC_LEGAL_ENTITY;
   const originalCompany = process.env.NEXT_PUBLIC_COMPANY_NAME;
   const originalAddress = process.env.NEXT_PUBLIC_COMPANY_ADDRESS;
+  const originalOrigin = process.env.NEXT_PUBLIC_APP_URL;
   let sentHtml: string;
 
   beforeEach(() => {
     process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    process.env.NEXT_PUBLIC_APP_URL = COMPLIANT_ORIGIN;
     process.env.NEXT_PUBLIC_BRAND_NAME = UNSAFE_BRAND;
     process.env.NEXT_PUBLIC_LEGAL_ENTITY = UNSAFE_LEGAL;
     delete process.env.NEXT_PUBLIC_COMPANY_NAME;
@@ -117,6 +139,8 @@ describe("resend.ts — brand.* HTML escaping", () => {
     else process.env.NEXT_PUBLIC_COMPANY_NAME = originalCompany;
     if (originalAddress === undefined) delete process.env.NEXT_PUBLIC_COMPANY_ADDRESS;
     else process.env.NEXT_PUBLIC_COMPANY_ADDRESS = originalAddress;
+    if (originalOrigin === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = originalOrigin;
     vi.unstubAllGlobals();
     vi.resetModules();
   });
@@ -177,11 +201,15 @@ describe("resend.ts — EMAIL_FROM From header", () => {
   const originalKey = process.env.RESEND_API_KEY;
   const originalBrand = process.env.NEXT_PUBLIC_BRAND_NAME;
   const originalFrom = process.env.EMAIL_FROM;
+  const originalOrigin = process.env.NEXT_PUBLIC_APP_URL;
+  const originalAddress = process.env.NEXT_PUBLIC_COMPANY_ADDRESS;
   let sentFrom: string;
 
   beforeEach(() => {
     process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
     process.env.NEXT_PUBLIC_BRAND_NAME = "Local Site Studio";
+    process.env.NEXT_PUBLIC_APP_URL = COMPLIANT_ORIGIN;
+    process.env.NEXT_PUBLIC_COMPANY_ADDRESS = COMPLIANT_ADDRESS;
     process.env.EMAIL_FROM = "noreply@marisstellalabs.com";
     sentFrom = "";
     vi.stubGlobal(
@@ -204,6 +232,10 @@ describe("resend.ts — EMAIL_FROM From header", () => {
     else process.env.NEXT_PUBLIC_BRAND_NAME = originalBrand;
     if (originalFrom === undefined) delete process.env.EMAIL_FROM;
     else process.env.EMAIL_FROM = originalFrom;
+    if (originalOrigin === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = originalOrigin;
+    if (originalAddress === undefined) delete process.env.NEXT_PUBLIC_COMPANY_ADDRESS;
+    else process.env.NEXT_PUBLIC_COMPANY_ADDRESS = originalAddress;
     vi.unstubAllGlobals();
     vi.resetModules();
   });

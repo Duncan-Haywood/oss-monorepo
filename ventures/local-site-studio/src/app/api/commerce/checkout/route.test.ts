@@ -14,12 +14,16 @@ import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
  */
 
 const sessionsCreate = vi.fn();
+const pricesRetrieve = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
     checkout = {
       sessions: {
         create: (...args: unknown[]) => sessionsCreate(...args),
       },
+    };
+    prices = {
+      retrieve: (...args: unknown[]) => pricesRetrieve(...args),
     };
   },
 }));
@@ -70,6 +74,22 @@ describe("POST /api/commerce/checkout", () => {
       delete process.env[key];
     }
     sessionsCreate.mockReset();
+    pricesRetrieve.mockReset();
+    // A correctly synced account: the Price charges the SKU's stored cents,
+    // which is the figure the preview page printed. Derived from the catalog
+    // so it cannot drift from what the fixture advertises.
+    pricesRetrieve.mockImplementation(async (id: string) => {
+      const sku = syncedCatalog.items.find((candidate) => candidate.stripePriceId === id);
+      if (!sku) throw new Error(`No such price: '${id}'`);
+      return {
+        id,
+        unit_amount: sku.priceCents,
+        currency: "usd",
+        active: true,
+        type: "one_time" as const,
+        recurring: null,
+      };
+    });
     getCommerceCatalog.mockReset();
     recordCheckoutSessionCreated.mockReset();
     // Each `it` below issues its own POST(s) from the same synthetic (no
@@ -289,6 +309,62 @@ describe("POST /api/commerce/checkout", () => {
       message: "stripe_timeout",
     });
     expect(recordCheckoutSessionCreated).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Resolving stripePriceId server-side stops a tampered request body, which
+   * is a different question from whether that Price still charges the cents
+   * the preview page printed. An amount edited in the Stripe Dashboard after
+   * the sync leaves the stored priceCents untouched and every catalog test
+   * green. See src/lib/pricing/advertised-price-guarantee.ts.
+   */
+  describe("guarantees the advertised SKU price before taking money", () => {
+    it("refuses when the Stripe Price no longer charges the listed cents", async () => {
+      process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+      pricesRetrieve.mockResolvedValue({
+        id: "price_latte_450",
+        unit_amount: 900,
+        currency: "usd",
+        active: true,
+        type: "one_time",
+        recurring: null,
+      });
+      const { POST } = await import("./route");
+      const res = await POST(commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }));
+
+      expect(res.status).toBe(500);
+      const body = await res.json();
+      expect(body.error).toBe("Advertised price mismatch");
+      const reasons = body.reasons.join(" ");
+      expect(reasons).toContain("Latte");
+      expect(reasons).toContain("$4.50");
+      expect(reasons).toContain("$9.00");
+      expect(sessionsCreate).not.toHaveBeenCalled();
+      expect(recordCheckoutSessionCreated).not.toHaveBeenCalled();
+    });
+
+    it("refuses when Stripe cannot confirm the Price at all", async () => {
+      process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+      pricesRetrieve.mockRejectedValue(new Error("No such price: 'price_latte_450'"));
+      const { POST } = await import("./route");
+      const res = await POST(commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }));
+
+      expect(res.status).toBe(502);
+      expect(await res.json()).toMatchObject({ error: "Advertised price unverified" });
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("verifies the SKU's Price before the session exists", async () => {
+      process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+      const { POST } = await import("./route");
+      const res = await POST(commerceRequest({ slug: "demo-cafe", skuId: "sku_latte" }));
+      expect(res.status).toBe(200);
+
+      expect(pricesRetrieve).toHaveBeenCalledWith("price_latte_450");
+      expect(pricesRetrieve.mock.invocationCallOrder[0]!).toBeLessThan(
+        sessionsCreate.mock.invocationCallOrder[0]!,
+      );
+    });
   });
 
   it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {

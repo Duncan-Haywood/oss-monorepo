@@ -110,10 +110,20 @@ function existingHandoff(overrides: Partial<DeployHandoff> = {}): DeployHandoff 
     commerceAddon: false,
     stripeSessionId: "cs_test_1",
     customerEmail: "owner@demo-cafe.test",
-    previewUrl: "http://localhost:3000/preview/demo-cafe",
-    suggestedHost: "demo-cafe.preview.localsitestudio.com",
-    contactFormUrl: "http://localhost:3000/api/contact/demo-cafe",
-    dnsInstructions: [],
+    // A handoff created on a configured platform, which is the only kind that
+    // can produce a go-live email at all: no localhost links, a root domain the
+    // project owns, and the DNS records that email is made of.
+    previewUrl: "https://studio.marisstella.dev/preview/demo-cafe",
+    suggestedHost: "demo-cafe.harbor.studio",
+    contactFormUrl: "https://studio.marisstella.dev/api/contact/demo-cafe",
+    dnsInstructions: [
+      {
+        type: "CNAME",
+        host: "demo-cafe.harbor.studio",
+        value: "cname.vercel-dns.com",
+        purpose: "Point the platform subdomain at Vercel for production hosting",
+      },
+    ],
     status: "awaiting_dns",
     notes: ["Payment received — production handoff queued."],
     createdAt: "2026-01-01T00:00:00.000Z",
@@ -149,6 +159,13 @@ describe("POST /api/stripe/webhook", () => {
 
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_123";
+    // These cases are about fulfillment idempotency and sent-markers. Without a
+    // configured platform the handoff is created with no hostname and the
+    // go-live email is refused outright (src/lib/deploy/dns-email.ts), which
+    // would make every email assertion below pass or fail for the wrong reason.
+    // handoff-fail-closed.test.ts covers the unconfigured environment.
+    process.env.NEXT_PUBLIC_APP_URL = "https://studio.marisstella.dev";
+    process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN = "harbor.studio";
     delete process.env.VERCEL_TOKEN;
     delete process.env.VERCEL_PROJECT_ID;
   });

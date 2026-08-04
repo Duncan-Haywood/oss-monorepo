@@ -15,34 +15,100 @@ import {
 import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 import { DEPLOY_HANDOFF_CONVEX_PRIMARY } from "./handoff-persist";
 import { preserveDeployHandoffOperatorFields } from "./handoff-preserve";
+import { isAppUrlConfigured } from "@/lib/seo/app-url-env-readiness";
+import {
+  isProductionDomainConfigured,
+  normalizeProductionDomainHost,
+} from "./production-domain-env-readiness";
 
-export { formatDnsInstructionsForEmail } from "./dns-email";
+export {
+  DeployInstructionsBlockedError,
+  assertDeployInstructionsReady,
+  formatDnsInstructionsForEmail,
+} from "./dns-email";
 export {
   isProgressedHandoffStatus,
   preserveDeployHandoffOperatorFields,
 } from "./handoff-preserve";
 
-function appBaseUrl(): string {
-  return (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
+/**
+ * Customer-facing origin, or null when NEXT_PUBLIC_APP_URL is unset, localhost,
+ * or a documented placeholder.
+ *
+ * Null rather than "http://localhost:3000": previewUrl and contactFormUrl are
+ * persisted on the handoff and then emailed to the buyer as the links their new
+ * site lives at. A localhost link is not a weaker version of that artifact, it
+ * is a wrong one, and the Deployment sets no env — so the fallback *was* the
+ * production value. Validation is shared with the operator readiness banner so
+ * the two cannot disagree.
+ */
+function appBaseUrl(): string | null {
+  const raw = process.env.NEXT_PUBLIC_APP_URL;
+  if (!isAppUrlConfigured(raw)) return null;
+  return raw!.trim().replace(/\/$/, "");
 }
 
-function previewRootDomain(): string {
-  return (
-    process.env.NEXT_PUBLIC_PREVIEW_DOMAIN?.trim() ||
-    "preview.localsitestudio.com"
-  );
+/** NEXT_PUBLIC_PREVIEW_DOMAIN as set, or null. No default: see productionRootDomain. */
+function previewRootDomain(): string | null {
+  const trimmed = process.env.NEXT_PUBLIC_PREVIEW_DOMAIN?.trim();
+  return trimmed ? trimmed : null;
 }
 
-/** Exported for proxy.ts host-based routing — the platform's own root domain(s). */
+/**
+ * The platform's own root domain, or "" when no usable root is configured.
+ *
+ * Exported for proxy.ts host-based routing, and used to build the
+ * `{slug}.{root}` suggestedHost we counsel a paying customer to point DNS at.
+ * That second use is why there is no fallback literal here any more: the old
+ * default was `preview.localsitestudio.com`, and localsitestudio.com is a
+ * registered third party (live Zoho MX records). Handing a buyer DNS
+ * instructions for a domain we do not own is worse than handing them none, so
+ * an unconfigured root yields "" and buildHandoffRecord withholds the
+ * instructions entirely.
+ *
+ * "" is also the correct answer for proxy.ts: with no platform root, no host is
+ * platform-owned, and every request host falls through to the custom-domain
+ * lookup (isPlatformHost / extractPreviewSubdomainSlug both handle an empty
+ * root).
+ */
 export function productionRootDomain(): string {
   // Prefer a dedicated production host root; fall back to stripping "preview."
   const explicit = process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN?.trim();
-  if (explicit) return explicit;
-  const preview = previewRootDomain();
-  if (preview.startsWith("preview.")) {
-    return preview.slice("preview.".length);
+  if (isProductionDomainConfigured(explicit)) {
+    return normalizeProductionDomainHost(explicit!);
   }
-  return preview;
+  const preview = previewRootDomain();
+  if (!preview) return "";
+  const derived = preview.startsWith("preview.")
+    ? preview.slice("preview.".length)
+    : preview;
+  // A preview root that is itself localhost/example.com/a bare label cannot
+  // become a production host just by dropping a label off the front.
+  if (!isProductionDomainConfigured(derived)) return "";
+  return normalizeProductionDomainHost(derived);
+}
+
+/**
+ * Env vars whose absence blocks the go-live artifact, in the order an operator
+ * should set them. Empty when the handoff can advertise real hosts and links.
+ */
+function missingHandoffArtifactEnv(): string[] {
+  const missing: string[] = [];
+  if (!appBaseUrl()) missing.push("NEXT_PUBLIC_APP_URL");
+  if (!productionRootDomain()) missing.push("NEXT_PUBLIC_PRODUCTION_DOMAIN");
+  return missing;
+}
+
+export const HANDOFF_BLOCKED_NOTE_PREFIX = "Go-live instructions withheld:";
+
+/** Operator-facing note explaining exactly why a handoff carries no instructions. */
+export function handoffBlockedNote(missing: readonly string[]): string {
+  return (
+    `${HANDOFF_BLOCKED_NOTE_PREFIX} set ${missing.join(" and ")} before ` +
+    "sending go-live instructions. No hostname, preview link, or DNS record is " +
+    "generated while these are unset — the platform will not counsel a customer " +
+    "to point DNS at a domain it has not been told it owns."
+  );
 }
 
 function buildDnsInstructions(suggestedHost: string): DnsInstruction[] {
@@ -65,14 +131,24 @@ function buildDnsInstructions(suggestedHost: string): DnsInstruction[] {
 
 function buildHandoffRecord(input: CreateDeployHandoffInput): DeployHandoff {
   const now = new Date().toISOString();
-  const suggestedHost = `${input.leadSlug}.${productionRootDomain()}`;
-  const previewUrl = `${appBaseUrl()}/preview/${input.leadSlug}`;
-  const contactFormUrl = `${appBaseUrl()}/api/contact/${input.leadSlug}`;
+  const baseUrl = appBaseUrl();
+  const root = productionRootDomain();
+  // Absent config produces absent fields, never invented ones. The order is
+  // recorded either way — fulfillment must not be lost over an env gap — but
+  // the customer-facing half of the record stays empty and says why.
+  const suggestedHost = root ? `${input.leadSlug}.${root}` : "";
+  const previewUrl = baseUrl ? `${baseUrl}/preview/${input.leadSlug}` : "";
+  const contactFormUrl = baseUrl ? `${baseUrl}/api/contact/${input.leadSlug}` : "";
+  const missingEnv = missingHandoffArtifactEnv();
   const notes: string[] = [
     "Payment received — production handoff queued.",
     "Preview remains live at the preview URL until DNS is confirmed.",
     "Contact form stub accepts POSTs and emails/logs submissions for this slug.",
   ];
+
+  if (missingEnv.length > 0) {
+    notes.push(handoffBlockedNote(missingEnv));
+  }
 
   if (!process.env.VERCEL_TOKEN) {
     notes.push(
@@ -92,7 +168,7 @@ function buildHandoffRecord(input: CreateDeployHandoffInput): DeployHandoff {
     suggestedHost,
     customDomain: input.customDomain,
     contactFormUrl,
-    dnsInstructions: buildDnsInstructions(suggestedHost),
+    dnsInstructions: suggestedHost ? buildDnsInstructions(suggestedHost) : [],
     status: "awaiting_dns",
     notes,
     createdAt: now,
@@ -130,7 +206,23 @@ async function tryProvisionVercelDomain(
     };
   }
 
-  const domain = handoff.customDomain || handoff.suggestedHost;
+  const domain = handoff.customDomain?.trim() || handoff.suggestedHost.trim();
+  if (!domain) {
+    // No customer domain and no platform root — there is nothing to register,
+    // and posting an empty name to Vercel would only produce a confusing 4xx.
+    const missing = missingHandoffArtifactEnv();
+    const blockedNote =
+      missing.length > 0
+        ? handoffBlockedNote(missing)
+        : `${HANDOFF_BLOCKED_NOTE_PREFIX} this handoff has no hostname to register.`;
+    return {
+      ...handoff,
+      vercelDomainStatus: handoff.vercelDomainStatus ?? "skipped_no_domain",
+      notes: handoff.notes.includes(blockedNote)
+        ? handoff.notes
+        : [...handoff.notes, blockedNote],
+    };
+  }
   const query = teamId ? `?teamId=${encodeURIComponent(teamId)}` : "";
   const url = `https://api.vercel.com/v10/projects/${encodeURIComponent(projectId)}/domains${query}`;
 

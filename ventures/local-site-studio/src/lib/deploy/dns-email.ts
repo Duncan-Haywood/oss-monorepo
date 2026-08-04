@@ -6,7 +6,47 @@
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 import type { DeployHandoff } from "./types";
 
+/**
+ * Thrown instead of rendering go-live instructions that would name a hostname
+ * or link the platform was never configured to own. Carries the fields that
+ * were empty so the operator log says which env var to set.
+ */
+export class DeployInstructionsBlockedError extends Error {
+  readonly missingFields: readonly string[];
+
+  constructor(missingFields: readonly string[]) {
+    super(
+      "Refusing to render go-live DNS instructions: the handoff has no " +
+        `${missingFields.join(", ")}. This handoff was created while ` +
+        "NEXT_PUBLIC_APP_URL / NEXT_PUBLIC_PRODUCTION_DOMAIN were unset (see " +
+        "the handoff notes); set them and re-run the handoff rather than " +
+        "sending the customer a hostname nobody owns.",
+    );
+    this.name = "DeployInstructionsBlockedError";
+    this.missingFields = missingFields;
+  }
+}
+
+/**
+ * Refuse to build a customer-facing instruction block from a handoff whose
+ * customer-facing fields were withheld. buildHandoffRecord leaves them empty
+ * (rather than filling in a guess) when the platform root domain or public app
+ * origin is unconfigured — an empty <strong></strong> in a "point your DNS
+ * here" email is the failure mode this exists to prevent.
+ */
+export function assertDeployInstructionsReady(handoff: DeployHandoff): void {
+  const missingFields: string[] = [];
+  if (!handoff.suggestedHost.trim()) missingFields.push("suggestedHost");
+  if (!handoff.previewUrl.trim()) missingFields.push("previewUrl");
+  if (!handoff.contactFormUrl.trim()) missingFields.push("contactFormUrl");
+  if (handoff.dnsInstructions.length === 0) missingFields.push("dnsInstructions");
+  if (missingFields.length > 0) {
+    throw new DeployInstructionsBlockedError(missingFields);
+  }
+}
+
 export function formatDnsInstructionsForEmail(handoff: DeployHandoff): string {
+  assertDeployInstructionsReady(handoff);
   const rows = handoff.dnsInstructions
     .map((d) => {
       const type = escapeHtmlForEmail(d.type);

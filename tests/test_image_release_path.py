@@ -46,8 +46,8 @@ import image_release_path as irp
         # A registry port must not be mistaken for a tag.
         ("registry:5000/team/app", ("registry:5000/team/app", "")),
         (
-            "git.marisstella.dev/giteaadmin/app@sha256:" + "a" * 64,
-            ("git.marisstella.dev/giteaadmin/app", "sha256:" + "a" * 64),
+            "git.marisstella.dev/giteaadmin/app@sha256:" + "a" * 63 + "b",
+            ("git.marisstella.dev/giteaadmin/app", "sha256:" + "a" * 63 + "b"),
         ),
     ],
 )
@@ -63,7 +63,7 @@ def test_split_image(image, expected):
         ("master", True),
         ("", True),  # no tag at all resolves to :latest at pull time
         ("v1.2.3", False),
-        ("sha256:" + "b" * 64, False),
+        ("sha256:" + "b" * 63 + "c", False),
     ],
 )
 def test_is_mutable(reference, mutable):
@@ -73,7 +73,7 @@ def test_is_mutable(reference, mutable):
 def test_kustomize_digest_overrides_a_mutable_deployment_tag():
     """quick-pick-survey's shape: mutable in the Deployment, pinned by kustomize."""
     overrides = {
-        "git.marisstella.dev/giteaadmin/app": {"digest": "sha256:" + "c" * 64}
+        "git.marisstella.dev/giteaadmin/app": {"digest": "sha256:" + "c" * 63 + "d"}
     }
     repository, reference = irp.resolve(
         "git.marisstella.dev/giteaadmin/app:latest", overrides
@@ -287,7 +287,7 @@ def test_the_kustomization_is_still_read_as_an_overlay_not_a_workload(repo: Path
         repo,
         "pinned",
         irp.REGISTRY_PREFIX + "pinned:latest",
-        kustomize_images=f"- name: {irp.REGISTRY_PREFIX}pinned\n  digest: sha256:{'e' * 64}\n",
+        kustomize_images=f"- name: {irp.REGISTRY_PREFIX}pinned\n  digest: sha256:{'e' * 63}f\n",
     )
     measured = irp.measure(repo)
     assert measured["mutable_references"] == 0

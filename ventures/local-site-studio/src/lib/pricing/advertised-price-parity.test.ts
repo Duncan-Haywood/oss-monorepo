@@ -15,10 +15,11 @@ import { BUNDLES, ENTRY_SETUP_PRICE_USD } from "./bundles";
  *
  * A source scan rather than a render: this must fail when someone types a
  * literal back in, not only when the rendered output happens to disagree today.
- * (It does not address the separate gap that no code compares setupPriceUsd to
- * the unit_amount of the Stripe Price the STRIPE_PRICE_ID_* env var points at —
- * the displayed number and the charged number are still only linked by an
- * operator pasting the right id.)
+ *
+ * This covers displayed-vs-source-of-truth only. The separate question — does
+ * the Stripe Price the STRIPE_PRICE_ID_* env var points at actually charge
+ * setupPriceUsd — is answered on the checkout path by
+ * src/lib/pricing/advertised-price-guarantee.ts.
  */
 
 const SRC = join(__dirname, "..", "..");

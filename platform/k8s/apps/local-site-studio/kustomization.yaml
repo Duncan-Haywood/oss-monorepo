@@ -10,7 +10,7 @@ resources:
 images:
 - name: git.marisstella.dev/giteaadmin/local-site-studio
   newName: git.marisstella.dev/giteaadmin/local-site-studio
-  newTag: latest
+  digest: sha256:a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef
 
 commonLabels:
   app.kubernetes.io/managed-by: argocd

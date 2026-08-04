@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import { BUNDLES, COMMERCE_ADDON } from "@/lib/pricing/bundles";
 import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
 
 /**
@@ -9,12 +10,16 @@ import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
  *
  * Pure helpers (resolveBundleCheckoutLeadSlug, session-persist constants)
  * stay real so this exercises actual route orchestration — Price ID line
- * items, organic slug minting, cancel URL attribution, and requireConvex
- * fail-closed session tracking — not a restatement of mocks. Only the
- * Stripe SDK and @/lib/db persistence are stubbed.
+ * items, organic slug minting, cancel URL attribution, the advertised-price
+ * guarantee, and requireConvex fail-closed session tracking — not a
+ * restatement of mocks. Only the Stripe SDK and @/lib/db persistence are
+ * stubbed; the guarantee itself runs for real, so a Stripe account that would
+ * charge the wrong amount is expressed the only way it can be — as a Stripe
+ * answer — rather than by stubbing out the code under test.
  */
 
 const sessionsCreate = vi.fn();
+const pricesRetrieve = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
     checkout = {
@@ -22,8 +27,78 @@ vi.mock("stripe", () => ({
         create: (...args: unknown[]) => sessionsCreate(...args),
       },
     };
+    prices = {
+      retrieve: (...args: unknown[]) => pricesRetrieve(...args),
+    };
   },
 }));
+
+type StubPrice = {
+  id: string;
+  unit_amount: number;
+  currency: string;
+  active: boolean;
+  type: "one_time" | "recurring";
+  recurring: { interval: string } | null;
+};
+
+/**
+ * What Stripe would answer for each configured Price ID on a correctly set up
+ * account: exactly the advertised amount.
+ *
+ * Derived from BUNDLES / COMMERCE_ADDON rather than typed, so a price change
+ * moves the honest baseline with it — a hardcoded 50000 here would turn every
+ * test below into an assertion about a number nobody sells any more.
+ */
+function honestStripePrices(): Record<string, StubPrice> {
+  const oneTime = (id: string, usd: number): StubPrice => ({
+    id,
+    unit_amount: Math.round(usd * 100),
+    currency: "usd",
+    active: true,
+    type: "one_time",
+    recurring: null,
+  });
+  const monthly = (id: string, usd: number): StubPrice => ({
+    id,
+    unit_amount: Math.round(usd * 100),
+    currency: "usd",
+    active: true,
+    type: "recurring",
+    recurring: { interval: "month" },
+  });
+
+  const prices: Record<string, StubPrice> = {};
+  for (const bundle of BUNDLES) {
+    prices[`price_${bundle.id}_setup`] = oneTime(`price_${bundle.id}_setup`, bundle.setupPriceUsd);
+    if (bundle.monthlyPriceUsd != null) {
+      prices[`price_${bundle.id}_monthly`] = monthly(
+        `price_${bundle.id}_monthly`,
+        bundle.monthlyPriceUsd,
+      );
+    }
+  }
+  prices.price_commerce_setup = oneTime("price_commerce_setup", COMMERCE_ADDON.setupPriceUsd);
+  prices.price_commerce_monthly = monthly(
+    "price_commerce_monthly",
+    COMMERCE_ADDON.monthlyPriceUsd,
+  );
+  return prices;
+}
+
+/** Answer as a healthy Stripe account would, except for the given overrides. */
+function stripeAnswersWith(overrides: Record<string, Partial<StubPrice> | "missing"> = {}) {
+  const honest = honestStripePrices();
+  pricesRetrieve.mockImplementation(async (id: string) => {
+    const override = overrides[id];
+    if (override === "missing") {
+      throw new Error(`No such price: '${id}'`);
+    }
+    const base = honest[id];
+    if (!base) throw new Error(`No such price: '${id}'`);
+    return { ...base, ...override };
+  });
+}
 
 const recordCheckoutSessionCreated = vi.fn();
 vi.mock("@/lib/db", () => ({
@@ -56,6 +131,8 @@ describe("POST /api/stripe/checkout", () => {
 
   beforeEach(() => {
     sessionsCreate.mockReset();
+    pricesRetrieve.mockReset();
+    stripeAnswersWith();
     recordCheckoutSessionCreated.mockReset().mockResolvedValue(undefined);
     // Each `it` below issues its own POST(s) from the same synthetic (no
     // x-forwarded-for) client — reset the limiter so route-level tests don't
@@ -391,6 +468,148 @@ describe("POST /api/stripe/checkout", () => {
     const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
     expect(res.status).toBe(502);
     expect(await res.json()).toMatchObject({ error: "Checkout tracking unavailable" });
+  });
+
+  /**
+   * The gap this closes: bundles.ts is the single field every page derives the
+   * advertised figure from, and the STRIPE_PRICE_ID_* env var is a separate
+   * paste an operator makes by hand. Nothing compared the two, so a stale id —
+   * or a test-mode id pasted into live secrets — charged whatever it happened
+   * to hold while every pricing test stayed green.
+   *
+   * These drive the route through the Stripe SDK stub, the only place a wrong
+   * Stripe account can be expressed, rather than stubbing the guarantee.
+   */
+  describe("guarantees the advertised price before taking money", () => {
+    const starter = BUNDLES.find((bundle) => bundle.id === "starter")!;
+    const growth = BUNDLES.find((bundle) => bundle.id === "growth")!;
+
+    const usd = (amountUsd: number) =>
+      new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amountUsd);
+
+    async function refusalFor(body: unknown) {
+      const { POST } = await import("./route");
+      const res = await POST(checkoutRequest(body));
+      return { res, json: await res.json() };
+    }
+
+    it("refuses the sale when Stripe would charge less than the page advertises", async () => {
+      setBundlePriceEnv();
+      // The audited case verbatim: $250 taken for the advertised $500 setup fee.
+      stripeAnswersWith({ price_starter_setup: { unit_amount: 25_000 } });
+      sessionsCreate.mockResolvedValue({ id: "cs_never", url: "https://checkout.stripe.com/never" });
+
+      const { res, json } = await refusalFor({ tier: "starter", slug: "demo-cafe" });
+
+      expect(res.status).toBe(500);
+      expect(json.error).toBe("Advertised price mismatch");
+      const reasons = json.reasons.join(" ");
+      expect(reasons).toContain(`${starter.name} setup`);
+      expect(reasons).toContain(usd(starter.setupPriceUsd));
+      expect(reasons).toContain(usd(250));
+      // Names the paste an operator has to redo.
+      expect(reasons).toContain(starter.setupPriceIdEnv);
+
+      // Fail closed both ways: no session at Stripe's amount, none at ours,
+      // and no checkout tracked for a sale that never happened.
+      expect(sessionsCreate).not.toHaveBeenCalled();
+      expect(recordCheckoutSessionCreated).not.toHaveBeenCalled();
+      expect(json).not.toHaveProperty("url");
+    });
+
+    it("refuses an overcharge just as hard as an undercharge", async () => {
+      setBundlePriceEnv();
+      stripeAnswersWith({ price_growth_monthly: { unit_amount: 12_900 } });
+      sessionsCreate.mockResolvedValue({ id: "cs_never", url: "https://checkout.stripe.com/never" });
+
+      const { res, json } = await refusalFor({ tier: "growth", slug: "demo-cafe" });
+
+      expect(res.status).toBe(500);
+      expect(json.error).toBe("Advertised price mismatch");
+      expect(json.reasons.join(" ")).toContain(`${growth.name} monthly`);
+      expect(json.reasons.join(" ")).toContain(usd(129));
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("refuses when the account does not know the Price ID at all", async () => {
+      setBundlePriceEnv();
+      // A test-mode id left in live secrets: the live key gets "No such price".
+      stripeAnswersWith({ price_starter_setup: "missing" });
+      sessionsCreate.mockResolvedValue({ id: "cs_never", url: "https://checkout.stripe.com/never" });
+
+      const { res, json } = await refusalFor({ tier: "starter", slug: "demo-cafe" });
+
+      expect(res.status).toBe(502);
+      expect(json.error).toBe("Advertised price unverified");
+      expect(json.reasons.join(" ")).toContain("price_starter_setup");
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("refuses when the amount matches but the currency does not", async () => {
+      setBundlePriceEnv();
+      stripeAnswersWith({ price_starter_setup: { currency: "eur" } });
+      sessionsCreate.mockResolvedValue({ id: "cs_never", url: "https://checkout.stripe.com/never" });
+
+      const { res, json } = await refusalFor({ tier: "starter", slug: "demo-cafe" });
+
+      expect(res.status).toBe(500);
+      expect(json.reasons.join(" ")).toContain("EUR");
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("refuses when a /mo figure points at a one-time Price", async () => {
+      setBundlePriceEnv();
+      // Same number, wrong cadence: the buyer was quoted $99 every month and
+      // would be billed $99 once.
+      stripeAnswersWith({
+        price_growth_monthly: { type: "one_time", recurring: null },
+      });
+      sessionsCreate.mockResolvedValue({ id: "cs_never", url: "https://checkout.stripe.com/never" });
+
+      const { res, json } = await refusalFor({ tier: "growth", slug: "demo-cafe" });
+
+      expect(res.status).toBe(500);
+      expect(json.reasons.join(" ")).toContain("every month");
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("refuses an archived Price rather than letting Stripe reject the buyer", async () => {
+      setBundlePriceEnv();
+      stripeAnswersWith({ price_starter_setup: { active: false } });
+      sessionsCreate.mockResolvedValue({ id: "cs_never", url: "https://checkout.stripe.com/never" });
+
+      const { res } = await refusalFor({ tier: "starter", slug: "demo-cafe" });
+
+      expect(res.status).toBe(500);
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("checks every line item it is about to bill, and checks them first", async () => {
+      setBundlePriceEnv();
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_checked",
+        url: "https://checkout.stripe.com/checked",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", commerceAddon: true }),
+      );
+      expect(res.status).toBe(200);
+
+      const billed = (
+        sessionsCreate.mock.calls[0]![0] as { line_items: { price: string }[] }
+      ).line_items.map((item) => item.price);
+      const verified = pricesRetrieve.mock.calls.map((call) => call[0] as string);
+
+      // Four line items on this checkout; none of them unverified.
+      expect(billed).toHaveLength(4);
+      expect([...billed].sort()).toEqual([...verified].sort());
+
+      // "Before" is the whole point — a check after the session exists is a
+      // check after Stripe already has a payable link.
+      const lastRetrieve = Math.max(...pricesRetrieve.mock.invocationCallOrder);
+      expect(lastRetrieve).toBeLessThan(sessionsCreate.mock.invocationCallOrder[0]!);
+    });
   });
 
   it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
