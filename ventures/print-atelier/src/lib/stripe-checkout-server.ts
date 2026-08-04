@@ -20,6 +20,28 @@ export function buildStripeCheckoutCreateParams(
       },
       quantity: item.quantity,
     })),
+    // The order summary quotes shipping in the total the buyer agrees to, so
+    // the session has to charge it. Without this the quoted shipping was
+    // displayed, never collected, and absorbed out of the artist's margin.
+    shipping_options:
+      payload.shippingAmountCents > 0
+        ? [
+            {
+              shipping_rate_data: {
+                type: "fixed_amount",
+                display_name: "Standard delivery",
+                fixed_amount: {
+                  amount: payload.shippingAmountCents,
+                  currency: payload.currency,
+                },
+              },
+            },
+          ]
+        : undefined,
+    // Only when a deployment has a tax registration configured. Stripe rejects
+    // a session that asks for automatic tax without one, so the default is off
+    // and the order summary tells the buyer no tax is being charged.
+    automatic_tax: payload.automaticTax ? { enabled: true } : undefined,
     success_url: payload.successUrl,
     cancel_url: payload.cancelUrl,
     metadata: payload.metadata,
