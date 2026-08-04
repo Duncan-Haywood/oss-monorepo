@@ -41,11 +41,76 @@ describe("AI-First Markets CI & Deploy Contract", () => {
     assert.ok(AI_MARKETS_CI.includes("verify-component.sh ai-first-markets"));
   });
 
-  it("triggers automated production deployment on main pushes when service changes", () => {
-    assert.ok(AI_MARKETS_DEPLOY.includes('"ventures/ai-first-markets/**"'));
-    assert.ok(AI_MARKETS_DEPLOY.includes("branches: [main]"));
-    assert.ok(AI_MARKETS_DEPLOY.includes("workflow_dispatch:"));
+  it("keeps production promotion manual, owner-approved and off the push path", () => {
+    // This assertion used to require a `push: branches: [main]` trigger on the
+    // deploy workflow. 2fdcf83 removed that trigger deliberately, and said so
+    // in the file it removed it from: docs/QUALITY-ENGINEERING.md holds that a
+    // production UI service without an automated candidate browser suite is
+    // not eligible for automatic promotion, and this venture has no browser
+    // suite. The same commit replaced the trigger with a `workflow_dispatch`
+    // carrying four required exception inputs and a validation step that fails
+    // the run if they are not a real, bounded, owner-approved exception.
+    //
+    // So the workflow was right and this contract was stale — it was written
+    // on 2026-08-01 against the shape the workflow had then. Restoring the
+    // push trigger to satisfy it would have re-armed exactly the automatic
+    // promotion the policy forbids. What the contract should hold is the shape
+    // the workflow deliberately has, and that is what it now holds: manual
+    // only, and the absence of the push trigger is itself asserted so that
+    // re-adding one fails here instead of shipping quietly.
+    const triggers = AI_MARKETS_DEPLOY.slice(
+      AI_MARKETS_DEPLOY.indexOf("\non:"),
+      AI_MARKETS_DEPLOY.indexOf("\npermissions:"),
+    );
+    assert.ok(triggers.length > 0, "the deploy workflow has no trigger block to read");
+    for (const automatic of ["push:", "pull_request:", "schedule:"]) {
+      assert.ok(
+        !triggers.includes(automatic),
+        `the deploy workflow gained a ${automatic} trigger, so production promotion became automatic again; that requires a candidate browser suite first (docs/QUALITY-ENGINEERING.md)`,
+      );
+    }
+    assert.ok(
+      triggers.includes("workflow_dispatch:"),
+      "the deploy workflow can no longer be started at all",
+    );
+
+    for (const input of [
+      "quality_exception",
+      "exception_issue",
+      "exception_evidence",
+      "exception_expires",
+    ]) {
+      assert.ok(
+        triggers.includes(`${input}:`),
+        `the manual deploy no longer asks for ${input}, so the exception it runs under is unrecorded`,
+      );
+    }
+
+    // The inputs are only a form until something refuses the run when they are
+    // not filled in honestly.
+    assert.ok(
+      AI_MARKETS_DEPLOY.includes("validate-release-exception.sh"),
+      "nothing validates the release exception the manual deploy is granted under",
+    );
+    assert.ok(
+      AI_MARKETS_DEPLOY.includes("inputs.quality_exception == 'APPROVED'"),
+      "the deploy job no longer requires the owner's approval to run",
+    );
+    assert.ok(
+      AI_MARKETS_DEPLOY.includes("github.ref == 'refs/heads/main'"),
+      "the deploy job would run from a branch other than main",
+    );
     assert.ok(AI_MARKETS_DEPLOY.includes("cancel-in-progress: false"));
+  });
+
+  it("still verifies this venture's paths automatically, on the CI workflow", () => {
+    // The deploy workflow no longer watches the venture's paths, so the claim
+    // "a change here is checked automatically" now rests entirely on the CI
+    // workflow. If that scoping were ever dropped too, nothing automatic would
+    // look at this venture at all.
+    assert.ok(AI_MARKETS_CI.includes('"ventures/ai-first-markets/**"'));
+    assert.ok(AI_MARKETS_CI.includes("push:"));
+    assert.ok(AI_MARKETS_CI.includes("pull_request:"));
   });
 
   it("requires verification gates before running Cloudflare deployment", () => {

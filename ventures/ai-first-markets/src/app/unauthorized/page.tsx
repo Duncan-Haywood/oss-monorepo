@@ -1,15 +1,17 @@
 import Link from "next/link";
-import { ALLOWED_EMAIL } from "@/lib/auth";
 
 export default function UnauthorizedPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
         <h1 className="text-2xl font-semibold text-zinc-50">Access Denied</h1>
+        {/*
+          Anyone can load this page, so it says that the address was refused
+          without naming the addresses that would have been accepted.
+        */}
         <p className="mt-4 text-zinc-400">
-          Your account is not on the whitelist. Only{" "}
-          <span className="font-mono text-zinc-300">{ALLOWED_EMAIL}</span> can
-          access these reports.
+          The address you signed in with is not on this deployment&apos;s
+          allowlist, so it cannot open these reports. Ask the owner to add it.
         </p>
         <Link
           href="/login"

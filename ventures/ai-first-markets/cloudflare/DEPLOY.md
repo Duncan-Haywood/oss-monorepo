@@ -28,6 +28,11 @@ After connecting, set build secrets in **Workers & Pages → your worker → Set
 | `AUTH_SECRET` | Secret | Random 32+ char string |
 | `ALLOWED_EMAIL` | Variable | `duncan.andrew.haywood@gmail.com` |
 
+`ALLOWED_EMAIL` is the sign-in allowlist and accepts a comma-separated list.
+It is read per request, so adding an address is a variable edit, not a
+release. If it is unset or empty the deployment admits nobody — that is a
+misconfiguration and it fails closed rather than opening the site up.
+
 Build command: `npm run build`  
 Deploy command: `npm run deploy`
 

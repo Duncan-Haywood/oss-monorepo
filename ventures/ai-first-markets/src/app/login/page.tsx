@@ -1,4 +1,4 @@
-import { ALLOWED_EMAIL, isGoogleAuthConfigured } from "@/lib/auth";
+import { isGoogleAuthConfigured } from "@/lib/auth";
 import { sanitizeRedirectPath } from "@/lib/redirect";
 
 interface LoginPageProps {
@@ -51,10 +51,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         )}
 
+        {/*
+          The allowlist itself is deliberately not printed here. This page is
+          reachable without a session, so naming the addresses would publish
+          them to anyone who loads it, and rendering a configured value into
+          the markup is how a server variable ends up in the HTML.
+        */}
         <p className="mt-6 text-center text-xs text-zinc-500">
-          Only{" "}
-          <span className="font-mono text-zinc-400">{ALLOWED_EMAIL}</span> is
-          authorized.
+          Only addresses on this deployment&apos;s allowlist can sign in.
         </p>
 
         <p className="mt-4 text-center text-xs text-zinc-600">
