@@ -35,7 +35,7 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
  * false when it was written, because this file read one directory. The input was
  * `.gitea/workflows` alone, and `docs/CONTROL-AUDIT-2026-08-04.md` finding 2
  * measured what that missed: 15 tracked workflow files under
- * `ventures/*/.github/workflows/` holding 60 `uses:` refs, none of them pinned,
+ * `ventures/<name>/.github/workflows/` holding 60 `uses:` refs, none of them pinned,
  * one of them `anomalyco/opencode/github@latest` — a third party's mutable ref
  * in a scheduled job that carries repository credentials. The control was
  * correct, could fail, and was pointed at the smaller half of its own subject.
