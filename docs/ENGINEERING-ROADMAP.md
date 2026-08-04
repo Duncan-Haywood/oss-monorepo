@@ -1121,6 +1121,23 @@ evidence, and completion date before it can be marked done.
   Not done: this bounds the *numbers*. Nothing yet refuses a control whose
   enforcing logic is weakened without touching a constant — deleting a check,
   widening a comparator, or adding an early return would all pass this.
+  `agent/release-lag-signal-2026-08-02` built this same measure independently
+  and was reconciled into the above on 2026-08-04. Its implementation lost —
+  it declared a separate `platform/release-lag-policy.yaml` with a
+  `target`/`acknowledged` schema, and the version kept here is the one the cap
+  ratchet already watches four constants inside, so replacing it would have
+  broken that register. Its `docs/RELEASE-LAG.md` was kept and retargeted, and
+  its `fetch-depth: 0` reasoning was merged with the affected-path one, since
+  three separate gates turn out to need full history for three different
+  reasons and only one of them was written down.
+  The scope limit that branch stated is worth keeping verbatim, because it is
+  the one thing about this control that an agent will get wrong: **it does not
+  push or merge.** Draining the backlog it measures is an outward action with a
+  production deploy behind it, and belongs to the repository owner rather than
+  to the scheduled runs that created the backlog. The gate's job is to make the
+  gap impossible to not see; closing it is a human's decision. This is also why
+  the gate stays red rather than being widened — the only edit that clears it
+  is shipping, then re-declaring the budget downward.
 - [ ] Add dependency update automation that opens small, tested Gitea changes
   and prioritizes supported framework/security releases.
 
