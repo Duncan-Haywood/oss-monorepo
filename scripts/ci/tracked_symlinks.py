@@ -69,11 +69,13 @@ class Finding:
 
 
 def _git(args: list[str], repo_root: Path) -> str:
+    env = {**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
     proc = subprocess.run(
         ["git", *args],
         cwd=str(repo_root),
         capture_output=True,
         text=True,
+        env=env,
     )
     if proc.returncode != 0:
         raise SymlinkScanError(
@@ -101,12 +103,14 @@ def tracked_symlinks(repo_root: Path = REPO_ROOT) -> list[tuple[str, str]]:
         return []
 
     # One batch call: a repository with many links should not cost one fork each.
+    env = {**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
     proc = subprocess.run(
         ["git", "cat-file", "--batch"],
         cwd=str(repo_root),
         input="\n".join(blobs) + "\n",
         capture_output=True,
         text=True,
+        env=env,
     )
     if proc.returncode != 0:
         raise SymlinkScanError(f"git cat-file --batch failed: {proc.stderr.strip()}")

@@ -414,6 +414,17 @@ export function buildCheckoutSessionPayload(
       artistTransferTotal: totals.artistTransfers.toFixed(2),
       platformRetainedTotal: totals.platformRetained.toFixed(2),
       lineItemCount: String(canonicalLineItems.length),
+      // `lineItemCount` is how many *distinct* lines there are. The fulfillment
+      // adapters read this metadata and nothing else, so until these two lists
+      // existed the only per-line facts reaching a print partner were the slug
+      // and the name — the partner was told what to print and never how many,
+      // and both adapters filled the gap with `quantity: 1`. These are the same
+      // numbers `lineItems` above is built from, which is what the buyer's card
+      // is charged against.
+      lineItemQuantities: canonicalLineItems.map((item) => item.quantity).join(","),
+      lineItemUnitAmounts: canonicalLineItems
+        .map((item) => Math.round(item.retailPrice * 100))
+        .join(","),
       catalogSlug: canonicalLineItems[0]?.artworkSlug ?? "",
       artistAccountId: primaryAccountId,
       artistHandle: primaryHandle,

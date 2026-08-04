@@ -47,8 +47,9 @@ import tracked_symlinks
 
 
 def git(repo: Path, *args: str) -> str:
+    env = {**os.environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
     proc = subprocess.run(
-        ["git", *args], cwd=str(repo), capture_output=True, text=True, check=True
+        ["git", *args], cwd=str(repo), capture_output=True, text=True, check=True, env=env
     )
     return proc.stdout
 

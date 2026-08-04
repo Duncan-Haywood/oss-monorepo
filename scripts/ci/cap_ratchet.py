@@ -73,6 +73,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import os
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
@@ -334,11 +335,15 @@ class Measurement:
 
 
 def _git(repo_root: Path, *args: str) -> str:
+    env = dict(os.environ)
+    env["GIT_CONFIG_GLOBAL"] = "/dev/null"
+    env["GIT_CONFIG_SYSTEM"] = "/dev/null"
     proc = subprocess.run(
         ["git", *args],
         cwd=repo_root,
         capture_output=True,
         text=True,
+        env=env,
     )
     if proc.returncode != 0:
         raise CapError(f"git {' '.join(args)} failed: {proc.stderr.strip() or 'no stderr'}")
@@ -411,11 +416,15 @@ def revisions_for(repo_root: Path, path: str) -> Tuple[List[str], bool]:
 
 
 def blob_at(repo_root: Path, sha: str, path: str) -> Optional[str]:
+    env = dict(os.environ)
+    env["GIT_CONFIG_GLOBAL"] = "/dev/null"
+    env["GIT_CONFIG_SYSTEM"] = "/dev/null"
     proc = subprocess.run(
         ["git", "show", f"{sha}:{path}"],
         cwd=repo_root,
         capture_output=True,
         text=True,
+        env=env,
     )
     if proc.returncode != 0:
         # The path did not exist at that revision, or was a directory. Both

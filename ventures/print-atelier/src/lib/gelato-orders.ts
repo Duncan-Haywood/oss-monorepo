@@ -6,6 +6,7 @@ import {
 import {
   describeMissingFulfillmentInputs,
   resolveBuyerEmail,
+  resolveLineItemQuantity,
   resolvePartnerProductId,
   resolvePrintFileUrl,
 } from "./fulfillment-order-inputs";
@@ -123,7 +124,9 @@ export function buildGelatoOrderPayload(
         productUid:
           readMetadataString(paymentMetadata, `gelatoProductUid_${index}`) ??
           resolvePartnerProductId(mappedProductUid, lineSlug).value,
-        quantity: 1,
+        // Unresolved stays 0 so `queueGelatoFulfillmentFromOrder` refuses the
+        // order. `quantity: 1` charged for three prints and ordered one.
+        quantity: resolveLineItemQuantity(paymentMetadata, index).value,
         fileUrl: resolvePrintFileUrl(paymentMetadata, index).value,
       };
     }),
@@ -173,6 +176,7 @@ export function resolveGelatoOrderInputs(
     }
 
     missing.push(...resolvePrintFileUrl(paymentMetadata, index).missing);
+    missing.push(...resolveLineItemQuantity(paymentMetadata, index).missing);
   }
 
   const deduped = [...new Set(missing)];

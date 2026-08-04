@@ -92,6 +92,7 @@ function componentsWithRoutes() {
     cwd: REPO_ROOT,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
+    env: { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_NOSYSTEM: "1" },
   })
     .split("\0")
     .filter(Boolean);
@@ -241,13 +242,13 @@ test("an untracked scratch copy of a component is not mistaken for a new one", (
     // what git tracks rather than on any denylist. `.gitignore` matching alone
     // would not have caught this fixture.
     assert.equal(
-      execFileSync("git", ["ls-files", "--", name], { cwd: REPO_ROOT, encoding: "utf8" }).trim(),
+      execFileSync("git", ["ls-files", "--", name], { cwd: REPO_ROOT, encoding: "utf8", env: { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_NOSYSTEM: "1" } }).trim(),
       "",
       "fixture must be untracked for this test to mean anything",
     );
     let ignored = true;
     try {
-      execFileSync("git", ["check-ignore", "-q", "--", name], { cwd: REPO_ROOT, stdio: "ignore" });
+      execFileSync("git", ["check-ignore", "-q", "--", name], { cwd: REPO_ROOT, stdio: "ignore", env: { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_NOSYSTEM: "1" } });
     } catch {
       ignored = false; // check-ignore exits 1 when the path is not ignored
     }

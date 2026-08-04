@@ -52,11 +52,15 @@ from cap_ratchet import (
 
 
 def git(repo: Path, *args: str) -> str:
+    env = dict(sys.modules["os"].environ)
+    env["GIT_CONFIG_GLOBAL"] = "/dev/null"
+    env["GIT_CONFIG_SYSTEM"] = "/dev/null"
     proc = subprocess.run(
         ["git", *args],
         cwd=repo,
         capture_output=True,
         text=True,
+        env=env,
         check=True,
     )
     return proc.stdout
@@ -323,12 +327,16 @@ class FailsClosedTests(unittest.TestCase):
         # pass on precisely the history it exists to read.
         for value in (150, 170):
             write_and_commit(self.repo, CONST_WATCH.path, constant_file(value), f"set {value}")
+        env = dict(sys.modules["os"].environ)
+        env["GIT_CONFIG_GLOBAL"] = "/dev/null"
+        env["GIT_CONFIG_SYSTEM"] = "/dev/null"
         with tempfile.TemporaryDirectory() as shallow_dir:
             shallow = Path(shallow_dir) / "shallow"
             subprocess.run(
                 ["git", "clone", "--quiet", "--depth", "1", f"file://{self.repo}", str(shallow)],
                 check=True,
                 capture_output=True,
+                env=env,
             )
             self.assertEqual(
                 subprocess.run(
@@ -336,6 +344,7 @@ class FailsClosedTests(unittest.TestCase):
                     cwd=shallow,
                     capture_output=True,
                     text=True,
+                    env=env,
                     check=True,
                 ).stdout.strip(),
                 "true",

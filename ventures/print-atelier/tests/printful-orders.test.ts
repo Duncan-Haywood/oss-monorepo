@@ -59,11 +59,15 @@ test("buildPrintfulOrderPayload maps Stripe order metadata", () => {
     ...buyerAddress,
     catalogSlug: "midnight-coast",
     buyerEmail: "buyer@example.com",
+    lineItemQuantities: "3",
+    lineItemUnitAmounts: "8500",
   });
 
   assert.equal(payload.externalId, sampleOrder.orderId);
   assert.equal(payload.recipient.name, "Test Buyer");
   assert.equal(payload.items[0]?.variantId, "4011");
+  assert.equal(payload.items[0]?.quantity, 3);
+  assert.equal(payload.items[0]?.retailPrice, "85.00");
   assert.equal(payload.retailCosts.subtotal, "85.00");
 });
 

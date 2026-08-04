@@ -11,6 +11,8 @@ import {
 import {
   describeMissingFulfillmentInputs,
   resolveBuyerEmail,
+  resolveLineItemQuantity,
+  resolveLineItemUnitAmountCents,
   resolvePartnerProductId,
 } from "./fulfillment-order-inputs";
 
@@ -132,12 +134,17 @@ export function buildPrintfulOrderPayload(
         (index === 0 ? catalogSlug : null) ??
         catalogSlug;
       const mappedVariantId = resolvePrintfulVariantId(lineSlug, variantMappings);
+      // Unresolved stays 0 and "" so `queuePrintfulFulfillmentFromOrder` refuses
+      // the order. `quantity: 1` charged for three prints and ordered one, and
+      // `retailPrice: subtotal` declared the whole order — shipping included —
+      // as the customs value of every single item.
+      const unitAmount = resolveLineItemUnitAmountCents(paymentMetadata, index);
       return {
         variantId:
           readMetadataString(paymentMetadata, `variantId_${index}`) ??
           resolvePartnerProductId(mappedVariantId, lineSlug).value,
-        quantity: 1,
-        retailPrice: subtotal,
+        quantity: resolveLineItemQuantity(paymentMetadata, index).value,
+        retailPrice: unitAmount.ok ? (unitAmount.value / 100).toFixed(2) : "",
         name:
           readMetadataString(paymentMetadata, `lineItemName_${index}`) ?? `Print — ${lineSlug}`,
       };
@@ -185,6 +192,9 @@ export function resolvePrintfulOrderInputs(
           .missing,
       );
     }
+
+    missing.push(...resolveLineItemQuantity(paymentMetadata, index).missing);
+    missing.push(...resolveLineItemUnitAmountCents(paymentMetadata, index).missing);
   }
 
   const deduped = [...new Set(missing)];

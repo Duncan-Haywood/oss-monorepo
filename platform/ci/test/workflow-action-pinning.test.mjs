@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -7,7 +8,6 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../../..');
-const WORKFLOW_DIR = path.join(REPO_ROOT, '.gitea/workflows');
 
 /**
  * `docs/DEV-WORKFLOW.md` states, in the present tense, that "all third-party

@@ -28,7 +28,19 @@
 export const FULFILLMENT_INPUT_METADATA_KEYS = {
   buyerEmail: "buyerEmail",
   printFileUrl: "artworkUrl",
+  lineItemQuantities: "lineItemQuantities",
+  lineItemUnitAmounts: "lineItemUnitAmounts",
 } as const;
+
+/**
+ * Both line lists are one comma-separated key rather than one key per line.
+ *
+ * Stripe caps metadata at 50 keys. The checkout already writes 9 order-wide keys
+ * plus 4 per line, so a cart of 11 lines is rejected by Stripe today; two more
+ * per-line keys would bring that ceiling down to 8. A compact list costs one key
+ * whatever the cart size and leaves the ceiling where it is.
+ */
+const LINE_LIST_SEPARATOR = ",";
 
 /**
  * Enough structure to reject an empty or unusable address. This is deliberately
@@ -113,6 +125,94 @@ export function resolvePartnerProductId(
     return { ok: false, value: "", missing: [`product mapping for "${artworkSlug}"`] };
   }
   return { ok: true, value, missing: [] };
+}
+
+/** A whole number lifted from a comma-separated per-line metadata list. */
+export type ResolvedCount = {
+  ok: boolean;
+  /** Zero when unresolved, so no caller can read it as "one of something". */
+  value: number;
+  missing: string[];
+};
+
+function resolveLineNumber(
+  paymentMetadata: Record<string, unknown>,
+  key: string,
+  index: number,
+  minimum: number,
+): ResolvedCount {
+  const raw = readMetadataString(paymentMetadata, key);
+  const entry = (raw === "" ? [] : raw.split(LINE_LIST_SEPARATOR))[index]?.trim() ?? "";
+
+  if (!/^\d+$/.test(entry)) {
+    return { ok: false, value: 0, missing: [`${key}[${index}]`] };
+  }
+  const value = Number.parseInt(entry, 10);
+  if (!Number.isSafeInteger(value) || value < minimum) {
+    return { ok: false, value: 0, missing: [`${key}[${index}]`] };
+  }
+  return { ok: true, value, missing: [] };
+}
+
+/**
+ * How many prints of one line the buyer paid for.
+ *
+ * Both adapters hardcoded `quantity: 1` while the checkout charged for the real
+ * quantity, so a cart of three copies of an $85 print took $261.95 and ordered
+ * one. The number was never missing — `buildCheckoutSessionPayload` had it, put
+ * it on the Stripe line item the buyer is charged from, and then wrote only
+ * `lineItemCount` (how many *distinct* lines) into the metadata the fulfillment
+ * side reads. Charging for three and shipping one is not an edge case a default
+ * covers; it is the default being wrong on every multi-quantity order.
+ */
+export function resolveLineItemQuantity(
+  paymentMetadata: Record<string, unknown> = {},
+  index = 0,
+): ResolvedCount {
+  const raw = readMetadataString(
+    paymentMetadata,
+    FULFILLMENT_INPUT_METADATA_KEYS.lineItemQuantities,
+  );
+  if (raw === "") {
+    return { ok: true, value: 1, missing: [] };
+  }
+  return resolveLineNumber(
+    paymentMetadata,
+    FULFILLMENT_INPUT_METADATA_KEYS.lineItemQuantities,
+    index,
+    1,
+  );
+}
+
+/**
+ * What one print of this line retails for, in minor units.
+ *
+ * Printful's `retail_price` is per item and is what the customs declaration is
+ * built from. It was set to the whole PaymentIntent amount — shipping included —
+ * on every line of the order. With the quantity corrected that error compounds
+ * rather than cancels, so the two are carried together or not at all.
+ */
+export function resolveLineItemUnitAmountCents(
+  paymentMetadata: Record<string, unknown> = {},
+  index = 0,
+  fallbackAmountCents?: number,
+): ResolvedCount {
+  const raw = readMetadataString(
+    paymentMetadata,
+    FULFILLMENT_INPUT_METADATA_KEYS.lineItemUnitAmounts,
+  );
+  if (raw === "") {
+    if (fallbackAmountCents !== undefined && fallbackAmountCents > 0) {
+      return { ok: true, value: fallbackAmountCents, missing: [] };
+    }
+    return { ok: true, value: 0, missing: [] };
+  }
+  return resolveLineNumber(
+    paymentMetadata,
+    FULFILLMENT_INPUT_METADATA_KEYS.lineItemUnitAmounts,
+    index,
+    1,
+  );
 }
 
 /** Human-readable reason a fulfillment submission was refused. */

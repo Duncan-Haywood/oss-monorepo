@@ -107,7 +107,7 @@ def find_collisions(repo_root: Path, baseline_ref: str = "origin/main") -> List[
         ) from exc
 
     log = _git(
-        ["log", "--branches", "--not", baseline_ref, "--diff-filter=A", "--name-only", "--format=%H"],
+        ["log", "--branches", "--remotes", "--not", baseline_ref, "--diff-filter=A", "--name-only", "--format=%H"],
         repo_root,
     )
 

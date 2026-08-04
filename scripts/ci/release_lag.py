@@ -203,7 +203,7 @@ def measure(repo_root: Path, baseline_ref: str, now_epoch: Optional[int] = None)
 
     baseline_epoch = int(_git(["show", "-s", "--format=%ct", baseline_sha], repo_root).strip())
 
-    revs = ["--branches", "HEAD", "--not", baseline_ref]
+    revs = ["--branches", "--remotes", "HEAD", "--not", baseline_ref]
     unshipped_commits = int(_git(["rev-list", "--count", *revs], repo_root).strip() or "0")
 
     oldest_age_days = 0
@@ -217,7 +217,7 @@ def measure(repo_root: Path, baseline_ref: str, now_epoch: Optional[int] = None)
             oldest_age_days = _days_between(min(stamps), now_epoch)
 
     branch_names: List[str] = []
-    for branch in _git(["for-each-ref", "--format=%(refname:short)", "refs/heads/"], repo_root).split():
+    for branch in _git(["for-each-ref", "--format=%(refname:short)", "refs/heads/", "refs/remotes/"], repo_root).split():
         ancestor = subprocess.run(
             ["git", "merge-base", "--is-ancestor", branch, baseline_ref],
             cwd=str(repo_root),

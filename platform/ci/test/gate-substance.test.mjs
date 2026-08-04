@@ -189,18 +189,56 @@ test('Gate Substance - no package in the repository declares an inert gate', () 
 
   for (const root of ['ventures', 'portfolio', 'platform']) {
     for (const file of packageJsonFiles(path.join(REPO_ROOT, root))) {
+      const pkgDir = path.dirname(file);
       const scripts = JSON.parse(fs.readFileSync(file, 'utf8')).scripts || {};
       for (const [name, command] of Object.entries(scripts)) {
         if (!GATE_SCRIPTS.includes(name)) continue;
         const where = `${path.relative(REPO_ROOT, file)} \`${name}\``;
         if (isInertGate(command)) findings.push(`${where} cannot fail — ${command}`);
         if (swallowsFailure(command)) findings.push(`${where} discards its own failure — ${command}`);
+        const vacuous = hasVacuousTestTarget(pkgDir, command);
+        if (vacuous.length > 0) findings.push(`${where} test target matches no files (${vacuous.join(', ')}) — ${command}`);
       }
     }
   }
 
   assert.ok(findings.length === 0, `inert or failure-swallowing gates:\n${findings.join('\n')}`);
 });
+
+const KNOWN_TEST_RUNNER_SUBCOMMANDS = new Set(['run', 'watch', 'bench', 'typecheck', 'ui', 'coverage']);
+
+export function hasVacuousTestTarget(pkgDir, command) {
+  const vacuous = [];
+  const match = command.match(/\b(?:node\s+--(?:test|experimental-test)|vitest|jest|mocha)\b\s*(.*)$/);
+  if (!match) return vacuous;
+
+  const raw = match[1].split(/&&|\|\||;/)[0].trim();
+  const parts = raw
+    .split(/\s+/)
+    .map((arg) => arg.replace(/^['"]|['"]$/g, ''))
+    .filter((arg) => arg && !arg.startsWith('-') && !KNOWN_TEST_RUNNER_SUBCOMMANDS.has(arg));
+
+  if (parts.length > 0) {
+    for (const arg of parts) {
+      try {
+        const matches = fs.globSync(arg, { cwd: pkgDir });
+        if (matches.length === 0) {
+          vacuous.push(arg);
+        }
+      } catch {
+        if (!fs.existsSync(path.resolve(pkgDir, arg))) {
+          vacuous.push(arg);
+        }
+      }
+    }
+  } else {
+    const defaultMatches = fs.globSync('**/*.{test,spec}.{js,mjs,cjs,ts,tsx}', { cwd: pkgDir });
+    if (defaultMatches.length === 0) {
+      vacuous.push('(default test pattern)');
+    }
+  }
+  return vacuous;
+}
 
 function packageJsonFiles(dir, found = []) {
   let entries;
