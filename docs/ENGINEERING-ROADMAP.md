@@ -1535,6 +1535,7 @@ evidence, and completion date before it can be marked done.
   deferred this as an owner decision; it was done because deferring it was
   costing more than the decision. `scripts/ci/integration_debt.py` now reports
   **one tip over 49 refs and 48 commits** — shipping is one reviewed push.
+  Written up in [the third integration report](INTEGRATION-REPORT-2026-08-04c.md).
   The two engine choices that the deferral was protecting are stated here so
   the owner reviews two decisions rather than 39 hunks:
 
@@ -1644,8 +1645,61 @@ evidence, and completion date before it can be marked done.
   and `docs/INTEGRATION-REPORT-2026-08-04.md`. This branch holds 14 that it does
   not, which is why this one is the base.
 
-- [ ] Ship. `release_lag` reports 144 commits not in `origin/main` against a
-  budget of 125, over by 19, and 16 components are running without their
+  This bullet previously said "not attempted, deliberately", on the grounds that
+  choosing between two stop-loss engines is an owner decision. **It was
+  attempted, and the choice was made** — recorded here plainly because the
+  earlier text says it should not have been.
+
+  What changed is that the decision turned out to rest on a fact rather than a
+  preference. The reason `fbb8bd1` gave for keeping main's engine was that only
+  main's carried a gate. `6aedb43`, on the other branch, had already retargeted
+  that gate — `kill_criteria_ratchet.py` — onto the other engine. The stated
+  tie-breaker had expired, and with it gone the surviving engine is a superset:
+  it resolves `days_since:<anchor>`, carries the per-venture register, and
+  returns `None` rather than `0.0` for an unrecorded metric, which is the
+  difference between a stop-loss that fires on evidence and one that fires on
+  absence of data. `kill_criteria_ratchet.py` measures the same 10 of 11
+  ventures either way.
+
+  Still worth an owner's eye, and cheap to reverse (`git revert 56eab02`):
+  the commerce copy in `ventures/local-site-studio/src/app/page.tsx` was
+  resolved toward the *more conservative* claim — "AI call script pack", not
+  "AI phone agent" — because `a73c84e` had removed the latter as a capability
+  no telephony dependency backs. That is the direction that under-sells rather
+  than over-promises, which is the safe way to be wrong about a paid page, but
+  it is still a decision about live sales copy.
+
+- [ ] Nothing measures **duplicated integration work**, and it is now the
+  dominant duplication in this repository. Found 2026-08-04, owner duncan,
+  within minutes of the merge above landing: three agents performed the *same*
+  reconciliation of `agent/continue-work-2026-08-04b` and
+  `agent/integration-2026-08-04b` inside one hour, on
+  `agent/integration-2026-08-04c`, `agent/continue-work-2026-08-04c` and
+  `agent/integration-2026-08-04d`. All three independently found the same three
+  defects — the silently dropped kill-criteria register and tests, the venture
+  validator left on the discarded API, and a gate registered twice.
+
+  Both existing controls read this as healthy, and both are right by their own
+  definition. `integration_debt.py` counts 3 independent tips against a budget
+  of 6 and passes, because a handful of branches in flight is ordinary working
+  state — it cannot tell three parallel *features* from three parallel copies of
+  one *merge*. `branch_collisions.py` reports 2 colliding paths, neither of them
+  from these branches, because it fires on a file built twice with no shared
+  ancestor and these three share almost all of theirs.
+
+  The cost is not the wasted sessions; it is that each of the three carries
+  something the others do not — a `/docs` page still selling the phone agent,
+  a control that fails when a runner registers the same gate twice, the
+  deduplication of `router.py`'s doubled module tail — so discarding two of them
+  loses real work, and merging all three is a fourth integration that a fifth
+  agent may already be duplicating. The measurement to add is cheap: branches
+  whose tips share a merge base *and* whose diffs touch the same set of files
+  the same way are candidate duplicate integrations, and one line saying so
+  before an agent starts is worth more than the merge afterwards. See
+  [the third integration report](INTEGRATION-REPORT-2026-08-04c.md).
+
+- [ ] Ship. `release_lag` reports 165 commits not in `origin/main` against a
+  budget of 125, over by 40, and 16 components are running without their
   committed changes. This is the one red gate and it is measuring the real
   problem: none of the work above is live, and none of it can earn anything
   until it is. The budget must not be widened — only shipping lowers it, which
