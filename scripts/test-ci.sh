@@ -88,6 +88,16 @@ run_ci_test "Coverage Baseline Ratchet" python3 "${REPO_ROOT}/scripts/ci/coverag
 # `tests/test_kill_criteria_ratchet.py` runs the same audit under pytest, so this
 # entry is the named gate rather than the only enforcement.
 run_ci_test "Kill-Criteria Stopping Rule Ratchet" python3 "${REPO_ROOT}/scripts/ci/kill_criteria_ratchet.py"
+# Every venture has Kubernetes manifests; most name an image nothing in this
+# repository can build. Six of the eight organisation images under
+# `platform/k8s/apps` had no producer on 2026-08-04 — complete Deployments
+# pointed at tags that would never exist, including local-site-studio, which
+# holds the most finished commerce code in the monorepo. This counts the
+# deployments that cannot be released, and the releases pinned to a mutable tag,
+# and fails when either grows. `tests/test_image_release_path.py` runs the same
+# audit under pytest, so this entry is the named gate rather than the only
+# enforcement.
+run_ci_test "Image Release Path Ratchet" python3 "${REPO_ROOT}/scripts/ci/image_release_path.py"
 
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"

@@ -83,25 +83,26 @@ jobs:
         env:
           IMAGE: git.marisstella.dev/giteaadmin/local-site-studio:${{ github.sha }}
         run: |
-          # shellcheck disable=SC2317
-          cleanup() {
-            if docker ps --all --quiet \
-              --filter name=local-site-studio-smoke |
-                grep -q .; then
-              docker rm --force local-site-studio-smoke >/dev/null
-            fi
-          }
-          trap cleanup EXIT
+          # Written without a trap-and-cleanup function on purpose. ShellCheck
+          # does not follow traps, so that shape reports the cleanup body as
+          # unreachable and needs an inline suppression — one more entry in
+          # platform/exception-register.yaml for something a straight-line
+          # script does not need. Teardown is on every path out of here instead.
           docker run --detach --name local-site-studio-smoke "$IMAGE"
+          status=1
           for _ in $(seq 1 30); do
             if docker exec local-site-studio-smoke \
               wget --quiet --spider http://127.0.0.1:3000/; then
-              exit 0
+              status=0
+              break
             fi
             sleep 1
           done
-          docker logs local-site-studio-smoke
-          exit 1
+          if [ "$status" -ne 0 ]; then
+            docker logs local-site-studio-smoke
+          fi
+          docker rm --force local-site-studio-smoke >/dev/null
+          exit "$status"
 
       # Immutable tag only. platform/k8s/apps/local-site-studio/deployment.yaml
       # currently pins `:latest`, so publishing that tag would put an
