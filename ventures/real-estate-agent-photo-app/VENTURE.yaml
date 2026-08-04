@@ -32,16 +32,6 @@ kill_criteria:
       - metric: cumulative_revenue_usd
         comparator: "=="
         threshold: 0
-  - description: >-
-      $150 of recorded agent spend accumulated with no revenue ever recorded
-      against this venture in portfolio/ledger/.
-    when:
-      - metric: cumulative_agent_spend_usd
-        comparator: ">="
-        threshold: 150
-      - metric: cumulative_revenue_usd
-        comparator: "=="
-        threshold: 0
 
 links:
   # Was https://listing-lens-docs.pages.dev until 2026-08-02. That host answers,

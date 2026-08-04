@@ -290,8 +290,8 @@ class MetricResolver:
 
 def _evaluate_condition(condition: Dict[str, Any], resolver: MetricResolver) -> ConditionResult:
     metric = str(condition.get("metric", "")).strip()
-    op = str(condition.get("op", "")).strip()
-    value = condition.get("value")
+    op = str(condition.get("op") or condition.get("comparator") or "").strip()
+    value = condition.get("value") if condition.get("value") is not None else condition.get("threshold")
 
     if not metric:
         return ConditionResult(metric, op, value, None, None, "condition declares no metric", malformed=True)
@@ -351,8 +351,14 @@ def evaluate_criterion(
         )
 
     criterion_id = str(criterion.get("id") or f"{venture_name}[{index}]")
-    text = str(criterion.get("description") or criterion.get("id") or "").strip()
+    text = str(
+        criterion.get("description")
+        or criterion.get("id")
+        or (f"{criterion.get('metric')} {criterion.get('op') or criterion.get('comparator')} {criterion.get('value') or criterion.get('threshold')}" if "metric" in criterion else "")
+    ).strip()
     conditions = criterion.get("when")
+    if conditions is None and "metric" in criterion:
+        conditions = [criterion]
 
     if not isinstance(conditions, list) or not conditions:
         return CriterionResult(
