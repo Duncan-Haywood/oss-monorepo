@@ -108,6 +108,36 @@ const specsData = {
         <li><strong>Stage:</strong> Venture build</li>
       </ul>
     `
+  },
+  markets: {
+    title: 'AI-First Markets',
+    desc: 'Market selection for software-native companies',
+    details: `<ul><li><strong>User:</strong> Founders evaluating where AI changes industry economics</li><li><strong>Product:</strong> Comparable market maps, scored opportunities, and evidence-backed reports</li><li><strong>Stage:</strong> Research prototype; not publicly deployed</li></ul>`
+  },
+  shootflow: {
+    title: 'ShootFlow',
+    desc: 'Reliable media operations for working photographers',
+    details: `<ul><li><strong>User:</strong> High-volume photographers and small studios</li><li><strong>Product:</strong> Local-first ingest, render, storage, and delivery orchestration</li><li><strong>Stage:</strong> Tested workflow prototype</li></ul>`
+  },
+  photoimport: {
+    title: 'Photo Import Tools',
+    desc: 'Verified, resumable photo-library ingestion',
+    details: `<ul><li><strong>User:</strong> People managing large camera and Apple Photos libraries</li><li><strong>Product:</strong> Hash-verified offload, import monitoring, and safe recovery</li><li><strong>Stage:</strong> Tested operator utility</li></ul>`
+  },
+  rangecoach: {
+    title: 'Range Coach',
+    desc: 'Private, immediate feedback for golf practice',
+    details: `<ul><li><strong>User:</strong> Recreational golfers practicing without a coach present</li><li><strong>Product:</strong> Watch motion plus fixed-camera analysis with one confidence-labelled cue</li><li><strong>Stage:</strong> Native iPhone and Apple Watch prototype</li></ul>`
+  },
+  analysis: {
+    title: 'Real Analysis Studio',
+    desc: 'Explore the structure behind rigorous proofs',
+    details: `<ul><li><strong>User:</strong> Undergraduate real-analysis students</li><li><strong>Product:</strong> Interactive visual proof walkthroughs and practice</li><li><strong>Stage:</strong> Learning prototype</li></ul>`
+  },
+  agentserver: {
+    title: 'Agent Server',
+    desc: 'Isolated execution for dependable agent work',
+    details: `<ul><li><strong>User:</strong> The Maris Stella studio engineering system</li><li><strong>Product:</strong> Provisioning for isolated agent execution with observable resource boundaries</li><li><strong>Stage:</strong> Infrastructure prototype; installed services remain disabled by default</li></ul>`
   }
 };
 
@@ -150,5 +180,20 @@ window.onclick = function(event) {
 };
 
 document.addEventListener('keydown', (event) => {
+  const modal = document.getElementById('techModal');
   if (event.key === 'Escape') closeModal();
+  if (event.key !== 'Tab' || modal.style.display !== 'flex') return;
+
+  const focusable = Array.from(modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'));
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 });

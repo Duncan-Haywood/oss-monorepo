@@ -132,6 +132,23 @@ test('the portfolio size the page claims matches the portfolio it shows', () => 
   );
 });
 
+test('the portfolio gives every registered venture a marketing card', () => {
+  const venturesRoot = path.resolve(SITE_ROOT, '../../ventures');
+  const registered = fs
+    .readdirSync(venturesRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .filter((entry) => fs.existsSync(path.join(venturesRoot, entry.name, 'VENTURE.yaml')))
+    .map((entry) => entry.name)
+    .sort();
+  const cards = attributeValues(html, 'data-venture').sort();
+
+  assert.deepEqual(
+    cards,
+    registered,
+    'every ventures/*/VENTURE.yaml entry must appear exactly once on the portfolio homepage'
+  );
+});
+
 test('every link that opens a new tab severs the opener reference', () => {
   // Without rel="noopener" the destination gets window.opener and can navigate
   // this tab somewhere else — reverse tabnabbing on the studio's front door.

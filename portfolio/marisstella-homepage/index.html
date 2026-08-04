@@ -53,7 +53,7 @@
         </div>
       </div>
       <aside class="hero-feature" aria-label="Featured venture">
-        <div class="feature-topline"><span>Featured venture</span><span class="feature-index">01 / 06</span></div>
+        <div class="feature-topline"><span>Featured venture</span><span class="feature-index">01 / 12</span></div>
         <div class="feature-mark" aria-hidden="true">
           <span class="orbit orbit-one"></span>
           <span class="orbit orbit-two"></span>
@@ -67,7 +67,7 @@
         </div>
       </aside>
       <div class="hero-metrics" aria-label="Studio highlights">
-        <div class="metric-card"><div class="metric-value">06</div><div class="metric-label">Ventures across the portfolio</div></div>
+        <div class="metric-card"><div class="metric-value">12</div><div class="metric-label">Ventures and technical products</div></div>
         <div class="metric-card"><div class="metric-value">01</div><div class="metric-label">Flagship product in market</div></div>
         <div class="metric-card metric-wide"><div class="metric-label">Our operating model</div><div class="metric-note">Thesis → validation → venture</div></div>
       </div>
@@ -119,7 +119,7 @@
 
       <div class="ventures-grid">
         <!-- Venture 1: Pairwise -->
-        <div class="venture-card featured" data-category="ai consumer">
+        <div class="venture-card featured" data-category="ai consumer" data-venture="quick-pick-survey">
           <div class="venture-badge">FLAGSHIP VENTURE</div>
           <div class="venture-header">
             <div class="venture-icon icon-pairwise">
@@ -151,7 +151,7 @@
         </div>
 
         <!-- Venture 2: AI Engineering Academy -->
-        <div class="venture-card" data-category="ai enterprise">
+        <div class="venture-card" data-category="ai enterprise" data-venture="ai-engineering-academy">
           <div class="venture-header">
             <div class="venture-icon icon-academy">
               <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -181,7 +181,7 @@
         </div>
 
         <!-- Venture 3: Real Estate Agent Photo App -->
-        <div class="venture-card" data-category="consumer enterprise">
+        <div class="venture-card" data-category="consumer enterprise" data-venture="real-estate-agent-photo-app">
           <div class="venture-header">
             <div class="venture-icon icon-realestate">
               <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -192,7 +192,7 @@
                 <path d="M5 11h3M24 11h3" opacity="0.5"/>
               </svg>
             </div>
-            <div class="venture-status status-active">Active Venture</div>
+            <div class="venture-status status-active">Product prototype</div>
           </div>
           <h3 class="venture-name">Real Estate Photo Suite</h3>
           <p class="venture-tagline">Faster listing-ready imagery for property professionals</p>
@@ -205,13 +205,13 @@
             <span class="tech-tag">Validation</span>
           </div>
           <div class="venture-footer">
-            <span class="venture-link disabled">Staging</span>
+            <span class="venture-link disabled">Prototype</span>
             <button class="btn-details" onclick="openModal('realestate')">Venture brief</button>
           </div>
         </div>
 
         <!-- Venture 4: Local Site Studio -->
-        <div class="venture-card" data-category="enterprise">
+        <div class="venture-card" data-category="enterprise" data-venture="local-site-studio">
           <div class="venture-header">
             <div class="venture-icon icon-sitestudio">
               <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -240,7 +240,7 @@
         </div>
 
         <!-- Venture 5: Retail Pilot Intel -->
-        <div class="venture-card" data-category="ai enterprise">
+        <div class="venture-card" data-category="ai enterprise" data-venture="retail-pilot-intel">
           <div class="venture-header">
             <div class="venture-icon icon-retail">
               <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -270,7 +270,7 @@
         </div>
 
         <!-- Venture 6: Print Atelier -->
-        <div class="venture-card" data-category="consumer">
+        <div class="venture-card" data-category="consumer" data-venture="print-atelier">
           <div class="venture-header">
             <div class="venture-icon icon-print">
               <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -296,6 +296,66 @@
             <span class="venture-link disabled">Active</span>
             <button class="btn-details" onclick="openModal('print')">Venture brief</button>
           </div>
+        </div>
+
+        <!-- Venture 7: AI-First Markets -->
+        <div class="venture-card" data-category="ai enterprise" data-venture="ai-first-markets">
+          <div class="venture-header"><div class="venture-icon" aria-hidden="true">↗</div><div class="venture-status status-active">Research product</div></div>
+          <h3 class="venture-name">AI-First Markets</h3>
+          <p class="venture-tagline">Market selection for software-native companies</p>
+          <p class="venture-description">A quantitative research platform for comparing market structure, AI leverage, operating constraints, and credible paths from a narrow wedge to a durable business.</p>
+          <div class="venture-tech"><span class="tech-tag">Market intelligence</span><span class="tech-tag">Decision support</span><span class="tech-tag">Prototype</span></div>
+          <div class="venture-footer"><span class="venture-link disabled">Prototype</span><button class="btn-details" onclick="openModal('markets')">Venture brief</button></div>
+        </div>
+
+        <!-- Venture 8: ShootFlow -->
+        <div class="venture-card" data-category="ai enterprise" data-venture="photo-editing">
+          <div class="venture-header"><div class="venture-icon" aria-hidden="true">◫</div><div class="venture-status status-active">Workflow prototype</div></div>
+          <h3 class="venture-name">ShootFlow</h3>
+          <p class="venture-tagline">Reliable media operations for working photographers</p>
+          <p class="venture-description">A local-first workflow engine for ingest, color and render coordination, storage health, delivery handoffs, and auditable production scheduling.</p>
+          <div class="venture-tech"><span class="tech-tag">Photography</span><span class="tech-tag">Workflow automation</span><span class="tech-tag">Local-first</span></div>
+          <div class="venture-footer"><span class="venture-link disabled">Internal platform</span><button class="btn-details" onclick="openModal('shootflow')">Venture brief</button></div>
+        </div>
+
+        <!-- Venture 9: Photo Import Tools -->
+        <div class="venture-card" data-category="consumer enterprise" data-venture="photos-import-tools">
+          <div class="venture-header"><div class="venture-icon" aria-hidden="true">⇣</div><div class="venture-status status-active">Utility suite</div></div>
+          <h3 class="venture-name">Photo Import Tools</h3>
+          <p class="venture-tagline">Verified, resumable photo-library ingestion</p>
+          <p class="venture-description">High-throughput utilities for safe media offload, metadata extraction, duplicate detection, Photos import monitoring, and recovery from interrupted transfers.</p>
+          <div class="venture-tech"><span class="tech-tag">Media integrity</span><span class="tech-tag">macOS</span><span class="tech-tag">Operations</span></div>
+          <div class="venture-footer"><span class="venture-link disabled">Operator tool</span><button class="btn-details" onclick="openModal('photoimport')">Venture brief</button></div>
+        </div>
+
+        <!-- Venture 10: Range Coach -->
+        <div class="venture-card" data-category="ai consumer" data-venture="range-coach">
+          <div class="venture-header"><div class="venture-icon" aria-hidden="true">⌁</div><div class="venture-status status-beta">Native prototype</div></div>
+          <h3 class="venture-name">Range Coach</h3>
+          <p class="venture-tagline">Private, immediate feedback for golf practice</p>
+          <p class="venture-description">An iPhone and Apple Watch practice coach that combines swing motion and video to offer one confidence-labelled cue after each shot—without sending session media to the cloud.</p>
+          <div class="venture-tech"><span class="tech-tag">Golf</span><span class="tech-tag">On-device intelligence</span><span class="tech-tag">Apple Watch</span></div>
+          <div class="venture-footer"><span class="venture-link disabled">Prototype</span><button class="btn-details" onclick="openModal('rangecoach')">Venture brief</button></div>
+        </div>
+
+        <!-- Venture 11: Real Analysis Studio -->
+        <div class="venture-card" data-category="consumer" data-venture="mat-470-real-analysis">
+          <div class="venture-header"><div class="venture-icon" aria-hidden="true">ε</div><div class="venture-status status-beta">Learning prototype</div></div>
+          <h3 class="venture-name">Real Analysis Studio</h3>
+          <p class="venture-tagline">Explore the structure behind rigorous proofs</p>
+          <p class="venture-description">An interactive study companion for sequences, limits, continuity, and proof construction—designed to make the quantifiers and choices inside an argument visible.</p>
+          <div class="venture-tech"><span class="tech-tag">Mathematics</span><span class="tech-tag">Interactive learning</span><span class="tech-tag">Prototype</span></div>
+          <div class="venture-footer"><span class="venture-link disabled">Prototype</span><button class="btn-details" onclick="openModal('analysis')">Venture brief</button></div>
+        </div>
+
+        <!-- Venture 12: Agent Server -->
+        <div class="venture-card" data-category="ai enterprise" data-venture="ubuntu-agent-server">
+          <div class="venture-header"><div class="venture-icon" aria-hidden="true">◇</div><div class="venture-status status-active">Infrastructure prototype</div></div>
+          <h3 class="venture-name">Agent Server</h3>
+          <p class="venture-tagline">Isolated execution for dependable agent work</p>
+          <p class="venture-description">Provisioning code for an isolated agent execution environment, designed around observability, explicit resource boundaries, and recoverable workflows.</p>
+          <div class="venture-tech"><span class="tech-tag">Agent infrastructure</span><span class="tech-tag">Security</span><span class="tech-tag">Operations</span></div>
+          <div class="venture-footer"><span class="venture-link disabled">Internal platform</span><button class="btn-details" onclick="openModal('agentserver')">Venture brief</button></div>
         </div>
       </div>
     </div>
