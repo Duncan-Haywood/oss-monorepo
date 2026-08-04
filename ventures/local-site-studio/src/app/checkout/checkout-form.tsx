@@ -27,8 +27,16 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
   );
   const [commerceAddon, setCommerceAddon] = useState(prefill.initialCommerce === true);
   const [email, setEmail] = useState(prefill.email ?? "");
+  // Self-serve checkout (homepage / pricing CTA) carries no CRM lead, so this
+  // is the only place the buyer's own business name is ever asked for. Without
+  // it the paid record is created from a minted organic-<hex> slug and the
+  // customer is named after their own session id. Required in that case.
+  const [businessName, setBusinessName] = useState(prefill.businessName ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const needsBusinessName = !prefill.businessName;
+  const trimmedBusinessName = businessName.trim();
 
   const bundle = BUNDLES.find((b) => b.id === tier)!;
   const setupTotal = bundle.setupPriceUsd + (commerceAddon ? COMMERCE_ADDON.setupPriceUsd : 0);
@@ -36,6 +44,10 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
     (bundle.monthlyPriceUsd ?? 0) + (commerceAddon ? COMMERCE_ADDON.monthlyPriceUsd : 0);
 
   async function handleCheckout() {
+    if (needsBusinessName && !trimmedBusinessName) {
+      setError("Enter your business name so we know whose site we are building.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -46,6 +58,7 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
           tier,
           commerceAddon,
           customerEmail: email || undefined,
+          businessName: trimmedBusinessName || undefined,
           slug,
         }),
       });
@@ -142,6 +155,26 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
         </label>
       </div>
 
+      {needsBusinessName ? (
+        <div className="mt-6">
+          <label className="text-sm font-medium text-zinc-700" htmlFor="businessName">
+            Business name
+          </label>
+          <input
+            id="businessName"
+            type="text"
+            required
+            value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)}
+            placeholder="Your business name"
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+          />
+          <p className="mt-1 text-xs text-zinc-500">
+            This is the name on your site, your receipt, and your dashboard.
+          </p>
+        </div>
+      ) : null}
+
       <div className="mt-6">
         <label className="text-sm font-medium text-zinc-700" htmlFor="email">
           Email {prefill.email ? "(from your preview lead)" : "(optional — prefills Stripe)"}
@@ -173,7 +206,7 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
         <button
           type="button"
           onClick={handleCheckout}
-          disabled={loading}
+          disabled={loading || (needsBusinessName && !trimmedBusinessName)}
           className="mt-6 h-12 w-full rounded-full bg-zinc-900 font-medium text-white disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
           {loading ? "Redirecting to Stripe…" : "Continue to Stripe"}

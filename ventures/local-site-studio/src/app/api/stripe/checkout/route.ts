@@ -20,6 +20,25 @@ interface CheckoutRequestBody {
   commerceAddon?: boolean;
   slug?: string;
   customerEmail?: string;
+  /**
+   * The buyer's own business name, collected by the checkout form when no CRM
+   * lead exists. Carried in session metadata so webhook fulfillment can name
+   * the paid record after the customer instead of after their minted
+   * `organic-<hex>` slug. See buildPaymentStubLeadFields.
+   */
+  businessName?: string;
+}
+
+/**
+ * Stripe caps a metadata value at 500 characters and rejects the whole session
+ * create above it — a long paste in the form must not fail checkout.
+ */
+const MAX_METADATA_BUSINESS_NAME = 200;
+
+function metadataBusinessName(raw: string | undefined): string | undefined {
+  const trimmed = raw?.trim();
+  if (!trimmed) return undefined;
+  return trimmed.slice(0, MAX_METADATA_BUSINESS_NAME);
 }
 
 function notConfigured(message: string) {
@@ -104,6 +123,7 @@ export async function POST(request: Request) {
   // Homepage CTAs omit slug — mint organic-* so webhook fulfillment + payment
   // stubs still create CRM/handoff rows after Stripe collects money.
   const { leadSlug, mintedOrganic } = resolveBundleCheckoutLeadSlug(body.slug);
+  const buyerBusinessName = metadataBusinessName(body.businessName);
 
   const cancelParams = new URLSearchParams({ cancelled: "1" });
   cancelParams.set("slug", leadSlug);
@@ -121,6 +141,7 @@ export async function POST(request: Request) {
         tier: bundle.id,
         commerceAddon: String(commerceAddonApplied),
         slug: leadSlug,
+        ...(buyerBusinessName ? { businessName: buyerBusinessName } : {}),
         ...(mintedOrganic ? { organicAttribution: "1" } : {}),
       },
     });
