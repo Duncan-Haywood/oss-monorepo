@@ -358,7 +358,7 @@ export async function sendStarterUpsellEmail(params: {
   const tierLabel = targetTier === "complete" ? "Complete" : "Growth";
   const marketingLine =
     targetTier === "complete"
-      ? "AI marketing (8 social/GBP posts + 2 emails/month) plus a client AI phone agent that answers your business line."
+      ? "AI marketing (8 social/GBP posts + 2 emails/month) plus an AI call script pack — FAQ, booking and lead-capture scripts written from your site, for you to run on your own line."
       : "an AI marketing engine: 8 social/GBP posts + 2 emails per month, written from your site data.";
 
   const subject = `${businessName} — add ${tierLabel} marketing ($${monthlyPriceUsd}/mo)`;

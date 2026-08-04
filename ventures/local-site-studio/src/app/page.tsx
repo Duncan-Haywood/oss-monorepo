@@ -57,12 +57,12 @@ const bundleCopy: Record<
     highlighted: true,
   },
   complete: {
-    tagline: "Never miss a call or a customer",
+    tagline: "Be ready for every call",
     features: [
       "Everything in Growth",
       "Full marketing — seasonal promos, A/B variants",
-      "AI phone agent for your business line",
-      "Appointment booking and lead capture",
+      "AI call script pack — FAQ, booking and lead capture, written from your site",
+      "Delivered as a script pack for your line; we do not answer calls for you",
     ],
     highlighted: false,
   },
@@ -104,7 +104,7 @@ export default function Home() {
           <p className="mt-6 text-lg leading-8 text-zinc-600">
             {brand.name} creates professional websites for restaurants, salons, trades,
             and other local businesses. Preview your site first — choose Starter from{" "}
-            {entryPrice}, or add automated marketing and an AI phone agent. Self-serve
+            {entryPrice}, or add automated marketing and an AI call script pack. Self-serve
             checkout, no sales calls.
           </p>
           {!brand.isConfigured && (
@@ -162,7 +162,8 @@ export default function Home() {
           <h2 className="text-2xl font-semibold tracking-tight">Choose your bundle</h2>
           <p className="mt-4 text-zinc-600">
             Every bundle includes a professional website. Add marketing automation or an AI
-            phone agent when your business needs them. Payments processed securely via Stripe.
+            call script pack when your business needs them. Payments processed securely via
+            Stripe.
           </p>
         </div>
         <div className="mt-10 grid gap-6 lg:grid-cols-3">

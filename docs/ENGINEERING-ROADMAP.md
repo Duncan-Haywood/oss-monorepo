@@ -1281,6 +1281,19 @@ evidence, and completion date before it can be marked done.
   with hardcoded example values, so it has never read one of these files. The
   rule existed; the reach did not. That gap is now measured, not closed.
 
+  Corrected 2026-08-04 on integration: the reach half **is** closed, and neither
+  branch could see it. The paragraph above was written on
+  `agent/local-site-studio-image-path-2026-08-04`, where that step still ran
+  `grep -Eq 'image:.*:(latest|main|master)' "$RUNNER_TEMP/web-service.yaml"`
+  against a render it had itself produced with `--set image.tag=ci-${sha}`. On
+  `agent/integration-debt-2026-08-04` the same step had already been replaced
+  with `python3 scripts/ci/image_tags.py`, which scans `SCAN_ROOT =
+  "platform/k8s"` after each directory's Kustomize overlay. The two changes
+  landed on branches that could not see each other, so the merge is what made
+  the workflow both trigger on those manifests and read them. What remains open
+  is the *count*, not the reach: seven of eight apps still resolve to a mutable
+  tag, and lowering that needs digest promotion, not another gate.
+
 - [ ] Give the remaining five undeliverable deployments a producer or delete
   them. `ai-engineering-academy`, `ai-first-markets`, `print-atelier`,
   `real-estate-photo-app` and `retail-pilot-intel` each name an image nothing
@@ -1290,9 +1303,87 @@ evidence, and completion date before it can be marked done.
   commerce stack in the repository and its only blocker is being deployed
   somewhere.
 
-- [ ] Make `deploy-services.yml` inspect the manifests it triggers on, and take
-  the mutable-reference count below 7. Digest promotion exists for exactly one
-  venture; generalising `platform/ci/promote-pairwise-gitops.sh` is the work.
+- [ ] Take the mutable-reference count below 7. Digest promotion exists for
+  exactly one venture; generalising `platform/ci/promote-pairwise-gitops.sh` is
+  the work. `deploy-services.yml` now inspects the manifests it triggers on —
+  see the correction above — so what is left here is the promotion, not the
+  inspection.
+
+  For `local-site-studio` specifically this is the last link, and it is
+  deliberately missing rather than forgotten:
+  `.gitea/workflows/local-site-studio-image.yml` publishes only `:${sha}`, while
+  `platform/k8s/apps/local-site-studio/kustomization.yaml` asks for
+  `newTag: latest`. Nothing pushes `:latest`, so the image the workflow builds
+  can never be pulled by the Deployment that names it. The workflow's own header
+  gives the reason — publishing `:latest` would put an unreviewed build of the
+  venture holding live Stripe code into the cluster on merge. Writing
+  `platform/ci/promote-local-site-studio-gitops.sh` is therefore an owner
+  decision about a payment surface, not a mechanical port of the Pairwise
+  script, and it needs a first-promotion path because the kustomization carries
+  `newTag:` and not the `digest:` line the Pairwise promoter rewrites.
+
+### Integration pass, 2026-08-04 (second)
+
+- [x] Reconcile `agent/local-site-studio-image-path-2026-08-04` into the
+  integration branch. Owner duncan, 2026-08-04. It was an independent release
+  candidate that `scripts/ci/integration_debt.py` had already flagged — three
+  tips, and this was one of them. Merging it took the tip count to 2 and gave
+  the only venture in the portfolio with real Stripe code an image its
+  Deployment could pull, taking `without a build path` from 6 to 5.
+
+  The merge found two defects that existed only in the combination, which is the
+  argument for integrating rather than stacking branches:
+
+  * `tests/test_image_release_path.py` carried `# noqa: E402`, and
+    `scripts/ci/audit_exceptions.py` — built on a different branch — requires
+    every suppression to have a registered owner, reason and expiry. Registering
+    it would have been the wrong half of the trade: there is no flake8, ruff or
+    pylint configuration in this repository and no gate runs one, so the
+    suppression silenced a rule nothing enforces. Its four sibling controls all
+    do the same `scripts/ci` import with the `sys.path` insert ahead of the
+    remaining imports and no suppression. Removed rather than registered.
+  * `scripts/ci/image_release_path.py` declared four `MAX_` constants that
+    `scripts/ci/cap_ratchet.py` did not watch, so four ceilings bounded a
+    declared budget with nothing stopping them being raised. The contract test
+    caught all four on the merge — the third time it has done that. 23 caps
+    became 27. Two of them, `MAX_DECLARED_WITHOUT_BUILD_PATH` and
+    `MAX_DECLARED_MUTABLE_REFERENCES`, are pure debt counters measured before
+    the control existed and must only ever fall.
+
+  Also corrected the "Venture Contract Validation" comment in
+  `scripts/test-ci.sh`, which credited that gate with three checks it does not
+  perform — unevaluable criteria, register expiry, typo'd metrics — against a
+  `portfolio/kill-criteria-register.yaml` that does not exist on this branch,
+  and omitted the two it does. A gate credited with checks it does not perform
+  is the drift the rest of that file exists to catch.
+
+  Verified at `a0424fe` on Node 22.22.3: 23 named gates pass, 1113 pytest tests
+  pass, 424 Dagger-engine tests pass. One gate fails, `release_lag`, and it is
+  supposed to — see below.
+
+- [ ] Reconcile `agent/integration-2026-08-04`, the last remaining independent
+  tip, so the pile is one reviewable release candidate instead of two. **Not
+  attempted, deliberately.** It is a second, parallel integration of the same
+  source branches rather than a missing merge, so the conflicts are two
+  implementations of the same decisions: 39 hunks across 10 files, including
+  `portfolio/router/kill_criteria.py` at 667 lines against this branch's 332 —
+  two different stop-loss engines — plus `allocate.py`, `router.py`, and 13
+  hunks in `ventures/local-site-studio/src/app/page.tsx`, which is live commerce
+  copy. Choosing between two engines for the portfolio's only spending brake,
+  and between two versions of a page that quotes prices, is an owner decision;
+  a wrong resolution there fails silently and in the direction of spending
+  money. That branch also holds three artifacts this one does not:
+  `portfolio/kill-criteria-register.yaml`, `portfolio/router/test_kill_criteria.py`
+  and `docs/INTEGRATION-REPORT-2026-08-04.md`. This branch holds 14 that it does
+  not, which is why this one is the base.
+
+- [ ] Ship. `release_lag` reports 144 commits not in `origin/main` against a
+  budget of 125, over by 19, and 16 components are running without their
+  committed changes. This is the one red gate and it is measuring the real
+  problem: none of the work above is live, and none of it can earn anything
+  until it is. The budget must not be widened — only shipping lowers it, which
+  is the entire point of the two-directional cap. `main` blocks direct pushes
+  and requires one approval, so this needs a human to open the pull request.
 
 ## Next 60 days: responsible product learning
 
