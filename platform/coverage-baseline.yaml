@@ -73,14 +73,22 @@ components:
     # honest reading is that this component moved roughly a point, not three.
     # Branch coverage remains the weakest of the three and is where the climb to
     # the 90% target continues.
+    # Re-measured 2026-08-04 on Node 22.22.3. `unexercised` falls 52 -> 50:
+    # `tests/checkout-tax-disclosure.test.ts` renders the checkout route, so
+    # `src/app/checkout/page.tsx` and `src/components/CheckoutLab.tsx` are now
+    # loaded by a test where before nothing loaded them. That is the count this
+    # ratchet exists to hold — a percentage floor cannot see a file no test
+    # imports at all, and two of them were on the path that decides what a buyer
+    # is charged. All three percentages rose over a larger basis at the same
+    # time, so this is coverage added rather than surface removed.
     baseline:
-      unexercised: 52
-      lines: 88.07
-      functions: 91.12
-      branches: 82.12
+      unexercised: 50
+      lines: 88.17
+      functions: 91.38
+      branches: 82.37
     measured:
-      files: 132
-      lines: 29504
+      files: 135
+      lines: 30028
     tolerance:
       lines: 0.5
       functions: 0.5
