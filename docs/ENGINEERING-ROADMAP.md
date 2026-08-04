@@ -1482,24 +1482,38 @@ evidence, and completion date before it can be marked done.
   pass, 424 Dagger-engine tests pass. One gate fails, `release_lag`, and it is
   supposed to — see below.
 
-- [ ] Reconcile `agent/integration-2026-08-04`, the last remaining independent
-  tip, so the pile is one reviewable release candidate instead of two. **Not
-  attempted, deliberately.** It is a second, parallel integration of the same
-  source branches rather than a missing merge, so the conflicts are two
-  implementations of the same decisions: 39 hunks across 10 files, including
-  `portfolio/router/kill_criteria.py` at 667 lines against this branch's 332 —
-  two different stop-loss engines — plus `allocate.py`, `router.py`, and 13
-  hunks in `ventures/local-site-studio/src/app/page.tsx`, which is live commerce
-  copy. Choosing between two engines for the portfolio's only spending brake,
-  and between two versions of a page that quotes prices, is an owner decision;
-  a wrong resolution there fails silently and in the direction of spending
-  money. That branch also holds three artifacts this one does not:
-  `portfolio/kill-criteria-register.yaml`, `portfolio/router/test_kill_criteria.py`
-  and `docs/INTEGRATION-REPORT-2026-08-04.md`. This branch holds 14 that it does
-  not, which is why this one is the base.
+- [x] Reconcile `agent/integration-2026-08-04b`, the last remaining independent
+  tip, so the pile is one reviewable release candidate instead of two.
+  Done 2026-08-04 on `agent/integration-2026-08-04c`, written up in
+  [the third integration report](INTEGRATION-REPORT-2026-08-04c.md).
+  `integration_debt.py` now measures **one tip** across 48 refs.
 
-- [ ] Ship. `release_lag` reports 144 commits not in `origin/main` against a
-  budget of 125, over by 19, and 16 components are running without their
+  This bullet previously said "not attempted, deliberately", on the grounds that
+  choosing between two stop-loss engines is an owner decision. **It was
+  attempted, and the choice was made** — recorded here plainly because the
+  earlier text says it should not have been.
+
+  What changed is that the decision turned out to rest on a fact rather than a
+  preference. The reason `fbb8bd1` gave for keeping main's engine was that only
+  main's carried a gate. `6aedb43`, on the other branch, had already retargeted
+  that gate — `kill_criteria_ratchet.py` — onto the other engine. The stated
+  tie-breaker had expired, and with it gone the surviving engine is a superset:
+  it resolves `days_since:<anchor>`, carries the per-venture register, and
+  returns `None` rather than `0.0` for an unrecorded metric, which is the
+  difference between a stop-loss that fires on evidence and one that fires on
+  absence of data. `kill_criteria_ratchet.py` measures the same 10 of 11
+  ventures either way.
+
+  Still worth an owner's eye, and cheap to reverse (`git revert 56eab02`):
+  the commerce copy in `ventures/local-site-studio/src/app/page.tsx` was
+  resolved toward the *more conservative* claim — "AI call script pack", not
+  "AI phone agent" — because `a73c84e` had removed the latter as a capability
+  no telephony dependency backs. That is the direction that under-sells rather
+  than over-promises, which is the safe way to be wrong about a paid page, but
+  it is still a decision about live sales copy.
+
+- [ ] Ship. `release_lag` reports 165 commits not in `origin/main` against a
+  budget of 125, over by 40, and 16 components are running without their
   committed changes. This is the one red gate and it is measuring the real
   problem: none of the work above is live, and none of it can earn anything
   until it is. The budget must not be widened — only shipping lowers it, which
