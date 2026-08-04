@@ -1086,6 +1086,56 @@ evidence, and completion date before it can be marked done.
   Filed as SEC-022, fixed in `platform/ci/deploy-homepage.sh`, contract in
   `platform/ci/test/homepage-release-surface.test.mjs`.
 
+  Second measured piece, 2026-08-04, owner duncan: the *shape* of the pile, in
+  `scripts/ci/integration_debt.py` and `platform/integration-debt-budget.yaml`.
+  Release lag says how much work has not shipped. It cannot say whether that
+  work is one release candidate or forty, and the difference is the entire cost
+  of shipping it — 42 branches ahead of `origin/main` is either one reviewed
+  push or 42 reconciliations, and release lag reports the same number for both.
+  This counts **independent tips**: branches that are not an ancestor of any
+  other branch, which `git merge-base --independent` computes in one call.
+  Measured 2026-08-04: 42 refs ahead across 136 commits, **one tip** — every
+  branch in the repository was an ancestor of
+  `agent/integration-full-2026-08-03`, and that branch passes 21 of 21
+  repository gates and 1026 of 1027 Python tests. The single failure is
+  `tests/test_release_lag.py` saying the work has not shipped, which is the
+  control above working correctly, not a defect in the tree.
+  That is the finding: the integration was already done and nothing could say
+  so, because the measurement was made by hand each time —
+  [the 2026-08-03 integration report](INTEGRATION-REPORT-2026-08-03.md) is it
+  written longhand ("27 of the 39"), and it was stale within a day. Work that
+  looks like weeks of merging does not get pushed, so the missing measurement
+  was itself a cause of the delay it failed to describe.
+  Convergence is cheap to fake, so the tip count is not trusted alone:
+  `git merge -s ours` makes a branch an ancestor while discarding every line it
+  carried. For each absorbed branch the control also asks whether the files it
+  *added* still exist at the tip, and requires each missing one to be
+  registered with an owner and a reason.
+  Both directions of that register fired within the session that wrote it,
+  which is the useful part. The first measurement found two dropped files —
+  `portfolio/router/test_kill_criteria.py` and
+  `portfolio/kill-criteria-register.yaml`, discarded by `fbb8bd1` when the
+  08-03 integration resolved the duplicate kill-criteria engine in main's
+  favour. Both were registered, after checking that the surviving engine's
+  coverage lost no assertion without an equivalent. Hours later a concurrent
+  agent published `agent/integration-2026-08-04`, which resolved the same
+  duplicate the *other* way and carries both files, and the stale direction of
+  the check refused the now-untrue registrations. A register pinned to one
+  moment calcifies; without the reverse check those entries would have sat
+  there excusing a loss that had already been undone.
+  The same fan-out moved the measurement from 1 tip to 3 while this was being
+  written, which is the control describing ordinary concurrent work rather than
+  a regression — the declared budget is 6 for exactly that reason.
+  49 tests against real temporary git repositories, mutation-checked eight
+  ways — including one that survived the first pass, because the symbolic-ref
+  case aliased the baseline and so passed whether or not the skip existed.
+  `scripts/ci/cap_ratchet.py` holds the three caps and refused this control's
+  own first attempt to declare a wider one.
+  Not done: this measures whether the work converged, not whether the merges
+  were correct — a file that still exists can have been merged badly, and
+  `scripts/test-ci.sh` is the gate for that. It reports rather than merges, and
+  integrating and pushing both remain human decisions.
+
   The cost side has no measurement to trend yet, and the two months on record
   each fail in a different way. `portfolio/ledger/YYYY-MM.yaml` is the only
   record of what the portfolio spends, and `router.py` sums it into cumulative
