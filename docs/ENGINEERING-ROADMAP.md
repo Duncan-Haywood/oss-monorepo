@@ -649,6 +649,24 @@ evidence, and completion date before it can be marked done.
   nobody has to answer. The three Python manifests are registered exceptions
   expiring 2026-11-30, blocked on pip-audit in the runner image, which belongs
   to this item's remaining SAST/SCA tooling work.
+  **2026-08-04, owner duncan: the control found a lockfile by being given
+  one.** `platform/ci/package-lock.json` had never been committed, so the
+  coverage test — which enumerates *tracked* lockfiles — had nothing to demand
+  an audit of, and the component that runs every gate in this repository was
+  the one package in it nobody audited. Committing the lockfile surfaced 6 high
+  and 19 moderate advisories, none of which `npm audit fix` clears:
+  `@dagger.io/dagger` pins `adm-zip` below the 0.6.0 that fixes
+  GHSA-xcpc-8h2w-3j85, and still does at 0.21.8, five minors above what was
+  pinned here. The SDK was already reached through a dynamic `import()` inside
+  a try, for a containerized path that needs a daemon no host in this fleet
+  has, so it is no longer declared as a dependency: `platform/ci` now has none
+  at all and audits clean. `platform/ci/test/dagger-optionality.test.mjs`
+  holds that shape, because re-adding the import to the manifest reintroduces
+  25 advisories without changing a line of behaviour and would read as a
+  tidy-up. Its daemon preflight had to become injectable first — with no Docker
+  CLI present the probe returns before the SDK branch, so a test of the
+  fallback would have passed without executing it.
+
   **Reconciled 2026-08-04.** `agent/profit-lever-2026-08-02` built the same
   lockfile-coverage control independently, as
   `platform/ci/test/workflow-supply-chain.test.mjs`. This one was kept and that
@@ -1817,6 +1835,16 @@ evidence, and completion date before it can be marked done.
   until it is. The budget must not be widened — only shipping lowers it, which
   is the entire point of the two-directional cap. `main` blocks direct pushes
   and requires one approval, so this needs a human to open the pull request.
+
+  2026-08-04, owner duncan: 296 commits now, and the two red gates left on
+  `main` are both this one wearing different clothes. `branch_collisions`
+  reports 9 paths against a budget of 6, and it cannot come down by review:
+  it counts *distinct creating commits* among commits not in `origin/main`,
+  and integrating the rivals moved every one of those commits into `main`
+  rather than removing it. Both numbers clear on the push and on nothing else.
+  Neither budget was widened. Everything else `main` declares is green — 1203
+  pytest tests, 152 contract tests, both coverage components inside their
+  floors — so what is waiting is a pull request, not more work.
 
 ## Next 60 days: responsible product learning
 
