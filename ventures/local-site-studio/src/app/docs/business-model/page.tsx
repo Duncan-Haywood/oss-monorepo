@@ -42,7 +42,8 @@ export default function BusinessModelDocPage() {
             <td>Complete</td>
             <td>$500 + $199/mo</td>
             <td>
-              Growth + full marketing + client AI call script pack (phone agent pending Twilio)
+              Growth + full marketing + client AI voice pack (FAQ, booking and lead-capture
+              scripts the operator delivers; no telephony is integrated — see Product bundles)
             </td>
           </tr>
           <tr>

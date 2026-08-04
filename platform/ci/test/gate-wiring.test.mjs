@@ -104,6 +104,63 @@ function escapeForRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/**
+ * Gates a runner registers more than once, in either direction.
+ *
+ * Two branches each added the entry a gate was missing and the 2026-08-04c
+ * merge kept both, so `scripts/test-ci.sh` announced 24 gates over 22 distinct
+ * commands. Neither shape is caught by anything else here: the command runs, it
+ * can fail, and something invokes it — the checks above are all satisfied. What
+ * is wrong is the arithmetic. A repeated command reads as breadth in the PASSED
+ * list while only costing runner time, and a repeated *label* is worse: two
+ * different commands reporting under one name means a failure is attributed to
+ * whichever the reader assumes, and the second registration can be deleted as a
+ * duplicate while taking a real gate with it.
+ *
+ * Deliberately literal, like the detectors above: it reads `run_ci_test` lines
+ * as text rather than pretending to parse bash. Commands are compared with
+ * runs of whitespace collapsed, so reformatting one entry does not hide it.
+ */
+export function duplicateGateRegistrations(script) {
+  const byCommand = new Map();
+  const byLabel = new Map();
+
+  script.split('\n').forEach((text, index) => {
+    const match = /^\s*run_ci_test\s+"([^"]+)"\s+(\S.*?)\s*$/.exec(text);
+    if (!match) return;
+    const [, label, rawCommand] = match;
+    const command = rawCommand.replace(/\s+/g, ' ');
+    const entry = { line: index + 1, label, command };
+    if (!byCommand.has(command)) byCommand.set(command, []);
+    byCommand.get(command).push(entry);
+    if (!byLabel.has(label)) byLabel.set(label, []);
+    byLabel.get(label).push(entry);
+  });
+
+  const findings = [];
+  for (const [command, entries] of byCommand) {
+    if (entries.length < 2) continue;
+    findings.push({
+      kind: 'command',
+      key: command,
+      lines: entries.map((entry) => entry.line),
+      labels: entries.map((entry) => entry.label),
+    });
+  }
+  for (const [label, entries] of byLabel) {
+    if (entries.length < 2) continue;
+    // Already reported as a repeated command; one finding per pair, not two.
+    if (new Set(entries.map((entry) => entry.command)).size === 1) continue;
+    findings.push({
+      kind: 'label',
+      key: label,
+      lines: entries.map((entry) => entry.line),
+      labels: entries.map((entry) => entry.command),
+    });
+  }
+  return findings.sort((a, b) => a.lines[0] - b.lines[0]);
+}
+
 function shellScripts() {
   const roots = ['scripts', 'scripts/ci', 'scripts/security'];
   const found = [];
@@ -226,4 +283,78 @@ test('Gate wiring - every test script under scripts/ is wired to a runner', () =
     [],
     'test suites that nothing runs:\n' + orphans.map((line) => `  - ${line}`).join('\n')
   );
+});
+
+/**
+ * The third half: a runner that registers the same gate twice is counting its
+ * own coverage wrong. Found on the 2026-08-04c merge, where `test-ci.sh` ran
+ * the scanner contract twice under one name and the component-verification
+ * contract twice under two.
+ */
+test('Gate wiring - no runner registers the same gate twice', () => {
+  const duplicates = [];
+  for (const relative of shellScripts()) {
+    const script = fs.readFileSync(path.join(REPO_ROOT, relative), 'utf8');
+    for (const finding of duplicateGateRegistrations(script)) {
+      duplicates.push(
+        finding.kind === 'command'
+          ? `${relative}:${finding.lines.join(',')} — '${finding.key}' is registered ` +
+              `${finding.lines.length} times, as ${finding.labels.map((l) => `"${l}"`).join(' and ')}`
+          : `${relative}:${finding.lines.join(',')} — the name "${finding.key}" is used for ` +
+              `${finding.lines.length} different commands, so a failure names the wrong gate`
+      );
+    }
+  }
+
+  assert.deepEqual(
+    duplicates,
+    [],
+    'gates registered more than once:\n' + duplicates.map((line) => `  - ${line}`).join('\n')
+  );
+});
+
+test('Gate wiring - the duplicate detector still detects', () => {
+  const sameCommandTwice = [
+    'run_ci_test "Scanner Contract" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"',
+    'run_ci_test "Scanner Contract" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"',
+  ].join('\n');
+  assert.equal(duplicateGateRegistrations(sameCommandTwice).length, 1);
+  assert.equal(duplicateGateRegistrations(sameCommandTwice)[0].kind, 'command');
+
+  // The shape the merge actually produced: one command, two names. A reader
+  // scanning the PASSED list sees two controls.
+  const sameCommandTwoNames = [
+    'run_ci_test "Component Verification Contract" bash "${REPO_ROOT}/scripts/ci/test-verify-component.sh"',
+    'run_ci_test "Component Verification Contract Tests" bash "${REPO_ROOT}/scripts/ci/test-verify-component.sh"',
+  ].join('\n');
+  assert.equal(duplicateGateRegistrations(sameCommandTwoNames).length, 1);
+  assert.equal(duplicateGateRegistrations(sameCommandTwoNames)[0].kind, 'command');
+
+  // Reformatting must not hide it.
+  const respaced = [
+    'run_ci_test "A" bash "${REPO_ROOT}/x.sh"',
+    'run_ci_test "B" bash    "${REPO_ROOT}/x.sh"',
+  ].join('\n');
+  assert.equal(duplicateGateRegistrations(respaced).length, 1);
+
+  // One name over two different commands: a failure names the wrong gate.
+  const sameLabelTwoCommands = [
+    'run_ci_test "Contract" bash "${REPO_ROOT}/a.sh"',
+    'run_ci_test "Contract" bash "${REPO_ROOT}/b.sh"',
+  ].join('\n');
+  assert.equal(duplicateGateRegistrations(sameLabelTwoCommands).length, 1);
+  assert.equal(duplicateGateRegistrations(sameLabelTwoCommands)[0].kind, 'label');
+
+  // Distinct gates, and a commented-out line, are not findings.
+  const clean = [
+    'run_ci_test "A" bash "${REPO_ROOT}/a.sh"',
+    'run_ci_test "B" bash "${REPO_ROOT}/b.sh"',
+    '# run_ci_test "A" bash "${REPO_ROOT}/a.sh"',
+    'run_ci_test "C" python3 "${REPO_ROOT}/c.py"',
+  ].join('\n');
+  assert.deepEqual(duplicateGateRegistrations(clean), []);
+
+  // A file with no registrations at all must not report a finding — the
+  // detector reading nothing looks identical to a clean runner otherwise.
+  assert.deepEqual(duplicateGateRegistrations('echo hello\n'), []);
 });

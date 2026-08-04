@@ -592,11 +592,10 @@ def validate_kill_criteria(root: Path) -> List[Finding]:
     """
     findings: List[Finding] = []
 
-    # Reading the ledger is `kill_criteria`'s job, not this validator's. It
-    # groups rows per venture and reports separately whether a ledger exists at
-    # all, which is the difference between a venture that recorded nothing and
-    # a repository with nothing to read — and only the engine knows which
-    # metrics those rows can answer.
+    # One parse of the ledger, shared by every venture below. The evaluator owns
+    # reading it — this module used to fold the months itself, and when the two
+    # engines were reconciled that private fold called a function the surviving
+    # engine does not have, so every criterion here went unevaluated.
     ledger_rows, ledger_present = kill_criteria.ledger_rows_by_venture(root)
 
     for venture_file in sorted((root / "ventures").glob("*/VENTURE.yaml")):
@@ -607,11 +606,12 @@ def validate_kill_criteria(root: Path) -> List[Finding]:
             continue  # already reported as unparseable-contract
 
         dir_name = venture_file.parent.name
-        venture_name = data.get("name") or dir_name
+        # The evaluator keys ledger rows by the venture's declared name; some
+        # rows record the directory name instead.
+        name = data.get("name")
+        lookup = name if name in ledger_rows else dir_name
 
-        for result in kill_criteria.evaluate_venture(
-            data, venture_name, ledger_rows, ledger_present
-        ):
+        for result in kill_criteria.evaluate_venture(data, lookup, ledger_rows, ledger_present):
             if result.outcome != kill_criteria.TRIGGERED:
                 continue
             findings.append(
