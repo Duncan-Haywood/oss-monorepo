@@ -7,8 +7,5 @@
     "ci": "node src/pipeline.mjs",
     "test": "node --test test/*.test.mjs"
   },
-  "dependencies": {
-    "@dagger.io/dagger": "^0.16.1"
-  },
   "devDependencies": {}
 }

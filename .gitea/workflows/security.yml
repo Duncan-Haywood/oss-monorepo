@@ -154,6 +154,9 @@ jobs:
           - venture: photo-editing-docs-site
             directory: ventures/photo-editing/docs-site
             manager: npm
+          - venture: platform-ci
+            directory: platform/ci
+            manager: npm
           - venture: print-atelier
             directory: ventures/print-atelier
             manager: npm

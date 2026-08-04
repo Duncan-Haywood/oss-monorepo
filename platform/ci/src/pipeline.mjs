@@ -674,17 +674,40 @@ export function verifyTerraformHost(component, repoRoot = REPO_ROOT) {
 /**
  * Dagger Engine Containerized Execution Entrypoint
  */
-export async function runDaggerContainerizedPipeline(affectedIds, catalog = VENTURE_CATALOG, repoRoot = REPO_ROOT) {
+export function daemonIsReachable() {
+  return spawnSync('docker', ['info'], { stdio: 'ignore' }).status === 0;
+}
+
+/**
+ * `daemonReachable` is injectable for one reason: on every host this
+ * repository runs on there is no Docker CLI at all, so the preflight below
+ * returns first and the SDK-resolution branch beneath it is unreachable. A
+ * test of that branch would pass without executing it. Supplying the check
+ * lets the branch be reached where the daemon is not.
+ */
+export async function runDaggerContainerizedPipeline(
+  affectedIds,
+  catalog = VENTURE_CATALOG,
+  repoRoot = REPO_ROOT,
+  daemonReachable = daemonIsReachable,
+) {
   console.log('\n🐳 Attempting Dagger Engine Containerized Pipeline Execution...');
 
-  const dockerCheck = spawnSync('docker', ['info'], { stdio: 'ignore' });
-  if (dockerCheck.status !== 0) {
+  if (!daemonReachable()) {
     console.log('ℹ Dagger Engine container daemon not available (Docker CLI or daemon not ready).');
     console.log('🔄 Seamlessly falling back to isolated host verification execution...');
     return null;
   }
 
   try {
+    // Resolved at call time, not declared as a dependency. The SDK's tree
+    // carries six high-severity advisories with no upstream fix — `adm-zip`
+    // is pinned below the fixed 0.6.0 as far up as the newest release — and
+    // committing that lockfile puts them in the repository's audited surface
+    // for a path that only runs where a container daemon is already present.
+    // Where it is, `npm i @dagger.io/dagger` makes this branch live again;
+    // where it is not, the throw lands in the fallback below, which is the
+    // same place a missing daemon lands.
     const { connect } = await import('@dagger.io/dagger');
 
     return await connect(async (client) => {
