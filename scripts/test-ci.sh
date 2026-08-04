@@ -72,13 +72,18 @@ run_ci_test "Dagger CI Engine Unit Tests" node --test "${REPO_ROOT}/platform/ci/
 
 # 3. Security Policy Scanner Unit Tests
 run_ci_test "Security Policy Scanner Logic Unit Tests" bash "${REPO_ROOT}/scripts/security/test-scan-repository.sh"
+# And the scanner itself, not only its unit tests. Those two lines are not the
+# same check and the difference was live: `scan-repository.sh` detects an
+# unresolved merge marker and exits 1, it was wired into
+# `.gitea/workflows/security.yml`, and two files in local-site-studio — the
+# venture with the real Stripe checkout — still reached a committed tree holding
+# seven of them. The workflow only runs on a push to `origin`, and nothing has
+# been pushed for weeks, so the only scan that would have caught it ran nowhere
+# while this entrypoint reported its unit tests green. A scanner whose tests pass
+# says the scanner is correct, not that the repository is clean.
+run_ci_test "Repository Security Policy Scan" bash "${REPO_ROOT}/scripts/security/scan-repository.sh"
 run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"
 run_ci_test "Repository Engineering Policy Contract" bash "${REPO_ROOT}/scripts/ci/test-engineering-policy.sh"
-# The contract test for the per-venture Gitea gate script. It asserts that the
-# script fails closed on unknown components and never swallows a gate failure,
-# and until now nothing invoked it.
-run_ci_test "Component Verification Contract" bash "${REPO_ROOT}/scripts/ci/test-verify-component.sh"
-run_ci_test "Vulnerability Roadmap Scanner Contract Tests" bash "${REPO_ROOT}/scripts/security/test-security-scan.sh"
 # The contract test for scripts/ci/verify-component.sh — the shared fail-closed
 # gate every venture workflow shells into. It asserts that an unknown component
 # exits non-zero, that `set -euo pipefail` is present, and that no `|| true`

@@ -41,11 +41,11 @@ STRUCTURED = textwrap.dedent(
           $150 of recorded agent spend with no revenue ever recorded.
         when:
           - metric: cumulative_agent_spend_usd
-            comparator: ">="
-            threshold: 150
+            op: ">="
+            value: 150
           - metric: cumulative_revenue_usd
-            comparator: "=="
-            threshold: 0
+            op: "=="
+            value: 0
     """
 )
 
@@ -56,8 +56,8 @@ UNKNOWN_METRIC = textwrap.dedent(
     kill_criteria:
       - description: Fewer than 50 active learners.
         metric: active_learners
-        comparator: "<"
-        threshold: 50
+        op: "<"
+        value: 50
     """
 )
 

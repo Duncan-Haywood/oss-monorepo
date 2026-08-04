@@ -86,8 +86,8 @@ class TestPortfolioRouter(unittest.TestCase):
                 {
                     "description": "spend passed the cap with no revenue",
                     "when": [
-                        {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 100},
-                        {"metric": "cumulative_revenue_usd", "comparator": "==", "threshold": 0},
+                        {"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 100},
+                        {"metric": "cumulative_revenue_usd", "op": "==", "value": 0},
                     ],
                 }
             ],
@@ -108,7 +108,11 @@ class TestPortfolioRouter(unittest.TestCase):
         self.create_venture(
             "within-budget",
             kill_criteria=[
-                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 100}
+                {
+                    "id": "spend-cap",
+                    "description": "spend passed 100",
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 100}],
+                }
             ],
         )
         self.write_ledger(
@@ -135,7 +139,10 @@ class TestPortfolioRouter(unittest.TestCase):
         self.assertFalse(row["has_stopping_rule"])
         self.assertEqual(row["criteria_declared"], 1)
         self.assertEqual(row["criteria_evaluable"], 0)
-        self.assertEqual(row["unevaluable_criteria"][0]["reason"], "prose-only")
+        self.assertEqual(
+            row["unevaluable_criteria"][0]["reason"],
+            "prose criterion: no machine-evaluable rule is declared",
+        )
         self.assertEqual(allocation["without_stopping_rule"], ["prose"])
 
     def test_the_report_totals_the_money_that_no_rule_can_stop(self):
@@ -145,7 +152,11 @@ class TestPortfolioRouter(unittest.TestCase):
             "measured",
             cap=40,
             kill_criteria=[
-                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 999}
+                {
+                    "id": "spend-cap",
+                    "description": "spend passed 999",
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 999}],
+                }
             ],
         )
         self.write_ledger(
@@ -165,7 +176,11 @@ class TestPortfolioRouter(unittest.TestCase):
         self.create_venture(
             "unledgered",
             kill_criteria=[
-                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 1}
+                {
+                    "id": "spend-cap",
+                    "description": "spend passed 1",
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 1}],
+                }
             ],
         )
 
@@ -173,7 +188,13 @@ class TestPortfolioRouter(unittest.TestCase):
 
         row = allocation["work_queue"][0]
         self.assertFalse(row["has_stopping_rule"])
-        self.assertEqual(row["unevaluable_criteria"][0]["reason"], "no-ledger-history")
+        # Absent from the ledger is not spend of zero. The reason has to name
+        # the metric it could not source, or a reader cannot tell which half of
+        # the criterion went unmeasured.
+        self.assertEqual(
+            row["unevaluable_criteria"][0]["reason"],
+            "cumulative_agent_spend_usd: no ledger row records spend for this venture",
+        )
 
 
 if __name__ == "__main__":

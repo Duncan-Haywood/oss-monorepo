@@ -132,14 +132,11 @@ jobs:
       # writes SECURITY_ROADMAP.md walked the whole tree, so those findings were
       # logged and ungated at the same time.
       #
-      # Two contract tests hold this list, and both must keep passing:
-      #   * platform/ci/test/dependency-audit-coverage.test.mjs fails when a
-      #     committed lockfile is missing from this list, so the next package
-      #     with dependencies cannot be added without a decision about auditing
-      #     it.
-      #   * platform/ci/test/workflow-supply-chain.test.mjs fails when a
-      #     lockfile on disk is neither listed here nor carries a dated, owned
-      #     exemption — the escape hatch, kept explicit and expiring.
+      # platform/ci/test/dependency-audit-coverage.test.mjs holds this list. It
+      # fails when a committed lockfile is neither in this matrix nor carries a
+      # dated, owned, sized exception, so the next package with dependencies
+      # cannot be added without a decision about auditing it, and the escape
+      # hatch stays explicit and expiring.
       matrix:
         include:
           - venture: ai-engineering-academy-site

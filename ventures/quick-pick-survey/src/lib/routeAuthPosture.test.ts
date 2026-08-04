@@ -28,6 +28,7 @@ import { join, relative } from "node:path";
  */
 
 const APP_ROOT = join(process.cwd(), "src/app");
+const PROXY = join(process.cwd(), "src/proxy.ts");
 const PARTICIPANT_ACCESS = join(process.cwd(), "src/lib/participantAccess.ts");
 const ADMIN_AUTH = join(process.cwd(), "src/lib/adminAuth.ts");
 
@@ -281,9 +282,23 @@ describe("route auth posture", () => {
 
   it("finds the routes at all, so an empty pass cannot look like a green one", () => {
     // Without this, moving or renaming the app directory would make every check
-    // above pass over nothing.
+    // above pass over nothing. The floor is the measured surface, not a round
+    // number: 31 route modules exporting 32 handlers.
     const real = everyHandler();
-    expect(real.size).toBeGreaterThanOrEqual(28);
+    expect(real.size).toBeGreaterThanOrEqual(32);
+  });
+
+  it("still rests on a proxy that authenticates nothing", () => {
+    // The premise under every posture above. This app has no middleware, but it
+    // does have a proxy, and `src/proxy.ts` matches `/api/:path*` while checking
+    // only origin and body size — `checkOrigin` deliberately admits a request
+    // with no Origin header, so curl reaches the handler untouched. Every
+    // declaration here is therefore a statement about the handler's own body.
+    // If the proxy grows authentication, this file is describing a world that
+    // no longer exists and must be re-read rather than silently trusted.
+    const proxy = readFileSync(PROXY, "utf8");
+    expect(proxy).toContain('matcher: "/api/:path*"');
+    expect(proxy).not.toMatch(/getSessionUser|verifySessionToken|verifyAdminKey/);
   });
 
   it("separates handlers rather than returning one blob per file", () => {

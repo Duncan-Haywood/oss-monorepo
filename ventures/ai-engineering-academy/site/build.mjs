@@ -529,10 +529,19 @@ function getPricingBodyHtml() {
     var isTeam =
       document.getElementById('waitlist-modal').getAttribute('data-waitlist-type') === 'team';
 
+    // The two sliders are the only place a visitor states what they expect to
+    // use, and $49 is a proposal with nothing behind it. Carrying the stated
+    // usage into the application is what turns the estimator from decoration
+    // into the demand data the price needs.
+    var hours = readNumber('hours-slider', 0);
+    var queries = readNumber('queries-slider', 0);
+
     var body = 'Name: ' + name + '\\n'
       + 'Email: ' + email + '\\n'
       + 'Track: ' + track + '\\n'
-      + 'Enquiry: ' + (isTeam ? 'Team / employer-sponsored seats' : 'Individual Pro tier') + '\\n';
+      + 'Enquiry: ' + (isTeam ? 'Team / employer-sponsored seats' : 'Individual Pro tier') + '\\n'
+      + 'Expected sandbox hours per month: ' + hours + '\\n'
+      + 'Expected mentor questions per month: ' + queries + '\\n';
 
     var href = 'mailto:${WAITLIST_CONTACT}'
       + '?subject=' + encodeURIComponent(

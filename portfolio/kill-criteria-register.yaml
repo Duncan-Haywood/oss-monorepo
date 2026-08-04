@@ -1,0 +1,201 @@
+# Kill-criteria register
+#
+# `portfolio/router/validate_ventures.py` makes a protected venture declare
+# `kill_criteria`, because "without kill criteria there is no condition under
+# which it stops". `portfolio/router/allocate.py` read them into a variable it
+# never used. This register is what the two of them being honest with each
+# other looks like: every criterion either evaluates in
+# `portfolio/router/kill_criteria.py`, or is parked here with the specific
+# signal it needs, an owner, and a date by which somebody re-reads it.
+#
+# Measured 2026-08-03: 15 of 15 criteria across 11 ventures evaluate to
+# NOT_MEASURABLE. The portfolio's automated stop-loss is, today, nothing —
+# `stage: winding-down`, which a human sets by hand after already deciding to
+# stop. $250.11 of monthly agent spend is allocated by a router with no
+# condition that can withdraw it.
+#
+# `unmeasurable_count` ratchets in both directions, like `count` in
+# `platform/exception-register.yaml` and the budget in
+# `platform/release-lag-budget.yaml`: above it fails because new prose slipped
+# in, below it fails because the register went stale after somebody made a
+# criterion real. Every `expires` is capped at 180 days by
+# MAX_REGISTER_EXPIRY_DAYS, so this file cannot become permanent silence.
+#
+# Six of the fifteen are conditioned on a clock nothing starts — "post-launch",
+# "of release", "of active outreach", "of sales demo availability". Even given
+# the missing metric, they could not fire, because no venture records the date
+# the window opens. `anchors:` in VENTURE.yaml is where that date goes, and
+# `days_since:<anchor>` is how a criterion reads it.
+#
+# Setting the thresholds is the venture owner's decision, not this file's.
+# What this file removes is the option of not deciding.
+
+owner: duncan
+issue: docs/ENGINEERING-ROADMAP.md#now-establish-and-enforce-the-baseline
+measured: 2026-08-03
+
+# Exact number of declared criteria that `kill_criteria.py` cannot evaluate.
+unmeasurable_count: 15
+
+gaps:
+  - venture: ai-engineering-academy
+    criterion: Fewer than 50 active learners after 60 days post-launch.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      An active-learner count. `links.analytics` is null and no event schema
+      exists, so nothing counts learners at all. The 60-day window also has no
+      start: the venture is `stage: prototype` with `links.production: null`,
+      so "post-launch" names a date that has not happened and would not be
+      recorded if it did.
+
+  - venture: ai-first-markets
+    criterion: Fewer than 100 newsletter signups within 30 days of release.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      A newsletter signup count. The signup form exists, but no count reaches
+      the ledger or the venture contract. No recorded release date anchors the
+      30-day window.
+
+  - venture: local-site-studio
+    criterion: No client checkout or inquiry converted after 60 days post-launch.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      A converted-checkout or inquiry count. Stripe checkout exists in the
+      product; no conversion figure is recorded anywhere the router reads.
+      No recorded launch date anchors the 60-day window.
+
+  - venture: local-site-studio
+    criterion: Customer acquisition cost (CAC) exceeds $150 per client.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      Both halves. `economics.customers` is null, and the ledger records
+      `agent_spend_usd` — build cost — not acquisition spend. Dividing one by
+      the other would produce a number that looks like CAC and is not, which is
+      worse than reporting nothing.
+
+  - venture: mat-470-real-analysis
+    criterion: Fewer than 20 regular users per month.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      A monthly active user count, and a definition of "regular". No analytics
+      link, no event schema, and the venture has no ledger row at all.
+
+  - venture: photo-editing
+    criterion: Batch render throughput fails to process 1,000 images per hour.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2027-01-30
+    missing_signal: >-
+      A recorded throughput benchmark. This is an engineering SLI rather than a
+      portfolio metric, and the venture publishes no benchmark result the router
+      could read. It belongs with the per-service SLI/SLO work, and until a
+      benchmark runs and records a figure, the criterion cannot fire however the
+      renderer performs.
+
+  - venture: photos-import-tools
+    criterion: Ingest throughput drops below 500 images/min.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2027-01-30
+    missing_signal: >-
+      A recorded ingest-throughput benchmark, as above. No ledger row exists for
+      this venture either, so nothing about it is currently measured.
+
+  - venture: print-atelier
+    criterion: Unit economics remain negative post-payout for 3 consecutive months.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      Per-order contribution after the 30% artist payout. The ledger records
+      portfolio-level `mrr_end` and `agent_spend_usd`, from which
+      `consecutive_months_negative_net` is computable — but that is burn against
+      revenue, not unit economics post-payout, and substituting it would answer
+      a different question under the same name. One month is recorded, so even
+      the substitute has no three-month window to run over.
+
+  - venture: print-atelier
+    criterion: Zero artist onboarding or catalog additions within 60 days of active outreach.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      An onboarded-artist count and a catalog size. Neither is recorded. No
+      recorded outreach start date anchors the 60-day window, and "active
+      outreach" is itself undefined — nothing marks when it began or whether it
+      is still running.
+
+  - venture: quick-pick-survey
+    criterion: Unmaintained infrastructure or unmerged PR backlog prevents automated deployments.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2027-01-30
+    missing_signal: >-
+      This is the closest of the fifteen to convertible. `scripts/ci/release_lag.py`
+      already measures unshipped commits, branch count and the age of the oldest
+      undelivered change against `platform/release-lag-budget.yaml`, which is
+      most of what "unmerged PR backlog prevents automated deployments" means.
+      What is missing is that the measurement is repository-wide, not per
+      venture, and the criterion mixes it with "unmaintained infrastructure",
+      which has no definition. Splitting the two would make half of it real.
+
+  - venture: quick-pick-survey
+    criterion: Active participant retention drops below 10% after 30 days.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      A retention cohort. The product records responses; nothing records
+      participants as a cohort over time, so a 30-day retention rate cannot be
+      derived from what is stored.
+
+  - venture: real-estate-agent-photo-app
+    criterion: Fewer than 5 agent shoots booked after 30 days of active concierge outreach.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      A booking count, and the date concierge outreach started. Neither is
+      recorded, and the venture has no ledger row.
+
+  - venture: retail-pilot-intel
+    criterion: Zero store pilot deployments after 90 days of sales demo availability.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      A pilot-deployment count, and the date the sales demo became available.
+      The demo portal exists behind a passcode gate; nothing records when it
+      opened, so the 90-day window has no start.
+
+  - venture: retail-pilot-intel
+    criterion: CAC exceeds €300 per store location.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      Acquisition spend and a store count, as with the other CAC criterion. This
+      one additionally names euros, while the ledger, every `budget.monthly_cap`
+      and the allocator are USD, and no rate is recorded — so even with both
+      figures the comparison is undefined. Restate it in USD or record a rate
+      and its source.
+
+  - venture: ubuntu-agent-server
+    criterion: Container provisioning time exceeds 15 seconds.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-30-days-prove-releases-and-operations
+    expires: 2027-01-30
+    missing_signal: >-
+      A recorded provisioning-time benchmark. The sandbox runner has 22 passing
+      unit tests and no published timing figure, so the criterion measures
+      nothing today.

@@ -227,7 +227,7 @@ WATCHES: Tuple[Watch, ...] = (
         path="scripts/ci/stopping_rule_review.py",
         kind="python-constant",
         locator="MAX_REVIEW_DAYS",
-        why="how long a decision to keep funding past a fired brake may stand unargued",
+        why="how long a `continue` may stand over a fired brake before it is re-argued",
     ),
     # `integration_debt.py`, 2026-08-04. Registered in the same commit that
     # added it rather than by a later contract test noticing — which is the

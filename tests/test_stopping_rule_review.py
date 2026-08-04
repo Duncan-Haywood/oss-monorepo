@@ -67,11 +67,11 @@ def write_venture(
                   {TRIGGERING_CRITERION}
                 when:
                   - metric: cumulative_agent_spend_usd
-                    comparator: ">="
-                    threshold: {threshold}
+                    op: ">="
+                    value: {threshold}
                   - metric: cumulative_revenue_usd
-                    comparator: "=="
-                    threshold: 0
+                    op: "=="
+                    value: 0
             """
         )
         if structured
