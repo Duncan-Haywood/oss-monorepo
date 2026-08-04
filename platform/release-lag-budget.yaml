@@ -46,10 +46,10 @@ budget:
   # predicted: each raise was individually defensible and nothing was comparing
   # them to history. The cap ratchet reads the floor from git rather than from
   # another declared number, so this is now a failure rather than a habit.
-  max_unshipped_commits: 125
+  max_unshipped_commits: 20
 
   # Below this many commits the budget above is stale and must be lowered.
-  slack_commits: 40
+  slack_commits: 10
 
   # Lead time for changes. Two days on 2026-08-02. A change finished a week ago
   # and still not delivered is the failure this gate exists to name — the
@@ -57,7 +57,7 @@ budget:
   # not live the next day, and nothing said so.
   max_unshipped_age_days: 7
 
-  max_branches_ahead: 32
+  max_branches_ahead: 5
 
 rationale: >-
   Every other control in this repository asks whether work is correct. None
