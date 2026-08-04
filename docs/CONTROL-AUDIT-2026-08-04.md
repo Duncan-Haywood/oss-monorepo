@@ -41,7 +41,24 @@ Two sub-shapes recur:
 
 Severity is "what does this let through", not "how hard is the fix".
 
-### 1. A vacuous test glob disarms the only gate on the venture in production
+### 1. A vacuous test glob disarms the only gate on the venture in production — FIXED
+
+Fixed by `platform/ci/test/gate-collection.test.mjs` (`a658ed57`), which resolves
+every declared gate's file patterns against `git ls-files` and fails closed when
+one collects nothing. Resolution is against tracked files rather than the
+filesystem, because a gate green on a laptop over an untracked file collects
+nothing in the clone CI checks out. Failability was proved by mutation: renaming
+`portfolio/marisstella-homepage/test/` to `tests/` turns the control red and, in
+the same tree, leaves the venture's own `npm test` exiting 0 over zero tests.
+
+Note for whoever consolidates: `platform/ci/test/gate-glob-resolution.test.mjs`
+(`2509a882`) was written independently against this same finding in a parallel
+session. Two controls now cover it. Keep one — see the duplicate-control rule in
+`docs/ENGINEERING-PRINCIPLES.md` — and do not simply delete the larger without
+checking which assertions only it makes.
+
+The original finding follows.
+
 
 `scripts/test-ci.sh:71` and `platform/ci/test/gate-substance.test.mjs:47`.
 `node --test <glob>` exits **0** on zero matched files (verified on Node 22).
@@ -183,10 +200,17 @@ history leak, but it is what terraform reads.)
 
 Ordered by what they do to a paid order:
 
-1. **Quantity is charged but never fulfilled.** `printful-orders.ts:115` and
-   `gelato-orders.ts:122` hardcode `quantity: 1`; checkout metadata carries only
-   `lineItemCount` (distinct lines). Cart of 3 × $85 charges $261.95 and orders
-   **one** print.
+1. ~~**Quantity is charged but never fulfilled.**~~ **FIXED** (`f7bb4070`).
+   `printful-orders.ts` and `gelato-orders.ts` hardcoded `quantity: 1` while
+   checkout metadata carried only `lineItemCount` (distinct lines), so a cart of
+   3 × $85 charged $261.95 and ordered **one** print. The checkout now writes
+   `lineItemQuantities` and `lineItemUnitAmounts` — one comma-separated key each,
+   not one key per line, because Stripe's 50-key metadata cap already limits a
+   cart to ten lines and two per-line keys would have cut that to eight. Neither
+   resolver has a default: an order carrying no quantity is refused and names the
+   key it needs, as the other three fulfillment inputs already do. Item 5 below
+   moved with it, because correcting the quantity alone would have multiplied the
+   customs misdeclaration rather than left it.
 2. **The Printful payload cannot be accepted by Printful** —
    `printful-orders.ts:94-131` emits camelCase (`externalId`, `variantId`,
    `retailPrice`) where the API takes snake_case, and carries **no `files` array
@@ -202,9 +226,15 @@ Ordered by what they do to a paid order:
    both builders; nothing ever lifts the buyer's email from the Stripe session.
    Same class as the `123 Market St` incident that `buyer-shipping.ts` was
    written to end; the address was fixed, the email was not brought along.
-5. **Multi-line orders declare the wrong customs value** — the whole
-   PaymentIntent amount, shipping included, is stamped as `retailPrice` on
-   *every* item.
+5. ~~**Multi-line orders declare the wrong customs value**~~ **FIXED**
+   (`f7bb4070`, with item 1). The whole PaymentIntent amount, shipping included,
+   was stamped as `retailPrice` on *every* item. Printful's `retail_price` is per
+   item and is multiplied by quantity, so each line now carries its own unit
+   price and the declaration adds up to the goods the buyer bought, with shipping
+   excluded. Pinned by
+   `tests/fulfillment-orders-what-was-paid-for.test.ts`, which asserts against the
+   charge rather than a literal — a test saying `quantity === 3` passes just as
+   well once the checkout stops charging for three.
 6. **The 30% artist payout has no implementation.** The only Stripe SDK call in
    the venture is `checkout.sessions.create`. `transfers.create` appears nowhere.
    Money can come in; nothing can send it out.
@@ -272,15 +302,36 @@ to stderr, so a cron reads them as success forever.
 
 ## Suggested order of work
 
-1. Finding 1 (vacuous globs) — cheapest, and it is the one that can silently
-   disarm everything else.
+Struck items are done; the rest stand.
+
+1. ~~Finding 1 (vacuous globs)~~ — done, `a658ed57`.
 2. Finding 2 (`.github/workflows` unpoliced) — closes a live mutable-ref supply
    chain hole and reconnects print-atelier's tests to print-atelier's gate.
 3. Findings 5 and 8 — production promotion and unreviewable budgets.
-4. print-atelier 1–4 and local-site-studio 1–2 — the defects that corrupt a
-   sale rather than block it. These are worth fixing *before* the off-repo
-   actions unblock revenue, not after.
+4. print-atelier ~~1~~, 2–4, ~~5~~ and local-site-studio 1–2 — the defects that
+   corrupt a sale rather than block it. Worth fixing *before* the off-repo
+   actions unblock revenue, not after. **print-atelier 2 is now the sharpest
+   one left**: the Printful payload is camelCase where the API takes snake_case
+   and carries no `files` array, so the order it submits cannot be accepted at
+   all. The quantity and customs fixes are correct and still ride on a payload
+   Printful rejects.
 5. Findings 3, 4, 6, 7, 9 — real blind spots, none currently exploited.
+
+### A note on method, from the session that fixed 1 and print-atelier 1/5
+
+Two agents worked this backlog in the same working tree at once, and it cost
+more than it bought. One swept the other's uncommitted files into a commit
+titled after unrelated work, and added `if (missing) return 1` defaults to the
+new resolvers on the way — restoring the exact defect being fixed, in a commit
+whose subject said nothing about it. It was caught only because the regression
+test had been written first.
+
+That is [[weakenings-ride-in-unrelated-commits]] observed from the inside, and
+the mechanism is mundane: the weakening was the cheapest way to keep existing
+fixtures green. The two glob controls now sitting side by side came from the
+same overlap. Before starting an item here, check `git log` and `git status` for
+someone already in it, stage explicit paths, and re-read your own files before
+trusting them.
 
 ## Addendum: the pytest control cluster
 
