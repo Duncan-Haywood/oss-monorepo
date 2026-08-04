@@ -84,7 +84,6 @@ evidence, and completion date before it can be marked done.
   discards its own failure with `|| true`. Every control we had asked whether a
   gate was *declared* and whether it was *reachable*; this one was both, and
   neither question could tell it from a passing suite.
-<<<<<<< HEAD
 
   Still open, and this item stays unchecked until all of it is done: the
   homepage and AI-First Markets have no journey suite; Pairwise's own suite has
@@ -451,12 +450,15 @@ evidence, and completion date before it can be marked done.
   nobody has to answer. The three Python manifests are registered exceptions
   expiring 2026-11-30, blocked on pip-audit in the runner image, which belongs
   to this item's remaining SAST/SCA tooling work.
-  **Reconcile before merging.** `agent/profit-lever-2026-08-02` built the same
+  **Reconciled 2026-08-04.** `agent/profit-lever-2026-08-02` built the same
   lockfile-coverage control independently, as
-  `platform/ci/test/workflow-supply-chain.test.mjs`. Whoever integrates should
-  keep one, not both, and the two differ in ways worth deciding deliberately.
+  `platform/ci/test/workflow-supply-chain.test.mjs`. This one was kept and that
+  one deleted; its pinning half survives as
+  `platform/ci/test/workflow-action-pinning.test.mjs`. The paragraphs below are
+  the comparison that decided it, left in place because the reasoning is the
+  reusable part.
   That one additionally checks every third-party action is pinned to a commit
-  SHA, which this one does not and which should be kept. This one additionally
+  SHA, which this one does not and which was kept. This one additionally
   fails when a matrix entry's `manager` does not match the committed lockfile
   (`npm audit` in a pnpm workspace reports success without reading anything),
   when an audit command carries `|| true` or drops `--audit-level`, on
@@ -548,8 +550,50 @@ evidence, and completion date before it can be marked done.
   differ the resolver returns null and the behaviour is the full run that has
   been happening all along. A first CI run is what would confirm it, and the
   honest log line is what will show it.
+  The action-pinning claim the docs stated as fact is now checked, 2026-08-02,
+  owner duncan. `platform/ci/test/workflow-action-pinning.test.mjs` fails on any
+  `uses:` that is not a 40-character SHA carrying a version comment. All forty
+  were already pinned, so it passed on its first run — which is the point rather
+  than a reason to skip it: `actionlint` does not check pinning and nothing else
+  looked, so `uses: actions/checkout@v4` would have satisfied every gate in the
+  repository, and a mutable tag is a third party's write access to our CI.
+  It arrived on `agent/profit-lever-2026-08-02` welded to a second, weaker copy
+  of the lockfile-audit control, and **the two disagreed on policy in the
+  direction that matters.** That branch left five vulnerable lockfiles out of
+  `security.yml`'s matrix as exemptions expiring 2026-11-01, so the job would
+  stay green; the version already here puts all ten in and lets the failures
+  show. The pinning sweep was kept, the duplicate control was deleted, and the
+  five exemptions were rejected — two of them were factually wrong.
+  `local-site-studio`'s read "advisories need a semver-major Next 16 upgrade"
+  when the venture was already on Next 16.2.9 and the fix was the 16.2.12 patch
+  since taken; `photo-editing/docs-site`'s named two of that package's eighteen
+  findings, mischaracterised both, and omitted its two CRITICALs. An exception
+  describing two of eighteen findings is not a decision anyone could review.
+  What generalizes is the shape of the disagreement rather than the two wrong
+  reasons. Both branches produced a control with the correct fields — owner,
+  issue, reason, expiry, count — and only one of them was covering an unread
+  surface. The register's *form* was satisfied in both. `ENGINEERING-PRINCIPLES.md`
+  already says not to silence a scanner to make CI green, and nothing mechanical
+  distinguishes a well-formed exception written because the work is scheduled
+  from a well-formed exception written because the gate was red. Reading the
+  reasons against the roadmap they cite is what found it, and no gate does that.
 - [ ] Protect `main` in Gitea: required checks and review, no force push, no
   deletion, and least-privilege Actions tokens and isolated runners.
+  The entrypoint that runs every gate above could skip them all, closed
+  2026-08-02, owner duncan. `scripts/verify-all.sh` guarded its first step with
+  a bare `if [ -f scripts/test-ci.sh ]; then … fi` and no `else`, so renaming or
+  deleting that one file made all fourteen repository-wide gates — including
+  every `platform/ci/test/*.test.mjs` — silently not run while the script still
+  exited 0. The Dagger-engine block directly beneath it already had the correct
+  `else … exit 1`, so the two halves of the same entrypoint disagreed about
+  whether a missing runner is a failure. Found alongside it:
+  `scripts/ci/test-verify-component.sh`, the contract test for the shared
+  fail-closed gate every venture workflow shells into, was named by no runner
+  and no workflow and had therefore never executed since it was written; it
+  passes, so it was dormant rather than broken, and it is now gate 4 in
+  `scripts/test-ci.sh`. `platform/ci/test/gate-wiring.test.mjs` fails on both
+  shapes: a guarded runner invocation with no failing `else`, and a `test-*.sh`
+  under `scripts/` that no runner or workflow names.
   Partially configured live on 2026-08-01 as recorded above; required status
   contexts and environment/runner controls remain open. Prepared 2026-07-31:
   `.gitea/CODEOWNERS` had a rule for
