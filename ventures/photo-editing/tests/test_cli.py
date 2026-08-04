@@ -56,6 +56,52 @@ DISABLED_NATIVE_CONTROLS = {
 }
 
 
+def pin_volume_free_space(metadata_path: Path, *, source: Path, destination: Path) -> str:
+    """State the free space a route test depends on, instead of reading the host's.
+
+    `shootflow.storage._rank_candidate` gives a volume the `destination` role
+    only when it reports more than 64 GiB free. With no override, `free_bytes`
+    comes from `os.statvfs` of the temporary directory — the real filesystem of
+    whatever machine is running the suite. Every test below that asserts a
+    route, or asserts a refusal that can only happen once a route exists, was
+    therefore passing or failing on how full that machine happened to be. On a
+    host with 59 GiB free, five of them failed; none of the five is about disk
+    capacity.
+
+    The two symlinked-destination tests are the reason this matters beyond
+    noise. They are security guards: below the threshold no destination is
+    selected, the command exits before reaching the symlink check, and the test
+    reports the guard broken. Above it, the guard runs. Neither result was
+    evidence about the guard.
+
+    Returns the path as a string, ready to pass to `--volume-metadata-json`.
+    """
+    metadata_path.write_text(
+        json.dumps(
+            {
+                "volumes": [
+                    {
+                        "path": str(source),
+                        "free_bytes": 4 * 1024**3,
+                        "total_bytes": 128 * 1024**3,
+                        "is_removable": True,
+                        "is_read_only": False,
+                    },
+                    {
+                        "path": str(destination),
+                        "free_bytes": 900 * 1024**3,
+                        "total_bytes": 2 * 1024**4,
+                        "is_removable": False,
+                        "is_read_only": False,
+                    },
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    return str(metadata_path)
+
+
 class ShootFlowCliTests(unittest.TestCase):
     def test_handoff_controls_command_derives_disabled_controls(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1406,6 +1452,9 @@ class ShootFlowCliTests(unittest.TestCase):
             ssd.mkdir(parents=True)
             (card / "DCIM" / "100CANON" / "A001.MOV").write_bytes(b"video-bytes")
             (card / "DCIM" / "100CANON" / "A001.JPG").write_bytes(b"photo-bytes")
+            metadata = pin_volume_free_space(
+                workspace / "volume_metadata.json", source=card, destination=ssd
+            )
             stdout = io.StringIO()
 
             exit_code = main(
@@ -1413,6 +1462,8 @@ class ShootFlowCliTests(unittest.TestCase):
                     "plan-import-route",
                     "--volume-root",
                     str(volumes),
+                    "--volume-metadata-json",
+                    metadata,
                     "--estimate-source-bytes",
                     "--headroom-bytes",
                     "0",
@@ -3010,6 +3061,9 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             ssd.mkdir(parents=True)
             photo.write_bytes(b"photo-bytes")
             video.write_bytes(b"video-bytes")
+            metadata = pin_volume_free_space(
+                workspace / "volume_metadata.json", source=card, destination=ssd
+            )
             stdout = io.StringIO()
 
             exit_code = main(
@@ -3017,6 +3071,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "card-dump-workflow",
                     "--volume-root",
                     str(volumes),
+                    "--volume-metadata-json",
+                    metadata,
                     "--shoot-date",
                     "2026-05-08",
                     "--shoot-slug",
@@ -3089,6 +3145,9 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             jpeg.write_bytes(b"jpeg-bytes")
             clip.write_bytes(b"video-bytes")
             audio.write_bytes(b"scratch-audio")
+            metadata = pin_volume_free_space(
+                workspace / "volume_metadata.json", source=card, destination=ssd
+            )
             stdout = io.StringIO()
 
             exit_code = main(
@@ -3096,6 +3155,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "card-dump-workflow",
                     "--volume-root",
                     str(volumes),
+                    "--volume-metadata-json",
+                    metadata,
                     "--shoot-date",
                     "2026-05-08",
                     "--shoot-slug",
@@ -3219,6 +3280,9 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             outside.mkdir()
             (ssd / "ShootFlow").symlink_to(outside, target_is_directory=True)
             photo.write_bytes(b"photo-bytes")
+            metadata = pin_volume_free_space(
+                workspace / "volume_metadata.json", source=card, destination=ssd
+            )
             stdout = io.StringIO()
             stderr = io.StringIO()
 
@@ -3227,6 +3291,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "card-dump-workflow",
                     "--volume-root",
                     str(volumes),
+                    "--volume-metadata-json",
+                    metadata,
                     "--shoot-date",
                     "2026-05-08",
                     "--shoot-slug",
@@ -3257,6 +3323,9 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             ssd.mkdir(parents=True)
             (ssd / "ShootFlow").symlink_to(ssd / "missing-library", target_is_directory=True)
             photo.write_bytes(b"photo-bytes")
+            metadata = pin_volume_free_space(
+                workspace / "volume_metadata.json", source=card, destination=ssd
+            )
             stdout = io.StringIO()
             stderr = io.StringIO()
 
@@ -3265,6 +3334,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "card-dump-workflow",
                     "--volume-root",
                     str(volumes),
+                    "--volume-metadata-json",
+                    metadata,
                     "--shoot-date",
                     "2026-05-08",
                     "--shoot-slug",

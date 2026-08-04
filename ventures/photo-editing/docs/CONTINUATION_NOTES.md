@@ -4179,6 +4179,32 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - Updated README, product strategy, design decisions, and terms draft notes to describe the dry-run adapter
   as a proof point for future ffmpeg/Core Image/Metal/DaVinci/cloud renderers.
 
+## 2026-08-04: route tests no longer read the host's free disk space
+
+Five CLI tests decided on the machine rather than on their inputs.
+`storage._rank_candidate` gives a volume the `destination` role only when it
+reports more than 64 GiB free, and the tests build their fake `Volumes/` tree
+inside a `tempfile.TemporaryDirectory()` — so `free_bytes` came from
+`os.statvfs` of the real filesystem. On a host with 59 GiB free, every route
+came back `blocked` and the five failed; on a roomier host they pass. Nothing
+about any of them is a capacity test.
+
+Two of the five are the `card-dump-workflow` symlinked-destination guards, which
+is the part worth remembering. Below the threshold the command never selects a
+destination and so never reaches the symlink check — the security test reported
+the guard broken while telling you nothing about it either way.
+
+Fixed with `pin_volume_free_space` in `tests/test_cli.py`, which writes the
+`--volume-metadata-json` file the CLI already accepts and two neighbouring tests
+already used. 68 of 68 pass. Mutation-checked: deleting
+`_reject_symlinked_existing_subfolder_components` now fails the broken-symlink
+test, and deleting the containment check as well fails both.
+
+The general lesson for this venture: storage behaviour is thresholded against
+real volume facts, so any new test that asserts a *route* must state its volume
+metadata. Reaching for `tempfile` alone silently borrows whatever the developer's
+disk happens to look like.
+
 ## Suggested next iteration
 
 The worker can now plan ready actions, produce safe per-task status transitions, persist one transition
