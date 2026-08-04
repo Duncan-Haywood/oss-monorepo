@@ -1512,6 +1512,35 @@ evidence, and completion date before it can be marked done.
   than over-promises, which is the safe way to be wrong about a paid page, but
   it is still a decision about live sales copy.
 
+- [ ] Nothing measures **duplicated integration work**, and it is now the
+  dominant duplication in this repository. Found 2026-08-04, owner duncan,
+  within minutes of the merge above landing: three agents performed the *same*
+  reconciliation of `agent/continue-work-2026-08-04b` and
+  `agent/integration-2026-08-04b` inside one hour, on
+  `agent/integration-2026-08-04c`, `agent/continue-work-2026-08-04c` and
+  `agent/integration-2026-08-04d`. All three independently found the same three
+  defects — the silently dropped kill-criteria register and tests, the venture
+  validator left on the discarded API, and a gate registered twice.
+
+  Both existing controls read this as healthy, and both are right by their own
+  definition. `integration_debt.py` counts 3 independent tips against a budget
+  of 6 and passes, because a handful of branches in flight is ordinary working
+  state — it cannot tell three parallel *features* from three parallel copies of
+  one *merge*. `branch_collisions.py` reports 2 colliding paths, neither of them
+  from these branches, because it fires on a file built twice with no shared
+  ancestor and these three share almost all of theirs.
+
+  The cost is not the wasted sessions; it is that each of the three carries
+  something the others do not — a `/docs` page still selling the phone agent,
+  a control that fails when a runner registers the same gate twice, the
+  deduplication of `router.py`'s doubled module tail — so discarding two of them
+  loses real work, and merging all three is a fourth integration that a fifth
+  agent may already be duplicating. The measurement to add is cheap: branches
+  whose tips share a merge base *and* whose diffs touch the same set of files
+  the same way are candidate duplicate integrations, and one line saying so
+  before an agent starts is worth more than the merge afterwards. See
+  [the third integration report](INTEGRATION-REPORT-2026-08-04c.md).
+
 - [ ] Ship. `release_lag` reports 165 commits not in `origin/main` against a
   budget of 125, over by 40, and 16 components are running without their
   committed changes. This is the one red gate and it is measuring the real
