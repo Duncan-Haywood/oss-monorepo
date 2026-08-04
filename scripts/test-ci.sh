@@ -212,6 +212,19 @@ run_ci_test "Integration Debt Ratchet" python3 "${REPO_ROOT}/scripts/ci/integrat
 # audit under pytest, so this entry is the named gate rather than the only
 # enforcement.
 run_ci_test "Image Release Path Ratchet" python3 "${REPO_ROOT}/scripts/ci/image_release_path.py"
+# A criss-cross merge can concatenate two versions of one module, and nothing
+# else here would notice. On 2026-08-04 `portfolio/router/router.py` carried a
+# 124-line duplicate tail — a second `main`, `find_repo_root`, `load_ventures`,
+# `load_ledger`, `calculate_score` and `route_portfolio` — sitting after
+# `if __name__ == "__main__": main()`. It parsed, it imported, and 1139 pytest
+# tests were green, because Python binds the later definition. The guard between
+# the copies made it a live divergence rather than dead code: run as a script
+# the file called the *first* `main`, while every test imported the second, and
+# the two returned different fields. Every other gate here asks whether the code
+# works, and for this defect the answer is yes.
+# `tests/test_duplicate_definitions.py` runs the same scan under pytest, so this
+# entry is the named gate rather than the only enforcement.
+run_ci_test "Duplicate Definition Scan" python3 "${REPO_ROOT}/scripts/ci/duplicate_definitions.py"
 
 # Linter gates below are host-tool dependent. Absence used to print a notice
 # and touch nothing — neither branch incremented FAILURES, so "not installed"
