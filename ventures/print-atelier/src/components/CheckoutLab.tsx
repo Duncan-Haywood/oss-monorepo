@@ -38,7 +38,23 @@ type CheckoutApiResponse = CheckoutEnvStatus & {
 
 const regions: CheckoutShippingRegion[] = ["US", "EU", "UK", "APAC"];
 
-export default function CheckoutLab() {
+export type CheckoutLabProps = {
+  /**
+   * Whether the Stripe session this page creates will ask Stripe to compute tax.
+   *
+   * This has to arrive as a prop. `STRIPE_AUTOMATIC_TAX` is a server variable,
+   * this is a `"use client"` component, and `process.env` in a client bundle is
+   * inlined at build time — so reading it here returned `undefined` no matter
+   * what the deployment set. The tax row was therefore hard-wired to
+   * "Not charged" while `stripe-checkout-server.ts` sent
+   * `automatic_tax: { enabled: true }`, which is the displayed-total-is-not-the-
+   * charged-total defect this checkout was just fixed for, reintroduced one
+   * layer up. `src/app/checkout/page.tsx` is a server component and resolves it.
+   */
+  automaticTaxEnabled?: boolean;
+};
+
+export default function CheckoutLab({ automaticTaxEnabled = false }: CheckoutLabProps) {
   const [cart, setCart] = useState<CheckoutLineItem[]>([]);
   const [region, setRegion] = useState<CheckoutShippingRegion>("US");
   const [envResult, setEnvResult] = useState<OperatorFetchResult<CheckoutEnvStatus> | null>(null);
@@ -65,7 +81,17 @@ export default function CheckoutLab() {
     fetchOperatorJson<CheckoutEnvStatus>("/api/stripe/checkout").then(setEnvResult);
   }, []);
 
-  const totals = useMemo(() => calculateCheckoutTotals(cart, region), [cart, region]);
+  // Reconstituted rather than passed as a boolean so `isAutomaticTaxEnabled`
+  // stays the single place that decides what the flag means, on both sides of
+  // the server/client boundary.
+  const taxEnv = useMemo(
+    () => ({ STRIPE_AUTOMATIC_TAX: automaticTaxEnabled ? "enabled" : undefined }),
+    [automaticTaxEnabled],
+  );
+  const totals = useMemo(
+    () => calculateCheckoutTotals(cart, region, taxEnv),
+    [cart, region, taxEnv],
+  );
   const route = useMemo(() => buildFulfillmentRoute(cart, region), [cart, region]);
   const readiness = useMemo(() => {
     const base = buildCheckoutReadiness(cart, catalogArtworks);
