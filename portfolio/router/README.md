@@ -127,6 +127,29 @@ As of 2026-08-03 that count is 15 of 15. The portfolio has no working automated
 stop-loss; what it now has is a dated, owned admission of that, and thresholds
 are the venture owner's decision to set.
 
+### What a verdict does
+
+`router.py` — the engine `scripts/test-ci.sh` runs, and the one that writes the
+ranked work queue in `ALLOCATION_REPORT.md` — acts on the verdict. It used to
+carry `kill_criteria` as a field it never read, so a venture could trip its own
+declared brake and keep its rank, its budget and its place at the top of the
+queue an agent session reads to pick work.
+
+| State | What the router does |
+|:---|:---|
+| `TRIGGERED` | Allocation withheld ($0.00), ranked last, escalated in the report's **Stopping Rules** section |
+| `NOT_TRIGGERED` | Funded normally; at least one criterion is measurable and none fired |
+| `NOT_MEASURABLE` | Funded normally, and named in the report — no declared criterion can be measured, so nothing can ever stop this venture's funding |
+
+Withheld budget is not redistributed: total portfolio spend falls by what was
+withheld. Handing it to the next venture would mean the portfolio commits the
+same sum whether or not a brake fired.
+
+Stopping a venture is a human judgement and stays one, but a judgement nobody is
+ever asked for is indistinguishable from no rule at all, so
+`scripts/ci/stopping_rule_review.py` fails the build on a triggered criterion
+with no decision recorded in `portfolio/stopping-decisions.yaml`.
+
 ## Status
 
 Implemented in `portfolio/router/router.py` with unit tests in `portfolio/router/test_router.py`. Run `python3 portfolio/router/router.py` or `python3 portfolio/router/router.py --json` to generate the ranked work queue. Integrated into monorepo CI verification (`scripts/test-ci.sh`).

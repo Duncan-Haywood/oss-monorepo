@@ -1,0 +1,51 @@
+# Stopping-rule decisions
+#
+# `ventures/*/VENTURE.yaml` declares `kill_criteria` — the conditions under
+# which the portfolio stops funding a venture. `portfolio/router/kill_criteria.py`
+# evaluates the structured ones against recorded ledger history, and
+# `portfolio/router/router.py` withholds the allocation of any venture whose
+# criterion has fired and ranks it last in the work queue.
+#
+# That is the whole of what an engine may decide. Whether a venture is actually
+# wound down is the portfolio owner's judgement, and this file is where that
+# judgement is recorded. It exists because the judgement previously had no route
+# to a human at all: a triggered criterion moved a row in a JSON file written by
+# an engine nothing runs, and the report a session actually reads never
+# mentioned it.
+#
+# `scripts/ci/stopping_rule_review.py` audits this register on every CI run and
+# fails when:
+#
+#   * a criterion has fired and no decision is recorded here;
+#   * a `continue` decision has passed its `review_by` date;
+#   * a decision covers a criterion that is no longer triggered — remove it, so
+#     a stale override cannot pre-authorise the next trigger;
+#   * a `wind-down` decision is recorded while the venture's VENTURE.yaml still
+#     declares any stage other than `winding-down`;
+#   * more than two ventures are being funded past a fired stopping rule.
+#
+# Entry shape:
+#
+#   - venture: print-atelier
+#     criterion: >-              # the criterion's `description`, whitespace-
+#       $150 of recorded agent   # insensitive, so wrapping does not matter
+#       spend accumulated with no revenue ever recorded against this venture in
+#       portfolio/ledger/.
+#     decided_by: duncan
+#     decided_on: 2026-08-10
+#     decision: continue         # or: wind-down
+#     reason: >-
+#       At least 40 characters saying what makes this decision correct.
+#     review_by: 2026-09-30      # required for `continue`, capped 90 days out
+
+owner: duncan
+issue: docs/ENGINEERING-ROADMAP.md#portfolio-stopping-rules
+
+# Empty on 2026-08-03, and empty for the honest reason: no declared criterion has
+# fired yet. Ten of eleven ventures still have no criterion that can be measured
+# at all — `scripts/ci/kill_criteria_ratchet.py` holds that count — and the one
+# that can, print-atelier's `$150 spend with no recorded revenue`, stands at
+# $18.18 against a $150 threshold. So this register is currently a control in
+# waiting rather than a control in use, and its first real test will be the
+# first month that crosses a threshold.
+decisions: []

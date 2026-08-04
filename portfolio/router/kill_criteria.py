@@ -445,6 +445,19 @@ def evaluate_venture(
     ]
 
 
+def measured_detail(result: CriterionResult) -> str:
+    """The measured values behind a verdict, as `metric=observed op value`.
+
+    A stopping rule that fires has to show its arithmetic. "print-atelier
+    tripped its criterion" is not reviewable; "cumulative_agent_spend_usd=150.0
+    >= 150; cumulative_revenue_usd=0.0 == 0" is, and the human being asked to
+    wind a venture down is entitled to the second.
+    """
+    return "; ".join(
+        f"{c.metric}={c.observed} {c.op} {c.value}" for c in result.conditions
+    )
+
+
 def has_stopping_rule(results: List[CriterionResult]) -> bool:
     """True when at least one declared criterion could actually be measured.
 
