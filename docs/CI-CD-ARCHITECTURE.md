@@ -55,6 +55,17 @@ the catalog says the venture has one. Extra gates are welcome; a partial
 sequence is drift. `pairwise-ci.yml` is the case that matters, because it is
 what runs on a merge to main for the one venture that deploys to production.
 
+Whether a gate exists is separate from whether the release waits for it.
+`homepage-ci.yml` built an image and rolled it onto the production cluster with
+no gate in the chain: its suite was declared in the catalog, which `ci-cd.yml`
+runs — a different workflow, triggered by the same push, with no ordering
+relationship to the deploy. Two workflows racing is not a gate. The rule is
+that whatever mutates production must have a job running a test suite somewhere
+in its transitive `needs:`, and `deploy-gate-contract.test.mjs` now checks the
+closure rather than trusting the shape of the workflow. Infrastructure applies
+are out of scope: `terraform-apply.yml` gates through plan review and a
+protected environment, which is a different control.
+
 ## Deployment boundary
 
 CI must build, test, scan, and publish an immutable image identified by the full

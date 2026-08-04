@@ -25,11 +25,11 @@
         <div class="logo-icon" aria-hidden="true">✦</div>
         <span class="brand-name">Maris Stella <span class="brand-tag">Labs</span></span>
       </a>
-      <nav class="nav-links">
-        <a href="#thesis">Thesis</a>
-        <a href="#ventures">Ventures</a>
-        <a href="#architecture">Studio model</a>
-        <a href="mailto:duncan.andrew.haywood@gmail.com?subject=Maris%20Stella%20Labs%20enquiry">Contact</a>
+      <nav class="nav-links" id="siteNav" aria-label="Primary">
+        <a class="nav-link" href="#thesis">Thesis</a>
+        <a class="nav-link" href="#ventures">Ventures</a>
+        <a class="nav-link" href="#architecture">Studio model</a>
+        <a class="nav-link" href="mailto:duncan.andrew.haywood@gmail.com?subject=Maris%20Stella%20Labs%20enquiry">Contact</a>
       </nav>
       <div class="header-actions">
         <div class="status-indicator">
@@ -37,6 +37,14 @@
           <span class="status-text">Tbilisi · Building globally</span>
         </div>
         <a href="#ventures" class="btn btn-sm btn-primary">View our work <span aria-hidden="true">↘</span></a>
+        <!-- Below 760px the stylesheet hides .nav-links, so this is the only
+             way to reach the studio's contact address above the fold. -->
+        <button type="button" class="nav-toggle" id="navToggle"
+                aria-controls="siteNav" aria-expanded="false" aria-label="Menu">
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
       </div>
     </div>
   </header>

@@ -114,6 +114,18 @@ export function parseVerifyComponentScript(repoRoot = REPO_ROOT) {
       current.gates.push({ dir: current.workspaceDir, gate: 'test', kind: 'swift' });
       continue;
     }
+
+    // The same subshell shape, running npm directly. A component with no
+    // dependencies and no lockfile cannot go through `run_npm`, which would
+    // run `npm ci` and fail for want of one. Without this branch such an arm
+    // parses to zero gates, and an arm that appears to run nothing is exactly
+    // what the findings below are meant to catch — it must not be produced by
+    // the parser itself.
+    const npmRun = /^npm\s+(?:run\s+)?(\S+)$/.exec(line);
+    if (npmRun && current.workspaceDir) {
+      current.gates.push({ dir: current.workspaceDir, gate: npmRun[1], kind: 'npm' });
+      continue;
+    }
   }
 
   return arms;

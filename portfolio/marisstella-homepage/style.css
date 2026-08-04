@@ -78,6 +78,38 @@ a:focus-visible, button:focus-visible {
 .nav-links a:hover { color: var(--ink); }
 .header-actions { display: flex; align-items: center; gap: 18px; }
 .status-indicator { display: flex; align-items: center; gap: 8px; color: var(--ink-muted); font-size: 12px; }
+
+/* The menu disclosure. Hidden until the breakpoint that hides .nav-links, so
+   the two are never both present: a menu button beside an open menu is as much
+   a defect as a hidden menu with no button. */
+.nav-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+.nav-toggle:hover { border-color: var(--ink-soft); background: rgba(255,255,255,.04); }
+.nav-toggle-bar {
+  width: 17px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: var(--ink);
+  transition: transform .2s, opacity .2s;
+}
+/* Open: the three bars become a close mark. 6.5px is one bar (1.5px) plus the
+   5px gap, so the outer two land on the middle one. */
+.site-header.nav-open .nav-toggle-bar:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.site-header.nav-open .nav-toggle-bar:nth-child(2) { opacity: 0; }
+.site-header.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 .status-dot { width: 7px; height: 7px; flex: none; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 4px rgba(98,168,255,.11); }
 
 .btn {
@@ -449,8 +481,31 @@ a:focus-visible, button:focus-visible {
 
 @media (max-width: 760px) {
   .container { width: min(100% - 32px, 620px); }
-  .header-container { height: 68px; }
-  .nav-links, .header-actions .btn { display: none; }
+  .header-container { height: 68px; position: relative; }
+  /* The header CTA goes, but its destination does not: the hero's "View the
+     portfolio" points at the same #ventures and stays visible here. The nav
+     does not have a second route, so it becomes a panel the button opens
+     rather than disappearing. */
+  .header-actions .btn { display: none; }
+  .nav-toggle { display: flex; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 2px 18px 6px;
+    border: 1px solid var(--line-strong);
+    border-radius: 16px;
+    background: var(--night-raised);
+    box-shadow: 0 24px 60px rgba(3, 8, 16, .55);
+  }
+  .site-header.nav-open .nav-links { display: flex; }
+  .nav-links .nav-link { padding: 15px 2px; font-size: 16px; }
+  .nav-links .nav-link + .nav-link { border-top: 1px solid var(--line); }
   .hero-section { padding-top: 58px; }
   .hero-container { display: flex; flex-direction: column; align-items: stretch; gap: 42px; }
   .hero-copy { padding: 0; }

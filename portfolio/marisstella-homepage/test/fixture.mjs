@@ -34,6 +34,27 @@ export function modalKeysInMarkup(html) {
   return [...html.matchAll(/openModal\('([^']+)'\)/g)].map((m) => m[1]);
 }
 
+/** The markup between `<header …>` and `</header>`. */
+export function headerMarkup(html) {
+  const match = html.match(/<header[\s\S]*?<\/header>/);
+  if (!match) throw new Error('index.html has no <header> element');
+  return match[0];
+}
+
+/** The single open tag carrying `id="…"`, so its attributes can be read off. */
+export function openTagWithId(html, id) {
+  const matches = [...html.matchAll(new RegExp(`<[a-z]+[^>]*\\bid="${id}"[^>]*>`, 'g'))];
+  if (matches.length !== 1) {
+    throw new Error(`expected exactly one element with id="${id}", found ${matches.length}`);
+  }
+  return matches[0][0];
+}
+
+/** The destinations the header nav offers, in document order. */
+export function navLinkHrefs(html) {
+  return [...headerMarkup(html).matchAll(/<a class="nav-link" href="([^"]+)"/g)].map((m) => m[1]);
+}
+
 class ClassList {
   constructor(initial) {
     this.set = new Set(initial.split(/\s+/).filter(Boolean));
@@ -197,10 +218,39 @@ export function buildFixture(html = readSiteFile('index.html')) {
   // rather than from app.js's first write, so "closed" is the initial condition.
   modal.style.display = 'none';
 
-  doc.root.children = [...filterButtons, ...ventureCards, modal];
+  // The header, with the nav the menu button discloses. aria-expanded is read
+  // off the real markup rather than assumed closed, so a page that shipped the
+  // panel already expanded would show up here as a failing starting state.
+  const navLinks = navLinkHrefs(html).map(
+    (href) => new FakeElement(doc, { className: 'nav-link', attributes: { href } })
+  );
+  const nav = new FakeElement(doc, {
+    id: 'siteNav',
+    className: 'nav-links',
+    children: navLinks,
+  });
+  const toggleTag = openTagWithId(html, 'navToggle');
+  const navToggle = new FakeElement(doc, {
+    id: 'navToggle',
+    className: 'nav-toggle',
+    attributes: {
+      'aria-expanded': toggleTag.match(/aria-expanded="([^"]*)"/)?.[1] ?? '',
+      'aria-controls': toggleTag.match(/aria-controls="([^"]*)"/)?.[1] ?? '',
+    },
+  });
+  const header = new FakeElement(doc, {
+    className: 'site-header',
+    children: [nav, navToggle],
+  });
+
+  doc.root.children = [header, ...filterButtons, ...ventureCards, modal];
 
   return {
     document: doc,
+    header,
+    nav,
+    navLinks,
+    navToggle,
     filterButtons,
     ventureCards,
     detailButtons,

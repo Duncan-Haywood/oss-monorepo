@@ -59,8 +59,18 @@ case "$component" in
       swift test
     )
     ;;
+  marisstella-homepage)
+    # Not routed through run_npm: this component declares no dependencies and
+    # ships no lockfile on purpose (see its package.json), so `npm ci` would
+    # fail for want of one. Its suite is Node's own runner over test/*.test.mjs
+    # and needs nothing installed.
+    (
+      cd "$repo_root/portfolio/marisstella-homepage"
+      npm test
+    )
+    ;;
   *)
-    printf 'Usage: %s {pairwise|ai-first-markets|local-site-studio|print-atelier|retail-pilot-intel|range-coach}\n' "$0" >&2
+    printf 'Usage: %s {pairwise|ai-first-markets|local-site-studio|print-atelier|retail-pilot-intel|range-coach|marisstella-homepage}\n' "$0" >&2
     exit 2
     ;;
 esac

@@ -1847,9 +1847,47 @@ evidence, and completion date before it can be marked done.
   offers a venture as a link that only scrolls the page. Mutation-checked seven
   ways. Not done: the contract proves a link is *present*, not that it
   *resolves* — the NXDOMAIN and private-docs findings above came from resolving
-  the URLs by hand, and nothing does that on a schedule. The nav is also hidden
-  below 760px with no menu replacing it, so of the three contact routes only
-  the two below the fold survive on mobile.
+  the URLs by hand, and nothing does that on a schedule.
+  Continued 2026-08-04, owner duncan: the mobile half is now closed. Below
+  760px the stylesheet set `.nav-links` to `display: none` with nothing in its
+  place, so on a phone the studio's only live public page offered no navigation
+  at all and no contact route above the fold — a visitor who wanted to buy or
+  hire could scroll, or leave. The four destinations now sit behind a menu
+  disclosure; the header CTA stays hidden there, because the hero's "View the
+  portfolio" points at the same `#ventures` and is visible. Twelve mutations,
+  all caught, including restoring the original stylesheet.
+  The generalizable half is `test/viewport.mjs` and
+  `test/responsive-contract.test.mjs`: enough of a browser to resolve `display`
+  at a viewport width, asserting about *destinations* rather than about this
+  menu — hiding a control is allowed, losing the place it went is not. Both
+  models refuse what they cannot resolve rather than skipping it, so the
+  contract cannot report PASSED over a rule it did not understand. This defect
+  was invisible to every existing test: all four links were still in the
+  markup, every handler still fired, and no test read the CSS that removed
+  them. Still not done: nothing resolves the URLs on a schedule (above), and
+  none of this has been seen in a real browser — the scheduled runs this work
+  happens in cannot start one, so the evidence is the resolver and the
+  mutation runs, not a rendered page.
+- [x] Put a gate in front of the homepage release. Done 2026-08-04, owner
+  duncan. `.gitea/workflows/homepage-ci.yml` built an image and rolled it onto
+  the production cluster with no gate anywhere in the chain: `container`
+  declared no `needs:` at all, and `deploy` needed only `container`. The
+  component's suite was declared in `platform/ci/src/pipeline.mjs`, which
+  `ci-cd.yml` runs — a different workflow, triggered by the same push, with no
+  ordering relationship to this one. A red suite and a rollout raced. Every
+  other release chain already reaches production behind a gate; this was the
+  one that did not, on the one venture with live customers. There is now a
+  `verify` job running `scripts/ci/verify-component.sh marisstella-homepage`,
+  and `container` waits for it.
+  The control is in `deploy-gate-contract.test.mjs`, which until now exempted
+  container/GitOps chains on the reasoning that they "gate correctly through
+  job `needs:`". That exemption was the hiding place: it generalized from
+  pairwise-ci.yml's shape and asserted nothing. It now walks the transitive
+  `needs:` closure of every production-mutating job and requires a suite in it.
+  Four mutations, all caught, including the workflow restored to its exact
+  pre-fix form. Scope stated rather than implied: infrastructure applies stay
+  out, because `terraform-apply.yml` gates through plan review and a protected
+  environment — a different control, not a weaker one.
 - [ ] Create governed event schemas and automated data-quality tests for
   validity, completeness, uniqueness, freshness, lineage, and deletion.
 - [ ] Add accessible, optional contextual feedback, customer-effort/CSAT where
