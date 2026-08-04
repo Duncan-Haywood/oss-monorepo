@@ -135,6 +135,7 @@ export const VENTURE_CATALOG = [
     name: 'Range Coach',
     dir: 'ventures/range-coach',
     type: 'swift',
+    scripts: ['test'],
   },
   {
     id: 'marisstella-homepage',
@@ -675,6 +676,13 @@ export function verifyTerraformHost(component, repoRoot = REPO_ROOT) {
  */
 export async function runDaggerContainerizedPipeline(affectedIds, catalog = VENTURE_CATALOG, repoRoot = REPO_ROOT) {
   console.log('\n🐳 Attempting Dagger Engine Containerized Pipeline Execution...');
+
+  const dockerCheck = spawnSync('docker', ['info'], { stdio: 'ignore' });
+  if (dockerCheck.status !== 0) {
+    console.log('ℹ Dagger Engine container daemon not available (Docker CLI or daemon not ready).');
+    console.log('🔄 Seamlessly falling back to isolated host verification execution...');
+    return null;
+  }
 
   try {
     const { connect } = await import('@dagger.io/dagger');

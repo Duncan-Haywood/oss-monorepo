@@ -148,6 +148,9 @@ jobs:
           - venture: local-site-studio
             directory: ventures/local-site-studio
             manager: npm
+          - venture: marisstella-homepage
+            directory: portfolio/marisstella-homepage
+            manager: npm
           - venture: photo-editing-docs-site
             directory: ventures/photo-editing/docs-site
             manager: npm

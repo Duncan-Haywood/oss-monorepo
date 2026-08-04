@@ -105,10 +105,10 @@ const REGISTRY = {
       owner: 'duncan',
       issue: 'docs/ENGINEERING-ROADMAP.md#now-establish-and-enforce-the-baseline',
       expires: '2026-12-01',
-      priceLiterals: 72,
+      priceLiterals: 75,
       reason:
         'Has Stripe and a checkout route, so a stated price can become a charge. ' +
-        'Most of the 72 literals are business-plan and investor-dashboard ' +
+        'Most of the 75 literals are business-plan and investor-dashboard ' +
         'figures rather than offers, and the buyer-facing prices come from ' +
         '`retailPrice` in src/lib/marketplace.ts through ' +
         '`calculatePrintEconomics` — already derived, not typed, which is why ' +
@@ -123,14 +123,14 @@ const REGISTRY = {
       owner: 'duncan',
       issue: 'docs/ENGINEERING-ROADMAP.md#now-establish-and-enforce-the-baseline',
       expires: '2026-12-01',
-      priceLiterals: 94,
+      priceLiterals: 96,
       reason:
         'Advertises a $29/month premium tier and ships a /subscribe route. Its ' +
         'own copy states the tier "has never been sold and there is no payment ' +
         'path", and src/lib/subscription.ts tells a subscriber they have not ' +
         'been charged — so the venture is currently honest about the gap and ' +
         'the risk is that it stops being so once a payment path lands. Most of ' +
-        'the 94 literals are market-commentary figures in src/data/ideas.ts, ' +
+        'the 96 literals are market-commentary figures in src/data/ideas.ts, ' +
         'not offers. The contract should be written with the payment path, not ' +
         'before it.',
     },
