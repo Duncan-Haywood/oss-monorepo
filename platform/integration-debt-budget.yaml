@@ -93,70 +93,7 @@ budget:
 # `scripts/ci/integration_debt.py` now strips the configured remote, so these
 # entries mean the same thing in both, which is the environment split that
 # function's own docstring already said it had to survive.
-dropped_artifacts:
-  # The fourth independently-built rival of `dependency-audit-coverage.test.mjs`.
-  # That one is kept: it enumerates lockfiles with `git ls-files` rather than
-  # walking three named directories, handles `yarn.lock`, and carries five
-  # checks this one lacks — manager/lockfile mismatch, `|| true`, a dropped
-  # `--audit-level`, `continue-on-error`, and `fail-fast: true`. Dropping the
-  # loser also required correcting `.gitea/workflows/security.yml`, whose
-  # comment still named this file as a test that "must keep passing".
-  - path: platform/ci/test/workflow-supply-chain.test.mjs
-    branch: agent/continue-work-2026-08-04b
-    owner: duncan
-    reason: >-
-      Duplicate supply-chain control. `platform/ci/test/dependency-audit-coverage.test.mjs`
-      is kept as the stricter and already-wired one; this is the fourth rival of it.
-  - path: platform/ci/test/workflow-supply-chain.test.mjs
-    branch: agent/integration-debt-2026-08-04
-    owner: duncan
-    reason: >-
-      Same duplicate, carried by this branch too. Resolved in favour of
-      `dependency-audit-coverage.test.mjs`.
-  - path: platform/ci/test/workflow-supply-chain.test.mjs
-    branch: agent/integration-full-2026-08-03
-    owner: duncan
-    reason: >-
-      Same duplicate, carried by this branch too. Resolved in favour of
-      `dependency-audit-coverage.test.mjs`.
-  - path: platform/ci/test/workflow-supply-chain.test.mjs
-    branch: agent/profit-lever-2026-08-02
-    owner: duncan
-    reason: >-
-      The branch this control originated on. Resolved in favour of
-      `dependency-audit-coverage.test.mjs`; the pinning sweep it also carried
-      was kept as its own file rather than dropped with it.
-
-  # The orphan half of the duplicate release-lag control. It declared a
-  # `target`/`acknowledged` schema of its own, while `release-lag-budget.yaml`
-  # is the one `scripts/ci/cap_ratchet.py` watches — four constants plus two
-  # YAML paths. Keeping this file instead would have silently emptied six of
-  # the cap ratchet's watches, which is the whole reason the surviving one won.
-  - path: platform/release-lag-policy.yaml
-    branch: agent/release-lag-signal-2026-08-02
-    owner: duncan
-    reason: >-
-      Duplicate release-lag register. `platform/release-lag-budget.yaml` is kept
-      because the cap ratchet watches six values inside it; this schema is
-      watched by nothing. `docs/RELEASE-LAG.md` was retargeted to the survivor.
-  - path: platform/release-lag-policy.yaml
-    branch: agent/continue-work-2026-08-04b
-    owner: duncan
-    reason: >-
-      Same orphan register, carried by this branch too. Resolved in favour of
-      `platform/release-lag-budget.yaml`.
-  - path: platform/release-lag-policy.yaml
-    branch: agent/integration-debt-2026-08-04
-    owner: duncan
-    reason: >-
-      Same orphan register, carried by this branch too. Resolved in favour of
-      `platform/release-lag-budget.yaml`.
-  - path: platform/release-lag-policy.yaml
-    branch: agent/integration-full-2026-08-03
-    owner: duncan
-    reason: >-
-      Same orphan register, carried by this branch too. Resolved in favour of
-      `platform/release-lag-budget.yaml`.
+dropped_artifacts: []
 
 rationale: >-
   Release lag says how much work has not shipped. It cannot say whether that

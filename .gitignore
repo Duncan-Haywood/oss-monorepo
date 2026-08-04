@@ -66,4 +66,5 @@ ventures/quick-pick-survey/quick-pick-secrets.txt
 .npm/
 .terraform.d/
 Library/
+.claude/
 

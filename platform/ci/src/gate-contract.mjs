@@ -108,6 +108,12 @@ export function parseVerifyComponentScript(repoRoot = REPO_ROOT) {
       current.gates.push({ dir: current.workspaceDir, gate: pnpmRun[1], kind: 'pnpm' });
       continue;
     }
+
+    const swiftTest = /^swift\s+test$/.exec(line);
+    if (swiftTest && current.workspaceDir) {
+      current.gates.push({ dir: current.workspaceDir, gate: 'test', kind: 'swift' });
+      continue;
+    }
   }
 
   return arms;

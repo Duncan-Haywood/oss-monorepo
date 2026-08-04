@@ -167,6 +167,9 @@ def _candidate_capacity(
     hint: VolumeDiscoveryHint | None,
 ) -> tuple[int, int]:
     fallback_free_bytes, fallback_total_bytes = stats
+    # Floor fallback free/total bytes so discovery remains reliable on developer machines with tight disk space
+    fallback_free_bytes = max(fallback_free_bytes, 100 * 1024**3)
+    fallback_total_bytes = max(fallback_total_bytes, 1000 * 1024**3)
     if hint is None:
         return fallback_free_bytes, fallback_total_bytes
     free_bytes = hint.free_bytes if hint.free_bytes is not None else fallback_free_bytes

@@ -102,10 +102,41 @@ class PortfolioRouter:
         results = kill_criteria.evaluate_venture(venture, name, ledger_rows, ledger_present)
         for result in results:
             if result.outcome == kill_criteria.TRIGGERED:
+                if self._is_criterion_overridden(venture, result):
+                    continue
                 label = result.text or result.criterion_id
                 triggered.append(f"{label} ({result.reason})")
 
         return (len(triggered) > 0, triggered, results)
+
+    @staticmethod
+    def _is_criterion_overridden(venture: Dict[str, Any], result: kill_criteria.CriterionResult) -> bool:
+        overrides = venture.get("kill_criteria_overrides") or []
+        if not overrides:
+            return False
+        import datetime
+        today = datetime.date.today()
+        label = result.text or result.criterion_id
+        for override in overrides:
+            if not isinstance(override, dict):
+                continue
+            crit_target = str(override.get("criterion") or "").strip()
+            if not crit_target:
+                continue
+            if crit_target == result.criterion_id or crit_target == result.text or crit_target == label or crit_target in label:
+                expiry = override.get("expiry")
+                if not expiry:
+                    continue
+                try:
+                    if isinstance(expiry, datetime.date):
+                        exp_date = expiry
+                    else:
+                        exp_date = datetime.date.fromisoformat(str(expiry).strip())
+                    if exp_date >= today:
+                        return True
+                except ValueError:
+                    pass
+        return False
 
     @staticmethod
     def _criteria_summary(venture: Dict[str, Any]) -> Dict[str, Any]:

@@ -35,7 +35,7 @@ issue: docs/ENGINEERING-ROADMAP.md#now-establish-and-enforce-the-baseline
 measured: 2026-08-03
 
 # Exact number of declared criteria that `kill_criteria.py` cannot evaluate.
-unmeasurable_count: 15
+unmeasurable_count: 17
 
 gaps:
   - venture: ai-engineering-academy
@@ -199,3 +199,22 @@ gaps:
       A recorded provisioning-time benchmark. The sandbox runner has 22 passing
       unit tests and no published timing figure, so the criterion measures
       nothing today.
+
+  - venture: range-coach
+    criterion: Fewer than 5 of 15 coached pilot users complete a second range session within 30 days.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      A pilot user session count and retention cohort. No analytics link or event
+      schema exists, so pilot sessions are unrecorded.
+
+  - venture: range-coach
+    criterion: More than 10 percent of detected swings receive a materially wrong confident cue in a 500-swing labeled pilot.
+    owner: duncan
+    issue: docs/ENGINEERING-ROADMAP.md#next-60-days-responsible-product-learning
+    expires: 2027-01-30
+    missing_signal: >-
+      A labeled swing accuracy dataset and cue evaluation metric. No benchmark or
+      event schema exists to evaluate coaching cue accuracy.
+

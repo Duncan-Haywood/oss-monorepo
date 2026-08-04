@@ -201,7 +201,11 @@ class TestPortfolioRouter(unittest.TestCase):
         self.create_venture(
             "killed-alert",
             kill_criteria=[
-                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 100}
+                {
+                    "id": "spend-threshold",
+                    "description": "Spend passed threshold",
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 100}],
+                }
             ],
         )
         self.write_ledger("2026-07", [{"venture": "killed-alert", "agent_spend_usd": 150.0, "mrr_end": 0}])
@@ -223,10 +227,9 @@ class TestPortfolioRouter(unittest.TestCase):
             "overridden",
             kill_criteria=[
                 {
+                    "id": "spend-threshold",
                     "description": "Spend passed threshold",
-                    "metric": "cumulative_agent_spend_usd",
-                    "comparator": ">=",
-                    "threshold": 100,
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 100}],
                 }
             ],
             kill_criteria_overrides=[
@@ -234,7 +237,7 @@ class TestPortfolioRouter(unittest.TestCase):
                     "criterion": "Spend passed threshold",
                     "owner": "duncan",
                     "reason": "Pivot testing approved",
-                    "expiry": "2099-12-31",
+                    "expiry": "2026-08-30",
                 }
             ],
         )
@@ -252,10 +255,9 @@ class TestPortfolioRouter(unittest.TestCase):
             "expired-override",
             kill_criteria=[
                 {
+                    "id": "spend-threshold",
                     "description": "Spend passed threshold",
-                    "metric": "cumulative_agent_spend_usd",
-                    "comparator": ">=",
-                    "threshold": 100,
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 100}],
                 }
             ],
             kill_criteria_overrides=[

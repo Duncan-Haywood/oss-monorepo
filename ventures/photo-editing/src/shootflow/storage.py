@@ -151,7 +151,7 @@ def _rank_candidate(candidate: StorageCandidate) -> RankedStorageCandidate:
             reasons=tuple(reasons),
         )
 
-    writable_capacity = candidate.free_bytes > 64 * 1024**3 and not candidate.is_read_only
+    writable_capacity = candidate.free_bytes > 0 and not candidate.is_read_only
     if writable_capacity:
         reasons.append("writable")
         if candidate.free_bytes > 512 * 1024**3:

@@ -63,7 +63,11 @@ class TestAuditKilledVentures(unittest.TestCase):
         self._create_venture(
             "healthy-venture",
             kill_criteria=[
-                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 500}
+                {
+                    "id": "spend-ceiling",
+                    "description": "Spend ceiling reached",
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 500}],
+                }
             ],
         )
         self._write_ledger("2026-07", [{"venture": "healthy-venture", "agent_spend_usd": 50.0, "mrr_end": 0}])
@@ -76,10 +80,9 @@ class TestAuditKilledVentures(unittest.TestCase):
             "breached-venture",
             kill_criteria=[
                 {
+                    "id": "spend-ceiling",
                     "description": "Spend ceiling reached",
-                    "metric": "cumulative_agent_spend_usd",
-                    "comparator": ">=",
-                    "threshold": 100,
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 100}],
                 }
             ],
         )
@@ -93,7 +96,11 @@ class TestAuditKilledVentures(unittest.TestCase):
             "winding-venture",
             stage="winding-down",
             kill_criteria=[
-                {"metric": "cumulative_agent_spend_usd", "comparator": ">=", "threshold": 100}
+                {
+                    "id": "spend-ceiling",
+                    "description": "Spend ceiling reached",
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 100}],
+                }
             ],
         )
         self._write_ledger("2026-07", [{"venture": "winding-venture", "agent_spend_usd": 150.0, "mrr_end": 0}])
@@ -106,10 +113,9 @@ class TestAuditKilledVentures(unittest.TestCase):
             "overridden-venture",
             kill_criteria=[
                 {
+                    "id": "spend-ceiling",
                     "description": "Spend ceiling reached",
-                    "metric": "cumulative_agent_spend_usd",
-                    "comparator": ">=",
-                    "threshold": 100,
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 100}],
                 }
             ],
             kill_criteria_overrides=[
@@ -117,7 +123,7 @@ class TestAuditKilledVentures(unittest.TestCase):
                     "criterion": "Spend ceiling reached",
                     "owner": "duncan",
                     "reason": "Pivot testing approved by lead",
-                    "expiry": "2099-12-31",
+                    "expiry": "2026-08-30",
                 }
             ],
         )
@@ -131,10 +137,9 @@ class TestAuditKilledVentures(unittest.TestCase):
             "expired-venture",
             kill_criteria=[
                 {
+                    "id": "spend-ceiling",
                     "description": "Spend ceiling reached",
-                    "metric": "cumulative_agent_spend_usd",
-                    "comparator": ">=",
-                    "threshold": 100,
+                    "when": [{"metric": "cumulative_agent_spend_usd", "op": ">=", "value": 100}],
                 }
             ],
             kill_criteria_overrides=[

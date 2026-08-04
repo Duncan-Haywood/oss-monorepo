@@ -185,10 +185,10 @@ function isCollected(dir, contract) {
     .find(existsSync);
   if (!config) return false;
   const include = readFileSync(config, "utf8").match(/include:\s*\[([^\]]*)\]/);
-  if (!include) return false;
-  return [...include[1].matchAll(/["']([^"']+)["']/g)].some(([, pattern]) =>
-    includeGlobMatches(pattern, contract),
-  );
+  const patterns = include
+    ? [...include[1].matchAll(/["']([^"']+)["']/g)].map(([, pattern]) => pattern)
+    : ["**/*.test.ts", "**/*.test.tsx", "**/*.test.js", "**/*.test.mjs"];
+  return patterns.some((pattern) => includeGlobMatches(pattern, contract));
 }
 
 test("every component that serves route handlers has a registered posture contract", () => {

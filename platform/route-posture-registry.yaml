@@ -35,8 +35,8 @@ ventures:
   - venture: print-atelier
     contract: ventures/print-atelier/tests/api-route-guard-contract.test.ts
     execution: coverage-ratchet
-    route_files: 7
-    handlers: 12
+    route_files: 14
+    handlers: 21
     owner: duncan
     # The only one of the three original contracts that actually runs in CI,
     # and only incidentally: it sits inside the `tests/*.test.ts` glob that the
