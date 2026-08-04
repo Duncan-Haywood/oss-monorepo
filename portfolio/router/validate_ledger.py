@@ -33,7 +33,7 @@ The failure mode is quiet and it runs in the flattering direction:
   an absent record, it is a lower number. `check_continuity` covers holes inside
   the recorded span and `check_freshness` covers the tail.
 
-That third one is why the ledger README's rule — "Record outcomes even when they
+The uniform-split one is why the ledger README's rule — "Record outcomes even when they
 are nothing", the "spent $80, nothing shipped" row — cannot be written today. It
 needs a per-venture cost signal to sit against the outcome, and an even split is
 not one.

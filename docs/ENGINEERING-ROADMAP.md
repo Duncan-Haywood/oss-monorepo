@@ -180,17 +180,6 @@ evidence, and completion date before it can be marked done.
   That duplication is itself the finding. Two agents spent a session each on
   the same four defects in the same venture, and the only reason the second
   one's work was not silently discarded is that someone read both.
-
-  Not done: this is one venture, and nothing checks the other ten. The check is
-  string-and-DOM-level rather than a real browser, so layout, contrast and
-  focus rings are argued from the stylesheet rather than observed. The
-  `photos-import-tools` instance of the same class — `sd_offload.py` writing
-  `"status": "verified"` into the manifest a user consults before erasing an SD
-  card, on a same-byte-length comparison, with `sha256_file()` defined and
-  called from nowhere — was open when this was written and is now closed:
-  `sha256_file` is called on both source and destination and the digests
-  compared before the status is written.
-
   2026-08-04, owner duncan: a second venture, and the most expensive instance
   found so far. `local-site-studio`'s Complete tier sells at `$500 + $199/mo`,
   and five public surfaces — the tier's feature list and tagline, the hero
@@ -243,6 +232,15 @@ evidence, and completion date before it can be marked done.
   and fails on that mutation. **A regression test that survives the regression
   it was written for is the defect, not the coverage** — mutate every fix whose
   test mocks the module the fix lives in.
+  Not done: this is two ventures of eleven, and nothing checks the other nine.
+  The academy check is string-and-DOM-level rather than a real browser, so
+  layout, contrast and focus rings are argued from the stylesheet rather than
+  observed. The `photos-import-tools` instance of the same class —
+  `sd_offload.py` writing `"status": "verified"` into the manifest a user
+  consults before erasing an SD card, on a same-byte-length comparison, with
+  `sha256_file()` defined and called from nowhere — was open when the first half
+  of this was written and is now closed: `sha256_file` is called on both source
+  and destination and the digests compared before the status is written.
 - [ ] Configure and verify Gitea branch/environment protection: pull requests
   only for release branches, current required checks, stale approval dismissal,
   CODEOWNERS, one independent approval for Tier 2, two including an accountable

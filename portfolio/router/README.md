@@ -126,6 +126,7 @@ because the register went stale after somebody made a criterion real.
 As of 2026-08-03 that count is 15 of 15. The portfolio has no working automated
 stop-loss; what it now has is a dated, owned admission of that, and thresholds
 are the venture owner's decision to set.
+## Stopping rules
 
 ### What a verdict does
 

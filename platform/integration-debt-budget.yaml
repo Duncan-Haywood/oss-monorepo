@@ -80,72 +80,81 @@ budget:
 # would have been read against a register nobody trusted. Re-measure rather
 # than re-declare.
 #
-# 2026-08-04c: the register is no longer empty, and both entries are duplicate
-# controls resolved by the merge that consolidated the last two candidates.
-# Neither is lost work — each has a surviving counterpart named in its reason,
-# and the reasoning is recorded against the roadmap items they belong to.
-# Registered per (path, branch), so one dropped file appears once for every
-# branch that added it; five branches independently carried each of these,
-# which is itself the measurement of how much duplicate work the fleet does.
+# Re-measured 2026-08-04 after the merge that made this branch the single tip.
+# Two files are now missing from every tip, both dropped on purpose, both of
+# them the losing half of a control that had been built twice. This is the
+# unregistered-drop direction firing on the first integration performed after
+# it existed — which is the point: the two entries below are a decision someone
+# has to read, where before they would have been an absence nobody could see.
 dropped_artifacts:
-  - path: platform/ci/test/workflow-supply-chain.test.mjs
-    branch: agent/continue-work-2026-08-04b
-    owner: duncan
-    reason: >-
-      The fourth independently-built rival of the lockfile-audit control. The
-      tree keeps `platform/ci/test/dependency-audit-coverage.test.mjs`, which
-      enumerates through `git ls-files` rather than three named directories,
-      handles `yarn.lock`, and carries five checks this one lacks
-      (manager/lockfile mismatch, `|| true`, a dropped `--audit-level`,
-      `continue-on-error`, `fail-fast: true`). Its one unique half — the
-      action-pinning sweep — was kept as
-      `platform/ci/test/workflow-action-pinning.test.mjs`.
+  # Built four times independently. The surviving control is
+  # platform/ci/test/dependency-audit-coverage.test.mjs, which is byte-identical
+  # on both branches that reached this merge and enumerates lockfiles through
+  # `git ls-files` rather than walking three named directories. It already
+  # carries every assertion this file made — including the owned, dated,
+  # expiring exemption register — plus five this file lacked: manager/lockfile
+  # mismatch, `|| true`, a dropped `--audit-level`, `continue-on-error`, and
+  # `fail-fast: true`. The one half with no counterpart, the third-party action
+  # pinning sweep, was not dropped: it survives as
+  # platform/ci/test/workflow-action-pinning.test.mjs and gained a check this
+  # file never had, that the sweep read a non-empty directory.
   - path: platform/ci/test/workflow-supply-chain.test.mjs
     branch: origin/agent/continue-work-2026-08-04b
     owner: duncan
-    reason: Same file, same reason; superseded by dependency-audit-coverage plus workflow-action-pinning.
+    reason: >-
+      Duplicate of dependency-audit-coverage.test.mjs, which covers every
+      assertion it made and five more; its pinning half survives as
+      workflow-action-pinning.test.mjs. No coverage was lost.
   - path: platform/ci/test/workflow-supply-chain.test.mjs
     branch: origin/agent/integration-debt-2026-08-04
     owner: duncan
-    reason: Same file, same reason; superseded by dependency-audit-coverage plus workflow-action-pinning.
+    reason: >-
+      Same file, carried onto a second branch. Dropped for the same reason.
   - path: platform/ci/test/workflow-supply-chain.test.mjs
     branch: origin/agent/integration-full-2026-08-03
     owner: duncan
-    reason: Same file, same reason; superseded by dependency-audit-coverage plus workflow-action-pinning.
+    reason: >-
+      Same file, carried onto a third branch. Dropped for the same reason.
   - path: platform/ci/test/workflow-supply-chain.test.mjs
     branch: origin/agent/profit-lever-2026-08-02
     owner: duncan
     reason: >-
-      The branch this control originated on. Rejected along with its five
-      lockfile exemptions, two of which were factually wrong; all ten lockfiles
-      stay in `security.yml`'s matrix and the failures show.
-  - path: platform/release-lag-policy.yaml
-    branch: agent/continue-work-2026-08-04b
-    owner: duncan
-    reason: >-
-      The rival release-lag schema. `platform/release-lag-budget.yaml` is the
-      one kept: `scripts/ci/cap_ratchet.py` already watches four constants
-      inside the control that reads it, so replacing it would have broken that
-      register. The policy file's `docs/RELEASE-LAG.md` was kept and retargeted.
+      Where it originated. That branch welded the pinning sweep to the duplicate
+      lockfile control and to five exemptions that kept vulnerable lockfiles out
+      of security.yml's matrix; the sweep was kept, the duplicate dropped, the
+      exemptions rejected — two of their five reasons were factually wrong.
+
+  # The losing half of the release-lag reconciliation. Two branches built the
+  # same measure; the implementation kept reads platform/release-lag-budget.yaml,
+  # which scripts/ci/cap_ratchet.py already watches four constants inside, so
+  # swapping in this file's `target`/`acknowledged` schema would have broken that
+  # register. Nothing reads this path: scripts/ci/release_lag.py names
+  # release-lag-budget.yaml and no other file references it. The losing branch's
+  # docs/RELEASE-LAG.md was kept and retargeted, and its `fetch-depth: 0`
+  # reasoning was merged into ci-cd.yml.
   - path: platform/release-lag-policy.yaml
     branch: origin/agent/continue-work-2026-08-04b
     owner: duncan
-    reason: Same file, same reason; `platform/release-lag-budget.yaml` is the surviving schema.
+    reason: >-
+      Losing schema of the duplicate release-lag control; the surviving
+      platform/release-lag-budget.yaml is the one the cap ratchet watches.
+      Nothing reads this path.
   - path: platform/release-lag-policy.yaml
     branch: origin/agent/integration-debt-2026-08-04
     owner: duncan
-    reason: Same file, same reason; `platform/release-lag-budget.yaml` is the surviving schema.
+    reason: >-
+      Same file, carried onto a second branch. Dropped for the same reason.
   - path: platform/release-lag-policy.yaml
     branch: origin/agent/integration-full-2026-08-03
     owner: duncan
-    reason: Same file, same reason; `platform/release-lag-budget.yaml` is the surviving schema.
+    reason: >-
+      Same file, carried onto a third branch. Dropped for the same reason.
   - path: platform/release-lag-policy.yaml
     branch: origin/agent/release-lag-signal-2026-08-02
     owner: duncan
     reason: >-
-      The branch this schema originated on. Its measure was built independently
-      of the one already here; the implementation lost and the documentation
-      won.
+      Where it originated. Its documentation and its fetch-depth reasoning were
+      kept and retargeted onto the surviving budget file; only the schema went.
 
 rationale: >-
   Release lag says how much work has not shipped. It cannot say whether that
