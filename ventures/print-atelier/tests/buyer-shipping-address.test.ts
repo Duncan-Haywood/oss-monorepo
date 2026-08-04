@@ -165,7 +165,15 @@ test("no fulfillment payload builder substitutes an address of its own", () => {
 test("a resolved buyer address reaches the partner payload unchanged", async () => {
   const submission = await queuePrintfulFulfillmentFromOrder(
     orderRecord({ orderId: "ord_with_address_pf" }),
-    { ...completeUsMetadata, catalogSlug: "harbour-light" },
+    {
+      ...completeUsMetadata,
+      // The address is what this case is about, so the rest of the order has to
+      // be complete too — `fulfillment-order-inputs.ts` blocks on a missing
+      // buyer email or an unmapped artwork before the address can be observed
+      // reaching the payload, and `harbour-light` has no variant mapping.
+      catalogSlug: "midnight-coast",
+      buyerEmail: "ada@example.com",
+    },
     {},
   );
 

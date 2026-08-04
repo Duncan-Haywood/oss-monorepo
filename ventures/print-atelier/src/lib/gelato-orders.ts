@@ -4,6 +4,12 @@ import {
   resolveBuyerShippingAddress,
 } from "./buyer-shipping";
 import {
+  describeMissingFulfillmentInputs,
+  resolveBuyerEmail,
+  resolvePartnerProductId,
+  resolvePrintFileUrl,
+} from "./fulfillment-order-inputs";
+import {
   defaultGelatoVariantMappings,
   resolveGelatoProductUid,
   type GelatoVariantMapping,
@@ -96,11 +102,10 @@ export function buildGelatoOrderPayload(
   const countryCode = address.countryCode;
   const { firstName, lastName } = splitName(address.name);
   const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
-  const buyerEmail =
-    readMetadataString(paymentMetadata, "buyerEmail") ?? "buyer@printatelier.com";
-  const artworkUrl =
-    readMetadataString(paymentMetadata, "artworkUrl") ??
-    `https://printatelier.com/prints/${catalogSlug}`;
+  // Unresolved values stay empty so `queueGelatoFulfillmentFromOrder` can refuse
+  // the order — see `fulfillment-order-inputs.ts`. Filling them in would mail
+  // the buyer's shipment notices to the studio and print an artwork nobody chose.
+  const buyerEmail = resolveBuyerEmail(paymentMetadata).value;
 
   return {
     orderType: "order",
@@ -117,11 +122,9 @@ export function buildGelatoOrderPayload(
         itemReferenceId: `${order.orderId}_${index}`,
         productUid:
           readMetadataString(paymentMetadata, `gelatoProductUid_${index}`) ??
-          mappedProductUid ??
-          `gel_${lineSlug}`,
+          resolvePartnerProductId(mappedProductUid, lineSlug).value,
         quantity: 1,
-        fileUrl:
-          readMetadataString(paymentMetadata, `artworkUrl_${index}`) ?? artworkUrl,
+        fileUrl: resolvePrintFileUrl(paymentMetadata, index).value,
       };
     }),
     shippingAddress: {
@@ -135,6 +138,45 @@ export function buildGelatoOrderPayload(
       email: buyerEmail,
     },
   };
+}
+
+/**
+ * Which non-address inputs this order is still missing. Read by
+ * `queueGelatoFulfillmentFromOrder` before anything can be submitted, so a
+ * payload built from an incomplete order never reaches the partner.
+ */
+export function resolveGelatoOrderInputs(
+  order: OrderRecord,
+  paymentMetadata: Record<string, unknown> = {},
+  variantMappings: GelatoVariantMapping[] = defaultGelatoVariantMappings,
+): { ok: boolean; missing: string[] } {
+  const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
+  const missing: string[] = [...resolveBuyerEmail(paymentMetadata).missing];
+
+  for (let index = 0; index < Math.max(order.lineItemCount, 1); index += 1) {
+    const lineSlug =
+      readMetadataString(paymentMetadata, `catalogSlug_${index}`) ??
+      (index === 0 ? catalogSlug : null) ??
+      catalogSlug;
+
+    // An explicit per-line product id from metadata is an operator override and
+    // needs no mapping behind it.
+    const explicitProductUid = readMetadataString(
+      paymentMetadata,
+      `gelatoProductUid_${index}`,
+    );
+    if (explicitProductUid === null || explicitProductUid === "") {
+      missing.push(
+        ...resolvePartnerProductId(resolveGelatoProductUid(lineSlug, variantMappings), lineSlug)
+          .missing,
+      );
+    }
+
+    missing.push(...resolvePrintFileUrl(paymentMetadata, index).missing);
+  }
+
+  const deduped = [...new Set(missing)];
+  return { ok: deduped.length === 0, missing: deduped };
 }
 
 export function getGelatoEnvStatus(env: Record<string, string | undefined>): {
@@ -196,6 +238,21 @@ export async function queueGelatoFulfillmentFromOrder(
       apiEndpoint: GELATO_ORDERS_ENDPOINT,
       payload,
       message: describeMissingBuyerShipping(shipping.missing),
+    });
+  }
+
+  // The rest of the order, on the same terms: no buyer email, no print file and
+  // no mapped product means no submission.
+  const inputs = resolveGelatoOrderInputs(order, paymentMetadata);
+  if (!inputs.ok) {
+    return recordGelatoFulfillmentSubmission({
+      orderId: order.orderId,
+      partner: "gelato",
+      mode: "dry_run",
+      status: "blocked",
+      apiEndpoint: GELATO_ORDERS_ENDPOINT,
+      payload,
+      message: describeMissingFulfillmentInputs(inputs.missing),
     });
   }
 

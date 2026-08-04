@@ -8,6 +8,11 @@ import {
   resolvePrintfulVariantId,
   type PrintfulVariantMapping,
 } from "./printful-variant-map";
+import {
+  describeMissingFulfillmentInputs,
+  resolveBuyerEmail,
+  resolvePartnerProductId,
+} from "./fulfillment-order-inputs";
 
 export type PrintfulOrderRecipient = {
   name: string;
@@ -32,8 +37,16 @@ export type PrintfulOrderPayload = {
   retailCosts: {
     currency: string;
     subtotal: string;
-    shipping: string;
-    tax: string;
+    /**
+     * Omitted when unknown rather than declared as zero. These are the retail
+     * values Printful puts on the customs declaration for an international
+     * shipment, so a hardcoded "0.00" understates a parcel the buyer was
+     * charged shipping and tax on. Nothing writes `shippingCost`/`taxCost` into
+     * payment metadata yet — carrying the figures the checkout already computes
+     * is follow-up work in `checkout.ts`.
+     */
+    shipping?: string;
+    tax?: string;
   };
   packingSlip?: {
     email: string;
@@ -76,6 +89,15 @@ function readMetadataString(
   return typeof value === "string" ? value : null;
 }
 
+/** Drop keys with no resolved value, so an unknown cost is absent, not zero. */
+function omitUnset(fields: Record<string, string | null>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(fields).filter(
+      (entry): entry is [string, string] => typeof entry[1] === "string" && entry[1] !== "",
+    ),
+  );
+}
+
 export function buildPrintfulOrderPayload(
   order: OrderRecord,
   paymentMetadata: Record<string, unknown> = {},
@@ -84,7 +106,10 @@ export function buildPrintfulOrderPayload(
   const subtotal = (order.amountCents / 100).toFixed(2);
 
   const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
-  const buyerEmail = readMetadataString(paymentMetadata, "buyerEmail") ?? "buyer@printatelier.com";
+  // Unresolved stays empty so `queuePrintfulFulfillmentFromOrder` can refuse the
+  // order — see `fulfillment-order-inputs.ts`. `buyer@printatelier.com` is a
+  // studio inbox, and it was on the packing slip of every order.
+  const buyerEmail = resolveBuyerEmail(paymentMetadata).value;
 
   // Whatever the buyer actually gave us, and nothing else. An unresolved field
   // stays empty so `queuePrintfulFulfillmentFromOrder` can refuse the order;
@@ -110,8 +135,7 @@ export function buildPrintfulOrderPayload(
       return {
         variantId:
           readMetadataString(paymentMetadata, `variantId_${index}`) ??
-          mappedVariantId ??
-          `pf_${lineSlug}`,
+          resolvePartnerProductId(mappedVariantId, lineSlug).value,
         quantity: 1,
         retailPrice: subtotal,
         name:
@@ -121,14 +145,50 @@ export function buildPrintfulOrderPayload(
     retailCosts: {
       currency: order.currency.toUpperCase(),
       subtotal,
-      shipping: readMetadataString(paymentMetadata, "shippingCost") ?? "0.00",
-      tax: readMetadataString(paymentMetadata, "taxCost") ?? "0.00",
+      ...omitUnset({
+        shipping: readMetadataString(paymentMetadata, "shippingCost"),
+        tax: readMetadataString(paymentMetadata, "taxCost"),
+      }),
     },
     packingSlip: {
       email: buyerEmail,
       message: "Thank you for supporting independent artists via Print Atelier.",
     },
   };
+}
+
+/**
+ * Which non-address inputs this order is still missing. Read by
+ * `queuePrintfulFulfillmentFromOrder` before anything can be submitted, so a
+ * payload built from an incomplete order never reaches the partner.
+ */
+export function resolvePrintfulOrderInputs(
+  order: OrderRecord,
+  paymentMetadata: Record<string, unknown> = {},
+  variantMappings: PrintfulVariantMapping[] = defaultPrintfulVariantMappings,
+): { ok: boolean; missing: string[] } {
+  const catalogSlug = readMetadataString(paymentMetadata, "catalogSlug") ?? "sample-print";
+  const missing: string[] = [...resolveBuyerEmail(paymentMetadata).missing];
+
+  for (let index = 0; index < Math.max(order.lineItemCount, 1); index += 1) {
+    const lineSlug =
+      readMetadataString(paymentMetadata, `catalogSlug_${index}`) ??
+      (index === 0 ? catalogSlug : null) ??
+      catalogSlug;
+
+    // An explicit per-line variant from metadata is an operator override and
+    // needs no mapping behind it.
+    const explicitVariantId = readMetadataString(paymentMetadata, `variantId_${index}`);
+    if (explicitVariantId === null || explicitVariantId === "") {
+      missing.push(
+        ...resolvePartnerProductId(resolvePrintfulVariantId(lineSlug, variantMappings), lineSlug)
+          .missing,
+      );
+    }
+  }
+
+  const deduped = [...new Set(missing)];
+  return { ok: deduped.length === 0, missing: deduped };
 }
 
 export function getPrintfulEnvStatus(env: Record<string, string | undefined>): {
@@ -192,6 +252,24 @@ export async function queuePrintfulFulfillmentFromOrder(
       apiEndpoint: PRINTFUL_ORDERS_ENDPOINT,
       payload,
       message: describeMissingBuyerShipping(shipping.missing),
+      canRetry: false,
+    });
+  }
+
+  // The rest of the order, on the same terms: no buyer email and no mapped
+  // variant means no submission. `canRetry` stays false for the same reason the
+  // address guard sets it — the retry path holds the payload but not the
+  // metadata, so retrying cannot supply what is missing here.
+  const inputs = resolvePrintfulOrderInputs(order, paymentMetadata);
+  if (!inputs.ok) {
+    return recordPrintfulFulfillmentSubmission({
+      orderId: order.orderId,
+      partner: "printful",
+      mode: "dry_run",
+      status: "blocked",
+      apiEndpoint: PRINTFUL_ORDERS_ENDPOINT,
+      payload,
+      message: describeMissingFulfillmentInputs(inputs.missing),
       canRetry: false,
     });
   }
