@@ -1,5 +1,48 @@
 // Maris Stella Labs Homepage Interaction Script
 
+// Menu disclosure.
+//
+// Below 760px the stylesheet hides .nav-links. Until 2026-08-04 nothing
+// replaced it, so on a phone the studio's only live public page offered no
+// navigation and no contact route above the fold — a visitor could scroll or
+// leave. This restores those destinations behind #navToggle.
+document.addEventListener('DOMContentLoaded', () => {
+  const header = document.querySelector('.site-header');
+  const toggle = document.getElementById('navToggle');
+  const nav = document.getElementById('siteNav');
+  if (!header || !toggle || !nav) return;
+
+  const navIsOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+
+  // aria-expanded is what a screen reader announces; .nav-open is what the
+  // stylesheet reveals the panel with. They are written together so the panel
+  // can never be on screen while assistive technology is told it is closed.
+  const setNavOpen = (open) => {
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      header.classList.add('nav-open');
+    } else {
+      header.classList.remove('nav-open');
+    }
+  };
+
+  toggle.addEventListener('click', () => setNavOpen(!navIsOpen()));
+
+  // The panel covers the top of the page, which is where an in-page link has
+  // just scrolled the visitor. Left open, it hides the section they asked for.
+  for (const link of nav.querySelectorAll('.nav-link')) {
+    link.addEventListener('click', () => setNavOpen(false));
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !navIsOpen()) return;
+    setNavOpen(false);
+    // Escape dismissed the panel, so focus is inside an element that is now
+    // display:none; without this it falls back to the top of the document.
+    toggle.focus();
+  });
+});
+
 // Filter functionality for Venture Portfolio
 document.addEventListener('DOMContentLoaded', () => {
   const filterBtns = document.querySelectorAll('.filter-btn');

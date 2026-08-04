@@ -182,6 +182,108 @@ test('Escape with no brief open does not move focus', () => {
   assert.equal(resting.focusCount, 1, 'a stray Escape re-focused the last brief button');
 });
 
+// The menu disclosure. Below 760px this is the whole of the page's navigation
+// and its only contact route above the fold, so each of these is a visitor
+// who can or cannot get somewhere — not a class name being toggled.
+
+test('the menu starts closed, and the button says so', () => {
+  const app = loadApp();
+
+  assert.equal(app.navToggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(
+    app.header.classList.contains('nav-open'),
+    false,
+    'the page loads with the menu panel already covering the top of the hero'
+  );
+});
+
+test('the menu button opens the panel and closes it again', () => {
+  const app = loadApp();
+
+  app.navToggle.dispatch('click');
+  assert.equal(
+    app.header.classList.contains('nav-open'),
+    true,
+    'tapping the menu revealed nothing — on a phone this is the whole navigation'
+  );
+  assert.equal(app.navToggle.getAttribute('aria-expanded'), 'true');
+
+  app.navToggle.dispatch('click');
+  assert.equal(app.header.classList.contains('nav-open'), false, 'the menu will not close');
+  assert.equal(app.navToggle.getAttribute('aria-expanded'), 'false');
+});
+
+test('the announced state never disagrees with the panel on screen', () => {
+  // A screen reader reads aria-expanded; the stylesheet reveals .nav-open.
+  // If they part company, the panel is open and announced closed, or the
+  // reverse — either way the page lies to somebody.
+  const app = loadApp();
+
+  for (let click = 0; click < 4; click += 1) {
+    assert.equal(
+      app.navToggle.getAttribute('aria-expanded') === 'true',
+      app.header.classList.contains('nav-open'),
+      `aria-expanded and .nav-open disagreed after ${click} clicks`
+    );
+    app.navToggle.dispatch('click');
+  }
+});
+
+test('choosing a destination dismisses the panel that covers it', () => {
+  // Every link here is an in-page anchor or a mailto; the panel sits over the
+  // top of the page, which is exactly where an anchor has just scrolled to.
+  for (const [index, link] of loadApp().navLinks.entries()) {
+    const app = loadApp();
+    app.navToggle.dispatch('click');
+
+    app.navLinks[index].dispatch('click');
+    assert.equal(
+      app.header.classList.contains('nav-open'),
+      false,
+      `following "${link.getAttribute('href')}" left the menu covering the section it scrolled to`
+    );
+    assert.equal(app.navToggle.getAttribute('aria-expanded'), 'false');
+  }
+});
+
+test('every destination the nav offers is a real one', () => {
+  const app = loadApp();
+  assert.ok(app.navLinks.length >= 2, 'index.html declares fewer than two nav links');
+
+  for (const link of app.navLinks) {
+    const href = link.getAttribute('href');
+    assert.ok(href && href !== '#', `a nav link goes nowhere: href="${href}"`);
+  }
+  assert.ok(
+    app.navLinks.some((link) => link.getAttribute('href').startsWith('mailto:')),
+    'the menu is the only contact route above the fold on a phone, and it offers none'
+  );
+});
+
+test('Escape dismisses the panel and returns focus to the menu button', () => {
+  const app = loadApp();
+  app.navToggle.dispatch('click');
+  app.navLinks[0].focus();
+
+  app.pressKey('Escape');
+  assert.equal(app.header.classList.contains('nav-open'), false, 'Escape did not close the menu');
+  assert.equal(
+    app.document.activeElement,
+    app.navToggle,
+    'focus stayed on a link inside the now-hidden panel, stranding a keyboard visitor'
+  );
+});
+
+test('Escape with the menu closed does not move focus', () => {
+  const app = loadApp();
+  const resting = app.detailButtons[0];
+  resting.focus();
+
+  app.pressKey('Escape');
+  assert.equal(app.document.activeElement, resting);
+  assert.equal(resting.focusCount, 1, 'a stray Escape yanked focus up to the menu button');
+});
+
 test('the fixture models the page, not a page of its own invention', () => {
   // Guards the suite itself: if index.html loses its filters or its cards, the
   // behavioural tests above would keep passing over an empty fixture.
@@ -192,5 +294,11 @@ test('the fixture models the page, not a page of its own invention', () => {
     fixture.detailButtons.length,
     modalKeysInMarkup(html).length,
     'every venture card should carry exactly one brief button'
+  );
+  assert.ok(fixture.navLinks.length >= 2, 'index.html declares fewer than two nav links');
+  assert.equal(
+    fixture.navToggle.getAttribute('aria-controls'),
+    fixture.nav.id,
+    'the menu button names a panel that is not the nav'
   );
 });
