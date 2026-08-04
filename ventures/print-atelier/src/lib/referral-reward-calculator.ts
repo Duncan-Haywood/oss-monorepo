@@ -49,7 +49,7 @@ const REWARD_PERCENT_BY_TIER: Record<CollectorTier, number> = {
   collector_platinum: 0.15, // 15% store credit
 };
 
-let referralRewardStore: Map<string, ReferralRewardResult> = new Map();
+const referralRewardStore: Map<string, ReferralRewardResult> = new Map();
 
 /**
  * Calculates viral K-factor and computes store credit rewards for collector referrals.

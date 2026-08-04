@@ -64,7 +64,7 @@ const GLASS_UV_BLOCK_PERCENT: Record<GlassType, number> = {
   standard_glass: 45.0,
 };
 
-let preservationInspectionStore: Map<string, PreservationInspectionResult> = new Map();
+const preservationInspectionStore: Map<string, PreservationInspectionResult> = new Map();
 
 /**
  * Inspects print specifications and environmental conditions to calculate archival lifespan.

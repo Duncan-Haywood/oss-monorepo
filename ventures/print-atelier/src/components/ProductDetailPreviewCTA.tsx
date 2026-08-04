@@ -37,6 +37,10 @@ export default function ProductDetailPreviewCTA({
             conversionLiftPercent,
           })
         : null,
+    // React Compiler declines to compile this component because it cannot prove
+    // it preserves the useMemo above; the memoization stays manual and correct.
+    // See EXC-016 in platform/exception-register.yaml.
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     [artwork, conversionLiftPercent, previewEngagementRate],
   );
 

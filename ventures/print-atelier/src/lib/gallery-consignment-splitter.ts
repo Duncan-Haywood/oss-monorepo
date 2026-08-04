@@ -51,7 +51,7 @@ export interface ConsignmentPortfolioSummary {
   averageArtistSharePercent: number;
 }
 
-let consignmentSplitStore: Map<string, ConsignmentSplitResult> = new Map();
+const consignmentSplitStore: Map<string, ConsignmentSplitResult> = new Map();
 
 /**
  * Calculates gallery consignment royalty splits and applies wall space rent offsets.

@@ -175,3 +175,24 @@ call raises.
 Not a suppression. A stored engineering lesson quotes the string
 `@ts-expect-error` while explaining the outage one caused. If it ever becomes a
 real suppression the count rises and the audit fails.
+
+### EXC-015
+
+**Three `react-hooks/set-state-in-effect` in `print-atelier/src` — expires 2027-01-31.**
+Mount-only hydration from `localStorage` in `capture/page.tsx`, `CheckoutLab.tsx`
+and `ArtistOnboardingIntakeForm.tsx`. The rule's suggested alternative, a lazy
+`useState` initializer, cannot be used: `localStorage` does not exist during SSR,
+so the server and client first renders would disagree. Same rule and same shape
+as [EXC-003](#exc-003). Arrived with the eslint-config-next 16 upgrade, which is
+where these React Compiler rules become errors — the code predates them.
+Recheck at expiry, and remove if the rule learns to recognise SSR-safe hydration.
+
+### EXC-016
+
+**One `react-hooks/preserve-manual-memoization` in `ProductDetailPreviewCTA.tsx` —
+expires 2027-01-31.**
+"Compilation Skipped: Existing memoization could not be preserved" is React
+Compiler declining to optimise the component, not a defect report. The `useMemo`
+is hand-written with a complete dependency array. Remove the disable when a
+compiler release compiles the component, or when the memo is restructured into
+something it can prove.

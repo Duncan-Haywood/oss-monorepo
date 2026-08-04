@@ -208,19 +208,33 @@ export function isOnboardingDeepLinkEligible(item: OutreachQueueItem): boolean {
   );
 }
 
+/**
+ * Retail price and fulfilment cost for an artwork that may not have been found.
+ *
+ * This replaces a `targetArtwork as any` probe that also read `pricing.retailPrice`,
+ * `podCost` and `pricing.podItemCost + pricing.podShippingCost`. `CatalogArtwork`
+ * declares `retailPrice` and `fulfillmentCost` as required numbers and has no
+ * `pricing` or `podCost` member, so those arms were unreachable for every value
+ * the two callers can pass — the cast was what hid that from the compiler. The
+ * defaults are the ones the probe already used when nothing was found.
+ */
+function artworkEconomicsInput(artwork: CatalogArtwork | undefined): {
+  retailPrice: number;
+  fulfillmentCost: number;
+} {
+  return {
+    retailPrice: artwork?.retailPrice ?? 120,
+    fulfillmentCost: artwork?.fulfillmentCost ?? 32,
+  };
+}
+
 export function generateArtistPayoutTrustCopy(
   prospect: OutreachProspect,
   artwork?: CatalogArtwork,
 ): string {
   const targetArtwork =
     artwork ?? (prospect.catalogArtworkSlug ? catalogArtworks.find((a) => a.slug === prospect.catalogArtworkSlug) : undefined);
-  const targetAny = targetArtwork as any;
-  const retailPrice = targetAny?.retailPrice ?? targetAny?.pricing?.retailPrice ?? 120;
-  const fulfillmentCost =
-    targetAny?.fulfillmentCost ??
-    targetAny?.podCost ??
-    (targetAny?.pricing ? targetAny.pricing.podItemCost + (targetAny.pricing.podShippingCost ?? 0) : undefined) ??
-    32;
+  const { retailPrice, fulfillmentCost } = artworkEconomicsInput(targetArtwork);
   const economics = calculatePrintEconomics({ retailPrice, fulfillmentCost });
 
   if (prospect.projectedMonthlyArtistPayout > 0) {
@@ -242,13 +256,7 @@ export function generateOutreachPayoutTrustMathPersonalization(
 } {
   const targetArtwork =
     artwork ?? (prospect.catalogArtworkSlug ? catalogArtworks.find((a) => a.slug === prospect.catalogArtworkSlug) : undefined);
-  const targetAny = targetArtwork as any;
-  const retailPrice = targetAny?.retailPrice ?? targetAny?.pricing?.retailPrice ?? 120;
-  const fulfillmentCost =
-    targetAny?.fulfillmentCost ??
-    targetAny?.podCost ??
-    (targetAny?.pricing ? targetAny.pricing.podItemCost + (targetAny.pricing.podShippingCost ?? 0) : undefined) ??
-    32;
+  const { retailPrice, fulfillmentCost } = artworkEconomicsInput(targetArtwork);
   const economics = calculatePrintEconomics({ retailPrice, fulfillmentCost });
   const society6Benchmark = Math.round(retailPrice * 0.1 * 100) / 100;
   const advantagePercent = Math.max(0, Math.round(((economics.artistShare - society6Benchmark) / society6Benchmark) * 100));

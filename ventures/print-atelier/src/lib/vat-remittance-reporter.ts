@@ -148,7 +148,9 @@ export function generateTaxRemittanceReport(
   nexusEvaluations?: NexusThresholdStatus[]
 ): GlobalTaxRemittanceReport {
   const jurisdictions: TaxJurisdiction[] = ["EU_OSS", "UK_HMRC", "US_STATE", "AU_ATO", "CA_CRA", "ROW"];
-  const jurisdictionSummaries: Record<TaxJurisdiction, VatRemittanceSummary> = {} as any;
+  // Built up key by key in the loop below, so it starts partial and is asserted
+  // complete once every jurisdiction has been visited.
+  const jurisdictionSummaries = {} as Record<TaxJurisdiction, VatRemittanceSummary>;
 
   for (const j of jurisdictions) {
     const jItems = lineItems.filter((item) => classifyTaxJurisdiction(item.destinationCountry, item.stateRegion) === j);

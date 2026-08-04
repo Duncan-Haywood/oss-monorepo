@@ -35,7 +35,9 @@ export function checkCapiEventDeliveryHealth(options?: {
   const events = options?.eventsOverride ?? getCheckoutAbandonEvents();
 
   const platforms: RetargetingPlatform[] = ["meta", "google", "pinterest"];
-  const platformHealth: Record<RetargetingPlatform, CapiPlatformHealth> = {} as any;
+  // Built up key by key in the loop below, so it starts partial and is asserted
+  // complete once every platform has been visited.
+  const platformHealth = {} as Record<RetargetingPlatform, CapiPlatformHealth>;
 
   let totalEventsDelivered = 0;
 

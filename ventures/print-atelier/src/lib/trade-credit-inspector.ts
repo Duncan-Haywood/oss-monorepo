@@ -89,7 +89,7 @@ export function evaluateTradeCreditLimit(account: TradeAccountInput): CreditEval
   // 4. Volume bonus (10% of committed annual volume)
   const volumeBonusUsd = (account.annualVolumeCommitmentUsdCents / 100) * 0.1;
 
-  let calculatedLimitUsd = (baseLimitUsd * creditMultiplier * paymentMultiplier) + volumeBonusUsd;
+  const calculatedLimitUsd = (baseLimitUsd * creditMultiplier * paymentMultiplier) + volumeBonusUsd;
   let recommendedCreditLimitCents = Math.round(calculatedLimitUsd * 100);
 
   // Hard caps & floors

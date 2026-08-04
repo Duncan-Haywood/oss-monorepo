@@ -1,5 +1,5 @@
 import { ConvexSchemaDefinition } from "./order-persistence";
-import { StripeLedgerEntry } from "./stripe-ledger";
+import { StripeLedgerEntry, getStripeLedgerEntries } from "./stripe-ledger";
 
 export type StripePayoutStatus = "pending" | "settled" | "failed";
 
@@ -232,7 +232,6 @@ export function summarizePersistedStripePayoutLedger(filter?: StripePayoutQueryF
 }
 
 export function syncStripeWebhookLedgerToPersistence(): PersistedStripePayoutEvent[] {
-  const { getStripeLedgerEntries } = require("./stripe-ledger");
   const entries: StripeLedgerEntry[] = getStripeLedgerEntries();
   return entries.map((entry) => persistStripePayoutEvent(entry));
 }

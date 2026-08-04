@@ -41,7 +41,7 @@ export interface GuestbookCampaignSummary {
   exhibitionSlug: string;
 }
 
-let guestbookStore: Map<string, GuestConversionResult> = new Map();
+const guestbookStore: Map<string, GuestConversionResult> = new Map();
 
 /**
  * Scores physical gallery guestbook leads and constructs personalized SMS / email presale invites.
