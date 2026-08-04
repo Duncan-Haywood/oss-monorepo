@@ -17,6 +17,7 @@ import { newCommerceOrderId } from "./commerce/orders";
 import type { CommerceOrderRecord, InsertCommerceOrderInput } from "./commerce/orders";
 import type { ClientVoicePack, UpsertClientVoicePackInput } from "./voice/pack";
 import {
+  ConvexPrimaryReadError,
   ConvexPrimaryWriteError,
   shouldFallbackToSqliteOnConvexFailure,
   type ConvexPrimaryWriteOptions,
@@ -977,11 +978,18 @@ export async function isEmailSuppressed(email: string): Promise<boolean> {
         email: normalized,
       })) as boolean;
     } catch (e) {
-      console.warn("Failed to check suppression on Convex, falling back to SQLite database", e);
+      // No SQLite fallback here, deliberately. suppressEmail passes
+      // UNSUBSCRIBE_CONVEX_PRIMARY, so on a Convex-configured deploy an
+      // unsubscribe is never written to instance-local SQLite — the table below
+      // is always empty and could only answer "not suppressed". Falling back
+      // would turn a Convex outage into permission to email people who opted
+      // out. Fail closed and let the caller decline to send.
+      throw new ConvexPrimaryReadError("isEmailSuppressed", e);
     }
   }
 
-  // SQLite Fallback
+  // Convex is not configured, so SQLite *is* the primary store and its answer
+  // is authoritative rather than a fallback.
   const db = getSqliteDb();
   const row = db.prepare("SELECT email FROM suppression_list WHERE email = ?").get(normalized) as { email: string } | undefined;
   return !!row;
