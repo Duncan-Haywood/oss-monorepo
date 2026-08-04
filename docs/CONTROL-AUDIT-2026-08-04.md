@@ -181,7 +181,7 @@ Related: `scripts/security-scan.sh:210` walks only `ventures/` and `portfolio/`,
 so `platform/ci` can never appear in `SECURITY_ROADMAP.md`. The dashboard's
 "HIGH: 67" is a lower bound by construction.
 
-### 8. Budget and baseline files can be edited without review
+### 8. Budget and baseline files can be edited without review — FIXED
 
 `.gitea/CODEOWNERS` has no rule matching `platform/release-lag-budget.yaml`,
 `coverage-baseline.yaml`, `kill-criteria-baseline.yaml`, `sast-baseline.yaml`,
@@ -194,6 +194,12 @@ This is the class the cap ratchet exists to catch, and on 2026-08-04 it did:
 an edit raising `MAX_COLLIDING_PATHS` 6 → 9 to turn the red collision gate green
 was refused by `scripts/ci/cap_ratchet.py` and backed out. The ratchet only
 covers Python constants, though — a YAML budget edit has no equivalent.
+
+**Fixed 2026-08-04** together with A3, which is this finding from the other
+direction. Every previously unowned top-level `platform/*.yaml` now has a
+CODEOWNERS rule, and `codeowners-contract.test.mjs` derives its requirement from
+`git ls-files` instead of the five-entry hardcoded list, so the next budget file
+added fails the contract until somebody owns it.
 
 ### 9. Two priced surfaces are outside the advertised-price scan
 
@@ -246,6 +252,21 @@ Ordered by what they do to a paid order:
    (`docs/research/2026-06-12-...:5`) says `variant_id`. `gelato-orders.ts` *is*
    correct for Gelato — one adapter was checked against its vendor, the other
    was not.
+
+   **FIXED 2026-08-04.** `submitPrintfulOrder` sends the builder's return value
+   straight through `JSON.stringify` with no serializer in between, so this was
+   the wire itself. A `toPrintfulWirePayload()` boundary converter now emits
+   `external_id`, `variant_id`, `retail_price`, `state_code`, `country_code`,
+   `retail_costs`, `packing_slip` and a per-line `files: [{url}]` from the same
+   resolver Gelato uses, leaving the internal type — which operator panels and
+   stored submissions read — unchanged. A line with no resolvable print file
+   blocks with a named reason rather than inventing a URL. Note the consequence:
+   nothing in this repository writes `artworkUrl`, so **every Printful order now
+   blocks**, exactly as Gelato already does. That is the intended state, and it
+   means Printful fulfilment is gated on checkout writing an artwork URL.
+   `retail_costs`, `packing_slip` and the `files` element shape are named by no
+   repo document and are recorded in the commit as inference to confirm against
+   the vendor; only `variant_id` is covered by the research note.
 3. **Gelato is sent a web page as the print file** — `gelato-orders.ts:101`
    falls back to `https://printatelier.com/prints/<slug>`, an HTML product page,
    on a host this venture does not deploy to. Nothing ever writes the metadata
@@ -329,7 +350,7 @@ and fails closed. What is wrong sits around it:
 Also: the image workflow publishes `:${sha}` only and the manifest pins
 `:latest`, so **the deployed tag has no producer**.
 
-### ai-first-markets — cannot have a customer without a code change
+### ai-first-markets — cannot have a customer without a code change — FIXED
 
 `src/lib/auth.ts:1` — `ALLOWED_EMAIL` is a hardcoded module constant. Nothing
 reads `process.env.ALLOWED_EMAIL`, yet `wrangler.jsonc:13` sets it and
@@ -341,7 +362,22 @@ login exactly one address on earth can pass. `main` is also RED at this
 venture's own gate (`ciContract.test.ts:45` demands a push trigger the deploy
 workflow deliberately removed).
 
-### retail-pilot-intel — the flagship metric cannot report anything but 100%
+**Fixed 2026-08-04.** `getAllowedEmails()` reads the environment per call,
+accepts a list, and denies everyone when it is unset or empty. `/` is in
+`PUBLIC_PATHS`, and the login and unauthorized pages no longer print the
+allowlist to anonymous visitors. The server/client boundary is proven, not
+inspected: a test walks the real import graph from every `"use client"` module
+and fails if `auth.ts` is reachable, and a canary build confirms the value
+reaches 0 files under `.next`. On the ciContract disagreement the workflow was
+right and the contract was stale — the assertion now pins the deliberate
+dispatch-only shape rather than being deleted. Ten mutations were each run alone
+to prove the new tests fail without their fix.
+
+Still true, and off-repo: `wrangler.jsonc`'s `vars` block is the deploy's source
+of truth, so changing the production allowlist is still a repo edit — no longer
+a *code* edit, but a Worker secret or a CI-sourced value would be better.
+
+### retail-pilot-intel — the flagship metric cannot report anything but 100% — FIXED
 
 `packages/analytics/src/report.ts:37-40` computes door-to-POS conversion from a
 pipeline (`scripts/bootstrap.ts:16`) that emits entries and sales 1:1 and never
@@ -349,6 +385,27 @@ emits a bounce, so the number is 100% every day with 0 bounces. The one test
 asserts 0.0667 on hand-inserted rows, so it passes while the real pipeline
 cannot produce anything but 1. Both ingest CLIs `process.exit(0)` after printing
 to stderr, so a cron reads them as success forever.
+
+**Fixed 2026-08-04, by declining to score rather than by inventing data.** The
+schema can express a bounce but nothing in the repository can produce one —
+`packages/edge/src/cli.ts` says so itself, the roadmap lists door line-crossing
+as unbuilt Phase 1 work, and `data/` holds only a `.gitkeep`. So events now carry
+a `synthetic` provenance flag and `dailySummary` returns `measurable: false` with
+a stated reason when the day's events are stubs, when entries are zero, or when
+sales exceed entries. A genuinely observed day still reports a number, and the
+original hand-inserted 0.0667 case still asserts 0.0667. Rows written before this
+commit are backfilled as synthetic, because every one of them came from the
+stubs. Both ingest CLIs now exit non-zero, held by tests that assert the exit
+code and spawn the real CLIs rather than mocking them.
+
+The `apps/docs` price-literal count in finding 9 is confirmed at exactly 358, and
+it is lower risk than the number suggests: there is no payment path of any kind,
+the site is passcode-gated, `links.production` is null, every page carries a
+prototype disclosure, and the bulk are illustrative ROI models, competitor
+pricing and hardware COGS rather than offers. Worth recording separately: the
+venture's `VENTURE.yaml` tests a €99/mo hypothesis while its docs advertise
+€149–€249, €199 and €150–€350 in different places, and nothing checks a
+hypothesis price against the priced surface.
 
 ## Suggested order of work
 
@@ -428,7 +485,7 @@ test only matches a plain `ast.Assign` of `ast.Constant` named `MAX_*`; and
 safety *floors* like `MIN_REVIEWED_REASON_WORDS` are outside the ratchet
 entirely, since `evaluate` only fires on `current > floor`.
 
-### A3. YAML budgets have no contract at all
+### A3. YAML budgets have no contract at all — FIXED
 
 `cap_ratchet.py:289-303` watches 3 of the 11 numeric budget keys across
 `platform/*.yaml`, and the contract test that demands every constant be watched
@@ -439,6 +496,23 @@ which has no stale-direction check), `max_without_build_path` 5 → 6, and
 
 This is finding 8 above from the other direction: those files have no CODEOWNERS
 rule *and* no ratchet.
+
+**Fixed 2026-08-04.** Seven keys are now watched (27 → 34 caps), each measured at
+its historical floor before landing, so nothing was raised or lowered to make the
+gate pass. The count above is off by one: there are **12** numeric budget leaves,
+not 11 — `VENTURE.template.yaml`'s `budget.monthly_cap` is the twelfth, and it is
+exempt because the caps that bind live in each `ventures/<name>/VENTURE.yaml`,
+outside this enumeration. Exemptions are now a per-key registry carrying a
+written reason rather than prose above the tuple, and a blanket or wildcard
+exemption is refused by test. The enumeration contract itself is the fix that
+matters: it fails when any budget key is neither watched nor exempt, which is
+what let eight keys drift while the `python-constant` half of the same contract
+was enforced. Enumeration reads the union of the on-disk glob and `git ls-files`,
+because `audit_exceptions.py` was blind to six advisories for reading
+`git ls-files` alone.
+
+A2 is still open: `MAX_REVISIONS` remains unwatched, because the constants
+contract still skips its own file.
 
 ### A4. A kill criterion counts as a brake if it parses
 
@@ -511,3 +585,53 @@ extension list, not the assertion). `stopping_rule_review.py`,
 `audit_exceptions.py`'s expiry and fail-closed behaviour, the coverage
 ratchet's *measurement* machinery, and `tests/test_portfolio_router.py` pinning
 `router.py` as authoritative were all checked hard and hold.
+
+## Addendum: the release-lag baseline was being forged
+
+Found 2026-08-04, after the audit above, and it outranks everything in it.
+
+`scripts/ci/release_lag.py` measures undelivered work against a baseline it
+resolves from the local remote-tracking ref `refs/remotes/origin/main`. That ref
+is writable locally, and in this repository it has repeatedly been written by
+hand. On the afternoon of 2026-08-04 the gate reported:
+
+    Baseline:          origin/main @ c5a2d2650d90 (0 days old)
+    Unshipped commits: 2 (budget 125, slack 40)
+
+and passed. A plain `git fetch origin` moved `origin/main` **backwards 336
+commits** to `a4b8f23f`, and `git ls-remote origin main` confirms `a4b8f23f` —
+dated **2026-07-31** — is the true remote tip. The same gate then reported:
+
+    [lag-above-budget] 356 commits are not in origin/main, over the declared
+    budget of 125. The undelivered pile grew; nothing in it is live.
+
+The mechanism is visible in `git reflog show refs/remotes/origin/main`. Four
+entries have a **blank reason** — `c5a2d265`, `dd41e0a4`, `7218a388`,
+`233c558b` — and a blank reason means a direct `git update-ref`, because a fetch
+records `fetch origin: ...` and a push records `update by push`. Every one of
+them is followed by a real fetch recording `forced-update` back to `a4b8f23f`.
+
+So the control that exists to answer "did this work reach production?" was
+answering "yes" because its definition of production had been set to a local
+commit. This is not the clone artefact recorded elsewhere — `release_lag` being
+green in a scratch clone is a measurement artefact, and this is the primary
+checkout. The input was not merely narrow. It was forged.
+
+Two consequences worth stating plainly:
+
+- **Nothing fixed in this document is live.** Not the checkout price hole, not
+  the fulfilment fixes, not the mock-email marker. `marisstella.dev` serves the
+  code as of 2026-07-31.
+- `studio.marisstella.dev` and `retail.marisstella.dev` still answer HTTP 200
+  with `nginxdemos/hello` — verified again on 2026-08-04, and the response leaks
+  the pod name and cluster IP (`local-site-studio-web-service-...`,
+  `10.42.0.124`). `platform/k8s/apps/local-site-studio/deployment.yaml:19` pins
+  `:latest` while `.gitea/workflows/local-site-studio-image.yml` publishes only
+  `:${github.sha}`, so **the tag the cluster pulls has no producer** — which is
+  why the demo image is still there.
+
+The fix in progress is to make `release_lag.py` verify its baseline against
+`git ls-remote` rather than trust the local tracking ref, and to give the
+offline case a distinct non-passing outcome rather than a silent fall-through.
+Whatever else changes, **run `git ls-remote origin main` and compare before
+quoting any release-lag number.**
