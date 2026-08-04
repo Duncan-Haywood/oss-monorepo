@@ -250,6 +250,41 @@ WATCHES: Tuple[Watch, ...] = (
         locator="MAX_EXPIRY_DAYS",
         why="the furthest out the integration-debt budget may be parked before review",
     ),
+    # `image_release_path.py`, 2026-08-04, arriving on a branch that did not
+    # have this ratchet. The contract test caught all four on the merge, which
+    # is the third time it has done so — the pattern is not a lapse by any one
+    # author, it is what happens when a control and a cap are written on
+    # branches that cannot see each other.
+    #
+    # The first two are the ones that matter. They are pure debt counters
+    # measured before the control existed: six images with no producer, seven
+    # resolving to a mutable tag. Every venture that acquires a build path
+    # lowers the first, and local-site-studio already took it to five. Nothing
+    # should ever be able to argue either back up.
+    Watch(
+        path="scripts/ci/image_release_path.py",
+        kind="python-constant",
+        locator="MAX_DECLARED_WITHOUT_BUILD_PATH",
+        why="the ceiling on how many deployments may name an image nothing builds",
+    ),
+    Watch(
+        path="scripts/ci/image_release_path.py",
+        kind="python-constant",
+        locator="MAX_DECLARED_MUTABLE_REFERENCES",
+        why="the ceiling on how many releases may be pinned to a tag that can move",
+    ),
+    Watch(
+        path="scripts/ci/image_release_path.py",
+        kind="python-constant",
+        locator="MAX_DECLARED_SLACK",
+        why="the widest gap allowed between the measured images and the declared ceiling",
+    ),
+    Watch(
+        path="scripts/ci/image_release_path.py",
+        kind="python-constant",
+        locator="MAX_EXPIRY_DAYS",
+        why="the furthest out the image-release baseline may be parked before review",
+    ),
     Watch(
         path="platform/release-lag-budget.yaml",
         kind="yaml-path",
