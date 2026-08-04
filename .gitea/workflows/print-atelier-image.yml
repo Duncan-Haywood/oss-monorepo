@@ -1,0 +1,126 @@
+# Builds the container image platform/k8s/apps/print-atelier/ has always pointed
+# at and nothing could produce. That directory carries a Deployment, Service,
+# Ingress and PDB, plus an ArgoCD Application in platform/argocd-apps/, all
+# naming git.marisstella.dev/giteaadmin/print-atelier — a complete manifest set
+# with no producer looks exactly like a deployed service.
+#
+# This workflow deliberately stops at publishing an immutable tag. It does not
+# push `:latest` and it does not promote anything to the cluster — see the
+# comment on the publish step. Turning this into a release chain like
+# pairwise-ci.yml is an owner's decision, not a side effect of adding a build.
+name: Print Atelier image
+
+on:
+  pull_request:
+    paths:
+      - "ventures/print-atelier/**"
+      - ".gitea/workflows/print-atelier-image.yml"
+      - "platform/k8s/apps/print-atelier/**"
+      - "scripts/ci/verify-component.sh"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/print-atelier/**"
+      - ".gitea/workflows/print-atelier-image.yml"
+      - "platform/k8s/apps/print-atelier/**"
+      - "scripts/ci/verify-component.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: print-atelier-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify through the shared component gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          # Matches the repository .nvmrc and the version ci-cd.yml pins, so the
+          # gate here and the gate there measure the same thing.
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ventures/print-atelier/package-lock.json
+
+      # The gate sequence is not restated here on purpose. Restating it is how
+      # ai-first-markets' deploy workflow lost `npm test`; this delegates to the
+      # one shared arm so the two cannot drift.
+      - name: Run the shared verify-component gate
+        env:
+          CI_INSTALL_DEPENDENCIES: "1"
+        run: scripts/ci/verify-component.sh print-atelier
+
+  container:
+    name: Build and smoke test the deployable image
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Build the exact deployable image
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/print-atelier:${{ github.sha }}
+        working-directory: ventures/print-atelier
+        run: docker build --file Dockerfile --tag "$IMAGE" .
+
+      # The Deployment's liveness and readiness probes both GET "/", so that is
+      # what is proven here. No secrets are needed: every STRIPE_* read is inside
+      # a route handler rather than at module scope, so the server boots with no
+      # environment configured. Verified 2026-08-04 by running the standalone
+      # output directly — "/" and "/storefront" both answered 200 with an empty
+      # environment.
+      - name: Smoke test the exact deployable image
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/print-atelier:${{ github.sha }}
+        run: |
+          # Written without a trap-and-cleanup function on purpose. ShellCheck
+          # does not follow traps, so that shape reports the cleanup body as
+          # unreachable and needs an inline suppression — one more entry in
+          # platform/exception-register.yaml for something a straight-line
+          # script does not need. Teardown is on every path out of here instead.
+          docker run --detach --name print-atelier-smoke "$IMAGE"
+          status=1
+          for _ in $(seq 1 30); do
+            if docker exec print-atelier-smoke \
+              wget --quiet --spider http://127.0.0.1:3000/; then
+              status=0
+              break
+            fi
+            sleep 1
+          done
+          if [ "$status" -ne 0 ]; then
+            docker logs print-atelier-smoke
+          fi
+          docker rm --force print-atelier-smoke >/dev/null
+          exit "$status"
+
+      # Immutable tag only. platform/k8s/apps/print-atelier/deployment.yaml
+      # currently pins `:latest`, so publishing that tag would put an unreviewed
+      # build of a venture holding live Stripe Connect and payout code into the
+      # cluster the moment this merged. Promotion stays a separate, deliberate
+      # step — the same position local-site-studio's image workflow takes.
+      - name: Publish immutable main image
+        if: github.ref == 'refs/heads/main'
+        env:
+          IMAGE: git.marisstella.dev/giteaadmin/print-atelier:${{ github.sha }}
+          REGISTRY_TOKEN: ${{ secrets.PRINT_ATELIER_REGISTRY_TOKEN || secrets.PAIRWISE_REGISTRY_TOKEN }}
+        run: |
+          printf '%s' "$REGISTRY_TOKEN" |
+            docker login git.marisstella.dev \
+              --username giteaadmin \
+              --password-stdin
+          docker push "$IMAGE"

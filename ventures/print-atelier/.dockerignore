@@ -1,0 +1,20 @@
+.git
+.github
+.cursor
+.next
+node_modules
+coverage
+*.log
+
+# Secrets must never enter the build context. .env.example is documentation and
+# is excluded too — nothing in the image reads it.
+.env
+.env.*
+
+*.pem
+*.key
+*.tfstate
+*.tfstate.*
+*.tfvars
+Dockerfile*
+.dockerignore
