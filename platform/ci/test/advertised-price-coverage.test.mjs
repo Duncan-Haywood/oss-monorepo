@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -50,7 +51,40 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
  * decision per venture, not something this control can adjudicate.
  */
 
-/** Directories that hold build output, dependencies, or generated artifacts. */
+/**
+ * Every path this control reads comes from `git ls-files`, never from a
+ * directory walk.
+ *
+ * The walk it replaces counted whatever happened to be on the disk it ran on.
+ * `NOT_SOURCE` below was the denylist holding it back, and a denylist is only
+ * as good as its last entry: `.open-next` was missing, so an
+ * `ventures/ai-first-markets` measured 96 literals on a laptop that had run a
+ * build and 94 in a fresh clone. A register number that changes with the
+ * developer's `.gitignore`d output is not measuring the repository, and the
+ * gate then fails for a reason that points at the wrong thing.
+ *
+ * Tracked-only collection fixes that by construction and needs no maintenance:
+ * build output is untracked, so it cannot be counted, including the next build
+ * directory nobody has thought of yet.
+ */
+function trackedFiles() {
+  const out = execFileSync('git', ['-C', REPO_ROOT, 'ls-files', '-z'], {
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', XDG_CONFIG_HOME: '/dev/null' },
+  });
+  return out.split('\0').filter(Boolean);
+}
+
+const TRACKED = trackedFiles();
+
+/**
+ * Directories that hold build output, dependencies, or generated artifacts.
+ *
+ * Retained because a few of these are *tracked* in places (a committed
+ * `generated/` client, a vendored `dist/`), so being untracked is not the only
+ * reason to skip a path — but it is no longer the only line of defence.
+ */
 const NOT_SOURCE = new Set([
   'node_modules',
   '.next',
@@ -154,22 +188,20 @@ const REGISTRY = {
   },
 };
 
-function walkSource(dir, acc = []) {
-  let entries;
-  try {
-    entries = fs.readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return acc;
-  }
-  for (const entry of entries) {
-    if (NOT_SOURCE.has(entry.name)) continue;
-    const entryPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) walkSource(entryPath, acc);
-    else if (/\.(tsx?|jsx?|mjs|html)$/.test(entry.name) && !/\.(test|spec)\./.test(entry.name)) {
-      acc.push(entryPath);
-    }
-  }
-  return acc;
+/** True when any segment of a repo-relative path is a build/dependency dir. */
+function underNotSource(relPath) {
+  return relPath.split('/').some((segment) => NOT_SOURCE.has(segment));
+}
+
+/** Tracked source files under `dir`, absolute, excluding tests and build dirs. */
+function walkSource(dir) {
+  const prefix = `${path.relative(REPO_ROOT, dir)}/`.replace(/^\.\//, '');
+  return TRACKED.filter((relPath) => {
+    if (prefix !== '/' && !relPath.startsWith(prefix)) return false;
+    if (underNotSource(relPath)) return false;
+    const name = path.basename(relPath);
+    return /\.(tsx?|jsx?|mjs|html)$/.test(name) && !/\.(test|spec)\./.test(name);
+  }).map((relPath) => path.join(REPO_ROOT, relPath));
 }
 
 /** Comments are not copy — a file may explain a price without advertising one. */
@@ -177,26 +209,26 @@ function stripComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|\s)\/\/[^\n]*/g, '$1');
 }
 
-/** Every directory under the package trees holding a package.json. */
+/**
+ * Every directory under the package trees holding a *tracked* package.json.
+ *
+ * An untracked package.json is a scratch or vendored package — it is outside
+ * every other control in this repository, and counting its prices here would
+ * make the register depend on which working tree the gate ran in.
+ */
 function packageRoots() {
-  const roots = [];
-  const scan = (dir, depth = 0) => {
-    if (depth > 4) return;
-    let entries;
-    try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch {
-      return;
-    }
-    if (entries.some((entry) => entry.isFile() && entry.name === 'package.json')) roots.push(dir);
-    for (const entry of entries) {
-      if (entry.isDirectory() && !NOT_SOURCE.has(entry.name)) {
-        scan(path.join(dir, entry.name), depth + 1);
-      }
-    }
-  };
-  for (const tree of PACKAGE_TREES) scan(path.join(REPO_ROOT, tree));
-  return roots;
+  const roots = new Set();
+  for (const relPath of TRACKED) {
+    if (path.basename(relPath) !== 'package.json') continue;
+    if (underNotSource(relPath)) continue;
+    const dir = path.dirname(relPath);
+    const segments = dir.split('/');
+    if (!PACKAGE_TREES.includes(segments[0])) continue;
+    // Same depth bound the directory scan applied, measured from the tree root.
+    if (segments.length - 1 > 4) continue;
+    roots.add(path.join(REPO_ROOT, dir));
+  }
+  return [...roots];
 }
 
 /**
