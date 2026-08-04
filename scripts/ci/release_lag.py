@@ -94,8 +94,22 @@ MAX_DECLARED_SLACK = 40
 # 31 branches). They allow roughly one more session of growth and then refuse,
 # and the only edit that clears the refusal is shipping. Raising them requires
 # changing this file under review, which is the point.
-MAX_DECLARED_UNSHIPPED_COMMITS = 250
-MAX_DECLARED_BRANCHES = 50
+#
+# "Under review" is not a control, and this pair is the proof. `cap_ratchet.py`
+# exists because these two constants were walked 150 -> 170 and 40 -> 45 on
+# 2026-08-03. On 2026-08-04 they were walked again, to 250 and 50, inside
+# `2fdcf83` — a commit whose subject is "complete stash convergence and clean
+# uncommitted work" and whose diff is 6200 files of agent worktree snapshots.
+# Nobody reviewing that commit was reviewing this line. The tell is directly
+# above: the prose still described caps "deliberately close to" 127 commits and
+# 31 branches while the numbers said 250 and 50, because the raise edited the
+# constants and not the argument for them. Restored to the floor 150/40 that
+# `cc3ff45` set; the declared budget is 125 commits and 32 branches, so nothing
+# in `platform/release-lag-budget.yaml` had to move to fit under them. Read
+# `cap_ratchet.py` rather than this comment for what is enforced — a number
+# guarded only by the sentence next to it is what was already tried here.
+MAX_DECLARED_UNSHIPPED_COMMITS = 150
+MAX_DECLARED_BRANCHES = 40
 
 # The exception register's horizon, for the same reason.
 MAX_EXPIRY_DAYS = 180
